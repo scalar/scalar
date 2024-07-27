@@ -9,11 +9,18 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
-import type { SecuritySchemeOption } from '@/views/Request/libs'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type {
+  SecuritySchemeGroup,
+  SecuritySchemeOption,
+} from '@/views/Request/libs'
+import {
+  ScalarButton,
+  ScalarComboboxMultiselect,
+  ScalarIcon,
+} from '@scalar/components'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
-import { capitalize, computed } from 'vue'
+import { capitalize, computed, ref } from 'vue'
 
 defineProps<{
   title: string
@@ -29,6 +36,8 @@ const {
   securitySchemeMutators,
   securitySchemes,
 } = useWorkspace()
+
+const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
 
 /** Generate pretty name for the dropdown label */
 const getLabel = (scheme: SecurityScheme) => {
@@ -48,98 +57,106 @@ const getLabel = (scheme: SecurityScheme) => {
 }
 
 /** Generate the options for the dropdown */
-const schemeOptions = computed<SecuritySchemeOption[]>(() => {
-  // For the modal we only provide available auth
-  if (isReadOnly.value) {
-    const securitySchemesDict = activeCollection.value?.securitySchemeDict
+const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup>(
+  () => {
+    // For the modal we only provide available auth
+    if (isReadOnly.value) {
+      const securitySchemesDict = activeCollection.value?.securitySchemeDict
 
-    return activeSecurityRequirements.value.flatMap((req) => {
-      const keys = Object.keys(req)
+      return activeSecurityRequirements.value.flatMap((req) => {
+        const keys = Object.keys(req)
 
-      // Optional
-      if (keys.length === 0)
-        return { id: 'none', label: 'None', labelWithoutId: 'None' }
+        // Optional
+        if (keys.length === 0)
+          return { id: 'none', label: 'None', labelWithoutId: 'None' }
 
-      // Active requirements
-      return keys.flatMap((key) => {
-        if (!securitySchemesDict) return []
+        // Active requirements
+        return keys.flatMap((key) => {
+          if (!securitySchemesDict) return []
 
-        const id = securitySchemesDict[key]
-        const scheme = securitySchemes[id]
-        const label = getLabel(scheme)
+          const id = securitySchemesDict[key]
+          const scheme = securitySchemes[id]
+          const label = getLabel(scheme)
 
-        return {
-          id,
-          label: `${label} (${key})`,
-          labelWithoutId: label,
-        }
+          return {
+            id,
+            label: `${label} (${key})`,
+            labelWithoutId: label,
+          }
+        })
       })
-    })
-  }
-  // For the client app we provide all options
-  else {
-    // add collection level as well
-    return [
-      {
-        id: 'apiKeyCookie',
-        label: 'API Key in Cookies',
-      },
-      {
-        id: 'apiKeyHeader',
-        label: 'API Key in Headers',
-      },
-      {
-        id: 'apiKeyQuery',
-        label: 'API Key in Query Params',
-      },
-      {
-        id: 'httpBasic',
-        label: 'HTTP Basic',
-      },
-      {
-        id: 'httpBearer',
-        label: 'HTTP Bearer',
-      },
-      {
-        id: 'oauth2Implicit',
-        label: 'Oauth2 Implicit Flow',
-      },
-      {
-        id: 'oauth2Password',
-        label: 'Oauth2 Password Flow',
-      },
-      {
-        id: 'oauth2ClientCredentials',
-        label: 'Oauth2 Client Credentials',
-      },
-      {
-        id: 'oauth2AuthorizationFlow',
-        label: 'Oauth2 Authorization Flow',
-      },
-      {
-        id: 'oauth2Implicit',
-        label: 'Oauth2 Implicit Flow',
-      },
-    ]
-  }
-})
+    }
+    // For the client app we provide all options
+    else {
+      // add collection level as well
+      return {
+        label: 'Add new auth',
+        options: [
+          {
+            id: 'apiKeyCookie',
+            label: 'API Key in Cookies',
+          },
+          {
+            id: 'apiKeyHeader',
+            label: 'API Key in Headers',
+          },
+          {
+            id: 'apiKeyQuery',
+            label: 'API Key in Query Params',
+          },
+          {
+            id: 'httpBasic',
+            label: 'HTTP Basic',
+          },
+          {
+            id: 'httpBearer',
+            label: 'HTTP Bearer',
+          },
+          {
+            id: 'oauth2Implicit',
+            label: 'Oauth2 Implicit Flow',
+          },
+          {
+            id: 'oauth2Password',
+            label: 'Oauth2 Password Flow',
+          },
+          {
+            id: 'oauth2ClientCredentials',
+            label: 'Oauth2 Client Credentials',
+          },
+          {
+            id: 'oauth2AuthorizationFlow',
+            label: 'Oauth2 Authorization Flow',
+          },
+        ],
+      }
+    }
+  },
+)
 
-const schemeModel = computed({
+const selectedAuth = computed({
   // Grab the selected OR first security scheme
   get: () =>
-    schemeOptions.value.filter(({ id }) =>
+    (Array.isArray(schemeOptions)
+      ? schemeOptions
+      : Object.values(schemeOptions).flatMap((val) => val.options)
+    ).filter(({ id }) =>
       activeRequest.value?.selectedSecuritySchemeUids?.find(
         (uid) => uid === id,
       ),
     ),
 
   // Update the selected auth per this request
-  set: (options) =>
-    requestMutators.edit(
-      activeRequest.value.uid,
-      'selectedSecuritySchemeUids',
-      options.map((opt) => opt.id),
-    ),
+  set: (options) => {
+    console.log(options)
+    // If we hit one of the add new auth options close the popup
+    comboboxRef.value?.comboboxPopoverRef?.popoverButtonRef?.el?.click()
+  },
+  // requestMutators.edit(
+  //   activeRequest.value.uid,
+  //   'selectedSecuritySchemeUids',
+  //   options.map((opt) => opt.id),
+  // ),
 })
 
 type UpdateSchemeParams = Parameters<UpdateScheme>
@@ -153,11 +170,11 @@ const updateScheme = (
 
 /** Combine values from all selected options */
 const selectedLabel = computed(() => {
-  if (schemeModel.value.length > 1)
-    return schemeModel.value
+  if (selectedAuth.value.length > 1)
+    return selectedAuth.value
       .map(({ labelWithoutId }) => labelWithoutId)
       .join(', ')
-  else if (schemeModel.value.length) return schemeModel.value[0].label
+  else if (selectedAuth.value.length) return selectedAuth.value[0].label
   else return 'None'
 })
 </script>
@@ -177,8 +194,9 @@ const selectedLabel = computed(() => {
         <DataTableRow>
           <DataTableHeader
             class="relative col-span-full cursor-pointer py-[0px] px-[0px] flex items-center">
-            <ScalarListbox
-              v-model="schemeModel"
+            <ScalarComboboxMultiselect
+              ref="comboboxRef"
+              v-model="selectedAuth"
               class="text-xs w-full left-2"
               fullWidth
               multiple
@@ -199,7 +217,7 @@ const selectedLabel = computed(() => {
                     size="xs" />
                 </div>
               </ScalarButton>
-            </ScalarListbox>
+            </ScalarComboboxMultiselect>
           </DataTableHeader>
         </DataTableRow>
 
@@ -210,7 +228,7 @@ const selectedLabel = computed(() => {
           <!-- Header -->
           <DataTableRow v-if="activeSecuritySchemes.length > 1">
             <DataTableCell class="text-c-1 pl-2 text-sm flex items-center">
-              {{ schemeModel[index].label }}:
+              {{ selectedAuth[index].label }}:
             </DataTableCell>
           </DataTableRow>
 

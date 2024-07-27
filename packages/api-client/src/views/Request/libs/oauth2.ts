@@ -6,6 +6,11 @@ export type SecuritySchemeOption = {
   labelWithoutId: string
 }
 
+export type SecuritySchemeGroup = {
+  label: string
+  options: SecuritySchemeOption[]
+}
+
 /**
  * Authorize oauth2 flow
  *

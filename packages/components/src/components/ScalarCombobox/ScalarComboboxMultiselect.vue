@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 import type { FloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
@@ -15,9 +17,15 @@ defineProps<
 defineEmits<{
   (e: 'update:modelValue', v: Option[]): void
 }>()
+
+/** Propogate up the popover ref */
+const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)
+
+defineExpose({ comboboxPopoverRef })
 </script>
 <template>
   <ComboboxPopover
+    ref="comboboxPopoverRef"
     :isOpen="isOpen"
     :placement="placement ?? 'bottom-start'"
     :resize="resize"
