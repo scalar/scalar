@@ -118,7 +118,10 @@ function moveActive(dir: 1 | -1) {
       v-for="(group, i) in groupsList"
       :key="i">
       <div
-        v-if="group.label"
+        v-if="
+          group.label &&
+          group.options.some((o) => filtered.some((f) => f.id === o.id))
+        "
         class="min-w-0 truncate px-2 py-1.5 text-left text-c-2">
         {{ group.label }}
       </div>
