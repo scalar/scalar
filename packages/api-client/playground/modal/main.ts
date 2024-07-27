@@ -3,7 +3,6 @@ import { createApiClientModal } from '@/layouts/Modal'
 const { open } = await createApiClientModal(document.getElementById('app'), {
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    // url: 'https://raw.githubusercontent.com/sonallux/spotify-web-api/main/official-spotify-open-api.yml',
   },
   proxyUrl: 'https://proxy.scalar.com',
 })

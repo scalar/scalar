@@ -280,14 +280,8 @@ const selectedLabel = computed(() => {
 
           <!-- OAuth 2 -->
           <OAuth2
-            v-else-if="
-              activeSecurityScheme.type === 'oauth2' &&
-              schemeModel[index] &&
-              'uid' in schemeModel[index] &&
-              activeSecurityScheme.flow
-            "
-            :activeScheme="activeSecurityScheme as SelectedSchemeOauth2"
-            :schemeModel="schemeModel[index] as SecuritySchemeOptionOauth" />
+            v-else-if="activeSecurityScheme.type === 'oauth2'"
+            :scheme="activeSecurityScheme" />
         </template>
       </DataTable>
     </form>

@@ -5,16 +5,13 @@ import {
   DataTableRow,
 } from '@/components/DataTable'
 import type { UpdateScheme } from '@/store/workspace'
-import type { SecuritySchemeOptionOauth } from '@/views/Request/libs'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
-import type { ValueOf } from 'type-fest'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  activeFlow: ValueOf<SecuritySchemeOauth2['flows']>
-  schemeModel: SecuritySchemeOptionOauth
+  activeFlow: SecuritySchemeOauth2['flow']
   updateScheme: UpdateScheme
 }>()
 
@@ -32,14 +29,11 @@ const selectedScopes = computed(() => props.activeFlow?.selectedScopes || [])
 function setScope(id: string, checked: boolean) {
   // Checked - Add scope to list
   if (checked)
-    props.updateScheme(`flows.${props.schemeModel.flowKey}.selectedScopes`, [
-      ...selectedScopes.value,
-      id,
-    ])
+    props.updateScheme('flow.selectedScopes', [...selectedScopes.value, id])
   // Unchecked - Remove scope from list
   else
     props.updateScheme(
-      `flows.${props.schemeModel.flowKey}.selectedScopes`,
+      'flow.selectedScopes',
       selectedScopes.value.filter((scope) => scope !== id),
     )
 }
@@ -91,6 +85,5 @@ function setScope(id: string, checked: boolean) {
         </DisclosurePanel>
       </Disclosure>
     </div>
-    <!-- Authorize button only for implicit here -->
   </DataTableCell>
 </template>

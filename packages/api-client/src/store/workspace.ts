@@ -811,11 +811,30 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   ) => {
     const spec = toRaw(_spec)
     const workspaceEntities = await importSpecToWorkspace(spec)
+    const requestsWithAuth: Request[] = []
+
+    const securitySchemeEntries = Object.entries(
+      ((workspaceEntities.components?.securitySchemes ||
+        workspaceEntities.securityDefinitions) ??
+        {}) as Record<string, SecurityScheme>,
+    )
 
     // Add all the new requests into the request collection, the already have parent folders
-    workspaceEntities.requests.forEach((request) =>
-      addRequest(request, undefined, workspaceEntities.servers[0]),
-    )
+    workspaceEntities.requests.forEach((request) => {
+      const _request = addRequest(
+        request,
+        undefined,
+        workspaceEntities.servers[0],
+      )
+
+      // Set the default selected auth on these once the security scheme dict has been added
+      if (
+        _request.security?.length &&
+        !_request.selectedSecuritySchemeUids?.length &&
+        securitySchemeEntries.length
+      )
+        requestsWithAuth.push(_request)
+    })
 
     // Create a new collection for the spec file
     const collection = addCollection(workspaceEntities.collection, workspaceUid)
@@ -827,17 +846,23 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     workspaceEntities.servers.forEach((server) => addServer(server))
 
     // Security Schemes
-    Object.entries(
-      ((workspaceEntities.components?.securitySchemes ||
-        workspaceEntities.securityDefinitions) ??
-        {}) as Record<string, SecurityScheme>,
-    ).forEach(([key, securityScheme]) =>
+    securitySchemeEntries.forEach(([key, securityScheme]) =>
       addSecurityScheme({ ...securityScheme, nameKey: key }, collection.uid),
     )
 
     // By now we have the collection security dictionary so we can pre-select auth per request
-    // todo
-    console.log(requests)
+    requestsWithAuth.forEach((request) => {
+      const filteredRequirements =
+        request.security?.filter((req) => JSON.stringify(req) !== '{}') ?? []
+
+      // Grab the first security requirement
+      if (filteredRequirements?.length) {
+        const firstKey = Object.keys(filteredRequirements[0])?.[0]
+        const uid = collection.securitySchemeDict[firstKey]
+        requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [uid])
+      }
+      // TODO we can go a bit further here and check if the collection auth is required
+    })
   }
 
   // Function to fetch and import a spec from a URL
