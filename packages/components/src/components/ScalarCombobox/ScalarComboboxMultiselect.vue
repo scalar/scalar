@@ -2,11 +2,11 @@
 import type { FloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
-import type { Option } from './types'
+import type { Option, OptionGroup } from './types'
 
 defineProps<
   {
-    options: Option[]
+    options: Option[] | OptionGroup[]
     modelValue?: Option[]
     placeholder?: string
   } & Omit<FloatingOptions, 'middleware'>
