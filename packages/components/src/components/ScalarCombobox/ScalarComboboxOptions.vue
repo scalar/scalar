@@ -23,21 +23,21 @@ defineOptions({ inheritAttrs: false })
 const id = nanoid()
 
 /** A flat list of all options */
-const optionsList = computed<Option[]>(() =>
+const options = computed<Option[]>(() =>
   isGroups(props.options)
     ? props.options.flatMap((group) => group.options)
     : props.options,
 )
 
 /** An list of all groups */
-const groupsList = computed<OptionGroup[]>(() =>
+const groups = computed<OptionGroup[]>(() =>
   isGroups(props.options)
     ? props.options
     : [{ label: '', options: props.options }],
 )
 
 const query = ref<string>('')
-const active = ref<Option>(props.modelValue?.[0] ?? optionsList.value[0])
+const active = ref<Option>(props.modelValue?.[0] ?? options.value[0])
 
 // Clear the query on open and close
 watch(
@@ -53,8 +53,8 @@ watch(
 
 const filtered = computed<Option[]>(() =>
   query.value === ''
-    ? optionsList.value
-    : optionsList.value.filter((option) => {
+    ? options.value
+    : options.value.filter((option) => {
         return option.label.toLowerCase().includes(query.value.toLowerCase())
       }),
 )
@@ -115,11 +115,12 @@ function moveActive(dir: 1 | -1) {
     :id="id"
     class="border-t p-0.75">
     <template
-      v-for="(group, i) in groupsList"
+      v-for="(group, i) in groups"
       :key="i">
       <div
         v-if="
           group.label &&
+          // Only show the group label if there are some results
           group.options.some((o) => filtered.some((f) => f.id === o.id))
         "
         class="min-w-0 truncate px-2 py-1.5 text-left text-c-2">
