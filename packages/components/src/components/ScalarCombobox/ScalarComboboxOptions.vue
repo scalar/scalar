@@ -135,6 +135,7 @@ function moveActive(dir: 1 | -1) {
           :selected="selected.some((o) => o.id === option.id)"
           :style="multiselect ? 'checkbox' : 'radio'"
           @click="toggleSelected(option)"
+          @mousedown.prevent
           @mouseenter="active = option">
           {{ option.label }}
         </ComboboxOption>
