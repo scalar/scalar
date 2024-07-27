@@ -1,3 +1,4 @@
+import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type {
   SecurityScheme,
   SelectedSchemeOauth2,
@@ -8,7 +9,11 @@ import type {
   RequestExampleParameter,
   ResponseInstance,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import {
+  isValidUrl,
+  redirectToProxy,
+  shouldUseProxy,
+} from '@scalar/oas-utils/helpers'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 
@@ -38,6 +43,7 @@ export const sendRequest = async (
     flow?: SelectedSchemeOauth2['flow']
   },
   proxyUrl?: string,
+  workspaceCookies?: Record<string, Cookie>,
 ): Promise<{
   sentTime?: number
   request?: RequestExample
@@ -110,6 +116,22 @@ export const sendRequest = async (
     ...paramsReducer(
       (example.parameters.cookies ?? []).filter(({ enabled }) => enabled),
     ),
+  }
+
+  if (workspaceCookies) {
+    const origin = new URL(rawUrl).host
+    Object.keys(workspaceCookies).forEach((key) => {
+      const c = workspaceCookies[key]
+      if (!c.domain) return
+
+      const cookieOrigin = isValidUrl(c.domain)
+        ? new URL(c.domain).origin
+        : c.domain
+
+      if (cookieOrigin === origin) {
+        cookies[c.name] = c.domain
+      }
+    })
   }
 
   // Add auth
