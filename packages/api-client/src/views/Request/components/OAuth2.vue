@@ -12,8 +12,6 @@ const props = defineProps<{
   scheme: SecuritySchemeOauth2
 }>()
 
-console.log(props.scheme)
-
 const loadingState = useLoadingState()
 const { securitySchemeMutators } = useWorkspace()
 
