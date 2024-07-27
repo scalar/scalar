@@ -819,7 +819,20 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   ) => {
     const spec = toRaw(_spec)
     const workspaceEntities = await importSpecToWorkspace(spec)
-    const requestsWithAuth: Request[] = []
+
+    // Add all the new requests into the request collection, the already have parent folders
+    workspaceEntities.requests.forEach((request) =>
+      addRequest(request, undefined, workspaceEntities.servers[0]),
+    )
+
+    // Create a new collection for the spec file
+    const collection = addCollection(workspaceEntities.collection, workspaceUid)
+
+    // Folders
+    workspaceEntities.folders.forEach((folder) => addFolder(folder))
+
+    // Servers
+    workspaceEntities.servers.forEach((server) => addServer(server))
 
     // OAS Security Scheme Objects from the parser
     const securitySchemeEntries = Object.entries(
@@ -833,31 +846,17 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       >,
     )
 
-    // Add all the new requests into the request collection, the already have parent folders
-    workspaceEntities.requests.forEach((request) => {
-      const _request = addRequest(
-        request,
-        undefined,
-        workspaceEntities.servers[0],
-      )
+    /** Set the request's security based on a security requirement key */
+    const setFirstSecurityRequirement = (
+      securityRequirements: Record<string, string[]>[],
+      request: Request,
+    ) => {
+      const firstKey = Object.keys(securityRequirements[0])?.[0]
+      if (!firstKey) return
 
-      // Set the default selected auth on these once the security scheme dict has been added
-      if (
-        _request.security?.length &&
-        !_request.selectedSecuritySchemeUids?.length &&
-        securitySchemeEntries.length
-      )
-        requestsWithAuth.push(_request)
-    })
-
-    // Create a new collection for the spec file
-    const collection = addCollection(workspaceEntities.collection, workspaceUid)
-
-    // Folders
-    workspaceEntities.folders.forEach((folder) => addFolder(folder))
-
-    // Servers
-    workspaceEntities.servers.forEach((server) => addServer(server))
+      const uid = collection.securitySchemeDict[firstKey]
+      requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [uid])
+    }
 
     // Security Schemes, we need to set some failsafes from the parsed spec
     securitySchemeEntries.forEach(([key, securityScheme]) => {
@@ -918,18 +917,21 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     })
 
     // By now we have the collection security dictionary so we can pre-select auth per request
-    requestsWithAuth.forEach((request) => {
-      const filteredRequirements =
-        request.security?.filter((req) => JSON.stringify(req) !== '{}') ?? []
+    if (securitySchemeEntries.length)
+      Object.values(requests).forEach((request) => {
+        const filteredRequirements =
+          request.security?.filter((req) => JSON.stringify(req) !== '{}') ?? []
 
-      // Grab the first security requirement
-      if (filteredRequirements?.length) {
-        const firstKey = Object.keys(filteredRequirements[0])?.[0]
-        const uid = collection.securitySchemeDict[firstKey]
-        requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [uid])
-      }
-      // TODO we can go a bit further here and check if the collection auth is required
-    })
+        // Grab the first security requirement on the request
+        if (filteredRequirements?.length)
+          setFirstSecurityRequirement(filteredRequirements, request)
+        // Check if auth is required at the collection level and we want to inherit it (undefined)
+        else if (
+          typeof request.security === 'undefined' &&
+          collection.spec.security?.length
+        )
+          setFirstSecurityRequirement(collection.spec.security, request)
+      })
   }
 
   // Function to fetch and import a spec from a URL

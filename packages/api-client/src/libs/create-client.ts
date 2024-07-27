@@ -237,6 +237,7 @@ export const createApiClient = ({
       })
 
       // Select the correct scheme
+      // TODO for updating the selected auth from references -> client
       // if (auth.preferredSecurityScheme) {
       //   const payload = {
       //     uid: auth.preferredSecurityScheme,
