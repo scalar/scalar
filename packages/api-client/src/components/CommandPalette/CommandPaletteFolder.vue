@@ -7,12 +7,13 @@ const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { collections, folderMutators } = useWorkspace()
+const { activeWorkspaceCollections, folderMutators, activeCollection } =
+  useWorkspace()
 const folderName = ref('')
-const selectedCollectionId = ref('')
+const selectedCollectionId = ref(activeCollection.value?.uid ?? '')
 
 const availableCollections = computed(() =>
-  Object.values(collections).map((collection) => ({
+  activeWorkspaceCollections.value.map((collection) => ({
     id: collection.uid,
     label: collection.spec?.info?.title ?? '',
   })),
