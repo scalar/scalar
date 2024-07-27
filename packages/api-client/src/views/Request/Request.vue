@@ -268,15 +268,12 @@ const getBackgroundColor = () => {
         <SidebarToggle
           v-model="showSideBar"
           class="gitbook-hidden" />
-        <div class="text-c-2 text-sm font-medium gitbook-show pl-2">
-          Powered by
-          <a
-            class="hover:text-c-1"
-            href="https://scalar.com/"
-            target="_blank"
-            >Scalar.com</a
-          >
-        </div>
+        <a
+          class="text-c-2 text-sm font-medium gitbook-show ml-.5 hover:text-c-1 border p-1 rounded hover:bg-b-3"
+          href="https://scalar.com/"
+          target="_blank">
+          Powered by Scalar.com
+        </a>
       </div>
       <AddressBar />
       <div

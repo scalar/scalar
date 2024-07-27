@@ -32,7 +32,7 @@ const handleDelete = (id: string) => {
 <template>
   <li>
     <router-link
-      class="text-c-2 hover:bg-b-2 group relative block flex items-center gap-1 rounded py-1 pr-2 font-medium"
+      class="text-c-2 hover:bg-b-2 group relative block flex items-center gap-1 rounded py-1 pr-2 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
       :to="`${variable.uid}`"

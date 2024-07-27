@@ -16,7 +16,7 @@ defineProps<{
     <template #title>
       <span>{{ title }}</span>
     </template>
-    <div class="custom-scroll flex flex-1 flex-col gap-1.5 px-5 py-2">
+    <div class="custom-scroll flex flex-1 flex-col gap-1.5 px-5 py-5">
       <DataTable
         v-if="Object.keys(data).length > 0"
         :columns="['']">

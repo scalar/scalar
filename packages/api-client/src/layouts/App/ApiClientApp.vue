@@ -103,7 +103,7 @@ const fontsStyleTag = computed(
 #scalar-client:before {
   content: '';
   background: var(--scalar-background-1);
-  opacity: 0.97;
+  opacity: 0.9825;
   position: absolute;
   top: 0;
   left: 0;
