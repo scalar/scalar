@@ -17,29 +17,52 @@ const {
   activeWorkspace,
   activeWorkspaceCollections,
   requestMutators,
+  activeRequest,
   folders: _folders,
 } = useWorkspace()
 
 const requestName = ref('')
 const requestMethod = ref('GET')
-const selectedFolderId = ref('')
+const selectedCollectionId = ref(activeCollection.value?.uid ?? '')
+
+const collections = computed(() =>
+  activeWorkspaceCollections.value.map((collection) => ({
+    id: collection.uid,
+    label: collection.spec.info?.title ?? 'Unititled Collection',
+  })),
+)
+
+const selectedCollection = computed({
+  get: () =>
+    collections.value.find(({ id }) => id === selectedCollectionId.value),
+  set: (opt) => {
+    if (opt?.id) selectedCollectionId.value = opt.id
+  },
+})
 
 /** All folders in active workspace */
 const folders = computed(() =>
   activeWorkspaceCollections.value.flatMap((collection) =>
-    collection.childUids.flatMap((uid) => {
-      // Check if child of collection is folder as it could be a request
-      const folder = _folders[uid]
-      return folder
-        ? [
-            {
-              id: folder.uid,
-              label: folder.name,
-            },
-          ]
-        : []
-    }),
+    collection.uid === selectedCollectionId.value
+      ? collection.childUids.flatMap((uid) => {
+          // Check if child of collection is folder as it could be a request
+          const folder = _folders[uid]
+          return folder
+            ? [
+                {
+                  id: folder.uid,
+                  label: folder.name,
+                },
+              ]
+            : []
+        })
+      : [],
   ),
+)
+const selectedFolderId = ref(
+  Object.values(_folders).find((folder) =>
+    folder.childUids.includes(activeRequest.value?.uid),
+  )?.uid ?? '',
 )
 
 const selectedFolder = computed({
@@ -54,8 +77,8 @@ function handleChangeMethod(method: string) {
 }
 
 const handleSubmit = () => {
-  if (!activeCollection.value) return
-  const parentUid = selectedFolder.value?.id ?? activeCollection.value?.uid
+  if (!selectedCollectionId.value && !selectedFolder.value?.id) return
+  const parentUid = selectedFolder.value?.id ?? selectedCollection.value?.id
 
   const newRequest = requestMutators.add(
     {
@@ -103,6 +126,24 @@ onMounted(() => {
           :method="requestMethod"
           @change="handleChangeMethod" />
         <ScalarListbox
+          v-model="selectedCollection"
+          :options="collections">
+          <ScalarButton
+            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            variant="outlined">
+            <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
+              selectedCollection
+                ? selectedCollection.label
+                : 'Select Collection'
+            }}</span>
+            <ScalarIcon
+              class="text-c-3"
+              icon="ChevronDown"
+              size="xs" />
+          </ScalarButton>
+        </ScalarListbox>
+        <ScalarListbox
+          v-if="folders.length"
           v-model="selectedFolder"
           :options="folders">
           <ScalarButton
