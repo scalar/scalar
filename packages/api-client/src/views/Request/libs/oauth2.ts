@@ -1,22 +1,10 @@
-import type {
-  SecuritySchemeOauth2,
-  SelectedSchemeOauth2,
-} from '@scalar/oas-utils/entities/workspace/security'
+import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 
-export type SecuritySchemeOptionBase = {
+export type SecuritySchemeOption = {
   id: string
   label: string
   labelWithoutId: string
 }
-export type SecuritySchemeOptionOauth = SecuritySchemeOptionBase & {
-  flowKey: keyof SecuritySchemeOauth2['flows']
-  uid: string
-}
-
-/** Type for the dropdown options */
-export type SecuritySchemeOption =
-  | SecuritySchemeOptionBase
-  | SecuritySchemeOptionOauth
 
 /**
  * Authorize oauth2 flow

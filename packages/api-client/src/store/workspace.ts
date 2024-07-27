@@ -675,18 +675,13 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   )
 
   /**
-   * Returns both the active security schemes as well as the corresponding active flows in the case of oauth
+   * Returns the active requests' currently selected security schemes
    */
   const activeSecuritySchemes = computed(
     () =>
-      activeCollection.value?.selectedSecuritySchemes.map((opt) => {
-        const scheme = securitySchemes[opt.uid]
-        const flowObj =
-          opt.flowKey && 'flows' in scheme && scheme.flows
-            ? { flow: scheme.flows[opt.flowKey] }
-            : {}
-        return { scheme, ...flowObj }
-      }) ?? [],
+      activeRequest.value?.selectedSecuritySchemeUids.map(
+        (uid) => securitySchemes[uid],
+      ) ?? [],
   )
 
   /**
@@ -703,6 +698,68 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       [],
   )
 
+  /** Adds a security scheme and appends it to either a colleciton or a request */
+  const addSecurityScheme = (
+    payload: SecuritySchemePayload,
+    collectionUid: string,
+    request?: Request,
+    /** Add the new security scheme to the selected schemes for the request */
+    select = false,
+  ) => {
+    const scheme = createSecurityScheme(payload)
+    securitySchemeMutators.add(scheme)
+
+    // Add to collection dictionary
+    if (collectionUid && payload.nameKey) {
+      collectionMutators.edit(
+        collectionUid,
+        `securitySchemeDict.${payload.nameKey}`,
+        scheme.uid,
+      )
+    }
+
+    // Add to request
+    if (request) {
+      requestMutators.edit(request.uid, 'securitySchemeUids', [
+        ...request.securitySchemeUids,
+        scheme.uid,
+      ])
+      // Select it as well
+      if (select)
+        requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [
+          ...request.selectedSecuritySchemeUids,
+          scheme.uid,
+        ])
+    }
+  }
+
+  /** Delete a security scheme and remove the key from its corresponding parent */
+  const deleteSecurityScheme = (
+    scheme: SecurityScheme,
+    // collection: Collection,
+    request: Request,
+  ) => {
+    // Remove from collection
+    // TODO if we need it
+    // if (collection) {
+    // collectionMutators.edit(collection.uid, 'spec.security', [])
+    // remove from spec.security
+    // remove from securitySchemeDict
+    // }
+
+    // Remove from request
+    if (request) {
+      requestMutators.edit(
+        request.uid,
+        'securitySchemeUids',
+        request.securitySchemeUids.filter((uid) => uid !== scheme.uid),
+      )
+      // TODO loop over all requests in collection and remove it from selected
+    }
+
+    securitySchemeMutators.delete(scheme.uid)
+  }
+
   // ---------------------------------------------------------------------------
   // SERVERS
 
@@ -712,31 +769,6 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     reactive({}),
     persistData && LS_KEYS.SERVER,
   )
-
-  /** Adds a security scheme and appends it to either a colleciton or a request */
-  const addSecurityScheme = (
-    payload: SecuritySchemePayload,
-    collectionUid?: string,
-    requestUid?: string,
-  ) => {}
-
-  /** Delete a security scheme and remove the key from its corresponding parent */
-  const deleteSecurityScheme = (
-    scheme: SecurityScheme,
-    collection: Collection,
-    request: Request,
-  ) => {
-    // Remove from collection
-    if (collection) {
-      // remove from selectedSecuritySchemes
-      // remove from spec.security
-      // remove from securitySchemeDict
-    }
-
-    // Remove from request
-    if (request) {
-    }
-  }
 
   /**
    * Add a server
@@ -773,10 +805,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   // ---------------------------------------------------------------------------
 
   /** Helper function to import a OpenAPI spec file into the local workspace */
-  async function importSpecFile(
+  const importSpecFile = async (
     _spec: string | AnyObject,
     workspaceUid = 'default',
-  ) {
+  ) => {
     const spec = toRaw(_spec)
     const workspaceEntities = await importSpecToWorkspace(spec)
 
@@ -786,7 +818,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     )
 
     // Create a new collection for the spec file
-    addCollection(workspaceEntities.collection, workspaceUid)
+    const collection = addCollection(workspaceEntities.collection, workspaceUid)
 
     // Folders
     workspaceEntities.folders.forEach((folder) => addFolder(folder))
@@ -800,10 +832,12 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
         workspaceEntities.securityDefinitions) ??
         {}) as Record<string, SecurityScheme>,
     ).forEach(([key, securityScheme]) =>
-      securitySchemeMutators.add(
-        createSecurityScheme({ ...securityScheme, nameKey: key }),
-      ),
+      addSecurityScheme({ ...securityScheme, nameKey: key }, collection.uid),
     )
+
+    // By now we have the collection security dictionary so we can pre-select auth per request
+    // todo
+    console.log(requests)
   }
 
   // Function to fetch and import a spec from a URL
@@ -882,7 +916,12 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       delete: deleteRequestExample,
     },
     requestsHistory,
-    securitySchemeMutators,
+    securitySchemeMutators: {
+      ...securitySchemeMutators,
+      rawAdd: securitySchemeMutators.add,
+      add: addSecurityScheme,
+      delete: deleteSecurityScheme,
+    },
     serverMutators: {
       ...serverMutators,
       rawAdd: serverMutators.add,

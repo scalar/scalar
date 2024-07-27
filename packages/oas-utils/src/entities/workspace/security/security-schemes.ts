@@ -152,16 +152,12 @@ const securitySchemeOauth2 = z.object({
   nameKey,
   description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
-  flows: oauthFlowSchema,
+  flow: oauthFlowSchema,
 
   clientId: value,
   redirectUri: z.string().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
-export type SelectedSchemeOauth2 = {
-  scheme: SecuritySchemeOauth2
-  flow: ValueOf<Required<SecuritySchemeOauth2['flows']>>
-}
 
 const securitySchemeOpenId = z.object({
   type: z.literal('openIdConnect'),

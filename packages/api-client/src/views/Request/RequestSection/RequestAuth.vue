@@ -9,12 +9,9 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
-import type {
-  SecuritySchemeOption,
-  SecuritySchemeOptionOauth,
-} from '@/views/Request/libs'
+import type { SecuritySchemeOption } from '@/views/Request/libs'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { SelectedSchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed } from 'vue'
 
@@ -24,24 +21,25 @@ defineProps<{
 
 const {
   activeCollection,
+  activeRequest,
   activeSecurityRequirements,
   activeSecuritySchemes,
-  collectionMutators,
   isReadOnly,
+  requestMutators,
   securitySchemeMutators,
   securitySchemes,
 } = useWorkspace()
 
 /** Generate pretty name for the dropdown label */
-const getLabel = (id: string) => {
-  const scheme = securitySchemes[id]
-
+const getLabel = (scheme: SecurityScheme) => {
   switch (scheme?.type) {
     case 'apiKey':
       return `${capitalize(scheme.in)}`
     case 'http': {
       return `${capitalize(scheme.scheme)} Authentication`
     }
+    case 'oauth2':
+      return camelToTitleWords(scheme.flow.type)
     case 'openIdConnect':
       return `Open ID Connect`
     default:
@@ -51,54 +49,11 @@ const getLabel = (id: string) => {
 
 /** Generate the options for the dropdown */
 const schemeOptions = computed<SecuritySchemeOption[]>(() => {
-  // For the client app we provide all options
-  const additionalAuth = isReadOnly.value
-    ? []
-    : [
-        // {
-        //   id: 'apiKeyCookie',
-        //   label: 'API Key in Cookies',
-        // },
-        // {
-        //   id: 'apiKeyHeader',
-        //   label: 'API Key in Headers',
-        // },
-        // {
-        //   id: 'apiKeyQuery',
-        //   label: 'API Key in Query Params',
-        // },
-        // {
-        //   id: 'httpBasic',
-        //   label: 'HTTP Basic',
-        // },
-        // {
-        //   id: 'httpBearer',
-        //   label: 'HTTP Bearer',
-        // },
-        // {
-        //   id: 'oauth2Implicit',
-        //   label: 'Oauth2 Implicit Flow',
-        // },
-        // {
-        //   id: 'oauth2Password',
-        //   label: 'Oauth2 Password Flow',
-        // },
-        // {
-        //   id: 'oauth2ClientCredentials',
-        //   label: 'Oauth2 Client Credentials',
-        // },
-        // {
-        //   id: 'oauth2AuthorizationFlow',
-        //   label: 'Oauth2 Authorization Flow',
-        // },
-        // {
-        //   id: 'oauth2Implicit',
-        //   label: 'Oauth2 Implicit Flow',
-        // },
-      ]
+  // For the modal we only provide available auth
+  if (isReadOnly.value) {
+    const securitySchemesDict = activeCollection.value?.securitySchemeDict
 
-  return [
-    ...activeSecurityRequirements.value.flatMap((req) => {
+    return activeSecurityRequirements.value.flatMap((req) => {
       const keys = Object.keys(req)
 
       // Optional
@@ -106,65 +61,95 @@ const schemeOptions = computed<SecuritySchemeOption[]>(() => {
         return { id: 'none', label: 'None', labelWithoutId: 'None' }
 
       // Active requirements
-      return keys.flatMap((id) => {
-        const scheme = securitySchemes[id]
+      return keys.flatMap((key) => {
+        if (!securitySchemesDict) return []
 
-        // For OAuth2 add all flows
-        if (scheme?.type === 'oauth2') {
-          return Object.keys(scheme.flows).map((flowKey) => ({
-            // Since ID's must be unique, we also store the uid and flowKey separately
-            id: `${id}${flowKey}`,
-            label: `${camelToTitleWords(flowKey)} (${id})`,
-            labelWithoutId: camelToTitleWords(flowKey),
-            flowKey,
-            uid: id,
-          }))
+        const id = securitySchemesDict[key]
+        const scheme = securitySchemes[id]
+        const label = getLabel(scheme)
+
+        return {
+          id,
+          label: `${label} (${key})`,
+          labelWithoutId: label,
         }
-        // Or add just a single item
-        else
-          return {
-            id,
-            labelWithoutId: getLabel(id),
-            label: `${getLabel(id)} (${id})`,
-          }
       })
-    }),
-    ...additionalAuth,
-  ]
+    })
+  }
+  // For the client app we provide all options
+  else {
+    // add collection level as well
+    return [
+      // {
+      //   id: 'apiKeyCookie',
+      //   label: 'API Key in Cookies',
+      // },
+      // {
+      //   id: 'apiKeyHeader',
+      //   label: 'API Key in Headers',
+      // },
+      // {
+      //   id: 'apiKeyQuery',
+      //   label: 'API Key in Query Params',
+      // },
+      // {
+      //   id: 'httpBasic',
+      //   label: 'HTTP Basic',
+      // },
+      // {
+      //   id: 'httpBearer',
+      //   label: 'HTTP Bearer',
+      // },
+      // {
+      //   id: 'oauth2Implicit',
+      //   label: 'Oauth2 Implicit Flow',
+      // },
+      // {
+      //   id: 'oauth2Password',
+      //   label: 'Oauth2 Password Flow',
+      // },
+      // {
+      //   id: 'oauth2ClientCredentials',
+      //   label: 'Oauth2 Client Credentials',
+      // },
+      // {
+      //   id: 'oauth2AuthorizationFlow',
+      //   label: 'Oauth2 Authorization Flow',
+      // },
+      // {
+      //   id: 'oauth2Implicit',
+      //   label: 'Oauth2 Implicit Flow',
+      // },
+    ]
+  }
 })
 
 const schemeModel = computed({
   // Grab the selected OR first security scheme
   get: () =>
     schemeOptions.value.filter(({ id }) =>
-      activeCollection.value?.selectedSecuritySchemes?.find(
-        (scheme) => id === `${scheme.uid}${scheme.flowKey ?? ''}`,
+      activeRequest.value?.selectedSecuritySchemeUids?.find(
+        (uid) => uid === id,
       ),
-    ) || [schemeOptions.value[0]],
+    ),
 
-  // Update the mutator on set
-  set: (options) => {
-    // Handle the case for OAuth flow
-    const payload = options.map((opt) =>
-      'uid' in opt ? { flowKey: opt.flowKey, uid: opt.uid } : { uid: opt.id },
-    )
-
-    collectionMutators.edit(
-      activeCollection.value!.uid,
-      'selectedSecuritySchemes',
-      payload,
-    )
-  },
+  // Update the selected auth per this request
+  set: (options) =>
+    requestMutators.edit(
+      activeRequest.value.uid,
+      'selectedSecuritySchemeUids',
+      options.map((opt) => opt.id),
+    ),
 })
 
 type UpdateSchemeParams = Parameters<UpdateScheme>
 
 /** Update the selected scheme */
 const updateScheme = (
-  scheme: (typeof activeSecuritySchemes)['value'][number],
+  scheme: SecurityScheme,
   path: UpdateSchemeParams[0],
   value: UpdateSchemeParams[1],
-) => securitySchemeMutators.edit(scheme.scheme.uid ?? '', path, value)
+) => securitySchemeMutators.edit(scheme.uid ?? '', path, value)
 
 /** Combine values from all selected options */
 const selectedLabel = computed(() => {
@@ -221,7 +206,7 @@ const selectedLabel = computed(() => {
         <!-- Loop over for multiple auth selection -->
         <template
           v-for="(activeSecurityScheme, index) in activeSecuritySchemes"
-          :key="activeSecurityScheme.scheme.uid">
+          :key="activeSecurityScheme.uid">
           <!-- Header -->
           <DataTableRow v-if="activeSecuritySchemes.length > 1">
             <DataTableCell class="text-c-1 pl-2 text-sm flex items-center">
@@ -232,12 +217,12 @@ const selectedLabel = computed(() => {
           <!-- HTTP Bearer -->
           <DataTableRow
             v-if="
-              activeSecurityScheme.scheme.type === 'http' &&
-              activeSecurityScheme.scheme.scheme === 'bearer'
+              activeSecurityScheme.type === 'http' &&
+              activeSecurityScheme.scheme === 'bearer'
             ">
             <RequestAuthDataTableInput
               id="http-bearer-token"
-              :modelValue="activeSecurityScheme.scheme.value"
+              :modelValue="activeSecurityScheme.value"
               placeholder="Token"
               type="password"
               @update:modelValue="
@@ -250,14 +235,14 @@ const selectedLabel = computed(() => {
           <!-- HTTP Basic -->
           <template
             v-else-if="
-              activeSecurityScheme.scheme.type === 'http' &&
-              activeSecurityScheme.scheme.scheme === 'basic'
+              activeSecurityScheme.type === 'http' &&
+              activeSecurityScheme.scheme === 'basic'
             ">
             <DataTableRow>
               <RequestAuthDataTableInput
                 id="http-basic-username"
                 class="text-c-2"
-                :modelValue="activeSecurityScheme.scheme.value"
+                :modelValue="activeSecurityScheme.value"
                 placeholder="ScalarEnjoyer01"
                 @update:modelValue="
                   (v) => updateScheme(activeSecurityScheme, 'value', v)
@@ -268,7 +253,7 @@ const selectedLabel = computed(() => {
             <DataTableRow>
               <RequestAuthDataTableInput
                 id="http-basic-password"
-                :modelValue="activeSecurityScheme.scheme.secondValue"
+                :modelValue="activeSecurityScheme.secondValue"
                 placeholder="xxxxxx"
                 type="password"
                 @update:modelValue="
@@ -280,24 +265,23 @@ const selectedLabel = computed(() => {
           </template>
 
           <!-- API Key -->
-          <DataTableRow
-            v-else-if="activeSecurityScheme.scheme.type === 'apiKey'">
+          <DataTableRow v-else-if="activeSecurityScheme.type === 'apiKey'">
             <RequestAuthDataTableInput
-              :id="`api-key-${activeSecurityScheme.scheme.name}`"
-              :modelValue="activeSecurityScheme.scheme.value"
+              :id="`api-key-${activeSecurityScheme.name}`"
+              :modelValue="activeSecurityScheme.value"
               placeholder="Value"
               type="password"
               @update:modelValue="
                 (v) => updateScheme(activeSecurityScheme, 'value', v)
               ">
-              {{ activeSecurityScheme.scheme.name }}
+              {{ activeSecurityScheme.name }}
             </RequestAuthDataTableInput>
           </DataTableRow>
 
           <!-- OAuth 2 -->
           <OAuth2
             v-else-if="
-              activeSecurityScheme.scheme.type === 'oauth2' &&
+              activeSecurityScheme.type === 'oauth2' &&
               schemeModel[index] &&
               'uid' in schemeModel[index] &&
               activeSecurityScheme.flow

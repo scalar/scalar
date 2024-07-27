@@ -120,8 +120,6 @@ const collectionSchema = z.object({
   spec: specSchema.optional().default({}),
   /** A dictionary which maps the openapi spec name keys to the security-scheme UID's for lookup */
   securitySchemeDict: z.record(z.string(), z.string()).optional().default({}),
-  /** The currently selected security schemes at the collection level */
-  selectedSecuritySchemes: z.array(nanoidSchema).default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /**  List of uids that correspond to collection requests or folders */
