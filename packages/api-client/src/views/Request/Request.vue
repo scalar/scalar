@@ -34,6 +34,7 @@ const {
   requestMutators,
   activeWorkspaceCollections,
   modalState,
+  cookies,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const searchModalState = useModal()
@@ -82,6 +83,7 @@ const executeRequest = async () => {
     url,
     activeSecurityScheme.value,
     activeWorkspace.value?.proxyUrl,
+    cookies,
   )
 
   if (request && response) {
