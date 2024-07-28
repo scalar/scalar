@@ -248,9 +248,13 @@ useEventListener(document, 'keydown', (event) => {
   if ((isMacOS() ? keys.meta.value : keys.ctrl.value) && event.key === 'b') {
     showSideBar.value = !showSideBar.value
   }
-  // if ((isMacOS() ? keys.meta.value : keys.ctrl.value) && event.key === 'k') {
-  //   searchModalState.open ? searchModalState.hide() : searchModalState.show()
-  // }
+  if (
+    !activeWorkspace.value.isReadOnly &&
+    (isMacOS() ? keys.meta.value : keys.ctrl.value) &&
+    event.key === 'k'
+  ) {
+    commandPaletteBus.emit()
+  }
 })
 
 const getBackgroundColor = () => {

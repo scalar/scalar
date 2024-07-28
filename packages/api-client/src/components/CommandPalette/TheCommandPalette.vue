@@ -32,9 +32,10 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { useMagicKeys, whenever } from '@vueuse/core'
+import { useEventListener, useMagicKeys, whenever } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { isMacOS } from '@scalar/use-tooltip'
 
 import {
   commandPaletteBus,
@@ -121,11 +122,12 @@ const closeHandler = () => {
   modalState.hide()
   commandQuery.value = ''
   activeCommand.value = null
+  window.removeEventListener('keydown', handleKeyDown, true)
 }
 
 /** Close on escape */
 whenever(keys.escape, () => {
-  if (modalState.open) modalState.hide()
+  if (modalState.open) closeHandler()
 })
 
 whenever(keys.enter, () => {
@@ -184,6 +186,8 @@ const executeCommand = (
   else activeCommand.value = command.name
 }
 
+const commandInputRef = ref<HTMLInputElement | null>()
+
 /** Handles opening the command pallete to the correct palette */
 const openCommandPalette = ({
   commandName,
@@ -192,10 +196,31 @@ const openCommandPalette = ({
   activeCommand.value = commandName ?? null
   metaData.value = _metaData
   modalState.show()
+  commandInputRef.value?.focus()
+  window.addEventListener('keydown', handleKeyDown, true)
 }
 
 onMounted(() => commandPaletteBus.on(openCommandPalette))
 onBeforeUnmount(() => commandPaletteBus.off(openCommandPalette))
+
+const isSubmitKeyCombo = (event: KeyboardEvent) => {
+  if (isMacOS()) {
+    return event.metaKey && event.key === 'Enter'
+  } else {
+    return event.ctrlKey && event.key === 'Enter'
+  }
+}
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (isSubmitKeyCombo(event) && !activeCommand.value) {
+    event.stopPropagation()
+    event.preventDefault()
+  }
+}
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeyDown, true)
+})
 </script>
 <template>
   <div
@@ -219,7 +244,10 @@ onBeforeUnmount(() => commandPaletteBus.off(openCommandPalette))
         </label>
         <input
           id="commandmenu"
+          ref="commandInputRef"
           v-model="commandQuery"
+          autocomplete="off"
+          autofocus
           class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
           placeholder="Search commands..."
           type="text" />

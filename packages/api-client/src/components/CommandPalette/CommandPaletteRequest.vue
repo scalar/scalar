@@ -3,8 +3,10 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { handleKeyDown } from './handleKeyDown'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -99,12 +101,23 @@ const handleSubmit = () => {
 const requestInput = ref<HTMLInputElement | null>(null)
 onMounted(() => {
   requestInput.value?.focus()
+  window.addEventListener(
+    'keydown',
+    (event) => handleKeyDown(event, handleSubmit),
+    true,
+  )
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener(
+    'keydown',
+    (event) => handleKeyDown(event, handleSubmit),
+    true,
+  )
 })
 </script>
 <template>
-  <form
-    class="flex w-full flex-col gap-3"
-    @submit.prevent="handleSubmit">
+  <div class="flex w-full flex-col gap-3">
     <div
       class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
       <label
@@ -161,9 +174,9 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        type="submit">
+        @click="handleSubmit">
         Create Request
       </ScalarButton>
     </div>
-  </form>
+  </div>
 </template>

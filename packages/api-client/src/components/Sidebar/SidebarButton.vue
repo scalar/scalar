@@ -20,7 +20,7 @@ const handleClick = () => {
       <slot name="title" />
       <ScalarHotkey
         class="absolute right-2 group-hover:opacity-80 text-c-2"
-        hotkey="N"
+        hotkey="K"
         @hotkeyPressed="handleClick" />
     </ScalarButton>
   </div>
