@@ -5,7 +5,6 @@ import { createServer } from '@/entities/workspace/server'
 import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
-import { parseJsonOrYaml } from '@/helpers/parse'
 import { schemaModel } from '@/helpers/schema-model'
 import type { AnyObject } from '@/types'
 import { dereference, load } from '@scalar/openapi-parser'
@@ -22,11 +21,10 @@ const PARAM_DICTIONARY = {
 export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   const importWarnings: string[] = []
   const requests: Request[] = []
-  const parsedSpec = parseJsonOrYaml(spec) as OpenAPIV3_1.Document
 
   // TODO: `parsedSpec` can have circular reference and will break.
   // We always have to use the original document.
-  const { filesystem } = await load(parsedSpec)
+  const { filesystem } = await load(spec)
   const { schema, errors } = await dereference(filesystem)
 
   if (errors?.length || !schema) {
@@ -143,8 +141,8 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
   })
 
   // Toss in a default server if there aren't any
-  const unparsedServers = parsedSpec.servers?.length
-    ? parsedSpec.servers!
+  const unparsedServers: OpenAPIV3_1.ServerObject[] = schema?.servers?.length
+    ? schema.servers!
     : [
         {
           url:
@@ -154,6 +152,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
           description: 'Replace with your API server',
         },
       ]
+
   const servers = unparsedServers.map((server) => createServer(server))
 
   // Select initial security
