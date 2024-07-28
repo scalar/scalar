@@ -6,11 +6,16 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { ref } from 'vue'
+import { type DefineComponent, ref } from 'vue'
 
 import SettingsGeneral from './SettingsGeneral.vue'
 
-const settings = {
+type SettingsGroup = {
+  component: DefineComponent<any, any, any>
+  title: string
+}
+
+const settings: Record<string, SettingsGroup> = {
   general: {
     component: SettingsGeneral,
     title: 'General',
