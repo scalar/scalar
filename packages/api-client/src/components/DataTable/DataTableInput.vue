@@ -13,12 +13,14 @@ const props = withDefaults(
     containerClass?: string
     required?: boolean
     modelValue: string | number
+    /** Allows adding a custom value to the enum dropdown, defaults to true */
+    canAddCustomEnumValue?: boolean
     readOnly?: boolean
     enum?: string[]
     min?: number
     max?: number
   }>(),
-  { required: false, readOnly: false },
+  { canAddCustomEnumValue: true, required: false, readOnly: false },
 )
 
 const emit = defineEmits<{
@@ -78,6 +80,7 @@ const handleDropdownMouseUp = () => {
     <div class="row-1">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
+          :canAddCustomValue="canAddCustomEnumValue"
           :modelValue="props.modelValue"
           :value="props.enum"
           @update:modelValue="emit('update:modelValue', $event)" />

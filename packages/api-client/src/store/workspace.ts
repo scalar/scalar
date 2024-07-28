@@ -29,6 +29,7 @@ import {
   type SecuritySchemeApiKey,
   type SecuritySchemePayload,
   createSecurityScheme,
+  securitySchemeApiKeyIn,
 } from '@scalar/oas-utils/entities/workspace/security'
 import {
   type Server,
@@ -904,7 +905,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
           {
             ...securityScheme,
             type: 'apiKey',
-            in: ['header', 'query', 'cookie'].includes(
+            in: securitySchemeApiKeyIn.includes(
               securityScheme.in as SecuritySchemeApiKey['in'],
             )
               ? (securityScheme.in as SecuritySchemeApiKey['in'])

@@ -8,10 +8,14 @@ import {
 } from '@scalar/components'
 import { computed, nextTick, ref, watch } from 'vue'
 
-const props = defineProps<{
-  modelValue: string | number
-  value?: string[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string | number
+    value?: string[]
+    canAddCustomValue?: boolean
+  }>(),
+  { canAddCustomValue: true },
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
@@ -108,6 +112,7 @@ watch(addingCustomValue, (newValue) => {
           </ScalarDropdownItem>
           <ScalarDropdownDivider />
           <ScalarDropdownItem
+            v-if="canAddCustomValue"
             class="flex items-center gap-1.5"
             @click="addingCustomValue = true">
             <div class="flex items-center justify-center h-4 w-4">
