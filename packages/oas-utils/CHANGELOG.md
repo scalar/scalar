@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.18
+
+### Patch Changes
+
+- 9815191: fix: actually add workspace cookies to request
+- 869d255: fix: superfluous yaml or json parse before spec parsing
+
 ## 0.2.17
 
 ### Patch Changes
