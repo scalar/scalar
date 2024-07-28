@@ -8,6 +8,7 @@ import {
 
 export enum PathId {
   Request = 'request',
+  Websocket = 'websocket',
   Examples = 'examples',
   Cookies = 'cookies',
   Collection = 'collection',
@@ -123,6 +124,15 @@ const routes = [
         name: PathId.Servers,
         path: `servers/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
+      },
+      {
+        path: 'websocket',
+        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+      },
+      {
+        name: PathId.Websocket,
+        path: `websocket/:${PathId.Websocket}`,
+        component: () => import('@/views/Websocket/Websocket.vue'),
       },
     ],
   },
