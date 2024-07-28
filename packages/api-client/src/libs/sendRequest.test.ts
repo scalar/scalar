@@ -287,4 +287,58 @@ describe('sendRequest', () => {
       path: '/v1/',
     })
   })
+
+  it('sends a multipart/form-data request', async () => {
+    const { request, example, server } = createRequestExampleServer({
+      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      requestPayload: { path: '', method: 'POST' },
+      requestExamplePayload: {
+        body: {
+          activeBody: 'formData',
+          formData: {
+            encoding: 'form-data',
+            value: [
+              {
+                key: 'name',
+                value: 'John Doe',
+              },
+              {
+                key: 'file',
+                file: new File(['hello'], 'hello.txt', { type: 'text/plain' }),
+              },
+              {
+                key: 'image',
+                file: new File(['hello'], 'hello.png', { type: 'image/png' }),
+                value: 'ignore me',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    const result = await sendRequest(
+      request,
+      example,
+      server?.url + request.path,
+    )
+
+    expect(result?.response?.data).toMatchObject({
+      method: 'POST',
+      path: '/',
+      body: {
+        name: 'John Doe',
+        file: {
+          name: 'hello.txt',
+          sizeInBytes: 5,
+          type: 'text/plain',
+        },
+        image: {
+          name: 'hello.png',
+          sizeInBytes: 5,
+          type: 'image/png',
+        },
+      },
+    })
+  })
 })
