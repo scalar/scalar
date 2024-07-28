@@ -3,6 +3,7 @@ import DarkModeIconToggle from '@/components/DarkModeToggle/DarkModeIconToggle.v
 import { ROUTES } from '@/constants'
 import { useRouter } from 'vue-router'
 
+import SideHelp from './SideHelp.vue'
 import SideNavLink from './SideNavLink.vue'
 import WorkspaceProfileIcon from './WorkspaceProfileIcon.vue'
 
@@ -28,6 +29,9 @@ const { currentRoute } = useRouter()
       </li>
     </ul>
     <ul class="mt-auto flex flex-col gap-2 py-1.5">
+      <li class="flex items-center">
+        <SideHelp />
+      </li>
       <li class="flex items-center">
         <DarkModeIconToggle />
       </li>
