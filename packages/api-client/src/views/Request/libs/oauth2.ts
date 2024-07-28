@@ -29,7 +29,7 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
 
       // Common to all flows
       url.searchParams.set('client_id', scheme.clientId)
-      url.searchParams.set('redirect_uri', scheme.redirectUri)
+      url.searchParams.set('redirect_uri', scheme.flow.redirectUri)
       url.searchParams.set('scope', scopes)
       url.searchParams.set('state', state)
 
@@ -104,7 +104,8 @@ export const authorizeServers = async (
 
   if (scheme.flow.clientSecret)
     formData.set('client_secret', scheme.flow.clientSecret)
-  if (scheme.redirectUri) formData.set('redirect_uri', scheme.redirectUri)
+  if ('redirectUri' in scheme.flow)
+    formData.set('redirect_uri', scheme.flow.redirectUri)
 
   // Authorization Code
   if (code) {
