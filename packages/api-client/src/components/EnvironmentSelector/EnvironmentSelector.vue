@@ -53,7 +53,9 @@ const options = {
         <div
           class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full"
           :class="
-            activeEnvironment ? options[activeEnvironment.color] : ''
+            activeEnvironment
+              ? options[activeEnvironment.color as keyof typeof options]
+              : ''
           "></div>
         {{ activeEnvironment?.name ?? 'No environment' }}
         <ScalarIcon
