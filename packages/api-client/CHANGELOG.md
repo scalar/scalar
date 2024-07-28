@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.0.34
+
+### Patch Changes
+
+- c0cf4ac: fix: hide servers page
+- 225e32a: feat: make the command palette amazing
+- bb5909f: fix: tw-bg-base bug in gitbook and some app polish
+- 9815191: fix: actually add workspace cookies to request
+- a7ea3e3: fix: add default active collection to folder create command
+- 9243580: feat: improve create request command
+- 12bd5b8: fix: upload file in form-data with key
+- Updated dependencies [9815191]
+- Updated dependencies [e8fa353]
+- Updated dependencies [869d255]
+  - @scalar/oas-utils@0.2.18
+  - @scalar/components@0.12.21
+
 ## 2.0.33
 
 ### Patch Changes
