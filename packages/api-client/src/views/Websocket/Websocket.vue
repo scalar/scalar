@@ -48,17 +48,12 @@ const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
             @dragover.prevent>
             <!-- Collections -->
             <RequestSidebarItem
-              v-for="(
-                collection, collectionIndex
-              ) in activeWorkspaceCollections"
+              v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
               :isDraggable="!activeWorkspace.isReadOnly"
               :isDroppable="!activeWorkspace.isReadOnly"
               :item="collection"
-              :parentUids="[]"
-              @onDragEnd="
-                (...args) => onDragEnd(collection, collectionIndex, ...args)
-              ">
+              :parentUids="[]">
               <template #leftIcon>
                 <ScalarIcon
                   class="text-sidebar-c-2 text-sm group-hover:hidden"
@@ -77,13 +72,6 @@ const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
               </template>
             </RequestSidebarItem>
           </div>
-        </template>
-        <template #button>
-          <SidebarButton
-            v-if="!activeWorkspace.isReadOnly"
-            :click="addItemHandler">
-            <template #title>Add Item</template>
-          </SidebarButton>
         </template>
       </Sidebar>
       <!-- TODO possible loading state -->
