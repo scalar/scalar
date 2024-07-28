@@ -13,7 +13,7 @@ const props = defineProps<{
 }>()
 
 const loadingState = useLoadingState()
-const { securitySchemeMutators } = useWorkspace()
+const { isReadOnly, securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
@@ -40,6 +40,7 @@ const handleAuthorize = async () => {
         id="oauth2-access-token"
         class="border-r-transparent"
         :modelValue="scheme.flow.token"
+        placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
         @update:modelValue="(v) => updateScheme('flow.token', v)">
         Access Token
@@ -60,15 +61,35 @@ const handleAuthorize = async () => {
   </template>
 
   <template v-else>
-    <DataTableRow
-      v-if="['implicit', 'authorizationCode'].includes(scheme.flow.type)">
+    <!-- Custom auth -->
+    <DataTableRow v-if="!isReadOnly">
+      <RequestAuthDataTableInput
+        v-if="'authorizationUrl' in scheme.flow"
+        :id="`oauth2-authorization-url-${scheme.uid}`"
+        :modelValue="scheme.flow.authorizationUrl"
+        placeholder="https://galaxy.scalar.com/authorize"
+        @update:modelValue="(v) => updateScheme('flow.authorizationUrl', v)">
+        Authorization Url
+      </RequestAuthDataTableInput>
+
+      <RequestAuthDataTableInput
+        v-if="'tokenUrl' in scheme.flow"
+        :id="`oauth2-token-url-${scheme.uid}`"
+        :modelValue="scheme.flow.tokenUrl"
+        placeholder="https://galaxy.scalar.com/token"
+        @update:modelValue="(v) => updateScheme('flow.tokenUrl', v)">
+        Token Url
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <DataTableRow v-if="'redirectUri' in scheme.flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
-        id="oauth2-redirect-uri"
-        :modelValue="scheme.redirectUri"
+        :id="`oauth2-redirect-uri-${scheme.uid}`"
+        :modelValue="scheme.flow.redirectUri"
         placeholder="https://galaxy.scalar.com/callback"
-        @update:modelValue="(v) => updateScheme('redirectUri', v)">
-        Redirect URI
+        @update:modelValue="(v) => updateScheme('flow.redirectUri', v)">
+        Redirect Url
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -76,7 +97,7 @@ const handleAuthorize = async () => {
     <template v-if="scheme.flow.type === 'password'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          id="oauth2-password-username"
+          :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
           :modelValue="scheme.flow.value"
           placeholder="ScalarEnjoyer01"
@@ -86,9 +107,9 @@ const handleAuthorize = async () => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          id="oauth2-password-password"
+          :id="`oauth2-password-password-${scheme.uid}`"
           :modelValue="scheme.flow.secondValue"
-          placeholder="XYZ123"
+          placeholder="xxxxxx"
           type="password"
           @update:modelValue="(v) => updateScheme('flow.secondValue', v)">
           Password
@@ -99,7 +120,7 @@ const handleAuthorize = async () => {
     <!-- Client ID -->
     <DataTableRow>
       <RequestAuthDataTableInput
-        id="oauth2-client-id"
+        :id="`oauth2-client-id-${scheme.uid}`"
         :modelValue="scheme.clientId"
         placeholder="12345"
         @update:modelValue="(v) => updateScheme('clientId', v)">
@@ -110,7 +131,7 @@ const handleAuthorize = async () => {
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
     <DataTableRow v-if="'clientSecret' in scheme.flow">
       <RequestAuthDataTableInput
-        id="oauth2-client-secret"
+        :id="`oauth2-client-secret-${scheme.uid}`"
         :modelValue="scheme.flow.clientSecret"
         placeholder="XYZ123"
         type="password"

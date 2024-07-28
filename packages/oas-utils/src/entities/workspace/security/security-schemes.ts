@@ -54,13 +54,13 @@ const securitySchemeHttp = commonProps.extend({
  * REQUIRED. The authorization URL to be used for this flow. This MUST be in
  * the form of a URL. The OAuth2 standard requires the use of TLS.
  */
-const authorizationUrl = z.string().optional().default('https://scalar.com')
+const authorizationUrl = z.string().optional().default('')
 
 /**
  * REQUIRED. The token URL to be used for this flow. This MUST be in the
  * form of a URL. The OAuth2 standard requires the use of TLS.
  */
-const tokenUrl = z.string().optional().default('https://scalar.com')
+const tokenUrl = z.string().optional().default('')
 
 /** Common properties used across all oauth2 flows */
 const oauthCommon = z.object({
@@ -91,6 +91,7 @@ const oauthFlowSchema = z
     oauthCommon.extend({
       type: z.literal('implicit'),
       authorizationUrl,
+      redirectUri: z.string().optional().default(''),
     }),
     /** Configuration for the OAuth Resource Owner Password flow */
     oauthCommon.extend({
@@ -112,6 +113,7 @@ const oauthFlowSchema = z
     oauthCommon.extend({
       type: z.literal('authorizationCode'),
       authorizationUrl,
+      redirectUri: z.string().optional().default(''),
       tokenUrl,
       clientSecret: value,
     }),
@@ -124,7 +126,6 @@ const securitySchemeOauth2 = commonProps.extend({
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flow: oauthFlowSchema,
   clientId: value,
-  redirectUri: z.string().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
 
@@ -154,4 +155,12 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
-  deepMerge(securityScheme.parse({ type: payload.type }), payload)
+  deepMerge(
+    securityScheme.parse(
+      // Ensure we set the flow type as well
+      'flow' in payload && payload?.flow?.type
+        ? { type: payload.type, flow: { type: payload.flow.type } }
+        : { type: payload.type },
+    ),
+    payload,
+  )
