@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ScalarIcon } from '@scalar/components'
 
 const emit = defineEmits<{
@@ -21,7 +20,6 @@ const emit = defineEmits<{
       <div
         class="sidebar-search-input ml-1.5 flex w-full items-center justify-between text-sm font-medium">
         <span class="sidebar-search-placeholder">Search</span>
-        <ScalarHotkey hotkey="k" />
       </div>
     </button>
   </div>
