@@ -1,7 +1,6 @@
 import { useSidebar } from '@/hooks'
 import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
-import type { AuthenticationState } from '@scalar/oas-utils'
 import {
   type Workspace,
   type WorkspacePayload,

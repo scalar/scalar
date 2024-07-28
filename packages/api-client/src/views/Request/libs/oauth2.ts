@@ -1,16 +1,5 @@
 import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
 
-export type SecuritySchemeOption = {
-  id: string
-  label: string
-  labelWithoutId: string
-}
-
-export type SecuritySchemeGroup = {
-  label: string
-  options: SecuritySchemeOption[]
-}
-
 /**
  * Authorize oauth2 flow
  *

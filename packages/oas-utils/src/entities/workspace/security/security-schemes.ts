@@ -3,34 +3,31 @@ import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 
-const uid = nanoidSchema
-/* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
-const description = z.string().optional()
-/** The name key that links a security requirement to a security object */
-const nameKey = z.string().optional().default('')
 /** A generic string value used for filling in fields  */
 const value = z.string().optional().default('')
 
-const securitySchemeApiKey = z.object({
+/** Some common properties used in all security schemes */
+const commonProps = z.object({
+  uid: nanoidSchema,
+  /** The name key that links a security requirement to a security object */
+  nameKey: z.string().optional().default(''),
+  /* A description for security scheme. CommonMark syntax MAY be used for rich text representation. */
+  description: z.string().optional(),
+})
+
+const securitySchemeApiKey = commonProps.extend({
   type: z.literal('apiKey'),
-  uid,
-  nameKey,
-  description,
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default('default'),
   /** REQUIRED. The location of the API key. Valid values are "query", "header" or "cookie". */
   in: z.enum(['query', 'header', 'cookie']).optional().default('header'),
-
   value,
 })
 
 export type SecuritySchemeApiKey = z.infer<typeof securitySchemeApiKey>
 
-const securitySchemeHttp = z.object({
+const securitySchemeHttp = commonProps.extend({
   type: z.literal('http'),
-  uid,
-  nameKey,
-  description,
   /**
    * REQUIRED. The name of the HTTP Authorization scheme to be used in the Authorization header as defined in
    * [RFC7235]. The values used SHOULD be registered in the IANA Authentication Scheme registry.
@@ -45,7 +42,6 @@ const securitySchemeHttp = z.object({
     .union([z.literal('JWT'), z.string()])
     .optional()
     .default('JWT'),
-
   /** Username */
   value,
   /** Password */
@@ -64,99 +60,74 @@ const authorizationUrl = z.string().optional().default('https://scalar.com')
  */
 const tokenUrl = z.string().optional().default('https://scalar.com')
 
-/**
- * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
- * URL. The OAuth2 standard requires the use of TLS.
- */
-const refreshUrl = z.string().optional().default('')
-
-/**
- * REQUIRED. The available scopes for the OAuth2 security scheme. A map
- * between the scope name and a short description for it. The map MAY be empty.
- */
-const scopes = z
-  .union([
-    z.map(z.string(), z.string().optional()),
-    z.record(z.string(), z.string().optional()),
-    z.object({}),
-  ])
-  .optional()
-
-/** User selected scopes per flow */
-const selectedScopes = z.array(z.string()).optional().default([])
+/** Common properties used across all oauth2 flows */
+const oauthCommon = z.object({
+  /**
+   * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
+   * URL. The OAuth2 standard requires the use of TLS.
+   */
+  refreshUrl: z.string().optional().default(''),
+  /**
+   * REQUIRED. The available scopes for the OAuth2 security scheme. A map
+   * between the scope name and a short description for it. The map MAY be empty.
+   */
+  scopes: z
+    .union([
+      z.map(z.string(), z.string().optional()),
+      z.record(z.string(), z.string().optional()),
+      z.object({}),
+    ])
+    .optional(),
+  /** User selected scopes per flow */
+  selectedScopes: z.array(z.string()).optional().default([]),
+  token: value,
+})
 
 const oauthFlowSchema = z
   .discriminatedUnion('type', [
     /** Configuration for the OAuth Implicit flow */
-    z.object({
+    oauthCommon.extend({
       type: z.literal('implicit'),
       authorizationUrl,
-      refreshUrl,
-      scopes,
-
-      selectedScopes,
-      token: value,
     }),
     /** Configuration for the OAuth Resource Owner Password flow */
-    z.object({
+    oauthCommon.extend({
       type: z.literal('password'),
       tokenUrl,
-      refreshUrl,
-      scopes,
-
       /** Username */
       value,
       /** Password */
       secondValue: value,
-      selectedScopes,
       clientSecret: value,
-      token: value,
     }),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
-    z.object({
+    oauthCommon.extend({
       type: z.literal('clientCredentials'),
       tokenUrl,
-      refreshUrl,
-      scopes,
-
       clientSecret: value,
-      selectedScopes,
-      token: value,
     }),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
-    z.object({
+    oauthCommon.extend({
       type: z.literal('authorizationCode'),
       authorizationUrl,
       tokenUrl,
-      refreshUrl,
-      scopes,
-
       clientSecret: value,
-      selectedScopes,
-      token: value,
     }),
   ])
   .optional()
-  .default({ type: 'authorizationCode' })
+  .default({ type: 'implicit' })
 
-const securitySchemeOauth2 = z.object({
+const securitySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
-  uid,
-  nameKey,
-  description,
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flow: oauthFlowSchema,
-
   clientId: value,
   redirectUri: z.string().optional().default(''),
 })
 export type SecuritySchemeOauth2 = z.infer<typeof securitySchemeOauth2>
 
-const securitySchemeOpenId = z.object({
+const securitySchemeOpenId = commonProps.extend({
   type: z.literal('openIdConnect'),
-  uid,
-  nameKey,
-  description,
   /**
    * REQUIRED. OpenId Connect URL to discover OAuth2 configuration values. This MUST be in the
    * form of a URL. The OpenID Connect standard requires the use of TLS.
@@ -182,4 +153,3 @@ export type SecuritySchemePayload = z.input<typeof securityScheme>
 /** Create Security Scheme with defaults */
 export const createSecurityScheme = (payload: SecuritySchemePayload) =>
   deepMerge(securityScheme.parse({ type: payload.type }), payload)
-// securityScheme.parse(payload)

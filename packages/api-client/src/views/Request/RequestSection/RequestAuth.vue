@@ -9,10 +9,11 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { type UpdateScheme, useWorkspace } from '@/store/workspace'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
+import { ADD_AUTH_DICT, ADD_AUTH_OPTIONS } from '@/views/Request/consts'
 import type {
   SecuritySchemeGroup,
   SecuritySchemeOption,
-} from '@/views/Request/libs'
+} from '@/views/Request/consts'
 import {
   ScalarButton,
   ScalarComboboxMultiselect,
@@ -57,7 +58,7 @@ const getLabel = (scheme: SecurityScheme) => {
 }
 
 /** Generate the options for the dropdown */
-const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup>(
+const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   () => {
     // For the modal we only provide available auth
     if (isReadOnly.value) {
@@ -88,75 +89,72 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup>(
     }
     // For the client app we provide all options
     else {
-      // add collection level as well
-      return {
-        label: 'Add new auth',
-        options: [
-          {
-            id: 'apiKeyCookie',
-            label: 'API Key in Cookies',
-          },
-          {
-            id: 'apiKeyHeader',
-            label: 'API Key in Headers',
-          },
-          {
-            id: 'apiKeyQuery',
-            label: 'API Key in Query Params',
-          },
-          {
-            id: 'httpBasic',
-            label: 'HTTP Basic',
-          },
-          {
-            id: 'httpBearer',
-            label: 'HTTP Bearer',
-          },
-          {
-            id: 'oauth2Implicit',
-            label: 'Oauth2 Implicit Flow',
-          },
-          {
-            id: 'oauth2Password',
-            label: 'Oauth2 Password Flow',
-          },
-          {
-            id: 'oauth2ClientCredentials',
-            label: 'Oauth2 Client Credentials',
-          },
-          {
-            id: 'oauth2AuthorizationFlow',
-            label: 'Oauth2 Authorization Flow',
-          },
-        ],
-      }
+      // TODO add collection level options here as well
+      const options = activeRequest.value.securitySchemeUids.map((uid) => {
+        const scheme = securitySchemes[uid]
+        const label = getLabel(scheme)
+
+        return {
+          id: uid,
+          label: `${label} (${scheme.nameKey})`,
+          labelWithoutId: label,
+        }
+      })
+
+      return [
+        { label: 'Select auth', options },
+        {
+          label: 'Add new auth',
+          options: ADD_AUTH_OPTIONS,
+        },
+      ] as const
     }
   },
 )
 
 const selectedAuth = computed({
   // Grab the selected OR first security scheme
-  get: () =>
-    (Array.isArray(schemeOptions)
-      ? schemeOptions
-      : Object.values(schemeOptions).flatMap((val) => val.options)
-    ).filter(({ id }) =>
+  get: () => {
+    // Convert groups or arrays into one nice array for checking
+    const flattenedOptions = schemeOptions.value.flatMap((schemeOption) =>
+      'options' in schemeOption ? schemeOption.options : schemeOption,
+    )
+
+    // Return all schemes selected on this request
+    return flattenedOptions.filter(({ id }) =>
       activeRequest.value?.selectedSecuritySchemeUids?.find(
         (uid) => uid === id,
       ),
-    ),
+    )
+  },
 
   // Update the selected auth per this request
   set: (options) => {
-    console.log(options)
-    // If we hit one of the add new auth options close the popup
-    comboboxRef.value?.comboboxPopoverRef?.popoverButtonRef?.el?.click()
+    const newAuthOption = options.find(
+      (val) => ADD_AUTH_DICT[val.id as keyof typeof ADD_AUTH_DICT],
+    )
+
+    // Add new auth
+    if (newAuthOption?.payload && activeCollection.value) {
+      // Closing the popup as we don't want to keep selecting
+      comboboxRef.value?.comboboxPopoverRef?.popoverButtonRef?.el?.click()
+
+      securitySchemeMutators.add(
+        { ...newAuthOption.payload, nameKey: newAuthOption.id },
+        activeCollection.value.uid,
+        activeRequest.value,
+        true,
+      )
+    }
+    // Select existing auth
+    else {
+      requestMutators.edit(
+        activeRequest.value.uid,
+        'selectedSecuritySchemeUids',
+        options.map((opt) => opt.id),
+      )
+    }
   },
-  // requestMutators.edit(
-  //   activeRequest.value.uid,
-  //   'selectedSecuritySchemeUids',
-  //   options.map((opt) => opt.id),
-  // ),
 })
 
 type UpdateSchemeParams = Parameters<UpdateScheme>
