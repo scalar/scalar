@@ -505,6 +505,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       workspaces[Object.keys(workspaces)[0]],
   )
 
+  const activeEnvironment = computed(
+    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
+  )
+
   /** Ordered list of the active workspace's collections with drafts last */
   const activeWorkspaceCollections = computed(() =>
     activeWorkspace.value?.collectionUids
@@ -1001,6 +1005,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     activeWorkspaceServers,
     activeParsedEnvironments,
     activeWorkspaceRequests,
+    activeEnvironment,
     modalState,
     isReadOnly,
     router,

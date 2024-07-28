@@ -41,6 +41,8 @@ const workspaceSchema = z.object({
   environmentUids: z.array(z.string()).default([]),
   /** Customize hotkeys */
   hotKeyConfig: hotKeyConfigSchema,
+  /** Active Environment ID to use for requests  */
+  activeEnvironmentId: z.string().optional(),
   /** List of all cookie uids in a given workspace */
   cookieUids: z.array(z.string()).default([]),
   /** Workspace level proxy for all requests to be sent through */
