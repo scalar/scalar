@@ -16,6 +16,7 @@ export enum PathId {
   Environment = 'environment',
   Servers = 'servers',
   Workspace = 'workspace',
+  Settings = 'settings',
 }
 
 /** Shared request routes between modal and app */
@@ -124,6 +125,15 @@ const routes = [
         name: PathId.Servers,
         path: `servers/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
+      },
+      {
+        path: 'settings',
+        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+      },
+      {
+        name: PathId.Settings,
+        path: `settings/:${PathId.Settings}`,
+        component: () => import('@/views/Settings/Settings.vue'),
       },
     ],
   },
