@@ -82,10 +82,9 @@ export const sendRequest = async (
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach(
         (formParam: { key: string; value: string; file?: File }) => {
-          if (formParam.key && formParam.value) {
-            bodyFormData.append(formParam.key, formParam.value)
-          } else if (formParam.file) {
-            bodyFormData.append(formParam.file.name, formParam.file)
+          const value = formParam.file ? formParam.file : formParam.value
+          if (formParam.key && value) {
+            bodyFormData.append(formParam.key, value)
           }
         },
       )
