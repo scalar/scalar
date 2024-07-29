@@ -183,17 +183,17 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/adjsky">
-                    <img src="https://avatars.githubusercontent.com/u/49305219?v=4" width="100;" alt="adjsky"/>
-                    <br />
-                    <sub><b>adjsky</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/inyourtime">
                     <img src="https://avatars.githubusercontent.com/u/66111030?v=4" width="100;" alt="inyourtime"/>
                     <br />
                     <sub><b>inyourtime</b></sub>
+                </a>
+            </td>
+            <td align="center">
+                <a href="https://github.com/adjsky">
+                    <img src="https://avatars.githubusercontent.com/u/49305219?v=4" width="100;" alt="adjsky"/>
+                    <br />
+                    <sub><b>adjsky</b></sub>
                 </a>
             </td>
             <td align="center">
