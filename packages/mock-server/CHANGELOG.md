@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.2.22
+
+### Patch Changes
+
+- Updated dependencies [bf2895e]
+  - @scalar/oas-utils@0.2.19
+
 ## 0.2.21
 
 ### Patch Changes

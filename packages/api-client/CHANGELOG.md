@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.0.35
+
+### Patch Changes
+
+- bf2895e: feat(api-client): add multiple auth to api client
+- 5d2825a: feat: add sidebar request menu
+- Updated dependencies [bf2895e]
+- Updated dependencies [5d2825a]
+  - @scalar/components@0.12.22
+  - @scalar/oas-utils@0.2.19
+
 ## 2.0.34
 
 ### Patch Changes
