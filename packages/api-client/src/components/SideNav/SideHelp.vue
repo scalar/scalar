@@ -78,7 +78,7 @@ import {
       </a>
       <a
         class="no-underline block"
-        href="https://scalar.com/changelog"
+        href="https://github.com/scalar/scalar/issues/2669"
         target="_blank">
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
