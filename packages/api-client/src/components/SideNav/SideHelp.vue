@@ -10,19 +10,20 @@ import {
 <template>
   <ScalarDropdown :placement="'top-end'">
     <ScalarButton
-      class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
+      class="min-w-[37px] max-w-[42px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px]"
       fullWidth
       variant="ghost">
-      <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">🚨</h2>
+      <ScalarIcon icon="Help" />
     </ScalarButton>
 
     <!-- Workspace list -->
     <template #items>
-      <span>Support</span>
+      <span class="px-2.5 py-1.5 text-sm text-c-2 font-medium">Support</span>
       <a
+        class="no-underline block"
         href="https://discord.gg/scalar"
         target="_blank">
-        <ScalarDropdownItem class="flex items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
@@ -32,9 +33,10 @@ import {
         </ScalarDropdownItem>
       </a>
       <a
+        class="no-underline block"
         href="https://github.com/scalar/scalar"
         target="_blank">
-        <ScalarDropdownItem class="flex items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
@@ -44,39 +46,44 @@ import {
         </ScalarDropdownItem>
       </a>
       <a
+        class="no-underline block"
         href="mailto:marc@scalar.com"
         target="_blank">
-        <ScalarDropdownItem class="flex items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
-              icon="ExternalLink" />
+              icon="Email" />
           </div>
           <span>Email</span>
         </ScalarDropdownItem>
       </a>
       <ScalarDropdownDivider />
-      <span>Product</span>
+      <span class="px-2.5 py-1.5 text-sm text-c-2 font-medium">Product</span>
       <a
+        class="no-underline block"
         href="https://scalar.com/changelog"
         target="_blank">
-        <ScalarDropdownItem class="flex items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
-              icon="ExternalLink" />
+              icon="Changelog"
+              thickness="1.5" />
           </div>
           <span>Changelog</span>
         </ScalarDropdownItem>
       </a>
       <a
+        class="no-underline block"
         href="https://scalar.com/changelog"
         target="_blank">
-        <ScalarDropdownItem class="flex items-center gap-1.5">
+        <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
-              icon="ExternalLink" />
+              icon="Roadmap"
+              thickness="1.5" />
           </div>
           <span>Roadmap</span>
         </ScalarDropdownItem>
