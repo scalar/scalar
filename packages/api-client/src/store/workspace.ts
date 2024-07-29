@@ -762,7 +762,11 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
         'securitySchemeUids',
         request.securitySchemeUids.filter((uid) => uid !== scheme.uid),
       )
-      // TODO loop over all requests in collection and remove it from selected
+      requestMutators.edit(
+        request.uid,
+        'selectedSecuritySchemeUids',
+        request.selectedSecuritySchemeUids.filter((uid) => uid !== scheme.uid),
+      )
     }
 
     securitySchemeMutators.delete(scheme.uid)

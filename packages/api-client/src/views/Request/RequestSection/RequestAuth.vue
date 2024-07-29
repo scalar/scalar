@@ -181,6 +181,10 @@ const selectedLabel = computed(() => {
   else if (selectedAuth.value.length) return selectedAuth.value[0].label
   else return 'None'
 })
+
+/** Delete scheme */
+const handleDelete = (scheme: SecurityScheme) =>
+  securitySchemeMutators.delete(scheme, activeRequest.value)
 </script>
 <template>
   <ViewLayoutCollapse
@@ -228,9 +232,23 @@ const selectedLabel = computed(() => {
           v-for="(scheme, index) in activeSecuritySchemes"
           :key="scheme.uid">
           <!-- Header -->
-          <DataTableRow v-if="activeSecuritySchemes.length > 1">
-            <DataTableCell class="text-c-1 pl-2 text-sm flex items-center">
-              {{ selectedAuth[index]?.label }}:
+          <DataTableRow
+            v-if="activeSecuritySchemes.length > 1"
+            class="group/delete">
+            <DataTableCell
+              class="text-c-1 pl-2 text-sm flex items-center justify-between">
+              {{ selectedAuth[index]?.label }}
+
+              <div
+                class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/delete:opacity-100 request-meta-buttons">
+                <ScalarButton
+                  class="px-1 transition-none"
+                  size="sm"
+                  variant="ghost"
+                  @click.stop="handleDelete(scheme)">
+                  Delete
+                </ScalarButton>
+              </div>
             </DataTableCell>
           </DataTableRow>
 
