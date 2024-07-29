@@ -61,36 +61,38 @@ const getLabel = (scheme: SecurityScheme) => {
 /** Generate the options for the dropdown */
 const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   () => {
+    const securitySchemesDict = activeCollection.value?.securitySchemeDict
+
+    /** Security options from the spec */
+    const specOptions = activeSecurityRequirements.value.flatMap((req) => {
+      const keys = Object.keys(req)
+
+      // Optional
+      if (keys.length === 0 && isReadOnly.value)
+        return { id: 'none', label: 'None', labelWithoutId: 'None' }
+
+      // Active requirements
+      return keys.flatMap((key) => {
+        if (!securitySchemesDict) return []
+
+        const id = securitySchemesDict[key]
+        const scheme = securitySchemes[id]
+        const label = getLabel(scheme)
+
+        return {
+          id,
+          label: `${label} (${key})`,
+          labelWithoutId: label,
+        }
+      })
+    })
+
     // For the modal we only provide available auth
     if (isReadOnly.value) {
-      const securitySchemesDict = activeCollection.value?.securitySchemeDict
-
-      return activeSecurityRequirements.value.flatMap((req) => {
-        const keys = Object.keys(req)
-
-        // Optional
-        if (keys.length === 0)
-          return { id: 'none', label: 'None', labelWithoutId: 'None' }
-
-        // Active requirements
-        return keys.flatMap((key) => {
-          if (!securitySchemesDict) return []
-
-          const id = securitySchemesDict[key]
-          const scheme = securitySchemes[id]
-          const label = getLabel(scheme)
-
-          return {
-            id,
-            label: `${label} (${key})`,
-            labelWithoutId: label,
-          }
-        })
-      })
+      return specOptions
     }
     // For the client app we provide all options
     else {
-      // TODO add collection level options here as well
       const options = activeRequest.value.securitySchemeUids.map((uid) => {
         const scheme = securitySchemes[uid]
         const label = getLabel(scheme)
@@ -106,7 +108,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       })
 
       return [
-        { label: 'Select auth', options },
+        { label: 'Select auth', options: [...specOptions, ...options] },
         {
           label: 'Add new auth',
           options: ADD_AUTH_OPTIONS,
@@ -228,7 +230,7 @@ const selectedLabel = computed(() => {
           <!-- Header -->
           <DataTableRow v-if="activeSecuritySchemes.length > 1">
             <DataTableCell class="text-c-1 pl-2 text-sm flex items-center">
-              {{ selectedAuth[index].label }}:
+              {{ selectedAuth[index]?.label }}:
             </DataTableCell>
           </DataTableRow>
 
