@@ -326,9 +326,9 @@ const newTab = (name: string, uid: string) => {
         </a>
       </div>
       <AddressBar />
-      <EnvironmentSelector />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
+        <EnvironmentSelector v-if="!activeWorkspace.isReadOnly" />
         <!-- TODO: There should be an `ìsModal` flag instead -->
         <button
           v-if="activeWorkspace.isReadOnly"
