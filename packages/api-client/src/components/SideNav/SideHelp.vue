@@ -13,7 +13,9 @@ import {
       class="min-w-[37px] max-w-[42px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px]"
       fullWidth
       variant="ghost">
-      <ScalarIcon icon="Help" />
+      <ScalarIcon
+        icon="Help"
+        thickness="1.5" />
     </ScalarButton>
 
     <!-- Workspace list -->
