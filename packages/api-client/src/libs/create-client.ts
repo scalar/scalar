@@ -219,44 +219,45 @@ export const createApiClient = ({
           case 'oauth2':
             edit(auth.oAuth2.clientId, 'clientId')
 
-            // Implicit
-            if (scheme.flows.implicit) {
-              edit(auth.oAuth2.accessToken, 'flows.implicit.token')
-              edit(auth.oAuth2.scopes, 'flows.implicit.selectedScopes')
+            if (
+              scheme.flow.type === 'implicit' ||
+              scheme.flow.type === 'password'
+            ) {
+              edit(auth.oAuth2.accessToken, 'flow.token')
+              edit(auth.oAuth2.scopes, 'flow.selectedScopes')
+
+              if (scheme.flow.type === 'password') {
+                edit(auth.oAuth2.username, 'flow.value')
+                edit(auth.oAuth2.password, 'flow.secondValue')
+              }
             }
 
-            // Password
-            else if (scheme.flows.password) {
-              edit(auth.oAuth2.accessToken, 'flows.password.token')
-              edit(auth.oAuth2.scopes, 'flows.password.selectedScopes')
-              edit(auth.oAuth2.username, 'flows.password.value')
-              edit(auth.oAuth2.password, 'flows.password.secondValue')
-            }
             break
         }
       })
 
       // Select the correct scheme
-      if (auth.preferredSecurityScheme) {
-        const payload: Collection['selectedSecuritySchemes'][0] = {
-          uid: auth.preferredSecurityScheme!,
-        }
-        const preferredScheme = auth.securitySchemes?.[
-          auth.preferredSecurityScheme ?? ''
-        ] as OpenAPIV3_1.SecuritySchemeObject
-
-        if (preferredScheme?.type === 'oauth2') {
-          payload.flowKey = preferredScheme.flows?.implicit
-            ? 'implicit'
-            : 'password'
-        }
-
-        collectionMutators.edit(
-          activeCollection.value!.uid,
-          'selectedSecuritySchemes',
-          [payload],
-        )
-      }
+      // TODO for updating the selected auth from references -> client
+      // if (auth.preferredSecurityScheme) {
+      //   const payload = {
+      //     uid: auth.preferredSecurityScheme,
+      //   }
+      //   const preferredScheme = auth.securitySchemes?.[
+      //     auth.preferredSecurityScheme ?? ''
+      //   ] as OpenAPIV3_1.SecuritySchemeObject
+      //
+      //   if (preferredScheme?.type === 'oauth2') {
+      //     payload.flowKey = preferredScheme.flows?.implicit
+      //       ? 'implicit'
+      //       : 'password'
+      //   }
+      //
+      //   collectionMutators.edit(
+      //     activeCollection.value!.uid,
+      //     'selectedSecuritySchemes',
+      //     [payload],
+      //   )
+      // }
     },
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: async (spec: SpecConfiguration) => {

@@ -77,7 +77,7 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
   const securitySchemes = Object.values(
     JSON.parse(localStorage.getItem(LS_KEYS.SECURITY_SCHEME) || '{}'),
   ) as SecurityScheme[]
-  securitySchemes.forEach(securitySchemeMutators.add)
+  securitySchemes.forEach(securitySchemeMutators.rawAdd)
 
   // Workspace
   const workspaces = Object.values(

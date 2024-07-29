@@ -27,7 +27,7 @@ import { WorkspaceDropdown } from './components'
 const {
   activeExample,
   activeRequest,
-  activeSecurityScheme,
+  activeSecuritySchemes,
   activeWorkspaceServers,
   activeWorkspace,
   environments,
@@ -81,7 +81,7 @@ const executeRequest = async () => {
     activeRequest.value,
     activeExample.value,
     url,
-    activeSecurityScheme.value,
+    activeSecuritySchemes.value,
     activeWorkspace.value?.proxyUrl,
     cookies,
   )

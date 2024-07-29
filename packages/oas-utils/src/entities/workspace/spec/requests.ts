@@ -10,9 +10,7 @@ import type { RequestExample } from './request-examples'
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = AxiosResponse & {
-  /**
-   * Time in ms the request took
-   */
+  /** Time in ms the request took */
   duration: number
 }
 
@@ -68,6 +66,10 @@ const requestSchema = z.object({
    * security requirement ({}) can be included in the array.
    */
   security: z.array(securityRequirement).optional(),
+  /** Security schemes which have been created specifically for this request */
+  securitySchemeUids: z.array(nanoidSchema).optional().default([]),
+  /** The currently selected security schemes at the request level */
+  selectedSecuritySchemeUids: z.array(nanoidSchema).default([]),
   /**
    * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
    * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the

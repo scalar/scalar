@@ -9,8 +9,13 @@ import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
-const { activeRequest, activeExample, activeSecurityRequirements, isReadOnly } =
-  useWorkspace()
+const {
+  activeRequest,
+  activeSecuritySchemes,
+  activeExample,
+  activeSecurityRequirements,
+  isReadOnly,
+} = useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
@@ -82,6 +87,8 @@ watch(activeRequest, (newRequest) => {
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
+        :index="0"
+        :securityScheme="activeSecuritySchemes[0]"
         title="Authentication" />
       <RequestPathParams
         v-show="

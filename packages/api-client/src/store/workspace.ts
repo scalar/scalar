@@ -26,7 +26,10 @@ import {
 } from '@scalar/oas-utils/entities/workspace/folder'
 import {
   type SecurityScheme,
+  type SecuritySchemeApiKey,
+  type SecuritySchemePayload,
   createSecurityScheme,
+  securitySchemeApiKeyIn,
 } from '@scalar/oas-utils/entities/workspace/security'
 import {
   type Server,
@@ -47,7 +50,13 @@ import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { AnyObject, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type {
+  AnyObject,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-parser'
+import type { Entries } from 'type-fest'
 import { computed, inject, reactive, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -608,7 +617,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   )
 
   /**
-   * Add a new folder to a folder or colleciton
+   * Add a new folder to a folder or collection
    * If the parentUid is included it is added ot the parent as well
    */
   const addFolder = (
@@ -674,19 +683,13 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   )
 
   /**
-   * Returns both the active security schemes as well as the corresponding active flows in the case of oauth
-   * TODO this will eventually support multiples but we just return the first for now
+   * Returns the active requests' currently selected security schemes
    */
-  const activeSecurityScheme = computed(
+  const activeSecuritySchemes = computed(
     () =>
-      activeCollection.value?.selectedSecuritySchemes.map((opt) => {
-        const scheme = securitySchemes[opt.uid]
-        const flowObj =
-          opt.flowKey && 'flows' in scheme && scheme.flows
-            ? { flow: scheme.flows[opt.flowKey] }
-            : {}
-        return { scheme, ...flowObj }
-      })[0],
+      activeRequest.value?.selectedSecuritySchemeUids.map(
+        (uid) => securitySchemes[uid],
+      ) ?? [],
   )
 
   /**
@@ -702,6 +705,72 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       activeCollection.value?.spec.security ??
       [],
   )
+
+  /** Adds a security scheme and appends it to either a colleciton or a request */
+  const addSecurityScheme = (
+    payload: SecuritySchemePayload,
+    collectionUid: string,
+    request?: Request,
+    /** Add the new security scheme to the selected schemes for the request */
+    select = false,
+  ) => {
+    const scheme = createSecurityScheme(payload)
+    securitySchemeMutators.add(scheme)
+
+    // Add to collection dictionary
+    if (collectionUid && payload.nameKey) {
+      collectionMutators.edit(
+        collectionUid,
+        `securitySchemeDict.${payload.nameKey}`,
+        scheme.uid,
+      )
+    }
+
+    // Add to request
+    if (request) {
+      requestMutators.edit(request.uid, 'securitySchemeUids', [
+        ...request.securitySchemeUids,
+        scheme.uid,
+      ])
+      // Select it as well
+      if (select)
+        requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [
+          ...request.selectedSecuritySchemeUids,
+          scheme.uid,
+        ])
+    }
+  }
+
+  /** Delete a security scheme and remove the key from its corresponding parent */
+  const deleteSecurityScheme = (
+    scheme: SecurityScheme,
+    // collection: Collection,
+    request: Request,
+  ) => {
+    // Remove from collection
+    // TODO if we need it
+    // if (collection) {
+    // collectionMutators.edit(collection.uid, 'spec.security', [])
+    // remove from spec.security
+    // remove from securitySchemeDict
+    // }
+
+    // Remove from request
+    if (request) {
+      requestMutators.edit(
+        request.uid,
+        'securitySchemeUids',
+        request.securitySchemeUids.filter((uid) => uid !== scheme.uid),
+      )
+      requestMutators.edit(
+        request.uid,
+        'selectedSecuritySchemeUids',
+        request.selectedSecuritySchemeUids.filter((uid) => uid !== scheme.uid),
+      )
+    }
+
+    securitySchemeMutators.delete(scheme.uid)
+  }
 
   // ---------------------------------------------------------------------------
   // SERVERS
@@ -748,10 +817,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   // ---------------------------------------------------------------------------
 
   /** Helper function to import a OpenAPI spec file into the local workspace */
-  async function importSpecFile(
+  const importSpecFile = async (
     _spec: string | AnyObject,
     workspaceUid = 'default',
-  ) {
+  ) => {
     const spec = toRaw(_spec)
     const workspaceEntities = await importSpecToWorkspace(spec)
 
@@ -761,7 +830,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     )
 
     // Create a new collection for the spec file
-    addCollection(workspaceEntities.collection, workspaceUid)
+    const collection = addCollection(workspaceEntities.collection, workspaceUid)
 
     // Folders
     workspaceEntities.folders.forEach((folder) => addFolder(folder))
@@ -769,16 +838,104 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     // Servers
     workspaceEntities.servers.forEach((server) => addServer(server))
 
-    // Security Schemes
-    Object.entries(
+    // OAS Security Scheme Objects from the parser
+    const securitySchemeEntries = Object.entries(
       ((workspaceEntities.components?.securitySchemes ||
         workspaceEntities.securityDefinitions) ??
-        {}) as Record<string, SecurityScheme>,
-    ).forEach(([key, securityScheme]) =>
-      securitySchemeMutators.add(
-        createSecurityScheme({ ...securityScheme, uid: key }),
-      ),
+        {}) as Record<
+        string,
+        | OpenAPIV2.SecuritySchemeObject
+        | OpenAPIV3.SecuritySchemeObject
+        | OpenAPIV3_1.SecuritySchemeObject
+      >,
     )
+
+    /** Set the request's security based on a security requirement key */
+    const setFirstSecurityRequirement = (
+      securityRequirements: Record<string, string[]>[],
+      request: Request,
+    ) => {
+      const firstKey = Object.keys(securityRequirements[0])?.[0]
+      if (!firstKey) return
+
+      const uid = collection.securitySchemeDict[firstKey]
+      requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [uid])
+    }
+
+    // Security Schemes, we need to set some failsafes from the parsed spec
+    securitySchemeEntries.forEach(([key, securityScheme]) => {
+      // Oauth2
+      if (securityScheme && 'flows' in securityScheme) {
+        const { flows, ...rest } = securityScheme
+        if (flows) {
+          const entries = Object.entries(flows) as Entries<typeof flows>
+          const [type, flow] = entries[0]
+
+          // Some type shennanigans making openapi match ours
+          if (type && flow)
+            addSecurityScheme(
+              {
+                ...rest,
+                type: 'oauth2',
+                flow: { ...flow, type },
+                nameKey: key,
+              },
+              collection.uid,
+            )
+        }
+      }
+      // HTTP Basic from openapi 2
+      else if (securityScheme.type === 'basic') {
+        addSecurityScheme(
+          { ...securityScheme, type: 'http', scheme: 'basic', nameKey: key },
+          collection.uid,
+        )
+      }
+      // HTTP from openapi 3+
+      else if (securityScheme.type === 'http') {
+        addSecurityScheme(
+          {
+            ...securityScheme,
+            type: 'http',
+            scheme: securityScheme.scheme === 'bearer' ? 'bearer' : 'basic',
+            nameKey: key,
+          },
+          collection.uid,
+        )
+      }
+      // API Key
+      else if (securityScheme.type === 'apiKey')
+        addSecurityScheme(
+          {
+            ...securityScheme,
+            type: 'apiKey',
+            in: securitySchemeApiKeyIn.includes(
+              securityScheme.in as SecuritySchemeApiKey['in'],
+            )
+              ? (securityScheme.in as SecuritySchemeApiKey['in'])
+              : 'header',
+            nameKey: key,
+          },
+          collection.uid,
+        )
+    })
+
+    // By now we have the collection security dictionary so we can pre-select auth per request
+    if (securitySchemeEntries.length)
+      Object.values(requests).forEach((request) => {
+        const filteredRequirements =
+          request.security?.filter((req) => JSON.stringify(req) !== '{}') ?? []
+
+        // Grab the first security requirement on the request
+        if (filteredRequirements?.length)
+          setFirstSecurityRequirement(filteredRequirements, request)
+        // Check if auth is required at the collection level and we want to inherit it (undefined)
+        else if (
+          typeof request.security === 'undefined' &&
+          collection.spec.security?.length
+        )
+          setFirstSecurityRequirement(collection.spec.security, request)
+      })
   }
 
   // Function to fetch and import a spec from a URL
@@ -812,7 +969,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     activeRequest,
     activeRouterParams,
     activeSecurityRequirements,
-    activeSecurityScheme,
+    activeSecuritySchemes,
     activeServer,
     activeWorkspace,
     activeWorkspaceCollections,
@@ -857,7 +1014,12 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       delete: deleteRequestExample,
     },
     requestsHistory,
-    securitySchemeMutators,
+    securitySchemeMutators: {
+      ...securitySchemeMutators,
+      rawAdd: securitySchemeMutators.add,
+      add: addSecurityScheme,
+      delete: deleteSecurityScheme,
+    },
     serverMutators: {
       ...serverMutators,
       rawAdd: serverMutators.add,

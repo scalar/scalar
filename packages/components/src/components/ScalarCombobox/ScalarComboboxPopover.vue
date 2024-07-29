@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { ref } from 'vue'
 
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
@@ -7,12 +8,17 @@ defineProps<Omit<FloatingOptions, 'middleware'>>()
 
 defineOptions({ inheritAttrs: false })
 
+/** Expose the popover button so we can close the popup */
+const popoverButtonRef = ref<typeof PopoverButton | null>(null)
+
 /** Open the popover of the up or down arrows are pressed */
-function handleKeydown(e: KeyboardEvent) {
+const handleKeydown = (e: KeyboardEvent) => {
   if (!['ArrowUp', 'ArrowDown'].includes(e.key)) return
   e.preventDefault()
   e.target?.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
 }
+
+defineExpose({ popoverButtonRef })
 </script>
 <template>
   <Popover
@@ -24,6 +30,7 @@ function handleKeydown(e: KeyboardEvent) {
       :resize="resize"
       :teleport="teleport">
       <PopoverButton
+        ref="popoverButtonRef"
         as="template"
         @keydown="handleKeydown">
         <slot />
