@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.36
+
+### Patch Changes
+
+- 276e506: fix: show alpha version copy
+
 ## 2.0.35
 
 ### Patch Changes
