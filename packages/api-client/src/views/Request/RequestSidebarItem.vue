@@ -231,8 +231,8 @@ const isDefaultActive = computed(
             ? item.childUids.slice(1)
             : item.childUids"
           :key="uid"
-          :isDraggable="isDraggable"
-          :isDroppable="isDroppable"
+          :isDraggable="isDroppable && !requestExamples[uid]"
+          :isDroppable="Boolean(folders[uid])"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />

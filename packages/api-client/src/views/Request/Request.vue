@@ -16,6 +16,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
+import { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
@@ -23,21 +24,22 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
-import { requestItemDrop } from './libs'
 
 const {
   activeExample,
   activeRequest,
   activeSecuritySchemes,
-  activeWorkspaceServers,
   activeWorkspace,
-  collections,
-  collectionMutators,
-  environments,
-  requestMutators,
   activeWorkspaceCollections,
-  modalState,
+  activeWorkspaceServers,
+  collectionMutators,
+  collections,
   cookies,
+  environments,
+  folders,
+  folderMutators,
+  modalState,
+  requestMutators,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const searchModalState = useModal()
@@ -117,15 +119,48 @@ const onDragEnd = (
   draggingCollectionIndex: number,
   draggingItem: DraggingItem,
   hoveredItem: HoveredItem,
-) =>
-  requestItemDrop(
-    draggingCollection,
-    draggingCollectionIndex,
-    draggingItem,
-    hoveredItem,
-    collections.value,
-    collectionMutators,
-  )
+) => {
+  if (!draggingItem || !hoveredItem) return
+
+  const { id: draggingUid, parentId: draggingParentUid } = draggingItem
+  const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
+
+  if (!draggingParentUid || !hoveredParentUid) return
+
+  // Remove from dragging parent
+  if (collections[draggingParentUid]) {
+    collectionMutators.edit(
+      draggingParentUid,
+      'childUids',
+      collections[draggingParentUid].childUids.filter(
+        (uid) => uid !== draggingUid,
+      ),
+    )
+  } else if (folders[draggingParentUid]) {
+    folderMutators.edit(
+      draggingParentUid,
+      'childUids',
+      folders[draggingParentUid].childUids.filter((uid) => uid !== draggingUid),
+    )
+  }
+
+  // Add to hovered parent
+  const parent = collections[hoveredParentUid] || folders[hoveredParentUid]
+  const newChildUids = [...parent.childUids]
+
+  if (offset === 2) newChildUids.push(draggingUid)
+  else {
+    const hoveredIndex =
+      newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+    newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
+  }
+
+  // Hit the mutator
+  if (collections[hoveredParentUid])
+    collectionMutators.edit(hoveredParentUid, 'childUids', newChildUids)
+  else if (folders[hoveredParentUid])
+    folderMutators.edit(hoveredParentUid, 'childUids', newChildUids)
+}
 
 /* Opens the Command Palette */
 const addItemHandler = () => commandPaletteBus.emit()
@@ -206,8 +241,11 @@ const getBackgroundColor = () => {
                 collection, collectionIndex
               ) in activeWorkspaceCollections"
               :key="collection.uid"
-              :isDraggable="!activeWorkspace.isReadOnly"
-              :isDroppable="!activeWorkspace.isReadOnly"
+              :isDraggable="false"
+              :isDroppable="
+                !activeWorkspace.isReadOnly &&
+                collection.spec?.info?.title !== 'Drafts'
+              "
               :item="collection"
               :parentUids="[]"
               @onDragEnd="

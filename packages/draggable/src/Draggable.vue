@@ -87,7 +87,8 @@ const onDragStart = (ev: DragEvent) => {
 const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
-    draggingItem.value?.id === props.id ||
+    !draggingItem.value ||
+    draggingItem.value.id === props.id ||
     props.parentIds.includes(draggingItem.value?.id ?? '') ||
     !props.isDroppable
   )
