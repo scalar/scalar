@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.0.37
+
+### Patch Changes
+
+- b21b419: feat(api-client): add submit to enter on command pallette
+- 7b58f10: fix: add discord and github line icons
+- 3d9e948: fix: add request on enter triggering in command palette
+- Updated dependencies [7b58f10]
+  - @scalar/components@0.12.23
+
 ## 2.0.36
 
 ### Patch Changes
