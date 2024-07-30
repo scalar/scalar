@@ -30,8 +30,8 @@ import {
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              class="h-2.5"
-              icon="Discord" />
+              icon="DiscordLine"
+              size="xs" />
           </div>
           <span>Discord</span>
         </ScalarDropdownItem>
@@ -43,10 +43,10 @@ import {
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              class="h-2.5"
-              icon="GitHub" />
+              icon="GitHubLine"
+              size="xs" />
           </div>
-          <span>Github</span>
+          <span>GitHub</span>
         </ScalarDropdownItem>
       </a>
       <a
@@ -56,8 +56,8 @@ import {
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              class="h-2.5"
-              icon="Email" />
+              icon="Email"
+              size="xs" />
           </div>
           <span>Email</span>
         </ScalarDropdownItem>
@@ -70,8 +70,8 @@ import {
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              class="h-2.5"
               icon="Changelog"
+              size="xs"
               thickness="2" />
           </div>
           <span>Changelog</span>
@@ -84,8 +84,8 @@ import {
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">
             <ScalarIcon
-              class="h-2.5"
               icon="Roadmap"
+              size="xs"
               thickness="2" />
           </div>
           <span>Roadmap</span>
