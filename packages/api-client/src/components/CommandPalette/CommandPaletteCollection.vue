@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
-
-import { handleKeyDown } from './handleKeyDown'
+import { onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -31,19 +29,6 @@ const handleSubmit = () => {
 const collectionInput = ref<HTMLInputElement | null>(null)
 onMounted(() => {
   collectionInput.value?.focus()
-  window.addEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
 })
 </script>
 <template>
@@ -59,7 +44,8 @@ onBeforeUnmount(() => {
         v-model="collectionName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Collection Name"
-        placeholder="Collection Name" />
+        placeholder="Collection Name"
+        @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex">
       <div class="flex flex-1 gap-2 max-h-8"></div>
