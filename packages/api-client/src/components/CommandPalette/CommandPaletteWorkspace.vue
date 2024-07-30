@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const emits = defineEmits<{
