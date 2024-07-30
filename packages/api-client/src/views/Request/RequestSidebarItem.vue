@@ -61,6 +61,7 @@ const {
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 const hasChildren = computed(() => 'childUids' in props.item)
+const isRequest = computed(() => 'summary' in props.item)
 
 const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
@@ -137,9 +138,9 @@ const isDefaultActive = computed(
     ]">
     <Draggable
       :id="item.uid"
-      :ceiling="hasChildren ? 0.8 : 0.5"
-      class="flex flex-1 flex-col gap-[.5px] text-sm max-w-full"
-      :floor="hasChildren ? 0.2 : 0.5"
+      :ceiling="hasChildren && !isRequest ? 0.8 : 0.5"
+      class="flex flex-1 flex-col gap-[.5px] text-sm"
+      :floor="hasChildren && !isRequest ? 0.2 : 0.5"
       :isDraggable="parentUids.length > 0 && isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
@@ -227,12 +228,10 @@ const isDefaultActive = computed(
         v-show="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
-          v-for="uid in 'summary' in item
-            ? item.childUids.slice(1)
-            : item.childUids"
+          v-for="uid in isRequest ? item.childUids.slice(1) : item.childUids"
           :key="uid"
           :isDraggable="isDroppable && !requestExamples[uid]"
-          :isDroppable="Boolean(folders[uid])"
+          :isDroppable="isDroppable && !requestExamples[uid]"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />

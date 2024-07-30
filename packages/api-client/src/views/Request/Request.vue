@@ -113,13 +113,14 @@ onMounted(() => executeRequestBus.on(executeRequest))
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 
+/** Mutate folder OR collection */
+const mutate = (uid: string, childUids: string[]) => {
+  if (collections[uid]) collectionMutators.edit(uid, 'childUids', childUids)
+  else if (folders[uid]) folderMutators.edit(uid, 'childUids', childUids)
+}
+
 /** When user stops dragging and drops an item */
-const onDragEnd = (
-  draggingCollection: Collection,
-  draggingCollectionIndex: number,
-  draggingItem: DraggingItem,
-  hoveredItem: HoveredItem,
-) => {
+const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   if (!draggingItem || !hoveredItem) return
 
   const { id: draggingUid, parentId: draggingParentUid } = draggingItem
@@ -144,22 +145,22 @@ const onDragEnd = (
     )
   }
 
-  // Add to hovered parent
-  const parent = collections[hoveredParentUid] || folders[hoveredParentUid]
-  const newChildUids = [...parent.childUids]
-
-  if (offset === 2) newChildUids.push(draggingUid)
+  // Place it at the end of the list of the hoveredItem
+  if (offset === 2) {
+    const parent = collections[hoveredUid] || folders[hoveredUid]
+    mutate(hoveredUid, [...parent.childUids, draggingUid])
+  }
+  // Place it into the list at an index
   else {
+    const parent = collections[hoveredParentUid] || folders[hoveredParentUid]
+    const newChildUids = [...parent.childUids]
+
     const hoveredIndex =
       newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
     newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
-  }
 
-  // Hit the mutator
-  if (collections[hoveredParentUid])
-    collectionMutators.edit(hoveredParentUid, 'childUids', newChildUids)
-  else if (folders[hoveredParentUid])
-    folderMutators.edit(hoveredParentUid, 'childUids', newChildUids)
+    mutate(hoveredParentUid, newChildUids)
+  }
 }
 
 /* Opens the Command Palette */
@@ -237,9 +238,7 @@ const getBackgroundColor = () => {
             @dragover.prevent>
             <!-- Collections -->
             <RequestSidebarItem
-              v-for="(
-                collection, collectionIndex
-              ) in activeWorkspaceCollections"
+              v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
               :isDraggable="false"
               :isDroppable="
@@ -248,9 +247,7 @@ const getBackgroundColor = () => {
               "
               :item="collection"
               :parentUids="[]"
-              @onDragEnd="
-                (...args) => onDragEnd(collection, collectionIndex, ...args)
-              ">
+              @onDragEnd="onDragEnd">
               <template #leftIcon>
                 <ScalarIcon
                   class="text-sidebar-c-2 text-sm group-hover:hidden"
