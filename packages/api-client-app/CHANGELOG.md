@@ -1,5 +1,13 @@
 # scalar-api-client
 
+## 0.1.7
+
+### Patch Changes
+
+- 276e506: fix: show alpha version copy
+- Updated dependencies [276e506]
+  - @scalar/api-client@2.0.36
+
 ## 0.1.6
 
 ### Patch Changes
