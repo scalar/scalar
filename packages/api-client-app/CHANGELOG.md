@@ -1,5 +1,14 @@
 # scalar-api-client
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [b21b419]
+- Updated dependencies [7b58f10]
+- Updated dependencies [3d9e948]
+  - @scalar/api-client@2.0.37
+
 ## 0.1.7
 
 ### Patch Changes

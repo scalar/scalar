@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.23
+
+### Patch Changes
+
+- 7b58f10: fix: add discord and github line icons
+
 ## 0.12.22
 
 ### Patch Changes
