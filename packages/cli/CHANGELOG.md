@@ -1,5 +1,14 @@
 # @scalar/cli
 
+## 0.2.165
+
+### Patch Changes
+
+- Updated dependencies [bf2895e]
+  - @scalar/oas-utils@0.2.19
+  - @scalar/api-reference@1.24.60
+  - @scalar/mock-server@0.2.22
+
 ## 0.2.164
 
 ### Patch Changes

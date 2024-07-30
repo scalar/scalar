@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.19
+
+### Patch Changes
+
+- bf2895e: feat(api-client): add multiple auth to api client
+
 ## 0.2.18
 
 ### Patch Changes

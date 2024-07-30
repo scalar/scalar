@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.22
+
+### Patch Changes
+
+- bf2895e: feat(api-client): add multiple auth to api client
+- 5d2825a: feat: add sidebar request menu
+
 ## 0.12.21
 
 ### Patch Changes
