@@ -105,7 +105,7 @@ const { activeWorkspace } = useWorkspace()
 const metaData = ref<string>()
 const commandQuery = ref('')
 const activeCommand = ref<keyof typeof PaletteComponents | null>(null)
-const selectedSearchResult = ref<number>(0)
+const selectedSearchResult = ref<number>(-1)
 const commandRefs = ref<HTMLElement[]>([])
 
 const searchResultsWithPlaceholderResults = computed(() =>
@@ -123,6 +123,7 @@ const closeHandler = () => {
   commandQuery.value = ''
   activeCommand.value = null
   window.removeEventListener('keydown', handleKeyDown, true)
+  selectedSearchResult.value = -1
 }
 
 /** Close on escape */
@@ -131,7 +132,7 @@ whenever(keys.escape, () => {
 })
 
 whenever(keys.enter, () => {
-  if (!modalState.open) return
+  if (!modalState.open || selectedSearchResult.value === -1) return
 
   const command =
     searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
