@@ -11,6 +11,16 @@ const { isReadOnly } = useWorkspace()
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center">
+      <div class="scalar-version-number">
+        Scalar V1.0.6 <b>Alpha</b> Release
+        <div class="mt-1">
+          <a
+            href="https://github.com/scalar/scalar/issues/2669"
+            target="_blank"
+            >Roadmap</a
+          >
+        </div>
+      </div>
       <ScalarAsciiArt :art="Computer" />
     </div>
     <div
@@ -32,3 +42,19 @@ const { isReadOnly } = useWorkspace()
     </div>
   </div>
 </template>
+<style scoped>
+.scalar-version-number {
+  transform: skew(0deg, 16deg);
+  width: 66px;
+  height: 66px;
+  position: absolute;
+  margin-left: -33px;
+  font-size: 8px;
+  font-family: var(--scalar-font-code);
+  line-height: 11px;
+  margin-top: -110px;
+}
+.scalar-version-number b {
+  font-weight: bold;
+}
+</style>
