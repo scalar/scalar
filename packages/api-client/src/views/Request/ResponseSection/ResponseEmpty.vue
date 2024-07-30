@@ -5,13 +5,15 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { executeRequestBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 
-const { isReadOnly } = useWorkspace()
+const { isReadOnly, activeWorkspace } = useWorkspace()
 </script>
 <template>
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center">
-      <div class="scalar-version-number">
+      <div
+        v-if="!activeWorkspace.isReadOnly"
+        class="scalar-version-number">
         Scalar V1.0.6 <b>Alpha</b> Release
         <div class="mt-1">
           <a
