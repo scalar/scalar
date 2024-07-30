@@ -69,7 +69,7 @@ const parentId = computed(() =>
 const onDragStart = (ev: DragEvent) => {
   if (
     !ev.dataTransfer ||
-    !(ev.target instanceof HTMLDivElement) ||
+    !(ev.target instanceof HTMLElement) ||
     !props.isDraggable
   )
     return
