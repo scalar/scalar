@@ -6,6 +6,7 @@ import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
 import {
   Draggable,
+  type DraggableProps,
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
@@ -33,7 +34,7 @@ const props = withDefaults(
      *
      * @default false
      */
-    isDroppable?: boolean
+    isDroppable?: DraggableProps['isDroppable']
     /** Both inidicate the level and provide a way to traverse upwards */
     parentUids: string[]
     item: Collection | Folder | Request | RequestExample
@@ -61,6 +62,7 @@ const {
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 const hasChildren = computed(() => 'childUids' in props.item)
+const isCollection = computed(() => 'spec' in props.item)
 const isRequest = computed(() => 'summary' in props.item)
 
 const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
@@ -126,6 +128,21 @@ const isDefaultActive = computed(
     activeRouterParams.value[PathId.Request] === 'default' &&
     activeRequest.value.uid === props.item.uid,
 )
+
+/** Guard to check if an element should be droppable */
+const _isDroppable = (
+  draggingItem: DraggingItem,
+  hoveredItem: DraggingItem,
+) => {
+  console.log(draggingItem)
+  console.log(hoveredItem)
+  if (typeof props.isDroppable === 'function') {
+    console.log('da func')
+    return props.isDroppable(draggingItem, hoveredItem)
+  } else {
+    return Boolean(props.isDroppable && !requestExamples[hoveredItem.id])
+  }
+}
 </script>
 <template>
   <div
@@ -138,10 +155,10 @@ const isDefaultActive = computed(
     ]">
     <Draggable
       :id="item.uid"
-      :ceiling="hasChildren && !isRequest ? 0.8 : 0.5"
+      :ceiling="hasChildren && !isRequest && !isCollection ? 0.8 : 0.5"
       class="flex flex-1 flex-col gap-[.5px] text-sm"
-      :floor="hasChildren && !isRequest ? 0.2 : 0.5"
-      :isDraggable="parentUids.length > 0 && isDraggable"
+      :floor="hasChildren && !isRequest && !isCollection ? 0.2 : 0.5"
+      :isDraggable="isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
@@ -231,7 +248,7 @@ const isDefaultActive = computed(
           v-for="uid in isRequest ? item.childUids.slice(1) : item.childUids"
           :key="uid"
           :isDraggable="isDroppable && !requestExamples[uid]"
-          :isDroppable="isDroppable && !requestExamples[uid]"
+          :isDroppable="(a, b) => _isDroppable(a, b)"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />

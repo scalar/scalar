@@ -15,8 +15,6 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
@@ -73,6 +71,7 @@ const executeRequest = async () => {
   const doubleCurlyBrackets = /\{\{(.*?)\}\}/g
   url = url.replace(doubleCurlyBrackets, (_match, key) => {
     // check if a server
+    // eslint-disable-next-line consistent-return
     activeWorkspaceServers.value.forEach((server) => {
       if (server.url === key) {
         return key
@@ -240,11 +239,8 @@ const getBackgroundColor = () => {
             <RequestSidebarItem
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
-              :isDraggable="false"
-              :isDroppable="
-                !activeWorkspace.isReadOnly &&
-                collection.spec?.info?.title !== 'Drafts'
-              "
+              :isDraggable="!activeWorkspace.isReadOnly"
+              :isDroppable="!activeWorkspace.isReadOnly"
               :item="collection"
               :parentUids="[]"
               @onDragEnd="onDragEnd">

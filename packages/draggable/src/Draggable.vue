@@ -29,11 +29,13 @@ export type DraggableProps = {
    */
   isDraggable?: boolean
   /**
-   * Prevents items from being hovered and dropped into
+   * Prevents items from being hovered and dropped into. Can be either a function or a boolean
    *
    * @default true
    */
-  isDroppable?: boolean
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: DraggingItem) => boolean)
   /**
    * We pass an array of parents to make it easier to reverse traverse
    */
@@ -48,6 +50,7 @@ const props = withDefaults(defineProps<DraggableProps>(), {
   floor: 0.2,
   isDraggable: true,
   isDroppable: true,
+  isHoverable: () => true,
 })
 
 const emit = defineEmits<{
@@ -83,6 +86,15 @@ const onDragStart = (ev: DragEvent) => {
   emit('onDragStart', { id: props.id, parentId: parentId.value })
 }
 
+/** Check if isDroppable guard */
+const _isDroppable = () =>
+  typeof props.isDroppable === 'function'
+    ? props.isDroppable(draggingItem.value!, {
+        id: props.id,
+        parentId: parentId.value,
+      })
+    : props.isDroppable
+
 // On dragging over we decide which highlight to show
 const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
@@ -90,7 +102,7 @@ const onDragOver = throttle((ev: DragEvent) => {
     !draggingItem.value ||
     draggingItem.value.id === props.id ||
     props.parentIds.includes(draggingItem.value?.id ?? '') ||
-    !props.isDroppable
+    !_isDroppable()
   )
     return
 
@@ -125,7 +137,7 @@ const positionDict = ['above', 'below', 'asChild']
 const containerClass = computed(() => {
   let classList = 'sidebar-indent-nested'
 
-  if (props.isDroppable && props.id === hoveredItem.value?.id) {
+  if (props.id === hoveredItem.value?.id) {
     classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
   }
 
