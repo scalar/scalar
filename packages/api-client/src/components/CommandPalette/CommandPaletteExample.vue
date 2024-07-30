@@ -8,17 +8,15 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { handleKeyDown } from './handleKeyDown'
 
 const props = defineProps<{
   /** The request uid to pre-select */
   metaData?: string
 }>()
 
-const emits = defineEmits<{
+defineEmits<{
   (event: 'close'): void
 }>()
 
@@ -60,19 +58,6 @@ const handleSubmit = () => {
 
 onMounted(() => {
   exampleInput.value?.focus()
-  window.addEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
 })
 </script>
 <template>
@@ -88,7 +73,8 @@ onBeforeUnmount(() => {
         v-model="exampleName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Example Name"
-        placeholder="Example Name" />
+        placeholder="Example Name"
+        @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex gap-2">
       <div class="flex flex-1 max-h-8">

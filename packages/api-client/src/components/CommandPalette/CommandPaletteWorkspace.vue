@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { handleKeyDown } from './handleKeyDown'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -25,19 +23,6 @@ const handleSubmit = () => {
 const workspaceInput = ref<HTMLInputElement | null>(null)
 onMounted(() => {
   workspaceInput.value?.focus()
-  window.addEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
 })
 </script>
 <template>
@@ -54,7 +39,8 @@ onBeforeUnmount(() => {
         autofocus
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Workspace Name"
-        placeholder="Workspace Name" />
+        placeholder="Workspace Name"
+        @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex">
       <div class="flex flex-1 gap-2 max-h-8"></div>

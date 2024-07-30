@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-
-import { handleKeyDown } from './handleKeyDown'
+import { computed, onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -47,19 +45,6 @@ const folderInput = ref<HTMLInputElement | null>(null)
 
 onMounted(() => {
   folderInput.value?.focus()
-  window.addEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
 })
 </script>
 <template>
@@ -75,7 +60,8 @@ onBeforeUnmount(() => {
         v-model="folderName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Folder Name"
-        placeholder="Folder Name" />
+        placeholder="Folder Name"
+        @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex">
       <div class="flex flex-1 gap-2 max-h-8">

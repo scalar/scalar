@@ -3,10 +3,8 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { handleKeyDown } from './handleKeyDown'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -101,19 +99,6 @@ const handleSubmit = () => {
 const requestInput = ref<HTMLInputElement | null>(null)
 onMounted(() => {
   requestInput.value?.focus()
-  window.addEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener(
-    'keydown',
-    (event) => handleKeyDown(event, handleSubmit),
-    true,
-  )
 })
 </script>
 <template>
@@ -129,7 +114,8 @@ onBeforeUnmount(() => {
         v-model="requestName"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Request Name"
-        placeholder="Request Name" />
+        placeholder="Request Name"
+        @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex">
       <div class="flex flex-1 gap-2 max-h-8">
