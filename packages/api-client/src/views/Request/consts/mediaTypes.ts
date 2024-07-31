@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'img'
+export type MediaPreview = 'img' | 'img-w-alpha'
 
 export type MediaConfig = {
   preview?: MediaPreview
@@ -63,16 +63,21 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'font/ttf': { extension: '.ttf' },
   'font/woff': { extension: '.woff' },
   'font/woff2': { extension: '.woff2' },
-  'image/apng': { extension: '.apng', preview: 'img' },
+  'image/apng': { extension: '.apng', preview: 'img-w-alpha' },
   'image/avif': { extension: '.avif', preview: 'img' },
   'image/bmp': { extension: '.bmp', preview: 'img' },
-  'image/gif': { extension: '.gif', preview: 'img' },
+  'image/gif': { extension: '.gif', preview: 'img-w-alpha' },
   'image/jpeg': { extension: '.jpg', preview: 'img' },
-  'image/png': { extension: '.png', preview: 'img' },
-  'image/svg+xml': { extension: '.svg', raw: true, language: 'xml' },
-  'image/tiff': { extension: '.tiff' },
-  'image/vnd.microsoft.icon': { extension: '.ico' },
-  'image/webp': { extension: '.webp' },
+  'image/png': { extension: '.png', preview: 'img-w-alpha' },
+  'image/svg+xml': {
+    extension: '.svg',
+    raw: true,
+    language: 'xml',
+    preview: 'img-w-alpha',
+  },
+  'image/tiff': { extension: '.tiff', preview: 'img' },
+  'image/vnd.microsoft.icon': { extension: '.ico', preview: 'img' },
+  'image/webp': { extension: '.webp', preview: 'img-w-alpha' },
   'text/calendar': { extension: '.ics', raw: true },
   'text/css': { extension: '.css', raw: true, language: 'css' },
   'text/csv': { extension: '.csv', raw: true },

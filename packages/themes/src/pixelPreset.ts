@@ -188,6 +188,10 @@ export default {
       '5xl': remPx['64rem'],
       '6xl': remPx['72rem'],
       '7xl': remPx['80rem'],
+      'full': '100%',
+      'min  ': 'min-content',
+      'max': 'max-content',
+      'fit': 'fit-content',
     }),
   },
 }
