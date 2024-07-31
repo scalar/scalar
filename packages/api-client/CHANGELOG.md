@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.0.39
+
+### Patch Changes
+
+- 016ff7d: fix: dropdown add variable redirection
+- e8cf2f5: fix: back to requests link
+- c1ada84: feat(api-client): add the ability to delete and rename folders and collections
+- 3031929: feat: command palette empty state
+- c1ada84: fix: modal layout and size
+- 808eafb: fix: word break in sidebar and word wrapping from ellipsis
+- 7853b8d: feat: cookie removal
+- Updated dependencies [c1ada84]
+- Updated dependencies [c1ada84]
+- Updated dependencies [e18029f]
+  - @scalar/components@0.12.25
+  - @scalar/themes@0.9.18
+  - @scalar/oas-utils@0.2.21
+
 ## 2.0.38
 
 ### Patch Changes
