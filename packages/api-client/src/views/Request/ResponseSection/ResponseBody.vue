@@ -1,60 +1,55 @@
 <script lang="ts" setup>
-import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useCodeMirror } from '@scalar/use-codemirror'
-import { computed, ref, toRef } from 'vue'
+import { computed } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    title: string
-    data: any
-    headers: { name: string; value: string; required: boolean }[]
-  }>(),
-  {
-    data: null,
-  },
+import ResponseBodyRaw from './ResponseBodyRaw.vue'
+
+const props = defineProps<{
+  title: string
+  data?: Blob | string
+  headers: { name: string; value: string; required: boolean }[]
+}>()
+
+const contentType = computed(
+  () =>
+    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
+      ?.value ?? '',
 )
+const mimeType = computed(() => {
+  if (props.data instanceof Blob) return props.data.type
+  else return contentType.value
+})
 
 const codeLanguage = computed(() => {
-  const contentTypeHeader =
-    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
-      ?.value ?? ''
-
-  if (contentTypeHeader.includes('json')) return 'json'
-  if (contentTypeHeader.includes('html')) return 'html'
+  if (contentType.value.includes('json')) return 'json'
+  if (contentType.value.includes('html')) return 'html'
   return 'html'
 })
 
-const codeMirrorRef = ref<HTMLDivElement | null>(null)
-
-useCodeMirror({
-  codeMirrorRef,
-  readOnly: true,
-  lineNumbers: true,
-  content: toRef(() => props.data),
-  language: codeLanguage,
+const dataUrl = computed<string>(() => {
+  if (!props.data) return ''
+  const blob = new Blob([props.data], { type: contentType.value })
+  return URL.createObjectURL(blob)
 })
+
+const stringData = computed(() =>
+  typeof props.data === 'string' ? props.data : '',
+)
 </script>
 <template>
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
-    <div ref="codeMirrorRef" />
+    <template #actions>
+      <a
+        download
+        :href="dataUrl"
+        @click.stop>
+        Download
+      </a>
+    </template>
+    {{ mimeType }}{{ data }}
+    <ResponseBodyRaw
+      :data="stringData"
+      :language="codeLanguage" />
   </ViewLayoutCollapse>
 </template>
-<style scoped>
-.force-text-sm {
-  --scalar-small: 13px;
-}
-:deep(.cm-editor) {
-  background-color: transparent;
-  font-size: var(--scalar-mini);
-  outline: none;
-  border-radius: var(--scalar-radius);
-  border: 0.5px solid var(--scalar-border-color);
-}
-:deep(.cm-gutters) {
-  background-color: var(--scalar-background-1);
-  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
-}
-</style>

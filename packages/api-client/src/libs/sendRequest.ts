@@ -189,6 +189,7 @@ export const sendRequest = async (
   const config: AxiosRequestConfig = {
     url: redirectToProxy(proxyUrl, url),
     method: request.method,
+    responseType: 'blob',
     headers,
   }
 
@@ -214,11 +215,16 @@ export const sendRequest = async (
         .forEach((header) => delete response.headers[header])
     }
 
+    const blob: Blob = response.data
+    const responseData: Blob | string =
+      blob.type === 'application/json' ? await blob.text() : blob
+
     return {
       sentTime: Date.now(),
       request: example,
       response: {
         ...response,
+        data: responseData,
         duration: Date.now() - startTime,
       },
     }
