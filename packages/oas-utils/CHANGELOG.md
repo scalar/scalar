@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.21
+
+### Patch Changes
+
+- e18029f: Fallback request summary to path on spec import
+- Updated dependencies [c1ada84]
+  - @scalar/themes@0.9.18
+
 ## 0.2.20
 
 ### Patch Changes

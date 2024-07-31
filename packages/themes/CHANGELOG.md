@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.18
+
+### Patch Changes
+
+- c1ada84: feat(api-client): add the ability to delete and rename folders and collections
+
 ## 0.9.17
 
 ### Patch Changes
