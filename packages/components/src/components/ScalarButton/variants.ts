@@ -17,7 +17,7 @@ export const styles: Record<string, Record<string, any>> = {
   ],
   danger: [
     'scalar-button-danger',
-    'bg-error text-white active:brightness-90 hocus:brightness-90',
+    'bg-red text-white active:brightness-90 hocus:brightness-90',
   ],
 }
 

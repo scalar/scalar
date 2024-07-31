@@ -6,13 +6,14 @@ import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
   ScalarDropdown,
-  ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
   ScalarModal,
   ScalarTextField,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
+import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
   Request,
   RequestExample,
@@ -21,13 +22,16 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
-  item: Request | RequestExample
+  /** Both inidicate the level and provide a way to traverse upwards */
+  parentUids: string[]
+  item: Collection | Folder | Request | RequestExample
 }>()
 
 const {
   activeWorkspace,
   activeRouterParams,
-  findRequestFolders,
+  collectionMutators,
+  folderMutators,
   requestMutators,
   requestExampleMutators,
 } = useWorkspace()
@@ -54,15 +58,25 @@ const handleItemDelete = () => {
     }
   }
   // Delete request
-  else {
-    // We need to find out what the parent is first
-    const uids = findRequestFolders(props.item.uid)
-    if (!uids.length) return
-
-    requestMutators.delete(props.item, uids[0])
+  else if ('summary' in props.item) {
+    requestMutators.delete(
+      props.item,
+      props.parentUids[props.parentUids.length - 1],
+    )
     if (activeRouterParams.value[PathId.Request] === props.item.uid) {
       replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
     }
+  }
+  // Delete Collection
+  else if ('spec' in props.item) {
+    collectionMutators.delete(props.item)
+  }
+  // Delete folder
+  else if ('name' in props.item) {
+    folderMutators.delete(
+      props.item,
+      props.parentUids[props.parentUids.length - 1],
+    )
   }
 }
 
@@ -70,20 +84,30 @@ const isRequest = computed(() => 'summary' in props.item)
 const itemName = computed(() => {
   if ('summary' in props.item) return props.item.summary || ''
   if ('name' in props.item) return props.item.name || ''
+  if ('spec' in props.item) return props.item.spec.info?.title || ''
   return ''
 })
 
 const tempName = ref('')
 
 const handleItemRename = () => {
-  // rename request
+  // Request
   if ('summary' in props.item) {
     requestMutators.edit(props.item.uid, 'summary', tempName.value)
-  } else if (!('summary' in props.item)) {
-    // rename example
+  }
+  // Example
+  else if ('requestUid' in props.item) {
     requestExampleMutators.edit(props.item.uid, 'name', tempName.value)
   }
-  tempName.value = ''
+  // Collection
+  else if ('spec' in props.item) {
+    collectionMutators.edit(props.item.uid, 'spec.info.title', tempName.value)
+  }
+  // Folder
+  else {
+    folderMutators.edit(props.item.uid, 'name', tempName.value)
+  }
+
   renameModal.hide()
 }
 
@@ -93,14 +117,29 @@ const openRenameModal = () => {
   tempName.value = itemName.value
   renameModal.show()
 }
+
+/** Gets the title of the resource to use in the modal titles */
+const resourceTitle = computed(() => {
+  if ('requestUid' in props.item) return 'Example'
+  if ('summary' in props.item) return 'Request'
+  if ('spec' in props.item) return 'Collection'
+  return 'Folder'
+})
 </script>
 
 <template>
   <ScalarDropdown teleport="#scalar-client">
     <ScalarButton
-      class="z-10 hover:bg-b-3 transition-none p-1 group-hover:flex ui-open:flex absolute left-0 hidden -translate-x-full -ml-1"
+      class="px-1 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex"
       size="sm"
-      variant="ghost">
+      variant="ghost"
+      @click="
+        (ev) => {
+          // We must stop propagation on folders and collections to prevent them from toggling
+          if (resourceTitle === 'Collection' || resourceTitle === 'Folder')
+            ev.stopPropagation()
+        }
+      ">
       <ScalarIcon
         icon="Ellipses"
         size="sm" />
@@ -156,7 +195,7 @@ const openRenameModal = () => {
   <ScalarModal
     :size="'sm'"
     :state="deleteModal"
-    :title="isRequest ? 'Delete Request' : 'Delete Example'">
+    :title="`Delete ${resourceTitle}`">
     <DeleteSidebarListElement
       :variableName="itemName"
       @close="deleteModal.hide()"
@@ -164,10 +203,12 @@ const openRenameModal = () => {
   </ScalarModal>
   <ScalarModal
     :state="renameModal"
-    :title="isRequest ? 'Rename Request' : 'Rename Example'">
+    :title="`Rename ${resourceTitle}`">
     <ScalarTextField
       v-model="tempName"
-      :label="isRequest ? 'Request' : 'Example'" />
+      :label="resourceTitle"
+      labelShadowColor="var(--scalar-background-1)"
+      @keydown.prevent.enter="handleItemRename" />
     <div class="flex gap-3">
       <ScalarButton
         class="flex-1"

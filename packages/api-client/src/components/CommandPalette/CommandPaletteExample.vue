@@ -16,7 +16,7 @@ const props = defineProps<{
   metaData?: string
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
@@ -54,6 +54,7 @@ const handleSubmit = () => {
   push(
     `/workspace/${activeWorkspace.value.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
   )
+  emits('close')
 }
 
 onMounted(() => {
