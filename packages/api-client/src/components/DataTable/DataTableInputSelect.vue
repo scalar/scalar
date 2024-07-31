@@ -71,7 +71,7 @@ watch(addingCustomValue, (newValue) => {
       <input
         ref="inputRef"
         v-model="customValue"
-        class="border-none focus:text-c-1 text-c-2 min-w-0 w-full px-2 py-1.5 outline-none"
+        class="border-none text-c-1 min-w-0 w-full px-2 py-1.5 outline-none"
         placeholder="Value"
         type="text"
         @blur="handleBlur"
