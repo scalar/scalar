@@ -138,7 +138,7 @@ const isDefaultActive = computed(
     <Draggable
       :id="item.uid"
       :ceiling="hasChildren ? 0.8 : 0.5"
-      class="flex flex-1 flex-col gap-[.5px] text-sm"
+      class="flex flex-1 flex-col gap-[.5px] text-sm max-w-full"
       :floor="hasChildren ? 0.2 : 0.5"
       :isDraggable="parentUids.length > 0 && isDraggable"
       :isDroppable="isDroppable"
@@ -160,7 +160,10 @@ const isDefaultActive = computed(
           ]"
           tabindex="0">
           <span
-            class="z-10 font-medium w-full editable-sidebar-hover-item pl-2 break-all">
+            class="z-10 font-medium w-full pl-2 word-break-break-word"
+            :class="{
+              'editable-sidebar-hover-item': !isReadOnly,
+            }">
             {{ getTitle(item) }}
           </span>
           <div class="flex flex-row gap-1">
@@ -200,8 +203,13 @@ const isDefaultActive = computed(
           </slot>
           &hairsp;
         </span>
-        <div class="flex flex-1 flex-row justify-between sidebar-folderitem">
-          <span class="z-10 font-medium w-full break-word text-left">
+        <div
+          class="flex flex-1 flex-row justify-between sidebar-folderitem editable-sidebar-hover">
+          <span
+            class="z-10 font-medium w-full word-break-break-word text-left"
+            :class="{
+              'editable-sidebar-hover-item': !isReadOnly,
+            }">
             {{ getTitle(item) }}
           </span>
           <RequestSidebarItemMenu
@@ -246,12 +254,15 @@ const isDefaultActive = computed(
 .editable-sidebar-hover:hover .editable-sidebar-hover-item {
   mask-image: linear-gradient(
     to left,
-    transparent 0,
-    var(--scalar-background-2) 20px
+    transparent 10px,
+    var(--scalar-background-2) 30px
   );
 }
 .sidebar-folderitem :deep(.ellipsis-position) {
   right: 6px;
   transform: none;
+}
+.word-break-break-word {
+  word-break: break-word;
 }
 </style>
