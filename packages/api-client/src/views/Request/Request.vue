@@ -18,7 +18,7 @@ import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -34,15 +34,30 @@ const {
   collections,
   cookies,
   environments,
+  findRequestFolders,
   folders,
   folderMutators,
   modalState,
   requestMutators,
   workspaceMutators,
 } = useWorkspace()
-const { collapsedSidebarFolders } = useSidebar()
+const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const searchModalState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+
+/** Watch to see if activeRequest changes and ensure we open any folders */
+watch(
+  activeRequest,
+  (request) => {
+    if (!request) return
+
+    // Ensure the sidebar folders are open
+    findRequestFolders(request.uid).forEach((uid) =>
+      setCollapsedSidebarFolder(uid, true),
+    )
+  },
+  { immediate: true },
+)
 
 /**
  * Execute the request
