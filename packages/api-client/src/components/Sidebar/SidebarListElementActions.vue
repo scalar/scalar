@@ -62,12 +62,13 @@ function handleDelete(id: string) {
     </button>
   </div>
   <ScalarModal
+    size="sm"
     :state="modalState"
     :title="`${currentAction.action} ${currentAction.name}`">
     <DeleteSidebarListElement
       v-if="currentAction.action === ModalAction.Delete"
       :variableName="currentAction.name"
-      @close="handleModalClose"
+      warningMessage="Are you sure you want to delete this cookie?"
       @delete="handleDelete(variable.uid)" />
   </ScalarModal>
 </template>

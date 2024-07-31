@@ -176,6 +176,7 @@ const resourceTitle = computed(() => {
         @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
+          thickness="1.5"
           icon="Duplicate"
           size="sm" />
         <span>Duplicate</span>
@@ -201,6 +202,7 @@ const resourceTitle = computed(() => {
     :title="`Delete ${resourceTitle}`">
     <DeleteSidebarListElement
       :variableName="itemName"
+      warningMessage="Warning: Deleting this will delete all items inside of this"
       @close="deleteModal.hide()"
       @delete="handleItemDelete" />
   </ScalarModal>
