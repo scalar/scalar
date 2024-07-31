@@ -292,6 +292,11 @@ onBeforeUnmount(() => {
           {{ command.name }}
         </div>
       </template>
+      <div
+        v-if="!searchResultsWithPlaceholderResults.length"
+        class="text-c-3 text-center text-sm p-2 pt-3">
+        No commands found
+      </div>
     </template>
 
     <!-- Specific command palette -->
