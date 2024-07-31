@@ -36,8 +36,11 @@ onMounted(() => {
         id="workspacename"
         ref="workspaceInput"
         v-model="workspaceName"
+        autocomplete="off"
         autofocus
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
+        data-form-type="other"
+        data-lpignore="true"
         label="Workspace Name"
         placeholder="Workspace Name"
         @keydown.prevent.enter="handleSubmit" />

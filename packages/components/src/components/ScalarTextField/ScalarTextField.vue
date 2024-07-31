@@ -121,7 +121,7 @@ onMounted(() => {
         @blur="handleBlur"
         @focus="isFocused = true"
         @input="handleChange"
-        @keyup.enter="handleSubmit" />
+        @keydown.enter="handleSubmit" />
       <label
         v-if="label"
         :class="
@@ -145,9 +145,9 @@ onMounted(() => {
     <span
       :class="
         cx(
-          'helper-text before:font-black mt-1.5 flex items-center text-sm text-error before:rounded-full',
+          'helper-text before:font-black mt-1.5 flex items-center text-sm text-red before:rounded-full',
           'before:mr-1.5 before:block before:h-4 before:w-4 before:text-center before:text-xxs before:leading-4',
-          `before:bg-error before:text-white empty:hidden`,
+          `before:text-white empty:hidden`,
         )
       ">
       {{ helperText }}

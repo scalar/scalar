@@ -163,10 +163,11 @@ const isDefaultActive = computed(
             class="z-10 font-medium w-full editable-sidebar-hover-item pl-2">
             {{ getTitle(item) }}
           </span>
-          <div class="relative">
+          <div class="flex flex-row gap-1">
             <RequestSidebarItemMenu
               v-if="!isReadOnly"
-              :item="item" />
+              :item="item"
+              :parentUids="parentUids" />
             <span class="flex">
               &hairsp;
               <HttpMethod
@@ -199,9 +200,17 @@ const isDefaultActive = computed(
           </slot>
           &hairsp;
         </span>
-        <span class="z-10 font-medium">
-          {{ getTitle(item) }}
-        </span>
+        <div class="flex flex-1 flex-row justify-between">
+          <span class="z-10 font-medium">
+            {{ getTitle(item) }}
+          </span>
+          <RequestSidebarItemMenu
+            v-if="
+              !isReadOnly && (item as Collection).spec?.info?.title !== 'Drafts'
+            "
+            :item="item"
+            :parentUids="parentUids" />
+        </div>
       </button>
 
       <!-- Children -->

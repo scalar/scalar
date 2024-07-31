@@ -146,19 +146,19 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   const deleteRequest = (
     request: Request,
     /** parentUid can be either a folderUid or collectionUid */
-    parentUid: string,
+    parentUid?: string,
   ) => {
     // Remove all examples
     request.childUids.forEach((uid) => requestExampleMutators.delete(uid))
 
     // Remove from parent
-    if (collections[parentUid]) {
+    if (parentUid && collections[parentUid]) {
       collectionMutators.edit(
         parentUid,
         'childUids',
         collections[parentUid].childUids.filter((uid) => uid !== request.uid),
       )
-    } else if (folders[parentUid]) {
+    } else if (parentUid && folders[parentUid]) {
       folderMutators.edit(
         parentUid,
         'childUids',
@@ -560,10 +560,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     return collection
   }
 
-  const deleteCollection = (collectionUid: string) => {
+  const deleteCollection = (collection: Collection) => {
     if (!activeWorkspace.value) return
 
-    if (collections[collectionUid]?.spec?.info?.title === 'Drafts') {
+    if (collections[collection.uid]?.spec?.info?.title === 'Drafts') {
       console.warn('The drafts collection cannot be deleted')
       return
     }
@@ -573,14 +573,22 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       return
     }
 
+    // Delete all children: folders/requests
+    collection.childUids.forEach((uid) => {
+      if (requests[uid]) deleteRequest(requests[uid])
+      else if (folders[uid]) deleteFolder(folders[uid])
+    })
+
+    // Remove from workspace
     workspaceMutators.edit(
       activeWorkspace.value.uid,
       'collectionUids',
       activeWorkspace.value.collectionUids.filter(
-        (uid) => uid !== collectionUid,
+        (uid) => uid !== collection.uid,
       ),
     )
-    collectionMutators.delete(collectionUid)
+
+    collectionMutators.delete(collection.uid)
   }
 
   /**
@@ -650,26 +658,32 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
 
   /** Delete a folder from a collection */
   const deleteFolder = (
-    folderUid: string,
+    folder: Folder,
     /** parentUid can be either a folderUid or collectionUid */
-    parentUid: string,
+    parentUid?: string,
   ) => {
+    // Delete all children: folders/requests
+    folder.childUids.forEach((uid) => {
+      if (requests[uid]) deleteRequest(requests[uid])
+      else if (folders[uid]) deleteFolder(folders[uid])
+    })
+
     // Remove from parent collection or folder
-    if (collections[parentUid]) {
+    if (parentUid && collections[parentUid]) {
       collectionMutators.edit(
         parentUid,
         'childUids',
-        collections[parentUid].childUids.filter((uid) => uid !== folderUid),
+        collections[parentUid].childUids.filter((uid) => uid !== folder.uid),
       )
-    } else if (folders[parentUid]) {
+    } else if (parentUid && folders[parentUid]) {
       folderMutators.edit(
         parentUid,
         'childUids',
-        folders[parentUid].childUids.filter((uid) => uid !== folderUid),
+        folders[parentUid].childUids.filter((uid) => uid !== folder.uid),
       )
     }
 
-    folderMutators.delete(folderUid)
+    folderMutators.delete(folder.uid)
   }
 
   // ---------------------------------------------------------------------------

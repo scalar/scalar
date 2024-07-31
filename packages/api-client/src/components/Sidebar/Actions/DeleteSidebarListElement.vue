@@ -20,6 +20,9 @@ async function deleteEnvironmentVariable() {
     :label="`Delete ${variableName}`"
     @cancel="emit('close')"
     @submit="deleteEnvironmentVariable">
-    <p>Are you sure you want to remove it?</p>
+    <p>
+      Are you sure you want to remove it? This will delete all children and
+      associated data as well!
+    </p>
   </SidebarListElementForm>
 </template>

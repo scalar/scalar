@@ -92,9 +92,6 @@ export default {
       indigo: 'var(--scalar-color-blue)',
       pink: 'var(--scalar-color-pink)',
 
-      // Control Colors
-      error: 'var(--scalar-error-color)',
-
       // Hard-coded Colors
       white: '#FFF',
       transparent: 'transparent',

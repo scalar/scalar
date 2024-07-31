@@ -23,8 +23,8 @@ const emit = defineEmits<{
         Cancel
       </ScalarButton>
       <ScalarButton
-        :error="danger"
-        type="submit">
+        type="submit"
+        :variant="danger ? 'danger' : 'solid'">
         {{ label ?? 'Submit' }}
       </ScalarButton>
     </div>
