@@ -7,7 +7,10 @@ import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useWorkspace } from '@/store/workspace'
-import { createCookie } from '@scalar/oas-utils/entities/workspace/cookie'
+import {
+  type Cookie,
+  createCookie,
+} from '@scalar/oas-utils/entities/workspace/cookie'
 import { nanoid } from 'nanoid'
 import { useRouter } from 'vue-router'
 
@@ -32,6 +35,22 @@ const addCookieHandler = () => {
   cookieMutators.add(cookie)
   router.push(cookie.uid)
 }
+
+const removeCookie = (uid: string) => {
+  cookieMutators.delete(uid)
+  const remainingCookies: Cookie[] = Object.values(cookies).filter(
+    (cookie) => (cookie as Cookie).uid !== uid,
+  ) as Cookie[]
+  if (remainingCookies.length > 1) {
+    const lastCookie: Cookie = remainingCookies[remainingCookies.length - 1]
+    router.push(lastCookie.uid)
+  } else if (
+    remainingCookies.length === 1 &&
+    remainingCookies[0].uid === 'default'
+  ) {
+    router.push('default')
+  }
+}
 </script>
 <template>
   <SubpageHeader>
@@ -44,7 +63,8 @@ const addCookieHandler = () => {
                 v-for="cookie in cookies"
                 :key="cookie.uid"
                 class="text-xs"
-                :variable="{ name: cookie.name, uid: cookie.uid }" />
+                :variable="{ name: cookie.name, uid: cookie.uid }"
+                @delete="removeCookie(cookie.uid)" />
             </SidebarList>
           </div>
         </template>
