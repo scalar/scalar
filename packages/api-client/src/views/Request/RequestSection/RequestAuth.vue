@@ -205,10 +205,11 @@ const handleDelete = (scheme: SecurityScheme) =>
             <ScalarComboboxMultiselect
               ref="comboboxRef"
               v-model="selectedAuth"
-              class="text-xs w-full left-2"
+              class="text-xs w-full"
               fullWidth
               multiple
               :options="schemeOptions"
+              style="margin-left: 120px"
               teleport>
               <ScalarButton
                 class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start"
@@ -236,11 +237,11 @@ const handleDelete = (scheme: SecurityScheme) =>
             v-if="activeSecuritySchemes.length > 1"
             class="group/delete">
             <DataTableCell
-              class="text-c-1 pl-2 text-sm flex items-center justify-between">
+              class="text-c-2 pl-2 text-xs font-medium flex items-center justify-between bg-b-2">
               {{ selectedAuth[index]?.label }}
 
               <div
-                class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/delete:opacity-100 request-meta-buttons">
+                class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/delete:opacity-100 request-meta-buttons pr-2">
                 <ScalarButton
                   class="px-1 transition-none"
                   size="sm"
@@ -338,3 +339,8 @@ const handleDelete = (scheme: SecurityScheme) =>
     </form>
   </ViewLayoutCollapse>
 </template>
+<style scoped>
+.auth-combobox-position {
+  margin-left: 120px;
+}
+</style>

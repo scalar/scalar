@@ -130,7 +130,7 @@ const resourceTitle = computed(() => {
 <template>
   <ScalarDropdown teleport="#scalar-client">
     <ScalarButton
-      class="px-1 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex"
+      class="px-1 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute h-[20px] ellipsis-position"
       size="sm"
       variant="ghost"
       @click="
@@ -153,7 +153,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Add"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Add Example</span>
       </ScalarDropdownItem>
 
@@ -164,7 +165,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Rename</span>
       </ScalarDropdownItem>
 
@@ -187,7 +189,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Trash"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Delete</span>
       </ScalarDropdownItem>
     </template>
@@ -225,3 +228,8 @@ const resourceTitle = computed(() => {
     </div>
   </ScalarModal>
 </template>
+<style scoped>
+.ellipsis-position {
+  transform: translate3d(calc(-100% - 4.5px), 0, 0);
+}
+</style>
