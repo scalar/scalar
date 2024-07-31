@@ -160,7 +160,7 @@ const isDefaultActive = computed(
           ]"
           tabindex="0">
           <span
-            class="z-10 font-medium w-full editable-sidebar-hover-item pl-2">
+            class="z-10 font-medium w-full editable-sidebar-hover-item pl-2 break-all">
             {{ getTitle(item) }}
           </span>
           <div class="flex flex-row gap-1">
@@ -200,8 +200,8 @@ const isDefaultActive = computed(
           </slot>
           &hairsp;
         </span>
-        <div class="flex flex-1 flex-row justify-between">
-          <span class="z-10 font-medium">
+        <div class="flex flex-1 flex-row justify-between sidebar-folderitem">
+          <span class="z-10 font-medium w-full break-word text-left">
             {{ getTitle(item) }}
           </span>
           <RequestSidebarItemMenu
@@ -249,5 +249,9 @@ const isDefaultActive = computed(
     transparent 0,
     var(--scalar-background-2) 20px
   );
+}
+.sidebar-folderitem :deep(.ellipsis-position) {
+  right: 6px;
+  transform: none;
 }
 </style>
