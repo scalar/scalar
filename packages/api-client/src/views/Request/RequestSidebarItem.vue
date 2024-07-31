@@ -82,17 +82,12 @@ const paddingOffset = computed(() => {
 
 const getTitle = (item: (typeof props)['item']) => {
   // Collection
-  if ('spec' in item) {
-    return item.spec.info?.title
-  }
+  if ('spec' in item) return item.spec.info?.title
   // Request
-  else if ('summary' in item) {
-    return item.summary || item.path
-  }
+  else if ('summary' in item) return item.summary || item.path
   // Folder/Example
-  else if ('name' in item) {
-    return item.name
-  }
+  else if ('name' in item) return item.name
+
   return ''
 }
 
@@ -158,7 +153,7 @@ const getDraggableOffsets = computed(() => {
   return { ceiling, floor }
 })
 
-/** Guard to check if an element should be droppable */
+/** Guard to check if an element is able to be dropped on */
 const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   // Cannot drop in read only mode
   if (activeWorkspace.value.isReadOnly) return false

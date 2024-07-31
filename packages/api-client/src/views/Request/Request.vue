@@ -224,9 +224,20 @@ const getBackgroundColor = () => {
 }
 
 /** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
-const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) =>
-  (collections[draggingItem.id] || hoveredItem.offset === 2) &&
-  !activeWorkspace.value.isReadOnly
+const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  // Cannot drop in read only mode
+  if (activeWorkspace.value.isReadOnly) return false
+  // Cannot drop requests/folders into a workspace
+  if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
+  // Collections cannot drop over Drafts
+  if (
+    collections[draggingItem.id] &&
+    collections[hoveredItem.id]?.spec?.info?.title === 'Drafts'
+  )
+    return false
+
+  return true
+}
 </script>
 <template>
   <div
