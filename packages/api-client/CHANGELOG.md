@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.0.38
+
+### Patch Changes
+
+- de25d01: feat(api-client): add the ability to delete and rename folders and collections
+- Updated dependencies [de25d01]
+  - @scalar/components@0.12.24
+  - @scalar/themes@0.9.17
+  - @scalar/oas-utils@0.2.20
+
 ## 2.0.37
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.24
+
+### Patch Changes
+
+- de25d01: feat(api-client): add the ability to delete and rename folders and collections
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.23
 
 ### Patch Changes
