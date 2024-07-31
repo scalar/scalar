@@ -48,12 +48,12 @@ const modal = cva({
 const body = cva({
   base: [
     'scalar-modal-body',
-    'relative max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 px-6 pb-4 pt-6',
+    'relative m-1 mt-0 max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 p-3',
   ].join(' '),
   variants: {
     variant: {
       history: 'pt-3',
-      search: 'col max-h-[440px] overflow-hidden p-0',
+      search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
     },
   },
 })
@@ -88,7 +88,7 @@ export const useModal = () =>
         :style="{ maxWidth }">
         <DialogTitle
           v-if="title"
-          class="scalar-modal-header m-0 rounded-lg px-6 py-3 text-left text-sm font-medium text-c-1"
+          class="scalar-modal-header m-0 rounded-lg p-3 text-left text-sm font-medium text-c-1"
           :class="{ 'pb-0 pt-6': variant === 'history' }">
           {{ title }}
         </DialogTitle>
@@ -117,10 +117,11 @@ export const useModal = () =>
   top: 0;
   bottom: 0;
   right: 0;
+  box-shadow: var(--scalar-shadow-2);
 }
 .scalar-modal.scalar-modal-search {
   max-width: 540px;
-  max-height: 540px;
+  max-height: 440px;
   background-color: transparent;
 }
 .modal-content-search .modal-body {
@@ -132,7 +133,7 @@ export const useModal = () =>
 }
 @media (max-width: 1280px) {
   .scalar-modal {
-    height: calc(100% - 56px);
+    max-height: calc(100% - 56px);
     top: 28px;
   }
 }

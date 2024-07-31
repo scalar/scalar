@@ -62,6 +62,7 @@ function handleDelete(id: string) {
     </button>
   </div>
   <ScalarModal
+    size="sm"
     :state="modalState"
     :title="`${currentAction.action} ${currentAction.name}`">
     <DeleteSidebarListElement

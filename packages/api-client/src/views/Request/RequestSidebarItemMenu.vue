@@ -153,7 +153,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Add"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Add Example</span>
       </ScalarDropdownItem>
 
@@ -164,7 +165,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Rename</span>
       </ScalarDropdownItem>
 
@@ -174,6 +176,7 @@ const resourceTitle = computed(() => {
         @click="handleItemDuplicate">
         <ScalarIcon
           class="inline-flex"
+          thickness="1.5"
           icon="Duplicate"
           size="sm" />
         <span>Duplicate</span>
@@ -187,7 +190,8 @@ const resourceTitle = computed(() => {
         <ScalarIcon
           class="inline-flex"
           icon="Trash"
-          size="sm" />
+          size="sm"
+          thickness="1.5" />
         <span>Delete</span>
       </ScalarDropdownItem>
     </template>

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
 
-const { variableName } = defineProps<{
+defineProps<{
   variableName: string
+  warningMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -20,9 +21,10 @@ async function deleteEnvironmentVariable() {
     :label="`Delete ${variableName}`"
     @cancel="emit('close')"
     @submit="deleteEnvironmentVariable">
-    <p>
-      Are you sure you want to remove it? This will delete all children and
-      associated data as well!
+    <p
+      v-if="warningMessage"
+      class="text-c-3 font-medium text-xs mb-2">
+      {{ warningMessage }}
     </p>
   </SidebarListElementForm>
 </template>

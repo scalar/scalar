@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
 
 defineProps<{
   danger?: boolean
@@ -13,20 +13,33 @@ const emit = defineEmits<{
 </script>
 <template>
   <form
-    class="flex flex-col gap-6 text-base"
+    class="text-base"
     @submit.prevent="emit('submit')">
     <slot />
-    <div class="flex justify-end gap-3">
-      <ScalarButton
+    <div>
+      <button
+        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer"
+        type="button"
         variant="outlined"
         @click="emit('cancel')">
+        <ScalarIcon
+          class="inline-flex"
+          icon="Close"
+          size="sm"
+          thickness="1.75" />
         Cancel
-      </ScalarButton>
-      <ScalarButton
-        type="submit"
-        :variant="danger ? 'danger' : 'solid'">
+      </button>
+      <button
+        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer text-c-[red]"
+        :error="danger"
+        type="submit">
+        <ScalarIcon
+          class="inline-flex"
+          icon="Trash"
+          size="sm"
+          thickness="1.5" />
         {{ label ?? 'Submit' }}
-      </ScalarButton>
+      </button>
     </div>
   </form>
 </template>
