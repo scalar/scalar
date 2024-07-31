@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { mediaTypes } from '@/views/Request/consts'
-import { ScalarIcon } from '@scalar/components'
 import { computed, ref } from 'vue'
 
+import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyPreviewImage from './ResponseBodyPreviewImage.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
@@ -41,9 +41,12 @@ const mimeType = computed(() => {
 const mediaConfig = computed(() => mediaTypes[mimeType.value])
 
 const dataUrl = computed<string>(() => {
-  if (!props.data) return ''
-  const blob = new Blob([props.data], { type: contentType.value })
-  return URL.createObjectURL(blob)
+  if (isBlob(props.data)) return URL.createObjectURL(props.data)
+  if (typeof props.data === 'string')
+    return URL.createObjectURL(
+      new Blob([props.data], { type: contentType.value }),
+    )
+  return ''
 })
 </script>
 <template>
@@ -55,18 +58,11 @@ const dataUrl = computed<string>(() => {
         v-model="toggle" />
     </template>
     <template
-      v-if="data"
+      v-if="data && dataUrl"
       #actions>
-      <a
-        class="flex gap-1 text-c-3 text-xxs no-underline items-center hover:bg-b-3 rounded py-0.5 px-1.5"
-        download
+      <ResponseBodyDownload
         :href="dataUrl"
-        @click.stop>
-        <ScalarIcon
-          icon="Download"
-          size="xs" />
-        <span>Download</span>
-      </a>
+        :type="mimeType" />
     </template>
     <div
       v-if="data"
@@ -81,9 +77,9 @@ const dataUrl = computed<string>(() => {
           :src="dataUrl"
           :transparent="mediaConfig.preview === 'img-w-alpha'" />
       </template>
-      <div v-if="!mediaConfig?.raw && !mediaConfig?.preview">
-        <ResponseBodyInfo :type="mimeType" />
-      </div>
+      <template v-if="!mediaConfig?.raw && !mediaConfig?.preview">
+        <ResponseBodyInfo>Binary file ({{ mimeType }})</ResponseBodyInfo>
+      </template>
     </div>
   </ViewLayoutCollapse>
 </template>

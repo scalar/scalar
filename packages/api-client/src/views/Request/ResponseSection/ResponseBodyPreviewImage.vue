@@ -1,22 +1,32 @@
 <script lang="ts" setup>
-defineProps<{
+import { ref, watch } from 'vue'
+
+import ResponseBodyInfo from './ResponseBodyInfo.vue'
+
+const props = defineProps<{
   src: string
   transparent?: boolean
 }>()
 
-function handleError() {
-  console.log('Error')
-}
+const error = ref(false)
+
+watch(
+  () => props.src,
+  () => (error.value = false),
+)
 </script>
 <template>
   <div
+    v-if="!error"
     class="border-1/2 flex justify-center rounded"
     :class="{ 'p-2 bg-preview': transparent }">
     <img
       class="max-w-full rounded"
       :src="src"
-      @error="handleError" />
+      @change="error = false"
+      @error="error = true" />
   </div>
+  <ResponseBodyInfo v-else>Image preview unavailable</ResponseBodyInfo>
 </template>
 <style scoped>
 .light-mode .bg-preview {

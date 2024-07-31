@@ -110,5 +110,3 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
 export const textMediaTypes: string[] = Object.entries(mediaTypes)
   .filter(([, config]) => config?.raw)
   .map(([type]) => type)
-
-console.log(textMediaTypes)
