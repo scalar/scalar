@@ -2,7 +2,7 @@
 import type { WorkspaceStore } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import Fuse from 'fuse.js'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import type { Router } from 'vue-router'
 
 const props = defineProps<{
@@ -17,7 +17,15 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-const { push } = props.router
+const isOpen = ref(true)
+
+const redirectToEnvironment = () => {
+  const workspaceId = currentRoute.value.params.workspace
+  push(`/workspace/${workspaceId}/environment/default`)
+  isOpen.value = false
+}
+
+const { push, currentRoute } = props.router
 
 const fuse = new Fuse(props.activeParsedEnvironments.value, {
   keys: ['key', 'value'],
@@ -67,7 +75,7 @@ const getEnvColor = (
   <dialog
     id="env-dialog"
     class="z-10 w-60 rounded border bg-b-1 p-1"
-    :open="true"
+    :open="isOpen"
     tabindex="0">
     <ul v-if="filteredVariables.length">
       <template
@@ -93,7 +101,7 @@ const getEnvColor = (
       v-else
       class="font-code text-3xs hover:bg-b-2 flex h-7 w-full justify-start gap-2 px-2 transition-colors duration-150"
       variant="secondary"
-      @click="push('/environment')">
+      @click="redirectToEnvironment">
       <ScalarIcon
         class="w-2"
         icon="Add"
