@@ -9,6 +9,7 @@ defineProps<{
     color?: string
     isDefault?: boolean
   }
+  warningMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -48,6 +49,7 @@ const handleDelete = (id: string) => {
       {{ variable.name }}
       <SidebarListElementActions
         :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
+        :warningMessage="warningMessage"
         @delete="handleDelete" />
     </router-link>
   </li>

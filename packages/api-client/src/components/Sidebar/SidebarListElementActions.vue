@@ -10,6 +10,7 @@ const { variable } = defineProps<{
     name: string
     isDefault: boolean
   }
+  warningMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -68,7 +69,7 @@ function handleDelete(id: string) {
     <DeleteSidebarListElement
       v-if="currentAction.action === ModalAction.Delete"
       :variableName="currentAction.name"
-      @close="handleModalClose"
+      :warningMessage="warningMessage"
       @delete="handleDelete(variable.uid)" />
   </ScalarModal>
 </template>

@@ -20,7 +20,6 @@ const emit = defineEmits<{
       <button
         class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer"
         type="button"
-        variant="outlined"
         @click="emit('cancel')">
         <ScalarIcon
           class="inline-flex"
@@ -30,7 +29,7 @@ const emit = defineEmits<{
         Cancel
       </button>
       <button
-        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer text-c-[red]"
+        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer delete-warning-button"
         :error="danger"
         type="submit">
         <ScalarIcon
@@ -43,3 +42,12 @@ const emit = defineEmits<{
     </div>
   </form>
 </template>
+<style scoped>
+.delete-warning-button {
+  color: var(--scalar-color-red);
+}
+.delete-warning-button:hover,
+.delete-warning-button:focus {
+  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
+}
+</style>

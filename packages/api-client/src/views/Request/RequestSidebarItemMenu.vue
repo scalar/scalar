@@ -202,6 +202,7 @@ const resourceTitle = computed(() => {
     :title="`Delete ${resourceTitle}`">
     <DeleteSidebarListElement
       :variableName="itemName"
+      warningMessage="Warning: Deleting this will delete all items inside of this"
       @close="deleteModal.hide()"
       @delete="handleItemDelete" />
   </ScalarModal>
