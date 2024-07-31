@@ -38,6 +38,7 @@ const {
   folderMutators,
   modalState,
   requestMutators,
+  workspaceMutators,
 } = useWorkspace()
 const { collapsedSidebarFolders } = useSidebar()
 const searchModalState = useModal()
@@ -125,10 +126,16 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   const { id: draggingUid, parentId: draggingParentUid } = draggingItem
   const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
 
-  if (!draggingParentUid || !hoveredParentUid) return
-
-  // Remove from dragging parent
-  if (collections[draggingParentUid]) {
+  // Parent is the workspace
+  if (!draggingParentUid) {
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'collectionUids',
+      activeWorkspace.value.collectionUids.filter((uid) => uid !== draggingUid),
+    )
+  }
+  // Parent is collection
+  else if (collections[draggingParentUid]) {
     collectionMutators.edit(
       draggingParentUid,
       'childUids',
@@ -136,7 +143,9 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         (uid) => uid !== draggingUid,
       ),
     )
-  } else if (folders[draggingParentUid]) {
+  }
+  // Parent is a folder
+  else if (folders[draggingParentUid]) {
     folderMutators.edit(
       draggingParentUid,
       'childUids',
@@ -148,6 +157,19 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   if (offset === 2) {
     const parent = collections[hoveredUid] || folders[hoveredUid]
     mutate(hoveredUid, [...parent.childUids, draggingUid])
+  }
+  // Special case for collections
+  else if (!hoveredParentUid) {
+    const newChildUids = [...activeWorkspace.value.collectionUids]
+    const hoveredIndex =
+      newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+    newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
+
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'collectionUids',
+      newChildUids,
+    )
   }
   // Place it into the list at an index
   else {
@@ -185,6 +207,11 @@ const getBackgroundColor = () => {
   const { method } = activeRequest.value
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
+
+/** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
+const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) =>
+  (collections[draggingItem.id] || hoveredItem.offset === 2) &&
+  !activeWorkspace.value.isReadOnly
 </script>
 <template>
   <div
@@ -239,8 +266,11 @@ const getBackgroundColor = () => {
             <RequestSidebarItem
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
-              :isDraggable="!activeWorkspace.isReadOnly"
-              :isDroppable="!activeWorkspace.isReadOnly"
+              :isDraggable="
+                !activeWorkspace.isReadOnly &&
+                collection.spec?.info?.title !== 'Drafts'
+              "
+              :isDroppable="_isDroppable"
               :item="collection"
               :parentUids="[]"
               @onDragEnd="onDragEnd">

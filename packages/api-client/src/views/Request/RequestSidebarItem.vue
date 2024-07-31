@@ -16,7 +16,7 @@ import type {
   Request,
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
@@ -54,6 +54,7 @@ const {
   activeRequest,
   activeRouterParams,
   activeWorkspace,
+  collections,
   folders,
   isReadOnly,
   requests,
@@ -129,19 +130,42 @@ const isDefaultActive = computed(
     activeRequest.value.uid === props.item.uid,
 )
 
-/** Guard to check if an element should be droppable */
-const _isDroppable = (
-  draggingItem: DraggingItem,
-  hoveredItem: DraggingItem,
-) => {
-  console.log(draggingItem)
-  console.log(hoveredItem)
-  if (typeof props.isDroppable === 'function') {
-    console.log('da func')
-    return props.isDroppable(draggingItem, hoveredItem)
-  } else {
-    return Boolean(props.isDroppable && !requestExamples[hoveredItem.id])
+/** The draggable component */
+const draggableRef = ref<{
+  draggingItem: DraggingItem
+  hoveredItem: HoveredItem
+} | null>(null)
+
+/** Calculate offsets which change a little depending on whats being dragged and hovered over */
+const getDraggableOffsets = computed(() => {
+  let ceiling = 0.5
+  let floor = 0.5
+
+  if (!draggableRef.value) return { ceiling, floor }
+  const { draggingItem } = draggableRef.value
+
+  // If hovered over is collection && dragging is not a collection
+  if (!collections[draggingItem?.id] && isCollection.value) {
+    ceiling = 1
+    floor = 0
   }
+  // Has children but is not a request or a collection
+  else if (hasChildren.value && !isRequest.value && !isCollection.value) {
+    ceiling = 0.8
+    floor = 0.2
+  }
+
+  return { ceiling, floor }
+})
+
+/** Guard to check if an element should be droppable */
+const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  // RequestExamples cannot be dropped on
+  if (requestExamples[hoveredItem.id]) return false
+  // Collection cannot be dropped into another collection
+  if (collections[draggingItem.id]) return false
+
+  return true
 }
 </script>
 <template>
@@ -155,9 +179,10 @@ const _isDroppable = (
     ]">
     <Draggable
       :id="item.uid"
-      :ceiling="hasChildren && !isRequest && !isCollection ? 0.8 : 0.5"
+      ref="draggableRef"
+      :ceiling="getDraggableOffsets.ceiling"
       class="flex flex-1 flex-col gap-[.5px] text-sm"
-      :floor="hasChildren && !isRequest && !isCollection ? 0.2 : 0.5"
+      :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
@@ -184,11 +209,13 @@ const _isDroppable = (
             }">
             {{ getTitle(item) }}
           </span>
-          <div class="flex flex-row gap-1">
-            <RequestSidebarItemMenu
-              v-if="!isReadOnly"
-              :item="item"
-              :parentUids="parentUids" />
+          <div class="flex flex-row gap-1 items-center">
+            <div class="relative">
+              <RequestSidebarItemMenu
+                v-if="!isReadOnly"
+                :item="item"
+                :parentUids="parentUids" />
+            </div>
             <span class="flex">
               &hairsp;
               <HttpMethod
@@ -221,21 +248,19 @@ const _isDroppable = (
           </slot>
           &hairsp;
         </span>
-        <div
-          class="flex flex-1 flex-row justify-between sidebar-folderitem editable-sidebar-hover">
-          <span
-            class="z-10 font-medium w-full word-break-break-word text-left"
-            :class="{
-              'editable-sidebar-hover-item': !isReadOnly,
-            }">
+        <div class="flex flex-1 flex-row justify-between items-center">
+          <span class="z-10 font-medium">
             {{ getTitle(item) }}
           </span>
-          <RequestSidebarItemMenu
-            v-if="
-              !isReadOnly && (item as Collection).spec?.info?.title !== 'Drafts'
-            "
-            :item="item"
-            :parentUids="parentUids" />
+          <div class="relative">
+            <RequestSidebarItemMenu
+              v-if="
+                !isReadOnly &&
+                (item as Collection).spec?.info?.title !== 'Drafts'
+              "
+              :item="item"
+              :parentUids="parentUids" />
+          </div>
         </div>
       </button>
 
@@ -247,8 +272,8 @@ const _isDroppable = (
         <RequestSidebarItem
           v-for="uid in isRequest ? item.childUids.slice(1) : item.childUids"
           :key="uid"
-          :isDraggable="isDroppable && !requestExamples[uid]"
-          :isDroppable="(a, b) => _isDroppable(a, b)"
+          :isDraggable="!requestExamples[uid]"
+          :isDroppable="_isDroppable"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />

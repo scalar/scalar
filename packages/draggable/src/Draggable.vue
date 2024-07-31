@@ -35,7 +35,7 @@ export type DraggableProps = {
    */
   isDroppable?:
     | boolean
-    | ((draggingItem: DraggingItem, hoveredItem: DraggingItem) => boolean)
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
   /**
    * We pass an array of parents to make it easier to reverse traverse
    */
@@ -50,7 +50,6 @@ const props = withDefaults(defineProps<DraggableProps>(), {
   floor: 0.2,
   isDraggable: true,
   isDroppable: true,
-  isHoverable: () => true,
 })
 
 const emit = defineEmits<{
@@ -87,11 +86,12 @@ const onDragStart = (ev: DragEvent) => {
 }
 
 /** Check if isDroppable guard */
-const _isDroppable = () =>
+const _isDroppable = (offset: number) =>
   typeof props.isDroppable === 'function'
     ? props.isDroppable(draggingItem.value!, {
         id: props.id,
         parentId: parentId.value,
+        offset,
       })
     : props.isDroppable
 
@@ -101,8 +101,7 @@ const onDragOver = throttle((ev: DragEvent) => {
   if (
     !draggingItem.value ||
     draggingItem.value.id === props.id ||
-    props.parentIds.includes(draggingItem.value?.id ?? '') ||
-    !_isDroppable()
+    props.parentIds.includes(draggingItem.value?.id ?? '')
   )
     return
 
@@ -128,6 +127,9 @@ const onDragOver = throttle((ev: DragEvent) => {
   else if (ev.offsetY > floor && ev.offsetY < ceiling) {
     offset = 2
   }
+
+  // Hover guard
+  if (!_isDroppable(offset)) return
 
   hoveredItem.value = { id: props.id, parentId: parentId.value, offset }
 }, 25)
@@ -161,6 +163,12 @@ const onDragEnd = () => {
 
   emit('onDragEnd', _draggingItem, _hoveredItem)
 }
+
+/** Define dragging and hovered items for more complicated logic */
+defineExpose({
+  draggingItem,
+  hoveredItem,
+})
 </script>
 
 <template>
