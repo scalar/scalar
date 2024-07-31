@@ -97,7 +97,7 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
         description: operation.description,
         operationId: operation.operationId,
         security: operation.security,
-        summary: operation.summary,
+        summary: operation.summary || pathString,
         externalDocs: operation.externalDocs,
         requestBody: operation.requestBody,
         parameters,
