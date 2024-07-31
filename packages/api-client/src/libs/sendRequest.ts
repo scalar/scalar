@@ -1,3 +1,4 @@
+import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import type {
@@ -216,8 +217,10 @@ export const sendRequest = async (
     }
 
     const blob: Blob = response.data
-    const responseData: Blob | string =
-      blob.type === 'application/json' ? await blob.text() : blob
+
+    const responseData: Blob | string = textMediaTypes.includes(blob.type)
+      ? await blob.text()
+      : blob
 
     return {
       sentTime: Date.now(),

@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
-
-const props = defineProps<{
-  data: Blob
+defineProps<{
+  src: string
   transparent?: boolean
 }>()
 
-console.log(props.data)
-const src = computed<string>(() => URL.createObjectURL(props.data))
+function handleError() {
+  console.log('Error')
+}
 </script>
 <template>
   <div
@@ -15,7 +14,8 @@ const src = computed<string>(() => URL.createObjectURL(props.data))
     :class="{ 'p-2 bg-preview': transparent }">
     <img
       class="max-w-full rounded"
-      :src="src" />
+      :src="src"
+      @error="handleError" />
   </div>
 </template>
 <style scoped>

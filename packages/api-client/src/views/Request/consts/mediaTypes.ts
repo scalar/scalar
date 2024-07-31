@@ -9,6 +9,7 @@ export type MediaConfig = {
   extension: string
 }
 
+/** Media Type (MIME Type) Definitions */
 export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/epub+zip': { extension: '.epub' },
   'application/gzip': { extension: '.gz' },
@@ -21,8 +22,16 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/pdf': { extension: '.pdf' },
   'application/rtf': { extension: '.rtf', raw: true },
   'application/vnd.amazon.ebook': { extension: '.azw' },
-  'application/vnd.apple.installer+xml': { extension: '.mpkg', raw: true },
-  'application/vnd.mozilla.xul+xml': { extension: '.xul', raw: true },
+  'application/vnd.apple.installer+xml': {
+    extension: '.mpkg',
+    raw: true,
+    language: 'xml',
+  },
+  'application/vnd.mozilla.xul+xml': {
+    extension: '.xul',
+    raw: true,
+    language: 'xml',
+  },
   'application/vnd.ms-excel': { extension: '.xls' },
   'application/vnd.ms-fontobject': { extension: '.eot' },
   'application/vnd.ms-powerpoint': { extension: '.ppt' },
@@ -47,8 +56,8 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/x-cdf': { extension: '.cda' },
   'application/x-csh': { extension: '.csh' },
   'application/x-freearc': { extension: '.arc' },
-  'application/x-httpd-php': { extension: '.php' },
-  'application/x-sh': { extension: '.sh' },
+  'application/x-httpd-php': { extension: '.php', raw: true },
+  'application/x-sh': { extension: '.sh', raw: true },
   'application/x-tar': { extension: '.tar' },
   'application/xhtml+xml': { extension: '.xhtml', raw: true, language: 'html' },
   'application/xml': { extension: '.xml', raw: true, language: 'xml' },
@@ -75,7 +84,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     language: 'xml',
     preview: 'img-w-alpha',
   },
-  'image/tiff': { extension: '.tiff', preview: 'img' },
+  'image/tiff': { extension: '.tiff' },
   'image/vnd.microsoft.icon': { extension: '.ico', preview: 'img' },
   'image/webp': { extension: '.webp', preview: 'img-w-alpha' },
   'text/calendar': { extension: '.ics', raw: true },
@@ -96,3 +105,10 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'video/webm': { extension: '.webm' },
   'video/x-msvideo': { extension: '.avi' },
 }
+
+/** Media Types (MIME Types) that can be displayed as raw text */
+export const textMediaTypes: string[] = Object.entries(mediaTypes)
+  .filter(([, config]) => config?.raw)
+  .map(([type]) => type)
+
+console.log(textMediaTypes)

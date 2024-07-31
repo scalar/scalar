@@ -4,6 +4,7 @@ import { mediaTypes } from '@/views/Request/consts'
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref } from 'vue'
 
+import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyPreviewImage from './ResponseBodyPreviewImage.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
@@ -68,18 +69,21 @@ const dataUrl = computed<string>(() => {
       </a>
     </template>
     <div
-      v-if="data && mediaConfig"
+      v-if="data"
       class="mx-1">
       <ResponseBodyRaw
-        v-if="mediaConfig.raw && showRaw"
+        v-if="mediaConfig?.raw && showRaw"
         :data="data"
         :language="mediaConfig.language" />
-      <template v-if="showPreview && isBlob(data)">
+      <template v-if="mediaConfig?.preview && showPreview">
         <ResponseBodyPreviewImage
           v-if="mediaConfig.preview?.startsWith('img')"
-          :data="data"
+          :src="dataUrl"
           :transparent="mediaConfig.preview === 'img-w-alpha'" />
       </template>
+      <div v-if="!mediaConfig?.raw && !mediaConfig?.preview">
+        <ResponseBodyInfo :type="mimeType" />
+      </div>
     </div>
   </ViewLayoutCollapse>
 </template>
