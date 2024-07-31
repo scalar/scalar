@@ -6,6 +6,7 @@ import { computed, ref } from 'vue'
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 import ResponseBodyPreviewImage from './ResponseBodyPreviewImage.vue'
+import ResponseBodyPreviewWebpage from './ResponseBodyPreviewWebpage.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
@@ -76,6 +77,9 @@ const dataUrl = computed<string>(() => {
           v-if="mediaConfig.preview?.startsWith('img')"
           :src="dataUrl"
           :transparent="mediaConfig.preview === 'img-w-alpha'" />
+        <ResponseBodyPreviewWebpage
+          v-if="mediaConfig.preview === 'html'"
+          :src="dataUrl" />
       </template>
       <template v-if="!mediaConfig?.raw && !mediaConfig?.preview">
         <ResponseBodyInfo>Binary file ({{ mimeType }})</ResponseBodyInfo>

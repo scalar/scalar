@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'img' | 'img-w-alpha'
+export type MediaPreview = 'img' | 'img-w-alpha' | 'html'
 
 export type MediaConfig = {
   preview?: MediaPreview
@@ -90,7 +90,12 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'text/calendar': { extension: '.ics', raw: true },
   'text/css': { extension: '.css', raw: true, language: 'css' },
   'text/csv': { extension: '.csv', raw: true },
-  'text/html': { extension: '.html', raw: true, language: 'html' },
+  'text/html': {
+    extension: '.html',
+    raw: true,
+    language: 'html',
+    preview: 'html',
+  },
   'text/javascript': { extension: '.js', raw: true },
   'text/plain': { extension: '.txt', raw: true },
   'text/xml': { extension: '.xml', raw: true, language: 'xml' },
