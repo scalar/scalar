@@ -56,8 +56,9 @@ const requestSchema = z.object({
       query: parametersSchema,
       headers: parametersSchema,
       cookies: parametersSchema,
+      body: parametersSchema,
     })
-    .default({ path: {}, query: {}, headers: {}, cookies: {} }),
+    .default({ path: {}, query: {}, headers: {}, cookies: {}, body: {} }),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only

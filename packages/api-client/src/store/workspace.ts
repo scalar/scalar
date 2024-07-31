@@ -287,23 +287,39 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       },
     }
 
-    if (request.requestBody) {
-      const requestBody = getRequestBodyFromOperation({
+    const bodyParams = Object.values(request.parameters.body)
+
+    let requestBody
+
+    if (bodyParams.length) {
+      requestBody = getRequestBodyFromOperation({
+        httpVerb: request.method,
+        path: request.path,
+        information: {
+          parameters: bodyParams,
+        },
+      })
+    } else if (request.requestBody) {
+      requestBody = getRequestBodyFromOperation({
         httpVerb: request.method,
         path: request.path,
         information: {
           requestBody: request.requestBody,
         },
       })
-      if (requestBody?.postData?.['mimeType'] === 'application/json') {
-        parameters.headers.push({
-          key: 'Content-Type',
-          value: 'application/json',
-          enabled: true,
-        })
-        body.activeBody = 'raw'
-        body.raw.value = requestBody.postData.text
-      }
+    }
+
+    if (
+      requestBody &&
+      requestBody?.postData?.['mimeType'] === 'application/json'
+    ) {
+      parameters.headers.push({
+        key: 'Content-Type',
+        value: 'application/json',
+        enabled: true,
+      })
+      body.activeBody = 'raw'
+      body.raw.value = requestBody.postData.text
     }
 
     // Check all current examples for the title and iterate
