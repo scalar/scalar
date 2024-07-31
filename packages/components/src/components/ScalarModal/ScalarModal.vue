@@ -119,6 +119,9 @@ export const useModal = () =>
   right: 0;
   box-shadow: var(--scalar-shadow-2);
 }
+.dark-mode .scalar-modal {
+  background-color: color-mix(in srgb, var(--scalar-background-1), black);
+}
 .scalar-modal.scalar-modal-search {
   max-width: 540px;
   max-height: 440px;
