@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { mediaTypes } from '@/views/Request/consts'
 import { computed } from 'vue'
 
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
@@ -17,24 +18,16 @@ const contentType = computed(
 )
 const mimeType = computed(() => {
   if (props.data instanceof Blob) return props.data.type
-  else return contentType.value
+  else return contentType.value.split(';')[0]
 })
 
-const codeLanguage = computed(() => {
-  if (contentType.value.includes('json')) return 'json'
-  if (contentType.value.includes('html')) return 'html'
-  return 'html'
-})
+const mediaConfig = computed(() => mediaTypes[mimeType.value])
 
 const dataUrl = computed<string>(() => {
   if (!props.data) return ''
   const blob = new Blob([props.data], { type: contentType.value })
   return URL.createObjectURL(blob)
 })
-
-const stringData = computed(() =>
-  typeof props.data === 'string' ? props.data : '',
-)
 </script>
 <template>
   <ViewLayoutCollapse>
@@ -47,9 +40,10 @@ const stringData = computed(() =>
         Download
       </a>
     </template>
-    {{ mimeType }}{{ data }}
+    {{ mimeType }}
     <ResponseBodyRaw
-      :data="stringData"
-      :language="codeLanguage" />
+      v-if="props.data && mediaConfig?.raw"
+      :data="props.data"
+      :language="mediaConfig.language" />
   </ViewLayoutCollapse>
 </template>

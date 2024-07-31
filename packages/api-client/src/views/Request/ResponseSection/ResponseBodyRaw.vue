@@ -1,23 +1,26 @@
 <script lang="ts" setup>
 import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
-import { computed, ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 const props = defineProps<{
-  data: string
-  language: CodeMirrorLanguage
+  data: string | Blob
+  language?: CodeMirrorLanguage
 }>()
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
 // Pretty print JSON
-const responseData = computed(() => {
-  const value = props.data
+const content = ref('')
+
+watchEffect(async () => {
+  const value =
+    typeof props.data === 'string' ? props.data : await props.data.text()
   // Format JSON
   if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value), null, 2)
+    content.value = JSON.stringify(JSON.parse(value), null, 2)
   } else {
-    return value
+    content.value = value
   }
 })
 
@@ -25,7 +28,7 @@ useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: responseData,
+  content,
   language: props.language,
 })
 </script>
