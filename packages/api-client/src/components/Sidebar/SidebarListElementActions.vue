@@ -10,7 +10,6 @@ const { variable } = defineProps<{
     name: string
     isDefault: boolean
   }
-  warningMessage?: string
 }>()
 
 const emit = defineEmits<{
@@ -69,7 +68,7 @@ function handleDelete(id: string) {
     <DeleteSidebarListElement
       v-if="currentAction.action === ModalAction.Delete"
       :variableName="currentAction.name"
-      :warningMessage="warningMessage"
+      warningMessage="Are you sure you want to delete this cookie?"
       @delete="handleDelete(variable.uid)" />
   </ScalarModal>
 </template>

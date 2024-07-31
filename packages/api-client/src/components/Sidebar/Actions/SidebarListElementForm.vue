@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarIcon } from '@scalar/components'
 
 defineProps<{
   danger?: boolean
