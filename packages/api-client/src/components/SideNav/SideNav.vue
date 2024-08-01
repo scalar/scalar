@@ -28,7 +28,7 @@ const { currentRoute } = useRouter()
         </SideNavLink>
       </li>
     </ul>
-    <ul class="mt-auto flex flex-col gap-2 py-1.5">
+    <ul class="mt-auto flex flex-col py-1.5">
       <li class="flex items-center">
         <SideHelp />
       </li>

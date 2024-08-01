@@ -37,7 +37,6 @@ function createWindow(): void {
     width: mainWindowState.width,
     height: mainWindowState.height,
     show: false,
-    transparent: true,
     title: 'Scalar',
     trafficLightPosition: { x: 9.5, y: 12 },
     // Borderless Window, for macOS only
@@ -56,7 +55,6 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
-
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
