@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.0.40
+
+### Patch Changes
+
+- 3a6effa: feat(api-client): add response previews
+- dfa7434: feat(api-client): added drag and drop to the api client
+- Updated dependencies [3a6effa]
+- Updated dependencies [dfa7434]
+  - @scalar/use-codemirror@0.11.9
+  - @scalar/components@0.12.26
+  - @scalar/themes@0.9.19
+  - @scalar/draggable@0.1.4
+  - @scalar/oas-utils@0.2.22
+
 ## 2.0.39
 
 ### Patch Changes

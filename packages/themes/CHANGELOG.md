@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.19
+
+### Patch Changes
+
+- 3a6effa: feat(api-client): add response previews
+
 ## 0.9.18
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.9
+
+### Patch Changes
+
+- 3a6effa: feat(api-client): add response previews
+
 ## 0.11.8
 
 ### Patch Changes

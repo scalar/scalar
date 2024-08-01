@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.26
+
+### Patch Changes
+
+- 3a6effa: feat(api-client): add response previews
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.25
 
 ### Patch Changes
