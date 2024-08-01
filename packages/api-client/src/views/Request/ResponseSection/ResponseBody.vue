@@ -69,6 +69,7 @@ const dataUrl = computed<string>(() => {
       class="mx-1">
       <ResponseBodyRaw
         v-if="mediaConfig?.raw && showRaw"
+        :key="dataUrl"
         :data="data"
         :language="mediaConfig.language" />
       <ResponseBodyPreview
