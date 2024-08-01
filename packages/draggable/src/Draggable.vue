@@ -29,11 +29,13 @@ export type DraggableProps = {
    */
   isDraggable?: boolean
   /**
-   * Prevents items from being hovered and dropped into
+   * Prevents items from being hovered and dropped into. Can be either a function or a boolean
    *
    * @default true
    */
-  isDroppable?: boolean
+  isDroppable?:
+    | boolean
+    | ((draggingItem: DraggingItem, hoveredItem: HoveredItem) => boolean)
   /**
    * We pass an array of parents to make it easier to reverse traverse
    */
@@ -69,7 +71,7 @@ const parentId = computed(() =>
 const onDragStart = (ev: DragEvent) => {
   if (
     !ev.dataTransfer ||
-    !(ev.target instanceof HTMLDivElement) ||
+    !(ev.target instanceof HTMLElement) ||
     !props.isDraggable
   )
     return
@@ -83,13 +85,23 @@ const onDragStart = (ev: DragEvent) => {
   emit('onDragStart', { id: props.id, parentId: parentId.value })
 }
 
+/** Check if isDroppable guard */
+const _isDroppable = (offset: number) =>
+  typeof props.isDroppable === 'function'
+    ? props.isDroppable(draggingItem.value!, {
+        id: props.id,
+        parentId: parentId.value,
+        offset,
+      })
+    : props.isDroppable
+
 // On dragging over we decide which highlight to show
 const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
-    draggingItem.value?.id === props.id ||
-    props.parentIds.includes(draggingItem.value?.id ?? '') ||
-    !props.isDroppable
+    !draggingItem.value ||
+    draggingItem.value.id === props.id ||
+    props.parentIds.includes(draggingItem.value?.id ?? '')
   )
     return
 
@@ -116,6 +128,9 @@ const onDragOver = throttle((ev: DragEvent) => {
     offset = 2
   }
 
+  // Hover guard
+  if (!_isDroppable(offset)) return
+
   hoveredItem.value = { id: props.id, parentId: parentId.value, offset }
 }, 25)
 
@@ -124,7 +139,7 @@ const positionDict = ['above', 'below', 'asChild']
 const containerClass = computed(() => {
   let classList = 'sidebar-indent-nested'
 
-  if (props.isDroppable && props.id === hoveredItem.value?.id) {
+  if (props.id === hoveredItem.value?.id) {
     classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
   }
 
@@ -148,6 +163,12 @@ const onDragEnd = () => {
 
   emit('onDragEnd', _draggingItem, _hoveredItem)
 }
+
+/** Define dragging and hovered items for more complicated logic */
+defineExpose({
+  draggingItem,
+  hoveredItem,
+})
 </script>
 
 <template>

@@ -1,4 +1,3 @@
-import { useSidebar } from '@/hooks'
 import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
 import {
@@ -64,8 +63,6 @@ export type UpdateScheme = <P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => void
-
-const { setCollapsedSidebarFolder } = useSidebar()
 
 /**
  * Factory for creating the entire store for the api-client
@@ -177,13 +174,6 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
 
     const request = requests[key] ?? requests[firstKey]
     fallbackMissingParams(PathId.Request, request)
-
-    // Ensure the sidebar folders are open
-    if (request) {
-      findRequestFolders(request.uid).forEach((uid) =>
-        setCollapsedSidebarFolder(uid, true),
-      )
-    }
 
     return request
   })

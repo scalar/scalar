@@ -15,11 +15,10 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
-import { type DeepReadonly, onBeforeUnmount, onMounted, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -28,17 +27,37 @@ const {
   activeExample,
   activeRequest,
   activeSecuritySchemes,
-  activeWorkspaceServers,
   activeWorkspace,
-  environments,
-  requestMutators,
   activeWorkspaceCollections,
-  modalState,
+  activeWorkspaceServers,
+  collectionMutators,
+  collections,
   cookies,
+  environments,
+  findRequestFolders,
+  folders,
+  folderMutators,
+  modalState,
+  requestMutators,
+  workspaceMutators,
 } = useWorkspace()
-const { collapsedSidebarFolders } = useSidebar()
+const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const searchModalState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+
+/** Watch to see if activeRequest changes and ensure we open any folders */
+watch(
+  activeRequest,
+  (request) => {
+    if (!request) return
+
+    // Ensure the sidebar folders are open
+    findRequestFolders(request.uid).forEach((uid) =>
+      setCollapsedSidebarFolder(uid, true),
+    )
+  },
+  { immediate: true },
+)
 
 /**
  * Execute the request
@@ -68,6 +87,7 @@ const executeRequest = async () => {
   const doubleCurlyBrackets = /\{\{(.*?)\}\}/g
   url = url.replace(doubleCurlyBrackets, (_match, key) => {
     // check if a server
+    // eslint-disable-next-line consistent-return
     activeWorkspaceServers.value.forEach((server) => {
       if (server.url === key) {
         return key
@@ -108,135 +128,75 @@ onMounted(() => executeRequestBus.on(executeRequest))
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 
-// const collections = computed(() => {
-//   if (FOLDER_MODE) {
-//     return workspace.collections
-//   }
-//   // For tag mode, loop over each collection and organize into tags
-//   // Try to use the same object structure as folder mode
-//   else {
-//     return workspace.collections.map((collection) => {
-//       // Create folders out of tags using the tag name as the uid
-//       const folders: Collection['folders'] = collection.spec.tags.reduce(
-//         (prev, tag) => ({
-//           ...prev,
-//           [tag.name]: { ...tag, uid: tag.name, children: [] },
-//         }),
-//         {},
-//       )
-//       const _requests: string[] = []
-//
-//       Object.entries(requests).forEach(([key, request]) => {
-//         // _requests here are loose aka they have no folder
-//         if (!request.tags.length) _requests.push(key)
-//
-//         // Push the rest into each folder
-//         request.tags.forEach((tag) => {
-//           folders[tag].children.push(key)
-//         })
-//       })
-//
-//       return {
-//         ...collection,
-//         folders,
-//         children: Object.keys(folders),
-//         requests: _requests,
-//       } as const
-//     })
-//   }
-// })
+/** Mutate folder OR collection */
+const mutate = (uid: string, childUids: string[]) => {
+  if (collections[uid]) collectionMutators.edit(uid, 'childUids', childUids)
+  else if (folders[uid]) folderMutators.edit(uid, 'childUids', childUids)
+}
 
-/**
- * When user stops dragging and drops an item
- *
- * TODO:
- * - prevent dropping operation directly into collection
- */
-const onDragEnd = (
-  draggingCollection: DeepReadonly<Collection>,
-  draggingCollectionIndex: number,
-  draggingItem: DraggingItem,
-  hoveredItem: HoveredItem,
-) => {
+/** When user stops dragging and drops an item */
+const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   if (!draggingItem || !hoveredItem) return
 
-  // const { id: draggingUid, parentId: draggingParentUid } = draggingItem
-  // const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
-  //
-  // // We will always have a parent since top level collections are not draggable... yet
-  // if (!draggingParentUid || !hoveredParentUid) return
-  //
-  // const hoveredCollectionIndex = collections.value.findIndex(
-  //   ({ uid, folders }) => uid === hoveredParentUid || folders[hoveredParentUid],
-  // )
-  //
-  // if (hoveredCollectionIndex === -1) return
-  // const hoveredCollection = collections.value[hoveredCollectionIndex]
-  //
-  // // Dropped into the same collection
-  // if (draggingCollection.uid === hoveredCollection.uid) {
-  //   // Remove from root children
-  //   if (draggingCollection.uid === draggingParentUid)
-  //     collectionMutators.edit(
-  //       draggingCollectionIndex,
-  //       'children',
-  //       draggingCollection.children.filter((uid) => uid !== draggingUid),
-  //     )
-  //   // Remove from a folder
-  //   else if (draggingCollection.folders[draggingParentUid]?.children) {
-  //     collectionMutators.edit(
-  //       draggingCollectionIndex,
-  //       `folders.${draggingParentUid}.children`,
-  //       draggingCollection.folders[draggingParentUid].children.filter(
-  //         (uid) => uid !== draggingUid,
-  //       ),
-  //     )
-  //   }
-  //
-  //   // Dropping into a folder
-  //   if (offset === 2) {
-  //     const newChildren = [...hoveredCollection.folders[hoveredUid].children]
-  //     newChildren.push(draggingUid)
-  //
-  //     collectionMutators.edit(
-  //       draggingCollectionIndex,
-  //       `folders.${hoveredUid}.children`,
-  //       newChildren,
-  //     )
-  //   }
-  //   // Add to root children
-  //   else if (hoveredCollection.uid === hoveredParentUid) {
-  //     const hoveredIndex =
-  //       hoveredCollection.children.findIndex((uid) => hoveredUid === uid) ?? 0
-  //
-  //     const newChildren = [...hoveredCollection.children]
-  //     newChildren.splice(hoveredIndex + offset, 0, draggingUid)
-  //
-  //     collectionMutators.edit(draggingCollectionIndex, 'children', newChildren)
-  //   }
-  //   // Add to folder
-  //   else if (hoveredCollection.folders[hoveredParentUid]?.children) {
-  //     const hoveredIndex =
-  //       hoveredCollection.folders[hoveredParentUid].children.findIndex(
-  //         (uid) => hoveredUid === uid,
-  //       ) ?? 0
-  //
-  //     const newChildren = [
-  //       ...hoveredCollection.folders[hoveredParentUid].children,
-  //     ]
-  //     newChildren.splice(hoveredIndex + offset, 0, draggingUid)
-  //
-  //     collectionMutators.edit(
-  //       draggingCollectionIndex,
-  //       `folders.${hoveredParentUid}.children`,
-  //       newChildren,
-  //     )
-  //   }
-  // }
-  // TODO write this when we have more than one collection to test with
-  // We need to do a few extra things when its a different collection
-  // else {
-  // }
+  const { id: draggingUid, parentId: draggingParentUid } = draggingItem
+  const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
+
+  // Parent is the workspace
+  if (!draggingParentUid) {
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'collectionUids',
+      activeWorkspace.value.collectionUids.filter((uid) => uid !== draggingUid),
+    )
+  }
+  // Parent is collection
+  else if (collections[draggingParentUid]) {
+    collectionMutators.edit(
+      draggingParentUid,
+      'childUids',
+      collections[draggingParentUid].childUids.filter(
+        (uid) => uid !== draggingUid,
+      ),
+    )
+  }
+  // Parent is a folder
+  else if (folders[draggingParentUid]) {
+    folderMutators.edit(
+      draggingParentUid,
+      'childUids',
+      folders[draggingParentUid].childUids.filter((uid) => uid !== draggingUid),
+    )
+  }
+
+  // Place it at the end of the list of the hoveredItem
+  if (offset === 2) {
+    const parent = collections[hoveredUid] || folders[hoveredUid]
+    mutate(hoveredUid, [...parent.childUids, draggingUid])
+  }
+  // Special case for collections
+  else if (!hoveredParentUid) {
+    const newChildUids = [...activeWorkspace.value.collectionUids]
+    const hoveredIndex =
+      newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+    newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
+
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'collectionUids',
+      newChildUids,
+    )
+  }
+  // Place it into the list at an index
+  else {
+    const parent = collections[hoveredParentUid] || folders[hoveredParentUid]
+    const newChildUids = [...parent.childUids]
+
+    const hoveredIndex =
+      newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+    newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
+
+    mutate(hoveredParentUid, newChildUids)
+  }
 }
 
 /* Opens the Command Palette */
@@ -261,6 +221,22 @@ const getBackgroundColor = () => {
   if (!activeRequest.value) return ''
   const { method } = activeRequest.value
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
+}
+
+/** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
+const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  // Cannot drop in read only mode
+  if (activeWorkspace.value.isReadOnly) return false
+  // Cannot drop requests/folders into a workspace
+  if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
+  // Collections cannot drop over Drafts
+  if (
+    collections[draggingItem.id] &&
+    collections[hoveredItem.id]?.spec?.info?.title === 'Drafts'
+  )
+    return false
+
+  return true
 }
 </script>
 <template>
@@ -314,17 +290,16 @@ const getBackgroundColor = () => {
             @dragover.prevent>
             <!-- Collections -->
             <RequestSidebarItem
-              v-for="(
-                collection, collectionIndex
-              ) in activeWorkspaceCollections"
+              v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
-              :isDraggable="!activeWorkspace.isReadOnly"
-              :isDroppable="!activeWorkspace.isReadOnly"
+              :isDraggable="
+                !activeWorkspace.isReadOnly &&
+                collection.spec?.info?.title !== 'Drafts'
+              "
+              :isDroppable="_isDroppable"
               :item="collection"
               :parentUids="[]"
-              @onDragEnd="
-                (...args) => onDragEnd(collection, collectionIndex, ...args)
-              ">
+              @onDragEnd="onDragEnd">
               <template #leftIcon>
                 <ScalarIcon
                   class="text-sidebar-c-2 text-sm group-hover:hidden"

@@ -6,6 +6,7 @@ import { useWorkspace } from '@/store/workspace'
 import { ScalarIcon } from '@scalar/components'
 import {
   Draggable,
+  type DraggableProps,
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
@@ -15,7 +16,7 @@ import type {
   Request,
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
@@ -33,7 +34,7 @@ const props = withDefaults(
      *
      * @default false
      */
-    isDroppable?: boolean
+    isDroppable?: DraggableProps['isDroppable']
     /** Both inidicate the level and provide a way to traverse upwards */
     parentUids: string[]
     item: Collection | Folder | Request | RequestExample
@@ -53,6 +54,7 @@ const {
   activeRequest,
   activeRouterParams,
   activeWorkspace,
+  collections,
   folders,
   isReadOnly,
   requests,
@@ -61,6 +63,8 @@ const {
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 const hasChildren = computed(() => 'childUids' in props.item)
+const isCollection = computed(() => 'spec' in props.item)
+const isRequest = computed(() => 'summary' in props.item)
 
 const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
@@ -78,17 +82,12 @@ const paddingOffset = computed(() => {
 
 const getTitle = (item: (typeof props)['item']) => {
   // Collection
-  if ('spec' in item) {
-    return item.spec.info?.title
-  }
+  if ('spec' in item) return item.spec.info?.title
   // Request
-  else if ('summary' in item) {
-    return item.summary || item.path
-  }
+  else if ('summary' in item) return item.summary || item.path
   // Folder/Example
-  else if ('name' in item) {
-    return item.name
-  }
+  else if ('name' in item) return item.name
+
   return ''
 }
 
@@ -125,6 +124,46 @@ const isDefaultActive = computed(
     activeRouterParams.value[PathId.Request] === 'default' &&
     activeRequest.value.uid === props.item.uid,
 )
+
+/** The draggable component */
+const draggableRef = ref<{
+  draggingItem: DraggingItem
+  hoveredItem: HoveredItem
+} | null>(null)
+
+/** Calculate offsets which change a little depending on whats being dragged and hovered over */
+const getDraggableOffsets = computed(() => {
+  let ceiling = 0.5
+  let floor = 0.5
+
+  if (!draggableRef.value) return { ceiling, floor }
+  const { draggingItem } = draggableRef.value
+
+  // If hovered over is collection && dragging is not a collection
+  if (!collections[draggingItem?.id] && isCollection.value) {
+    ceiling = 1
+    floor = 0
+  }
+  // Has children but is not a request or a collection
+  else if (hasChildren.value && !isRequest.value && !isCollection.value) {
+    ceiling = 0.8
+    floor = 0.2
+  }
+
+  return { ceiling, floor }
+})
+
+/** Guard to check if an element is able to be dropped on */
+const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  // Cannot drop in read only mode
+  if (activeWorkspace.value.isReadOnly) return false
+  // RequestExamples cannot be dropped on
+  if (requestExamples[hoveredItem.id]) return false
+  // Collection cannot be dropped into another collection
+  if (collections[draggingItem.id]) return false
+
+  return true
+}
 </script>
 <template>
   <div
@@ -137,10 +176,11 @@ const isDefaultActive = computed(
     ]">
     <Draggable
       :id="item.uid"
-      :ceiling="hasChildren ? 0.8 : 0.5"
-      class="flex flex-1 flex-col gap-[.5px] text-sm max-w-full"
-      :floor="hasChildren ? 0.2 : 0.5"
-      :isDraggable="parentUids.length > 0 && isDraggable"
+      ref="draggableRef"
+      :ceiling="getDraggableOffsets.ceiling"
+      class="flex flex-1 flex-col gap-[.5px] text-sm"
+      :floor="getDraggableOffsets.floor"
+      :isDraggable="isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
@@ -166,11 +206,13 @@ const isDefaultActive = computed(
             }">
             {{ getTitle(item) }}
           </span>
-          <div class="flex flex-row gap-1">
-            <RequestSidebarItemMenu
-              v-if="!isReadOnly"
-              :item="item"
-              :parentUids="parentUids" />
+          <div class="flex flex-row gap-1 items-center">
+            <div class="relative">
+              <RequestSidebarItemMenu
+                v-if="!isReadOnly"
+                :item="item"
+                :parentUids="parentUids" />
+            </div>
             <span class="flex">
               &hairsp;
               <HttpMethod
@@ -204,20 +246,24 @@ const isDefaultActive = computed(
           &hairsp;
         </span>
         <div
-          class="flex flex-1 flex-row justify-between sidebar-folderitem editable-sidebar-hover">
+          class="flex flex-1 flex-row justify-between editable-sidebar-hover">
           <span
-            class="z-10 font-medium w-full word-break-break-word text-left"
+            class="z-10 font-medium text-left w-full word-break-break-word"
             :class="{
               'editable-sidebar-hover-item': !isReadOnly,
             }">
             {{ getTitle(item) }}
           </span>
-          <RequestSidebarItemMenu
-            v-if="
-              !isReadOnly && (item as Collection).spec?.info?.title !== 'Drafts'
-            "
-            :item="item"
-            :parentUids="parentUids" />
+          <div class="relative flex h-fit">
+            <RequestSidebarItemMenu
+              v-if="
+                !isReadOnly &&
+                (item as Collection).spec?.info?.title !== 'Drafts'
+              "
+              :item="item"
+              :parentUids="parentUids" />
+            <span>&hairsp;</span>
+          </div>
         </div>
       </button>
 
@@ -227,12 +273,10 @@ const isDefaultActive = computed(
         v-show="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
-          v-for="uid in 'summary' in item
-            ? item.childUids.slice(1)
-            : item.childUids"
+          v-for="uid in isRequest ? item.childUids.slice(1) : item.childUids"
           :key="uid"
-          :isDraggable="isDraggable"
-          :isDroppable="isDroppable"
+          :isDraggable="!requestExamples[uid]"
+          :isDroppable="_isDroppable"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
