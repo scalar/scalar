@@ -7,6 +7,7 @@ const props = defineProps<{
   src: string
   type: string
   alpha?: boolean
+  aspect?: string
 }>()
 
 const error = ref(false)
@@ -23,8 +24,9 @@ watch(
     :class="{ 'p-2 bg-preview': alpha }">
     <object
       class="max-w-full"
-      :class="alpha ? 'rounded' : '!w-full !h-auto'"
+      :class="alpha ? 'rounded' : 'w-full'"
       :data="src"
+      :style="{ aspectRatio: aspect }"
       :type="type"
       @error="error = true"></object>
   </div>

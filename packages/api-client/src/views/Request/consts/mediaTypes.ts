@@ -3,6 +3,7 @@ import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 export type MediaConfig = {
   preview?: boolean
   alpha?: boolean
+  aspect?: string
   raw?: boolean
   language?: CodeMirrorLanguage
   extension: string
@@ -13,12 +14,13 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/epub+zip': { extension: '.epub' },
   'application/gzip': { extension: '.gz' },
   'application/java-archive': { extension: '.jar' },
+  'application/javascript': { extension: '.js', raw: true },
   'application/json': { extension: '.json', raw: true, language: 'json' },
   'application/ld+json': { extension: '.jsonld', raw: true, language: 'json' },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
-  'application/pdf': { extension: '.pdf' },
+  'application/pdf': { extension: '.pdf', preview: true, aspect: '1 / 1' },
   'application/rtf': { extension: '.rtf', raw: true },
   'application/vnd.amazon.ebook': { extension: '.azw' },
   'application/vnd.apple.installer+xml': {
@@ -60,10 +62,11 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/x-tar': { extension: '.tar' },
   'application/xhtml+xml': { extension: '.xhtml', raw: true, language: 'html' },
   'application/xml': { extension: '.xml', raw: true, language: 'xml' },
+  'application/yaml': { extension: '.yaml', raw: true, language: 'yaml' },
   'application/zip': { extension: '.zip' },
   'audio/aac': { extension: '.aac' },
   'audio/midi': { extension: '.midi' },
-  'audio/mpeg': { extension: '.mp3' },
+  'audio/mpeg': { extension: '.mp3', preview: true, aspect: '3 / 2' },
   'audio/ogg': { extension: '.oga' },
   'audio/wav': { extension: '.wav' },
   'audio/webm': { extension: '.weba' },
@@ -95,19 +98,21 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     raw: true,
     language: 'html',
     preview: true,
+    aspect: '4 / 3',
   },
   'text/javascript': { extension: '.js', raw: true },
   'text/plain': { extension: '.txt', raw: true },
   'text/xml': { extension: '.xml', raw: true, language: 'xml' },
+  'text/yaml': { extension: '.yaml', raw: true, language: 'yaml' },
   'video/3gpp': { extension: '.3gp' },
   'audio/3gpp': { extension: '.3gp' },
   'video/3gpp2': { extension: '.3g2' },
   'audio/3gpp2': { extension: '.3g2' },
   'video/mp2t': { extension: '.ts' },
-  'video/mp4': { extension: '.mp4', preview: true },
+  'video/mp4': { extension: '.mp4', preview: true, aspect: '4 / 3' },
   'video/mpeg': { extension: '.mpeg' },
   'video/ogg': { extension: '.ogv' },
-  'video/webm': { extension: '.webm', preview: true },
+  'video/webm': { extension: '.webm', preview: true, aspect: '4 / 3' },
   'video/x-msvideo': { extension: '.avi' },
 }
 

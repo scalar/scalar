@@ -76,6 +76,7 @@ const dataUrl = computed<string>(() => {
         v-if="mediaConfig?.preview && showPreview"
         :key="dataUrl"
         :alpha="mediaConfig.alpha"
+        :aspect="mediaConfig.aspect"
         :src="dataUrl"
         :type="mimeType" />
       <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
