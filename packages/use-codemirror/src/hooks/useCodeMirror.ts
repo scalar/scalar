@@ -377,16 +377,19 @@ function getCodeMirrorExtensions({
   if (lint && language === 'json') {
     const jsonLinter = linter((view) => {
       const diagnostics: Diagnostic[] = []
-      try {
-        JSON.parse(view.state.doc.toString())
-      } catch (e) {
-        if (e instanceof Error) {
-          diagnostics.push({
-            from: 0,
-            to: view.state.doc.length,
-            severity: 'error',
-            message: e.message,
-          })
+      const content = view.state.doc.toString()
+      if (content.trim()) {
+        try {
+          JSON.parse(content)
+        } catch (e) {
+          if (e instanceof Error) {
+            diagnostics.push({
+              from: 0,
+              to: view.state.doc.length,
+              severity: 'error',
+              message: e.message,
+            })
+          }
         }
       }
       return diagnostics
