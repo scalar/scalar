@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { MediaPreview } from '@/views/Request/consts'
 import { ref, watch } from 'vue'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
@@ -6,6 +7,7 @@ import ResponseBodyInfo from './ResponseBodyInfo.vue'
 const props = defineProps<{
   src: string
   type: string
+  mode?: MediaPreview
   alpha?: boolean
   aspect?: string
 }>()
@@ -20,15 +22,21 @@ watch(
 <template>
   <div
     v-if="!error && src"
-    class="border-1/2 flex justify-center rounded overflow-hidden"
+    class="border-1/2 flex justify-center rounded bg-b-1 overflow-hidden"
     :class="{ 'p-2 bg-preview': alpha }">
-    <object
+    <img
+      v-if="mode === 'image'"
       class="max-w-full"
-      :class="alpha ? 'rounded' : 'w-full'"
+      :class="{ rounded: alpha }"
+      :src="src"
+      @error="error = true" />
+    <object
+      v-else
+      class="w-full"
       :data="src"
       :style="{ aspectRatio: aspect }"
       :type="type"
-      @error="error = true"></object>
+      @error="error = true" />
   </div>
   <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
 </template>

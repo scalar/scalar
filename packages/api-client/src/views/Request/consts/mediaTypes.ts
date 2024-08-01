@@ -1,7 +1,9 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
+export type MediaPreview = 'object' | 'image'
+
 export type MediaConfig = {
-  preview?: boolean
+  preview?: MediaPreview
   alpha?: boolean
   aspect?: string
   raw?: boolean
@@ -20,7 +22,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
-  'application/pdf': { extension: '.pdf', preview: true, aspect: '1 / 1' },
+  'application/pdf': { extension: '.pdf', preview: 'object', aspect: '1 / 1' },
   'application/rtf': { extension: '.rtf', raw: true },
   'application/vnd.amazon.ebook': { extension: '.azw' },
   'application/vnd.apple.installer+xml': {
@@ -66,7 +68,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/zip': { extension: '.zip' },
   'audio/aac': { extension: '.aac' },
   'audio/midi': { extension: '.midi' },
-  'audio/mpeg': { extension: '.mp3', preview: true, aspect: '3 / 2' },
+  'audio/mpeg': { extension: '.mp3', preview: 'object', aspect: '3 / 2' },
   'audio/ogg': { extension: '.oga' },
   'audio/wav': { extension: '.wav' },
   'audio/webm': { extension: '.weba' },
@@ -74,22 +76,22 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'font/ttf': { extension: '.ttf' },
   'font/woff': { extension: '.woff' },
   'font/woff2': { extension: '.woff2' },
-  'image/apng': { extension: '.apng', preview: true, alpha: true },
-  'image/avif': { extension: '.avif', preview: true },
-  'image/bmp': { extension: '.bmp', preview: true },
-  'image/gif': { extension: '.gif', preview: true, alpha: true },
-  'image/jpeg': { extension: '.jpg', preview: true },
-  'image/png': { extension: '.png', preview: true, alpha: true },
+  'image/apng': { extension: '.apng', preview: 'image', alpha: true },
+  'image/avif': { extension: '.avif', preview: 'image' },
+  'image/bmp': { extension: '.bmp', preview: 'image' },
+  'image/gif': { extension: '.gif', preview: 'image', alpha: true },
+  'image/jpeg': { extension: '.jpg', preview: 'image' },
+  'image/png': { extension: '.png', preview: 'image', alpha: true },
   'image/svg+xml': {
     extension: '.svg',
     raw: true,
     language: 'xml',
-    preview: true,
+    preview: 'image',
     alpha: true,
   },
   'image/tiff': { extension: '.tiff' },
-  'image/vnd.microsoft.icon': { extension: '.ico', preview: true },
-  'image/webp': { extension: '.webp', preview: true, alpha: true },
+  'image/vnd.microsoft.icon': { extension: '.ico', preview: 'image' },
+  'image/webp': { extension: '.webp', preview: 'image', alpha: true },
   'text/calendar': { extension: '.ics', raw: true },
   'text/css': { extension: '.css', raw: true, language: 'css' },
   'text/csv': { extension: '.csv', raw: true },
@@ -97,7 +99,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     extension: '.html',
     raw: true,
     language: 'html',
-    preview: true,
+    preview: 'object',
     aspect: '4 / 3',
   },
   'text/javascript': { extension: '.js', raw: true },
@@ -109,10 +111,10 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'video/3gpp2': { extension: '.3g2' },
   'audio/3gpp2': { extension: '.3g2' },
   'video/mp2t': { extension: '.ts' },
-  'video/mp4': { extension: '.mp4', preview: true, aspect: '4 / 3' },
+  'video/mp4': { extension: '.mp4', preview: 'object', aspect: '4 / 3' },
   'video/mpeg': { extension: '.mpeg' },
   'video/ogg': { extension: '.ogv' },
-  'video/webm': { extension: '.webm', preview: true, aspect: '4 / 3' },
+  'video/webm': { extension: '.webm', preview: 'object', aspect: '4 / 3' },
   'video/x-msvideo': { extension: '.avi' },
 }
 
