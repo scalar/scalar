@@ -145,12 +145,14 @@
     "pretty-ms": "^8.0.0",
     "vue": "^3.4.29",
     "vue-router": "^4.3.0",
+    "whatwg-mimetype": "^4.0.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/content-type": "^1.1.8",
     "@types/js-cookie": "^3.0.6",
+    "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",

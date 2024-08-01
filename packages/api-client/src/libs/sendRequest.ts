@@ -14,6 +14,7 @@ import {
 } from '@scalar/oas-utils/helpers'
 import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
+import MIMEType from 'whatwg-mimetype'
 
 /**
  * Convert the parameters array to an object for axios to consume
@@ -27,6 +28,19 @@ const paramsReducer = (params: RequestExampleParameter[] = []) =>
     },
     {} as Record<string, string>,
   )
+
+const decodeBuffer = (buffer: ArrayBuffer, contentType: string) => {
+  const type = new MIMEType(contentType)
+  if (textMediaTypes.includes(type.essence)) {
+    const decoder = new TextDecoder(type.parameters.get('charset'))
+    const str = decoder.decode(buffer)
+
+    if (type.subtype === 'json') return JSON.parse(str)
+    else return str
+  } else {
+    return new Blob([buffer], { type: type.essence })
+  }
+}
 
 /**
  * Execute the request
@@ -190,7 +204,7 @@ export const sendRequest = async (
   const config: AxiosRequestConfig = {
     url: redirectToProxy(proxyUrl, url),
     method: request.method,
-    responseType: 'blob',
+    responseType: 'arraybuffer',
     headers,
   }
 
@@ -216,11 +230,14 @@ export const sendRequest = async (
         .forEach((header) => delete response.headers[header])
     }
 
-    const blob: Blob = response.data
+    const buffer: ArrayBuffer = response.data
 
-    const responseData: Blob | string = textMediaTypes.includes(blob.type)
-      ? await blob.text()
-      : blob
+    const contentType =
+      response.headers['Content-Type'] ??
+      response.headers['content-type'] ??
+      'text/plain;charset=UTF-8'
+
+    const responseData = decodeBuffer(buffer, `${contentType}`)
 
     return {
       sentTime: Date.now(),
@@ -243,6 +260,10 @@ export const sendRequest = async (
       response: response
         ? {
             ...response,
+            data: decodeBuffer(
+              response.data as ArrayBuffer,
+              'text/plain;charset=UTF-8',
+            ),
             duration: Date.now() - startTime,
           }
         : undefined,

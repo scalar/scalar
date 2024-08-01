@@ -2,6 +2,7 @@
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { mediaTypes } from '@/views/Request/consts'
 import { computed, ref } from 'vue'
+import MIMEType from 'whatwg-mimetype'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
@@ -28,43 +29,46 @@ const showToggle = computed(
 const showPreview = computed(() => toggle.value || !showToggle.value)
 const showRaw = computed(() => !toggle.value || !showToggle.value)
 
-const contentType = computed(
-  () =>
-    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
-      ?.value ?? '',
-)
 const mimeType = computed(() => {
-  if (isBlob(props.data)) return props.data.type
-  else return contentType.value.split(';')[0]
+  const contentType =
+    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
+      ?.value ?? ''
+  return new MIMEType(contentType)
 })
 
-const mediaConfig = computed(() => mediaTypes[mimeType.value])
+const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
 
 const dataUrl = computed<string>(() => {
   if (isBlob(props.data)) return URL.createObjectURL(props.data)
   if (typeof props.data === 'string')
     return URL.createObjectURL(
-      new Blob([props.data], { type: contentType.value }),
+      new Blob([props.data], { type: mimeType.value.toString() }),
+    )
+  if (typeof props.data === 'object')
+    return URL.createObjectURL(
+      new Blob([JSON.stringify(props.data)], {
+        type: mimeType.value.toString(),
+      }),
     )
   return ''
 })
 </script>
 <template>
   <ViewLayoutCollapse>
-    <template #title> {{ title }} </template>
+    <template #title>{{ title }}</template>
     <template
       v-if="data && dataUrl"
       #actions>
       <ResponseBodyDownload
         :href="dataUrl"
-        :type="mimeType" />
+        :type="mimeType.essence" />
     </template>
     <div
       v-if="data"
       class="mx-1 border-1/2 flex flex-col rounded bg-b-1">
       <div class="flex justify-between items-center border-b-1/2 p-1.5">
         <span class="text-xxs leading-3 font-code">
-          {{ mimeType }}
+          {{ mimeType.essence }}
         </span>
         <ResponseBodyToggle
           v-if="showToggle"
@@ -81,7 +85,7 @@ const dataUrl = computed<string>(() => {
         :alpha="mediaConfig.alpha"
         :mode="mediaConfig.preview"
         :src="dataUrl"
-        :type="mimeType" />
+        :type="mimeType.essence" />
       <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
         Binary file
       </ResponseBodyInfo>
