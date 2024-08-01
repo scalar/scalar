@@ -8,6 +8,7 @@ import { indentWithTab, insertNewline } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
 import { json } from '@codemirror/lang-json'
+import { xml } from '@codemirror/lang-xml'
 import { yaml } from '@codemirror/lang-yaml'
 import {
   type LanguageSupport,
@@ -247,6 +248,7 @@ const languageExtensions: {
   json: json,
   yaml: yaml,
   css: css,
+  xml: xml,
 }
 
 /** Generate  the list of extension from parameters */

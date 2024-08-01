@@ -6,8 +6,7 @@ import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
-import { isJsonString } from '@scalar/oas-utils/helpers'
-import { computed, ref, toRaw } from 'vue'
+import { computed, ref } from 'vue'
 
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
@@ -51,20 +50,6 @@ const responseCookies = computed(() => {
     : []
 })
 
-// Pretty print JSON
-const responseData = computed(() => {
-  const value = props.response?.data
-
-  // Format JSON
-  if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value as string), null, 2)
-  } else if (value && typeof toRaw(value) === 'object') {
-    return JSON.stringify(value, null, 2)
-  }
-
-  return value
-})
-
 const sections = ['All', 'Body', 'Headers', 'Cookies']
 type ActiveSections = (typeof sections)[number]
 
@@ -103,7 +88,7 @@ const activeSection = ref<ActiveSections>('All')
         <ResponseBody
           v-if="activeSection === 'All' || activeSection === 'Body'"
           :active="true"
-          :data="responseData"
+          :data="props.response?.data"
           :headers="responseHeaders"
           title="Body" />
       </template>

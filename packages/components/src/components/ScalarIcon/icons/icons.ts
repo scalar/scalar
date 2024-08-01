@@ -22,6 +22,7 @@ export const ICONS = [
   'Discord',
   'DiscordLine',
   'DocsPage',
+  'Download',
   'Duplicate',
   'Edit',
   'Ellipses',
