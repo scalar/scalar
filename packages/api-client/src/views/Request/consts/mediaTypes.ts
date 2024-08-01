@@ -1,9 +1,8 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'img' | 'img-w-alpha' | 'html'
-
 export type MediaConfig = {
-  preview?: MediaPreview
+  preview?: boolean
+  alpha?: boolean
   raw?: boolean
   language?: CodeMirrorLanguage
   extension: string
@@ -72,21 +71,22 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'font/ttf': { extension: '.ttf' },
   'font/woff': { extension: '.woff' },
   'font/woff2': { extension: '.woff2' },
-  'image/apng': { extension: '.apng', preview: 'img-w-alpha' },
-  'image/avif': { extension: '.avif', preview: 'img' },
-  'image/bmp': { extension: '.bmp', preview: 'img' },
-  'image/gif': { extension: '.gif', preview: 'img-w-alpha' },
-  'image/jpeg': { extension: '.jpg', preview: 'img' },
-  'image/png': { extension: '.png', preview: 'img-w-alpha' },
+  'image/apng': { extension: '.apng', preview: true, alpha: true },
+  'image/avif': { extension: '.avif', preview: true },
+  'image/bmp': { extension: '.bmp', preview: true },
+  'image/gif': { extension: '.gif', preview: true, alpha: true },
+  'image/jpeg': { extension: '.jpg', preview: true },
+  'image/png': { extension: '.png', preview: true, alpha: true },
   'image/svg+xml': {
     extension: '.svg',
     raw: true,
     language: 'xml',
-    preview: 'img-w-alpha',
+    preview: true,
+    alpha: true,
   },
   'image/tiff': { extension: '.tiff' },
-  'image/vnd.microsoft.icon': { extension: '.ico', preview: 'img' },
-  'image/webp': { extension: '.webp', preview: 'img-w-alpha' },
+  'image/vnd.microsoft.icon': { extension: '.ico', preview: true },
+  'image/webp': { extension: '.webp', preview: true, alpha: true },
   'text/calendar': { extension: '.ics', raw: true },
   'text/css': { extension: '.css', raw: true, language: 'css' },
   'text/csv': { extension: '.csv', raw: true },
@@ -94,7 +94,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     extension: '.html',
     raw: true,
     language: 'html',
-    preview: 'html',
+    preview: true,
   },
   'text/javascript': { extension: '.js', raw: true },
   'text/plain': { extension: '.txt', raw: true },
@@ -104,10 +104,10 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'video/3gpp2': { extension: '.3g2' },
   'audio/3gpp2': { extension: '.3g2' },
   'video/mp2t': { extension: '.ts' },
-  'video/mp4': { extension: '.mp4' },
+  'video/mp4': { extension: '.mp4', preview: true },
   'video/mpeg': { extension: '.mpeg' },
   'video/ogg': { extension: '.ogv' },
-  'video/webm': { extension: '.webm' },
+  'video/webm': { extension: '.webm', preview: true },
   'video/x-msvideo': { extension: '.avi' },
 }
 

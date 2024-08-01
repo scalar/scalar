@@ -5,8 +5,7 @@ import { computed, ref } from 'vue'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
-import ResponseBodyPreviewImage from './ResponseBodyPreviewImage.vue'
-import ResponseBodyPreviewWebpage from './ResponseBodyPreviewWebpage.vue'
+import ResponseBodyPreview from './ResponseBodyPreview.vue'
 import ResponseBodyRaw from './ResponseBodyRaw.vue'
 import ResponseBodyToggle from './ResponseBodyToggle.vue'
 
@@ -52,10 +51,10 @@ const dataUrl = computed<string>(() => {
 </script>
 <template>
   <ViewLayoutCollapse>
-    <template #title>
+    <template #title="{ open }">
       <span>{{ title }}</span>
       <ResponseBodyToggle
-        v-if="showToggle"
+        v-if="showToggle && open"
         v-model="toggle" />
     </template>
     <template
@@ -72,18 +71,15 @@ const dataUrl = computed<string>(() => {
         v-if="mediaConfig?.raw && showRaw"
         :data="data"
         :language="mediaConfig.language" />
-      <template v-if="mediaConfig?.preview && showPreview">
-        <ResponseBodyPreviewImage
-          v-if="mediaConfig.preview?.startsWith('img')"
-          :src="dataUrl"
-          :transparent="mediaConfig.preview === 'img-w-alpha'" />
-        <ResponseBodyPreviewWebpage
-          v-if="mediaConfig.preview === 'html'"
-          :src="dataUrl" />
-      </template>
-      <template v-if="!mediaConfig?.raw && !mediaConfig?.preview">
-        <ResponseBodyInfo>Binary file ({{ mimeType }})</ResponseBodyInfo>
-      </template>
+      <ResponseBodyPreview
+        v-if="mediaConfig?.preview && showPreview"
+        :key="dataUrl"
+        :alpha="mediaConfig.alpha"
+        :src="dataUrl"
+        :type="mimeType" />
+      <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
+        Binary file ({{ mimeType }})
+      </ResponseBodyInfo>
     </div>
   </ViewLayoutCollapse>
 </template>

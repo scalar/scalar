@@ -5,7 +5,8 @@ import ResponseBodyInfo from './ResponseBodyInfo.vue'
 
 const props = defineProps<{
   src: string
-  transparent?: boolean
+  type: string
+  alpha?: boolean
 }>()
 
 const error = ref(false)
@@ -17,16 +18,17 @@ watch(
 </script>
 <template>
   <div
-    v-if="!error"
-    class="border-1/2 flex justify-center rounded"
-    :class="{ 'p-2 bg-preview': transparent }">
-    <img
-      class="max-w-full rounded"
-      :src="src"
-      @change="error = false"
-      @error="error = true" />
+    v-if="!error && src"
+    class="border-1/2 flex justify-center rounded overflow-hidden"
+    :class="{ 'p-2 bg-preview': alpha }">
+    <object
+      class="max-w-full"
+      :class="alpha ? 'rounded' : '!w-full !h-auto'"
+      :data="src"
+      :type="type"
+      @error="error = true"></object>
   </div>
-  <ResponseBodyInfo v-else>Image preview unavailable</ResponseBodyInfo>
+  <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
 </template>
 <style scoped>
 .light-mode .bg-preview {
