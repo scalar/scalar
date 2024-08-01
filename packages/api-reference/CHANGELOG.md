@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.24.65
+
+### Patch Changes
+
+- Updated dependencies [3a6effa]
+- Updated dependencies [dfa7434]
+  - @scalar/api-client@2.0.40
+  - @scalar/components@0.12.26
+  - @scalar/themes@0.9.19
+  - @scalar/oas-utils@0.2.22
+
 ## 1.24.64
 
 ### Patch Changes
