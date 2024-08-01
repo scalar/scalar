@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image' | 'video'
+export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
 
 export type MediaConfig = {
   preview?: MediaPreview
@@ -67,7 +67,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/zip': { extension: '.zip' },
   'audio/aac': { extension: '.aac' },
   'audio/midi': { extension: '.midi' },
-  'audio/mpeg': { extension: '.mp3', preview: 'object' },
+  'audio/mpeg': { extension: '.mp3', preview: 'audio' },
   'audio/ogg': { extension: '.oga' },
   'audio/wav': { extension: '.wav' },
   'audio/webm': { extension: '.weba' },

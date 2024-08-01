@@ -40,6 +40,16 @@ watch(
         :src="src"
         :type="type" />
     </video>
+    <audio
+      v-else-if="mode === 'audio'"
+      class="my-12"
+      controls
+      loop
+      @error="error = true">
+      <source
+        :src="src"
+        :type="type" />
+    </audio>
     <object
       v-else
       class="w-full aspect-[4/3]"
