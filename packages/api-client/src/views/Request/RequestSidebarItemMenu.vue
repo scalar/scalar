@@ -130,7 +130,7 @@ const resourceTitle = computed(() => {
 <template>
   <ScalarDropdown teleport="#scalar-client">
     <ScalarButton
-      class="px-1 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute -translate-y-1/2 right-0"
+      class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
       size="sm"
       variant="ghost"
       @click="

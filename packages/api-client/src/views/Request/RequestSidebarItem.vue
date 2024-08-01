@@ -245,11 +245,16 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
           </slot>
           &hairsp;
         </span>
-        <div class="flex flex-1 flex-row justify-between items-center">
-          <span class="z-10 font-medium">
+        <div
+          class="flex flex-1 flex-row justify-between editable-sidebar-hover">
+          <span
+            class="z-10 font-medium text-left w-full word-break-break-word"
+            :class="{
+              'editable-sidebar-hover-item': !isReadOnly,
+            }">
             {{ getTitle(item) }}
           </span>
-          <div class="relative">
+          <div class="relative flex h-fit">
             <RequestSidebarItemMenu
               v-if="
                 !isReadOnly &&
@@ -257,6 +262,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
               "
               :item="item"
               :parentUids="parentUids" />
+            <span>&hairsp;</span>
           </div>
         </div>
       </button>
