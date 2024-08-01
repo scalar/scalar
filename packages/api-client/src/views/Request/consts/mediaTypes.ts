@@ -1,11 +1,10 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image'
+export type MediaPreview = 'object' | 'image' | 'video'
 
 export type MediaConfig = {
   preview?: MediaPreview
   alpha?: boolean
-  aspect?: string
   raw?: boolean
   language?: CodeMirrorLanguage
   extension: string
@@ -22,7 +21,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
-  'application/pdf': { extension: '.pdf', preview: 'object', aspect: '1 / 1' },
+  'application/pdf': { extension: '.pdf', preview: 'object' },
   'application/rtf': { extension: '.rtf', raw: true },
   'application/vnd.amazon.ebook': { extension: '.azw' },
   'application/vnd.apple.installer+xml': {
@@ -68,7 +67,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/zip': { extension: '.zip' },
   'audio/aac': { extension: '.aac' },
   'audio/midi': { extension: '.midi' },
-  'audio/mpeg': { extension: '.mp3', preview: 'object', aspect: '3 / 2' },
+  'audio/mpeg': { extension: '.mp3', preview: 'object' },
   'audio/ogg': { extension: '.oga' },
   'audio/wav': { extension: '.wav' },
   'audio/webm': { extension: '.weba' },
@@ -100,7 +99,6 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     raw: true,
     language: 'html',
     preview: 'object',
-    aspect: '4 / 3',
   },
   'text/javascript': { extension: '.js', raw: true },
   'text/plain': { extension: '.txt', raw: true },
@@ -111,10 +109,10 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'video/3gpp2': { extension: '.3g2' },
   'audio/3gpp2': { extension: '.3g2' },
   'video/mp2t': { extension: '.ts' },
-  'video/mp4': { extension: '.mp4', preview: 'object', aspect: '4 / 3' },
+  'video/mp4': { extension: '.mp4', preview: 'video' },
   'video/mpeg': { extension: '.mpeg' },
   'video/ogg': { extension: '.ogv' },
-  'video/webm': { extension: '.webm', preview: 'object', aspect: '4 / 3' },
+  'video/webm': { extension: '.webm', preview: 'video' },
   'video/x-msvideo': { extension: '.avi' },
 }
 

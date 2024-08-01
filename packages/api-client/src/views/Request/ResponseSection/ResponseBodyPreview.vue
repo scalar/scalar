@@ -9,7 +9,6 @@ const props = defineProps<{
   type: string
   mode?: MediaPreview
   alpha?: boolean
-  aspect?: string
 }>()
 
 const error = ref(false)
@@ -30,11 +29,21 @@ watch(
       :class="{ rounded: alpha }"
       :src="src"
       @error="error = true" />
+    <video
+      v-else-if="mode === 'video'"
+      autoplay
+      controls
+      loop
+      width="100%"
+      @error="error = true">
+      <source
+        :src="src"
+        :type="type" />
+    </video>
     <object
       v-else
-      class="w-full"
+      class="w-full aspect-[4/3]"
       :data="src"
-      :style="{ aspectRatio: aspect }"
       :type="type"
       @error="error = true" />
   </div>
