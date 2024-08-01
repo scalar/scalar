@@ -44,7 +44,7 @@ const dataUrl = computed<string>(() => {
     return URL.createObjectURL(
       new Blob([props.data], { type: mimeType.value.toString() }),
     )
-  if (typeof props.data === 'object')
+  if (typeof props.data === 'object' && Object.keys(props.data).length)
     return URL.createObjectURL(
       new Blob([JSON.stringify(props.data)], {
         type: mimeType.value.toString(),
