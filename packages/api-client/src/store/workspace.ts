@@ -309,10 +309,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       })
     }
 
-    if (
-      requestBody &&
-      requestBody?.postData?.['mimeType'] === 'application/json'
-    ) {
+    if (requestBody?.postData?.['mimeType'] === 'application/json') {
       parameters.headers.push({
         key: 'Content-Type',
         value: 'application/json',
