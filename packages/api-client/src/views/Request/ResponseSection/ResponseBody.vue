@@ -51,12 +51,7 @@ const dataUrl = computed<string>(() => {
 </script>
 <template>
   <ViewLayoutCollapse>
-    <template #title="{ open }">
-      <span>{{ title }}</span>
-      <ResponseBodyToggle
-        v-if="showToggle && open"
-        v-model="toggle" />
-    </template>
+    <template #title> {{ title }} </template>
     <template
       v-if="data && dataUrl"
       #actions>
@@ -66,7 +61,15 @@ const dataUrl = computed<string>(() => {
     </template>
     <div
       v-if="data"
-      class="mx-1">
+      class="mx-1 border-1/2 flex flex-col rounded bg-b-1">
+      <div class="flex justify-between items-center border-b-1/2 p-1.5">
+        <span class="text-xxs leading-3 font-code">
+          {{ mimeType }}
+        </span>
+        <ResponseBodyToggle
+          v-if="showToggle"
+          v-model="toggle" />
+      </div>
       <ResponseBodyRaw
         v-if="mediaConfig?.raw && showRaw"
         :key="dataUrl"
@@ -80,7 +83,7 @@ const dataUrl = computed<string>(() => {
         :src="dataUrl"
         :type="mimeType" />
       <ResponseBodyInfo v-if="!mediaConfig?.raw && !mediaConfig?.preview">
-        Binary file ({{ mimeType }})
+        Binary file
       </ResponseBodyInfo>
     </div>
   </ViewLayoutCollapse>

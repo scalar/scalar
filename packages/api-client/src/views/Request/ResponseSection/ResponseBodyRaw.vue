@@ -37,11 +37,9 @@ useCodeMirror({
 </template>
 <style scoped>
 :deep(.cm-editor) {
-  background-color: var(--scalar-background-1);
+  background-color: transparent;
   font-size: var(--scalar-mini);
   outline: none;
-  border-radius: var(--scalar-radius);
-  border: 0.5px solid var(--scalar-border-color);
 }
 :deep(.cm-gutters) {
   background-color: var(--scalar-background-1);

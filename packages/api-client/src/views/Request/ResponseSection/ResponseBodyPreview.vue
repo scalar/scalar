@@ -21,7 +21,7 @@ watch(
 <template>
   <div
     v-if="!error && src"
-    class="border-1/2 flex justify-center rounded bg-b-1 overflow-hidden"
+    class="flex justify-center overflow-hidden rounded-b"
     :class="{ 'p-2 bg-preview': alpha }">
     <img
       v-if="mode === 'image'"
