@@ -8,7 +8,7 @@ public class ScalarOptions
     [JsonIgnore]
     public string EndpointPathPrefix { get; set; } = "/scalar";
 
-    [JsonIgnore] 
+    [JsonIgnore]
     public string? Title { get; set; }
 
     public string Theme { get; set; } = "purple";
@@ -28,6 +28,12 @@ public class ScalarOptions
     public Dictionary<string, string>? Metadata { get; set; }
 
     public ScalarAuthenticationOptions? Authentication { get; set; }
+
+    /// <summary>
+    /// Provides a function for setting the data URL for the API reference
+    /// given the document name.
+    /// </summary>
+    public Func<string, string>? DataUrlFunc { get; set; }
 }
 
 public class ScalarAuthenticationOptions

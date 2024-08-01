@@ -11,7 +11,7 @@ namespace Scalar.AspNetCore
     {
         public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints)
         {
-              return endpoints.MapScalarApiReference(_ => { });
+            return endpoints.MapScalarApiReference(_ => { });
         }
 
         private static readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -32,6 +32,7 @@ namespace Scalar.AspNetCore
             return endpoints.MapGet(options.EndpointPathPrefix + "/{documentName}", (string documentName) =>
                 {
                     var title = options.Title ?? $"Scalar API Reference -- {documentName}";
+                    var dataUrl = options.DataUrlFunc is not null ? options.DataUrlFunc(documentName) : $"/openapi/{documentName}.json";
                     return Results.Content(
                         $$"""
                           <!doctype html>
@@ -42,7 +43,7 @@ namespace Scalar.AspNetCore
                               <meta name="viewport" content="width=device-width, initial-scale=1" />
                           </head>
                           <body>
-                              <script id="api-reference" data-url="/openapi/{{documentName}}.json"></script>
+                              <script id="api-reference" data-url="{{dataUrl}}"></script>
                               <script>
                               var configuration = {{configurationJson}}
 
