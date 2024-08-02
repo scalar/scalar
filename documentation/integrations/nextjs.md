@@ -67,7 +67,7 @@ But you can also just use our React integration and add a page route:
 npm add @scalar/api-reference-react
 ```
 
-… and aa a new page route:
+… and add a new page route:
 
 ```js
 import { ApiReferenceReact } from '@scalar/api-reference-react'
