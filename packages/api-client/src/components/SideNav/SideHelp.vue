@@ -11,14 +11,13 @@ import {
   <ScalarDropdown
     class="max-w-[150px]"
     :placement="'top-end'">
-    <ScalarButton
-      class="min-w-[37px] max-w-[42px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px]"
-      fullWidth
-      variant="ghost">
+    <button
+      class="min-w-[37px] max-w-[42px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[7px] text-c-3 focus:text-c-1 scalar-app-nav-padding"
+      type="button">
       <ScalarIcon
         icon="Help"
         thickness="1.5" />
-    </ScalarButton>
+    </button>
 
     <!-- Workspace list -->
     <template #items>
@@ -31,7 +30,8 @@ import {
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="DiscordLine"
-              size="xs" />
+              size="xs"
+              thickness="1.75" />
           </div>
           <span>Discord</span>
         </ScalarDropdownItem>
@@ -44,7 +44,8 @@ import {
           <div class="flex items-center justify-center">
             <ScalarIcon
               icon="GitHubLine"
-              size="xs" />
+              size="xs"
+              thickness="1.75" />
           </div>
           <span>GitHub</span>
         </ScalarDropdownItem>
@@ -72,7 +73,7 @@ import {
             <ScalarIcon
               icon="Changelog"
               size="xs"
-              thickness="2" />
+              thickness="1.75" />
           </div>
           <span>Changelog</span>
         </ScalarDropdownItem>
@@ -86,7 +87,7 @@ import {
             <ScalarIcon
               icon="Roadmap"
               size="xs"
-              thickness="2" />
+              thickness="1.75" />
           </div>
           <span>Roadmap</span>
         </ScalarDropdownItem>

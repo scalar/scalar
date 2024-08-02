@@ -13,7 +13,11 @@ const { isReadOnly } = useWorkspace()
       class="xl:min-h-header py-2.5 flex items-center border-b px-4 text-sm">
       <h2 class="font-medium m-0 text-sm">{{ title }}</h2>
     </div>
-    <div class="custom-scroll sidebar-height">
+    <div
+      class="custom-scroll sidebar-height"
+      :class="{
+        'sidebar-mask': !isReadOnly,
+      }">
       <slot name="content" />
     </div>
     <slot name="button" />
@@ -22,5 +26,13 @@ const { isReadOnly } = useWorkspace()
 <style>
 .sidebar-height {
   min-height: calc(100% - 50px);
+}
+.sidebar-mask {
+  mask-image: linear-gradient(
+    0,
+    transparent 0,
+    transparent 40px,
+    var(--scalar-background-2) 60px
+  );
 }
 </style>

@@ -30,6 +30,7 @@ const {
   activeWorkspace,
   activeWorkspaceCollections,
   activeWorkspaceServers,
+  activeWorkspaceRequests,
   collectionMutators,
   collections,
   cookies,
@@ -285,7 +286,10 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         <template #content>
           <SearchButton @openSearchModal="searchModalState.show()" />
           <div
-            class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-12 pt-2.5"
+            class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
+            :class="{
+              'pb-14': !activeWorkspace.isReadOnly,
+            }"
             @dragenter.prevent
             @dragover.prevent>
             <!-- Collections -->
@@ -322,6 +326,9 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         <template #button>
           <SidebarButton
             v-if="!activeWorkspace.isReadOnly"
+            :class="{
+              'empty-sidebar-item': activeWorkspaceRequests.length === 1,
+            }"
             :click="addItemHandler">
             <template #title>Add Item</template>
           </SidebarButton>
@@ -364,8 +371,8 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 }
 .dark-mode .client-wrapper-bg-color {
   background: linear-gradient(
-    color-mix(in srgb, var(--tw-bg-base) 6%, transparent) 1%,
-    color-mix(in srgb, var(--scalar-background-1) 30%, black) 9%
+    color-mix(in srgb, var(--tw-bg-base) 21%, black) -3%,
+    black 9%
   );
 }
 .light-mode .client-wrapper-bg-color {
@@ -373,5 +380,17 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 }
 .gitbook-show {
   display: none;
+}
+.empty-sidebar-item:deep(.scalar-button) {
+  background: var(--scalar-button-1);
+  color: var(--scalar-button-1-color);
+}
+.empty-sidebar-item:deep(.scalar-button:hover) {
+  background: var(--scalar-button-1-hover);
+}
+.empty-sidebar-item:deep(.add-item-hotkey) {
+  color: var(--scalar-button-1-color);
+  background: color-mix(in srgb, var(--scalar-button-1), white 20%);
+  border-color: transparent;
 }
 </style>

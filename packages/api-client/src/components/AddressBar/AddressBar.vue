@@ -161,12 +161,23 @@ const updateExampleUrlHandler = (url: string) => {
   -ms-overflow-style: none; /* IE and Edge */
 }
 .scroll-timeline-x-hidden {
-  overflow: auto;
+  overflow: hidden;
+}
+.scroll-timeline-x-hidden :deep(.cm-scroller) {
   scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-right: 20px;
+  overflow: auto;
 }
 .scroll-timeline-x-hidden::-webkit-scrollbar {
   width: 0;
   height: 0;
+  display: none;
+}
+.scroll-timeline-x-hidden :deep(.cm-scroller::-webkit-scrollbar) {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .scroll-timeline-x-address {
   line-height: 27px;
