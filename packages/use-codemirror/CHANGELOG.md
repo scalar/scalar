@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.10
+
+### Patch Changes
+
+- 4e5de89: fix: lint only if content is given
+
 ## 0.11.9
 
 ### Patch Changes

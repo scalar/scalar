@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.27
+
+### Patch Changes
+
+- 09d07d1: fix: api client help and darkmode button, sidebar bugs, backgrounds, etc
+
 ## 0.12.26
 
 ### Patch Changes

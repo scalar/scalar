@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.0.41
+
+### Patch Changes
+
+- 09d07d1: fix: api client help and darkmode button, sidebar bugs, backgrounds, etc
+- Updated dependencies [09d07d1]
+- Updated dependencies [4e5de89]
+  - @scalar/components@0.12.27
+  - @scalar/use-codemirror@0.11.10
+
 ## 2.0.40
 
 ### Patch Changes
