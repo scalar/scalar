@@ -37,7 +37,9 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 /** Checks if we are in an "input" */
 const isInput = (target: EventTarget | null) =>
   target instanceof HTMLElement &&
-  (target.getAttribute('contenteditable') || target.tagName === 'INPUT')
+  (target.getAttribute('contenteditable') ||
+    target.tagName === 'INPUT' ||
+    target.tagName === 'TEXTAREA')
 
 const MODIFIER_DICT = {
   Alt: 'altKey',
@@ -48,10 +50,8 @@ const MODIFIER_DICT = {
 
 /** Converts our modifier config to the eventKey */
 const getModifier = (modifier: HotKeyModifier) => {
-  if (modifier === 'default') {
-    if (isMacOS()) return 'metaKey'
-    else return 'ctrlKey'
-  }
+  if (modifier === 'default') return isMacOS() ? 'metaKey' : 'ctrlKey'
+
   return MODIFIER_DICT[modifier]
 }
 
@@ -75,10 +75,12 @@ export const handleHotKeyDown = (
       const _modifier = getModifier(modifier)
 
       // Check for modifier as its defined
-      if (ev[_modifier] === hotKeyEvent.modifier) {
-        // Check if we are in an input if modifier === false
-        if (hotKeyEvent.modifier || !isInput(ev.target))
-          hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+      if (
+        ev[_modifier] === hotKeyEvent.modifier &&
+        // We still need to check if its an input for !modifier
+        (hotKeyEvent.modifier || !isInput(ev.target))
+      ) {
+        hotKeyBus.emit({ [hotKeyEvent.event]: ev })
       }
       // Check if we are in an input as modifier === 'undefined'
       else if (!isInput(ev.target)) hotKeyBus.emit({ [hotKeyEvent.event]: ev })
