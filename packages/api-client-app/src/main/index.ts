@@ -6,6 +6,8 @@ import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
 
+const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
+
 todesktop.init({
   updateReadyAction: {
     showNotification: 'never',
@@ -59,6 +61,36 @@ function createWindow(): void {
     shell.openExternal(details.url)
     return { action: 'deny' }
   })
+
+  // Disable CORS
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
+    (details, callback) => {
+      const { requestHeaders } = details
+
+      upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
+      callback({ requestHeaders })
+    },
+  )
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      const { responseHeaders } = details
+
+      // If headers have already been modified, skip
+      if (!responseHeaders?.[MODIFIED_HEADERS_KEY]) {
+        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*'])
+        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Methods', [
+          'POST, GET, OPTIONS, PUT, DELETE, PATCH',
+        ])
+        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*'])
+        upsertKeyValue(responseHeaders, 'Access-Control-Expose-Headers', ['*'])
+      }
+
+      callback({
+        responseHeaders,
+      })
+    },
+  )
 
   // DevTools
   if (is.dev) {
@@ -122,3 +154,41 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+
+/**
+ * Modify headers
+ */
+function upsertKeyValue(
+  obj: Record<string, string> | Record<string, string[]> | undefined,
+  keyToChange: string,
+  value: string[],
+) {
+  const keyToChangeLower = keyToChange.toLowerCase()
+
+  if (!obj) {
+    return
+  }
+
+  // Add to modified headers
+  if (Array.isArray(obj[MODIFIED_HEADERS_KEY])) {
+    obj[MODIFIED_HEADERS_KEY].push(keyToChangeLower)
+  } else {
+    obj[MODIFIED_HEADERS_KEY] = [keyToChangeLower]
+  }
+
+  for (const key of Object.keys(obj)) {
+    if (key.toLowerCase() === keyToChangeLower) {
+      // If header exists already, prefix it with `X-Scalar-Original-Headfer`
+      obj[`x-scalar-original-${key}`] = obj[keyToChangeLower]
+
+      // Reassign old key
+      obj[keyToChangeLower] = value
+
+      // Done
+      return
+    }
+  }
+
+  // Insert at end instead
+  obj[keyToChangeLower] = value
+}

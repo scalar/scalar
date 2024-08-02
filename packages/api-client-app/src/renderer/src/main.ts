@@ -6,9 +6,7 @@ import { load, trackEvent } from 'fathom-client'
 // Initialize
 await createApiClientApp(
   document.getElementById('scalar-client'),
-  {
-    proxyUrl: 'https://proxy.scalar.com',
-  },
+  {},
   true,
   webHashRouter,
 )

@@ -4,19 +4,11 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import DataTableText from '@/components/DataTable/DataTableText.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 
-defineProps<{
-  headers: { name: string; value: string; required: boolean }[]
-}>()
+type Header = { name: string; value: string; required: boolean }
 
-// Make the first letter and all letters after a - uppercase
-const formatHeaderName = (headerName: string) => {
-  return headerName
-    .split('-')
-    .map((word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1)
-    })
-    .join('-')
-}
+defineProps<{
+  headers: Header[]
+}>()
 </script>
 <template>
   <ViewLayoutCollapse
@@ -33,7 +25,7 @@ const formatHeaderName = (headerName: string) => {
         class="text-c-1">
         <DataTableText
           class="sticky left-0 z-1 bg-b-1 max-w-48"
-          :text="formatHeaderName(item.name)" />
+          :text="item.name" />
         <DataTableText
           class="z-0"
           :text="item.value" />
