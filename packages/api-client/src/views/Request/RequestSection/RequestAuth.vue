@@ -185,6 +185,13 @@ const selectedLabel = computed(() => {
 /** Delete scheme */
 const handleDelete = (scheme: SecurityScheme) =>
   securitySchemeMutators.delete(scheme, activeRequest.value)
+
+const unselectAuth = (id: string) => {
+  const updatedSelectedAuth = selectedAuth.value.filter(
+    (auth: SecuritySchemeOption) => auth.id !== id,
+  )
+  selectedAuth.value = updatedSelectedAuth
+}
 </script>
 <template>
   <ViewLayoutCollapse
@@ -219,11 +226,32 @@ const handleDelete = (scheme: SecurityScheme) =>
                   class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
                   Auth Type
                 </div>
-                <span class="custom-scroll mr-1.5 pl-2">{{
-                  selectedLabel
-                }}</span>
+                <div
+                  v-if="selectedAuth.length"
+                  class="flex relative scroll-timeline-x w-full">
+                  <div class="fade-left"></div>
+                  <div class="flex flex-1 gap-0.75 mr-1.5">
+                    <span
+                      v-for="auth in selectedAuth"
+                      :key="auth.id"
+                      class="cm-pill flex items-center mx-0">
+                      {{ auth.labelWithoutId }}
+                      <ScalarIcon
+                        class="ml-1 cursor-pointer hover:text-c-1"
+                        icon="Close"
+                        size="xs"
+                        @click.stop="unselectAuth(auth.id)" />
+                    </span>
+                  </div>
+                  <div class="fade-right"></div>
+                </div>
+                <div
+                  v-else
+                  class="pl-2">
+                  None
+                </div>
                 <ScalarIcon
-                  class="mr-2.5"
+                  class="min-w-3 ml-auto mr-2.5"
                   icon="ChevronDown"
                   size="xs" />
               </ScalarButton>
@@ -345,5 +373,58 @@ const handleDelete = (scheme: SecurityScheme) =>
 <style scoped>
 .auth-combobox-position {
   margin-left: 120px;
+}
+.scroll-timeline-x {
+  overflow: auto;
+  scroll-timeline: --scroll-timeline x;
+  /* Firefox supports */
+  scroll-timeline: --scroll-timeline horizontal;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.fade-left,
+.fade-right {
+  position: sticky;
+  content: '';
+  height: 100%;
+  animation-name: fadein;
+  animation-duration: 1ms;
+  animation-direction: reverse;
+  animation-timeline: --scroll-timeline;
+  min-height: 24px;
+  pointer-events: none;
+  z-index: 1;
+}
+.fade-left {
+  background: linear-gradient(
+    -90deg,
+    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 60%,
+    var(--scalar-background-1) 100%
+  );
+  min-width: 3px;
+  left: -1px;
+  animation-direction: normal;
+}
+.fade-right {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--scalar-background-1), transparent 100%) 0%,
+    color-mix(in srgb, var(--scalar-background-1), transparent 20%) 60%,
+    var(--scalar-background-1) 100%
+  );
+  margin-left: -20px;
+  min-width: 24px;
+  right: -1px;
+  top: 0;
+}
+@keyframes fadein {
+  0% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
 }
 </style>
