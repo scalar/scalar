@@ -17,7 +17,7 @@ await createApiClientApp(
  * Fathom Analytics offers simple & privacy-first tracking
  * @see https://usefathom.com/
  */
-load('MY_FATHOM_ID', {
+load('EUNBEXQC', {
   // Skips automatically tracking page views
   auto: false,
 })
