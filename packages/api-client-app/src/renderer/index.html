@@ -5,13 +5,16 @@
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self' blob:; connect-src *; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src https://fonts.scalar.com" />
+      content="default-src 'self' blob:; connect-src *; script-src 'self' https://cdn.usefathom.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src https://fonts.scalar.com" />
   </head>
 
   <body>
+    <!-- HTML Element for the API client -->
     <div
       id="scalar-client"
       class="scalar-app scalar-client"></div>
+
+    <!-- JavaScript -->
     <script
       type="module"
       src="/src/main.ts"></script>
