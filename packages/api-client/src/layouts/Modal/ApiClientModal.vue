@@ -5,7 +5,7 @@ import { addScalarClassesToHeadless } from '@scalar/components'
 import { onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-const { modalState } = useWorkspace()
+const { activeWorkspace, modalState } = useWorkspace()
 
 // Close on escape
 hotKeyBus.on(
@@ -13,7 +13,8 @@ hotKeyBus.on(
 )
 
 /** Handles the hotkey events as well as custom config */
-const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev)
+const handleKeyDown = (ev: KeyboardEvent) =>
+  handleHotKeyDown(ev, activeWorkspace.value.hotKeyConfig)
 
 // Disable scrolling while the modal is open, also our global hotkey listeners
 watch(

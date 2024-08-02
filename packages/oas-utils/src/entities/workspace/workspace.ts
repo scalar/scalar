@@ -9,6 +9,8 @@ const modifier = z
   .optional()
   .default('default')
 
+export type HotKeyModifier = z.infer<typeof modifier>
+
 const hotKeys = z.record(
   z.enum(KEYDOWN_KEYS),
   z.object({
