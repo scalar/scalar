@@ -1,5 +1,13 @@
 import type { Context } from 'hono'
 
+/** File polyfill for Node 18  */
+type File = {
+  name: string
+  size: number
+  type: string
+  lastModified: number
+}
+
 /**
  * Get the body of a request, no matter if it’s JSON or text
  */
@@ -45,15 +53,7 @@ function transformFormData(formData: Record<string, any>) {
       continue
     }
 
-    // File
-    const isFile =
-      typeof value === 'object' &&
-      value.name !== undefined &&
-      value.size !== undefined &&
-      value.type !== undefined &&
-      value.lastModified !== undefined
-
-    if (isFile) {
+    if (isFile(value)) {
       body[key] = {
         name: value?.name,
         sizeInBytes: value?.size,
@@ -69,7 +69,7 @@ function transformFormData(formData: Record<string, any>) {
     // Array
     if (Array.isArray(value)) {
       body[key] = value.map((item: string | File) => {
-        if (item instanceof File) {
+        if (typeof item !== 'string' && isFile(item)) {
           return {
             name: item?.name,
             sizeInBytes: item?.size,
@@ -94,4 +94,17 @@ function transformFormData(formData: Record<string, any>) {
   }
 
   return body
+}
+
+/**
+ * Check if the data is a file, just a polyfill for Node 18
+ */
+function isFile(data: any) {
+  return (
+    typeof data === 'object' &&
+    data.name !== undefined &&
+    data.size !== undefined &&
+    data.type !== undefined &&
+    data.lastModified !== undefined
+  )
 }
