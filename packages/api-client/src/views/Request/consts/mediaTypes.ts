@@ -18,6 +18,11 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/javascript': { extension: '.js', raw: true },
   'application/json': { extension: '.json', raw: true, language: 'json' },
   'application/ld+json': { extension: '.jsonld', raw: true, language: 'json' },
+  'application/problem+json': {
+    extension: '.json',
+    raw: true,
+    language: 'json',
+  },
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
