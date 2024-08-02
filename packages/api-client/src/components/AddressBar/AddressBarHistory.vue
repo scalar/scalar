@@ -32,16 +32,14 @@ function getPrettyResponseUrl(rawUrl: string) {
   return scalarUrlParsed.href
 }
 
-function handleHistoryClick(index: number) {
-  const historicalRequest = activeRequest.value.history[index]
-
+function handleHistoryClick(historicalRequest: any) {
   // see if we need to update the topnav
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
-  requestExampleMutators.set(historicalRequest.request)
+  requestExampleMutators.set({ ...historicalRequest.request })
 }
 </script>
 <template>
@@ -66,26 +64,26 @@ function handleHistoryClick(index: number) {
     <ListboxOptions
       class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
       <ListboxOption
-        v-for="({ response }, index) in history"
+        v-for="(entry, index) in history"
         :key="index"
         class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:hover:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
         :value="index"
-        @click="handleHistoryClick(index)">
+        @click="handleHistoryClick(entry)">
         <HttpMethod
-          v-if="response.config.method"
+          v-if="entry.response.config.method"
           class="text-[11px]"
-          :method="response.config.method" />
+          :method="entry.response.config.method" />
         <div class="min-w-0">
           <div class="min-w-0 truncate text-c-1">
-            {{ getPrettyResponseUrl(response.config.url) }}
+            {{ getPrettyResponseUrl(entry.response.config.url) }}
           </div>
         </div>
-        <div>{{ formatMs(response.duration) }}</div>
-        <div :class="[getStatusCodeColor(response.status).color]">
-          {{ response.status }}
+        <div>{{ formatMs(entry.response.duration) }}</div>
+        <div :class="[getStatusCodeColor(entry.response.status).color]">
+          {{ entry.response.status }}
         </div>
         <div>
-          {{ httpStatusCodes[response.status]?.name }}
+          {{ httpStatusCodes[entry.response.status]?.name }}
         </div>
       </ListboxOption>
     </ListboxOptions>
