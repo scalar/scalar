@@ -50,6 +50,7 @@ export default {
     },
     colors: {
       current: 'currentColor',
+      inherit: 'inherit',
       // Backdrop Colors
       b: {
         1: 'var(--scalar-background-1)',

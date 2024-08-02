@@ -4,6 +4,7 @@ import { useWorkspace } from '@/store/workspace'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
@@ -17,6 +18,8 @@ const { activeRequest, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
 
+const history = computed(() => activeRequest.value.history.slice().reverse())
+
 function getPrettyResponseUrl(rawUrl: string) {
   const url = new URL(rawUrl)
   const params = new URLSearchParams(url.search)
@@ -29,16 +32,14 @@ function getPrettyResponseUrl(rawUrl: string) {
   return scalarUrlParsed.href
 }
 
-function handleHistoryClick(index: number) {
-  const historicalRequest = activeRequest.value.history[index]
-
+function handleHistoryClick(historicalRequest: any) {
   // see if we need to update the topnav
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
-  requestExampleMutators.set(historicalRequest.request)
+  requestExampleMutators.set({ ...historicalRequest.request })
 }
 </script>
 <template>
@@ -61,31 +62,28 @@ function handleHistoryClick(index: number) {
     ]">
     <!-- History Item -->
     <ListboxOptions
-      class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur">
+      class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
       <ListboxOption
-        v-for="({ response }, index) in activeRequest.history"
+        v-for="(entry, index) in history"
         :key="index"
-        class="ui-active:bg-b-2 text-c-1 ui-active:text-c-1 flex cursor-pointer flex-row gap-2.5 rounded py-1.5 pr-3"
+        class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:hover:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
         :value="index"
-        @click="handleHistoryClick(index)">
-        <div class="font-code flex flex-1 gap-1.5 text-sm font-medium">
-          <HttpMethod
-            v-if="response.config.method"
-            class="text-[11px] min-w-[44px]"
-            :method="response.config.method" />
-          <span class="text-c-2 gap-0">
-            {{ getPrettyResponseUrl(response.config.url) }}
-          </span>
+        @click="handleHistoryClick(entry)">
+        <HttpMethod
+          v-if="entry.response.config.method"
+          class="text-[11px]"
+          :method="entry.response.config.method" />
+        <div class="min-w-0">
+          <div class="min-w-0 truncate text-c-1">
+            {{ getPrettyResponseUrl(entry.response.config.url) }}
+          </div>
         </div>
-        <div
-          class="font-code text-c-3 flex flex-row items-center gap-1.5 text-sm font-medium">
-          <span>{{ formatMs(response.duration) }}</span>
-          <span :class="[getStatusCodeColor(response.status).color]">
-            {{ response.status }}
-          </span>
-          <span>
-            {{ httpStatusCodes[response.status]?.name }}
-          </span>
+        <div>{{ formatMs(entry.response.duration) }}</div>
+        <div :class="[getStatusCodeColor(entry.response.status).color]">
+          {{ entry.response.status }}
+        </div>
+        <div>
+          {{ httpStatusCodes[entry.response.status]?.name }}
         </div>
       </ListboxOption>
     </ListboxOptions>
