@@ -170,6 +170,10 @@ export const httpStatusCodes: HttpStatusCodes = {
     name: 'Expectation Failed',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/417',
   },
+  418: {
+    name: "I'm a teapot",
+    url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/418',
+  },
   421: {
     name: 'Misdirected Request',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/421',
