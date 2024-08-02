@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.23
+
+### Patch Changes
+
+- 8eec1b7: fix(oas-utils): I'm a teapot
+
 ## 0.2.22
 
 ### Patch Changes
