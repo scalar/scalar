@@ -1,11 +1,12 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 import todesktop from '@todesktop/runtime'
 import { BrowserWindow, app, ipcMain, session, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
+
+const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
 todesktop.init({
   updateReadyAction: {
@@ -64,14 +65,10 @@ function createWindow(): void {
   // Disable CORS
   mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
     (details, callback) => {
-      const { requestHeaders, url } = details
+      const { requestHeaders } = details
 
-      // Check whether the request should be proxied.
-      // For Electron we don’t actually use the proxy, we just modify the headers on the fly.
-      if (shouldUseProxy('https://proxy.scalar.com', url)) {
-        upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
-        callback({ requestHeaders })
-      }
+      upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
+      callback({ requestHeaders })
     },
   )
 
@@ -79,11 +76,22 @@ function createWindow(): void {
     (details, callback) => {
       const { responseHeaders, url } = details
 
-      // Check whether the request should be proxied.
-      // For Electron we don’t actually use the proxy, we just modify the headers on the fly.
-      if (shouldUseProxy('https://proxy.scalar.com', url)) {
+      // If headers have already been modified, skip
+      if (!responseHeaders?.[MODIFIED_HEADERS_KEY]) {
+        if (url.endsWith('openapi.yaml')) {
+          console.log('originalResponseHeaders', responseHeaders)
+        }
+
         upsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*'])
+        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Methods', [
+          'POST, GET, OPTIONS, PUT, DELETE, PATCH',
+        ])
         upsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*'])
+        upsertKeyValue(responseHeaders, 'Access-Control-Expose-Headers', ['*'])
+
+        if (url.endsWith('openapi.yaml')) {
+          console.log('modifiedResponseHeaders', responseHeaders)
+        }
       }
 
       callback({
@@ -158,44 +166,37 @@ app.on('window-all-closed', () => {
 /**
  * Modify headers
  */
-function upsertKeyValue(obj, keyToChange, value) {
+function upsertKeyValue(
+  obj: Record<string, string> | Record<string, string[]> | undefined,
+  keyToChange: string,
+  value: string[],
+) {
   const keyToChangeLower = keyToChange.toLowerCase()
+
+  if (!obj) {
+    return
+  }
+
+  // Add to modified headers
+  if (Array.isArray(obj[MODIFIED_HEADERS_KEY])) {
+    obj[MODIFIED_HEADERS_KEY].push(keyToChangeLower)
+  } else {
+    obj[MODIFIED_HEADERS_KEY] = [keyToChangeLower]
+  }
+
   for (const key of Object.keys(obj)) {
     if (key.toLowerCase() === keyToChangeLower) {
+      // If header exists already, prefix it with `X-Scalar-Original-Headfer`
+      obj[`x-scalar-original-${key}`] = obj[keyToChangeLower]
+
       // Reassign old key
-      obj[key] = value
+      obj[keyToChangeLower] = value
+
       // Done
       return
     }
   }
+
   // Insert at end instead
-  obj[keyToChange] = value
-}
-
-// TODO: This is coming from @scalar/oas-utils, but I’m too dumb to import from that package here.
-/** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
-export function shouldUseProxy(proxy?: string, url?: string): boolean {
-  // No proxy or url
-  if (!proxy || !url) {
-    return false
-  }
-
-  // Relative URLs
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return false
-  }
-
-  // Requests to localhost
-  if (isRequestToLocalhost(url)) {
-    return false
-  }
-
-  return true
-}
-
-/** Detect requests to localhost */
-export function isRequestToLocalhost(url: string) {
-  const { hostname } = new URL(url)
-  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
-  return listOfLocalUrls.includes(hostname)
+  obj[keyToChangeLower] = value
 }
