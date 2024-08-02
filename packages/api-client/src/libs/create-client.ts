@@ -5,11 +5,9 @@ import type {
   SpecConfiguration,
 } from '@scalar/oas-utils'
 import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import type { LiteralUnion, Paths } from 'type-fest'
 import { type Component, createApp } from 'vue'
@@ -117,7 +115,6 @@ export const createApiClient = ({
   const {
     activeCollection,
     activeWorkspace,
-    collectionMutators,
     importSpecFile,
     importSpecFromUrl,
     modalState,

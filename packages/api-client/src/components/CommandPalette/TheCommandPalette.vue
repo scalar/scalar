@@ -32,15 +32,12 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { useEventListener, useMagicKeys, whenever } from '@vueuse/core'
+import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { isMacOS } from '@scalar/use-tooltip'
 
-import {
-  commandPaletteBus,
-  type CommandPaletteEvent,
-} from '@/libs/eventBusses/command-palette'
+import { commandPaletteBus, type CommandPaletteEvent } from '@/libs'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [

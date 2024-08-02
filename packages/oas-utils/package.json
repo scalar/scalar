@@ -86,6 +86,10 @@
       "import": "./dist/entities/workspace/cookie/index.js",
       "types": "./dist/entities/workspace/cookie/index.d.ts"
     },
+    "./entities/workspace/consts": {
+      "import": "./dist/entities/workspace/consts/index.js",
+      "types": "./dist/entities/workspace/consts/index.d.ts"
+    },
     "./entities/workspace/collection": {
       "import": "./dist/entities/workspace/collection/index.js",
       "types": "./dist/entities/workspace/collection/index.d.ts"

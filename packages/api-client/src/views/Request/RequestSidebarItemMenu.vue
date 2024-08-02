@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+import { commandPaletteBus } from '@/libs/event-busses'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import {

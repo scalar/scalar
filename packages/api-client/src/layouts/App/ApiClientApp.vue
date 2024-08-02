@@ -3,13 +3,19 @@ import { TheCommandPalette } from '@/components/CommandPalette'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
-import { loadAllResources } from '@/libs'
+import { handleHotKeyDown, loadAllResources } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
-import { computed, onBeforeMount, onMounted, watchEffect } from 'vue'
+import {
+  computed,
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  watchEffect,
+} from 'vue'
 import { RouterView } from 'vue-router'
 
 onMounted(() => {
@@ -54,6 +60,14 @@ onBeforeMount(async () => {
 
   addScalarClassesToHeadless()
 })
+
+/** Handles the hotkey events, we will pass in custom hotkeys here */
+const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev)
+
+// Hotkey listeners
+onMounted(() => window.addEventListener('keydown', handleKeyDown))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleKeyDown))
+
 const fontsStyleTag = computed(
   () =>
     workspaceStore.activeWorkspace.value &&
