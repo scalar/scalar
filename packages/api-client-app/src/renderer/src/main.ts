@@ -22,4 +22,16 @@ load('EUNBEXQC', {
   auto: false,
 })
 
-trackEvent('launch')
+// Track the launch event
+const { platform } = window.electron.process
+
+const os =
+  platform === 'darwin'
+    ? 'mac'
+    : platform === 'win32'
+      ? 'windows'
+      : platform === 'linux'
+        ? 'linux'
+        : 'unknown'
+
+trackEvent(`launch: ${os}`)
