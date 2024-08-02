@@ -31,7 +31,7 @@ export const hotKeyBus = useEventBus(hotKeyBusKey)
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Escape: { event: 'closeModal', modifier: false },
-  Space: { event: 'closeModal', modifier: false },
+  // Space: { event: 'closeModal', modifier: false },
 }
 
 /** Checks if we are in an "input" */
