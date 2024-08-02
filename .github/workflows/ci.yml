@@ -176,12 +176,17 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - if: steps.changesets.outputs.publishedPackages
-        name: List all published packages
-        run: echo "${{ steps.changesets.outputs.publishedPackages }}"
-      - if: contains(steps.changesets.outputs.publishedPackages, 'scalar-api-client')
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+        name: Check which files were touched
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            api_client_app:
+              - packages/api-client-app/package.json
+      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Check whether scalar-api-client was published
-        run: echo "scalar-api-client was published"
+        run: echo "✅ A new version of scalar-api-client was published."
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
