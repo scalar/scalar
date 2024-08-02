@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.42
+
+### Patch Changes
+
+- 1062ceb: fix: authentication counter and select style
+- Updated dependencies [8eec1b7]
+  - @scalar/oas-utils@0.2.23
+
 ## 2.0.41
 
 ### Patch Changes
