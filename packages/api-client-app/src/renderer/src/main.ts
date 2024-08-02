@@ -5,9 +5,7 @@ import '@scalar/api-client/style.css'
 // Initialize
 createApiClientApp(
   document.getElementById('scalar-client'),
-  {
-    proxyUrl: 'https://proxy.scalar.com',
-  },
+  {},
   true,
   webHashRouter,
 )
