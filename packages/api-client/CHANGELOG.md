@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.0.43
+
+### Patch Changes
+
+- 425dc83: fix(api-client): rebuild address bar history with grid
+- 9afa9c5: feat: selected authentication pill ui
+- 13b2f6d: fix: scalar icon chevron left update
+- cd028bd: feat: added application/problem+json media type
+- 554df83: feat: intercept requests to avoid CORS issues
+- Updated dependencies [425dc83]
+- Updated dependencies [13b2f6d]
+  - @scalar/themes@0.9.20
+  - @scalar/components@0.12.28
+  - @scalar/oas-utils@0.2.24
+
 ## 2.0.42
 
 ### Patch Changes
