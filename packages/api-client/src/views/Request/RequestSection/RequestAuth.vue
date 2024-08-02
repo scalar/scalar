@@ -189,7 +189,7 @@ const handleDelete = (scheme: SecurityScheme) =>
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="schemeOptions.length">
+    :itemCount="selectedAuth.length">
     <template #title>
       <div class="flex gap-1">
         {{ title }}
@@ -219,8 +219,11 @@ const handleDelete = (scheme: SecurityScheme) =>
                   class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
                   Auth Type
                 </div>
-                <span class="pl-2">{{ selectedLabel }}</span>
+                <span class="custom-scroll mr-1.5 pl-2">{{
+                  selectedLabel
+                }}</span>
                 <ScalarIcon
+                  class="mr-2.5"
                   icon="ChevronDown"
                   size="xs" />
               </ScalarButton>
