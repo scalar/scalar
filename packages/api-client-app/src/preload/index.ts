@@ -11,14 +11,9 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('electronAPI', {
+    contextBridge.exposeInMainWorld('mainProcess', {
       openFile: () => ipcRenderer.invoke('openFile'),
       readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
-    })
-    contextBridge.exposeInMainWorld('ipcRenderer', {
-      on: (channel, func) => {
-        ipcRenderer.on(channel, (event, ...args) => func(...args))
-      },
     })
   } catch (error) {
     console.error(error)

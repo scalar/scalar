@@ -1,6 +1,7 @@
 import { webHashRouter } from '@scalar/api-client'
 import { createApiClientApp } from '@scalar/api-client/layouts/App'
 import '@scalar/api-client/style.css'
+import type { IpcRendererEvent } from 'electron'
 import { load, trackEvent } from 'fathom-client'
 
 // Initialize
@@ -48,6 +49,16 @@ window.ipcRenderer?.on('importFile', function (fileContent: string) {
   }
 })
 
+// Open… menu
+window.electron.ipcRenderer?.on(
+  'importFile',
+  function (_: IpcRendererEvent, fileContent: string) {
+    if (fileContent) {
+      client.store.importSpecFile(fileContent)
+    }
+  },
+)
+
 // Drag and drop
 document.addEventListener('drop', drop)
 document.addEventListener('dragover', dragover)
@@ -71,7 +82,7 @@ async function drop(e: DragEvent) {
     console.log('File you dragged here:', f)
 
     // @ts-expect-error not typed yet
-    const fileContent = await window.electronAPI.readFile(f.path)
+    const fileContent = await window.mainProcess.readFile(f.path)
 
     if (fileContent) {
       client.store.importSpecFile(fileContent)
