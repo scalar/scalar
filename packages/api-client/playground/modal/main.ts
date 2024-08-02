@@ -16,4 +16,4 @@ document.getElementById('button')?.addEventListener('click', () => open())
 // open({
 //   method: 'GET',
 //   path: '/me',
-// })sdkjsa
+// })
