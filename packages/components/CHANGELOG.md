@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.28
+
+### Patch Changes
+
+- 13b2f6d: fix: scalar icon chevron left update
+  - @scalar/code-highlight@0.0.7
+
 ## 0.12.27
 
 ### Patch Changes

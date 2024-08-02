@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.20
+
+### Patch Changes
+
+- 425dc83: fix(api-client): rebuild address bar history with grid
+
 ## 0.9.19
 
 ### Patch Changes

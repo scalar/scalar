@@ -1,5 +1,18 @@
 # scalar-api-client
 
+## 0.1.14
+
+### Patch Changes
+
+- 5beb663: feat: integrate fathom
+- 554df83: feat: intercept requests to avoid CORS issues
+- Updated dependencies [425dc83]
+- Updated dependencies [9afa9c5]
+- Updated dependencies [13b2f6d]
+- Updated dependencies [cd028bd]
+- Updated dependencies [554df83]
+  - @scalar/api-client@2.0.43
+
 ## 0.1.13
 
 ### Patch Changes

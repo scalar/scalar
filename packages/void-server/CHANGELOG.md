@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.9
+
+### Patch Changes
+
+- 1e77c9d: fix: file undefined (Node 18)
+
 ## 2.0.8
 
 ### Patch Changes
