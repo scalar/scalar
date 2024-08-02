@@ -690,6 +690,9 @@ importers:
       electron-window-state:
         specifier: ^5.0.3
         version: 5.0.3
+      fathom-client:
+        specifier: ^3.7.2
+        version: 3.7.2
     devDependencies:
       '@electron-toolkit/tsconfig':
         specifier: ^1.0.1
@@ -9452,6 +9455,9 @@ packages:
   fastq@1.17.1:
     resolution: {integrity: sha512-sRVD3lWVIXWg6By68ZN7vho9a1pQcN/WBFaAAsDDFzlJjvoGx0P8z7V1t72grFJfJhu3YPZBuu25f7Kaw2jN1w==}
 
+  fathom-client@3.7.2:
+    resolution: {integrity: sha512-sWtaNivhg7uwp/q1bUuIiNj4LeQZMEZ5NXXFFpZ8le4uDedAfQG84gPOdYehtVXbl+1yX2s8lmXZ2+IQ9a/xxA==}
+
   fault@2.0.1:
     resolution: {integrity: sha512-WtySTkS4OKev5JtpHXnib4Gxiurzh5NCGvWrFaZ34m6JehfTUhKZvn9njTfw48t6JumVQOmrKqpmGcdwxnhqBQ==}
 
@@ -18118,7 +18124,7 @@ snapshots:
       '@babel/plugin-syntax-private-property-in-object': 7.14.5(@babel/core@7.24.8)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.8)
       '@babel/plugin-syntax-unicode-sets-regex': 7.18.6(@babel/core@7.24.8)
-      '@babel/plugin-transform-arrow-functions': 7.24.7(@babel/core@7.24.8)
+      '@babel/plugin-transform-arrow-functions': 7.24.7(@babel/core@7.24.7)
       '@babel/plugin-transform-async-generator-functions': 7.24.7(@babel/core@7.24.8)
       '@babel/plugin-transform-async-to-generator': 7.24.7(@babel/core@7.24.8)
       '@babel/plugin-transform-block-scoped-functions': 7.24.7(@babel/core@7.24.8)
@@ -27673,6 +27679,8 @@ snapshots:
   fastq@1.17.1:
     dependencies:
       reusify: 1.0.4
+
+  fathom-client@3.7.2: {}
 
   fault@2.0.1:
     dependencies:
