@@ -1,3 +1,4 @@
+import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
@@ -12,7 +13,11 @@ import {
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import axios, {
+  type AxiosError,
+  type AxiosHeaders,
+  type AxiosRequestConfig,
+} from 'axios'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -239,11 +244,14 @@ export const sendRequest = async (
 
     const responseData = decodeBuffer(buffer, `${contentType}`)
 
+    const responseHeaders = normalizeHeaders(response.headers)
+
     return {
       sentTime: Date.now(),
       request: example,
       response: {
         ...response,
+        headers: responseHeaders,
         data: responseData,
         duration: Date.now() - startTime,
       },
