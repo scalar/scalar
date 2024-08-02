@@ -291,6 +291,6 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
 
 ```js
 {
-  theme: default
+  theme: 'default'
 }
 ```
