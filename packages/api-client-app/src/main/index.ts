@@ -74,24 +74,16 @@ function createWindow(): void {
 
   mainWindow.webContents.session.webRequest.onHeadersReceived(
     (details, callback) => {
-      const { responseHeaders, url } = details
+      const { responseHeaders } = details
 
       // If headers have already been modified, skip
       if (!responseHeaders?.[MODIFIED_HEADERS_KEY]) {
-        if (url.endsWith('openapi.yaml')) {
-          console.log('originalResponseHeaders', responseHeaders)
-        }
-
         upsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*'])
         upsertKeyValue(responseHeaders, 'Access-Control-Allow-Methods', [
           'POST, GET, OPTIONS, PUT, DELETE, PATCH',
         ])
         upsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*'])
         upsertKeyValue(responseHeaders, 'Access-Control-Expose-Headers', ['*'])
-
-        if (url.endsWith('openapi.yaml')) {
-          console.log('modifiedResponseHeaders', responseHeaders)
-        }
       }
 
       callback({
