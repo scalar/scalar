@@ -10,12 +10,13 @@ const currentRoute = useRoute()
     <div
       class="lg:min-h-header items-center w-full p-1 t-app__top-container flex items-center">
       <router-link
-        class="text-c-2 text-sm font-medium ml-1 flex items-center p-1.5 hover:bg-b-3 rounded cursor-pointer gap-1 active:text-c-1 no-underline dark:hover:bg-b-2"
+        class="text-c-2 text-sm font-medium ml-1 flex items-center p-1.5 hover:bg-b-3 rounded cursor-pointer gap-0.5 active:text-c-1 no-underline dark:hover:bg-b-2"
         :to="`/workspace/${currentRoute.params.workspace}/request/default`">
         <ScalarIcon
           icon="ChevronLeft"
-          size="sm" />
-        <span>Back To Requests</span>
+          size="md"
+          thickness="1.75" />
+        <span class="leading-none">Back To Requests</span>
       </router-link>
     </div>
     <slot />

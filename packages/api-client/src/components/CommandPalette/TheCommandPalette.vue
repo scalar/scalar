@@ -302,12 +302,13 @@ onBeforeUnmount(() => {
     <!-- Specific command palette -->
     <template v-else>
       <button
-        class="absolute p-1 hover:bg-b-3 rounded text-c-3 active:text-c-1 m-1.5 z-10"
+        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 m-1.5 z-10"
         type="button"
         @click="activeCommand = null">
         <ScalarIcon
           icon="ChevronLeft"
-          size="sm" />
+          size="md"
+          thickness="1.5" />
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
