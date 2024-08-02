@@ -40,12 +40,15 @@ trackEvent(`launch: ${os}`)
 // // @ts-expect-error not typed yet
 // const fileContent = await window.electronAPI.readFile(filePath)
 
-// console.log('fileContent', fileContent)
+// Open… menu
+// @ts-expect-error not typed yet
+window.ipcRenderer?.on('importFile', function (fileContent: string) {
+  if (fileContent) {
+    client.store.importSpecFile(fileContent)
+  }
+})
 
-// if (fileContent) {
-//   client.store.importSpecFile(fileContent)
-// }
-
+// Drag and drop
 document.addEventListener('drop', drop)
 document.addEventListener('dragover', dragover)
 

@@ -15,6 +15,11 @@ if (process.contextIsolated) {
       openFile: () => ipcRenderer.invoke('openFile'),
       readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
     })
+    contextBridge.exposeInMainWorld('ipcRenderer', {
+      on: (channel, func) => {
+        ipcRenderer.on(channel, (event, ...args) => func(...args))
+      },
+    })
   } catch (error) {
     console.error(error)
   }
