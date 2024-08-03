@@ -25,9 +25,6 @@ const history = requestsHistory
 const selectedRequest = ref(history.value[0])
 
 const keys = useMagicKeys()
-whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
-  executeRequestBus.emit(),
-)
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
@@ -45,22 +42,47 @@ watch(
   },
 )
 
+/** The amount remaining to load from 100 -> 0 */
 const percentage = ref(100)
+/** Keeps track of how much was left when the request finished */
+const remaining = ref(0)
+/** Whether or not there is a request loading */
 const isRequesting = ref(false)
+/** The loading interval */
+const interval = ref<ReturnType<typeof setInterval>>()
 
-executeRequestBus.on(() => {
+function startLoading() {
   if (isRequesting.value) return
   isRequesting.value = true
+  interval.value = setInterval(load, 20)
+}
 
-  const interval = setInterval(() => {
-    percentage.value -= 5
-    if (percentage.value <= 0) {
-      clearInterval(interval)
-      percentage.value = 100
-      isRequesting.value = false
-    }
-  }, 20)
-})
+function stopLoading() {
+  remaining.value = percentage.value
+  isRequesting.value = false
+}
+
+function load() {
+  if (isRequesting.value) {
+    // Reduce asymptotically up to 85% loaded
+    percentage.value -= (percentage.value - 15) / 60
+  } else {
+    // Always finish loading linearly over 400ms
+    percentage.value -= remaining.value / 20
+  }
+  if (percentage.value <= 0) {
+    clearInterval(interval.value)
+    percentage.value = 100
+    isRequesting.value = false
+  }
+}
+
+const executeRequest = () => {
+  startLoading()
+  executeRequestBus.emit(stopLoading) // Stop loading when a request completes
+}
+
+whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, executeRequest)
 
 function updateRequestMethod(method: RequestMethod) {
   if (!activeRequest.value) return
@@ -96,7 +118,7 @@ const updateExampleUrlHandler = (url: string) => {
           <div
             class="pointer-events-none absolute left-0 top-0 z-10 block h-full w-full overflow-hidden">
             <div
-              class="bg-mix-transparent bg-mix-amount-95 absolute left-0 top-0 h-full w-full"
+              class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full"
               :class="getBackgroundColor()"
               :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
           </div>
@@ -121,7 +143,7 @@ const updateExampleUrlHandler = (url: string) => {
               :modelValue="activeExample.url"
               placeholder="Enter URL to get started"
               server
-              @submit="executeRequestBus.emit()"
+              @submit="executeRequest"
               @update:modelValue="updateExampleUrlHandler" />
             <div class="fade-right"></div>
           </div>
@@ -130,7 +152,7 @@ const updateExampleUrlHandler = (url: string) => {
           <ScalarButton
             class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1] font-bold"
             :disabled="isRequesting"
-            @click="executeRequestBus.emit()">
+            @click="executeRequest">
             <ScalarIcon
               class="relative z-10 shrink-0 fill-current"
               icon="Play"

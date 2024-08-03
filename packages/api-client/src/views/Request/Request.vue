@@ -66,7 +66,7 @@ watch(
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-const executeRequest = async () => {
+const executeRequest = async (done: () => void) => {
   if (!activeRequest.value || !activeExample.value) {
     console.warn(
       'There is no request active at the moment. Please select one then try again.',
@@ -125,6 +125,8 @@ const executeRequest = async () => {
   } catch (error) {
     toast(`${error}`, 'error')
   }
+
+  done()
 }
 onMounted(() => executeRequestBus.on(executeRequest))
 
