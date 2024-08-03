@@ -8,7 +8,7 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { executeRequestBus, sendRequest } from '@/libs'
+import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -66,15 +66,7 @@ watch(
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-const executeRequest = async ({
-  startLoading,
-  stopLoading,
-  abortLoading,
-}: {
-  startLoading: () => void
-  stopLoading: () => void
-  abortLoading: () => void
-}) => {
+const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value) {
     console.warn(
       'There is no request active at the moment. Please select one then try again.',
@@ -108,7 +100,7 @@ const executeRequest = async ({
     return variables[key] || key
   })
 
-  startLoading()
+  requestStatusBus.emit('start')
   try {
     const { request, response, error } = await sendRequest(
       activeRequest.value,
@@ -128,14 +120,14 @@ const executeRequest = async ({
           timestamp: Date.now(),
         },
       ])
-      stopLoading()
+      requestStatusBus.emit('stop')
     } else {
       toast(error?.message ?? 'Send Request Failed', 'error')
-      abortLoading()
+      requestStatusBus.emit('abort')
     }
   } catch (error) {
     toast(`${error}`, 'error')
-    abortLoading()
+    requestStatusBus.emit('abort')
   }
 }
 onMounted(() => executeRequestBus.on(executeRequest))

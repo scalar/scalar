@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import { executeRequestBus } from '@/libs'
+import { executeRequestBus, requestStatusBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -25,6 +25,9 @@ const history = requestsHistory
 const selectedRequest = ref(history.value[0])
 
 const keys = useMagicKeys()
+whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
+  executeRequestBus.emit(),
+)
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
@@ -51,6 +54,22 @@ const isRequesting = ref(false)
 /** The loading interval */
 const interval = ref<ReturnType<typeof setInterval>>()
 
+function load() {
+  if (isRequesting.value) {
+    // Reduce asymptotically up to 85% loaded
+    percentage.value -= (percentage.value - 15) / 60
+  } else {
+    // Always finish loading linearly over 400ms
+    percentage.value -= remaining.value / 20
+  }
+  if (percentage.value <= 0) {
+    clearInterval(interval.value)
+    interval.value = undefined
+    percentage.value = 100
+    isRequesting.value = false
+  }
+}
+
 function startLoading() {
   if (isRequesting.value) return
   isRequesting.value = true
@@ -69,26 +88,11 @@ function abortLoading() {
   isRequesting.value = false
 }
 
-function load() {
-  if (isRequesting.value) {
-    // Reduce asymptotically up to 85% loaded
-    percentage.value -= (percentage.value - 15) / 60
-  } else {
-    // Always finish loading linearly over 400ms
-    percentage.value -= remaining.value / 20
-  }
-  if (percentage.value <= 0) {
-    clearInterval(interval.value)
-    interval.value = undefined
-    percentage.value = 100
-    isRequesting.value = false
-  }
-}
-
-const executeRequest = () =>
-  executeRequestBus.emit({ startLoading, stopLoading, abortLoading })
-
-whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, executeRequest)
+requestStatusBus.on((status) => {
+  if (status === 'start') startLoading()
+  if (status === 'stop') stopLoading()
+  if (status === 'abort') abortLoading()
+})
 
 function updateRequestMethod(method: RequestMethod) {
   if (!activeRequest.value) return
@@ -149,7 +153,7 @@ const updateExampleUrlHandler = (url: string) => {
               :modelValue="activeExample.url"
               placeholder="Enter URL to get started"
               server
-              @submit="executeRequest"
+              @submit="executeRequestBus.emit()"
               @update:modelValue="updateExampleUrlHandler" />
             <div class="fade-right"></div>
           </div>
@@ -158,7 +162,7 @@ const updateExampleUrlHandler = (url: string) => {
           <ScalarButton
             class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1] font-bold"
             :disabled="isRequesting"
-            @click="executeRequest">
+            @click="executeRequestBus.emit()">
             <ScalarIcon
               class="relative z-10 shrink-0 fill-current"
               icon="Play"
