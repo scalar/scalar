@@ -66,7 +66,15 @@ watch(
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-const executeRequest = async (done: () => void) => {
+const executeRequest = async ({
+  startLoading,
+  stopLoading,
+  abortLoading,
+}: {
+  startLoading: () => void
+  stopLoading: () => void
+  abortLoading: () => void
+}) => {
   if (!activeRequest.value || !activeExample.value) {
     console.warn(
       'There is no request active at the moment. Please select one then try again.',
@@ -100,6 +108,7 @@ const executeRequest = async (done: () => void) => {
     return variables[key] || key
   })
 
+  startLoading()
   try {
     const { request, response, error } = await sendRequest(
       activeRequest.value,
@@ -119,14 +128,15 @@ const executeRequest = async (done: () => void) => {
           timestamp: Date.now(),
         },
       ])
-    } else if (error) {
-      toast(error.message, 'error')
-    } else toast('Send Request Failed', 'error')
+      stopLoading()
+    } else {
+      toast(error?.message ?? 'Send Request Failed', 'error')
+      abortLoading()
+    }
   } catch (error) {
     toast(`${error}`, 'error')
+    abortLoading()
   }
-
-  done()
 }
 onMounted(() => executeRequestBus.on(executeRequest))
 

@@ -1,7 +1,11 @@
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
 /** A callback for when the request completes */
-type ExecuteRequestCallback = () => void
+type ExecuteRequestCallbacks = {
+  startLoading?: () => void
+  stopLoading?: () => void
+  abortLoading?: () => void
+}
 
 /**
  * Event bus to execute requests, usually triggered by the send button in the address bar
@@ -9,4 +13,4 @@ type ExecuteRequestCallback = () => void
  */
 const executeRequestBusKey: EventBusKey<void> = Symbol()
 export const executeRequestBus =
-  useEventBus<ExecuteRequestCallback>(executeRequestBusKey)
+  useEventBus<ExecuteRequestCallbacks>(executeRequestBusKey)

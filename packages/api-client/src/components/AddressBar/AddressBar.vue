@@ -62,6 +62,13 @@ function stopLoading() {
   isRequesting.value = false
 }
 
+function abortLoading() {
+  clearInterval(interval.value)
+  interval.value = undefined
+  percentage.value = 100
+  isRequesting.value = false
+}
+
 function load() {
   if (isRequesting.value) {
     // Reduce asymptotically up to 85% loaded
@@ -72,15 +79,14 @@ function load() {
   }
   if (percentage.value <= 0) {
     clearInterval(interval.value)
+    interval.value = undefined
     percentage.value = 100
     isRequesting.value = false
   }
 }
 
-const executeRequest = () => {
-  startLoading()
-  executeRequestBus.emit(stopLoading) // Stop loading when a request completes
-}
+const executeRequest = () =>
+  executeRequestBus.emit({ startLoading, stopLoading, abortLoading })
 
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, executeRequest)
 
