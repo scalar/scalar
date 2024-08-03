@@ -28,8 +28,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",
-    "@todesktop/runtime": "^1.6.3",
-    "@scalar/api-client": "workspace:*"
+    "@scalar/api-client": "workspace:*",
+    "@todesktop/runtime": "^1.6.3"
   },
   "devDependencies": {
     "@electron-toolkit/tsconfig": "^1.0.1",
