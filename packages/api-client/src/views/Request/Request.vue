@@ -16,6 +16,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
+import { useToasts } from '@scalar/use-toasts'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -43,6 +44,7 @@ const {
   workspaceMutators,
 } = useWorkspace()
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+const { toast } = useToasts()
 const searchModalState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
@@ -98,26 +100,30 @@ const executeRequest = async () => {
     return variables[key] || key
   })
 
-  const { request, response } = await sendRequest(
-    activeRequest.value,
-    activeExample.value,
-    url,
-    activeSecuritySchemes.value,
-    activeWorkspace.value?.proxyUrl,
-    cookies,
-  )
+  try {
+    const { request, response, error } = await sendRequest(
+      activeRequest.value,
+      activeExample.value,
+      url,
+      activeSecuritySchemes.value,
+      activeWorkspace.value?.proxyUrl,
+      cookies,
+    )
 
-  if (request && response) {
-    requestMutators.edit(activeRequest.value.uid, 'history', [
-      ...activeRequest.value.history,
-      {
-        request,
-        response,
-        timestamp: Date.now(),
-      },
-    ])
-  } else {
-    console.warn('No response or request was returned')
+    if (request && response) {
+      requestMutators.edit(activeRequest.value.uid, 'history', [
+        ...activeRequest.value.history,
+        {
+          request,
+          response,
+          timestamp: Date.now(),
+        },
+      ])
+    } else if (error) {
+      toast(error.message, 'error')
+    } else toast('Send Request Failed', 'error')
+  } catch (error) {
+    toast(`${error}`, 'error')
   }
 }
 onMounted(() => executeRequestBus.on(executeRequest))

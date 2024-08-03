@@ -13,11 +13,7 @@ import {
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import axios, {
-  type AxiosError,
-  type AxiosHeaders,
-  type AxiosRequestConfig,
-} from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -62,6 +58,7 @@ export const sendRequest = async (
   sentTime?: number
   request?: RequestExample
   response?: ResponseInstance
+  error?: AxiosError
 }> => {
   let url = rawUrl
 
@@ -275,6 +272,7 @@ export const sendRequest = async (
             duration: Date.now() - startTime,
           }
         : undefined,
+      error: axiosError,
     }
   }
 }
