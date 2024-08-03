@@ -54,6 +54,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/void-server": "workspace:*",
+    "ajv": "^8.17.1",
     "commander": "^12.0.0",
     "github-slugger": "^2.0.0",
     "glob": "^10.3.10",
