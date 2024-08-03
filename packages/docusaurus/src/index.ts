@@ -5,7 +5,17 @@ import path from 'path'
 export type ScalarOptions = {
   label: string
   route: string
+  showNavLink?: boolean
 } & ReferenceProps
+
+/**
+ * Used to set default options from the user-provided options
+ * This is also useful to ensure backwards compatibility with older configs that don't have the new options
+ */
+const createDefaultScalarOptions = (options: ScalarOptions): ScalarOptions => ({
+  showNavLink: true,
+  ...options,
+})
 
 /**
  * Scalar's Docusaurus plugin for Api References
@@ -14,30 +24,34 @@ const ScalarDocusaurus = (
   context: LoadContext,
   options: ScalarOptions,
 ): Plugin<ReferenceProps> => {
+  const defaultOptions = createDefaultScalarOptions(options)
+
   return {
     name: '@scalar/docusaurus',
 
     async loadContent() {
-      return options
+      return defaultOptions
     },
 
     async contentLoaded({ content, actions }) {
       const { addRoute } = actions
 
-      // Add entry to nav
-      ;(
-        context.siteConfig.themeConfig.navbar as {
-          items: Record<string, string>[]
-        }
-      ).items.push({
-        to: options.route ?? '/scalar',
-        label: options.label ?? 'Scalar',
-        position: 'left',
-      })
+      // If showNavLink is true, add a link to the navbar
+      if (defaultOptions.showNavLink) {
+        ;(
+          context.siteConfig.themeConfig.navbar as {
+            items: Record<string, string>[]
+          }
+        ).items.push({
+          to: defaultOptions.route ?? '/scalar',
+          label: defaultOptions.label ?? 'Scalar',
+          position: 'left',
+        })
+      }
 
       if (typeof require === 'function') {
         addRoute({
-          path: options.route,
+          path: defaultOptions.route,
           component: path.resolve(__dirname, './ScalarDocusaurusCommonJS'),
           // Provide the path to the loaded spec as a prop to your component
           exact: true,
@@ -45,7 +59,7 @@ const ScalarDocusaurus = (
         })
       } else {
         addRoute({
-          path: options.route,
+          path: defaultOptions.route,
           component: path.resolve(__dirname, './ScalarDocusaurus'),
           // Provide the path to the loaded spec as a prop to your component
           exact: true,
