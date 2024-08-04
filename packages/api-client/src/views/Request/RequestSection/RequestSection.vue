@@ -15,6 +15,7 @@ const {
   activeExample,
   activeSecurityRequirements,
   isReadOnly,
+  requestMutators,
 } = useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
@@ -63,6 +64,11 @@ watch(activeRequest, (newRequest) => {
     activeSection.value = 'All'
   }
 })
+
+const updateRequestNameHandler = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
+}
 </script>
 <template>
   <ViewLayoutSection>
@@ -74,7 +80,10 @@ watch(activeRequest, (newRequest) => {
         thickness="2.5" />
       <div class="flex-1">
         Request
-        <span class="text-c-3 pl-1">{{ activeRequest?.summary }}</span>
+        <input
+          placeholder="Request Name"
+          :value="activeRequest?.summary"
+          @input="updateRequestNameHandler" />
       </div>
     </template>
     <div
