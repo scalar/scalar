@@ -274,6 +274,16 @@ export default {
 :deep(.cm-gutter + .cm-gutter .cm-gutterElement) {
   padding-left: 0 !important;
 }
+:deep(.cm-scroller) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  overflow: auto;
+}
+:deep(.cm-scroller::-webkit-scrollbar) {
+  width: 0;
+  height: 0;
+  display: none;
+}
 </style>
 <style>
 .cm-pill {

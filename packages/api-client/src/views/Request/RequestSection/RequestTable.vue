@@ -99,6 +99,9 @@ const flattenValue = (item: RequestExampleParameter) => {
       </DataTableCell>
       <DataTableCell>
         <CodeInput
+          :class="{
+            'pr-6': showTooltip(item),
+          }"
           disableCloseBrackets
           disableEnter
           disableTabIndent
