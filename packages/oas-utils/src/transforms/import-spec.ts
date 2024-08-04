@@ -142,7 +142,6 @@ export const importSpecToWorkspace = async (
     folders.push(folder)
   })
 
-  console.log('overloadServers', overloadServers)
   // Toss in a default server if there aren't any
   const unparsedServers: OpenAPIV3_1.ServerObject[] =
     overloadServers ??

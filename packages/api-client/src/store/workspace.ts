@@ -828,7 +828,6 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     overloadServers?: Spec['servers'],
   ) => {
     const spec = toRaw(_spec)
-    console.log('overloadServers', overloadServers)
     const workspaceEntities = await importSpecToWorkspace(spec, overloadServers)
 
     // Add all the new requests into the request collection, the already have parent folders
