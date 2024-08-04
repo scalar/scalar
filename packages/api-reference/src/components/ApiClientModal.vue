@@ -46,8 +46,6 @@ onMounted(async () => {
       const serverUrl = getUrlFromServerState(server)
       if (serverUrl) updateServerUrl(serverUrl)
 
-      console.log(props.servers, 'marc', serverUrl, server)
-
       open(event.open)
     }
 
