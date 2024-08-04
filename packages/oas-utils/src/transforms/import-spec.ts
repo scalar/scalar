@@ -5,7 +5,7 @@ import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { schemaModel } from '@/helpers/schema-model'
-import type { AnyObject } from '@/types'
+import type { AnyObject, Spec } from '@/types'
 import { dereference, load } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
@@ -17,7 +17,10 @@ const PARAM_DICTIONARY = {
 } as const
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
-export const importSpecToWorkspace = async (spec: string | AnyObject) => {
+export const importSpecToWorkspace = async (
+  spec: string | AnyObject,
+  overloadServers?: Spec['servers'],
+) => {
   const importWarnings: string[] = []
   const requests: Request[] = []
 
@@ -139,18 +142,21 @@ export const importSpecToWorkspace = async (spec: string | AnyObject) => {
     folders.push(folder)
   })
 
+  console.log('overloadServers', overloadServers)
   // Toss in a default server if there aren't any
-  const unparsedServers: OpenAPIV3_1.ServerObject[] = schema?.servers?.length
-    ? schema.servers!
-    : [
-        {
-          url:
-            typeof window !== 'undefined'
-              ? window.location.origin
-              : 'http://localhost',
-          description: 'Replace with your API server',
-        },
-      ]
+  const unparsedServers: OpenAPIV3_1.ServerObject[] =
+    overloadServers ??
+    (schema?.servers?.length
+      ? schema.servers!
+      : [
+          {
+            url:
+              typeof window !== 'undefined'
+                ? window.location.origin
+                : 'http://localhost',
+            description: 'Replace with your API server',
+          },
+        ])
 
   const servers = unparsedServers.map((server) => createServer(server))
 
