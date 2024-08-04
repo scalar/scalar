@@ -182,10 +182,6 @@ const selectedLabel = computed(() => {
   else return 'None'
 })
 
-/** Delete scheme */
-const handleDelete = (scheme: SecurityScheme) =>
-  securitySchemeMutators.delete(scheme, activeRequest.value)
-
 const unselectAuth = (id: string) => {
   const updatedSelectedAuth = selectedAuth.value.filter(
     (auth: SecuritySchemeOption) => auth.id !== id,
@@ -230,14 +226,14 @@ const unselectAuth = (id: string) => {
                   v-if="selectedAuth.length"
                   class="flex relative scroll-timeline-x w-full">
                   <div class="fade-left"></div>
-                  <div class="flex flex-1 gap-0.75 mr-1.5">
+                  <div class="flex flex-1 gap-0.75 mr-1.5 items-center">
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0">
+                      class="cm-pill flex items-center mx-0 h-fit">
                       {{ auth.labelWithoutId }}
                       <ScalarIcon
-                        class="ml-1 cursor-pointer hover:text-c-1"
+                        class="ml-1 cursor-pointer text-c-3 hover:text-c-1"
                         icon="Close"
                         size="xs"
                         @click.stop="unselectAuth(auth.id)" />
@@ -268,19 +264,8 @@ const unselectAuth = (id: string) => {
             v-if="activeSecuritySchemes.length > 1"
             class="group/delete">
             <DataTableCell
-              class="text-c-2 pl-2 text-xs font-medium flex items-center justify-between bg-b-2">
+              class="text-c-2 pl-2 text-xs font-medium flex items-center bg-b-2">
               {{ selectedAuth[index]?.label }}
-
-              <div
-                class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/delete:opacity-100 request-meta-buttons pr-2">
-                <ScalarButton
-                  class="px-1 transition-none"
-                  size="sm"
-                  variant="ghost"
-                  @click.stop="handleDelete(scheme)">
-                  Delete
-                </ScalarButton>
-              </div>
             </DataTableCell>
           </DataTableRow>
 

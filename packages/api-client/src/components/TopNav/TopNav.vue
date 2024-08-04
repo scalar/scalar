@@ -108,7 +108,7 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
         </TopNavItem>
       </template>
       <button
-        class="text-c-3 hover:bg-b-2 p-1.5 rounded-lg webkit-app-no-drag"
+        class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag"
         type="button"
         @click="addNavItem">
         <ScalarIcon

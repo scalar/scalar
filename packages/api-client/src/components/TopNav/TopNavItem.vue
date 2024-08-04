@@ -61,13 +61,16 @@ defineEmits<{
   align-items: center;
   display: flex;
   border-radius: var(--scalar-radius);
-  background: var(--scalar-background-2);
-  border: 1px solid var(--scalar-background-2);
+  background: var(--scalar-background-3);
+  border: 0.5px solid var(--scalar-background-2);
   color: var(--scalar-color-3);
   padding: 4.5px;
   min-width: 0;
   overflow: hidden;
   position: relative;
+}
+.dark-mode .nav-item {
+  background: color-mix(in srgb, var(--scalar-background-2), transparent);
 }
 .nav-item-icon-copy {
   max-width: 100%;
@@ -96,6 +99,9 @@ defineEmits<{
   background-color: var(--scalar-background-1);
   color: var(--scalar-color-1);
   border-color: var(--scalar-border-color);
+}
+.dark-mode .nav-item__active {
+  background-color: var(--scalar-background-2);
 }
 .nav-item-close {
   position: absolute;

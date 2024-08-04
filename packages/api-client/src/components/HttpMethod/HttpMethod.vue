@@ -24,7 +24,10 @@ const emit = defineEmits<{
 const method = computed(() => getRequest(props.method))
 
 const methodOptions = Object.entries(REQUEST_METHODS).map(
-  ([id, { short }]) => ({ id: id as RequestMethod, label: short }),
+  ([id, { short }]) => ({
+    id: id as RequestMethod,
+    label: id.charAt(0) + id.toLowerCase().slice(1),
+  }),
 )
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
@@ -35,7 +38,7 @@ const variants = cva({
   base: 'text-center font-code text-3xs justify-center items-center flex',
   variants: {
     isSquare: {
-      true: 'px-2.5 rounded-md shadow-border whitespace-nowrap !bg-transparent font-bold',
+      true: 'px-2.5 rounded-md border-1/2 whitespace-nowrap !bg-transparent font-bold',
       false: 'rounded-full',
     },
     isEditable: {
