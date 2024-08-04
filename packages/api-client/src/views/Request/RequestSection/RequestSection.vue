@@ -81,6 +81,7 @@ const updateRequestNameHandler = (event: Event) => {
       <div class="flex-1">
         Request
         <input
+          :disabled="isReadOnly"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
