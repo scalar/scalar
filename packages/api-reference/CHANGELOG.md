@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.24.69
+
+### Patch Changes
+
+- 9cc6311: fix: add overload to servers as prop for create client app
+- Updated dependencies [d65dbcb]
+- Updated dependencies [9cc6311]
+  - @scalar/api-client@2.0.44
+  - @scalar/oas-utils@0.2.25
+
 ## 1.24.68
 
 ### Patch Changes
