@@ -16,6 +16,10 @@
   ],
   "references": [],
   "siteConfig": {
+    "logo": {
+      "darkMode": "https://scalar.com/logo-dark.svg",
+      "lightMode": "https://scalar.com/logo-light.svg"
+    },
     "footer": ""
   }
 }
