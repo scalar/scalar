@@ -28,6 +28,15 @@ const updateCookie = (key: any, value: any) => {
   <Form
     :data="activeCookie"
     :onUpdate="updateCookie"
-    :options="options"
-    title="Cookie" />
+    :options="options">
+    <template #title>
+      <span>Cookie</span>
+      <input
+        :value="activeCookie.name"
+        @input="
+          (event) =>
+            updateCookie('name', (event.target as HTMLInputElement).value)
+        " />
+    </template>
+  </Form>
 </template>

@@ -55,7 +55,7 @@ const removeCookie = (uid: string) => {
 <template>
   <SubpageHeader>
     <ViewLayout>
-      <Sidebar title="Domain">
+      <Sidebar title="Cookies">
         <template #content>
           <div class="flex-1">
             <SidebarList>
