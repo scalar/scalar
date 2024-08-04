@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.0.44
+
+### Patch Changes
+
+- d65dbcb: fix: long content info button position
+- 9cc6311: fix: add overload to servers as prop for create client app
+- Updated dependencies [9cc6311]
+  - @scalar/oas-utils@0.2.25
+
 ## 2.0.43
 
 ### Patch Changes
