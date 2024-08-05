@@ -84,7 +84,7 @@ const updateEnvironmentName = (event: Event) => {
     activeEnvironmentID.value &&
     !environments[activeEnvironmentID.value].isDefault
   ) {
-    environments[activeEnvironmentID.value].name = newName
+    environmentMutators.edit(activeEnvironmentID.value, 'name', newName)
   }
 }
 

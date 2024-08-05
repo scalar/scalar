@@ -1,5 +1,6 @@
 import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
+import type { Spec } from '@scalar/oas-utils'
 import {
   type Workspace,
   type WorkspacePayload,
@@ -824,9 +825,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   const importSpecFile = async (
     _spec: string | AnyObject,
     workspaceUid = 'default',
+    overloadServers?: Spec['servers'],
   ) => {
     const spec = toRaw(_spec)
-    const workspaceEntities = await importSpecToWorkspace(spec)
+    const workspaceEntities = await importSpecToWorkspace(spec, overloadServers)
 
     // Add all the new requests into the request collection, the already have parent folders
     workspaceEntities.requests.forEach((request) =>
@@ -943,10 +945,14 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   }
 
   // Function to fetch and import a spec from a URL
-  async function importSpecFromUrl(url: string, proxy?: string) {
+  async function importSpecFromUrl(
+    url: string,
+    proxy?: string,
+    overloadServers?: Spec['servers'],
+  ) {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(spec, undefined)
+      await importSpecFile(spec, undefined, overloadServers)
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
     }

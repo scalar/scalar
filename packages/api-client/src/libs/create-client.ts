@@ -1,5 +1,9 @@
 import { createWorkspaceStore } from '@/store/workspace'
-import type { AuthenticationState, SpecConfiguration } from '@scalar/oas-utils'
+import type {
+  AuthenticationState,
+  Spec,
+  SpecConfiguration,
+} from '@scalar/oas-utils'
 import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
@@ -21,6 +25,8 @@ export type ClientConfiguration = {
   themeId?: ThemeId
   /** Whether to show the sidebar */
   showSidebar?: boolean
+  /** override the initial servers */
+  servers?: Spec['servers']
   /** Whether dark mode is on or off initially (light mode) */
   // darkMode?: boolean
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
