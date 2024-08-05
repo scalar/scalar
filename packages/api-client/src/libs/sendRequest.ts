@@ -1,3 +1,4 @@
+import { ERRORS } from '@/errors'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
@@ -129,6 +130,16 @@ export const sendRequest = async (
   }
 
   if (workspaceCookies) {
+    if (!rawUrl) {
+      throw new Error(ERRORS.URL_EMPTY)
+    }
+
+    try {
+      new URL(rawUrl)
+    } catch (error) {
+      throw new Error(ERRORS.INVALID_URL)
+    }
+
     const origin = new URL(rawUrl).host
     Object.keys(workspaceCookies).forEach((key) => {
       const c = workspaceCookies[key]

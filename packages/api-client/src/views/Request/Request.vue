@@ -126,7 +126,8 @@ const executeRequest = async () => {
       requestStatusBus.emit('abort')
     }
   } catch (error) {
-    toast(`${error}`, 'error')
+    console.error(error)
+    toast(`Oops! \n${error}`, 'error')
     requestStatusBus.emit('abort')
   }
 }
