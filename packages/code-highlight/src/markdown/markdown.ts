@@ -10,9 +10,11 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
 
-/** Take a markdown string and generate a raw HTML string */
+/**
+ * Take a Markdown string and generate HTML from it
+ */
 export function htmlFromMarkdown(
-  markdownString: string,
+  markdown: string,
   options?: {
     removeTags?: string[]
     allowTags?: string[]
@@ -57,7 +59,40 @@ export function htmlFromMarkdown(
     // Converts the HTML AST to a string
     .use(rehypeStringify)
     // Run the pipeline
-    .processSync(markdownString)
+    .processSync(markdown)
 
   return html.toString()
+}
+
+/**
+ * Create a Markdown AST from a string.
+ */
+export function getMarkdownAst(markdown: string) {
+  return unified().use(remarkParse).use(remarkGfm).parse(markdown)
+}
+
+/**
+ * Find all nodes of a specific type in a Markdown AST.
+ */
+export function getNodesOfType(
+  node: Record<string, any>,
+  type: string,
+  depth: number = 1,
+): {
+  depth: number
+  value: string
+}[] {
+  const nodes = []
+
+  if (node.type === type) {
+    nodes.push({ depth: node.depth ?? depth, value: node.children[0].value })
+  }
+
+  if (node.children) {
+    for (const child of node.children) {
+      nodes.push(...getNodesOfType(child, type, depth + 1))
+    }
+  }
+
+  return nodes
 }

@@ -63,6 +63,7 @@
     "@floating-ui/vue": "^1.0.2",
     "@headlessui/vue": "^1.7.20",
     "@scalar/api-client": "workspace:*",
+    "@scalar/code-highlight": "workspace:*",
     "@scalar/components": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
