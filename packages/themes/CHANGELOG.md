@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.21
+
+### Patch Changes
+
+- faf3ed9: fix: style updates to client app
+
 ## 0.9.20
 
 ### Patch Changes

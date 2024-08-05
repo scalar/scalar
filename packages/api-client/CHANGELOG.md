@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.0.45
+
+### Patch Changes
+
+- ee80ee5: feat: allow renaming requests, cookies, environments
+- f3fec79: fix: adds delete sidebar list element close event
+- 2301345: fix: authentication select
+- 57f5691: feat: set path variables from url
+- faf3ed9: fix: style updates to client app
+- a1c73a0: feat(api-client): improve client request loading and feedback
+- Updated dependencies [faf3ed9]
+  - @scalar/themes@0.9.21
+  - @scalar/components@0.12.28
+  - @scalar/oas-utils@0.2.26
+
 ## 2.0.44
 
 ### Patch Changes
