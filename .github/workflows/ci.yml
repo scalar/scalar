@@ -189,7 +189,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Trigger Release workflow
-        run: gh workflow run release.yml
+        run: gh workflow run release.yml -f message="${{ github.event.head_commit.message }}"
 
   deploy:
     runs-on: ubuntu-20.04

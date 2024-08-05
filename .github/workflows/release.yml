@@ -3,6 +3,12 @@ name: Release
 # Triggered through GitHub CLI
 on:
   workflow_dispatch:
+    inputs:
+      message:
+        description: 'Commit Message'
+        required: true
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
   npm:
@@ -17,6 +23,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Get current branch
+        id: branch
+        run: echo "Current branch is ${{ github.ref }}"
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -65,8 +74,7 @@ jobs:
         run: git status
       - name: Stash changes
         run: git stash
-        # TODO: Doesn’t work with manual trigger?
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+      - if: startsWith('${{ github.event.inputs.message }}', 'RELEASING:')
         name: Check which files were touched
         id: changed-files
         uses: tj-actions/changed-files@v44
