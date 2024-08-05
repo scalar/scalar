@@ -75,7 +75,7 @@ const httpLabel = computed(() => method.value.short)
   <!-- Display only -->
   <div
     v-else
-    class="relative gap-1"
+    class="relative gap-1 whitespace-nowrap"
     :class="cx(variants({ isSquare, isEditable }), method.color)"
     type="button">
     {{ method.short }}
