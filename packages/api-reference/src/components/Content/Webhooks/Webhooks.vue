@@ -26,6 +26,7 @@ const { getWebhookId } = useNavState()
 </script>
 <template>
   <SectionContainer v-if="webhookKeys.length">
+    <div id="webhooks" />
     <template
       v-for="name in webhookKeys"
       :key="name">
