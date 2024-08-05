@@ -107,8 +107,14 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
         }
       })
 
+      /** Filter out when an auth option get unchecked */
+      const selectedUids = activeRequest.value.selectedSecuritySchemeUids
+      const filteredOptions = options.filter((option) =>
+        selectedUids.includes(option.id),
+      )
+
       return [
-        { label: 'Select auth', options: [...specOptions, ...options] },
+        { label: 'Select auth', options: [...specOptions, ...filteredOptions] },
         {
           label: 'Add new auth',
           options: ADD_AUTH_OPTIONS,
@@ -276,7 +282,7 @@ const unselectAuth = (id: string) => {
               <RequestAuthDataTableInput
                 :id="`http-bearer-token-${scheme.uid}`"
                 :modelValue="scheme.value"
-                placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+                placeholder="Token"
                 type="password"
                 @update:modelValue="(v) => updateScheme(scheme, 'value', v)">
                 Bearer Token
