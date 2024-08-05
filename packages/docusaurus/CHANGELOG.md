@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.70
+
+### Patch Changes
+
+- 1088ede: Added option to remove spec link from navigation bar
+  - @scalar/api-reference-react@0.3.68
+
 ## 0.4.69
 
 ### Patch Changes
