@@ -1,6 +1,10 @@
 import { standardLanguages } from '@/languages'
 import { rehypeHighlight } from '@/rehype-highlight'
-import type { Root } from 'hast'
+import type { Root, RootContent } from 'hast'
+import type {
+  Root as MarkdownRoot,
+  RootContent as MarkdownRootContent, // @ts-expect-error TODO
+} from 'mast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -9,6 +13,7 @@ import rehypeStringify from 'rehype-stringify'
 import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
+import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
 import { SKIP, visit } from 'unist-util-visit'
 
@@ -17,6 +22,9 @@ type Options = {
   type?: string
 }
 
+/**
+ * Plugin to transform nodes in a Markdown AST
+ */
 const transformNodes = function (
   options?: Readonly<Options> | null | undefined,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -130,4 +138,43 @@ export function getNodesOfType(
   }
 
   return nodes
+}
+/**
+ * Return multiple Markdown documents. Every heading should be its own document.
+ */
+export function splitContent(ast: MarkdownRoot) {
+  const sections: RootContent[][] = []
+
+  let nodes: RootContent[] = []
+
+  ast.children?.forEach((node: RootContent) => {
+    // @ts-expect-error TODO:
+    if (node.type === 'heading') {
+      if (nodes.length) {
+        sections.push(nodes)
+      }
+
+      sections.push([node])
+
+      nodes = []
+    } else {
+      nodes.push(node)
+    }
+  })
+
+  if (nodes.length) {
+    sections.push(nodes)
+  }
+
+  return sections.map((section) => createDocument(section))
+}
+
+function createDocument(nodes: MarkdownRootContent) {
+  // Use Remark/Rehype to convert the nodes to a Markdown string
+  const markdown = unified().use(remarkStringify).stringify({
+    type: 'root',
+    children: nodes,
+  })
+
+  return markdown.trim()
 }

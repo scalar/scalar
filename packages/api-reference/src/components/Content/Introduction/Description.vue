@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { splitMarkdown } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
 // import type { DescriptionSectionSSRKey, SSRState } from '@scalar/oas-utils'
 // import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 // import { computedAsync } from '@vueuse/core'
 import GithubSlugger from 'github-slugger'
+import { computed } from 'vue'
 
 // import { onServerPrefetch, useSSRContext } from 'vue'
 import {
@@ -14,10 +16,17 @@ import {
 import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 
-// const props =
-defineProps<{
+const props = defineProps<{
   value?: string
 }>()
+
+const sections = computed(() => {
+  if (!props.value) {
+    return []
+  }
+
+  return splitMarkdown(props.value)
+})
 
 // const ssrHash = createHash(props.value)
 // const ssrStateKey: DescriptionSectionSSRKey = `components-Content-Introduction-Description-sections${ssrHash}`
@@ -101,29 +110,30 @@ const transformHeading = (node: Record<string, any>) => {
       class="introduction-description-heading"
       @intersecting="() => handleScroll('test-foobar')">
     </IntersectionObserver>
-    <!-- <template
+    <template
       v-for="(section, index) in sections"
-      :key="index"> -->
-    <!-- With a Heading -->
-    <!-- <template v-if="section.heading"> -->
-    <!-- <IntersectionObserver
+      :key="index">
+      <!-- With a Heading -->
+      <!-- <template v-if="section.heading"> -->
+      <!-- <IntersectionObserver
           :id="getHeadingId(section.heading)"
           class="introduction-description-heading"
           @intersecting="() => handleScroll(getHeadingId(section.heading))"> -->
-    <ScalarMarkdown
-      :transform="transformHeading"
-      transformType="heading"
-      :value="value"
-      withImages />
-    <!-- </IntersectionObserver> -->
-    <!-- </template> -->
-    <!-- Without a heading -->
-    <!-- <template v-else>
+      section:
+      <ScalarMarkdown
+        :transform="transformHeading"
+        transformType="heading"
+        :value="section"
+        withImages />
+      <!-- </IntersectionObserver> -->
+      <!-- </template> -->
+      <!-- Without a heading -->
+      <!-- <template v-else>
       <ScalarMarkdown
         :value="section.content"
         withImages />
     </template> -->
-    <!-- </template> -->
+    </template>
   </div>
 </template>
 
