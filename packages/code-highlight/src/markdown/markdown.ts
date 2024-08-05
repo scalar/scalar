@@ -1,5 +1,6 @@
 import { standardLanguages } from '@/languages'
 import { rehypeHighlight } from '@/rehype-highlight'
+import type { Root } from 'hast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -9,6 +10,32 @@ import remarkGfm from 'remark-gfm'
 import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import { unified } from 'unified'
+import { SKIP, visit } from 'unist-util-visit'
+
+type Options = {
+  transform?: (node: Record<string, any>) => Record<string, any>
+  type?: string
+}
+
+const transformNodes = function (
+  options?: Readonly<Options> | null | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ..._ignored: any[]
+) {
+  return (tree: Root) => {
+    if (!options?.transform || !options?.type) {
+      return
+    }
+
+    visit(tree, options?.type, (node) => {
+      options?.transform ? options?.transform(node) : node
+
+      return SKIP
+    })
+
+    return
+  }
+}
 
 /**
  * Take a Markdown string and generate HTML from it
@@ -18,6 +45,8 @@ export function htmlFromMarkdown(
   options?: {
     removeTags?: string[]
     allowTags?: string[]
+    transform?: (node: Record<string, any>) => Record<string, any>
+    transformType?: string
   },
 ) {
   // Add permitted tags and remove stripped ones
@@ -32,6 +61,10 @@ export function htmlFromMarkdown(
     .use(remarkParse)
     // Support autolink literals, footnotes, strikethrough, tables and tasklists
     .use(remarkGfm)
+    .use(transformNodes, {
+      transform: options?.transform,
+      type: options?.transformType,
+    })
     // Allows any HTML tags
     .use(remarkRehype, { allowDangerousHtml: true })
     // Creates a HTML AST
@@ -39,6 +72,8 @@ export function htmlFromMarkdown(
     // Removes disallowed tags
     .use(rehypeSanitize, {
       ...defaultSchema,
+      // Don’t prefix the heading ids
+      clobberPrefix: '',
       // Makes it even more strict
       tagNames,
       attributes: {
