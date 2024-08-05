@@ -54,7 +54,7 @@ onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
   border-radius: 8px;
 }
 .scalar .scalar-app-layout {
-  background: var(--scalar-background-3);
+  background: var(--scalar-background-1);
   height: calc(100% - 120px);
   max-width: 1390px;
   width: 100%;

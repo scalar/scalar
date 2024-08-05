@@ -242,10 +242,12 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded rounded-b-none rounded-r-none pt-0 h-full client-wrapper-bg-color relative"
-    :class="getBackgroundColor()">
+    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden"
+    :class="{
+      '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
+    }">
     <div
-      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
+      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container border-b-1/2">
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <SidebarToggle
@@ -264,7 +266,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         <!-- TODO: There should be an `ìsModal` flag instead -->
         <button
           v-if="activeWorkspace.isReadOnly"
-          class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
+          class="text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded"
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
@@ -368,15 +370,6 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     border: 1px solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
   }
-}
-.dark-mode .client-wrapper-bg-color {
-  background: linear-gradient(
-    color-mix(in srgb, var(--tw-bg-base) 21%, black) -3%,
-    black 9%
-  );
-}
-.light-mode .client-wrapper-bg-color {
-  background-color: var(--scalar-background-2) !important;
 }
 .gitbook-show {
   display: none;

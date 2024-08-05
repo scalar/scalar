@@ -89,7 +89,7 @@ const updateExampleUrlHandler = (url: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
+            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border-1/2 p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
@@ -102,7 +102,6 @@ const updateExampleUrlHandler = (url: string) => {
           </div>
           <div class="flex gap-1">
             <HttpMethod
-              class="font-code text-xxs font-medium"
               :isEditable="!isReadOnly"
               isSquare
               :method="activeRequest.method"

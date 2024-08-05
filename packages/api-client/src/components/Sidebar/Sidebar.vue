@@ -6,11 +6,11 @@ defineProps<{ title?: string }>()
 const { isReadOnly } = useWorkspace()
 </script>
 <template>
-  <aside class="w-sidebar relative flex flex-col border-r bg-b-1">
+  <aside class="w-sidebar relative flex flex-col border-r-1/2 bg-b-1">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
-      class="xl:min-h-header py-2.5 flex items-center border-b px-4 text-sm">
+      class="xl:min-h-header py-2.5 flex items-center border-b-1/2 px-4 text-sm">
       <h2 class="font-medium m-0 text-sm">{{ title }}</h2>
     </div>
     <div
@@ -28,6 +28,7 @@ const { isReadOnly } = useWorkspace()
   min-height: calc(100% - 50px);
 }
 .sidebar-mask {
+  padding-bottom: 42px;
   mask-image: linear-gradient(
     0,
     transparent 0,
