@@ -8,7 +8,7 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { executeRequestBus, sendRequest } from '@/libs'
+import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -16,6 +16,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
+import { useToasts } from '@scalar/use-toasts'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -43,6 +44,7 @@ const {
   workspaceMutators,
 } = useWorkspace()
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+const { toast } = useToasts()
 const searchModalState = useModal()
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
@@ -98,26 +100,35 @@ const executeRequest = async () => {
     return variables[key] || key
   })
 
-  const { request, response } = await sendRequest(
-    activeRequest.value,
-    activeExample.value,
-    url,
-    activeSecuritySchemes.value,
-    activeWorkspace.value?.proxyUrl,
-    cookies,
-  )
+  requestStatusBus.emit('start')
+  try {
+    const { request, response, error } = await sendRequest(
+      activeRequest.value,
+      activeExample.value,
+      url,
+      activeSecuritySchemes.value,
+      activeWorkspace.value?.proxyUrl,
+      cookies,
+    )
 
-  if (request && response) {
-    requestMutators.edit(activeRequest.value.uid, 'history', [
-      ...activeRequest.value.history,
-      {
-        request,
-        response,
-        timestamp: Date.now(),
-      },
-    ])
-  } else {
-    console.warn('No response or request was returned')
+    if (request && response) {
+      requestMutators.edit(activeRequest.value.uid, 'history', [
+        ...activeRequest.value.history,
+        {
+          request,
+          response,
+          timestamp: Date.now(),
+        },
+      ])
+      requestStatusBus.emit('stop')
+    } else {
+      toast(error?.message ?? 'Send Request Failed', 'error')
+      requestStatusBus.emit('abort')
+    }
+  } catch (error) {
+    console.error(error)
+    toast(`Oops! \n${error}`, 'error')
+    requestStatusBus.emit('abort')
   }
 }
 onMounted(() => executeRequestBus.on(executeRequest))
