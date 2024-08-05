@@ -30,13 +30,21 @@ const updateCookie = (key: any, value: any) => {
     :onUpdate="updateCookie"
     :options="options">
     <template #title>
-      <span>Cookie</span>
-      <input
-        :value="activeCookie.name"
-        @input="
-          (event) =>
-            updateCookie('name', (event.target as HTMLInputElement).value)
-        " />
+      <div class="flex items-center pointer-events-none">
+        <span>Cookie</span>
+        <label
+          class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
+          for="cookiename"></label>
+        <input
+          id="cookiename"
+          class="pl-1 outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
+          placeholder="Cookie Name"
+          :value="activeCookie.name"
+          @input="
+            (event) =>
+              updateCookie('name', (event.target as HTMLInputElement).value)
+          " />
+      </div>
     </template>
   </Form>
 </template>
