@@ -33,9 +33,17 @@ export const createApiClientModal = async (
 
   // Import the spec if needed
   if (configuration.spec?.url) {
-    await importSpecFromUrl(configuration.spec.url, configuration.proxyUrl)
+    await importSpecFromUrl(
+      configuration.spec.url,
+      configuration.proxyUrl,
+      configuration?.servers,
+    )
   } else if (configuration.spec?.content) {
-    await importSpecFile(configuration.spec?.content)
+    await importSpecFile(
+      configuration.spec?.content,
+      undefined,
+      configuration?.servers,
+    )
   }
   // Or add default workspace
   else {

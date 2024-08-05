@@ -69,6 +69,7 @@ function handleDelete(id: string) {
       v-if="currentAction.action === ModalAction.Delete"
       :variableName="currentAction.name"
       warningMessage="Are you sure you want to delete this cookie?"
+      @close="handleModalClose"
       @delete="handleDelete(variable.uid)" />
   </ScalarModal>
 </template>

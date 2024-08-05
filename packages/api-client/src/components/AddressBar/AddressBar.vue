@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import { executeRequestBus } from '@/libs'
+import { executeRequestBus, requestStatusBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -45,21 +45,53 @@ watch(
   },
 )
 
+/** The amount remaining to load from 100 -> 0 */
 const percentage = ref(100)
+/** Keeps track of how much was left when the request finished */
+const remaining = ref(0)
+/** Whether or not there is a request loading */
 const isRequesting = ref(false)
+/** The loading interval */
+const interval = ref<ReturnType<typeof setInterval>>()
 
-executeRequestBus.on(() => {
+function load() {
+  if (isRequesting.value) {
+    // Reduce asymptotically up to 85% loaded
+    percentage.value -= (percentage.value - 15) / 60
+  } else {
+    // Always finish loading linearly over 400ms
+    percentage.value -= remaining.value / 20
+  }
+  if (percentage.value <= 0) {
+    clearInterval(interval.value)
+    interval.value = undefined
+    percentage.value = 100
+    isRequesting.value = false
+  }
+}
+
+function startLoading() {
   if (isRequesting.value) return
   isRequesting.value = true
+  interval.value = setInterval(load, 20)
+}
 
-  const interval = setInterval(() => {
-    percentage.value -= 5
-    if (percentage.value <= 0) {
-      clearInterval(interval)
-      percentage.value = 100
-      isRequesting.value = false
-    }
-  }, 20)
+function stopLoading() {
+  remaining.value = percentage.value
+  isRequesting.value = false
+}
+
+function abortLoading() {
+  clearInterval(interval.value)
+  interval.value = undefined
+  percentage.value = 100
+  isRequesting.value = false
+}
+
+requestStatusBus.on((status) => {
+  if (status === 'start') startLoading()
+  if (status === 'stop') stopLoading()
+  if (status === 'abort') abortLoading()
 })
 
 function updateRequestMethod(method: RequestMethod) {
@@ -89,20 +121,19 @@ const updateExampleUrlHandler = (url: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border p-[3px]',
+            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border-1/2 p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
           <div
             class="pointer-events-none absolute left-0 top-0 z-10 block h-full w-full overflow-hidden">
             <div
-              class="bg-mix-transparent bg-mix-amount-95 absolute left-0 top-0 h-full w-full"
+              class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full"
               :class="getBackgroundColor()"
               :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
           </div>
           <div class="flex gap-1">
             <HttpMethod
-              class="font-code text-xxs font-medium"
               :isEditable="!isReadOnly"
               isSquare
               :method="activeRequest.method"

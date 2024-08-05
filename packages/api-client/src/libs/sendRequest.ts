@@ -1,3 +1,4 @@
+import { ERRORS } from '@/errors'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
@@ -13,11 +14,7 @@ import {
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import axios, {
-  type AxiosError,
-  type AxiosHeaders,
-  type AxiosRequestConfig,
-} from 'axios'
+import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -62,6 +59,7 @@ export const sendRequest = async (
   sentTime?: number
   request?: RequestExample
   response?: ResponseInstance
+  error?: AxiosError
 }> => {
   let url = rawUrl
 
@@ -132,6 +130,16 @@ export const sendRequest = async (
   }
 
   if (workspaceCookies) {
+    if (!rawUrl) {
+      throw new Error(ERRORS.URL_EMPTY)
+    }
+
+    try {
+      new URL(rawUrl)
+    } catch (error) {
+      throw new Error(ERRORS.INVALID_URL)
+    }
+
     const origin = new URL(rawUrl).host
     Object.keys(workspaceCookies).forEach((key) => {
       const c = workspaceCookies[key]
@@ -275,6 +283,7 @@ export const sendRequest = async (
             duration: Date.now() - startTime,
           }
         : undefined,
+      error: axiosError,
     }
   }
 }

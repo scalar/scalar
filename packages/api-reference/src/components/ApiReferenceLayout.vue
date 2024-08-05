@@ -344,6 +344,7 @@ const fontsStyleTag = computed(
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal
       :proxyUrl="configuration.proxy"
+      :servers="configuration.servers"
       :spec="configuration.spec" />
   </div>
   <ScalarToasts />

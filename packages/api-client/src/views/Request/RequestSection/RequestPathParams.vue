@@ -3,7 +3,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store/workspace'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import type { RequestExample } from '@scalar/oas-utils/entities/workspace/spec'
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 const props = defineProps<{
   title: string
@@ -60,6 +60,44 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     value,
   )
 }
+
+const setPathVariable = (url: string) => {
+  if (!activeExample.value) return
+
+  /** matching regex for nested curly braces {value} */
+  const pathVariables =
+    url.match(/(?<!{){([^{}]+)}(?!})/g)?.map((v) => v.slice(1, -1)) || []
+  const parameters = activeExample.value.parameters[props.paramKey]
+
+  const paramMap = new Map(parameters.map((param) => [param.key, param]))
+  const updatedParameters = pathVariables.map(
+    (key) => paramMap.get(key) || { key, value: '', enabled: true },
+  )
+
+  parameters.forEach((param) => {
+    /** prevent removing required parameters or with a value */
+    if (!pathVariables.includes(param.key) && (param.value || param.required)) {
+      updatedParameters.push(param)
+    }
+  })
+
+  parameters.splice(0, parameters.length, ...updatedParameters)
+
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    `parameters.${props.paramKey}`,
+    parameters,
+  )
+}
+
+watch(
+  () => activeExample.value?.url,
+  (newURL) => {
+    if (newURL) {
+      setPathVariable(newURL)
+    }
+  },
+)
 </script>
 <template>
   <ViewLayoutCollapse :itemCount="params.length">

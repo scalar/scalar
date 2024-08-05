@@ -10,13 +10,15 @@ defineProps<{ item: RequestExampleParameter }>()
     class="w-full"
     :delay="0"
     side="left"
-    triggerClass="p-[7px]">
+    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 before:min-h-full before:right-[23px] before:w-3 absolute h-8 right-0">
     <template #trigger>
-      <ScalarIcon
-        class="ml-1 text-c-3 group-hover/info:text-c-1"
-        icon="Info"
-        size="sm"
-        thickness="1.5" />
+      <div class="pl-1 pr-1.5 py-[9px]">
+        <ScalarIcon
+          class="text-c-3 group-hover/info:text-c-1"
+          icon="Info"
+          size="sm"
+          thickness="1.5" />
+      </div>
     </template>
     <template #content>
       <div

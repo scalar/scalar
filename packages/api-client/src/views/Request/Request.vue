@@ -8,7 +8,7 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { executeRequestBus, sendRequest } from '@/libs'
+import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
 import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -16,6 +16,7 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
+import { useToasts } from '@scalar/use-toasts'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useEventListener, useMagicKeys, useMediaQuery } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -43,6 +44,7 @@ const {
   workspaceMutators,
 } = useWorkspace()
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+const { toast } = useToasts()
 const searchModalState = useModal()
 const isNarrow = useMediaQuery('(max-width: 780px)')
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
@@ -102,26 +104,35 @@ const executeRequest = async () => {
     return variables[key] || key
   })
 
-  const { request, response } = await sendRequest(
-    activeRequest.value,
-    activeExample.value,
-    url,
-    activeSecuritySchemes.value,
-    activeWorkspace.value?.proxyUrl,
-    cookies,
-  )
+  requestStatusBus.emit('start')
+  try {
+    const { request, response, error } = await sendRequest(
+      activeRequest.value,
+      activeExample.value,
+      url,
+      activeSecuritySchemes.value,
+      activeWorkspace.value?.proxyUrl,
+      cookies,
+    )
 
-  if (request && response) {
-    requestMutators.edit(activeRequest.value.uid, 'history', [
-      ...activeRequest.value.history,
-      {
-        request,
-        response,
-        timestamp: Date.now(),
-      },
-    ])
-  } else {
-    console.warn('No response or request was returned')
+    if (request && response) {
+      requestMutators.edit(activeRequest.value.uid, 'history', [
+        ...activeRequest.value.history,
+        {
+          request,
+          response,
+          timestamp: Date.now(),
+        },
+      ])
+      requestStatusBus.emit('stop')
+    } else {
+      toast(error?.message ?? 'Send Request Failed', 'error')
+      requestStatusBus.emit('abort')
+    }
+  } catch (error) {
+    console.error(error)
+    toast(`Oops! \n${error}`, 'error')
+    requestStatusBus.emit('abort')
   }
 }
 onMounted(() => executeRequestBus.on(executeRequest))
@@ -246,10 +257,12 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded rounded-b-none rounded-r-none pt-0 h-full client-wrapper-bg-color relative"
-    :class="getBackgroundColor()">
+    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden"
+    :class="{
+      '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
+    }">
     <div
-      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container">
+      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container border-b-1/2">
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <SidebarToggle
@@ -268,7 +281,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         <!-- TODO: There should be an `ìsModal` flag instead -->
         <button
           v-if="activeWorkspace.isReadOnly"
-          class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded"
+          class="text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded"
           type="button"
           @click="modalState.hide()">
           <ScalarIcon
@@ -372,15 +385,6 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     border: 1px solid var(--scalar-border-color);
     border-radius: var(--scalar-radius);
   }
-}
-.dark-mode .client-wrapper-bg-color {
-  background: linear-gradient(
-    color-mix(in srgb, var(--tw-bg-base) 21%, black) -3%,
-    black 9%
-  );
-}
-.light-mode .client-wrapper-bg-color {
-  background-color: var(--scalar-background-2) !important;
 }
 .gitbook-show {
   display: none;

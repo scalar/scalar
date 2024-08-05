@@ -99,6 +99,9 @@ const fontsStyleTag = computed(
   height: 100vh;
   width: 100vw;
   position: relative;
-  background-color: var(--scalar-background-1);
+  background-color: var(--scalar-background-2);
+}
+.dark-mode #scalar-client {
+  background-color: color-mix(in srgb, var(--scalar-background-1) 30%, black);
 }
 </style>

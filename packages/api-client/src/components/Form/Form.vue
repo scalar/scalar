@@ -5,7 +5,7 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 
 defineProps<{
-  title: string
+  title?: string
   options: { key: string; label: string; placeholder: string }[]
   data: Record<string, any>
   onUpdate: (key: string, value: any) => void
@@ -14,7 +14,10 @@ defineProps<{
 <template>
   <ViewLayoutSection>
     <template #title>
-      <span>{{ title }}</span>
+      <span v-if="title">{{ title }}</span>
+      <slot
+        v-else
+        name="title" />
     </template>
     <div class="custom-scroll flex flex-1 flex-col gap-1.5 px-5 py-5">
       <DataTable
