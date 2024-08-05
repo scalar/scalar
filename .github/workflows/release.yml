@@ -34,28 +34,28 @@ jobs:
         run: git status
       - name: Stash changes
         run: git stash
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          # The pull request title.
-          title: 'chore: release'
-          # The command to update version, edit CHANGELOG, read and delete changesets.
-          version: 'pnpm changeset version'
-          # The commit message to use.
-          commit: 'chore: version packages'
-          # The command to use to build and publish packages
-          publish: 'pnpm -r publish --access public'
-        env:
-          # https://github.com/settings/tokens/new
-          # Expiration: No expiration
-          # Select: repo.*
-          GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
-          # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
-          # Custom Expiration: 01-01-2100
-          # Permissions: Read and Write
-          # Select packages: @scalar
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Create Release Pull Request or Publish to npm
+      #   id: changesets
+      #   uses: changesets/action@v1
+      #   with:
+      #     # The pull request title.
+      #     title: 'chore: release'
+      #     # The command to update version, edit CHANGELOG, read and delete changesets.
+      #     version: 'pnpm changeset version'
+      #     # The commit message to use.
+      #     commit: 'chore: version packages'
+      #     # The command to use to build and publish packages
+      #     publish: 'pnpm -r publish --access public'
+      #   env:
+      #     # https://github.com/settings/tokens/new
+      #     # Expiration: No expiration
+      #     # Select: repo.*
+      #     GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      #     # https://www.npmjs.com/settings/YOUR_ACCOUNT_HANDLE/tokens/granular-access-tokens/new
+      #     # Custom Expiration: 01-01-2100
+      #     # Permissions: Read and Write
+      #     # Select packages: @scalar
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   todesktop:
     runs-on: ubuntu-20.04
