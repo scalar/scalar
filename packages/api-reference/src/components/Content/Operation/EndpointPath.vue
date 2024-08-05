@@ -28,6 +28,7 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
   overflow: hidden;
   word-wrap: break-word;
   font-weight: var(--scalar-semibold);
+  line-break: anywhere;
 }
 .deprecated {
   text-decoration: line-through;

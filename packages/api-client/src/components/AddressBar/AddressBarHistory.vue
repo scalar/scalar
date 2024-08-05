@@ -46,9 +46,8 @@ function handleHistoryClick(historicalRequest: any) {
   <!-- History -->
   <ListboxButton
     v-if="activeRequest.history.length"
-    class="hover:bg-b-2 mr-1 rounded p-1.5">
+    class="adressbar-history-button mr-1 rounded p-1.5 text-c-3 focus:text-c-1">
     <ScalarIcon
-      class="text-c-3"
       icon="History"
       size="sm"
       thickness="2.25" />
