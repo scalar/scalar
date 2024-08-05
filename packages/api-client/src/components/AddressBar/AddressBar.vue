@@ -121,7 +121,7 @@ const updateExampleUrlHandler = (url: string) => {
         v-model="selectedRequest">
         <div
           :class="[
-            'text-xxs bg-b-1 relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded border-1/2 p-[3px]',
+            'addressbar-bg-states text-xxs relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last lg:order-none flex-1 flex-row items-stretch rounded-lg border-1/2 p-[3px]',
             { 'rounded-b-none': open },
             { 'border-transparent': open },
           ]">
@@ -140,7 +140,7 @@ const updateExampleUrlHandler = (url: string) => {
               @change="updateRequestMethod" />
           </div>
           <div
-            class="scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
+            class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
 
             <CodeInput
@@ -268,5 +268,25 @@ const updateExampleUrlHandler = (url: string) => {
   1% {
     opacity: 1;
   }
+}
+.codemirror-bg-switcher {
+  --scalar-background-1: var(--scalar-background-2);
+}
+.addressbar-bg-states :deep(.adressbar-history-button:hover) {
+  background: var(--scalar-background-3);
+}
+.addressbar-bg-states:focus-within :deep(.adressbar-history-button:hover) {
+  background: var(--scalar-background-2);
+}
+.addressbar-bg-states:focus-within .codemirror-bg-switcher {
+  --scalar-background-1: var(--scalar-background-1);
+}
+.addressbar-bg-states {
+  background: var(--scalar-background-2);
+  border-color: transparent;
+}
+.addressbar-bg-states:focus-within {
+  background: var(--scalar-background-1);
+  border-color: var(--scalar-border-color);
 }
 </style>

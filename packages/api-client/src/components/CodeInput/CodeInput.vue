@@ -297,6 +297,9 @@ export default {
   font-size: var(--scalar-mini);
   background: color-mix(in srgb, var(--tw-bg-base), transparent 94%) !important;
 }
+.cm-pill.bg-grey {
+  background: var(--scalar-background-3) !important;
+}
 .dark-mode .cm-pill {
   background: color-mix(in srgb, var(--tw-bg-base), transparent 80%) !important;
 }
