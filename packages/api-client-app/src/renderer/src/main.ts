@@ -35,19 +35,15 @@ const os =
 
 trackEvent(`launch: ${os}`)
 
-// Open file dialog
-// // @ts-expect-error not typed yet
-// const filePath = await window.electronAPI.openFile()
-// // @ts-expect-error not typed yet
-// const fileContent = await window.electronAPI.readFile(filePath)
-
 // Open… menu
-// @ts-expect-error not typed yet
-window.ipcRenderer?.on('importFile', function (fileContent: string) {
-  if (fileContent) {
-    client.store.importSpecFile(fileContent)
-  }
-})
+window.electron.ipcRenderer?.on(
+  'importFile',
+  function (_: IpcRendererEvent, fileContent: string) {
+    if (fileContent) {
+      client.store.importSpecFile(fileContent)
+    }
+  },
+)
 
 // Open… menu
 window.electron.ipcRenderer?.on(
@@ -80,8 +76,8 @@ async function drop(e: DragEvent) {
 
   // Check if the user dropped a file
   for (const f of e.dataTransfer?.files ?? []) {
-    // @ts-expect-error not typed yet
-    const fileContent = await window.mainProcess.readFile(f.path)
+    // @ts-expect-error TypeScript doesn’t know about the types in the preload script yet
+    const fileContent = await window.api.readFile(f.path)
 
     if (fileContent) {
       client.store.importSpecFile(fileContent)

@@ -2,7 +2,18 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { contextBridge, ipcRenderer } from 'electron/renderer'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  openFile: () => ipcRenderer.invoke('openFile'),
+  readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
+}
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Window {
+    electron: typeof electronAPI
+    api: typeof api
+  }
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise
@@ -11,16 +22,10 @@ if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('api', api)
-    contextBridge.exposeInMainWorld('mainProcess', {
-      openFile: () => ipcRenderer.invoke('openFile'),
-      readFile: (filePath: string) => ipcRenderer.invoke('readFile', filePath),
-    })
   } catch (error) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
   window.api = api
 }
