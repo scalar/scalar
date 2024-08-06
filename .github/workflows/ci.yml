@@ -190,7 +190,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Trigger Release workflow
         run: gh workflow run release.yml
-          --ref ${{ github.ref }}
+          --ref ${{ github.ref.branch }}
           --raw-field message="${{ github.event.head_commit.message }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
