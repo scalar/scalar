@@ -1,1 +1,48 @@
+# Default code owner (overwritten by more specific entries)
 * @marclave
+
+# Root level code owners
+/.github @hanspagel
+/*.md @hanspagel
+/.* @hanspagel
+
+# Documentation
+/documentation/* @hanspagel
+
+# Packages
+/packages/api-client @amritk
+/packages/api-reference-editor @geoffgscott
+# /packages/components
+/packages/galaxy @hanspagel
+# /packages/oas-utils
+# /packages/themes
+/packages/api-client-app @hanspagel
+/packages/api-reference-react @amritk
+/packages/docusaurus @amritk
+/packages/hono-api-reference @hanspagel
+# /packages/object-utils
+# /packages/use-codemirror
+/packages/build-tooling @geoffgscott
+# /packages/draggable
+/packages/mock-server @hanspagel
+/packages/play-button @marclave
+# /packages/use-modal
+/packages/build-watch @geoffgscott
+/packages/nestjs-api-reference @marclave
+/packages/scalar.aspnetcore @marclave
+# /packages/use-toasts
+/packages/api-client-react @amritk
+/packages/cli @hanspagel
+/packages/express-api-reference @hanspagel
+/packages/nextjs-api-reference @amritk
+/packages/scalar_django_ninja @marclave
+# /packages/use-tooltip
+/packages/api-reference @hanspagel
+/packages/code-highlight @geoffgscott
+/packages/fastify-api-reference @hanspagel
+/packages/nuxt @amritk
+/packages/scalar_fastapi @marclave
+/packages/void-server @hanspagel
+
+# Testing
+/playwright @tmastrom
