@@ -36,7 +36,7 @@ const flattenValue = (value: Record<string, any>) => {
       <template v-if="value?.['x-additionalPropertiesName']">
         {{ value['x-additionalPropertiesName'] }}
       </template>
-      <template v-else> additional properties </template>
+      <template v-else>additional properties</template>
     </div>
     <div
       v-if="value?.deprecated"
@@ -59,13 +59,8 @@ const flattenValue = (value: Record<string, any>) => {
     <div
       v-else-if="value?.type"
       class="property-details">
-      <SchemaPropertyDetail v-if="additional">
-        <template #prefix>key:</template>
-        string
-      </SchemaPropertyDetail>
       <SchemaPropertyDetail>
         <!-- prettier-ignore -->
-        <template v-if="additional" #prefix>value:</template >
         <template v-if="value?.items?.type">
           {{ value.type }}
           {{ value.items.type }}[]
@@ -155,7 +150,7 @@ const flattenValue = (value: Record<string, any>) => {
   font-family: var(--scalar-font-code);
 }
 .property-additional {
-  font-size: var(--scalar-font-size-3);
+  font-family: var(--scalar-font-code);
 }
 
 .property-required,

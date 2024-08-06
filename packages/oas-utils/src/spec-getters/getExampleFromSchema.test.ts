@@ -750,103 +750,88 @@ describe('getExampleFromSchema', () => {
     ).toBe(undefined)
   })
 
-  it('merges object from additionalProperties', () => {
+  it('allows any additonalProperty', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          myProperty: {
-            additionalProperties: {
-              properties: {
-                propertyOne: {
-                  type: 'string',
-                  title: 'Message',
-                },
-                propertyTwo: {
-                  type: 'string',
-                  title: 'Message',
-                },
-              },
-              type: 'object',
-            },
-            type: 'object',
-            title: 'MyProperty',
-          },
-        },
         type: 'object',
+        additionalProperties: {},
       }),
     ).toMatchObject({
-      myProperty: {
-        propertyOne: '',
-        propertyTwo: '',
-      },
+      ANY_ADDITIONAL_PROPERTY: 'anything',
+    })
+
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        additionalProperties: true,
+      }),
+    ).toMatchObject({
+      ANY_ADDITIONAL_PROPERTY: 'anything',
     })
   })
 
-  it('adds a key-value pair example with the schema additionalProperties', () => {
+  it('adds an additionalProperty with specific types', () => {
     expect(
       getExampleFromSchema({
-        properties: {
-          myProperty: {
-            additionalProperties: {
-              type: 'string',
-              title: 'Message',
-            },
-            type: 'object',
-            title: 'MyProperty',
-          },
-        },
         type: 'object',
+        additionalProperties: {
+          type: 'integer',
+        },
       }),
     ).toMatchObject({
-      myProperty: {
-        '{{key}}': '',
-      },
+      ANY_ADDITIONAL_PROPERTY: 1,
     })
-  })
 
-  it('adds a key-value pair example with the schema additionalProperties (omitEmptyAndOptionalProperties: true)', () => {
     expect(
-      getExampleFromSchema(
-        {
+      getExampleFromSchema({
+        type: 'object',
+        additionalProperties: {
+          type: 'boolean',
+        },
+      }),
+    ).toMatchObject({
+      ANY_ADDITIONAL_PROPERTY: true,
+    })
+
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        additionalProperties: {
+          type: 'boolean',
+          default: false,
+        },
+      }),
+    ).toMatchObject({
+      ANY_ADDITIONAL_PROPERTY: false,
+    })
+
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        additionalProperties: {
+          type: 'string',
+        },
+      }),
+    ).toMatchObject({
+      ANY_ADDITIONAL_PROPERTY: '',
+    })
+
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        additionalProperties: {
           type: 'object',
           properties: {
-            myProperty: {
-              additionalProperties: {
-                type: 'string',
-                title: 'Message',
-              },
-              type: 'object',
-              title: 'MyProperty',
+            foo: {
+              type: 'string',
             },
           },
         },
-        {
-          omitEmptyAndOptionalProperties: true,
-        },
-      ),
-    ).toMatchObject({
-      myProperty: {
-        '{{key}}': '',
-      },
-    })
-  })
-
-  it('overwrites with nullable additionalProperties schema', () => {
-    expect(
-      getExampleFromSchema({
-        properties: {
-          myProperty: {
-            additionalProperties: {
-              nullable: true,
-            },
-            type: 'object',
-            title: 'MyProperty',
-          },
-        },
-        type: 'object',
       }),
     ).toMatchObject({
-      myProperty: null,
+      ANY_ADDITIONAL_PROPERTY: {
+        foo: '',
+      },
     })
   })
 })

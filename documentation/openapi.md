@@ -93,3 +93,25 @@ paths:
       summary: Create a new planet
 +      x-internal: true
 ```
+
+## x-additionalPropertiesName
+
+You can add a custom attribute name to `additionalProperties` with `x-additionalPropertiesName`.
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: '1.0'
+components:
+  schemas:
+    Planet:
+      required:
+        - name
+      properties:
+        name:
+          type: string
+      additionalProperties:
++        x-additionalPropertiesName: anyCustomAttribute
+        type: string
+```
