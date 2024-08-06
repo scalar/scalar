@@ -61,9 +61,9 @@
       "import": "./dist/libs/index.js",
       "types": "./dist/libs/index.d.ts"
     },
-    "./libs/eventBusses": {
-      "import": "./dist/libs/eventBusses/index.js",
-      "types": "./dist/libs/eventBusses/index.d.ts"
+    "./libs/event-busses": {
+      "import": "./dist/libs/event-busses/index.js",
+      "types": "./dist/libs/event-busses/index.d.ts"
     },
     "./layouts/Modal": {
       "import": "./dist/layouts/Modal/index.js",

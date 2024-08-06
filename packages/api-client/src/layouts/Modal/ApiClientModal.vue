@@ -1,22 +1,32 @@
 <script setup lang="ts">
+import { handleHotKeyDown, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { useMagicKeys, whenever } from '@vueuse/core'
 import { onBeforeMount, onBeforeUnmount, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-const keys = useMagicKeys()
-const { modalState } = useWorkspace()
+const { activeWorkspace, modalState } = useWorkspace()
 
 // Close on escape
-whenever(keys.escape, () => modalState.open && modalState.hide())
+hotKeyBus.on(
+  (event) => event.closeModal && modalState.open && modalState.hide(),
+)
 
-// Disable scrolling while the modal is open
+/** Handles the hotkey events as well as custom config */
+const handleKeyDown = (ev: KeyboardEvent) =>
+  handleHotKeyDown(ev, activeWorkspace.value.hotKeyConfig)
+
+// Disable scrolling while the modal is open, also our global hotkey listeners
 watch(
   () => modalState.open,
   (open) => {
-    if (open) document.documentElement.style.overflow = 'hidden'
-    else document.documentElement.style.removeProperty('overflow')
+    if (open) {
+      window.addEventListener('keydown', handleKeyDown)
+      document.documentElement.style.overflow = 'hidden'
+    } else {
+      window.removeEventListener('keydown', handleKeyDown)
+      document.documentElement.style.removeProperty('overflow')
+    }
   },
 )
 

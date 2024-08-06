@@ -1,7 +1,31 @@
+import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '@/entities/workspace/consts'
 import { themeIds } from '@scalar/themes'
 import { z } from 'zod'
 
 import { nanoidSchema } from './shared'
+
+const modifier = z
+  .enum(['Meta', 'Control', 'Shift', 'Alt', 'default'] as const)
+  .optional()
+  .default('default')
+
+export type HotKeyModifier = z.infer<typeof modifier>
+
+const hotKeys = z.record(
+  z.enum(KEYDOWN_KEYS),
+  z.object({
+    modifier: z.boolean().optional(),
+    event: z.enum(HOTKEY_EVENT_NAMES),
+  }),
+)
+export type HotKeyConfig = z.infer<typeof hotKeys>
+
+const hotKeyConfigSchema = z
+  .object({
+    modifier,
+    hotKeys: hotKeys.optional(),
+  })
+  .optional()
 
 const workspaceSchema = z.object({
   uid: nanoidSchema,
@@ -14,6 +38,8 @@ const workspaceSchema = z.object({
   collectionUids: z.array(z.string()).default([]),
   /** List of all environment uids in a given workspace */
   environmentUids: z.array(z.string()).default([]),
+  /** Customize hotkeys */
+  hotKeyConfig: hotKeyConfigSchema,
   /** List of all cookie uids in a given workspace */
   cookieUids: z.array(z.string()).default([]),
   /** Workspace level proxy for all requests to be sent through */

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { commandPaletteBus } from '@/libs/eventBusses/command-palette'
+import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store/workspace'
 import {
   ScalarButton,
