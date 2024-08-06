@@ -14,6 +14,8 @@ const workspaceSchema = z.object({
   collectionUids: z.array(z.string()).default([]),
   /** List of all environment uids in a given workspace */
   environmentUids: z.array(z.string()).default([]),
+  /** Active Environment ID to use for requests  */
+  activeEnvironmentId: z.string().optional(),
   /** List of all cookie uids in a given workspace */
   cookieUids: z.array(z.string()).default([]),
   /** Workspace level proxy for all requests to be sent through */
