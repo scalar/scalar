@@ -3,11 +3,11 @@ import fs from 'node:fs'
 
 const ajv = new Ajv()
 
-export function lint(filePath: string) {
+export function check(filePath: string) {
   // Load the ScalarConfig type JSON schema
   const scalarConfigSchema = fs.readFileSync(
     process.cwd() +
-      '/packages/cli/src/commands/lint/ScalarConfigJsonSchema.json',
+      '/packages/cli/src/commands/check/ScalarConfigJsonSchema.json',
     'utf8',
   )
 

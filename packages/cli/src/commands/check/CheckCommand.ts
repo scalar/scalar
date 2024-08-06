@@ -3,16 +3,16 @@ import kleur from 'kleur'
 import prettyjson from 'prettyjson'
 
 import { useGivenFileOrConfiguration } from '../../utils'
-import { lint } from './lint'
+import { check } from './check'
 
 /**
  * Lint users scalar configs (scalar.config.json files)
  */
-export function LintCommand() {
-  const cmd = new Command('lint')
+export function CheckCommand() {
+  const cmd = new Command('check')
 
-  cmd.description('Lint users scalar configs')
-  cmd.argument('[file]', 'File to lint')
+  cmd.description('Check users scalar configs')
+  cmd.argument('[file]', 'File to check')
   cmd.action(async (inputArgument: string) => {
     const startTime = performance.now()
 
@@ -20,7 +20,7 @@ export function LintCommand() {
     const input = useGivenFileOrConfiguration(inputArgument)
 
     // Validate
-    const result = lint(input)
+    const result = check(input)
 
     if (result.valid) {
       console.log(kleur.green(`Matches the Scalar config specifications`))
