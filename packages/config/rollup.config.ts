@@ -1,4 +1,7 @@
-import { addPackageFileExports, createRollupConfig } from './src'
+import {
+  addPackageFileExports,
+  createRollupConfig,
+} from '@scalar/build-tooling'
 
 const entries = ['./src/index.ts']
 

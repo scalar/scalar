@@ -1396,6 +1396,10 @@ importers:
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
 
   packages/docusaurus:
     dependencies:
