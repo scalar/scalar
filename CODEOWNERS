@@ -22,7 +22,7 @@
 /packages/hono-api-reference @hanspagel
 # /packages/object-utils
 # /packages/use-codemirror
-# /packages/build-tooling
+/packages/build-tooling @geoffgscott
 # /packages/draggable
 /packages/mock-server @hanspagel
 /packages/play-button @marclave
