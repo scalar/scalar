@@ -1,10 +1,6 @@
 import { standardLanguages } from '@/languages'
 import { rehypeHighlight } from '@/rehype-highlight'
-import type { Root, RootContent } from 'hast'
-import type {
-  Root as MarkdownRoot,
-  RootContent as MarkdownRootContent, // @ts-expect-error TODO
-} from 'mast'
+import type { Heading, PhrasingContent, Root, RootContent, Text } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
 import rehypeRaw from 'rehype-raw'
@@ -15,6 +11,7 @@ import remarkParse from 'remark-parse'
 import remarkRehype from 'remark-rehype'
 import remarkStringify from 'remark-stringify'
 import { unified } from 'unified'
+import type { Node } from 'unist'
 import { SKIP, visit } from 'unist-util-visit'
 
 type Options = {
@@ -30,7 +27,7 @@ const transformNodes = function (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ..._ignored: any[]
 ) {
-  return (tree: Root) => {
+  return (tree: Node) => {
     if (!options?.transform || !options?.type) {
       return
     }
@@ -110,46 +107,73 @@ export function htmlFromMarkdown(
 /**
  * Create a Markdown AST from a string.
  */
-export function getMarkdownAst(markdown: string) {
+function getMarkdownAst(markdown: string): Root {
   return unified().use(remarkParse).use(remarkGfm).parse(markdown)
 }
 
 /**
- * Find all nodes of a specific type in a Markdown AST.
+ * Find all headings of a specific type in a Markdown AST.
  */
-export function getNodesOfType(
-  node: Record<string, any>,
-  type: string,
+export function getHeadings(
+  markdown: string,
   depth: number = 1,
 ): {
   depth: number
   value: string
 }[] {
-  const nodes = []
+  const tree = getMarkdownAst(markdown)
 
-  if (node.type === type) {
-    nodes.push({ depth: node.depth ?? depth, value: node.children[0].value })
-  }
+  const nodes: {
+    depth: number
+    value: string
+  }[] = []
 
-  if (node.children) {
-    for (const child of node.children) {
-      nodes.push(...getNodesOfType(child, type, depth + 1))
+  visit(tree, 'heading', (node) => {
+    const text = findTextInHeading(node)
+
+    if (text) {
+      nodes.push({ depth: node.depth ?? depth, value: text.value })
     }
-  }
+  })
 
   return nodes
 }
 
 /**
+ * Find the text in a Markdown node (recursively).
+ */
+function findTextInHeading(node: Heading | PhrasingContent): Text | null {
+  if (node.type === 'text') {
+    return node as Text
+  }
+
+  if ('children' in node && node.children) {
+    for (const child of node.children) {
+      const text = findTextInHeading(child)
+
+      if (text) {
+        return text
+      }
+    }
+  }
+
+  return null
+}
+
+/**
  * Return multiple Markdown documents. Every heading should be its own document.
  */
-export function splitContent(ast: MarkdownRoot) {
+export function splitContent(markdown: string) {
+  const tree = getMarkdownAst(markdown)
+
+  /** Sections */
   const sections: RootContent[][] = []
 
+  /** Nodes inside a section */
   let nodes: RootContent[] = []
 
-  ast.children?.forEach((node: RootContent) => {
-    // @ts-expect-error TODO:
+  tree.children?.forEach((node) => {
+    // If the node is a heading, start a new section
     if (node.type === 'heading') {
       if (nodes.length) {
         sections.push(nodes)
@@ -158,11 +182,14 @@ export function splitContent(ast: MarkdownRoot) {
       sections.push([node])
 
       nodes = []
-    } else {
+    }
+    // Otherwise, add the node to the current section
+    else {
       nodes.push(node)
     }
   })
 
+  // Add any remaining nodes
   if (nodes.length) {
     sections.push(nodes)
   }
@@ -173,11 +200,13 @@ export function splitContent(ast: MarkdownRoot) {
 /**
  * Use remark to create a Markdown document from a list of nodes.
  */
-function createDocument(nodes: MarkdownRootContent) {
+function createDocument(nodes: RootContent[]) {
+  // Create the Markdown string
   const markdown = unified().use(remarkStringify).use(remarkGfm).stringify({
     type: 'root',
     children: nodes,
   })
 
+  // Remove the whitespace
   return markdown.trim()
 }

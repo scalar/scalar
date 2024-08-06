@@ -1,34 +1,24 @@
 import { describe, expect, it } from 'vitest'
 
-import { getMarkdownAst, splitContent } from './markdown'
+import { splitContent } from './markdown'
 
 describe('splitContent', () => {
   it('returns a single document if there’s no heading', () => {
-    const ast = getMarkdownAst(`Foobar`)
-
-    const sections = splitContent(ast)
+    const sections = splitContent(`Foobar`)
 
     expect(sections).toMatchObject(['Foobar'])
   })
 
   it('splits the markdown document', () => {
-    const ast = getMarkdownAst(`# Example Heading
-
-Foobar`)
-
-    const sections = splitContent(ast)
+    const sections = splitContent(`# Example Heading\n\nFoobar`)
 
     expect(sections).toMatchObject(['# Example Heading', 'Foobar'])
   })
 
   it('splits multiple headings', () => {
-    const ast = getMarkdownAst(`# Example Heading
-
-## Other Heading
-
-Foobar`)
-
-    const sections = splitContent(ast)
+    const sections = splitContent(
+      `# Example Heading\n\n## Other Heading\n\nFoobar`,
+    )
 
     expect(sections).toMatchObject([
       '# Example Heading',

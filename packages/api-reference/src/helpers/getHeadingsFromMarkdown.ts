@@ -1,4 +1,4 @@
-import { getMarkdownAst, getNodesOfType } from '@scalar/code-highlight/markdown'
+import { getHeadings } from '@scalar/code-highlight/markdown'
 import type { Heading } from '@scalar/oas-utils'
 import GithubSlugger from 'github-slugger'
 
@@ -16,8 +16,7 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
 export function getHeadingsFromMarkdown(input: string): Heading[] {
   const slugger = new GithubSlugger()
 
-  const ast = getMarkdownAst(input)
-  const headings = getNodesOfType(ast, 'heading')
+  const headings = getHeadings(input)
 
   return withSlugs(headings as Heading[], slugger)
 }

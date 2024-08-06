@@ -11,9 +11,8 @@ describe('htmlFromMarkdown', () => {
 
   it('allows to add ids', () => {
     const html = htmlFromMarkdown(`# Example Heading`, {
-      // TODO: Function to create a slug based on the heading text
       transformType: 'heading',
-      transform: (node: Record<string, any>) => {
+      transform: (node) => {
         node.data = {
           hProperties: {
             id: 'example-heading',

@@ -2,4 +2,4 @@
 '@scalar/code-highlight': patch
 ---
 
-feat: new Markdown helper methods getMarkdownAst, splitContent, createDocument and getNodesOfType
+feat: new Markdown helper methods splitContent and getHeadings

@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  getMarkdownAst,
-  getNodesOfType,
-  splitContent,
-} from '@scalar/code-highlight/markdown'
+import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
 import GithubSlugger from 'github-slugger'
 import { computed } from 'vue'
@@ -26,23 +22,22 @@ const sections = computed(() => {
     return []
   }
 
-  const sectionSlugger = new GithubSlugger()
+  const slugger = new GithubSlugger()
 
-  const ast = getMarkdownAst(props.value)
+  const items = splitContent(props.value).map((markdown) => {
+    // Get “first” (and only) heading, if available
+    const [heading] = getHeadings(markdown)
 
-  const items = splitContent(ast).map((markdown) => {
-    const currentAst = getMarkdownAst(markdown)
-
-    const [heading] = getNodesOfType(currentAst, 'heading')
+    // Generate an id for the heading
+    const id = heading
+      ? getHeadingId({
+          ...heading,
+          slug: slugger.slug(heading.value),
+        })
+      : undefined
 
     return {
-      heading: heading,
-      id: heading
-        ? getHeadingId({
-            ...heading,
-            slug: sectionSlugger.slug(heading.value),
-          })
-        : undefined,
+      id,
       content: markdown,
     }
   })
@@ -87,6 +82,7 @@ const transformHeading = (node: Record<string, any>) => {
   return node
 }
 </script>
+
 <template>
   <div
     v-if="value"
@@ -94,8 +90,8 @@ const transformHeading = (node: Record<string, any>) => {
     <template
       v-for="(section, index) in sections"
       :key="index">
-      <!-- heading -->
-      <template v-if="section.content.startsWith('#')">
+      <!-- headings -->
+      <template v-if="section.id">
         <IntersectionObserver
           :id="section.id"
           class="introduction-description-heading"
