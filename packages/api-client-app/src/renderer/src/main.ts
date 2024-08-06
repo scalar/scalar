@@ -1,4 +1,4 @@
-import { webHashRouter } from '@scalar/api-client'
+import { createWebHashRouter } from '@scalar/api-client'
 import { createApiClientApp } from '@scalar/api-client/layouts/App'
 import '@scalar/api-client/style.css'
 import type { IpcRendererEvent } from 'electron'
@@ -9,7 +9,7 @@ const client = await createApiClientApp(
   document.getElementById('scalar-client'),
   {},
   true,
-  webHashRouter,
+  createWebHashRouter(),
 )
 
 /**
