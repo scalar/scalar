@@ -20,7 +20,9 @@
     "build": "scalar-build-rollup",
     "test:unit": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "scalar-types-check",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix"
   },
   "type": "module",
   "main": "dist/index.js",
