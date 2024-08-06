@@ -164,6 +164,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   padding: 3px;
   border: 1px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
+  gap: 1px;
 }
 .client-libraries {
   display: flex;
@@ -181,6 +182,9 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   user-select: none;
 }
 .client-libraries:hover {
+  background: var(--scalar-background-2);
+}
+.client-libraries:active {
   color: var(--scalar-color-1);
 }
 /* remove php and c on mobile */
