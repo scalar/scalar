@@ -189,7 +189,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Trigger Release workflow
-        run: gh workflow run release.yml -f message="${{ github.event.head_commit.message }}"
+        run: gh workflow run release.yml
+          --ref ${{ github.ref }}
+          --raw-field message="${{ github.event.head_commit.message }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
 
