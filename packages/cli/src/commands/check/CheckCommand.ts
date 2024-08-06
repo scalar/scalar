@@ -2,8 +2,8 @@ import { Command } from 'commander'
 import kleur from 'kleur'
 import prettyjson from 'prettyjson'
 
+import { check } from '../../../../config/src/check'
 import { useGivenFileOrConfiguration } from '../../utils'
-import { check } from './check'
 
 /**
  * Lint users scalar configs (scalar.config.json files)

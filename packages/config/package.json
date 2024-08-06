@@ -1,0 +1,40 @@
+{
+  "name": "@scalar/config",
+  "description": "Define and validate scalar configuration files",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/config"
+  },
+  "keywords": [],
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "bash scripts/build-rollup.sh",
+    "dev": "vite",
+    "format": "bash scripts/format.sh",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "dotenv -o -- vite preview",
+    "types:build": "bash scripts/types-build.sh",
+    "types:check": "bash scripts/types-check.sh"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "dependencies": {
+    "ajv": "^8.17.1"
+  }
+}
