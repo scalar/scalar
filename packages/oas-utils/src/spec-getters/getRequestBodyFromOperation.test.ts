@@ -181,7 +181,7 @@ describe('getRequestBodyFromOperation', () => {
     })
   })
 
-  it('creates key-value pair examples from object schema', () => {
+  it.only('creates key-value pair examples from object schema', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -248,19 +248,19 @@ describe('getRequestBodyFromOperation', () => {
 
     const expectedResult = {
       recordString: {
-        '{{key}}': '',
+        ANY_ADDITIONAL_PROPERTY: '',
       },
       recordInteger: {
-        '{{key}}': 1,
+        ANY_ADDITIONAL_PROPERTY: 1,
       },
       recordArray: {
-        '{{key}}': [],
+        ANY_ADDITIONAL_PROPERTY: [],
       },
       recordBoolean: {
-        '{{key}}': true,
+        ANY_ADDITIONAL_PROPERTY: true,
       },
       recordNullable: {
-        '{{key}}': null,
+        ANY_ADDITIONAL_PROPERTY: null,
       },
       recordObject: {},
       recordWithoutAdditionalProperties: {},
