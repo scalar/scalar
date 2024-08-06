@@ -150,7 +150,6 @@ const flattenValue = (value: Record<string, any>) => {
   font-family: var(--scalar-font-code);
 }
 .property-additional {
-  font-size: var(--scalar-font-size-3);
   font-family: var(--scalar-font-code);
 }
 
