@@ -70,7 +70,13 @@ const selected = computed<ScalarListboxOption | undefined>({
 .url-select span {
   display: flex;
   align-items: center;
-  overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.url-select span::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 .url-select svg {
   color: var(--scalar-color-2);
