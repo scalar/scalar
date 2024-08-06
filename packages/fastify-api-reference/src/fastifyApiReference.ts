@@ -19,7 +19,7 @@ export type FastifyApiReferenceOptions = {
   /**
    * Prefix the route with a path. This is where the API Reference will be available.
    *
-   * @default ''
+   * @default '/reference'
    */
   routePrefix?: string
   /**
@@ -37,7 +37,7 @@ const schemaToHideRoute = {
 }
 
 const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
-  `${publicPath ?? ''}${routePrefix ?? ''}/@scalar/fastify-api-reference/js/browser.js`.replace(
+  `${publicPath ?? ''}${routePrefix ?? '/reference'}/@scalar/fastify-api-reference/js/browser.js`.replace(
     /\/\//g,
     '/',
   )
@@ -192,7 +192,7 @@ const fastifyApiReference = fp<
     // If no theme is passed, use the default theme.
     fastify.route({
       method: 'GET',
-      url: options.routePrefix ?? '/',
+      url: options.routePrefix ?? '/reference',
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore
       schema: schemaToHideRoute,
