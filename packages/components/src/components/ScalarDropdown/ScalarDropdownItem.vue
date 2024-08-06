@@ -14,7 +14,7 @@ defineEmits<{
 const variants = cva({
   base: [
     // Layout
-    'min-w-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-left',
+    'h-8 min-w-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-left',
     // Text / background style
     'truncate text-sm text-c-1',
     // Interaction
