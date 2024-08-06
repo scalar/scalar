@@ -181,7 +181,7 @@ describe('getRequestBodyFromOperation', () => {
     })
   })
 
-  it.only('creates key-value pair examples from object schema', () => {
+  it('creates key-value pair examples from object schema', () => {
     const request = getRequestBodyFromOperation({
       httpVerb: 'POST',
       path: '/foobar',
@@ -203,39 +203,21 @@ describe('getRequestBodyFromOperation', () => {
                 ],
                 properties: {
                   recordString: {
-                    type: 'object',
-                    additionalProperties: {
-                      type: 'string',
-                    },
+                    type: 'string',
                   },
                   recordInteger: {
-                    type: 'object',
-                    additionalProperties: {
-                      type: 'integer',
-                    },
+                    type: 'integer',
                   },
                   recordArray: {
-                    type: 'object',
-                    additionalProperties: {
-                      type: 'array',
-                    },
+                    type: 'array',
                   },
                   recordBoolean: {
-                    type: 'object',
-                    additionalProperties: {
-                      type: 'boolean',
-                    },
+                    type: 'boolean',
                   },
                   recordNullable: {
-                    type: 'object',
-                    additionalProperties: {
-                      nullable: 'true',
-                    },
+                    nullable: 'true',
                   },
                   recordObject: {
-                    type: 'object',
-                  },
-                  recordWithoutAdditionalProperties: {
                     type: 'object',
                   },
                 },
@@ -247,23 +229,12 @@ describe('getRequestBodyFromOperation', () => {
     })
 
     const expectedResult = {
-      recordString: {
-        ANY_ADDITIONAL_PROPERTY: '',
-      },
-      recordInteger: {
-        ANY_ADDITIONAL_PROPERTY: 1,
-      },
-      recordArray: {
-        ANY_ADDITIONAL_PROPERTY: [],
-      },
-      recordBoolean: {
-        ANY_ADDITIONAL_PROPERTY: true,
-      },
-      recordNullable: {
-        ANY_ADDITIONAL_PROPERTY: null,
-      },
+      recordString: '',
+      recordInteger: 1,
+      recordArray: [],
+      recordBoolean: true,
+      recordNullable: null,
       recordObject: {},
-      recordWithoutAdditionalProperties: {},
     }
 
     expect(request?.postData).toMatchObject({
