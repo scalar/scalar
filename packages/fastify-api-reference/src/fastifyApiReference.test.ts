@@ -64,7 +64,7 @@ describe('fastifyApiReference', () => {
     })
 
     const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/`)
+    const response = await fetch(`${address}/reference`)
     expect(response.status).toBe(200)
   })
 
@@ -214,5 +214,23 @@ describe('fastifyApiReference', () => {
     const response = await fetch(`${address}/reference`)
     expect(response.headers.has('content-type')).toBe(true)
     expect(response.headers.get('content-type')).toContain('text/html')
+  })
+
+  it('has the JS url with default routePrefix', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    fastify.register(fastifyApiReference, {
+      configuration: {
+        spec: { url: '/openapi.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`)
+    expect(await response.text()).toContain(
+      '/reference/@scalar/fastify-api-reference/js/browser.js',
+    )
   })
 })
