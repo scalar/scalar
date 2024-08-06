@@ -163,6 +163,26 @@ export const getExampleFromSchema = (
       })
     }
 
+    // Additional properties
+    if (schema.additionalProperties !== undefined) {
+      const anyTypeIsValid =
+        // true
+        schema.additionalProperties === true ||
+        // or an empty object {}
+        (typeof schema.additionalProperties === 'object' &&
+          !Object.keys(schema.additionalProperties).length)
+
+      if (anyTypeIsValid) {
+        response['ANY_ADDITIONAL_PROPERTY'] = 'anything'
+      } else if (schema.additionalProperties !== false) {
+        response['ANY_ADDITIONAL_PROPERTY'] = getExampleFromSchema(
+          schema.additionalProperties,
+          options,
+          level + 1,
+        )
+      }
+    }
+
     if (schema.anyOf !== undefined) {
       Object.assign(
         response,
@@ -186,55 +206,6 @@ export const getExampleFromSchema = (
           )
           .filter((item: any) => item !== undefined),
       )
-    }
-
-    // Merge additionalProperties
-    if (
-      schema.additionalProperties !== undefined &&
-      schema.additionalProperties !== false
-    ) {
-      const additionalSchema = getExampleFromSchema(
-        schema.additionalProperties,
-        options,
-        level + 1,
-      )
-
-      // Merge objects, but not arrays
-      if (
-        additionalSchema &&
-        typeof additionalSchema === 'object' &&
-        !Array.isArray(additionalSchema)
-      ) {
-        return {
-          ...response,
-          ...getExampleFromSchema(
-            schema.additionalProperties,
-            options,
-            level + 1,
-          ),
-        }
-      }
-      // Add an example for nullable properties
-      if (additionalSchema === null) {
-        return null
-      }
-      // Otherwise, add an example of key-value pair
-      const additionalProperties = getExampleFromSchema(
-        schema.additionalProperties,
-        {
-          ...options,
-          // Let’s just add the additionalProperties, even if they are optional.
-          omitEmptyAndOptionalProperties: false,
-        },
-        level + 1,
-      )
-
-      return {
-        ...response,
-        ...(additionalProperties === undefined
-          ? {}
-          : { '{{key}}': additionalProperties }),
-      }
     }
 
     return response
