@@ -139,6 +139,7 @@ export function getNodesOfType(
 
   return nodes
 }
+
 /**
  * Return multiple Markdown documents. Every heading should be its own document.
  */
@@ -169,9 +170,11 @@ export function splitContent(ast: MarkdownRoot) {
   return sections.map((section) => createDocument(section))
 }
 
+/**
+ * Use remark to create a Markdown document from a list of nodes.
+ */
 function createDocument(nodes: MarkdownRootContent) {
-  // Use Remark/Rehype to convert the nodes to a Markdown string
-  const markdown = unified().use(remarkStringify).stringify({
+  const markdown = unified().use(remarkStringify).use(remarkGfm).stringify({
     type: 'root',
     children: nodes,
   })
