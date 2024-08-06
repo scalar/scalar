@@ -2,32 +2,32 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { ScalarCli } from '../../../tests/invoke-cli'
-import { lint } from './lint'
+import { check } from './check'
 
-describe('lint', () => {
-  // it('lints the given json file', () => {
+describe('check', () => {
+  // it('checks the given json file', () => {
   //   const [exitCode, logs] = ScalarCli()
   //     .setCwd(path.resolve('./'))
-  //     .invoke(['lint', './packages/cli/src/commands/lint/valid.json'])
+  //     .invoke(['check', './packages/cli/src/commands/check/valid.json'])
 
   //   logs.should.contain('Success')
   //   expect(exitCode).toBe(0)
   // })
-  // it('lints the invalid json file', () => {
+  // it('checks the invalid json file', () => {
   //   const [exitCode, logs] = ScalarCli()
   //     .setCwd(path.resolve('./'))
-  //     .invoke(['lint', './packages/cli/src/commands/lint/invalid.json'])
+  //     .invoke(['check', './packages/cli/src/commands/check/invalid.json'])
 
   //   logs.should.contain('Error')
   //   expect(exitCode).toBe(0)
   // })
-  it('lints the valid json file', () => {
-    const result = lint('/packages/cli/src/commands/lint/valid.json')
+  it('checks the valid json file', () => {
+    const result = check('/packages/cli/src/commands/check/valid.json')
     console.log(JSON.stringify(result, null, 3))
     expect(result.valid).toBe(true)
   })
-  it('lints the invalid json file', () => {
-    const result = lint('/packages/cli/src/commands/lint/invalid.json')
+  it('checks the invalid json file', () => {
+    const result = check('/packages/cli/src/commands/check/invalid.json')
     console.log(JSON.stringify(result, null, 3))
     expect(result.valid).toBe(true)
   })
