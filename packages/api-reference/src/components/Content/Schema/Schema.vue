@@ -130,7 +130,7 @@ const handleClick = (e: MouseEvent) =>
                 :level="level"
                 noncollapsible
                 :value="{
-                  type: 'any',
+                  type: 'anything',
                   ...(typeof value.additionalProperties === 'object'
                     ? value.additionalProperties
                     : {}),
