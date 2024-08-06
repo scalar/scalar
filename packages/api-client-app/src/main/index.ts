@@ -231,9 +231,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
   // Open file dialog
   ipcMain.handle('openFile', handleFileOpen)
   // Read files
@@ -251,7 +248,6 @@ app.whenReady().then(() => {
   session
     .fromPartition('main')
     .setPermissionRequestHandler((_, permission, callback) => {
-      console.log('permission', permission)
       if (permission === 'notifications') {
         callback(true)
       } else {

@@ -70,17 +70,16 @@ async function drop(e: DragEvent) {
   // Check if the user dropped an URL
   if (e.dataTransfer?.getData('text/uri-list')) {
     const url = e.dataTransfer.getData('text/uri-list')
-    console.log('URL you dragged here:', url)
 
-    client.store.importSpecFromUrl(url)
+    if (url) {
+      client.store.importSpecFromUrl(url)
+    }
+
     return
   }
 
   // Check if the user dropped a file
   for (const f of e.dataTransfer?.files ?? []) {
-    // console.log('File(s) you dragged here: ', f.path)
-    console.log('File you dragged here:', f)
-
     // @ts-expect-error not typed yet
     const fileContent = await window.mainProcess.readFile(f.path)
 
