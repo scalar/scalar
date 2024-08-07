@@ -6,26 +6,32 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import { useSidebar } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
+import { ScalarIcon } from '@scalar/components'
 import {
   type Cookie,
   createCookie,
 } from '@scalar/oas-utils/entities/workspace/cookie'
 import { nanoid } from 'nanoid'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
 
 const { cookies, cookieMutators } = useWorkspace()
+const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 
 const addCookieHandler = () => {
+  const cookieIndex = Object.keys(cookies).length
+
   const cookie = createCookie({
     uid: nanoid(),
-    name: 'Cookie',
+    name: `Cookie ${cookieIndex}`,
     value: '',
-    domain: '',
+    domain: 'example.com',
     path: '/',
     secure: false,
     httpOnly: false,
@@ -51,6 +57,40 @@ const removeCookie = (uid: string) => {
     router.push('default')
   }
 }
+
+const groupedCookies = computed(() => {
+  const groups: Record<string, Record<string, Cookie[]>> = {}
+  Object.values(cookies).forEach((cookie) => {
+    if (cookie.domain && cookie.path) {
+      if (!groups[cookie.domain]) {
+        groups[cookie.domain] = {}
+      }
+      if (!groups[cookie.domain][cookie.path]) {
+        groups[cookie.domain][cookie.path] = []
+      }
+      groups[cookie.domain][cookie.path].push(cookie)
+    }
+  })
+  return groups
+})
+
+const showChildren = (key: string) => {
+  return collapsedSidebarFolders[key]
+}
+
+/** Initialize collapsedSidebarFolders to be open by default */
+onMounted(() => {
+  const domains = Object.keys(groupedCookies.value)
+  const allPaths = Object.entries(groupedCookies.value).flatMap(
+    ([domain, paths]) => Object.keys(paths).map((path) => domain + path),
+  )
+  domains.forEach((domain) => {
+    collapsedSidebarFolders[domain] = true
+  })
+  allPaths.forEach((path) => {
+    collapsedSidebarFolders[path] = true
+  })
+})
 </script>
 <template>
   <SubpageHeader>
@@ -59,13 +99,57 @@ const removeCookie = (uid: string) => {
         <template #content>
           <div class="flex-1">
             <SidebarList>
-              <SidebarListElement
-                v-for="cookie in cookies"
-                :key="cookie.uid"
-                class="text-xs"
-                :variable="{ name: cookie.name, uid: cookie.uid }"
-                :warningMessage="`Are you sure you want to delete this cookie?`"
-                @delete="removeCookie(cookie.uid)" />
+              <div
+                v-for="(paths, domain) in groupedCookies"
+                :key="domain">
+                <button
+                  class="flex font-medium gap-1.5 items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                  type="button"
+                  @click="toggleSidebarFolder(domain)">
+                  <ScalarIcon
+                    class="text-c-3"
+                    :class="{
+                      'rotate-90': collapsedSidebarFolders[domain],
+                    }"
+                    icon="ChevronRight"
+                    size="sm"
+                    thickness="2.5" />
+                  {{ domain }}
+                </button>
+                <div
+                  v-show="showChildren(domain)"
+                  class="before:bg-b-3 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                  <div
+                    v-for="(cookieList, path) in paths"
+                    :key="path">
+                    <button
+                      class="flex font-medium gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                      type="button"
+                      @click="toggleSidebarFolder(domain + path)">
+                      <ScalarIcon
+                        class="text-c-3"
+                        :class="{
+                          'rotate-90': collapsedSidebarFolders[domain + path],
+                        }"
+                        icon="ChevronRight"
+                        size="sm"
+                        thickness="2.5" />
+                      {{ path }}
+                    </button>
+                    <div
+                      v-show="showChildren(domain + path)"
+                      class="before:bg-b-3 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                      <SidebarListElement
+                        v-for="cookie in cookieList"
+                        :key="cookie.uid"
+                        class="cookie text-xs"
+                        :variable="{ name: cookie.name, uid: cookie.uid }"
+                        :warningMessage="`Are you sure you want to delete this cookie?`"
+                        @delete="removeCookie(cookie.uid)" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </SidebarList>
           </div>
         </template>
