@@ -1,15 +1,44 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/oas-utils'
+import type { ContentType, Parameters } from '@scalar/oas-utils'
+import { computed, defineProps, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
+import ContentTypeSelect from './ContentTypeSelect.vue'
 
-withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
-  showChildren: false,
+const props = withDefaults(
+  defineProps<{ parameter: Parameters; showChildren?: boolean }>(),
+  {
+    showChildren: false,
+  },
+)
+
+const contentTypes = computed(() => {
+  if (props.parameter.content) {
+    return Object.keys(props.parameter.content)
+  }
+  return []
 })
+
+const selectedContentType = ref<ContentType>(
+  contentTypes.value[0] as ContentType,
+)
+
+if (props.parameter.content) {
+  if ('application/json' in props.parameter.content) {
+    selectedContentType.value = 'application/json'
+  }
+}
 </script>
 <template>
   <li class="parameter-item">
     <div class="parameter-item-container">
+      <ContentTypeSelect
+        v-if="props.parameter.content"
+        :defaultValue="selectedContentType"
+        :requestBody="props.parameter"
+        @selectContentType="
+          ({ contentType }) => (selectedContentType = contentType)
+        " />
       <SchemaProperty
         compact
         :description="parameter.description"
@@ -17,7 +46,11 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
         :name="parameter.name"
         :noncollapsible="showChildren"
         :required="parameter.required"
-        :value="parameter.schema" />
+        :value="
+          parameter.content
+            ? parameter.content?.[selectedContentType]?.schema
+            : parameter.schema
+        " />
     </div>
   </li>
 </template>
@@ -30,6 +63,7 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
   padding-bottom: 0;
 }
 .parameter-item-container {
+  position: relative;
   padding: 0;
 }
 
@@ -73,5 +107,11 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
 .parameter-schema {
   padding-bottom: 9px;
   margin-top: 3px;
+}
+
+.content-type-select {
+  position: absolute;
+  right: 0;
+  top: 10px;
 }
 </style>

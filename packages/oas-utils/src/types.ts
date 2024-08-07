@@ -93,6 +93,7 @@ export type Parameters = {
   schema?: Schema
   example?: any
   examples?: Map<string, any>
+  content?: RequestBodyMimeTypes
 }
 
 export type Query = {
