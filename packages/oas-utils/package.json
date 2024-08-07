@@ -101,6 +101,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/object-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
     "axios": "^1.6.8",
     "nanoid": "^5.0.7",

@@ -1,4 +1,4 @@
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'

@@ -46,6 +46,10 @@
       "import": "./dist/mutator-record/index.js",
       "types": "./dist/mutator-record/index.d.ts"
     },
+    "./merge": {
+      "import": "./dist/merge/index.js",
+      "types": "./dist/merge/index.d.ts"
+    },
     "./clone": {
       "import": "./dist/clone/index.js",
       "types": "./dist/clone/index.d.ts"
@@ -62,7 +66,8 @@
   "module": "dist/index.js",
   "dependencies": {
     "@vueuse/core": "^10.10.0",
-    "just-clone": "^6.2.0"
+    "just-clone": "^6.2.0",
+    "ts-deepmerge": "^7.0.1"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

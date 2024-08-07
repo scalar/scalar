@@ -1,6 +1,5 @@
 export * from './concatenateUrlAndPath'
 export * from './createHash'
-export * from './deepMerge'
 export * from './fetchSpecFromUrl'
 export * from './findVariables'
 export * from './httpMethods'
