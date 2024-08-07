@@ -8,6 +8,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
+import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, ref, watch } from 'vue'
@@ -41,6 +42,23 @@ const fuse = new Fuse(fuseDataArray.value, {
   keys: ['title', 'description', 'body'],
 })
 
+const resetSearch = () => {
+  searchText.value = ''
+  selectedSearchResult.value = 0
+  searchResults.value = []
+}
+
+const populateFuseDataArray = (requests: Request[]) => {
+  fuseDataArray.value = requests.map((request: Request) => ({
+    id: request.uid,
+    title: request.summary ?? request.method,
+    description: request.description ?? '',
+    httpVerb: request.method,
+    path: request.path,
+  }))
+  fuse.setCollection(fuseDataArray.value)
+}
+
 const fuseSearch = (): void => {
   selectedSearchResult.value = 0
   searchResults.value = fuse.search(searchText.value)
@@ -57,9 +75,8 @@ watch(
       return
     }
     searchModalRef.value?.focus()
-    searchText.value = ''
-    selectedSearchResult.value = 0
-    searchResults.value = []
+    resetSearch()
+    populateFuseDataArray(activeWorkspaceRequests.value)
   },
 )
 
@@ -67,17 +84,7 @@ watch(
 watch(
   activeWorkspaceRequests,
   (newRequests) => {
-    Object.values(newRequests).forEach((request) => {
-      fuseDataArray.value.push({
-        id: request.uid,
-        title: request.summary ?? request.method,
-        description: request.description ?? '',
-        httpVerb: request.method,
-        path: request.path,
-      })
-    })
-
-    fuse.setCollection(fuseDataArray.value)
+    populateFuseDataArray(newRequests)
   },
   { immediate: true },
 )
