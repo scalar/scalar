@@ -77,7 +77,7 @@ function load() {
 }
 
 function startLoading() {
-  if (isRequesting.value) return
+  if (interval.value) return
   isRequesting.value = true
   interval.value = setInterval(load, 20)
 }
@@ -111,8 +111,13 @@ function getBackgroundColor() {
   return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
 
+function handleExecuteRequest() {
+  if (isRequesting.value) return
+  isRequesting.value = true
+  executeRequestBus.emit()
+}
+
 const updateExampleUrlHandler = (url: string) => {
-  if (!activeExample.value) return
   requestExampleMutators.edit(activeExample.value.uid, 'url', url)
 }
 
@@ -169,7 +174,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
               :modelValue="activeExample.url"
               placeholder="Enter URL to get started"
               server
-              @submit="executeRequestBus.emit()"
+              @submit="handleExecuteRequest"
               @update:modelValue="updateExampleUrlHandler" />
             <div class="fade-right"></div>
           </div>
@@ -178,7 +183,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
           <ScalarButton
             class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1] font-bold"
             :disabled="isRequesting"
-            @click="executeRequestBus.emit()">
+            @click="handleExecuteRequest">
             <ScalarIcon
               class="relative z-10 shrink-0 fill-current"
               icon="Play"
