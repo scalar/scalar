@@ -83,6 +83,7 @@
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.0",
+    "remark-stringify": "^11.0.0",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0"
   },
@@ -91,6 +92,8 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@types/hast": "^3.0.4",
+    "@types/mdast": "^4.0.4",
+    "@types/unist": "^3.0.2",
     "rollup": "^4.16.4",
     "vfile": "^6.0.1",
     "vite": "^5.2.10",

@@ -1,3 +1,4 @@
+import { getHeadings } from '@scalar/code-highlight/markdown'
 import type { Heading } from '@scalar/oas-utils'
 import GithubSlugger from 'github-slugger'
 
@@ -15,11 +16,7 @@ const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>
 export function getHeadingsFromMarkdown(input: string): Heading[] {
   const slugger = new GithubSlugger()
 
-  const regex = new RegExp('^(#{1,6}) (?!#)(.*)', 'gm')
-  const headings = [...input.matchAll(regex)].map((r) => ({
-    value: r[2],
-    depth: r[1].length,
-  }))
+  const headings = getHeadings(input)
 
   return withSlugs(headings as Heading[], slugger)
 }

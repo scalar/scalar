@@ -32,7 +32,7 @@ withDefaults(
   margin-top: 24px;
 }
 .parameters-title {
-  font-size: var(--scalar-heading-4);
+  font-size: var(--scalar-font-size-3);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
   line-height: 1.45;

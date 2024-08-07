@@ -141,7 +141,7 @@ const flattenValue = (value: Record<string, any>) => {
 <style scoped>
 .property-heading {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 9px;
   white-space: nowrap;
 }

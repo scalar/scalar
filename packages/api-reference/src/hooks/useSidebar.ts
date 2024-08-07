@@ -77,7 +77,7 @@ function setCollapsedSidebarItem(key: string, value: boolean) {
 // Track headings in the spec description
 const headings = ref<any[]>([])
 
-const updateHeadings = async (description: string) => {
+function updateHeadings(description: string) {
   const newHeadings = getHeadingsFromMarkdown(description)
   const lowestLevel = getLowestHeadingLevel(newHeadings)
 
@@ -341,14 +341,17 @@ export function useSidebar(options?: ParsedSpecOption & TagsSorterOption) {
     // Watch the spec description for headings
     watch(
       () => parsedSpec.value?.info?.description,
-      async () => {
+      () => {
         const description = parsedSpec.value?.info?.description
 
         if (!description) {
           return (headings.value = [])
         }
 
-        return (headings.value = await updateHeadings(description))
+        return (headings.value = updateHeadings(description))
+      },
+      {
+        immediate: true,
       },
     )
   }

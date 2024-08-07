@@ -18,7 +18,7 @@ import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { isMacOS } from '@scalar/use-tooltip'
-import { useEventListener, useMagicKeys } from '@vueuse/core'
+import { useEventListener, useMagicKeys, useMediaQuery } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
@@ -46,7 +46,11 @@ const {
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { toast } = useToasts()
 const searchModalState = useModal()
+const isNarrow = useMediaQuery('(max-width: 780px)')
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+
+/** Show / hide the sidebar when we resize the screen */
+watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
 watch(

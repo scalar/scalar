@@ -8,6 +8,8 @@ const props = withDefaults(
   defineProps<{
     value?: string
     withImages?: boolean
+    transform?: (node: Record<string, any>) => Record<string, any>
+    transformType?: string
   }>(),
   {
     withImages: false,
@@ -17,6 +19,8 @@ const props = withDefaults(
 const html = computed(() =>
   htmlFromMarkdown(props.value ?? '', {
     removeTags: props.withImages ? [] : ['img', 'picture'],
+    transform: props.transform,
+    transformType: props.transformType,
   }),
 )
 

@@ -1,1 +1,1 @@
-export { htmlFromMarkdown } from './markdown'
+export * from './markdown'

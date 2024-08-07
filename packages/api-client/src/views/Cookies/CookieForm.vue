@@ -31,7 +31,6 @@ const updateCookie = (key: any, value: any) => {
     :options="options">
     <template #title>
       <div class="flex items-center pointer-events-none">
-        <span>Cookie</span>
         <label
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
           for="cookiename"></label>

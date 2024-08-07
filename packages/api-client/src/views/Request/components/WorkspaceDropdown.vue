@@ -24,7 +24,7 @@ const createNewWorkspace = () =>
 
 <template>
   <div
-    class="xl:min-h-header py-2.5 flex items-center border-b-1/2 px-2.5 text-sm">
+    class="xl:min-h-header xl:py-2.5 py-1 flex items-center border-b px-2.5 text-sm">
     <ScalarDropdown>
       <ScalarButton
         class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"

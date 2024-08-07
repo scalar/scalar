@@ -1,52 +1,49 @@
 <script setup lang="ts">
+import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
-import type { DescriptionSectionSSRKey, SSRState } from '@scalar/oas-utils'
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
-import { computedAsync } from '@vueuse/core'
-import { onServerPrefetch, useSSRContext } from 'vue'
+import GithubSlugger from 'github-slugger'
+import { computed } from 'vue'
 
-import {
-  getHeadingsFromMarkdown,
-  getLowestHeadingLevel,
-  joinWithSlash,
-  sleep,
-  splitMarkdownInSections,
-} from '../../../helpers'
+import { joinWithSlash } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 
 const props = defineProps<{
+  /** Markdown document */
   value?: string
 }>()
 
-const ssrHash = createHash(props.value)
-const ssrStateKey: DescriptionSectionSSRKey = `components-Content-Introduction-Description-sections${ssrHash}`
+/**
+ * Descriptions, but split into multiple sections.
+ * We need this to wrap the headings in IntersectionObserver components.
+ */
+const sections = computed(() => {
+  if (!props.value) {
+    return []
+  }
 
-const sections = computedAsync(
-  async () => {
-    if (!props.value) {
-      return []
+  const slugger = new GithubSlugger()
+
+  const items = splitContent(props.value).map((markdown) => {
+    // Get “first” (and only) heading, if available
+    const [heading] = getHeadings(markdown)
+
+    // Generate an id for the heading
+    const id = heading
+      ? getHeadingId({
+          ...heading,
+          slug: slugger.slug(heading.value),
+        })
+      : undefined
+
+    return {
+      id,
+      content: markdown,
     }
+  })
 
-    const allHeadings = await getHeadingsFromMarkdown(props.value)
-    // We only add one level to the sidebar. By default all h1, but if there are no h1, then h2 …
-    const lowestHeadingLevel = getLowestHeadingLevel(allHeadings)
-
-    return await Promise.all(
-      splitMarkdownInSections(props.value, lowestHeadingLevel).map(
-        async (content) => {
-          const headings = await getHeadingsFromMarkdown(content)
-
-          return {
-            heading: headings[0],
-            content,
-          }
-        },
-      ),
-    )
-  },
-  ssrState[ssrStateKey] ?? [], // initial state
-)
+  return items
+})
 
 const { getHeadingId, hash, isIntersectionEnabled, pathRouting } = useNavState()
 
@@ -68,13 +65,24 @@ function handleScroll(headingId = '') {
   window.history.replaceState({}, '', newUrl)
 }
 
-// SSR hack - waits for the computedAsync to complete then we save the state
-onServerPrefetch(async () => {
-  const ctx = useSSRContext<SSRState>()
-  await sleep(1)
-  ctx!.payload.data[ssrStateKey] = sections.value
-})
+const slugger = new GithubSlugger()
+
+/** Add ids to all headings */
+const transformHeading = (node: Record<string, any>) => {
+  node.data = {
+    hProperties: {
+      id: getHeadingId({
+        depth: node.depth,
+        value: node.children[0].value,
+        slug: slugger.slug(node.children[0].value),
+      }),
+    },
+  }
+
+  return node
+}
 </script>
+
 <template>
   <div
     v-if="value"
@@ -82,18 +90,19 @@ onServerPrefetch(async () => {
     <template
       v-for="(section, index) in sections"
       :key="index">
-      <!-- With a Heading -->
-      <template v-if="section.heading">
+      <!-- headings -->
+      <template v-if="section.id">
         <IntersectionObserver
-          :id="getHeadingId(section.heading)"
+          :id="section.id"
           class="introduction-description-heading"
-          @intersecting="() => handleScroll(getHeadingId(section.heading))">
+          @intersecting="() => handleScroll(section.id)">
           <ScalarMarkdown
-            :value="section.content"
-            withImages />
+            :transform="transformHeading"
+            transformType="heading"
+            :value="section.content" />
         </IntersectionObserver>
       </template>
-      <!-- Without a heading -->
+      <!-- everything else -->
       <template v-else>
         <ScalarMarkdown
           :value="section.content"
