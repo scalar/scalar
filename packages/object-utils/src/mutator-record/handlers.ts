@@ -48,9 +48,9 @@ export function mutationFactory<
   function loadLocalStorage() {
     if (!localStorageKey) return
 
-    const instances = Object.values(
-      parse(localStorage.getItem(localStorageKey) || '{}'),
-    ) as T[]
+    const data = parse(localStorage.getItem(localStorageKey) || '[{}]')
+    console.log(data)
+    const instances = Object.values(data) as T[]
 
     // TODO: Validation should be provided for each entity
     instances.forEach(add)
