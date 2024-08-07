@@ -1,7 +1,17 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
-import { BrowserWindow, app, ipcMain, session, shell } from 'electron'
+import {
+  BrowserWindow,
+  type IpcMainInvokeEvent,
+  Menu,
+  app,
+  dialog,
+  ipcMain,
+  session,
+  shell,
+} from 'electron'
 import windowStateKeeper from 'electron-window-state'
+import fs from 'node:fs'
 import { join } from 'path'
 
 import icon from '../../build/icon.png?asset'
@@ -57,6 +67,7 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
   })
+
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
     return { action: 'deny' }
@@ -104,6 +115,106 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  // Menu
+  const isMac = process.platform === 'darwin'
+
+  const template = [
+    // { role: 'appMenu' }
+    ...(isMac
+      ? [
+          {
+            label: app.name,
+            submenu: [
+              { role: 'about' },
+              { type: 'separator' },
+              { role: 'services' },
+              { type: 'separator' },
+              { role: 'hide' },
+              { role: 'hideOthers' },
+              { role: 'unhide' },
+              { type: 'separator' },
+              { role: 'quit' },
+            ],
+          },
+        ]
+      : []),
+    // { role: 'fileMenu' }
+    {
+      label: 'File',
+      submenu: [
+        {
+          role: 'open',
+          label: 'Open…',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => handleFileOpenMenuItem(mainWindow),
+        },
+        ...[isMac ? { role: 'close' } : { role: 'quit' }],
+      ],
+    },
+    // { role: 'editMenu' }
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        ...(isMac
+          ? [
+              { role: 'pasteAndMatchStyle' },
+              { role: 'delete' },
+              { role: 'selectAll' },
+              { type: 'separator' },
+              {
+                label: 'Speech',
+                submenu: [{ role: 'startSpeaking' }, { role: 'stopSpeaking' }],
+              },
+            ]
+          : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+      ],
+    },
+    // { role: 'viewMenu' }
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' },
+      ],
+    },
+    // { role: 'windowMenu' }
+    {
+      label: 'Window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' },
+        ...(isMac
+          ? [
+              { type: 'separator' },
+              { role: 'front' },
+              { type: 'separator' },
+              { role: 'window' },
+            ]
+          : [{ role: 'close' }]),
+      ],
+    },
+    {
+      role: 'help',
+    },
+  ]
+
+  // @ts-expect-error Types doesn’t seem to be correct
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 // This method will be called when Electron has finished
@@ -120,8 +231,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  // Open file dialog
+  ipcMain.handle('openFile', handleFileOpen)
+  // Read files
+  ipcMain.handle('readFile', handleReadFile)
 
   createWindow()
 
@@ -191,4 +304,58 @@ function upsertKeyValue(
 
   // Insert at end instead
   obj[keyToChangeLower] = value
+}
+
+/**
+ * Open the native file dialog
+ */
+async function handleFileOpen() {
+  console.info('[handleFileOpen] Open file dialog …')
+
+  const { canceled, filePaths } = await dialog.showOpenDialog({
+    filters: [
+      { name: 'OpenAPI Documents', extensions: ['*.yml', '*.yaml', '*.json'] },
+    ],
+  })
+
+  if (!canceled) {
+    return filePaths[0]
+  }
+
+  return undefined
+}
+
+/**
+ * Read the file content
+ */
+async function handleReadFile(
+  _: IpcMainInvokeEvent | undefined,
+  filePath: string,
+) {
+  if (filePath) {
+    console.info('[handleReadFile] Reading', filePath, '…')
+
+    return fs.promises.readFile(filePath, 'utf-8')
+  }
+
+  return undefined
+}
+
+/**
+ * Handle the "Open…" menu item
+ */
+async function handleFileOpenMenuItem(mainWindow: BrowserWindow) {
+  const path = await handleFileOpen()
+
+  if (!path) {
+    return
+  }
+
+  const content = await handleReadFile(undefined, path)
+
+  if (!content) {
+    return
+  }
+
+  mainWindow.webContents.send('importFile', content)
 }
