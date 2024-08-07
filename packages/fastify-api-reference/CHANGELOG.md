@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.24.71
+
+### Patch Changes
+
+- 159432b: chore!: change default routePrefix to /reference
+
 ## 1.24.70
 
 ## 1.24.69

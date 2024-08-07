@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.24.71
+
+### Patch Changes
+
+- 2f6180a: fix: improve address bar styles
+- 17e06de: fix: additionalProperties are not rendered correctly
+- Updated dependencies [2f6180a]
+- Updated dependencies [17e06de]
+  - @scalar/api-client@2.0.46
+  - @scalar/oas-utils@0.2.27
+
 ## 1.24.70
 
 ### Patch Changes

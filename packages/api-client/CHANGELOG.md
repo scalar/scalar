@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.46
+
+### Patch Changes
+
+- 2f6180a: fix: improve address bar styles
+- Updated dependencies [17e06de]
+  - @scalar/oas-utils@0.2.27
+
 ## 2.0.45
 
 ### Patch Changes

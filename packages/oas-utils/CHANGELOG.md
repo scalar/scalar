@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.27
+
+### Patch Changes
+
+- 17e06de: fix: additionalProperties are not rendered correctly
+
 ## 0.2.26
 
 ### Patch Changes
