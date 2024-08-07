@@ -140,10 +140,9 @@ const executeRequest = async () => {
   }
 }
 
+/** Handle hotkey events from the bus */
 const handleHotKey = (event: HotKeyEvents) => {
-  // Toggle the sidebar
   if (event.toggleSidebar) showSideBar.value = !showSideBar.value
-  // Open the command palette
   if (event.openCommandPalette) commandPaletteBus.emit()
 }
 
