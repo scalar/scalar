@@ -1,5 +1,13 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.69
+
+### Patch Changes
+
+- Updated dependencies [2f6180a]
+- Updated dependencies [17e06de]
+  - @scalar/api-reference@1.24.71
+
 ## 0.4.68
 
 ### Patch Changes
