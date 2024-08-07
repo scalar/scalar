@@ -97,4 +97,4 @@ export type RequestPayload = z.input<typeof requestSchema> & {
 
 /** Create request helper */
 export const createRequest = (payload: RequestPayload) =>
-  deepMerge(requestSchema.parse({}), payload)
+  deepMerge(requestSchema.parse({}), payload as Partial<Request>)

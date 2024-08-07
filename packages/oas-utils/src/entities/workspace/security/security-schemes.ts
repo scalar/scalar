@@ -162,5 +162,5 @@ export const createSecurityScheme = (payload: SecuritySchemePayload) =>
         ? { type: payload.type, flow: { type: payload.flow.type } }
         : { type: payload.type },
     ),
-    payload,
+    payload as Partial<SecurityScheme>,
   )

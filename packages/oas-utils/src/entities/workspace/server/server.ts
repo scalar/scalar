@@ -56,4 +56,4 @@ export type ServerPayload = z.input<typeof serverSchema>
 
 /** Create server helper */
 export const createServer = (payload: ServerPayload) =>
-  deepMerge(serverSchema.parse({}), payload)
+  deepMerge(serverSchema.parse({}), payload as Partial<Server>)

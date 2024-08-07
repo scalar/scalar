@@ -31,7 +31,11 @@ export type RequestExampleParameterPayload = z.input<
 /** Create request example parameter helper */
 export const createRequestExampleParameter = (
   payload: RequestExampleParameterPayload,
-) => deepMerge(requestExampleParametersSchema.parse({}), payload)
+) =>
+  deepMerge(
+    requestExampleParametersSchema.parse({}),
+    payload as Partial<RequestExampleParameter>,
+  )
 
 const requestExampleSchema = z.object({
   uid: nanoidSchema,
@@ -92,5 +96,5 @@ export type RequestExamplePayload = z.input<typeof requestExampleSchema>
 export const createRequestExample = (payload: RequestExamplePayload) =>
   deepMerge(
     requestExampleSchema.parse({ requestUid: payload.requestUid }),
-    payload,
+    payload as Partial<RequestExample>,
   )
