@@ -107,6 +107,7 @@ onMounted(setActiveEnvironment)
                   color: environment.color,
                   isDefault: environment.isDefault,
                 }"
+                :warningMessage="`Are you sure you want to delete this environment?`"
                 @click="activeEnvironmentID = environment.uid"
                 @delete="removeEnvironmentVariable(environment.uid)" />
             </SidebarList>

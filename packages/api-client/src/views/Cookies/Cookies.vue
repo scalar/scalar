@@ -144,6 +144,7 @@ onMounted(() => {
                         :key="cookie.uid"
                         class="cookie text-xs"
                         :variable="{ name: cookie.name, uid: cookie.uid }"
+                        :warningMessage="`Are you sure you want to delete this cookie?`"
                         @delete="removeCookie(cookie.uid)" />
                     </div>
                   </div>
