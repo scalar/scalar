@@ -43,9 +43,9 @@ const startDrag = (event: MouseEvent) => {
     isDragging.value = true
     document.body.classList.add('dragging')
     let newWidth = startWidth + dragEvent.clientX - startX
-    if (newWidth > 360) {
+    if (newWidth > 420) {
       /** Elastic effect */
-      newWidth = 360 + (newWidth - 360) * 0.2
+      newWidth = 420 + (newWidth - 420) * 0.2
     }
     if (newWidth < 240) {
       newWidth = 0
@@ -55,7 +55,7 @@ const startDrag = (event: MouseEvent) => {
     }
     sidebarWidth.value = `${newWidth}px`
     /** Limit max width to be stored as 360px */
-    localStorage.setItem('sidebarWidth', `${Math.min(newWidth, 360)}px`)
+    localStorage.setItem('sidebarWidth', `${Math.min(newWidth, 420)}px`)
   }
 
   const stopDrag = () => {
@@ -64,7 +64,7 @@ const startDrag = (event: MouseEvent) => {
     document.documentElement.removeEventListener('mousemove', doDrag, false)
     document.documentElement.removeEventListener('mouseup', stopDrag, false)
     /** Reset to max width if exceeded */
-    if (parseInt(sidebarWidth.value, 10) > 360) {
+    if (parseInt(sidebarWidth.value, 10) > 420) {
       sidebarWidth.value = '360px'
     }
   }
@@ -97,7 +97,7 @@ onMounted(() => {
   <aside
     v-show="props.showSideBar"
     ref="sidebarRef"
-    class="sidebar overflow-hidden relative flex flex-col border-r bg-b-1"
+    class="sidebar overflow-hidden relative flex flex-col border-r-1/2 bg-b-1"
     :class="{ dragging: isDragging }"
     :style="{ width: sidebarWidth }">
     <slot name="header" />
@@ -151,7 +151,6 @@ onMounted(() => {
 }
 .dragging {
   cursor: col-resize;
-  transition: width 0.1s;
 }
 .dragging::before {
   content: '';
