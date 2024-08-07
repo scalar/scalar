@@ -3,6 +3,9 @@
  */
 export const HOTKEY_EVENT_NAMES = [
   'closeModal',
+  'commandPaletteDown',
+  'commandPaletteSelect',
+  'commandPaletteUp',
   'openCommandPalette',
   'toggleSidebar',
 ] as const
@@ -12,6 +15,8 @@ export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
  * Array of all of the hotkeys that we support
  *
  * Space is a special case because its actually ' ' but we name it space here and will handle it separately
+ * If you need more
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
  */
 export const KEYDOWN_KEYS = [
   'Space',
@@ -19,6 +24,15 @@ export const KEYDOWN_KEYS = [
   'Tab',
   'Enter',
   'Escape',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowUp',
+  'End',
+  'Home',
+  'PageDown',
+  'PageUp',
+  'Delete',
   '0',
   '1',
   '2',

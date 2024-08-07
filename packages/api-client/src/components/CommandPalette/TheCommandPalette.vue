@@ -32,7 +32,6 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -97,7 +96,6 @@ const availableCommands = [
 ] as const
 type Command = (typeof availableCommands)[number]['commands'][number]
 
-const keys = useMagicKeys()
 const modalState = useModal()
 const { push } = useRouter()
 const { activeWorkspace } = useWorkspace()
@@ -126,49 +124,6 @@ const closeHandler = () => {
   selectedSearchResult.value = -1
 }
 
-whenever(keys.enter, () => {
-  if (!modalState.open || selectedSearchResult.value === -1) return
-
-  const command =
-    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
-
-  executeCommand(command)
-})
-
-whenever(keys.ArrowDown, () => {
-  if (!modalState.open) return
-
-  if (
-    selectedSearchResult.value <
-    searchResultsWithPlaceholderResults.value.length - 1
-  ) {
-    selectedSearchResult.value++
-  } else {
-    selectedSearchResult.value = 0
-  }
-
-  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-  })
-})
-
-whenever(keys.ArrowUp, () => {
-  if (!modalState.open) return
-
-  if (selectedSearchResult.value > 0) {
-    selectedSearchResult.value--
-  } else {
-    selectedSearchResult.value =
-      searchResultsWithPlaceholderResults.value.length - 1
-  }
-
-  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
-    behavior: 'smooth',
-    block: 'center',
-  })
-})
-
 /** Handle execution of the command, some have routes while others show another palette */
 const executeCommand = (
   command: (typeof availableCommands)[number]['commands'][number],
@@ -195,15 +150,42 @@ const openCommandPalette = ({
   commandInputRef.value?.focus()
 }
 
+/** Handle up and down arrow keys in the menu */
+const handleArrowKey = (direction: 'up' | 'down') => {
+  if (!modalState.open) return
+
+  const offset = direction === 'up' ? -1 : 1
+  const length = searchResultsWithPlaceholderResults.value.length
+
+  // Ensures we loop around the array by using the remainder
+  selectedSearchResult.value =
+    (selectedSearchResult.value + offset + length) % length
+
+  commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'center',
+  })
+}
+
+/** Handle enter keydown in the menu */
+const handleSelect = () => {
+  if (selectedSearchResult.value === -1) return
+
+  const command =
+    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+  executeCommand(command)
+}
+
+/** Handle hotkeys */
 const handleHotKey = (event: HotKeyEvents) => {
-  console.log('==========')
-  console.log(event)
-  // Close modal
+  if (!modalState.open) return
   if (event.closeModal) closeHandler()
+  if (event.commandPaletteUp) handleArrowKey('up')
+  if (event.commandPaletteDown) handleArrowKey('down')
+  if (event.commandPaletteSelect) handleSelect()
 }
 
 onMounted(() => {
-  console.log('we moutned')
   commandPaletteBus.on(openCommandPalette)
   hotKeyBus.on(handleHotKey)
 })

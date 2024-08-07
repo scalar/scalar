@@ -30,9 +30,12 @@ export const hotKeyBus = useEventBus(hotKeyBusKey)
  * - if you explicitly set it, the event must match ex: modifier false will not trigger if the modifier was pressed
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
-  Escape: { event: 'closeModal', modifier: false },
+  Escape: { event: 'closeModal' },
   b: { event: 'toggleSidebar', modifier: true },
   k: { event: 'openCommandPalette', modifier: true },
+  ArrowUp: { event: 'commandPaletteUp' },
+  ArrowDown: { event: 'commandPaletteDown' },
+  Enter: { event: 'commandPaletteSelect' },
 }
 
 /** Checks if we are in an "input" */
@@ -67,6 +70,8 @@ export const handleHotKeyDown = (
 ) => {
   const key = ev.key === ' ' ? 'Space' : (ev.key as KeydownKey)
   const hotKeyEvent = hotkeys[key]
+
+  console.log(ev)
 
   // Match the event with possible hotkeys
   if (hotKeyEvent) {
