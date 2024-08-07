@@ -71,8 +71,6 @@ export const handleHotKeyDown = (
   const key = ev.key === ' ' ? 'Space' : (ev.key as KeydownKey)
   const hotKeyEvent = hotkeys[key]
 
-  console.log(ev)
-
   // Match the event with possible hotkeys
   if (hotKeyEvent) {
     // For escape we always send it
