@@ -29,7 +29,7 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 <template>
   <Toaster
     v-if="isClientMounted"
-    :toastOptions="{ class: 'toaster' }">
+    class="scalar-toaster">
   </Toaster>
 </template>
 
@@ -39,7 +39,7 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
 *
 * Original: https://github.com/xiaoluoboding/vue-sonner/blob/311ecc8d9a51b619f968e20f4b44992ad8412850/packages/styles.css#L91-L103
 */
-.toaster[data-sonner-toast][data-styled='true'] {
+.scalar-toaster [data-sonner-toast][data-styled='true'] {
   background: var(--scalar-background-1);
   color: var(--scalar-color-1);
   padding: 18px;
@@ -49,22 +49,24 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
   font-weight: var(--scalar-font-medium);
   box-shadow: var(--scalar-shadow-2);
 }
-.toaster[data-sonner-toast] [data-icon] {
+.scalar-toaster [data-sonner-toast] [data-icon] {
   align-self: start;
+  position: relative;
+  top: 2px;
 }
-.toaster[data-sonner-toast][data-styled='true'][data-expanded='true'] {
+.scalar-toaster [data-sonner-toast][data-styled='true'][data-expanded='true'] {
   height: auto;
 }
-.toaster[data-sonner-toast][data-type='error'] {
+.scalar-toaster [data-sonner-toast][data-type='error'] {
   background: var(--scalar-background-1);
 }
-.toaster[data-sonner-toast][data-type='error'] [data-icon] {
+.scalar-toaster [data-sonner-toast][data-type='error'] [data-icon] {
   color: color-mix(in srgb, var(--scalar-color-red) 75%, var(--scalar-color-1));
 }
-.toaster[data-sonner-toast][data-type='warning'] {
+.scalar-toaster [data-sonner-toast][data-type='warning'] {
   background: var(--scalar-background-1);
 }
-.toaster[data-sonner-toast][data-type='warning'] [data-icon] {
+.scalar-toaster [data-sonner-toast][data-type='warning'] [data-icon] {
   color: color-mix(
     in srgb,
     var(--scalar-color-orange) 90%,
