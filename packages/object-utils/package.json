@@ -67,7 +67,8 @@
   "dependencies": {
     "@vueuse/core": "^10.10.0",
     "just-clone": "^6.2.0",
-    "ts-deepmerge": "^7.0.1"
+    "ts-deepmerge": "^7.0.1",
+    "flatted": "^3.3.1"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

@@ -1,16 +1,4 @@
 import type { useWorkspace } from '@/store/workspace'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
-import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
-import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
-import type {
-  Request,
-  RequestExample,
-} from '@scalar/oas-utils/entities/workspace/spec'
-import { LS_KEYS } from '@scalar/object-utils/mutator-record'
 
 /**
  * Loads all resources from localStorage into mutators on app start
@@ -31,57 +19,13 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
     workspaceMutators,
   } = mutators
 
-  // Collections
-  const collections = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.COLLECTION) || '{}'),
-  ) as Collection[]
-  collections.forEach(collectionMutators.rawAdd)
-
-  // Cookies
-  const cookies = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.COOKIE) || '{}'),
-  ) as Cookie[]
-  cookies.forEach(cookieMutators.add)
-
-  // Environments
-  const environments = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.ENVIRONMENT) || '{}'),
-  ) as Environment[]
-  environments.forEach(environmentMutators.add)
-
-  // Folders
-  const folders = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.FOLDER) || '{}'),
-  ) as Folder[]
-  folders.forEach(folderMutators.rawAdd)
-
-  // Request Examples
-  const requestExamples = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.REQUEST_EXAMPLE) || '{}'),
-  ) as RequestExample[]
-  requestExamples.forEach(requestExampleMutators.rawAdd)
-
-  // Requests
-  const requests = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.REQUEST) || '{}'),
-  ) as Request[]
-  requests.forEach(requestMutators.rawAdd)
-
-  // Servers
-  const servers = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.SERVER) || '{}'),
-  ) as Server[]
-  servers.forEach(serverMutators.rawAdd)
-
-  // Security Schemes
-  const securitySchemes = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.SECURITY_SCHEME) || '{}'),
-  ) as SecurityScheme[]
-  securitySchemes.forEach(securitySchemeMutators.rawAdd)
-
-  // Workspace
-  const workspaces = Object.values(
-    JSON.parse(localStorage.getItem(LS_KEYS.WORKSPACE) || '{}'),
-  ) as Workspace[]
-  workspaces.forEach(workspaceMutators.rawAdd)
+  collectionMutators.loadLocalStorage()
+  cookieMutators.loadLocalStorage()
+  environmentMutators.loadLocalStorage()
+  folderMutators.loadLocalStorage()
+  requestExampleMutators.loadLocalStorage()
+  requestMutators.loadLocalStorage()
+  serverMutators.loadLocalStorage()
+  securitySchemeMutators.loadLocalStorage()
+  workspaceMutators.loadLocalStorage()
 }

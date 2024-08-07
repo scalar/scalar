@@ -1,6 +1,7 @@
 import { Mutation } from '@/mutator-record/mutations'
 import type { Path, PathValue } from '@/nested'
 import { useDebounceFn } from '@vueuse/core'
+import { parse, stringify } from 'flatted'
 import type { ValueOf } from 'type-fest'
 
 import { LS_CONFIG, type LS_KEYS } from './local-storage'
@@ -30,19 +31,34 @@ export function mutationFactory<
   /** Triggers on any changes so we can save to localStorage */
   const onChange = localStorageKey
     ? useDebounceFn(
-        () => localStorage.setItem(localStorageKey, JSON.stringify(entityMap)),
+        () => localStorage.setItem(localStorageKey, stringify(entityMap)),
         LS_CONFIG.DEBOUNCE_MS,
         { maxWait: LS_CONFIG.MAX_WAIT_MS },
       )
     : () => null
 
+  /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
+  function add(item: T) {
+    entityMap[item.uid] = item
+    mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
+    onChange()
+  }
+
+  /** Load the previous entity map state from localStorage into the active state */
+  function loadLocalStorage() {
+    if (!localStorageKey) return
+
+    const instances = Object.values(
+      parse(localStorage.getItem(localStorageKey) || '{}'),
+    ) as T[]
+
+    // TODO: Validation should be provided for each entity
+    instances.forEach(add)
+  }
+
   return {
     /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
-    add: (item: T) => {
-      entityMap[item.uid] = item
-      mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
-      onChange()
-    },
+    add,
     delete: (uid: string) => {
       delete entityMap[uid]
       delete mutationMap[uid]
@@ -82,5 +98,6 @@ export function mutationFactory<
       mutator?.redo()
       onChange()
     },
+    loadLocalStorage,
   }
 }
