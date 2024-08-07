@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.22
+
+### Patch Changes
+
+- 60e63d3: fix(themes): sets a default for scalar brightness filters
+
 ## 0.9.21
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.28
+
+### Patch Changes
+
+- dba83e4: Support circular refs
+- Updated dependencies [60e63d3]
+- Updated dependencies [dba83e4]
+  - @scalar/themes@0.9.22
+  - @scalar/object-utils@1.1.6
+
 ## 0.2.27
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.5
+
+### Patch Changes
+
+- db92a85: fix(use-toasts): set parent class for scalar toasts
+
 ## 0.7.4
 
 ### Patch Changes

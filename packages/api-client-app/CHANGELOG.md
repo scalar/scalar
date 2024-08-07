@@ -1,5 +1,18 @@
 # scalar-api-client
 
+## 0.1.18
+
+### Patch Changes
+
+- e996774: feat: drag’n’drop files and URLs
+- Updated dependencies [b00e50e]
+- Updated dependencies [df7372f]
+- Updated dependencies [6f0632e]
+- Updated dependencies [3023afe]
+- Updated dependencies [711ad03]
+- Updated dependencies [14ed31f]
+  - @scalar/api-client@2.0.47
+
 ## 0.1.17
 
 ### Patch Changes

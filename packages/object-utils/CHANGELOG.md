@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.6
+
+### Patch Changes
+
+- dba83e4: Support circular refs
+
 ## 1.1.5
 
 ### Patch Changes
