@@ -213,7 +213,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
                 :item="item"
                 :parentUids="parentUids" />
             </div>
-            <span class="flex">
+            <span class="flex items-start">
               &hairsp;
               <HttpMethod
                 class="font-bold"
@@ -230,7 +230,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.uid)">
-        <span class="z-10 flex h-fit items-center justify-center max-w-[14px]">
+        <span class="z-10 flex h-5 items-center justify-center max-w-[14px]">
           <slot name="leftIcon">
             <div
               :class="{
