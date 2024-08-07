@@ -8,7 +8,12 @@ import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
+import {
+  cancelRequestBus,
+  executeRequestBus,
+  requestStatusBus,
+  sendRequest,
+} from '@/libs'
 import {
   type HotKeyEvents,
   commandPaletteBus,
@@ -71,6 +76,7 @@ const {
 
 const isNarrow = useMediaQuery('(max-width: 780px)')
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+const requestAbortController = ref<AbortController>()
 
 /** Show / hide the sidebar when we resize the screen */
 watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
@@ -129,6 +135,7 @@ const executeRequest = async () => {
 
   requestStatusBus.emit('start')
   try {
+    requestAbortController.value = new AbortController()
     const { request, response, error } = await sendRequest(
       activeRequest.value,
       activeExample.value,
@@ -136,6 +143,7 @@ const executeRequest = async () => {
       activeSecuritySchemes.value,
       activeWorkspace.value?.proxyUrl,
       cookies,
+      requestAbortController.value?.signal,
     )
 
     if (request && response) {
@@ -149,7 +157,8 @@ const executeRequest = async () => {
       ])
       requestStatusBus.emit('stop')
     } else {
-      toast(error?.message ?? 'Send Request Failed', 'error')
+      if (error?.code !== 'ERR_CANCELED')
+        toast(error?.message ?? 'Send Request Failed', 'error')
       requestStatusBus.emit('abort')
     }
   } catch (error) {
@@ -186,8 +195,11 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
 }
 
+/** Cancel a live request */
+const cancelRequest = async () => requestAbortController.value?.abort()
 onMounted(() => {
   executeRequestBus.on(executeRequest)
+  cancelRequestBus.on(cancelRequest)
   hotKeyBus.on(handleHotKey)
 })
 
