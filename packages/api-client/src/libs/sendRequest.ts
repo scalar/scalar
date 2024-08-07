@@ -14,7 +14,11 @@ import {
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import axios, { type AxiosError, type AxiosRequestConfig } from 'axios'
+import axios, {
+  type AxiosError,
+  type AxiosRequestConfig,
+  type GenericAbortSignal,
+} from 'axios'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -55,6 +59,7 @@ export const sendRequest = async (
   securitySchemes?: SecurityScheme[],
   proxyUrl?: string,
   workspaceCookies?: Record<string, Cookie>,
+  abortSignal?: GenericAbortSignal,
 ): Promise<{
   sentTime?: number
   request?: RequestExample
@@ -219,6 +224,7 @@ export const sendRequest = async (
     method: request.method,
     responseType: 'arraybuffer',
     headers,
+    signal: abortSignal,
   }
 
   if (data) config.data = data
