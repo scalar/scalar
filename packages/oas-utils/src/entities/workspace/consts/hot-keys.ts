@@ -1,7 +1,11 @@
 /**
  * Array of all of the events that we support
  */
-export const HOTKEY_EVENT_NAMES = ['closeModal'] as const
+export const HOTKEY_EVENT_NAMES = [
+  'closeModal',
+  'openCommandPalette',
+  'toggleSidebar',
+] as const
 export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
 
 /**

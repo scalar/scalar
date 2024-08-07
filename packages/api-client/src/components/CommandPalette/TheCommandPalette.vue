@@ -35,9 +35,13 @@ import { ScalarIcon, useModal } from '@scalar/components'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { isMacOS } from '@scalar/use-tooltip'
 
-import { commandPaletteBus, type CommandPaletteEvent } from '@/libs'
+import {
+  commandPaletteBus,
+  hotKeyBus,
+  type HotKeyEvents,
+  type CommandPaletteEvent,
+} from '@/libs'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -119,14 +123,8 @@ const closeHandler = () => {
   modalState.hide()
   commandQuery.value = ''
   activeCommand.value = null
-  window.removeEventListener('keydown', handleKeyDown, true)
   selectedSearchResult.value = -1
 }
-
-/** Close on escape */
-whenever(keys.escape, () => {
-  if (modalState.open) closeHandler()
-})
 
 whenever(keys.enter, () => {
   if (!modalState.open || selectedSearchResult.value === -1) return
@@ -195,29 +193,23 @@ const openCommandPalette = ({
   metaData.value = _metaData
   modalState.show()
   commandInputRef.value?.focus()
-  window.addEventListener('keydown', handleKeyDown, true)
 }
 
-onMounted(() => commandPaletteBus.on(openCommandPalette))
-onBeforeUnmount(() => commandPaletteBus.off(openCommandPalette))
-
-const isSubmitKeyCombo = (event: KeyboardEvent) => {
-  if (isMacOS()) {
-    return event.metaKey && event.key === 'Enter'
-  } else {
-    return event.ctrlKey && event.key === 'Enter'
-  }
+const handleHotKey = (event: HotKeyEvents) => {
+  console.log('==========')
+  console.log(event)
+  // Close modal
+  if (event.closeModal) closeHandler()
 }
 
-const handleKeyDown = (event: KeyboardEvent) => {
-  if (isSubmitKeyCombo(event) && !activeCommand.value) {
-    event.stopPropagation()
-    event.preventDefault()
-  }
-}
-
+onMounted(() => {
+  console.log('we moutned')
+  commandPaletteBus.on(openCommandPalette)
+  hotKeyBus.on(handleHotKey)
+})
 onBeforeUnmount(() => {
-  window.removeEventListener('keydown', handleKeyDown, true)
+  commandPaletteBus.off(openCommandPalette)
+  hotKeyBus.off(handleHotKey)
 })
 </script>
 <template>

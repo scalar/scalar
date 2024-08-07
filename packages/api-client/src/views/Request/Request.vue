@@ -9,7 +9,11 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
 import { executeRequestBus, requestStatusBus, sendRequest } from '@/libs'
-import { commandPaletteBus } from '@/libs/event-busses/command-palette'
+import {
+  type HotKeyEvents,
+  commandPaletteBus,
+  hotKeyBus,
+} from '@/libs/event-busses'
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
@@ -43,9 +47,11 @@ const {
   requestMutators,
   workspaceMutators,
 } = useWorkspace()
+
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { toast } = useToasts()
 const searchModalState = useModal()
+
 const isNarrow = useMediaQuery('(max-width: 780px)')
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
@@ -135,14 +141,28 @@ const executeRequest = async () => {
     requestStatusBus.emit('abort')
   }
 }
-onMounted(() => executeRequestBus.on(executeRequest))
+
+const handleHotKey = (event: HotKeyEvents) => {
+  // Toggle the sidebar
+  if (event.toggleSidebar) showSideBar.value = !showSideBar.value
+  // Open the command palette
+  if (event.openCommandPalette) commandPaletteBus.emit()
+}
+
+onMounted(() => {
+  executeRequestBus.on(executeRequest)
+  hotKeyBus.on(handleHotKey)
+})
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak
  *
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
-onBeforeUnmount(() => executeRequestBus.off(executeRequest))
+onBeforeUnmount(() => {
+  executeRequestBus.off(executeRequest)
+  hotKeyBus.off(handleHotKey)
+})
 
 /** Mutate folder OR collection */
 const mutate = (uid: string, childUids: string[]) => {
@@ -213,30 +233,6 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 
     mutate(hoveredParentUid, newChildUids)
   }
-}
-
-/* Opens the Command Palette */
-const addItemHandler = () => commandPaletteBus.emit()
-
-const keys = useMagicKeys()
-
-useEventListener(document, 'keydown', (event) => {
-  if ((isMacOS() ? keys.meta.value : keys.ctrl.value) && event.key === 'b') {
-    showSideBar.value = !showSideBar.value
-  }
-  if (
-    !activeWorkspace.value.isReadOnly &&
-    (isMacOS() ? keys.meta.value : keys.ctrl.value) &&
-    event.key === 'k'
-  ) {
-    commandPaletteBus.emit()
-  }
-})
-
-const getBackgroundColor = () => {
-  if (!activeRequest.value) return ''
-  const { method } = activeRequest.value
-  return REQUEST_METHODS[method as RequestMethod].backgroundColor
 }
 
 /** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
@@ -346,7 +342,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
             :class="{
               'empty-sidebar-item': activeWorkspaceRequests.length === 1,
             }"
-            :click="addItemHandler">
+            :click="commandPaletteBus.emit">
             <template #title>Add Item</template>
           </SidebarButton>
         </template>
