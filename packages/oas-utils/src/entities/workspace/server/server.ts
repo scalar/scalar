@@ -1,4 +1,4 @@
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -56,4 +56,4 @@ export type ServerPayload = z.input<typeof serverSchema>
 
 /** Create server helper */
 export const createServer = (payload: ServerPayload) =>
-  deepMerge(serverSchema.parse({}), payload)
+  deepMerge(serverSchema.parse({}), payload as Partial<Server>)

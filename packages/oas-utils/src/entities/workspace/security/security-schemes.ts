@@ -1,4 +1,4 @@
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -162,5 +162,5 @@ export const createSecurityScheme = (payload: SecuritySchemePayload) =>
         ? { type: payload.type, flow: { type: payload.flow.type } }
         : { type: payload.type },
     ),
-    payload,
+    payload as Partial<SecurityScheme>,
   )

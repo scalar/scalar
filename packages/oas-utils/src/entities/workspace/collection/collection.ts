@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 import { securityRequirement } from '../security'
@@ -138,4 +138,4 @@ export type CollectionPayload = z.input<typeof collectionSchema>
 
 /** Create Collction helper */
 export const createCollection = (payload: CollectionPayload): Collection =>
-  deepMerge(collectionSchema.parse({}), payload)
+  deepMerge(collectionSchema.parse({}), payload as Partial<Collection>)

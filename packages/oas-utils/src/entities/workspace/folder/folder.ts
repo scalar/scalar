@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 const folderSchema = z.object({

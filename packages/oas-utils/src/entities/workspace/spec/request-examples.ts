@@ -1,5 +1,5 @@
 import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@/helpers'
+import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
 const requestExampleParametersSchema = z.object({
@@ -31,7 +31,11 @@ export type RequestExampleParameterPayload = z.input<
 /** Create request example parameter helper */
 export const createRequestExampleParameter = (
   payload: RequestExampleParameterPayload,
-) => deepMerge(requestExampleParametersSchema.parse({}), payload)
+) =>
+  deepMerge(
+    requestExampleParametersSchema.parse({}),
+    payload as Partial<RequestExampleParameter>,
+  )
 
 const requestExampleSchema = z.object({
   uid: nanoidSchema,
@@ -92,5 +96,5 @@ export type RequestExamplePayload = z.input<typeof requestExampleSchema>
 export const createRequestExample = (payload: RequestExamplePayload) =>
   deepMerge(
     requestExampleSchema.parse({ requestUid: payload.requestUid }),
-    payload,
+    payload as Partial<RequestExample>,
   )
