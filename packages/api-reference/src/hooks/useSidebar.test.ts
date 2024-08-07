@@ -754,4 +754,83 @@ describe('useSidebar', async () => {
       ],
     })
   })
+
+  it('adds heading to the sidebar', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+          description: '# Foobar',
+        },
+        paths: {},
+      }),
+    ).toMatchObject({
+      titles: {},
+      entries: [
+        {
+          id: 'description/foobar',
+          title: 'Foobar',
+          children: [],
+        },
+      ],
+    })
+  })
+
+  it('adds two levels of headings to the sidebar', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+          description: '# Foobar\n\n## Barfoo',
+        },
+        paths: {},
+      }),
+    ).toMatchObject({
+      titles: {},
+      entries: [
+        {
+          id: 'description/foobar',
+          title: 'Foobar',
+          children: [
+            {
+              id: 'description/barfoo',
+              title: 'Barfoo',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('doesn’t add third level of headings', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+          description: '# Foobar\n\n## Barfoo\n\n### Foofoo',
+        },
+        paths: {},
+      }),
+    ).toMatchObject({
+      titles: {},
+      entries: [
+        {
+          id: 'description/foobar',
+          title: 'Foobar',
+          children: [
+            {
+              id: 'description/barfoo',
+              title: 'Barfoo',
+            },
+          ],
+        },
+      ],
+    })
+  })
 })
