@@ -30,10 +30,10 @@ async def scalar_html():
     )
 ```
 
-
 ## Configuration
 
 Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+
 - `layout` (default `Layout.MODERN`)
 - `show_sidebar` (defualt `true`)
 - `hide_download_button` (default `false`)
