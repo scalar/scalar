@@ -5,6 +5,7 @@ import {
   ScalarComboboxMultiselect,
   type ScalarComboboxOption,
 } from './components/ScalarCombobox'
+import { ScalarContextMenu } from './components/ScalarContextMenu'
 import {
   ScalarDropdown,
   ScalarDropdownDivider,
@@ -50,6 +51,7 @@ export {
   ScalarIconButton,
   ScalarListbox,
   ScalarLoading,
+  ScalarContextMenu,
   ScalarModal,
   ScalarPopover,
   ScalarSearchInput,

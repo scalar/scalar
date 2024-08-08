@@ -483,11 +483,19 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
 
   /** Prevent deletion of the default workspace */
   const deleteWorkspace = (uid: string) => {
-    if (uid === 'default') {
-      console.warn('Default environment cannot be deleted.')
+    if (Object.keys(workspaces).length <= 1) {
+      console.warn('The last workspace cannot be deleted.')
       return
     }
     workspaceMutators.delete(uid)
+  }
+
+  const renameWorkspace = (uid: string, newName: string) => {
+    if (workspaces[uid]) {
+      workspaceMutators.edit(uid, 'name', newName)
+    } else {
+      console.warn(`Workspace with uid ${uid} not found.`)
+    }
   }
 
   /** The currently selected workspace OR the first one */
@@ -1041,6 +1049,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       rawAdd: workspaceMutators.add,
       add: addWorkspace,
       delete: deleteWorkspace,
+      rename: renameWorkspace,
     },
   }
 }

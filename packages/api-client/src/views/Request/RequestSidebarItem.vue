@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useSidebar } from '@/hooks'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store/workspace'
-import { ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarContextMenu,
+  ScalarIcon,
+  ScalarModal,
+  ScalarTextField,
+  useModal,
+} from '@scalar/components'
 import {
   Draggable,
   type DraggableProps,
@@ -17,7 +25,7 @@ import type {
   RequestExample,
 } from '@scalar/oas-utils/entities/workspace/spec'
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 
 import RequestSidebarItemMenu from './RequestSidebarItemMenu.vue'
 
@@ -59,7 +67,12 @@ const {
   isReadOnly,
   requests,
   requestExamples,
+  collectionMutators,
+  folderMutators,
+  requestMutators,
+  requestExampleMutators,
 } = useWorkspace()
+const { replace } = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 const hasChildren = computed(() => 'childUids' in props.item)
@@ -164,6 +177,83 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 
   return true
 }
+
+const tempName = ref('')
+const renameModal = useModal()
+const deleteModal = useModal()
+
+const handleItemRename = () => {
+  // Request
+  if ('summary' in props.item) {
+    requestMutators.edit(props.item.uid, 'summary', tempName.value)
+  }
+  // Example
+  else if ('requestUid' in props.item) {
+    requestExampleMutators.edit(props.item.uid, 'name', tempName.value)
+  }
+  // Collection
+  else if ('spec' in props.item) {
+    collectionMutators.edit(props.item.uid, 'spec.info.title', tempName.value)
+  }
+  // Folder
+  else {
+    folderMutators.edit(props.item.uid, 'name', tempName.value)
+  }
+
+  renameModal.hide()
+}
+
+const openRenameModal = () => {
+  tempName.value = getTitle(props.item) || ''
+  renameModal.show()
+}
+
+/** Delete handles both requests and requestExamples */
+const handleItemDelete = () => {
+  // Delete example
+  if ('requestUid' in props.item) {
+    requestExampleMutators.delete(props.item)
+    if (activeRouterParams.value[PathId.Examples] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value}/request/default`)
+    }
+  }
+  // Delete request
+  else if ('summary' in props.item) {
+    requestMutators.delete(
+      props.item,
+      props.parentUids[props.parentUids.length - 1],
+    )
+    if (activeRouterParams.value[PathId.Request] === props.item.uid) {
+      replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+    }
+  }
+  // Delete Collection
+  else if ('spec' in props.item) {
+    collectionMutators.delete(props.item)
+  }
+  // Delete folder
+  else if ('name' in props.item) {
+    folderMutators.delete(
+      props.item,
+      props.parentUids[props.parentUids.length - 1],
+    )
+  }
+}
+
+const itemName = computed(() => {
+  if ('summary' in props.item) return props.item.summary || ''
+  if ('name' in props.item) return props.item.name || ''
+  if ('spec' in props.item) return props.item.spec.info?.title || ''
+  return ''
+})
+
+/** Gets the title of the resource to use in the modal titles */
+const resourceTitle = computed(() => {
+  if ('requestUid' in props.item) return 'Example'
+  if ('summary' in props.item) return 'Request'
+  if ('spec' in props.item) return 'Collection'
+  return 'Folder'
+})
 </script>
 <template>
   <div
@@ -190,82 +280,117 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
         v-slot="{ isExactActive }"
         class="no-underline"
         :to="generateLink()">
-        <div
-          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover"
-          :class="[
-            highlightClasses,
-            isExactActive || isDefaultActive
-              ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
-              : 'text-sidebar-c-2',
-          ]"
-          tabindex="0">
-          <span
-            class="z-10 font-medium w-full pl-2 word-break-break-word"
-            :class="{
-              'editable-sidebar-hover-item': !isReadOnly,
-            }">
-            {{ getTitle(item) }}
-          </span>
-          <div class="flex flex-row gap-1 items-center">
-            <div class="relative">
-              <RequestSidebarItemMenu
-                v-if="!isReadOnly"
-                :item="item"
-                :parentUids="parentUids" />
+        <ScalarContextMenu :disabled="isReadOnly">
+          <template #trigger>
+            <div
+              class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
+              :class="[
+                highlightClasses,
+                isExactActive || isDefaultActive
+                  ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
+                  : 'text-sidebar-c-2',
+              ]"
+              tabindex="0">
+              <span
+                class="z-10 font-medium w-full pl-2 word-break-break-word"
+                :class="{
+                  'editable-sidebar-hover-item': !isReadOnly,
+                }">
+                {{ getTitle(item) }}
+              </span>
+              <div class="flex flex-row gap-1 items-center">
+                <div class="relative">
+                  <RequestSidebarItemMenu
+                    v-if="!isReadOnly"
+                    :item="item"
+                    :parentUids="parentUids"
+                    :resourceTitle="resourceTitle"
+                    @delete="deleteModal.show()"
+                    @rename="openRenameModal" />
+                </div>
+                <span class="flex items-start">
+                  &hairsp;
+                  <HttpMethod
+                    class="font-bold"
+                    :method="method" />
+                </span>
+              </div>
             </div>
-            <span class="flex items-start">
-              &hairsp;
-              <HttpMethod
-                class="font-bold"
-                :method="method" />
-            </span>
-          </div>
-        </div>
+          </template>
+          <template #content>
+            <RequestSidebarItemMenu
+              :item="item"
+              :parentUids="parentUids"
+              :resourceTitle="resourceTitle"
+              static
+              @delete="deleteModal.show()"
+              @rename="openRenameModal" />
+          </template>
+        </ScalarContextMenu>
       </RouterLink>
 
       <!-- Collection/Folder -->
-      <button
+      <ScalarContextMenu
         v-else-if="!isReadOnly || parentUids.length"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
-        :class="highlightClasses"
-        type="button"
-        @click="toggleSidebarFolder(item.uid)">
-        <span class="z-10 flex h-5 items-center justify-center max-w-[14px]">
-          <slot name="leftIcon">
+        :disabled="isReadOnly">
+        <template #trigger>
+          <button
+            class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
+            :class="highlightClasses"
+            type="button"
+            @click="toggleSidebarFolder(item.uid)">
+            <span
+              class="z-10 flex h-5 items-center justify-center max-w-[14px]">
+              <slot name="leftIcon">
+                <div
+                  :class="{
+                    'rotate-90': collapsedSidebarFolders[item.uid],
+                  }">
+                  <ScalarIcon
+                    class="text-c-3 text-sm"
+                    icon="ChevronRight"
+                    size="sm"
+                    thickness="2.5" />
+                </div>
+              </slot>
+              &hairsp;
+            </span>
             <div
-              :class="{
-                'rotate-90': collapsedSidebarFolders[item.uid],
-              }">
-              <ScalarIcon
-                class="text-c-3 text-sm"
-                icon="ChevronRight"
-                size="sm"
-                thickness="2.5" />
+              class="flex flex-1 flex-row justify-between editable-sidebar-hover">
+              <span
+                class="z-10 font-medium text-left w-full word-break-break-word"
+                :class="{
+                  'editable-sidebar-hover-item': !isReadOnly,
+                }">
+                {{ getTitle(item) }}
+              </span>
+              <div class="relative flex h-fit">
+                <RequestSidebarItemMenu
+                  v-if="
+                    !isReadOnly &&
+                    (item as Collection).spec?.info?.title !== 'Drafts'
+                  "
+                  :item="item"
+                  :parentUids="parentUids"
+                  :resourceTitle="resourceTitle" />
+                <span>&hairsp;</span>
+              </div>
             </div>
-          </slot>
-          &hairsp;
-        </span>
-        <div
-          class="flex flex-1 flex-row justify-between editable-sidebar-hover">
-          <span
-            class="z-10 font-medium text-left w-full word-break-break-word"
-            :class="{
-              'editable-sidebar-hover-item': !isReadOnly,
-            }">
-            {{ getTitle(item) }}
-          </span>
-          <div class="relative flex h-fit">
-            <RequestSidebarItemMenu
-              v-if="
-                !isReadOnly &&
-                (item as Collection).spec?.info?.title !== 'Drafts'
-              "
-              :item="item"
-              :parentUids="parentUids" />
-            <span>&hairsp;</span>
-          </div>
-        </div>
-      </button>
+          </button>
+        </template>
+        <template #content>
+          <RequestSidebarItemMenu
+            v-if="
+              !isReadOnly && (item as Collection).spec?.info?.title !== 'Drafts'
+            "
+            :item="item"
+            :parentUids="parentUids"
+            :resourceTitle="resourceTitle"
+            static
+            @delete="deleteModal.show()"
+            @rename="openRenameModal" />
+        </template>
+      </ScalarContextMenu>
 
       <!-- Children -->
       <div
@@ -283,6 +408,39 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
       </div>
     </Draggable>
   </div>
+  <ScalarModal
+    :size="'sm'"
+    :state="deleteModal"
+    :title="`Delete ${resourceTitle}`">
+    <DeleteSidebarListElement
+      :variableName="itemName"
+      warningMessage="Warning: Deleting this will delete all items inside of this"
+      @close="deleteModal.hide()"
+      @delete="handleItemDelete" />
+  </ScalarModal>
+  <ScalarModal
+    :state="renameModal"
+    :title="`Rename ${resourceTitle}`">
+    <ScalarTextField
+      v-model="tempName"
+      :label="resourceTitle"
+      labelShadowColor="var(--scalar-background-1)"
+      @keydown.prevent.enter="handleItemRename" />
+    <div class="flex gap-3">
+      <ScalarButton
+        class="flex-1"
+        variant="outlined"
+        @click="renameModal.hide()">
+        Cancel
+      </ScalarButton>
+      <ScalarButton
+        class="flex-1"
+        type="submit"
+        @click="handleItemRename">
+        Save
+      </ScalarButton>
+    </div>
+  </ScalarModal>
 </template>
 
 <style>
