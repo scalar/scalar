@@ -208,8 +208,8 @@ jobs:
           files_yaml: |
             api_client_app:
               - packages/api-client-app/package.json
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Build the app in the toDesktop cloud
+      # if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+      - name: Build the app in the toDesktop cloud
         working-directory: packages/api-client-app
         run: pnpm todesktop build
         env:
