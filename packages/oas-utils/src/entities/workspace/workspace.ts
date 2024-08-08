@@ -14,7 +14,7 @@ export type HotKeyModifier = z.infer<typeof modifier>
 const hotKeys = z.record(
   z.enum(KEYDOWN_KEYS),
   z.object({
-    modifier: z.boolean().optional(),
+    modifier: modifier.optional(),
     event: z.enum(HOTKEY_EVENT_NAMES),
   }),
 )

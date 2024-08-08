@@ -31,8 +31,8 @@ export const hotKeyBus = useEventBus(hotKeyBusKey)
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Escape: { event: 'closeModal' },
-  b: { event: 'toggleSidebar', modifier: true },
-  k: { event: 'openCommandPalette', modifier: true },
+  b: { event: 'toggleSidebar', modifier: 'default' },
+  k: { event: 'openCommandPalette', modifier: 'default' },
   ArrowUp: { event: 'commandPaletteUp' },
   ArrowDown: { event: 'commandPaletteDown' },
   Enter: { event: 'commandPaletteSelect' },
@@ -74,20 +74,27 @@ export const handleHotKeyDown = (
   // Match the event with possible hotkeys
   if (hotKeyEvent) {
     // For escape we always send it
-    if (key === 'Escape') hotKeyBus.emit({ [hotKeyEvent.event]: ev })
-    else {
+    if (key === 'Escape') {
+      hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+    } else {
       const _modifier = getModifier(modifier)
+      const isDefaultModifierPressed =
+        modifier === 'default' && ev[_modifier] === true
 
       // Check for modifier as its defined
       if (
-        ev[_modifier] === hotKeyEvent.modifier &&
-        // We still need to check if its an input for !modifier
-        (hotKeyEvent.modifier || !isInput(ev.target))
+        (isDefaultModifierPressed ||
+          (hotKeyEvent.modifier &&
+            /** Ensure the modifier key is pressed */
+            ev[getModifier(hotKeyEvent.modifier)] === true)) &&
+        /** We still need to check if its an input for !modifier */
+        !isInput(ev.target)
       ) {
         hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+      } else if (!isInput(ev.target) && hotKeyEvent.modifier === undefined) {
+        /** Check if we are in an input as modifier === 'undefined' */
+        hotKeyBus.emit({ [hotKeyEvent.event]: ev })
       }
-      // Check if we are in an input as modifier === 'undefined'
-      else if (!isInput(ev.target)) hotKeyBus.emit({ [hotKeyEvent.event]: ev })
     }
   }
 }
