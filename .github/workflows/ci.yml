@@ -178,7 +178,8 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   todesktop-release:
-    if: github.ref == 'refs/heads/main'
+    # TODO: Eventually we want to build only the main branch.
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
     permissions:
       contents: write
@@ -210,11 +211,12 @@ jobs:
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build the app in the toDesktop cloud
         working-directory: packages/api-client-app
-        run: pnpm todesktop build && todesktop release --latest --force
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Release a new version of the app
-        working-directory: packages/api-client-app
-        run: todesktop release --latest --force
+        run: pnpm todesktop build
+      # TODO: Enable this step once everything is working.
+      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+      #   name: Release a new version of the app
+      #   working-directory: packages/api-client-app
+      #   run: todesktop release --latest --force
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
