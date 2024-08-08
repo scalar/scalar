@@ -62,6 +62,7 @@ watch(hash, (newHash, oldHash) => {
     </template>
     <template #sidebar-end>
       <DarkModeToggle
+        v-if="!!!props.configuration.hideDarkModeToggle"
         :isDarkMode="isDark"
         @toggleDarkMode="$emit('toggleDarkMode')" />
     </template>

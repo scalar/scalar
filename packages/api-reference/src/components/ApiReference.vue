@@ -18,6 +18,7 @@ defineEmits<{
 
 const { toggleDarkMode, isDark } = useDarkModeState(
   props.configuration?.darkMode,
+  props.configuration?.forceDarkModeState,
 )
 
 /** Update the dark mode state when props change */
