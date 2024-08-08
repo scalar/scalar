@@ -9,7 +9,7 @@ import type {
 import { isMacOS } from '@scalar/use-tooltip'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-type HotKeyEvents = Record<HotkeyEventName, KeyboardEvent>
+export type HotKeyEvents = Partial<Record<HotkeyEventName, KeyboardEvent>>
 const hotKeyBusKey: EventBusKey<HotKeyEvents> = Symbol()
 
 /** Event bus for hot keys */
@@ -30,8 +30,12 @@ export const hotKeyBus = useEventBus(hotKeyBusKey)
  * - if you explicitly set it, the event must match ex: modifier false will not trigger if the modifier was pressed
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
-  Escape: { event: 'closeModal', modifier: false },
-  // Space: { event: 'closeModal', modifier: false },
+  Escape: { event: 'closeModal' },
+  b: { event: 'toggleSidebar', modifier: true },
+  k: { event: 'openCommandPalette', modifier: true },
+  ArrowUp: { event: 'commandPaletteUp' },
+  ArrowDown: { event: 'commandPaletteDown' },
+  Enter: { event: 'commandPaletteSelect' },
 }
 
 /** Checks if we are in an "input" */

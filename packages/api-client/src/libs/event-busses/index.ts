@@ -1,4 +1,4 @@
-export * from './command-palette'
-export * from './execute-requestBus'
-export * from './hot-key'
+export * from './command-palette-bus'
+export * from './execute-request-bus'
+export * from './hot-keys-bus'
 export * from './request-status-bus'

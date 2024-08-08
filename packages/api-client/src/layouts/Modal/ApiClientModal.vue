@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { handleHotKeyDown, hotKeyBus } from '@/libs'
+import { type HotKeyEvents, handleHotKeyDown, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { onBeforeMount, onBeforeUnmount, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 const { activeWorkspace, modalState } = useWorkspace()
-
-// Close on escape
-hotKeyBus.on(
-  (event) => event.closeModal && modalState.open && modalState.hide(),
-)
 
 /** Handles the hotkey events as well as custom config */
 const handleKeyDown = (ev: KeyboardEvent) =>
@@ -33,8 +28,16 @@ watch(
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
 
-// Make sure scrolling is back!
-onBeforeUnmount(() => document.documentElement.style.removeProperty('overflow'))
+// Close on escape
+const onCloseModal = (event: HotKeyEvents) =>
+  event.closeModal && modalState.open && modalState.hide()
+onMounted(() => hotKeyBus.on(onCloseModal))
+
+onBeforeUnmount(() => {
+  // Make sure scrolling is back!
+  document.documentElement.style.removeProperty('overflow')
+  hotKeyBus.off(onCloseModal)
+})
 </script>
 
 <template>
