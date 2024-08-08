@@ -77,7 +77,7 @@ jobs:
 
   types:
     runs-on: ubuntu-20.04
-    needs: [define-matrix, build]
+    needs: [define-matrix]
     strategy:
       matrix:
         node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
@@ -85,10 +85,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Check types
         run: pnpm turbo types:check
 
