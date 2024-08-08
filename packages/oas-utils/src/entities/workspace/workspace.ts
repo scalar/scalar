@@ -8,13 +8,14 @@ const modifier = z
   .enum(['Meta', 'Control', 'Shift', 'Alt', 'default'] as const)
   .optional()
   .default('default')
+const modifiers = z.array(modifier).optional().default(['default'])
 
-export type HotKeyModifier = z.infer<typeof modifier>
+export type HotKeyModifiers = z.infer<typeof modifiers>
 
 const hotKeys = z.record(
   z.enum(KEYDOWN_KEYS),
   z.object({
-    modifier: modifier.optional(),
+    modifiers: modifiers.optional(),
     event: z.enum(HOTKEY_EVENT_NAMES),
   }),
 )
@@ -22,7 +23,7 @@ export type HotKeyConfig = z.infer<typeof hotKeys>
 
 const hotKeyConfigSchema = z
   .object({
-    modifier,
+    modifiers,
     hotKeys: hotKeys.optional(),
   })
   .optional()

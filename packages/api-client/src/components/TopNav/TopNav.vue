@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ROUTES } from '@/constants'
+import { type HotKeyEvents, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
 import { type Icon, ScalarIcon } from '@scalar/components'
 import { capitalize } from '@scalar/oas-utils/helpers'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import TopNavItem from './TopNavItem.vue'
 
@@ -80,6 +81,19 @@ function removeNavItem(idx: number) {
 }
 
 const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
+
+/** Handle hotkeys */
+const handleHotKey = (event: HotKeyEvents) => {
+  if (event.addTopNav) addNavItem()
+  if (event.closeTopNav) removeNavItem(activeNavItemIdx.value)
+  if (event.navigateTopNavLeft)
+    setNavItemIdx(Math.max(activeNavItemIdx.value - 1, 0))
+  if (event.navigateTopNavRight)
+    setNavItemIdx(Math.min(activeNavItemIdx.value + 1, topNavItems.length - 1))
+}
+
+onMounted(() => hotKeyBus.on(handleHotKey))
+onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
   <nav class="flex h-10 t-app__top-nav">

@@ -1,13 +1,18 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import { executeRequestBus, requestStatusBus } from '@/libs'
+import {
+  type HotKeyEvents,
+  executeRequestBus,
+  hotKeyBus,
+  requestStatusBus,
+} from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -23,6 +28,7 @@ const {
 
 const history = requestsHistory
 const selectedRequest = ref(history.value[0])
+const addressBarRef = ref<typeof CodeInput | null>(null)
 
 const keys = useMagicKeys()
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
@@ -109,6 +115,16 @@ const updateExampleUrlHandler = (url: string) => {
   if (!activeExample.value) return
   requestExampleMutators.edit(activeExample.value.uid, 'url', url)
 }
+
+/** Handle hotkeys */
+const handleHotKey = (event: HotKeyEvents) => {
+  if (event.focusAddressBar) {
+    addressBarRef.value?.focus()
+  }
+}
+
+onMounted(() => hotKeyBus.on(handleHotKey))
+onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
   <div
@@ -144,6 +160,7 @@ const updateExampleUrlHandler = (url: string) => {
             <div class="fade-left"></div>
 
             <CodeInput
+              ref="addressBarRef"
               disableCloseBrackets
               :disabled="isReadOnly"
               disableEnter

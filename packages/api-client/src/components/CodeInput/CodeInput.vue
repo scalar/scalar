@@ -151,6 +151,13 @@ const booleanOptions = computed(() => {
     ? ['true', 'false', 'null']
     : ['true', 'false']
 })
+
+/** Expose focus method */
+defineExpose({
+  focus: () => {
+    codeMirror.value?.focus()
+  },
+})
 </script>
 <script lang="ts">
 // use normal <script> to declare options
