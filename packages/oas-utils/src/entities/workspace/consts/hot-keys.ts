@@ -8,6 +8,10 @@ export const HOTKEY_EVENT_NAMES = [
   'commandPaletteUp',
   'openCommandPalette',
   'toggleSidebar',
+  'addTopNav',
+  'closeTopNav',
+  'navigateTopNavLeft',
+  'navigateTopNavRight',
 ] as const
 export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
 
