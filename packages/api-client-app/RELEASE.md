@@ -1,4 +1,6 @@
-# Release
+# Manual release
+
+> ⚠️ The release is integrated in GitHub actions and new versions should be releassed automatically. This guide is for manual releases only.
 
 Before anything, make sure to have latest `main`, installed all dependencies and did a fresh build for everything:
 
