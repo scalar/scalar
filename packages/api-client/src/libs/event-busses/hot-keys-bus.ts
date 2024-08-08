@@ -40,6 +40,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   w: { event: 'closeTopNav', modifiers: ['default'] },
   ArrowLeft: { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
   ArrowRight: { event: 'navigateTopNavRight', modifiers: ['default', 'Alt'] },
+  l: { event: 'focusAddressBar', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */
