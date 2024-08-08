@@ -10,6 +10,7 @@ import { dereference, load } from '@scalar/openapi-parser'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {
+  body: 'body',
   cookie: 'cookies',
   header: 'headers',
   path: 'path',
@@ -70,6 +71,7 @@ export const importSpecToWorkspace = async (
         query: {},
         headers: {},
         cookies: {},
+        body: {},
       }
 
       // An operation can have component level parameters as well :)
