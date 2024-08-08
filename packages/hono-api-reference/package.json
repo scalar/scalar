@@ -49,6 +49,6 @@
     "vitest": "^1.6.0"
   },
   "peerDependencies": {
-    "hono": "^4.2.7"
+    "hono": "^4.0.0"
   }
 }
