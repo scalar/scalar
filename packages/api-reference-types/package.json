@@ -1,0 +1,39 @@
+{
+  "name": "@scalar/api-reference-types",
+  "description": "Shared types for the references",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/apoi"
+  },
+  "keywords": [
+    "oas",
+    "typescript",
+    "types",
+    "scalar"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix"
+  },
+  "type": "module",
+  "main": "src/index.ts",
+  "files": [
+    "src",
+    "CHANGELOG.md"
+  ],
+  "module": "src/index.ts",
+  "dependencies": {
+    "@unhead/schema": "^1.9.5",
+    "httpsnippet-lite": "^3.0.5",
+    "openapi-types": "^12.1.3"
+  }
+}
