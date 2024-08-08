@@ -16,24 +16,23 @@ const client = await createApiClientApp(
  * Fathom Analytics offers simple & privacy-first tracking
  * @see https://usefathom.com/
  */
-load('EUNBEXQC', {
-  // Skips automatically tracking page views
-  auto: false,
-})
+load('EUNBEXQC')
 
 // Track the launch event
-const { platform } = window.electron.process
+if (window.electron) {
+  const { platform } = window.electron.process
 
-const os =
-  platform === 'darwin'
-    ? 'mac'
-    : platform === 'win32'
-      ? 'windows'
-      : platform === 'linux'
-        ? 'linux'
-        : 'unknown'
+  const os =
+    platform === 'darwin'
+      ? 'mac'
+      : platform === 'win32'
+        ? 'windows'
+        : platform === 'linux'
+          ? 'linux'
+          : 'unknown'
 
-trackEvent(`launch: ${os}`)
+  trackEvent(`launch: ${os}`)
+}
 
 // Open… menu
 window.electron.ipcRenderer?.on(
