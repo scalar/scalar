@@ -132,7 +132,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
-  release:
+  npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
     permissions:
@@ -176,8 +176,28 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  todesktop-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-20.04
+    needs: [build, test]
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Git Status
+        run: git status
+      - name: Stash changes
+        run: git stash
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check which files were touched
+        name: Check whether there’s a new version of the app
         id: changed-files
         uses: tj-actions/changed-files@v44
         with:
@@ -185,8 +205,23 @@ jobs:
             api_client_app:
               - packages/api-client-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Check whether scalar-api-client was published
-        run: echo "✅ A new version of scalar-api-client was published."
+        name: Build in the toDesktop cloud
+        run: pnpm --filter scalar-api-client todesktop:build:ci
+        env:
+          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+      #   name: Run smoke tests
+      #   run: pnpm --filter scalar-api-client todesktop:test:ci
+      #   env:
+      #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+      #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+        name: Release the app
+        run: pnpm --filter scalar-api-client todesktop:release:ci
+        env:
+          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
