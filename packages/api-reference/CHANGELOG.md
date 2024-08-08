@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.24.72
+
+### Patch Changes
+
+- 55a3265: style(api-references): cleanup operation font sizes and alignment
+- Updated dependencies [b00e50e]
+- Updated dependencies [df7372f]
+- Updated dependencies [60e63d3]
+- Updated dependencies [6f0632e]
+- Updated dependencies [db92a85]
+- Updated dependencies [3023afe]
+- Updated dependencies [711ad03]
+- Updated dependencies [b910fc1]
+- Updated dependencies [14ed31f]
+- Updated dependencies [dba83e4]
+  - @scalar/api-client@2.0.47
+  - @scalar/themes@0.9.22
+  - @scalar/use-toasts@0.7.5
+  - @scalar/code-highlight@0.0.8
+  - @scalar/oas-utils@0.2.28
+  - @scalar/components@0.12.29
+
 ## 1.24.71
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.0.47
+
+### Patch Changes
+
+- b00e50e: fix(api-client): improve api client responsiveness
+- df7372f: feat: make side navigation a drag region
+- 6f0632e: fix: sidebar list element action prop
+- 3023afe: fix: sidenav endpoint ui
+- 711ad03: fix: search modal data population
+- 14ed31f: feat: group cookie by domain and path
+- Updated dependencies [60e63d3]
+- Updated dependencies [db92a85]
+- Updated dependencies [dba83e4]
+  - @scalar/themes@0.9.22
+  - @scalar/use-toasts@0.7.5
+  - @scalar/object-utils@1.1.6
+  - @scalar/oas-utils@0.2.28
+  - @scalar/components@0.12.29
+
 ## 2.0.46
 
 ### Patch Changes
