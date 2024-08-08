@@ -121,7 +121,7 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
 </template>
 <style scoped>
 .t-app__top-nav {
-  padding-left: 53px;
+  padding-left: 52px;
   padding-right: 9px;
   position: relative;
 }
