@@ -81,6 +81,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       [PathId.Cookies]: 'default',
       [PathId.Servers]: 'default',
       [PathId.Workspace]: 'default',
+      [PathId.Settings]: 'default',
     }
 
     const currentRoute = router.currentRoute.value
