@@ -4,7 +4,8 @@
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
-    }
+    },
+    "types": ["vite/client"]
   },
   "include": ["src", "global.d.ts", "playground"]
 }
