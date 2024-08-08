@@ -132,7 +132,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           webpackStatsFile: ./packages/api-reference/dist/browser/webpack-stats.json
 
-  release:
+  publish-on-npm:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
     permissions:
@@ -176,6 +176,29 @@ jobs:
           # Permissions: Read and Write
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  todesktop-release:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      id-token: write
+    needs: [build, test]
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Git Status
+        run: git status
+      - name: Stash changes
+        run: git stash
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check which files were touched
         id: changed-files
@@ -185,8 +208,13 @@ jobs:
             api_client_app:
               - packages/api-client-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Check whether scalar-api-client was published
-        run: echo "✅ A new version of scalar-api-client was published."
+        name: Build the app in the toDesktop cloud
+        working-directory: packages/api-client-app
+        run: pnpm todesktop build && todesktop release --latest --force
+      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+        name: Release a new version of the app
+        working-directory: packages/api-client-app
+        run: todesktop release --latest --force
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
