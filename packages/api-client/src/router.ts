@@ -134,11 +134,12 @@ export const router = createRouter({
   routes,
 })
 
-/** Router for the API client app (but using hash history) */
-export const webHashRouter = createRouter({
-  history: createWebHashHistory(),
-  routes,
-})
+/** Router factory for the API client app (but using hash history) */
+export const createWebHashRouter = () =>
+  createRouter({
+    history: createWebHashHistory(),
+    routes,
+  })
 
 /** Router factory for the API Client modal */
 export const createModalRouter = () =>
