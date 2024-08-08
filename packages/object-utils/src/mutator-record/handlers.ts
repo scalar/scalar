@@ -38,18 +38,24 @@ export function mutationFactory<
     : () => null
 
   /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
-  function add(item: T) {
+  const add = (item: T) => {
     entityMap[item.uid] = item
     mutationMap[item.uid] = new Mutation(item, maxNumberRecords)
     onChange()
   }
 
   /** Load the previous entity map state from localStorage into the active state */
-  function loadLocalStorage() {
+  const loadLocalStorage = () => {
     if (!localStorageKey) return
 
-    const data = parse(localStorage.getItem(localStorageKey) || '[{}]')
-    console.log(data)
+    const lsItem = localStorage.getItem(localStorageKey)
+
+    const data =
+      // Check for the new data structure to support the old ones
+      lsItem?.[0] === '['
+        ? parse(localStorage.getItem(localStorageKey) || '[{}]')
+        : JSON.parse(localStorage.getItem(localStorageKey) || '{}')
+
     const instances = Object.values(data) as T[]
 
     // TODO: Validation should be provided for each entity

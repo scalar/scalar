@@ -1,5 +1,7 @@
 import type { useWorkspace } from '@/store/workspace'
 
+import { version } from '../../package.json'
+
 /**
  * Loads all resources from localStorage into mutators on app start
  * We use the raw mutator.add here instead of the custom ones because we do NOT want any side effects
@@ -19,13 +21,21 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
     workspaceMutators,
   } = mutators
 
-  collectionMutators.loadLocalStorage()
-  cookieMutators.loadLocalStorage()
-  environmentMutators.loadLocalStorage()
-  folderMutators.loadLocalStorage()
-  requestExampleMutators.loadLocalStorage()
-  requestMutators.loadLocalStorage()
-  serverMutators.loadLocalStorage()
-  securitySchemeMutators.loadLocalStorage()
-  workspaceMutators.loadLocalStorage()
+  try {
+    collectionMutators.loadLocalStorage()
+    cookieMutators.loadLocalStorage()
+    environmentMutators.loadLocalStorage()
+    folderMutators.loadLocalStorage()
+    requestExampleMutators.loadLocalStorage()
+    requestMutators.loadLocalStorage()
+    serverMutators.loadLocalStorage()
+    securitySchemeMutators.loadLocalStorage()
+    workspaceMutators.loadLocalStorage()
+
+    // Set localStorage version for future migrations
+    localStorage.setItem('version', version)
+  } catch (e) {
+    console.error(e)
+    return e
+  }
 }
