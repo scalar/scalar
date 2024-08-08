@@ -16,7 +16,9 @@ const client = await createApiClientApp(
  * Fathom Analytics offers simple & privacy-first tracking
  * @see https://usefathom.com/
  */
-load('EUNBEXQC')
+load('EUNBEXQC', {
+  spa: 'hash',
+})
 
 // Track the launch event
 if (window.electron) {
