@@ -4,7 +4,6 @@
 # Root level code owners
 /.github @hanspagel
 /*.md @hanspagel
-/.* @hanspagel
 
 # Documentation
 /documentation/* @hanspagel
