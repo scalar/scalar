@@ -287,7 +287,9 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     <ViewLayout>
       <Sidebar
         v-show="showSideBar"
-        :class="[showSideBar ? 'sidebar-active-width' : '']">
+        :class="[showSideBar ? 'sidebar-active-width' : '']"
+        :showSideBar="showSideBar"
+        @update:showSideBar="showSideBar = $event">
         <template
           v-if="!activeWorkspace.isReadOnly"
           #header>
