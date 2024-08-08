@@ -29,3 +29,17 @@ async def scalar_html():
         title=app.title,
     )
 ```
+
+## Configuration
+
+Currently available [configuration options](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) are listed below.
+
+- `layout` (default `Layout.MODERN`)
+- `show_sidebar` (defualt `true`)
+- `hide_download_button` (default `false`)
+- `hide_models` (default `false`)
+- `dark_mode` (default `true`)
+- `search_hot_key` (default `SearchHotKey.K`)
+- `hidden_clients` (default `[]`)
+- `servers` (default `[]`)
+- `default_open_all_tags` (default `false`)
