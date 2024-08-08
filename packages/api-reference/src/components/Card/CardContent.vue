@@ -19,7 +19,7 @@ defineProps<CardContentProps>()
 <style scoped>
 .scalar-card-content {
   overflow: auto;
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: 0.5px solid var(--scalar-border-color);
   display: grid;
 }
 .scalar-card-content :deep(.simple-table .simple-header) {

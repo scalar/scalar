@@ -45,11 +45,10 @@ const formattedServerUrl = computed(() => {
 
 <style scoped>
 .base-url {
-  color: var(--scalar-color-2);
+  color: var(--scalar-color-1);
   cursor: pointer;
-  font-family: var(--scalar-font-code);
   display: inline-block;
-  font-size: var(--scalar-micro);
+  font-size: var(--scalar-mini);
   min-width: 0;
   white-space: nowrap;
   text-overflow: ellipsis;

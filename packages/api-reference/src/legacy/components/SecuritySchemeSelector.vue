@@ -113,7 +113,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
                 value?.[authentication.preferredSecurityScheme],
                 authentication.preferredSecurityScheme,
               )
-            : 'None'
+            : 'No Authentication'
         }}
       </span>
       <ScalarIcon icon="ChevronDown" />
@@ -121,7 +121,7 @@ const keys = computed(() => Object.keys(props.value ?? {}))
         :value="authentication.preferredSecurityScheme"
         @click.prevent
         @input="handleAuthenticationTypeInput">
-        <option value="">None</option>
+        <option value="">No Authentication</option>
         <template
           v-for="key in keys"
           :key="key">

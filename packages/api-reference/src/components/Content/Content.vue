@@ -67,13 +67,15 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
           class="introduction-card"
           :class="{ 'introduction-card-row': layout === 'accordion' }">
           <BaseUrl
+            class="introduction-card-item"
             :defaultServerUrl="baseServerURL"
             :servers="props.servers"
             :specification="parsedSpec" />
           <Authentication
+            class="introduction-card-item"
             :parsedSpec="parsedSpec"
             :proxy="proxy" />
-          <ClientLibraries />
+          <ClientLibraries class="introduction-card-item" />
         </div>
       </template>
     </Introduction>
@@ -136,11 +138,20 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
 .introduction-card {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 12px 12px 0 12px;
+  padding-top: 3px;
   background: var(--scalar-background-1);
-  border: 1px solid var(--scalar-border-color);
+  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
+}
+.introduction-card-item {
+  padding: 9px 12px;
+  border-bottom: 0.5px solid var(--scalar-border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.introduction-card-item:last-of-type {
+  border-bottom: none;
 }
 .introduction-card :deep(.description) {
   padding: 0;
@@ -171,16 +182,12 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
   .introduction-card-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 0px;
   }
 }
 .introduction-card :deep(.security-scheme-label) {
   text-transform: uppercase;
   font-weight: var(--scalar-semibold);
-}
-.references-classic .introduction-card-row :deep(.card-footer),
-.references-classic .introduction-card-row :deep(.scalar-card),
-.references-classic .introduction-card-row :deep(.scalar-card--muted) {
-  background: var(--scalar-background-1);
 }
 .references-classic
   .introduction-card-row
