@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.7
+
+### Patch Changes
+
+- 03e9bbb: Move to flatted for localstorage
+
 ## 1.1.6
 
 ### Patch Changes
