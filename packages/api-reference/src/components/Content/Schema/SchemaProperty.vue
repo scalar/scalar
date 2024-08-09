@@ -65,6 +65,14 @@ const generatePropertyDescription = function (property?: Record<string, any>) {
   return descriptions[property.type][property.format || '_default']
 }
 
+const isEnum = function (value?: Record<string, any>): boolean {
+  return !!value?.enum
+}
+
+const isEnumArray = function (value?: Record<string, any>): boolean {
+  return !!value?.items?.enum
+}
+
 const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
   return value?.enum || value?.items?.enum || []
 }
@@ -83,7 +91,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     ]">
     <SchemaPropertyHeading
       :additional="additional"
-      :enum="getEnumFromValue(value).length > 1"
+      :enum="isEnum(value)"
       :required="required"
       :value="value">
       <template
@@ -114,7 +122,12 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
     </div>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(value)?.length > 1"
+      v-if="isEnumArray(value)"
+      class="array-values-label">
+      Allowed values:
+    </div>
+    <div
+      v-if="getEnumFromValue(value)?.length >= 1"
       class="property-enum">
       <template v-if="value?.['x-enumDescriptions']">
         <div class="property-list">
@@ -134,7 +147,11 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         </div>
       </template>
       <template v-else>
-        <ul class="property-enum-values">
+        <ul
+          class="property-enum-values"
+          :class="{
+            'property-enum-values-long': getEnumFromValue(value)?.length > 4,
+          }">
           <li
             v-for="enumValue in getEnumFromValue(value)"
             :key="enumValue"
@@ -283,6 +300,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   border-radius: var(--scalar-radius-lg);
 }
 
+.property-enum-values {
+  display: flex;
+  gap: 6px;
+}
+.property-enum-values-long {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+}
 .property-enum-value {
   padding: 3px 0;
   color: var(--scalar-color-2);
@@ -300,6 +325,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property--compact .property-example {
   display: none;
 }
+.array-values-label {
+  margin-top: 10px;
+}
+
 .property-list {
   border: 1px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
