@@ -71,7 +71,6 @@ export function getServers(
           server.variables = {}
         }
 
-        // @ts-expect-error server was typed as any before, so this should not be legal
         server.variables[variable] = {}
       })
 

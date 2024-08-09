@@ -870,9 +870,6 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
       postcss-nested:
         specifier: ^6.0.1
         version: 6.0.1(postcss@8.4.38)
@@ -1852,9 +1849,6 @@ importers:
       httpsnippet-lite:
         specifier: ^3.0.5
         version: 3.0.5
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
 
   packages/use-codemirror:
     dependencies:
