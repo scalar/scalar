@@ -1,6 +1,6 @@
 {
   "name": "@scalar/types",
-  "description": "Shared types for the references with minimal dependencies",
+  "description": "Types to work with Scalar packages",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -11,7 +11,6 @@
     "directory": "packages/types"
   },
   "keywords": [
-    "oas",
     "typescript",
     "types",
     "scalar"
