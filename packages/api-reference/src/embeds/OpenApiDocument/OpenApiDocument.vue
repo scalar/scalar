@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import type { Spec } from '@scalar/oas-utils'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
   type ErrorObject,
@@ -10,9 +9,8 @@ import {
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import { ref, toRef } from 'vue'
 
-import { type ReferenceConfiguration, useReactiveSpec } from '../../../src'
-
-type OpenApiDocumentConfiguration = Pick<ReferenceConfiguration, 'proxy'>
+import { useReactiveSpec } from '../../../src'
+import type { OpenApiDocumentConfiguration } from './types'
 
 const props = defineProps<{
   content: string | Record<string, any>
