@@ -1,23 +1,8 @@
-import {
-  addPackageFileExports,
-  createRollupConfig,
-} from '@scalar/build-tooling'
-
-const entries = ['./src/index.ts']
+import { createRollupConfig, findEntryPoints } from '@scalar/build-tooling'
 
 export default createRollupConfig({
-  options: {
-    input: entries,
-    external: [
-      'node:fs',
-      'ajv/dist/2020',
-      'ajv-draft-04',
-      'ajv-formats',
-      'url',
-      'fs',
-    ],
-  },
   typescript: true,
+  options: {
+    input: await findEntryPoints({ allowCss: false }),
+  },
 })
-
-await addPackageFileExports({ entries })
