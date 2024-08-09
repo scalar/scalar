@@ -1,7 +1,7 @@
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
 import type { HarRequest, TargetId } from 'httpsnippet-lite'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types'
 
 /**
  * @deprecated This type does not provide much type safety, we shouldn't really use it
