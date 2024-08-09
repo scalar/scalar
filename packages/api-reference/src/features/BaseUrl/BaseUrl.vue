@@ -1,11 +1,9 @@
 <script lang="ts" setup>
-import { type Server as ApiClientServer, useServerStore } from '#legacy'
+import { useServerStore } from '#legacy'
 import type { Server, Spec } from '@scalar/types/legacy'
-import { ref, watch } from 'vue'
+import { ref, toRef, watch } from 'vue'
 
-import { createEmptySpecification } from '../../helpers'
 import ServerForm from './ServerForm.vue'
-import { getServers } from './utils/getServers'
 
 const props = defineProps<{
   /**
@@ -22,7 +20,15 @@ const props = defineProps<{
   servers?: Server[]
 }>()
 
-const { server: serverState, setServer } = useServerStore()
+const specification = toRef(props.specification)
+const defaultServerUrl = toRef(props.defaultServerUrl)
+const servers = toRef(props.servers)
+
+const { server: serverState, setServer } = useServerStore({
+  specification,
+  defaultServerUrl,
+  servers,
+})
 
 // Keep the selected item in sync with the store
 const selected = ref<number>(0)
@@ -37,72 +43,6 @@ watch(
     immediate: true,
   },
 )
-
-// Watch the spec and set the servers
-watch(
-  () => props.specification,
-  () => {
-    const specification =
-      // Use the specification
-      props.servers === undefined
-        ? props.specification
-        : // Or create an empty one with the specified servers list
-          createEmptySpecification({
-            servers: props.servers,
-          })
-
-    const servers = getServers(specification, {
-      defaultServerUrl: props.defaultServerUrl,
-    }) as ApiClientServer[]
-
-    setServer({
-      servers,
-      variables: {
-        // Set the initial values for the variables
-        ...getDefaultValuesFromServers(
-          servers[selected.value]?.variables ?? {},
-        ),
-        // Don’t overwrite existing values, but filter out non-existing variables
-        ...removeNotExistingVariables(
-          serverState.variables,
-          servers[selected.value],
-        ),
-      },
-    })
-  },
-  { deep: true, immediate: true },
-)
-
-/**
- * Get the default values for the server variables
- */
-function getDefaultValuesFromServers(variables: ApiClientServer['variables']) {
-  return Object.fromEntries(
-    Object.entries(variables ?? {}).map(([name, variable]) => [
-      name,
-      // 1) Default
-      variable.default?.toString() ??
-        // 2) First enum value
-        variable.enum?.[0]?.toString() ??
-        // 3) Empty string
-        '',
-    ]),
-  )
-}
-
-/**
- * Remove variables that are not present in the servers list
- */
-function removeNotExistingVariables(
-  variables: Record<string, string>,
-  server: ApiClientServer,
-) {
-  return Object.fromEntries(
-    Object.entries(variables).filter(
-      ([name]) => name in (server.variables ?? {}),
-    ),
-  )
-}
 
 function onUpdateVariable(name: string, value: string) {
   setServer({
