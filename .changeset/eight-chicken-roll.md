@@ -10,4 +10,4 @@
 '@scalar/types': patch
 ---
 
-chore(types): created new standalone @scalar/types package
+feat: use new @scalar/types package
