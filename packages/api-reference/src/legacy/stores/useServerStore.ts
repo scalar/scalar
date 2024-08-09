@@ -4,7 +4,13 @@ import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { type Ref, reactive, watch } from 'vue'
 
 import { createEmptySpecification } from '../../helpers/createEmptySpecification'
-import type { ServerState } from '../types'
+
+export type ServerState = {
+  selectedServer: null | number
+  description?: string
+  servers?: (OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject)[]
+  variables: { [key: string]: string }
+}
 
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,

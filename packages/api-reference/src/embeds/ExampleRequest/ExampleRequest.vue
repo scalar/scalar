@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { useServerStore } from '#legacy'
 import type { Spec, TransformedOperation } from '@scalar/oas-utils'
-// import type { OpenAPI } from '@scalar/openapi-parser'
 import { toRef } from 'vue'
 
 import EndpointPath from '../../components/Content/Operation/EndpointPath.vue'

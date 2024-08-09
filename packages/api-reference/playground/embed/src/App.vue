@@ -8,9 +8,9 @@ const sourcecode = `<OpenApiDocument
   v-slot="{ configuration, parsedSpec }"
   :configuration="{
     proxy: 'https://proxy.scalar.com',
-  }"
-  :spec="{
-    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    spec: {
+      url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    }
   }">
 
   <ExampleRequest
@@ -42,9 +42,9 @@ const sourcecode = `<OpenApiDocument
         //     description: 'Scalar API',
         //   },
         // ],
-      }"
-      :spec="{
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
       }">
       <div class="embed">
         <ExampleRequest
