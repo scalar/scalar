@@ -9,8 +9,9 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store/workspace'
+import EnvironmentTable from '@/views/Environment/EnvironmentTable.vue'
 import { nanoid } from 'nanoid'
-import { nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
@@ -22,22 +23,23 @@ const activeEnvironmentID = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 
-function addEnvironmentVariable() {
+const addEnvironmentVariable = () => {
   const environment = {
     name: 'New Environment',
     uid: nanoid(),
     color: 'grey',
     raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
-    parsed: [],
+    parsed: [{ key: 'exampleKey', value: 'exampleValue' }],
     isDefault: false,
   }
 
   environmentMutators.add(environment)
   activeEnvironmentID.value = environment.uid
   router.push(activeEnvironmentID.value)
+  updateEnvironmentRaw(environment.uid)
 }
 
-function handleEnvironmentUpdate(raw: string) {
+const handleEnvironmentUpdate = (raw: string) => {
   if (activeEnvironmentID.value) {
     environmentMutators.edit(activeEnvironmentID.value, 'raw', raw)
   }
@@ -87,6 +89,82 @@ const updateEnvironmentName = (event: Event) => {
     environmentMutators.edit(activeEnvironmentID.value, 'name', newName)
   }
 }
+
+const updateEnvironmentRaw = (uid: string) => {
+  const environment = environments[uid]
+  if (environment) {
+    const raw = JSON.stringify(
+      environment.parsed.reduce(
+        (acc, { key, value }) => {
+          if (key || value) {
+            /** add raw key-value pairs where either key or value is filled */
+            acc[key] = value
+          }
+          return acc
+        },
+        {} as Record<string, string>,
+      ),
+      null,
+      2,
+    )
+    environmentMutators.edit(uid, 'raw', raw)
+  }
+}
+
+const updateEnvironmentVariable = (
+  idx: number,
+  field: 'key' | 'value',
+  value: string,
+) => {
+  if (activeEnvironmentID.value) {
+    const environment = environments[activeEnvironmentID.value]
+    const parsed = [...environment.parsed]
+    if (parsed.length > idx) {
+      parsed[idx] = { ...parsed[idx], [field]: value }
+      environmentMutators.edit(activeEnvironmentID.value, 'parsed', parsed)
+      updateEnvironmentRaw(activeEnvironmentID.value)
+    }
+  }
+}
+
+const addEnvironmentVariableRow = () => {
+  if (activeEnvironmentID.value) {
+    const environment = environments[activeEnvironmentID.value]
+    const parsed = [...environment.parsed, { key: '', value: '' }]
+    environmentMutators.edit(activeEnvironmentID.value, 'parsed', parsed)
+    updateEnvironmentRaw(activeEnvironmentID.value)
+  }
+}
+
+const deleteEnvironmentVariableRow = (idx: number) => {
+  if (activeEnvironmentID.value) {
+    const environment = environments[activeEnvironmentID.value]
+    const parsed = [...environment.parsed]
+    parsed.splice(idx, 1)
+    environmentMutators.edit(activeEnvironmentID.value, 'parsed', parsed)
+    updateEnvironmentRaw(activeEnvironmentID.value)
+  }
+}
+
+/** parse environment variables from raw JSON: to be managed in environment.ts */
+const parsedEnvironmentVariables = computed<{ key: string; value: string }[]>(
+  () => {
+    if (activeEnvironmentID.value) {
+      try {
+        const raw = environments[activeEnvironmentID.value].raw
+        const parsed = JSON.parse(raw)
+        return Object.entries(parsed).map(([key, value]) => ({
+          key,
+          value: value as string,
+        }))
+      } catch (e) {
+        console.error('Failed to parse environment variables:', e)
+        return []
+      }
+    }
+    return []
+  },
+)
 
 onMounted(setActiveEnvironment)
 </script>
@@ -141,16 +219,21 @@ onMounted(setActiveEnvironment)
               @blur="isEditingName = false"
               @input="updateEnvironmentName"
               @keyup.enter="isEditingName = false" />
-            <div class="colors ml-auto">
-              <EnvironmentColors
-                :activeColor="environments[activeEnvironmentID].color"
-                @select="handleColorSelect" />
-            </div>
           </template>
+          <EnvironmentTable
+            v-if="activeEnvironmentID"
+            :items="parsedEnvironmentVariables"
+            @addRow="addEnvironmentVariableRow"
+            @updateRow="updateEnvironmentVariable" />
+        </ViewLayoutSection>
+        <ViewLayoutSection>
+          <template #title>Editor</template>
           <CodeInput
             v-if="activeEnvironmentID"
             class="px-2 py-2.5"
+            :language="'json'"
             lineNumbers
+            lint
             :modelValue="environments[activeEnvironmentID].raw"
             @update:modelValue="handleEnvironmentUpdate" />
         </ViewLayoutSection>
