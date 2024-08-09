@@ -1,11 +1,10 @@
-import type { Server as ApiClientServer } from '#legacy'
 import type { Server } from '@/features/BaseUrl'
 import type { Spec } from '@scalar/oas-utils'
 import { type Ref, reactive, watch } from 'vue'
 
 import { getServers } from '../../features/BaseUrl/utils'
-import { createEmptySpecification } from '../../helpers'
-import type { ServerState } from '../types'
+import { createEmptySpecification } from '../../helpers/createEmptySpecification'
+import type { Server as ApiClientServer, ServerState } from '../types'
 
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
@@ -13,11 +12,11 @@ export const createEmptyServerState = (): ServerState => ({
   variables: {},
 })
 
-const server = reactive<ServerState>(createEmptyServerState())
+const serverStore = reactive<ServerState>(createEmptyServerState())
 
 const setServer = (newState: Partial<ServerState>) => {
-  Object.assign(server, {
-    ...server,
+  Object.assign(serverStore, {
+    ...serverStore,
     ...newState,
   })
 }
@@ -79,7 +78,7 @@ export const useServerStore = ({
             ? specification?.value ?? createEmptySpecification()
             : // Or create an empty one with the specified servers list
               createEmptySpecification({
-                servers,
+                servers: servers.value,
               })
 
         const result = getServers(normalizedSpecification, {
@@ -91,12 +90,12 @@ export const useServerStore = ({
           variables: {
             // Set the initial values for the variables
             ...getDefaultValuesFromServers(
-              result?.[server.selectedServer ?? 0]?.variables ?? {},
+              result?.[serverStore.selectedServer ?? 0]?.variables ?? {},
             ),
             // Don’t overwrite existing values, but filter out non-existing variables
             ...removeNotExistingVariables(
-              server.variables,
-              result?.[server.selectedServer ?? 0] ?? {},
+              serverStore.variables,
+              result?.[serverStore.selectedServer ?? 0] ?? {},
             ),
           },
         })
@@ -106,7 +105,7 @@ export const useServerStore = ({
   }
 
   return {
-    server,
+    server: serverStore,
     setServer,
   }
 }
