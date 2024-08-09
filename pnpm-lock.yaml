@@ -501,6 +501,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../../packages/oas-utils
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       vue:
         specifier: ^3.4.29
         version: 3.4.31(typescript@5.5.2)
@@ -964,6 +967,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
@@ -1779,6 +1785,9 @@ importers:
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@vueuse/core':
         specifier: ^10.10.0
         version: 10.11.0(vue@3.4.31(typescript@5.5.2))

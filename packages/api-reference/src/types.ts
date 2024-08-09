@@ -9,6 +9,8 @@ import type {
 import type { HarRequest } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
 
+export type { ReferenceConfiguration }
+
 export type AvailableTarget = TargetInfo & {
   clients: ClientInfo[]
 }
