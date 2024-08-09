@@ -21,16 +21,16 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "tsc",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix"
   },
   "type": "module",
-  "main": "src/index.ts",
+  "types": "dist/index.d.ts",
   "files": [
-    "src",
+    "dist",
     "CHANGELOG.md"
   ],
-  "module": "src/index.ts",
   "dependencies": {
     "@scalar/themes": "workspace:*",
     "@unhead/schema": "^1.9.5",
