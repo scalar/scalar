@@ -1,7 +1,7 @@
 import type { Spec } from '@scalar/oas-utils'
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
 
-import type { Server } from '../types'
+import type { Server } from '../../features/BaseUrl/types'
 
 export type DefaultServerUrlOption = {
   /**
