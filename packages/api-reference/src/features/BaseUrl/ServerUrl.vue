@@ -1,8 +1,9 @@
 <script lang="ts" setup>
 import { replaceVariables } from '@scalar/oas-utils/helpers'
+import type { Server } from '@scalar/types'
 import { computed } from 'vue'
 
-import type { Server, ServerVariableValues } from './types'
+import type { ServerVariableValues } from './types'
 
 const props = defineProps<{
   server?: Server

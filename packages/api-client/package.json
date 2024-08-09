@@ -132,6 +132,7 @@
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
     "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",

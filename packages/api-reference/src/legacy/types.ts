@@ -1,4 +1,4 @@
-import type { BaseParameter } from '@scalar/oas-utils'
+import type { BaseParameter } from '@scalar/types'
 
 export type Header = BaseParameter
 

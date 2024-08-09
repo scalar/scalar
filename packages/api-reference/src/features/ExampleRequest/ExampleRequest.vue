@@ -7,15 +7,15 @@ import {
   useServerStore,
 } from '#legacy'
 import { ScalarCodeBlock } from '@scalar/components'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
+import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
+import { snippetz } from '@scalar/snippetz'
 import type {
   CustomRequestExample,
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
-} from '@scalar/oas-utils'
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
-import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
-import { snippetz } from '@scalar/snippetz'
+} from '@scalar/types'
 import { asyncComputed } from '@vueuse/core'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import {

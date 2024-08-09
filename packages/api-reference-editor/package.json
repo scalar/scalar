@@ -52,6 +52,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "unhead": "^1.8.3",
     "vue": "^3.4.29"

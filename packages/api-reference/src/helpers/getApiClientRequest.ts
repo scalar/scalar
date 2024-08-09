@@ -4,15 +4,12 @@ import {
   getRequestFromAuthentication,
   getUrlFromServerState,
 } from '#legacy'
-import type {
-  AuthenticationState,
-  TransformedOperation,
-} from '@scalar/oas-utils'
 import {
   getParametersFromOperation,
   getRequestFromOperation,
 } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { AuthenticationState, TransformedOperation } from '@scalar/types'
 
 import { getHarRequest } from '../helpers'
 

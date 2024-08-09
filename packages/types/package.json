@@ -1,0 +1,39 @@
+{
+  "name": "@scalar/types",
+  "description": "Types to work with Scalar packages",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/types"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "scalar"
+  ],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/themes": "workspace:*",
+    "@unhead/schema": "^1.9.5",
+    "httpsnippet-lite": "^3.0.5"
+  }
+}

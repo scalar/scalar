@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { ContentType, RequestBody } from '@scalar/oas-utils'
+import type { ContentType, RequestBody } from '@scalar/types'
 import { computed, ref } from 'vue'
 
 import { Schema } from '../Schema'
@@ -33,7 +33,7 @@ if (prop.requestBody?.content) {
           v-if="prop?.requestBody && contentTypes.length > 1"
           v-model="selectedContentType">
           <option
-            v-for="(value, key) in prop.requestBody?.content"
+            v-for="(_, key) in prop.requestBody?.content"
             :key="key"
             :value="key">
             {{ key }}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Spec, Tag } from '@scalar/oas-utils'
+import type { Spec, Tag } from '@scalar/types'
 import { computed, ref } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'

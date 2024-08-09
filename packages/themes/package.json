@@ -41,9 +41,6 @@
     "src/pixelPreset.ts"
   ],
   "module": "./dist/index.js",
-  "dependencies": {
-    "vue": "^3.4.29"
-  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
