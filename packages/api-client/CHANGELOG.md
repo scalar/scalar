@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.0.49
+
+### Patch Changes
+
+- 75a5a64: fix: sidebar title
+
 ## 2.0.48
 
 ### Patch Changes
