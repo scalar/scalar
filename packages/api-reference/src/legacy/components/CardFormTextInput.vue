@@ -51,7 +51,6 @@ defineOptions({
   align-items: baseline;
   border-color: inherit;
 }
-
 .card-form-input label,
 .card-form-input input {
   padding: 9px;
@@ -79,7 +78,7 @@ defineOptions({
   color: var(--scalar-color-1);
 }
 .card-form-input + .card-form-input {
-  border-left: 1px solid var(--scalar-border-color);
+  border-left: 0.5px solid var(--scalar-border-color);
 }
 .card-form-input input:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);
@@ -92,5 +91,11 @@ defineOptions({
   width: auto;
   align-self: center;
   stroke-width: 0.75;
+}
+.card-form-input label {
+  display: none;
+}
+.card-form-input label[for='oAuth2.clientId'] {
+  display: flex;
 }
 </style>

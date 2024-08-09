@@ -7,7 +7,11 @@
 .card-form {
   color: var(--scalar-color-1);
   width: 100%;
-  border: 1px solid var(--scalar-border-color);
+  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
+  background-color: var(--scalar-background-2);
+}
+.card-form:focus-within {
+  background-color: var(--scalar-background-1);
 }
 </style>

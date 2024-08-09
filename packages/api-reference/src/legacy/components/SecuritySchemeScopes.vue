@@ -57,7 +57,7 @@ const model = computed({
     <Teleport to="body">
       <div
         ref="dropdown"
-        class="floating"
+        class="floating scalar-app"
         :style="floatingStyles">
         <ListboxOptions
           as="dl"

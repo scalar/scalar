@@ -74,7 +74,7 @@ onServerPrefetch(async () => {
 .authentication-header {
   white-space: nowrap;
 }
-.selector {
-  margin-bottom: 6px;
+.authentication-content {
+  margin-top: 6px;
 }
 </style>

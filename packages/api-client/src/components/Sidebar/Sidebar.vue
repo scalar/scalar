@@ -103,7 +103,7 @@ onMounted(() => {
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
-      class="xl:min-h-header py-2.5 flex items-center border-b px-4 text-sm">
+      class="xl:min-h-header py-2.5 flex items-center border-b-1/2 px-4 text-sm">
       <h2 class="font-medium m-0 text-sm whitespace-nowrap">
         <slot name="title" />
       </h2>

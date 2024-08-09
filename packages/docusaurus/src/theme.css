@@ -558,6 +558,7 @@ html[data-theme='light'] body .api-client-drawer {
   /* Don't add margin to the first block */
   .markdown > :first-child {
     margin-top: 0;
+    margin-bottom: 0;
   }
 
   .markdown h1 {
@@ -627,6 +628,9 @@ html[data-theme='light'] body .api-client-drawer {
   .markdown li {
     margin: 6px 0;
     display: list-item;
+  }
+  .markdown ul:first-of-type li:first-of-type {
+    margin-top: 0;
   }
   .markdown a {
     color: var(--scalar-color-accent);

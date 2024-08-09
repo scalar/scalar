@@ -116,6 +116,9 @@ const transformHeading = (node: Record<string, any>) => {
 .introduction-description-heading {
   scroll-margin-top: 64px;
 }
+.introduction-description-heading + .markdown {
+  margin-top: -6px;
+}
 .introduction-description {
   display: flex;
   flex-direction: column;
