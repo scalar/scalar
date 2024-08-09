@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { SpecConfiguration } from '@scalar/oas-utils'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
   type ErrorObject,
@@ -7,34 +8,36 @@ import {
   load,
 } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import { ref, toRef } from 'vue'
+import { provide, ref, toRef } from 'vue'
 
 import { useReactiveSpec } from '../../../src'
+import ApiClientModal from '../../../src/components/ApiClientModal.vue'
+import { GLOBAL_SECURITY_SYMBOL } from '../../../src/helpers'
 import type { OpenApiDocumentConfiguration } from './types'
 
 const props = defineProps<{
-  content: string | Record<string, any>
+  spec: SpecConfiguration
   configuration?: OpenApiDocumentConfiguration
 }>()
 
 const dereferenced = ref<OpenAPI.Document | undefined>({})
 const version = ref<string | undefined>('')
 const errors = ref<ErrorObject[]>([])
-const content = toRef(props.content)
+const spec = toRef(props.spec)
 
-const { parsedSpec: transformed } = useReactiveSpec({
+const { parsedSpec: parsedSpec } = useReactiveSpec({
   proxy: () => props.configuration?.proxy ?? '',
-  specConfig: () => ({
-    content: content.value,
-  }),
+  specConfig: () => spec.value,
 })
+
+provide(GLOBAL_SECURITY_SYMBOL, () => parsedSpec.security)
 
 defineSlots<{
   default(props: {
     /** The given configuration */
-    configuration: OpenApiDocumentConfiguration
+    configuration?: OpenApiDocumentConfiguration
     /** The specified content */
-    content: typeof content.value
+    spec: typeof spec.value
     /** Errors, that came up when dereferencing */
     errors: typeof errors.value
     /** OpenAPI version of the given document */
@@ -42,15 +45,15 @@ defineSlots<{
     /** The dereferenced OpenAPI Document */
     dereferenced: typeof dereferenced.value
     /**
-     * Dereferenced, normalized and transformed OpenAPI document
+     * Dereferenced, normalized and parsedSpec OpenAPI document
      * @deprecated We’ll remove this in the future.
      */
-    transformed: typeof transformed
+    parsedSpec: typeof parsedSpec
   }): any
 }>()
 
 const loadDocument = async () => {
-  const { filesystem } = await load(props.content, {
+  const { filesystem } = await load(spec.value.url || spec.value.content, {
     plugins: [
       fetchUrls({
         fetch: (url) =>
@@ -81,10 +84,15 @@ loadDocument()
   <slot
     v-bind="{
       configuration,
-      content,
+      spec,
       errors,
       version,
       dereferenced,
-      transformed,
+      parsedSpec,
     }"></slot>
+
+  <ApiClientModal
+    :proxyUrl="configuration?.proxy"
+    :servers="configuration?.servers"
+    :spec="spec" />
 </template>

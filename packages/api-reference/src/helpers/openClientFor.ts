@@ -9,9 +9,7 @@ import type { OpenAPIV3 } from '@scalar/openapi-parser'
 
 import { getApiClientRequest } from '../helpers'
 
-// TODO: This breaks the embed. But we need to re-enable it!
-// const { server: serverState } = useServerStore()
-const serverState = {}
+const { server: serverState } = useServerStore()
 const { setOperation, setGlobalSecurity } = useOpenApiStore()
 
 const { toggleApiClient } = useApiClientStore()
