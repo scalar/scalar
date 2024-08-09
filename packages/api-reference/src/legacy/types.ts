@@ -118,34 +118,3 @@ export type Response = {
   description: string
   content: any
 }
-
-// TODO: Remove?
-export type Server = {
-  url: string
-  description?: string
-  variables?: ServerVariables
-}
-
-// TODO: Remove?
-export type ServerVariables = Record<
-  string,
-  {
-    default?: string | number
-    description?: string
-    enum?: (string | number)[]
-  }
->
-
-// TODO: Remove?
-export type Variable = {
-  name: string
-  value: string
-  enum?: (string | number)[]
-}
-
-export type ServerState = {
-  selectedServer: null | number
-  description?: string
-  servers?: (OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject)[]
-  variables: { [key: string]: string }
-}
