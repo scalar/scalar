@@ -27,12 +27,18 @@
   },
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "./dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
   "dependencies": {
     "ajv": "^8.17.1"
   },
