@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.9
+
+### Patch Changes
+
+- 58e5912: fix: markdown fixes and intro card polish
+
 ## 0.0.8
 
 ### Patch Changes

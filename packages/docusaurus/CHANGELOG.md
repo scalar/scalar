@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.73
+
+### Patch Changes
+
+- 58e5912: fix: markdown fixes and intro card polish
+  - @scalar/api-reference-react@0.3.71
+
 ## 0.4.72
 
 ### Patch Changes

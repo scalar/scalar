@@ -1,5 +1,30 @@
 # @scalar/api-client
 
+## 2.0.48
+
+### Patch Changes
+
+- db96313: feat: workspace rename and deletion
+- de9747c: fix: topnav alignment
+- 8672a78: feat(api-client): moved command palette to the global key event bus
+- 58e5912: fix: markdown fixes and intro card polish
+- 6f7ab8d: feat: sidebar request transition and dragging capability
+- 89ee9da: fix(api-client): move web hash router to a factory function
+- 078ca72: feat: add topnav and addressbar hotkeys
+- 520caff: fix: hot keys bus modifier
+- 03e9bbb: Move to flatted for localstorage
+- db96313: feat: set request sidebar item context menu
+- Updated dependencies [8672a78]
+- Updated dependencies [db96313]
+- Updated dependencies [078ca72]
+- Updated dependencies [6f107e1]
+- Updated dependencies [520caff]
+- Updated dependencies [03e9bbb]
+- Updated dependencies [db96313]
+  - @scalar/oas-utils@0.2.29
+  - @scalar/components@0.12.30
+  - @scalar/object-utils@1.1.7
+
 ## 2.0.47
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.30
+
+### Patch Changes
+
+- db96313: feat: scalar context menu component
+- 6f107e1: style(components): outline user icon
+- db96313: feat: set request sidebar item context menu
+- Updated dependencies [58e5912]
+  - @scalar/code-highlight@0.0.9
+
 ## 0.12.29
 
 ### Patch Changes

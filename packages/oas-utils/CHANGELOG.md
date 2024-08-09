@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.29
+
+### Patch Changes
+
+- 8672a78: feat(api-client): moved command palette to the global key event bus
+- 078ca72: feat: add topnav and addressbar hotkeys
+- 520caff: fix: hot keys bus modifier
+- Updated dependencies [03e9bbb]
+  - @scalar/object-utils@1.1.7
+
 ## 0.2.28
 
 ### Patch Changes

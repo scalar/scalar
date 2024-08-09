@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.24.73
+
+### Patch Changes
+
+- 58e5912: fix: markdown fixes and intro card polish
+- Updated dependencies [db96313]
+- Updated dependencies [de9747c]
+- Updated dependencies [8672a78]
+- Updated dependencies [58e5912]
+- Updated dependencies [6f7ab8d]
+- Updated dependencies [db96313]
+- Updated dependencies [89ee9da]
+- Updated dependencies [078ca72]
+- Updated dependencies [6f107e1]
+- Updated dependencies [520caff]
+- Updated dependencies [03e9bbb]
+- Updated dependencies [db96313]
+  - @scalar/api-client@2.0.48
+  - @scalar/oas-utils@0.2.29
+  - @scalar/code-highlight@0.0.9
+  - @scalar/components@0.12.30
+
 ## 1.24.72
 
 ### Patch Changes
