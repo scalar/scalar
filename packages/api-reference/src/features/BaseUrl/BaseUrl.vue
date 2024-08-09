@@ -25,11 +25,7 @@ const specification = toRef(props.specification)
 const defaultServerUrl = toRef(props.defaultServerUrl)
 const servers = toRef(props.servers)
 
-const {
-  server: serverState,
-  setServer,
-  setSpecification,
-} = useServerStore({
+const { server: serverState, setServer } = useServerStore({
   specification,
   defaultServerUrl,
   servers,

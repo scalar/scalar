@@ -57,7 +57,7 @@ export const useServerStore = ({
   defaultServerUrl,
   servers,
 }: {
-  specification?: Ref<Spec>
+  specification?: Ref<Spec | undefined>
   /**
    * The fallback server URL to use if no servers are found in the specification
    */
