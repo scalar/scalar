@@ -35,6 +35,11 @@ const sourcecode = `<OpenApiDocument
       v-slot="{ configuration, parsedSpec }"
       :configuration="{
         proxy: 'https://proxy.scalar.com',
+        hiddenClients: ['guzzle'],
+        defaultHttpClient: {
+          targetKey: 'node',
+          clientKey: 'fetch',
+        },
         // baseServerURL: 'https://api.scalar.com',
         // servers: [
         //   {
