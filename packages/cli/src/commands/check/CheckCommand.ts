@@ -22,8 +22,9 @@ export function CheckCommand() {
     // Validate
     const result = check(input)
 
-    if (result.valid) {
-      console.log(kleur.green(`Matches the Scalar config specifications`))
+    if (result) {
+      console.log(kleur.green('Success'))
+      console.log(kleur.green('Matches the Scalar config specifications'))
 
       const endTime = performance.now()
 
@@ -38,21 +39,21 @@ export function CheckCommand() {
       )
       console.log()
     } else {
-      console.log(prettyjson.render(result.data))
-      console.log()
+      console.log(prettyjson.render(result))
+      console.error(kleur.red('Error'))
       console.error(
         kleur.red('File doesn’t match the Scalar config specification.'),
       )
       console.log()
-      console.error(
-        kleur.red(
-          `${kleur.bold(
-            `${result.data?.length} error${
-              result.data && result.data.length > 1 ? 's' : ''
-            }`,
-          )} found.`,
-        ),
-      )
+      // console.error(
+      //   kleur.red(
+      //     `${kleur.bold(
+      //       `${result.data?.length} error${
+      //         result.data && result.data.length > 1 ? 's' : ''
+      //       }`,
+      //     )} found.`,
+      //   ),
+      // )
       console.log()
 
       process.exit(1)

@@ -1396,9 +1396,9 @@ importers:
 
   packages/config:
     dependencies:
-      ajv:
-        specifier: ^8.17.1
-        version: 8.17.1
+      '@sinclair/typebox':
+        specifier: ^0.33.3
+        version: 0.33.3
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -6027,6 +6027,9 @@ packages:
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
+
+  '@sinclair/typebox@0.33.3':
+    resolution: {integrity: sha512-2MputLKNw0OxPGWF8KWkLt8B/csTZUkK2tCtiZwJT3NtVOfYPVi6ZEchZAHEHre/qJ4skcS9fL7TuHG36Dk3WQ==}
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -23239,6 +23242,8 @@ snapshots:
   '@sideway/pinpoint@2.0.0': {}
 
   '@sinclair/typebox@0.27.8': {}
+
+  '@sinclair/typebox@0.33.3': {}
 
   '@sindresorhus/is@0.14.0': {}
 

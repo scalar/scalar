@@ -40,7 +40,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "ajv": "^8.17.1"
+    "@sinclair/typebox": "^0.33.3"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
