@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEmptySpecification, parse } from '../../../helpers'
+import { createEmptySpecification, parse } from '../../helpers'
 import { getServers } from './getServers'
 
 describe('getServers', () => {

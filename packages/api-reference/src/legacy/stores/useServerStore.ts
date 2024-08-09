@@ -1,10 +1,12 @@
-import type { Server } from '@/features/BaseUrl'
+import { getServers } from '#legacy'
 import type { Spec } from '@scalar/oas-utils'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { type Ref, reactive, watch } from 'vue'
 
-import { getServers } from '../../features/BaseUrl/utils'
 import { createEmptySpecification } from '../../helpers/createEmptySpecification'
 import type { Server as ApiClientServer, ServerState } from '../types'
+
+type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
 
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
