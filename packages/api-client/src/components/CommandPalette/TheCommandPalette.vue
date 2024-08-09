@@ -6,6 +6,7 @@ import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
+import CommandPaletteWebsocket from './CommandPaletteWebsocket.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
 /**
@@ -20,6 +21,7 @@ export default {
 export const PaletteComponents = {
   'Import Collection': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
+  'Create Websocket': CommandPaletteWebsocket,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Folder': CommandPaletteFolder,
   'Create Collection': CommandPaletteCollection,
@@ -50,6 +52,10 @@ const availableCommands = [
       {
         name: 'Create Request',
         icon: 'ExternalLink',
+      },
+      {
+        name: 'Create Websocket',
+        icon: 'PaperAirplane',
       },
       {
         name: 'Import Collection',
