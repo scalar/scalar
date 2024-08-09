@@ -33,6 +33,7 @@
     "build:storybook": "storybook build",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
+    "playground:embed": "vite ./playground/embed -c ./vite.config.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
