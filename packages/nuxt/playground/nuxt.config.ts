@@ -29,24 +29,18 @@ export default defineNuxtConfig({
       },
     ],
   },
-
   nitro: {
     experimental: {
       openAPI: true,
     },
   },
-
   imports: {
     transform: {
       exclude: [/scalar/],
     },
   },
-
   devtools: { enabled: true },
-
   devServer: {
     port: 5062,
   },
-
-  compatibilityDate: '2024-08-09',
 } as NuxtConfig)
