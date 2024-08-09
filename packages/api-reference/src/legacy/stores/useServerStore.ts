@@ -80,10 +80,11 @@ export const useServerStore = ({
   >
 } = {}) => {
   if (specification?.value !== undefined) {
-    // Watch the spec and set the servers
+    // Watch for changes in the OpenAPI document or the configuration and update the server state
     watch(
-      () => [specification?.value, servers, defaultServerUrl],
+      () => [specification?.value, servers?.value, defaultServerUrl?.value],
       () => {
+        // Make sure to have an OpenAPI document, even if it’s just build from the servers list
         const normalizedSpecification =
           // Use the specification
           servers?.value === undefined
@@ -93,12 +94,15 @@ export const useServerStore = ({
                 servers: servers.value,
               })
 
+        /** List of servers */
         const result = getServers(normalizedSpecification, {
           defaultServerUrl: defaultServerUrl?.value,
         })
 
+        /** Selected server entry */
         const currentServer = result?.[serverStore.selectedServer ?? 0]
 
+        // Update the server state
         setServer({
           servers: result,
           variables: {
@@ -112,7 +116,10 @@ export const useServerStore = ({
           },
         })
       },
-      { deep: true, immediate: true },
+      {
+        deep: true,
+        immediate: true,
+      },
     )
   }
 
