@@ -3,9 +3,14 @@ import { useWorkspace } from '@/store/workspace'
 import { defineProps, onMounted, ref, watch } from 'vue'
 
 const props = withDefaults(
-  defineProps<{ title?: string; showSideBar: boolean }>(),
+  defineProps<{
+    title?: string
+    showSideBar: boolean
+    enableResizer: boolean
+  }>(),
   {
     showSideBar: true,
+    enableResizer: false,
   },
 )
 const emit = defineEmits<{
@@ -90,7 +95,11 @@ watch(
 )
 
 onMounted(() => {
-  setInitialSidebarWidth()
+  if (props.enableResizer) {
+    setInitialSidebarWidth()
+  } else {
+    sidebarWidth.value = '280px'
+  }
 })
 </script>
 <template>
@@ -117,6 +126,7 @@ onMounted(() => {
     </div>
     <slot name="button" />
     <div
+      v-if="props.enableResizer"
       class="resizer"
       @mousedown="startDrag"></div>
   </aside>

@@ -288,6 +288,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
       <Sidebar
         v-show="showSideBar"
         :class="[showSideBar ? 'sidebar-active-width' : '']"
+        enableResizer
         :showSideBar="showSideBar"
         @update:showSideBar="showSideBar = $event">
         <template
