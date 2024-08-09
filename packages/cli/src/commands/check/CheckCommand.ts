@@ -1,8 +1,8 @@
+import { check } from '@scalar/config'
 import { Command } from 'commander'
 import kleur from 'kleur'
 import prettyjson from 'prettyjson'
 
-import { check } from '../../../../config/src/check'
 import { useGivenFileOrConfiguration } from '../../utils'
 
 /**

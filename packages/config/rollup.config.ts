@@ -8,7 +8,14 @@ const entries = ['./src/index.ts']
 export default createRollupConfig({
   options: {
     input: entries,
-    external: ['url', 'fs/promises'],
+    external: [
+      'node:fs',
+      'ajv/dist/2020',
+      'ajv-draft-04',
+      'ajv-formats',
+      'url',
+      'fs',
+    ],
   },
   typescript: true,
 })
