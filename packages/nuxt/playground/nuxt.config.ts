@@ -2,6 +2,7 @@ import type { NuxtConfig } from 'nuxt/schema'
 
 export default defineNuxtConfig({
   modules: ['../src/module'],
+
   scalar: {
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
@@ -28,18 +29,24 @@ export default defineNuxtConfig({
       },
     ],
   },
+
   nitro: {
     experimental: {
       openAPI: true,
     },
   },
+
   imports: {
     transform: {
       exclude: [/scalar/],
     },
   },
+
   devtools: { enabled: true },
+
   devServer: {
     port: 5062,
   },
+
+  compatibilityDate: '2024-08-09',
 } as NuxtConfig)
