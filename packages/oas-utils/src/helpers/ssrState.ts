@@ -1,4 +1,4 @@
-import type { ScalarState } from '../types'
+import type { ScalarState } from '@scalar/types'
 
 declare global {
   interface Window {

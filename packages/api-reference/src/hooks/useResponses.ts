@@ -1,7 +1,4 @@
-import type {
-  RequestBodyMimeTypes,
-  TransformedOperation,
-} from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/types'
 import { computed } from 'vue'
 
 /**

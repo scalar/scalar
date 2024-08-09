@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import type { SSRState } from '@scalar/oas-utils'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import { type ThemeId, getThemeStyles } from '@scalar/themes'
+import type { SSRState } from '@scalar/types'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {

@@ -1,7 +1,7 @@
 import { useApiClientStore, useOpenApiStore } from '#legacy'
-import type { Spec, Tag, TransformedOperation } from '@scalar/oas-utils'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { Spec, Tag, TransformedOperation } from '@scalar/types'
 import { computed, reactive, ref, watch } from 'vue'
 
 import { lazyBus } from '../components/Content/Lazy/lazyBus'

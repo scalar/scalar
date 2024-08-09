@@ -1,4 +1,4 @@
-import type { ContentType } from '../types'
+import type { ContentType } from '@scalar/types'
 
 /**
  * Normalizes a MIME type to a standard format.

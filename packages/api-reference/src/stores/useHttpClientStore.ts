@@ -1,8 +1,9 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
+import type { HiddenClients } from '@scalar/types'
 import { type TargetId, availableTargets as allTargets } from 'httpsnippet-lite'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
-import type { AvailableTarget, HiddenClients } from '../types'
+import type { AvailableTarget } from '../types'
 
 const FALLBACK_HTTP_CLIENT: HttpClientState = {
   targetKey: 'shell',

@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/api-reference-types",
-  "description": "Shared types for the references",
+  "name": "@scalar/types",
+  "description": "Shared types for the references with minimal dependencies",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/apoi"
+    "directory": "packages/types"
   },
   "keywords": [
     "oas",
@@ -32,6 +32,7 @@
   ],
   "module": "src/index.ts",
   "dependencies": {
+    "@scalar/themes": "workspace:*",
     "@unhead/schema": "^1.9.5",
     "httpsnippet-lite": "^3.0.5",
     "openapi-types": "^12.1.3"

@@ -1,4 +1,5 @@
-import type { ContentType } from '../types'
+import type { ContentType } from '@scalar/types'
+
 import { normalizeMimeType } from './normalizeMimeType'
 
 /**

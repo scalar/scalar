@@ -4,7 +4,8 @@ import type {
   Header,
   Query,
   TransformedOperation,
-} from '../types'
+} from '@scalar/types'
+
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 

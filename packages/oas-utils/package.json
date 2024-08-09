@@ -34,10 +34,6 @@
   "type": "module",
   "main": "dist/index.js",
   "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
     "./transforms": {
       "import": "./dist/transforms/index.js",
       "types": "./dist/transforms/index.d.ts"
@@ -103,6 +99,7 @@
   "dependencies": {
     "@scalar/object-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
     "axios": "^1.6.8",
     "nanoid": "^5.0.7",
     "yaml": "^2.4.5",

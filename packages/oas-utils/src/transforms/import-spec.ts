@@ -5,8 +5,8 @@ import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { schemaModel } from '@/helpers/schema-model'
-import type { AnyObject, Spec } from '@/types'
 import { dereference, load } from '@scalar/openapi-parser'
+import type { AnyObject, Spec } from '@scalar/types'
 import type { OpenAPIV3_1 } from 'openapi-types'
 
 const PARAM_DICTIONARY = {

@@ -2,11 +2,11 @@
  * This file is the entry point for the CDN version of the API Reference.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
+import type { ReferenceConfiguration } from '@scalar/types'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
-import type { ReferenceConfiguration } from './types'
 
 const specScriptTag = document.getElementById('api-reference')
 const specElement = document.querySelector('[data-spec]')

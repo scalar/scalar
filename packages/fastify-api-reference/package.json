@@ -42,7 +42,7 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "@scalar/api-reference-types": "workspace:*",
+    "@scalar/types": "workspace:*",
     "fastify-plugin": "^4.5.1"
   },
   "devDependencies": {

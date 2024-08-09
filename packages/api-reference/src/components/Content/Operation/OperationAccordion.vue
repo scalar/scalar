@@ -4,7 +4,7 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/types'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
 import { useClipboard } from '../../../hooks'

@@ -37,7 +37,7 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@scalar/api-reference-types": "workspace:*"
+    "@scalar/types": "workspace:*"
   },
   "devDependencies": {
     "@hono/node-server": "^1.11.0",

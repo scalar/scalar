@@ -1,6 +1,5 @@
 import { PathId, fallbackMissingParams } from '@/router'
 import { useModal } from '@scalar/components'
-import type { Spec } from '@scalar/oas-utils'
 import {
   type Workspace,
   type WorkspacePayload,
@@ -56,6 +55,7 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-parser'
+import type { Spec } from '@scalar/types'
 import type { Entries } from 'type-fest'
 import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
