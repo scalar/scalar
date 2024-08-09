@@ -71,7 +71,9 @@ export function getServers(
           server.variables = {}
         }
 
-        server.variables[variable] = {}
+        server.variables[variable] = {
+          default: '',
+        }
       })
 
     return server
