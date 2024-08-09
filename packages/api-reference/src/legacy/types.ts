@@ -1,3 +1,4 @@
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import type { BaseParameter } from '@scalar/types/legacy'
 
 export type Header = BaseParameter
@@ -118,12 +119,14 @@ export type Response = {
   content: any
 }
 
+// TODO: Remove?
 export type Server = {
   url: string
   description?: string
   variables?: ServerVariables
 }
 
+// TODO: Remove?
 export type ServerVariables = Record<
   string,
   {
@@ -133,6 +136,7 @@ export type ServerVariables = Record<
   }
 >
 
+// TODO: Remove?
 export type Variable = {
   name: string
   value: string
@@ -142,6 +146,6 @@ export type Variable = {
 export type ServerState = {
   selectedServer: null | number
   description?: string
-  servers?: Server[]
+  servers?: (OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject)[]
   variables: { [key: string]: string }
 }

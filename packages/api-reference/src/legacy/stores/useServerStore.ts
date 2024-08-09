@@ -4,9 +4,7 @@ import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { type Ref, reactive, watch } from 'vue'
 
 import { createEmptySpecification } from '../../helpers/createEmptySpecification'
-import type { Server as ApiClientServer, ServerState } from '../types'
-
-type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
+import type { ServerState } from '../types'
 
 export const createEmptyServerState = (): ServerState => ({
   selectedServer: null,
@@ -26,7 +24,11 @@ const setServer = (newState: Partial<ServerState>) => {
 /**
  * Get the default values for the server variables
  */
-function getDefaultValuesFromServers(variables: ApiClientServer['variables']) {
+function getDefaultValuesFromServers(
+  variables:
+    | OpenAPIV3.ServerObject['variables']
+    | OpenAPIV3_1.ServerObject['variables'],
+) {
   return Object.fromEntries(
     Object.entries(variables ?? {}).map(([name, variable]) => [
       name,
@@ -45,7 +47,7 @@ function getDefaultValuesFromServers(variables: ApiClientServer['variables']) {
  */
 function removeNotExistingVariables(
   variables: Record<string, string>,
-  thisServer: ApiClientServer,
+  thisServer: OpenAPIV3_1.ServerObject | OpenAPIV3.ServerObject,
 ) {
   return Object.fromEntries(
     Object.entries(variables).filter(
@@ -67,7 +69,9 @@ export const useServerStore = ({
   /**
    * Overwrite the list of servers
    */
-  servers?: Ref<Server[] | undefined>
+  servers?: Ref<
+    (OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject)[] | undefined
+  >
 } = {}) => {
   if (specification?.value !== undefined) {
     // Watch the spec and set the servers
@@ -85,15 +89,15 @@ export const useServerStore = ({
 
         const result = getServers(normalizedSpecification, {
           defaultServerUrl: defaultServerUrl?.value,
-        }) as ApiClientServer[]
+        })
+
+        const currentServer = result?.[serverStore.selectedServer ?? 0]
 
         setServer({
           servers: result,
           variables: {
             // Set the initial values for the variables
-            ...getDefaultValuesFromServers(
-              result?.[serverStore.selectedServer ?? 0]?.variables ?? {},
-            ),
+            ...getDefaultValuesFromServers(currentServer?.variables ?? {}),
             // Don’t overwrite existing values, but filter out non-existing variables
             ...removeNotExistingVariables(
               serverStore.variables,

@@ -3,7 +3,8 @@
  * We want to move this code over to @scalar/api-client and just tap into the api client workspace eventually, though.
  */
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
-import type { Server, Spec } from '@scalar/types/legacy'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { Spec } from '@scalar/types/legacy'
 
 export type DefaultServerUrlOption = {
   /**
@@ -21,12 +22,11 @@ export function getServers(
   specification: Spec | undefined,
   options?: DefaultServerUrlOption,
 ) {
-  // Default: Current URL
-  let servers: Server[] = []
+  let servers: (OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject)[] = []
 
   // Overwrite with servers from the specification
   if (specification?.servers && specification?.servers.length > 0) {
-    servers = specification.servers as Server[]
+    servers = specification.servers
   }
   // Use Swagger 2.0 host and basePath
   else if (specification?.host) {
@@ -39,7 +39,7 @@ export function getServers(
       },
     ]
   }
-  // Default: Current URL
+  // Fallback to `defaultServerUrl` or current URL
   else {
     servers = [
       {
@@ -58,7 +58,7 @@ export function getServers(
   }
 
   // Variables
-  return servers.map((server: Server) => {
+  return servers.map((server) => {
     // Existing variables
     const variables = server.variables ?? {}
 
@@ -90,7 +90,7 @@ export function getServers(
  * Example: /foobar -> http://localhost/foobar
  */
 function prependRelativePaths(
-  server: Server,
+  server: OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject,
   options?: DefaultServerUrlOption,
 ) {
   // URLs that start with http[s]:// or a variable
