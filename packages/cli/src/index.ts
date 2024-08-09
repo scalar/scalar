@@ -4,9 +4,9 @@ import { Command } from 'commander'
 import { version } from '../package.json'
 import {
   BundleCommand,
+  CheckCommand,
   FormatCommand,
   InitCommand,
-  LintCommand,
   MockCommand,
   ServeCommand,
   ShareCommand,
@@ -32,7 +32,7 @@ program.addCommand(ServeCommand())
 program.addCommand(MockCommand())
 program.addCommand(VoidCommand())
 program.addCommand(ShareCommand())
-program.addCommand(LintCommand())
+program.addCommand(CheckCommand())
 
 /** display help if no argument has been provided */
 if (process.argv.length === 2) {

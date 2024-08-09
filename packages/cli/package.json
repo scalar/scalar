@@ -49,6 +49,7 @@
     "@hono/node-server": "^1.11.0",
     "@parcel/watcher": "^2.4.1",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/config": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

@@ -72,6 +72,4 @@ export type ScalarConfig = {
   }
   guides: ConfigGuide[]
   references: ConfigReference[]
-  // TODO: add theme field
-  // TODO: add footer field
 }

@@ -1111,6 +1111,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/config':
+        specifier: workspace:*
+        version: link:../config
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server
@@ -1400,6 +1403,12 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.14.14
+      rollup:
+        specifier: ^4.16.4
+        version: 4.20.0
 
   packages/docusaurus:
     dependencies:

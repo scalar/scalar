@@ -18,11 +18,12 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
+    "format": "scalar-format-js",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "test:unit": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix"
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "dist/index.js",
@@ -36,6 +37,8 @@
     "ajv": "^8.17.1"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "@types/node": "^20.14.10",
+    "rollup": "^4.16.4"
   }
 }
