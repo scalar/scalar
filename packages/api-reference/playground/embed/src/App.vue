@@ -9,11 +9,13 @@ const sourcecode = `<OpenApiDocument
   :configuration="{
     proxy: 'https://proxy.scalar.com',
   }"
-  content="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json">
+  :spec="{
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  }">
 
   <ExampleRequest
     :configuration="configuration"
-    :operation="parsedSpec.tags?.[0]?.operations?.[0]"
+    :operation="parsedSpec.tags?.[1]?.operations?.[1]"
     :parsedSpec="parsedSpec" />
 
 </OpenApiDocument>`
