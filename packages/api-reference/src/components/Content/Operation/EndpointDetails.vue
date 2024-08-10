@@ -41,7 +41,9 @@ const { responses } = useResponses(props.operation)
       :requestBody="operation.information?.requestBody">
       <template #title>Body</template>
     </RequestBody>
-    <Parameters :parameters="responses">
+    <Parameters
+      :collapsableItems="true"
+      :parameters="responses">
       <template #title>Responses</template>
     </Parameters>
   </div>

@@ -1,23 +1,68 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/oas-utils'
+import { ScalarIcon } from '@scalar/components'
+import type { ContentType, Parameters } from '@scalar/oas-utils'
+import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
 
-withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
-  showChildren: false,
+const props = withDefaults(
+  defineProps<{
+    parameter: Parameters
+    showChildren?: boolean
+    collapsableItems?: boolean
+  }>(),
+  {
+    showChildren: false,
+    collapsableItems: false,
+  },
+)
+const showCollapsedItems = ref(false)
+
+const contentTypes = computed(() => {
+  if (props.parameter.content) {
+    return Object.keys(props.parameter.content)
+  }
+  return []
 })
+const selectedContentType = ref<ContentType>(
+  contentTypes.value[0] as ContentType,
+)
+if (props.parameter.content) {
+  if ('application/json' in props.parameter.content) {
+    selectedContentType.value = 'application/json'
+  }
+}
 </script>
 <template>
   <li class="parameter-item">
-    <div class="parameter-item-container">
+    <div
+      v-if="collapsableItems"
+      class="flex"
+      @click="showCollapsedItems = !showCollapsedItems">
+      <ScalarIcon
+        :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
+        size="md"
+        thickness="1.75" />
+      <span>
+        {{ parameter.name }}
+      </span>
+      <span>
+        {{ parameter.description }}
+      </span>
+    </div>
+    <div
+      v-if="(collapsableItems && showCollapsedItems) || !collapsableItems"
+      class="parameter-item-container">
       <SchemaProperty
         compact
-        :description="parameter.description"
         :level="0"
-        :name="parameter.name"
         :noncollapsible="showChildren"
         :required="parameter.required"
-        :value="parameter.schema" />
+        :value="
+          parameter.content
+            ? parameter.content?.[selectedContentType]?.schema
+            : parameter.schema
+        " />
     </div>
   </li>
 </template>
