@@ -72,7 +72,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 
       // Optional
       if (keys.length === 0 && isReadOnly.value)
-        return { id: 'none', label: 'None', labelWithoutId: 'None' }
+        return { id: 'none', label: 'None' }
 
       if (!securitySchemesDict) return []
 
@@ -90,7 +90,6 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
             MULTI_AUTH_DELIMITER +
             schemes.map((scheme) => scheme.uid).join(MULTI_AUTH_DELIMITER),
           label,
-          labelWithoutId: label,
         }
       }
 
@@ -102,8 +101,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 
         return {
           id,
-          label: `${label} (${key})`,
-          labelWithoutId: label,
+          label,
         }
       })
     })
@@ -124,7 +122,6 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
             'name' in scheme && scheme.name.length
               ? `${label} (${scheme.name})`
               : label,
-          labelWithoutId: label,
         }
       })
 
@@ -271,7 +268,7 @@ const unselectAuth = (id: string) => {
                       v-for="auth in selectedAuth"
                       :key="auth.id"
                       class="cm-pill flex items-center mx-0 h-fit">
-                      {{ auth.labelWithoutId }}
+                      {{ auth.label }}
                       <ScalarIcon
                         class="ml-1 cursor-pointer text-c-3 hover:text-c-1"
                         icon="Close"
