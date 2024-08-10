@@ -63,7 +63,10 @@ async function scrollHandler(operation: TransformedOperation) {
                     class="endpoint"
                     @click="scrollHandler(operation)">
                     <HttpMethod :method="operation.httpVerb" />
-                    <span :class="{ 'deprecated': operation.information?.deprecated }">{{ operation.path }}</span>
+                    <span
+                      :class="{ deprecated: operation.information?.deprecated }"
+                      >{{ operation.path }}</span
+                    >
                   </a>
                 </div>
               </CardContent>
