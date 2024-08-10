@@ -178,7 +178,7 @@
   .markdown code {
     font-family: var(--scalar-font-code);
     background-color: var(--scalar-background-2);
-    box-shadow: 0 0 0 1px var(--scalar-border-color);
+    box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
     font-size: var(--scalar-micro);
     border-radius: 2px;
     padding: 0 3px;
@@ -198,7 +198,7 @@
 
   .markdown hr {
     border: none;
-    border-bottom: 1px solid var(--scalar-border-color);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   }
 
   .markdown blockquote {
@@ -216,7 +216,7 @@
     width: max-content;
     max-width: 100%;
     margin: 1em 0;
-    box-shadow: 0 0 0 1px var(--scalar-border-color);
+    box-shadow: 0 0 0 var(--scalar-border-width) var(--scalar-border-color);
     border-radius: var(--scalar-radius-lg);
   }
   .markdown tbody {
@@ -246,8 +246,8 @@
     font-size: var(--scalar-small);
     color: var(--scalar-color-1);
     font-weight: var(--font-weight, var(--scalar-regular));
-    border-right: 1px solid var(--scalar-border-color);
-    border-bottom: 1px solid var(--scalar-border-color);
+    border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   }
 
   .markdown td > *,

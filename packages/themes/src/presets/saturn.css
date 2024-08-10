@@ -3,7 +3,7 @@
   --scalar-background-1: #f3f3ee;
   --scalar-background-2: #e8e8e3;
   --scalar-background-3: #e4e4df;
-  --scalar-border-color: rgba(215, 215, 206, 0.5);
+  --scalar-border-color: rgba(215, 215, 206, 0.85);
 
   --scalar-color-1: #2a2f45;
   --scalar-color-2: #757575;
@@ -16,7 +16,7 @@
   --scalar-background-1: #09090b;
   --scalar-background-2: #18181b;
   --scalar-background-3: #2c2c30;
-  --scalar-border-color: rgba(255, 255, 255, 0.12);
+  --scalar-border-color: rgba(255, 255, 255, 0.17);
 
   --scalar-color-1: #fafafa;
   --scalar-color-2: rgb(161, 161, 170);

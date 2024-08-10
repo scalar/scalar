@@ -6,7 +6,7 @@ import PageLink from '../components/PageLink.vue'
 const inDevelopment = import.meta.env.DEV
 </script>
 <template>
-  <div class="main dark-mode">
+  <div class="main">
     <div class="logo">
       <svg
         data-v-873746d2=""

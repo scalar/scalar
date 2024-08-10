@@ -187,7 +187,7 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid
+  border-right: var(--scalar-border-width) solid
     var(--scalar-sidebar-border-color, var(--scalar-border-color));
   background: var(--scalar-sidebar-background-1, var(--scalar-background-1));
   --scalar-sidebar-level: 0;
@@ -216,7 +216,8 @@ onMounted(() => {
   line-height: 1.385;
 }
 .sidebar-group-item + .sidebar-group-title {
-  border-top: 1px solid var(--scalar-sidebar-border-color);
+  border-top: var(--scalar-border-width) solid
+    var(--scalar-sidebar-border-color);
   margin-top: 9px;
 }
 </style>

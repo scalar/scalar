@@ -7,7 +7,7 @@
 .card-form {
   color: var(--scalar-color-1);
   width: 100%;
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
   background-color: var(--scalar-background-2);
 }

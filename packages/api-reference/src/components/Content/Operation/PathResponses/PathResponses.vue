@@ -200,7 +200,7 @@ const showSchema = ref(false)
   flex-shrink: 0;
   padding: 10px 12px;
   gap: 8px;
-  border-top: 0.5px solid var(--scalar-border-color);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .response-example-selector {
   align-self: start;

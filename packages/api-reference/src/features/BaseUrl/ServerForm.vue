@@ -87,7 +87,7 @@ const server = computed(() => props.servers?.[selectedRef.value])
 .server-form-container {
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-2);
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .server-item {
   padding: 0 9px;

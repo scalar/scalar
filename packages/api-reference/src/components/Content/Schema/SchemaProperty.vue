@@ -240,7 +240,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property:not(:last-of-type) {
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .children {
   display: flex;
@@ -260,7 +260,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
 
   font-size: var(--scalar-micro);
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   background: var(--scalar-background-2);
   border-radius: var(--scalar-radius-lg);
 }
@@ -301,7 +301,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   display: none;
 }
 .property-list {
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
   margin-top: 10px;
 }

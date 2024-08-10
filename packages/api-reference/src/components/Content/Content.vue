@@ -140,12 +140,12 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
   flex-direction: column;
   padding-top: 3px;
   background: var(--scalar-background-1);
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
 }
 .introduction-card-item {
   padding: 9px 12px;
-  border-bottom: 0.5px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   display: flex;
   flex-direction: column;
   justify-content: center;

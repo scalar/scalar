@@ -7,7 +7,7 @@
   --scalar-background-1: #f0f2f5;
   --scalar-background-2: #eaecf0;
   --scalar-background-3: #e0e2e6;
-  --scalar-border-color: rgb(228, 228, 231);
+  --scalar-border-color: rgb(213 213 213);
 
   --scalar-color-1: rgb(9, 9, 11);
   --scalar-color-2: rgb(113, 113, 122);
@@ -15,15 +15,13 @@
 
   --scalar-color-accent: var(--scalar-color-1);
   --scalar-background-accent: #8ab4f81f;
-
-  --scalar-code-language-color-supersede: var(--scalar-color-1);
 }
 .light-mode .scalar-card.dark-mode,
 .dark-mode {
   --scalar-background-1: #000e23;
   --scalar-background-2: #01132e;
   --scalar-background-3: #03193b;
-  --scalar-border-color: rgba(255, 255, 255, 0.12);
+  --scalar-border-color: rgba(255, 255, 255, 0.18);
 
   --scalar-color-1: #fafafa;
   --scalar-color-2: rgb(161, 161, 170);

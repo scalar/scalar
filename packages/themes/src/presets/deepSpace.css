@@ -28,7 +28,7 @@
   --scalar-background-3: #2c2c30;
   --scalar-background-accent: #8ab4f81f;
 
-  --scalar-border-color: rgba(255, 255, 255, 0.12);
+  --scalar-border-color: rgba(255, 255, 255, 0.16);
   --scalar-code-language-color-supersede: var(--scalar-color-1);
 }
 

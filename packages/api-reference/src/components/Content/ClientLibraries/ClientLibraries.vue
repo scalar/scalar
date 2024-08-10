@@ -33,7 +33,7 @@ const { availableTargets, httpTargetTitle, httpClientTitle } =
   text-overflow: ellipsis;
   background: var(--scalar-background-2);
   border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top: none;
 }
 .client-libraries-heading {

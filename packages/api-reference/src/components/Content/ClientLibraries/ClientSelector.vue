@@ -163,7 +163,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   overflow: hidden;
   background-color: var(--scalar-background-2);
   border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
-  border: 0.5px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-bottom: none;
 }
 .client-libraries {
@@ -178,7 +178,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   gap: 6px;
   color: var(--scalar-color-3);
   user-select: none;
-  border-bottom: 0.5px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .client-libraries:hover:before {
   content: '';
@@ -236,7 +236,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .client-libraries__active {
   color: var(--scalar-color-1);
-  border-bottom: 0.5px solid var(--scalar-color-1);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-color-1);
 }
 @keyframes codeloader {
   0% {

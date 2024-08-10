@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+
 import type { ContentProperties } from '../../../types'
 
 defineProps<{ contentProperties: ContentProperties }>()
@@ -21,16 +23,9 @@ defineProps<{ contentProperties: ContentProperties }>()
         v-if="value.type === 'object'"
         class="parameter-child parameter-child__on">
         <div class="parameter-child-trigger">
-          <svg
-            fill="currentColor"
-            height="14"
-            viewBox="0 0 14 14"
-            width="14"
-            xmlns="http://www.w3.org/2000/svg">
-            <polygon
-              fill-rule="nonzero"
-              points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
-          </svg>
+          <ScalarIcon
+            class="h-2.5"
+            icon="Add" />
           <span>Child Attributes</span>
         </div>
       </div>

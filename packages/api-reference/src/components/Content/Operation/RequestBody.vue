@@ -67,7 +67,7 @@ if (prop.requestBody?.content) {
   line-height: 1.45;
   margin-top: 24px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   flex-flow: wrap;
 }
 .request-body-title-select {

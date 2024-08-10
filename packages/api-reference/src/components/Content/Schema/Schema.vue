@@ -67,19 +67,12 @@ const handleClick = (e: MouseEvent) =>
           }"
           @click.capture="handleClick">
           <template v-if="compact">
-            <svg
+            <ScalarIcon
               v-if="shouldShowToggle"
-              class="schema-card-title-icon"
+              class="schema-card-title-icon h-2.5"
               :class="{ 'schema-card-title-icon--open': open }"
-              fill="currentColor"
-              height="14"
-              viewBox="0 0 14 14"
-              width="14"
-              xmlns="http://www.w3.org/2000/svg">
-              <polygon
-                fill-rule="nonzero"
-                points="14 8 8 8 8 14 6 14 6 8 0 8 0 6 6 6 6 0 8 0 8 6 14 6" />
-            </svg>
+              icon="Add"
+              thickness="3" />
             <template v-if="open">
               Hide {{ value?.title ?? 'Child Attributes' }}
             </template>
@@ -183,7 +176,7 @@ const handleClick = (e: MouseEvent) =>
   font-size: var(--scalar-micro);
   background: var(--scalar-background-1);
   border-radius: var(--scalar-radius-lg);
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--scalar-border-width) solid transparent;
 }
 button.schema-card-title {
   cursor: pointer;
@@ -204,7 +197,7 @@ button.schema-card-title:hover {
 
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-bottom: 1px solid var(--scalar-border-color);
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .schema-properties-open > .schema-properties {
   width: fit-content;
@@ -224,7 +217,7 @@ button.schema-card-title:hover {
   display: flex;
   flex-direction: column;
 
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
 }
 

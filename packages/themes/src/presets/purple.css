@@ -11,7 +11,7 @@
   --scalar-color-accent: #5469d4;
   --scalar-background-accent: #5469d41f;
 
-  --scalar-border-color: rgba(215, 215, 206, 0.5);
+  --scalar-border-color: rgba(215, 215, 206, 0.68);
 }
 .dark-mode {
   --scalar-background-1: #15171c;
@@ -25,7 +25,7 @@
   --scalar-color-accent: #5469d4;
   --scalar-background-accent: #5469d41f;
 
-  --scalar-border-color: rgba(255, 255, 255, 0.12);
+  --scalar-border-color: rgba(255, 255, 255, 0.18);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,

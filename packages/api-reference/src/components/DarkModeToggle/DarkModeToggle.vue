@@ -37,7 +37,7 @@ defineEmits<{
 .darklight {
   font-family: var(--scalar-font);
   border: none;
-  border-top: 1px solid
+  border-top: var(--scalar-border-width) solid
     var(--scalar-sidebar-border-color, var(--scalar-border-color));
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 

@@ -64,6 +64,12 @@ defineOptions({
   -webkit-appearance: none;
   left: 0;
 }
+.card-form-input input:placeholder,
+.card-form-input input:-ms-input-placeholder,
+.card-form-input input::-webkit-input-placeholder {
+  color: var(--scalar-color-3);
+  font-family: var(--scalar-font);
+}
 .card-form-input label {
   width: fit-content;
   white-space: nowrap;
@@ -78,7 +84,7 @@ defineOptions({
   color: var(--scalar-color-1);
 }
 .card-form-input + .card-form-input {
-  border-left: 0.5px solid var(--scalar-border-color);
+  border-left: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .card-form-input input:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);
