@@ -63,7 +63,10 @@ async function scrollHandler(operation: TransformedOperation) {
                     class="endpoint"
                     @click="scrollHandler(operation)">
                     <HttpMethod :method="operation.httpVerb" />
-                    <span>{{ operation.path }}</span>
+                    <span
+                      :class="{ deprecated: operation.information?.deprecated }"
+                      >{{ operation.path }}</span
+                    >
                   </a>
                 </div>
               </CardContent>
@@ -114,5 +117,8 @@ async function scrollHandler(operation: TransformedOperation) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);
   cursor: pointer;
+}
+.deprecated {
+  text-decoration: line-through;
 }
 </style>
