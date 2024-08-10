@@ -12,7 +12,7 @@ import {
 } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
-import { Schema } from '../Schema'
+import CollapsedModel from './CollapsedModel.vue'
 
 const props = defineProps<{
   schemas?:
@@ -55,29 +55,13 @@ const models = computed(() => {
       :id="getModelId(name)"
       :key="name"
       isLazy>
-      <Section
-        :id="getModelId(name)"
-        :label="name">
-        <template v-if="(schemas as any)[name]">
-          <SectionContent>
-            <SectionHeader :level="2">
-              <Anchor :id="getModelId(name)">
-                {{ (schemas as any)[name].title ?? name }}
-              </Anchor>
-            </SectionHeader>
-            <!-- Schema -->
-            <Schema
-              :name="name"
-              noncollapsible
-              :value="(schemas as any)[name]" />
-            <!-- Show More Button -->
-            <ShowMoreButton
-              v-if="!showAllModels && index === models.length - 1"
-              :id="getModelId()"
-              class="something-special" />
-          </SectionContent>
-        </template>
-      </Section>
+      <CollapsedModel
+        :name="name"
+        :schemas="schemas" />
+      <ShowMoreButton
+        v-if="!showAllModels && index === models.length - 1"
+        :id="getModelId()"
+        class="something-special" />
     </Lazy>
   </SectionContainer>
 </template>
