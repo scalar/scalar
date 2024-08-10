@@ -4,6 +4,7 @@ import type { ContentType, Parameters } from '@scalar/oas-utils'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
+import ContentTypeSelect from './ContentTypeSelect.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -57,6 +58,13 @@ const shouldCollapse = computed(() => {
     <div
       v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
       class="parameter-item-container">
+      <ContentTypeSelect
+        v-if="shouldCollapse && props.parameter.content"
+        :defaultValue="selectedContentType"
+        :requestBody="props.parameter"
+        @selectContentType="
+          ({ contentType }) => (selectedContentType = contentType)
+        " />
       <SchemaProperty
         compact
         :description="shouldCollapse ? '' : parameter.description"
