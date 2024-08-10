@@ -4,7 +4,6 @@ import type { Entries } from 'type-fest'
 export type SecuritySchemeOption = {
   id: string
   label: string
-  labelWithoutId: string
   payload?: SecuritySchemePayload
 }
 
@@ -100,6 +99,5 @@ export const ADD_AUTH_OPTIONS: SecuritySchemeOption[] = entries.map(
     ({
       id,
       ...value,
-      labelWithoutId: value.label,
     }) as const,
 )
