@@ -32,11 +32,15 @@ if (props.parameter.content) {
     selectedContentType.value = 'application/json'
   }
 }
+
+const shouldCollapse = computed(() => {
+  return props.collapsableItems && props.parameter.content
+})
 </script>
 <template>
   <li class="parameter-item">
     <div
-      v-if="collapsableItems"
+      v-if="shouldCollapse"
       class="flex"
       @click="showCollapsedItems = !showCollapsedItems">
       <ScalarIcon
@@ -51,11 +55,13 @@ if (props.parameter.content) {
       </span>
     </div>
     <div
-      v-if="(collapsableItems && showCollapsedItems) || !collapsableItems"
+      v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
       class="parameter-item-container">
       <SchemaProperty
         compact
+        :description="shouldCollapse ? '' : parameter.description"
         :level="0"
+        :name="shouldCollapse ? '' : parameter.name"
         :noncollapsible="showChildren"
         :required="parameter.required"
         :value="
