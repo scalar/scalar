@@ -3,6 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import { ref } from 'vue'
 
 import { useNavState } from '../../../hooks'
+import Anchor from '../../Anchor/Anchor.vue'
 import { Schema, SchemaHeading } from '../Schema'
 
 defineProps<{ name: string; schemas: Record<string, any> }>()
@@ -20,25 +21,16 @@ const showCollapsedItems = ref(false)
         :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
         size="md"
         thickness="1.75" />
-      <SchemaHeading
-        :name="name"
-        :value="(schemas as any)[name]" />
+      <Anchor :id="getModelId(name)">
+        <SchemaHeading
+          :name="name"
+          :value="(schemas as any)[name]" />
+      </Anchor>
       <Schema
         v-if="showCollapsedItems"
         :hideHeading="true"
         noncollapsible
         :value="(schemas as any)[name]" />
-      <!-- <SectionContent>
-        <SectionHeader :level="2">
-          <Anchor :id="getModelId(name)">
-            {{ (schemas as any)[name].title ?? name }}
-          </Anchor>
-        </SectionHeader>
-        <Schema
-          :name="name"
-          noncollapsible
-          :value="(schemas as any)[name]" />
-      </SectionContent> -->
     </template>
   </div>
 </template>
