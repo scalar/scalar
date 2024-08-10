@@ -87,7 +87,7 @@ whenever(
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   outline: none;
   border-radius: var(--scalar-radius);
-  box-shadow: 0 0 0 1px
+  box-shadow: 0 0 0 0.5px
     var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
   /* prettier-ignore */
   cursor: pointer;

@@ -27,7 +27,7 @@ const { setCollapsedSidebarItem } = useSidebar()
   background: var(--scalar-background-1);
   appearance: none;
   border: none;
-  border: 1px solid var(--scalar-border-color);
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
   margin: auto;
   padding: 8px 12px;
   border-radius: 30px;

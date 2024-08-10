@@ -4,6 +4,7 @@
 :root {
   --scalar-font: var(--ifm-font-family-base);
   --scalar-font-code: var(--ifm-font-family-monospace);
+  --scalar-border-width: 1px;
 }
 .scalar-api-reference {
   --refs-header-height: var(--ifm-navbar-height);

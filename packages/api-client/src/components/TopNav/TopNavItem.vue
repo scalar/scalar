@@ -62,7 +62,7 @@ defineEmits<{
   display: flex;
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-3);
-  border: 0.5px solid var(--scalar-background-2);
+  border: var(--scalar-border-width) solid var(--scalar-background-2);
   color: var(--scalar-color-3);
   padding: 4.5px;
   min-width: 0;

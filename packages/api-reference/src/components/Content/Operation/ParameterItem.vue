@@ -24,7 +24,7 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
 
 <style scoped>
 .parameter-item {
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .parameter-item:last-of-type .parameter-schema {
   padding-bottom: 0;

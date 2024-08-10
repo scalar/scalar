@@ -176,7 +176,8 @@ const deleteWorkspace = async () => {
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
               class="h-2.5"
-              icon="Add" />
+              icon="Add"
+              thickness="3" />
           </div>
           <span>Create new workspace</span>
         </ScalarDropdownItem>
