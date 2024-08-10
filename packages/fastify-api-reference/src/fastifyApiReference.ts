@@ -3,6 +3,8 @@ import type {
   FastifyBaseLogger,
   FastifyTypeProviderDefault,
   RawServerDefault,
+  onRequestHookHandler,
+  preHandlerHookHandler,
 } from 'fastify'
 import fp from 'fastify-plugin'
 
@@ -28,7 +30,16 @@ export type FastifyApiReferenceOptions = {
    * Read more: https://github.com/scalar/scalar
    */
   configuration?: ReferenceConfiguration
+  /**
+   * The hooks for the API Reference.
+   */
+  hooks?: FastifyApiReferenceHooksOptions
 }
+
+export type FastifyApiReferenceHooksOptions = Partial<{
+  onRequest?: onRequestHookHandler
+  preHandler?: preHandlerHookHandler
+}>
 
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route
@@ -189,6 +200,18 @@ const fastifyApiReference = fp<
     // Read the JavaScript file once.
     const fileContent = getJavaScriptFile()
 
+    const hooks: FastifyApiReferenceHooksOptions = {}
+    if (options.hooks) {
+      const additionalHooks: (keyof FastifyApiReferenceHooksOptions)[] = [
+        'onRequest',
+        'preHandler',
+      ]
+
+      for (const hook of additionalHooks) {
+        hooks[hook] = options.hooks[hook]
+      }
+    }
+
     // If no theme is passed, use the default theme.
     fastify.route({
       method: 'GET',
@@ -196,6 +219,7 @@ const fastifyApiReference = fp<
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore
       schema: schemaToHideRoute,
+      ...hooks,
       handler(_, reply) {
         // If nothing is passed, try to use @fastify/swagger
         if (
@@ -234,6 +258,7 @@ const fastifyApiReference = fp<
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore
       schema: schemaToHideRoute,
+      ...hooks,
       handler(_, reply) {
         return reply
           .header('Content-Type', 'application/javascript; charset=utf-8')
