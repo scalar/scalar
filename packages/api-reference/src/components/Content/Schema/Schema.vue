@@ -25,6 +25,7 @@ const props = withDefaults(
     compact?: boolean
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
+    hideHeading?: boolean
   }>(),
   { level: 0 },
 )
@@ -58,7 +59,7 @@ const handleClick = (e: MouseEvent) =>
         class="schema-properties"
         :class="{ 'schema-properties-open': open }">
         <DisclosureButton
-          v-show="!(noncollapsible && compact)"
+          v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
           class="schema-card-title"
           :class="{ 'schema-card-title--compact': compact }"
