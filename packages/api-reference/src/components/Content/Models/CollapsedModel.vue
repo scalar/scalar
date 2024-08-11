@@ -15,10 +15,11 @@ const showCollapsedItems = ref(false)
   <div
     :id="getModelId(name)"
     class="collapsed-model"
-    :label="name"
-    @click="showCollapsedItems = !showCollapsedItems">
+    :label="name">
     <template v-if="(schemas as any)[name]">
-      <div class="collapsed-model-trigger">
+      <div
+        class="collapsed-model-trigger"
+        @click="showCollapsedItems = !showCollapsedItems">
         <ScalarIcon
           :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
           size="md"
@@ -51,6 +52,7 @@ const showCollapsedItems = ref(false)
   align-items: center;
   cursor: pointer;
   padding-top: 10px;
+  font-size: var(--scalar-font-size-3);
 }
 .collapsed-model .collapsed-model-trigger:after {
   content: '';
