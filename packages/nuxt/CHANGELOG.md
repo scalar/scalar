@@ -1,5 +1,18 @@
 # @scalar/nuxt
 
+## 0.2.73
+
+### Patch Changes
+
+- a9565ff: fix(nuxt): CJS import errors
+- Updated dependencies [56be4fe]
+- Updated dependencies [476f3e7]
+- Updated dependencies [c450bb3]
+- Updated dependencies [8411bb1]
+- Updated dependencies [75a5a64]
+  - @scalar/api-client@2.0.49
+  - @scalar/api-reference@1.24.74
+
 ## 0.2.72
 
 ### Patch Changes

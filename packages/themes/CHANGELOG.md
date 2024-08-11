@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.23
+
+### Patch Changes
+
+- c450bb3: fix: scalar api ref use scalar-border-width
+
 ## 0.9.22
 
 ### Patch Changes
