@@ -206,6 +206,9 @@ button.schema-card-title:hover {
 .schema-card-description + .schema-properties {
   width: fit-content;
 }
+.schema-card-description + .schema-properties {
+  margin-top: 12px;
+}
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
   width: 100%;

@@ -44,25 +44,28 @@ const models = computed(() => {
 </script>
 <template>
   <SectionContainer v-if="schemas">
-    <!-- Just a cheap trick to jump down to models -->
-    <Lazy
-      id="models"
-      :isLazy="false">
-      <div id="models" />
-    </Lazy>
-    <Lazy
-      v-for="(name, index) in models"
-      :id="getModelId(name)"
-      :key="name"
-      isLazy>
-      <CollapsedModel
-        :name="name"
-        :schemas="schemas" />
-      <ShowMoreButton
-        v-if="!showAllModels && index === models.length - 1"
-        :id="getModelId()"
-        class="something-special" />
-    </Lazy>
+    <Section>
+      <!-- Just a cheap trick to jump down to models -->
+      <SectionHeader :level="2">Models</SectionHeader>
+      <Lazy
+        id="models"
+        :isLazy="false">
+        <div id="models" />
+      </Lazy>
+      <Lazy
+        v-for="(name, index) in models"
+        :id="getModelId(name)"
+        :key="name"
+        isLazy>
+        <CollapsedModel
+          :name="name"
+          :schemas="schemas" />
+        <ShowMoreButton
+          v-if="!showAllModels && index === models.length - 1"
+          :id="getModelId()"
+          class="something-special" />
+      </Lazy>
+    </Section>
   </SectionContainer>
 </template>
 <style scoped>
