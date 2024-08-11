@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.24.74
+
+### Patch Changes
+
+- a1be0e8: feat: add hooks option for API reference route
+
 ## 1.24.73
 
 ## 1.24.72

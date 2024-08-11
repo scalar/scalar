@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.10
+
+### Patch Changes
+
+- c450bb3: fix: scalar api ref use scalar-border-width
+
 ## 0.0.9
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.24.74
+
+### Patch Changes
+
+- 476f3e7: fix: initial dark mode state bug and add configuration for darkmode
+- c450bb3: fix: scalar api ref use scalar-border-width
+- 8411bb1: style(api-reference): deprecated http endpoint section list
+- Updated dependencies [56be4fe]
+- Updated dependencies [c450bb3]
+- Updated dependencies [75a5a64]
+  - @scalar/api-client@2.0.49
+  - @scalar/code-highlight@0.0.10
+  - @scalar/themes@0.9.23
+  - @scalar/components@0.12.31
+  - @scalar/oas-utils@0.2.30
+
 ## 1.24.73
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.49
+
+### Patch Changes
+
+- 56be4fe: feat(api-client): added complex multi auth
+- c450bb3: fix: scalar api ref use scalar-border-width
+- 75a5a64: fix: sidebar title
+- Updated dependencies [c450bb3]
+  - @scalar/themes@0.9.23
+  - @scalar/components@0.12.31
+  - @scalar/oas-utils@0.2.30
+
 ## 2.0.48
 
 ### Patch Changes
