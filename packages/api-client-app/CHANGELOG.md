@@ -1,5 +1,11 @@
 # scalar-api-client
 
+## 0.1.21
+
+### Patch Changes
+
+- f40d6a3: fix: scalar app fathom analytics
+
 ## 0.1.20
 
 ### Patch Changes
