@@ -74,4 +74,7 @@ const observeAndNavigate = (operationId: string) => {
 .section-container {
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+.section-container:has(.show-more) {
+  background-color: color-mix(in srgb, var(--scalar-background-2), transparent);
+}
 </style>

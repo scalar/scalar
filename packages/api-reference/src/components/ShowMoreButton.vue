@@ -37,9 +37,8 @@ const { setCollapsedSidebarItem } = useSidebar()
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: -48px;
-  margin-bottom: 48px;
   position: relative;
+  top: -48px;
 }
 .show-more:hover {
   color: var(--scalar-color-2);
@@ -56,14 +55,7 @@ const { setCollapsedSidebarItem } = useSidebar()
 }
 @container narrow-references-container (max-width: 900px) {
   .show-more {
-    margin-top: -25px;
-    margin-bottom: 25px;
-  }
-}
-@media (max-width: 1165px) {
-  .show-more {
-    margin-top: -24px;
-    margin-bottom: 24px;
+    top: -24px;
   }
 }
 </style>
