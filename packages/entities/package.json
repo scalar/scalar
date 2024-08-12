@@ -1,5 +1,9 @@
 {
   "name": "@scalar/entities",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
   "version": "0.0.3",
   "private": true,
   "engines": {
@@ -43,6 +47,10 @@
       "import": "./dist/team/index.js",
       "types": "./dist/team/index.d.ts"
     },
+    "./specs": {
+      "import": "./dist/specs/index.js",
+      "types": "./dist/specs/index.d.ts"
+    },
     "./publish": {
       "import": "./dist/publish/index.js",
       "types": "./dist/publish/index.d.ts"
@@ -51,6 +59,10 @@
       "import": "./dist/project/index.js",
       "types": "./dist/project/index.d.ts"
     },
+    "./openapi": {
+      "import": "./dist/openapi/index.js",
+      "types": "./dist/openapi/index.d.ts"
+    },
     "./helios": {
       "import": "./dist/helios/index.js",
       "types": "./dist/helios/index.d.ts"
@@ -58,18 +70,22 @@
     "./deploys": {
       "import": "./dist/deploys/index.js",
       "types": "./dist/deploys/index.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client/index.js",
+      "types": "./dist/client/index.d.ts"
     }
   },
   "files": [
     "dist"
   ],
   "dependencies": {
-    "nanoid": "^5",
-    "zod": "^3"
+    "nanoid": "^5.0.7",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "*",
-    "vite": "5.3.5",
-    "vitest": "2.0.4"
+    "@scalar/build-tooling": "workspace:*",
+    "vite": "^5.2.10",
+    "vitest": "^1.6.0"
   }
 }

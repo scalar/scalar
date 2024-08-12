@@ -1,4 +1,14 @@
-export const REQUEST_METHODS = {
+import type { RequestMethod } from '@scalar/entities/openapi'
+
+export type { RequestMethod }
+
+export const REQUEST_METHODS: {
+  [x in RequestMethod]: {
+    short: string
+    color: string
+    backgroundColor: string
+  }
+} = {
   CONNECT: {
     short: 'CONN',
     color: 'text-c-2',
@@ -46,21 +56,17 @@ export const REQUEST_METHODS = {
   },
 } as const
 
-export type RequestMethod = keyof typeof REQUEST_METHODS
-
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
  */
 export const getRequest = (methodName: string) => {
-  const normalizedMethod = methodName.trim().toUpperCase()
+  const normalizedMethod = methodName.trim().toUpperCase() as RequestMethod
 
-  if (normalizedMethod in REQUEST_METHODS)
-    return REQUEST_METHODS[normalizedMethod as RequestMethod]
-  else {
-    return {
+  return (
+    REQUEST_METHODS[normalizedMethod] ?? {
       short: normalizedMethod,
       color: 'text-c-2',
       backgroundColor: 'bg-c-2',
     }
-  }
+  )
 }
