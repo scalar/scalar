@@ -15,6 +15,7 @@ export default defineConfig({
       rollupOptions: {
         plugins: [autoCSSInject('references')],
       },
+      ssr: true,
     },
   }),
   resolve: {
