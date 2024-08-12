@@ -64,7 +64,7 @@ export default defineNuxtModule<ModuleOptions>({
     _nuxt.options.vite.optimizeDeps ||= {}
     _nuxt.options.vite.optimizeDeps.include ||= []
     _nuxt.options.vite.optimizeDeps.include.push(
-      '@scalar/nuxt',
+      '@scalar/nuxt > @scalar/api-reference',
       '@scalar/nuxt > jsonpointer',
       '@scalar/nuxt > ajv-draft-04',
       '@scalar/nuxt > ajv-formats',
