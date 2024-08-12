@@ -87,7 +87,8 @@ const handleClick = (e: MouseEvent) =>
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
-              size="xs" />
+              size="xs"
+              thickness="2.5" />
             <SchemaHeading
               :name="(value?.title ?? name) as string"
               :value="value" />
@@ -186,10 +187,6 @@ button.schema-card-title:hover {
   transform: rotate(45deg);
 }
 .schema-properties-open > .schema-card-title {
-  z-index: 1;
-  position: sticky;
-  top: var(--refs-header-height);
-
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
@@ -221,6 +218,9 @@ button.schema-card-title:hover {
 }
 .schema-properties .schema-properties {
   border-radius: 13.5px;
+}
+.schema-properties .schema-properties.schema-properties-open {
+  border-radius: 13.5px 13.5px var(--scalar-radius) var(--scalar-radius);
 }
 .schema-properties-open {
   width: 100%;
