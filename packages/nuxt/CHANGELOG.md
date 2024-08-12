@@ -1,5 +1,11 @@
 # @scalar/nuxt
 
+## 0.2.74
+
+### Patch Changes
+
+- 068d49d: fix(nuxt): do not optimize whole module but only references
+
 ## 0.2.73
 
 ### Patch Changes
