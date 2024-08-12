@@ -60,3 +60,8 @@ const { getWebhookId } = useNavState()
     </template>
   </SectionContainer>
 </template>
+<style scoped>
+.section-container {
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+</style>
