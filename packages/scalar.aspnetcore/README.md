@@ -34,7 +34,7 @@ app.MapGet("/", () => "Hello world!");
 app.Run();
 ```
 
-Now you will see the Scalar UI when using the defaults at `https://localhost:XXXXX/scalar/v1` (where XXXXX is, of course, the port for your app). 
+Now you will see the Scalar UI when using the defaults at `https://localhost:XXXXX/scalar/v1` (where XXXXX is, of course, the port for your app).
 
 ## Building & Release
 
