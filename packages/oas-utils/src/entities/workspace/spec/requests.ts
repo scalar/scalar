@@ -40,7 +40,7 @@ const requestSchema = z.object({
    * A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
    */
-  tags: z.string().array().default(['default']),
+  tags: z.string().array().optional(),
   /** A short summary of what the operation does. */
   summary: z.string().optional(),
   /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */

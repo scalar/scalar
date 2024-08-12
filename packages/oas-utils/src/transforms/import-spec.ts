@@ -106,7 +106,7 @@ export const importSpecToWorkspace = async (
         parameters,
       })
 
-      request.tags.forEach((t) => requestTags.add(t))
+      request.tags?.forEach((t) => requestTags.add(t))
       requests.push(request)
     })
   })
@@ -135,7 +135,7 @@ export const importSpecToWorkspace = async (
     const folder = createFolder({
       ...t,
       childUids: requests
-        .filter((r) => r.tags.includes(t.name))
+        .filter((r) => r.tags?.includes(t.name))
         .map((r) => r.uid),
     })
 
