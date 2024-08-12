@@ -1,23 +1,85 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/oas-utils'
+import { ScalarIcon } from '@scalar/components'
+import type { ContentType, Parameters } from '@scalar/oas-utils'
+import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
+import ContentTypeSelect from './ContentTypeSelect.vue'
 
-withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
-  showChildren: false,
+const props = withDefaults(
+  defineProps<{
+    parameter: Parameters
+    showChildren?: boolean
+    collapsableItems?: boolean
+  }>(),
+  {
+    showChildren: false,
+    collapsableItems: false,
+  },
+)
+const showCollapsedItems = ref(false)
+
+const contentTypes = computed(() => {
+  if (props.parameter.content) {
+    return Object.keys(props.parameter.content)
+  }
+  return []
+})
+const selectedContentType = ref<ContentType>(
+  contentTypes.value[0] as ContentType,
+)
+if (props.parameter.content) {
+  if ('application/json' in props.parameter.content) {
+    selectedContentType.value = 'application/json'
+  }
+}
+
+const shouldCollapse = computed(() => {
+  return props.collapsableItems && props.parameter.content
 })
 </script>
 <template>
   <li class="parameter-item">
-    <div class="parameter-item-container">
+    <div
+      v-if="shouldCollapse"
+      class="flex parameter-item-trigger"
+      :class="{ 'parameter-item-trigger-open': showCollapsedItems }"
+      @click="showCollapsedItems = !showCollapsedItems">
+      <ScalarIcon
+        class="parameter-item-icon"
+        :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
+        size="md"
+        thickness="1.75" />
+      <span class="parameter-item-name">
+        {{ parameter.name }}
+      </span>
+      <span class="parameter-item-type">
+        {{ parameter.description }}
+      </span>
+      <ContentTypeSelect
+        v-if="shouldCollapse && props.parameter.content"
+        class="parameter-item-content-type"
+        :defaultValue="selectedContentType"
+        :requestBody="props.parameter"
+        @selectContentType="
+          ({ contentType }) => (selectedContentType = contentType)
+        " />
+    </div>
+    <div
+      v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
+      class="parameter-item-container parameter-item-container-markdown">
       <SchemaProperty
         compact
-        :description="parameter.description"
+        :description="shouldCollapse ? '' : parameter.description"
         :level="0"
-        :name="parameter.name"
+        :name="shouldCollapse ? '' : parameter.name"
         :noncollapsible="showChildren"
         :required="parameter.required"
-        :value="parameter.schema" />
+        :value="
+          parameter.content
+            ? parameter.content?.[selectedContentType]?.schema
+            : parameter.schema
+        " />
     </div>
   </li>
 </template>
@@ -41,9 +103,13 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
   color: var(--scalar-color-1);
 }
 
-.parameter-item-type,
+.parameter-item-type {
+  font-size: var(--scalar-font-size-3);
+  color: var(--scalar-color-2);
+  margin-right: 6px;
+}
 .parameter-item-required-optional {
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-2);
   font-weight: var(--scalar-semibold);
   margin-right: 6px;
   position: relative;
@@ -73,5 +139,40 @@ withDefaults(defineProps<{ parameter: Parameters; showChildren?: boolean }>(), {
 .parameter-schema {
   padding-bottom: 9px;
   margin-top: 3px;
+}
+.parameter-item-trigger {
+  padding: 10px 0;
+  cursor: pointer;
+  position: relative;
+  align-items: baseline;
+}
+.parameter-item-trigger-open {
+  padding-bottom: 0;
+}
+.parameter-item-trigger:after {
+  content: '';
+  position: absolute;
+  height: 10px;
+  width: 100%;
+  bottom: 0;
+}
+.parameter-item-icon {
+  color: var(--scalar-color-3);
+  position: absolute;
+  left: -18px;
+}
+.parameter-item-trigger:hover .parameter-item-icon {
+  color: var(--scalar-color-1);
+}
+.parameter-item-content-type {
+  margin-left: auto;
+  opacity: 0;
+}
+.parameter-item-trigger-open .parameter-item-content-type,
+.parameter-item-trigger:hover .parameter-item-content-type {
+  opacity: 1;
+}
+.parameter-item-container-markdown :deep(.property-description:last-of-type) {
+  margin-top: 0;
 }
 </style>

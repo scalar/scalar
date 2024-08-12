@@ -4,9 +4,14 @@ import type { Parameters } from '@scalar/oas-utils'
 import ParameterItem from './ParameterItem.vue'
 
 withDefaults(
-  defineProps<{ parameters?: Parameters[]; showChildren?: boolean }>(),
+  defineProps<{
+    parameters?: Parameters[]
+    showChildren?: boolean
+    collapsableItems?: boolean
+  }>(),
   {
     showChildren: false,
+    collapsableItems: false,
   },
 )
 </script>
@@ -21,6 +26,7 @@ withDefaults(
       <ParameterItem
         v-for="item in parameters"
         :key="item.name"
+        :collapsableItems="collapsableItems"
         :parameter="item"
         :showChildren="showChildren" />
     </ul>
