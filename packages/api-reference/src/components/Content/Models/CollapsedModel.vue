@@ -73,4 +73,7 @@ const showCollapsedItems = ref(false)
 .collapsed-model:hover .collapsed-model-trigger svg {
   color: var(--scalar-color-1);
 }
+.collapsed-model .collapsed-model-trigger :deep(.anchor-copy) {
+  line-height: 18.5px;
+}
 </style>
