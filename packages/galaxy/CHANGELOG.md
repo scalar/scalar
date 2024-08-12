@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.6
+
+### Patch Changes
+
+- 7f21330: fix: improper usage of ref in token response
+
 ## 0.2.5
 
 ### Patch Changes

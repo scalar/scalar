@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.31
+
+### Patch Changes
+
+- c220358: feat: add response schemas
+- 7ec175b: fix: remove default tag in request schema
+
 ## 0.2.30
 
 ### Patch Changes
