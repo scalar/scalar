@@ -282,6 +282,45 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
+  # Void Server
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-void-server'
+    waitFor: ['push-base']
+    args:
+      [
+        'buildx',
+        'build',
+        '--build-arg',
+        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_VOID_SERVER}',
+        '-f',
+        './examples/void-server/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-void-server'
+    waitFor: ['build-void-server']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_VOID_SERVER}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-void-server']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_VOID_SERVER',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_VOID_SERVER}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+
+  # ---------------------------------------------------------------
   # Other Integration
   # - name: OTHER INTEGRATION
 # ---------------------------------------------------------------
