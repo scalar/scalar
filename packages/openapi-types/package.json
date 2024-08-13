@@ -27,9 +27,6 @@
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
-  "exports": {
-    "./legacy": "./src/legacy/index.ts"
-  },
   "files": [
     "src",
     "CHANGELOG.md"
