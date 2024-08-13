@@ -23,7 +23,6 @@ import {
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
-  scrollToId,
   sleep,
 } from '../helpers'
 import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
@@ -86,6 +85,7 @@ const {
   hideModels,
   defaultOpenAllTags,
   setParsedSpec,
+  scrollToOperation,
 } = useSidebar()
 
 const {
@@ -103,18 +103,13 @@ pathRouting.value = props.configuration.pathRouting
 // Ideally this triggers absolutely first on the client so we can set hash value
 onBeforeMount(() => updateHash())
 
-// Disables intersection observer and scrolls to section
+// Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
   isIntersectionEnabled.value = false
   updateHash()
+
   if (id) {
-    // Open the section if it's collapsed
-    const sectionId = getSectionId(id)
-    if (sectionId !== id) {
-      setCollapsedSidebarItem(getSectionId(id), true)
-      await sleep(100)
-    }
-    scrollToId(id)
+    scrollToOperation(id)
   } else documentEl.value?.scrollTo(0, 0)
 
   await sleep(100)

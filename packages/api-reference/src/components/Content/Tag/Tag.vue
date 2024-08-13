@@ -6,7 +6,6 @@ import { useNavState, useSidebar } from '../../../hooks'
 import { SectionContainer } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import Endpoints from './Endpoints.vue'
-import { observeMutations } from './mutationObserver'
 
 const props = defineProps<{
   id?: string
@@ -25,33 +24,6 @@ const moreThanOneDefaultTag = computed(
     props.tag?.name !== 'default' ||
     props.tag?.description !== '',
 )
-
-const redirectToOperation = (operationId: string) => {
-  window.location.href = `#${operationId}`
-}
-
-const observeSectionMutations = (operationId: string) => {
-  observeMutations(sectionContainerRef, (mutations, observer) => {
-    mutations.forEach((mutation) => {
-      const operationIsAdded = Array.from(mutation.addedNodes).some((node) => {
-        return node instanceof HTMLElement && node.id === operationId
-      })
-      if (operationIsAdded) {
-        redirectToOperation(operationId)
-        observer.disconnect()
-      }
-    })
-  })
-}
-
-const observeAndNavigate = (operationId: string) => {
-  const operationIsVisible = document.getElementById(operationId)
-  if (!operationIsVisible) {
-    observeSectionMutations(operationId)
-  } else {
-    redirectToOperation(operationId)
-  }
-}
 </script>
 <template>
   <SectionContainer
@@ -60,8 +32,7 @@ const observeAndNavigate = (operationId: string) => {
     <Endpoints
       v-if="moreThanOneDefaultTag"
       :id="id"
-      :tag="tag"
-      @observeAndNavigate="observeAndNavigate" />
+      :tag="tag" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
       :id="id ?? ''" />

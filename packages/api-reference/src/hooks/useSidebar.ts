@@ -4,6 +4,7 @@ import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed, reactive, ref, watch } from 'vue'
 
+import { lazyBus } from '../components/Content/Lazy/lazyBus'
 import {
   getHeadingsFromMarkdown,
   getLowestHeadingLevel,
@@ -11,6 +12,7 @@ import {
   hasModels,
   hasWebhooks,
   openClientFor,
+  scrollToId,
 } from '../helpers'
 import { useNavState } from './useNavState'
 
@@ -316,6 +318,30 @@ export type TagsSorterOption = {
 }
 
 /**
+ * Scroll to operation
+ *
+ * Similar to scrollToId BUT in the case of a section not being open,
+ * it uses the lazyBus to ensure the section is open before scrolling to it
+ *
+ */
+export const scrollToOperation = (operationId: string) => {
+  const sectionId = getSectionId(operationId)
+
+  if (sectionId !== operationId) {
+    // We use the lazyBus to check when the target has loaded then scroll to it
+    if (!collapsedSidebarItems[sectionId]) {
+      const unsubscribe = lazyBus.on((ev) => {
+        if (ev.id === operationId) {
+          scrollToId(operationId)
+          unsubscribe()
+        }
+      })
+      setCollapsedSidebarItem(sectionId, true)
+    } else scrollToId(operationId)
+  }
+}
+
+/**
  * Provides the sidebar state and methods to control it.
  */
 export function useSidebar(options?: ParsedSpecOption & TagsSorterOption) {
@@ -366,5 +392,6 @@ export function useSidebar(options?: ParsedSpecOption & TagsSorterOption) {
     hideModels,
     setParsedSpec,
     defaultOpenAllTags,
+    scrollToOperation,
   }
 }
