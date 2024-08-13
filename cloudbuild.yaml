@@ -130,44 +130,6 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
-  # Hono integration
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'build-hono'
-    waitFor: ['push-base']
-    args:
-      [
-        'buildx',
-        'build',
-        '--build-arg',
-        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
-        '-t',
-        'gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}',
-        '-f',
-        './packages/hono-api-reference/Dockerfile',
-        '.',
-      ]
-  - name: 'gcr.io/cloud-builders/docker'
-    id: 'push-hono'
-    waitFor: ['build-hono']
-    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}']
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    waitFor: ['push-hono']
-    args:
-      [
-        'run',
-        'deploy',
-        '$_SERVICE_HONO',
-        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}',
-        '--region=$_REGION',
-        '--platform=managed',
-        '--allow-unauthenticated',
-        '--execution-environment=gen2',
-        '--cpu=$_CPU',
-        '--memory=$_MEMORY',
-        '--service-account=$_SERVICE_ACCOUNT',
-      ]
-  # ---------------------------------------------------------------
   # NestJS Express integration
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-nest-js-express'
