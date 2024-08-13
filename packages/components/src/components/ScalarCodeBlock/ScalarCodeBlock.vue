@@ -41,61 +41,83 @@ const isContentValid = computed(() => {
 })
 </script>
 <template>
-  <div class="scalar-code-block">
-    <button
-      v-if="isContentValid"
-      class="copy-button"
-      type="button"
-      @click="copyToClipboard(prettyPrintJson(props.content))">
-      <span class="sr-only">Copy content</span>
-      <ScalarIcon
-        icon="Clipboard"
-        size="md" />
-    </button>
-    <pre
-      class="scalar-codeblock-pre"
-      v-html="highlightedCode"></pre>
+  <div class="scalar-code-block custom-scroll">
+    <div class="scalar-code-copy">
+      <button
+        v-if="isContentValid"
+        class="copy-button"
+        type="button"
+        @click="copyToClipboard(prettyPrintJson(props.content))">
+        <span class="sr-only">Copy content</span>
+        <ScalarIcon
+          icon="Clipboard"
+          size="md" />
+      </button>
+    </div>
+    <div class="scalar-code-scroll custom-scroll">
+      <pre
+        class="scalar-codeblock-pre"
+        v-html="highlightedCode"></pre>
+    </div>
   </div>
 </template>
 <style>
 @import '@scalar/code-highlight/css/code.css';
 .scalar-code-block {
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
   position: relative;
-  overflow: auto;
 }
 .scalar-code-block:hover .copy-button {
   opacity: 100;
   visibility: visible;
 }
+.scalar-code-block .scalar-code-scroll.custom-scroll {
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 /* Code blocks */
 .scalar-codeblock-pre {
   margin: 0;
-  overflow: auto;
   background: transparent;
   text-wrap: nowrap;
   white-space-collapse: preserve;
   border-radius: 0;
 }
+/* Copy Button */
+.scalar-code-copy {
+  display: flex;
+  align-items: start;
+  justify-content: end;
+
+  position: sticky;
+  inset: 0;
+}
 .copy-button {
+  position: relative;
+  top: 8px;
+  right: 8px;
+
+  display: flex;
   align-items: center;
-  background-color: var(inherit, --scalar-background-2);
+
+  background-color: var(--scalar-background-2);
   border: 1px solid var(--scalar-border-color);
   border-radius: 3px;
   color: var(--scalar-color-3);
   cursor: pointer;
-  display: flex;
   height: 30px;
   margin-bottom: -30px;
   opacity: 0;
   padding: 6px;
-  position: sticky;
-  left: 100dvw;
-  top: 0;
   transition:
     opacity 0.15s ease-in-out,
     color 0.15s ease-in-out;
   visibility: hidden;
+}
+.scalar-code-copy,
+.copy-button {
+  /* Pass down the background color */
+  background: inherit;
 }
 .copy-button:after {
   content: '.';

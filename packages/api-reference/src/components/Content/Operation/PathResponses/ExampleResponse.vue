@@ -26,6 +26,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 <template>
   <template v-if="response?.example">
     <ScalarCodeBlock
+      class="bg-b-2"
       :content="prettyPrintJson(response?.example)"
       lang="json" />
   </template>
@@ -49,6 +50,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
             :key="index"
             class="rule-item">
             <ScalarCodeBlock
+              class="bg-b-2"
               :content="
                 getExampleFromSchema(example, {
                   emptyString: '…',
@@ -63,6 +65,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
         v-else-if="
           response?.schema[rule] && response?.schema[rule].length === 1
         "
+        class="bg-b-2"
         :content="
           getExampleFromSchema(response?.schema[rule][0], {
             emptyString: '…',
@@ -74,6 +77,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     <!-- allOf-->
     <ScalarCodeBlock
       v-if="response?.schema['allOf']"
+      class="bg-b-2"
       :content="
         mergeAllObjects(
           response?.schema['allOf'].map((schema: any) =>
@@ -87,6 +91,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
       lang="json" />
     <ScalarCodeBlock
       v-else-if="response?.schema['items']?.['allOf']"
+      class="bg-b-2"
       :content="
         mergeAllObjects(
           response?.schema['items']['allOf'].map((schema: any) =>
@@ -101,6 +106,7 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
     <!-- Single Schema -->
     <ScalarCodeBlock
       v-else
+      class="bg-b-2"
       :content="
         prettyPrintJson(
           getExampleFromSchema(response?.schema, {

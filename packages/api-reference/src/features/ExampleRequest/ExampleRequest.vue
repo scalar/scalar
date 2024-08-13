@@ -291,6 +291,7 @@ function updateHttpClient(value: string) {
       <!-- Multiple examples -->
       <div class="code-snippet">
         <ScalarCodeBlock
+          class="bg-b-2"
           :content="generatedCode"
           :hideCredentials="
             getSecretCredentialsFromAuthentication(authenticationState)
