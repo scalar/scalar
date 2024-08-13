@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/types'
+import { ScalarIcon } from '@scalar/components'
+import type { ContentType, Parameters } from '@scalar/types'
+import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
 import ContentTypeSelect from './ContentTypeSelect.vue'

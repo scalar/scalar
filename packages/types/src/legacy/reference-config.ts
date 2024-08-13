@@ -63,6 +63,10 @@ export type ReferenceConfiguration = {
   hideDownloadButton?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
+  /** forceDarkModeState makes it always this state no matter what*/
+  forceDarkModeState?: 'dark' | 'light'
+  /** Whether to show the dark mode toggle */
+  hideDarkModeToggle?: boolean
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?:
     | 'a'
