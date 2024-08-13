@@ -57,7 +57,7 @@ import type {
   OpenAPIV3_1,
 } from '@scalar/openapi-parser'
 import type { Entries } from 'type-fest'
-import { computed, inject, reactive, toRaw } from 'vue'
+import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
 export type UpdateScheme = <P extends Path<SecurityScheme>>(
@@ -966,6 +966,15 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     }
   }
 
+  /** Helper function to manage the sidebar width */
+  const sidebarWidth = ref(localStorage.getItem('sidebarWidth') || '280px')
+
+  // Set the sidebar width
+  const setSidebarWidth = (width: string) => {
+    sidebarWidth.value = width
+    localStorage.setItem('sidebarWidth', width)
+  }
+
   /** This state is to be used by the API Client Modal component to control the modal */
   const modalState = useModal()
 
@@ -997,6 +1006,8 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     modalState,
     isReadOnly,
     router,
+    sidebarWidth,
+    setSidebarWidth,
     // ---------------------------------------------------------------------------
     // METHODS
     findRequestFolders,
