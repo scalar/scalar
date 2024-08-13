@@ -85,7 +85,7 @@ const {
   hideModels,
   defaultOpenAllTags,
   setParsedSpec,
-  scrollToIdWhenLoaded,
+  scrollToOperation,
 } = useSidebar()
 
 const {
@@ -109,7 +109,7 @@ const scrollToSection = async (id?: string) => {
   updateHash()
 
   if (id) {
-    scrollToIdWhenLoaded(id)
+    scrollToOperation(id)
   } else documentEl.value?.scrollTo(0, 0)
 
   await sleep(100)

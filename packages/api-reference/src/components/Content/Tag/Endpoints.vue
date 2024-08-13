@@ -17,12 +17,12 @@ import {
 const props = defineProps<{ id?: string; tag: Tag }>()
 
 const { getOperationId, getTagId } = useNavState()
-const { scrollToIdWhenLoaded } = useSidebar()
+const { scrollToOperation } = useSidebar()
 
 // TODO in V2 we need to do the same loading trick as the initial load
 const scrollHandler = async (operation: TransformedOperation) => {
-  const id = getOperationId(operation, props.tag)
-  scrollToIdWhenLoaded(id)
+  const operationId = getOperationId(operation, props.tag)
+  scrollToOperation(operationId)
 }
 </script>
 <template>
