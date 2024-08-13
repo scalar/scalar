@@ -11,7 +11,7 @@
   }
   .cm-scroller:hover,
   .custom-scroll:hover {
-    scrollbar-color: var(--scalar-scrollbar-color, transparent);
+    scrollbar-color: var(--scalar-scrollbar-color, transparent) transparent;
   }
   .cm-scroller:hover::-webkit-scrollbar-thumb,
   .custom-scroll:hover::-webkit-scrollbar-thumb {
