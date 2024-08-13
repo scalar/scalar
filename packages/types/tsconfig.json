@@ -1,12 +1,4 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["src"],
-  "exclude": ["dist"],
-  "compilerOptions": {
-    "skipLibCheck": true,
-    "declaration": true,
-    "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "outDir": "dist/"
-  }
+  "include": ["src"]
 }

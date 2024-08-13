@@ -27,16 +27,20 @@
   },
   "type": "module",
   "exports": {
-    "./legacy": "./src/legacy/index.ts"
+    "./legacy": "./src/legacy/index.ts",
+    "./utils": "./src/utils/index.ts"
   },
   "files": [
     "src",
     "CHANGELOG.md"
   ],
+  "imports": {
+    "#external": "./src/external/index.ts",
+    "#utils": "./src/utils/index.ts"
+  },
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
-    "@unhead/schema": "^1.9.5",
-    "httpsnippet-lite": "^3.0.5"
+    "@unhead/schema": "^1.9.5"
   }
 }

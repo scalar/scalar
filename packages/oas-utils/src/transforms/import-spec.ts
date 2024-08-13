@@ -6,7 +6,8 @@ import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { schemaModel } from '@/helpers/schema-model'
 import { dereference, load } from '@scalar/openapi-parser'
-import type { AnyObject, Spec } from '@scalar/types/legacy'
+import type { Spec } from '@scalar/types/legacy'
+import type { UnknownObject } from '@scalar/types/utils'
 
 const PARAM_DICTIONARY = {
   cookie: 'cookies',
@@ -17,7 +18,7 @@ const PARAM_DICTIONARY = {
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
 export const importSpecToWorkspace = async (
-  spec: string | AnyObject,
+  spec: string | UnknownObject,
   overloadServers?: Spec['servers'],
 ) => {
   const importWarnings: string[] = []
