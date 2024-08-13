@@ -23,7 +23,6 @@ import {
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
-  scrollToId,
   sleep,
 } from '../helpers'
 import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
@@ -34,7 +33,6 @@ import type {
 } from '../types'
 import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
-import { lazyBus } from './Content/Lazy/lazyBus'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
@@ -87,6 +85,7 @@ const {
   hideModels,
   defaultOpenAllTags,
   setParsedSpec,
+  scrollToIdWhenLoaded,
 } = useSidebar()
 
 const {
@@ -110,19 +109,7 @@ const scrollToSection = async (id?: string) => {
   updateHash()
 
   if (id) {
-    const sectionId = getSectionId(id)
-    if (sectionId !== id) {
-      // We use the lazyBus to check when the target has loaded then scroll to it
-      if (!collapsedSidebarItems[sectionId]) {
-        const unsubscribe = lazyBus.on((ev) => {
-          if (ev.id === id) {
-            scrollToId(id)
-            unsubscribe()
-          }
-        })
-        setCollapsedSidebarItem(sectionId, true)
-      } else scrollToId(id)
-    }
+    scrollToIdWhenLoaded(id)
   } else documentEl.value?.scrollTo(0, 0)
 
   await sleep(100)
