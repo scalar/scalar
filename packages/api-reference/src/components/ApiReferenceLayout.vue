@@ -34,6 +34,7 @@ import type {
 } from '../types'
 import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
+import { lazyBus } from './Content/Lazy/lazyBus'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
@@ -103,18 +104,25 @@ pathRouting.value = props.configuration.pathRouting
 // Ideally this triggers absolutely first on the client so we can set hash value
 onBeforeMount(() => updateHash())
 
-// Disables intersection observer and scrolls to section
+// Disables intersection observer and scrolls to section once it has been opened
 const scrollToSection = async (id?: string) => {
   isIntersectionEnabled.value = false
   updateHash()
+
   if (id) {
-    // Open the section if it's collapsed
     const sectionId = getSectionId(id)
     if (sectionId !== id) {
-      setCollapsedSidebarItem(getSectionId(id), true)
-      await sleep(100)
+      // We use the lazyBus to check when the target has loaded then scroll to it
+      if (!collapsedSidebarItems[sectionId]) {
+        const unsubscribe = lazyBus.on((ev) => {
+          if (ev.id === id) {
+            scrollToId(id)
+            unsubscribe()
+          }
+        })
+        setCollapsedSidebarItem(sectionId, true)
+      } else scrollToId(id)
     }
-    scrollToId(id)
   } else documentEl.value?.scrollTo(0, 0)
 
   await sleep(100)
