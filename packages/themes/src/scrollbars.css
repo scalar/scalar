@@ -52,3 +52,12 @@
     }
   }
 }
+
+/* Force Obtrusive Scrollbars */
+.layout-scrollbar-obtrusive.scalar-app,
+.layout-scrollbar-obtrusive .scalar-app {
+  .cm-scroller,
+  .custom-scroll {
+    scrollbar-color: var(--scalar-scrollbar-color, transparent) transparent;
+  }
+}

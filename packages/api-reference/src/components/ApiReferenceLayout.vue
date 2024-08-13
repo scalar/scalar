@@ -2,7 +2,11 @@
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
-import { type ThemeId, getThemeStyles } from '@scalar/themes'
+import {
+  type ThemeId,
+  getThemeStyles,
+  useObtrusiveScrollbars,
+} from '@scalar/themes'
 import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
@@ -49,6 +53,8 @@ defineEmits<{
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
 initializeToasts((message) => toast(message))
+
+useObtrusiveScrollbars()
 
 defineOptions({
   inheritAttrs: false,
