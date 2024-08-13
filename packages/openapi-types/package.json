@@ -1,6 +1,6 @@
 {
   "name": "@scalar/openapi-types",
-  "description": "The modern OpenAPI types",
+  "description": "Modern OpenAPI types",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -23,7 +23,6 @@
   "scripts": {
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
@@ -31,8 +30,5 @@
     "src",
     "CHANGELOG.md"
   ],
-  "sideEffects": false,
-  "devDependencies": {
-    "vitest": "^1.6.0"
-  }
+  "sideEffects": false
 }
