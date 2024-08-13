@@ -1,5 +1,5 @@
 import { getHeadings } from '@scalar/code-highlight/markdown'
-import type { Heading } from '@scalar/types'
+import type { Heading } from '@scalar/types/legacy'
 import GithubSlugger from 'github-slugger'
 
 const withSlugs = (headings: Heading[], slugger: GithubSlugger): Heading[] =>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Spec } from '@scalar/types'
+import type { Spec } from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'

@@ -4,7 +4,7 @@
  */
 import { createApiClientModal } from '@scalar/api-client'
 import { parse } from '@scalar/api-reference'
-import type { Spec, Tag, TransformedOperation } from '@scalar/types'
+import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { reactive } from 'vue'
 
 const specScriptTag = document.getElementById('scalar-play-button-script')

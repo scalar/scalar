@@ -13,25 +13,28 @@
   "keywords": [
     "typescript",
     "types",
-    "scalar"
+    "scalar",
+    "references"
   ],
-  "version": "0.0.1",
+  "version": "0.0.0",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "tsc",
     "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix"
+    "lint:fix": "eslint .  --fix",
+    "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
   "type": "module",
-  "types": "dist/index.d.ts",
+  "exports": {
+    "./legacy": "./src/legacy/index.ts"
+  },
   "files": [
-    "dist",
+    "src",
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@unhead/schema": "^1.9.5",
     "httpsnippet-lite": "^3.0.5"

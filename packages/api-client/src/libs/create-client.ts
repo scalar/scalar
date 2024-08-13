@@ -8,7 +8,7 @@ import type {
   AuthenticationState,
   Spec,
   SpecConfiguration,
-} from '@scalar/types'
+} from '@scalar/types/legacy'
 import type { LiteralUnion, Paths } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'

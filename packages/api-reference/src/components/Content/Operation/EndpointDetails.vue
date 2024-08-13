@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/types'
+import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useOperation, useResponses } from '../../../hooks'
 import Parameters from './Parameters.vue'

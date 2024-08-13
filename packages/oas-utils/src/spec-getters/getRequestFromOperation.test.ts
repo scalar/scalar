@@ -1,4 +1,4 @@
-import type { TransformedOperation } from '@scalar/types'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { describe, expect, it } from 'vitest'
 
 import { getRequestFromOperation } from './getRequestFromOperation'

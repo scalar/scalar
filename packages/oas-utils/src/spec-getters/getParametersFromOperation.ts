@@ -1,4 +1,4 @@
-import type { BaseParameter, TransformedOperation } from '@scalar/types'
+import type { BaseParameter, TransformedOperation } from '@scalar/types/legacy'
 
 import { getExampleFromSchema } from './getExampleFromSchema'
 

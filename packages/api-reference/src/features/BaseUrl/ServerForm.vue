@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
-import type { Server } from '@scalar/types'
+import type { Server } from '@scalar/types/legacy'
 import { computed, toRef } from 'vue'
 
 import ServerUrl from './ServerUrl.vue'

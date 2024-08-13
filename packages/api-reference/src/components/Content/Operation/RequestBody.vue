@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { ContentType, RequestBody } from '@scalar/types'
+import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { Schema } from '../Schema'

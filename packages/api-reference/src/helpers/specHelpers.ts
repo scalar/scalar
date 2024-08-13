@@ -1,4 +1,4 @@
-import type { Operation } from '@scalar/types'
+import type { Operation } from '@scalar/types/legacy'
 
 import type { ContentSchema } from '../types'
 

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { type Server as ApiClientServer, useServerStore } from '#legacy'
-import type { Server, Spec } from '@scalar/types'
+import type { Server, Spec } from '@scalar/types/legacy'
 import { ref, watch } from 'vue'
 
 import { createEmptySpecification } from '../../helpers'

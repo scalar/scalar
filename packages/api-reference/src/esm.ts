@@ -1,5 +1,8 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import type { ReferenceConfiguration, SpecConfiguration } from '@scalar/types'
+import type {
+  ReferenceConfiguration,
+  SpecConfiguration,
+} from '@scalar/types/legacy'
 import { createHead } from '@unhead/vue'
 import { createApp, reactive } from 'vue'
 

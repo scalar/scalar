@@ -7,7 +7,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { Spec } from '@scalar/types'
+import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { ref, toRef, watch } from 'vue'
 

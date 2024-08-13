@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { Tag, TransformedOperation } from '@scalar/types'
+import type { Tag, TransformedOperation } from '@scalar/types/legacy'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { Anchor } from '../../Anchor'

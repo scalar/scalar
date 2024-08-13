@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ModalState } from '@scalar/components'
-import type { Spec } from '@scalar/types'
+import type { Spec } from '@scalar/types/legacy'
 
 import SearchModal from './SearchModal.vue'
 

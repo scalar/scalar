@@ -1,4 +1,4 @@
-import type { AnyObject } from '@scalar/types'
+import type { AnyObject } from '@scalar/types/legacy'
 import { parse, stringify } from 'yaml'
 
 type PrimitiveOrObject = object | string | null | number | boolean | undefined

@@ -1,4 +1,4 @@
-import type { ContentType } from '@scalar/types'
+import type { ContentType } from '@scalar/types/legacy'
 
 import { normalizeMimeType } from './normalizeMimeType'
 

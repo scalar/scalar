@@ -1,4 +1,9 @@
-import type { Cookie, HarRequestWithPath, Header, Query } from '@scalar/types'
+import type {
+  Cookie,
+  HarRequestWithPath,
+  Header,
+  Query,
+} from '@scalar/types/legacy'
 import { AxiosHeaders } from 'axios'
 import type { HarRequest } from 'httpsnippet-lite'
 

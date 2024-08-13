@@ -4,7 +4,7 @@ import {
   useAuthenticationStore,
   useServerStore,
 } from '#legacy'
-import type { Spec, SpecConfiguration } from '@scalar/types'
+import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
 import { type App, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'

@@ -18,7 +18,7 @@ import {
   load,
 } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import type { Spec } from '@scalar/types'
+import type { Spec } from '@scalar/types/legacy'
 
 import { createEmptySpecification } from '../helpers'
 

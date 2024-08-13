@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { replaceVariables } from '@scalar/oas-utils/helpers'
-import type { Server } from '@scalar/types'
+import type { Server } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import type { ServerVariableValues } from './types'

@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
-import type { Spec, Tag as TagType, TransformedOperation } from '@scalar/types'
+import type {
+  Spec,
+  Tag as TagType,
+  TransformedOperation,
+} from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
 
 import { getModels, scrollToId } from '../../../helpers'

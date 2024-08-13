@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Server, Spec } from '@scalar/types'
+import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { BaseUrl } from '../../features/BaseUrl'

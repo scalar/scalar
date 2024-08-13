@@ -15,7 +15,7 @@ import type {
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
-} from '@scalar/types'
+} from '@scalar/types/legacy'
 import { asyncComputed } from '@vueuse/core'
 import { HTTPSnippet } from 'httpsnippet-lite'
 import {

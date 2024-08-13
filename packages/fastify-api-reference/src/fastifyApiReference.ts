@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/types'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type {
   FastifyBaseLogger,
   FastifyTypeProviderDefault,

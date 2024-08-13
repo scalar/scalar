@@ -1,4 +1,4 @@
-import type { ContentType, TransformedOperation } from '@scalar/types'
+import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
 
 import { json2xml } from '../helpers/json2xml'
 import { normalizeMimeTypeObject } from '../helpers/normalizeMimeTypeObject'

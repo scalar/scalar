@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ContentType, RequestBody } from '@scalar/types'
+import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 const prop = defineProps<{

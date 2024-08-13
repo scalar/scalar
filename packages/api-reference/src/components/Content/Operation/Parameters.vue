@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/types'
+import type { Parameters } from '@scalar/types/legacy'
 
 import ParameterItem from './ParameterItem.vue'
 

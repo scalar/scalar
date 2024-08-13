@@ -6,7 +6,7 @@ import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { schemaModel } from '@/helpers/schema-model'
 import { dereference, load } from '@scalar/openapi-parser'
-import type { AnyObject, Spec } from '@scalar/types'
+import type { AnyObject, Spec } from '@scalar/types/legacy'
 
 const PARAM_DICTIONARY = {
   cookie: 'cookies',

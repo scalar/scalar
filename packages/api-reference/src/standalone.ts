@@ -2,7 +2,7 @@
  * This file is the entry point for the CDN version of the API Reference.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
-import type { ReferenceConfiguration } from '@scalar/types'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 

@@ -5,7 +5,7 @@ import type {
   ReferenceConfiguration,
   Spec,
   TargetInfo,
-} from '@scalar/types'
+} from '@scalar/types/legacy'
 import type { HarRequest } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
 

@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/types'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { watch } from 'vue'
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'

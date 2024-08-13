@@ -1840,9 +1840,9 @@ importers:
 
   packages/types:
     dependencies:
-      '@scalar/openapi-parser':
-        specifier: ^0.7.2
-        version: 0.7.2
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../openapi-types
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

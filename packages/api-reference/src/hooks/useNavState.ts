@@ -1,5 +1,5 @@
 import { ssrState } from '@scalar/oas-utils/helpers'
-import type { Heading, Tag, TransformedOperation } from '@scalar/types'
+import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
 

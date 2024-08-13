@@ -9,7 +9,10 @@ import {
   getRequestFromOperation,
 } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPIV3 } from '@scalar/openapi-parser'
-import type { AuthenticationState, TransformedOperation } from '@scalar/types'
+import type {
+  AuthenticationState,
+  TransformedOperation,
+} from '@scalar/types/legacy'
 
 import { getHarRequest } from '../helpers'
 

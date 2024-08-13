@@ -1,4 +1,4 @@
-import type { BaseParameter } from '@scalar/types'
+import type { BaseParameter } from '@scalar/types/legacy'
 
 export type Header = BaseParameter
 

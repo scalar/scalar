@@ -55,7 +55,7 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-parser'
-import type { Spec } from '@scalar/types'
+import type { Spec } from '@scalar/types/legacy'
 import type { Entries } from 'type-fest'
 import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'

@@ -9,7 +9,7 @@ import {
 } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
-import type { SpecConfiguration } from '@scalar/types'
+import type { SpecConfiguration } from '@scalar/types/legacy'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref, toRef, watch, watchEffect } from 'vue'
 
