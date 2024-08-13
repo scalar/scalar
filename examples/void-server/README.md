@@ -5,33 +5,23 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fvoid-server)](https://www.npmjs.com/package/@scalar/void-server)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-An Hono server that responds with the request data. Kind of a mirror for HTTP requests.
+An example implementation of the `@scalar/void-server`
 
 ## Installation
 
 ```bash
-npm add @scalar/void-server
+npm i
+npm run dev
 ```
 
 ## Usage
 
-```ts
-import { serve } from '@hono/node-server'
-import { createVoidServer } from '@scalar/void-server'
+Send a request to the void-server and recieve the request data as the response.
 
-// Create the server instance
-const app = await createVoidServer()
+```bash
+curl http://localhost:5052
 
-// Start the server
-serve(
-  {
-    fetch: app.fetch,
-    port: 3000,
-  },
-  (info) => {
-    console.log(`Listening on http://localhost:${info.port}`)
-  },
-)
+{"method":"GET","path":"/","headers":{"accept":"*/*","host":"localhost:5052","user-agent":"curl/8.6.0"},"cookies":{},"query":{},"body":""}
 ```
 
 ## Community
