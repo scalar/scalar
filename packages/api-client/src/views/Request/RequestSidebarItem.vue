@@ -332,7 +332,10 @@ const resourceTitle = computed(() => {
       <!-- Collection/Folder -->
       <ScalarContextMenu
         v-else-if="!isReadOnly || parentUids.length"
-        :disabled="isReadOnly">
+        :disabled="
+          isReadOnly || (item as Collection).spec?.info?.title === 'Drafts'
+        ">
+        >
         <template #trigger>
           <button
             class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
