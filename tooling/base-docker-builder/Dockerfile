@@ -1,4 +1,7 @@
-FROM node:18-bullseye AS base
+FROM node:20-bullseye AS base
+
+# process init system
+RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
 
 RUN npm install pnpm@9.2.0 --global
 RUN pnpm config set store-dir ~/.pnpm-store
