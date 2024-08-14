@@ -41,6 +41,15 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   ArrowLeft: { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
   ArrowRight: { event: 'navigateTopNavRight', modifiers: ['default', 'Alt'] },
   l: { event: 'focusAddressBar', modifiers: ['default'] },
+  1: { event: 'jumpToTab', modifiers: ['default'] },
+  2: { event: 'jumpToTab', modifiers: ['default'] },
+  3: { event: 'jumpToTab', modifiers: ['default'] },
+  4: { event: 'jumpToTab', modifiers: ['default'] },
+  5: { event: 'jumpToTab', modifiers: ['default'] },
+  6: { event: 'jumpToTab', modifiers: ['default'] },
+  7: { event: 'jumpToTab', modifiers: ['default'] },
+  8: { event: 'jumpToTab', modifiers: ['default'] },
+  9: { event: 'jumpToLastTab', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */

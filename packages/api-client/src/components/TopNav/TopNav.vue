@@ -90,6 +90,13 @@ const handleHotKey = (event: HotKeyEvents) => {
     setNavItemIdx(Math.max(activeNavItemIdx.value - 1, 0))
   if (event.navigateTopNavRight)
     setNavItemIdx(Math.min(activeNavItemIdx.value + 1, topNavItems.length - 1))
+  if (event.jumpToTab) {
+    const tabIndex = Number(event.jumpToTab.key) - 1
+    if (tabIndex >= 0 && tabIndex < topNavItems.length) {
+      setNavItemIdx(tabIndex)
+    }
+  }
+  if (event.jumpToLastTab) setNavItemIdx(topNavItems.length - 1)
 }
 
 onMounted(() => hotKeyBus.on(handleHotKey))

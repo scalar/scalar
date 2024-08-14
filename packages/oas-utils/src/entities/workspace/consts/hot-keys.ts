@@ -13,6 +13,8 @@ export const HOTKEY_EVENT_NAMES = [
   'navigateTopNavLeft',
   'navigateTopNavRight',
   'focusAddressBar',
+  'jumpToTab',
+  'jumpToLastTab',
 ] as const
 export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
 
