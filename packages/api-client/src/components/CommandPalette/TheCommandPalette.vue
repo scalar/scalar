@@ -182,12 +182,12 @@ const handleSelect = () => {
 }
 
 /** Handle hotkeys */
-const handleHotKey = (ev: HotKeyEvents) => {
+const handleHotKey = (event: HotKeyEvents) => {
   if (!modalState.open) return
-  if (ev.closeModal) closeHandler()
-  if (ev.commandPaletteUp) handleArrowKey('up', ev.commandPaletteUp)
-  if (ev.commandPaletteDown) handleArrowKey('down', ev.commandPaletteDown)
-  if (ev.commandPaletteSelect) handleSelect()
+  if (event.closeModal) closeHandler()
+  if (event.commandPaletteUp) handleArrowKey('up', event.commandPaletteUp)
+  if (event.commandPaletteDown) handleArrowKey('down', event.commandPaletteDown)
+  if (event.commandPaletteSelect) handleSelect()
 }
 
 onMounted(() => {
