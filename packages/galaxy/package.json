@@ -21,8 +21,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm build:format && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build:format": "vite-node ./scripts/format.ts",
+    "build": "scalar-build-rollup",
+    "build:publish": "vite-node ./scripts/publish.ts",
     "dev": "pnpm dlx @scalar/cli serve ./src/specifications/3.1.yaml --watch",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
@@ -36,11 +36,7 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./3.1.yaml": "./dist/3.1.yaml",
-    "./3.1.json": "./dist/3.1.json",
-    "./latest.yaml": "./dist/latest.yaml",
-    "./latest.json": "./dist/latest.json"
+    }
   },
   "files": [
     "dist",
@@ -48,10 +44,9 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
-    "@modyfi/vite-plugin-yaml": "^1.1.0",
+    "@rollup/plugin-yaml": "^4.1.2",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
-    "@vitest/coverage-v8": "^1.6.0",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0"

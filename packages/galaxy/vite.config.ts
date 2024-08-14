@@ -1,8 +1,6 @@
-import yaml from '@modyfi/vite-plugin-yaml'
+import yaml from '@rollup/plugin-yaml'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
-
-import pkg from './package.json'
 
 export default defineConfig({
   plugins: [
@@ -26,15 +24,6 @@ export default defineConfig({
       entry: ['src/index.ts'],
       name: '@scalar/galaxy',
       formats: ['es'],
-    },
-    rollupOptions: {
-      // external: [...Object.keys(pkg.depedencies)],
-    },
-  },
-  test: {
-    coverage: {
-      enabled: true,
-      reporter: 'text',
     },
   },
 })
