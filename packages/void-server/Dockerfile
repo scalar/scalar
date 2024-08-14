@@ -11,8 +11,6 @@ FROM node:20-bullseye-slim AS runner
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 
 ENV NODE_ENV=production
-ENV PORT=$PORT
-ENV HOST='0.0.0.0'
 
 # Use default non-root user from the node image
 USER node
