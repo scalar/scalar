@@ -44,9 +44,7 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
-    "@rollup/plugin-yaml": "^4.1.2",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
-    "vitest": "^1.6.0"
+    "@scalar/openapi-parser": "^0.7.2"
   }
 }
