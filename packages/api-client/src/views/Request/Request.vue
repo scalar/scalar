@@ -143,7 +143,12 @@ const executeRequest = async () => {
 /** Handle hotkey events from the bus */
 const handleHotKey = (event: HotKeyEvents) => {
   if (event.toggleSidebar) showSideBar.value = !showSideBar.value
-  if (event.openCommandPalette) commandPaletteBus.emit()
+
+  // We prevent default on open command so we can use it on the web
+  if (event.openCommandPalette) {
+    event.openCommandPalette.preventDefault()
+    commandPaletteBus.emit()
+  }
 }
 
 onMounted(() => {
