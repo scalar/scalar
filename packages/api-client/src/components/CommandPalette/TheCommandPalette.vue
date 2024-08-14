@@ -153,8 +153,9 @@ const openCommandPalette = ({
 }
 
 /** Handle up and down arrow keys in the menu */
-const handleArrowKey = (direction: 'up' | 'down') => {
+const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
   if (!modalState.open) return
+  ev.preventDefault()
 
   const offset = direction === 'up' ? -1 : 1
   const length = searchResultsWithPlaceholderResults.value.length
@@ -181,12 +182,12 @@ const handleSelect = () => {
 }
 
 /** Handle hotkeys */
-const handleHotKey = (event: HotKeyEvents) => {
+const handleHotKey = (ev: HotKeyEvents) => {
   if (!modalState.open) return
-  if (event.closeModal) closeHandler()
-  if (event.commandPaletteUp) handleArrowKey('up')
-  if (event.commandPaletteDown) handleArrowKey('down')
-  if (event.commandPaletteSelect) handleSelect()
+  if (ev.closeModal) closeHandler()
+  if (ev.commandPaletteUp) handleArrowKey('up', ev.commandPaletteUp)
+  if (ev.commandPaletteDown) handleArrowKey('down', ev.commandPaletteDown)
+  if (ev.commandPaletteSelect) handleSelect()
 }
 
 onMounted(() => {
