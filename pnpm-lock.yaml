@@ -1515,9 +1515,15 @@ importers:
 
   packages/galaxy:
     devDependencies:
+      '@hono/node-server':
+        specifier: ^1.11.0
+        version: 1.11.3
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      '@scalar/mock-server':
+        specifier: workspace:*
+        version: link:../mock-server
       '@scalar/openapi-parser':
         specifier: ^0.7.2
         version: 0.7.2

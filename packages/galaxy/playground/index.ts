@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
-import specification from '@scalar/galaxy/latest.yaml?raw'
+import { createMockServer } from '@scalar/mock-server'
 
-import { createMockServer } from '../src/createMockServer'
+import specification from '../dist/latest.yaml?raw'
 
 const port = process.env.PORT || 5052
 
@@ -18,11 +18,10 @@ serve(
   {
     fetch: app.fetch,
     port: Number(port),
-    hostname: '0.0.0.0',
   },
   (info) => {
     console.log()
-    console.log(`🚧 Mock Server listening on http://0.0.0.0:${info.port}`)
+    console.log(`🚧 Mock Server listening on http://localhost:${info.port}`)
     console.log()
   },
 )

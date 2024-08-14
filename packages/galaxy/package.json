@@ -23,7 +23,7 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "build:publish": "vite-node ./scripts/publish.ts",
-    "dev": "pnpm dlx @scalar/cli serve ./src/specifications/3.1.yaml --watch",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
@@ -44,7 +44,9 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2"
   }
 }

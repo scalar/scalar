@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {},
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "scripts/**/*.ts", "vite-env.d.ts"]
 }

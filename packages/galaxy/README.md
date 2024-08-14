@@ -47,3 +47,49 @@ import galaxy from '@scalar/galaxy/latest.yaml?raw'
 ```ts
 import galaxy from '@scalar/galaxy/3.1.json'
 ```
+
+### Playground
+
+Use the `@scalar/mock-server` to serve an OpenAPI spec
+
+```bash
+    npm run dev
+```
+
+Explore the api spec by making requests to it using your favourite API exploration tools
+
+```bash
+    curl http://localhost:5052/planets
+```
+
+Response
+
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "name": "Mars",
+      "description": "The red planet",
+      "image": "https://cdn.scalar.com/photos/mars.jpg",
+      "creator": {
+        "id": 1,
+        "name": "Marc",
+        "email": "marc@scalar.com"
+      }
+    }
+  ],
+  "meta": {
+    "limit": 10,
+    "offset": 0,
+    "total": 100,
+    "next": "/planets?limit=10&offset=10"
+  }
+}
+```
+
+### Serve an OpenAPI specification yaml using the CLI
+
+```bash
+   npm run dlx @scalar/cli serve ./src/specifications/3.1.yaml --watch
+```
