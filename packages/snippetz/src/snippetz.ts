@@ -27,20 +27,20 @@ export function snippetz() {
         return plugin(request)
       }
     },
-    async print(target: TargetId, client: string, request: Partial<Request>) {
+    async print(target: TargetId, clientId: string, request: Partial<Request>) {
       // if target and client are valid scalar types
       // use the plugin to convert the request
       if (
         ScalarTargetTypes.includes(target as ScalarTargetId) &&
-        ScalarClientTypes.includes(client as ClientId)
+        ScalarClientTypes.includes(clientId as ClientId)
       ) {
-        return this.get(target, client as ClientId, request)?.code
+        return this.get(target, clientId as ClientId, request)?.code
       }
 
       // else use httpsnippet-lite to convert the request
       if (SnippetTargetTypes.includes(target as any)) {
         // TODO: add client parameter
-        return await this.convert(request, target)
+        return await this.convert(request, target, clientId)
       }
       // else return error
     },
@@ -78,7 +78,7 @@ export function snippetz() {
     },
     // TODO: add client parameter
 
-    async convert(request: any, target: string) {
+    async convert(request: any, target: string, clientId?: any) {
       const snippet = new HTTPSnippet(request as HarRequest)
 
       // https://www.npmjs.com/package/httpsnippet-lite#snippetconverttargetid-string-clientid-string-options-t
