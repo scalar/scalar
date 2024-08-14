@@ -99,6 +99,11 @@ export const handleHotKeyDown = (
         /** Check if we are in an input as modifier === 'undefined' */
         hotKeyBus.emit({ [hotKeyEvent.event]: ev })
       }
+
+      /** Unfocus input for ArrowUp and ArrowDown events */
+      if (key === 'ArrowUp' || key === 'ArrowDown') {
+        ;(ev.target as HTMLElement)?.blur()
+      }
     }
   }
 }
