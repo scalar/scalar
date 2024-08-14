@@ -16,6 +16,29 @@ const hotKeyBusKey: EventBusKey<HotKeyEvents> = Symbol()
 export const hotKeyBus = useEventBus(hotKeyBusKey)
 
 /**
+ * These are unrelated to an input so they will still fire if we are in one,
+ * this is not for a textarea in which you should be able to use arrow keys, enter etc
+ */
+const inputHotkeys = [
+  'Escape',
+  'ArrowDown',
+  'ArrowUp',
+  'Enter',
+  'F1',
+  'F2',
+  'F3',
+  'F4',
+  'F5',
+  'F6',
+  'F7',
+  'F8',
+  'F9',
+  'F10',
+  'F11',
+  'F12',
+]
+
+/**
  * Default set of keybindings
  *
  * Passing an empty object for hotkeys will disable them
@@ -44,11 +67,17 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 }
 
 /** Checks if we are in an "input" */
-const isInput = (target: EventTarget | null) =>
-  target instanceof HTMLElement &&
-  (target.getAttribute('contenteditable') ||
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA')
+const isInput = (ev: KeyboardEvent) => {
+  if (!(ev.target instanceof HTMLElement)) return false
+  const target = ev.target
+
+  // For actual inputs we would like to allow certain hotkeys to go through even without modifiers
+  if (target.tagName === 'INPUT') return !inputHotkeys.includes(ev.key)
+  if (target.tagName === 'TEXTAREA') return true
+  if (target.getAttribute('contenteditable')) return true
+
+  return false
+}
 
 const MODIFIER_DICT = {
   Alt: 'altKey',
@@ -92,17 +121,12 @@ export const handleHotKeyDown = (
       const _modifiers = getModifiers(hotKeyEvent.modifiers || modifiers)
       const areModifiersPressed = _modifiers.every((mod) => ev[mod] === true)
 
-      /** Check for modifiers as defined */
-      if (areModifiersPressed && !isInput(ev.target)) {
+      // Check for modifiers as defined
+      if (areModifiersPressed && !isInput(ev)) {
         hotKeyBus.emit({ [hotKeyEvent.event]: ev })
-      } else if (!isInput(ev.target) && hotKeyEvent.modifiers === undefined) {
-        /** Check if we are in an input as modifier === 'undefined' */
+      } else if (!isInput(ev) && hotKeyEvent.modifiers === undefined) {
+        // Check if we are in an input as modifier === 'undefined'
         hotKeyBus.emit({ [hotKeyEvent.event]: ev })
-      }
-
-      /** Unfocus input for ArrowUp and ArrowDown events */
-      if (key === 'ArrowUp' || key === 'ArrowDown') {
-        ;(ev.target as HTMLElement)?.blur()
       }
     }
   }

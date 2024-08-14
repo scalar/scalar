@@ -32,7 +32,7 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
@@ -147,7 +147,9 @@ const openCommandPalette = ({
   activeCommand.value = commandName ?? null
   metaData.value = _metaData
   modalState.show()
-  commandInputRef.value?.focus()
+
+  // Need nextTick to focus after a click since focus goes to the button
+  nextTick(() => commandInputRef.value?.focus())
 }
 
 /** Handle up and down arrow keys in the menu */
@@ -167,13 +169,15 @@ const handleArrowKey = (direction: 'up' | 'down') => {
   })
 }
 
+/** The currently selected command */
+const selectedCommand = computed(
+  () => searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
+)
+
 /** Handle enter keydown in the menu */
 const handleSelect = () => {
-  if (selectedSearchResult.value === -1) return
-
-  const command =
-    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
-  executeCommand(command)
+  if (!selectedCommand.value) return
+  executeCommand(selectedCommand.value)
 }
 
 /** Handle hotkeys */
@@ -225,7 +229,7 @@ onBeforeUnmount(() => {
           type="text" />
       </div>
       <template
-        v-for="(group, gIdx) in availableCommands"
+        v-for="group in availableCommands"
         :key="group.label">
         <div
           v-show="
@@ -248,11 +252,7 @@ onBeforeUnmount(() => {
           "
           class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
           :class="{
-            'bg-b-2':
-              gIdx > 0
-                ? selectedSearchResult ===
-                  index + availableCommands[gIdx - 1].commands.length
-                : selectedSearchResult === index,
+            'bg-b-2': command.name === selectedCommand?.name,
           }"
           @click="executeCommand(command)">
           <ScalarIcon
