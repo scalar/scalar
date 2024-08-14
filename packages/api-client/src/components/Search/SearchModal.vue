@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
+import { commandPaletteBus } from '@/libs'
 import { useWorkspace } from '@/store/workspace'
 import {
   type ModalState,
@@ -11,7 +12,7 @@ import {
 import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -172,6 +173,14 @@ whenever(keys.ArrowUp, () => {
       behavior: 'smooth',
       block: 'center',
     })
+})
+
+onMounted(() => {
+  commandPaletteBus.on(() => {
+    if (props.modalState.open) {
+      props.modalState.hide()
+    }
+  })
 })
 </script>
 <template>

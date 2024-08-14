@@ -1,9 +1,24 @@
 <script setup lang="ts">
+import { type HotKeyEvents, hotKeyBus, isCommandPaletteOpen } from '@/libs'
 import { ScalarIcon } from '@scalar/components'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 const emit = defineEmits<{
   (e: 'openSearchModal'): void
 }>()
+
+/** Handle hotkeys */
+const handleHotKey = (event: HotKeyEvents) => {
+  if (event.search && !isCommandPaletteOpen.value) emit('openSearchModal')
+}
+
+onMounted(() => {
+  hotKeyBus.on(handleHotKey)
+})
+
+onBeforeUnmount(() => {
+  hotKeyBus.off(handleHotKey)
+})
 </script>
 <template>
   <div class="search-button-fade sticky top-0 z-50 px-3 py-2.5 pb-2.5">

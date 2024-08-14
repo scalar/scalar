@@ -30,17 +30,18 @@ export const hotKeyBus = useEventBus(hotKeyBusKey)
  * - if you explicitly set it, the event must match ex: modifier false will not trigger if the modifier was pressed
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
-  Escape: { event: 'closeModal' },
-  b: { event: 'toggleSidebar', modifiers: ['default'] },
-  k: { event: 'openCommandPalette', modifiers: ['default'] },
-  ArrowUp: { event: 'commandPaletteUp' },
-  ArrowDown: { event: 'commandPaletteDown' },
-  Enter: { event: 'commandPaletteSelect' },
-  t: { event: 'addTopNav', modifiers: ['default'] },
-  w: { event: 'closeTopNav', modifiers: ['default'] },
-  ArrowLeft: { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
-  ArrowRight: { event: 'navigateTopNavRight', modifiers: ['default', 'Alt'] },
-  l: { event: 'focusAddressBar', modifiers: ['default'] },
+  'Escape': { event: 'closeModal' },
+  'b': { event: 'toggleSidebar', modifiers: ['default'] },
+  'k': { event: 'openCommandPalette', modifiers: ['default'] },
+  'ArrowUp': { event: 'commandPaletteUp' },
+  'ArrowDown': { event: 'commandPaletteDown' },
+  'Enter': { event: 'commandPaletteSelect' },
+  't': { event: 'addTopNav', modifiers: ['default'] },
+  'w': { event: 'closeTopNav', modifiers: ['default'] },
+  'ArrowLeft': { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
+  'ArrowRight': { event: 'navigateTopNavRight', modifiers: ['default', 'Alt'] },
+  'l': { event: 'focusAddressBar', modifiers: ['default'] },
+  '/': { event: 'search' },
 }
 
 /** Checks if we are in an "input" */
@@ -98,6 +99,10 @@ export const handleHotKeyDown = (
       } else if (!isInput(ev.target) && hotKeyEvent.modifiers === undefined) {
         /** Check if we are in an input as modifier === 'undefined' */
         hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+        if (key === '/') {
+          /** Prevent character from being typed in the input */
+          ev.preventDefault()
+        }
       }
     }
   }

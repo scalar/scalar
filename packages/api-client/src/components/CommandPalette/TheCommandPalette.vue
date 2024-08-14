@@ -40,6 +40,7 @@ import {
   hotKeyBus,
   type HotKeyEvents,
   type CommandPaletteEvent,
+  isCommandPaletteOpen,
 } from '@/libs'
 
 /** Available Commands for the Command Palette */
@@ -122,6 +123,7 @@ const closeHandler = () => {
   commandQuery.value = ''
   activeCommand.value = null
   selectedSearchResult.value = -1
+  isCommandPaletteOpen.value = false
 }
 
 /** Handle execution of the command, some have routes while others show another palette */
@@ -148,6 +150,7 @@ const openCommandPalette = ({
   metaData.value = _metaData
   modalState.show()
   commandInputRef.value?.focus()
+  isCommandPaletteOpen.value = true
 }
 
 /** Handle up and down arrow keys in the menu */
@@ -183,12 +186,14 @@ const handleHotKey = (event: HotKeyEvents) => {
   if (event.commandPaletteUp) handleArrowKey('up')
   if (event.commandPaletteDown) handleArrowKey('down')
   if (event.commandPaletteSelect) handleSelect()
+  if (event.search) commandInputRef.value?.focus()
 }
 
 onMounted(() => {
   commandPaletteBus.on(openCommandPalette)
   hotKeyBus.on(handleHotKey)
 })
+
 onBeforeUnmount(() => {
   commandPaletteBus.off(openCommandPalette)
   hotKeyBus.off(handleHotKey)
