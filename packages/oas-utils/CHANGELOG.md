@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.32
+
+### Patch Changes
+
+- 1c81549: feat: topnav navigation hotkeys
+
 ## 0.2.31
 
 ### Patch Changes

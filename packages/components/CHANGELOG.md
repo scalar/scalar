@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.32
+
+### Patch Changes
+
+- 48693d7: fix(components): rebuild code block x-y scroll box
+
 ## 0.12.31
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.51
+
+### Patch Changes
+
+- f2b4b3f: fix: request sidebar draft native context menu
+- c386d64: fix: enable sidebar resizer on request page
+- 5c877b8: fix: command palette navigation
+- 1c81549: feat: topnav navigation hotkeys
+- Updated dependencies [48693d7]
+- Updated dependencies [1c81549]
+  - @scalar/components@0.12.32
+  - @scalar/oas-utils@0.2.32
+
 ## 2.0.50
 
 ### Patch Changes
