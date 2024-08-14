@@ -149,7 +149,22 @@ function createWindow(): void {
           accelerator: 'CmdOrCtrl+O',
           click: () => handleFileOpenMenuItem(mainWindow),
         },
-        ...[isMac ? { role: 'close' } : { role: 'quit' }],
+        {
+          label: 'Close Window',
+          accelerator: 'Shift+CmdOrCtrl+W',
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow()
+            if (focusedWindow) focusedWindow.close()
+          },
+        },
+        {
+          label: 'Close Tab',
+          accelerator: 'CmdOrCtrl+W',
+          click: () => {
+            const focusedWindow = BrowserWindow.getFocusedWindow()
+            if (focusedWindow) focusedWindow.webContents.send('closeTab')
+          },
+        },
       ],
     },
     // { role: 'editMenu' }
