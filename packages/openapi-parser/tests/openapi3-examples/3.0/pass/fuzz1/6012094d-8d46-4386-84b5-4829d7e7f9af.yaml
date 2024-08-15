@@ -1,0 +1,9 @@
+openapi: 3.0.7-xcbK*d|fB
+info:
+  title: do
+  version: fugiat ea
+  termsOfService: http://oLAutx0.org
+paths: {}
+externalDocs:
+  url: http://foo.bar
+x-testcase: 'should work without optional property: servers'

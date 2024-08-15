@@ -1,0 +1,10 @@
+openapi: 3.0.8-y>6"oI=
+info:
+  title: Duis dolor
+paths: {}
+servers:
+  - url: cupidatat minim dolore reprehende
+externalDocs:
+  url: Mg3gh9Nz
+  description: tempor non fugiat
+x-testcase: 'nested object test: should not work without required property: version'

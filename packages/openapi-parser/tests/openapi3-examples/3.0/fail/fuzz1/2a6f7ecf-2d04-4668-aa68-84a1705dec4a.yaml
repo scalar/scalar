@@ -1,0 +1,11 @@
+openapi: 3.0.4
+paths: {}
+externalDocs:
+  url: xHf3EioWrL
+  description: consequat Duis elit
+tags:
+  - name: minim dolore in elit proident
+    description: pariatur sed Ut qui irure
+  - name: ut
+    description: anim officia id
+x-testcase: 'should not work without required property: info'

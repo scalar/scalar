@@ -1,0 +1,24 @@
+openapi: 3.0.5-y`56g;T
+info:
+  title: dolor
+  version: Excepteur
+paths: {}
+components:
+  securitySchemes:
+    Q7EKAnnh7:
+      type: openIdConnect
+      openIdConnectUrl: http://example.com
+tags:
+  - name: do repre
+    description: fugiat nulla
+  - name: aliquip elit
+  - name: qui anim pariatur occaecat cupidatat
+  - name: adipisicing officia no
+servers:
+  - url: http://example.com
+    description: commodo ea aliquip voluptate qui
+  - url: https://foo.bat
+    description: ut Lorem labore
+  - url: http://example.com/foo/bar
+  - url: http://www.example.com/foo
+x-testcase: 'should work without optional property: externalDocs'

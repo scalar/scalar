@@ -1,0 +1,20 @@
+openapi: 3.0.7
+info:
+  title: voluptate cillum Lore
+  version: nulla dolore nisi officia consequat
+  contact:
+    name: anim ut ut
+  license:
+    name: consequat aliqua in
+  termsOfService: oTYNWsOD
+paths: {}
+tags:
+  - name: et aliqua sed
+  - name: ex elit proident Ut
+  - name: ip
+  - name: Excepteur u
+    description: nulla non officia
+  - name: ut do veniam
+externalDocs:
+  url: 7813143438819328
+x-testcase: "nested object test: should not work with 'url' of type 'integer'"

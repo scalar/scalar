@@ -1,0 +1,10 @@
+swagger: 2.0
+info:
+  title: How server used to be identified
+  version: 1.0.0
+
+basePath: /api
+host: www.acme.com
+schemes: ['https']
+
+paths: {}

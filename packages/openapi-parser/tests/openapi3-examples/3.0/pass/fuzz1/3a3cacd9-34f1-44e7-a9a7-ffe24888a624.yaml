@@ -1,0 +1,15 @@
+openapi: 3.0.7
+info:
+  title: cillum anim magna occaecat
+  version: ut
+  description: quis laboris adipisicing
+paths: {}
+components:
+  securitySchemes:
+    T0:
+      type: openIdConnect
+      openIdConnectUrl: http://example.com
+      description: sunt ut
+tags:
+  - name: in
+x-testcase: 'within array test: should work without optional property: description'

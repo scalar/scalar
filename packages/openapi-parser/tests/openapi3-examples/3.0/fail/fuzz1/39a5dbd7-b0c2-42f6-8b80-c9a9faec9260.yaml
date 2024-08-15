@@ -1,0 +1,7 @@
+openapi: 3.0.3-8Kw/B
+info:
+  title: qui dolor minim
+  version: ipsum
+  termsOfService: ht<p://MWiqpB2bIAu
+paths: {}
+x-testcase: 'nested object test: should not pass validation for format of property: termsOfService'

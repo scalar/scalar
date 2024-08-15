@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: Servers Everywhere
+  version: 1.0.0
+servers:
+  - url: https://api.example.com
+paths:
+  '/passports/{id}':
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      responses:
+        '200':
+          description: Ok
+    post:
+      servers: # Write operation on a different server
+        - url: https://supersecure-api.example.com
+      requestBody:
+        content:
+          application/json:
+            schema: {}
+      responses:
+        '200':
+          description: Ok
+  '/images/{filename}':
+    summary: Pictures of people
+    servers: # Static resources on a different server
+      - url: https://static.example.com
+    parameters:
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      responses:
+        '200':
+          description: Ok
+    put:
+      responses:
+        '200':
+          description: Ok
+    delete:
+      responses:
+        '200':
+          description: Ok

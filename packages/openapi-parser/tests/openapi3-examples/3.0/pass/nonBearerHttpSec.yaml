@@ -1,0 +1,10 @@
+openapi: 3.0.1
+info:
+  version: 1.0.0
+  title: API
+paths: {}
+components:
+  securitySchemes:
+    mySS:
+      type: http
+      scheme: Basic

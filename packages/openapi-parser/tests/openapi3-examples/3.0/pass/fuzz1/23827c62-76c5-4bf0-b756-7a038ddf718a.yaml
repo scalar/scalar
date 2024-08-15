@@ -1,0 +1,6 @@
+openapi: '3.0.6-`C47:!n.]Ro'
+info:
+  title: minim commodo sed cillum aliqua
+  version: cillum qui ea minim Excepteur
+paths: {}
+x-testcase: 'should work without optional property: security'

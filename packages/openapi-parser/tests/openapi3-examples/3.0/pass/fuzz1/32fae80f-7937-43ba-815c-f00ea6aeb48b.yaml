@@ -1,0 +1,8 @@
+openapi: 3.0.5-S)
+info:
+  title: in amet culpa reprehenderit
+  version: non sunt et ipsum
+  contact:
+    email: 1Kl8Qi2@NW.jv
+paths: {}
+x-testcase: 'should work without optional property: components'

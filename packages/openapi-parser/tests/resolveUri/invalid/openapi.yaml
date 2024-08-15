@@ -1,0 +1,28 @@
+openapi: 3.0.3
+info:
+  title: Hello World
+  version: 2.0.0
+paths:
+  '/upload':
+    post:
+      description: 'Internal endpoint for iOS app only, to upload a unit from the field.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Upload'
+      responses:
+        '201':
+          description: Created
+        '401':
+          description: Unauthorized
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Generic_Problem'
+components:
+  schemas:
+    Generic_Problem:
+      $ref: schemas/does-not-exist.yaml#/components/schema/requestBody
+    Upload:
+      $ref: schemas/upload.yaml

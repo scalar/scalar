@@ -1,0 +1,27 @@
+title: Problem
+type: object
+description: IETF RFC 8707 compliant problem details.
+properties:
+  type:
+    type: string
+    readOnly: true
+    example: https://protect.earth/probs/something-went-wrong
+  title:
+    type: string
+    readOnly: true
+    example: You do not have enough credit.
+  status:
+    type: integer
+    readOnly: true
+    example: 400
+  detail:
+    type: string
+    readOnly: true
+    example: Your current balance is 30, but that costs 50.
+  instance:
+    type: string
+    readOnly: true
+    example: /account/12345/msgs/abc
+required:
+  - type
+  - title

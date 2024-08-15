@@ -1,0 +1,80 @@
+{
+  "$id": "person",
+  "title": "Person",
+  "type": "object",
+  "required": ["name", "age", "homeAddress"],
+  "properties": {
+    "name": {
+      "type": "object",
+      "required": ["first", "last"],
+      "properties": {
+        "first": {
+          "$ref": "non-empty-string",
+          "description": "The person's first name"
+        },
+        "middle": {
+          "$ref": "person#non-empty-string",
+          "description": "The person's middle name, if any"
+        },
+        "last": {
+          "$ref": "#/$defs/nonEmptyString",
+          "description": "The person's last name"
+        }
+      }
+    },
+    "age": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "The person's age, in whole years"
+    },
+    "homeAddress": {
+      "$ref": "address",
+      "description": "The person's home address"
+    },
+    "workAddress": {
+      "$ref": "person#address",
+      "description": "The person's work address"
+    },
+    "schoolAddress": {
+      "$ref": "#/$defs/address",
+      "description": "The person's school address"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "$id": "non-empty-string",
+      "$anchor": "non-empty-string",
+      "title": "Non-Empty String",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "\\S",
+      "description": "A string containing at least one non-whitespace character"
+    },
+    "address": {
+      "$id": "address",
+      "$anchor": "address",
+      "title": "Address",
+      "type": "object",
+      "properties": {
+        "street": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "non-empty-string" },
+          "description": "Each line of the street address"
+        },
+        "city": {
+          "$ref": "person#non-empty-string",
+          "description": "The name of the city or town"
+        },
+        "state": {
+          "$ref": "person#/$defs/nonEmptyString",
+          "description": "The name of the state or province"
+        },
+        "postalCode": {
+          "$ref": "person#/$defs/nonEmptyString",
+          "description": "The postal code (aka \"zip code\")"
+        }
+      }
+    }
+  }
+}

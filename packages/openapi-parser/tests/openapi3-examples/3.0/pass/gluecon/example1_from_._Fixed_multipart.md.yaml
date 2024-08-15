@@ -1,0 +1,30 @@
+openapi: 3.0.0
+info:
+  title: Example of HTML forms
+  version: 1.0.0
+paths:
+  '/submit':
+    post:
+      requestBody:
+        content:
+          application/x-www-urlencoded-form:
+            schema:
+              type: object
+              properties:
+                street:
+                  type: string
+                city:
+                  type: string
+                province:
+                  type: string
+                country:
+                  type: string
+                postcode:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Great Success!

@@ -1,0 +1,6 @@
+openapi: 3.0.0
+info: &a
+  version: 1.0.0
+  title: API
+  x-bye: *a
+paths: {}

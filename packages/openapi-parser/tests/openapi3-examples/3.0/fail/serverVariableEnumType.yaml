@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  title: How server URLs can be templated
+  version: 1.0.0
+
+servers:
+  - url: https://{tenant}.acme.com/api/{version}
+    variables:
+      tenant:
+        default: sample #default is a required field
+      version:
+        default: v2
+        enum:
+          - v2
+          - 3
+paths: {}

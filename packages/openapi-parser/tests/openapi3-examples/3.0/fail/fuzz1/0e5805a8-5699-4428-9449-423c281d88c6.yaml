@@ -1,0 +1,25 @@
+openapi: 3.0.9
+info:
+  title: adipisicing enim
+  version: magna reprehenderit Ut
+paths: {}
+tags:
+  - name: sint
+  - name: do dolor qui
+  - name: in commodo
+  - name: dolor fugiat sed ut
+  - name: et magna aute consequat
+servers:
+  - url: labore ipsum qui
+    description: Excepteur deserunt
+  - url: pariatur nisi ut culpa in
+    description: consectetur tempor anim eiusmod ullamco
+  - url: minim Ut
+    description: non aliq
+  - url: proident
+    description: et ullamco proident sint
+  - url: incididunt anim dolor
+    description: do consequat Excepteur
+externalDocs:
+  url: P)Zun!ngse1(f7
+x-testcase: 'nested object test: should not pass validation for format of property: url'

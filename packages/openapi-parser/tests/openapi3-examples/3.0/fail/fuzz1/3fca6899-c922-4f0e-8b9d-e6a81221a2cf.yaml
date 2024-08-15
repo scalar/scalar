@@ -1,0 +1,10 @@
+openapi: '3.0.5-,ENE-IQ'
+info:
+  title: eiusmod officia mollit non
+  version: fugiat elit aliquip dolore
+  description: reprehenderit
+paths: {}
+externalDocs:
+  url: qu7.HX
+  description: 54.06
+x-testcase: "nested object test: should not work with 'description' of type 'number'"

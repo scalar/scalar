@@ -1,0 +1,18 @@
+openapi: 3.0.0
+info:
+  title: API to upload a file
+  version: 1.0.0
+paths:
+  /files/{filename}:
+    put:
+      parameters:
+        filename:
+          in: path
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary

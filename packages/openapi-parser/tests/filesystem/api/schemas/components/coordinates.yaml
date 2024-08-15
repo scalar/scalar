@@ -1,0 +1,14 @@
+title: Coordinates
+type: object
+required:
+  - latitude
+  - longitude
+properties:
+  latitude:
+    type: number
+    format: double
+    example: 51.87351
+  longitude:
+    type: number
+    format: double
+    example: -1.90973

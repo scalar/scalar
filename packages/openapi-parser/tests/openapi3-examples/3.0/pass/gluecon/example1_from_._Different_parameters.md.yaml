@@ -1,0 +1,13 @@
+openapi: 3.0.0
+info:
+  title: The simplest parameter example
+  version: 1.0.0
+paths:
+  /customer/{id}: # https://api.example.org/customer/72
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          title: A unique identifier for the customer
