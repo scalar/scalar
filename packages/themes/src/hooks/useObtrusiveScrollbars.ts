@@ -9,6 +9,8 @@ import { onMounted } from 'vue'
  */
 export function useObtrusiveScrollbars() {
   onMounted(() => {
+    if (!document) return
+
     // Create a 30px square div
     const parent = document.createElement('div')
     parent.setAttribute('style', 'width:30px;height:30px;overflow-y:scroll;')
@@ -23,11 +25,12 @@ export function useObtrusiveScrollbars() {
     // Measure the child element, if it is not 30px wide the scrollbars are obtrusive
     const firstChild = parent.firstChild as HTMLDivElement
     const scrollbarWidth = 30 - firstChild.clientWidth
-    console.log(scrollbarWidth)
+
     if (scrollbarWidth) {
-      document.body.classList.add('layout-scrollbar-obtrusive')
+      const apps = document.querySelectorAll('.scalar-app')
+      apps.forEach((app) => app.classList.add('scalar-scrollbars-obtrusive'))
     }
 
-    // document.body.removeChild(parent)
+    document.body.removeChild(parent)
   })
 }
