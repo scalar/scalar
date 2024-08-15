@@ -1,7 +1,7 @@
 import { useWorkspace } from '@/store/workspace'
 import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
 import Fuse, { type FuseResult } from 'fuse.js'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 /**
@@ -25,6 +25,7 @@ export function useSearch() {
   const selectedSearchResult = ref<number>(0)
   const searchText = ref<string>('')
   const searchInputRef = ref<HTMLInputElement | null>(null)
+  const searchResultRefs = ref<HTMLElement[]>([])
 
   const fuse = new Fuse(fuseDataArray.value, {
     keys: ['title', 'description', 'body'],
@@ -53,6 +54,34 @@ export function useSearch() {
   const fuseSearch = (): void => {
     selectedSearchResult.value = 0
     searchResults.value = fuse.search(searchText.value)
+  }
+
+  const navigateSearchResults = (direction: 'up' | 'down') => {
+    const offset = direction === 'up' ? -1 : 1
+    const length = searchResultsWithPlaceholderResults.value.length
+
+    // Ensures we loop around the array by using the remainder
+    selectedSearchResult.value =
+      (selectedSearchResult.value + offset + length) % length
+
+    // Scroll the selected item into view
+    nextTick(() => {
+      const element = searchResultRefs.value[selectedSearchResult.value]
+      if (element instanceof HTMLElement) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        })
+      }
+    })
+  }
+
+  const selectSearchResult = () => {
+    if (selectedSearchResult.value >= 0) {
+      onSearchResultClick(
+        searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
+      )
+    }
   }
 
   // Populate our fuseDataArray with the request items
@@ -90,5 +119,8 @@ export function useSearch() {
     onSearchResultClick,
     fuseSearch,
     searchInputRef,
+    searchResultRefs,
+    navigateSearchResults,
+    selectSearchResult,
   }
 }

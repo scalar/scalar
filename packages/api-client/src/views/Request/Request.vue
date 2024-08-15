@@ -60,6 +60,9 @@ const {
   onSearchResultClick,
   fuseSearch,
   searchInputRef,
+  searchResultRefs,
+  navigateSearchResults,
+  selectSearchResult,
 } = useSearch()
 
 const isNarrow = useMediaQuery('(max-width: 780px)')
@@ -164,6 +167,18 @@ const handleHotKey = (event: HotKeyEvents) => {
 
   if (event.focusRequestSearch) {
     searchInputRef.value?.focus()
+  }
+
+  if (event.navigateSearchResultsUp) {
+    navigateSearchResults('up')
+  }
+
+  if (event.navigateSearchResultsDown) {
+    navigateSearchResults('down')
+  }
+
+  if (event.selectSearchResult) {
+    selectSearchResult()
   }
 }
 
@@ -339,6 +354,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
                   v-for="(entry, index) in searchResultsWithPlaceholderResults"
                   :id="`#search-input-${entry.item.id}`"
                   :key="entry.refIndex"
+                  :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
                   :active="selectedSearchResult === index"
                   class="px-2"
                   @click="onSearchResultClick(entry)"

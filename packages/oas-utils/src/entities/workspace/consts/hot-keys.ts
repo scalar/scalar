@@ -3,9 +3,9 @@
  */
 export const HOTKEY_EVENT_NAMES = [
   'closeModal',
-  'commandPaletteDown',
-  'commandPaletteSelect',
-  'commandPaletteUp',
+  'navigateSearchResultsDown',
+  'selectSearchResult',
+  'navigateSearchResultsUp',
   'openCommandPalette',
   'toggleSidebar',
   'addTopNav',

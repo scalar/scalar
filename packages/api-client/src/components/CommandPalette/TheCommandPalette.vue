@@ -185,9 +185,11 @@ const handleSelect = () => {
 const handleHotKey = (event: HotKeyEvents) => {
   if (!modalState.open) return
   if (event.closeModal) closeHandler()
-  if (event.commandPaletteUp) handleArrowKey('up', event.commandPaletteUp)
-  if (event.commandPaletteDown) handleArrowKey('down', event.commandPaletteDown)
-  if (event.commandPaletteSelect) handleSelect()
+  if (event.navigateSearchResultsUp)
+    handleArrowKey('up', event.navigateSearchResultsUp)
+  if (event.navigateSearchResultsDown)
+    handleArrowKey('down', event.navigateSearchResultsDown)
+  if (event.selectSearchResult) handleSelect()
 }
 
 onMounted(() => {
