@@ -47,6 +47,7 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
+    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
