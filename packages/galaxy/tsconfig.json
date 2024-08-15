@@ -1,5 +1,7 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {},
-  "include": ["src/**/*.ts", "scripts/**/*.ts", "vite-env.d.ts"]
+  "exclude": ["tests"],
+  "compilerOptions": {
+    "types": ["vite/client"]
+  }
 }

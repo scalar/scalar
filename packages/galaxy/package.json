@@ -21,12 +21,11 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "build:publish": "vite-node ./scripts/publish.ts",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "build": "scalar-build-rollup && vite-node scripts/publish.ts",
+    "dev": "vite-node playground/index.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "test:unit": "vitest",
     "types:build": "tsc -p tsconfig.build.json",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
@@ -48,9 +47,9 @@
   ],
   "module": "./dist/index.js",
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2"
+    "@scalar/openapi-parser": "^0.7.2",
+    "vite": "^5.2.10"
   }
 }

@@ -50,7 +50,6 @@
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/galaxy": "workspace:*",
     "@types/node": "^20.14.10"
   }
 }

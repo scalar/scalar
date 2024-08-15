@@ -1515,9 +1515,6 @@ importers:
 
   packages/galaxy:
     devDependencies:
-      '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
@@ -1527,6 +1524,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: ^0.7.2
         version: 0.7.2
+      vite:
+        specifier: ^5.2.10
+        version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
 
   packages/hono-api-reference:
     dependencies:
@@ -1577,9 +1577,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10

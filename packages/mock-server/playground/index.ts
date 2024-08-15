@@ -1,9 +1,22 @@
 import { serve } from '@hono/node-server'
-import specification from '@scalar/galaxy/latest.yaml?raw'
+import fs from 'fs/promises'
 
 import { createMockServer } from '../src/createMockServer'
 
 const port = process.env.PORT || 5052
+
+/**
+ * Load the specification from the workspace.
+ * We do not want a circular depedency as galaxy uses mock server for its playground
+ */
+const specification = await fs
+  .readFile('../../galaxy/dist/latest.json')
+  .catch(() => {
+    console.error(
+      'MISSING GALAXY SPEC FOR PLAYGROUND. PLEASE BUILD @scalar/galaxy',
+    )
+    return ''
+  })
 
 // Create the server instance
 const app = await createMockServer({

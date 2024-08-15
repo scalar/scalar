@@ -1,10 +1,13 @@
-import {
-  addPackageFileExports,
-  createRollupConfig,
-} from '@scalar/build-tooling'
+import { createRollupConfig } from '@scalar/build-tooling'
 
-const entries = ['src/index.ts']
+const input = ['src/index.ts']
 
+// Build the playground for docker deployments
+if (process.env.BUILD_PLAYGROUND) {
+  input.push('playground/index.ts')
+}
+
+// Do not use the findEntryPoints helper - it will overwrite the static file outputs
 export default createRollupConfig({
   typescript: true,
   copy: [
@@ -16,8 +19,6 @@ export default createRollupConfig({
     },
   ],
   options: {
-    input: entries,
+    input: ['./src/index.ts'],
   },
 })
-
-await addPackageFileExports({ entries })
