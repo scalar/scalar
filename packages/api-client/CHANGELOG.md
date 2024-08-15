@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.0.52
+
+### Patch Changes
+
+- cff5b1f: fix: close tab hotkey event prevent
+- Updated dependencies [298f7c4]
+- Updated dependencies [7bfee42]
+  - @scalar/themes@0.9.24
+  - @scalar/components@0.12.33
+  - @scalar/oas-utils@0.2.33
+
 ## 2.0.51
 
 ### Patch Changes
