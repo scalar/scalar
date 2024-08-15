@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.33
+
+### Patch Changes
+
+- 7bfee42: fix(components): don't clear loading state automatically
+  - @scalar/code-highlight@0.0.10
+
 ## 0.12.32
 
 ### Patch Changes

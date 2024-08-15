@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.24
+
+### Patch Changes
+
+- 298f7c4: fix(themes): restrict flare overflow for themes
+
 ## 0.9.23
 
 ### Patch Changes
