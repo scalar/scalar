@@ -32,6 +32,7 @@ const attrs = computed(() => {
       ">
       <!-- Icon -->
       <div
+        v-if="icon"
         class="flex h-fit items-center text-sm font-medium text-c-3 group-hover:text-c-1">
         <slot name="icon">
           <ScalarIcon
@@ -53,7 +54,9 @@ const attrs = computed(() => {
             <slot name="addon" />
           </div>
         </div>
-        <div class="truncate text-sm text-c-2">
+        <div
+          v-if="$slots.description"
+          class="truncate text-sm text-c-2">
           <slot name="description" />
         </div>
       </div>
