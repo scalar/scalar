@@ -73,6 +73,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   7: { event: 'jumpToTab', modifiers: ['default'] },
   8: { event: 'jumpToTab', modifiers: ['default'] },
   9: { event: 'jumpToLastTab', modifiers: ['default'] },
+  f: { event: 'focusRequestSearch', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */

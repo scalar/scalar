@@ -81,7 +81,7 @@ defineExpose({
       :class="cx('p-0', sidebar ? 'h-4 w-4' : 'h-5 w-5')"
       icon="Close"
       label="Clear Search"
-      thickness="1.5"
+      :thickness="sidebar ? '1.75' : '1.5'"
       @click="emit('update:modelValue', '')" />
   </label>
 </template>

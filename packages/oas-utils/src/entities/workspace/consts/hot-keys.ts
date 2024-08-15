@@ -15,6 +15,7 @@ export const HOTKEY_EVENT_NAMES = [
   'focusAddressBar',
   'jumpToTab',
   'jumpToLastTab',
+  'focusRequestSearch',
 ] as const
 export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
 
