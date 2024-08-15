@@ -170,6 +170,7 @@
   height: 100vh;
   background: linear-gradient(#000, var(--scalar-background-1));
   width: 100vw;
+  overflow-x: hidden;
 }
 .light-mode .section-flare {
   display: none;
