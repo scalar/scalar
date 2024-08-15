@@ -105,8 +105,16 @@
   padding-top: 0;
 }
 /* Hero section flare */
+.section-flare {
+  overflow-x: hidden;
+  height: 100vh;
+  left: initial;
+}
 .section-flare-item:nth-of-type(1) {
   background: #d25019;
+  position: relative;
+  top: -150px;
+  right: -400px;
   width: 80vw;
   height: 500px;
   margin-top: -150px;
@@ -116,10 +124,4 @@
 }
 .light-mode .section-flare {
   display: none;
-}
-.section-flare {
-  top: -150px !important;
-  height: 100vh;
-  right: -400px !important;
-  left: initial;
 }
