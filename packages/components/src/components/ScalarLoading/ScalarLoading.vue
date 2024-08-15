@@ -32,20 +32,26 @@ export function useLoadingState() {
     stopLoading() {
       this.isLoading = false
     },
-    validate(time = 800) {
+    validate(time = 800, clear?: boolean) {
+      this.isInvalid = false
       this.isValid = true
-      const diff = time - 300
+      const diff = clear ? time - 300 : time
       // Allow chaining after animation
       return new Promise((res) =>
-        setTimeout(() => this.clear().then(() => res(true)), diff),
+        clear
+          ? setTimeout(() => this.clear().then(() => res(true)), diff)
+          : setTimeout(() => res(true), diff),
       )
     },
-    invalidate(time = 1100) {
+    invalidate(time = 1100, clear?: boolean) {
+      this.isValid = false
       this.isInvalid = true
-      const diff = time - 300
+      const diff = clear ? time - 300 : time
       // Allow chaining after animation
       return new Promise((res) =>
-        setTimeout(() => this.clear().then(() => res(true)), diff),
+        clear
+          ? setTimeout(() => this.clear().then(() => res(true)), diff)
+          : setTimeout(() => res(true), diff),
       )
     },
     clear(time = 300) {
