@@ -45,6 +45,9 @@
   "scripts": {
     "types:check": "tsc --noEmit --skipLibCheck",
     "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "format": "prettier --write .",
     "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "test": "vitest"
   },
