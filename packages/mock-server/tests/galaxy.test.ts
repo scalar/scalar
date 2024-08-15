@@ -1,7 +1,7 @@
 // @ts-ignore
-import galaxy from '@scalar/galaxy/3.1.yaml?raw'
 import { describe, expect, it } from 'vitest'
 
+import galaxy from '../../galaxy/src/specifications/3.1.yaml?raw'
 import { createMockServer } from '../src/createMockServer'
 
 describe('createMockServer', () => {
