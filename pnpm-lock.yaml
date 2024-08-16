@@ -832,8 +832,8 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2
       '@scalar/snippetz':
-        specifier: ^0.1.6
-        version: 0.1.6
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1811,6 +1811,19 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.31(typescript@5.5.2))
+
+  packages/snippetz:
+    dependencies:
+      httpsnippet-lite:
+        specifier: ^3.0.5
+        version: 3.0.5
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
 
   packages/themes:
     devDependencies:
@@ -5655,27 +5668,6 @@ packages:
   '@scalar/openapi-parser@0.7.2':
     resolution: {integrity: sha512-kgzFox4KzC3NLrOZeT9m/iQ2VMNvL7JNz8ec+hz0sYulvMtYQ1qTqEyjQjALyCDzmzrSJA11Vg8JMMHDw3AA7A==}
     engines: {node: '>=18'}
-
-  '@scalar/snippetz-core@0.1.4':
-    resolution: {integrity: sha512-NMnDzl5dHgUj0k8ZtfssDfy6wv1wO/M+GhpdGr/4OH3m8UZB27CZ3hM7wXh+fm75hZO5XIBsANW20kJVnzpaHg==}
-
-  '@scalar/snippetz-plugin-js-fetch@0.1.1':
-    resolution: {integrity: sha512-9ODfi0OaEvZHdCe09c91eH1R5QPynL+FPxtYuK/9K5ElRE2NqxYysri9AsgOhr1Fqhpy5qKzDj4Gi5FHsJSGXw==}
-
-  '@scalar/snippetz-plugin-js-ofetch@0.1.1':
-    resolution: {integrity: sha512-fPIJlY4q1j5gbnsYSxix0IJ7hqcvm8Ly7iVoK66vaL738AIMiGZMhGKtLrTVPad77PimwO+jeq5iDIZ495UY7Q==}
-
-  '@scalar/snippetz-plugin-node-fetch@0.1.2':
-    resolution: {integrity: sha512-kD6erA6aAqjHkj+JrJQKqrqcH4fnCrLi2uYw16CmELIGtqVHFau7ew2c087y4OQTltdi5rEk2zj5zOBu9yaS3Q==}
-
-  '@scalar/snippetz-plugin-node-ofetch@0.1.1':
-    resolution: {integrity: sha512-9NpvdMKebg82FkVWoWyOxd1JXAB8KNxmrsFFwQKNjhAw0A5hjNR5oW9lD+FtB1Laupg2FNtw9dcCydnF+LcCWw==}
-
-  '@scalar/snippetz-plugin-node-undici@0.1.6':
-    resolution: {integrity: sha512-CivUl7wgZ6vlUb01FMdqOt/NVyOWqT0iHZRp5YlPp1pflXZLnAyi5antUTtBEUHUtHM2EO/WR7vx4kRsPcrgLg==}
-
-  '@scalar/snippetz@0.1.6':
-    resolution: {integrity: sha512-z3DEpT/FIZq9yeHL/tz2v6WvdHIiZ4uvK96RdeTPKUUJ0IXvA5vONG3PF5LE0Q/408PCzWsZpGs9f97ztaeJSQ==}
 
   '@segment/loosely-validate-event@2.0.0':
     resolution: {integrity: sha512-ZMCSfztDBqwotkl848ODgVcAmN4OItEWDCkshcKz0/W6gGSQayuuCtWV/MlodFivAZD793d6UgANd6wCXUfrIw==}
@@ -22217,39 +22209,6 @@ snapshots:
       jsonpointer: 5.0.1
       leven: 4.0.0
       yaml: 2.4.5
-
-  '@scalar/snippetz-core@0.1.4':
-    dependencies:
-      '@types/har-format': 1.2.15
-
-  '@scalar/snippetz-plugin-js-fetch@0.1.1':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-
-  '@scalar/snippetz-plugin-js-ofetch@0.1.1':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-
-  '@scalar/snippetz-plugin-node-fetch@0.1.2':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-
-  '@scalar/snippetz-plugin-node-ofetch@0.1.1':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-
-  '@scalar/snippetz-plugin-node-undici@0.1.6':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-
-  '@scalar/snippetz@0.1.6':
-    dependencies:
-      '@scalar/snippetz-core': 0.1.4
-      '@scalar/snippetz-plugin-js-fetch': 0.1.1
-      '@scalar/snippetz-plugin-js-ofetch': 0.1.1
-      '@scalar/snippetz-plugin-node-fetch': 0.1.2
-      '@scalar/snippetz-plugin-node-ofetch': 0.1.1
-      '@scalar/snippetz-plugin-node-undici': 0.1.6
 
   '@segment/loosely-validate-event@2.0.0':
     dependencies:

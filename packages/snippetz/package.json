@@ -1,0 +1,61 @@
+{
+  "name": "@scalar/snippetz",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "version": "0.1.6",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-rollup",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./plugins/node/undici": {
+      "import": "./dist/plugins/node/undici/index.js",
+      "types": "./dist/plugins/node/undici/index.d.ts"
+    },
+    "./plugins/node/ofetch": {
+      "import": "./dist/plugins/node/ofetch/index.js",
+      "types": "./dist/plugins/node/ofetch/index.d.ts"
+    },
+    "./plugins/node/fetch": {
+      "import": "./dist/plugins/node/fetch/index.js",
+      "types": "./dist/plugins/node/fetch/index.d.ts"
+    },
+    "./plugins/js/ofetch": {
+      "import": "./dist/plugins/js/ofetch/index.js",
+      "types": "./dist/plugins/js/ofetch/index.d.ts"
+    },
+    "./plugins/js/fetch": {
+      "import": "./dist/plugins/js/fetch/index.js",
+      "types": "./dist/plugins/js/fetch/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG"
+  ],
+  "module": "./dist/index.js",
+  "dependencies": {
+    "httpsnippet-lite": "^3.0.5"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/har-format": "^1.2.15"
+  }
+}
