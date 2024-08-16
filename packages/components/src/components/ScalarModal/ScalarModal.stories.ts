@@ -29,8 +29,8 @@ export const Base: Story = {
     template: `
       <ScalarModal
         :state="modalState"
-        v-bind="args"
-        title="Example modal">
+        title="Example modal"
+        v-bind="args">
         <div class="col gap-4 px-4">
           <div>You can put some nice content here, or even ask a nice question</div>
           <div class="col md:row gap-1">
