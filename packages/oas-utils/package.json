@@ -101,6 +101,7 @@
     "@scalar/object-utils": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "microdiff": "^1.4.0",
     "nanoid": "^5.0.7",
     "yaml": "^2.4.5",
     "zod": "^3.22.4"
