@@ -53,5 +53,11 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "vitest.commandLine": "pnpm vitest",
-  "vitest.enable": true
+  "vitest.enable": true,
+  "yaml.schemas": {
+    "https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/schemas/v3.1/schema.json": [
+      "file:///home/geoff/gitpro/scalar/packages/oas-utils/src/diff/fixtures/a-basic.test.yaml",
+      "file:///home/geoff/gitpro/scalar/packages/oas-utils/src/diff/fixtures/b-basic-add.test.yaml"
+    ]
+  }
 }
