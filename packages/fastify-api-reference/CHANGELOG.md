@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.0
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+- Updated dependencies [78db8f5]
+  - @scalar/types@0.0.1
+
 ## 1.24.77
 
 ## 1.24.76

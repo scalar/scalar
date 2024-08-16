@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.34
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+- 7f11bc6: fix: temporary fix set type to any
+- Updated dependencies [78db8f5]
+  - @scalar/themes@0.9.25
+  - @scalar/types@0.0.1
+
 ## 0.2.33
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.5.139
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+- Updated dependencies [78db8f5]
+  - @scalar/types@0.0.1
+
 ## 0.5.138
 
 ### Patch Changes
