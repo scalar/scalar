@@ -427,7 +427,6 @@ const resourceTitle = computed(() => {
     <ScalarTextField
       v-model="tempName"
       :label="resourceTitle"
-      labelShadowColor="var(--scalar-background-1)"
       @keydown.prevent.enter="handleItemRename" />
     <div class="flex gap-3">
       <ScalarButton
