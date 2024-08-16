@@ -21,14 +21,25 @@
     "node": ">=18"
   },
   "scripts": {
+    "build": "scalar-build-rollup",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "types:check": "tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
-    "src",
+    "dist",
     "CHANGELOG.md"
   ],
-  "sideEffects": false
+  "sideEffects": false,
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*"
+  }
 }
