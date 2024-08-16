@@ -50,7 +50,7 @@ const attrs = computed(() => {
       v-if="loading && loading.isLoading"
       class="mr-3 self-center"
       :loadingState="loading"
-      size="20px" />
+      size="md" />
     <ScalarIconButton
       v-else-if="modelValue"
       class="p-2.5"
