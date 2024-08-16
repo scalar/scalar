@@ -5,7 +5,7 @@ import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   type ThemeId,
   getThemeStyles,
-  useObtrusiveScrollbars,
+  hasObtrusiveScrollbars,
 } from '@scalar/themes'
 import type { SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
@@ -54,8 +54,6 @@ defineEmits<{
 const { initializeToasts, toast } = useToasts()
 initializeToasts((message) => toast(message))
 
-useObtrusiveScrollbars()
-
 defineOptions({
   inheritAttrs: false,
 })
@@ -82,6 +80,9 @@ onMounted(() => {
     yPosition.value = difference < 2 ? 0 : difference
   }
 })
+
+// Check for Obtrusive Scrollbars
+const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
 
 const {
   breadcrumb,
@@ -253,6 +254,7 @@ const fontsStyleTag = computed(
     class="scalar-app scalar-api-reference references-layout"
     :class="[
       {
+        'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
         'references-editable': configuration.isEditable,
         'references-sidebar': configuration.showSidebar,
         'references-sidebar-mobile-open': isSidebarOpen,
