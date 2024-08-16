@@ -1,3 +1,4 @@
+import type { HarRequest } from '@scalar/snippetz'
 import type {
   Cookie,
   HarRequestWithPath,
@@ -5,7 +6,6 @@ import type {
   Query,
 } from '@scalar/types/legacy'
 import { AxiosHeaders } from 'axios'
-import type { HarRequest } from 'httpsnippet-lite'
 
 export const getHarRequest = (
   ...requests: Partial<HarRequestWithPath>[]

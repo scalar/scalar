@@ -1,3 +1,4 @@
+import type { HarRequest } from '@scalar/snippetz'
 import type { ThemeId } from '@scalar/themes'
 import type {
   ClientInfo,
@@ -6,7 +7,6 @@ import type {
   Spec,
   TargetInfo,
 } from '@scalar/types/legacy'
-import type { HarRequest } from 'httpsnippet-lite'
 import type { Slot } from 'vue'
 
 export type { ReferenceConfiguration }

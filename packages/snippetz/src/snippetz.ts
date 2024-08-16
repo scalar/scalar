@@ -1,11 +1,8 @@
-import {
-  HTTPSnippet,
-  type HarRequest,
-  type TargetId as SnippetTargetId,
-} from 'httpsnippet-lite'
+import { HTTPSnippet, type TargetId as SnippetTargetId } from 'httpsnippet-lite'
 
 import type { ClientId, Request, ScalarTargetId, TargetId } from './core'
 import {
+  type HarRequest,
   ScalarClientTypes,
   ScalarTargetTypes,
   SnippetTargetTypes,
@@ -27,21 +24,22 @@ export function snippetz() {
         return plugin(request)
       }
     },
-    async print(target: TargetId, clientId: string, request: Partial<Request>) {
+    print(target: TargetId, client: ClientId, request: Partial<Request>) {
+      return this.get(target, client, request)?.code
+      // TODO: unify this api
       // if target and client are valid scalar types
       // use the plugin to convert the request
-      if (
-        ScalarTargetTypes.includes(target as ScalarTargetId) &&
-        ScalarClientTypes.includes(clientId as ClientId)
-      ) {
-        return this.get(target, clientId as ClientId, request)?.code
-      }
+      // if (
+      //   ScalarTargetTypes.includes(target as ScalarTargetId) &&
+      //   ScalarClientTypes.includes(clientId as ClientId)
+      // ) {
+      //   return this.get(target, clientId as ClientId, request)?.code
+      // }
 
-      // else use httpsnippet-lite to convert the request
-      if (SnippetTargetTypes.includes(target as any)) {
-        // TODO: add client parameter
-        return await this.convert(request, target, clientId)
-      }
+      // // else use httpsnippet-lite to convert the request
+      // if (SnippetTargetTypes.includes(target as any)) {
+      //   return await this.convert(request, target, clientId)
+      // }
       // else return error
     },
     targets() {
@@ -76,15 +74,16 @@ export function snippetz() {
     hasPlugin(target: string, client: string) {
       return Boolean(this.findPlugin(target as TargetId, client as ClientId))
     },
-    // TODO: add client parameter
-
-    async convert(request: any, target: string, clientId?: any) {
+    async convert(request: any, target: string, client?: string) {
       const snippet = new HTTPSnippet(request as HarRequest)
 
       // https://www.npmjs.com/package/httpsnippet-lite#snippetconverttargetid-string-clientid-string-options-t
       // snippet.convert(targetId: string, clientId?: string, options?: T)
       // ERROR: convert method is looking for Client not ClientId
-      return (await snippet.convert(target as SnippetTargetId)) as string
+      return (await snippet.convert(
+        target as SnippetTargetId,
+        client,
+      )) as string
     },
   }
 }

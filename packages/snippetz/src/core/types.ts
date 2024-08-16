@@ -34,3 +34,7 @@ export const SnippetTargetTypes = [
 ] as const
 
 export const ScalarClientTypes = ['undici', 'fetch', 'ofetch'] as const
+
+export type { HarRequest } from 'httpsnippet-lite'
+
+export { availableTargets } from 'httpsnippet-lite'

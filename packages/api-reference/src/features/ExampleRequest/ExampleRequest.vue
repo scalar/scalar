@@ -17,7 +17,6 @@ import type {
   TransformedOperation,
 } from '@scalar/types/legacy'
 import { asyncComputed } from '@vueuse/core'
-import { HTTPSnippet } from 'httpsnippet-lite'
 import {
   computed,
   inject,
@@ -147,10 +146,9 @@ async function generateSnippet() {
     return snippetz().print(targetKey, clientKey, request as any) ?? ''
   }
 
-  // Use httpsnippet-lite for other languages
+  // Use httpsnippet-lite wrapper for other languages
   try {
-    const snippet = new HTTPSnippet(request)
-    return (await snippet.convert(
+    return (await snippetz().convert(
       httpClient.targetKey,
       httpClient.clientKey,
     )) as string

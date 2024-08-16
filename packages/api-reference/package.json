@@ -78,7 +78,6 @@
     "axios": "^1.6.8",
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
-    "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.7",
     "postcss-nested": "^6.0.1",
     "unhead": "^1.8.3",
