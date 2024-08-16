@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { apiClientBus } from '../../api-client-bus'
 

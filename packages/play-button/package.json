@@ -55,6 +55,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
     "@scalar/themes": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "vue": "^3.4.29"
   },

@@ -209,7 +209,9 @@ describe('getServers', () => {
       {
         url: 'https://example.com/{basePath}',
         variables: {
-          basePath: {},
+          basePath: {
+            default: '',
+          },
         },
       },
     ])

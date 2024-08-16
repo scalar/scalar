@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TransformedOperation } from '@scalar/oas-utils'
+import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useResponses } from '../../../hooks'
 import Parameters from '../Operation/Parameters.vue'

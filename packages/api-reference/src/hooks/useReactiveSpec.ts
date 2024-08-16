@@ -1,9 +1,9 @@
-import type { SpecConfiguration } from '@scalar/oas-utils'
 import {
   fetchSpecFromUrl,
   isValidUrl,
   prettyPrintJson,
 } from '@scalar/oas-utils/helpers'
+import type { SpecConfiguration } from '@scalar/types/legacy'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
 import { createEmptySpecification } from '../helpers'

@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/api-reference'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { Env, MiddlewareHandler } from 'hono'
 import { html, raw } from 'hono/html'
 

@@ -1,5 +1,5 @@
-import type { TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { reactive } from 'vue'
 
 export type OpenApiState = {

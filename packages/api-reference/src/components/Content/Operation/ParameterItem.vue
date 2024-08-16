@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { ContentType, Parameters } from '@scalar/oas-utils'
+import type { ContentType, Parameters } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'

@@ -1,5 +1,5 @@
-import type { AuthenticationState } from '@scalar/oas-utils'
 import { ssrState } from '@scalar/oas-utils/helpers'
+import type { AuthenticationState } from '@scalar/types/legacy'
 import { reactive } from 'vue'
 
 export const createEmptyAuthenticationState = (): AuthenticationState => ({

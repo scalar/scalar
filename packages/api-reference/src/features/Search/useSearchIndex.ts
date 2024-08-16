@@ -1,5 +1,5 @@
-import type { Spec, TransformedOperation } from '@scalar/oas-utils'
 import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'
 

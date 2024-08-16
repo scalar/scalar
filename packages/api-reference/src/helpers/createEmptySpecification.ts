@@ -1,5 +1,5 @@
-import type { Spec } from '@scalar/oas-utils'
 import type { OpenAPI } from '@scalar/openapi-parser'
+import type { Spec } from '@scalar/types/legacy'
 
 import { deepMerge } from './deepMerge'
 

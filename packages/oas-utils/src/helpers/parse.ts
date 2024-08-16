@@ -1,6 +1,5 @@
+import type { UnknownObject } from '@scalar/types/utils'
 import { parse, stringify } from 'yaml'
-
-import type { AnyObject } from '../types'
 
 type PrimitiveOrObject = object | string | null | number | boolean | undefined
 
@@ -10,13 +9,13 @@ export const yaml = {
   parse: (val: string) => {
     const yamlObject = parse(val)
     if (typeof yamlObject !== 'object') throw Error('Invalid YAML object')
-    return yamlObject as AnyObject
+    return yamlObject as UnknownObject
   },
   /** Parse and return a fallback on failure */
   parseSafe<T extends PrimitiveOrObject>(
     val: string,
     fallback: T | ((err: any) => T),
-  ): AnyObject | T {
+  ): UnknownObject | T {
     try {
       return yaml.parse(val)
     } catch (err: any) {
@@ -29,7 +28,7 @@ export const yaml = {
 /** JSON handling with optional safeparse */
 export const json = {
   /** Parse and throw if the return value is not an object */
-  parse: (val: string): AnyObject => {
+  parse: (val: string): UnknownObject => {
     const jsonObject = JSON.parse(val)
     if (typeof jsonObject !== 'object') throw Error('Invalid JSON object')
     return jsonObject
@@ -38,7 +37,7 @@ export const json = {
   parseSafe<T extends PrimitiveOrObject>(
     val: string,
     fallback: T | ((err: any) => T),
-  ): AnyObject | T {
+  ): UnknownObject | T {
     try {
       return json.parse(val)
     } catch (err) {
@@ -81,7 +80,9 @@ export function formatJsonOrYamlString(value: string) {
 }
 
 /** Parse JSON or YAML into an object */
-export const parseJsonOrYaml = (value: string | AnyObject): AnyObject => {
+export const parseJsonOrYaml = (
+  value: string | UnknownObject,
+): UnknownObject => {
   if (typeof value !== 'string') return value
 
   const jsonObject = json.parseSafe(value, null)

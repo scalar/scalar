@@ -5,9 +5,8 @@ import {
   ScalarListbox,
   type ScalarListboxOption,
 } from '@scalar/components'
+import type { Server } from '@scalar/types/legacy'
 import { computed } from 'vue'
-
-import type { Server } from './types'
 
 const props = defineProps<{
   options: Server[]

@@ -1,14 +1,14 @@
 import { createWorkspaceStore } from '@/store/workspace'
-import type {
-  AuthenticationState,
-  Spec,
-  SpecConfiguration,
-} from '@scalar/oas-utils'
 import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { ThemeId } from '@scalar/themes'
+import type {
+  AuthenticationState,
+  Spec,
+  SpecConfiguration,
+} from '@scalar/types/legacy'
 import type { LiteralUnion, Paths } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'

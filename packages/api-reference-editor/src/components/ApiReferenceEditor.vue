@@ -8,8 +8,8 @@ import {
   useReactiveSpec,
 } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
-import type { SpecConfiguration } from '@scalar/oas-utils'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import type { SpecConfiguration } from '@scalar/types/legacy'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref, toRef, watch, watchEffect } from 'vue'
 

@@ -1,6 +1,6 @@
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { describe, expect, it } from 'vitest'
 
-import type { TransformedOperation } from '../types'
 import { getParametersFromOperation } from './getParametersFromOperation'
 
 describe('getParametersFromOperation', () => {

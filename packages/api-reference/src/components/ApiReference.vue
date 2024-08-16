@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useAuthenticationStore } from '#legacy'
 import { migrateThemeVariables } from '@scalar/themes'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { useSeoMeta } from '@unhead/vue'
 import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useReactiveSpec } from '../hooks'
 import { useHttpClientStore } from '../stores'
-import type { ReferenceConfiguration, ReferenceProps } from '../types'
+import type { ReferenceProps } from '../types'
 import { Layouts } from './Layouts'
 
 const props = defineProps<ReferenceProps>()

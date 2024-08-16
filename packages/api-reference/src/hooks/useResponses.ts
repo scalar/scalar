@@ -1,7 +1,7 @@
 import type {
   RequestBodyMimeTypes,
   TransformedOperation,
-} from '@scalar/oas-utils'
+} from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 /**

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/oas-utils'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import { ExamplePicker } from '../../../../features/ExampleRequest'

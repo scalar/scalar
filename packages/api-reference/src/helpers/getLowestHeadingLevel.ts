@@ -1,4 +1,4 @@
-import type { Heading } from '@scalar/oas-utils'
+import type { Heading } from '@scalar/types/legacy'
 
 export type HeadingLevels = 1 | 2 | 3 | 4 | 5 | 6
 

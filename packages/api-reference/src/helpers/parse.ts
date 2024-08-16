@@ -7,7 +7,6 @@ import {
   normalizeRequestMethod,
   validRequestMethods,
 } from '#legacy'
-import type { Spec } from '@scalar/oas-utils'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import {
   type AnyObject,
@@ -19,6 +18,7 @@ import {
   load,
 } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import type { Spec } from '@scalar/types/legacy'
 
 import { createEmptySpecification } from '../helpers'
 

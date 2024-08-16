@@ -1,4 +1,4 @@
-import type { Spec } from '@scalar/oas-utils'
+import type { Spec } from '@scalar/types/legacy'
 
 import { getModels } from './getModels'
 

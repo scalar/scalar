@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { type Server as ApiClientServer, useServerStore } from '#legacy'
-import type { Spec } from '@scalar/oas-utils'
+import type { Server, Spec } from '@scalar/types/legacy'
 import { ref, watch } from 'vue'
 
 import { createEmptySpecification } from '../../helpers'
 import ServerForm from './ServerForm.vue'
-import type { Server } from './types'
 import { getServers } from './utils/getServers'
 
 const props = defineProps<{

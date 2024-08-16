@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { Spec, Tag } from '@scalar/oas-utils'
+import type { Spec, Tag } from '@scalar/types/legacy'
 
 import { useNavState } from '../../../hooks'
 import { Anchor } from '../../Anchor'

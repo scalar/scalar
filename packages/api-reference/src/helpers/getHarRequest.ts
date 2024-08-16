@@ -3,7 +3,7 @@ import type {
   HarRequestWithPath,
   Header,
   Query,
-} from '@scalar/oas-utils'
+} from '@scalar/types/legacy'
 import { AxiosHeaders } from 'axios'
 import type { HarRequest } from 'httpsnippet-lite'
 

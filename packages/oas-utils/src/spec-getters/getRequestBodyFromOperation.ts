@@ -1,7 +1,8 @@
+import type { ContentType, TransformedOperation } from '@scalar/types/legacy'
+
 import { json2xml } from '../helpers/json2xml'
 import { normalizeMimeTypeObject } from '../helpers/normalizeMimeTypeObject'
 import { prettyPrintJson } from '../helpers/prettyPrintJson'
-import type { ContentType, TransformedOperation } from '../types'
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
 

@@ -9,7 +9,7 @@ import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { createRequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
-import { computed, nextTick, ref, unref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 

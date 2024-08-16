@@ -1,13 +1,13 @@
 import { createCollection } from '@/entities/workspace/collection'
 import { type Folder, createFolder } from '@/entities/workspace/folder'
-import { createServer } from '@/entities/workspace/server'
+import { type ServerPayload, createServer } from '@/entities/workspace/server'
 import { type Request, createRequest } from '@/entities/workspace/spec'
 import { tagObjectSchema } from '@/entities/workspace/spec/spec'
 import type { RequestMethod } from '@/helpers'
 import { schemaModel } from '@/helpers/schema-model'
-import type { AnyObject, Spec } from '@/types'
 import { dereference, load } from '@scalar/openapi-parser'
-import type { OpenAPIV3_1 } from 'openapi-types'
+import type { Spec } from '@scalar/types/legacy'
+import type { UnknownObject } from '@scalar/types/utils'
 
 const PARAM_DICTIONARY = {
   cookie: 'cookies',
@@ -18,7 +18,7 @@ const PARAM_DICTIONARY = {
 
 /** Import an OpenAPI spec file and convert it to workspace entities */
 export const importSpecToWorkspace = async (
-  spec: string | AnyObject,
+  spec: string | UnknownObject,
   overloadServers?: Spec['servers'],
 ) => {
   const importWarnings: string[] = []
@@ -143,7 +143,7 @@ export const importSpecToWorkspace = async (
   })
 
   // Toss in a default server if there aren't any
-  const unparsedServers: OpenAPIV3_1.ServerObject[] =
+  const unparsedServers: ServerPayload[] =
     overloadServers ??
     (schema?.servers?.length
       ? schema.servers!

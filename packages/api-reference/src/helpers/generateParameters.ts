@@ -1,4 +1,4 @@
-import type { BaseParameter, Parameters } from '@scalar/oas-utils'
+import type { BaseParameter, Parameters } from '@scalar/types/legacy'
 
 /**
  * Generate parameters for the request from the parameters in the swagger file

@@ -1,7 +1,5 @@
-import type { Spec } from '@scalar/oas-utils'
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
-
-import type { Server } from '../types'
+import type { Server, Spec } from '@scalar/types/legacy'
 
 export type DefaultServerUrlOption = {
   /**
@@ -73,7 +71,9 @@ export function getServers(
           server.variables = {}
         }
 
-        server.variables[variable] = {}
+        server.variables[variable] = {
+          default: '',
+        }
       })
 
     return server

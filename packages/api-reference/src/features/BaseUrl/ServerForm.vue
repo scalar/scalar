@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
+import type { Server } from '@scalar/types/legacy'
 import { computed, toRef } from 'vue'
 
 import ServerUrl from './ServerUrl.vue'
 import ServerUrlSelect from './ServerUrlSelect.vue'
 import ServerVariablesForm from './ServerVariablesForm.vue'
-import type { Server, ServerVariableValues } from './types'
+import type { ServerVariableValues } from './types'
 
 const props = withDefaults(
   defineProps<{

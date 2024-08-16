@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { Spec } from '@scalar/oas-utils'
+import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { BaseUrl, type Server } from '../../features/BaseUrl'
+import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import { Authentication } from './Authentication'
