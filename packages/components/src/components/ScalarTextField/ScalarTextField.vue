@@ -39,7 +39,7 @@ const textField = cva({
     focus: {
       true: 'scalar-input-wrapper-focus border-c-3 has-actv-btn:border has-actv-btn:border-border',
     },
-    error: { true: 'scalar-input-wrapper-error border-error' },
+    error: { true: 'scalar-input-wrapper-error border-red' },
   },
 })
 
@@ -165,7 +165,7 @@ onMounted(() => {
   color: var(--scalar-color-1);
 }
 .scalar-input-wrapper-error .scalar-input-label {
-  color: var(--scalar-color-error-color);
+  color: var(--scalar-color-red);
 }
 .scalar-input::selection {
   color: var(--scalar-color-1);
