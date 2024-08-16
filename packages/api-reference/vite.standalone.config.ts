@@ -1,6 +1,6 @@
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import { webpackStats } from 'rollup-plugin-webpack-stats'
+import webpackStatsPlugin from 'rollup-plugin-webpack-stats'
 import { fileURLToPath } from 'url'
 import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
@@ -22,7 +22,7 @@ export default defineConfig({
   plugins: [
     vue(),
     cssInjectedByJsPlugin(),
-    webpackStats(),
+    webpackStatsPlugin(),
     banner({
       outDir: 'dist/browser',
       content: replaceVariables(licenseBannerTemplate, {
