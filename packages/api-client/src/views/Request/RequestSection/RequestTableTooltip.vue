@@ -1,8 +1,18 @@
 <script setup lang="ts">
 import { ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import { computed } from 'vue'
 
-defineProps<{ item: RequestExampleParameter }>()
+const props = defineProps<{ item: RequestExampleParameter }>()
+
+const hasItemProperties = computed(
+  () =>
+    props.item.type ||
+    props.item.format ||
+    props.item.minimum ||
+    props.item.maximum ||
+    props.item.default,
+)
 </script>
 <template>
   <ScalarTooltip
@@ -23,34 +33,36 @@ defineProps<{ item: RequestExampleParameter }>()
     <template #content>
       <div
         class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-        <div class="flex items-center text-c-2">
-          <span v-if="item.type">{{ item.type }}</span>
+        <div
+          v-if="hasItemProperties"
+          class="flex items-center text-c-2">
+          <span v-if="props.item.type">{{ props.item.type }}</span>
           <span
-            v-if="item.format"
+            v-if="props.item.format"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex"
-            >{{ item.format }}</span
+            >{{ props.item.format }}</span
           >
           <span
-            v-if="item.minimum"
+            v-if="props.item.minimum"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >min: {{ item.minimum }}</span
+            >min: {{ props.item.minimum }}</span
           >
           <span
-            v-if="item.maximum"
+            v-if="props.item.maximum"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >max: {{ item.maximum }}</span
+            >max: {{ props.item.maximum }}</span
           >
           <span
-            v-if="item.default"
+            v-if="props.item.default"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >default: {{ item.default }}</span
+            >default: {{ props.item.default }}</span
           >
         </div>
         <span
-          v-if="item.description"
+          v-if="props.item.description"
           class="leading-snug text-pretty text-sm"
           :style="{ maxWidth: '16rem' }"
-          >{{ item.description }}</span
+          >{{ props.item.description }}</span
         >
       </div>
     </template>
