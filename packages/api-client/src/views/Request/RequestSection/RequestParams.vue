@@ -104,10 +104,15 @@ const toggleRow = (rowIdx: number, enabled: boolean) =>
 const deleteAllRows = () => {
   if (!activeRequest.value || !activeExample.value) return
 
+  // filter out params that are enabled or required
+  const exampleParams = params.value.filter(
+    (param) => param.enabled || param.required,
+  )
+
   requestExampleMutators.edit(
     activeExample.value.uid,
     `parameters.${props.paramKey}`,
-    [],
+    exampleParams,
   )
 
   nextTick(() => {
