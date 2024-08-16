@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.2
+
+### Patch Changes
+
+- 910b1c2: Add build step for path resolution
+
 ## 0.0.1
 
 ### Patch Changes

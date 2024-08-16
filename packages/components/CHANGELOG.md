@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.36
+
+### Patch Changes
+
+- 8bde837: fix(components): refactor loading to match icon sizes
+
 ## 0.12.35
 
 ### Patch Changes
