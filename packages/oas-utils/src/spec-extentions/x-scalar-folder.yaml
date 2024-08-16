@@ -1,19 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Folders
+  version: 1.0.0
+paths:
+  '/foobar':
+    get:
+      summary: 'GET /foobar'
+    post:
+      operationId: the-post
+      summary: 'POST /foobar'
+    delete:
+      operationId: delete-post
+      summary: 'POST /foobar'
 x-scalar-folder:
-  description: Custom extension to support arbitrary depth operation sorting
+  description: 'Scalar extension to support folder based organization'
   children:
-    - $ref: '#/x-scalar-folder/first-folder'
-  first-folder:
-    description: My folder for some things
-    children:
-      - $ref: '#/paths/some-path/get'
-      - $ref: '#/x-scalar-folder/first-folder/nested-folder'
-      - $ref: '#/paths/some-path/post'
-  second-folder:
-    description: Another folder
-    children:
-      - $ref: '#/paths/some-path/get'
-      - $ref: '#/paths/some-path/post'
-  first-folder/nested-folder:
-    description: My nested folder
-    children:
-      - $ref: '#/paths/some-path/post'
+    - $ref: '#/components/x-scalar-folders/my-folder'
+    - operationRef: '#/paths/~1foobar/post' # Need an operation ref or paths
+      icon: 'some-icon-name' # Optional additional properties for folder items
+      color: '#fff' # Optional additional property
+      type: operation
+    - operationId: the-post
+    - name: Directly defined folder
+      children:
+        - operationId: delete-post
+components:
+  x-scalar-folders:
+    my-folder:
+      name: Basics Folder
+      children:
+        - $ref: '#/components/x-scalar-folders/nested-folder'
+    nested-folder:
+      name: Nested Folder
+      children:
+        - operationId: delete-post
+  # JSON Schema for the extension
+  extension-types:
+    operationById:
+      type: object
+      properties:
+        operationId:
+          type: string
+      required:
+        - operationId
+    operationByRef:
+      type: object
+      properties:
+        operationRef:
+          type: string
+      required:
+        - operationRef
+    folder:
+      type: object
+      properties:
+      name:
+        type: string
+      children:
+        type: array
+        items:
+          anyOf:
+            - $ref: '#/components/types/operationById'
+            - $ref: '#/components/types/operationByRef'
+            - $ref: '#/components/types/folder'
+      required:
+        - children
