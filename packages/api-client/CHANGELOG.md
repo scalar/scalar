@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.0.54
+
+### Patch Changes
+
+- 2db9eb8: feat: topnav context menu
+- Updated dependencies [7aa26fb]
+- Updated dependencies [2db9eb8]
+  - @scalar/components@0.12.35
+
 ## 2.0.53
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.35
+
+### Patch Changes
+
+- 7aa26fb: fix(components): fix modal layout
+- 2db9eb8: feat: topnav context menu
+
 ## 0.12.34
 
 ### Patch Changes
