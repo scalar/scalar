@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.36
+
+### Patch Changes
+
+- af75550: feat: sidebar request search
+
 ## 0.2.35
 
 ### Patch Changes

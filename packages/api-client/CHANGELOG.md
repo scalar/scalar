@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.56
+
+### Patch Changes
+
+- af75550: feat: sidebar request search
+- f9c88a9: fix: request table tooltip
+- 5de17ce: fix: request params deletion
+- f3b9adf: fix(api-client): force code mirror to scroll on overflow
+- Updated dependencies [af75550]
+- Updated dependencies [af75550]
+  - @scalar/oas-utils@0.2.36
+  - @scalar/components@0.12.37
+
 ## 2.0.55
 
 ### Patch Changes
