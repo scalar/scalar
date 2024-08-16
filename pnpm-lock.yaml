@@ -1846,6 +1846,10 @@ importers:
       '@unhead/schema':
         specifier: ^1.9.5
         version: 1.9.15
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
 
   packages/use-codemirror:
     dependencies:
