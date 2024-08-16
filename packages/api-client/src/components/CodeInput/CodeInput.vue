@@ -184,7 +184,7 @@ export default {
       :id="uid"
       v-bind="$attrs"
       ref="codeMirrorRef"
-      class="peer font-code w-full whitespace-nowrap text-xs leading-[1.44] relative"
+      class="peer font-code w-full whitespace-nowrap overflow-hidden text-xs leading-[1.44] relative"
       :class="{
         'flow-code-input--error': error,
       }"></div>
@@ -265,7 +265,7 @@ export default {
 }
 /* Number gutter */
 :deep(.cm-gutters) {
-  background-color: transparent;
+  background-color: var(--scalar-background-1);
   border-right: none;
   color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
@@ -282,14 +282,7 @@ export default {
   padding-left: 0 !important;
 }
 :deep(.cm-scroller) {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   overflow: auto;
-}
-:deep(.cm-scroller::-webkit-scrollbar) {
-  width: 0;
-  height: 0;
-  display: none;
 }
 </style>
 <style>
