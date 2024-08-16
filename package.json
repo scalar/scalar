@@ -57,6 +57,7 @@
     "dev": "turbo dev --concurrency=100 --filter './examples/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/api-client",
     "dev:app": "turbo dev --filter @scalar/api-client",
     "dev:client": "turbo dev --filter @scalar-examples/api-client",
+    "dev:components": "turbo dev --filter @scalar/components",
     "dev:modal": "turbo playground:modal --filter @scalar/api-client",
     "dev:proxy-server": "pnpm --filter @scalar-examples/proxy-server dev",
     "dev:reference": "turbo dev --filter @scalar/api-reference",
