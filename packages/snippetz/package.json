@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "test": "vitest",
+    "test:unit": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },

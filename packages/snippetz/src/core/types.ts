@@ -1,4 +1,4 @@
-import type { TargetId as SnippetTargetId } from 'httpsnippet-lite'
+export type { TargetId } from 'httpsnippet-lite'
 
 export type { Request } from 'har-format'
 
@@ -14,8 +14,6 @@ export type Source = {
 export type ScalarTargetId = 'node' | 'js'
 
 export type ClientId = 'undici' | 'fetch' | 'ofetch'
-
-export type TargetId = ScalarTargetId | SnippetTargetId
 
 export const ScalarTargetTypes = ['node', 'js'] as const
 

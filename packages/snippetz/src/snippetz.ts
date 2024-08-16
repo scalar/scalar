@@ -17,14 +17,14 @@ export function snippetz() {
   const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch]
 
   return {
-    get(target: TargetId, client: ClientId, request: Partial<Request>) {
+    get(target: ScalarTargetId, client: ClientId, request: Partial<Request>) {
       const plugin = this.findPlugin(target, client)
 
       if (plugin) {
         return plugin(request)
       }
     },
-    print(target: TargetId, client: ClientId, request: Partial<Request>) {
+    print(target: ScalarTargetId, client: ClientId, request: Partial<Request>) {
       return this.get(target, client, request)?.code
       // TODO: unify this api
       // if target and client are valid scalar types
@@ -64,7 +64,7 @@ export function snippetz() {
         }
       })
     },
-    findPlugin(target: TargetId, client: ClientId) {
+    findPlugin(target: ScalarTargetId, client: ClientId) {
       return plugins.find((plugin) => {
         const details = plugin()
 
@@ -72,7 +72,9 @@ export function snippetz() {
       })
     },
     hasPlugin(target: string, client: string) {
-      return Boolean(this.findPlugin(target as TargetId, client as ClientId))
+      return Boolean(
+        this.findPlugin(target as ScalarTargetId, client as ClientId),
+      )
     },
     async convert(request: any, target: string, client?: string) {
       const snippet = new HTTPSnippet(request as HarRequest)
