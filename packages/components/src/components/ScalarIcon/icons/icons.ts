@@ -1,5 +1,6 @@
 export const ICONS = [
   'Add',
+  'AddTab',
   'ArrowLeft',
   'ArrowRight',
   'Background',
@@ -14,6 +15,8 @@ export const ICONS = [
   'ChevronUp',
   'Clipboard',
   'Close',
+  'CloseTab',
+  'CloseTabs',
   'CodeFolder',
   'Collection',
   'Cookie',

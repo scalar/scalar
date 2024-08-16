@@ -16,7 +16,7 @@ const modifierKey = computed(() => (isMacOS() ? '⌘' : '⌃'))
 // Map the key icon displayed in UI to actual keyboard key
 const resolvedHotkey = computed(() => keyMap().get(props.hotkey))
 
-const displayHotkey = computed(() => `${modifierKey.value}${props.hotkey}`)
+const displayHotkey = computed(() => `${modifierKey.value} ${props.hotkey}`)
 
 const keys = useMagicKeys({
   passive: false,
@@ -36,7 +36,7 @@ whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.hotkey}`], () => {
 <template>
   <div
     v-bind="$attrs"
-    class="bg-c-btn border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase">
+    class="bg-b-1 border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase">
     {{ displayHotkey }}
   </div>
 </template>
