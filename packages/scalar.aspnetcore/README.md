@@ -34,6 +34,42 @@ app.MapGet("/", () => "Hello world!");
 app.Run();
 ```
 
+.NET 8
+```c#
+using Scalar.AspNetCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "openapi/{documentName}.json";
+    });
+    //app.UseSwaggerUI();
+    app.MapScalarApiReference();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
+```
+
 Now you will see the Scalar UI when using the defaults at `https://localhost:XXXXX/scalar/v1` (where XXXXX is, of course, the port for your app).
 
 ## Building & Release
