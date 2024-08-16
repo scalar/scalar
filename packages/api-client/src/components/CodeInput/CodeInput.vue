@@ -265,7 +265,7 @@ export default {
 }
 /* Number gutter */
 :deep(.cm-gutters) {
-  background-color: transparent;
+  background-color: var(--scalar-background-1);
   border-right: none;
   color: var(--scalar-color-3);
   font-size: var(--scalar-mini);
