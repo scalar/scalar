@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import SearchButton from '@/components/Search/SearchButton.vue'
-import SearchModal from '@/components/Search/SearchModal.vue'
+import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
@@ -17,7 +17,12 @@ import {
 import { useWorkspace } from '@/store/workspace'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
-import { ScalarIcon, useModal } from '@scalar/components'
+import {
+  ScalarIcon,
+  ScalarSearchInput,
+  ScalarSearchResultItem,
+  ScalarSearchResultList,
+} from '@scalar/components'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
 import { useToasts } from '@scalar/use-toasts'
 import { useMediaQuery } from '@vueuse/core'
@@ -48,7 +53,17 @@ const {
 
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { toast } = useToasts()
-const searchModalState = useModal()
+const {
+  searchText,
+  searchResultsWithPlaceholderResults,
+  selectedSearchResult,
+  onSearchResultClick,
+  fuseSearch,
+  searchInputRef,
+  searchResultRefs,
+  navigateSearchResults,
+  selectSearchResult,
+} = useSearch()
 
 const isNarrow = useMediaQuery('(max-width: 780px)')
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
@@ -148,6 +163,22 @@ const handleHotKey = (event: HotKeyEvents) => {
   if (event.openCommandPalette) {
     event.openCommandPalette.preventDefault()
     commandPaletteBus.emit()
+  }
+
+  if (event.focusRequestSearch) {
+    searchInputRef.value?.focus()
+  }
+
+  if (event.navigateSearchResultsUp) {
+    navigateSearchResults('up')
+  }
+
+  if (event.navigateSearchResultsDown) {
+    navigateSearchResults('down')
+  }
+
+  if (event.selectSearchResult) {
+    selectSearchResult()
   }
 }
 
@@ -301,7 +332,13 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
           <WorkspaceDropdown />
         </template>
         <template #content>
-          <SearchButton @openSearchModal="searchModalState.show()" />
+          <div class="search-button-fade sticky px-3 py-2.5 top-0 z-50">
+            <ScalarSearchInput
+              ref="searchInputRef"
+              v-model="searchText"
+              sidebar
+              @input="fuseSearch" />
+          </div>
           <div
             class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
             :class="{
@@ -309,35 +346,59 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
             }"
             @dragenter.prevent
             @dragover.prevent>
-            <!-- Collections -->
-            <RequestSidebarItem
-              v-for="collection in activeWorkspaceCollections"
-              :key="collection.uid"
-              :isDraggable="
-                !activeWorkspace.isReadOnly &&
-                collection.spec?.info?.title !== 'Drafts'
-              "
-              :isDroppable="_isDroppable"
-              :item="collection"
-              :parentUids="[]"
-              @onDragEnd="onDragEnd">
-              <template #leftIcon>
-                <ScalarIcon
-                  class="text-sidebar-c-2 text-sm group-hover:hidden"
-                  icon="CodeFolder"
-                  size="sm"
-                  thickness="2" />
-                <div
-                  :class="{
-                    'rotate-90': collapsedSidebarFolders[collection.uid],
-                  }">
+            <template v-if="searchText">
+              <ScalarSearchResultList
+                class="gap-px custom-scroll"
+                :noResults="!searchResultsWithPlaceholderResults.length">
+                <ScalarSearchResultItem
+                  v-for="(entry, index) in searchResultsWithPlaceholderResults"
+                  :id="`#search-input-${entry.item.id}`"
+                  :key="entry.refIndex"
+                  :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
+                  :active="selectedSearchResult === index"
+                  class="px-2"
+                  @click="onSearchResultClick(entry)"
+                  @focus="selectedSearchResult = index">
+                  {{ entry.item.title }}
+                  <template #addon>
+                    <HttpMethod
+                      class="font-bold"
+                      :method="entry.item.httpVerb ?? 'get'" />
+                  </template>
+                </ScalarSearchResultItem>
+              </ScalarSearchResultList>
+            </template>
+            <template v-else>
+              <!-- Collections -->
+              <RequestSidebarItem
+                v-for="collection in activeWorkspaceCollections"
+                :key="collection.uid"
+                :isDraggable="
+                  !activeWorkspace.isReadOnly &&
+                  collection.spec?.info?.title !== 'Drafts'
+                "
+                :isDroppable="_isDroppable"
+                :item="collection"
+                :parentUids="[]"
+                @onDragEnd="onDragEnd">
+                <template #leftIcon>
                   <ScalarIcon
-                    class="text-c-3 hidden text-sm group-hover:block"
-                    icon="ChevronRight"
-                    size="sm" />
-                </div>
-              </template>
-            </RequestSidebarItem>
+                    class="text-sidebar-c-2 text-sm group-hover:hidden"
+                    icon="CodeFolder"
+                    size="sm"
+                    thickness="2" />
+                  <div
+                    :class="{
+                      'rotate-90': collapsedSidebarFolders[collection.uid],
+                    }">
+                    <ScalarIcon
+                      class="text-c-3 hidden text-sm group-hover:block"
+                      icon="ChevronRight"
+                      size="sm" />
+                  </div>
+                </template>
+              </RequestSidebarItem>
+            </template>
           </div>
         </template>
         <template #button>
@@ -365,7 +426,6 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
       </ViewLayoutContent>
     </ViewLayout>
   </div>
-  <SearchModal :modalState="searchModalState" />
 </template>
 <style scoped>
 .request-text-color-text {
@@ -375,6 +435,13 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     var(--scalar-background-3)
   );
   box-shadow: 0 0 0 1px var(--scalar-border-color);
+}
+.search-button-fade {
+  background: linear-gradient(
+    var(--scalar-background-1) 44px,
+    color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
+    transparent
+  );
 }
 @media screen and (max-width: 780px) {
   .sidebar-active-hide-layout {

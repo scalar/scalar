@@ -56,9 +56,9 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Escape: { event: 'closeModal' },
   b: { event: 'toggleSidebar', modifiers: ['default'] },
   k: { event: 'openCommandPalette', modifiers: ['default'] },
-  ArrowUp: { event: 'commandPaletteUp' },
-  ArrowDown: { event: 'commandPaletteDown' },
-  Enter: { event: 'commandPaletteSelect' },
+  ArrowUp: { event: 'navigateSearchResultsUp' },
+  ArrowDown: { event: 'navigateSearchResultsDown' },
+  Enter: { event: 'selectSearchResult' },
   t: { event: 'addTopNav', modifiers: ['default'] },
   w: { event: 'closeTopNav', modifiers: ['default'] },
   ArrowLeft: { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
@@ -73,6 +73,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   7: { event: 'jumpToTab', modifiers: ['default'] },
   8: { event: 'jumpToTab', modifiers: ['default'] },
   9: { event: 'jumpToLastTab', modifiers: ['default'] },
+  f: { event: 'focusRequestSearch', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */
