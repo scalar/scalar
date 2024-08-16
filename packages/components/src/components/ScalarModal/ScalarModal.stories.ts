@@ -10,7 +10,7 @@ const meta = {
   component: ScalarModal,
   tags: ['autodocs'],
   argTypes: {
-    size: { control: 'select', options: ['xs', 'sm', 'md', 'lg'] },
+    size: { control: 'select', options: ['xxs', 'xs', 'sm', 'md', 'lg'] },
     variant: { control: 'select', options: ['history', 'search'] },
   },
 } satisfies Meta<typeof ScalarModal>
@@ -31,10 +31,10 @@ export const Base: Story = {
         :state="modalState"
         title="Example modal"
         v-bind="args">
-        <div class="col gap-4 px-4">
+        <div class="col gap-4">
           <div>You can put some nice content here, or even ask a nice question</div>
-          <div class="col md:row gap-1">
-            <ScalarButton variant="ghost" @click="modalState.hide()" fullWidth>Cancel</ScalarButton>
+          <div class="col md:row gap-2">
+            <ScalarButton variant="outlined" @click="modalState.hide()" fullWidth>Cancel</ScalarButton>
             <ScalarButton @click="modalState.hide()" fullWidth>Go ahead</ScalarButton>
           </div>
         </div>

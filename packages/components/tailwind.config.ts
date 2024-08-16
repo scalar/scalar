@@ -20,6 +20,7 @@ export default {
   theme: {
     extend: {
       maxWidth: {
+        'screen-xxs': '360px',
         'screen-xs': '480px',
         'screen-sm': '540px',
         'screen-md': '640px',

@@ -33,6 +33,7 @@ const modal = cva({
   ].join(' '),
   variants: {
     size: {
+      xxs: 'max-w-screen-xxs',
       xs: 'max-w-screen-xs',
       sm: 'max-w-screen-sm',
       md: 'max-w-screen-md',
