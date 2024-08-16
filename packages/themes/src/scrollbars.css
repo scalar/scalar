@@ -13,6 +13,13 @@
   .custom-scroll:hover {
     scrollbar-color: var(--scalar-scrollbar-color, transparent) transparent;
   }
+  /* Force Obtrusive Scrollbars */
+  &.scalar-scrollbars-obtrusive {
+    .cm-scroller,
+    .custom-scroll {
+      scrollbar-color: var(--scalar-scrollbar-color, transparent) transparent;
+    }
+  }
   .cm-scroller:hover::-webkit-scrollbar-thumb,
   .custom-scroll:hover::-webkit-scrollbar-thumb {
     background: var(--scalar-scrollbar-color);

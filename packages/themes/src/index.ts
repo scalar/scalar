@@ -12,6 +12,7 @@ import solarizedTheme from './presets/solarized.css?inline'
 import baseVariables from './variables.css?inline'
 
 export { migrateThemeVariables } from './utilities/legacy'
+export { hasObtrusiveScrollbars } from './utilities/hasObtrusiveScrollbars'
 
 export const themeIds = [
   'alternate',
