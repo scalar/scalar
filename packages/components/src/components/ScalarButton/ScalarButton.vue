@@ -62,7 +62,7 @@ const attrs = computed(() => {
       class="centered-x absolute">
       <ScalarLoading
         :loadingState="loading"
-        size="12px" />
+        size="xs" />
     </div>
   </button>
 </template>
