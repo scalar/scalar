@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.34
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+  - @scalar/code-highlight@0.0.10
+
 ## 0.12.33
 
 ### Patch Changes

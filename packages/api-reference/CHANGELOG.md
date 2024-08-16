@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.25.0
+
+### Minor Changes
+
+- 78db8f5: feat: move some of the types to the new @scalar/types package
+
+### Patch Changes
+
+- Updated dependencies [78db8f5]
+- Updated dependencies [7f11bc6]
+  - @scalar/api-client@2.0.53
+  - @scalar/components@0.12.34
+  - @scalar/oas-utils@0.2.34
+  - @scalar/themes@0.9.25
+  - @scalar/types@0.0.1
+  - @scalar/code-highlight@0.0.10
+
 ## 1.24.77
 
 ### Patch Changes

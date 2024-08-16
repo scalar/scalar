@@ -1,5 +1,19 @@
 # @scalar/play-button
 
+## 0.2.76
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+- Updated dependencies [78db8f5]
+- Updated dependencies [78db8f5]
+- Updated dependencies [7f11bc6]
+  - @scalar/api-client@2.0.53
+  - @scalar/oas-utils@0.2.34
+  - @scalar/themes@0.9.25
+  - @scalar/types@0.0.1
+  - @scalar/api-reference@1.25.0
+
 ## 0.2.75
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.53
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+- Updated dependencies [78db8f5]
+- Updated dependencies [7f11bc6]
+  - @scalar/components@0.12.34
+  - @scalar/oas-utils@0.2.34
+  - @scalar/themes@0.9.25
+  - @scalar/types@0.0.1
+
 ## 2.0.52
 
 ### Patch Changes

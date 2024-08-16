@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.25
+
+### Patch Changes
+
+- 78db8f5: feat: use new @scalar/types package
+
 ## 0.9.24
 
 ### Patch Changes
