@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ROUTES } from '@/constants'
+import { useClipboard } from '@/hooks/useClipboard'
 import { type HotKeyEvents, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
 import { type Icon, ScalarIcon } from '@scalar/components'
@@ -9,6 +10,7 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import TopNavItem from './TopNavItem.vue'
 
 const { activeRequest, router } = useWorkspace()
+const { copyToClipboard } = useClipboard()
 
 /** Nav Items list */
 const topNavItems = reactive([{ label: '', path: '', icon: 'Add' as Icon }])
@@ -80,6 +82,19 @@ function removeNavItem(idx: number) {
   handleNavRoute()
 }
 
+const copyUrl = (idx: number) => {
+  const fullUrl = new URL(window.location.href)
+  fullUrl.pathname = topNavItems[idx].path
+  copyToClipboard(fullUrl.toString())
+}
+
+const closeOtherTabs = (idx: number) => {
+  topNavItems.splice(0, idx)
+  topNavItems.splice(1)
+  activeNavItemIdx.value = 0
+  handleNavRoute()
+}
+
 const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
 
 /** Handle hotkeys */
@@ -125,8 +140,10 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
           :icon="topNavItem.icon"
           :label="topNavItem.label"
           @click="setNavItemIdx(index)"
-          @close="removeNavItem(index)">
-        </TopNavItem>
+          @close="removeNavItem(index)"
+          @closeOtherTabs="closeOtherTabs(index)"
+          @copyUrl="copyUrl(index)"
+          @newTab="addNavItem" />
       </template>
       <button
         class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag"

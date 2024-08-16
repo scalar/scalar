@@ -13,6 +13,7 @@ const props = withDefaults(
     side?: 'top' | 'right' | 'bottom' | 'left'
     sideOffset?: number
     disabled?: boolean
+    triggerClass?: string
   }>(),
   {
     side: 'bottom',
@@ -24,7 +25,9 @@ const props = withDefaults(
 
 <template>
   <ContextMenuRoot>
-    <ContextMenuTrigger :disabled="props.disabled">
+    <ContextMenuTrigger
+      :class="triggerClass"
+      :disabled="props.disabled">
       <slot name="trigger" />
     </ContextMenuTrigger>
     <ContextMenuPortal>

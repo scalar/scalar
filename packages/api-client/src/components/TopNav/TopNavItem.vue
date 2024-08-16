@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import { type Icon, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import {
+  type Icon,
+  ScalarContextMenu,
+  ScalarDropdown,
+  ScalarDropdownDivider,
+  ScalarDropdownItem,
+  ScalarIcon,
+  ScalarTooltip,
+} from '@scalar/components'
 
 defineProps<{
   hotkey?: string
@@ -12,44 +20,103 @@ defineProps<{
 defineEmits<{
   (e: 'click'): void
   (e: 'close'): void
+  (e: 'newTab'): void
+  (e: 'copyUrl'): void
+  (e: 'closeOtherTabs'): void
 }>()
 </script>
 
 <template>
-  <ScalarTooltip
-    class="scalar-client"
-    :delay="500"
-    resize
-    :sideOffset="4">
+  <ScalarContextMenu triggerClass="w-full">
     <template #trigger>
-      <div
-        class="nav-item webkit-app-no-drag"
-        :class="{ 'nav-item__active': active }"
-        @click="$emit('click')">
-        <div
-          class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
-          <ScalarIcon
-            :icon="icon"
-            size="xs"
-            thickness="2.5" />
-          <span class="nav-item-copy text-xs">{{ label }}</span>
-        </div>
-        <button
-          class="nav-item-close"
-          type="button"
-          @click="$emit('close')">
-          <ScalarIcon
-            icon="Close"
-            thickness="1.75" />
-        </button>
-      </div>
+      <ScalarTooltip
+        class="scalar-client"
+        :delay="500"
+        :disableClosingTrigger="true"
+        resize
+        :sideOffset="4">
+        <template #trigger>
+          <div
+            class="nav-item webkit-app-no-drag"
+            :class="{ 'nav-item__active': active }"
+            @click="$emit('click')">
+            <div
+              class="nav-item-icon-copy flex flex-1 items-center justify-center gap-1.5">
+              <ScalarIcon
+                :icon="icon"
+                size="xs"
+                thickness="2.5" />
+              <span class="nav-item-copy text-xs">{{ label }}</span>
+            </div>
+            <button
+              class="nav-item-close"
+              type="button"
+              @click="$emit('close')">
+              <ScalarIcon
+                icon="Close"
+                thickness="1.75" />
+            </button>
+          </div>
+        </template>
+        <template #content>
+          <ScalarHotkey
+            v-if="hotkey"
+            :hotkey="hotkey" />
+        </template>
+      </ScalarTooltip>
     </template>
     <template #content>
-      <ScalarHotkey
-        v-if="hotkey"
-        :hotkey="hotkey" />
+      <ScalarDropdown
+        class="scalar-client"
+        static>
+        <template #items>
+          <ScalarDropdownItem
+            class="flex items-center gap-1.5"
+            @click="$emit('newTab')">
+            <ScalarIcon
+              icon="AddTab"
+              size="sm"
+              thickness="1.5" />
+            New Tab
+            <ScalarHotkey
+              class="bg-b-2 ml-auto"
+              hotkey="T" />
+          </ScalarDropdownItem>
+          <ScalarDropdownItem
+            class="flex items-center gap-1.5"
+            @click="$emit('copyUrl')">
+            <ScalarIcon
+              icon="Link"
+              size="sm"
+              thickness="1.5" />
+            Copy URL
+          </ScalarDropdownItem>
+          <ScalarDropdownDivider />
+          <ScalarDropdownItem
+            class="flex items-center gap-1.5"
+            @click="$emit('close')">
+            <ScalarIcon
+              icon="CloseTab"
+              size="sm"
+              thickness="1.5" />
+            Close Tab
+            <ScalarHotkey
+              class="bg-b-2 ml-auto"
+              hotkey="W" />
+          </ScalarDropdownItem>
+          <ScalarDropdownItem
+            class="flex items-center gap-1.5"
+            @click="$emit('closeOtherTabs')">
+            <ScalarIcon
+              icon="CloseTabs"
+              size="sm"
+              thickness="1.5" />
+            Close Other Tabs
+          </ScalarDropdownItem>
+        </template>
+      </ScalarDropdown>
     </template>
-  </ScalarTooltip>
+  </ScalarContextMenu>
 </template>
 
 <style scoped>
