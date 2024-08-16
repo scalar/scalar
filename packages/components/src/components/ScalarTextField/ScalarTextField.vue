@@ -4,6 +4,7 @@ import { nanoid } from 'nanoid'
 import { type Ref, onMounted, ref, useAttrs } from 'vue'
 
 import { cva, cx } from '../../cva'
+import { ScalarIcon } from '../ScalarIcon'
 
 const props = withDefaults(
   defineProps<{
@@ -23,7 +24,7 @@ const props = withDefaults(
   }>(),
   {
     emitOnBlur: true,
-    labelShadowColor: 'var(--scalar-background-2)',
+    labelShadowColor: 'var(--scalar-background-1)',
     disableTrim: false,
   },
 )
@@ -143,13 +144,13 @@ onMounted(() => {
       </div>
     </div>
     <span
-      :class="
-        cx(
-          'helper-text before:font-black mt-1.5 flex items-center text-sm text-red before:rounded-full',
-          'before:mr-1.5 before:block before:h-4 before:w-4 before:text-center before:text-xxs before:leading-4',
-          `before:text-white empty:hidden`,
-        )
-      ">
+      v-if="helperText"
+      class="helper-text mt-1.5 flex items-center gap-1 text-sm"
+      :class="error ? 'font-medium text-red' : 'text-c-2'">
+      <ScalarIcon
+        v-if="error"
+        icon="Error"
+        size="sm" />
       {{ helperText }}
     </span>
   </div>

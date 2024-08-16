@@ -200,7 +200,6 @@ const deleteWorkspace = async () => {
     <ScalarTextField
       v-model="tempName"
       label="Workspace"
-      labelShadowColor="var(--scalar-background-1)"
       @keydown.prevent.enter="handleWorkspaceRename" />
     <div class="flex gap-3">
       <ScalarButton

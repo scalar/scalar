@@ -30,9 +30,18 @@ export const Base: Story = {
   },
 }
 
-export const Error: Story = {
+export const HelperText: Story = {
   args: {
     modelValue: '',
+    label: 'Scalar Text Field',
+    placeholder: 'This is a place where you can type out anything',
+    helperText: 'This is some helpful text',
+  },
+}
+
+export const Error: Story = {
+  args: {
+    modelValue: 'Bad Input',
     label: 'Scalar Text Field',
     placeholder: 'This is a place where you can type out anything',
     helperText: 'There was some sort of error with the field',
