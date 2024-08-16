@@ -1,7 +1,8 @@
-import type { HarRequest, TargetId } from '#external'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
+
+import type { HarRequest, TargetId } from '../external'
 
 /**
  * This re-export is needed due to a typescript issue

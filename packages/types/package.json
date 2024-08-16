@@ -34,10 +34,6 @@
     "src",
     "CHANGELOG.md"
   ],
-  "imports": {
-    "#external": "./src/external/index.ts",
-    "#utils": "./src/utils/index.ts"
-  },
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
