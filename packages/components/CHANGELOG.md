@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.37
+
+### Patch Changes
+
+- af75550: feat: scalar search input sidebar style
+
 ## 0.12.36
 
 ### Patch Changes

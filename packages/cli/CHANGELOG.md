@@ -1,5 +1,14 @@
 # @scalar/cli
 
+## 0.2.186
+
+### Patch Changes
+
+- Updated dependencies [af75550]
+  - @scalar/oas-utils@0.2.36
+  - @scalar/api-reference@1.25.3
+  - @scalar/mock-server@0.2.39
+
 ## 0.2.185
 
 ### Patch Changes
