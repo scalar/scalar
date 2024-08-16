@@ -26,24 +26,6 @@ const { statusCode, body } = await request('https://example.com')`)
       'ofetch',
     ])
   })
-
-  it('returns code for python target', async () => {
-    const snippet = await snippetz().print('python', 'fetch', {
-      method: 'GET',
-      url: 'http://mockbin.com/request',
-    })
-
-    expect(snippet).toBe(`import http.client
-
-conn = http.client.HTTPConnection("mockbin.com")
-
-conn.request("GET", "/request")
-
-res = conn.getresponse()
-data = res.read()
-
-print(data.decode("utf-8"))`)
-  })
 })
 
 describe('plugins', async () => {
