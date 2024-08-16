@@ -51,7 +51,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-parser": "workspace:*",
     "vite": "^5.2.10"
   }
 }

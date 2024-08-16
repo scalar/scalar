@@ -1,6 +1,15 @@
 {
   "name": "@scalar/openapi-parser",
   "description": "modern OpenAPI parser written in TypeScript",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/openapi-parser"
+  },
   "keywords": [
     "openapi",
     "scalar",
@@ -8,22 +17,22 @@
     "parser",
     "typescript"
   ],
-  "license": "MIT",
-  "author": "Scalar (https://github.com/scalar)",
-  "homepage": "https://github.com/scalar/scalar",
-  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "version": "0.0.1",
+  "version": "0.7.2",
   "engines": {
     "node": ">=18"
   },
+  "scripts": {
+    "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
+    "format": "prettier --write .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test:prepare": "vite-node scripts/fetch-files.ts",
+    "test:unit": "vitest",
+    "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
   "type": "module",
-  "files": [
-    "dist",
-    "!dist/webpack-stats.json",
-    "CHANGELOG.md"
-  ],
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
@@ -36,33 +45,13 @@
       "import": "./dist/utils/load/plugins/readFiles.js"
     }
   },
+  "files": [
+    "dist",
+    "!dist/webpack-stats.json",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
   "sideEffects": false,
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/openapi-parser"
-  },
-  "scripts": {
-    "types:check": "tsc --noEmit --skipLibCheck",
-    "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
-    "format": "prettier --write .",
-    "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "test": "vitest"
-  },
-  "devDependencies": {
-    "@apidevtools/swagger-parser": "^10.1.0",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@rollup/plugin-typescript": "^11.1.6",
-    "glob": "^11.0.0",
-    "just-diff": "^6.0.2",
-    "rollup": "^4.19.2",
-    "rollup-plugin-output-size": "^1.4.1",
-    "rollup-plugin-webpack-stats": "^1.0.1",
-    "tinybench": "^2.8.0"
-  },
   "dependencies": {
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
@@ -70,5 +59,18 @@
     "jsonpointer": "^5.0.1",
     "leven": "^4.0.0",
     "yaml": "^2.4.5"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "github-slugger": "^2.0.0",
+    "glob": "^11.0.0",
+    "just-diff": "^6.0.2",
+    "rollup": "^4.19.2",
+    "rollup-plugin-output-size": "^1.4.1",
+    "rollup-plugin-webpack-stats": "^1.0.1",
+    "tinybench": "^2.8.0"
   }
 }

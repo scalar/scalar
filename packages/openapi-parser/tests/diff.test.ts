@@ -7,17 +7,17 @@ import { describe, expect, test } from 'vitest'
 import { type AnyObject, normalize, openapi } from '../src'
 
 const expectedErrors = {
-  'packages/openapi-parser/tests/files/opensuseorgobs.yaml': [
+  'tests/files/opensuseorgobs.yaml': [
     {
       message: "must have required property '$ref'",
     },
   ],
-  'packages/openapi-parser/tests/files/royalmailcomclick-and-drop.yaml': [
+  'tests/files/royalmailcomclick-and-drop.yaml': [
     {
       message: "must have required property 'schema'",
     },
   ],
-  'packages/openapi-parser/tests/files/spotifycom.yaml': [
+  'tests/files/spotifycom.yaml': [
     {
       message: 'Can’t resolve URI: ../policies.yaml',
     },
@@ -26,29 +26,29 @@ const expectedErrors = {
 
 // We can’t make a diff for files with circular references. :(
 const circularReferences = [
-  'packages/openapi-parser/tests/files/xerocomxero_accounting.yaml',
-  'packages/openapi-parser/tests/files/xtrfeu.yaml',
-  'packages/openapi-parser/tests/files/webflowcom.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomathena.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomce.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomconnect.yaml',
-  'packages/openapi-parser/tests/files/opentrialslocal.yaml',
-  'packages/openapi-parser/tests/files/bbccouk.yaml',
-  'packages/openapi-parser/tests/files/ote-godaddycomdomains.yaml',
-  'packages/openapi-parser/tests/files/googleapiscomfirebaserules.yaml',
+  'tests/files/xerocomxero_accounting.yaml',
+  'tests/files/xtrfeu.yaml',
+  'tests/files/webflowcom.yaml',
+  'tests/files/amazonawscomathena.yaml',
+  'tests/files/amazonawscomce.yaml',
+  'tests/files/amazonawscomconnect.yaml',
+  'tests/files/opentrialslocal.yaml',
+  'tests/files/bbccouk.yaml',
+  'tests/files/ote-godaddycomdomains.yaml',
+  'tests/files/googleapiscomfirebaserules.yaml',
 ]
 
 // Just skip some files. If it’s not empty, we’ve got some work to do. :)
 const ignoreFiles = [
   // Very slow files
-  'packages/openapi-parser/tests/files/amazonawscomdynamodb.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomelasticmapreduce.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomemr-containers.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomec2.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomdynamodb.yaml',
+  'tests/files/amazonawscomdynamodb.yaml',
+  'tests/files/amazonawscomelasticmapreduce.yaml',
+  'tests/files/amazonawscomemr-containers.yaml',
+  'tests/files/amazonawscomec2.yaml',
+  'tests/files/amazonawscomdynamodb.yaml',
 ]
 
-const files = (await glob('./packages/openapi-parser/tests/files/*.yaml'))
+const files = (await glob('tests/files/*.yaml'))
   .filter((file) => !ignoreFiles.includes(file))
   // Aphabetic
   .sort()

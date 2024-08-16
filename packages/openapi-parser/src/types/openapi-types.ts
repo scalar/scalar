@@ -22,12 +22,13 @@ export namespace OpenAPI {
   // OpenAPI.Document<{
   //   'x-foobar': Foobar
   // }>
-  export type Document<T extends AnyOtherAttribute = object> =
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type Document<T extends AnyOtherAttribute = {}> =
     | OpenAPIV2.Document<T>
     | OpenAPIV3.Document<T>
     | OpenAPIV3_1.Document<T>
-
-  export type Operation<T = object> =
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type Operation<T = {}> =
     | OpenAPIV2.OperationObject<T>
     | OpenAPIV3.OperationObject<T>
     | OpenAPIV3_1.OperationObject<T>
@@ -67,17 +68,18 @@ export namespace OpenAPI {
     | OpenAPIV3.SchemaObject
     | OpenAPIV3_1.SchemaObject
 }
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace OpenAPIV3_1 {
   type Modify<T, R> = Omit<T, keyof R> & R
-
-  type PathsWebhooksComponents<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  type PathsWebhooksComponents<T = {}> = {
     paths?: PathsObject<T>
     webhooks?: Record<string, PathItemObject | ReferenceObject>
     components?: ComponentsObject
   }
-
-  export type Document<T = object> = Modify<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type Document<T = {}> = Modify<
     Omit<OpenAPIV3.Document<T>, 'paths' | 'components'>,
     {
       /**
@@ -132,15 +134,15 @@ export namespace OpenAPIV3_1 {
       enum?: [string, ...string[]]
     }
   >
-
-  export type PathsObject<T = object, P extends object = object> = Record<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathsObject<T = {}, P extends {} = {}> = Record<
     string,
     (PathItemObject<T> & P) | undefined
   >
 
   export type HttpMethods = OpenAPIV3.HttpMethods
-
-  export type PathItemObject<T = object> = Modify<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathItemObject<T = {}> = Modify<
     OpenAPIV3.PathItemObject<T>,
     {
       servers?: ServerObject[]
@@ -149,8 +151,8 @@ export namespace OpenAPIV3_1 {
   > & {
     [method in HttpMethods]?: OperationObject<T>
   }
-
-  export type OperationObject<T = object> = Modify<
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type OperationObject<T = {}> = Modify<
     OpenAPIV3.OperationObject<T>,
     {
       parameters?: (ReferenceObject | ParameterObject)[]
@@ -308,9 +310,11 @@ export namespace OpenAPIV3_1 {
 
   export type TagObject = OpenAPIV3.TagObject
 }
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace OpenAPIV3 {
-  export type Document<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type Document<T = {}> = {
     /**
      * Version of the OpenAPI specification
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
@@ -357,8 +361,8 @@ export namespace OpenAPIV3 {
     default?: string | number
     description?: string
   }
-
-  export type PathsObject<T = object, P extends object = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathsObject<T = {}, P extends {} = {}> = {
     [pattern: string]: (PathItemObject<T> & P) | undefined
   }
 
@@ -376,8 +380,8 @@ export namespace OpenAPIV3 {
     PATCH = 'patch',
     TRACE = 'trace',
   }
-
-  export type PathItemObject<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathItemObject<T = {}> = {
     $ref?: string
     summary?: string
     description?: string
@@ -387,8 +391,8 @@ export namespace OpenAPIV3 {
     [method in HttpMethods]?: OperationObject<T>
   } & T &
     AnyOtherAttribute
-
-  export type OperationObject<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type OperationObject<T = {}> = {
     tags?: string[]
     summary?: string
     description?: string
@@ -413,8 +417,8 @@ export namespace OpenAPIV3 {
     name?: string
     in?: string
   } & ParameterBaseObject
-
-  export type HeaderObject = object & ParameterBaseObject
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type HeaderObject = {} & ParameterBaseObject
 
   export type ParameterBaseObject = {
     description?: string
@@ -634,9 +638,11 @@ export namespace OpenAPIV3 {
     externalDocs?: ExternalDocumentationObject
   } & AnyOtherAttribute
 }
+
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace OpenAPIV2 {
-  export type Document<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type Document<T = {}> = {
     /**
      * Version of the OpenAPI specification
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
@@ -761,8 +767,8 @@ export namespace OpenAPIV2 {
   export type ExampleObject = {
     [index: string]: any
   }
-
-  export type OperationObject<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type OperationObject<T = {}> = {
     tags?: string[]
     summary?: string
     description?: string
@@ -809,15 +815,15 @@ export namespace OpenAPIV2 {
     HEAD = 'head',
     PATCH = 'patch',
   }
-
-  export type PathItemObject<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathItemObject<T = {}> = {
     $ref?: string
     parameters?: Parameters
   } & {
     [method in HttpMethods]?: OperationObject<T>
   }
-
-  export type PathsObject<T = object> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  export type PathsObject<T = {}> = {
     [index: string]: PathItemObject<T>
   }
 

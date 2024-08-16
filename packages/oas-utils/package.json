@@ -107,9 +107,11 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-parser": "workspace:*",
     "axios": "^1.6.8",
-    "rollup": "^4.16.4",
+    "httpsnippet-lite": "^3.0.5",
+    "openapi-types": "^12.1.3",
+    "rollup": "^4.19.2",
     "type-fest": "^4.20.0",
     "vite": "^5.2.10",
     "vitest": "^1.6.0"

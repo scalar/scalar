@@ -53,7 +53,7 @@
     "@scalar/api-client": "workspace:*",
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-parser": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@vueuse/core": "^10.10.0",
@@ -62,7 +62,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
-    "rollup-plugin-webpack-stats": "^0.2.5",
+    "rollup-plugin-webpack-stats": "^1.0.1",
     "vite": "^5.2.10",
     "vite-plugin-banner": "^0.7.1",
     "vite-plugin-css-injected-by-js": "^3.4.0",

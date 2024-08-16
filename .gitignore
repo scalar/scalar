@@ -12,9 +12,11 @@ test-*.json
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/packages/openapi-parser/tests/files/
 
 # Temporary Vite/Vitest config files
 *.config.ts.timestamp-*.mjs
+
 
 
 .DS_Store

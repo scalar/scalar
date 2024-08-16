@@ -48,11 +48,11 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-parser": "workspace:*",
     "@scalar/void-server": "workspace:*",
     "commander": "^12.0.0",
     "github-slugger": "^2.0.0",
-    "glob": "^10.3.10",
+    "glob": "^11.0.0",
     "hono": "^4.2.7",
     "kleur": "^4.1.5",
     "prettyjson": "^1.2.5"
@@ -64,7 +64,7 @@
     "@types/node": "^20.14.10",
     "@types/prettyjson": "^0.0.33",
     "execa": "^8.0.1",
-    "rollup": "^4.16.4",
+    "rollup": "^4.19.2",
     "rollup-plugin-delete": "^2.0.0",
     "strip-ansi": "^7.1.0",
     "tslib": "^2.6.2"
