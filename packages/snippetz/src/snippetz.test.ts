@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { snippetz } from './snippetz'
+import { convert, snippetz } from './snippetz'
 
 describe('snippetz', async () => {
   it('returns code for undici', async () => {
@@ -78,7 +78,7 @@ describe('convert', async () => {
       url: 'http://mockbin.com/request',
     }
 
-    const snippet = await snippetz().convert(request, 'python')
+    const snippet = await convert(request, 'python')
 
     expect(snippet).toBe(`import http.client
 

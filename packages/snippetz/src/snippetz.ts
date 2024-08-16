@@ -25,6 +25,7 @@ export function snippetz() {
       }
     },
     print(target: TargetId, client: ClientId, request: Partial<Request>) {
+      console.log('snippetz print: ', target, client, request)
       return this.get(target, client, request)?.code
     },
     targets() {
@@ -59,16 +60,18 @@ export function snippetz() {
     hasPlugin(target: string, client: string) {
       return Boolean(this.findPlugin(target as TargetId, client as ClientId))
     },
-    async convert(request: any, target: string, client?: string) {
-      const snippet = new HTTPSnippet(request as HarRequest)
-
-      // https://www.npmjs.com/package/httpsnippet-lite#snippetconverttargetid-string-clientid-string-options-t
-      // snippet.convert(targetId: string, clientId?: string, options?: T)
-      // ERROR: convert method is looking for Client not ClientId
-      return (await snippet.convert(
-        target as SnippetTargetId,
-        client as any,
-      )) as string
-    },
   }
+}
+
+export async function convert(
+  request: Partial<HarRequest>,
+  target: string,
+  client?: string,
+) {
+  const snippet = new HTTPSnippet(request as HarRequest)
+
+  // https://www.npmjs.com/package/httpsnippet-lite#snippetconverttargetid-string-clientid-string-options-t
+  // snippet.convert(targetId: string, clientId?: string, options?: T)
+  // ERROR: convert method is looking for Client not ClientId
+  return (await snippet.convert(target as SnippetTargetId)) as string
 }
