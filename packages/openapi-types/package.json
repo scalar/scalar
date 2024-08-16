@@ -25,6 +25,12 @@
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck --composite false"
   },
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts"
+    }
+  },
   "type": "module",
   "files": [
     "src",
