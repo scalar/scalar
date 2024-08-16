@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.26
+
+### Patch Changes
+
+- abb8ddd: fix(themes): always show obtrusive scrollbars
+
 ## 0.9.25
 
 ### Patch Changes

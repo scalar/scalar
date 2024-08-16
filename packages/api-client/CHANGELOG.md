@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.0.57
+
+### Patch Changes
+
+- 6babe66: fix(components): show icon for ScalarTextField errors
+- Updated dependencies [6babe66]
+- Updated dependencies [abb8ddd]
+  - @scalar/components@0.12.38
+  - @scalar/themes@0.9.26
+  - @scalar/oas-utils@0.2.37
+  - @scalar/types@0.0.3
+
 ## 2.0.56
 
 ### Patch Changes

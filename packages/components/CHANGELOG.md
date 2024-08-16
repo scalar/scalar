@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.38
+
+### Patch Changes
+
+- 6babe66: fix(components): show icon for ScalarTextField errors
+  - @scalar/code-highlight@0.0.10
+
 ## 0.12.37
 
 ### Patch Changes
