@@ -62,6 +62,7 @@
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
+    "@google-cloud/storage": "^7.12.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",

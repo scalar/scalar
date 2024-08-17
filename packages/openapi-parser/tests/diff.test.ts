@@ -1,23 +1,48 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
+// Import the Google Cloud Storage library
+import { Storage } from '@google-cloud/storage'
 import { glob } from 'glob'
 import { diff } from 'just-diff'
 import fs from 'node:fs'
-import { describe, expect, test } from 'vitest'
+import { beforeAll, describe, expect, test } from 'vitest'
 
 import { type AnyObject, normalize, openapi } from '../src'
 
+// Create a client
+const storage = new Storage()
+
+// Specify your bucket name and file name
+const bucketName = 'test-specifications' // Replace with your bucket name
+
+// Function to download the file to memory
+const downloadFileToMemory = async (fileName: string) => {
+  try {
+    // Get the file from the bucket
+    const file = storage.bucket(bucketName).file(fileName)
+
+    // Download the file to a buffer
+    const [fileBuffer] = await file.download()
+
+    // File is now available in memory as a Buffer
+    return fileBuffer.toString()
+    // You can now manipulate the fileBuffer as needed
+  } catch (error) {
+    console.error('Error downloading the file:', error)
+  }
+}
+
 const expectedErrors = {
-  'tests/files/opensuseorgobs.yaml': [
+  'files/opensuseorgobs.yaml': [
     {
       message: "must have required property '$ref'",
     },
   ],
-  'tests/files/royalmailcomclick-and-drop.yaml': [
+  'files/royalmailcomclick-and-drop.yaml': [
     {
       message: "must have required property 'schema'",
     },
   ],
-  'tests/files/spotifycom.yaml': [
+  'files/spotifycom.yaml': [
     {
       message: 'Can’t resolve URI: ../policies.yaml',
     },
@@ -26,40 +51,46 @@ const expectedErrors = {
 
 // We can’t make a diff for files with circular references. :(
 const circularReferences = [
-  'tests/files/xerocomxero_accounting.yaml',
-  'tests/files/xtrfeu.yaml',
-  'tests/files/webflowcom.yaml',
-  'tests/files/amazonawscomathena.yaml',
-  'tests/files/amazonawscomce.yaml',
-  'tests/files/amazonawscomconnect.yaml',
-  'tests/files/opentrialslocal.yaml',
-  'tests/files/bbccouk.yaml',
-  'tests/files/ote-godaddycomdomains.yaml',
-  'tests/files/googleapiscomfirebaserules.yaml',
+  'files/xerocomxero_accounting.yaml',
+  'files/xtrfeu.yaml',
+  'files/webflowcom.yaml',
+  'files/amazonawscomathena.yaml',
+  'files/amazonawscomce.yaml',
+  'files/amazonawscomconnect.yaml',
+  'files/opentrialslocal.yaml',
+  'files/bbccouk.yaml',
+  'files/ote-godaddycomdomains.yaml',
+  'files/googleapiscomfirebaserules.yaml',
 ]
 
 // Just skip some files. If it’s not empty, we’ve got some work to do. :)
 const ignoreFiles = [
   // Very slow files
-  'tests/files/amazonawscomdynamodb.yaml',
-  'tests/files/amazonawscomelasticmapreduce.yaml',
-  'tests/files/amazonawscomemr-containers.yaml',
-  'tests/files/amazonawscomec2.yaml',
-  'tests/files/amazonawscomdynamodb.yaml',
+  'files/amazonawscomdynamodb.yaml',
+  'files/amazonawscomelasticmapreduce.yaml',
+  'files/amazonawscomemr-containers.yaml',
+  'files/amazonawscomec2.yaml',
+  'files/amazonawscomdynamodb.yaml',
 ]
 
-const files = (await glob('tests/files/*.yaml'))
-  .filter((file) => !ignoreFiles.includes(file))
-  // Aphabetic
-  .sort()
+// get the list of files from the storage bucket test-specifications
+const files = await fetch(
+  'https://storage.googleapis.com/storage/v1/b/test-specifications/o',
+)
+  .then((response) => response.json())
+  .then((data) => data.items)
+  .then((data) => data.filter((d) => !ignoreFiles.includes(d.name)))
 
 /**
  * This test suite parses a large number of real-world OpenAPI files
  */
 describe('diff', async () => {
   // TODO: We’re currently only testing a few of the files for performance reasons.
-  test.each(files.slice(0, 100))('diff: %s', async (file) => {
-    const content = fs.readFileSync(file, 'utf-8')
+  test.each(files.slice(0, 100))('diff', async (file) => {
+    console.log(file.name)
+    // Fetch the file from cloud storage
+    const content = await downloadFileToMemory(file.name)
+
     const specification = normalize(content)
 
     const oldSchema = (await new Promise((resolve, reject) => {
