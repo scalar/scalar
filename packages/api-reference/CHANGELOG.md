@@ -1,5 +1,19 @@
 # @scalar/api-reference
 
+## 1.25.4
+
+### Patch Changes
+
+- abb8ddd: fix(themes): always show obtrusive scrollbars
+- Updated dependencies [6babe66]
+- Updated dependencies [abb8ddd]
+  - @scalar/api-client@2.0.57
+  - @scalar/components@0.12.38
+  - @scalar/themes@0.9.26
+  - @scalar/code-highlight@0.0.10
+  - @scalar/oas-utils@0.2.37
+  - @scalar/types@0.0.3
+
 ## 1.25.3
 
 ### Patch Changes
