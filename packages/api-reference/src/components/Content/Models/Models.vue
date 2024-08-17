@@ -22,12 +22,14 @@ const props = defineProps<{
     | unknown
 }>()
 
+const MAX_MODELS_INITIALLY_SHOWN = 10
+
 const { collapsedSidebarItems } = useSidebar()
 const { getModelId } = useNavState()
 
 const showAllModels = computed(
   () =>
-    Object.keys(props.schemas ?? {}).length <= 3 ||
+    Object.keys(props.schemas ?? {}).length <= MAX_MODELS_INITIALLY_SHOWN ||
     collapsedSidebarItems[getModelId()],
 )
 
@@ -38,8 +40,8 @@ const models = computed(() => {
     return allModels
   }
 
-  // return only first 3 models
-  return allModels.slice(0, 3)
+  // return only first MAX_MODELS_INITIALLY_SHOWN models
+  return allModels.slice(0, MAX_MODELS_INITIALLY_SHOWN)
 })
 </script>
 <template>
