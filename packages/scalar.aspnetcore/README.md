@@ -35,6 +35,7 @@ app.Run();
 ```
 
 .NET 8
+
 ```c#
 using Scalar.AspNetCore;
 
