@@ -19,6 +19,6 @@ export default createRollupConfig({
     },
   ],
   options: {
-    input: ['./src/index.ts'],
+    input: input,
   },
 })
