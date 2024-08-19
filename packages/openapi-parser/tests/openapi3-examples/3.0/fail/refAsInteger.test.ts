@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import refAsInteger from './refAsInteger.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('refAsInteger', () => {
   it('returns an error', async () => {
+    const refAsInteger = await downloadFileToMemory(
+      bucketName,
+      filePath('refAsInteger.yaml'),
+    )
     const result = await validate(refAsInteger)
 
     // TODO: Swagger Editor

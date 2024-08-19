@@ -8,7 +8,7 @@ const bucketName = 'test-specifications'
 // Circular $refs to ancestor
 describe.todo('ancestor', () => {
   it('relative path', async () => {
-    const specification = downloadFileToMemory(
+    const specification = await downloadFileToMemory(
       bucketName,
       'references/ancestor-reference.json',
     )

@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import invalidPattern from './invalidPattern.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('invalidPattern', () => {
   it('returns an error', async () => {
+    const invalidPattern = await downloadFileToMemory(
+      bucketName,
+      filePath('invalidPattern.yaml'),
+    )
+
     const result = await validate(invalidPattern)
 
     // TODO: Swagger Editor

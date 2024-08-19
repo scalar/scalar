@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import no_containers from './no_containers.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.1/fail/${filename}`
 
 describe('no_containers', () => {
   it('returns an error', async () => {
+    const no_containers = await downloadFileToMemory(
+      bucketName,
+      filePath('no_containers.yaml'),
+    )
     const result = await validate(no_containers)
 
     // TODO: Fix the expected error message should mention 'paths'

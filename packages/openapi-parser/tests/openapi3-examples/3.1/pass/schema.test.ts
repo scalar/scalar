@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import schema from './schema.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.1/pass/${filename}`
 
 describe('schema', () => {
   it('passes', async () => {
+    const schema = await downloadFileToMemory(
+      bucketName,
+      filePath('schema.yaml'),
+    )
     const result = await validate(schema)
     expect(result.valid).toBe(true)
     expect(result.errors).toStrictEqual([])

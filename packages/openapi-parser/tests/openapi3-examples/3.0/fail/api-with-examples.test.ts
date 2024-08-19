@@ -1,10 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import apiWithExamples from './api-with-examples.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('api-with-examples', () => {
   it('returns an error', async () => {
+    const apiWithExamples = await downloadFileToMemory(
+      bucketName,
+      filePath('api-with-examples.yaml'),
+    )
+
     const result = await validate(apiWithExamples)
 
     // TODO: Swagger Editor:

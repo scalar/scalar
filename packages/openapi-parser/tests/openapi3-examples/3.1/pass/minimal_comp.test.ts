@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import minimal_comp from './minimal_comp.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.1/pass/${filename}`
 
 describe('minimal_comp', () => {
   it('passes', async () => {
+    const minimal_comp = await downloadFileToMemory(
+      bucketName,
+      filePath('minimal_comp.yaml'),
+    )
     const result = await validate(minimal_comp)
     expect(result.valid).toBe(true)
     expect(result.errors).toStrictEqual([])

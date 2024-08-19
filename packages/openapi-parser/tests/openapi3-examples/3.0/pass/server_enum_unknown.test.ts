@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import server_enum_unknown from './server_enum_unknown.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/pass/${filename}`
 
 describe.todo('server_enum_unknown', () => {
   it('passes', async () => {
+    const server_enum_unknown = await downloadFileToMemory(
+      bucketName,
+      filePath('server_enum_unknown.yaml'),
+    )
     const result = await validate(server_enum_unknown)
 
     expect(result.valid).toBe(false)

@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import invalidSchema from './invalidSchema.json'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('invalidSchema', () => {
   it('returns an error', async () => {
+    const invalidSchema = await downloadFileToMemory(
+      bucketName,
+      filePath('invalidSchema.json'),
+    )
     const result = await validate(invalidSchema)
 
     // TODO: Swagger Editor

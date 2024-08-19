@@ -1,10 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import internalPathItemRef from './internalPathItemRef.yaml?raw'
+// import internalPathItemRef from './internalPathItemRef.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('internalPathItemRef', () => {
   it.skip('returns an error', async () => {
+    const internalPathItemRef = await downloadFileToMemory(
+      bucketName,
+      filePath('internalPathItemRef.yaml'),
+    )
+
     const result = await validate(internalPathItemRef)
 
     console.log('result', result)

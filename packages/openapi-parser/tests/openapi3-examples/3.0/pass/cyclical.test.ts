@@ -62,6 +62,7 @@ describe('cyclical', () => {
       components: {
         schemas: {
           top: {
+            // TODO: get these from the test-specifications bucket
             $ref: '../partial/cycledef.yaml#/components/schemas/top',
           },
         },

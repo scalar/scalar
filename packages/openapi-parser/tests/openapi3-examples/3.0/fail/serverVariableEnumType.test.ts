@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import serverVariableEnumType from './serverVariableEnumType.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('serverVariableEnumType', () => {
   it('returns an error', async () => {
+    const serverVariableEnumType = await downloadFileToMemory(
+      bucketName,
+      filePath('serverVariableEnumType.yaml'),
+    )
     const result = await validate(serverVariableEnumType)
 
     // TODO: Swagger Editor has a better error message

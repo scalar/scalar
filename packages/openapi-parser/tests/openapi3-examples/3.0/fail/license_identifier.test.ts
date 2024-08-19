@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import license_identifier from './license_identifier.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('license_identifier', () => {
   it('returns an error', async () => {
+    const license_identifier = await downloadFileToMemory(
+      bucketName,
+      filePath('license_identifier.yaml'),
+    )
     const result = await validate(license_identifier)
 
     // TODO: Swagger Editor

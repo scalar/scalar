@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import missingPathParam from './missingPathParam.yaml?raw'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe.todo('missingPathParam', () => {
   it('returns an error', async () => {
+    const missingPathParam = await downloadFileToMemory(
+      bucketName,
+      filePath('missingPathParam.yaml'),
+    )
     const result = await validate(missingPathParam)
 
     // TODO: Swagger Editor

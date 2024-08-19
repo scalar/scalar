@@ -1,10 +1,17 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../src'
-import hasFlowNotFlows from './hasFlowNotFlows.json'
+import { downloadFileToMemory } from '../../../utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `openapi3-examples/3.0/fail/${filename}`
 
 describe('hasFlowNotFlows', () => {
   it('returns an error', async () => {
+    const hasFlowNotFlows = await downloadFileToMemory(
+      bucketName,
+      filePath('hasFlowNotFlows.json'),
+    )
     const result = await validate(hasFlowNotFlows)
 
     // TODO: This should probably mention the incorrect security type?
