@@ -3,7 +3,6 @@ FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
 ENV BUILD_PLAYGROUND=1
-ENV SPEC_PATH='../3.1.yaml'
 
 # Build the package with the BUILD_PLAYGROUND flag set
 RUN pnpm --filter @scalar/galaxy build
