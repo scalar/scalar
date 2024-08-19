@@ -14,9 +14,20 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
+  ref,
   watchEffect,
 } from 'vue'
 import { RouterView } from 'vue-router'
+
+defineEmits<{
+  (e: 'newTab', item: { name: string; uid: string }): void
+}>()
+
+const newTab = ref<{ name: string; uid: string } | null>(null)
+
+const handleNewTab = (item: { name: string; uid: string }) => {
+  newTab.value = item
+}
 
 onMounted(() => {
   watchEffect(() => {
@@ -79,7 +90,7 @@ const fontsStyleTag = computed(
 </script>
 <template>
   <div v-html="fontsStyleTag"></div>
-  <TopNav />
+  <TopNav :openNewTab="newTab" />
 
   <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
@@ -92,7 +103,9 @@ const fontsStyleTag = computed(
     <TheCommandPalette />
 
     <div class="flex flex-1 flex-col min-w-0">
-      <RouterView v-slot="{ Component }">
+      <RouterView
+        v-slot="{ Component }"
+        @newTab="handleNewTab">
         <keep-alive>
           <component :is="Component" />
         </keep-alive>

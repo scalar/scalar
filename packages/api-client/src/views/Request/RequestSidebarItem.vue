@@ -50,8 +50,9 @@ const props = withDefaults(
   { isDraggable: false, isDroppable: false, isChild: false },
 )
 
-defineEmits<{
+const emit = defineEmits<{
   onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
+  newTab: [name: string, uid: string]
 }>()
 
 defineSlots<{
@@ -71,6 +72,7 @@ const {
   folderMutators,
   requestMutators,
   requestExampleMutators,
+  router,
 } = useWorkspace()
 const { replace } = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
@@ -254,6 +256,14 @@ const resourceTitle = computed(() => {
   if ('spec' in props.item) return 'Collection'
   return 'Folder'
 })
+
+const handleNavigation = (event: MouseEvent, item: typeof props.item) => {
+  if (event.metaKey) {
+    emit('newTab', getTitle(item) || '', item.uid)
+  } else {
+    router.push(generateLink())
+  }
+}
 </script>
 <template>
   <div
@@ -279,7 +289,8 @@ const resourceTitle = computed(() => {
         v-if="'summary' in item || 'requestUid' in item"
         v-slot="{ isExactActive }"
         class="no-underline"
-        :to="generateLink()">
+        :to="generateLink()"
+        @click.prevent="(event: MouseEvent) => handleNavigation(event, item)">
         <ScalarContextMenu :disabled="isReadOnly">
           <template #trigger>
             <div
@@ -407,6 +418,7 @@ const resourceTitle = computed(() => {
           :isDroppable="_isDroppable"
           :item="folders[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
+          @newTab="(name, uid) => $emit('newTab', name, uid)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
       </div>
     </Draggable>

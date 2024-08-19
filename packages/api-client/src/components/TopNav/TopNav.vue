@@ -9,12 +9,16 @@ import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import TopNavItem from './TopNavItem.vue'
 
+const props = defineProps<{
+  openNewTab: { name: string; uid: string } | null
+}>()
 const { activeRequest, router } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
 /** Nav Items list */
 const topNavItems = reactive([{ label: '', path: '', icon: 'Add' as Icon }])
 const activeNavItemIdx = ref(0)
+const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
 
 /**
  * Logic to handle adding a nav item
@@ -95,8 +99,6 @@ const closeOtherTabs = (idx: number) => {
   handleNavRoute()
 }
 
-const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
-
 /** Handle hotkeys */
 const handleHotKey = (event: HotKeyEvents) => {
   if (event.addTopNav) addNavItem()
@@ -113,6 +115,24 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
   if (event.jumpToLastTab) setNavItemIdx(topNavItems.length - 1)
 }
+
+const addTopNavTab = (item: { name: string; uid: string }) => {
+  topNavItems.push({
+    label: item.name,
+    path: item.uid,
+    icon: 'ExternalLink',
+  })
+}
+
+watch(
+  () => props.openNewTab,
+  (openNewTab) => {
+    if (openNewTab) {
+      addTopNavTab(openNewTab)
+    }
+  },
+  { immediate: true },
+)
 
 onMounted(() => hotKeyBus.on(handleHotKey))
 onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
