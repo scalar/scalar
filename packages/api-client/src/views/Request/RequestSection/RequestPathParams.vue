@@ -66,7 +66,7 @@ const setPathVariable = (url: string) => {
 
   /** matching regex for nested curly braces {value} */
   const pathVariables =
-    url.match(/(?<!{){([^{}]+)}(?!})/g)?.map((v) => v.slice(1, -1)) || []
+    url.match(/{([^{}]+)}/g)?.map((v) => v.slice(1, -1)) || []
   const parameters = activeExample.value.parameters[props.paramKey]
 
   const paramMap = new Map(parameters.map((param) => [param.key, param]))
