@@ -18,8 +18,6 @@ const specification = await fs
     return ''
   })
 
-console.log(JSON.stringify(specification, null, 3))
-
 // Create the server instance
 const app = await createMockServer({
   specification,
