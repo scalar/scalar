@@ -633,7 +633,7 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       zod:
-        specifier: ^3.22.4
+        specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
@@ -1743,9 +1743,15 @@ importers:
 
   packages/oas-utils:
     dependencies:
+      '@hyperjump/json-schema':
+        specifier: ^1.9.6
+        version: 1.9.8(@hyperjump/browser@1.1.6)
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
+      '@scalar/openapi-types':
+        specifier: workspace:*
+        version: link:../openapi-types
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1759,7 +1765,7 @@ importers:
         specifier: ^2.4.5
         version: 2.4.5
       zod:
-        specifier: ^3.22.4
+        specifier: ^3.23.8
         version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
@@ -1768,9 +1774,6 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
-      '@scalar/openapi-types':
-        specifier: workspace:*
-        version: link:../openapi-types
       rollup:
         specifier: ^4.16.4
         version: 4.18.0
@@ -4468,6 +4471,24 @@ packages:
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
+
+  '@hyperjump/browser@1.1.6':
+    resolution: {integrity: sha512-i27uPV7SxK1GOn7TLTRxTorxchYa5ur9JHgtl6TxZ1MHuyb9ROAnXxEeu4q4H1836Xb7lL2PGPsaa5Jl3p+R6g==}
+    engines: {node: '>=18.0.0'}
+
+  '@hyperjump/json-pointer@1.1.0':
+    resolution: {integrity: sha512-tFCKxMKDKK3VEdtUA3EBOS9GmSOS4mbrTjh9v3RnK10BphDMOb6+bxTh++/ae1AyfHyWb6R54O/iaoAtPMZPCg==}
+
+  '@hyperjump/json-schema@1.9.8':
+    resolution: {integrity: sha512-qmdMpYn8CpYR7z3fxkL6fgkDvMaAEFKtmYu3XDi6hWW2BT+rLl7T4Y4QpafEIR4wkcmCxcJf9me9FmxKpv3i9g==}
+    peerDependencies:
+      '@hyperjump/browser': ^1.1.0
+
+  '@hyperjump/pact@1.3.0':
+    resolution: {integrity: sha512-/UIKatOtyZ3kN4A7AQmqZKzg/6es9jKyeWbfrenb2rDb3I9W4ZrVZT8q1zDrI/G+849I6Eq0ybzV1mmEC9zoDg==}
+
+  '@hyperjump/uri@1.2.2':
+    resolution: {integrity: sha512-Zn8AZb/j54KKUCckmcOzKCSCKpIpMVBc60zYaajD8Dq/1g4UN6TfAFi+uDa5o/6rf+I+5xDZjZpdzwfuhlC0xQ==}
 
   '@internationalized/date@3.5.4':
     resolution: {integrity: sha512-qoVJVro+O0rBaw+8HPjUB1iH8Ihf8oziEnqMnvhJUSuVIrHOuZ6eNLHNvzXJKUvAtaDiqMnRlg8Z2mgh09BlUw==}
@@ -11439,6 +11460,10 @@ packages:
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
 
+  json-stringify-deterministic@1.0.12:
+    resolution: {integrity: sha512-q3PN0lbUdv0pmurkBNdJH3pfFvOTL/Zp0lquqpvcjfKzt6Y0j49EPHAmVHCAS4Ceq/Y+PejWTzyiVpoY71+D6g==}
+    engines: {node: '>= 4'}
+
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
 
@@ -11476,6 +11501,9 @@ packages:
 
   just-clone@6.2.0:
     resolution: {integrity: sha512-1IynUYEc/HAwxhi3WDpIpxJbZpMCvvrrmZVqvj9EhpvbH8lls7HhdhiByjL7DkAaWlLIzpC0Xc/VPvy/UxLNjA==}
+
+  just-curry-it@5.3.0:
+    resolution: {integrity: sha512-silMIRiFjUWlfaDhkgSzpuAyQ6EX/o09Eu8ZBfmFwQMbax7+LQzeIU2CBrICT6Ne4l86ITCGvUCBpCubWYy0Yw==}
 
   just-diff@6.0.2:
     resolution: {integrity: sha512-S59eriX5u3/QhMNq3v/gm8Kd0w8OS6Tz2FS1NG4blv+z0MuQcBRJyFWjdovM0Rad4/P4aUPFtnkNjMjyMlMSYA==}
@@ -20701,6 +20729,32 @@ snapshots:
   '@humanwhocodes/momoa@2.0.4': {}
 
   '@humanwhocodes/object-schema@2.0.3': {}
+
+  '@hyperjump/browser@1.1.6':
+    dependencies:
+      '@hyperjump/json-pointer': 1.1.0
+      '@hyperjump/uri': 1.2.2
+      content-type: 1.0.5
+      just-curry-it: 5.3.0
+
+  '@hyperjump/json-pointer@1.1.0': {}
+
+  '@hyperjump/json-schema@1.9.8(@hyperjump/browser@1.1.6)':
+    dependencies:
+      '@hyperjump/browser': 1.1.6
+      '@hyperjump/json-pointer': 1.1.0
+      '@hyperjump/pact': 1.3.0
+      '@hyperjump/uri': 1.2.2
+      content-type: 1.0.5
+      json-stringify-deterministic: 1.0.12
+      just-curry-it: 5.3.0
+      uuid: 9.0.1
+
+  '@hyperjump/pact@1.3.0':
+    dependencies:
+      just-curry-it: 5.3.0
+
+  '@hyperjump/uri@1.2.2': {}
 
   '@internationalized/date@3.5.4':
     dependencies:
@@ -30845,6 +30899,8 @@ snapshots:
 
   json-stable-stringify-without-jsonify@1.0.1: {}
 
+  json-stringify-deterministic@1.0.12: {}
+
   json-stringify-safe@5.0.1:
     optional: true
 
@@ -30881,6 +30937,8 @@ snapshots:
       promise: 7.3.1
 
   just-clone@6.2.0: {}
+
+  just-curry-it@5.3.0: {}
 
   just-diff@6.0.2: {}
 

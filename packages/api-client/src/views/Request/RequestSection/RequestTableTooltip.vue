@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon, ScalarTooltip } from '@scalar/components'
-import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{ item: RequestExampleParameter }>()

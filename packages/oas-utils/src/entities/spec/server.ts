@@ -1,5 +1,7 @@
 import { deepMerge } from '@scalar/object-utils/merge'
-import { z } from 'zod'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import { nanoid } from 'nanoid'
+import { type ZodSchema, z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 
@@ -8,14 +10,15 @@ import { nanoidSchema } from '../shared'
  * An object representing a Server Variable for server URL template substitution.
  *
  * @see https://spec.openapis.org/oas/v3.1.0#server-variable-object
+ *
+ * NOTE: Typecase is required to handle enum string array type
  */
-const serverVariableSchema = z.object({
-  uid: nanoidSchema,
+export const oasServerVariableSchema = z.object({
   /**
    * An enumeration of string values to be used if the substitution options are from a limited set.
    * The array MUST NOT be empty.
    */
-  enum: z.array(z.string()).optional(),
+  enum: z.string().array().min(1).optional(),
   /**
    * REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied.
    * Note this behavior is different than the Schema Object’s treatment of default values, because in those cases
@@ -26,34 +29,29 @@ const serverVariableSchema = z.object({
   description: z.string().optional(),
   /** An optional value for the server variable */
   value: z.string().optional(),
-})
+}) as ZodSchema<
+  Omit<OpenAPIV3_1.ServerVariableObject, 'enum'> & {
+    enum?: [string, ...string[]]
+  }
+>
 
-const serverSchema = z.object({
-  uid: nanoidSchema,
+export const oasServerSchema = z.object({
   /**
    * REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that
    * the host location is relative to the location where the OpenAPI document is being served. Variable substitutions
    * will be made when a variable is named in {brackets}.
    */
-  url: z.string().optional().default(''),
+  url: z.string().optional(),
   /**
    * An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text
    * representation.
    */
   description: z.string().optional(),
   /** A map between a variable name and its value. The value is used for substitution in the server’s URL template. */
-  variables: z.record(z.string(), serverVariableSchema).nullable().optional(),
+  variables: z.record(z.string(), oasServerVariableSchema).optional(),
+}) satisfies ZodSchema<OpenAPIV3_1.ServerObject>
+
+export const serverSchema = oasServerSchema.extend({
+  uid: nanoidSchema.default(nanoid),
 })
-
-/**
- * Server object
- * An object representing a Server.
- *
- * @see https://spec.openapis.org/oas/v3.1.0#server-object
- */
 export type Server = z.infer<typeof serverSchema>
-export type ServerPayload = z.input<typeof serverSchema>
-
-/** Create server helper */
-export const createServer = (payload: ServerPayload) =>
-  deepMerge(serverSchema.parse({}), payload as Partial<Server>)

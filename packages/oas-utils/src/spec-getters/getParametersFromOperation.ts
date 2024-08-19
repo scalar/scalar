@@ -11,7 +11,7 @@ import { getExampleFromSchema } from './getExampleFromSchema'
  * - Swagger 2.0: Possible values are "query", "header", "path", "formData" or "body".
  */
 export function getParametersFromOperation(
-  operation: TransformedOperation,
+  operation: Omit<TransformedOperation, 'httpVerb'>,
   where: 'query' | 'header' | 'path' | 'cookie' | 'formData' | 'body',
   requiredOnly: boolean = true,
 ): BaseParameter[] {
@@ -41,11 +41,11 @@ export function getParametersFromOperation(
     }))
 
   return params.sort((a, b) => {
-    if (a.required && !b.required) {
-      return -1 // Move a up if a is required and b is not
-    } else if (!a.required && b.required) {
-      return 1 // Move b up if b is required and a is not
-    }
-    return 0 // Keep original order if both have the same required status
+    // Move a up if a is required and b is not
+    if (a.required && !b.required) return -1
+    // Move b up if b is required and a is not
+    if (!a.required && b.required) return 1
+    // Keep original order if both have the same required status
+    return 0
   })
 }

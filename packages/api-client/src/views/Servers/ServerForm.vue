@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import type { Server } from '@scalar/oas-utils/entities/workspace/server'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'

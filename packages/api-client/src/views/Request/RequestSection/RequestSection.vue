@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import RequestAuth from '@/views/Request/RequestSection/RequestAuth.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'

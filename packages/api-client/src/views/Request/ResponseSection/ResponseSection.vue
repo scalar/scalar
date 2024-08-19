@@ -6,7 +6,7 @@ import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
 import ResponseCookies from './ResponseCookies.vue'

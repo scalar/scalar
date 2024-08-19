@@ -7,7 +7,6 @@ describe('getParametersFromOperation', () => {
   it('operation query parameters', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'GET',
         path: '/foobar',
         information: {
           parameters: [
@@ -33,7 +32,6 @@ describe('getParametersFromOperation', () => {
   it('path query parameters', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'GET',
         path: '/foobar',
         pathParameters: [
           {
@@ -57,7 +55,6 @@ describe('getParametersFromOperation', () => {
   it('path + operation query parameters', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'GET',
         path: '/foobar',
         operationId: 'foobar',
         name: 'foobar',
@@ -97,7 +94,6 @@ describe('getParametersFromOperation', () => {
   it('parameters with `required` and `description`', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'POST',
         path: '/foobar',
         pathParameters: [
           {
@@ -134,7 +130,6 @@ describe('getParametersFromOperation', () => {
   it('parameters use example', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'POST',
         path: '/foobar',
         information: {
           parameters: [
@@ -164,7 +159,6 @@ describe('getParametersFromOperation', () => {
   it('path parameters', () => {
     const request = getParametersFromOperation(
       {
-        httpVerb: 'POST',
         path: '/pet/{petId}',
         information: {
           parameters: [
