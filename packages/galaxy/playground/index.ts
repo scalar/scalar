@@ -2,8 +2,8 @@ import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
 import fs from 'node:fs'
 
-const specification = fs.readFileSync('../src/specifications/3.1.yaml', 'utf-8')
-console.log(typeof specification)
+const specification = fs.readFileSync('./dist/3.1.yaml', 'utf-8')
+
 const port = process.env.PORT || 5052
 
 // Create the server instance

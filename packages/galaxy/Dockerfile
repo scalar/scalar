@@ -3,6 +3,7 @@ FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
 ENV BUILD_PLAYGROUND=1
+ENV SPEC_PATH='../3.1.yaml'
 
 # Build the package with the BUILD_PLAYGROUND flag set
 RUN pnpm --filter @scalar/galaxy build
@@ -20,6 +21,7 @@ RUN chown node:node /app
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/mock-server /app/packages/mock-server
+COPY --from=builder /app/packages/oas-utils /app/packages/oas-utils
 COPY --from=builder /app/packages/galaxy /app/packages/galaxy
 WORKDIR /app/packages/galaxy
 
