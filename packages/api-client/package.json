@@ -147,7 +147,7 @@
     "vue": "^3.4.29",
     "vue-router": "^4.3.0",
     "whatwg-mimetype": "^4.0.0",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

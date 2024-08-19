@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'

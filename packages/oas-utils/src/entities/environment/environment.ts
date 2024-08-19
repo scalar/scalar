@@ -1,4 +1,4 @@
-import { deepMerge } from '@scalar/object-utils/merge'
+import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -8,8 +8,8 @@ const parsed = z.object({
   value: z.string(),
 })
 
-const environmentSchema = z.object({
-  uid: nanoidSchema,
+export const environmentSchema = z.object({
+  uid: nanoidSchema.default(nanoid()),
   name: z.string().optional().default('Default Environment'),
   color: z.string().optional().default('blue'),
   raw: z
@@ -23,7 +23,3 @@ const environmentSchema = z.object({
 /** Environment */
 export type Environment = z.infer<typeof environmentSchema>
 export type EnvironmentPayload = z.input<typeof environmentSchema>
-
-/** Create environment helper */
-export const createEnvironment = (payload: EnvironmentPayload) =>
-  deepMerge(environmentSchema.parse({}), payload)

@@ -4,7 +4,7 @@ import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebar
 import { useSidebar } from '@/hooks'
 import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarContextMenu,
@@ -19,12 +19,12 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
+  Collection,
   Request,
   RequestExample,
-} from '@scalar/oas-utils/entities/workspace/spec'
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -44,9 +44,9 @@ const props = withDefaults(
      * @default false
      */
     isDroppable?: DraggableProps['isDroppable']
-    /** Both inidicate the level and provide a way to traverse upwards */
+    /** Both indicate the level and provide a way to traverse upwards */
     parentUids: string[]
-    item: Collection | Folder | Request | RequestExample
+    item: Collection | Tag | Request | RequestExample
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -60,17 +60,50 @@ defineSlots<{
   leftIcon(): void
 }>()
 
+type Item = typeof props.item
+
+function isCollection(item: Item): item is Collection {
+  return 'info' in item
+}
+function isRequest(item: Item): item is Request {
+  return 'examples' in item
+}
+function isExample(item: Item): item is RequestExample {
+  return 'requestUid' in item
+}
+function isTag(item: Item): item is Tag {
+  return 'x-scalar-children' in item
+}
+
+/** Execute a different action depending on the entity type we are dealing with */
+function actionPerType<T>(
+  item: Item,
+  method: {
+    collection: (item: Collection) => T
+    request: (item: Request) => T
+    example: (item: RequestExample) => T
+    tag: (item: Tag) => T
+  },
+) {
+  if (isCollection(item)) return method.collection(item)
+  if (isRequest(item)) return method.request(item)
+  if (isExample(item)) return method.example(item)
+  if (isTag(item)) return method.tag(item)
+
+  throw Error('INVALID ENTITY IN SIDEBAR')
+}
+
 const {
   activeRequest,
   activeRouterParams,
   activeWorkspace,
   collections,
-  folders,
+  tags,
   isReadOnly,
   requests,
   requestExamples,
   collectionMutators,
-  folderMutators,
+  tagMutators,
   requestMutators,
   requestExampleMutators,
   router,
@@ -79,8 +112,6 @@ const { replace } = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 const hasChildren = computed(() => 'childUids' in props.item)
-const isCollection = computed(() => 'spec' in props.item)
-const isRequest = computed(() => 'summary' in props.item)
 
 const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
@@ -96,25 +127,21 @@ const paddingOffset = computed(() => {
   else return `${props.parentUids.length * 12}px`
 })
 
-const getTitle = (item: (typeof props)['item']) => {
-  // Collection
-  if ('spec' in item) return item.spec.info?.title
-  // Request
-  else if ('summary' in item) return item.summary || item.path
-  // Folder/Example
-  else if ('name' in item) return item.name
-
-  return ''
-}
+const getTitle = (item: Item) =>
+  actionPerType(item, {
+    collection: (i) => i.info?.title,
+    request: (i) => i.summary ?? i.path,
+    example: (i) => i.name,
+    tag: (i) => i.name,
+  }) ?? ''
 
 /**
  * We either show the method or the parent request method
  */
 const method = computed(() => {
-  const _request = (
-    'requestUid' in props.item ? requests[props.item.requestUid] : props.item
-  ) as Request
-  return _request.method
+  if (isExample(props.item)) return requests[props.item.requestUid]?.method
+  if (isRequest(props.item)) return props.item.method
+  return undefined
 })
 
 /**
@@ -125,12 +152,12 @@ const showChildren = computed(
   () =>
     collapsedSidebarFolders[props.item.uid] ||
     (activeRequest.value?.uid === props.item.uid &&
-      (props.item as Request).childUids.length > 1),
+      (props.item as Request).examples.length > 1),
 )
 
 /** Generate the request OR example link */
 const generateLink = () =>
-  'requestUid' in props.item
+  isExample(props.item)
     ? `/workspace/${activeWorkspace.value.uid}/request/${props.item.requestUid}/examples/${props.item.uid}`
     : `/workspace/${activeWorkspace.value.uid}/request/${props.item.uid}`
 
@@ -186,22 +213,13 @@ const renameModal = useModal()
 const deleteModal = useModal()
 
 const handleItemRename = () => {
-  // Request
-  if ('summary' in props.item) {
-    requestMutators.edit(props.item.uid, 'summary', tempName.value)
-  }
-  // Example
-  else if ('requestUid' in props.item) {
-    requestExampleMutators.edit(props.item.uid, 'name', tempName.value)
-  }
-  // Collection
-  else if ('spec' in props.item) {
-    collectionMutators.edit(props.item.uid, 'spec.info.title', tempName.value)
-  }
-  // Folder
-  else {
-    folderMutators.edit(props.item.uid, 'name', tempName.value)
-  }
+  actionPerType(props.item, {
+    collection: (i) =>
+      collectionMutators.edit(i.uid, 'info.title', tempName.value),
+    request: (i) => requestMutators.edit(i.uid, 'summary', tempName.value),
+    example: (i) => requestExampleMutators.edit(i.uid, 'name', tempName.value),
+    tag: (i) => tagMutators.edit(i.uid, 'name', tempName.value),
+  })
 
   renameModal.hide()
 }
@@ -212,51 +230,53 @@ const openRenameModal = () => {
 }
 
 /** Delete handles both requests and requestExamples */
-const handleItemDelete = () => {
-  // Delete example
-  if ('requestUid' in props.item) {
-    requestExampleMutators.delete(props.item)
-    if (activeRouterParams.value[PathId.Examples] === props.item.uid) {
-      replace(`/workspace/${activeWorkspace.value}/request/default`)
-    }
-  }
-  // Delete request
-  else if ('summary' in props.item) {
-    requestMutators.delete(
-      props.item,
-      props.parentUids[props.parentUids.length - 1],
-    )
-    if (activeRouterParams.value[PathId.Request] === props.item.uid) {
-      replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
-    }
-  }
-  // Delete Collection
-  else if ('spec' in props.item) {
-    collectionMutators.delete(props.item)
-  }
-  // Delete folder
-  else if ('name' in props.item) {
-    folderMutators.delete(
-      props.item,
-      props.parentUids[props.parentUids.length - 1],
-    )
-  }
-}
+const handleItemDelete = () =>
+  actionPerType(props.item, {
+    collection: (i) => collectionMutators.delete(i),
+    request: (i) => {
+      requestMutators.delete(i, props.parentUids[props.parentUids.length - 1])
+      if (activeRouterParams.value[PathId.Request] === i.uid) {
+        replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+      }
+    },
+    example: (i) => {
+      requestExampleMutators.delete(i)
+      if (activeRouterParams.value[PathId.Examples] === i.uid) {
+        replace(`/workspace/${activeWorkspace.value}/request/default`)
+      }
+    },
+    tag: (i) => tagMutators.delete(i.uid),
+  })
 
-const itemName = computed(() => {
-  if ('summary' in props.item) return props.item.summary || ''
-  if ('name' in props.item) return props.item.name || ''
-  if ('spec' in props.item) return props.item.spec.info?.title || ''
-  return ''
-})
+const itemName = computed(
+  () =>
+    actionPerType(props.item, {
+      collection: (i) => i.info?.title,
+      request: (i) => i.summary,
+      example: (i) => i.name,
+      tag: (i) => i.name,
+    }) ?? '',
+)
 
 /** Gets the title of the resource to use in the modal titles */
-const resourceTitle = computed(() => {
-  if ('requestUid' in props.item) return 'Example'
-  if ('summary' in props.item) return 'Request'
-  if ('spec' in props.item) return 'Collection'
-  return 'Folder'
-})
+const resourceTitle = computed(() =>
+  actionPerType(props.item, {
+    collection: () => 'Collection',
+    request: () => 'Request',
+    example: () => 'Example',
+    tag: () => 'Tag',
+  }),
+)
+
+const children = computed(
+  () => () =>
+    actionPerType(props.item, {
+      collection: (i) => i.children,
+      request: (i) => i.examples,
+      example: () => [],
+      tag: (i) => i.children,
+    }) ?? [],
+)
 
 const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
   if (event) {
@@ -329,6 +349,7 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
                 <span class="flex items-start">
                   &hairsp;
                   <HttpMethod
+                    v-if="method"
                     class="font-bold"
                     :method="method" />
                 </span>
@@ -351,7 +372,7 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
       <ScalarContextMenu
         v-else-if="!isReadOnly || parentUids.length"
         :disabled="
-          isReadOnly || (item as Collection).spec?.info?.title === 'Drafts'
+          isReadOnly || (item as Collection)?.info?.title === 'Drafts'
         ">
         >
         <template #trigger>
@@ -389,7 +410,7 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
                 <RequestSidebarItemMenu
                   v-if="
                     !isReadOnly &&
-                    (item as Collection).spec?.info?.title !== 'Drafts'
+                    (item as Collection)?.info?.title !== 'Drafts'
                   "
                   :item="item"
                   :parentUids="parentUids"
@@ -403,9 +424,7 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
         </template>
         <template #content>
           <RequestSidebarItemMenu
-            v-if="
-              !isReadOnly && (item as Collection).spec?.info?.title !== 'Drafts'
-            "
+            v-if="!isReadOnly && (item as Collection)?.info?.title !== 'Drafts'"
             :item="item"
             :parentUids="parentUids"
             :resourceTitle="resourceTitle"
@@ -421,11 +440,11 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
         v-show="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
-          v-for="uid in isRequest ? item.childUids.slice(1) : item.childUids"
+          v-for="uid in children"
           :key="uid"
           :isDraggable="!requestExamples[uid]"
           :isDroppable="_isDroppable"
-          :item="folders[uid] || requests[uid] || requestExamples[uid]"
+          :item="tags[uid] || requests[uid] || requestExamples[uid]"
           :parentUids="[...parentUids, item.uid]"
           @newTab="(name, uid) => $emit('newTab', name, uid)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />

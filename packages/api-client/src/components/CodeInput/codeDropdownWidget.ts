@@ -18,14 +18,14 @@ class DropdownWidget extends WidgetType {
   private onSelect: (item: string) => void
   private dropdown: any = null
   private withServers?: boolean
-  private activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  private activeEnvVariables: WorkspaceStore['activeEnvVariables']
   private environments: WorkspaceStore['environments']
   private router: Router
 
   constructor(
     queryTerm: string,
     onSelect: (item: string) => void,
-    activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments'],
+    activeEnvVariables: WorkspaceStore['activeEnvVariables'],
     environments: WorkspaceStore['environments'],
     router: Router,
     withServers?: boolean,
@@ -34,7 +34,7 @@ class DropdownWidget extends WidgetType {
     this.queryTerm = queryTerm
     this.onSelect = onSelect
     this.withServers = withServers
-    this.activeParsedEnvironments = activeParsedEnvironments
+    this.activeEnvVariables = activeEnvVariables
     this.environments = environments
     this.router = router
   }
@@ -68,7 +68,7 @@ class DropdownWidget extends WidgetType {
                   query: this.queryTerm,
                   onSelect: this.onSelect,
                   withServers: this.withServers,
-                  activeParsedEnvironments: this.activeParsedEnvironments,
+                  activeEnvVariables: this.activeEnvVariables,
                   environments: this.environments,
                   router: this.router,
                   style: {
@@ -102,7 +102,7 @@ class DropdownWidget extends WidgetType {
 
 export const dropdownPlugin = (props: {
   withServers?: boolean
-  activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  activeEnvVariables: WorkspaceStore['activeEnvVariables']
   environments: WorkspaceStore['environments']
   router: Router
 }) =>
@@ -141,7 +141,7 @@ export const dropdownPlugin = (props: {
         this.widget = new DropdownWidget(
           newQueryTerm,
           this.handleDropdownSelect,
-          props.activeParsedEnvironments,
+          props.activeEnvVariables,
           props.environments,
           props.router,
           props.withServers,
@@ -174,7 +174,7 @@ export const dropdownPlugin = (props: {
             this.widget = new DropdownWidget(
               queryTerm,
               this.handleDropdownSelect,
-              props.activeParsedEnvironments,
+              props.activeEnvVariables,
               props.environments,
               props.router,
             )

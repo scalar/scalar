@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { formatMs } from '@/libs/formatters'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'

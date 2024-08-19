@@ -1,15 +1,13 @@
-import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@scalar/object-utils/merge'
-import { z } from 'zod'
-
-import { securityRequirement } from '../security'
+import { nanoidSchema } from '@/entities/shared'
+import { nanoid } from 'nanoid'
+import { nan, z } from 'zod'
 
 /**
  * License information for the exposed API.
  *
  * @see https://spec.openapis.org/oas/latest.html#license-object
  */
-const licenseSchema = z.object({
+export const oasLicenseSchema = z.object({
   /** REQUIRED. The license name used for the API. */
   name: z.string().optional().default('name'),
   /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
@@ -27,7 +25,7 @@ const licenseSchema = z.object({
  *
  * @see https://spec.openapis.org/oas/latest.html#contact-object
  */
-const contactSchema = z.object({
+export const oasContactSchema = z.object({
   /** The identifying name of the contact person/organization. */
   name: z.string().optional(),
   /** The URL pointing to the contact information. This MUST be in the form of a URL. */
@@ -43,9 +41,9 @@ const contactSchema = z.object({
  *
  * @see https://spec.openapis.org/oas/latest.html#info-object
  */
-const infoSchema = z.object({
+export const oasInfoSchema = z.object({
   /** REQUIRED. The title of the API. */
-  title: z.string().optional().default('default'),
+  title: z.string().optional().default('OpenAPI Spec'),
   /** A short summary of the API. */
   summary: z.string().optional(),
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
@@ -53,9 +51,9 @@ const infoSchema = z.object({
   /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
   termsOfService: z.string().optional(),
   /** The contact information for the exposed API. */
-  contact: contactSchema.optional(),
+  contact: oasContactSchema.optional(),
   /** The license information for the exposed API. */
-  license: licenseSchema.optional(),
+  license: oasLicenseSchema.optional(),
   /**
    * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
    * Specification version or the API implementation version).
@@ -69,13 +67,21 @@ const infoSchema = z.object({
  *
  * @see https://spec.openapis.org/oas/latest.html#external-documentation-object
  */
-const exteralDocumentationSchema = z.object({
+export const oasExternalDocumentationSchema = z.object({
   /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
   /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
   url: z.string().default(''),
 })
-export type ExternalDocumentation = z.infer<typeof exteralDocumentationSchema>
+export type ExternalDocumentation = z.infer<
+  typeof oasExternalDocumentationSchema
+>
+
+export const xScalarNestedSchema = z
+  .object({
+    tagName: z.string(),
+  })
+  .array()
 
 /**
  * Tag
@@ -84,58 +90,19 @@ export type ExternalDocumentation = z.infer<typeof exteralDocumentationSchema>
  *
  * @see https://spec.openapis.org/oas/latest.html#tag-object
  */
-const tagSchema = z.object({
+export const oasTagSchema = z.object({
   /** REQUIRED. The name of the tag. */
-  name: z.string().optional().default('default'),
+  'name': z.string().optional().default('default'),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
-  description: z.string().optional(),
+  'description': z.string().optional(),
   /** Additional external documentation for this tag. */
-  externalDocs: exteralDocumentationSchema.optional(),
+  'externalDocs': oasExternalDocumentationSchema.optional(),
+  'x-scalar-children': xScalarNestedSchema.default([]),
 })
 
-const specSchema = z.object({
-  openapi: z
-    .union([z.string(), z.literal('3.1.0'), z.literal('4.0.0')])
-    .optional()
-    .default('3.1.0'),
-  /**
-   * A declaration of which security mechanisms can be used across the API. The list of
-   * values includes alternative security requirement objects that can be used. Only
-   * one of the security requirement objects need to be satisfied to authorize a request.
-   * Individual operations can override this definition. To make security optional, an empty
-   * security requirement ({}) can be included in the array.
-   */
-  security: z.array(securityRequirement).optional().default([]),
-  /** OAS info */
-  info: infoSchema.optional(),
-  /** Uids which refer to servers on the workspace base */
-  serverUids: z.array(z.string()).default([]),
-  /** OAS Tags */
-  tags: z.array(tagSchema).default([]),
-  externalDocs: exteralDocumentationSchema.optional(),
+export const tagSchema = oasTagSchema.extend({
+  uid: nanoidSchema.default(nanoid()),
+  children: nanoidSchema.array().default([]),
 })
 
-const collectionSchema = z.object({
-  uid: nanoidSchema,
-  spec: specSchema.optional().default({}),
-  /** A dictionary which maps the openapi spec name keys to the security-scheme UID's for lookup */
-  securitySchemeDict: z.record(z.string(), z.string()).optional().default({}),
-  /** The currently selected server */
-  selectedServerUid: z.string().default(''),
-  /**  List of uids that correspond to collection requests or folders */
-  childUids: z.array(z.string()).default([]),
-})
-
-/**
- * A collection must be able to map 1:1 with an OAS 3.1 spec file
- *
- * Collections will have two modes of display:
- * - Standard: Ordered by tag similar to ApiReference Sidebar
- * - Folder: Ordered into arbitrary folders. See x-scalar-folder.yaml
- */
-export type Collection = z.infer<typeof collectionSchema>
-export type CollectionPayload = z.input<typeof collectionSchema>
-
-/** Create Collction helper */
-export const createCollection = (payload: CollectionPayload): Collection =>
-  deepMerge(collectionSchema.parse({}), payload as Partial<Collection>)
+export type Tag = z.infer<typeof tagSchema>
