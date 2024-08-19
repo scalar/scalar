@@ -51,6 +51,7 @@ onMounted(() => {
       <input
         id="requestimport"
         ref="importInput"
+        v-model="specUrl"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         label="Paste Swagger File URL"
         placeholder="Paste Swagger File URL"
