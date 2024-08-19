@@ -11,7 +11,7 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 
 import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 
 const props = withDefaults(
   defineProps<{
@@ -58,7 +58,7 @@ const isFocused = ref(false)
 
 const {
   activeWorkspace,
-  activeParsedEnvironments,
+  activeEnvVariables,
   isReadOnly,
   environments,
   router,
@@ -101,16 +101,15 @@ if (props.withVariables && !activeWorkspace.value.isReadOnly) {
   extensions.push(
     dropdownPlugin({
       withServers: props.withServers,
-      activeParsedEnvironments,
+      activeEnvVariables,
       environments,
       router,
     }),
   )
 }
-extensions.push(
-  pillPlugin({ environments, activeParsedEnvironments, isReadOnly }),
-  backspaceCommand,
-)
+extensions.push(pillPlugin({ environments, activeEnvVariables, isReadOnly }))
+extensions.push(backspaceCommand)
+
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({

@@ -1,12 +1,26 @@
-import { securityRequirement } from '@/entities/workspace/security'
-import { nanoidSchema } from '@/entities/workspace/shared'
-import { REQUEST_METHODS, type RequestMethod } from '@/helpers'
-import { deepMerge } from '@scalar/object-utils/merge'
+import { nanoidSchema } from '@/entities/shared'
+import { oasExternalDocumentationSchema } from '@/entities/spec/spec-objects'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { nanoid } from 'nanoid'
 import { type ZodSchema, z } from 'zod'
 
-import { $refSchema } from './refs'
+import { oasParameterSchema } from './parameters'
 import type { RequestExample } from './request-examples'
+import { oasSecurityRequirementSchema } from './security'
+
+export const requestMethods = [
+  'connect',
+  'delete',
+  'get',
+  'head',
+  'options',
+  'patch',
+  'post',
+  'put',
+  'trace',
+] as const
+
+export type RequestMethod = (typeof requestMethods)[number]
 
 /** A single set of populated values for a sent request */
 export type ResponseInstance = Omit<Response, 'headers'> & {
@@ -27,20 +41,12 @@ export type RequestEvent = {
   timestamp: number
 }
 
-// TODO fill out body
+// TODO: Type body definitions
 type RequestBody = object
 const requestBodySchema = z.any() satisfies ZodSchema<RequestBody>
 
-const parametersSchema = z.record(z.string(), z.any())
-
-export const requestSchema = z.object({
-  path: z.string().optional().default(''),
-  method: z
-    .enum(Object.keys(REQUEST_METHODS) as [RequestMethod])
-    .optional()
-    .default('GET'),
-  uid: nanoidSchema,
-  ref: $refSchema.nullable().default(null),
+/** Open API Compliant Request Validator */
+export const oasRequestSchema = z.object({
   /**
    * A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
@@ -56,14 +62,6 @@ export const requestSchema = z.object({
    * operation, therefore, it is RECOMMENDED to follow bin common programming naming conventions./
    */
   operationId: z.string().optional(),
-  parameters: z
-    .object({
-      path: parametersSchema,
-      query: parametersSchema,
-      headers: parametersSchema,
-      cookies: parametersSchema,
-    })
-    .default({ path: {}, query: {}, headers: {}, cookies: {} }),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
@@ -71,11 +69,7 @@ export const requestSchema = z.object({
    * Individual operations can override this definition. To make security optional, an empty
    * security requirement ({}) can be included in the array.
    */
-  security: z.array(securityRequirement).optional(),
-  /** Security schemes which have been created specifically for this request */
-  securitySchemeUids: z.array(nanoidSchema).optional().default([]),
-  /** The currently selected security schemes at the request level */
-  selectedSecuritySchemeUids: z.array(nanoidSchema).default([]),
+  security: z.array(oasSecurityRequirementSchema).optional(),
   /**
    * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
    * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the
@@ -83,23 +77,40 @@ export const requestSchema = z.object({
    * semantics and SHOULD be avoided if possible.
    */
   requestBody: requestBodySchema.optional(),
-  /** Ordered exampleUids for the sidenav */
-  childUids: nanoidSchema.array().default([]),
-  history: z.any().array().default([]),
-})
+  /**
+   * Request parameters
+   */
+  parameters: oasParameterSchema.array(),
+  /**
+   * External documentation object
+   */
+  externalDocs: oasExternalDocumentationSchema.optional(),
+  deprecated: z.boolean().optional(),
+  /** Response formats */
+  responses: z.record(z.string(), z.any()).optional(),
+}) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
 
 /**
- * Each operation in an OpenAPI file will correspond with a single request
+ * Extended properties added to the spec definition for client usage
  *
- * @see https://spec.openapis.org/oas/v3.1.0#operation-object
+ * WARNING: DO NOT ADD PROPERTIES THAT SHARE A NAME WITH OAS OPERATION ENTITIES
+ *
+ * This object is directly converted to a spec operation during saving
  */
-export type Request = z.infer<typeof requestSchema> & {
-  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-}
-export type RequestPayload = z.input<typeof requestSchema> & {
-  externalDocs?: OpenAPIV3_1.ExternalDocumentationObject
-}
+const extendedRequestSchema = z.object({
+  uid: nanoidSchema.default(nanoid()),
+  /** Path Key */
+  path: z.string(),
+  /** Request Method */
+  method: z.enum(requestMethods),
+  /** List of server UIDs specific to the request */
+  servers: nanoidSchema.array().default([]),
+  /** List of example UIDs associated with the request */
+  examples: nanoidSchema.array().default([]),
+  /** List of security scheme UIDs associated with the request */
+  security: nanoidSchema.array().default([]),
+})
 
-/** Create request helper */
-export const createRequest = (payload: RequestPayload) =>
-  deepMerge(requestSchema.parse({}), payload as Partial<Request>)
+/** Unified request schema for client usage */
+export const requestSchema = oasRequestSchema.merge(extendedRequestSchema)
+export type Request = z.infer<typeof requestSchema>

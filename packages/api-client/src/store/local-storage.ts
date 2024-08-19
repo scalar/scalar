@@ -3,7 +3,7 @@ export const LS_KEYS = {
   COLLECTION: 'collection',
   COOKIE: 'cookie',
   ENVIRONMENT: 'environment',
-  FOLDER: 'folder',
+  TAG: 'tag',
   REQUEST_EXAMPLE: 'requestExample',
   REQUEST: 'request',
   SERVER: 'server',

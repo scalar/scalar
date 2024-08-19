@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
   type RequestExample,
   createRequestExampleParameter,
-} from '@scalar/oas-utils/entities/workspace/spec'
+} from '@scalar/oas-utils/entities/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
