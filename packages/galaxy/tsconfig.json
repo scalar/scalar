@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.json",
+  "exclude": ["tests"],
   "compilerOptions": {
-    "types": ["vitest/globals", "@modyfi/vite-plugin-yaml/modules"]
-  },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts"]
+    "types": ["vite/client"]
+  }
 }
