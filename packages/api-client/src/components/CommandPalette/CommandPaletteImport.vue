@@ -2,6 +2,7 @@
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
@@ -10,6 +11,7 @@ const emits = defineEmits<{
 
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const specUrl = ref('')
+const { toast } = useToasts()
 
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: async (files) => {
@@ -18,9 +20,14 @@ const { open: openSpecFileDialog } = useFileDialog({
       const reader = new FileReader()
       reader.onload = async (e) => {
         const text = e.target?.result as string
-        importSpecFile(text, activeWorkspace.value.uid)
-        handleSubmit()
-        emits('close')
+        try {
+          await importSpecFile(text, activeWorkspace.value.uid)
+          toast('Import successful', 'info')
+          emits('close')
+        } catch (error) {
+          const errorMessage = (error as Error)?.message || 'Unknown error'
+          toast(`Import failed: ${errorMessage}`, 'error')
+        }
       }
       reader.readAsText(file)
     }
@@ -31,8 +38,15 @@ const { open: openSpecFileDialog } = useFileDialog({
 
 const handleSubmit = async () => {
   if (specUrl.value) {
-    await importSpecFromUrl(specUrl.value)
-    emits('close')
+    try {
+      await importSpecFromUrl(specUrl.value)
+      toast('Import successful', 'info')
+      emits('close')
+    } catch (error) {
+      console.error('the error ', error)
+      const errorMessage = (error as Error)?.message || 'Unknown error'
+      toast(`Import failed: ${errorMessage}`, 'error')
+    }
   }
 }
 

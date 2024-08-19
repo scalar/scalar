@@ -958,12 +958,8 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     proxy?: string,
     overloadServers?: Spec['servers'],
   ) {
-    try {
-      const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(spec, undefined, overloadServers)
-    } catch (error) {
-      console.error('Failed to fetch spec from URL:', error)
-    }
+    const spec = await fetchSpecFromUrl(url, proxy)
+    await importSpecFile(spec, undefined, overloadServers)
   }
 
   /** Helper function to manage the sidebar width */
