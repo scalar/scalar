@@ -1,12 +1,4 @@
-import { HTTPSnippet } from 'httpsnippet-lite'
-
-import type {
-  ClientId,
-  HarRequest,
-  Request,
-  SnippetTargetId,
-  TargetId,
-} from './core'
+import type { ClientId, Request, TargetId } from './core'
 import { fetch as jsFetch } from './plugins/js/fetch'
 import { ofetch as jsOFetch } from './plugins/js/ofetch'
 import { fetch as nodeFetch } from './plugins/node/fetch'
@@ -61,17 +53,4 @@ export function snippetz() {
       return Boolean(this.findPlugin(target as TargetId, client as ClientId))
     },
   }
-}
-
-export async function convert(
-  request: Partial<HarRequest>,
-  target: string,
-  client?: string,
-) {
-  const snippet = new HTTPSnippet(request as HarRequest)
-
-  // https://www.npmjs.com/package/httpsnippet-lite#snippetconverttargetid-string-clientid-string-options-t
-  // snippet.convert(targetId: string, clientId?: string, options?: T)
-  // ERROR: convert method is looking for Client not ClientId
-  return (await snippet.convert(target as SnippetTargetId)) as string
 }
