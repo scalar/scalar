@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { normalize, resolveReferences } from '../../../src'
-import specification from './specification.json'
+import specification from './one-file-reference.json'
 
 // Single-file schema with internal $refs
 describe.todo('one-file', () => {

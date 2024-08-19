@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { normalize, resolveReferences } from '../../../src'
-import specification from './specification.json'
+import specification from './ancestor-reference.json'
 
 // Circular $refs to ancestor
 describe.todo('ancestor', () => {
