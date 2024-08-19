@@ -869,11 +869,13 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       securityRequirements: Record<string, string[]>[],
       request: Request,
     ) => {
-      const firstKey = Object.keys(securityRequirements[0])?.[0]
-      if (!firstKey) return
+      const firstRequirement = Object.keys(securityRequirements[0])
+      if (!firstRequirement.length) return
 
-      const uid = collection.securitySchemeDict[firstKey]
-      requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', [uid])
+      const uids = firstRequirement.map(
+        (key) => collection.securitySchemeDict[key],
+      )
+      requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', uids)
     }
 
     // Security Schemes, we need to set some failsafes from the parsed spec
