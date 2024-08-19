@@ -1,5 +1,5 @@
 <script lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'

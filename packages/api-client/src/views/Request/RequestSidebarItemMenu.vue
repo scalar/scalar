@@ -6,18 +6,18 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
+  Collection,
   Request,
   RequestExample,
-} from '@scalar/oas-utils/entities/workspace/spec'
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     /** Both inidicate the level and provide a way to traverse upwards */
-    item: Collection | Folder | Request | RequestExample
+    item: Collection | Tag | Request | RequestExample
     resourceTitle: string
     static?: boolean
   }>(),

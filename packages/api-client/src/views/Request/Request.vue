@@ -20,7 +20,7 @@ import {
   commandPaletteBus,
   hotKeyBus,
 } from '@/libs/event-busses'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import {
@@ -231,8 +231,8 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   if (!draggingParentUid) {
     workspaceMutators.edit(
       activeWorkspace.value.uid,
-      'collectionUids',
-      activeWorkspace.value.collectionUids.filter((uid) => uid !== draggingUid),
+      'collections',
+      activeWorkspace.value.collections.filter((uid) => uid !== draggingUid),
     )
   }
   // Parent is collection
@@ -261,14 +261,14 @@ const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   }
   // Special case for collections
   else if (!hoveredParentUid) {
-    const newChildUids = [...activeWorkspace.value.collectionUids]
+    const newChildUids = [...activeWorkspace.value.collections]
     const hoveredIndex =
       newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
     newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
 
     workspaceMutators.edit(
       activeWorkspace.value.uid,
-      'collectionUids',
+      'collections',
       newChildUids,
     )
   }

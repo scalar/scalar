@@ -2,7 +2,7 @@ import {
   type RequestExample,
   type RequestExampleParameter,
   createRequestExampleParameter,
-} from '@scalar/oas-utils/entities/workspace/spec'
+} from '@scalar/oas-utils/entities/spec'
 import type { Path } from '@scalar/object-utils/nested'
 
 /**

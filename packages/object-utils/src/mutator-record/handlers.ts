@@ -4,7 +4,7 @@ import { useDebounceFn } from '@vueuse/core'
 import { parse, stringify } from 'flatted'
 import type { ValueOf } from 'type-fest'
 
-import { LS_CONFIG, type LS_KEYS } from './local-storage'
+import { LS_CONFIG } from './local-storage'
 
 const MAX_MUTATION_RECORDS = 500
 
@@ -14,7 +14,7 @@ export function mutationFactory<
 >(
   entityMap: Partial<Record<string, T>>,
   mutationMap: Partial<Record<string, Mutation<T>>>,
-  localStorageKey?: ValueOf<typeof LS_KEYS> | false,
+  localStorageKey?: string | false,
   maxNumberRecords: number = MAX_MUTATION_RECORDS,
 ) {
   function getMutator(uid: string) {
@@ -107,3 +107,7 @@ export function mutationFactory<
     loadLocalStorage,
   }
 }
+
+export type Mutators<T extends object & { uid: string }> = ReturnType<
+  typeof mutationFactory<T>
+>

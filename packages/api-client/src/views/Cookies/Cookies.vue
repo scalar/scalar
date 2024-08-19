@@ -7,13 +7,9 @@ import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
-import {
-  type Cookie,
-  createCookie,
-} from '@scalar/oas-utils/entities/workspace/cookie'
-import { nanoid } from 'nanoid'
+import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -27,8 +23,7 @@ const router = useRouter()
 const addCookieHandler = () => {
   const cookieIndex = Object.keys(cookies).length
 
-  const cookie = createCookie({
-    uid: nanoid(),
+  const cookie = cookieSchema.parse({
     name: `Cookie ${cookieIndex}`,
     value: '',
     domain: 'example.com',

@@ -1,19 +1,19 @@
 import { ERRORS } from '@/errors'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { textMediaTypes } from '@/views/Request/consts'
-import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Request,
   RequestExample,
   RequestExampleParameter,
   ResponseInstance,
-} from '@scalar/oas-utils/entities/workspace/spec'
+} from '@scalar/oas-utils/entities/spec'
 import {
   isValidUrl,
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
+import type { SecurityScheme } from '@scalar/oas-utils/spec'
 import axios, {
   type AxiosError,
   type AxiosRequestConfig,

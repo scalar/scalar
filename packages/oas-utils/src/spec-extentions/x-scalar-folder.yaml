@@ -2,65 +2,28 @@ openapi: 3.1.0
 info:
   title: Folders
   version: 1.0.0
+tags:
+  - name: my-tag
+    description: 'My tag description'
+  - name: my-nested-tag
+    description: 'My nested tag description'
+  - name: my-second-nested-tag
+    description: 'My second nested tag description'
+    x-scalar-nested:
+      - tagName: my-nested-tag
 paths:
   '/foobar':
     get:
       summary: 'GET /foobar'
+      tags:
+        - tagName: my-nested-tag
     post:
       operationId: the-post
       summary: 'POST /foobar'
+      tags:
+        - tagName: my-second-nested-tag
     delete:
       operationId: delete-post
       summary: 'POST /foobar'
-x-scalar-folder:
-  description: 'Scalar extension to support folder based organization'
-  children:
-    - $ref: '#/components/x-scalar-folders/my-folder'
-    - operationRef: '#/paths/~1foobar/post' # Need an operation ref or paths
-      icon: 'some-icon-name' # Optional additional properties for folder items
-      color: '#fff' # Optional additional property
-      type: operation
-    - operationId: the-post
-    - name: Directly defined folder
-      children:
-        - operationId: delete-post
-components:
-  x-scalar-folders:
-    my-folder:
-      name: Basics Folder
-      children:
-        - $ref: '#/components/x-scalar-folders/nested-folder'
-    nested-folder:
-      name: Nested Folder
-      children:
-        - operationId: delete-post
-  # JSON Schema for the extension
-  extension-types:
-    operationById:
-      type: object
-      properties:
-        operationId:
-          type: string
-      required:
-        - operationId
-    operationByRef:
-      type: object
-      properties:
-        operationRef:
-          type: string
-      required:
-        - operationRef
-    folder:
-      type: object
-      properties:
-      name:
-        type: string
-      children:
-        type: array
-        items:
-          anyOf:
-            - $ref: '#/components/types/operationById'
-            - $ref: '#/components/types/operationByRef'
-            - $ref: '#/components/types/folder'
-      required:
-        - children
+      tags:
+        - tagName: my-tag

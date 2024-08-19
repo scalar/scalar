@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarContextMenu,

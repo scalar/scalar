@@ -1,10 +1,10 @@
-import { deepMerge } from '@scalar/object-utils/merge'
+import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 
-const cookieSchema = z.object({
-  uid: nanoidSchema,
+export const cookieSchema = z.object({
+  uid: nanoidSchema.default(nanoid()),
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string().default('Default Cookie'),
   value: z.string().default('Default Value'),
@@ -51,7 +51,3 @@ const cookieSchema = z.object({
  */
 export type Cookie = z.infer<typeof cookieSchema>
 export type CookiePayload = z.input<typeof cookieSchema>
-
-/** Create cookie helper */
-export const createCookie = (payload: CookiePayload) =>
-  deepMerge(cookieSchema.parse({}), payload)

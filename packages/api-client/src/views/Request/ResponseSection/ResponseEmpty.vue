@@ -3,7 +3,7 @@ import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { executeRequestBus } from '@/libs'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 
 const { isReadOnly, activeWorkspace } = useWorkspace()
 </script>
