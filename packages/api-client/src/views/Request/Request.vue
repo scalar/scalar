@@ -31,6 +31,10 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
 
+const emits = defineEmits<{
+  (e: 'newTab', item: { name: string; uid: string }): void
+}>()
+
 const {
   activeExample,
   activeRequest,
@@ -283,6 +287,10 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
 
   return true
 }
+
+const newTab = (name: string, uid: string) => {
+  emits('newTab', { name, uid })
+}
 </script>
 <template>
   <div
@@ -380,6 +388,7 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
                 :isDroppable="_isDroppable"
                 :item="collection"
                 :parentUids="[]"
+                @newTab="newTab"
                 @onDragEnd="onDragEnd">
                 <template #leftIcon>
                   <ScalarIcon
