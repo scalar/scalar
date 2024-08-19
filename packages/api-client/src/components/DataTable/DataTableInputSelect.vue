@@ -85,9 +85,8 @@ watch(addingCustomValue, (newValue) => {
           class="gap-1.5 font-normal h-full justify-start px-2 py-1.5"
           fullWidth
           variant="ghost">
-          <span>{{ selected || 'Select a value' }}</span>
+          <span class="text-c-1">{{ selected || 'Select a value' }}</span>
           <ScalarIcon
-            v-if="!selected"
             icon="ChevronDown"
             size="xs" />
         </ScalarButton>
