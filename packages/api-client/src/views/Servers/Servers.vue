@@ -6,7 +6,7 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { createServer } from '@scalar/oas-utils/entities/workspace/server'
 import { useRouter } from 'vue-router'
 

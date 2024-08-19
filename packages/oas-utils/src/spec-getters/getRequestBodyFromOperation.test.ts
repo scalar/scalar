@@ -5,7 +5,6 @@ import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 describe('getRequestBodyFromOperation', () => {
   it('creates a JSON body from a requestBody schema', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -30,7 +29,7 @@ describe('getRequestBodyFromOperation', () => {
       id: 1,
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -38,7 +37,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('ignores charset in mimetypes', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -63,7 +61,7 @@ describe('getRequestBodyFromOperation', () => {
       id: 1,
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -71,7 +69,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('creates a JSON body from body parameters', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         parameters: [
@@ -97,7 +94,7 @@ describe('getRequestBodyFromOperation', () => {
       id: 1,
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -105,7 +102,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('uses example', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -133,7 +129,7 @@ describe('getRequestBodyFromOperation', () => {
       },
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -141,7 +137,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('uses examples', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -175,7 +170,7 @@ describe('getRequestBodyFromOperation', () => {
       },
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -183,7 +178,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('creates key-value pair examples from object schema', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -237,7 +231,7 @@ describe('getRequestBodyFromOperation', () => {
       recordObject: {},
     }
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/json',
       text: JSON.stringify(expectedResult, null, 2),
     })
@@ -245,7 +239,6 @@ describe('getRequestBodyFromOperation', () => {
 
   it('adds parameters from a requestBody schema', () => {
     const request = getRequestBodyFromOperation({
-      httpVerb: 'POST',
       path: '/foobar',
       information: {
         requestBody: {
@@ -270,7 +263,7 @@ describe('getRequestBodyFromOperation', () => {
       },
     })
 
-    expect(request?.postData).toMatchObject({
+    expect(request?.body).toMatchObject({
       mimeType: 'application/x-www-form-urlencoded',
       params: [
         {

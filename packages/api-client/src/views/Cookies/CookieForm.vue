@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { computed } from 'vue'
 
 const { cookies, activeCookieId, cookieMutators } = useWorkspace()

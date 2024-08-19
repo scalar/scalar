@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   type ModalState,
   ScalarModal,
@@ -8,7 +8,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, ref, watch } from 'vue'

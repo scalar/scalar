@@ -2,16 +2,14 @@
  * @vitest-environment jsdom
  */
 import {
-  type ServerPayload,
-  createServer,
-} from '@scalar/oas-utils/entities/workspace/server'
-import {
   type RequestExamplePayload,
   type RequestPayload,
+  type ServerPayload,
   createRequest,
   createRequestExample,
   createRequestExampleParameter,
-} from '@scalar/oas-utils/entities/workspace/spec'
+  createServer,
+} from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { sendRequest } from './sendRequest'

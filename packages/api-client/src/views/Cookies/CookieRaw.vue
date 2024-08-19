@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 
 const { cookies, activeCookieId } = useWorkspace()
 </script>

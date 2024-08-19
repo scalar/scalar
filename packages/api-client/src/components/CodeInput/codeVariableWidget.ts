@@ -33,25 +33,25 @@ const getEnvColor = (
   return `bg-grey`
 }
 
-type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
+type ActiveParsedEnvironments = WorkspaceStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
 class PillWidget extends WidgetType {
   private app: any
   environments: Record<string, Environment>
-  activeParsedEnvironments: ActiveParsedEnvironments
+  activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
     environments: Record<string, Environment>,
-    activeParsedEnvironments: ActiveParsedEnvironments,
+    activeEnvVariables: ActiveParsedEnvironments,
     isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
     this.environments = environments
-    this.activeParsedEnvironments = activeParsedEnvironments
+    this.activeEnvVariables = activeEnvVariables
     this.isReadOnly = isReadOnly
   }
 
@@ -63,7 +63,7 @@ class PillWidget extends WidgetType {
     const tooltipComponent = defineComponent({
       props: { variableName: { type: String, default: null } },
       render: () => {
-        const val = this.activeParsedEnvironments.value.find(
+        const val = this.activeEnvVariables.value.find(
           (thing) => thing.key === this.variableName,
         )
         if (val) {
@@ -143,7 +143,7 @@ class PillWidget extends WidgetType {
 
 export const pillPlugin = (props: {
   environments: Record<string, Environment>
-  activeParsedEnvironments: ActiveParsedEnvironments
+  activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
@@ -179,7 +179,7 @@ export const pillPlugin = (props: {
                 widget: new PillWidget(
                   variableName,
                   props.environments,
-                  props.activeParsedEnvironments,
+                  props.activeEnvVariables,
                   props.isReadOnly,
                 ),
                 side: 1,

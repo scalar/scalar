@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import HelpfulLink from '@/components/HelpfulLink.vue'
 import { requestStatusBus } from '@/libs'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils/helpers'
 import prettyBytes from 'pretty-bytes'
 import prettyMilliseconds from 'pretty-ms'

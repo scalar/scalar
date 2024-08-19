@@ -5,7 +5,7 @@ import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import type { RequestExampleParameter } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'

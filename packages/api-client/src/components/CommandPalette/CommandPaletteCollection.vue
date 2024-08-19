@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarButton } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'

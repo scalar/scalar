@@ -11,7 +11,7 @@ import type { Router } from 'vue-router'
 
 const props = defineProps<{
   query: string
-  activeParsedEnvironments: WorkspaceStore['activeParsedEnvironments']
+  activeEnvVariables: WorkspaceStore['activeEnvVariables']
   environments: WorkspaceStore['environments']
   router: Router
   // withServers?: boolean
@@ -31,7 +31,7 @@ const redirectToEnvironment = () => {
 
 const { push, currentRoute } = props.router
 
-const fuse = new Fuse(props.activeParsedEnvironments.value, {
+const fuse = new Fuse(props.activeEnvVariables.value, {
   keys: ['key', 'value'],
 })
 
@@ -40,7 +40,7 @@ const filteredVariables = computed(() => {
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return props.activeParsedEnvironments.value.slice(-4)
+    return props.activeEnvVariables.value.slice(-4)
   }
 
   /** filter environment variables by name */

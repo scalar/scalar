@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
-import type { RequestExample } from '@scalar/oas-utils/entities/workspace/spec'
+import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { computed, watch } from 'vue'
 
 const props = defineProps<{

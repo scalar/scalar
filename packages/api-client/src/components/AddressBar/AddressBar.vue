@@ -6,7 +6,7 @@ import {
   hotKeyBus,
   requestStatusBus,
 } from '@/libs'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'

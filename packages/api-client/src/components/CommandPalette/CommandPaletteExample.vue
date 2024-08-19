@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'

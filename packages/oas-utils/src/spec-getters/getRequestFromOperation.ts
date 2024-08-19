@@ -64,12 +64,11 @@ export const getRequestFromOperation = (
   return {
     method: operation.httpVerb.toUpperCase(),
     path,
+    postData: requestBody?.body,
     headers: [
       ...getParametersFromOperation(operation, 'header', options?.requiredOnly),
       ...(requestBody?.headers ?? []),
     ] as Header[],
-    // @ts-expect-error Sorry, something is off here and I don’t get it.
-    postData: requestBody?.postData,
     queryString: getParametersFromOperation(
       operation,
       'query',

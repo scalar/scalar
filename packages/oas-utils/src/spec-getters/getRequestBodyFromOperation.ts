@@ -29,29 +29,43 @@ function getParamsFromObject(
     return [{ name: newKey, value }]
   })
 }
+// Define all supported mime types
+const mimeTypes = [
+  'application/json',
+  'application/octet-stream',
+  'application/x-www-form-urlencoded',
+  'application/xml',
+  'multipart/form-data',
+  'text/plain',
+] as const
 
 /**
  * Get the request body from the operation.
  */
 export function getRequestBodyFromOperation(
-  operation: TransformedOperation,
+  operation: Omit<TransformedOperation, 'httpVerb'>,
   selectedExampleKey?: string | number,
-) {
-  // Define all supported mime types
-  const mimeTypes: ContentType[] = [
-    'application/json',
-    'application/octet-stream',
-    'application/x-www-form-urlencoded',
-    'application/xml',
-    'multipart/form-data',
-    'text/plain',
-  ]
-
+): {
+  headers?: { name: string; value: string }[]
+  body?: {
+    mimeType: (typeof mimeTypes)[number]
+    text?: string
+    params?: {
+      name: string
+      value?: string
+    }[]
+  }
+} | null {
   // Get the content object from the operation
   const originalContent = operation.information?.requestBody?.content
   const content = normalizeMimeTypeObject(originalContent)
 
-  // Find the first mime type that is supported
+  /**
+   *  Find the first mime type that is supported
+   *
+   * TODO: This is very fragile. There needs to be significantly more support for
+   * vendor specific content types (like application/vnd.github+json)
+   */
   const mimeType: ContentType | undefined = mimeTypes.find(
     (currentMimeType: ContentType) => !!content?.[currentMimeType],
   )
@@ -66,7 +80,7 @@ export function getRequestBodyFromOperation(
 
   if (selectedExample) {
     return {
-      postData: {
+      body: {
         mimeType: 'application/json',
         text: prettyPrintJson(selectedExample?.value),
       },
@@ -85,7 +99,7 @@ export function getRequestBodyFromOperation(
 
   if (bodyParameters.length > 0) {
     return {
-      postData: {
+      body: {
         mimeType: 'application/json',
         text: prettyPrintJson(bodyParameters[0].value),
       },
@@ -117,11 +131,20 @@ export function getRequestBodyFromOperation(
 
   if (formDataParameters.length > 0) {
     return {
-      postData: {
+      body: {
         mimeType: 'application/x-www-form-urlencoded',
         params: formDataParameters.map((parameter) => ({
           name: parameter.name,
-          value: parameter.value,
+          /**
+           * TODO: This value MUST be a string
+           * Figure out why this is not always a string
+           *
+           * JSON.stringify is a TEMPORARY fix
+           */
+          value:
+            typeof parameter.value === 'string'
+              ? parameter.value
+              : JSON.stringify(parameter.value),
         })),
       },
     }
@@ -129,9 +152,7 @@ export function getRequestBodyFromOperation(
 
   // If no mime type is supported, exit early
   if (!mimeType) {
-    return {
-      postData: undefined,
-    }
+    return null
   }
 
   // Get the request body object for the mime type
@@ -163,7 +184,7 @@ export function getRequestBodyFromOperation(
 
     return {
       headers,
-      postData: {
+      body: {
         mimeType: mimeType,
         text: typeof body === 'string' ? body : JSON.stringify(body, null, 2),
       },
@@ -182,7 +203,7 @@ export function getRequestBodyFromOperation(
 
     return {
       headers,
-      postData: {
+      body: {
         mimeType: mimeType,
         text: example ?? json2xml(exampleFromSchema, '  '),
       },
@@ -193,7 +214,7 @@ export function getRequestBodyFromOperation(
   if (mimeType === 'application/octet-stream') {
     return {
       headers,
-      postData: {
+      body: {
         mimeType: mimeType,
         text: 'BINARY',
       },
@@ -212,7 +233,7 @@ export function getRequestBodyFromOperation(
 
     return {
       headers,
-      postData: {
+      body: {
         mimeType: mimeType,
         text: example ?? exampleFromSchema ?? '',
       },
@@ -234,12 +255,12 @@ export function getRequestBodyFromOperation(
 
     return {
       headers,
-      postData: {
+      body: {
         mimeType: mimeType,
         params: getParamsFromObject(example ?? exampleFromSchema ?? {}),
       },
     }
   }
 
-  return undefined
+  return null
 }

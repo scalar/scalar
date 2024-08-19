@@ -1,0 +1,45 @@
+import type { RouterPathParams } from '@/store/router-params'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/security'
+import type {
+  Collection,
+  Request,
+  RequestExample,
+  Server,
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import type { Mutators } from '@scalar/object-utils/mutator-record'
+import type { ComputedRef } from 'vue'
+
+export type StoreContext = {
+  routerParams: ComputedRef<RouterPathParams>
+  //
+  collections: Record<string, Collection>
+  collectionMutators: Mutators<Collection>
+  //
+  tags: Record<string, Tag>
+  tagMutators: Mutators<Tag>
+  //
+  requests: Record<string, Request>
+  requestMutators: Mutators<Request>
+  //
+  requestExamples: Record<string, RequestExample>
+  requestExampleMutators: Mutators<RequestExample>
+  //
+  cookies: Record<string, Cookie>
+  cookieMutators: Mutators<Cookie>
+  //
+  environments: Record<string, Environment>
+  environmentMutators: Mutators<Environment>
+  //
+  servers: Record<string, Server>
+  serverMutators: Mutators<Server>
+  //
+  securitySchemes: Record<string, SecurityScheme>
+  securitySchemeMutators: Mutators<SecurityScheme>
+  //
+  workspaces: Record<string, Workspace>
+  workspaceMutators: Mutators<Workspace>
+}

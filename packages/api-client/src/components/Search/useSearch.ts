@@ -1,5 +1,5 @@
-import { useWorkspace } from '@/store/workspace'
-import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import { useWorkspace } from '@/store'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'

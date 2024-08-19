@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { ROUTES } from '@/constants'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
