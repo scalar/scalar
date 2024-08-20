@@ -50,13 +50,13 @@ export const downloadFileSystem = async () => {
 
   const openapiDest = path.join(
     new URL(import.meta.url).pathname,
-    '../../../../openapi-parser/tests/filesystem/openapi.yaml',
+    '../../../../openapi-parser/tests/filesystem/api/openapi.yaml',
   )
   await downloadFile(bucketName, 'filesystem/api/openapi.yaml', openapiDest)
 
   const schemaProblemDest = path.join(
     new URL(import.meta.url).pathname,
-    '../../../../openapi-parser/tests/filesystem/schemas/problem.yaml',
+    '../../../../openapi-parser/tests/filesystem/api/schemas/problem.yaml',
   )
   await downloadFile(
     bucketName,
@@ -66,7 +66,7 @@ export const downloadFileSystem = async () => {
 
   const schemaUploadDest = path.join(
     new URL(import.meta.url).pathname,
-    '../../../../openapi-parser/tests/filesystem/schemas/upload.yaml',
+    '../../../../openapi-parser/tests/filesystem/api/schemas/upload.yaml',
   )
   await downloadFile(
     bucketName,
@@ -76,7 +76,7 @@ export const downloadFileSystem = async () => {
 
   const schemaCoordsDest = path.join(
     new URL(import.meta.url).pathname,
-    '../../../../openapi-parser/tests/filesystem/schemas/components/coordinates.yaml',
+    '../../../../openapi-parser/tests/filesystem/api/schemas/components/coordinates.yaml',
   )
   await downloadFile(
     bucketName,

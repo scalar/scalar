@@ -107,7 +107,7 @@ describe('load', async () => {
   it('loads referenced files in files', async () => {
     const filesystemPath = path.join(
       new URL(import.meta.url).pathname,
-      '../../../../tests/filesystem/openapi.yaml',
+      '../../../../tests/filesystem/api/openapi.yaml',
     )
 
     await downloadFileSystem()
