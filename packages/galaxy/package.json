@@ -49,6 +49,7 @@
   "devDependencies": {
     "@hono/node-server": "^1.11.0",
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "^0.7.2",
     "vite": "^5.2.10"

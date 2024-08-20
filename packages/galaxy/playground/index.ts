@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server'
+import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import fs from 'node:fs'
 
@@ -13,6 +14,17 @@ const app = await createMockServer({
     console.log(`${context.req.method} ${context.req.url}`)
   },
 })
+
+// Load the middleware
+app.get(
+  '/',
+  apiReference({
+    spec: {
+      content: specification,
+    },
+    pageTitle: 'Scalar Galaxy Spec',
+  }),
+)
 
 // Start the server
 serve(

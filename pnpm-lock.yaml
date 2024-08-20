@@ -1521,6 +1521,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      '@scalar/hono-api-reference':
+        specifier: workspace:*
+        version: link:../hono-api-reference
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server

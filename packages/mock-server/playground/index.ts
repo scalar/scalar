@@ -10,7 +10,7 @@ const port = process.env.PORT || 5052
  * We do not want a circular depedency as galaxy uses mock server for its playground
  */
 const specification = await fs
-  .readFile('../galaxy/dist/latest.json', 'utf8')
+  .readFile('dist/latest.json', 'utf8')
   .catch((err) => {
     console.error(
       'MISSING GALAXY SPEC FOR PLAYGROUND. PLEASE BUILD @scalar/galaxy',
