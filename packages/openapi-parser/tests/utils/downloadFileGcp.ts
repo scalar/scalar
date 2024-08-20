@@ -23,3 +23,23 @@ export const downloadFileToMemory = async (
 
   return ''
 }
+
+export const downloadFile = async (
+  bucketName: string,
+  fileName: string,
+  destFileName: string,
+) => {
+  // Create a client
+  const storage = new Storage()
+  try {
+    // Download the file
+    await storage
+      .bucket(bucketName)
+      .file(fileName)
+      .download({ destination: destFileName })
+
+    console.log(`File ${fileName} downloaded to ${destFileName} successfully!`)
+  } catch (error) {
+    console.error('Error downloading the file:', error)
+  }
+}

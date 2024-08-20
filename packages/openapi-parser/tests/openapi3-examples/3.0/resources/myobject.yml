@@ -1,9 +1,0 @@
-resource:
-  SomeObject:
-    name: SomeObject #Intentionally invalid
-    type: object #Intentionally Invalid
-    properties:
-      Id:
-        type: string
-        format: uuid
-        example: 'd2014f64-ffdf-487b-8d12-67a20976aca6'

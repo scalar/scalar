@@ -1,11 +1,22 @@
 import { describe, expect, it } from 'vitest'
 
 import { validate } from '../../../../../src'
-import edit1 from './edit1.json'
-import openApiVue from './openapi.json'
+import { downloadFileToMemory } from '../../../../utils/downloadFileGcp'
+
+// import edit1 from './edit1.json'
+// import openApiVue from './openapi.json'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) =>
+  `openapi3-examples/3.0/fail/openapi-vue/${filename}`
 
 describe('openapi-vue', () => {
   it('openapi', async () => {
+    const openApiVue = await downloadFileToMemory(
+      bucketName,
+      filePath('openapi.json'),
+    )
+
     const result = await validate(openApiVue)
 
     // TODO: SwaggerUI has a more helpful error message:
@@ -20,6 +31,7 @@ describe('openapi-vue', () => {
   })
 
   it('edit1', async () => {
+    const edit1 = await downloadFileToMemory(bucketName, filePath('edit1.json'))
     const result = await validate(edit1)
 
     // TODO: SwaggerUI has a more helpful error message:
