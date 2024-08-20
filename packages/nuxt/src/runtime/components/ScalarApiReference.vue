@@ -4,11 +4,20 @@ import { ModernLayout, parse } from '@scalar/api-reference'
 import { reactive, ref, toRaw } from 'vue'
 import type { Configuration } from '~/src/types'
 
-import './nuxt-theme.css'
-
 const props = defineProps<{
   configuration: Configuration
 }>()
+
+if (props.configuration.theme === 'nuxt') {
+  useHead({
+    link: [
+      {
+        rel: 'stylesheet',
+        href: new URL('./nuxt-theme.css', import.meta.url).href,
+      },
+    ],
+  })
+}
 
 const isDark = ref(props.configuration.darkMode)
 
