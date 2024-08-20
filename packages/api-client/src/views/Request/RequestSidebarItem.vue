@@ -2,6 +2,7 @@
 import { HttpMethod } from '@/components/HttpMethod'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useSidebar } from '@/hooks'
+import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store/workspace'
 import {
@@ -257,11 +258,15 @@ const resourceTitle = computed(() => {
   return 'Folder'
 })
 
-const handleNavigation = (event: MouseEvent, item: typeof props.item) => {
-  if (event.metaKey) {
-    emit('newTab', getTitle(item) || '', item.uid)
-  } else {
-    router.push(generateLink())
+const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
+  if (event) {
+    const modifier = getModifiers(['default'])
+    const isModifierPressed = modifier.some((key) => event[key])
+    if (isModifierPressed) {
+      emit('newTab', getTitle(item) || '', item.uid)
+    } else {
+      router.push(generateLink())
+    }
   }
 }
 </script>
@@ -290,7 +295,9 @@ const handleNavigation = (event: MouseEvent, item: typeof props.item) => {
         v-slot="{ isExactActive }"
         class="no-underline"
         :to="generateLink()"
-        @click.prevent="(event: MouseEvent) => handleNavigation(event, item)">
+        @click.prevent="
+          (event: KeyboardEvent) => handleNavigation(event, item)
+        ">
         <ScalarContextMenu :disabled="isReadOnly">
           <template #trigger>
             <div
