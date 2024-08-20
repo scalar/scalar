@@ -7,6 +7,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { load } from '.'
+import { downloadFileSystem } from '../../tests/utils/downloadFileGcp'
 import type { AnyObject } from '../types'
 import { readFiles } from './load/plugins/readFiles'
 import { resolveReferences } from './resolveReferences'
@@ -640,6 +641,7 @@ describe('resolveReferences', () => {
   })
 
   it('resolves from filesystem', async () => {
+    await downloadFileSystem()
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles()],
     })
