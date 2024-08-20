@@ -3,6 +3,7 @@ import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
+import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
@@ -70,7 +71,8 @@ const activeSection = ref<ActiveSections>('All')
           :response="response" />
       </div>
     </template>
-    <div class="custom-scroll flex flex-1 flex-col px-2 xl:px-6 py-2.5">
+    <div
+      class="custom-scroll relative flex flex-1 flex-col px-2 xl:px-6 py-2.5">
       <template v-if="!response">
         <ResponseEmpty />
       </template>
@@ -92,6 +94,7 @@ const activeSection = ref<ActiveSections>('All')
           :headers="responseHeaders"
           title="Body" />
       </template>
+      <ResponseLoadingOverlay />
     </div>
   </ViewLayoutSection>
 </template>
