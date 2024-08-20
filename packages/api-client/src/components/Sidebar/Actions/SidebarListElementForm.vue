@@ -34,7 +34,7 @@ const emit = defineEmits<{
         type="submit">
         <ScalarIcon
           class="inline-flex"
-          icon="Trash"
+          icon="Delete"
           size="sm"
           thickness="1.5" />
         {{ label ?? 'Submit' }}
