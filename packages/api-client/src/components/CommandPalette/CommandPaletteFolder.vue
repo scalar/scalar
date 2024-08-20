@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
@@ -11,6 +12,7 @@ const { activeWorkspaceCollections, folderMutators, activeCollection } =
   useWorkspace()
 const folderName = ref('')
 const selectedCollectionId = ref(activeCollection.value?.uid ?? '')
+const { toast } = useToasts()
 
 const availableCollections = computed(() =>
   activeWorkspaceCollections.value.map((collection) => ({
@@ -30,6 +32,10 @@ const selectedCollection = computed({
 })
 
 const handleSubmit = () => {
+  if (!folderName.value) {
+    toast('Please enter a name before creating a folder.', 'error')
+    return
+  }
   if (folderName.value && selectedCollection.value) {
     folderMutators.add(
       {
@@ -88,6 +94,7 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
+        :disabled="!folderName.trim()"
         @click="handleSubmit">
         Create Folder
       </ScalarButton>

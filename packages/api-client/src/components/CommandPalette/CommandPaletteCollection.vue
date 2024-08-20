@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton } from '@scalar/components'
+import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
@@ -9,8 +10,13 @@ const emits = defineEmits<{
 
 const { activeWorkspace, collectionMutators } = useWorkspace()
 const collectionName = ref('')
+const { toast } = useToasts()
 
 const handleSubmit = () => {
+  if (!collectionName.value) {
+    toast('Please enter a name before creating a collection.', 'error')
+    return
+  }
   collectionMutators.add(
     {
       spec: {
@@ -54,6 +60,7 @@ onMounted(() => {
       <div class="flex flex-1 gap-2 max-h-8"></div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
+        :disabled="!collectionName.trim()"
         @click="handleSubmit">
         Continue
       </ScalarButton>

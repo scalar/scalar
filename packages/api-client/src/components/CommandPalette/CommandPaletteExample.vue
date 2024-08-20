@@ -8,6 +8,7 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -28,6 +29,7 @@ const {
   requests,
   requestExampleMutators,
 } = useWorkspace()
+const { toast } = useToasts()
 
 const exampleName = ref('')
 const selectedRequest = ref(
@@ -44,6 +46,10 @@ onMounted(() => exampleInput.value?.focus())
 
 /** Add a new request example */
 const handleSubmit = () => {
+  if (!exampleName.value) {
+    toast('Please enter a name before creating an example.', 'error')
+    return
+  }
   const example = requestExampleMutators.add(
     selectedRequest.value,
     exampleName.value,
@@ -111,6 +117,7 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
+        :disabled="!exampleName.trim()"
         @click="handleSubmit">
         Create Example
       </ScalarButton>
