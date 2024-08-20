@@ -76,14 +76,14 @@ const availableCommands = [
         name: 'Create Workspace',
         icon: 'Workspace',
       },
-      {
-        name: 'Add Server',
-        icon: 'Brackets',
-        path: '/servers',
-      },
+      // {
+      //   name: 'Add Server',
+      //   icon: 'Server',
+      //   path: '/servers',
+      // },
       {
         name: 'Add Environment',
-        icon: 'Server',
+        icon: 'Brackets',
         path: '/environment',
       },
       {
