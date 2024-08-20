@@ -1,8 +1,14 @@
 import { serve } from '@hono/node-server'
+import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
-import fs from 'node:fs'
+import fs from 'fs/promises'
 
-const specification = fs.readFileSync('./dist/3.1.yaml', 'utf-8')
+const specification = await fs
+  .readFile('./src/specifications/3.1.yaml', 'utf-8')
+  .catch(() => {
+    console.error('MISSING GALAXY SPEC FOR PLAYGROUND')
+    return ''
+  })
 
 const port = process.env.PORT || 5052
 
@@ -13,6 +19,17 @@ const app = await createMockServer({
     console.log(`${context.req.method} ${context.req.url}`)
   },
 })
+
+// Load the middleware
+app.get(
+  '/',
+  apiReference({
+    spec: {
+      content: specification,
+    },
+    pageTitle: 'Scalar Galaxy Spec',
+  }),
+)
 
 // Start the server
 serve(

@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server'
+import { apiReference } from '@scalar/hono-api-reference'
 import fs from 'fs/promises'
 
 import { createMockServer } from '../src/createMockServer'
@@ -10,7 +11,7 @@ const port = process.env.PORT || 5052
  * We do not want a circular depedency as galaxy uses mock server for its playground
  */
 const specification = await fs
-  .readFile('../../galaxy/dist/latest.json')
+  .readFile('../galaxy/src/specifications/3.1.yaml', 'utf8')
   .catch(() => {
     console.error(
       'MISSING GALAXY SPEC FOR PLAYGROUND. PLEASE BUILD @scalar/galaxy',
@@ -25,6 +26,17 @@ const app = await createMockServer({
     console.log(`${context.req.method} ${context.req.url}`)
   },
 })
+
+// Load the middleware
+app.get(
+  '/',
+  apiReference({
+    spec: {
+      content: specification,
+    },
+    pageTitle: 'Scalar Galaxy Spec',
+  }),
+)
 
 // Start the server
 serve(
