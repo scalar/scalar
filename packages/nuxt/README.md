@@ -108,6 +108,17 @@ export default defineNuxtConfig({
 })
 ```
 
+For theme configuration, you can pass a `theme` property to the configuration object. The default theme is `nuxt`, but you can also pass `default` to use the default theme.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalar: {
+    theme: 'nuxt',
+  },
+})
+```
+
 ## Troubleshooting
 
 If you come across any `**** not default export` errors, its likely you are using `pnpm`.
