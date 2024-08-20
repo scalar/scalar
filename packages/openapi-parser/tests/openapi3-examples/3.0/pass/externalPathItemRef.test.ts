@@ -4,10 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { load, validate } from '../../../../src'
 import { readFiles } from '../../../../src/utils/load/plugins/readFiles'
-import {
-  downloadFile,
-  downloadFileToMemory,
-} from '../../../utils/downloadFileGcp'
+import { downloadFile } from '../../../utils/downloadFileGcp'
 
 const bucketName = 'test-specifications'
 const filePath = (filename: string) => `openapi3-examples/3.0/${filename}`
@@ -21,10 +18,6 @@ const INCLUDE_FILE = path.join(
   new URL(import.meta.url).pathname,
   '../../resources/include.yaml',
 )
-
-// TODO: load EXAMPLE_FILE from GCS
-
-// TODO: load include.yaml resource file to local file
 
 describe('externalPathItemRef', () => {
   it('passes', async () => {

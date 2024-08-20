@@ -1,8 +1,16 @@
 import { bench, describe, expect } from 'vitest'
 
-import specification from './examples/petstore.json'
+import { downloadFileToMemory } from '../utils/downloadFileGcp'
 import { resolveNew } from './utils/resolveNew'
 import { resolveOld } from './utils/resolveOld'
+
+const bucketName = 'test-specifications'
+const filePath = (filename: string) => `${filename}`
+
+const specification = (await downloadFileToMemory(
+  bucketName,
+  filePath('petstore.json'),
+)) as any
 
 describe('petstore', () => {
   bench('@apidevtools/swagger-parser', async () => {

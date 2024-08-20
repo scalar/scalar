@@ -1,4 +1,5 @@
 import { Storage } from '@google-cloud/storage'
+import path from 'node:path'
 
 // Function to download the GCP file to memory
 export const downloadFileToMemory = async (
@@ -42,4 +43,44 @@ export const downloadFile = async (
   } catch (error) {
     console.error('Error downloading the file:', error)
   }
+}
+
+export const downloadFileSystem = async () => {
+  const bucketName = 'test-specifications'
+
+  const openapiDest = path.join(
+    new URL(import.meta.url).pathname,
+    '../../../../openapi-parser/tests/filesystem/openapi.yaml',
+  )
+  await downloadFile(bucketName, 'filesystem/api/openapi.yaml', openapiDest)
+
+  const schemaProblemDest = path.join(
+    new URL(import.meta.url).pathname,
+    '../../../../openapi-parser/tests/filesystem/schemas/problem.yaml',
+  )
+  await downloadFile(
+    bucketName,
+    'filesystem/api/schemas/problem.yaml',
+    schemaProblemDest,
+  )
+
+  const schemaUploadDest = path.join(
+    new URL(import.meta.url).pathname,
+    '../../../../openapi-parser/tests/filesystem/schemas/upload.yaml',
+  )
+  await downloadFile(
+    bucketName,
+    'filesystem/api/schemas/upload.yaml',
+    schemaUploadDest,
+  )
+
+  const schemaCoordsDest = path.join(
+    new URL(import.meta.url).pathname,
+    '../../../../openapi-parser/tests/filesystem/schemas/components/coordinates.yaml',
+  )
+  await downloadFile(
+    bucketName,
+    'filesystem/api/schemas/components/coordinates.yaml',
+    schemaCoordsDest,
+  )
 }

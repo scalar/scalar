@@ -2,6 +2,7 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
+import { downloadFileSystem } from '../../../tests/utils/downloadFileGcp'
 import { getEntrypoint } from '../getEntrypoint'
 import { load } from './load'
 import { fetchUrls } from './plugins/fetchUrls'
@@ -104,12 +105,14 @@ describe('load', async () => {
   })
 
   it('loads referenced files in files', async () => {
-    const EXAMPLE_FILE = path.join(
+    const filesystemPath = path.join(
       new URL(import.meta.url).pathname,
-      '../../../../tests/filesystem/api/openapi.yaml',
+      '../../../../tests/filesystem/openapi.yaml',
     )
 
-    const { filesystem } = await load(EXAMPLE_FILE, {
+    await downloadFileSystem()
+
+    const { filesystem } = await load(filesystemPath, {
       plugins: [readFiles()],
     })
 
