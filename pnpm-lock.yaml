@@ -1769,6 +1769,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)

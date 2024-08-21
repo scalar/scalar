@@ -5,7 +5,7 @@ import { type JSDoc, type Node, getAllJSDocTags } from 'typescript'
  *
  * TODO:
  * - figure out how to narrow type using helpers
- * - take in array of types to check for
+ * - return all tags
  */
 export const getJSDocFromNode = (node: Node) => {
   // Set default values

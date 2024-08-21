@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/converter",
-  "description": " typescript types to openapi spec compliant json",
+  "name": "@scalar/openapi-converter",
+  "description": "Convert typescript types to openapi spec compliant json",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/converter"
+    "directory": "packages/openapi-converter"
   },
   "keywords": [
     "typescript",
@@ -24,6 +24,7 @@
     "build": "scalar-build-rollup",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -43,6 +44,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "fast-glob": "^3.3.2",
     "vitest": "^1.6.0"
   },
   "peerDependencies": {

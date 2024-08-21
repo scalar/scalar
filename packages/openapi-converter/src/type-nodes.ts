@@ -16,8 +16,10 @@ import {
   isUnionTypeNode,
 } from 'typescript'
 
+import type { FileNameResolver } from './types'
+
 /**
- * Traverse type nodes to create a schema file
+ * Traverse type nodes to create schemas
  *
  * TODO:
  * - lots
@@ -25,8 +27,7 @@ import {
 export const getSchemaFromTypeNode = (
   typeNode: TypeNode,
   program: Program,
-  /** Takes in two file names and returns a string which resolves to a path for the targetsFileName */
-  fileNameResolver: (sourceFileName: string, targetFileName: string) => string,
+  fileNameResolver: FileNameResolver,
 ): OpenAPIV3_1.SchemaObject => {
   // String
   if (SyntaxKind.StringKeyword === typeNode.kind)

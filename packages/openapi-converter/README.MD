@@ -9,5 +9,5 @@ This an extremely early version of a typescript type to OpenAPI spec converter. 
 would normally use when developing an API and convert them to an OpenAPI Spec which will then be used to power the
 standalone Scalar API References.
 
-This package is not meant to be used directly, but will be the core technology behind integrations starting with
-Next.js
+This package is not meant to be used directly, but will be the core technology behind framework specific integrations
+starting with Next.js.
