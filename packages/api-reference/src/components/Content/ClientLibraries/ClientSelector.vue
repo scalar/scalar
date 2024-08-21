@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { TargetId } from 'httpsnippet-lite'
+import type { SnippetTargetId } from '@scalar/snippetz/core'
 import { ref } from 'vue'
 
 import { type HttpClientState, useHttpClientStore } from '../../../stores'
@@ -54,7 +54,7 @@ const featuredClients = (
  * Icons have longer names to appear in icon searches, e.g. "javascript-js" instead of just "javascript". This function
  * maps the language key to the icon name.
  */
-const getIconByLanguageKey = (targetKey: TargetId) =>
+const getIconByLanguageKey = (targetKey: SnippetTargetId) =>
   `programming-language-${targetKey}` as const
 
 const isSelectedClient = (language: HttpClientState) => {

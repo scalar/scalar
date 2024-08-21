@@ -1,6 +1,9 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
+import {
+  type SnippetTargetId,
+  availableTargets as allTargets,
+} from '@scalar/snippetz/core'
 import type { HiddenClients } from '@scalar/types/legacy'
-import { type TargetId, availableTargets as allTargets } from 'httpsnippet-lite'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
 import type { AvailableTarget } from '../types'
@@ -121,7 +124,7 @@ const availableTargets = computed<AvailableTarget[]>(() => {
 })
 
 /** The selected HTTP client */
-export type HttpClientState = { targetKey: TargetId; clientKey: string }
+export type HttpClientState = { targetKey: SnippetTargetId; clientKey: string }
 
 const DEFAULT_EXCLUDED_CLIENTS = {
   node: ['unirest'],

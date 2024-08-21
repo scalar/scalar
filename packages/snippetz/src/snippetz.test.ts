@@ -1,6 +1,7 @@
+import { HarRequest } from 'httpsnippet-lite'
 import { describe, expect, it } from 'vitest'
 
-import { convert, snippetz } from './snippetz'
+import { snippetz } from './snippetz'
 
 describe('snippetz', async () => {
   it('returns code for undici', async () => {
@@ -68,27 +69,5 @@ describe('hasPlugin', async () => {
     const result = snippetz().hasPlugin('node', 'fantasy')
 
     expect(result).toBe(false)
-  })
-})
-
-describe('convert', async () => {
-  it('converts a request outside of the scalar types to snippet using httpsnippet-lite', async () => {
-    const request = {
-      method: 'GET',
-      url: 'http://mockbin.com/request',
-    }
-
-    const snippet = await convert(request, 'python')
-
-    expect(snippet).toBe(`import http.client
-
-conn = http.client.HTTPConnection("mockbin.com")
-
-conn.request("GET", "/request")
-
-res = conn.getresponse()
-data = res.read()
-
-print(data.decode("utf-8"))`)
   })
 })

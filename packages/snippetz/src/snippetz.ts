@@ -1,4 +1,6 @@
-import type { ClientId, Request, TargetId } from './core'
+import { HTTPSnippet, type TargetId as SnippetTarget } from 'httpsnippet-lite'
+
+import type { ClientId, HarRequest, Request, TargetId } from './core'
 import { fetch as jsFetch } from './plugins/js/fetch'
 import { ofetch as jsOFetch } from './plugins/js/ofetch'
 import { fetch as nodeFetch } from './plugins/node/fetch'
@@ -17,7 +19,6 @@ export function snippetz() {
       }
     },
     print(target: TargetId, client: ClientId, request: Partial<Request>) {
-      console.log('snippetz print: ', target, client, request)
       return this.get(target, client, request)?.code
     },
     targets() {
@@ -51,6 +52,19 @@ export function snippetz() {
     },
     hasPlugin(target: string, client: string) {
       return Boolean(this.findPlugin(target as TargetId, client as ClientId))
+    },
+    async convert(target: string, client: string, request: HarRequest) {
+      // Use httpsnippet-lite for other languages
+      try {
+        const snippet = new HTTPSnippet(request)
+        return (await snippet.convert(
+          target as SnippetTarget,
+          client,
+        )) as string
+      } catch (e) {
+        console.error('[ExampleRequest]', e)
+        return ''
+      }
     },
   }
 }
