@@ -48,7 +48,7 @@ export default defineNuxtConfig({
 })
 ```
 
-By default the docs will be hosted at `/scalar` but you an easily customize that, here's a more in
+By default the docs will be hosted at `/docs` but you an easily customize that, here's a more in
 depth config example.
 
 ```ts
