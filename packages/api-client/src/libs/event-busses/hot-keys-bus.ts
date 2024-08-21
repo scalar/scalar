@@ -97,7 +97,7 @@ const MODIFIER_DICT = {
 } as const
 
 /** Converts our modifier config to the eventKey */
-const getModifiers = (modifiers: HotKeyModifiers) => {
+export const getModifiers = (modifiers: HotKeyModifiers) => {
   return modifiers.map((modifier) =>
     modifier === 'default'
       ? isMacOS()
