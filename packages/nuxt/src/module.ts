@@ -34,6 +34,7 @@ export default defineNuxtModule<ModuleOptions>({
     showSidebar: true,
     devtools: true,
     configurations: [],
+    theme: 'nuxt',
   },
   setup(_options, _nuxt) {
     const resolver = createResolver(import.meta.url)

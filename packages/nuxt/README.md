@@ -48,7 +48,7 @@ export default defineNuxtConfig({
 })
 ```
 
-By default the docs will be hosted at `/scalar` but you an easily customize that, here's a more in
+By default the docs will be hosted at `/docs` but you an easily customize that, here's a more in
 depth config example.
 
 ```ts
@@ -104,6 +104,17 @@ export default defineNuxtConfig({
         },
       },
     ],
+  },
+})
+```
+
+For theme configuration, you can pass a `theme` property to the configuration object. The default theme is `nuxt`, but you can also pass `default` to use the default theme.
+
+```ts
+export default defineNuxtConfig({
+  modules: ['@scalar/nuxt'],
+  scalar: {
+    theme: 'nuxt',
   },
 })
 ```
