@@ -1757,25 +1757,6 @@ importers:
         specifier: ^5.2.10
         version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
 
-  packages/openapi-converter:
-    dependencies:
-      openapi-types:
-        specifier: ^12.1.3
-        version: 12.1.3
-      typescript:
-        specifier: ^5.0.0
-        version: 5.5.2
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      fast-glob:
-        specifier: ^3.3.2
-        version: 3.3.2
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
-
   packages/openapi-types:
     devDependencies:
       '@scalar/build-tooling':
@@ -1851,6 +1832,25 @@ importers:
       vite-plugin-static-copy:
         specifier: ^1.0.2
         version: 1.0.5(vite@5.3.3(@types/node@20.14.10)(terser@5.31.2))
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
+
+  packages/ts-to-openapi:
+    dependencies:
+      openapi-types:
+        specifier: ^12.1.3
+        version: 12.1.3
+      typescript:
+        specifier: ^5.0.0
+        version: 5.5.2
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.2
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
