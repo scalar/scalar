@@ -2,19 +2,16 @@
 import type { ROUTES } from '@/constants'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
 
 type IconProps = InstanceType<typeof ScalarIcon>['$props']
 
 defineProps<{
   icon: IconProps['icon']
-  name: (typeof ROUTES)[number]['name']
+  name: (typeof ROUTES)[number]['name'] | 'settings'
   active?: boolean
 }>()
 
 const { activeWorkspace } = useWorkspace()
-
-const { currentRoute } = useRouter()
 </script>
 <template>
   <router-link

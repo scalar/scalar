@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
-import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import SubpageHeader from '@/components/SubpageHeader.vue'
