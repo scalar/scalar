@@ -18,37 +18,35 @@ type SettingsGroup = {
 const settings: Record<string, SettingsGroup> = {
   general: {
     component: SettingsGeneral,
-    title: 'General',
+    title: 'general',
   },
 }
 
 const activeSetting = ref('general')
 </script>
 <template>
-  <SubpageHeader>
-    <ViewLayout>
-      <Sidebar title="Settings">
-        <template #content>
-          <div class="flex-1">
-            <SidebarList>
-              <SidebarListElement
-                v-for="setting in settings"
-                :key="setting.title"
-                class="text-xs"
-                :variable="{
-                  uid: setting.title,
-                  name: setting.title,
-                  isDefault: setting.title === 'General',
-                }">
-                {{ setting.title }}
-              </SidebarListElement>
-            </SidebarList>
-          </div>
-        </template>
-      </Sidebar>
-      <ViewLayoutContent class="flex-1">
-        <component :is="settings[activeSetting].component" />
-      </ViewLayoutContent>
-    </ViewLayout>
-  </SubpageHeader>
+  <ViewLayout>
+    <Sidebar title="Settings">
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="setting in settings"
+              :key="setting.title"
+              class="text-xs capitalize"
+              :variable="{
+                uid: setting.title,
+                name: setting.title,
+                isDefault: setting.title === 'General',
+              }">
+              {{ setting.title }}
+            </SidebarListElement>
+          </SidebarList>
+        </div>
+      </template>
+    </Sidebar>
+    <ViewLayoutContent class="flex-1">
+      <component :is="settings[activeSetting].component" />
+    </ViewLayoutContent>
+  </ViewLayout>
 </template>
