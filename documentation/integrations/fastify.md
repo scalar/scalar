@@ -212,6 +212,15 @@ import ScalarApiReference from '@scalar/fastify-api-reference'
 
 await fastify.register(ScalarApiReference, {
   routePrefix: '/reference',
+  // Additional hooks for the API reference routes. You can provide the onRequest and preHandler hooks
+  hooks: {
+    onRequest: function (request, reply, done) {
+      done()
+    },
+    preHandler: function (request, reply, done) {
+      done()
+    },
+  },
 })
 
 // …
@@ -224,6 +233,8 @@ Wow, this is it already. Restart the server, if it didn’t already and take a l
 <http://localhost:3000/reference>
 
 That’s it, you made it! You can keep adding routes to Fastify now and the reference will keep in sync with them.
+
+For Additional hooks you can learn more about [route's options](https://fastify.dev/docs/latest/Reference/Routes/#routes-options) interface.
 
 ## Customize everything (optional)
 
