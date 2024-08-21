@@ -3,6 +3,7 @@ import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store/workspace'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/helpers'
+import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -11,6 +12,7 @@ const emits = defineEmits<{
 }>()
 
 const { push } = useRouter()
+const { toast } = useToasts()
 
 const {
   activeCollection,
@@ -77,6 +79,10 @@ function handleChangeMethod(method: string) {
 }
 
 const handleSubmit = () => {
+  if (!requestName.value.trim()) {
+    toast('Please enter a name before creating a request.', 'error')
+    return
+  }
   if (!selectedCollectionId.value && !selectedFolder.value?.id) return
   const parentUid = selectedFolder.value?.id ?? selectedCollection.value?.id
 
@@ -163,6 +169,7 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
+        :disabled="!requestName.trim()"
         @click="handleSubmit">
         Create Request
       </ScalarButton>
