@@ -1,4 +1,4 @@
-# Scalar Type to OpenAPI Spec Converter
+# Scalar Typescript Type to OpenAPI Spec Converter
 
 [![Version](https://img.shields.io/npm/v/%40scalar/type-to-openapi)](https://www.npmjs.com/package/@scalar/type-to-openapi)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/type-to-openapi)](https://www.npmjs.com/package/@scalar/type-to-openapi)
