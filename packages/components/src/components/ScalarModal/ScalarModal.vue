@@ -29,15 +29,16 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 mt-20 w-full rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0',
+    'col relative mx-auto mb-0 mt-20 w-[calc(100vw-16px)] rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
-      xxs: 'max-w-screen-xxs',
-      xs: 'max-w-screen-xs',
-      sm: 'max-w-screen-sm',
-      md: 'max-w-screen-md',
-      lg: 'max-w-screen-lg',
+      xxs: 'mt-20 max-w-screen-xxs',
+      xs: 'mt-20 max-w-screen-xs',
+      sm: 'mt-20 max-w-screen-sm',
+      md: 'mt-20 max-w-screen-md',
+      lg: 'mt-10 max-w-screen-lg',
+      xl: 'mt-2 max-w-screen-xl',
       full: 'mt-0 overflow-hidden',
     },
     variant: {
@@ -55,6 +56,15 @@ const body = cva({
     variant: {
       history: 'pt-3',
       search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
+    },
+    size: {
+      xxs: 'max-h-[calc(100dvh-240px)]',
+      xs: 'max-h-[calc(100dvh-240px)]',
+      sm: 'max-h-[calc(100dvh-240px)]',
+      md: 'max-h-[calc(100dvh-240px)]',
+      lg: 'max-h-[calc(100dvh-180px)]',
+      xl: 'max-h-[calc(100dvh-120px)]',
+      full: 'max-h-dvh',
     },
   },
 })
@@ -100,7 +110,7 @@ export const useModal = () =>
         </div>
         <DialogDescription
           v-else
-          :class="cx(bodyClass, body({ variant }))">
+          :class="cx(bodyClass, body({ size, variant }))">
           <slot />
         </DialogDescription>
       </DialogPanel>
