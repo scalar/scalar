@@ -3,3 +3,6 @@ export type FileNameResolver = (
   sourceFileName: string,
   targetFileName: string,
 ) => string
+
+/** The type of literals we support */
+export type Literals = 'string' | 'number' | 'boolean'

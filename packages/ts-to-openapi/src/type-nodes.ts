@@ -4,6 +4,8 @@ import {
   SyntaxKind,
   type TypeNode,
   isArrayTypeNode,
+  isBigIntLiteral,
+  isIdentifier,
   isImportSpecifier,
   isLiteralTypeNode,
   isNumericLiteral,
@@ -16,13 +18,17 @@ import {
   isUnionTypeNode,
 } from 'typescript'
 
-import type { FileNameResolver } from './types'
+import type { FileNameResolver, Literals } from './types'
 
 /**
  * Traverse type nodes to create schemas
  *
  * TODO:
- * - lots
+ * - sort out null
+ * - if null is in the union, set nullable: true
+ * - required vs optional
+ * - defaults (grab from the actual value)
+ * - jsdoc
  */
 export const getSchemaFromTypeNode = (
   typeNode: TypeNode,
@@ -39,9 +45,32 @@ export const getSchemaFromTypeNode = (
     return {
       type: 'number',
     }
+  // Boolean
   else if (SyntaxKind.BooleanKeyword === typeNode.kind)
     return {
       type: 'boolean',
+    }
+  // BigInt
+  else if (SyntaxKind.BigIntKeyword === typeNode.kind)
+    return {
+      type: 'integer',
+    }
+  // Object
+  else if (SyntaxKind.ObjectKeyword === typeNode.kind)
+    return {
+      type: 'object',
+    }
+  // Any - can be any type
+  else if (SyntaxKind.AnyKeyword === typeNode.kind)
+    return {
+      anyOf: [
+        { type: 'string' },
+        { type: 'number' },
+        { type: 'integer' },
+        { type: 'boolean' },
+        { type: 'object' },
+        { type: 'array', items: {} },
+      ],
     }
   // Literal
   else if (isLiteralTypeNode(typeNode)) {
@@ -66,7 +95,21 @@ export const getSchemaFromTypeNode = (
         type: 'boolean',
         example: SyntaxKind.TrueKeyword === typeNode.literal.kind,
       }
+    else if (SyntaxKind.NullKeyword === typeNode.literal.kind)
+      return {
+        type: 'null',
+        example: null,
+      }
+    else if (isBigIntLiteral(typeNode.literal))
+      return {
+        type: 'integer',
+        example: typeNode.literal.text,
+      }
   }
+  // TypeQuery
+  // else if (isTypeQueryNode(typeNode)) {
+  //   console.log(typeNode.exprName)
+  // }
   // Array
   else if (isArrayTypeNode(typeNode)) {
     return {
@@ -83,16 +126,34 @@ export const getSchemaFromTypeNode = (
     return {
       type: 'object',
       properties: typeNode.members.reduce((prev, member) => {
-        return isPropertySignature(member) && member.type
-          ? {
-              ...prev,
-              [member.name?.getText() ?? 'unkownKey']: getSchemaFromTypeNode(
-                member.type,
-                program,
-                fileNameResolver,
-              ),
-            }
-          : prev
+        // Regular properties
+        if (
+          isPropertySignature(member) &&
+          member.type &&
+          isIdentifier(member.name)
+        ) {
+          // console.log(typeNode)
+          return {
+            ...prev,
+            [member.name?.escapedText ?? 'unkownKey']: getSchemaFromTypeNode(
+              member.type,
+              program,
+              fileNameResolver,
+            ),
+          }
+        }
+        // Index Signatures
+        // else if (isIndexSignatureDeclaration(member)) {
+        //   return {
+        //     type: 'string',
+        //     description: `TODO this type is not handled yet: ${SyntaxKind[member.kind]}`,
+        //   }
+        else
+          return {
+            ...prev,
+            type: 'string',
+            description: `TODO this type is not handled yet: ${SyntaxKind[member.kind]}`,
+          }
       }, {}),
     }
   }
@@ -101,15 +162,17 @@ export const getSchemaFromTypeNode = (
     // If all numbers or strings do enum
     const anyOf: OpenAPIV3_1.SchemaObject[] = []
     const length = typeNode.types.length
-    const literals: Record<string, OpenAPIV3_1.SchemaObject[]> = {
+    const literals: Record<Literals, OpenAPIV3_1.SchemaObject[]> = {
       string: [],
       number: [],
+      boolean: [],
     }
 
     // We need to find a way to check for enum vs oneOf
     typeNode.types.forEach((type) => {
       const schema = getSchemaFromTypeNode(type, program, fileNameResolver)
-      if (isLiteralTypeNode(type)) literals[schema.type as string].push(schema)
+      if (isLiteralTypeNode(type))
+        literals[schema.type as Literals].push(schema)
       anyOf.push(schema)
     })
 
@@ -125,6 +188,12 @@ export const getSchemaFromTypeNode = (
         type: 'number',
         enum: literals.number.map((literal) => literal.example),
       }
+    // All booleans
+    else if (literals.boolean.length === length)
+      return {
+        type: 'boolean',
+        enum: literals.boolean.map((literal) => literal.example),
+      }
     // Mixed anyOf
     else
       return {
@@ -132,6 +201,8 @@ export const getSchemaFromTypeNode = (
       }
   }
   // Intersection
+  // else if (isIntersectionTypeNode(typeNode)) {
+  // }
   // Type reference
   else if (isTypeReferenceNode(typeNode)) {
     const typeChecker = program.getTypeChecker()
@@ -188,7 +259,7 @@ export const getSchemaFromTypeNode = (
   }
 
   return {
-    type: 'string',
+    type: 'null',
     description: `TODO this type is not handled yet: ${SyntaxKind[typeNode.kind]}`,
   }
 }
