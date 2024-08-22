@@ -25,6 +25,7 @@ export default {
         'screen-sm': '540px',
         'screen-md': '640px',
         'screen-lg': '800px',
+        'screen-xl': '1000px',
       },
       zIndex: {
         // Contextual overlays like dropdowns, popovers, tooltips
