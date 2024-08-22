@@ -31,7 +31,6 @@
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
   },
