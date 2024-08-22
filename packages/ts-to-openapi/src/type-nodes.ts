@@ -204,10 +204,23 @@ export const getSchemaFromTypeNode = (
   // else if (isIntersectionTypeNode(typeNode)) {
   // }
   // Type reference
-  else if (isTypeReferenceNode(typeNode)) {
+  else if (isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName)) {
     const typeChecker = program.getTypeChecker()
     const symbol = typeChecker.getSymbolAtLocation(typeNode.typeName)
-    if (symbol) {
+
+    // Array<type>
+    if (typeNode.typeName.escapedText === 'Array')
+      return {
+        type: 'array',
+        items: typeNode.typeArguments?.length
+          ? getSchemaFromTypeNode(
+              typeNode.typeArguments?.[0],
+              program,
+              fileNameResolver,
+            )
+          : {},
+      }
+    else if (symbol) {
       const name = symbol.escapedName
 
       // Get declarations from the symbol

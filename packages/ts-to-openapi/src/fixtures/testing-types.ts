@@ -37,6 +37,9 @@ export type SuperDataType = {
   }
   String: string
   stringLiteral: 'Literally a string value'
+  // nullableString: string | null
+  // optionalString?: string
+  // optionalString2: string | undefined
   typeQuery: typeof num
   Object: object
   objectLiteral: {

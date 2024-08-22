@@ -81,6 +81,12 @@ describe('getSchemaFromTypeNode', () => {
         description: 'TODO this type is not handled yet: TypeQuery',
       }))
 
+    it('should handle an intersection type', () =>
+      expect(schema.properties!['inersection']).toEqual({
+        type: 'null',
+        description: 'TODO this type is not handled yet: IntersectionType',
+      }))
+
     // TODO: END unknowns
 
     it('should handle a null type', () =>
@@ -250,44 +256,168 @@ describe('getSchemaFromTypeNode', () => {
         items: { type: 'string' },
       }))
 
+    //  "RecordAny": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "RecordNumber": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "date": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "int8Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "uInt8Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "UInt8ClampedArray": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "int16Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "uint16Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "int32Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "uint32Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "float32Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "float64Array": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "error": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TypeReference"
+    // },
+    // "keyString": {
+    //   "type": "object",
+    //   "properties": {
+    //     "type": "string",
+    //     "description": "TODO this type is not handled yet: IndexSignature"
+    //   }
+    // },
+    // "keyNumber": {
+    //   "type": "object",
+    //   "properties": {
+    //     "type": "string",
+    //     "description": "TODO this type is not handled yet: IndexSignature"
+    //   }
+    // },
+    // "keySymbol": {
+    //   "type": "object",
+    //   "properties": {
+    //     "type": "string",
+    //     "description": "TODO this type is not handled yet: IndexSignature"
+    //   }
+    // },
+    // "keyAB": {
+    //   "type": "object",
+    //   "properties": {
+    //     "a": {
+    //       "type": "number"
+    //     },
+    //     "b": {
+    //       "type": "string"
+    //     }
+    //   }
+    // },
+    // "tupleMixed": {
+    //   "type": "null",
+    //   "description": "TODO this type is not handled yet: TupleType"
+    // },
+
     it('should handle a union of numeric literals', () =>
       expect(schema.properties!['unionNumericLiteral']).toEqual({
         type: 'number',
-        enum: [],
+        enum: [1, 2, 3],
       }))
 
     it('should handle a union of booleans', () =>
       expect(schema.properties!['unionBoolean']).toEqual({
         type: 'boolean',
-        enum: [],
+        enum: [true, false],
       }))
 
     it('should handle a union of mixed types', () =>
       expect(schema.properties!['unionMixed']).toEqual({
-        anyOf: [],
-      }))
-
-    it('should handle an intersection type', () =>
-      expect(schema.properties!['inersection']).toEqual({
-        type: 'null',
-        description: 'TODO this type is not handled yet: IntersectionType',
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+          {
+            type: 'boolean',
+          },
+        ],
       }))
 
     it('should handle an optional type', () =>
       expect(schema.properties!['optional']).toEqual({
         type: 'object',
-        properties: {},
+        properties: {
+          a: {
+            type: 'number',
+          },
+          b: {
+            type: 'string',
+          },
+        },
       }))
 
     it('should handle a deep object', () =>
       expect(schema.properties!['deep']).toEqual({
         type: 'object',
-        properties: {},
+        properties: {
+          a: {
+            type: 'object',
+            properties: {
+              b: {
+                type: 'object',
+                properties: {
+                  c: {
+                    type: 'number',
+                  },
+                },
+              },
+            },
+          },
+        },
       }))
 
-    it('should handle a union of mixed objects', () =>
-      expect(schema.properties!['unionMixedObject']).toEqual({
-        anyOf: [],
+    it('should handle a union of mixed types', () =>
+      expect(schema.properties!['unionMixed']).toEqual({
+        anyOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
+          },
+          {
+            type: 'boolean',
+          },
+        ],
       }))
 
     it('should handle a never type', () =>
