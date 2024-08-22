@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Scalar"
+- family-names: "Laventure"
+  given-names: "Marc"
+title: "Scalar: open-source tools, with first class OpenAPI support."
+version: 2.0.4
+date-released: 2017-12-18
+url: "https://scalar.com"
