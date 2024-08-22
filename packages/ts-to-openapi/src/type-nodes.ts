@@ -7,6 +7,7 @@ import {
   isBigIntLiteral,
   isIdentifier,
   isImportSpecifier,
+  isIntersectionTypeNode,
   isLiteralTypeNode,
   isNumericLiteral,
   isPropertySignature,
@@ -201,8 +202,14 @@ export const getSchemaFromTypeNode = (
       }
   }
   // Intersection
-  // else if (isIntersectionTypeNode(typeNode)) {
-  // }
+  else if (isIntersectionTypeNode(typeNode)) {
+    console.log(typeNode)
+    return {
+      allOf: typeNode.types.map((type) =>
+        getSchemaFromTypeNode(type, program, fileNameResolver),
+      ),
+    }
+  }
   // Type reference
   else if (isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName)) {
     const typeChecker = program.getTypeChecker()

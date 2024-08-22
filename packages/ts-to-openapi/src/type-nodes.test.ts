@@ -10,7 +10,6 @@ import {
   createSourceFile,
   isTypeAliasDeclaration,
 } from 'typescript'
-import { inspect } from 'util'
 import { describe, expect, it } from 'vitest'
 
 import { getSchemaFromTypeNode } from './type-nodes'
@@ -79,12 +78,6 @@ describe('getSchemaFromTypeNode', () => {
       expect(schema.properties!['typeQuery']).toEqual({
         type: 'null',
         description: 'TODO this type is not handled yet: TypeQuery',
-      }))
-
-    it('should handle an intersection type', () =>
-      expect(schema.properties!['inersection']).toEqual({
-        type: 'null',
-        description: 'TODO this type is not handled yet: IntersectionType',
       }))
 
     // TODO: END unknowns
@@ -368,6 +361,18 @@ describe('getSchemaFromTypeNode', () => {
           },
           {
             type: 'boolean',
+          },
+        ],
+      }))
+
+    it('should handle an intersection type', () =>
+      expect(schema.properties!['inersection']).toEqual({
+        allOf: [
+          {
+            type: 'string',
+          },
+          {
+            type: 'number',
           },
         ],
       }))
