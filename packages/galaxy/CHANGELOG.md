@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.7
+
+### Patch Changes
+
+- 7a6783e: feat(galaxy): migrate galaxy to monorepo
+
 ## 0.2.6
 
 ### Patch Changes

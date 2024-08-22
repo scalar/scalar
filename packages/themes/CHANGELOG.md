@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.27
+
+### Patch Changes
+
+- bb13304: fix(themes): remove obtrusive scrollbar test after testing
+
 ## 0.9.26
 
 ### Patch Changes

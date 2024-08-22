@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.39
+
+### Patch Changes
+
+- 9bc0ae7: feat: update scalar icon disabled state
+- a792002: feat: add xl scalar modal
+  - @scalar/code-highlight@0.0.10
+
 ## 0.12.38
 
 ### Patch Changes
