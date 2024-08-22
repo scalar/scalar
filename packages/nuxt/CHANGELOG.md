@@ -1,5 +1,19 @@
 # @scalar/nuxt
 
+## 0.2.83
+
+### Patch Changes
+
+- 7dadae9: Added dynamic theme configuration, update README
+- Updated dependencies [1c3de0e]
+- Updated dependencies [857380d]
+- Updated dependencies [ab8c4d7]
+- Updated dependencies [8d615dc]
+- Updated dependencies [9bc0ae7]
+- Updated dependencies [8f24069]
+  - @scalar/api-client@2.0.58
+  - @scalar/api-reference@1.25.5
+
 ## 0.2.82
 
 ### Patch Changes

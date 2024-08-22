@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.0.58
+
+### Patch Changes
+
+- 1c3de0e: fix(api-client): correctly initialize complex auth, fixes #2874
+- 857380d: fix: command palette import collection
+- ab8c4d7: feat: meta clik link request to topnav
+- 8d615dc: fix: request sidebar item new tab event modifier
+- 9bc0ae7: feat: command palette input required on submit
+- 8f24069: feat(api-client): add loading state and cancellation for slow requests
+- Updated dependencies [9bc0ae7]
+- Updated dependencies [a792002]
+- Updated dependencies [bb13304]
+  - @scalar/components@0.12.39
+  - @scalar/themes@0.9.27
+  - @scalar/oas-utils@0.2.38
+  - @scalar/types@0.0.4
+
 ## 2.0.57
 
 ### Patch Changes

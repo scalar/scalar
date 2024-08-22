@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.2.41
+
+### Patch Changes
+
+- 7a6783e: feat(galaxy): migrate galaxy to monorepo
+  - @scalar/oas-utils@0.2.38
+
 ## 0.2.40
 
 ### Patch Changes
