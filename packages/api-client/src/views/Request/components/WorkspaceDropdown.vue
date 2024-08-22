@@ -117,12 +117,12 @@ const deleteWorkspace = async () => {
             <ScalarDropdown static>
               <template #items>
                 <ScalarDropdownItem
-                  class="flex !gap-2"
+                  class="flex gap-2"
                   @mousedown="openRenameModal(uid)">
                   <ScalarIcon
                     class="inline-flex"
                     icon="Edit"
-                    size="sm"
+                    size="md"
                     thickness="1.5" />
                   <span>Rename</span>
                 </ScalarDropdownItem>
@@ -132,13 +132,13 @@ const deleteWorkspace = async () => {
                   side="bottom">
                   <template #trigger>
                     <ScalarDropdownItem
-                      class="flex w-full"
+                      class="flex gap-2 w-full"
                       disabled
                       @mousedown.prevent>
                       <ScalarIcon
                         class="inline-flex"
-                        icon="Trash"
-                        size="sm"
+                        icon="Delete"
+                        size="md"
                         thickness="1.5" />
                       <span>Delete</span>
                     </ScalarDropdownItem>
@@ -158,7 +158,7 @@ const deleteWorkspace = async () => {
                   @mousedown.prevent="openDeleteModal(uid)">
                   <ScalarIcon
                     class="inline-flex"
-                    icon="Trash"
+                    icon="Delete"
                     size="sm"
                     thickness="1.5" />
                   <span>Delete</span>

@@ -65,24 +65,24 @@ const isRequest = computed(() => 'summary' in props.item)
       <!-- Add example -->
       <ScalarDropdownItem
         v-if="isRequest"
-        class="flex !gap-2"
+        class="flex gap-2"
         @click="handleAddExample">
         <ScalarIcon
           class="inline-flex"
-          icon="Add"
-          size="sm"
+          icon="Example"
+          size="md"
           thickness="1.5" />
         <span>Add Example</span>
       </ScalarDropdownItem>
 
       <!-- Rename -->
       <ScalarDropdownItem
-        class="flex !gap-2"
+        class="flex gap-2"
         @click="emit('rename')">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
-          size="sm"
+          size="md"
           thickness="1.5" />
         <span>Rename</span>
       </ScalarDropdownItem>
@@ -102,12 +102,12 @@ const isRequest = computed(() => 'summary' in props.item)
 
       <!-- Delete -->
       <ScalarDropdownItem
-        class="flex !gap-2"
+        class="flex gap-2"
         @click="emit('delete')">
         <ScalarIcon
           class="inline-flex"
-          icon="Trash"
-          size="sm"
+          icon="Delete"
+          size="md"
           thickness="1.5" />
         <span>Delete</span>
       </ScalarDropdownItem>
