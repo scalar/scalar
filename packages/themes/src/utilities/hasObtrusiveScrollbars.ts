@@ -23,5 +23,7 @@ export function hasObtrusiveScrollbars(): boolean {
   const firstChild = parent.firstChild as HTMLDivElement
   const scrollbarWidth = 30 - firstChild.clientWidth
 
+  document.body.removeChild(parent)
+
   return !!scrollbarWidth
 }
