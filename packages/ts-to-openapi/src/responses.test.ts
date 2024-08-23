@@ -3,21 +3,17 @@ import {
   SyntaxKind,
   isArrowFunction,
   isCallExpression,
-  isTypeAliasDeclaration,
-  isTypeAssertionExpression,
-  isVariableDeclaration,
   isVariableStatement,
 } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 import { generateResponses, getReturnStatements } from './responses'
-import { fileResolver, program } from './test-setup'
-import { getSchemaFromTypeNode } from './type-nodes'
+import { program } from './test-setup'
 
-const sourceFile = program.getSourceFile('src/fixtures/returns.ts')
+const sourceFile = program.getSourceFile('src/fixtures/test-responses.ts')
 
 // First we get to the body
-const getNode = sourceFile?.statements[0]
+const getNode = sourceFile?.statements[1]
 if (!getNode || !isVariableStatement(getNode)) throw 'Not a variable statement'
 
 const initializer = getNode.declarationList.declarations[0].initializer
@@ -33,7 +29,6 @@ describe('getReturnStatements', () => {
     if (!statement.expression || !isCallExpression(statement.expression)) return
     expect(statement.expression.arguments.length).toEqual(2)
   })
-
   it('should get another return statement', () =>
     expect(generator.next().value.kind).toEqual(SyntaxKind.ReturnStatement))
   it('should get yet another return statement', () =>
@@ -41,6 +36,6 @@ describe('getReturnStatements', () => {
 })
 
 describe('createResponseSchemas', () => {
-  const responses = generateResponses(initializer.body, program, fileResolver)
-  console.log(responses)
+  const responses = generateResponses(initializer.body)
+  console.log(JSON.stringify(responses, null, 2))
 })

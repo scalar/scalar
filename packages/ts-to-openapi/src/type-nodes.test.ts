@@ -1,7 +1,7 @@
 import { isTypeAliasDeclaration } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
-import { fileResolver, program } from './test-setup'
+import { fileNameResolver, program } from './test-setup'
 import { getSchemaFromTypeNode } from './type-nodes'
 
 describe('getSchemaFromTypeNode', () => {
@@ -10,7 +10,7 @@ describe('getSchemaFromTypeNode', () => {
   const type = sourceFile?.statements[2]
 
   if (type && isTypeAliasDeclaration(type)) {
-    const schema = getSchemaFromTypeNode(type.type, program, fileResolver)
+    const schema = getSchemaFromTypeNode(type.type, program, fileNameResolver)
 
     // TODO: these need to be added still, left the unknown types to have the tests passing
 

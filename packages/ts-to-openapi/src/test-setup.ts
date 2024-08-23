@@ -17,6 +17,7 @@ const compilerHost: CompilerHost = {
   getDefaultLibFileName: () => '',
   getNewLine: () => '\n',
   getSourceFile: (filename) =>
+    console.log(filename) ||
     createSourceFile(
       filename,
       readFileSync(filename).toString(),
@@ -42,7 +43,7 @@ export const program = createProgram(
   compilerHost,
 )
 
-export const fileResolver = (source: string, target: string) => {
+export const fileNameResolver = (source: string, target: string) => {
   const sourceExt = path.extname(source)
   const targetExt = path.extname(target)
 

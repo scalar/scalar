@@ -1,3 +1,5 @@
+const num = 34
+
 /**
  * Returns a bunch of responses with different types
  * Only json for now, will add others later
@@ -7,16 +9,17 @@ export const GET = async () => {
     return Response.json(
       {
         error: {
+          codez: num,
           message: 'This is a horrendous error',
           things: ['stuff', 'others'],
         },
-      },
+      } as const,
       {
         status: 422,
         headers: {
           random: 'what',
         },
-      },
+      } as const,
     )
   } else if (Math.random() < 0.2) {
     const resp = true

@@ -2,9 +2,12 @@ import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Expression,
   type Node,
+  NodeBuilderFlags,
+  type ObjectLiteralExpression,
   type Program,
   type ReturnStatement,
   SyntaxKind,
+  TypeFormatFlags,
   isArrowFunction,
   isBlock,
   isCallExpression,
@@ -21,12 +24,14 @@ import {
   isMethodDeclaration,
   isObjectLiteralExpression,
   isPropertyAccessExpression,
+  isPropertyAssignment,
   isReturnStatement,
   isSwitchStatement,
   isTryStatement,
   isWhileStatement,
 } from 'typescript'
 
+import { getSchemaFromNode } from './node'
 import { getSchemaFromTypeNode } from './type-nodes'
 import type { FileNameResolver } from './types'
 
@@ -103,10 +108,7 @@ export const generateResponses = (
   const statements = Array.from(generator)
 
   return statements.reduce<OpenAPIV3_1.ResponsesObject>((prev, statement) => {
-    console.log(statement.getText())
-
     // Check for a Response.json
-    // we will probably pass in this
     if (
       isReturnStatement(statement) &&
       statement.expression &&
@@ -116,54 +118,45 @@ export const generateResponses = (
       statement.expression.expression.name.escapedText === 'json' &&
       statement.expression.expression.expression &&
       isIdentifier(statement.expression.expression.expression) &&
+      // we will probably pass comparator in
       (statement.expression.expression.expression.escapedText === 'Response' ||
         statement.expression.expression.expression.escapedText ===
           'NextResponse')
     ) {
-      const [payload, resp] = statement.expression.arguments
-      let status = 200
-      let schema: OpenAPIV3_1.SchemaObject = {}
+      const [payload, options] = statement.expression.arguments
+      const status = 200
 
-      // Check the type of the payload
-      if (payload) {
-        console.log(JSON.stringify(payload, null, 2))
+      const schema = getSchemaFromNode(payload, program, fileNameResolver)
+      const optionsSchema = getSchemaFromNode(
+        payload,
+        program,
+        fileNameResolver,
+      )
 
-        schema = getSchemaFromTypeNode(payload, program, fileNameResolver)
-      }
-      // Update the status
-      // TODO: headers, statusText
-      if (resp && isObjectLiteralExpression(resp)) {
-        const respSchema = getSchemaFromTypeNode(
-          resp.properties[0],
-          program,
-          fileNameResolver,
-        )
-        status = respSchema.example
-      }
+      // console.log(optionsSchema)
 
-      return {
-        ...prev,
-        [String(status)]: {
-          description: 'TODO: grab this from jsdoc and add a default',
-          content: {
-            'application/json': {
-              schema,
-              // example
-              // examples
-              // encoding
+      if (status)
+        return {
+          ...prev,
+          [String(status)]: {
+            description: 'TODO: grab this from jsdoc and add a default',
+            content: {
+              'application/json': {
+                schema,
+                // example
+                // examples
+                // encoding
+              },
             },
           },
-        },
-      }
-    } else {
-      console.log('TODO other types of returns')
-      return {
-        ...prev,
-        '999': {
-          description: 'unknown return type: ' + SyntaxKind[statement.kind],
-          content: { 'application/json': {} },
-        },
-      }
+        }
+    }
+    return {
+      ...prev,
+      unknown: {
+        description: 'unknown return type: ' + SyntaxKind[statement.kind],
+        content: { 'application/json': {} },
+      },
     }
   }, {})
 }

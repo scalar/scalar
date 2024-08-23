@@ -42,10 +42,12 @@ export const getSchemaFromTypeNode = (
       type: 'string',
     }
   // Number
-  else if (SyntaxKind.NumberKeyword === typeNode.kind)
+  else if (SyntaxKind.NumberKeyword === typeNode.kind) {
+    // console.log(typeNode)
     return {
       type: 'number',
     }
+  }
   // Boolean
   else if (SyntaxKind.BooleanKeyword === typeNode.kind)
     return {
