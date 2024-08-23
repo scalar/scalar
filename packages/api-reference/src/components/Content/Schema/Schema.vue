@@ -25,6 +25,7 @@ const props = withDefaults(
     compact?: boolean
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
+    hideHeading?: boolean
   }>(),
   { level: 0 },
 )
@@ -58,7 +59,7 @@ const handleClick = (e: MouseEvent) =>
         class="schema-properties"
         :class="{ 'schema-properties-open': open }">
         <DisclosureButton
-          v-show="!(noncollapsible && compact)"
+          v-show="!hideHeading && !(noncollapsible && compact)"
           :as="noncollapsible ? 'div' : 'button'"
           class="schema-card-title"
           :class="{ 'schema-card-title--compact': compact }"
@@ -85,8 +86,9 @@ const handleClick = (e: MouseEvent) =>
               v-if="shouldShowToggle"
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
-              icon="ChevronRight"
-              size="md" />
+              icon="Add"
+              size="xs"
+              thickness="2.5" />
             <SchemaHeading
               :name="(value?.title ?? name) as string"
               :value="value" />
@@ -162,10 +164,9 @@ const handleClick = (e: MouseEvent) =>
 }
 
 .schema-card-title {
-  --schema-title-height: 38px;
   height: var(--schema-title-height);
 
-  padding: 10px 12px;
+  padding: 6px 10px;
 
   display: flex;
   align-items: center;
@@ -174,8 +175,6 @@ const handleClick = (e: MouseEvent) =>
   color: var(--scalar-color-2);
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-micro);
-  background: var(--scalar-background-1);
-  border-radius: var(--scalar-radius-lg);
   border-bottom: var(--scalar-border-width) solid transparent;
 }
 button.schema-card-title {
@@ -184,17 +183,10 @@ button.schema-card-title {
 button.schema-card-title:hover {
   color: var(--scalar-color-1);
 }
-.schema-card-title-icon {
-  margin-left: -4px;
-}
 .schema-card-title-icon--open {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
 }
 .schema-properties-open > .schema-card-title {
-  z-index: 1;
-  position: sticky;
-  top: var(--refs-header-height);
-
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
@@ -204,6 +196,9 @@ button.schema-card-title:hover {
 }
 .schema-card-description + .schema-properties {
   width: fit-content;
+}
+.schema-card-description + .schema-properties {
+  margin-top: 12px;
 }
 .schema-properties-open.schema-properties,
 .schema-properties-open > .schema-card--open {
@@ -219,8 +214,17 @@ button.schema-card-title:hover {
 
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
+  width: fit-content;
 }
-
+.schema-properties .schema-properties {
+  border-radius: 13.5px;
+}
+.schema-properties .schema-properties.schema-properties-open {
+  border-radius: 13.5px 13.5px var(--scalar-radius) var(--scalar-radius);
+}
+.schema-properties-open {
+  width: 100%;
+}
 .schema-card--compact {
   align-self: start;
 }
