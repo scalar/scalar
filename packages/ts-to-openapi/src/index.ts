@@ -1,3 +1,3 @@
 export * from './js-doc'
-export * from './return-statements'
+export * from './responses'
 export * from './type-nodes'

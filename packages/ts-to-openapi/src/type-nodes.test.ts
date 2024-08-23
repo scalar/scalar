@@ -1,60 +1,8 @@
-import fg from 'fast-glob'
-import { readFileSync } from 'fs'
-import path from 'path'
-import {
-  type CompilerHost,
-  JSDocParsingMode,
-  ScriptKind,
-  ScriptTarget,
-  createProgram,
-  createSourceFile,
-  isTypeAliasDeclaration,
-} from 'typescript'
+import { isTypeAliasDeclaration } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
+import { fileResolver, program } from './test-setup'
 import { getSchemaFromTypeNode } from './type-nodes'
-
-const compilerHost: CompilerHost = {
-  fileExists: () => true,
-  getCanonicalFileName: (filename) => filename,
-  getCurrentDirectory: () => '',
-  getDefaultLibFileName: () => '',
-  getNewLine: () => '\n',
-  getSourceFile: (filename) =>
-    createSourceFile(
-      filename,
-      readFileSync(filename).toString(),
-      ScriptTarget.Latest,
-      false,
-      ScriptKind.TS,
-    ),
-  jsDocParsingMode: JSDocParsingMode.ParseAll,
-  readFile: () => undefined,
-  useCaseSensitiveFileNames: () => true,
-  writeFile: () => null,
-}
-
-const programFileNames = await fg('src/fixtures/*.ts')
-
-// Intialize typescript program
-const program = createProgram(
-  programFileNames,
-  {
-    noResolve: true,
-    target: ScriptTarget.Latest,
-  },
-  compilerHost,
-)
-
-const fileResolver = (source: string, target: string) => {
-  const sourceExt = path.extname(source)
-  const targetExt = path.extname(target)
-
-  const targetRelative = target + (targetExt ? '' : sourceExt)
-  const targetPath = path.join(source.replace(/\/([^/]+)$/, ''), targetRelative)
-
-  return targetPath
-}
 
 describe('getSchemaFromTypeNode', () => {
   const sourceFile = program.getSourceFile('src/fixtures/testing-types.ts')
@@ -63,8 +11,6 @@ describe('getSchemaFromTypeNode', () => {
 
   if (type && isTypeAliasDeclaration(type)) {
     const schema = getSchemaFromTypeNode(type.type, program, fileResolver)
-
-    console.log(JSON.stringify(schema, null, 2))
 
     // TODO: these need to be added still, left the unknown types to have the tests passing
 
