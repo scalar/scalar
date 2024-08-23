@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.40
+
+### Patch Changes
+
+- bbe5b49: feat: update edit and delete icons
+
 ## 0.12.39
 
 ### Patch Changes
