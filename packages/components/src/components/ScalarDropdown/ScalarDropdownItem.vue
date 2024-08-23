@@ -39,3 +39,8 @@ const variants = cva({
     </button>
   </MenuItem>
 </template>
+<style scoped>
+.dark-mode .scalar-dropdown-item:hover {
+  filter: brightness(1.1);
+}
+</style>

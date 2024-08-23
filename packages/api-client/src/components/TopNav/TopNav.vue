@@ -1,9 +1,17 @@
 <script setup lang="ts">
+import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
 import { useClipboard } from '@/hooks/useClipboard'
 import { type HotKeyEvents, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
-import { type Icon, ScalarIcon } from '@scalar/components'
+import {
+  type Icon,
+  ScalarContextMenu,
+  ScalarDropdown,
+  ScalarDropdownDivider,
+  ScalarDropdownItem,
+  ScalarIcon,
+} from '@scalar/components'
 import { capitalize } from '@scalar/oas-utils/helpers'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
@@ -141,14 +149,48 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   <nav class="flex h-10 t-app__top-nav">
     <div class="t-app__top-nav-draggable"></div>
     <div
-      class="flex h-10 flex-1 items-center justify-center gap-1.5 text-sm font-medium relative">
+      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium relative">
       <template v-if="topNavItems.length === 1">
-        <div class="flex items-center gap-1 w-full justify-center">
-          <ScalarIcon
-            :icon="topNavItems[0].icon"
-            size="xs"
-            thickness="2.5" />
-          <div>{{ topNavItems[0].label }}</div>
+        <div class="h-full w-full">
+          <ScalarContextMenu
+            triggerClass="flex gap-1.5 h-full items-center justify-center w-full">
+            <template #trigger>
+              <ScalarIcon
+                :icon="topNavItems[0].icon"
+                size="xs"
+                thickness="2.5" />
+              <span>{{ topNavItems[0].label }}</span>
+            </template>
+            <template #content>
+              <ScalarDropdown
+                class="scalar-client"
+                static>
+                <template #items>
+                  <ScalarDropdownItem
+                    class="flex items-center gap-1.5"
+                    @click="addNavItem">
+                    <ScalarIcon
+                      icon="AddTab"
+                      size="sm"
+                      thickness="1.5" />
+                    New Tab
+                    <ScalarHotkey
+                      class="bg-b-2 ml-auto"
+                      hotkey="T" />
+                  </ScalarDropdownItem>
+                  <ScalarDropdownItem
+                    class="flex items-center gap-1.5"
+                    @click="copyUrl(activeNavItemIdxValue)">
+                    <ScalarIcon
+                      icon="Link"
+                      size="sm"
+                      thickness="1.5" />
+                    Copy URL
+                  </ScalarDropdownItem>
+                </template>
+              </ScalarDropdown>
+            </template>
+          </ScalarContextMenu>
         </div>
       </template>
       <template v-else>
