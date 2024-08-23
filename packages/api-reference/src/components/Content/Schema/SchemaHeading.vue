@@ -45,8 +45,10 @@ defineProps<{
 /* Style the "icon" */
 .schema-type-icon {
   color: var(--scalar-color-1);
+  display: none;
 }
 .schema-type {
   font-family: var(--scalar-font-code);
+  color: var(--scalar-color-1);
 }
 </style>
