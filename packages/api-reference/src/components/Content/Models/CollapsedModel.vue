@@ -36,8 +36,7 @@ watch(
         @click="showCollapsedItems = !showCollapsedItems">
         <ScalarIcon
           :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
-          size="md"
-          thickness="1.75" />
+          size="sm" />
         <Anchor :id="getModelId(name)">
           <SchemaHeading
             :name="name"
