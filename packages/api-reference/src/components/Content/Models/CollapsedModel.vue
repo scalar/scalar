@@ -1,15 +1,29 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import { ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 
+import { scrollToId } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import Anchor from '../../Anchor/Anchor.vue'
+import { Section } from '../../Section'
 import { Schema, SchemaHeading } from '../Schema'
 
-defineProps<{ name: string; schemas: Record<string, any> }>()
-const { getModelId } = useNavState()
+const props = defineProps<{ name: string; schemas: Record<string, any> }>()
+const { hash, getModelId } = useNavState()
 
 const showCollapsedItems = ref(false)
+
+watch(
+  hash,
+  async (id) => {
+    if (id === getModelId(props.name) && !showCollapsedItems.value) {
+      showCollapsedItems.value = true
+      await nextTick()
+      scrollToId(getModelId(props.name))
+    }
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <div
@@ -30,11 +44,16 @@ const showCollapsedItems = ref(false)
             :value="(schemas as any)[name]" />
         </Anchor>
       </div>
-      <Schema
+      <Section
         v-if="showCollapsedItems"
-        :hideHeading="true"
-        noncollapsible
-        :value="(schemas as any)[name]" />
+        :id="getModelId(name)"
+        class="collapsed-model-section"
+        :label="name">
+        <Schema
+          :hideHeading="true"
+          noncollapsible
+          :value="(schemas as any)[name]" />
+      </Section>
     </template>
   </div>
 </template>
@@ -75,5 +94,9 @@ const showCollapsedItems = ref(false)
 }
 .collapsed-model .collapsed-model-trigger :deep(.anchor-copy) {
   line-height: 18.5px;
+}
+.collapsed-model-section {
+  padding: 0;
+  margin: 0;
 }
 </style>

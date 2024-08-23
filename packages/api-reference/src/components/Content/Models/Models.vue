@@ -3,13 +3,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import { Anchor } from '../../Anchor'
-import {
-  Section,
-  SectionContainer,
-  SectionContent,
-  SectionHeader,
-} from '../../Section'
+import { Section, SectionContainer, SectionHeader } from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
 import CollapsedModel from './CollapsedModel.vue'
@@ -64,8 +58,7 @@ const models = computed(() => {
           :schemas="schemas" />
         <ShowMoreButton
           v-if="!showAllModels && index === models.length - 1"
-          :id="getModelId()"
-          class="something-special" />
+          :id="getModelId()" />
       </Lazy>
     </Section>
   </SectionContainer>
