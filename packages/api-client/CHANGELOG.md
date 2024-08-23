@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.0.59
+
+### Patch Changes
+
+- bbe5b49: feat: update dropdown context menu icons
+- Updated dependencies [bbe5b49]
+  - @scalar/components@0.12.40
+
 ## 2.0.58
 
 ### Patch Changes
