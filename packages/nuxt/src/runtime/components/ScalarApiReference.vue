@@ -8,17 +8,6 @@ const props = defineProps<{
   configuration: Configuration
 }>()
 
-if (props.configuration.theme === 'nuxt') {
-  useHead({
-    link: [
-      {
-        rel: 'stylesheet',
-        href: new URL('./nuxt-theme.css', import.meta.url).href,
-      },
-    ],
-  })
-}
-
 const isDark = ref(props.configuration.darkMode)
 
 // Grab spec if we can
@@ -60,3 +49,7 @@ const config = {
     :rawSpec="rawSpec"
     @toggleDarkMode="isDark = !isDark" />
 </template>
+
+<style>
+@import './nuxt-theme.css';
+</style>
