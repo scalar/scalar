@@ -109,7 +109,10 @@ function getFullUrlFromHash(href: string) {
         :icon="ENTRY_ICONS[entry.item.type]"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
-        {{ entry.item.title }}
+        <span
+          :class="{ deprecated: entry.item.operation?.information?.deprecated }"
+          >{{ entry.item.title }}</span
+        >
         <template
           v-if="
             (entry.item.httpVerb || entry.item.path) &&
@@ -158,5 +161,8 @@ a {
   font-weight: var(--scalar-semibold);
   display: flex;
   gap: 12px;
+}
+.deprecated {
+  text-decoration: line-through;
 }
 </style>
