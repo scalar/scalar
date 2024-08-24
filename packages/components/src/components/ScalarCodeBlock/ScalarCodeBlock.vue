@@ -54,26 +54,21 @@ const isContentValid = computed(() => {
           size="md" />
       </button>
     </div>
-    <div class="scalar-code-scroll custom-scroll">
-      <pre
-        class="scalar-codeblock-pre"
-        v-html="highlightedCode"></pre>
-    </div>
+    <pre
+      class="scalar-codeblock-pre"
+      v-html="highlightedCode"></pre>
   </div>
 </template>
 <style>
 @import '@scalar/code-highlight/css/code.css';
 .scalar-code-block {
   position: relative;
+  overflow: auto;
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
 }
 .scalar-code-block:hover .copy-button {
   opacity: 100;
   visibility: visible;
-}
-.scalar-code-block .scalar-code-scroll.custom-scroll {
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
-  overflow-x: auto;
-  overflow-y: hidden;
 }
 /* Code blocks */
 .scalar-codeblock-pre {
@@ -94,8 +89,8 @@ const isContentValid = computed(() => {
 }
 .copy-button {
   position: relative;
-  top: 8px;
-  right: 8px;
+  top: 0px;
+  right: 0px;
 
   display: flex;
   align-items: center;
