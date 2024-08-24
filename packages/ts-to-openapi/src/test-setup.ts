@@ -17,7 +17,6 @@ const compilerHost: CompilerHost = {
   getDefaultLibFileName: () => '',
   getNewLine: () => '\n',
   getSourceFile: (filename) =>
-    console.log(filename) ||
     createSourceFile(
       filename,
       readFileSync(filename).toString(),

@@ -2,12 +2,9 @@ import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Expression,
   type Node,
-  NodeBuilderFlags,
-  type ObjectLiteralExpression,
-  type Program,
   type ReturnStatement,
   SyntaxKind,
-  TypeFormatFlags,
+  type TypeChecker,
   isArrowFunction,
   isBlock,
   isCallExpression,
@@ -22,9 +19,7 @@ import {
   isIdentifier,
   isIfStatement,
   isMethodDeclaration,
-  isObjectLiteralExpression,
   isPropertyAccessExpression,
-  isPropertyAssignment,
   isReturnStatement,
   isSwitchStatement,
   isTryStatement,
@@ -32,8 +27,6 @@ import {
 } from 'typescript'
 
 import { getSchemaFromNode } from './node'
-import { getSchemaFromTypeNode } from './type-nodes'
-import type { FileNameResolver } from './types'
 
 /**
  * Generator to grab all nested return statements from a node
@@ -99,11 +92,7 @@ export function* getReturnStatements(
  * - grab jsDoc
  * - pass in a predicate as this if statement is meant for next
  */
-export const generateResponses = (
-  node: Node,
-  program: Program,
-  fileNameResolver: FileNameResolver,
-) => {
+export const generateResponses = (node: Node, typeChecker: TypeChecker) => {
   const generator = getReturnStatements(node)
   const statements = Array.from(generator)
 
@@ -124,16 +113,15 @@ export const generateResponses = (
           'NextResponse')
     ) {
       const [payload, options] = statement.expression.arguments
-      const status = 200
 
-      const schema = getSchemaFromNode(payload, program, fileNameResolver)
-      const optionsSchema = getSchemaFromNode(
-        payload,
-        program,
-        fileNameResolver,
-      )
-
-      // console.log(optionsSchema)
+      // Grab payload and options schemas
+      const schema = getSchemaFromNode(payload, typeChecker)
+      const optionsSchema = options
+        ? getSchemaFromNode(options, typeChecker)
+        : null
+      const status =
+        (optionsSchema?.properties?.status as OpenAPIV3_1.SchemaObject)
+          ?.example ?? 200
 
       if (status)
         return {
