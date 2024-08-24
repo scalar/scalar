@@ -10,7 +10,9 @@ import { describe, expect, it } from 'vitest'
 import { generateResponses, getReturnStatements } from './responses'
 import { program } from './test-setup'
 
-const sourceFile = program.getSourceFile('src/fixtures/test-responses.ts')
+const sourceFile = program.getSourceFile(
+  __dirname + '/fixtures/test-responses.ts',
+)
 
 // First we get to the body
 const getNode = sourceFile?.statements[0]

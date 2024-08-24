@@ -30,7 +30,7 @@ const compilerHost: CompilerHost = {
   writeFile: () => null,
 }
 
-const programFileNames = await fg('src/fixtures/*.ts')
+const programFileNames = await fg(__dirname + '/fixtures/*.ts')
 
 // Intialize typescript program
 export const program = createProgram(
