@@ -201,6 +201,17 @@ export const backspaceCommand = EditorView.domEventHandlers({
     if (event.key === 'Backspace') {
       const { state } = view
       const { from, to } = state.selection.main
+
+      // Prevent breaking line content addition on pill removal
+      if (from === 0 && to === state.doc.length) {
+        view.dispatch({
+          changes: { from: 0, to: state.doc.length },
+          selection: { anchor: 0 },
+        })
+        event.preventDefault()
+        return true
+      }
+
       if (from === to && from > 0) {
         const before = state.doc.sliceString(from - 2, from)
         if (before === '}}') {
