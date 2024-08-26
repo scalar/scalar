@@ -109,8 +109,8 @@ if (props.withVariables && !activeWorkspace.value.isReadOnly) {
 }
 extensions.push(
   pillPlugin({ environments, activeParsedEnvironments, isReadOnly }),
+  backspaceCommand,
 )
-extensions.push(backspaceCommand)
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({
