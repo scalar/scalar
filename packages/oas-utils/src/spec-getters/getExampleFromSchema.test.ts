@@ -24,7 +24,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         enum: ['available', 'pending', 'sold'],
       }),
-    ).toMatchObject('available')
+    ).toBe('available')
   })
 
   it('uses empty quotes as a fallback for strings', () => {
@@ -32,7 +32,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         type: 'string',
       }),
-    ).toMatchObject('')
+    ).toBe('')
   })
 
   it('only includes required attributes and attributes with example values', () => {
@@ -79,7 +79,7 @@ describe('getExampleFromSchema', () => {
       getExampleFromSchema({
         type: ['string', 'number'],
       }),
-    ).toMatchObject('')
+    ).toBe('')
   })
 
   it('uses null for nullable union types', () => {
@@ -187,7 +187,7 @@ describe('getExampleFromSchema', () => {
           emptyString: '…',
         },
       ),
-    ).toMatchObject('…')
+    ).toBe('…')
   })
 
   it('returns emails as an example value', () => {
@@ -416,7 +416,7 @@ describe('getExampleFromSchema', () => {
       default: 'BAD_REQUEST_EXCEPTION',
     }
 
-    expect(getExampleFromSchema(schema)).toMatchObject('BAD_REQUEST_EXCEPTION')
+    expect(getExampleFromSchema(schema)).toBe('BAD_REQUEST_EXCEPTION')
   })
 
   it('uses 1 as the default for a number', () => {
@@ -625,7 +625,7 @@ describe('getExampleFromSchema', () => {
           },
         ],
       }),
-    ).toMatchObject('')
+    ).toBe('')
   })
 
   it('works with allOf', () => {
@@ -637,7 +637,7 @@ describe('getExampleFromSchema', () => {
           },
         ],
       }),
-    ).toMatchObject('')
+    ).toBe('')
   })
 
   it('uses all schemas in allOf', () => {
@@ -682,7 +682,7 @@ describe('getExampleFromSchema', () => {
         example: 'foobar',
         readOnly: true,
       }),
-    ).toMatchObject('foobar')
+    ).toBe('foobar')
   })
 
   it('returns readOnly attributes in read mode', () => {
@@ -696,7 +696,7 @@ describe('getExampleFromSchema', () => {
           mode: 'read',
         },
       ),
-    ).toMatchObject('foobar')
+    ).toBe('foobar')
   })
 
   it('doesn’t return readOnly attributes in write mode', () => {
@@ -719,7 +719,7 @@ describe('getExampleFromSchema', () => {
         example: 'foobar',
         writeOnly: true,
       }),
-    ).toMatchObject('foobar')
+    ).toBe('foobar')
   })
 
   it('returns writeOnly attributes in write mode', () => {
@@ -733,7 +733,7 @@ describe('getExampleFromSchema', () => {
           mode: 'write',
         },
       ),
-    ).toMatchObject('foobar')
+    ).toBe('foobar')
   })
 
   it('doesn’t return writeOnly attributes in read mode', () => {
