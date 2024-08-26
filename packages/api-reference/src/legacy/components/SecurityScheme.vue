@@ -229,7 +229,9 @@ const startAuthentication = (url: string) => {
 }
 </script>
 <template>
-  <CardForm v-if="value && value?.type">
+  <CardForm
+    v-if="value && value?.type"
+    @submit.prevent>
     <!-- API Key -->
     <CardFormTextInput
       v-if="value.type === 'apiKey'"
