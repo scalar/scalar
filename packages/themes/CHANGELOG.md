@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.28
+
+### Patch Changes
+
+- 80a3c46: fix(theme): add SSR check to obtrusive scroll check
+
 ## 0.9.27
 
 ### Patch Changes

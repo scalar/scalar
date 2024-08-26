@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.0.60
+
+### Patch Changes
+
+- c02202c: feat: main topnav context menu
+- Updated dependencies [9e8d40d]
+- Updated dependencies [80a3c46]
+- Updated dependencies [c02202c]
+  - @scalar/components@0.12.41
+  - @scalar/themes@0.9.28
+  - @scalar/oas-utils@0.2.39
+  - @scalar/types@0.0.5
+
 ## 2.0.59
 
 ### Patch Changes

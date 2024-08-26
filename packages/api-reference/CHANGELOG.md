@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.25.7
+
+### Patch Changes
+
+- f8f8787: style(api-reference): search modal deprecated endpoint
+- Updated dependencies [9e8d40d]
+- Updated dependencies [80a3c46]
+- Updated dependencies [c02202c]
+- Updated dependencies [c02202c]
+  - @scalar/components@0.12.41
+  - @scalar/themes@0.9.28
+  - @scalar/api-client@2.0.60
+  - @scalar/code-highlight@0.0.10
+  - @scalar/oas-utils@0.2.39
+  - @scalar/types@0.0.5
+
 ## 1.25.6
 
 ### Patch Changes

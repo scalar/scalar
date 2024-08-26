@@ -1,5 +1,15 @@
 # @scalar/nuxt
 
+## 0.2.85
+
+### Patch Changes
+
+- 80a3c46: fix(theme): add SSR check to obtrusive scroll check
+- Updated dependencies [f8f8787]
+- Updated dependencies [c02202c]
+  - @scalar/api-reference@1.25.7
+  - @scalar/api-client@2.0.60
+
 ## 0.2.84
 
 ### Patch Changes

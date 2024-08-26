@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.41
+
+### Patch Changes
+
+- 9e8d40d: fix(components): use single scroll container for codeblock
+- c02202c: fix: scalar dropdown item dark mode background brightness
+  - @scalar/code-highlight@0.0.10
+
 ## 0.12.40
 
 ### Patch Changes
