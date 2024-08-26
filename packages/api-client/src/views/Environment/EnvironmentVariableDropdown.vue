@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { WorkspaceStore } from '@/store/workspace'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import {
+  ScalarDropdown,
+  ScalarDropdownItem,
+  ScalarIcon,
+} from '@scalar/components'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import type { Router } from 'vue-router'
@@ -72,41 +76,42 @@ const getEnvColor = (
 }
 </script>
 <template>
-  <dialog
+  <ScalarDropdown
     id="env-dialog"
     class="z-10 w-60 rounded border bg-b-1 p-1"
     :open="isOpen"
-    tabindex="0">
-    <ul v-if="filteredVariables.length">
-      <template
-        v-for="(item, index) in filteredVariables"
-        :key="index">
-        <li
-          class="font-code text-3xs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
-          @click="selectVariable(item.key)">
-          <!-- @click.stop="selectVariable(variable)" -->
-          <div class="flex items-center gap-1.5 whitespace-nowrap">
-            <span
-              class="h-2.5 w-2.5 min-w-2.5 rounded-full"
-              :class="getEnvColor(item)"></span>
-            {{ item.key }}
-          </div>
-          <span class="w-20 overflow-hidden text-ellipsis text-right">
-            {{ item.value }}
-          </span>
-        </li>
-      </template>
-    </ul>
-    <ScalarButton
-      v-else
-      class="font-code text-3xs hover:bg-b-2 flex h-7 w-full justify-start gap-2 px-2 transition-colors duration-150"
-      variant="secondary"
-      @click="redirectToEnvironment">
-      <ScalarIcon
-        class="w-2"
-        icon="Add"
-        size="xs" />
-      Add variable
-    </ScalarButton>
-  </dialog>
+    static>
+    <template #items>
+      <ul v-if="filteredVariables.length">
+        <template
+          v-for="item in filteredVariables"
+          :key="item.key">
+          <li
+            class="h-8 font-code text-3xs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
+            @click="selectVariable(item.key)">
+            <!-- @click.stop="selectVariable(variable)" -->
+            <div class="flex items-center gap-1.5 whitespace-nowrap">
+              <span
+                class="h-2.5 w-2.5 min-w-2.5 rounded-full"
+                :class="getEnvColor(item)"></span>
+              {{ item.key }}
+            </div>
+            <span class="w-20 overflow-hidden text-ellipsis text-right">
+              {{ item.value }}
+            </span>
+          </li>
+        </template>
+      </ul>
+      <ScalarDropdownItem
+        v-else
+        class="font-code !text-3xs hover:bg-b-2 flex h-8 w-full justify-start gap-2 !px-1.5 transition-colors duration-150"
+        @click="redirectToEnvironment">
+        <ScalarIcon
+          class="w-2"
+          icon="Add"
+          size="xs" />
+        Add variable
+      </ScalarDropdownItem>
+    </template>
+  </ScalarDropdown>
 </template>
