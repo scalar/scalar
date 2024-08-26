@@ -834,4 +834,43 @@ describe('getExampleFromSchema', () => {
       },
     })
   })
+
+  it('works with anyOf', () => {
+    expect(
+      getExampleFromSchema({
+        title: 'Foo',
+        type: 'object',
+        anyOf: [
+          {
+            type: 'object',
+            required: ['a'],
+            properties: {
+              a: {
+                type: 'integer',
+                format: 'int32',
+              },
+            },
+          },
+          {
+            type: 'object',
+            required: ['b'],
+            properties: {
+              b: {
+                type: 'string',
+              },
+            },
+          },
+        ],
+        required: ['c'],
+        properties: {
+          c: {
+            type: 'boolean',
+          },
+        },
+      }),
+    ).toStrictEqual({
+      a: 1,
+      c: true,
+    })
+  })
 })
