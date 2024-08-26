@@ -25,6 +25,7 @@ import {
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
+  OPENAPI_DOCUMENT_URL_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
   sleep,
@@ -234,6 +235,7 @@ provide(
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   () => props.configuration.hideDownloadButton,
 )
+provide(OPENAPI_DOCUMENT_URL_SYMBOL, () => props.configuration.spec?.url)
 
 hideModels.value = props.configuration.hideModels ?? false
 defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
