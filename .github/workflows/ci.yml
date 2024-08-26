@@ -239,6 +239,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'true'
+      - name: Bump versions
+        # Let’s apply the changesets and bump the version already,
+        # so it’ll have the upcoming version numbers already.
+        run: pnpm changeset version
       - name: Publish on Stackblitz
         # We can’t use npx pkg-pr-new publish ./packages/* here.
         # We want to explicitly publish the packages we want to save some time.
