@@ -1,8 +1,8 @@
-import { getServers } from '#legacy'
-import type { Spec } from '@scalar/oas-utils'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { Spec } from '@scalar/types/legacy'
 import { type Ref, reactive, watch } from 'vue'
 
+import { getServers } from '../../features/BaseUrl/utils/getServers'
 import { createEmptySpecification } from '../../helpers/createEmptySpecification'
 
 export type ServerState = {
