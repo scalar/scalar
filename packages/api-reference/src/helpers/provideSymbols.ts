@@ -7,7 +7,7 @@ import type { InjectionKey } from 'vue'
 export const GLOBAL_SECURITY_SYMBOL = Symbol() as InjectionKey<
   () =>
     | OpenAPIV3.SecurityRequirementObject[]
-    | OpenAPIV3_1.SecurityRequirementObject
+    | OpenAPIV3_1.SecurityRequirementObject[]
     | undefined
 >
 
