@@ -1,4 +1,4 @@
-# Scalar Next.js API Reference Handler
+# [PRE-ALPHA] Scalar Next.js API Reference Handler
 
 [![Version](https://img.shields.io/npm/v/%40scalar/nextjs-openapi)](https://www.npmjs.com/package/@scalar/nextjs-openapi)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/nextjs-openapi)](https://www.npmjs.com/package/@scalar/nextjs-openapi)
