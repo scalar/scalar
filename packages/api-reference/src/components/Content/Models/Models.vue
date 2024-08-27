@@ -3,10 +3,15 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import { Section, SectionContainer, SectionHeader } from '../../Section'
+import {
+  CompactSection,
+  Section,
+  SectionContainer,
+  SectionHeader,
+} from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
-import CollapsedModel from './CollapsedModel.vue'
+import { Schema, SchemaHeading } from '../Schema'
 
 const props = defineProps<{
   schemas?:
@@ -53,9 +58,19 @@ const models = computed(() => {
         :id="getModelId(name)"
         :key="name"
         isLazy>
-        <CollapsedModel
-          :name="name"
-          :schemas="schemas" />
+        <CompactSection
+          :id="getModelId(name)"
+          :label="name">
+          <template #heading>
+            <SchemaHeading
+              :name="name"
+              :value="(schemas as any)[name]" />
+          </template>
+          <Schema
+            :hideHeading="true"
+            noncollapsible
+            :value="(schemas as any)[name]" />
+        </CompactSection>
         <ShowMoreButton
           v-if="!showAllModels && index === models.length - 1"
           :id="getModelId()" />
