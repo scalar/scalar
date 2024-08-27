@@ -28,7 +28,6 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "exports": {},
   "files": [
     "dist",
     "!dist/webpack-stats.json",
