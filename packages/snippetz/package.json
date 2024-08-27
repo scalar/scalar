@@ -2,25 +2,20 @@
   "name": "@scalar/snippetz",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
-  "homepage": "https://github.com/scalar/snippetz",
-  "bugs": "https://github.com/scalar/snippetz/issues/new/choose",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "version": "0.2.0",
   "engines": {
     "node": ">=18"
   },
-  "version": "0.2.0",
-  "type": "module",
   "scripts": {
     "build": "scalar-build-rollup",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
-  "files": [
-    "dist",
-    "CHANGELOG"
-  ],
+  "type": "module",
   "types": "./dist/index.d.ts",
-  "module": "./dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -51,8 +46,13 @@
       "types": "./dist/core/index.d.ts"
     }
   },
+  "files": [
+    "dist",
+    "CHANGELOG"
+  ],
+  "module": "./dist/index.js",
   "devDependencies": {
-    "@scalar/build-tooling": "^0.1.10",
+    "@scalar/build-tooling": "workspace:*",
     "@types/har-format": "^1.2.15"
   }
 }
