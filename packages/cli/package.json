@@ -49,6 +49,7 @@
     "@scalar/mock-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@scalar/void-server": "workspace:*",
     "commander": "^12.0.0",
     "github-slugger": "^2.0.0",
