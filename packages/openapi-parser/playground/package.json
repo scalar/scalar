@@ -1,0 +1,23 @@
+{
+  "name": "playground",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@scalar/openapi-parser": "workspace:*",
+    "@vueuse/core": "^10.11.0",
+    "vue": "^3.4.33"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.2",
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "vue-json-viewer": "3",
+    "vue-tsc": "^2.0.28"
+  }
+}
