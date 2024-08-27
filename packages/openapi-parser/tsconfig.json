@@ -16,7 +16,6 @@
   },
   "include": [
     "src/**/*",
-    "playground/**/*",
     "tests/**/*",
     "**/*.json",
     "**/*.yaml",

@@ -23,11 +23,9 @@
   },
   "scripts": {
     "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
-    "dev": "pnpm playground",
     "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "playground": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
     "test:unit": "vite-node scripts/load-files.ts && vitest",
