@@ -52,33 +52,45 @@ const models = computed(() => {
         :isLazy="false">
         <div id="models" />
       </Lazy>
-      <Lazy
-        v-for="(name, index) in models"
-        :id="getModelId(name)"
-        :key="name"
-        isLazy>
-        <CompactSection
+      <div
+        class="models-list"
+        :class="{ 'models-list-truncated': !showAllModels }">
+        <Lazy
+          v-for="name in models"
           :id="getModelId(name)"
-          :label="name">
-          <template #heading>
-            <SchemaHeading
-              :name="name"
+          :key="name"
+          isLazy>
+          <CompactSection
+            :id="getModelId(name)"
+            class="models-list-item"
+            :label="name">
+            <template #heading>
+              <SchemaHeading
+                :name="name"
+                :value="(schemas as any)[name]" />
+            </template>
+            <Schema
+              :hideHeading="true"
+              noncollapsible
               :value="(schemas as any)[name]" />
-          </template>
-          <Schema
-            :hideHeading="true"
-            noncollapsible
-            :value="(schemas as any)[name]" />
-        </CompactSection>
-        <ShowMoreButton
-          v-if="!showAllModels && index === models.length - 1"
-          :id="getModelId()" />
-      </Lazy>
+          </CompactSection>
+        </Lazy>
+      </div>
+      <ShowMoreButton
+        v-if="!showAllModels"
+        :id="getModelId()"
+        class="show-more-models" />
     </Section>
   </SectionContainer>
 </template>
 <style scoped>
-.show-more {
-  margin-top: 24px;
+.models-list {
+  display: contents;
+}
+.models-list-truncated .models-list-item:last-child {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.show-more-models {
+  margin-top: 32px;
 }
 </style>

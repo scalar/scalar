@@ -60,9 +60,6 @@ watch(
 .collapsible-section-header {
   color: var(--scalar-color-1);
 }
-.collapsible-section:has(+ .show-more) {
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-}
 .collapsible-section .collapsible-section-trigger {
   display: flex;
   align-items: center;
