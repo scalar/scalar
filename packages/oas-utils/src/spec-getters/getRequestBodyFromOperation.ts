@@ -6,6 +6,8 @@ import { prettyPrintJson } from '../helpers/prettyPrintJson'
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
 
+type AnyObject = Record<string, any>
+
 /**
  * Transform the object into a nested array of objects
  * that represent the key-value pairs of the object.
