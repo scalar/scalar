@@ -62,7 +62,7 @@ const files = await fetch(
  */
 describe('diff', async () => {
   // TODO: We’re currently only testing a few of the files for performance reasons.
-  test.each(files.slice(0, 100))('diff %s', async (file) => {
+  test.each(files.slice(0, 100))('diff $name', async (file) => {
     console.log(file.name)
     // Fetch the file from cloud storage
     const content = await downloadFileToMemory(bucketName, file.name)
