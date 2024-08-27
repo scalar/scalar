@@ -36,6 +36,7 @@
   },
   "files": [
     "dist",
+    "!dist/webpack-stats.json",
     "CHANGELOG.md"
   ],
   "sideEffects": false,
