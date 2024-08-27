@@ -19,11 +19,11 @@ import {
 } from 'typescript'
 
 /** Check if identifier is a supported http method */
-const checkForMethod = (identifier: Identifier): string | null => {
+const checkForMethod = (identifier: Identifier) => {
   const method = identifier?.escapedText?.toLowerCase()
 
   return method?.match(/^(get|post|put|patch|delete|head|options)$/)
-    ? method
+    ? (method as OpenAPIV3_1.HttpMethods)
     : null
 }
 
@@ -64,7 +64,7 @@ const extractPathParams = (
         name: member.name?.getText(),
         schema: getSchemaFromTypeNode(member.type, program, fileNameResolver),
         in: 'path',
-      }
+      } as OpenAPIV3_1.ParameterObject
     })
 
   return []
@@ -84,13 +84,14 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
       if (method) {
         const { title, description } = getJSDocFromNode(statement)
         const parameters = extractPathParams(statement.parameters[1], program)
+        const responses = generateResponses(statement.body, typeChecker)
 
-        // Extract responses
-        const responses = statement.body
-          ? generateResponses(statement.body, typeChecker)
-          : {}
-
-        path[method] = { summary: title, description, parameters, responses }
+        path[method] = {
+          summary: title,
+          description,
+          parameters,
+          responses,
+        } as OpenAPIV3_1.OperationObject
       }
     }
 
@@ -102,7 +103,11 @@ export const getPathSchema = (sourceFile: SourceFile, program: Program) => {
       if (method) {
         const { title, description } = getJSDocFromNode(statement)
         const responses = generateResponses(statement, typeChecker)
-        path[method] = { summary: title, description, responses }
+        path[method] = {
+          summary: title,
+          description,
+          responses,
+        } as OpenAPIV3_1.OperationObject
       }
     }
   })

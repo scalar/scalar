@@ -92,7 +92,12 @@ export function* getReturnStatements(
  * - grab jsDoc
  * - pass in a predicate as this if statement is meant for next
  */
-export const generateResponses = (node: Node, typeChecker: TypeChecker) => {
+export const generateResponses = (
+  node: Node | undefined,
+  typeChecker: TypeChecker,
+): OpenAPIV3_1.ResponsesObject => {
+  if (!node) return {}
+
   const generator = getReturnStatements(node)
   const statements = Array.from(generator)
 
