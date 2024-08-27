@@ -1,5 +1,6 @@
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
-import { type OpenAPI, openapi } from '@scalar/openapi-parser'
+import { openapi } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
 import { accepts } from 'hono/accepts'
 import { cors } from 'hono/cors'

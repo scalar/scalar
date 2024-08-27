@@ -108,6 +108,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "axios": "^1.7.5",
     "rollup": "^4.16.4",
     "type-fest": "^4.20.0",

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
   Tag as TagType,

@@ -68,6 +68,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/snippetz": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
