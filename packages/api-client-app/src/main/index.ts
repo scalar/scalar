@@ -127,6 +127,17 @@ function createWindow(): void {
             label: app.name,
             submenu: [
               { role: 'about' },
+              {
+                label: 'Check for Updates…',
+                click: async () => {
+                  console.log('Checking for updates…')
+
+                  const updateCheck =
+                    await todesktop.autoUpdater?.checkForUpdates()
+
+                  console.log('Update:', updateCheck?.updateInfo)
+                },
+              },
               { type: 'separator' },
               { role: 'services' },
               { type: 'separator' },
