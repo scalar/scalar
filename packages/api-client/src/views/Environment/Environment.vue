@@ -22,7 +22,7 @@ const activeEnvironmentID = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 
-function addEnvironmentVariable() {
+function addEnvironment() {
   const environment = {
     name: 'New Environment',
     uid: nanoid(),
@@ -43,7 +43,7 @@ function handleEnvironmentUpdate(raw: string) {
   }
 }
 
-const removeEnvironmentVariable = (uid: string) => {
+const removeEnvironment = (uid: string) => {
   environmentMutators.delete(uid)
   if (activeEnvironmentID.value === uid) {
     activeEnvironmentID.value = null
@@ -109,13 +109,13 @@ onMounted(setActiveEnvironment)
                 }"
                 :warningMessage="`Are you sure you want to delete this environment?`"
                 @click="activeEnvironmentID = environment.uid"
-                @delete="removeEnvironmentVariable(environment.uid)" />
+                @delete="removeEnvironment(environment.uid)" />
             </SidebarList>
           </div>
         </template>
         <template #button>
-          <SidebarButton :click="addEnvironmentVariable">
-            <template #title>Add Environment Variable</template>
+          <SidebarButton :click="addEnvironment">
+            <template #title>Add Environment</template>
           </SidebarButton>
         </template>
       </Sidebar>
