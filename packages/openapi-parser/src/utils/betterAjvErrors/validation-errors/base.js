@@ -1,6 +1,6 @@
 // import { codeFrameColumns } from '@babel/code-frame';
 // import chalk from 'chalk';
-import { getMetaFromPath } from '../json/index'
+// import { getMetaFromPath } from '../json/index'
 
 export default class BaseValidationError {
   // eslint-disable-next-line default-param-last

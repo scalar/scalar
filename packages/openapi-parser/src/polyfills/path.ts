@@ -53,20 +53,19 @@ function normalizeArray(parts, allowAboveRoot) {
 
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
-const splitPathRe =
-  /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^\/]+?|)(\.[^.\/]*|))(?:[\/]*)$/
+const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/
 const splitPath = function (filename) {
   return splitPathRe.exec(filename).slice(1)
 }
 
 // path.resolve([from ...], to)
 // posix version
-export function resolve() {
+export function resolve(...parameters) {
   let resolvedPath = '',
     resolvedAbsolute = false
 
-  for (let i = arguments.length - 1; i >= -1 && !resolvedAbsolute; i--) {
-    const path = i >= 0 ? arguments[i] : '/'
+  for (let i = parameters.length - 1; i >= -1 && !resolvedAbsolute; i--) {
+    const path = i >= 0 ? parameters[i] : '/'
 
     // Skip empty and invalid entries
     if (typeof path !== 'string') {
@@ -160,7 +159,7 @@ export function relative(from, to) {
 
   const length = Math.min(fromParts.length, toParts.length)
   let samePartsLength = length
-  for (var i = 0; i < length; i++) {
+  for (let i = 0; i < length; i++) {
     if (fromParts[i] !== toParts[i]) {
       samePartsLength = i
       break
@@ -168,7 +167,7 @@ export function relative(from, to) {
   }
 
   let outputParts = []
-  for (var i = samePartsLength; i < fromParts.length; i++) {
+  for (let i = samePartsLength; i < fromParts.length; i++) {
     outputParts.push('..')
   }
 
@@ -177,11 +176,11 @@ export function relative(from, to) {
   return outputParts.join('/')
 }
 
-export var sep = '/'
-export var delimiter = ':'
+export const sep = '/'
+export const delimiter = ':'
 
 export function dirname(path) {
-  let result = splitPath(path),
+  const result = splitPath(path),
     root = result[0],
     dir = result[1]
 
@@ -232,7 +231,7 @@ function filter(xs, f) {
 }
 
 // String.prototype.substr - negative index don't work in IE8
-var substr =
+const substr =
   'ab'.substr(-1) === 'b'
     ? function (str, start, len) {
         return str.substr(start, len)

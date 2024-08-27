@@ -18,7 +18,6 @@ import {
   UnevaluatedPropValidationError,
 } from './validation-errors/index'
 
-// eslint-disable-next-line unicorn/no-unsafe-regex
 const JSON_POINTERS_REGEX = /\/[\w_-]+(\/\d+)?/g
 
 // Make a tree of errors from ajv errors array

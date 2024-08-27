@@ -125,7 +125,7 @@ describe('resolveReferences', () => {
     }
 
     // Run the specification through the old parser
-    const oldSchema = (await new Promise(async (resolve, reject) => {
+    const oldSchema = (await new Promise((resolve, reject) => {
       SwaggerParser.dereference(
         structuredClone(specification) as never,
         (error, result) => {
@@ -182,7 +182,7 @@ describe('resolveReferences', () => {
     }
 
     // Run the specification through the old parser
-    const oldSchema = (await new Promise(async (resolve, reject) => {
+    const oldSchema = (await new Promise((resolve, reject) => {
       SwaggerParser.dereference(
         structuredClone(specification) as never,
         (error, result) => {

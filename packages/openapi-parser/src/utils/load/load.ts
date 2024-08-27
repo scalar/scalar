@@ -38,7 +38,7 @@ export async function load(
   }
 
   // Check whether the value is an URL or file path
-  const plugin = options?.plugins?.find((plugin) => plugin.check(value))
+  const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
 
   let content: AnyObject
 
@@ -105,16 +105,18 @@ export async function load(
   // Load other external references
   for (const reference of listOfReferences) {
     // Find a matching plugin
-    const plugin = options?.plugins?.find((plugin) => plugin.check(reference))
+    const otherPlugin = options?.plugins?.find((thisPlugin) =>
+      thisPlugin.check(reference),
+    )
 
     // Skip if no plugin is found (internal references don’t need a plugin for example)
-    if (!plugin) {
+    if (!otherPlugin) {
       continue
     }
 
     const target =
-      plugin.check(reference) && plugin.resolvePath
-        ? plugin.resolvePath(value, reference)
+      otherPlugin.check(reference) && otherPlugin.resolvePath
+        ? otherPlugin.resolvePath(value, reference)
         : reference
 
     // Don’t load a reference twice, check the filesystem before fetching something

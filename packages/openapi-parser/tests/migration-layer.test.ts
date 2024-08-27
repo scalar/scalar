@@ -1,6 +1,6 @@
-import OriginalSwaggerParser from '@apidevtools/swagger-parser'
+// import OriginalSwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load'

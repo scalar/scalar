@@ -15,7 +15,7 @@ export function upgrade(
 
   // TODO: Run upgrade over the whole filesystem
   const result = upgraders.reduce(
-    (specification, upgrader) => upgrader(specification),
+    (currentSpecification, upgrader) => upgrader(currentSpecification),
     getEntrypoint(makeFilesystem(specification)).specification,
   )
 

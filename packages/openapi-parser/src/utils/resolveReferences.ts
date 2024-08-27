@@ -97,8 +97,8 @@ export function resolveReferences(
    */
   function resolve(
     schema: AnyObject,
-    filesystem: Filesystem,
-    file: FilesystemEntry,
+    resolveFilesystem: Filesystem,
+    resolveFile: FilesystemEntry,
   ): DereferenceResult {
     let result: DereferenceResult | undefined
 
@@ -110,8 +110,8 @@ export function resolveReferences(
         const target = resolveUri(
           schema.$ref,
           options,
-          file,
-          filesystem,
+          resolveFile,
+          resolveFilesystem,
           errors,
         )
 
@@ -132,7 +132,7 @@ export function resolveReferences(
       }
 
       if (typeof value === 'object' && !isCircular(value)) {
-        result = resolve(value, filesystem, file)
+        result = resolve(value, resolveFilesystem, resolveFile)
       }
     })
 

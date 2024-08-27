@@ -105,7 +105,7 @@ describe('pipeline', () => {
   })
 
   it('filter x-internal', async () => {
-    const example = {
+    const otherExample = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -135,7 +135,7 @@ describe('pipeline', () => {
     }
 
     const { specification } = await openapi()
-      .load(example)
+      .load(otherExample)
       .filter((schema) => !schema?.['x-internal'])
       .get()
 
@@ -144,7 +144,7 @@ describe('pipeline', () => {
   })
 
   it('filter tags', async () => {
-    const example = {
+    const otherExample = {
       openapi: '3.1.0',
       info: {
         title: 'Hello World',
@@ -174,7 +174,7 @@ describe('pipeline', () => {
     }
 
     const { specification } = await openapi()
-      .load(example)
+      .load(otherExample)
       .filter((schema) => !schema?.tags?.includes('Beta'))
       .get()
 
@@ -183,7 +183,7 @@ describe('pipeline', () => {
   })
 
   it('upgrade > filter', async () => {
-    const example = {
+    const otherExample = {
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -213,7 +213,7 @@ describe('pipeline', () => {
     }
 
     const { specification } = await openapi()
-      .load(example)
+      .load(otherExample)
       .upgrade()
       .filter((schema) => !schema?.tags?.includes('Beta'))
       .get()

@@ -31,4 +31,4 @@ export const ERRORS = {
   NO_CONTENT: 'No content found',
 } as const
 
-export type VALIDATOR_ERROR = keyof typeof ERRORS
+export type ValidationError = keyof typeof ERRORS

@@ -1,10 +1,9 @@
 import { codeFrameColumns } from '@babel/code-frame'
+// const JsonAsty = require('json-asty')
+import { parse } from 'json-to-ast'
 import { describe, it } from 'vitest'
 
 import { toJson } from '../src'
-
-// const JsonAsty = require('json-asty')
-const parse = require('json-to-ast')
 
 const example = {
   openapi: '3.1.0',
