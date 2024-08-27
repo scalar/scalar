@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import kleur from 'kleur'
 
 export function printSpecificationBanner(result: {

@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { createMockServer } from '@scalar/mock-server'
-import type { OpenAPI } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { Command } from 'commander'
 import type { Context } from 'hono'
 import kleur from 'kleur'

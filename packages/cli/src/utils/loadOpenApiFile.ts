@@ -1,4 +1,4 @@
-import { type ErrorObject, load, validate } from '@scalar/openapi-parser'
+import { load, validate } from '@scalar/openapi-parser'
 import kleur from 'kleur'
 
 import { getFileOrUrl } from './getFileOrUrl'
