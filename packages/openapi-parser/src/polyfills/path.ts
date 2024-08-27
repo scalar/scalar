@@ -181,8 +181,9 @@ export const delimiter = ':'
 
 export function dirname(path) {
   const result = splitPath(path),
-    root = result[0],
-    dir = result[1]
+    root = result[0]
+
+  let dir = result[1]
 
   if (!root && !dir) {
     // No dirname whatsoever
