@@ -6,7 +6,6 @@ import type { NextRequest } from 'next/server'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type CompilerHost,
-  type Identifier,
   JSDocParsingMode,
   ScriptKind,
   ScriptTarget,

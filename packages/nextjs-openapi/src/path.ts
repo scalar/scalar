@@ -7,11 +7,9 @@ import type { OpenAPIV3_1 } from 'openapi-types'
 import { extname, join } from 'path'
 import {
   type Identifier,
-  NodeArray,
   type ParameterDeclaration,
   type Program,
   type SourceFile,
-  SyntaxKind,
   isFunctionDeclaration,
   isIdentifier,
   isParameter,
@@ -68,6 +66,8 @@ const extractPathParams = (
         in: 'path',
       }
     })
+
+  return []
 }
 
 /**
