@@ -6,6 +6,30 @@ import { prettyPrintJson } from '../helpers/prettyPrintJson'
 import { getExampleFromSchema } from './getExampleFromSchema'
 import { getParametersFromOperation } from './getParametersFromOperation'
 
+type AnyObject = Record<string, any>
+
+/**
+ * Transform the object into a nested array of objects
+ * that represent the key-value pairs of the object.
+ */
+function getParamsFromObject(
+  obj: AnyObject,
+  prefix = '',
+): {
+  name: string
+  value: any
+}[] {
+  return Object.entries(obj).flatMap(([key, value]) => {
+    const newKey = prefix ? `${prefix}[${key}]` : key
+
+    if (typeof value === 'object' && value !== null) {
+      return getParamsFromObject(value, newKey)
+    }
+
+    return [{ name: newKey, value }]
+  })
+}
+
 /**
  * Get the request body from the operation.
  */
@@ -196,37 +220,23 @@ export function getRequestBodyFromOperation(
   }
 
   // URL encoded data
-  if (mimeType === 'application/x-www-form-urlencoded') {
-    return {
-      headers,
-      postData: {
-        mimeType: mimeType,
-        // TODO: We have an object, but how do we get that kind of array from the object?
-        // Don’t forget to include nested properties … :|
-        // params: [
-        //   {
-        //     name: 'foo',
-        //     value: 'bar',
-        //   },
-        // ],
-      },
-    }
-  }
+  if (
+    mimeType === 'multipart/form-data' ||
+    mimeType === 'application/x-www-form-urlencoded'
+  ) {
+    const exampleFromSchema = requestBodyObject?.schema
+      ? getExampleFromSchema(requestBodyObject?.schema, {
+          xml: true,
+          mode: 'write',
+          omitEmptyAndOptionalProperties: true,
+        })
+      : null
 
-  // URL encoded data
-  if (mimeType === 'multipart/form-data') {
     return {
       headers,
       postData: {
         mimeType: mimeType,
-        // TODO: We have an object, but how do we get that kind of array from the object?
-        // Don’t forget to include nested properties … :|
-        // params: [
-        //   {
-        //     name: 'foo',
-        //     value: 'bar',
-        //   },
-        // ],
+        params: getParamsFromObject(example ?? exampleFromSchema ?? {}),
       },
     }
   }

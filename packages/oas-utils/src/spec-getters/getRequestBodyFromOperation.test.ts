@@ -242,4 +242,46 @@ describe('getRequestBodyFromOperation', () => {
       text: JSON.stringify(expectedResult, null, 2),
     })
   })
+
+  it('adds parameters from a requestBody schema', () => {
+    const request = getRequestBodyFromOperation({
+      httpVerb: 'POST',
+      path: '/foobar',
+      information: {
+        requestBody: {
+          content: {
+            'application/x-www-form-urlencoded': {
+              schema: {
+                type: 'object',
+                properties: {
+                  id: {
+                    type: 'integer',
+                    example: 1,
+                  },
+                  name: {
+                    type: 'string',
+                    example: 'foobar',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(request?.postData).toMatchObject({
+      mimeType: 'application/x-www-form-urlencoded',
+      params: [
+        {
+          name: 'id',
+          value: 1,
+        },
+        {
+          name: 'name',
+          value: 'foobar',
+        },
+      ],
+    })
+  })
 })
