@@ -51,23 +51,6 @@ const envs = computed(() => [
       <!-- Workspace list -->
       <template #items>
         <ScalarDropdownItem
-          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
-          @click.stop="updateSelected('')">
-          <div
-            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
-            :class="
-              activeWorkspace.activeEnvironmentId === ''
-                ? 'bg-blue text-b-1'
-                : 'text-transparent'
-            ">
-            <ScalarIcon
-              class="size-2.5"
-              icon="Checkmark"
-              thickness="3.5" />
-          </div>
-          No Environment
-        </ScalarDropdownItem>
-        <ScalarDropdownItem
           v-for="env in envs"
           :key="env.uid"
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
@@ -86,18 +69,35 @@ const envs = computed(() => [
           </div>
           {{ env.name }}
         </ScalarDropdownItem>
+        <ScalarDropdownItem
+          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
+          @click.stop="updateSelected('')">
+          <div
+            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
+            :class="
+              activeWorkspace.activeEnvironmentId === ''
+                ? 'bg-blue text-b-1'
+                : 'text-transparent'
+            ">
+            <ScalarIcon
+              class="size-2.5"
+              icon="Checkmark"
+              thickness="3.5" />
+          </div>
+          No Environment
+        </ScalarDropdownItem>
         <ScalarDropdownDivider />
-        <!-- Add new environment -->
+        <!-- Manage environments -->
         <ScalarDropdownItem
           v-if="!isReadOnly"
           class="flex items-center gap-1.5"
           @click="createNewEnvironment">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
-              class="h-2.5"
-              icon="Add" />
+              icon="Brackets"
+              size="sm" />
           </div>
-          <span>Create new environment</span>
+          <span class="leading-none">Manage Environments</span>
         </ScalarDropdownItem>
       </template>
     </ScalarDropdown>
