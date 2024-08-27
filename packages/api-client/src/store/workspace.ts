@@ -305,7 +305,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
       )
 
     const example = createRequestExample({
-      url: server?.url ? `{{${server?.url}}}${request.path}` : request.path,
+      url: server?.url ? server?.url + request.path : request.path,
       requestUid: request.uid,
       parameters,
       name,
@@ -348,11 +348,17 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   }
 
   /** Currently active example OR the first one */
-  const activeExample = computed(
-    () =>
+  const activeExample = computed(() => {
+    const example =
       requestExamples[activeRouterParams.value[PathId.Examples]] ??
-      requestExamples[activeRequest.value?.childUids[0] ?? ''],
-  )
+      requestExamples[activeRequest.value?.childUids[0] ?? '']
+
+    if (example && activeServer.value) {
+      example.url = `{{${activeServer.value.url}}}${activeRequest.value.path}`
+    }
+
+    return example
+  })
 
   // ---------------------------------------------------------------------------
   // REQUEST HISTORY
