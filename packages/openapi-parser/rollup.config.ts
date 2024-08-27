@@ -3,10 +3,8 @@ import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 import { rm } from 'node:fs/promises'
 import { builtinModules } from 'node:module'
-import type { RollupOptions } from 'rollup'
-import type { Plugin } from 'rollup'
+import type { Plugin, RollupOptions } from 'rollup'
 import outputSize from 'rollup-plugin-output-size'
-import webpackStatsPlugin from 'rollup-plugin-webpack-stats'
 
 const input = [
   './src/index.ts',
@@ -59,7 +57,6 @@ const config: RollupOptions[] = [
       typescript(),
       json(),
       terser(),
-      webpackStatsPlugin(),
       outputSize(),
     ],
     external: [
