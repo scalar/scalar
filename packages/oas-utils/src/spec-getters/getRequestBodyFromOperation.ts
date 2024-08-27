@@ -11,7 +11,7 @@ import { getParametersFromOperation } from './getParametersFromOperation'
  * that represent the key-value pairs of the object.
  */
 function getParamsFromObject(
-  obj: any,
+  obj: AnyObject,
   prefix = '',
 ): {
   name: string
