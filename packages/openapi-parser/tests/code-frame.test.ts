@@ -1,6 +1,6 @@
 import { codeFrameColumns } from '@babel/code-frame'
 // const JsonAsty = require('json-asty')
-import { parse } from 'json-to-ast'
+import parse from 'json-to-ast'
 import { describe, it } from 'vitest'
 
 import { toJson } from '../src'
