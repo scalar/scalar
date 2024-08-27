@@ -36,5 +36,11 @@
   "sideEffects": false,
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   }
 }
