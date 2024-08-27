@@ -36,7 +36,9 @@ watch(
       <ScalarIcon
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
         size="sm" />
-      <Anchor :id="id">
+      <Anchor
+        :id="id"
+        class="collapsible-section-header">
         <slot name="heading" />
       </Anchor>
     </div>
@@ -54,6 +56,9 @@ watch(
   padding: 0 0 10px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   position: relative;
+}
+.collapsible-section-header {
+  color: var(--scalar-color-1);
 }
 .collapsible-section:has(+ .show-more) {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);

@@ -14,11 +14,16 @@ const { responses } = useResponses(props.webhook)
 
 <template>
   <template v-if="webhook">
-    <RequestBody :requestBody="webhook.information?.requestBody">
+    <RequestBody
+      class="webhook-request-body"
+      :requestBody="webhook.information?.requestBody">
       <template #title>Payload</template>
     </RequestBody>
-    <Parameters :parameters="responses">
+    <Parameters
+      class="webhook-response-parameters"
+      :parameters="responses">
       <template #title>Responses</template>
     </Parameters>
   </template>
 </template>
+<style scoped></style>

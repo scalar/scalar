@@ -46,7 +46,6 @@ const models = computed(() => {
 <template>
   <SectionContainer v-if="schemas">
     <Section>
-      <!-- Just a cheap trick to jump down to models -->
       <SectionHeader :level="2">Models</SectionHeader>
       <Lazy
         id="models"
