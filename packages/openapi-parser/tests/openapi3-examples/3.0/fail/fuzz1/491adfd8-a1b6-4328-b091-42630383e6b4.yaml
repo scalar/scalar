@@ -1,0 +1,18 @@
+openapi: '3.0.4-#6!WuAA%`'
+info:
+  title: consectetur in magna nostrud
+  version: occaecat cupidatat mollit
+  license:
+    name: aliqua
+    url: BNv)LZKULC$
+  description: 'dolore cillum '
+paths: {}
+components:
+  securitySchemes:
+    IE.e_QSmLe:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: T3f
+      description: 'enim '
+x-testcase: 'nested object test: nested object test: should not pass validation for format of property: url'

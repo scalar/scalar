@@ -1,0 +1,8 @@
+openapi: '3.0.8-:X3~.:n'
+info:
+  title: quis elit incididunt
+  version: dolor sit
+  contact:
+    url: ht<p://MLE\qyKI6cc9wlZxZL
+paths: {}
+x-testcase: 'nested object test: nested object test: should not pass validation for format of property: url'

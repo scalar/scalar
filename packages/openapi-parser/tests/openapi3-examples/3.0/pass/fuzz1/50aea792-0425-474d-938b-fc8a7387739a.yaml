@@ -1,0 +1,10 @@
+openapi: 3.0.2
+info:
+  title: magna Duis ipsum
+  version: occaecat amet Ut ex nisi
+paths:
+  /: {}
+tags:
+  - name: ex
+    description: ullamco proident
+x-testcase: 'within array test: should work with all required properties'

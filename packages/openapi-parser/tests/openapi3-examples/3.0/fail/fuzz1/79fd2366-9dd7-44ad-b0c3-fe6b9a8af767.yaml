@@ -1,0 +1,18 @@
+openapi: '3.0.1-jU:{.HM@\;'
+info:
+  title: aute fugiat ullamco ex sint
+  version: incididunt
+  contact: false
+paths: {}
+servers:
+  - url: elit nostrud enim non
+  - url: exercitation officia
+  - url: officia
+  - url: cillum elit ea qui
+  - url: veniam dolor tempor
+tags:
+  - name: 'adipisicing '
+  - name: occaecat deserunt elit
+    description: eiusmod ut dolor
+  - name: quis dolor elit
+x-testcase: "nested object test: should not work with 'contact' of type 'boolean'"

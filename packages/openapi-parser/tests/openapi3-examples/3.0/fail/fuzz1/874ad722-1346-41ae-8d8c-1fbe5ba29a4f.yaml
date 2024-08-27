@@ -1,0 +1,16 @@
+openapi: 3.0.8-+"
+info:
+  title: consectetur irure
+  version: pariatur officia id
+  contact:
+    name: c
+  description: reprehe
+paths: {}
+servers:
+  - description: eu et Excepteur officia
+tags:
+  - name: dolore nostrud id
+  - name: deserunt mollit dolor
+  - name: elit commodo dolor occaecat
+  - name: e
+x-testcase: 'within array test: should not work without required property: url'

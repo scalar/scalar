@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: Duplicate required
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    test:
+      properties:
+        first:
+          type: string
+      required:
+        - first
+        - first

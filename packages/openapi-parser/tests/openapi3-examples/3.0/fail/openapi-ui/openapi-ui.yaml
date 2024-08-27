@@ -1,0 +1,366 @@
+openapi: 3.0.0
+
+info:
+  title: contentjet
+  version: 1.0.0
+  description: REST API for contentjet.io
+
+externalDocs:
+  description: Hello world
+  url: http://example.com/
+
+servers:
+  - url: https://api.contentjet.io/v1
+
+tags:
+  - name: Project
+  - name: EntryType
+
+paths:
+  # Invite
+
+  /project/{projectUUID}/invite/:
+    get:
+      tags:
+        - Invite
+      description: ''
+      responses:
+        '200':
+          description: Returns a list of ProjectInvites.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/ProjectInvite'
+
+    post:
+      tags:
+        - Invite
+      description: ''
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+      responses:
+        '201':
+          description: Returns a list of ProjectInvites.
+          schema:
+            $ref: '#/components/definitions/ProjectInvite'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/invite/{inviteUUID}/:
+    get:
+      tags:
+        - Invite
+      description: ''
+      responses:
+        '200':
+          description: Returns a single ProjectInvite.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/ProjectInvite'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: inviteUUID
+        required: true
+        in: path
+        type: string
+
+  # Project
+
+  /project/:
+    get:
+      tags:
+        - Project
+      description: ''
+      responses:
+        '200':
+          description: Returns a list of Projects.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/Project'
+    post:
+      description: ''
+      responses:
+        '200':
+          description: Create Project.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/Project'
+
+  /project/{projectUUID}/:
+    get:
+      tags:
+        - Project
+      description: ''
+      responses:
+        '200':
+          description: Returns a single Project.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/Project'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  # EntryType
+
+  /project/{projectUUID}/entry-type/:
+    get:
+      tags:
+        - EntryType
+      description: ''
+      responses:
+        '200':
+          description: A list of EntryTypes.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/EntryType'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/entry-type/{entryTypeUUID}/:
+    get:
+      tags:
+        - EntryType
+      description: ''
+      responses:
+        '200':
+          description: Returns a single EntryType.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/EntryType'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: entryTypeUUID
+        required: true
+        in: path
+        type: string
+
+  # EntryTag
+
+  /project/{projectUUID}/entry-tag/:
+    get:
+      tags:
+        - EntryTag
+      description: ''
+      responses:
+        '200':
+          description: A list of EntryTags.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/EntryTag'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/entry-tag/{entryTypeUUID}/:
+    get:
+      tags:
+        - EntryTag
+      description: ''
+      responses:
+        '200':
+          description: Returns a single EntryTag.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/EntryType'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: entryTypeUUID
+        required: true
+        in: path
+        type: string
+
+  # Entry
+
+  /project/{projectUUID}/entry/:
+    get:
+      tags:
+        - Entry
+      description: ''
+      responses:
+        '200':
+          description: A list of Entries.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/Entry'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/entry/{entryUUID}/:
+    get:
+      tags:
+        - Entry
+      description: ''
+      responses:
+        '200':
+          description: Returns a single Entry.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/Entry'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: entryUUID
+        required: true
+        in: path
+        type: string
+
+  # MediaAsset
+
+  /project/{projectUUID}/media/:
+    get:
+      tags:
+        - MediaAsset
+      description: ''
+      responses:
+        '200':
+          description: Returns a list of MediaAssets.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/MediaAsset'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/media/{mediaUUID}/:
+    get:
+      tags:
+        - MediaAsset
+      description: ''
+      responses:
+        '200':
+          description: Returns a single MediaAsset.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/MediaAsset'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: mediaUUID
+        required: true
+        in: path
+        type: string
+
+  # MediaTag
+
+  /project/{projectUUID}/media-tag/:
+    get:
+      tags:
+        - MediaTag
+      description: ''
+      responses:
+        '200':
+          description: Returns a list of MediaTags.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/MediaTag'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+
+  /project/{projectUUID}/media-tag/{mediaTagUUID}/:
+    get:
+      tags:
+        - MediaTag
+      description: ''
+      responses:
+        '200':
+          description: Returns a single MediaAsset.
+          schema:
+            type: array
+            items:
+              $ref: '#/components/definitions/MediaTag'
+    parameters:
+      - $ref: '#/components/parameters/projectUUID'
+      - name: mediaTagUUID
+        required: true
+        in: path
+        type: string
+
+components:
+  definitions:
+    ProjectInvite:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+    Project:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+
+    EntryType:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+
+    EntryTag:
+      type: object
+      properties:
+        name:
+          type: string
+
+    Entry:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+
+    MediaAsset:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+
+    MediaTag:
+      type: object
+      properties:
+        name:
+          type: string
+
+    User:
+      type: object
+      properties:
+        uuid:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+
+  parameters:
+    projectUUID:
+      name: projectUUID
+      required: true
+      in: path
+      type: string

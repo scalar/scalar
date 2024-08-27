@@ -1,0 +1,75 @@
+{
+  "name": "@scalar/openapi-parser",
+  "description": "modern OpenAPI parser written in TypeScript",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/openapi-parser"
+  },
+  "keywords": [
+    "openapi",
+    "scalar",
+    "swagger",
+    "parser",
+    "typescript"
+  ],
+  "version": "0.7.2",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
+    "test": "vitest",
+    "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "types:check": "tsc --noEmit --skipLibCheck"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    },
+    "./plugins/fetch-urls": {
+      "import": "./dist/utils/load/plugins/fetchUrls.js"
+    },
+    "./plugins/read-files": {
+      "import": "./dist/utils/load/plugins/readFiles.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/webpack-stats.json",
+    "CHANGELOG.md"
+  ],
+  "module": "./dist/index.js",
+  "sideEffects": false,
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-draft-04": "^1.0.0",
+    "ajv-formats": "^3.0.1",
+    "jsonpointer": "^5.0.1",
+    "leven": "^4.0.0",
+    "yaml": "^2.4.5"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
+    "@babel/code-frame": "^7.24.7",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@scalar/openapi-types": "workspace:*",
+    "@types/node": "^20.14.10",
+    "glob": "^10.3.10",
+    "json-to-ast": "^2.1.0",
+    "just-diff": "^6.0.2",
+    "rollup": "^4.16.4",
+    "rollup-plugin-output-size": "^1.4.1",
+    "rollup-plugin-webpack-stats": "^0.2.5",
+    "tinybench": "^2.8.0"
+  }
+}

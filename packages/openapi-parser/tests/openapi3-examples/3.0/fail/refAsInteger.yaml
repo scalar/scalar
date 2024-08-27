@@ -1,0 +1,9 @@
+openapi: 3.0.2
+info:
+  version: 1.0.0
+  title: API
+paths: {}
+components:
+  schemas:
+    mySchema:
+      $ref: 0

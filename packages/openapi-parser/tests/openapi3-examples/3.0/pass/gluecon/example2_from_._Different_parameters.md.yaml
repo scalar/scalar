@@ -1,0 +1,14 @@
+openapi: 3.0.0
+info:
+  title: A parameter with an array of ints
+  version: 1.0.0
+paths:
+  /customers: # https://api.example.org/customers?ids=34,45,67
+    parameters:
+      - name: ids
+        in: query
+        style: form
+        schema:
+          type: array
+          items:
+            type: integer

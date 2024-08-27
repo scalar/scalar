@@ -1,0 +1,13 @@
+openapi: '3.0.1-5f=R[b'
+info:
+  title: est in sint minim
+  version: irure in pariatur
+  license:
+    name: ''
+paths: {}
+externalDocs:
+  url: http://example.com
+servers:
+  - url: http://example.com
+    description: Excepteur Ut nulla deser
+x-testcase: 'within array test: should work with all required properties'

@@ -1,0 +1,23 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Hello World",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/foobar": {
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/Foobar"
+        }
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "Foobar": {
+        "content": {}
+      }
+    }
+  }
+}

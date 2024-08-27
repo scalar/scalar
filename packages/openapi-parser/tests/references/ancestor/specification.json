@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "id": "#person",
+  "properties": {
+    "name": { "type": "string" },
+    "spouse": { "$ref": "specification.json#person" },
+    "children": {
+      "type": "array",
+      "items": { "$ref": "specification.json" }
+    }
+  }
+}

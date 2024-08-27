@@ -1,0 +1,6 @@
+get:
+  responses:
+    200:
+      description: OK
+      schema:
+        $ref: ./subdir2/ok.yaml

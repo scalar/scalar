@@ -1,0 +1,22 @@
+openapi: '3.0.0-a?S]L77!'
+info:
+  title: Excepteur cupidatat
+  version: ''
+  license:
+    name: dolore ex est
+  description: non nisi Ut
+  contact:
+    email: OoQ8@ipVOsXDDjQyEYUD.mxwz
+    name: 42.08
+    url: qPtfYIn+Bzc
+paths: {}
+tags:
+  - name: eu et incididunt ut
+  - name: sint
+  - name: ullamco Lorem sed anim elit
+servers:
+  - url: nulla dolore
+externalDocs:
+  url: Zw0
+  description: dolore velit est laborum
+x-testcase: "nested object test: nested object test: should not work with 'name' of type 'number'"

@@ -1,0 +1,13 @@
+openapi: 3.0.8
+info:
+  title: veniam minim eiusmod
+  version: labo
+  termsOfService: hTxPYECh
+  license:
+    name: velit
+  description: null
+paths: {}
+tags:
+  - name: officia
+    description: esse nostrud ad in cupidatat
+x-testcase: "nested object test: should not work with 'description' of type 'null'"

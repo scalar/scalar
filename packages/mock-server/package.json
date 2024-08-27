@@ -43,7 +43,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@scalar/oas-utils": "workspace:*",
-    "@scalar/openapi-parser": "^0.7.2",
+    "@scalar/openapi-parser": "workspace:*",
     "hono": "^4.2.7",
     "object-to-xml": "^2.0.0"
   },

