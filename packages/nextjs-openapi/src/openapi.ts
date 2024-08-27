@@ -118,7 +118,7 @@ export const OpenAPI = (config: OpenAPIConfig = {}) => {
       else {
         return await ApiReference({
           spec: {
-            url: req.nextUrl.pathname + './schema.json',
+            url: req.nextUrl.pathname + '/schema.json',
           },
         })()
       }
