@@ -1,23 +1,24 @@
 import SwaggerParser from '@apidevtools/swagger-parser'
-import { glob } from 'glob'
 import { diff } from 'just-diff'
-import fs from 'node:fs'
 import { describe, expect, test } from 'vitest'
 
 import { type AnyObject, normalize, openapi } from '../src'
+import { downloadFileToMemory } from './utils/downloadFileGcp'
+
+const bucketName = 'test-specifications'
 
 const expectedErrors = {
-  'packages/openapi-parser/tests/files/opensuseorgobs.yaml': [
+  'files/opensuseorgobs.yaml': [
     {
       message: "must have required property '$ref'",
     },
   ],
-  'packages/openapi-parser/tests/files/royalmailcomclick-and-drop.yaml': [
+  'files/royalmailcomclick-and-drop.yaml': [
     {
       message: "must have required property 'schema'",
     },
   ],
-  'packages/openapi-parser/tests/files/spotifycom.yaml': [
+  'files/spotifycom.yaml': [
     {
       message: 'Can’t resolve URI: ../policies.yaml',
     },
@@ -26,40 +27,46 @@ const expectedErrors = {
 
 // We can’t make a diff for files with circular references. :(
 const circularReferences = [
-  'packages/openapi-parser/tests/files/xerocomxero_accounting.yaml',
-  'packages/openapi-parser/tests/files/xtrfeu.yaml',
-  'packages/openapi-parser/tests/files/webflowcom.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomathena.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomce.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomconnect.yaml',
-  'packages/openapi-parser/tests/files/opentrialslocal.yaml',
-  'packages/openapi-parser/tests/files/bbccouk.yaml',
-  'packages/openapi-parser/tests/files/ote-godaddycomdomains.yaml',
-  'packages/openapi-parser/tests/files/googleapiscomfirebaserules.yaml',
+  'files/xerocomxero_accounting.yaml',
+  'files/xtrfeu.yaml',
+  'files/webflowcom.yaml',
+  'files/amazonawscomathena.yaml',
+  'files/amazonawscomce.yaml',
+  'files/amazonawscomconnect.yaml',
+  'files/opentrialslocal.yaml',
+  'files/bbccouk.yaml',
+  'files/ote-godaddycomdomains.yaml',
+  'files/googleapiscomfirebaserules.yaml',
 ]
 
 // Just skip some files. If it’s not empty, we’ve got some work to do. :)
 const ignoreFiles = [
   // Very slow files
-  'packages/openapi-parser/tests/files/amazonawscomdynamodb.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomelasticmapreduce.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomemr-containers.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomec2.yaml',
-  'packages/openapi-parser/tests/files/amazonawscomdynamodb.yaml',
+  'files/amazonawscomdynamodb.yaml',
+  'files/amazonawscomelasticmapreduce.yaml',
+  'files/amazonawscomemr-containers.yaml',
+  'files/amazonawscomec2.yaml',
+  'files/amazonawscomdynamodb.yaml',
 ]
 
-const files = (await glob('./packages/openapi-parser/tests/files/*.yaml'))
-  .filter((file) => !ignoreFiles.includes(file))
-  // Aphabetic
-  .sort()
+// get the list of files from the storage bucket test-specifications
+const files = await fetch(
+  'https://storage.googleapis.com/storage/v1/b/test-specifications/o',
+)
+  .then((response) => response.json())
+  .then((data) => data.items)
+  .then((data) => data.filter((d) => !ignoreFiles.includes(d.name)))
 
 /**
  * This test suite parses a large number of real-world OpenAPI files
  */
 describe('diff', async () => {
   // TODO: We’re currently only testing a few of the files for performance reasons.
-  test.each(files.slice(0, 100))('diff: %s', async (file) => {
-    const content = fs.readFileSync(file, 'utf-8')
+  test.each(files.slice(0, 100))('diff %s', async (file) => {
+    console.log(file.name)
+    // Fetch the file from cloud storage
+    const content = await downloadFileToMemory(bucketName, file.name)
+
     const specification = normalize(content)
 
     const oldSchema = (await new Promise((resolve, reject) => {

@@ -23,11 +23,11 @@
   },
   "scripts": {
     "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
-    "format": "prettier --write .",
     "dev": "pnpm playground",
-    "playground": "vite ./playground -c ./vite.config.ts",
+    "format": "prettier --write .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
+    "playground": "vite ./playground -c ./vite.config.ts",
     "test": "vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
     "test:unit": "vite-node scripts/load-files.ts && vitest",
@@ -65,6 +65,7 @@
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@babel/code-frame": "^7.24.7",
+    "@google-cloud/storage": "^7.12.1",
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",

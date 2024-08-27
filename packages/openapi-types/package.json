@@ -31,6 +31,12 @@
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
     "dist",
     "!dist/webpack-stats.json",
@@ -39,11 +45,5 @@
   "sideEffects": false,
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
   }
 }
