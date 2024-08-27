@@ -832,8 +832,8 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2
       '@scalar/snippetz':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1851,6 +1851,15 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.31(typescript@5.5.2))
+
+  packages/snippetz:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: ^0.1.10
+        version: 0.1.10(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)(tslib@2.6.3)(typescript@5.5.2)
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
 
   packages/themes:
     devDependencies:
@@ -5692,12 +5701,13 @@ packages:
   '@rushstack/ts-command-line@4.19.1':
     resolution: {integrity: sha512-J7H768dgcpG60d7skZ5uSSwyCZs/S2HrWP1Ds8d1qYAyaaeJmpmmLr9BVw97RjFzmQPOYnoXcKA4GkqDCkduQg==}
 
+  '@scalar/build-tooling@0.1.10':
+    resolution: {integrity: sha512-rDqp6XI98Pt+CZBGIVCZmto3lKWHUFOgsw4wWpRqtDczlqmN2gKS28af+SpbMvIWlo5ltF/4b51yPWx+ohWkDw==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   '@scalar/openapi-parser@0.7.2':
     resolution: {integrity: sha512-kgzFox4KzC3NLrOZeT9m/iQ2VMNvL7JNz8ec+hz0sYulvMtYQ1qTqEyjQjALyCDzmzrSJA11Vg8JMMHDw3AA7A==}
-    engines: {node: '>=18'}
-
-  '@scalar/snippetz@0.2.0':
-    resolution: {integrity: sha512-Ayp5VS/wv1EYOCsN9hpmFUQpX+hCkbovTJPXOdPiDAsrGqPr9cY3uOa07tSi3eu2Fv5ceKaidP5hJP0fKnFjpw==}
     engines: {node: '>=18'}
 
   '@segment/loosely-validate-event@2.0.0':
@@ -22048,6 +22058,14 @@ snapshots:
     optionalDependencies:
       rollup: 4.18.0
 
+  '@rollup/plugin-swc@0.3.1(@swc/core@1.5.29(@swc/helpers@0.5.5))(rollup@4.18.1)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
+      '@swc/core': 1.5.29(@swc/helpers@0.5.5)
+      smob: 1.5.0
+    optionalDependencies:
+      rollup: 4.18.1
+
   '@rollup/plugin-terser@0.4.4(rollup@4.18.1)':
     dependencies:
       serialize-javascript: 6.0.2
@@ -22065,6 +22083,15 @@ snapshots:
       rollup: 4.18.0
       tslib: 2.6.3
 
+  '@rollup/plugin-typescript@11.1.6(rollup@4.18.1)(tslib@2.6.3)(typescript@5.5.2)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
+      resolve: 1.22.8
+      typescript: 5.5.2
+    optionalDependencies:
+      rollup: 4.18.1
+      tslib: 2.6.3
+
   '@rollup/plugin-yaml@4.1.2(rollup@4.18.0)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.18.0)
@@ -22072,6 +22099,14 @@ snapshots:
       tosource: 2.0.0-alpha.3
     optionalDependencies:
       rollup: 4.18.0
+
+  '@rollup/plugin-yaml@4.1.2(rollup@4.18.1)':
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
+      js-yaml: 4.1.0
+      tosource: 2.0.0-alpha.3
+    optionalDependencies:
+      rollup: 4.18.1
 
   '@rollup/pluginutils@4.2.1':
     dependencies:
@@ -22232,6 +22267,40 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
+  '@scalar/build-tooling@0.1.10(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)(tslib@2.6.3)(typescript@5.5.2)':
+    dependencies:
+      '@rollup/plugin-alias': 5.1.0(rollup@4.18.1)
+      '@rollup/plugin-json': 6.1.0(rollup@4.18.1)
+      '@rollup/plugin-swc': 0.3.1(@swc/core@1.5.29(@swc/helpers@0.5.5))(rollup@4.18.1)
+      '@rollup/plugin-typescript': 11.1.6(rollup@4.18.1)(tslib@2.6.3)(typescript@5.5.2)
+      '@rollup/plugin-yaml': 4.1.2(rollup@4.18.1)
+      glob: 10.4.5
+      picomatch: 4.0.2
+      rollup: 4.18.1
+      rollup-plugin-copy: 3.5.0
+      rollup-plugin-dts: 6.1.1(rollup@4.18.1)(typescript@5.5.2)
+      rollup-plugin-import-css: 3.5.0(rollup@4.18.1)
+      tsconfig-paths: 4.2.0
+      vite: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
+      vitest: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@swc/core'
+      - '@types/node'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - happy-dom
+      - jsdom
+      - less
+      - lightningcss
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - tslib
+      - typescript
+
   '@scalar/openapi-parser@0.7.2':
     dependencies:
       ajv: 8.16.0
@@ -22240,8 +22309,6 @@ snapshots:
       jsonpointer: 5.0.1
       leven: 4.0.0
       yaml: 2.4.5
-
-  '@scalar/snippetz@0.2.0': {}
 
   '@segment/loosely-validate-event@2.0.0':
     dependencies:
@@ -34055,10 +34122,23 @@ snapshots:
     optionalDependencies:
       '@babel/code-frame': 7.24.7
 
+  rollup-plugin-dts@6.1.1(rollup@4.18.1)(typescript@5.5.2):
+    dependencies:
+      magic-string: 0.30.10
+      rollup: 4.18.1
+      typescript: 5.5.2
+    optionalDependencies:
+      '@babel/code-frame': 7.24.7
+
   rollup-plugin-import-css@3.5.0(rollup@4.18.0):
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.18.0)
       rollup: 4.18.0
+
+  rollup-plugin-import-css@3.5.0(rollup@4.18.1):
+    dependencies:
+      '@rollup/pluginutils': 5.1.0(rollup@4.18.1)
+      rollup: 4.18.1
 
   rollup-plugin-inject@3.0.2:
     dependencies:
