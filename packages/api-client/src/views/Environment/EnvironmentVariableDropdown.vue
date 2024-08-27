@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { WorkspaceStore } from '@/store'
-import {
-  ScalarDropdown,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
+import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { computed, ref } from 'vue'
 import type { Router } from 'vue-router'
@@ -15,6 +12,7 @@ const props = defineProps<{
   environments: WorkspaceStore['environments']
   router: Router
   // withServers?: boolean
+  dropdownPosition?: { left: number; top: number }
 }>()
 
 const emit = defineEmits<{
@@ -22,6 +20,7 @@ const emit = defineEmits<{
 }>()
 
 const isOpen = ref(true)
+const dropdownRef = ref<HTMLElement | null>(null)
 
 const redirectToEnvironment = () => {
   const workspaceId = currentRoute.value.params.workspace
@@ -74,20 +73,33 @@ const getEnvColor = (
   // this is a server but we can eventually is a 🌐 icon
   return `bg-grey`
 }
+
+onClickOutside(
+  dropdownRef,
+  () => {
+    isOpen.value = false
+  },
+  { ignore: [dropdownRef] },
+)
 </script>
 <template>
   <ScalarDropdown
-    id="env-dialog"
-    class="z-10 w-60 rounded border bg-b-1 p-1"
-    :open="isOpen"
-    static>
+    ref="dropdownRef"
+    class="mt-2 z-10 min-w-60 rounded border bg-b-1 p-1 w-fit"
+    static
+    :staticOpen="isOpen"
+    :style="{
+      left: dropdownPosition?.left + 'px',
+      top: dropdownPosition?.top + 'px',
+    }"
+    teleport=".scalar-client">
     <template #items>
       <ul v-if="filteredVariables.length">
         <template
           v-for="item in filteredVariables"
           :key="item.key">
           <li
-            class="h-8 font-code text-3xs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
+            class="h-8 font-code text-xxs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
             @click="selectVariable(item.key)">
             <!-- @click.stop="selectVariable(variable)" -->
             <div class="flex items-center gap-1.5 whitespace-nowrap">
@@ -96,22 +108,23 @@ const getEnvColor = (
                 :class="getEnvColor(item)"></span>
               {{ item.key }}
             </div>
-            <span class="w-20 overflow-hidden text-ellipsis text-right">
+            <span
+              class="w-20 overflow-hidden text-ellipsis text-right whitespace-nowrap">
               {{ item.value }}
             </span>
           </li>
         </template>
       </ul>
-      <ScalarDropdownItem
+      <ScalarButton
         v-else
-        class="font-code !text-3xs hover:bg-b-2 flex h-8 w-full justify-start gap-2 !px-1.5 transition-colors duration-150"
+        class="font-code text-xxs hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
+        variant="secondary"
         @click="redirectToEnvironment">
         <ScalarIcon
-          class="w-2"
-          icon="Add"
-          size="xs" />
-        Add variable
-      </ScalarDropdownItem>
+          class="w-2.5"
+          icon="Add" />
+        Add Variable
+      </ScalarButton>
     </template>
   </ScalarDropdown>
 </template>

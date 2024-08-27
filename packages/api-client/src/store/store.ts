@@ -225,6 +225,7 @@ export const createWorkspaceStore = (
    * will be populated into the environment on spec loading
    */
   const activeEnvVariables = computed(() => {
+    if (!activeEnvironment.value) return []
     // TODO: Must merge global variables and collection level variables here
     // Return a list of key value pairs that includes dot nested paths
     return flattenEnvVars(activeEnvironment.value).map(([key, value]) => ({

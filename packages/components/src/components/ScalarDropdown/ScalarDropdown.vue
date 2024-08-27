@@ -4,8 +4,13 @@ import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
 withDefaults(
-  defineProps<Omit<FloatingOptions, 'middleware'> & { static?: boolean }>(),
-  { static: false },
+  defineProps<
+    Omit<FloatingOptions, 'middleware'> & {
+      static?: boolean
+      staticOpen?: boolean
+    }
+  >(),
+  { static: false, staticOpen: true },
 )
 
 defineOptions({ inheritAttrs: false })
@@ -13,7 +18,7 @@ defineOptions({ inheritAttrs: false })
 <template>
   <Menu v-slot="{ open }">
     <ScalarFloating
-      :isOpen="static ? true : open ?? isOpen"
+      :isOpen="static ? staticOpen : open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :teleport="teleport">

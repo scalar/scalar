@@ -4,13 +4,13 @@ import {
   useCodeMirror,
   type CodeMirrorLanguage,
   type Extension,
+  useDropdown,
 } from '@scalar/use-codemirror'
 import { nanoid } from 'nanoid'
 import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
-
-import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
+import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { useWorkspace } from '@/store'
 
 const props = withDefaults(
@@ -33,7 +33,6 @@ const props = withDefaults(
     type?: string
     nullable?: boolean
     withVariables?: boolean
-    withServers?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -43,7 +42,6 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     withVariables: true,
-    withServers: false,
   },
 )
 const emit = defineEmits<{
@@ -56,13 +54,12 @@ const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
 
-const {
-  activeWorkspace,
-  activeEnvVariables,
-  isReadOnly,
-  environments,
-  router,
-} = useWorkspace()
+// Environment variable dropdown init
+const showDropdown = ref(false)
+const dropdownQuery = ref('')
+const dropdownPosition = ref({ left: 0, top: 0 })
+
+const { activeEnvVariables, isReadOnly, environments, router } = useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -97,26 +94,23 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
-if (props.withVariables && !activeWorkspace.value.isReadOnly) {
-  extensions.push(
-    dropdownPlugin({
-      withServers: props.withServers,
-      activeEnvVariables,
-      environments,
-      router,
-    }),
-  )
-}
-extensions.push(pillPlugin({ environments, activeEnvVariables, isReadOnly }))
-extensions.push(backspaceCommand)
-
+extensions.push(
+  pillPlugin({
+    environments,
+    activeEnvVariables,
+    isReadOnly,
+  }),
+  backspaceCommand,
+)
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
 
 const { codeMirror } = useCodeMirror({
   content: toRef(() =>
     props.modelValue !== undefined ? String(props.modelValue) : '',
   ),
-  onChange: handleChange,
+  onChange: (value) => {
+    handleChange(value), updateDropdownVisibility()
+  },
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),
   codeMirrorRef,
@@ -140,6 +134,13 @@ watch(codeMirror, () => {
   ) {
     codeMirror.value.focus()
   }
+})
+
+const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
+  codeMirror,
+  query: dropdownQuery,
+  showDropdown,
+  dropdownPosition,
 })
 
 // Computed property to check if type is boolean and nullable
@@ -199,6 +200,14 @@ export default {
     class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0 pointer-events-none">
     Required
   </div>
+  <EnvironmentVariableDropdown
+    v-if="showDropdown && props.withVariables && !isReadOnly"
+    :activeEnvVariables="computed(() => Array.from(activeEnvVariables))"
+    :dropdownPosition="dropdownPosition"
+    :environments="environments"
+    :query="dropdownQuery"
+    :router="router"
+    @select="handleDropdownSelect" />
 </template>
 <style scoped>
 /*
