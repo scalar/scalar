@@ -22,7 +22,7 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "dev": "next dev playground",
+    "dev": "next dev playground -p 5066",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:build": "scalar-types-build",
