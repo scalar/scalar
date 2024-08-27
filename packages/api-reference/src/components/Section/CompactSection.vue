@@ -28,7 +28,9 @@ watch(
 )
 </script>
 <template>
-  <div class="collapsible-section">
+  <div
+    :aria-expanded="open"
+    class="collapsible-section">
     <div
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': open }"

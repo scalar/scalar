@@ -92,5 +92,6 @@ const models = computed(() => {
 }
 .show-more-models {
   margin-top: 32px;
+  top: 0px;
 }
 </style>

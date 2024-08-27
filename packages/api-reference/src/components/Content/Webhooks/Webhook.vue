@@ -26,4 +26,8 @@ const { responses } = useResponses(props.webhook)
     </Parameters>
   </template>
 </template>
-<style scoped></style>
+<style scoped>
+.webhook-request-body {
+  margin-top: -18px;
+}
+</style>

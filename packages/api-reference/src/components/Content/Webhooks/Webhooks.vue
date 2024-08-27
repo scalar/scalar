@@ -100,7 +100,16 @@ const webhooksFiltered = computed(() => {
 .webhooks-list-truncated .webhooks-list-item:last-child {
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+.webhooks-list-item[aria-expanded='true'] {
+  padding-bottom: 48px;
+}
+.webhook-section-description.webhook-section-description {
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-font-size-3);
+  padding-bottom: 12px;
+}
 .show-more-webhooks {
   margin-top: 32px;
+  top: 0px;
 }
 </style>
