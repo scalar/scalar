@@ -1,3 +1,4 @@
+import { normalizeHeaders } from '#legacy'
 import type {
   Cookie,
   HarRequestWithPath,
@@ -34,6 +35,9 @@ export const getHarRequest = (
       cookies: [...mergedRequests.cookies, ...(request.cookies ?? [])],
     }
   })
+
+  // Normalize HTTP headers
+  mergedRequests.headers = normalizeHeaders(mergedRequests.headers) as Header[]
 
   // Path doesn’t exist in HAR, let’s concat the path and the URL
   const { path, ...result } = mergedRequests
