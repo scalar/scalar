@@ -137,8 +137,10 @@ export const sendRequest = async (
      *
      * Content-Type: multipart/form-data; boundary=----formdata-undici-043007900459
      *
-     * fetch() makes sure to generate this properly, we must not set it manually
+     * fetch() makes sure to generate this properly, we must make sure to delete it
      */
+    delete headers['Content-Type']
+
     const bodyFormData = new FormData()
 
     if (example.body.formData.encoding === 'form-data') {
