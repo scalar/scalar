@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { type Ref, computed, ref, watch } from 'vue'

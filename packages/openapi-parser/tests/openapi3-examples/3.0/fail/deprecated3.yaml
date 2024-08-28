@@ -1,0 +1,18 @@
+openapi: 3.0.1
+info:
+  title: API
+  version: 1.0.0
+paths:
+  /:
+    get:
+      deprecated: true
+      parameters:
+        - name: test
+          in: query
+          deprecated: true
+          schema:
+            type: string
+            deprecated: 'true'
+      responses:
+        '200':
+          description: OK

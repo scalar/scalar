@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 
 export function getHtmlDocument(
   specification: OpenAPI.Document,

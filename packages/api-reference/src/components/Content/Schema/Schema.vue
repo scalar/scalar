@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import SchemaHeading from './SchemaHeading.vue'

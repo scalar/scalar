@@ -1,4 +1,4 @@
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 
 /**
@@ -26,7 +26,6 @@ export function getModels(spec?: Spec) {
 
   // Filter out all schemas with `x-internal: true`
   Object.keys(models ?? {}).forEach((key) => {
-    // @ts-expect-error upstream type issue in @scalar/openapi-parser
     if (models[key]?.['x-internal'] === true) {
       delete models[key]
     }

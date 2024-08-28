@@ -1,4 +1,4 @@
-import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 export function isBasicAuthenticationRequired(
   operation: OpenAPI.Operation,

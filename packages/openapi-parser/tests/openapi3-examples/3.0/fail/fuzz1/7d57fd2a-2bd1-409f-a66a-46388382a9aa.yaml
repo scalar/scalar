@@ -1,0 +1,14 @@
+openapi: 3.0.4
+info:
+  title: 'cillum aliquip culpa Duis '
+  version: r
+  license:
+    name: amet adipisicin
+  contact:
+    email: p92ZtVH2p9@wKWgCmqbIPrKevtkTg.hdp
+    name: nisi labo
+  termsOfService: E9
+paths: {}
+tags:
+  - description: sit minim dolor nulla
+x-testcase: 'within array test: should not work without required property: name'

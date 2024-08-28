@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 
 defineProps<{
   value:

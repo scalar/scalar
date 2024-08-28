@@ -1,0 +1,8 @@
+openapi: 3.0.6-I&ZH7R
+info:
+  title: esse cupidatat labore aute Ut
+  version: cupidatat
+  license:
+    name: nulla velit ex occaecat
+paths: {}
+x-testcase: 'should work without optional property: tags'

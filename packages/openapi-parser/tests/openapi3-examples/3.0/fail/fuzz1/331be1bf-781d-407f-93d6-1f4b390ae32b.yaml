@@ -1,0 +1,5 @@
+openapi: 3.0.8
+info:
+  title: occaecat ex exercitation consequat
+  version: sunt Duis aliqua qui
+x-testcase: 'should not work without required property: paths'

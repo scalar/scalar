@@ -1,0 +1,10 @@
+openapi: 3.0.1
+info:
+  title: nostrud sed consequat
+  version: commodo r
+  contact:
+    url: 58.51
+    email: noGY@PBokp.ys
+    name: anim
+paths: {}
+x-testcase: "nested object test: nested object test: should not work with 'url' of type 'number'"

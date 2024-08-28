@@ -1,0 +1,5 @@
+openapi: '3.0.5-{YU B$py8Sz'
+info:
+  version: et
+paths: {}
+x-testcase: 'nested object test: should not work without required property: title'

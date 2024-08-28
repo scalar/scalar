@@ -1,0 +1,14 @@
+components:
+  schemas:
+    top:
+      type: object
+      properties:
+        cat:
+          $ref: '#/components/schemas/category'
+    category:
+      type: object
+      properties:
+        subcategories:
+          type: array
+          items:
+            $ref: '#/components/schemas/category'

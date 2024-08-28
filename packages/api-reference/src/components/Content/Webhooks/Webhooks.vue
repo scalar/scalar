@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Webhooks } from '@scalar/types/legacy'
 import { computed } from 'vue'
 

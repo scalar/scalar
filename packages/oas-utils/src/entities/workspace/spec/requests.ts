@@ -2,7 +2,7 @@ import { securityRequirement } from '@/entities/workspace/security'
 import { nanoidSchema } from '@/entities/workspace/shared'
 import { REQUEST_METHODS, type RequestMethod } from '@/helpers'
 import { deepMerge } from '@scalar/object-utils/merge'
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { AxiosResponse } from 'axios'
 import { type ZodSchema, z } from 'zod'
 

@@ -1,7 +1,6 @@
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
   type Node,
-  NumericLiteral,
   type PrefixUnaryOperator,
   SyntaxKind,
   type TypeChecker,

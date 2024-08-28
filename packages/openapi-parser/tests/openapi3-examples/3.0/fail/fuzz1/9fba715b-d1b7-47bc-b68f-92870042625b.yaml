@@ -1,0 +1,9 @@
+openapi: 3.0.1-j!YZaqc2*
+info:
+  title: consequat exercitation id ullamco eu
+  version: officia
+paths: {}
+servers:
+  - url: Lorem minim reprehenderit a
+    description: 4394846223597568
+x-testcase: "within array test: should not work with 'description' of type 'integer'"

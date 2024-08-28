@@ -3,7 +3,7 @@ import type {
   OpenAPIV2,
   OpenAPIV3,
   OpenAPIV3_1,
-} from '@scalar/openapi-parser'
+} from '@scalar/openapi-types'
 
 type PathItemObject = Record<
   string,

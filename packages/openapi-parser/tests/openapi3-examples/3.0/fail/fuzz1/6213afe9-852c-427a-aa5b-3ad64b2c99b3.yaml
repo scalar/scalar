@@ -1,0 +1,19 @@
+openapi: 3.0.6
+info:
+  title: 'ullamco '
+  version: Ut sed ut eu
+  contact:
+    url: cCtcc2Y
+    email: 'hr%6A#5'
+paths: {}
+tags:
+  - name: ipsum amet veniam dolor non
+  - name: fugiat non proident dolor
+    description: qui aute labore ipsum et
+  - name: consectetur enim
+  - name: velit
+  - name: nostrud consequat magna cillum
+    description: minim ad in enim
+externalDocs:
+  url: qQxXtwU
+x-testcase: 'nested object test: nested object test: should not pass validation for format of property: email'

@@ -1,0 +1,10 @@
+openapi: 3.0.1
+info:
+  title: labore ea in
+  version: non eiusmod anim
+  contact:
+    email: true
+    name: Duis in
+    url: Jt9T8xMr
+paths: {}
+x-testcase: "nested object test: nested object test: should not work with 'email' of type 'boolean'"

@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
 import { getOperationByMethodAndPath } from './getOperationByMethodAndPath'

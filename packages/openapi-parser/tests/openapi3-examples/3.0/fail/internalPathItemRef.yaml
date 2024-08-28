@@ -1,0 +1,12 @@
+openapi: 3.0.0
+info:
+  title: Test invalid internal $ref of PathItem
+  version: 1.0.0
+
+servers:
+  - url: https://acme.com/api/v1
+
+paths:
+  /test:
+    $ref: '#/paths/test2'
+  /test2: {}

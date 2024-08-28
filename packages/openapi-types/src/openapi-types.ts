@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-types */
 /**
- * TODO these are the "old" types from the parser, will get @hans to update this to the new types when he is back
- *
  * These types are copied from openapi-types, with two modifications:
  *
  * - all attributes are optional, you can’t rely on the specification for user input
@@ -88,6 +86,7 @@ export namespace OpenAPIV3_1 {
        * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
        */
       openapi?: '3.1.0'
+      swagger?: undefined
       info?: InfoObject
       jsonSchemaDialect?: string
       servers?: ServerObject[]
@@ -319,6 +318,7 @@ export namespace OpenAPIV3 {
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
      */
     openapi?: '3.0.0' | '3.0.1' | '3.0.2' | '3.0.2'
+    swagger?: undefined
     info?: InfoObject
     servers?: ServerObject[]
     paths?: PathsObject<T>
@@ -645,6 +645,7 @@ export namespace OpenAPIV2 {
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
      */
     swagger?: '2.0'
+    openapi?: never
     basePath?: string
     consumes?: MimeTypes
     definitions?: DefinitionsObject
@@ -659,7 +660,6 @@ export namespace OpenAPIV2 {
     security?: SecurityRequirementObject[]
     securityDefinitions?: SecurityDefinitionsObject
     tags?: TagObject[]
-    [key: string]: any
   } & T &
     AnyOtherAttribute
 

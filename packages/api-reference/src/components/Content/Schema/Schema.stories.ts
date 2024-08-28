@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Meta, StoryObj } from '@storybook/vue3'
 
 import Schema from './Schema.vue'

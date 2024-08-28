@@ -8,7 +8,7 @@ import {
   getParametersFromOperation,
   getRequestFromOperation,
 } from '@scalar/oas-utils/spec-getters'
-import type { OpenAPIV3 } from '@scalar/openapi-parser'
+import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   AuthenticationState,
   TransformedOperation,

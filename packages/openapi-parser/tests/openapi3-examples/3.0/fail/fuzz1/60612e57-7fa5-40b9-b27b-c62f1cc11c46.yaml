@@ -1,0 +1,10 @@
+openapi: '3.0.8-lLFl:h'
+info:
+  title: aute elit
+  version: fugiat ea adipisicing
+  termsOfService: dZ
+  license: '1!K*LT2sS1u[l'
+paths: {}
+externalDocs:
+  url: 'a,EdJPZU'
+x-testcase: "nested object test: should not work with 'license' of type 'string'"

@@ -3,7 +3,7 @@ import {
   concatenateUrlAndPath,
   redirectToProxy,
 } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 

@@ -1,0 +1,7 @@
+openapi: 3.0.5
+info:
+  title: consectetur magna quis aliqua
+  version: nostrud aute adipisicin
+  termsOfService: 75.84
+paths: {}
+x-testcase: "nested object test: should not work with 'termsOfService' of type 'number'"

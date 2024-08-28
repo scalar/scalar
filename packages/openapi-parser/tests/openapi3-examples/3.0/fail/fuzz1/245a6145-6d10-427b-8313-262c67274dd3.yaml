@@ -1,0 +1,12 @@
+openapi: '3.0.1-5,Gzt'
+info:
+  title: in non
+  version: exercitation
+  termsOfService: Z
+  license:
+    name: occaecat
+    url: 'ha7V,jWJW'
+  description: ipsum
+paths: {}
+externalDocs: {}
+x-testcase: 'nested object test: should not work without required property: url'

@@ -1,0 +1,13 @@
+openapi: 3.0.0
+info:
+  title: Test valid external $ref of PathItem
+  version: 1.0.0
+
+servers:
+  - url: https://acme.com/api/v1
+
+paths:
+  /test:
+    $ref: '../resources/include.yaml#/paths/~1test'
+  /test2:
+    $ref: '../resources/include.yaml#/paths/~1'

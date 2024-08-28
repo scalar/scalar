@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Example usage of components
+  version: 1.0.0
+paths: {}
+
+components:
+  parameters: # Not global parameters
+    limit:
+      name: limit
+      in: query
+      description: A value used to limit the number of rows of data returned from a collection resource
+      schema:
+        type: integer
+    orderby:
+      $ref: http://example.org/library.yaml#/components/parameters/orderby
+
+  headers: # Now reusable
+    user-agent:
+      description: An identifier for the client application using the API
+      schema:
+        type: string
+        maxLength: 255
+
+  schemas: # renamed from definitions
+    address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        country:
+          type: string
+
+  securitySchemes: # renamed from securityDefinitions
+    oauth1:
+      type: http
+      scheme: oauth
+    digest:
+      type: http
+      scheme: digest

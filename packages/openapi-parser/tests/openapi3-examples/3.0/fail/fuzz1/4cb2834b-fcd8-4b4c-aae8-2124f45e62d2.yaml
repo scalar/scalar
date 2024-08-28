@@ -1,0 +1,7 @@
+openapi: 3.0.2
+info:
+  title: aliqua dolor sint eiusmod
+  version: esse in cillum laborum
+  license: {}
+paths: {}
+x-testcase: 'nested object test: nested object test: should not work without required property: name'

@@ -1,0 +1,63 @@
+{
+  "openapi": "3.0.0",
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
+  "info": {
+    "description": "<script type='text/javascript'>alert('vulnerable!');</script>",
+    "version": "1.0.0",
+    "title": "API",
+    "contact": {
+      "name": "Rapid 7",
+      "url": "https://www.rapid7.com/",
+      "email": "info@rapid7.com"
+    },
+    "license": {
+      "name": "BSD-3-clause",
+      "url": "https://opensource.org/licenses/BSD-3-Clause"
+    }
+  },
+  "tags": [
+    {
+      "name": "default"
+    }
+  ],
+  "paths": {
+    "/a": {
+      "summary": "an example path",
+      "get": {
+        "description": "D",
+        "operationId": "get_a",
+        "tags": ["default"],
+        "responses": {
+          "200": {
+            "description": "E",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/d"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "d": {
+        "type": "object",
+        "description": "F",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      }
+    }
+  }
+}

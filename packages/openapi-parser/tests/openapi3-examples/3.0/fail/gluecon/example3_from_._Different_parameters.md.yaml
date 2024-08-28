@@ -1,0 +1,16 @@
+openapi: 3.0.0
+info:
+  title: A version and revision matrix parameter
+  version: 1.0.0
+paths:
+  /{version}{rev}/customers: # https://api.example.org/v2;rev=2/customers
+    parameters:
+      - name: version
+        in: path
+        schema:
+          type: string
+      - name: rev
+        in: path
+        style: matrix
+        schema:
+          type: int

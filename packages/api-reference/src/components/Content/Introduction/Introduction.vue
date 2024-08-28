@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import GithubSlugger from 'github-slugger'
 import { computed } from 'vue'

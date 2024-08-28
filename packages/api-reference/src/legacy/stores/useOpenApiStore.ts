@@ -1,4 +1,4 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { reactive } from 'vue'
 
