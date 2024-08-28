@@ -240,10 +240,6 @@ Thanks a ton for all the help and inspiration:
 - You could consider this package the modern successor of [@apidevtools/swagger-parser](https://github.com/APIDevTools/swagger-parser), we even test against it to make sure we’re getting the same results (where intended).
 - We stole a lot of example specification from [@mermade](https://github.com/mermade) to test against.
 
-## Contributions
-
-Contributions are welcome! Read [`CONTRIBUTING`](https://github.com/scalar/openapi-parser/blob/main/CONTRIBUTING).
-
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/openapi-parser/blob/main/LICENSE).
