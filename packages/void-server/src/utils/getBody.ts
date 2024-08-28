@@ -19,12 +19,17 @@ export async function getBody(c: Context) {
     contentType?.includes('application/x-www-form-urlencoded') ||
     contentType?.includes('multipart/form-data')
   ) {
-    return transformFormData(
-      await c.req.parseBody({
-        dot: true,
-        all: true,
-      }),
-    )
+    try {
+      return transformFormData(
+        await c.req.parseBody({
+          dot: true,
+          all: true,
+        }),
+      )
+    } catch {
+      // Mute the error, just return an empty object
+      return {}
+    }
   }
 
   const body = await c.req.text()
