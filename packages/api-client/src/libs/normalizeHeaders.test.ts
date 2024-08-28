@@ -1,5 +1,4 @@
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
-import type { AxiosResponseHeaders } from 'axios'
 import { describe, expect, it } from 'vitest'
 
 describe('normalizeHeaders', () => {
@@ -9,9 +8,7 @@ describe('normalizeHeaders', () => {
       'X-Scalar-Modified-Headers': 'Content-Type',
     }
 
-    const normalizedHeaders = normalizeHeaders(
-      headers as unknown as AxiosResponseHeaders,
-    )
+    const normalizedHeaders = normalizeHeaders(headers)
 
     expect(normalizedHeaders).toStrictEqual({})
   })
@@ -22,9 +19,7 @@ describe('normalizeHeaders', () => {
       'Access-Control-Allow-Origin': '*',
     }
 
-    const normalizedHeaders = normalizeHeaders(
-      headers as unknown as AxiosResponseHeaders,
-    )
+    const normalizedHeaders = normalizeHeaders(headers)
 
     expect(Object.keys(normalizedHeaders)).toStrictEqual([
       'Access-Control-Allow-Origin',
@@ -38,9 +33,7 @@ describe('normalizeHeaders', () => {
       'X-Scalar-Original-Content-Type': 'text/html',
     }
 
-    const normalizedHeaders = normalizeHeaders(
-      headers as unknown as AxiosResponseHeaders,
-    )
+    const normalizedHeaders = normalizeHeaders(headers)
 
     expect(normalizedHeaders).toStrictEqual({
       'Content-Type': 'text/html',
@@ -52,9 +45,7 @@ describe('normalizeHeaders', () => {
       'cOntent-tyPe': 'application/json',
     }
 
-    const normalizedHeaders = normalizeHeaders(
-      headers as unknown as AxiosResponseHeaders,
-    )
+    const normalizedHeaders = normalizeHeaders(headers)
 
     expect(normalizedHeaders).toStrictEqual({
       'Content-Type': 'application/json',

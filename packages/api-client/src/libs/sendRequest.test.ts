@@ -166,7 +166,9 @@ describe('sendRequest', () => {
       server?.url + request.path,
     )
 
-    expect(result?.response?.data?.query).toStrictEqual({
+    expect(
+      (result?.response?.data as { query: { example: 'parameter' } })?.query,
+    ).toStrictEqual({
       example: 'parameter',
       foo: 'bar',
     })
