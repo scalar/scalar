@@ -140,15 +140,25 @@ export const sendRequest = async (
      * fetch() makes sure to generate this properly, we must not set it manually
      */
     const bodyFormData = new FormData()
+
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach(
         (formParam: { key: string; value: string; file?: File }) => {
-          const value = formParam.file ? formParam.file : formParam.value
-          if (formParam.key && value) {
-            bodyFormData.append(formParam.key, value)
+          // Add File to FormData
+          if (formParam.key) {
+            if (formParam.file) {
+              bodyFormData.append(
+                formParam.key,
+                formParam.file,
+                formParam.file.name,
+              )
+            } else if (formParam.value !== undefined) {
+              bodyFormData.append(formParam.key, formParam.value)
+            }
           }
         },
       )
+
       data = bodyFormData
     }
   }
@@ -269,7 +279,9 @@ export const sendRequest = async (
     signal: abortSignal,
   }
 
-  config.body = data
+  if (data) {
+    config.body = data
+  }
 
   // Start timer to get response duration
   const startTime = Date.now()
