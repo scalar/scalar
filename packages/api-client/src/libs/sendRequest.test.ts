@@ -290,7 +290,7 @@ describe('sendRequest', () => {
     })
   })
 
-  it('sends a multipart/form-data request', async () => {
+  it('sends a multipart/form-data request with string values', async () => {
     const { request, example, server } = createRequestExampleServer({
       serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
       requestPayload: { path: '', method: 'POST' },
@@ -304,6 +304,47 @@ describe('sendRequest', () => {
                 key: 'name',
                 value: 'John Doe',
               },
+            ],
+          },
+        },
+      },
+    })
+
+    const result = await sendRequest(
+      request,
+      example,
+      server?.url + request.path,
+    )
+
+    expect(result?.response?.data).toMatchObject({
+      method: 'POST',
+      path: '/',
+      body: {
+        name: 'John Doe',
+      },
+    })
+  })
+
+  /**
+   * If we pass FormData with a file to fetch(), it seems to switch to a streaming mode and
+   * the void-server doesn't receive the body properly.
+   *
+   * It’s not clear to me, whether we need to make the void-server handle that, or
+   * if we should disable the streaming, or
+   * if there’s another way to test this properly.
+   *
+   * - @hanspagel
+   */
+  it.todo('sends a multipart/form-data request with files', async () => {
+    const { request, example, server } = createRequestExampleServer({
+      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      requestPayload: { path: '', method: 'POST' },
+      requestExamplePayload: {
+        body: {
+          activeBody: 'formData',
+          formData: {
+            encoding: 'form-data',
+            value: [
               {
                 key: 'file',
                 file: new File(['hello'], 'hello.txt', { type: 'text/plain' }),
@@ -329,7 +370,6 @@ describe('sendRequest', () => {
       method: 'POST',
       path: '/',
       body: {
-        name: 'John Doe',
         file: {
           name: 'hello.txt',
           sizeInBytes: 5,
