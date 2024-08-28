@@ -12,7 +12,7 @@ const { cookies, activeCookieId } = useWorkspace()
     </template>
     <template v-if="activeCookieId && cookies[activeCookieId]">
       <CodeInput
-        class="px-2 py-2.5"
+        class="pl-px pr-2 md:px-2 py-2.5"
         lineNumbers
         modelValue="" />
     </template>
