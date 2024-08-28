@@ -832,8 +832,8 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2
       '@scalar/snippetz':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1851,6 +1851,15 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.4.31(typescript@5.5.2))
+
+  packages/snippetz:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@types/har-format':
+        specifier: ^1.2.15
+        version: 1.2.15
 
   packages/themes:
     devDependencies:
@@ -5694,10 +5703,6 @@ packages:
 
   '@scalar/openapi-parser@0.7.2':
     resolution: {integrity: sha512-kgzFox4KzC3NLrOZeT9m/iQ2VMNvL7JNz8ec+hz0sYulvMtYQ1qTqEyjQjALyCDzmzrSJA11Vg8JMMHDw3AA7A==}
-    engines: {node: '>=18'}
-
-  '@scalar/snippetz@0.2.0':
-    resolution: {integrity: sha512-Ayp5VS/wv1EYOCsN9hpmFUQpX+hCkbovTJPXOdPiDAsrGqPr9cY3uOa07tSi3eu2Fv5ceKaidP5hJP0fKnFjpw==}
     engines: {node: '>=18'}
 
   '@segment/loosely-validate-event@2.0.0':
@@ -22240,8 +22245,6 @@ snapshots:
       jsonpointer: 5.0.1
       leven: 4.0.0
       yaml: 2.4.5
-
-  '@scalar/snippetz@0.2.0': {}
 
   '@segment/loosely-validate-event@2.0.0':
     dependencies:
