@@ -9,7 +9,7 @@ import {
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
-import { snippetz } from '@scalar/snippetz'
+import { type TargetId, snippetz } from '@scalar/snippetz'
 import type {
   CustomRequestExample,
   ExampleRequestSSRKey,
@@ -139,12 +139,10 @@ async function generateSnippet() {
 
   const targetKey = httpClient.targetKey.replace('javascript', 'js')
 
-  if (
-    clientKey &&
-    snippetz().hasPlugin(targetKey, clientKey) &&
-    (targetKey === 'node' || targetKey === 'js')
-  ) {
-    return snippetz().print(targetKey, clientKey, request as any) ?? ''
+  if (clientKey && snippetz().hasPlugin(targetKey, clientKey)) {
+    return (
+      snippetz().print(targetKey as TargetId, clientKey, request as any) ?? ''
+    )
   }
 
   // Use httpsnippet-lite for other languages
