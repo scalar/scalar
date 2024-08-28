@@ -33,6 +33,13 @@ export async function createVoidServer() {
     return c.text(errors?.[status] ?? 'Unknown Error')
   })
 
+  // No content
+  app.all('/:status{204}', async (c: Context) => {
+    console.info(`${c.req.method} ${c.req.path}`)
+
+    return c.body(null, 204)
+  })
+
   // Return content based on the file extension
   app.all('/:filename{.+\\.(html|xml|json|zip)$}', async (c: Context) => {
     console.info(`${c.req.method} ${c.req.path}`)

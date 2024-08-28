@@ -247,6 +247,15 @@ describe('createVoidServer', () => {
     expect(await response.text()).toBe('Not Found')
   })
 
+  it('returns no content for 204', async () => {
+    const server = await createVoidServer()
+
+    const response = await server.request('/204')
+
+    expect(response.status).toBe(204)
+    expect(await response.text()).toBe('')
+  })
+
   it('returns 500', async () => {
     const server = await createVoidServer()
 
