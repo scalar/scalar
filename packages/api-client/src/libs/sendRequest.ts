@@ -132,8 +132,13 @@ export const sendRequest = async (
   } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
     data = example.body.raw.value
   } else if (example.body.activeBody === 'formData') {
-    headers['Content-Type'] = 'multipart/form-data'
-
+    /**
+     * The header has to look something like this:
+     *
+     * Content-Type: multipart/form-data; boundary=----formdata-undici-043007900459
+     *
+     * fetch() makes sure to generate this properly, we must not set it manually
+     */
     const bodyFormData = new FormData()
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach(
