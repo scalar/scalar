@@ -3,10 +3,15 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import { Section, SectionContainer, SectionHeader } from '../../Section'
+import {
+  CompactSection,
+  Section,
+  SectionContainer,
+  SectionHeader,
+} from '../../Section'
 import ShowMoreButton from '../../ShowMoreButton.vue'
 import { Lazy } from '../Lazy'
-import CollapsedModel from './CollapsedModel.vue'
+import { Schema, SchemaHeading } from '../Schema'
 
 const props = defineProps<{
   schemas?:
@@ -41,30 +46,52 @@ const models = computed(() => {
 <template>
   <SectionContainer v-if="schemas">
     <Section>
-      <!-- Just a cheap trick to jump down to models -->
       <SectionHeader :level="2">Models</SectionHeader>
       <Lazy
         id="models"
         :isLazy="false">
         <div id="models" />
       </Lazy>
-      <Lazy
-        v-for="(name, index) in models"
-        :id="getModelId(name)"
-        :key="name"
-        isLazy>
-        <CollapsedModel
-          :name="name"
-          :schemas="schemas" />
-        <ShowMoreButton
-          v-if="!showAllModels && index === models.length - 1"
-          :id="getModelId()" />
-      </Lazy>
+      <div
+        class="models-list"
+        :class="{ 'models-list-truncated': !showAllModels }">
+        <Lazy
+          v-for="name in models"
+          :id="getModelId(name)"
+          :key="name"
+          isLazy>
+          <CompactSection
+            :id="getModelId(name)"
+            class="models-list-item"
+            :label="name">
+            <template #heading>
+              <SchemaHeading
+                :name="name"
+                :value="(schemas as any)[name]" />
+            </template>
+            <Schema
+              :hideHeading="true"
+              noncollapsible
+              :value="(schemas as any)[name]" />
+          </CompactSection>
+        </Lazy>
+      </div>
+      <ShowMoreButton
+        v-if="!showAllModels"
+        :id="getModelId()"
+        class="show-more-models" />
     </Section>
   </SectionContainer>
 </template>
 <style scoped>
-.show-more {
-  margin-top: 24px;
+.models-list {
+  display: contents;
+}
+.models-list-truncated .models-list-item:last-child {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+.show-more-models {
+  margin-top: 32px;
+  top: 0px;
 }
 </style>

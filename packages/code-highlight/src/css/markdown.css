@@ -116,7 +116,7 @@
     font-weight: var(--scalar-bold);
   }
   .markdown p {
-    color: var(--scalar-color-1);
+    color: inherit;
     font-weight: var(--font-weight, var(--scalar-regular));
     line-height: 1.5;
     margin-bottom: 0;
