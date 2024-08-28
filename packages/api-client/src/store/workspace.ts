@@ -392,32 +392,29 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
   }
 
   const activeParsedEnvironments = computed(() => {
+    const activeEnvironment =
+      environments[activeWorkspace.value?.activeEnvironmentId ?? 'default']
     const flattenedServers = activeWorkspaceServers.value.map((server) => ({
       key: server.url,
       value: server.url,
     }))
 
-    const flattenedEnvs = Object.values(environments)
-      .map((env) => {
-        try {
-          return {
-            _scalarEnvId: env.uid,
-            ...JSON.parse(env.raw),
+    const flattenedEnvs = activeEnvironment
+      ? (() => {
+          try {
+            const parsedEnv = JSON.parse(activeEnvironment.raw)
+            return Object.entries(parsedEnv).flatMap(([key, value]) => {
+              // Exclude the _scalarEnvId from the key-value pairs
+              if (key !== '_scalarEnvId') {
+                return [{ _scalarEnvId: activeEnvironment.uid, key, value }]
+              }
+              return []
+            })
+          } catch {
+            return []
           }
-        } catch {
-          return null
-        }
-      })
-      .filter((env) => env)
-      .flatMap((obj) =>
-        Object.entries(obj).flatMap(([key, value]) => {
-          // Exclude the _scalarEnvId from the key-value pairs
-          if (key !== '_scalarEnvId') {
-            return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
-          }
-          return []
-        }),
-      )
+        })()
+      : []
 
     return [...flattenedServers, ...flattenedEnvs]
   })
@@ -500,6 +497,10 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     () =>
       workspaces[activeRouterParams.value[PathId.Workspace]] ??
       workspaces[Object.keys(workspaces)[0]],
+  )
+
+  const activeEnvironment = computed(
+    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
   )
 
   /** Ordered list of the active workspace's collections with drafts last */
@@ -998,6 +999,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     activeWorkspaceServers,
     activeParsedEnvironments,
     activeWorkspaceRequests,
+    activeEnvironment,
     modalState,
     isReadOnly,
     router,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
+import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
@@ -327,6 +328,7 @@ const newTab = (name: string, uid: string) => {
       <AddressBar />
       <div
         class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
+        <EnvironmentSelector v-if="!activeWorkspace.isReadOnly" />
         <!-- TODO: There should be an `ìsModal` flag instead -->
         <button
           v-if="activeWorkspace.isReadOnly"
