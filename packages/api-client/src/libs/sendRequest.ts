@@ -269,7 +269,7 @@ export const sendRequest = async (
     signal: abortSignal,
   }
 
-  if (data) config.body = JSON.stringify(data)
+  config.body = data
 
   // Start timer to get response duration
   const startTime = Date.now()
