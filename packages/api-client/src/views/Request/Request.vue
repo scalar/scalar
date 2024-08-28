@@ -158,7 +158,7 @@ const executeRequest = async () => {
       ])
       requestStatusBus.emit('stop')
     } else {
-      // User cancelled toast
+      // Toast if not cancelled by user and we have no response
       if (!(error instanceof DOMException && error.name == 'AbortError'))
         toast(error?.message ?? 'Send Request Failed', 'error')
 
