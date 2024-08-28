@@ -10,6 +10,10 @@
         {
           "path": "documentation/guides/getting-started.md",
           "type": "page"
+        },
+        {
+          "path": "documentation/guides/markdown-sync.md",
+          "type": "page"
         }
       ]
     }
