@@ -293,8 +293,7 @@ export const sendRequest = async (
     }
   } catch (e) {
     const sentTime = Date.now()
-    const duration = Date.now() - startTime
-    const payload = { sentTime, request: example, duration }
+    const payload = { sentTime, request: example }
 
     // We have a response from fetch
     if (e instanceof Response) {
