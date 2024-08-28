@@ -8,7 +8,6 @@ import {
   type Icon,
   ScalarContextMenu,
   ScalarDropdown,
-  ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
