@@ -1,4 +1,4 @@
-import type { Header } from '@/legacy/types'
+import type { Header } from '@scalar/types/legacy'
 
 /**
  * Transforms all header keys to lowercase
