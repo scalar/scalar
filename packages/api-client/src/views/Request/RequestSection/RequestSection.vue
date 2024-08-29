@@ -100,13 +100,13 @@ const updateRequestNameHandler = (event: Event) => {
         :activeSection="activeSection"
         :sections="sections"
         @setActiveSection="activeSection = $event" />
-      <RequestAuth
-        v-show="
-          !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
-        "
-        :index="0"
-        :securityScheme="activeSecuritySchemes[0]"
-        title="Authentication" />
+      <!-- <RequestAuth -->
+      <!--   v-show=" -->
+      <!--     !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth') -->
+      <!--   " -->
+      <!--   :index="0" -->
+      <!--   :securityScheme="activeSecuritySchemes[0]" -->
+      <!--   title="Authentication" /> -->
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Request') &&
