@@ -17,8 +17,8 @@ export type ValidateResult = {
   schema?: OpenAPI.Document
 }
 
-export type UpgradeResult = {
-  specification: OpenAPI.Document
+export type UpgradeResult<T extends OpenAPI.Document = OpenAPI.Document> = {
+  specification: T
   version: string
 }
 
