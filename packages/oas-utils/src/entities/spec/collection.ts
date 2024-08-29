@@ -1,11 +1,11 @@
 import { nanoidSchema } from '@/entities/shared'
-import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
 
 const oasCollectionSchema = z.object({
+  type: z.literal('collection').optional().default('collection'),
   openapi: z
     .union([
       z.string(),
