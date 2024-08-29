@@ -1,4 +1,4 @@
-import type { useWorkspace } from '@/store/workspace'
+import type { useWorkspace } from '@/store'
 
 /**
  * Loads all resources from localStorage into mutators on app start
@@ -11,7 +11,7 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
     collectionMutators,
     cookieMutators,
     environmentMutators,
-    folderMutators,
+    tagMutators,
     requestExampleMutators,
     requestMutators,
     serverMutators,
@@ -23,7 +23,7 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
     collectionMutators.loadLocalStorage()
     cookieMutators.loadLocalStorage()
     environmentMutators.loadLocalStorage()
-    folderMutators.loadLocalStorage()
+    tagMutators.loadLocalStorage()
     requestExampleMutators.loadLocalStorage()
     requestMutators.loadLocalStorage()
     serverMutators.loadLocalStorage()

@@ -4,10 +4,10 @@ import {
   DataTableCheckbox,
   DataTableRow,
 } from '@/components/DataTable'
-import type { UpdateScheme } from '@/store/workspace'
+import type { UpdateScheme } from '@/store'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{

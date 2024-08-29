@@ -147,6 +147,10 @@ export const createWorkspaceStore = (
     ),
   )
 
+  const activeEnvironment = computed(
+    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
+  )
+
   /**
    * Request associated with the current route
    *
@@ -164,7 +168,7 @@ export const createWorkspaceStore = (
       collections[activeRouterParams.value.collection] ??
       collections[workspace.collections[0]]
 
-    const request = requests[key] ?? requests[collection.requests[0]]
+    const request = requests[key] ?? requests[collection?.requests[0]]
 
     fallbackMissingParams(PathId.Request, request)
 
@@ -282,6 +286,7 @@ export const createWorkspaceStore = (
     activeExample,
     activeRequest,
     activeRouterParams,
+    activeEnvironment,
     activeServer,
     activeWorkspace,
     activeWorkspaceCollections,

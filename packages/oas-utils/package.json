@@ -98,6 +98,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "axios": "^1.7.5",

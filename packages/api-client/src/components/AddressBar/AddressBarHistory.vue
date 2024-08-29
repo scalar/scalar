@@ -3,6 +3,7 @@ import { formatMs } from '@/libs/formatters'
 import { useWorkspace } from '@/store'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
+import type { RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -14,12 +15,14 @@ defineProps<{
   open: boolean
 }>()
 
-const { activeRequest, requestExampleMutators } = useWorkspace()
+const { activeRequest, requestHistory, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
 
-const history = computed(() => activeRequest.value.history.slice().reverse())
+/** Use a local copy to prevent mutation of the reactive object */
+const history = computed(() => requestHistory.slice().reverse())
 
+/** Generate a user readable URL */
 function getPrettyResponseUrl(rawUrl: string) {
   const url = new URL(rawUrl)
   const params = new URLSearchParams(url.search)
@@ -32,11 +35,11 @@ function getPrettyResponseUrl(rawUrl: string) {
   return scalarUrlParsed.href
 }
 
-function handleHistoryClick(historicalRequest: any) {
+function handleHistoryClick(historicalRequest: RequestEvent) {
   // see if we need to update the topnav
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
-  if (activeRequest.value.uid !== historicalRequest.request.requestUid) {
+  if (activeRequest.value?.uid !== historicalRequest.request.requestUid) {
     router.push(`/request/${historicalRequest.request.requestUid}`)
   }
   requestExampleMutators.set({ ...historicalRequest.request })
@@ -45,7 +48,7 @@ function handleHistoryClick(historicalRequest: any) {
 <template>
   <!-- History -->
   <ListboxButton
-    v-if="activeRequest.history.length"
+    v-if="history?.length"
     class="adressbar-history-button mr-1 rounded p-1.5 text-c-3 focus:text-c-1">
     <ScalarIcon
       icon="History"
@@ -74,7 +77,7 @@ function handleHistoryClick(historicalRequest: any) {
           :method="entry.response.config.method" />
         <div class="min-w-0">
           <div class="min-w-0 truncate text-c-1">
-            {{ getPrettyResponseUrl(entry.response.config.url) }}
+            {{ getPrettyResponseUrl(entry.response.config.url ?? '') }}
           </div>
         </div>
         <div>{{ formatMs(entry.response.duration) }}</div>
