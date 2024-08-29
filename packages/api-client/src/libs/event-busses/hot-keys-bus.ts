@@ -1,11 +1,11 @@
 import type {
+  HotkeyEventName,
+  KeydownKey,
+} from '@scalar/oas-utils/entities/hotkeys'
+import type {
   HotKeyConfig,
   HotKeyModifiers,
 } from '@scalar/oas-utils/entities/workspace'
-import type {
-  HotkeyEventName,
-  KeydownKey,
-} from '@scalar/oas-utils/entities/workspace/consts'
 import { isMacOS } from '@scalar/use-tooltip'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 
