@@ -12,7 +12,7 @@ import {
 } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import fs from 'node:fs'
-import { join } from 'path'
+import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
 
@@ -35,6 +35,17 @@ todesktop.init({
   },
 })
 
+// Register app as the default for `scalar://` links
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('scalar', process.execPath, [
+      path.resolve(process.argv[1]),
+    ])
+  }
+} else {
+  app.setAsDefaultProtocolClient('scalar')
+}
+
 function createWindow(): void {
   // Load the previous state with fallback to defaults
   const mainWindowState = windowStateKeeper({
@@ -56,7 +67,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,
     },
   })
@@ -113,7 +124,7 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
   // Menu
@@ -270,6 +281,29 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  // Handle the `scalar://` protocol. In this case, we choose to show an Error Box.
+  app.on('open-url', async (_, appLink: string) => {
+    // Strip `scalar://`, decode URI
+    const url = decodeURIComponent(appLink.replace('scalar://', ''))
+
+    // Fetch URL
+    const result = await fetch(url)
+
+    // Error handling
+    if (!result.ok) {
+      dialog.showErrorBox(
+        'Failed to fetch the OpenAPI document',
+        `Tried to fetch ${url}, but received ${result.status} ${result.statusText}`,
+      )
+    }
+
+    // Get first browser window
+    const [mainWindow] = BrowserWindow.getAllWindows()
+
+    // Send to renderer process
+    mainWindow.webContents.send('importFile', await result.text())
+  })
+
   // Block all permission requests (but for notifications)
   session
     .fromPartition('main')
@@ -371,13 +405,13 @@ async function handleReadFile(
  * Handle the "Open…" menu item
  */
 async function handleFileOpenMenuItem(mainWindow: BrowserWindow) {
-  const path = await handleFileOpen()
+  const filePath = await handleFileOpen()
 
-  if (!path) {
+  if (!filePath) {
     return
   }
 
-  const content = await handleReadFile(undefined, path)
+  const content = await handleReadFile(undefined, filePath)
 
   if (!content) {
     return
