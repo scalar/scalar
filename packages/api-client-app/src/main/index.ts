@@ -18,7 +18,14 @@ import icon from '../../build/icon.png?asset'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
-const gotTheLock = app.requestSingleInstanceLock()
+/**
+ * A strange way to have only one Window and handle app links
+ *
+ * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#windows-and-linux-code
+ */
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+}
 
 todesktop.init({
   updateReadyAction: {
