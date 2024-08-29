@@ -53,6 +53,7 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
           if (Object.hasOwn(pathItem, method)) {
             const operationItem = pathItem[method]
 
+            // Responses
             if (operationItem.responses) {
               for (const response in operationItem.responses) {
                 if (Object.hasOwn(operationItem.responses, response)) {
