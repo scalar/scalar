@@ -177,8 +177,10 @@ const selectedCommand = computed(
 )
 
 /** Handle enter keydown in the menu */
-const handleSelect = () => {
-  if (!selectedCommand.value) return
+const handleSelect = (ev: KeyboardEvent) => {
+  if (!selectedCommand.value || activeCommand.value) return
+  ev.preventDefault()
+  ev.stopPropagation()
   executeCommand(selectedCommand.value)
 }
 
@@ -190,7 +192,7 @@ const handleHotKey = (event: HotKeyEvents) => {
     handleArrowKey('up', event.navigateSearchResultsUp)
   if (event.navigateSearchResultsDown)
     handleArrowKey('down', event.navigateSearchResultsDown)
-  if (event.selectSearchResult) handleSelect()
+  if (event.selectSearchResult) handleSelect(event.selectSearchResult)
 }
 
 onMounted(() => {
