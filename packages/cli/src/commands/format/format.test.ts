@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { ScalarCli } from '../../../tests/invoke-cli'
@@ -12,13 +13,14 @@ describe('format', () => {
     const notWellFormatted = '{"foo":    "bar"}'
 
     // Create JSON file
-    const jsonFile = './packages/cli/src/commands/format/temp.json'
+    const jsonFile = fileURLToPath(new URL('./temp.json', import.meta.url))
+
     fs.writeFileSync(jsonFile, notWellFormatted)
 
     // Format
     const [exitCode, logs] = ScalarCli()
       .setCwd(path.resolve('./'))
-      .invoke(['format', './packages/cli/src/commands/format/temp.json'])
+      .invoke(['format', jsonFile])
 
     // Output
     logs.should.contain('File formatted')
@@ -40,13 +42,14 @@ describe('format', () => {
     const notWellFormatted = 'openapi:      3.1.0'
 
     // Create JSON file
-    const yamlFile = './packages/cli/src/commands/format/temp.yaml'
+    const yamlFile = fileURLToPath(new URL('./temp.yaml', import.meta.url))
+
     fs.writeFileSync(yamlFile, notWellFormatted)
 
     // Format
     const [exitCode, logs] = ScalarCli()
       .setCwd(path.resolve('./'))
-      .invoke(['format', './packages/cli/src/commands/format/temp.yaml'])
+      .invoke(['format', yamlFile])
 
     // Output
     logs.should.contain('File formatted')

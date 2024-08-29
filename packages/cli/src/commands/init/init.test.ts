@@ -1,14 +1,23 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
 import { ScalarCli } from '../../../tests/invoke-cli'
 
+const cwd = fileURLToPath(new URL('./', import.meta.url))
+
+const configFile = fileURLToPath(
+  new URL('./scalar.config.json', import.meta.url),
+)
+
+const openApiDocument = fileURLToPath(
+  new URL('../validate/valid.json', import.meta.url),
+)
+
 describe('init', () => {
   it('creates a config file', () => {
     // Delete config file if it exists
-    const configFile = './scalar.config.json'
-
     if (fs.existsSync(configFile)) {
       fs.unlinkSync(configFile)
     }
@@ -18,11 +27,11 @@ describe('init', () => {
 
     // Create config file
     const [exitCode, logs] = ScalarCli()
-      .setCwd(path.resolve('./'))
+      .setCwd(cwd)
       .invoke([
         'init',
         '--file',
-        './packages/cli/src/commands/validate/valid.json',
+        openApiDocument,
         '--force',
         '--subdomain',
         'foobar.apidocumentation.com',
@@ -30,20 +39,18 @@ describe('init', () => {
 
     // Output
     logs.should.contain(`"subdomain": "foobar.apidocumentation.com"`)
-    logs.should.contain(
-      `"path": "./packages/cli/src/commands/validate/valid.json"`,
-    )
+    logs.should.contain(`"path": "${openApiDocument}"`)
 
     // File exists
+    console.log(configFile)
+
     expect(fs.existsSync(configFile)).toBe(true)
-    expect(fs.readFileSync(configFile, 'utf-8')).toContain(
-      './packages/cli/src/commands/validate/valid.json',
-    )
+    expect(fs.readFileSync(configFile, 'utf-8')).toContain(openApiDocument)
     expect(JSON.parse(fs.readFileSync(configFile, 'utf-8'))).toMatchObject({
       references: [
         {
           name: 'API Reference',
-          path: './packages/cli/src/commands/validate/valid.json',
+          path: openApiDocument,
         },
       ],
     })
