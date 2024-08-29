@@ -17,5 +17,20 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
     return specification
   }
 
+  // Servers
+  if (specification.host) {
+    const schemes = specification.schemes?.length
+      ? specification.schemes
+      : ['http']
+
+    specification.servers = schemes.map((scheme) => ({
+      url: `${scheme}://${specification.host}${specification.basePath ?? ''}`,
+    }))
+
+    delete specification.basePath
+    delete specification.schemes
+    delete specification.host
+  }
+
   return specification as OpenAPIV3.Document
 }

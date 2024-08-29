@@ -16,4 +16,40 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.openapi).toBe('3.0.3')
     expect(result.swagger).toBeUndefined()
   })
+
+  it('upgrades URLs to new server syntax', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      basePath: '/v1',
+      schemes: ['http'],
+      host: 'api.example.com',
+    })
+
+    expect(result.servers).toStrictEqual([
+      {
+        url: 'http://api.example.com/v1',
+      },
+    ])
+
+    expect(result.basePath).toBeUndefined()
+    expect(result.schemes).toBeUndefined()
+    expect(result.host).toBeUndefined()
+  })
+
+  it('upgrades host to new server syntax', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      host: 'api.example.com',
+    })
+
+    expect(result.servers).toStrictEqual([
+      {
+        url: 'http://api.example.com',
+      },
+    ])
+
+    expect(result.basePath).toBeUndefined()
+    expect(result.schemes).toBeUndefined()
+    expect(result.host).toBeUndefined()
+  })
 })
