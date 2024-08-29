@@ -2,9 +2,6 @@ import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 
-// TODO:
-// * Update refs, e.g. #/definitions/Planet to #/components/schemas/Planet
-
 describe('upgradeFromTwoToThree', () => {
   it('changes the version to from 3.0.0 to 3.1.0', async () => {
     const result = upgradeFromTwoToThree({
@@ -85,6 +82,37 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.definitions).toBeUndefined()
+  })
+
+  it('rewrites $refs to definitions', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/planets': {
+          get: {
+            responses: {
+              '200': {
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+            },
+          },
+        },
+      },
+      definitions: {
+        Planet: {
+          type: 'object',
+          properties: {
+            name: { type: 'string' },
+          },
+        },
+      },
+    })
+    expect(
+      result.paths['/planets'].get.responses['200'].content['application/json']
+        .schema.$ref,
+    ).toBe('#/components/schemas/Planet')
   })
 
   it('transforms responses', async () => {

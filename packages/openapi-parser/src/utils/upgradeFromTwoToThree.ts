@@ -1,6 +1,7 @@
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { AnyObject } from '../types'
+import { traverse } from './traverse'
 
 /**
  * Upgrade Swagger 2.0 to OpenAPI 3.0
@@ -41,6 +42,18 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
     specification.components.schemas = specification.definitions
 
     delete specification.definitions
+
+    // Rewrite $refs to definitions
+    specification = traverse(specification, (schema) => {
+      if (schema.$ref?.startsWith('#/definitions/')) {
+        schema.$ref = schema.$ref.replace(
+          /^#\/definitions\//,
+          '#/components/schemas/',
+        )
+      }
+
+      return schema
+    })
   }
 
   // Paths
