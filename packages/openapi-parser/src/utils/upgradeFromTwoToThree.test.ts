@@ -52,4 +52,36 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.schemes).toBeUndefined()
     expect(result.host).toBeUndefined()
   })
+
+  // Moves definitions to components
+  it('moves definitions to components', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      definitions: {
+        Category: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              format: 'int64',
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.components?.schemas).toStrictEqual({
+      Category: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            format: 'int64',
+          },
+        },
+      },
+    })
+
+    expect(result.definitions).toBeUndefined()
+  })
 })
