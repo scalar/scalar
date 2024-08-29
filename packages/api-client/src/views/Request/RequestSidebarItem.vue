@@ -212,7 +212,7 @@ const getDraggableOffsets = computed(() => {
     floor = 0
   }
   // Has children but is not a request or a collection
-  else if (['collection', 'tag'].includes(item.value.entity.type)) {
+  else if (item.value.entity.type === 'tag') {
     ceiling = 0.8
     floor = 0.2
   }
