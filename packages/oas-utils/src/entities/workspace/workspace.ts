@@ -1,5 +1,4 @@
 import { themeIds } from '@scalar/themes'
-import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { HOTKEY_EVENT_NAMES, KEYDOWN_KEYS } from '../hotkeys'
@@ -30,7 +29,7 @@ const hotKeyConfigSchema = z
   .optional()
 
 export const workspaceSchema = z.object({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   name: z.string().default('Default Workspace'),
   /** Workspace description */
   description: z.string().default('Basic Scalar Workspace'),

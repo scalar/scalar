@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -88,7 +87,7 @@ const commonProps = z.object({
 })
 
 const extendedSecuritySchema = z.object({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   /** The name key that links a security requirement to a security object */
   nameKey: z.string().optional().default(''),
 })

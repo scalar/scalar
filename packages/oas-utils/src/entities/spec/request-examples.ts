@@ -1,35 +1,12 @@
-import { nanoidSchema } from '@/entities/workspace/shared'
-import { deepMerge } from '@scalar/object-utils/merge'
+import { nanoidSchema } from '@/entities/shared'
+import { securitySchemeExampleValueSchema } from '@/entities/spec/security'
 import { z } from 'zod'
 
-// Define the Blob schema
-export const blobSchema = z.object({
-  size: z.number().nonnegative('Blob size must be a non-negative number').int(), // Size of the Blob
-  type: z.string(), // MIME type of the Blob
-  arrayBuffer: z.function().returns(z.promise(z.instanceof(ArrayBuffer))), // Returns a Promise of ArrayBuffer
-  slice: z
-    .function()
-    .args(z.number().optional(), z.number().optional(), z.string().optional())
-    .returns(z.any()), // Returns a Blob (any type for now)
-  stream: z.function().returns(z.instanceof(ReadableStream<Uint8Array>)), // Returns a ReadableStream of Uint8Array
-  text: z.function().returns(z.promise(z.string())), // Returns a Promise of string
-})
-
-const fileSchema = z
-  .object({
-    name: z.string(),
-    lastModified: z.number(),
-    webkitRelativePath: z.string(),
-  })
-  .extend(blobSchema.shape)
-
-export type FileType = z.infer<typeof fileSchema>
-
-const requestExampleParametersSchema = z.object({
+export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
-  value: z.union([z.string(), z.number()]).transform(String).default(''),
+  value: z.coerce.string().default(''),
   enabled: z.boolean().default(true),
-  file: fileSchema.optional(),
+  file: z.any().optional(),
   description: z.string().optional(),
   /** Params are linked to parents such as path params and global headers/cookies */
   refUid: nanoidSchema.optional(),
@@ -47,58 +24,50 @@ const requestExampleParametersSchema = z.object({
 export type RequestExampleParameter = z.infer<
   typeof requestExampleParametersSchema
 >
-export type RequestExampleParameterPayload = z.input<
-  typeof requestExampleParametersSchema
->
 
-/** Create request example parameter helper */
-export const createRequestExampleParameter = (
-  payload: RequestExampleParameterPayload,
-) =>
-  deepMerge(
-    requestExampleParametersSchema.parse({}),
-    payload as Partial<RequestExampleParameter>,
-  )
+/**
+ * Possible encodings for example request bodies when using text formats
+ *
+ * TODO: This list may not be comprehensive enough
+ */
+export const exampleRequestBodyEncoding = [
+  'json',
+  'text',
+  'html',
+  'javascript',
+  'xml',
+  'yaml',
+  'edn',
+] as const
 
-const requestExampleSchema = z.object({
-  uid: nanoidSchema,
-  url: z.string().optional().default(''),
-  requestUid: z.string().min(7),
-  name: z.string().optional().default('Name'),
-  body: z
+export const exampleRequestBodySchema = z.object({
+  raw: z
     .object({
-      raw: z
-        .object({
-          encoding: z
-            .union([
-              z.literal('json'),
-              z.literal('text'),
-              z.literal('html'),
-              z.literal('text'),
-              z.literal('javascript'),
-              z.literal('xml'),
-              z.literal('yaml'),
-              z.literal('edn'),
-            ])
-            .default('json'),
-          value: z.string().default(''),
-        })
-        .default({}),
-      formData: z
-        .object({
-          encoding: z
-            .union([z.literal('form-data'), z.literal('urlencoded')])
-            .default('form-data'),
-          value: requestExampleParametersSchema.array().default([]),
-        })
-        .default({}),
-      binary: fileSchema.optional(),
-      activeBody: z
-        .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
-        .default('raw'),
+      encoding: z.enum(exampleRequestBodyEncoding).default('json'),
+      value: z.string().default(''),
     })
-    .optional()
-    .default({}),
+    .optional(),
+  formData: z
+    .object({
+      encoding: z
+        .union([z.literal('form-data'), z.literal('urlencoded')])
+        .default('form-data'),
+      value: requestExampleParametersSchema.array().default([]),
+    })
+    .optional(),
+  binary: z.instanceof(Blob).optional(),
+  activeBody: z
+    .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
+    .default('raw'),
+})
+
+export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
+
+export const requestExampleSchema = z.object({
+  uid: nanoidSchema,
+  requestUid: nanoidSchema,
+  name: z.string().optional().default('Name'),
+  body: exampleRequestBodySchema.optional().default({}),
   parameters: z
     .object({
       path: requestExampleParametersSchema.array().default([]),
@@ -108,16 +77,15 @@ const requestExampleSchema = z.object({
     })
     .optional()
     .default({}),
-  auth: z.record(z.string(), z.any()).default({}),
+  /**
+   * Map of security schemas to their value sets
+   *
+   * For each selected security schema we should have an entry here
+   * The entry will contain the secret values (but not the schema definition)
+   */
+  auth: z.record(nanoidSchema, securitySchemeExampleValueSchema).default({}),
 })
 
-/** A single set of params for a request example */
+/** A single set 23of params for a request example */
 export type RequestExample = z.infer<typeof requestExampleSchema>
 export type RequestExamplePayload = z.input<typeof requestExampleSchema>
-
-/** Create request example helper */
-export const createRequestExample = (payload: RequestExamplePayload) =>
-  deepMerge(
-    requestExampleSchema.parse({ requestUid: payload.requestUid }),
-    payload as Partial<RequestExample>,
-  )
