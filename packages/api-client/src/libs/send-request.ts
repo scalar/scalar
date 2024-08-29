@@ -1,24 +1,23 @@
 import { ERRORS } from '@/errors'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
+import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
+  FetchRequest,
   Request,
   RequestExample,
   RequestExampleParameter,
   ResponseInstance,
+  SecurityScheme,
+  Server,
 } from '@scalar/oas-utils/entities/spec'
 import {
   isValidUrl,
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import type { SecurityScheme } from '@scalar/oas-utils/spec'
-import axios, {
-  type AxiosError,
-  type AxiosRequestConfig,
-  type GenericAbortSignal,
-} from 'axios'
+import { safeJSON } from '@scalar/object-utils/parse'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -48,91 +47,62 @@ const decodeBuffer = (buffer: ArrayBuffer, contentType: string) => {
   }
 }
 
+/** Populate the headers from enabled parameters */
+function createFetchHeaders(example: RequestExample, env: object) {
+  const headers: NonNullable<RequestInit['headers']> = []
+
+  example.parameters.headers.forEach((h) => {
+    if (h.enabled) headers.push([h.key, replaceTemplateVariables(h.value, env)])
+  })
+
+  return headers
+}
+
+/** Populate the query parameters from the example  */
+function createFetchQueryParams(example: RequestExample, env: object) {
+  const params = new URLSearchParams()
+  example.parameters.query.forEach((p) => {
+    if (p.enabled) params.append(p.key, replaceTemplateVariables(p.value, env))
+  })
+
+  return params
+}
+
+function createFetchBody(example: RequestExample) {}
+
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-export const sendRequest = async (
-  request: Request,
-  example: RequestExample,
-  rawUrl: string,
-  securitySchemes?: SecurityScheme[],
-  proxyUrl?: string,
-  workspaceCookies?: Record<string, Cookie>,
-  abortSignal?: GenericAbortSignal,
-): Promise<{
-  sentTime?: number
-  request?: RequestExample
-  response?: ResponseInstance
-  error?: AxiosError
-}> => {
-  let url = rawUrl
+export async function createRequestOperation({
+  request,
+  example,
+  server,
+  securitySchemes,
+  proxy,
+  environment,
+}: {
+  request: Request
+  example: RequestExample
+  server: Server
+  securitySchemes: Record<string, SecurityScheme>
+  proxy: string
+  environment: string
+}) {
+  const controller = new AbortController()
 
-  // Replace path variables
-  // Example: https://example.com/{path} -> https://example.com/example
-  // TODO: This replaces variables in the URL, not just in the path
-  example.parameters.path.forEach((parameter: RequestExampleParameter) => {
-    if (!parameter.key || !parameter.value) {
-      return
-    }
+  // Parse the environment string
+  const e = safeJSON.parse(environment)
+  if (e.error) console.error('INVALID ENVIRONMENT!')
+  const env = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
 
-    url = url.replace(`{${parameter.key}}`, parameter.value)
-  })
+  // Initialize the base URL object from the active server
+  const url = new URL(replaceTemplateVariables(server.url ?? '', env))
 
-  const headers = paramsReducer(
-    example.parameters.headers.filter(({ enabled }) => enabled),
-  )
-
-  let data: FormData | string | File | null = null
-
-  if (example.body.activeBody === 'binary' && example.body.binary) {
-    headers['Content-Type'] = example.body.binary.type
-    headers['Content-Disposition'] =
-      `attachment; filename="${example.body.binary.name}"`
-    data = example.body.binary
-  } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
-    data = example.body.raw.value
-  } else if (example.body.activeBody === 'formData') {
-    headers['Content-Type'] = 'multipart/form-data'
-
-    const bodyFormData = new FormData()
-    if (example.body.formData.encoding === 'form-data') {
-      example.body.formData.value.forEach(
-        (formParam: { key: string; value: string; file?: File }) => {
-          const value = formParam.file ? formParam.file : formParam.value
-          if (formParam.key && value) {
-            bodyFormData.append(formParam.key, value)
-          }
-        },
-      )
-      data = bodyFormData
-    }
-  }
-
-  // Extract query parameters from the URL
-  const queryParametersFromUrl: RequestExampleParameter[] = []
-  const [urlWithoutQueryString, urlQueryString] = url.split('?')
-  new URLSearchParams(urlQueryString ?? '').forEach((value, key) => {
-    queryParametersFromUrl.push({
-      key,
-      value,
-      enabled: true,
-    })
-  })
-
-  const query: Record<string, string> = {
-    ...paramsReducer(
-      example.parameters.query
-        .filter(({ enabled }) => enabled)
-        .filter(({ value }) => value !== ''),
-    ),
-    ...paramsReducer(queryParametersFromUrl),
-  }
-  const cookies: Record<string, string> = {
-    ...paramsReducer(
-      (example.parameters.cookies ?? []).filter(({ enabled }) => enabled),
-    ),
-  }
+  // TODO: Should we be allow users to override path vars at a request level?
+  // If so then env should be replaced with the key/value pairs from the example
+  url.pathname = replaceTemplateVariables(request.path, env)
+  url.search = createFetchQueryParams(example, env).toString()
 
   if (workspaceCookies) {
     if (!rawUrl) {

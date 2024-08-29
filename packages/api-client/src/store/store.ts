@@ -1,3 +1,4 @@
+import { flattenEnvVars } from '@/libs/string-template'
 import { PathId, fallbackMissingParams } from '@/router'
 import {
   createStoreCollections,
@@ -214,40 +215,16 @@ export const createWorkspaceStore = (
   )
 
   /**
-   * Active list all available substitution variables for
-   * resolving {{ }} template syntax
-   *
-   * Servers function as a special form of env var
+   * Active list all available substitution variables. Server variables
+   * will be populated into the environment on spec loading
    */
   const activeEnvVariables = computed(() => {
-    const flattenedServers = activeWorkspaceServers.value.map((server) => ({
-      key: server.url,
-      value: server.url,
+    // TODO: Must merge global variables and collection level variables here
+    // Return a list of key value pairs that includes dot nested paths
+    return flattenEnvVars(activeEnvironment.value).map(([key, value]) => ({
+      key,
+      value,
     }))
-
-    const flattenedEnvs = Object.values(environments)
-      .map((env) => {
-        try {
-          return {
-            _scalarEnvId: env.uid,
-            ...JSON.parse(env.raw),
-          }
-        } catch {
-          return null
-        }
-      })
-      .filter((env) => env)
-      .flatMap((obj) =>
-        Object.entries(obj).flatMap(([key, value]) => {
-          // Exclude the _scalarEnvId from the key-value pairs
-          if (key !== '_scalarEnvId') {
-            return [{ _scalarEnvId: obj._scalarEnvId, key, value }]
-          }
-          return []
-        }),
-      )
-
-    return [...flattenedServers, ...flattenedEnvs]
   })
 
   // ---------------------------------------------------------------------------
