@@ -36,7 +36,7 @@ import type {
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { computed, inject, reactive, ref } from 'vue'
+import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
@@ -162,12 +162,9 @@ export const createWorkspaceStore = (
 
     // Can use this fallback to get an active request
     // TODO: Do we really need this? We have to handle undefined anyways
-    const workspace =
-      workspaces[activeRouterParams.value.workspace] ??
-      workspaces[Object.keys(workspaces)[0]]
     const collection =
       collections[activeRouterParams.value.collection] ??
-      collections[workspace.collections[0]]
+      collections[activeWorkspace.value.collections[0]]
 
     const request = requests[key] ?? requests[collection?.requests[0]]
 

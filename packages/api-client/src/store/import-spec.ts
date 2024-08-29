@@ -15,7 +15,7 @@ export function importSpecFileFactory({
   workspaces,
 }: StoreContext) {
   const importSpecFile = async (
-    _spec: string | AnyObject,
+    _spec: string | Record<string, any>,
     workspaceUid = 'default',
     /**
      * TODO: What do these look like?
