@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 
-describe.skip('version', () => {
-  it('doesn’t modify Swagger 2.0 files', async () => {
+describe('upgradeFromTwoToThree', () => {
+  it('changes the version to from 3.0.0 to 3.1.0', async () => {
     const result = upgradeFromTwoToThree({
       swagger: '2.0',
       info: {
@@ -13,6 +13,7 @@ describe.skip('version', () => {
       paths: {},
     })
 
-    expect(result.openapi).toBe('3.0.0')
+    expect(result.openapi).toBe('3.0.3')
+    expect(result.swagger).toBeUndefined()
   })
 })
