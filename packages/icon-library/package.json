@@ -1,0 +1,46 @@
+{
+  "name": "@scalar/icon-library",
+  "description": "Scalars Icon Library",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/icon-library"
+  },
+  "version": "0.12.41",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "dependencies": {
+    "vue": "^3.4.29"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.10",
+    "vite-svg-loader": "^5.1.0"
+  }
+}
