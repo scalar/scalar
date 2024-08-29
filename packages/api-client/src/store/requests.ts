@@ -1,8 +1,14 @@
 import { PathId, fallbackMissingParams } from '@/router'
 import { createExampleFromRequest } from '@/store/request-example'
-import { type Request, requestSchema } from '@scalar/oas-utils/entities/spec'
+import {
+  type Collection,
+  type Request,
+  type Tag,
+  requestSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
+import { tag } from 'type-fest/source/opaque'
 import { computed, reactive } from 'vue'
 
 import { LS_KEYS } from './local-storage'
@@ -28,6 +34,7 @@ export function createStoreRequests(useLocalStorage: boolean) {
  * Create the extended mutators for request where access to the workspace is required
  */
 export function extendedRequestDataFactory({
+  tags,
   requestExamples,
   requestExampleMutators,
   requestMutators,
@@ -80,5 +87,55 @@ export function extendedRequestDataFactory({
   return {
     addRequest,
     deleteRequest,
+    findRequestParents: findRequestParentsFactory({ collections, tags }),
   }
+}
+
+/** Factory function to allow testing of the function */
+export function findRequestParentsFactory({
+  collections,
+  tags,
+}: {
+  collections: Record<string, Collection>
+  tags: Record<string, Tag>
+}) {
+  /** Recursively find all parent folders (tags and collections) of a request */
+  function findRequestParentss(r: Request) {
+    const collection = Object.values(collections).find((c) =>
+      c.requests.includes(r.uid),
+    )
+    if (!collection) return []
+
+    // Initialized an empty children array for each tag and once for the top level collection
+    const tagChildren = Object.keys(tags).reduce<Record<string, string[]>>(
+      (obj, uid) => {
+        obj[uid] = []
+        return obj
+      },
+      { [collection?.uid]: [] },
+    )
+
+    // Recursively add nested children to the tagChildren values
+    function addChildren(current: Tag | Collection, parentUids: string[]) {
+      parentUids.forEach((p) => tagChildren[p].push(...current.children))
+
+      // tagChildren[current.uid].push(...current.children)
+
+      current.children.forEach((t) => {
+        if (tags[t]) addChildren(tags[t], [...parentUids, t])
+      })
+    }
+    addChildren(collection, [collection.uid])
+
+    // Return unique parents
+    const parents: Set<string> = new Set()
+
+    // Anytime a tag has the request somewhere in its tree we make it open
+    Object.entries(tagChildren).forEach(([tagUid, totalChildren]) => {
+      if (totalChildren.includes(r.uid)) parents.add(tagUid)
+    })
+    return [...parents]
+  }
+
+  return findRequestParentss
 }

@@ -101,7 +101,8 @@ export const createWorkspaceStore = (
     workspaces,
     workspaceMutators,
   }
-  const { addRequest, deleteRequest } = extendedRequestDataFactory(storeContext)
+  const { addRequest, deleteRequest, findRequestParents } =
+    extendedRequestDataFactory(storeContext)
   const { deleteEnvironment } = extendedEnvironmentDataFactory(storeContext)
   const { addServer, deleteServer } = extendedServerDataFactory(storeContext)
   const { addCollection, deleteCollection } =
@@ -320,6 +321,7 @@ export const createWorkspaceStore = (
       add: addRequest,
       delete: deleteRequest,
     },
+    findRequestParents,
     requestExampleMutators: {
       ...requestExampleMutators,
       rawAdd: requestExampleMutators.add,
