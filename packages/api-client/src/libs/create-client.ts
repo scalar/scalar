@@ -1,19 +1,16 @@
+import { loadAllResources } from '@/libs/local-storage'
 import { createWorkspaceStore } from '@/store'
-import {
-  type RequestMethod,
-  SecurityScheme,
-} from '@scalar/oas-utils/entities/spec'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { LS_KEYS } from '@/store/local-storage'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import { getNestedValue } from '@scalar/object-utils/nested'
 import type { ThemeId } from '@scalar/themes'
 import type {
   AuthenticationState,
   Spec,
   SpecConfiguration,
 } from '@scalar/types/legacy'
-import type { LiteralUnion, Paths } from 'type-fest'
-import { type Component, createApp } from 'vue'
+import type { LiteralUnion } from 'type-fest'
+import { type Component, createApp, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
 /** Configuration options for the Scalar API client */
@@ -101,14 +98,37 @@ export const createApiClient = ({
 }: CreateApiClientParams) => {
   const store = createWorkspaceStore(router, persistData)
 
-  // Strictly make the default workspace with no side effects, to be overwritten by importing a spec
-  store.workspaceMutators.rawAdd(
-    workspaceSchema.parse({
+  // Load from localStorage if available
+  // Check if we have localStorage data
+  if (localStorage.getItem(LS_KEYS.WORKSPACE) && !isReadOnly) {
+    const size: Record<string, string> = {}
+    let _lsTotal = 0
+    let _xLen = 0
+    let _key = ''
+
+    for (_key in localStorage) {
+      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        continue
+      }
+      _xLen = (localStorage[_key].length + _key.length) * 2
+      _lsTotal += _xLen
+      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+    }
+    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+    console.table(size)
+
+    loadAllResources(store)
+  } else {
+    // Create default workspace
+    store.workspaceMutators.add({
+      uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: configuration?.proxyUrl,
-    }),
-  )
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+  }
+
+  console.log(Object.keys(store.workspaces), toRaw(store.workspaces))
 
   const app = createApp(appComponent)
   app.use(router)
@@ -121,7 +141,6 @@ export const createApiClient = ({
     importSpecFromUrl,
     modalState,
     requests,
-    securitySchemeMutators,
     securitySchemes,
     serverMutators,
     workspaceMutators,
