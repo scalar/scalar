@@ -18,6 +18,8 @@ import icon from '../../build/icon.png?asset'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
+const gotTheLock = app.requestSingleInstanceLock()
+
 todesktop.init({
   updateReadyAction: {
     showNotification: 'never',
@@ -254,6 +256,24 @@ function createWindow(): void {
   Menu.setApplicationMenu(menu)
 }
 
+/**
+ * Handle app links on Windows and Linux
+ *
+ * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#windows-and-linux-code
+ */
+app.on('second-instance', async (_, commandLine) => {
+  // Get first browser window
+  const [mainWindow] = BrowserWindow.getAllWindows()
+
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+  // the commandLine is array of strings in which last element is the deep link url
+  await openAppLink(commandLine.pop())
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -281,27 +301,13 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
-  // Handle the `scalar://` protocol. In this case, we choose to show an Error Box.
+  /**
+   * Handle the `scalar://` protocol. In this case, we choose to show an Error Box.
+   *
+   * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#macos-code
+   */
   app.on('open-url', async (_, appLink: string) => {
-    // Strip `scalar://`, decode URI
-    const url = decodeURIComponent(appLink.replace('scalar://', ''))
-
-    // Fetch URL
-    const result = await fetch(url)
-
-    // Error handling
-    if (!result.ok) {
-      dialog.showErrorBox(
-        'Failed to fetch the OpenAPI document',
-        `Tried to fetch ${url}, but received ${result.status} ${result.statusText}`,
-      )
-    }
-
-    // Get first browser window
-    const [mainWindow] = BrowserWindow.getAllWindows()
-
-    // Send to renderer process
-    mainWindow.webContents.send('importFile', await result.text())
+    await openAppLink(appLink)
   })
 
   // Block all permission requests (but for notifications)
@@ -418,4 +424,39 @@ async function handleFileOpenMenuItem(mainWindow: BrowserWindow) {
   }
 
   mainWindow.webContents.send('importFile', content)
+}
+
+/**
+ * Takes a `scalar://` app link, fetches the content and passes it to the renderer process
+ */
+async function openAppLink(appLink?: string) {
+  // Check whether an app link is given
+  if (typeof appLink !== 'string') {
+    return
+  }
+
+  // Strip `scalar://`, decode URI
+  const url = decodeURIComponent(appLink.replace('scalar://', ''))
+
+  // Check whether it’s an URL
+  if (!url.length) {
+    return
+  }
+
+  // Fetch URL
+  const result = await fetch(url)
+
+  // Error handling
+  if (!result.ok) {
+    dialog.showErrorBox(
+      'Failed to fetch the OpenAPI document',
+      `Tried to fetch ${url}, but received ${result.status} ${result.statusText}`,
+    )
+  }
+
+  // Get first browser window
+  const [mainWindow] = BrowserWindow.getAllWindows()
+
+  // Send to renderer process
+  mainWindow.webContents.send('importFile', await result.text())
 }
