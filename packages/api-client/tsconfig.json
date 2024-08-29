@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "target": "ES2023",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
