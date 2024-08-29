@@ -1,7 +1,6 @@
 import { nanoidSchema } from '@/entities/shared'
 import { oasExternalDocumentationSchema } from '@/entities/spec/spec-objects'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import { nanoid } from 'nanoid'
 import { type ZodSchema, z } from 'zod'
 
 import { oasParameterSchema } from './parameters'

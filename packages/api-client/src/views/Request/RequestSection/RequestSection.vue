@@ -11,14 +11,12 @@ import { computed, ref, watch } from 'vue'
 
 const {
   activeRequest,
-  activeSecuritySchemes,
   activeExample,
-  activeSecurityRequirements,
+  activeEnvVariables,
   isReadOnly,
   requestMutators,
 } = useWorkspace()
 
-console.log(activeRequest, 'ASDASDSD')
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 const sections = computed(() => {
@@ -60,6 +58,7 @@ const activeSection = ref<ActiveSections>('All')
 watch(activeRequest, (newRequest) => {
   if (
     activeSection.value === 'Body' &&
+    newRequest &&
     !bodyMethods.includes(newRequest.method)
   ) {
     activeSection.value = 'All'
@@ -67,6 +66,8 @@ watch(activeRequest, (newRequest) => {
 })
 
 const updateRequestNameHandler = (event: Event) => {
+  if (!activeRequest.value) return
+
   const target = event.target as HTMLInputElement
   requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
 }
@@ -110,7 +111,7 @@ const updateRequestNameHandler = (event: Event) => {
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Request') &&
-          activeExample.parameters.path.length > 0
+          activeExample?.parameters?.path?.length
         "
         paramKey="path"
         title="Path Variables" />
@@ -128,6 +129,7 @@ const updateRequestNameHandler = (event: Event) => {
         title="Query Parameters" />
       <RequestBody
         v-show="
+          activeRequest &&
           (activeSection === 'All' || activeSection === 'Body') &&
           bodyMethods.includes(activeRequest.method)
         "
