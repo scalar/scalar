@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { WorkspaceStore } from '@/store/workspace'
+import type { WorkspaceStore } from '@/store'
 import {
   ScalarDropdown,
   ScalarDropdownItem,

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { DataTableRow } from '@/components/DataTable'
-import { type UpdateScheme, useWorkspace } from '@/store/workspace'
+import { type UpdateScheme, useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 

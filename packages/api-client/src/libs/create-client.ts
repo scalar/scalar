@@ -1,7 +1,10 @@
-import { createWorkspaceStore } from '@/store/workspace'
-import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
-import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
+import { createWorkspaceStore } from '@/store'
+import {
+  type RequestMethod,
+  SecurityScheme,
+} from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { objectMerge } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import type { ThemeId } from '@scalar/themes'
 import type {
@@ -100,8 +103,7 @@ export const createApiClient = ({
 
   // Strictly make the default workspace with no side effects, to be overwritten by importing a spec
   store.workspaceMutators.rawAdd(
-    createWorkspace({
-      uid: 'default',
+    workspaceSchema.parse({
       name: 'Workspace',
       isReadOnly,
       proxyUrl: configuration?.proxyUrl,
@@ -191,53 +193,54 @@ export const createApiClient = ({
     updateAuth: (auth: AuthenticationState) => {
       const schemes = Object.values(securitySchemes)
 
+      // TODO: @amrit need to update this
       // Loop on all schemes from client to see which types we have
-      schemes.forEach((scheme) => {
-        /**
-         * Edit helper to reduce some boilerplate in the switch statements
-         * Ensures the passed in value exists and one does not exist already
-         */
-        const edit = (
-          value: string | string[],
-          path: Paths<SecurityScheme> = 'value',
-        ) =>
-          value.length &&
-          !getNestedValue(scheme, path).length &&
-          securitySchemeMutators.edit(scheme.uid, path, value)
+      // schemes.forEach((scheme) => {
+      //   /**
+      //    * Edit helper to reduce some boilerplate in the switch statements
+      //    * Ensures the passed in value exists and one does not exist already
+      //    */
+      //   const edit = (
+      //     value: string | string[],
+      //     path: Paths<SecurityScheme> = 'value',
+      //   ) =>
+      //     value.length &&
+      //     !getNestedValue(scheme, path).length &&
+      //     securitySchemeMutators.edit(scheme.uid, path, value)
 
-        switch (scheme.type) {
-          case 'apiKey':
-            edit(auth.apiKey.token)
-            break
+      //   switch (scheme.type) {
+      //     case 'apiKey':
+      //       edit(auth.apiKey.token)
+      //       break
 
-          case 'http':
-            if (scheme.scheme === 'bearer') edit(auth.http.bearer.token)
-            else if (scheme.scheme === 'basic') {
-              edit(auth.http.basic.username)
-              edit(auth.http.basic.password, 'secondValue')
-            }
-            break
+      //     case 'http':
+      //       if (scheme.scheme === 'bearer') edit(auth.http.bearer.token)
+      //       else if (scheme.scheme === 'basic') {
+      //         edit(auth.http.basic.username)
+      //         edit(auth.http.basic.password, 'secondValue')
+      //       }
+      //       break
 
-          // Currently we only support implicit + password on the references side
-          case 'oauth2':
-            edit(auth.oAuth2.clientId, 'clientId')
+      //     // Currently we only support implicit + password on the references side
+      //     case 'oauth2':
+      //       edit(auth.oAuth2.clientId, 'clientId')
 
-            if (
-              scheme.flow.type === 'implicit' ||
-              scheme.flow.type === 'password'
-            ) {
-              edit(auth.oAuth2.accessToken, 'flow.token')
-              edit(auth.oAuth2.scopes, 'flow.selectedScopes')
+      //       if (
+      //         scheme.flow.type === 'implicit' ||
+      //         scheme.flow.type === 'password'
+      //       ) {
+      //         edit(auth.oAuth2.accessToken, 'flow.token')
+      //         edit(auth.oAuth2.scopes, 'flow.selectedScopes')
 
-              if (scheme.flow.type === 'password') {
-                edit(auth.oAuth2.username, 'flow.value')
-                edit(auth.oAuth2.password, 'flow.secondValue')
-              }
-            }
+      //         if (scheme.flow.type === 'password') {
+      //           edit(auth.oAuth2.username, 'flow.value')
+      //           edit(auth.oAuth2.password, 'flow.secondValue')
+      //         }
+      //       }
 
-            break
-        }
-      })
+      //       break
+      //   }
+      // })
 
       // Select the correct scheme
       // TODO for updating the selected auth from references -> client
