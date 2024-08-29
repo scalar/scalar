@@ -53,8 +53,6 @@ watch(
   { immediate: true },
 )
 
-console.log(activeWorkspaceCollections)
-
 const {
   searchText,
   searchResultsWithPlaceholderResults,
