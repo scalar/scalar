@@ -53,7 +53,6 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.host).toBeUndefined()
   })
 
-  // Moves definitions to components
   it('moves definitions to components', async () => {
     const result = upgradeFromTwoToThree({
       swagger: '2.0',
@@ -83,5 +82,125 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.definitions).toBeUndefined()
+  })
+
+  it('transforms paths', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/pets': {
+          get: {
+            description:
+              'Returns all pets from the system that the user has access to',
+            produces: ['application/json', 'application/xml'],
+            responses: {
+              '200': {
+                description: 'A list of pets.',
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/pet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/pets': {
+        get: {
+          description:
+            'Returns all pets from the system that the user has access to',
+          responses: {
+            '200': {
+              description: 'A list of pets.',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'array',
+                    items: {
+                      $ref: '#/definitions/pet',
+                    },
+                  },
+                },
+                'application/xml': {
+                  schema: {
+                    type: 'array',
+                    items: {
+                      $ref: '#/definitions/pet',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/pets'].get.produces).toBeUndefined()
+  })
+
+  it('uses global produces for responses', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json', 'application/xml'],
+      paths: {
+        '/pets': {
+          get: {
+            description:
+              'Returns all pets from the system that the user has access to',
+            responses: {
+              '200': {
+                description: 'A list of pets.',
+                schema: {
+                  type: 'array',
+                  items: {
+                    $ref: '#/definitions/pet',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/pets': {
+        get: {
+          description:
+            'Returns all pets from the system that the user has access to',
+          responses: {
+            '200': {
+              description: 'A list of pets.',
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'array',
+                    items: {
+                      $ref: '#/definitions/pet',
+                    },
+                  },
+                },
+                'application/xml': {
+                  schema: {
+                    type: 'array',
+                    items: {
+                      $ref: '#/definitions/pet',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/pets'].get.produces).toBeUndefined()
   })
 })
