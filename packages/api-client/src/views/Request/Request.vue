@@ -44,7 +44,7 @@ const emits = defineEmits<{
 const {
   activeExample,
   activeRequest,
-  activeSecuritySchemes,
+  // activeSecuritySchemes,
   activeWorkspace,
   activeWorkspaceCollections,
   activeWorkspaceServers,

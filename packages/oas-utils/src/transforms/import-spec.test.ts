@@ -1,4 +1,5 @@
 import { importSpecToWorkspace } from '@/transforms/import-spec'
+import { galaxySpec } from '@scalar/galaxy'
 import { describe, expect, test } from 'vitest'
 
 const circular = {
@@ -134,5 +135,11 @@ describe('Import OAS Specs', () => {
     expect(
       res.tags[0].children.includes(Object.values(res.requests)[0].uid),
     ).toEqual(true)
+  })
+
+  test('Loads galaxy spec', async () => {
+    const res = await importSpecToWorkspace(galaxySpec)
+
+    expect(res.error).toEqual(false)
   })
 })

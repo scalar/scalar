@@ -1,7 +1,7 @@
 /* eslint-disable vue/one-component-per-file */
-import type { WorkspaceStore } from '@/store/workspace'
+import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   Decoration,
   type DecorationSet,
