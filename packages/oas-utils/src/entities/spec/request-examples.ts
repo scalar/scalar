@@ -64,6 +64,7 @@ export const exampleRequestBodySchema = z.object({
 export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
 export const requestExampleSchema = z.object({
+  type: z.literal('requestExample').optional().default('requestExample'),
   uid: nanoidSchema,
   requestUid: nanoidSchema,
   name: z.string().optional().default('Name'),

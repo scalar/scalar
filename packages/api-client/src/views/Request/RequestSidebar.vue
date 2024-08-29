@@ -82,17 +82,9 @@ const handleHotKey = (event: HotKeyEvents) => {
     searchInputRef.value?.focus()
   }
 
-  if (event.navigateSearchResultsUp) {
-    navigateSearchResults('up')
-  }
-
-  if (event.navigateSearchResultsDown) {
-    navigateSearchResults('down')
-  }
-
-  if (event.selectSearchResult) {
-    selectSearchResult()
-  }
+  if (event.navigateSearchResultsUp) navigateSearchResults('up')
+  if (event.navigateSearchResultsDown) navigateSearchResults('down')
+  if (event.selectSearchResult) selectSearchResult()
 }
 
 onMounted(() => {
@@ -163,8 +155,8 @@ onBeforeUnmount(() => {
             :key="collection.uid"
             :isDraggable="!isReadonly && collection.info?.title !== 'Drafts'"
             :isDroppable="isDroppable"
-            :item="collection"
             :parentUids="[]"
+            :uid="collection.uid"
             @newTab="(name, uid) => emit('newTab', { name, uid })"
             @onDragEnd="handleDragEnd">
             <template #leftIcon>

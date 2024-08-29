@@ -91,6 +91,7 @@ export const xScalarNestedSchema = z
  * @see https://spec.openapis.org/oas/latest.html#tag-object
  */
 export const oasTagSchema = z.object({
+  'type': z.literal('tag').optional().default('tag'),
   /** REQUIRED. The name of the tag. */
   'name': z.string().optional().default('default'),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */

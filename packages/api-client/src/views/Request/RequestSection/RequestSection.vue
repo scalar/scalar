@@ -18,7 +18,6 @@ const {
   requestMutators,
 } = useWorkspace()
 
-console.log(activeRequest, 'ASDASDSD')
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 const sections = computed(() => {
