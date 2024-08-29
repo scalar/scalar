@@ -40,6 +40,9 @@ export function extendedWorkspaceDataFactory({
     // Create some example data
     const example = requestExampleSchema.parse({ name: 'Example' })
     const request = requestSchema.parse({
+      method: 'get',
+      parameters: [],
+      path: '/',
       summary: 'My First Request',
       examples: [example.uid],
     })
