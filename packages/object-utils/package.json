@@ -38,6 +38,10 @@
       "import": "./dist/transforms/index.js",
       "types": "./dist/transforms/index.d.ts"
     },
+    "./parse": {
+      "import": "./dist/parse/index.js",
+      "types": "./dist/parse/index.d.ts"
+    },
     "./nested": {
       "import": "./dist/nested/index.js",
       "types": "./dist/nested/index.d.ts"
