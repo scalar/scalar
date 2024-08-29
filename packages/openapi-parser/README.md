@@ -90,7 +90,7 @@ There’s an `upgrade` command to upgrade all your OpenAPI specifications to the
 import { upgrade } from '@scalar/openapi-parser'
 
 const { specification } = upgrade({
-  openapi: '3.0.0',
+  swagger: 2.0,
   info: {
     title: 'Hello World',
     version: '1.0.0',
