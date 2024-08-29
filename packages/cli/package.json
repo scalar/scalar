@@ -23,9 +23,9 @@
   "scripts": {
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "scalar-build-rollup",
-    "test": "vitest",
     "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
     "screenshot": "./scripts/take-screenshots.sh",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
