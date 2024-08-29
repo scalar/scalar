@@ -12,7 +12,7 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { sendRequest } from './sendRequest'
+import { sendRequest } from './send-request'
 
 const PROXY_PORT = 5051
 const ECHO_PORT = 5052
