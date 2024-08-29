@@ -145,9 +145,14 @@ export const sendRequest = async (
 
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach(
-        (formParam: { key: string; value: string; file?: File }) => {
+        (formParam: {
+          key: string
+          value: string
+          file?: File
+          enabled: boolean
+        }) => {
           // Add File to FormData
-          if (formParam.key) {
+          if (formParam.key && formParam.enabled) {
             if (formParam.file) {
               bodyFormData.append(
                 formParam.key,

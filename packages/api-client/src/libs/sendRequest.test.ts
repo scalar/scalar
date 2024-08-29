@@ -303,6 +303,7 @@ describe('sendRequest', () => {
               {
                 key: 'name',
                 value: 'John Doe',
+                enabled: true,
               },
             ],
           },
@@ -348,11 +349,13 @@ describe('sendRequest', () => {
               {
                 key: 'file',
                 file: new File(['hello'], 'hello.txt', { type: 'text/plain' }),
+                enabled: true,
               },
               {
                 key: 'image',
                 file: new File(['hello'], 'hello.png', { type: 'image/png' }),
                 value: 'ignore me',
+                enabled: true,
               },
             ],
           },
