@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { AnyObject } from '../types'
 
@@ -53,6 +53,53 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
           if (Object.hasOwn(pathItem, method)) {
             const operationItem = pathItem[method]
 
+            // Request bodies
+            if (operationItem.parameters) {
+              const bodyParameter = structuredClone(
+                operationItem.parameters.find(
+                  (parameter: OpenAPIV3.ParameterObject) =>
+                    parameter.in === 'body',
+                ) ?? {},
+              )
+
+              if (bodyParameter && Object.keys(bodyParameter).length) {
+                delete bodyParameter.name
+                delete bodyParameter.in
+
+                const consumes = specification.consumes ??
+                  operationItem.consumes ?? ['application/json']
+
+                if (typeof operationItem.requestBody !== 'object') {
+                  operationItem.requestBody = {}
+                }
+
+                if (typeof operationItem.requestBody.content !== 'object') {
+                  operationItem.requestBody.content = {}
+                }
+
+                const { schema, ...requestBody } = bodyParameter
+
+                operationItem.requestBody = {
+                  ...operationItem.requestBody,
+                  ...requestBody,
+                }
+
+                for (const type of consumes) {
+                  operationItem.requestBody.content[type] = {
+                    schema: schema,
+                  }
+                }
+              }
+
+              // Delete body parameter
+              operationItem.parameters = operationItem.parameters.filter(
+                (parameter: OpenAPIV2.ParameterObject) =>
+                  parameter.in !== 'body',
+              )
+
+              delete operationItem.consumes
+            }
+
             // Responses
             if (operationItem.responses) {
               for (const response in operationItem.responses) {
@@ -63,11 +110,11 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
                     const produces = specification.produces ??
                       operationItem.produces ?? ['application/json']
 
-                    for (const type of produces) {
-                      if (typeof responseItem.content !== 'object') {
-                        responseItem.content = {}
-                      }
+                    if (typeof responseItem.content !== 'object') {
+                      responseItem.content = {}
+                    }
 
+                    for (const type of produces) {
                       responseItem.content[type] = {
                         schema: responseItem.schema,
                       }
@@ -80,6 +127,11 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
             }
 
             delete operationItem.produces
+
+            // Delete empty parameters
+            if (operationItem.parameters?.length === 0) {
+              delete operationItem.parameters
+            }
           }
         }
       }

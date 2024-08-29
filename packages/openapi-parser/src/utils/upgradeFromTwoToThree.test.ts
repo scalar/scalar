@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 
+// TODO:
+// * Update refs, e.g. #/definitions/Planet to #/components/schemas/Planet
+
 describe('upgradeFromTwoToThree', () => {
   it('changes the version to from 3.0.0 to 3.1.0', async () => {
     const result = upgradeFromTwoToThree({
@@ -84,22 +87,22 @@ describe('upgradeFromTwoToThree', () => {
     expect(result.definitions).toBeUndefined()
   })
 
-  it('transforms paths', async () => {
+  it('transforms responses', async () => {
     const result = upgradeFromTwoToThree({
       swagger: '2.0',
       paths: {
-        '/pets': {
+        '/planets': {
           get: {
             description:
-              'Returns all pets from the system that the user has access to',
+              'Returns all planets from the system that the user has access to',
             produces: ['application/json', 'application/xml'],
             responses: {
               '200': {
-                description: 'A list of pets.',
+                description: 'A list of planets.',
                 schema: {
                   type: 'array',
                   items: {
-                    $ref: '#/definitions/pet',
+                    $ref: '#/definitions/planet',
                   },
                 },
               },
@@ -110,19 +113,19 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.paths).toStrictEqual({
-      '/pets': {
+      '/planets': {
         get: {
           description:
-            'Returns all pets from the system that the user has access to',
+            'Returns all planets from the system that the user has access to',
           responses: {
             '200': {
-              description: 'A list of pets.',
+              description: 'A list of planets.',
               content: {
                 'application/json': {
                   schema: {
                     type: 'array',
                     items: {
-                      $ref: '#/definitions/pet',
+                      $ref: '#/definitions/planet',
                     },
                   },
                 },
@@ -130,7 +133,7 @@ describe('upgradeFromTwoToThree', () => {
                   schema: {
                     type: 'array',
                     items: {
-                      $ref: '#/definitions/pet',
+                      $ref: '#/definitions/planet',
                     },
                   },
                 },
@@ -141,7 +144,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/pets'].get.produces).toBeUndefined()
+    expect(result.paths['/planets'].get.produces).toBeUndefined()
   })
 
   it('uses global produces for responses', async () => {
@@ -149,17 +152,17 @@ describe('upgradeFromTwoToThree', () => {
       swagger: '2.0',
       produces: ['application/json', 'application/xml'],
       paths: {
-        '/pets': {
+        '/planets': {
           get: {
             description:
-              'Returns all pets from the system that the user has access to',
+              'Returns all planets from the system that the user has access to',
             responses: {
               '200': {
-                description: 'A list of pets.',
+                description: 'A list of planets.',
                 schema: {
                   type: 'array',
                   items: {
-                    $ref: '#/definitions/pet',
+                    $ref: '#/definitions/Planet',
                   },
                 },
               },
@@ -170,19 +173,19 @@ describe('upgradeFromTwoToThree', () => {
     })
 
     expect(result.paths).toStrictEqual({
-      '/pets': {
+      '/planets': {
         get: {
           description:
-            'Returns all pets from the system that the user has access to',
+            'Returns all planets from the system that the user has access to',
           responses: {
             '200': {
-              description: 'A list of pets.',
+              description: 'A list of planets.',
               content: {
                 'application/json': {
                   schema: {
                     type: 'array',
                     items: {
-                      $ref: '#/definitions/pet',
+                      $ref: '#/definitions/Planet',
                     },
                   },
                 },
@@ -190,7 +193,7 @@ describe('upgradeFromTwoToThree', () => {
                   schema: {
                     type: 'array',
                     items: {
-                      $ref: '#/definitions/pet',
+                      $ref: '#/definitions/Planet',
                     },
                   },
                 },
@@ -201,6 +204,116 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
-    expect(result.paths['/pets'].get.produces).toBeUndefined()
+    expect(result.paths['/planets'].get.produces).toBeUndefined()
+  })
+
+  it('transforms requestBody', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+
+      paths: {
+        '/planets': {
+          get: {
+            description:
+              'Returns all planets from the system that the user has access to',
+            consumes: ['application/json', 'application/xml'],
+            parameters: [
+              {
+                in: 'body',
+                name: 'body',
+                description:
+                  'Planet object that needs to be added to the store',
+                required: true,
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/planets': {
+        get: {
+          description:
+            'Returns all planets from the system that the user has access to',
+          requestBody: {
+            description: 'Planet object that needs to be added to the store',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+              'application/xml': {
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+            },
+            required: true,
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.produces).toBeUndefined()
+  })
+
+  it('uses global consumes for requestBody', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      produces: ['application/json', 'application/xml'],
+      paths: {
+        '/planets': {
+          get: {
+            description:
+              'Returns all planets from the system that the user has access to',
+            consumes: ['application/json', 'application/xml'],
+            parameters: [
+              {
+                in: 'body',
+                name: 'body',
+                description:
+                  'Planet object that needs to be added to the store',
+                required: true,
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/planets': {
+        get: {
+          description:
+            'Returns all planets from the system that the user has access to',
+          requestBody: {
+            description: 'Planet object that needs to be added to the store',
+            content: {
+              'application/json': {
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+              'application/xml': {
+                schema: {
+                  $ref: '#/definitions/Planet',
+                },
+              },
+            },
+            required: true,
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.produces).toBeUndefined()
   })
 })
