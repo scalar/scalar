@@ -173,10 +173,16 @@ export const createWorkspaceStore = (
     return request
   })
 
-  /** Currently active example */
-  const activeExample = computed<RequestExample | undefined>(
-    () => requestExamples[activeRouterParams.value[PathId.Examples]],
-  )
+  /** Grabs the currently active example using the path param */
+  const activeExample = computed<RequestExample | undefined>(() => {
+    const key =
+      activeRouterParams.value[PathId.Examples] === 'default'
+        ? Object.keys(requestExamples)[0]
+        : activeRouterParams.value[PathId.Examples]
+
+    return requestExamples[key]
+  })
+
   /**
    * First collection that the active request is in
    *

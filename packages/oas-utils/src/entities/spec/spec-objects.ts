@@ -101,7 +101,7 @@ export const oasTagSchema = z.object({
 })
 
 export const tagSchema = oasTagSchema.extend({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   children: nanoidSchema.array().default([]),
 })
 
