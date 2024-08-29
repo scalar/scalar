@@ -444,6 +444,7 @@ async function openAppLink(appLink?: string) {
   }
 
   // Fetch URL
+  console.log(`Fetching ${url} …`)
   const result = await fetch(url)
 
   // Error handling

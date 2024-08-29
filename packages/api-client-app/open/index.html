@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0" />
+    <title>Open in Scalar</title>
+  </head>
+
+  <body>
+    <ul>
+      <li>
+        <a href="https://scalar.com/download"> Download Scalar </a>
+      </li>
+      <li>
+        <button onClick="javascript:openAppLink()">Open in Scalar</button>
+      </li>
+    </ul>
+
+    <script>
+      /**
+       * Opens the URL passed as `?url=` query parameter in Scalar
+       */
+      function openAppLink() {
+        // Get the URL query parameters
+        const urlParams = new URLSearchParams(window.location.search)
+
+        // Get the `url` parameter
+        const url = urlParams.get('url')
+
+        if (!url) {
+          return
+        }
+
+        // Redirect
+        const target = `scalar://${encodeURIComponent(url)}`
+
+        console.log(`Opening ${target} …`)
+
+        window.location.href = target
+      }
+
+      // Open right-away
+      window.setTimeout(openAppLink, 100)
+    </script>
+  </body>
+</html>
