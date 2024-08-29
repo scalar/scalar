@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarListbox } from '@scalar/components'
-import { getHttpMethodInfo } from '@scalar/oas-utils/helpers'
+import { ScalarListbox } from '@scalar/components'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { REQUEST_METHODS, getHttpMethodInfo } from '@scalar/oas-utils/helpers'
 import { cva, cx } from 'cva'
 import { computed } from 'vue'
 
@@ -18,13 +19,10 @@ const emit = defineEmits<{
 }>()
 
 const method = computed(() => getHttpMethodInfo(props.method))
-
-const methodOptions = Object.entries(REQUEST_METHODS).map(
-  ([id, { short }]) => ({
-    id: id as RequestMethod,
-    label: id.charAt(0) + id.toLowerCase().slice(1),
-  }),
-)
+const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
+  id: id as RequestMethod,
+  label: id.charAt(0) + id.toLowerCase().slice(1),
+}))
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
   set: (opt) => opt?.id && emit('change', opt.id),
