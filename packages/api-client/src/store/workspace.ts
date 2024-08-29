@@ -50,6 +50,7 @@ export function extendedWorkspaceDataFactory({
       info: {
         title: 'Drafts',
       },
+      children: [request.uid],
       requests: [request.uid],
     })
 

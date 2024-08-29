@@ -104,7 +104,7 @@ const item = computed<Item>(() => {
       title: collection.info?.title ?? 'Unknown title',
       entity: collection,
       resourceTitle: 'Collection',
-      children: [],
+      children: collection.children,
       rename: () =>
         collectionMutators.edit(collection.uid, 'info.title', tempName.value),
       delete: () =>
@@ -116,7 +116,7 @@ const item = computed<Item>(() => {
       title: tag.name,
       entity: tag,
       resourceTitle: 'Tag',
-      children: [],
+      children: tag.children,
       rename: () => tagMutators.edit(tag.uid, 'name', tempName.value),
       delete: () => tagMutators.delete(tag.uid),
     }
@@ -128,7 +128,7 @@ const item = computed<Item>(() => {
       method: request.method,
       entity: request,
       resourceTitle: 'Request',
-      children: [],
+      children: request.examples,
       rename: () =>
         requestMutators.edit(request.uid, 'summary', tempName.value),
       delete: () =>

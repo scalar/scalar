@@ -37,7 +37,6 @@ const {
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
-
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
