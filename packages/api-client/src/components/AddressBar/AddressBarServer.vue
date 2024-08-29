@@ -17,7 +17,7 @@ const {
 } = useWorkspace()
 
 const serverOptions = computed(() =>
-  activeCollection.value?.spec.serverUids?.map((serverUid: string) => ({
+  activeCollection.value?.servers?.map((serverUid: string) => ({
     id: serverUid,
     label: servers[serverUid].url,
   })),
@@ -49,8 +49,13 @@ const serverUrl = computed(() => {
   const singleCurlyBrackets = /{\s*([\w.-]+)\s*}/g
 
   return url?.replace(singleCurlyBrackets, (match, key) => {
-    const variable = server?.variables?.[key]
-    return variable?.value || variable?.default || variable?.enum?.[0] || match
+    const variable = server?.variables?.[key] ?? {}
+    return (
+      ('value' in variable && variable?.value) ||
+      variable?.default ||
+      variable?.enum?.[0] ||
+      match
+    )
   })
 })
 </script>

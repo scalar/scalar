@@ -6,7 +6,7 @@ import {
 } from '@/components/DataTable'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { type UpdateScheme, useWorkspace } from '@/store/workspace'
+import { type UpdateScheme, useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
 import {
@@ -20,7 +20,7 @@ import {
   ScalarComboboxMultiselect,
   ScalarIcon,
 } from '@scalar/components'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed, ref } from 'vue'
 
