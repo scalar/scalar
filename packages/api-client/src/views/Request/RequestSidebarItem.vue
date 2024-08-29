@@ -393,7 +393,9 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
                   "
                   :item="item"
                   :parentUids="parentUids"
-                  :resourceTitle="resourceTitle" />
+                  :resourceTitle="resourceTitle"
+                  @delete="deleteModal.show()"
+                  @rename="openRenameModal" />
                 <span>&hairsp;</span>
               </div>
             </div>
