@@ -7,7 +7,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { createRequestExampleParameter } from '@scalar/oas-utils/entities/spec'
+import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import { computed, nextTick, ref, watch } from 'vue'
 
@@ -88,7 +88,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [createRequestExampleParameter({ [field]: value })]
+    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
 
     requestExampleMutators.edit(
       activeExample.value.uid,
@@ -107,7 +107,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 }
 
 const formParams = computed(
-  () => activeExample.value?.body.formData.value ?? [],
+  () => activeExample.value?.body?.formData?.value ?? [],
 )
 
 function defaultRow() {
@@ -122,7 +122,7 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = createRequestExampleParameter({
+  const newParam = requestExampleParametersSchema.parse({
     enabled: false,
   })
 
@@ -170,6 +170,8 @@ const getBodyType = (type: keyof typeof contentTypeOptions) => {
 const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
   const contentTypeHeader = getContentTypeHeader(type)
   const bodyType = getBodyType(type)
+
+  if (!activeExample.value) return
 
   requestExampleMutators.edit(
     activeExample.value.uid,
@@ -301,11 +303,12 @@ const activeExampleContentType = computed(() => {
     activeExample.value.body.activeBody === 'formData' &&
     activeExample.value.body.formData &&
     activeExample.value.body.formData.value.length > 0
-  ) {
+  )
     return 'multipartForm'
-  } else if (activeExample.value.body.activeBody === 'raw') {
-    return activeExample.value.body.raw.encoding
-  }
+
+  if (activeExample.value.body.activeBody === 'raw')
+    return activeExample.value?.body?.raw?.encoding
+
   /** keep the content if populated */
   return contentType.value
 })
@@ -387,7 +390,7 @@ watch(
               <template v-if="activeExample?.body.binary">
                 <span
                   class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
-                  {{ activeExample?.body.binary.name }}
+                  {{ (activeExample?.body.binary as File).name }}
                 </span>
                 <ScalarButton
                   class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
@@ -445,7 +448,7 @@ watch(
               :language="codeInputLanguage"
               lineNumbers
               lint
-              :modelValue="activeExample?.body.raw.value ?? ''"
+              :modelValue="activeExample?.body?.raw?.value ?? ''"
               @update:modelValue="updateRequestBody" />
           </template>
         </DataTableRow>

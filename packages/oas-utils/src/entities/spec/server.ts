@@ -1,6 +1,5 @@
 import { deepMerge } from '@scalar/object-utils/merge'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { nanoid } from 'nanoid'
 import { type ZodSchema, z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -27,8 +26,6 @@ export const oasServerVariableSchema = z.object({
   default: z.string().optional().default('default'),
   /** An optional description for the server variable. CommonMark syntax MAY be used for rich text representation. */
   description: z.string().optional(),
-  /** An optional value for the server variable */
-  value: z.string().optional(),
 }) as ZodSchema<
   Omit<OpenAPIV3_1.ServerVariableObject, 'enum'> & {
     enum?: [string, ...string[]]
@@ -52,6 +49,6 @@ export const oasServerSchema = z.object({
 }) satisfies ZodSchema<OpenAPIV3_1.ServerObject>
 
 export const serverSchema = oasServerSchema.extend({
-  uid: nanoidSchema.default(nanoid),
+  uid: nanoidSchema,
 })
 export type Server = z.infer<typeof serverSchema>

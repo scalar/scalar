@@ -41,12 +41,9 @@ export async function importSpecToWorkspace(
   | { error: true; importWarnings: string[] }
 > {
   const { filesystem } = await load(spec)
-  const upgraded = upgrade(filesystem)
-  const { schema: _schema, errors = [] } = await dereference(upgraded)
-
-  const schema = ((_schema as any).specification ?? _schema) as
-    | OpenAPIV3.Document
-    | OpenAPIV3_1.Document
+  const { specification } = upgrade(filesystem)
+  const { schema: _schema, errors = [] } = await dereference(specification)
+  const schema = _schema as OpenAPIV3.Document | OpenAPIV3_1.Document
 
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
@@ -200,9 +197,9 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   const collection = collectionSchema.parse({
+    ...schema,
     requests: requests.map((r) => r.uid),
     servers: servers.map((s) => s.uid),
-    ...schema,
     tags: tags.map((t) => t.uid),
     children: [...collectionChildren],
     security: schema.security ?? [{}],
