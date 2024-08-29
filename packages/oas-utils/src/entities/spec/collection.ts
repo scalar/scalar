@@ -39,7 +39,7 @@ const oasCollectionSchema = z.object({
 })
 
 export const extendedCollectionSchema = z.object({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
   /** The currently selected server */

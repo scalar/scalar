@@ -1,6 +1,5 @@
 import { nanoidSchema } from '@/entities/shared'
 import { securitySchemeExampleValueSchema } from '@/entities/spec/security'
-import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 export const requestExampleParametersSchema = z.object({
@@ -65,7 +64,7 @@ export const exampleRequestBodySchema = z.object({
 export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
 export const requestExampleSchema = z.object({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   requestUid: nanoidSchema,
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
