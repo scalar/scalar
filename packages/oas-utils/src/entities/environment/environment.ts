@@ -1,4 +1,3 @@
-import { nanoid } from 'nanoid'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -9,7 +8,7 @@ const parsed = z.object({
 })
 
 export const environmentSchema = z.object({
-  uid: nanoidSchema.default(nanoid()),
+  uid: nanoidSchema,
   name: z.string().optional().default('Default Environment'),
   color: z.string().optional().default('blue'),
   raw: z
