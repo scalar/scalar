@@ -91,14 +91,13 @@ type Item = {
   delete: () => void
 }
 
-/** Normalize properties across different items for easy consumption */
+/** Normalize properties across different types for easy consumption */
 const item = computed<Item>(() => {
   const collection = collections[props.uid]
   const tag = tags[props.uid]
   const request = requests[props.uid]
   const requestExample = requestExamples[props.uid]
 
-  // Collection
   if (collection)
     return {
       title: collection.info?.title ?? 'Unknown title',
@@ -110,7 +109,7 @@ const item = computed<Item>(() => {
       delete: () =>
         collectionMutators.delete(collection, activeWorkspace.value),
     }
-  // Tag
+
   if (tag)
     return {
       title: tag.name,
@@ -120,7 +119,7 @@ const item = computed<Item>(() => {
       rename: () => tagMutators.edit(tag.uid, 'name', tempName.value),
       delete: () => tagMutators.delete(tag.uid),
     }
-  // Request
+
   if (request)
     return {
       title: request.summary ?? [request.method, request.path].join(' - '),
@@ -137,7 +136,7 @@ const item = computed<Item>(() => {
           props.parentUids[props.parentUids.length - 1],
         ),
     }
-  // Request Example
+
   return {
     title: requestExample.name,
     link: `/workspace/${activeWorkspace.value.uid}/request/${requestExample.requestUid}/examples/${requestExample.uid}`,
