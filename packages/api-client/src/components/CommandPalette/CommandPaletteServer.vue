@@ -1,120 +1,107 @@
 <script setup lang="ts">
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
-  ScalarDropdown,
-  ScalarDropdownItem,
+  type ScalarComboboxOption,
   ScalarIcon,
+  ScalarListbox,
 } from '@scalar/components'
-import type { Request } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const props = defineProps<{
-  /** The request uid to pre-select */
-  metaData?: string
-}>()
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { push } = useRouter()
-const {
-  activeRequest,
-  activeWorkspace,
-  activeWorkspaceRequests,
-  requests,
-  requestExampleMutators,
-} = useWorkspace()
 const { toast } = useToasts()
 
-const name = ref('')
-const selectedRequest = ref(
-  // Ensure we pre-select the correct request
-  requests[props.metaData ?? ''] ?? activeRequest.value,
+const {
+  activeCollection,
+  activeWorkspaceCollections,
+  collectionMutators,
+  serverMutators,
+} = useWorkspace()
+
+const url = ref('')
+
+const collections = computed(() =>
+  activeWorkspaceCollections.value.flatMap((collection) =>
+    collection.info?.title === 'Drafts'
+      ? []
+      : {
+          id: collection.uid,
+          label: collection.info?.title ?? 'Unititled Collection',
+        },
+  ),
 )
 
-/** Select request in dropdown */
-const handleSelect = (request: Request) => (selectedRequest.value = request)
+/** Currently selected collection with a reasonable default */
+const selectedCollection = ref<ScalarComboboxOption | undefined>(
+  collections.value.find(
+    (collection) =>
+      collection.id === activeCollection.value?.uid ?? collections.value[0]?.id,
+  ),
+)
 
-/** Autofocus input */
-const exampleInput = ref<HTMLInputElement | null>(null)
-onMounted(() => exampleInput.value?.focus())
-
-/** Add a new request example */
 const handleSubmit = () => {
-  if (!exampleName.value) {
-    toast('Please enter a name before creating an example.', 'error')
+  if (!url.value.trim()) {
+    toast('Please enter a valid url before creating a server.', 'error')
     return
   }
-  const example = requestExampleMutators.add(
-    selectedRequest.value,
-    exampleName.value,
-  )
+  const collectionUid = selectedCollection.value?.id
+  if (!collectionUid) return
+
+  const server = serverMutators.add({ url: url.value }, collectionUid)
+
+  // Select the server
+  collectionMutators.edit(collectionUid, 'selectedServerUid', server.uid)
 
   emits('close')
 }
 
-onMounted(() => {
-  exampleInput.value?.focus()
-})
+const input = ref<HTMLInputElement | null>(null)
+onMounted(() => nextTick(() => input.value?.focus()))
 </script>
 <template>
   <div class="flex w-full flex-col gap-3">
     <div
       class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
-      <label
-        class="absolute w-full h-full opacity-0 cursor-text"
-        for="examplename"></label>
       <input
-        id="examplename"
-        ref="exampleInput"
-        v-model="exampleName"
+        id="serverName"
+        ref="input"
+        v-model="url"
+        autocomplete="off"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-        label="Example Name"
-        placeholder="Example Name"
+        data-form-type="other"
+        data-lpignore="true"
+        placeholder="Server URL"
         @keydown.prevent.enter="handleSubmit" />
     </div>
-    <div class="flex gap-2">
-      <div class="flex flex-1 max-h-8">
-        <ScalarDropdown
-          placement="bottom"
-          resize>
+    <div class="flex">
+      <div class="flex flex-1 gap-2 max-h-8">
+        <ScalarListbox
+          v-model="selectedCollection"
+          :options="collections">
           <ScalarButton
             class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
-            variant="outlined"
-            @click="handleSelect(selectedRequest)">
-            {{ selectedRequest.summary }}
-            <div class="flex items-center gap-2">
-              <HttpMethod :method="selectedRequest.method" />
-              <ScalarIcon
-                class="text-c-3"
-                icon="ChevronDown"
-                size="xs" />
-            </div>
+            variant="outlined">
+            <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
+              selectedCollection
+                ? selectedCollection.label
+                : 'Select Collection'
+            }}</span>
+            <ScalarIcon
+              class="text-c-3"
+              icon="ChevronDown"
+              size="xs" />
           </ScalarButton>
-          <template #items>
-            <div class="max-h-40 custom-scroll">
-              <ScalarDropdownItem
-                v-for="request in activeWorkspaceRequests"
-                :key="request.uid"
-                class="flex h-7 w-full items-center justify-between px-1 pr-[26px]"
-                @click="handleSelect(request)">
-                {{ request.summary }}
-                <HttpMethod :method="request.method" />
-              </ScalarDropdownItem>
-            </div>
-          </template>
-        </ScalarDropdown>
+        </ScalarListbox>
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        :disabled="!exampleName.trim()"
+        :disabled="!url.trim()"
         @click="handleSubmit">
-        Create Example
+        Create Server
       </ScalarButton>
     </div>
   </div>

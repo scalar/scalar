@@ -6,6 +6,7 @@ import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
+import CommandPaletteServer from './CommandPaletteServer.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
 /**
@@ -22,6 +23,7 @@ export const PaletteComponents = {
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Folder': CommandPaletteFolder,
+  'Add Server': CommandPaletteServer,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
 } as const
@@ -67,6 +69,10 @@ const availableCommands = [
         name: 'Add Example',
         icon: 'Example',
       },
+      {
+        name: 'Add Server',
+        icon: 'Server',
+      },
     ],
   },
   {
@@ -76,11 +82,6 @@ const availableCommands = [
         name: 'Create Workspace',
         icon: 'Workspace',
       },
-      // {
-      //   name: 'Add Server',
-      //   icon: 'Server',
-      //   path: '/servers',
-      // },
       {
         name: 'Add Environment',
         icon: 'Brackets',

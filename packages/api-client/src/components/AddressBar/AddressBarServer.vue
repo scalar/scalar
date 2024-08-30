@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { commandPaletteBus } from '@/libs'
 import { useWorkspace } from '@/store'
 import {
   ScalarDropdown,
@@ -50,6 +51,12 @@ watch([activeCollection, activeRequest], ([collection, request]) => {
     collection.servers[0],
   )
 })
+
+/** Add server */
+const handleAddServer = () =>
+  commandPaletteBus.emit({
+    commandName: 'Add Server',
+  })
 </script>
 <template>
   <template
@@ -57,9 +64,7 @@ watch([activeCollection, activeRequest], ([collection, request]) => {
       !isReadOnly &&
       (requestServerOptions?.length || collectionServerOptions?.length)
     ">
-    <ScalarDropdown
-      resize
-      teleport="#scalar-client">
+    <ScalarDropdown teleport="#scalar-client">
       <button
         class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
         type="button"
@@ -93,7 +98,9 @@ watch([activeCollection, activeRequest], ([collection, request]) => {
 
         <ScalarDropdownDivider />
         <ScalarDropdownItem>
-          <div class="font-code text-xxs flex items-center gap-1.5">
+          <div
+            class="font-code text-xxs flex items-center gap-1.5"
+            @click="handleAddServer">
             <div class="flex items-center justify-center h-4 w-4">
               <ScalarIcon
                 class="h-2.5"
