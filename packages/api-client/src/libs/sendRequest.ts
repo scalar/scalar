@@ -14,11 +14,6 @@ import {
   redirectToProxy,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import axios, {
-  type AxiosError,
-  type AxiosRequestConfig,
-  type GenericAbortSignal,
-} from 'axios'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -48,6 +43,50 @@ const decodeBuffer = (buffer: ArrayBuffer, contentType: string) => {
   }
 }
 
+/** Take the response and decode it */
+const parseFetchResponseData = async (response: Response) => {
+  const buffer: ArrayBuffer = await response.arrayBuffer()
+
+  const contentType =
+    response.headers.get('Content-Type') ??
+    response.headers.get('content-type') ??
+    'text/plain;charset=UTF-8'
+
+  return decodeBuffer(buffer, contentType)
+}
+
+/** Parse and format response headers into an object with cookie keys */
+const parseResponseHeaders = (
+  response: Response,
+  removeProxyHeaders = false,
+) => {
+  // Convert to an object
+  const responseHeaders = Array.from(response.headers.keys()).reduce<
+    Record<string, string>
+  >((prev, key) => {
+    const value = response.headers.get(key)
+    if (value) prev[key] = value
+    return prev
+  }, {})
+
+  // Remove headers, that are added by the proxy
+  if (removeProxyHeaders) {
+    const headersToRemove = [
+      'Access-Control-Allow-Headers',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Expose-Headers',
+    ]
+
+    headersToRemove
+      .map((header) => header.toLowerCase())
+      .forEach((header) => delete responseHeaders[header])
+  }
+
+  const cookieHeaderKeys = response.headers.getSetCookie()
+  return { cookieHeaderKeys, responseHeaders }
+}
+
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
@@ -59,12 +98,12 @@ export const sendRequest = async (
   securitySchemes?: SecurityScheme[],
   proxyUrl?: string,
   workspaceCookies?: Record<string, Cookie>,
-  abortSignal?: GenericAbortSignal,
+  abortSignal?: AbortSignal,
 ): Promise<{
-  sentTime?: number
-  request?: RequestExample
+  sentTime: number
+  request: RequestExample
   response?: ResponseInstance
-  error?: AxiosError
+  error?: Error
 }> => {
   let url = rawUrl
 
@@ -93,18 +132,40 @@ export const sendRequest = async (
   } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
     data = example.body.raw.value
   } else if (example.body.activeBody === 'formData') {
-    headers['Content-Type'] = 'multipart/form-data'
+    /**
+     * The header has to look something like this:
+     *
+     * Content-Type: multipart/form-data; boundary=----formdata-undici-043007900459
+     *
+     * fetch() makes sure to generate this properly, we must make sure to delete it
+     */
+    delete headers['Content-Type']
 
     const bodyFormData = new FormData()
+
     if (example.body.formData.encoding === 'form-data') {
       example.body.formData.value.forEach(
-        (formParam: { key: string; value: string; file?: File }) => {
-          const value = formParam.file ? formParam.file : formParam.value
-          if (formParam.key && value) {
-            bodyFormData.append(formParam.key, value)
+        (formParam: {
+          key: string
+          value: string
+          file?: File
+          enabled: boolean
+        }) => {
+          // Add File to FormData
+          if (formParam.key && formParam.enabled) {
+            if (formParam.file) {
+              bodyFormData.append(
+                formParam.key,
+                formParam.file,
+                formParam.file.name,
+              )
+            } else if (formParam.value !== undefined) {
+              bodyFormData.append(formParam.key, formParam.value)
+            }
           }
         },
       )
+
       data = bodyFormData
     }
   }
@@ -219,77 +280,70 @@ export const sendRequest = async (
   // Append new query string to the URL
   url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
 
-  const config: AxiosRequestConfig = {
-    url: redirectToProxy(proxyUrl, url),
+  const config: RequestInit = {
     method: request.method,
-    responseType: 'arraybuffer',
     headers,
     signal: abortSignal,
   }
 
-  if (data) config.data = data
+  if (data) {
+    config.body = data
+  }
 
   // Start timer to get response duration
   const startTime = Date.now()
+  const shouldRemoveProxyHeaders = shouldUseProxy(proxyUrl, url)
 
   try {
-    const response = await axios(config)
+    const response = await fetch(redirectToProxy(proxyUrl, url), config)
+    if (!response.ok) throw response
 
-    if (shouldUseProxy(proxyUrl, url)) {
-      // Remove headers, that are added by the proxy
-      const headersToRemove = [
-        'Access-Control-Allow-Headers',
-        'Access-Control-Allow-Origin',
-        'Access-Control-Allow-Methods',
-        'Access-Control-Expose-Headers',
-      ]
-
-      headersToRemove
-        .map((header) => header.toLowerCase())
-        .forEach((header) => delete response.headers[header])
-    }
-
-    const buffer: ArrayBuffer = response.data
-
-    const contentType =
-      response.headers['Content-Type'] ??
-      response.headers['content-type'] ??
-      'text/plain;charset=UTF-8'
-
-    const responseData = decodeBuffer(buffer, `${contentType}`)
-
-    const responseHeaders = normalizeHeaders(response.headers)
+    const { responseHeaders, cookieHeaderKeys } = parseResponseHeaders(
+      response,
+      shouldRemoveProxyHeaders,
+    )
+    const responseData = await parseFetchResponseData(response)
 
     return {
       sentTime: Date.now(),
       request: example,
       response: {
         ...response,
-        headers: responseHeaders,
+        headers: normalizeHeaders(responseHeaders),
+        cookieHeaderKeys,
         data: responseData,
         duration: Date.now() - startTime,
       },
     }
-  } catch (error) {
-    const axiosError = error as AxiosError
-    const response = axiosError.response
+  } catch (e) {
+    const sentTime = Date.now()
+    const payload = { sentTime, request: example }
 
-    console.error('ERROR', error)
+    // We have a response from fetch
+    if (e instanceof Response) {
+      const responseData = await parseFetchResponseData(e)
+      const { responseHeaders, cookieHeaderKeys } = parseResponseHeaders(
+        e,
+        shouldRemoveProxyHeaders,
+      )
 
-    return {
-      sentTime: Date.now(),
-      request: example,
-      response: response
-        ? {
-            ...response,
-            data: decodeBuffer(
-              response.data as ArrayBuffer,
-              'text/plain;charset=UTF-8',
-            ),
-            duration: Date.now() - startTime,
-          }
-        : undefined,
-      error: axiosError,
+      return {
+        ...payload,
+        response: {
+          ...e,
+          headers: normalizeHeaders(responseHeaders),
+          cookieHeaderKeys,
+          data: responseData,
+          duration: Date.now() - startTime,
+        },
+      }
     }
+
+    // It broke somewhere else
+    const error =
+      e instanceof Error || e instanceof DOMException
+        ? e
+        : new Error('An unknown error has occurred')
+    return { ...payload, error }
   }
 }

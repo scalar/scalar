@@ -1,5 +1,3 @@
-import type { RawAxiosResponseHeaders } from 'axios'
-
 /**
  * Normalize headers:
  *
@@ -10,8 +8,8 @@ import type { RawAxiosResponseHeaders } from 'axios'
  *
  */
 export function normalizeHeaders(
-  headers: Partial<RawAxiosResponseHeaders>,
-): Partial<RawAxiosResponseHeaders> {
+  headers: Record<string, string>,
+): Record<string, string> {
   /** Exact key of the modified headers header */
   const modifiedHeaderKey = Object.keys(headers).find(
     (key) => key.toLowerCase() === 'x-scalar-modified-headers',

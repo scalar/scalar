@@ -605,9 +605,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.10.0
         version: 10.11.0(vue@3.4.31(typescript@5.5.2))
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.5(debug@4.3.5)
       cva:
         specifier: 1.0.0-beta.1
         version: 1.0.0-beta.1(typescript@5.5.2)
@@ -867,9 +864,6 @@ importers:
       '@vueuse/core':
         specifier: ^10.10.0
         version: 10.11.0(vue@3.4.31(typescript@5.5.2))
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.5(debug@4.3.5)
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
@@ -1758,9 +1752,6 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
-      axios:
-        specifier: ^1.7.5
-        version: 1.7.5(debug@4.3.5)
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7

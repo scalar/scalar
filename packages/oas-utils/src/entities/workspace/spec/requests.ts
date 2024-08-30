@@ -3,16 +3,21 @@ import { nanoidSchema } from '@/entities/workspace/shared'
 import { REQUEST_METHODS, type RequestMethod } from '@/helpers'
 import { deepMerge } from '@scalar/object-utils/merge'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { AxiosResponse } from 'axios'
 import { type ZodSchema, z } from 'zod'
 
 import { $refSchema } from './refs'
 import type { RequestExample } from './request-examples'
 
 /** A single set of populated values for a sent request */
-export type ResponseInstance = AxiosResponse & {
+export type ResponseInstance = Omit<Response, 'headers'> & {
+  /** Store headers as an object to match what we had with axios */
+  headers: Record<string, string>
+  /** Keys of headers which set cookies */
+  cookieHeaderKeys: string[]
   /** Time in ms the request took */
   duration: number
+  /** The response data */
+  data: unknown
 }
 
 /** A single request/response set to save to the history stack */
