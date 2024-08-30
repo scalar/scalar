@@ -12,7 +12,20 @@
         {
           "path": "src/page-two.md",
           "type": "page",
-          "name": "Page title in the config!"
+          "name": "Page title in the config!",
+          "children": [
+            {
+              "name": "First Folder",
+              "type": "folder",
+              "children": [
+                {
+                  "url": "https://scalar.com/",
+                  "type": "link",
+                  "name": "Nested link"
+                }
+              ]
+            }
+          ]
         },
         {
           "path": "src/page-large.md",

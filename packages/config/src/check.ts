@@ -5,11 +5,12 @@ import { ScalarConfigType } from './configTypes'
 
 /** check scalar config file using the generated schema */
 export function check(filePath: string) {
-  // Load the JSON file to validate
-  const data = fs.readFileSync(process.cwd() + filePath, 'utf8')
+  const scalarConfigFile = fs.readFileSync(process.cwd() + filePath, 'utf8')
+  const scalarConfigJson = JSON.parse(scalarConfigFile)
 
-  const result = Value.Check(ScalarConfigType, JSON.parse(data))
-
-  if (result) return true
-  else return false
+  const result = Value.Check(ScalarConfigType, scalarConfigJson)
+  return {
+    valid: result,
+    errors: [...Value.Errors(ScalarConfigType, scalarConfigJson)],
+  }
 }
