@@ -2,25 +2,21 @@
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store'
-import RequestAuth from '@/views/Request/RequestSection/RequestAuth.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
-const {
-  activeRequest,
-  activeExample,
-  activeEnvVariables,
-  isReadOnly,
-  requestMutators,
-} = useWorkspace()
+import RequestAuth from './RequestAuth/RequestAuth.vue'
+
+const { activeRequest, activeExample, isReadOnly, requestMutators } =
+  useWorkspace()
 
 const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
 
 const sections = computed(() => {
-  const allSections = [
+  const allSections = new Set([
     'All',
     'Auth',
     'Request',
@@ -28,27 +24,20 @@ const sections = computed(() => {
     'Headers',
     'Query',
     'Body',
-  ]
+  ])
 
-  if (!activeExample.value.parameters.path.length) {
-    allSections.splice(allSections.indexOf('Request'), 1)
-  }
+  if (!activeExample.value?.parameters.path.length)
+    allSections.delete('Request')
+  if (!bodyMethods.includes(activeRequest.value?.method ?? ''))
+    allSections.delete('Body')
+  if (isAuthHidden.value) allSections.delete('Auth')
 
-  if (!bodyMethods.includes(activeRequest.value.method)) {
-    allSections.splice(allSections.indexOf('Body'), 1)
-  }
-
-  if (isAuthHidden.value) allSections.splice(allSections.indexOf('Auth'), 1)
-
-  return allSections
+  return [...allSections]
 })
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () =>
-    isReadOnly.value &&
-    (activeSecurityRequirements.value.length === 0 ||
-      JSON.stringify(activeSecurityRequirements.value) === '[{}]'),
+  () => isReadOnly.value && activeRequest.value?.security.length === 0,
 )
 
 type ActiveSections = (typeof sections.value)[number]
@@ -101,13 +90,11 @@ const updateRequestNameHandler = (event: Event) => {
         :activeSection="activeSection"
         :sections="sections"
         @setActiveSection="activeSection = $event" />
-      <!-- <RequestAuth -->
-      <!--   v-show=" -->
-      <!--     !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth') -->
-      <!--   " -->
-      <!--   :index="0" -->
-      <!--   :securityScheme="activeSecuritySchemes[0]" -->
-      <!--   title="Authentication" /> -->
+      <RequestAuth
+        v-show="
+          !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
+        "
+        title="Authentication" />
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Request') &&
