@@ -2,12 +2,13 @@
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store'
-import RequestAuth from '@/views/Request/RequestSection/RequestAuth.vue'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
+
+import RequestAuth from './RequestAuth/RequestAuth.vue'
 
 const { activeRequest, activeExample, isReadOnly, requestMutators } =
   useWorkspace()

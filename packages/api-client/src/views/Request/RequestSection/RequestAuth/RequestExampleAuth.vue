@@ -2,28 +2,16 @@
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
-import { OAuth2 } from '@/views/Request/components'
-import {
-  ADD_AUTH_DICT,
-  ADD_AUTH_OPTIONS,
-  type SecuritySchemeGroup,
-  type SecuritySchemeOption,
-} from '@/views/Request/consts'
 import type {
   SecurityScheme,
   SecuritySchemeExampleValue,
 } from '@scalar/oas-utils/entities/spec'
-import { camelToTitleWords } from '@scalar/oas-utils/helpers'
-import { capitalize, computed, ref } from 'vue'
+import { capitalize, computed } from 'vue'
 
-const {
-  activeCollection,
-  activeRequest,
-  activeExample,
-  isReadOnly,
-  requestExampleMutators,
-  securitySchemes,
-} = useWorkspace()
+import OAuth2 from './OAuth2.vue'
+
+const { activeExample, isReadOnly, requestExampleMutators, securitySchemes } =
+  useWorkspace()
 
 const security = computed(() =>
   Object.entries(activeExample.value?.auth ?? {}).map(([uid, example]) => ({
