@@ -100,6 +100,8 @@ const extendedRequestSchema = z.object({
   method: z.enum(requestMethods),
   /** List of server UIDs specific to the request */
   servers: nanoidSchema.array().default([]),
+  /** The currently selected server */
+  selectedServerUid: z.string().default(''),
   /** List of example UIDs associated with the request */
   examples: nanoidSchema.array().default([]),
   /** List of security scheme UIDs associated with the request */
