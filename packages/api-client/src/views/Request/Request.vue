@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import {
-  cancelRequestBus,
-  executeRequestBus,
-  requestStatusBus,
-  sendRequest,
-} from '@/libs'
+import { cancelRequestBus, executeRequestBus } from '@/libs'
+import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
-import { useToasts } from '@scalar/use-toasts'
+import { safeJSON } from '@scalar/object-utils/parse'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -24,23 +20,21 @@ defineEmits<{
 const workspaceContext = useWorkspace()
 const {
   activeExample,
+  activeEnvironment,
   activeRequest,
   activeWorkspace,
-  activeWorkspaceServers,
+  activeServer,
   cookies,
-  environments,
   modalState,
-  requestMutators,
   requestHistory,
+  securitySchemes,
 } = workspaceContext
-
-const { toast } = useToasts()
 
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 const requestAbortController = ref<AbortController>()
 
 const activeHistoryEntry = computed(() =>
-  requestHistory.findLast((r) => r.request.uid === activeRequest.value?.uid),
+  requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
 )
 
 /** Show / hide the sidebar when we resize the screen */
@@ -52,74 +46,55 @@ watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
  * called from the send button as well as keyboard shortcuts
  */
 const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value) {
-    console.warn(
-      'There is no request active at the moment. Please select one then try again.',
-    )
+  if (!activeRequest.value || !activeExample.value || !activeServer.value)
     return
-  }
 
-  let url = activeExample.value.url
+  // Parse the environment string
+  const e = safeJSON.parse(activeEnvironment.value.value)
+  if (e.error) console.error('INVALID ENVIRONMENT!')
+  const environment = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
 
-  const variables: Record<string, any> = Object.values(environments).reduce(
-    (prev, env) => {
-      try {
-        return { ...prev, ...JSON.parse(env.raw) }
-      } catch {
-        return prev
-      }
-    },
-    {},
-  )
+  const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
-  const doubleCurlyBrackets = /\{\{(.*?)\}\}/g
-  url = url.replace(doubleCurlyBrackets, (_match, key) => {
-    // check if a server
-    // eslint-disable-next-line consistent-return
-    activeWorkspaceServers.value.forEach((server) => {
-      if (server.url === key) {
-        return key
-      }
-    })
-
-    return variables[key] || key
+  const { controller, sendRequest } = createRequestOperation({
+    request: activeRequest.value,
+    example: activeExample.value,
+    proxy: activeWorkspace.value.proxyUrl ?? '',
+    environment,
+    globalCookies,
+    securitySchemes: securitySchemes,
+    server: activeServer.value,
   })
 
-  requestStatusBus.emit('start')
-  try {
-    requestAbortController.value = new AbortController()
-    const { request, response, error } = await sendRequest(
-      activeRequest.value,
-      activeExample.value,
-      url,
-      activeSecuritySchemes.value,
-      activeWorkspace.value?.proxyUrl,
-      cookies,
-      requestAbortController.value?.signal,
-    )
+  requestAbortController.value = controller
 
-    if (request && response) {
-      requestMutators.edit(activeRequest.value.uid, 'history', [
-        ...activeRequest.value.history,
-        {
-          request,
-          response,
-          timestamp: Date.now(),
-        },
-      ])
-      requestStatusBus.emit('stop')
-    } else {
-      // Toast if not cancelled by user and we have no response
-      if (!(error instanceof DOMException && error.name == 'AbortError'))
-        toast(error?.message ?? 'Send Request Failed', 'error')
+  // TODO: Do we need this?
+  //   if (request && response) {
+  //     requestMutators.edit(activeRequest.value.uid, 'history', [
+  //       ...activeRequest.value.history,
+  //       {
+  //         request,
+  //         response,
+  //         timestamp: Date.now(),
+  //       },
+  //     ])
+  //     requestStatusBus.emit('stop')
+  //   } else {
+  //     // Toast if not cancelled by user and we have no response
+  //     if (!(error instanceof DOMException && error.name == 'AbortError'))
+  //       toast(error?.message ?? 'Send Request Failed', 'error')
 
-      requestStatusBus.emit('abort')
-    }
-  } catch (error) {
-    console.error(error)
-    toast(`Oops! \n${error}`, 'error')
-    requestStatusBus.emit('abort')
-  }
+  //     requestStatusBus.emit('abort')
+  //   }
+  // } catch (error) {
+  //   console.error(error)
+  //   toast(`Oops! \n${error}`, 'error')
+  //   requestStatusBus.emit('abort')
+  // }
+
+  const result = await sendRequest()
+
+  requestHistory.push(result)
 }
 
 /** Cancel a live request */
