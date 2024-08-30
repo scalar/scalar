@@ -17,7 +17,8 @@ export function normalizeHeaders(
 
   /** List of modified headers */
   const modifiedHeaders = modifiedHeaderKey
-    ? headers[modifiedHeaderKey]
+    ? headers
+        .get(modifiedHeaderKey)
         ?.toString()
         .split(', ')
         ?.map((value: string) => value.toLowerCase()) ?? []
@@ -26,21 +27,21 @@ export function normalizeHeaders(
   // Remove headers listed in `X-Scalar-Modified-Headers`
   Object.keys(headers).forEach((key) => {
     if (modifiedHeaders.includes(key.toLowerCase())) {
-      delete headers[key]
+      headers.delete(key)
     }
   })
 
   // Remove `X-Scalar-Modified-Headers` header
   if (modifiedHeaderKey) {
-    delete headers[modifiedHeaderKey]
+    headers.delete(modifiedHeaderKey)
   }
 
   // Restore original headers (remove the `X-Scalar-Original-` prefix)
   Object.keys(headers).forEach((key) => {
     if (key.toLowerCase().startsWith('x-scalar-original-')) {
       const originalKey = key.replace('X-Scalar-Original-', '')
-      headers[originalKey] = headers[key]
-      delete headers[key]
+      headers.set(originalKey, headers.get(key) ?? '')
+      headers.delete(key)
     }
   })
 
@@ -48,15 +49,13 @@ export function normalizeHeaders(
   Object.keys(headers).forEach((key) => {
     const formattedKey = formatHeaderKey(key)
     if (key !== formattedKey) {
-      headers[formattedKey] = headers[key]
-      delete headers[key]
+      headers.set(formattedKey, headers.get(key) ?? '')
+      headers.delete(key)
     }
   })
 
-  // Sort headers alphebetically by key
-  return Object.fromEntries(
-    Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)),
-  )
+  // Sort headers alphabetically by key
+  return headers
 }
 
 /** Make the first letter and all letters after a dash uppercase */

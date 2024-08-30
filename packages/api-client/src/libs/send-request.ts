@@ -1,47 +1,28 @@
-import { ERRORS } from '@/libs'
+import { requestStatusBus } from '@/libs/event-busses'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
-  FetchRequest,
   Request,
   RequestExample,
-  RequestExampleParameter,
   ResponseInstance,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import {
-  isValidUrl,
-  redirectToProxy,
-  shouldUseProxy,
-} from '@scalar/oas-utils/helpers'
-import { safeJSON } from '@scalar/object-utils/parse'
+import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
-/**
- * Convert the parameters array to an object for axios to consume
- */
-const paramsReducer = (params: RequestExampleParameter[] = []) =>
-  params.reduce(
-    (acc, param) => {
-      if (!param.key) return acc
-      acc[param.key] = param.value
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-
-const decodeBuffer = (buffer: ArrayBuffer, contentType: string) => {
+/** Decode the buffer according to its content-type */
+function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
   const type = new MIMEType(contentType)
   if (textMediaTypes.includes(type.essence)) {
     const decoder = new TextDecoder(type.parameters.get('charset'))
     const str = decoder.decode(buffer)
 
     if (type.subtype === 'json') return JSON.parse(str)
-    else return str
+    return str
   } else {
     return new Blob([buffer], { type: type.essence })
   }
@@ -49,10 +30,11 @@ const decodeBuffer = (buffer: ArrayBuffer, contentType: string) => {
 
 /** Populate the headers from enabled parameters */
 function createFetchHeaders(example: RequestExample, env: object) {
-  const headers: NonNullable<RequestInit['headers']> = []
+  const headers: NonNullable<RequestInit['headers']> = {}
 
   example.parameters.headers.forEach((h) => {
-    if (h.enabled) headers.push([h.key, replaceTemplateVariables(h.value, env)])
+    if (h.enabled)
+      headers[h.key.toLowerCase()] = replaceTemplateVariables(h.value, env)
   })
 
   return headers
@@ -68,99 +50,20 @@ function createFetchQueryParams(example: RequestExample, env: object) {
   return params
 }
 
-function createFetchBody(example: RequestExample) {}
-
-/**
- * Execute the request
- * called from the send button as well as keyboard shortcuts
- */
-export async function createRequestOperation({
-  request,
+/** Set all cookie params and workspace level cookies that are applicable */
+function setRequestCookies({
   example,
-  server,
-  securitySchemes,
+  env,
+  globalCookies,
+  domain,
   proxy,
-  environment,
 }: {
-  request: Request
   example: RequestExample
-  server: Server
-  securitySchemes: Record<string, SecurityScheme>
+  env: object
+  globalCookies: Cookie[]
+  domain: string
   proxy: string
-  environment: string
 }) {
-  const controller = new AbortController()
-
-  // Parse the environment string
-  const e = safeJSON.parse(environment)
-  if (e.error) console.error('INVALID ENVIRONMENT!')
-  const env = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
-
-  // Initialize the base URL object from the active server
-  const url = new URL(replaceTemplateVariables(server.url ?? '', env))
-
-  // TODO: Should we be allow users to override path vars at a request level?
-  // If so then env should be replaced with the key/value pairs from the example
-  url.pathname = replaceTemplateVariables(request.path, env)
-  url.search = createFetchQueryParams(example, env).toString()
-
-  if (workspaceCookies) {
-    if (!rawUrl) {
-      throw new Error(ERRORS.URL_EMPTY)
-    }
-
-    try {
-      new URL(rawUrl)
-    } catch (error) {
-      throw new Error(ERRORS.INVALID_URL)
-    }
-
-    const origin = new URL(rawUrl).host
-    Object.keys(workspaceCookies).forEach((key) => {
-      const c = workspaceCookies[key]
-      if (!c.domain) return
-
-      const cookieOrigin = isValidUrl(c.domain)
-        ? new URL(c.domain).origin
-        : c.domain
-
-      if (cookieOrigin === origin) {
-        cookies[c.name] = c.domain
-      }
-    })
-  }
-
-  // Add auth
-  securitySchemes?.forEach((scheme) => {
-    // apiKey
-    if (scheme.type === 'apiKey' && scheme.value) {
-      switch (scheme.in) {
-        case 'cookie':
-          cookies[scheme.name] = scheme.value
-          break
-        case 'query':
-          query[scheme.name] = scheme.value
-          break
-        case 'header':
-          headers[scheme.name] = scheme.value
-          break
-      }
-    }
-    // http
-    else if (scheme.type === 'http' && scheme.value) {
-      // Basic
-      if (scheme.scheme === 'basic' && scheme.secondValue) {
-        headers['Authorization'] =
-          `Basic ${btoa(`${scheme.value}:${scheme.secondValue}`)}`
-      }
-      // Bearer
-      else headers['Authorization'] = `Bearer ${scheme.value}`
-    }
-    // OAuth 2
-    else if (scheme.type === 'oauth2' && scheme.flow.token)
-      headers['Authorization'] = `Bearer ${scheme.flow.token}`
-  })
-
   /**
    * Cross-origin cookies are hard.
    *
@@ -172,40 +75,211 @@ export async function createRequestOperation({
    *   1) Access-Control-Allow-Credentials: true
    *   2) Access-Control-Allow-Origin: client.scalar.com (not *)
    *
-   * Everything else is just ommitted.
+   * Everything else is just omitted.
    */
-  Object.keys(cookies).forEach((key) => {
-    Cookies.set(key, cookies[key], {
-      // Means that the browser sends the cookie with both cross-site and same-site requests.
-      sameSite: 'None',
-      // The Secure attribute must also be set when setting SameSite=None.
-      secure: true,
-    })
+  const cookieParams = {
+    // Must point all cookies to the proxy and let it sort them out
+    domain: new URL(proxy).host,
+    // Means that the browser sends the cookie with both cross-site and same-site requests.
+    sameSite: 'None',
+    // The Secure attribute must also be set when setting SameSite=None.
+    secure: true,
+  } as const
+
+  const allCookies = Cookies.get()
+  Object.keys(allCookies).forEach((c) => Cookies.remove(c))
+
+  example.parameters.cookies.forEach((c) => {
+    if (c.enabled) Cookies.set(c.key, replaceTemplateVariables(c.value, env))
   })
 
-  // Create a new query string from the URL and given parameters
-  const queryString = new URLSearchParams(query).toString()
+  globalCookies.forEach((c) => {
+    const { name: key, value, comment, ...params } = c
 
-  // Append new query string to the URL
-  url = `${urlWithoutQueryString}${queryString ? '?' + queryString : ''}`
+    // We only attach global cookies relevant to the current domain
+    // Subdomains are matched as well
+    const hasDomainMatch =
+      params.domain === domain ||
+      (params.domain?.startsWith('.') && domain.endsWith(params.domain ?? ''))
 
-  const config: AxiosRequestConfig = {
-    url: redirectToProxy(proxyUrl, url),
-    method: request.method,
-    responseType: 'arraybuffer',
-    headers,
-    signal: abortSignal,
+    if (hasDomainMatch) {
+      Cookies.set(key, value, {
+        /** Override the domain with the proxy value */
+        domain: proxy,
+        // TODO: path cookies probably don't worth with the proxy
+        path: params.path,
+        expires: params.expires ? new Date(params.expires) : undefined,
+        httpOnly: params.httpOnly,
+        secure: params.secure,
+      })
+    }
+  })
+
+  return {
+    cookieParams,
+  }
+}
+
+/**
+ * Create the fetch request body from an example
+ *
+ * TODO: Should we be setting the content type headers here?
+ * If so we must allow the user to override the content type header
+ */
+function createFetchBody(example: RequestExample, env: object) {
+  if (example.body.activeBody === 'formData' && example.body.formData) {
+    const contentType =
+      example.body.formData.encoding === 'form-data'
+        ? 'multipart/form-data'
+        : 'application/x-www-form-urlencoded'
+
+    const form =
+      example.body.formData.encoding === 'form-data'
+        ? new FormData()
+        : new URLSearchParams()
+    example.body.formData.value.forEach((entry) => {
+      form.append(entry.key, replaceTemplateVariables(entry.value, env))
+    })
+    return { body: form, contentType }
   }
 
-  if (data) config.data = data
+  if (example.body.activeBody === 'raw') {
+    return {
+      body: replaceTemplateVariables(example.body.raw?.value ?? '', env),
+      contentType: example.body.raw?.encoding,
+    }
+  }
 
-  // Start timer to get response duration
-  const startTime = Date.now()
+  if (example.body.activeBody === 'binary') {
+    return {
+      body: example.body.binary,
+      contentType: example.body.binary?.type,
+    }
+  }
 
-  try {
-    const response = await axios(config)
+  return {
+    body: undefined,
+    contentType: undefined,
+  }
+}
 
-    if (shouldUseProxy(proxyUrl, url)) {
+/**
+ * Execute the request
+ * called from the send button as well as keyboard shortcuts
+ */
+export function createRequestOperation({
+  request,
+  example,
+  server,
+  securitySchemes,
+  proxy,
+  environment,
+  globalCookies,
+}: {
+  request: Request
+  example: RequestExample
+  proxy: string
+  environment: object | undefined
+  server: Server
+  securitySchemes: Record<string, SecurityScheme>
+  globalCookies: Cookie[]
+}) {
+  const env = environment ?? {}
+  const controller = new AbortController()
+
+  /** Parsed and evaluated values for path parameters */
+  const pathVariables = example.parameters.path.reduce<Record<string, string>>(
+    (vars, param) => {
+      if (param.enabled)
+        vars[param.key] = replaceTemplateVariables(param.value, env)
+
+      return vars
+    },
+    {},
+  )
+
+  // Initialize the base URL object from the active server
+  const url = new URL(replaceTemplateVariables(server.url ?? '', env))
+  const pathname = replaceTemplateVariables(request.path, pathVariables)
+  const urlParams = createFetchQueryParams(example, env)
+  const headers = createFetchHeaders(example, env)
+  const { body, contentType } = createFetchBody(example, env)
+  const { cookieParams } = setRequestCookies({
+    example,
+    env,
+    globalCookies,
+    domain: url.hostname,
+    proxy,
+  })
+
+  if (contentType && !headers['content-type'])
+    headers['content-type'] = contentType
+
+  // Populate all forms of auth to the request segments
+  Object.keys(example.auth).forEach((k) => {
+    const exampleAuth = example.auth[k]
+    const scheme = securitySchemes[k]
+    if (!exampleAuth || !scheme) return
+
+    // Scheme type and example value type should always match
+    if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
+      const value = replaceTemplateVariables(exampleAuth.value, env)
+      if (scheme.in === 'header') headers[scheme.nameKey] = value
+      if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
+      if (scheme.in === 'cookie')
+        Cookies.set(scheme.nameKey, value, cookieParams)
+    }
+
+    if (scheme.type === 'http' && exampleAuth.type === 'http') {
+      if (scheme.scheme === 'basic') {
+        const username = replaceTemplateVariables(exampleAuth.username, env)
+        const password = replaceTemplateVariables(exampleAuth.password, env)
+        const value = password ? `${username}:${password}` : username
+
+        headers['Authorization'] = `Basic ${btoa(value)}`
+      } else {
+        const value = replaceTemplateVariables(exampleAuth.token, env)
+        headers['Authorization'] = `Bearer ${value}`
+      }
+    }
+
+    // For OAuth we just add the token that was previously generated
+    if (
+      scheme.type === 'oauth2' &&
+      exampleAuth.type.includes('oauth') &&
+      'token' in exampleAuth
+    ) {
+      if (!exampleAuth.token) console.error('OAuth token was not created')
+      headers['Authorization'] = `Bearer ${exampleAuth.token}`
+    }
+  })
+
+  const sendRequest = async (): Promise<{
+    response: ResponseInstance
+    request: RequestExample
+    timestamp: number
+  }> => {
+    requestStatusBus.emit('start')
+
+    // Start timer to get response duration
+    const startTime = Date.now()
+
+    url.search = urlParams.toString()
+    url.pathname = pathname
+    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+
+    const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
+      signal: controller.signal,
+      method: request.method,
+      body,
+      headers,
+    })
+
+    console.log(response)
+    requestStatusBus.emit('stop')
+
+    // TODO: Evaluate whether we should really be deleting response headers client-side
+    if (shouldUseProxy(proxy, url.origin)) {
       // Remove headers, that are added by the proxy
       const headersToRemove = [
         'Access-Control-Allow-Headers',
@@ -216,22 +290,20 @@ export async function createRequestOperation({
 
       headersToRemove
         .map((header) => header.toLowerCase())
-        .forEach((header) => delete response.headers[header])
+        .forEach((header) => response.headers.delete(header))
     }
 
-    const buffer: ArrayBuffer = response.data
+    const responseType =
+      response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
-    const contentType =
-      response.headers['Content-Type'] ??
-      response.headers['content-type'] ??
-      'text/plain;charset=UTF-8'
-
-    const responseData = decodeBuffer(buffer, `${contentType}`)
-
+    const responseData = decodeBuffer(
+      await response.arrayBuffer(),
+      responseType,
+    )
     const responseHeaders = normalizeHeaders(response.headers)
 
     return {
-      sentTime: Date.now(),
+      timestamp: Date.now(),
       request: example,
       response: {
         ...response,
@@ -240,26 +312,10 @@ export async function createRequestOperation({
         duration: Date.now() - startTime,
       },
     }
-  } catch (error) {
-    const axiosError = error as AxiosError
-    const response = axiosError.response
+  }
 
-    console.error('ERROR', error)
-
-    return {
-      sentTime: Date.now(),
-      request: example,
-      response: response
-        ? {
-            ...response,
-            data: decodeBuffer(
-              response.data as ArrayBuffer,
-              'text/plain;charset=UTF-8',
-            ),
-            duration: Date.now() - startTime,
-          }
-        : undefined,
-      error: axiosError,
-    }
+  return {
+    sendRequest,
+    controller,
   }
 }
