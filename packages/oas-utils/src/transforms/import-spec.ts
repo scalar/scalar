@@ -119,6 +119,7 @@ export async function importSpecToWorkspace(
         servers.push(...operationServers)
 
         // We will save a list of all tags to ensure they exists at the top level
+        // TODO: make sure we add any loose requests with no tags to the collection children
         operation.tags?.forEach((t) => tagNames.add(t))
 
         // Format the request
