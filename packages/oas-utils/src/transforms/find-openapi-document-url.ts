@@ -43,10 +43,24 @@ function parseHtml(html?: string) {
   }
 
   // data-url="*"
-  const dataUrlMatch = html.match(/data-url="([^"]+)"/)
+  const dataUrlMatch = html.match(/data-url=["']([^"']+)["']/)
 
   if (dataUrlMatch?.[1]) {
     return dataUrlMatch[1]
+  }
+
+  // spec-url="*"
+  const specUrlMatch = html.match(/spec-url=["']([^"']+)["']/)
+
+  if (specUrlMatch?.[1]) {
+    return specUrlMatch[1]
+  }
+
+  // Redoc.init('*')
+  const redocInit = html.match(/Redoc.init\(["']([^"']+)["']/)
+
+  if (redocInit?.[1]) {
+    return redocInit[1]
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;

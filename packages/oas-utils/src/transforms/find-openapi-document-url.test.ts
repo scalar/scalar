@@ -67,6 +67,34 @@ describe('findOpenApiDocumentUrl', () => {
     )
   })
 
+  it('works with single quote data attributes', async () => {
+    const html = `<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <script
+      id="api-reference"
+      data-url='https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>`
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
+
+    expect(result).toBe(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    )
+  })
+
   it('returns absolute URLs', async () => {
     const html = `<!doctype html>
 <html>
@@ -122,5 +150,57 @@ describe('findOpenApiDocumentUrl', () => {
     const result = await findOpenApiDocumentUrl('https://example.com/reference')
 
     expect(result).toBe('https://example.com/openapi.yaml')
+  })
+
+  it('finds URLs in redoc HTML', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Redoc</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700|Roboto:300,400,700" rel="stylesheet">
+  </head>
+  <body>
+    <redoc spec-url='https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml'></redoc>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"> </script>
+  </body>
+</html>`
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
+
+    expect(result).toBe(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    )
+  })
+
+  it('finds URLs in redoc JS', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <H1>Redoc in action</H1>
+    <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"> </script>
+    <div id="redoc-container"></div>
+
+    <script>
+      Redoc.init('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml', {
+        "expandResponses": "200,400"
+      }, document.getElementById('redoc-container'))
+    </script>
+  </body>
+</html>`
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
+
+    expect(result).toBe(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    )
   })
 })
