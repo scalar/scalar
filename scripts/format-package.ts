@@ -134,7 +134,6 @@ async function formatPackage(filepath: string) {
 
   // Check whether the package.json needs to be updated
   if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
-    printColor('green', `[${formattedData.name}] package.json formatted`)
     return
   }
 
