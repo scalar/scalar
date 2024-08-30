@@ -1,15 +1,14 @@
-import { PathId, fallbackMissingParams } from '@/router'
 import { createExampleFromRequest } from '@/store/request-example'
 import {
   type Collection,
   type Request,
+  type RequestPayload,
   type Tag,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
-import { tag } from 'type-fest/source/opaque'
-import { computed, reactive } from 'vue'
+import { reactive } from 'vue'
 
 import { LS_KEYS } from './local-storage'
 import type { StoreContext } from './store-context'
@@ -42,7 +41,7 @@ export function extendedRequestDataFactory({
   collections,
 }: StoreContext) {
   /** Add request */
-  const addRequest = (payload: Request, collectionUid: string) => {
+  const addRequest = (payload: RequestPayload, collectionUid: string) => {
     const request = schemaModel(payload, requestSchema, false)
     if (!request) return console.error('INVALID REQUEST DATA', payload)
 

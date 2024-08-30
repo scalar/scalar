@@ -74,7 +74,7 @@ export const oasRequestSchema = z.object({
   /**
    * Request parameters
    */
-  parameters: oasParameterSchema.array(),
+  parameters: oasParameterSchema.array().optional(),
   /**
    * External documentation object
    */
@@ -111,3 +111,4 @@ const extendedRequestSchema = z.object({
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema.merge(extendedRequestSchema)
 export type Request = z.infer<typeof requestSchema>
+export type RequestPayload = z.input<typeof requestSchema>
