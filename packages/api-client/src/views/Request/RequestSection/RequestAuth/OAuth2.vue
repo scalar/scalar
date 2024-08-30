@@ -28,13 +28,14 @@ const handleAuthorize = async () => {
     loadingState.stopLoading(),
   )
 
-  if (accessToken) updateScheme('flow.token', accessToken)
+  if (accessToken)
+    securitySchemeMutators.edit(props.scheme.uid, 'token', accessToken)
 }
 </script>
 
 <template>
   <!-- Access Token Granted -->
-  <template v-if="scheme.flow.token">
+  <template v-if="scheme.token">
     <DataTableRow>
       <RequestAuthDataTableInput
         id="oauth2-access-token"
