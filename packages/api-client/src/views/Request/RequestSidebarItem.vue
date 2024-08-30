@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
 import { useSidebar } from '@/hooks'
 import { getModifiers } from '@/libs'
 import { commandPaletteBus } from '@/libs/event-busses'
@@ -11,7 +12,6 @@ import {
   ScalarContextMenu,
   ScalarIcon,
   ScalarModal,
-  ScalarTextField,
   useModal,
 } from '@scalar/components'
 import {
@@ -107,7 +107,7 @@ const item = computed<Item>(() => {
       resourceTitle: 'Collection',
       children: collection.children,
       warning:
-        'Warning: deleting this collection will delete all requests and tags as well',
+        'This cannot be undone. You’re about to delete the collection and all folders andrequests inside it.',
       rename: () =>
         collectionMutators.edit(collection.uid, 'info.title', tempName.value),
       delete: () =>
@@ -120,6 +120,8 @@ const item = computed<Item>(() => {
       entity: tag,
       resourceTitle: 'Tag',
       children: tag.children,
+      warning:
+        'This cannot be undone. You’re about to delete the tag and all requests inside it',
       rename: () => tagMutators.edit(tag.uid, 'name', tempName.value),
       delete: () => tagMutators.delete(tag, props.parentUids[0]),
     }
@@ -131,8 +133,7 @@ const item = computed<Item>(() => {
       method: request.method,
       entity: request,
       resourceTitle: 'Request',
-      warning:
-        'Warning: deleting this request will delete all examples as well',
+      warning: 'This cannot be undone. You’re about to delete the request.',
       children: request.examples,
       rename: () =>
         requestMutators.edit(request.uid, 'summary', tempName.value),
@@ -237,7 +238,8 @@ const tempName = ref('')
 const renameModal = useModal()
 const deleteModal = useModal()
 
-const handleItemRename = () => {
+const handleItemRename = (newName: string) => {
+  tempName.value = newName
   item.value.rename()
   renameModal.hide()
 }
@@ -459,24 +461,10 @@ function openCommandPaletteRequest() {
     :size="'xxs'"
     :state="renameModal"
     :title="`Rename ${item.resourceTitle}`">
-    <ScalarTextField
-      v-model="tempName"
-      :label="item.resourceTitle"
-      @keydown.prevent.enter="handleItemRename" />
-    <div class="flex gap-3">
-      <ScalarButton
-        class="flex-1"
-        variant="outlined"
-        @click="renameModal.hide()">
-        Cancel
-      </ScalarButton>
-      <ScalarButton
-        class="flex-1"
-        type="submit"
-        @click="handleItemRename">
-        Save
-      </ScalarButton>
-    </div>
+    <RenameSidebarListElement
+      :name="item.title"
+      @close="renameModal.hide()"
+      @rename="handleItemRename" />
   </ScalarModal>
 </template>
 
