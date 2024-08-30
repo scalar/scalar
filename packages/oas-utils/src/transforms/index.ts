@@ -1,2 +1,2 @@
 export * from './import-spec'
-export * from './find-openapi-document'
+export * from './find-openapi-document-url'
