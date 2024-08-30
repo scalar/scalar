@@ -109,17 +109,6 @@ async function formatPackage(filepath: string) {
     }
   })
 
-  // Validate before sorting
-  // Check that required scripts are entered
-  validatePackageScripts(formattedData['scripts'], formattedData.name)
-
-  // Sort nested keys alphanumerically
-  sortKeys.forEach((key) => {
-    if (formattedData[key]) {
-      formattedData[key] = sortObjectKeys(formattedData[key])
-    }
-  })
-
   // Repository URL
   const directory = path.relative(
     path.join(__dirname, '..'),
@@ -131,6 +120,17 @@ async function formatPackage(filepath: string) {
     url: 'https://github.com/scalar/scalar.git',
     directory,
   }
+
+  // Validate before sorting
+  // Check that required scripts are entered
+  validatePackageScripts(formattedData['scripts'], formattedData.name)
+
+  // Sort nested keys alphanumerically
+  sortKeys.forEach((key) => {
+    if (formattedData[key]) {
+      formattedData[key] = sortObjectKeys(formattedData[key])
+    }
+  })
 
   // Check whether the package.json needs to be updated
   if (JSON.stringify(data) === JSON.stringify(formattedData)) {
