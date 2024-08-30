@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.0
+
+### Minor Changes
+
+- b4f9f97: feat: new @scalar/openapi-types package
+
 ## 0.0.1
 
 ### Patch Changes

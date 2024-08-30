@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.1
+
+### Patch Changes
+
+- 7595fc5: chore: migrate @scalar/snippetz to scalar/scalar
+
 ## 0.2.0
 
 ### Minor Changes

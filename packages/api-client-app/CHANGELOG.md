@@ -1,5 +1,19 @@
 # scalar-api-client
 
+## 0.1.33
+
+### Patch Changes
+
+- d800fc3: feat: register as the default app for `scalar://` links
+- 4137d42: feat: add “Check for Updates…” menu entry
+- Updated dependencies [4b52f29]
+- Updated dependencies [294ba08]
+- Updated dependencies [e67f5a8]
+- Updated dependencies [044fd7d]
+- Updated dependencies [152c016]
+  - @scalar/api-client@2.0.61
+  - @scalar/components@0.12.42
+
 ## 0.1.32
 
 ### Patch Changes
