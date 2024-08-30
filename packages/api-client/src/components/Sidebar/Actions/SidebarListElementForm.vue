@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
+import { cva, cx } from 'cva'
 
 defineProps<{
   danger?: boolean
@@ -10,6 +11,16 @@ const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'submit'): void
 }>()
+
+const variants = cva({
+  base: 'gap-1.5 font-medium px-2.5 h-8 shadow-none focus:outline-none',
+  variants: {
+    danger: {
+      true: 'delete-warning-button',
+      false: '',
+    },
+  },
+})
 </script>
 <template>
   <form
@@ -17,29 +28,18 @@ const emit = defineEmits<{
     @submit.prevent="emit('submit')">
     <slot />
     <div class="flex justify-between">
-      <button
-        class="border text-left bg-b-1 focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer"
+      <ScalarButton
+        class="gap-1.5 px-2.5 h-8 shadow-none focus:outline-none flex items-center cursor-pointer"
         type="button"
+        variant="outlined"
         @click="emit('cancel')">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Close"
-          size="sm"
-          thickness="1.75" />
         Cancel
-      </button>
-      <button
-        class="bg-red text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer delete-warning-button"
-        :error="danger"
-        type="submit"
-        @click="emit('submit')">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Delete"
-          size="sm"
-          thickness="1.5" />
-        {{ label ?? 'Submit' }}
-      </button>
+      </ScalarButton>
+      <ScalarButton
+        :class="cx(variants({ danger }))"
+        type="submit">
+        {{ label ?? 'Save' }}
+      </ScalarButton>
     </div>
   </form>
 </template>
