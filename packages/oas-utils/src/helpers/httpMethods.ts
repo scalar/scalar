@@ -58,7 +58,7 @@ export const REQUEST_METHODS: {
  * Accepts an HTTP Method name and returns some properties for the tag
  */
 export const getHttpMethodInfo = (methodName: string) => {
-  const normalizedMethod = methodName.trim().toUpperCase()
+  const normalizedMethod = methodName.trim().toLowerCase()
   return (
     REQUEST_METHODS[normalizedMethod as RequestMethod] ?? {
       short: normalizedMethod,

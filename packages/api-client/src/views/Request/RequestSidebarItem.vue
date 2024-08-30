@@ -23,6 +23,7 @@ import type {
   Collection,
   Request,
   RequestExample,
+  RequestMethod,
   Tag,
 } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
@@ -46,7 +47,8 @@ const props = withDefaults(
     isDroppable?: DraggableProps['isDroppable']
     /** Both indicate the level and provide a way to traverse upwards */
     parentUids: string[]
-    item: Collection | Tag | Request | RequestExample
+    /** uid of a Collection, Tag, Request or RequestExample */
+    uid: string
   }>(),
   { isDraggable: false, isDroppable: false, isChild: false },
 )
@@ -59,39 +61,6 @@ const emit = defineEmits<{
 defineSlots<{
   leftIcon(): void
 }>()
-
-type Item = typeof props.item
-
-function isCollection(item: Item): item is Collection {
-  return 'info' in item
-}
-function isRequest(item: Item): item is Request {
-  return 'examples' in item
-}
-function isExample(item: Item): item is RequestExample {
-  return 'requestUid' in item
-}
-function isTag(item: Item): item is Tag {
-  return 'x-scalar-children' in item
-}
-
-/** Execute a different action depending on the entity type we are dealing with */
-function actionPerType<T>(
-  item: Item,
-  method: {
-    collection: (item: Collection) => T
-    request: (item: Request) => T
-    example: (item: RequestExample) => T
-    tag: (item: Tag) => T
-  },
-) {
-  if (isCollection(item)) return method.collection(item)
-  if (isRequest(item)) return method.request(item)
-  if (isExample(item)) return method.example(item)
-  if (isTag(item)) return method.tag(item)
-
-  throw Error('INVALID ENTITY IN SIDEBAR')
-}
 
 const {
   activeRequest,
@@ -111,7 +80,81 @@ const {
 const { replace } = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
-const hasChildren = computed(() => 'childUids' in props.item)
+type Item = {
+  title: string
+  entity: Collection | Tag | Request | RequestExample
+  resourceTitle: string
+  children: string[]
+  method?: RequestMethod
+  link?: string
+  rename: () => void
+  delete: () => void
+}
+
+/** Normalize properties across different types for easy consumption */
+const item = computed<Item>(() => {
+  const collection = collections[props.uid]
+  const tag = tags[props.uid]
+  const request = requests[props.uid]
+  const requestExample = requestExamples[props.uid]
+
+  if (collection)
+    return {
+      title: collection.info?.title ?? 'Unknown title',
+      entity: collection,
+      resourceTitle: 'Collection',
+      children: collection.children,
+      rename: () =>
+        collectionMutators.edit(collection.uid, 'info.title', tempName.value),
+      delete: () =>
+        collectionMutators.delete(collection, activeWorkspace.value),
+    }
+
+  if (tag)
+    return {
+      title: tag.name,
+      entity: tag,
+      resourceTitle: 'Tag',
+      children: tag.children,
+      rename: () => tagMutators.edit(tag.uid, 'name', tempName.value),
+      delete: () => tagMutators.delete(tag.uid),
+    }
+
+  if (request)
+    return {
+      title: request.summary ?? [request.method, request.path].join(' - '),
+      link: `/workspace/${activeWorkspace.value.uid}/request/${request.uid}`,
+      method: request.method,
+      entity: request,
+      resourceTitle: 'Request',
+      children: request.examples,
+      rename: () =>
+        requestMutators.edit(request.uid, 'summary', tempName.value),
+      delete: () =>
+        requestMutators.delete(
+          request,
+          props.parentUids[props.parentUids.length - 1],
+        ),
+    }
+
+  return {
+    title: requestExample.name,
+    link: `/workspace/${activeWorkspace.value.uid}/request/${requestExample.requestUid}/examples/${requestExample.uid}`,
+    method: requests[requestExample.requestUid]?.method,
+    entity: requestExample,
+    resourceTitle: 'Example',
+    children: [],
+    rename: () =>
+      requestExampleMutators.edit(requestExample.uid, 'name', tempName.value),
+    delete: () => requestExampleMutators.delete(requestExample),
+  }
+})
+
+/** Checks to see if it is a draft collection with the title of Drafts */
+const isDraftCollection = computed(
+  () =>
+    item.value.entity.type === 'collection' && item.value.title === 'Drafts',
+)
 
 const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
@@ -127,45 +170,22 @@ const paddingOffset = computed(() => {
   else return `${props.parentUids.length * 12}px`
 })
 
-const getTitle = (item: Item) =>
-  actionPerType(item, {
-    collection: (i) => i.info?.title,
-    request: (i) => i.summary ?? i.path,
-    example: (i) => i.name,
-    tag: (i) => i.name,
-  }) ?? ''
-
-/**
- * We either show the method or the parent request method
- */
-const method = computed(() => {
-  if (isExample(props.item)) return requests[props.item.requestUid]?.method
-  if (isRequest(props.item)) return props.item.method
-  return undefined
-})
-
 /**
  * Show folders if they are open,
  * show examples if there are more than one and the request is active
  */
 const showChildren = computed(
   () =>
-    collapsedSidebarFolders[props.item.uid] ||
-    (activeRequest.value?.uid === props.item.uid &&
-      (props.item as Request).examples.length > 1),
+    collapsedSidebarFolders[props.uid] ||
+    (activeRequest.value?.uid === props.uid &&
+      (item.value.entity as Request).examples.length > 1),
 )
-
-/** Generate the request OR example link */
-const generateLink = () =>
-  isExample(props.item)
-    ? `/workspace/${activeWorkspace.value.uid}/request/${props.item.requestUid}/examples/${props.item.uid}`
-    : `/workspace/${activeWorkspace.value.uid}/request/${props.item.uid}`
 
 /** Since we have exact routing, we should check if the default request is active */
 const isDefaultActive = computed(
   () =>
     activeRouterParams.value[PathId.Request] === 'default' &&
-    activeRequest.value.uid === props.item.uid,
+    activeRequest.value?.uid === props.uid,
 )
 
 /** The draggable component */
@@ -183,12 +203,15 @@ const getDraggableOffsets = computed(() => {
   const { draggingItem } = draggableRef.value
 
   // If hovered over is collection && dragging is not a collection
-  if (!collections[draggingItem?.id] && isCollection.value) {
+  if (
+    !collections[draggingItem?.id] &&
+    item.value.entity.type === 'collection'
+  ) {
     ceiling = 1
     floor = 0
   }
   // Has children but is not a request or a collection
-  else if (hasChildren.value && !isRequest.value && !isCollection.value) {
+  else if (item.value.entity.type === 'tag') {
     ceiling = 0.8
     floor = 0.2
   }
@@ -213,80 +236,31 @@ const renameModal = useModal()
 const deleteModal = useModal()
 
 const handleItemRename = () => {
-  actionPerType(props.item, {
-    collection: (i) =>
-      collectionMutators.edit(i.uid, 'info.title', tempName.value),
-    request: (i) => requestMutators.edit(i.uid, 'summary', tempName.value),
-    example: (i) => requestExampleMutators.edit(i.uid, 'name', tempName.value),
-    tag: (i) => tagMutators.edit(i.uid, 'name', tempName.value),
-  })
-
+  item.value.rename()
   renameModal.hide()
 }
 
 const openRenameModal = () => {
-  tempName.value = getTitle(props.item) || ''
+  tempName.value = item.value.title || ''
   renameModal.show()
 }
 
-/** Delete handles both requests and requestExamples */
-const handleItemDelete = () =>
-  actionPerType(props.item, {
-    collection: (i) => collectionMutators.delete(i),
-    request: (i) => {
-      requestMutators.delete(i, props.parentUids[props.parentUids.length - 1])
-      if (activeRouterParams.value[PathId.Request] === i.uid) {
-        replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
-      }
-    },
-    example: (i) => {
-      requestExampleMutators.delete(i)
-      if (activeRouterParams.value[PathId.Examples] === i.uid) {
-        replace(`/workspace/${activeWorkspace.value}/request/default`)
-      }
-    },
-    tag: (i) => tagMutators.delete(i.uid),
-  })
+/** Delete with redirect for both requests and requestExamples */
+const handleItemDelete = () => {
+  if (activeRouterParams.value[PathId.Request] === props.uid)
+    replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
 
-const itemName = computed(
-  () =>
-    actionPerType(props.item, {
-      collection: (i) => i.info?.title,
-      request: (i) => i.summary,
-      example: (i) => i.name,
-      tag: (i) => i.name,
-    }) ?? '',
-)
+  if (activeRouterParams.value[PathId.Examples] === props.uid)
+    replace(`/workspace/${activeWorkspace.value}/request/default`)
+}
 
-/** Gets the title of the resource to use in the modal titles */
-const resourceTitle = computed(() =>
-  actionPerType(props.item, {
-    collection: () => 'Collection',
-    request: () => 'Request',
-    example: () => 'Example',
-    tag: () => 'Tag',
-  }),
-)
-
-const children = computed(
-  () => () =>
-    actionPerType(props.item, {
-      collection: (i) => i.children,
-      request: (i) => i.examples,
-      example: () => [],
-      tag: (i) => i.children,
-    }) ?? [],
-)
-
-const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
+const handleNavigation = (event: KeyboardEvent, _item: Item) => {
   if (event) {
     const modifier = getModifiers(['default'])
     const isModifierPressed = modifier.some((key) => event[key])
-    if (isModifierPressed) {
-      emit('newTab', getTitle(item) || '', item.uid)
-    } else {
-      router.push(generateLink())
-    }
+
+    if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
+    else if (_item.link) router.push(_item.link)
   }
 }
 </script>
@@ -300,7 +274,7 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
         : '',
     ]">
     <Draggable
-      :id="item.uid"
+      :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
       class="flex flex-1 flex-col gap-[.5px] text-sm"
@@ -311,10 +285,10 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
       <!-- Request -->
       <RouterLink
-        v-if="'summary' in item || 'requestUid' in item"
+        v-if="item.link"
         v-slot="{ isExactActive }"
         class="no-underline"
-        :to="generateLink()"
+        :to="item.link"
         @click.prevent="
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
@@ -334,33 +308,34 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
                 :class="{
                   'editable-sidebar-hover-item': !isReadOnly,
                 }">
-                {{ getTitle(item) }}
+                {{ item.title }}
               </span>
               <div class="flex flex-row gap-1 items-center">
+                <!-- Menu -->
                 <div class="relative">
                   <RequestSidebarItemMenu
                     v-if="!isReadOnly"
-                    :item="item"
+                    :item="item.entity"
                     :parentUids="parentUids"
-                    :resourceTitle="resourceTitle"
+                    :resourceTitle="item.resourceTitle"
                     @delete="deleteModal.show()"
                     @rename="openRenameModal" />
                 </div>
                 <span class="flex items-start">
                   &hairsp;
                   <HttpMethod
-                    v-if="method"
+                    v-if="item.method"
                     class="font-bold"
-                    :method="method" />
+                    :method="item.method" />
                 </span>
               </div>
             </div>
           </template>
           <template #content>
             <RequestSidebarItemMenu
-              :item="item"
+              :item="item.entity"
               :parentUids="parentUids"
-              :resourceTitle="resourceTitle"
+              :resourceTitle="item.resourceTitle"
               static
               @delete="deleteModal.show()"
               @rename="openRenameModal" />
@@ -371,22 +346,20 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
       <!-- Collection/Folder -->
       <ScalarContextMenu
         v-else-if="!isReadOnly || parentUids.length"
-        :disabled="
-          isReadOnly || (item as Collection)?.info?.title === 'Drafts'
-        ">
+        :disabled="isReadOnly || isDraftCollection">
         >
         <template #trigger>
           <button
             class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
             :class="highlightClasses"
             type="button"
-            @click="toggleSidebarFolder(item.uid)">
+            @click="toggleSidebarFolder(item.entity.uid)">
             <span
               class="z-10 flex h-5 items-center justify-center max-w-[14px]">
               <slot name="leftIcon">
                 <div
                   :class="{
-                    'rotate-90': collapsedSidebarFolders[item.uid],
+                    'rotate-90': collapsedSidebarFolders[item.entity.uid],
                   }">
                   <ScalarIcon
                     class="text-c-3 text-sm"
@@ -404,17 +377,14 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
                 :class="{
                   'editable-sidebar-hover-item': !isReadOnly,
                 }">
-                {{ getTitle(item) }}
+                {{ item.title }}
               </span>
               <div class="relative flex h-fit">
                 <RequestSidebarItemMenu
-                  v-if="
-                    !isReadOnly &&
-                    (item as Collection)?.info?.title !== 'Drafts'
-                  "
-                  :item="item"
+                  v-if="!isReadOnly && !isDraftCollection"
+                  :item="item.entity"
                   :parentUids="parentUids"
-                  :resourceTitle="resourceTitle"
+                  :resourceTitle="item.resourceTitle"
                   @delete="deleteModal.show()"
                   @rename="openRenameModal" />
                 <span>&hairsp;</span>
@@ -424,10 +394,10 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
         </template>
         <template #content>
           <RequestSidebarItemMenu
-            v-if="!isReadOnly && (item as Collection)?.info?.title !== 'Drafts'"
-            :item="item"
+            v-if="!isReadOnly && !isDraftCollection"
+            :item="item.entity"
             :parentUids="parentUids"
-            :resourceTitle="resourceTitle"
+            :resourceTitle="item.resourceTitle"
             static
             @delete="deleteModal.show()"
             @rename="openRenameModal" />
@@ -436,16 +406,16 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
 
       <!-- Children -->
       <div
-        v-if="'childUids' in item"
+        v-if="item.children.length"
         v-show="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
-          v-for="uid in children"
-          :key="uid"
-          :isDraggable="!requestExamples[uid]"
+          v-for="childUid in item.children"
+          :key="childUid"
+          :isDraggable="!requestExamples[childUid]"
           :isDroppable="_isDroppable"
-          :item="tags[uid] || requests[uid] || requestExamples[uid]"
-          :parentUids="[...parentUids, item.uid]"
+          :parentUids="[...parentUids, uid]"
+          :uid="childUid"
           @newTab="(name, uid) => $emit('newTab', name, uid)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
       </div>
@@ -454,19 +424,19 @@ const handleNavigation = (event: KeyboardEvent, item: typeof props.item) => {
   <ScalarModal
     :size="'sm'"
     :state="deleteModal"
-    :title="`Delete ${resourceTitle}`">
+    :title="`Delete ${item.resourceTitle}`">
     <DeleteSidebarListElement
-      :variableName="itemName"
+      :variableName="item.title"
       warningMessage="Warning: Deleting this will delete all items inside of this"
       @close="deleteModal.hide()"
       @delete="handleItemDelete" />
   </ScalarModal>
   <ScalarModal
     :state="renameModal"
-    :title="`Rename ${resourceTitle}`">
+    :title="`Rename ${item.resourceTitle}`">
     <ScalarTextField
       v-model="tempName"
-      :label="resourceTitle"
+      :label="item.resourceTitle"
       @keydown.prevent.enter="handleItemRename" />
     <div class="flex gap-3">
       <ScalarButton
