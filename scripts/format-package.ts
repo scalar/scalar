@@ -120,10 +120,25 @@ async function formatPackage(filepath: string) {
     }
   })
 
-  if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
-    printColor('green', `[${formattedData.name}] package.json formatted`)
+  // Repository URL
+  const directory = path.relative(
+    path.join(__dirname, '..'),
+    path.dirname(filepath),
+  )
+
+  formattedData['repository'] = {
+    type: 'git',
+    url: 'https://github.com/scalar/scalar.git',
+    directory,
   }
 
+  // Check whether the package.json needs to be updated
+  if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
+    printColor('green', `[${formattedData.name}] package.json formatted`)
+    return
+  }
+
+  // Update the package.json
   await fs
     .writeFile(filepath, JSON.stringify(formattedData, null, 2) + '\n')
     .catch((err) => console.error(err))
