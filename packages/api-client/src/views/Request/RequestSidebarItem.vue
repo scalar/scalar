@@ -446,7 +446,7 @@ function openCommandPaletteRequest() {
     </Draggable>
   </div>
   <ScalarModal
-    :size="'sm'"
+    :size="'xxs'"
     :state="deleteModal"
     :title="`Delete ${item.resourceTitle}`">
     <DeleteSidebarListElement
@@ -456,6 +456,7 @@ function openCommandPaletteRequest() {
       @delete="handleItemDelete" />
   </ScalarModal>
   <ScalarModal
+    :size="'xxs'"
     :state="renameModal"
     :title="`Rename ${item.resourceTitle}`">
     <ScalarTextField
