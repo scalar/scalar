@@ -12,11 +12,20 @@ import {
 } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import fs from 'node:fs'
-import { join } from 'path'
+import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
+
+/**
+ * A strange way to have only one Window and handle app links
+ *
+ * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#windows-and-linux-code
+ */
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+}
 
 todesktop.init({
   updateReadyAction: {
@@ -34,6 +43,17 @@ todesktop.init({
     },
   },
 })
+
+// Register app as the default for `scalar://` links
+if (process.defaultApp) {
+  if (process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('scalar', process.execPath, [
+      path.resolve(process.argv[1]),
+    ])
+  }
+} else {
+  app.setAsDefaultProtocolClient('scalar')
+}
 
 function createWindow(): void {
   // Load the previous state with fallback to defaults
@@ -56,7 +76,7 @@ function createWindow(): void {
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,
     },
   })
@@ -113,7 +133,7 @@ function createWindow(): void {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'))
   }
 
   // Menu
@@ -243,6 +263,24 @@ function createWindow(): void {
   Menu.setApplicationMenu(menu)
 }
 
+/**
+ * Handle app links on Windows and Linux
+ *
+ * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#windows-and-linux-code
+ */
+app.on('second-instance', async (_, commandLine) => {
+  // Get first browser window
+  const [mainWindow] = BrowserWindow.getAllWindows()
+
+  // Someone tried to run a second instance, we should focus our window.
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore()
+    mainWindow.focus()
+  }
+  // the commandLine is array of strings in which last element is the deep link url
+  await openAppLink(commandLine.pop())
+})
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -268,6 +306,15 @@ app.whenReady().then(() => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
+
+  /**
+   * Handle the `scalar://` protocol. In this case, we choose to show an Error Box.
+   *
+   * @source https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app#macos-code
+   */
+  app.on('open-url', async (_, appLink: string) => {
+    await openAppLink(appLink)
   })
 
   // Block all permission requests (but for notifications)
@@ -371,17 +418,53 @@ async function handleReadFile(
  * Handle the "Open…" menu item
  */
 async function handleFileOpenMenuItem(mainWindow: BrowserWindow) {
-  const path = await handleFileOpen()
+  const filePath = await handleFileOpen()
 
-  if (!path) {
+  if (!filePath) {
     return
   }
 
-  const content = await handleReadFile(undefined, path)
+  const content = await handleReadFile(undefined, filePath)
 
   if (!content) {
     return
   }
 
   mainWindow.webContents.send('importFile', content)
+}
+
+/**
+ * Takes a `scalar://` app link, fetches the content and passes it to the renderer process
+ */
+async function openAppLink(appLink?: string) {
+  // Check whether an app link is given
+  if (typeof appLink !== 'string') {
+    return
+  }
+
+  // Strip `scalar://`, decode URI
+  const url = decodeURIComponent(appLink.replace('scalar://', ''))
+
+  // Check whether it’s an URL
+  if (!url.length) {
+    return
+  }
+
+  // Fetch URL
+  console.log(`Fetching ${url} …`)
+  const result = await fetch(url)
+
+  // Error handling
+  if (!result.ok) {
+    dialog.showErrorBox(
+      'Failed to fetch the OpenAPI document',
+      `Tried to fetch ${url}, but received ${result.status} ${result.statusText}`,
+    )
+  }
+
+  // Get first browser window
+  const [mainWindow] = BrowserWindow.getAllWindows()
+
+  // Send to renderer process
+  mainWindow.webContents.send('importFile', await result.text())
 }

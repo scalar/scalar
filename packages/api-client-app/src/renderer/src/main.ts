@@ -46,16 +46,6 @@ window.electron.ipcRenderer?.on(
   },
 )
 
-// Open… menu
-window.electron.ipcRenderer?.on(
-  'importFile',
-  function (_: IpcRendererEvent, fileContent: string) {
-    if (fileContent) {
-      client.store.importSpecFile(fileContent)
-    }
-  },
-)
-
 // Drag and drop
 document.addEventListener('drop', drop)
 document.addEventListener('dragover', dragover)

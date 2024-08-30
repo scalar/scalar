@@ -14,7 +14,9 @@
       "url": "https://scalar.com"
     },
     "dependencies": {
-      "@scalar/api-client": null
+      "@scalar/api-client": null,
+      "@scalar/themes": null,
+      "@scalar/components": null
     }
   }
 }
