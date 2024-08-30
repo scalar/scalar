@@ -1,8 +1,28 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { fetchSpecFromUrl } from './fetchSpecFromUrl'
 
 const PROXY_PORT = 5051
+
+beforeAll(async () => {
+  // Check whether the proxy-server is running
+  try {
+    const result = await fetch(`http://127.0.0.1:${PROXY_PORT}`)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:proxy-server
+`)
+  }
+})
 
 describe('fetchSpecFromUrl', () => {
   it('fetches specifications (without a proxy)', async () => {

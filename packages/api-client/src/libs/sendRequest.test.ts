@@ -12,7 +12,7 @@ import {
   createRequestExample,
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { sendRequest } from './sendRequest'
 
@@ -39,6 +39,44 @@ function createRequestExampleServer(metaRequestPayload: MetaRequestPayload) {
     server,
   }
 }
+
+beforeAll(async () => {
+  // Check whether the proxy-server is running
+  try {
+    const result = await fetch(`http://127.0.0.1:${PROXY_PORT}`)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:proxy-server
+`)
+  }
+
+  // Check whether the void-server is running
+  try {
+    const result = await fetch(`http://127.0.0.1:${VOID_PORT}`)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:void-server
+`)
+  }
+})
 
 describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
