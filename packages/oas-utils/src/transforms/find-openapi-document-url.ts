@@ -1,8 +1,8 @@
 /**
- * Find an OpenAPI document in the HTML of @scalar/api-reference and other places.
+ * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.
  */
-export async function findOpenApiDocument(value?: string) {
+export async function findOpenApiDocumentUrl(value?: string) {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
     // https://*.json
@@ -47,6 +47,15 @@ function parseHtml(html?: string) {
 
   if (dataUrlMatch?.[1]) {
     return dataUrlMatch[1]
+  }
+
+  // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
+  const configurationUrl = html.match(
+    /&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/,
+  )
+
+  if (configurationUrl?.[1]) {
+    return configurationUrl[1]
   }
 
   return undefined

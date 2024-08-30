@@ -1,4 +1,4 @@
-import { findOpenApiDocument } from '@/transforms/find-openapi-document'
+import { findOpenApiDocumentUrl } from '@/transforms/find-openapi-document-url'
 import { describe, expect, it, vi } from 'vitest'
 
 global.fetch = vi.fn()
@@ -10,9 +10,9 @@ function createFetchResponse(data: string) {
   }
 }
 
-describe('findOpenApiDocument', () => {
+describe('findOpenApiDocumentUrl', () => {
   it('returns JSON urls', async () => {
-    const result = await findOpenApiDocument(
+    const result = await findOpenApiDocumentUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     )
 
@@ -22,7 +22,7 @@ describe('findOpenApiDocument', () => {
   })
 
   it('returns YAML urls', async () => {
-    const result = await findOpenApiDocument(
+    const result = await findOpenApiDocumentUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     )
 
@@ -30,7 +30,7 @@ describe('findOpenApiDocument', () => {
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
     )
 
-    const otherResult = await findOpenApiDocument(
+    const otherResult = await findOpenApiDocumentUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yml',
     )
 
@@ -60,7 +60,7 @@ describe('findOpenApiDocument', () => {
     // @ts-expect-error Mocking types are missing
     fetch.mockResolvedValue(createFetchResponse(html))
 
-    const result = await findOpenApiDocument('https://example.com/reference')
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
 
     expect(result).toBe(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
@@ -88,7 +88,38 @@ describe('findOpenApiDocument', () => {
     // @ts-expect-error Mocking types are missing
     fetch.mockResolvedValue(createFetchResponse(html))
 
-    const result = await findOpenApiDocument('https://example.com/reference')
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
+
+    expect(result).toBe('https://example.com/openapi.yaml')
+  })
+
+  it('finds URLs in some wrangled configuration object', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hono API Reference Demo</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+
+    <script
+      id="api-reference"
+      type="application/json"
+      data-configuration="{&amp;quot;spec&amp;quot;:{&amp;quot;url&amp;quot;:&amp;quot;/openapi.yaml&amp;quot;},&amp;quot;pageTitle&amp;quot;:&amp;quot;Hono API Reference Demo&amp;quot;}">
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+
+  </body>
+</html>`
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await findOpenApiDocumentUrl('https://example.com/reference')
 
     expect(result).toBe('https://example.com/openapi.yaml')
   })
