@@ -369,7 +369,7 @@ steps:
         '--build-arg',
         'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
         '-t',
-        'gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_ELECTRON}',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_API_CLIENT}',
         '-f',
         './packages/api-client-app/Dockerfile',
         '.',
@@ -377,7 +377,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-open'
     waitFor: ['build-open']
-    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_ELECTRON}']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_API_CLIENT}']
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     waitFor: ['push-open']
@@ -385,8 +385,8 @@ steps:
       [
         'run',
         'deploy',
-        '$_SERVICE_OPEN_ELECTRON',
-        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_ELECTRON}',
+        '$_SERVICE_OPEN_API_CLIENT',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_API_CLIENT}',
         '--region=$_REGION',
         '--platform=managed',
         '--allow-unauthenticated',
