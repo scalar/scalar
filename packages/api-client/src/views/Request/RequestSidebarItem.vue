@@ -384,10 +384,9 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
                   v-if="!isReadOnly && !isDraftCollection"
                   :item="item.entity"
                   :parentUids="parentUids"
-                  :resourceTitle="resourceTitle"
+                  :resourceTitle="item.resourceTitle"
                   @delete="deleteModal.show()"
                   @rename="openRenameModal" />
-                  :resourceTitle="item.resourceTitle" />
                 <span>&hairsp;</span>
               </div>
             </div>
