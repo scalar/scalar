@@ -172,6 +172,20 @@ describe('sendRequest', () => {
     })
   })
 
+  it('works with no content', async () => {
+    const { request, example, server } = createRequestExampleServer({
+      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/204` },
+    })
+
+    const result = await sendRequest(
+      request,
+      example,
+      server?.url + request.path,
+    )
+
+    expect(result?.response?.data).toBe('')
+  })
+
   // it('adds cookies as headers', async () => {
   //   const { request, example, server } = createRequestExampleServer({
   //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
