@@ -97,6 +97,7 @@ export const oasRequestSchema = z.object({
  * This object is directly converted to a spec operation during saving
  */
 const extendedRequestSchema = z.object({
+  type: z.literal('request').optional().default('request'),
   uid: nanoidSchema,
   /** Path Key */
   path: z.string(),

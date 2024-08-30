@@ -37,7 +37,6 @@ const {
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
-
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
@@ -53,8 +52,6 @@ watch(
   },
   { immediate: true },
 )
-
-console.log(activeWorkspaceCollections)
 
 const {
   searchText,
@@ -82,17 +79,9 @@ const handleHotKey = (event: HotKeyEvents) => {
     searchInputRef.value?.focus()
   }
 
-  if (event.navigateSearchResultsUp) {
-    navigateSearchResults('up')
-  }
-
-  if (event.navigateSearchResultsDown) {
-    navigateSearchResults('down')
-  }
-
-  if (event.selectSearchResult) {
-    selectSearchResult()
-  }
+  if (event.navigateSearchResultsUp) navigateSearchResults('up')
+  if (event.navigateSearchResultsDown) navigateSearchResults('down')
+  if (event.selectSearchResult) selectSearchResult()
 }
 
 onMounted(() => {
@@ -163,8 +152,8 @@ onBeforeUnmount(() => {
             :key="collection.uid"
             :isDraggable="!isReadonly && collection.info?.title !== 'Drafts'"
             :isDroppable="isDroppable"
-            :item="collection"
             :parentUids="[]"
+            :uid="collection.uid"
             @newTab="(name, uid) => emit('newTab', { name, uid })"
             @onDragEnd="handleDragEnd">
             <template #leftIcon>
