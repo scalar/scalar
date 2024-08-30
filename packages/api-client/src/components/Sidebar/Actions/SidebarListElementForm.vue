@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <form
+  <div
     class="text-base"
     @submit.prevent="emit('submit')">
     <slot />
@@ -40,7 +40,7 @@ const emit = defineEmits<{
         {{ label ?? 'Submit' }}
       </button>
     </div>
-  </form>
+  </div>
 </template>
 <style scoped>
 .delete-warning-button {
