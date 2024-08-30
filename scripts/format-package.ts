@@ -133,7 +133,7 @@ async function formatPackage(filepath: string) {
   }
 
   // Check whether the package.json needs to be updated
-  if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
+  if (JSON.stringify(data) === JSON.stringify(formattedData)) {
     return
   }
 
