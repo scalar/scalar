@@ -55,6 +55,10 @@ export const securitySchemeExampleValueSchema = z.union([
   oauthAuthorizationCodeExampleSchema,
 ])
 
+export type SecuritySchemeExampleValue = z.infer<
+  typeof securitySchemeExampleValueSchema
+>
+
 /**
  * Generates a base set of example data for a given securityScheme
  */
@@ -224,9 +228,11 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   'x-scalar-client-id': z.string().optional().default(''),
 })
 
-export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
-  extendedSecuritySchema,
-)
+export const securityOauthSchema = oasSecuritySchemeOauth2
+  .extend({
+    token: z.string().optional().default(''),
+  })
+  .merge(extendedSecuritySchema)
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 

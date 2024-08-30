@@ -18,6 +18,8 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { computed, ref, toRaw, watch } from 'vue'
 
+import RequestExampleAuth from './RequestExampleAuth.vue'
+
 defineProps<{
   title: string
 }>()
@@ -177,7 +179,7 @@ watch(
           </ScalarComboboxMultiselect>
         </DataTableHeader>
       </DataTableRow>
-      <!-- <RequestExampleAuth /> -->
+      <RequestExampleAuth />
     </DataTable>
   </ViewLayoutCollapse>
 </template>

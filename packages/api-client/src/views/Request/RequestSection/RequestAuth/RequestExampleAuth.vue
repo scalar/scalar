@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { OAuth2 } from '@/views/Request/components'
 import {
@@ -7,34 +9,74 @@ import {
   type SecuritySchemeGroup,
   type SecuritySchemeOption,
 } from '@/views/Request/consts'
+import type {
+  SecurityScheme,
+  SecuritySchemeExampleValue,
+} from '@scalar/oas-utils/entities/spec'
 import { camelToTitleWords } from '@scalar/oas-utils/helpers'
 import { capitalize, computed, ref } from 'vue'
+
+const {
+  activeCollection,
+  activeRequest,
+  activeExample,
+  isReadOnly,
+  requestExampleMutators,
+  securitySchemes,
+} = useWorkspace()
+
+const security = computed(() =>
+  Object.entries(activeExample.value?.auth ?? {}).map(([uid, example]) => ({
+    example,
+    scheme: securitySchemes[uid],
+  })),
+)
+
+function generateLabel(scheme: SecurityScheme) {
+  return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' ? scheme.flow.type : ''}`
+}
+
+function updateExampleValue<T extends SecuritySchemeExampleValue>(
+  uid: string,
+  /** Example instance added as property for type safety */
+  exampleAuth: T,
+  key: keyof T & string,
+  value: string,
+) {
+  if (!activeExample.value?.uid) return
+
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    `auth.${uid}.${key}`,
+    value as any,
+  )
+}
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="(scheme, index) in activeSecuritySchemes"
+    v-for="{ scheme, example } in security"
     :key="scheme.uid">
     <!-- Header -->
-    <DataTableRow
-      v-if="activeSecuritySchemes.length > 1"
-      class="group/delete">
+    <DataTableRow class="group/delete">
       <DataTableCell
         class="text-c-2 pl-2 text-xs font-medium flex items-center bg-b-2">
-        {{ labels[index] }}
+        {{ generateLabel(scheme) }}
       </DataTableCell>
     </DataTableRow>
 
     <!-- HTTP -->
-    <template v-if="scheme.type === 'http'">
+    <template v-if="scheme.type === 'http' && example.type === 'http'">
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :modelValue="scheme.value"
+          :modelValue="example.token"
           placeholder="Token"
           type="password"
-          @update:modelValue="(v) => updateScheme(scheme, 'value', v)">
+          @update:modelValue="
+            (v) => updateExampleValue(scheme.uid, example, 'token', v)
+          ">
           Bearer Token
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -45,20 +87,24 @@ import { capitalize, computed, ref } from 'vue'
           <RequestAuthDataTableInput
             :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
-            :modelValue="scheme.value"
+            :modelValue="example.username"
             placeholder="ScalarEnjoyer01"
             required
-            @update:modelValue="(v) => updateScheme(scheme, 'value', v)">
+            @update:modelValue="
+              (v) => updateExampleValue(scheme.uid, example, 'username', v)
+            ">
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
-            :modelValue="scheme.secondValue"
+            :modelValue="example.password"
             placeholder="xxxxxx"
             type="password"
-            @update:modelValue="(v) => updateScheme(scheme, 'secondValue', v)">
+            @update:modelValue="
+              (v) => updateExampleValue(scheme.uid, example, 'password', v)
+            ">
             Password
           </RequestAuthDataTableInput>
         </DataTableRow>
@@ -66,38 +112,30 @@ import { capitalize, computed, ref } from 'vue'
     </template>
 
     <!-- API Key -->
-    <template v-else-if="scheme.type === 'apiKey'">
+    <template v-else-if="scheme.type === 'apiKey' && example.type === 'apiKey'">
       <!-- Custom auth -->
       <template v-if="!isReadOnly">
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`api-key-name-${scheme.uid}`"
+            disabled
             :modelValue="scheme.name"
-            placeholder="api-key"
-            @update:modelValue="(v) => updateScheme(scheme, 'name', v)">
+            placeholder="api-key">
             Name
           </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`api-key-value-add-${scheme.uid}`"
-            :modelValue="scheme.value"
+            :modelValue="example.value"
             placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-            @update:modelValue="(v) => updateScheme(scheme, 'value', v)">
+            @update:modelValue="
+              (v) => updateExampleValue(scheme.uid, example, 'value', v)
+            ">
             Value
           </RequestAuthDataTableInput>
         </DataTableRow>
       </template>
-
-      <DataTableRow v-else>
-        <RequestAuthDataTableInput
-          :id="`api-key-value-${scheme.uid}`"
-          :modelValue="scheme.value"
-          placeholder="Value"
-          @update:modelValue="(v) => updateScheme(scheme, 'value', v)">
-          {{ scheme.name }}
-        </RequestAuthDataTableInput>
-      </DataTableRow>
     </template>
 
     <!-- OAuth 2 -->
