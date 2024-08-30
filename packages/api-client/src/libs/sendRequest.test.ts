@@ -17,7 +17,7 @@ import { describe, expect, it } from 'vitest'
 import { sendRequest } from './sendRequest'
 
 const PROXY_PORT = 5051
-const ECHO_PORT = 5052
+const VOID_PORT = 5052
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload
@@ -59,7 +59,7 @@ describe('sendRequest', () => {
 
   it('reaches the echo server *without* the proxy', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
     })
 
     const result = await sendRequest(
@@ -77,7 +77,7 @@ describe('sendRequest', () => {
 
   it('reaches the echo server *with* the proxy', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
     })
 
     const result = await sendRequest(
@@ -94,7 +94,7 @@ describe('sendRequest', () => {
 
   it('replaces variables in urls', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestExamplePayload: {
         parameters: {
           path: [
@@ -118,7 +118,7 @@ describe('sendRequest', () => {
 
   it('sends query parameters', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestExamplePayload: {
         parameters: {
           query: [
@@ -145,7 +145,7 @@ describe('sendRequest', () => {
 
   it('merges query parameters', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}?example=parameter` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}?example=parameter` },
       requestPayload: { path: '' },
       requestExamplePayload: {
         parameters: {
@@ -176,7 +176,7 @@ describe('sendRequest', () => {
 
   it('works with no content', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/204` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/204` },
     })
 
     const result = await sendRequest(
@@ -190,7 +190,7 @@ describe('sendRequest', () => {
 
   // it('adds cookies as headers', async () => {
   //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
   //     requestExamplePayload: {
   //       parameters: {
   //         cookies: [
@@ -219,7 +219,7 @@ describe('sendRequest', () => {
 
   // it('merges cookies', async () => {
   //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
   //     requestExamplePayload: {
   //       parameters: {
   //         cookies: [
@@ -254,7 +254,7 @@ describe('sendRequest', () => {
 
   it('skips the proxy for requests to localhost', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1` },
       requestPayload: { path: '' },
     })
 
@@ -288,7 +288,7 @@ describe('sendRequest', () => {
 
   it('keeps the trailing slash', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1/` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1/` },
       requestPayload: { path: '' },
     })
 
@@ -306,7 +306,7 @@ describe('sendRequest', () => {
 
   it('sends a multipart/form-data request with string values', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestPayload: { path: '', method: 'POST' },
       requestExamplePayload: {
         body: {
@@ -352,7 +352,7 @@ describe('sendRequest', () => {
    */
   it.todo('sends a multipart/form-data request with files', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestPayload: { path: '', method: 'POST' },
       requestExamplePayload: {
         body: {
