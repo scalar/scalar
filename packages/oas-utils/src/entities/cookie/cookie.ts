@@ -49,4 +49,3 @@ export const cookieSchema = z.object({
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie
  */
 export type Cookie = z.infer<typeof cookieSchema>
-export type CookiePayload = z.input<typeof cookieSchema>

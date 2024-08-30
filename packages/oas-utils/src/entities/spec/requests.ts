@@ -1,7 +1,6 @@
 import { nanoidSchema } from '@/entities/shared'
 import { oasExternalDocumentationSchema } from '@/entities/spec/spec-objects'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { AxiosResponse } from 'axios'
 import { type ZodSchema, z } from 'zod'
 
 import { oasParameterSchema } from './parameters'
@@ -23,9 +22,10 @@ export const requestMethods = [
 export type RequestMethod = (typeof requestMethods)[number]
 
 /** A single set of populated values for a sent request */
-export type ResponseInstance = AxiosResponse & {
+export type ResponseInstance = Response & {
   /** Time in ms the request took */
   duration: number
+  data: any
 }
 
 /** A single request/response set to save to the history stack */

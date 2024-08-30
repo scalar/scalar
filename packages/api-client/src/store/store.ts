@@ -149,6 +149,7 @@ export const createWorkspaceStore = (
     ),
   )
 
+  /** TODO: need to merge collection environments into the global space */
   const activeEnvironment = computed(
     () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
   )

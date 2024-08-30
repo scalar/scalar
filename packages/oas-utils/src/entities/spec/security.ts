@@ -12,8 +12,9 @@ const apiKeyExampleSchema = z.object({
 
 const httpExampleSchema = z.object({
   type: z.literal('http').default('http'),
-  username: z.string(),
-  password: z.string(),
+  username: z.string().default(''),
+  password: z.string().default(''),
+  token: z.string().default(''),
 })
 
 const oauthImplicitExampleSchema = z.object({
