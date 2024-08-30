@@ -1,5 +1,5 @@
 ---
-'@scalar/oas-utils': patch
+'scalar-api-client': patch
 ---
 
-feat: new findOpenApiDocument helper
+feat: find OpenAPI document URLs in various sources
