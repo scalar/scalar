@@ -6,8 +6,8 @@ import { nanoidSchema } from '../shared'
 // Request example values for Security Schemes
 
 const apiKeyExampleSchema = z.object({
-  type: z.literal('apiKey').default('apiKey'),
-  value: z.string(),
+  type: z.literal('apiKey'),
+  value: z.string().default(''),
 })
 
 const httpExampleSchema = z.object({
@@ -18,12 +18,12 @@ const httpExampleSchema = z.object({
 })
 
 const oauthImplicitExampleSchema = z.object({
-  type: z.literal('oauth-implicit').default('oauth-implicit'),
+  type: z.literal('oauth-implicit'),
   token: z.string().default(''),
 })
 
 const oauthPasswordExampleSchema = z.object({
-  type: z.literal('oauth-password').default('oauth-password'),
+  type: z.literal('oauth-password'),
   token: z.string().default(''),
   username: z.string().default(''),
   password: z.string().default(''),
@@ -31,13 +31,13 @@ const oauthPasswordExampleSchema = z.object({
 })
 
 const oauthClientCredentialsExampleSchema = z.object({
-  type: z.literal('oauth-clientCredentials').default('oauth-clientCredentials'),
+  type: z.literal('oauth-clientCredentials'),
   token: z.string().default(''),
   clientSecret: z.string().default(''),
 })
 
 const oauthAuthorizationCodeExampleSchema = z.object({
-  type: z.literal('oauth-authorizationCode').default('oauth-authorizationCode'),
+  type: z.literal('oauth-authorizationCode'),
   token: z.string().default(''),
   clientSecret: z.string().default(''),
 })
@@ -54,6 +54,10 @@ export const securitySchemeExampleValueSchema = z.union([
   oauthClientCredentialsExampleSchema,
   oauthAuthorizationCodeExampleSchema,
 ])
+
+export type SecuritySchemeExampleValue = z.infer<
+  typeof securitySchemeExampleValueSchema
+>
 
 /**
  * Generates a base set of example data for a given securityScheme
@@ -224,9 +228,11 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   'x-scalar-client-id': z.string().optional().default(''),
 })
 
-export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
-  extendedSecuritySchema,
-)
+export const securityOauthSchema = oasSecuritySchemeOauth2
+  .extend({
+    token: z.string().optional().default(''),
+  })
+  .merge(extendedSecuritySchema)
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 
