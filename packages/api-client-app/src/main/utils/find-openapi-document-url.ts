@@ -19,14 +19,20 @@ export async function findOpenApiDocumentUrl(value?: string) {
     }
 
     // Fetch URL
-    const result = await fetch(value)
+    try {
+      const result = await fetch(value)
 
-    if (result.ok) {
-      const urlOrPath = parseHtml(await result.text())
+      if (result.ok) {
+        const urlOrPath = parseHtml(await result.text())
 
-      if (urlOrPath) {
-        return makeRelativeUrlsAbsolute(value, urlOrPath)
+        if (urlOrPath) {
+          return makeRelativeUrlsAbsolute(value, urlOrPath)
+        }
+      } else {
+        console.warn(`[findOpenApiDocumentUrl] Failed to fetch ${value}`)
       }
+    } catch (error) {
+      console.error(`[findOpenApiDocumentUrl] Failed to fetch ${value}`, error)
     }
   }
 

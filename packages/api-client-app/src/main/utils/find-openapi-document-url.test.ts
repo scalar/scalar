@@ -1,5 +1,6 @@
-import { findOpenApiDocumentUrl } from '@/transforms/find-openapi-document-url'
 import { describe, expect, it, vi } from 'vitest'
+
+import { findOpenApiDocumentUrl } from './find-openapi-document-url'
 
 global.fetch = vi.fn()
 
