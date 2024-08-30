@@ -1,5 +1,38 @@
 # @scalar/api-reference
 
+## 1.25.8
+
+### Patch Changes
+
+- 7595fc5: chore: migrate @scalar/snippetz to scalar/scalar
+- 18744d4: feat(api-reference): lazy loading collapsible webhooks
+- e67f5a8: chore(api-client): removed axios dependency
+- 725dfa0: feat: download from OpenAPI document URL (if available)
+- fdd6d16: fix: authentication form submits on enter
+- Updated dependencies [b4f9f97]
+- Updated dependencies [7595fc5]
+- Updated dependencies [0afb293]
+- Updated dependencies [4b52f29]
+- Updated dependencies [294ba08]
+- Updated dependencies [b4f9f97]
+- Updated dependencies [18744d4]
+- Updated dependencies [e67f5a8]
+- Updated dependencies [b4f9f97]
+- Updated dependencies [044fd7d]
+- Updated dependencies [b4f9f97]
+- Updated dependencies [b63be39]
+- Updated dependencies [b231e7d]
+- Updated dependencies [152c016]
+- Updated dependencies [b4f9f97]
+  - @scalar/openapi-parser@0.8.0
+  - @scalar/snippetz@0.2.1
+  - @scalar/oas-utils@0.2.40
+  - @scalar/api-client@2.0.61
+  - @scalar/code-highlight@0.0.11
+  - @scalar/openapi-types@0.1.0
+  - @scalar/components@0.12.42
+  - @scalar/types@0.0.6
+
 ## 1.25.7
 
 ### Patch Changes

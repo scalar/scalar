@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.11
+
+### Patch Changes
+
+- 18744d4: feat(code-highlight): don't force markdown paragraph color
+
 ## 0.0.10
 
 ### Patch Changes

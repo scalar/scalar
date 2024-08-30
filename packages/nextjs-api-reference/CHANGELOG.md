@@ -1,5 +1,12 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.84
+
+### Patch Changes
+
+- 44e7e75: feat(nextjs-openapi): added next.js openapi generation integration
+  - @scalar/types@0.0.6
+
 ## 0.4.83
 
 ### Patch Changes

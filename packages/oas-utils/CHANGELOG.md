@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.40
+
+### Patch Changes
+
+- 0afb293: feat: request bodies for multipart form data and url encoded form data
+- e67f5a8: chore(api-client): removed axios dependency
+- b63be39: fix: incorrect example for schemas with anyOf
+- 152c016: feat: add environment selector to addressbar
+  - @scalar/types@0.0.6
+
 ## 0.2.39
 
 ### Patch Changes
