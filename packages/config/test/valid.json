@@ -16,12 +16,26 @@
         },
         {
           "path": "src/page-large.md",
-          "type": "page"
+          "type": "page",
+          "children": [
+            {
+              "url": "https://scalar.com/",
+              "type": "link",
+              "name": "Nested link"
+            }
+          ]
         },
         {
           "path": "src/page-test.md",
           "type": "page",
-          "name": "A weird test page!"
+          "name": "A weird test page!",
+          "children": [
+            {
+              "path": "src/page-nested.md",
+              "type": "page",
+              "name": "Nested page"
+            }
+          ]
         }
       ]
     }
