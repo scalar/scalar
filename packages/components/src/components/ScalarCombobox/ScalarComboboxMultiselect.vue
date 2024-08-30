@@ -18,7 +18,7 @@ defineEmits<{
   (e: 'update:modelValue', v: Option[]): void
 }>()
 
-/** Propogate up the popover ref */
+/** Propagate up the popover ref */
 const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)
 
 defineExpose({ comboboxPopoverRef })
