@@ -188,11 +188,6 @@ const handleSelect = (ev: KeyboardEvent) => {
 const handleHotKey = (event: HotKeyEvents) => {
   if (!modalState.open) return
   if (event.closeModal) closeHandler()
-  if (event.navigateSearchResultsUp)
-    handleArrowKey('up', event.navigateSearchResultsUp)
-  if (event.navigateSearchResultsDown)
-    handleArrowKey('down', event.navigateSearchResultsDown)
-  if (event.selectSearchResult) handleSelect(event.selectSearchResult)
 }
 
 onMounted(() => {
@@ -232,7 +227,10 @@ onBeforeUnmount(() => {
           autofocus
           class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
           placeholder="Search commands..."
-          type="text" />
+          type="text"
+          @keydown.down.stop="handleArrowKey('down', $event)"
+          @keydown.enter.stop="handleSelect"
+          @keydown.up.stop="handleArrowKey('up', $event)" />
       </div>
       <template
         v-for="group in availableCommands"
