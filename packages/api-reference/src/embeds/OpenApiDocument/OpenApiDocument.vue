@@ -1,12 +1,8 @@
 <script lang="ts" setup>
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
-import {
-  type ErrorObject,
-  type OpenAPI,
-  dereference,
-  load,
-} from '@scalar/openapi-parser'
+import { type ErrorObject, dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { provide, ref, toRef, watch } from 'vue'
 
 import {

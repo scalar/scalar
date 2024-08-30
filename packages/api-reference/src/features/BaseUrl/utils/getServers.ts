@@ -3,7 +3,7 @@
  * We want to move this code over to @scalar/api-client and just tap into the api client workspace eventually, though.
  */
 import { concatenateUrlAndPath, findVariables } from '@scalar/oas-utils/helpers'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 
 export type DefaultServerUrlOption = {
