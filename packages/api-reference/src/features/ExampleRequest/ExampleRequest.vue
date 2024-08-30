@@ -35,7 +35,9 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import {
   GLOBAL_SECURITY_SYMBOL,
+  createRequest,
   getApiClientRequest,
+  getExampleCode,
   getHarRequest,
 } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
@@ -133,7 +135,7 @@ async function generateSnippet() {
   }
 
   // Generate a request object
-  const request = getHarRequest(
+  const harRequest = getHarRequest(
     {
       url: getUrlFromServerState(serverState),
     },
@@ -157,27 +159,12 @@ async function generateSnippet() {
       ? httpClient.clientKey
       : null
 
-  const targetKey = httpClient.targetKey.replace('javascript', 'js')
+  const targetKey = httpClient.targetKey
 
-  if (clientKey && snippetz().hasPlugin(targetKey, clientKey)) {
-    return (
-      snippetz().print(targetKey as TargetId, clientKey, request as any) ?? ''
-    )
-  }
-
-  // Use httpsnippet-lite for other languages
-  try {
-    const snippet = new HTTPSnippet(request)
-    const result = await snippet.convert(
-      httpClient.targetKey,
-      httpClient.clientKey,
-    )
-
-    return decodeURIComponent(result as string)
-  } catch (e) {
-    console.error('[ExampleRequest]', e)
-    return ''
-  }
+  return (
+    (await getExampleCode(harRequest as any, targetKey, clientKey as string)) ??
+    ''
+  )
 }
 
 const generatedCode = asyncComputed<string>(async () => {
@@ -209,8 +196,8 @@ const language = computed(() => {
   const key =
     // Specified language
     localHttpClient.value?.targetKey === 'customExamples'
-      ? customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext'
+      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+        'plaintext')
       : // Or language for the globally selected HTTP client
         httpClient.targetKey
 
