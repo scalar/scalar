@@ -12,13 +12,13 @@ const emit = defineEmits<{
 }>()
 </script>
 <template>
-  <div
-    class="text-base"
+  <form
+    class="flex flex-col gap-4 text-base"
     @submit.prevent="emit('submit')">
     <slot />
-    <div>
+    <div class="flex justify-between">
       <button
-        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer"
+        class="border text-left bg-b-1 focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer"
         type="button"
         @click="emit('cancel')">
         <ScalarIcon
@@ -29,7 +29,7 @@ const emit = defineEmits<{
         Cancel
       </button>
       <button
-        class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer delete-warning-button"
+        class="bg-red text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer delete-warning-button"
         :error="danger"
         type="submit"
         @click="emit('submit')">
@@ -41,14 +41,15 @@ const emit = defineEmits<{
         {{ label ?? 'Submit' }}
       </button>
     </div>
-  </div>
+  </form>
 </template>
 <style scoped>
 .delete-warning-button {
+  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
   color: var(--scalar-color-red);
 }
 .delete-warning-button:hover,
 .delete-warning-button:focus {
-  background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
+  background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
 }
 </style>
