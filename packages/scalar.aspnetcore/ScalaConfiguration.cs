@@ -1,6 +1,4 @@
-﻿using static Scalar.AspNetCore.ScalarClients;
-
-namespace Scalar.AspNetCore;
+﻿namespace Scalar.AspNetCore;
 
 internal class ScalaConfiguration
 {
@@ -16,10 +14,10 @@ internal class ScalaConfiguration
     public string? ForceDarkModeState { get; set; }
     public string? CustomCss { get; init; }
     public string? SearchHotkey { get; init; }
-    public string[] HiddenClients { get; init; } = Array.Empty<string>();
+    public Dictionary<string, string[]>? HiddenClients { get; init; }
     public Dictionary<string, string>? Metadata { get; init; }
     public ScalarAuthenticationOptions? Authentication { get; init; }
-    public ScalarDefaultHttpClient? DefaultHttpClient { get; init; }
+    public DefaultHttpClientConfig? DefaultHttpClient { get; init; }
 
     public ScalaConfiguration(ScalarOptions options)
     {
@@ -34,50 +32,93 @@ internal class ScalaConfiguration
         WithDefaultFonts = options.WithDefaultFonts;
         CustomCss = options.CustomCss;
         SearchHotkey = options.SearchHotkey;
-        DefaultHttpClient = options.DefaultHttpClient;
         Metadata = options.Metadata.Any() ? options.Metadata : null;
         Authentication = options.Authentication.Enabled ? options.Authentication : null;
         HiddenClients = GetHiddenClients(options);
+        DefaultHttpClient = new DefaultHttpClientConfig(options.DefaultHttpClient);
     }
 
-    private string[] GetHiddenClients(ScalarOptions options)
+    private Dictionary<string, string[]>? GetHiddenClients(ScalarOptions options)
     {
-        var clients = GetAllClientKeys();
+        var targets = ProcessOptions(options);
 
+        if (targets is null) 
+            return null;
+
+        return targets.ToDictionary(k => 
+            k.Key.ToString().ToLower(), 
+            k => k.Value.Select(v => v.GetDescription()).ToArray()
+        );
+    }
+
+    private Dictionary<ScalarTargets, ScalarClients[]>? ProcessOptions(ScalarOptions options)
+    {
         if (options.HiddenClients)
-            return clients;
+            return ClientOptions;
 
-        if (!options.EnabledClients.Any())
-            return Array.Empty<string>();
+        if (!options.EnabledTargets.Any() &&
+            !options.EnabledClients.Any())
+            return null;
 
-        return clients
-            .Except(options.EnabledClients)
-            .ToArray();
+        var targets = ClientOptions
+            .Where(g => !options.EnabledTargets.Contains(g.Key))
+            .ToDictionary();
+
+        var selected = new Dictionary<ScalarTargets, ScalarClients[]>();
+        foreach(var item in ClientOptions)
+        {
+            if (options.EnabledTargets.Any() && 
+                !options.EnabledTargets.Contains(item.Key))
+            {
+                selected.Add(item.Key, item.Value);
+                continue;
+            }
+
+            if (options.EnabledClients.Any())
+            {
+                var clients = item.Value
+                    .Where(client => !options.EnabledClients.Contains(client))
+                    .ToArray();
+
+                if (clients.Any())
+                    selected.Add(item.Key, clients);
+            }
+        }
+
+        return selected;
     }
 
-    private string[] GetAllClientKeys()
+    private Dictionary<ScalarTargets, ScalarClients[]> ClientOptions => new Dictionary<ScalarTargets, ScalarClients[]>
     {
-        var options = new List<string>
-        {
-            Clojure.CLJ_HTTP,
-            CSharp.HTTPCLIENT, CSharp.RESTSHARP,
-            Go.NATIVE,
-            Http.HTTP1_1,
-            Java.ASYNCHTTP, Java.NETHTTP, Java.OKHTTP, Java.UNIREST,
-            JavaScript.XHR, JavaScript.AXIOS, JavaScript.FETCH, JavaScript.JQUERY,
-            Kotlin.OKHTTP,
-            Node.UNDICI, Node.NATIVE, Node.REQUEST, Node.UNIREST, Node.AXIOS, Node.FETCH,
-            ObjC.NSURLSESSION,
-            OCaml.COHTTP,
-            PHP.CURL, PHP.GUZZLE, PHP.HTTP1, PHP.HTTP2,
-            PowerShell.WEBREQUEST, PowerShell.RESTMETHOD,
-            Python.PYTHON3, Python.REQUESTS,
-            R.HTTR,
-            Ruby.NATIVE,
-            Shell.CURL, Shell.HTTPIE, Shell.WGET,
-            Swift.NSURLSESSION
-        };
+        { ScalarTargets.C, new [] { ScalarClients.LIBCURL } },
+        { ScalarTargets.Clojure, new [] { ScalarClients.CLJ_HTTP } },
+        { ScalarTargets.CSharp, new [] { ScalarClients.HTTPCLIENT, ScalarClients.RESTSHARP } },
+        { ScalarTargets.Http, new [] { ScalarClients.HTTP1_1 } },
+        { ScalarTargets.Java, new [] { ScalarClients.ASYNCHTTP, ScalarClients.NETHTTP, ScalarClients.OKHTTP, ScalarClients.UNIREST } },
+        { ScalarTargets.JavaScript, new [] { ScalarClients.XHR, ScalarClients.AXIOS, ScalarClients.FETCH, ScalarClients.JQUERY } },
+        { ScalarTargets.Node, new [] { ScalarClients.UNDICI, ScalarClients.NATIVE, ScalarClients.REQUEST, ScalarClients.UNIREST, ScalarClients.AXIOS, ScalarClients.FETCH } },
+        { ScalarTargets.ObjC, new [] { ScalarClients.NSURLSESSION } },
+        { ScalarTargets.OCaml, new [] { ScalarClients.COHTTP } },
+        { ScalarTargets.PHP, new [] { ScalarClients.CURL, ScalarClients.GUZZLE, ScalarClients.HTTP1, ScalarClients.HTTP2 } },
+        { ScalarTargets.PowerShell, new [] { ScalarClients.WEBREQUEST, ScalarClients.RESTMETHOD } },
+        { ScalarTargets.Python, new [] { ScalarClients.PYTHON3, ScalarClients.REQUESTS } },
+        { ScalarTargets.R, new [] { ScalarClients.HTTR } },
+        { ScalarTargets.Ruby, new [] { ScalarClients.NATIVE } },
+        { ScalarTargets.Shell, new [] { ScalarClients.CURL, ScalarClients.HTTPIE, ScalarClients.WGET } },
+        { ScalarTargets.Swift, new [] { ScalarClients.NSURLSESSION } },
+        { ScalarTargets.Go, new [] { ScalarClients.NATIVE } },
+        { ScalarTargets.Kotlin, new [] { ScalarClients.OKHTTP } },
+    };
 
-        return options.Distinct().ToArray();
+    public class DefaultHttpClientConfig
+    {
+        public string TargetKey { get; init; } = string.Empty;
+        public string ClientKey { get; init; } = string.Empty;
+
+        public DefaultHttpClientConfig(ScalarDefaultHttpClient options) 
+        { 
+            TargetKey = options.TargetKey.ToString().ToLower();
+            ClientKey = options.ClientKey.GetDescription();
+        }
     }
 }

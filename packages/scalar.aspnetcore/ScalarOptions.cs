@@ -96,7 +96,14 @@ public class ScalarOptions
     /// </summary>
     /// <value>The default value is <see cref="Array.Empty"/>.</value>
     /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
-    public string[] EnabledClients { get; set; } = Array.Empty<string>();
+    public ScalarClients[] EnabledClients { get; set; } = Array.Empty<ScalarClients>();
+
+    /// <summary>
+    /// You can pass an array of HTTPSnippet tarjets that you want to display in the clients menu.
+    /// </summary>
+    /// <value>The default value is <see cref="Array.Empty"/>.</value>
+    /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
+    public ScalarTargets[] EnabledTargets { get; set; } = Array.Empty<ScalarTargets>();
 
     /// <summary>
     /// You can pass information to the config object to configure meta information out of the box.
@@ -192,11 +199,11 @@ public sealed class ScalarDefaultHttpClient
     /// <summary>
     /// Default display target
     /// </summary>
-    /// <value>The default value is <see cref="ScalarClients.Shell.KEY"/>.</value>
-    public string TargetKey { get; set; } = ScalarClients.Shell.KEY;
+    /// <value>The default value is <see cref="ScalarTargets.Shell"/>.</value>
+    public ScalarTargets TargetKey { get; set; } = ScalarTargets.Shell;
     /// <summary>
     /// Default display client
     /// </summary>
-    /// <value>The default value is <see cref="ScalarClients.Shell.CURL"/>.</value>
-    public string ClientKey { get; set; } = ScalarClients.Shell.CURL;
+    /// <value>The default value is <see cref="ScalarClients.CURL"/>.</value>
+    public ScalarClients ClientKey { get; set; } = ScalarClients.CURL;
 }
