@@ -84,13 +84,13 @@ const { specification } = filter(specification, (schema) => !schema?.['x-interna
 
 There’s an `upgrade` command to upgrade all your OpenAPI specifications to the latest OpenAPI version.
 
-> ⚠️ Currently, only an upgrade from OpenAPI 3.0 to OpenAPI 3.1 is supported. Swagger 2.0 is not supported (yet).
+> ⚠️ The upgrade from Swagger 2.0 is still experimental and probably lacks features.
 
 ```ts
 import { upgrade } from '@scalar/openapi-parser'
 
 const { specification } = upgrade({
-  openapi: '3.0.0',
+  swagger: '2.0',
   info: {
     title: 'Hello World',
     version: '1.0.0',
