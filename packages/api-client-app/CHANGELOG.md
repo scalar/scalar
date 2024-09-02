@@ -1,5 +1,12 @@
 # scalar-api-client
 
+## 0.1.34
+
+### Patch Changes
+
+- 48d7ad5: fix: repository URL in package.json
+  - @scalar/api-client@2.0.62
+
 ## 0.1.33
 
 ### Patch Changes
