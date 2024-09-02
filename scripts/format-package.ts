@@ -109,6 +109,18 @@ async function formatPackage(filepath: string) {
     }
   })
 
+  // Repository URL
+  const directory = path.relative(
+    path.join(__dirname, '..'),
+    path.dirname(filepath),
+  )
+
+  formattedData['repository'] = {
+    type: 'git',
+    url: 'https://github.com/scalar/scalar.git',
+    directory,
+  }
+
   // Validate before sorting
   // Check that required scripts are entered
   validatePackageScripts(formattedData['scripts'], formattedData.name)
@@ -120,10 +132,12 @@ async function formatPackage(filepath: string) {
     }
   })
 
-  if (JSON.stringify(data) !== JSON.stringify(formattedData)) {
-    printColor('green', `[${formattedData.name}] package.json formatted`)
+  // Check whether the package.json needs to be updated
+  if (JSON.stringify(data) === JSON.stringify(formattedData)) {
+    return
   }
 
+  // Update the package.json
   await fs
     .writeFile(filepath, JSON.stringify(formattedData, null, 2) + '\n')
     .catch((err) => console.error(err))
