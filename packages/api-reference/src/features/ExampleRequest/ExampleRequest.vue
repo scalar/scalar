@@ -168,10 +168,12 @@ async function generateSnippet() {
   // Use httpsnippet-lite for other languages
   try {
     const snippet = new HTTPSnippet(request)
-    return (await snippet.convert(
+    const result = await snippet.convert(
       httpClient.targetKey,
       httpClient.clientKey,
-    )) as string
+    )
+
+    return decodeURIComponent(result as string)
   } catch (e) {
     console.error('[ExampleRequest]', e)
     return ''
