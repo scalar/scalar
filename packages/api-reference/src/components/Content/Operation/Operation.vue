@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed } from 'vue'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
-import { useHttpClientStore } from '../../../stores'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {
@@ -18,30 +16,10 @@ import EndpointPath from './EndpointPath.vue'
 import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 
-const props = defineProps<{
+defineProps<{
   id?: string
   operation: TransformedOperation
 }>()
-
-const { availableTargets } = useHttpClientStore()
-
-const customRequestExamples = computed(() => {
-  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
-
-  for (const key of keys) {
-    if (
-      props.operation.information?.[
-        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
-      ]
-    ) {
-      return props.operation.information[
-        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
-      ]
-    }
-  }
-
-  return null
-})
 </script>
 <template>
   <Section
@@ -62,10 +40,7 @@ const customRequestExamples = computed(() => {
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest
-              v-if="availableTargets.length"
-              :customExamples="customRequestExamples"
-              :operation="operation">
+            <ExampleRequest :operation="operation">
               <template #header>
                 <EndpointPath
                   class="example-path"

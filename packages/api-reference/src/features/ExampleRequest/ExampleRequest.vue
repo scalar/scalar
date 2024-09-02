@@ -11,7 +11,6 @@ import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import { type TargetId, snippetz } from '@scalar/snippetz'
 import type {
-  CustomRequestExample,
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
@@ -44,7 +43,6 @@ import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
-  customExamples?: CustomRequestExample[] | null
   operation: TransformedOperation
 }>()
 
@@ -67,6 +65,26 @@ const {
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
 
+const customRequestExamples = computed(() => {
+  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
+
+  for (const key of keys) {
+    if (
+      props.operation.information?.[
+        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
+      ]
+    ) {
+      return (
+        props.operation.information[
+          key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
+        ] ?? []
+      )
+    }
+  }
+
+  return []
+})
+
 /** Use the selected custom example or the globally selected HTTP client */
 const localHttpClient = ref<
   | HttpClientState
@@ -76,7 +94,7 @@ const localHttpClient = ref<
     }
 >(
   // Default to first custom example
-  props.customExamples?.length
+  customRequestExamples.value.length
     ? {
         targetKey: 'customExamples',
         clientKey: 0,
@@ -109,7 +127,9 @@ const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
 async function generateSnippet() {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
-    return props.customExamples?.[localHttpClient.value.clientKey]?.source ?? ''
+    return (
+      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
+    )
   }
 
   // Generate a request object
@@ -187,7 +207,7 @@ const language = computed(() => {
   const key =
     // Specified language
     localHttpClient.value?.targetKey === 'customExamples'
-      ? props.customExamples?.[localHttpClient.value.clientKey]?.lang ??
+      ? customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
         'plaintext'
       : // Or language for the globally selected HTTP client
         httpClient.targetKey
@@ -223,11 +243,11 @@ const options = computed(() => {
   })
 
   // Add entries for all available custom examples
-  if (props.customExamples?.length) {
+  if (customRequestExamples.value.length) {
     entries.unshift({
       value: 'customExamples',
       label: 'Examples',
-      options: props.customExamples.map((example, index) => {
+      options: customRequestExamples.value.map((example, index) => {
         return {
           value: JSON.stringify({
             targetKey: 'customExamples',
@@ -254,7 +274,9 @@ function updateHttpClient(value: string) {
 }
 </script>
 <template>
-  <Card class="dark-mode">
+  <Card
+    v-if="availableTargets.length || customRequestExamples.length"
+    class="dark-mode">
     <CardHeader muted>
       <div class="request-header">
         <HttpMethod
@@ -271,7 +293,7 @@ function updateHttpClient(value: string) {
           @update:modelValue="updateHttpClient">
           <template v-if="localHttpClient.targetKey === 'customExamples'">
             {{
-              props.customExamples?.[localHttpClient.clientKey].label ??
+              customRequestExamples[localHttpClient.clientKey].label ??
               'Example'
             }}
           </template>

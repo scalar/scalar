@@ -1,6 +1,5 @@
+import type { ServerState } from '#legacy'
 import { replaceVariables } from '@scalar/oas-utils/helpers'
-
-import type { ServerState } from '../types'
 
 /**
  * Get the URL from the server state.
