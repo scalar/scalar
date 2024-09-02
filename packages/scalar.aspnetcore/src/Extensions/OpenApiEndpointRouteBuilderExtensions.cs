@@ -20,7 +20,9 @@ public static class OpenApiEndpointRouteBuilderExtensions
         configureOptions(options);
 
         if (!options.EndpointPathPrefix.Contains(DocumentName))
+        {
             throw new ArgumentException($"`EndpointPathPrefix` must define `{DocumentName}`.");
+        }
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
             {

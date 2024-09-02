@@ -111,19 +111,25 @@ internal class ScalarConfiguration
                 continue;
             }
 
-            if (options.EnabledClients.Length == 0) continue;
+            if (options.EnabledClients.Length == 0)
+            {
+                continue;
+            }
+
             var clients = item.Value
                 .Where(client => !options.EnabledClients.Contains(client))
                 .ToArray();
 
             if (clients.Length != 0)
+            {
                 selected.Add(item.Key, clients);
+            }
         }
 
         return selected;
     }
 
-    internal class DefaultHttpClientConfig
+    internal sealed class DefaultHttpClientConfig
     {
         public required string TargetKey { get; init; }
         public required string ClientKey { get; init; }
