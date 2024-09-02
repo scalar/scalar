@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.41
+
+### Patch Changes
+
+- f931ac7: fix: displays variable in curly braces when empty
+
 ## 0.2.40
 
 ### Patch Changes

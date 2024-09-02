@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.9
+
+### Patch Changes
+
+- f931ac7: fix: displays variable in curly braces when empty
+- ae421ea: feat: add ExampleRequest embed
+- 8ac7d00: style: no italic for the path variable
+- Updated dependencies [5bd8337]
+- Updated dependencies [f931ac7]
+- Updated dependencies [48d7ad5]
+  - @scalar/openapi-parser@0.8.1
+  - @scalar/oas-utils@0.2.41
+  - @scalar/snippetz@0.2.2
+  - @scalar/api-client@2.0.62
+
 ## 1.25.8
 
 ### Patch Changes

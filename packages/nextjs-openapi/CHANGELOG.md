@@ -1,5 +1,12 @@
 # @scalar/nextjs-openapi
 
+## 0.0.2
+
+### Patch Changes
+
+- 48d7ad5: fix: repository URL in package.json
+  - @scalar/nextjs-api-reference@0.4.84
+
 ## 0.0.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.1
+
+### Patch Changes
+
+- 5bd8337: feat: upgrade from Swagger 2.0 (experimental)
+
 ## 0.8.0
 
 ### Minor Changes
