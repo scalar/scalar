@@ -40,6 +40,22 @@ describe('findOpenApiDocumentUrl', () => {
     )
   })
 
+  it('finds URLs from sandbox URL', async () => {
+    const result = await findOpenApiDocumentUrl(
+      'https://sandbox.scalar.com/p/dlw8v',
+    )
+
+    expect(result).toBe('https://sandbox.scalar.com/files/dlw8v/openapi.yaml')
+
+    const otherResult = await findOpenApiDocumentUrl(
+      'https://sandbox.scalar.com/e/dlw8v',
+    )
+
+    expect(otherResult).toBe(
+      'https://sandbox.scalar.com/files/dlw8v/openapi.yaml',
+    )
+  })
+
   it('finds URL in the CDN example', async () => {
     const html = `<!doctype html>
 <html>

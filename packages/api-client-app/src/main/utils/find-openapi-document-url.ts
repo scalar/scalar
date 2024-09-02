@@ -18,6 +18,15 @@ export async function findOpenApiDocumentUrl(value?: string) {
       return value
     }
 
+    // https://sandbox.scalar.com
+    const sandboxUrl = value.match(
+      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-z0-9]+)/,
+    )
+
+    if (sandboxUrl?.[2]) {
+      return `https://sandbox.scalar.com/files/${sandboxUrl[2]}/openapi.yaml`
+    }
+
     // Fetch URL
     try {
       const result = await fetch(value)
