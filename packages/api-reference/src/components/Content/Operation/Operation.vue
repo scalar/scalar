@@ -75,5 +75,6 @@ defineProps<{
 }
 .example-path :deep(em) {
   color: var(--scalar-color-1);
+  font-style: normal;
 }
 </style>
