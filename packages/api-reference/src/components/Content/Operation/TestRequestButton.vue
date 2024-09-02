@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { inject } from 'vue'
 
+import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
 import { apiClientBus } from '../../api-client-bus'
 
 defineProps<{
   operation: TransformedOperation
 }>()
+
+const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
 </script>
 <template>
   <button
+    v-if="getHideTestRequestButton?.() !== true"
     class="show-api-client-button"
     :method="operation.httpVerb"
     type="button"
@@ -26,6 +31,7 @@ defineProps<{
       size="sm" />
     <span>Test Request</span>
   </button>
+  <template v-else>&nbsp;</template>
 </template>
 <style scoped>
 .show-api-client-button {
