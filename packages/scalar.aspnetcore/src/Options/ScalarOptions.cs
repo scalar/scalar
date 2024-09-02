@@ -1,6 +1,6 @@
 namespace Scalar.AspNetCore;
 
-public class ScalarOptions
+public sealed class ScalarOptions
 {
     /// <summary>
     /// Metadata title
@@ -72,7 +72,7 @@ public class ScalarOptions
     public ScalarThemes Theme { get; set; } = ScalarThemes.Purple;
 
     /// <summary>
-    /// By default we�re using Inter and JetBrains Mono, served by Google Fonts.
+    /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
     /// <remarks>If you use a different font or just don�t want to use Google Fonts, pass withDefaultFonts: false to the configuration.</remarks>
@@ -108,12 +108,12 @@ public class ScalarOptions
     /// <summary>
     /// You can pass information to the config object to configure meta information out of the box.
     /// </summary>
-    public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
+    public IDictionary<string, string>? Metadata { get; set; }
 
     /// <summary>
     /// To make authentication easier you can prefill the credentials for your users
     /// </summary>
-    public ScalarAuthenticationOptions Authentication { get; set; } = new();
+    public ScalarAuthenticationOptions? Authentication { get; set; }
 
     /// <summary>
     /// By default, we�re using Shell/curl as the default HTTP client. Or, if that�s disabled (through hiddenClients), we�re just using the first available HTTP client.
@@ -126,73 +126,6 @@ public class ScalarOptions
     /// given the document name.
     /// </summary>
     public Func<string, string>? SetDataUrl { get; set; }
-}
-
-/// <summary>
-/// To make authentication easier you can prefill the credentials for your users
-/// </summary>
-public class ScalarAuthenticationOptions
-{
-    private const string NoneScheme = "none";
-
-    internal ScalarAuthenticationOptions()
-    {
-        PreferredSecurityScheme = NoneScheme;
-    }
-
-    internal ScalarAuthenticationOptions(string preferredSecurityScheme)
-    {
-        PreferredSecurityScheme = preferredSecurityScheme;
-    }
-
-    /// <summary>
-    /// The OpenAPI file has keys for all security schemes
-    /// </summary>
-    public string PreferredSecurityScheme { get; } = string.Empty;
-
-    public bool Enabled => !PreferredSecurityScheme.Equals(NoneScheme, StringComparison.CurrentCultureIgnoreCase);
-}
-
-public sealed class ScalarAuthenticationCustomOptions : ScalarAuthenticationOptions
-{
-    public ScalarAuthenticationCustomOptions(string scheme, string token) : base(scheme)
-    {
-        ApiKey = new ScalarAuthenticationApiKey(token);
-    }
-
-    public ScalarAuthenticationApiKey ApiKey { get; }
-}
-
-public sealed class ScalarAuthenticationoAuth2Options : ScalarAuthenticationOptions
-{
-    public ScalarAuthenticationoAuth2Options(string clientId, params string[] scopes) : base("oauth2")
-    {
-        OAuth2 = new ScalarAuthenticationoAuth2(clientId, scopes);
-    }
-
-    public ScalarAuthenticationoAuth2 OAuth2 { get; }
-}
-
-public sealed class ScalarAuthenticationApiKey
-{
-    public ScalarAuthenticationApiKey(string token)
-    {
-        Token = token;
-    }
-
-    public string Token { get; set; } = string.Empty;
-}
-
-public sealed class ScalarAuthenticationoAuth2
-{
-    public ScalarAuthenticationoAuth2(string clientId, params string[] scopes)
-    {
-        ClientId = clientId;
-        Scopes = scopes;
-    }
-
-    public string ClientId { get; } = string.Empty;
-    public string[] Scopes { get; } = Array.Empty<string>();
 }
 
 public sealed class ScalarDefaultHttpClient

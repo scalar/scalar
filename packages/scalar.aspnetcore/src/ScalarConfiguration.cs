@@ -2,7 +2,7 @@
 
 namespace Scalar.AspNetCore;
 
-internal class ScalarConfiguration
+internal sealed class ScalarConfiguration
 {
     private static readonly Dictionary<ScalarTargets, ScalarClients[]> ClientOptions = new()
     {
@@ -30,7 +30,7 @@ internal class ScalarConfiguration
 
     public bool ShowSideBar { get; init; }
 
-    public bool HideModels { get; set; }
+    public bool HideModels { get; init; }
 
     public bool HideDownloadButton { get; init; }
 
@@ -71,8 +71,8 @@ internal class ScalarConfiguration
             WithDefaultFonts = options.WithDefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotkey = options.SearchHotkey,
-            Metadata = options.Metadata.Count != 0 ? options.Metadata : null,
-            Authentication = options.Authentication.Enabled ? options.Authentication : null,
+            Metadata = options.Metadata,
+            Authentication = options.Authentication,
             HiddenClients = GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClientConfig
             {
@@ -137,5 +137,5 @@ internal class ScalarConfiguration
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = true)]
 internal sealed partial class ScalaConfigurationSerializerContext : JsonSerializerContext;

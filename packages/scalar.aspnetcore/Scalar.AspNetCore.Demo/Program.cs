@@ -1,14 +1,45 @@
 using Scalar.AspNetCore;
+using APIWeaver;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddSecurityScheme("Bearer", scheme =>
+    {
+        scheme.Type = SecuritySchemeType.OAuth2;
+        scheme.Flows = new OpenApiOAuthFlows
+        {
+            ClientCredentials = new OpenApiOAuthFlow
+            {
+                Scopes = new Dictionary<string, string>
+                {
+                    { "foo", "bar" }
+                },
+                TokenUrl = new Uri("http://localhost:5000/token"),
+            }
+        };
+    });
+});
+builder.Services.AddAuthentication();
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.Authentication = new ScalarAuthenticationOptions
+        {
+            PreferredSecurityScheme = "Bearer",
+            OAuth2 = new OAuth2Options
+            {
+                ClientId = "ClientId",
+                Scopes = ["read:planets"]
+            }
+        };
+    });
 }
 
 app.UseHttpsRedirection();
@@ -30,11 +61,12 @@ app.MapGet("/weatherforecast", () =>
             .ToArray();
         return forecast;
     })
-    .WithName("GetWeatherForecast");
+    .WithName("GetWeatherForecast")
+    .RequireAuthorization();
 
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int TemperatureF => 32 + (int) (TemperatureC / 0.5556);
 }
