@@ -5,61 +5,89 @@ namespace Scalar.AspNetCore;
 public enum ScalarClients
 {
     [Description("libcurl")]
-    LIBCURL,
+    Libcurl,
+
     [Description("clj_http")]
-    CLJ_HTTP,
+    CljHttp,
+
     [Description("httpclient")]
-    HTTPCLIENT,
+    HttpClient,
+
     [Description("restsharp")]
-    RESTSHARP,
+    RestSharp,
+
     [Description("native")]
-    NATIVE,
+    Native,
+
     [Description("http1.1")]
-    HTTP1_1,
+    Http11,
+
     [Description("asynchttp")]
-    ASYNCHTTP,
+    AsyncHttp,
+
     [Description("nethttp")]
-    NETHTTP,
+    NetHttp,
+
     [Description("okhttp")]
-    OKHTTP,
+    OkHttp,
+
     [Description("unirest")]
-    UNIREST,
+    Unirest,
+
     [Description("xhr")]
-    XHR,
+    Xhr,
+
     [Description("axios")]
-    AXIOS,
+    Axios,
+
     [Description("fetch")]
-    FETCH,
+    Fetch,
+
     [Description("jquery")]
-    JQUERY,
+    JQuery,
+
     [Description("undici")]
-    UNDICI,
+    Undici,
+
     [Description("request")]
-    REQUEST,
+    Request,
+
     [Description("nsurlsession")]
-    NSURLSESSION,
+    Nsurlsession,
+
     [Description("cohttp")]
-    COHTTP,
+    CoHttp,
+
     [Description("curl")]
-    CURL,
+    Curl,
+
     [Description("guzzle")]
-    GUZZLE,
+    Guzzle,
+
     [Description("http1")]
-    HTTP1,
+    Http1,
+
     [Description("http2")]
-    HTTP2,
+    Http2,
+
     [Description("webrequest")]
-    WEBREQUEST,
+    WebRequest,
+
     [Description("restmethod")]
-    RESTMETHOD,
+    RestMethod,
+
     [Description("python3")]
-    PYTHON3,
+    Python3,
+
     [Description("requests")]
-    REQUESTS,
+    Requests,
+
     [Description("httr")]
-    HTTR,
+    Httr,
+
     [Description("httpie")]
-    HTTPIE,
+    Httpie,
+
     [Description("wget")]
-    WGET
+    Wget
 }
