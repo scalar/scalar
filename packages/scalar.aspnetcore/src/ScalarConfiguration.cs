@@ -2,7 +2,7 @@
 
 namespace Scalar.AspNetCore;
 
-internal class ScalaConfiguration
+internal class ScalarConfiguration
 {
     private static readonly Dictionary<ScalarTargets, ScalarClients[]> ClientOptions = new()
     {
@@ -56,9 +56,9 @@ internal class ScalaConfiguration
 
     public DefaultHttpClientConfig? DefaultHttpClient { get; init; }
 
-    internal static ScalaConfiguration FromOptions(ScalarOptions options)
+    internal static ScalarConfiguration FromOptions(ScalarOptions options)
     {
-        return new ScalaConfiguration
+        return new ScalarConfiguration
         {
             Theme = options.Theme.GetDescription(),
             DarkMode = options.DarkMode,
@@ -130,6 +130,6 @@ internal class ScalaConfiguration
     }
 }
 
-[JsonSerializable(typeof(ScalaConfiguration))]
+[JsonSerializable(typeof(ScalarConfiguration))]
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalaConfigurationSerializerContext : JsonSerializerContext;

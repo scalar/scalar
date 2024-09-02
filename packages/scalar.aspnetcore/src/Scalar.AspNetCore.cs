@@ -26,7 +26,7 @@ public static class OpenApiEndpointRouteBuilderExtensions
             {
                 var title = options.Title.Replace(DocumentName, documentName);
                 var dataUrl = options.SetDataUrl?.Invoke(documentName) ?? $"/openapi/{documentName}.json";
-                var configuration = JsonSerializer.Serialize(ScalaConfiguration.FromOptions(options), typeof(ScalaConfiguration), ScalaConfigurationSerializerContext.Default);
+                var configuration = JsonSerializer.Serialize(ScalarConfiguration.FromOptions(options), typeof(ScalarConfiguration), ScalaConfigurationSerializerContext.Default);
 
                 return Results.Content(
                     $"""
