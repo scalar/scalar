@@ -5,21 +5,23 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
 {
-    options.AddSecurityScheme("Bearer", scheme =>
-    {
-        scheme.Type = SecuritySchemeType.OAuth2;
-        scheme.Flows = new OpenApiOAuthFlows
+    options
+        .AddSecurityScheme("Bearer", scheme =>
         {
-            ClientCredentials = new OpenApiOAuthFlow
+            scheme.Type = SecuritySchemeType.OAuth2;
+            scheme.Flows = new OpenApiOAuthFlows
             {
-                Scopes = new Dictionary<string, string>
+                ClientCredentials = new OpenApiOAuthFlow
                 {
-                    { "foo", "bar" }
-                },
-                TokenUrl = new Uri("http://localhost:5000/token"),
-            }
-        };
-    });
+                    Scopes = new Dictionary<string, string>
+                    {
+                        { "foo", "bar" }
+                    },
+                    TokenUrl = new Uri("http://localhost:5000/token"),
+                }
+            };
+        })
+        .AddAuthResponse();
 });
 builder.Services.AddAuthentication();
 
@@ -30,6 +32,15 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.MapScalarApiReference(options =>
     {
+        options
+            .WithTitle("My title")
+            .WithApiKeyAuthentication("ApiKey", x => x.Token = "MyToken")
+            .WithApiKeyAuthentication("ApiKey", new ApiKeyOptions
+            {
+                Token = "MyToken"
+            });
+
+
         options.Authentication = new ScalarAuthenticationOptions
         {
             PreferredSecurityScheme = "Bearer",
