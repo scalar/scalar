@@ -25,6 +25,7 @@ import {
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
+  HIDE_TEST_REQUEST_BUTTON_SYMBOL,
   OPENAPI_DOCUMENT_URL_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
@@ -234,6 +235,10 @@ provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
 provide(
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   () => props.configuration.hideDownloadButton,
+)
+provide(
+  HIDE_TEST_REQUEST_BUTTON_SYMBOL,
+  () => props.configuration.hideTestRequestButton,
 )
 provide(OPENAPI_DOCUMENT_URL_SYMBOL, () => props.configuration.spec?.url)
 

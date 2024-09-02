@@ -58,11 +58,17 @@ export type ReferenceConfiguration = {
    */
   hideModels?: boolean
   /**
-   * Whether to show the "Download OpenAPI Specification" button
+   * Whether to show the “Download OpenAPI Document” button
    *
    * @default false
    */
   hideDownloadButton?: boolean
+  /**
+   * Whether to show the “Test Request” button
+   *
+   * @default: false
+   */
+  hideTestRequestButton?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** forceDarkModeState makes it always this state no matter what*/

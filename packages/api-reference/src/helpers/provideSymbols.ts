@@ -15,6 +15,10 @@ export const HIDE_DOWNLOAD_BUTTON_SYMBOL = Symbol() as InjectionKey<
   () => boolean | undefined
 >
 
+export const HIDE_TEST_REQUEST_BUTTON_SYMBOL = Symbol() as InjectionKey<
+  () => boolean | undefined
+>
+
 export const OPENAPI_DOCUMENT_URL_SYMBOL = Symbol() as InjectionKey<
   () => string | undefined
 >

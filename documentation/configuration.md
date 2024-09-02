@@ -80,13 +80,25 @@ Whether models (`components.schemas` or `definitions`) should be shown in the si
 
 #### hideDownloadButton?: boolean
 
-Whether to show the "Download OpenAPI Specification" button
+Whether to show the “Download OpenAPI Document” button
 
 `@default false`
 
 ```js
 {
   hideDownloadButton: true
+}
+```
+
+#### hideTestRequestButton?: boolean
+
+Whether to show the “Test Request” button
+
+`@default false`
+
+```js
+{
+  hideTestRequestButton: true
 }
 ```
 
