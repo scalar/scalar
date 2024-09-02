@@ -50,7 +50,7 @@ initializeToasts((message, level = 'info', options: ToastOptions = {}) => {
   box-shadow: var(--scalar-shadow-2);
 }
 .scalar-toaster [data-sonner-toast] [data-icon] {
-  align-self: start;
+  align-self: flex-start;
   position: relative;
   top: 2px;
 }

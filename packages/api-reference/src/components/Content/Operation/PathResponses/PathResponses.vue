@@ -203,7 +203,7 @@ const showSchema = ref(false)
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .response-example-selector {
-  align-self: start;
+  align-self: flex-start;
   margin: -4px;
 }
 .response-description {

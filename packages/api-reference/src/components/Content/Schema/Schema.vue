@@ -226,7 +226,7 @@ button.schema-card-title:hover {
   width: 100%;
 }
 .schema-card--compact {
-  align-self: start;
+  align-self: flex-start;
 }
 
 .schema-card--compact.schema-card--open {
