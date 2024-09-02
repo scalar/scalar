@@ -12,12 +12,12 @@ import {
   createRequestExample,
   createRequestExampleParameter,
 } from '@scalar/oas-utils/entities/workspace/spec'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { sendRequest } from './sendRequest'
 
 const PROXY_PORT = 5051
-const ECHO_PORT = 5052
+const VOID_PORT = 5052
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload
@@ -40,6 +40,44 @@ function createRequestExampleServer(metaRequestPayload: MetaRequestPayload) {
   }
 }
 
+beforeAll(async () => {
+  // Check whether the proxy-server is running
+  try {
+    const result = await fetch(`http://127.0.0.1:${PROXY_PORT}`)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:proxy-server
+`)
+  }
+
+  // Check whether the void-server is running
+  try {
+    const result = await fetch(`http://127.0.0.1:${VOID_PORT}`)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:void-server
+`)
+  }
+})
+
 describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
     const { request, example, server } = createRequestExampleServer({
@@ -59,7 +97,7 @@ describe('sendRequest', () => {
 
   it('reaches the echo server *without* the proxy', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
     })
 
     const result = await sendRequest(
@@ -77,7 +115,7 @@ describe('sendRequest', () => {
 
   it('reaches the echo server *with* the proxy', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
     })
 
     const result = await sendRequest(
@@ -94,7 +132,7 @@ describe('sendRequest', () => {
 
   it('replaces variables in urls', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestExamplePayload: {
         parameters: {
           path: [
@@ -118,7 +156,7 @@ describe('sendRequest', () => {
 
   it('sends query parameters', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestExamplePayload: {
         parameters: {
           query: [
@@ -145,7 +183,7 @@ describe('sendRequest', () => {
 
   it('merges query parameters', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}?example=parameter` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}?example=parameter` },
       requestPayload: { path: '' },
       requestExamplePayload: {
         parameters: {
@@ -176,7 +214,7 @@ describe('sendRequest', () => {
 
   it('works with no content', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/204` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/204` },
     })
 
     const result = await sendRequest(
@@ -190,7 +228,7 @@ describe('sendRequest', () => {
 
   // it('adds cookies as headers', async () => {
   //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
   //     requestExamplePayload: {
   //       parameters: {
   //         cookies: [
@@ -219,7 +257,7 @@ describe('sendRequest', () => {
 
   // it('merges cookies', async () => {
   //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+  //     serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
   //     requestExamplePayload: {
   //       parameters: {
   //         cookies: [
@@ -254,7 +292,7 @@ describe('sendRequest', () => {
 
   it('skips the proxy for requests to localhost', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1` },
       requestPayload: { path: '' },
     })
 
@@ -288,7 +326,7 @@ describe('sendRequest', () => {
 
   it('keeps the trailing slash', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1/` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1/` },
       requestPayload: { path: '' },
     })
 
@@ -306,7 +344,7 @@ describe('sendRequest', () => {
 
   it('sends a multipart/form-data request with string values', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestPayload: { path: '', method: 'POST' },
       requestExamplePayload: {
         body: {
@@ -352,7 +390,7 @@ describe('sendRequest', () => {
    */
   it.todo('sends a multipart/form-data request with files', async () => {
     const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
+      serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
       requestPayload: { path: '', method: 'POST' },
       requestExamplePayload: {
         body: {

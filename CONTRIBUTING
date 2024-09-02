@@ -20,6 +20,13 @@ It’s worth to check the tests locally before sending contributions: `$ pnpm te
 
 If you want to add a test and only run your test file, you can filter the test suite like this: `$ pnpm test your-test`
 
+Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-server`. Start them like so:
+
+```bash
+pnpm dev:void-server
+pnpm dev:proxy-server
+```
+
 ### Testing the CLI
 
 If you want to run the tests for the CLI, you’ll need to package first. The tests don’t use the source files, but the dist files.
