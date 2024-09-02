@@ -102,7 +102,7 @@ const { push } = useRouter()
 const { activeWorkspace } = useWorkspace()
 
 /** Additional metadata for the command palettes */
-const metaData = ref<string>()
+const metaData = ref<Record<string, any> | undefined>()
 const commandQuery = ref('')
 const activeCommand = ref<keyof typeof PaletteComponents | null>(null)
 const selectedSearchResult = ref<number>(-1)

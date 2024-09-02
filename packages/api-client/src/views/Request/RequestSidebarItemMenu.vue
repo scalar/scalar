@@ -33,7 +33,9 @@ const emit = defineEmits<{
 const handleAddExample = () =>
   commandPaletteBus.emit({
     commandName: 'Add Example',
-    metaData: props.item.uid,
+    metaData: {
+      itemUid: props.item.uid,
+    },
   })
 
 const isRequest = computed(() => 'summary' in props.item)
