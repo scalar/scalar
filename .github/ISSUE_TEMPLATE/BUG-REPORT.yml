@@ -3,27 +3,16 @@ description: If you’ve already asked for help with a problem and confirmed som
 labels: ['bug']
 
 body:
-  - type: textarea
+  - type: input
     id: actual-behaviour
     attributes:
       label: What happens?
     validations:
       required: true
-  - type: textarea
+  - type: input
     id: expected-behaviour
     attributes:
       label: What did you expect to happen?
-    validations:
-      required: true
-  - type: textarea
-    id: reprod
-    attributes:
-      label: 'How can we reproduce the issue?'
-      placeholder: |
-        1. Go to …
-        2. Click on …
-        3. Scroll down to …
-        4. See error
     validations:
       required: true
   - type: input
