@@ -3,6 +3,7 @@ import { useAuthenticationStore } from '#legacy'
 import { migrateThemeVariables } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { useSeoMeta } from '@unhead/vue'
+import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
 import { useDarkModeState, useReactiveSpec } from '../hooks'
@@ -86,6 +87,9 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
   proxy: toRef(() => configuration.value.proxy || ''),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
+
+const favicon = computed(() => configuration.value.favicon)
+useFavicon(favicon)
 </script>
 <template>
   <!-- Inject any custom CSS directly into a style tag -->

@@ -190,6 +190,16 @@ You can pass information to the config object to configure meta information out 
 }
 ```
 
+#### favicon?: string
+
+You can specify the path to a favicon to be used for the documentation.
+
+```js
+{
+  favicon: '/favicon.svg'
+}
+```
+
 #### defaultHttpClient?: HttpClientState
 
 By default, we’re using Shell/curl as the default HTTP client. Or, if that’s disabled (through `hiddenClients`), we’re just using the first available HTTP client.
