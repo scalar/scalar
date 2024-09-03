@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import { isHTTPMethod } from '@/components/HttpMethod'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/helpers'
+import {
+  ScalarButton,
+  type ScalarComboboxOption,
+  ScalarIcon,
+  ScalarListbox,
+} from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -20,40 +25,32 @@ const {
   activeWorkspaceCollections,
   requestMutators,
   activeRequest,
-  folders: _folders,
+  requests,
+  tags: _tags,
 } = useWorkspace()
 
 const requestName = ref('')
-const requestMethod = ref('GET')
-const selectedCollectionId = ref(activeCollection.value?.uid ?? '')
+const requestMethod = ref('get')
 
 const collections = computed(() =>
   activeWorkspaceCollections.value.map((collection) => ({
     id: collection.uid,
-    label: collection.spec.info?.title ?? 'Unititled Collection',
+    label: collection.info?.title ?? 'Unititled Collection',
   })),
 )
 
-const selectedCollection = computed({
-  get: () =>
-    collections.value.find(({ id }) => id === selectedCollectionId.value),
-  set: (opt) => {
-    if (opt?.id) selectedCollectionId.value = opt.id
-  },
-})
-
-/** All folders in active workspace */
-const folders = computed(() =>
+/** Tags in selected collection */
+const tags = computed(() =>
   activeWorkspaceCollections.value.flatMap((collection) =>
-    collection.uid === selectedCollectionId.value
-      ? collection.childUids.flatMap((uid) => {
+    collection.uid === selectedCollection.value?.id
+      ? collection.tags.flatMap((uid) => {
           // Check if child of collection is folder as it could be a request
-          const folder = _folders[uid]
-          return folder
+          const tag = _tags[uid]
+          return tag
             ? [
                 {
-                  id: folder.uid,
-                  label: folder.name,
+                  id: tag.uid,
+                  label: tag.name,
                 },
               ]
             : []
@@ -61,44 +58,48 @@ const folders = computed(() =>
       : [],
   ),
 )
-const selectedFolderId = ref(
-  Object.values(_folders).find((folder) =>
-    folder.childUids.includes(activeRequest.value?.uid),
-  )?.uid ?? '',
+
+console.log(activeWorkspaceCollections.value)
+console.log(requests)
+console.log(_tags)
+
+/** Currently selected collection with a reasonable default */
+const selectedCollection = ref<ScalarComboboxOption | undefined>(
+  collections.value.find(
+    (collection) => collection.id === activeCollection.value?.uid,
+  ),
 )
 
-const selectedFolder = computed({
-  get: () => folders.value.find(({ id }) => id === selectedFolderId.value),
-  set: (opt) => {
-    if (opt?.id) selectedFolderId.value = opt.id
-  },
-})
+/** Currently selected tag with a reasonable default */
+const selectedTag = ref<ScalarComboboxOption | undefined>(
+  tags.value.find((tag) => tag.label === activeRequest.value?.tags?.[0]),
+)
 
-function handleChangeMethod(method: string) {
-  requestMethod.value = method
-}
+const handleChangeMethod = (method: string) => (requestMethod.value = method)
 
 const handleSubmit = () => {
   if (!requestName.value.trim()) {
     toast('Please enter a name before creating a request.', 'error')
     return
   }
-  if (!selectedCollectionId.value && !selectedFolder.value?.id) return
-  const parentUid = selectedFolder.value?.id ?? selectedCollection.value?.id
+  if (!selectedCollection.value?.id || !isHTTPMethod(requestMethod.value))
+    return
 
   const newRequest = requestMutators.add(
     {
       path: '',
-      method: requestMethod.value.toUpperCase() as RequestMethod,
+      method: requestMethod.value,
       description: requestName.value,
       operationId: requestName.value,
       summary: requestName.value,
-      tags: ['default'],
+      tags: selectedTag.value ? [selectedTag.value.label] : [],
     },
-    parentUid,
+    selectedCollection.value.id,
   )
 
-  push(`/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`)
+  if (newRequest)
+    push(`/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`)
+
   emits('close')
 }
 
@@ -151,15 +152,15 @@ onMounted(() => {
           </ScalarButton>
         </ScalarListbox>
         <ScalarListbox
-          v-if="folders.length"
-          v-model="selectedFolder"
-          :options="folders">
+          v-if="tags.length"
+          v-model="selectedTag"
+          :options="tags">
           <ScalarButton
             class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
             variant="outlined">
-            <span :class="selectedFolder ? 'text-c-1' : 'text-c-3'">{{
-              selectedFolder ? selectedFolder.label : 'Select Folder'
-            }}</span>
+            <span :class="selectedTag ? 'text-c-1' : 'text-c-3'">
+              {{ selectedTag ? selectedTag.label : 'Select Tag' }}
+            </span>
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
