@@ -137,5 +137,5 @@ internal sealed class ScalarConfiguration
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
-[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = true)]
+[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalaConfigurationSerializerContext : JsonSerializerContext;

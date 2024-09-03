@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Scalar.AspNetCore;
 
-public static class OpenApiEndpointRouteBuilderExtensions
+public static class ScalarEndpointRouteBuilderExtensions
 {
     private const string DocumentName = "{documentName}";
 
@@ -16,7 +18,7 @@ public static class OpenApiEndpointRouteBuilderExtensions
 
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
     {
-        var options = new ScalarOptions();
+        var options = endpoints.ServiceProvider.GetService<IOptions<ScalarOptions>>()?.Value ?? new ScalarOptions();
         configureOptions(options);
 
         if (!options.EndpointPathPrefix.Contains(DocumentName))

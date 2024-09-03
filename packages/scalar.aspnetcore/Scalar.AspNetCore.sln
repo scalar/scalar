@@ -10,10 +10,17 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "playground", "playground", "{6FEF19FA-24D8-4C93-8959-76B982CAE5FF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA180E46-9E24-4D57-919D-329C0B1E3079}"
+	ProjectSection(SolutionItems) = preProject
+		tests\.editorconfig = tests\.editorconfig
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Tests", "tests\Scalar.AspNetCore.Tests\Scalar.AspNetCore.Tests.csproj", "{D9BFEFE5-82EA-4211-988A-36906B53AB9B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Playground", "playground\Scalar.AspNetCore.Playground\Scalar.AspNetCore.Playground.csproj", "{1D8AE91C-5AEA-4199-885B-A4A95677344E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "apis", "apis", "{504CD9C6-04A2-44B7-A77C-BD67BAD2B7D8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Tests.Api", "tests\apis\Scalar.AspNetCore.Tests.Api\Scalar.AspNetCore.Tests.Api.csproj", "{8E457751-9EDA-4A84-89F5-BE67B2FF8D77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +40,10 @@ Global
 		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E457751-9EDA-4A84-89F5-BE67B2FF8D77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E457751-9EDA-4A84-89F5-BE67B2FF8D77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E457751-9EDA-4A84-89F5-BE67B2FF8D77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E457751-9EDA-4A84-89F5-BE67B2FF8D77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,5 +55,7 @@ Global
 		{97D4723A-BCD3-4A06-B5EF-3440B206D898} = {978DB17B-DA82-43CD-A373-98DAECC9EE2C}
 		{D9BFEFE5-82EA-4211-988A-36906B53AB9B} = {FA180E46-9E24-4D57-919D-329C0B1E3079}
 		{1D8AE91C-5AEA-4199-885B-A4A95677344E} = {6FEF19FA-24D8-4C93-8959-76B982CAE5FF}
+		{504CD9C6-04A2-44B7-A77C-BD67BAD2B7D8} = {FA180E46-9E24-4D57-919D-329C0B1E3079}
+		{8E457751-9EDA-4A84-89F5-BE67B2FF8D77} = {504CD9C6-04A2-44B7-A77C-BD67BAD2B7D8}
 	EndGlobalSection
 EndGlobal

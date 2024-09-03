@@ -16,7 +16,7 @@ public sealed class ScalarOptions
     /// <remarks>You can use {documentName}, and it will be replaced by the version number.</remarks>
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
 
-    public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
+    public string? ProxyUrl { get; set; }
 
     /// <summary>
     /// Whether the sidebar should be shown.
@@ -28,13 +28,16 @@ public sealed class ScalarOptions
     /// Whether models (components.schemas or definitions) should be shown in the sidebar, search and content.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
-    public bool HideModels { get; set; } = false;
+    public bool HideModels { get; set; }
 
     /// <summary>
     /// Whether to show the "Download OpenAPI Specification" button
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
-    public bool HideDownloadButton { get; set; } = false;
+    public bool HideDownloadButton { get; set; }
+
+
+    public bool HideTestRequestButton { get; set; }
 
     /// <summary>
     /// Whether dark mode is on or off initially (light mode)
@@ -128,19 +131,7 @@ public sealed class ScalarOptions
     /// given the document name.
     /// </summary>
     public Func<string, string>? SetDataUrl { get; set; }
-}
 
-public sealed class ScalarDefaultHttpClient
-{
-    /// <summary>
-    /// Default display target
-    /// </summary>
-    /// <value>The default value is <see cref="ScalarTargets.Shell" />.</value>
-    public ScalarTargets TargetKey { get; set; } = ScalarTargets.Shell;
 
-    /// <summary>
-    /// Default display client
-    /// </summary>
-    /// <value>The default value is <see cref="ScalarClients.Curl" />.</value>
-    public ScalarClients ClientKey { get; set; } = ScalarClients.Curl;
+    public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
 }
