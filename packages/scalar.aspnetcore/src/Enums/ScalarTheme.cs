@@ -4,7 +4,7 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.AspNetCore;
 
 /// <summary>
-/// Represents the different themes available in the Scalar application.
+/// Represents the different themes available in Scalar.
 /// </summary>
 [EnumExtensions]
 public enum ScalarTheme

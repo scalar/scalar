@@ -4,7 +4,6 @@
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <Version>1.2.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
