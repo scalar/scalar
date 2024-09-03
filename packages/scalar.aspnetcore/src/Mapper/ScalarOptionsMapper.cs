@@ -13,7 +13,7 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.Node, [ScalarClient.Undici, ScalarClient.Native, ScalarClient.Request, ScalarClient.Unirest, ScalarClient.Axios, ScalarClient.Fetch] },
         { ScalarTarget.ObjC, [ScalarClient.Nsurlsession] },
         { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
-        { ScalarTarget.PHP, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
+        { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
         { ScalarTarget.PowerShell, [ScalarClient.WebRequest, ScalarClient.RestMethod] },
         { ScalarTarget.Python, [ScalarClient.Python3, ScalarClient.Requests] },
         { ScalarTarget.R, [ScalarClient.Httr] },

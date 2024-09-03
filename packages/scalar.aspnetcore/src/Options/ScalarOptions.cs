@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Scalar.AspNetCore;
 
 public sealed class ScalarOptions
@@ -93,7 +95,7 @@ public sealed class ScalarOptions
     /// You can pass an array of httpsnippet clients to hide from the clients menu.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
-    public bool HiddenClients { get; set; } = false;
+    public bool HiddenClients { get; set; }
 
     /// <summary>
     /// You can pass an array of HTTPSnippet clients that you want to display in the clients menu.
@@ -112,7 +114,7 @@ public sealed class ScalarOptions
     /// <summary>
     /// You can pass information to the config object to configure meta information out of the box.
     /// </summary>
-    public IDictionary<string, string>? Metadata { get; set; }
+    internal IDictionary<string, string>? Metadata { get; set; }
 
     /// <summary>
     /// To make authentication easier you can prefill the credentials for your users
@@ -126,11 +128,10 @@ public sealed class ScalarOptions
     public ScalarDefaultHttpClient DefaultHttpClient { get; set; } = new();
 
     /// <summary>
-    /// Provides a function for setting the data URL for the API reference
-    /// given the document name.
+    /// Gets or sets the route pattern of the OpenAPI document.
+    /// Default value is <see cref="Constants.DefaultOpenApiRoutePattern" />.
     /// </summary>
-    public Func<string, string>? SetDataUrl { get; set; }
-
-
+    public string OpenApiRoutePattern { get; set; } = Constants.DefaultOpenApiRoutePattern;
+    
     public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
 }

@@ -40,7 +40,7 @@ public enum ScalarTarget
     OCaml,
 
     [Description("php")]
-    PHP,
+    Php,
 
     [Description("powershell")]
     PowerShell,

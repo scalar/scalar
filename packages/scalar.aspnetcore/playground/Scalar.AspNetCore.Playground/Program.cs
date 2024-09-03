@@ -20,20 +20,18 @@ builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(options =>
-    {
-        options
-            .WithTitle("My title")
-            .WithTheme(ScalarTheme.Mars)
-            .WithSearchHotKey("o")
-            .WithSidebar(false)
-            .WithDownloadButton(false)
-            .WithApiKeyAuthentication("ApiKey", x => x.Token = "my-api-key");
-    });
-}
+    options
+        .WithTitle("My title")
+        .WithTheme(ScalarTheme.Mars)
+        .WithSearchHotKey("s")
+        .WithSidebar(false)
+        .WithDownloadButton(false)
+        .WithPreferredScheme("ApiKey")
+        .WithApiKeyAuthentication(x => x.Token = "my-api-key");
+});
 
 var summaries = new[]
 {
