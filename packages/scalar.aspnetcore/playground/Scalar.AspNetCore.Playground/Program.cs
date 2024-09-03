@@ -15,6 +15,7 @@ builder.Services.AddOpenApi(options =>
     options.AddAuthResponse();
 });
 
+// Adds a very simple api key authentication to the api
 builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
@@ -29,11 +30,10 @@ if (app.Environment.IsDevelopment())
             .WithTheme(ScalarTheme.Mars)
             .WithSearchHotKey("o")
             .WithSidebar(false)
+            .WithDownloadButton(false)
             .WithApiKeyAuthentication("ApiKey", x => x.Token = "my-api-key");
     });
 }
-
-app.UseHttpsRedirection();
 
 var summaries = new[]
 {
