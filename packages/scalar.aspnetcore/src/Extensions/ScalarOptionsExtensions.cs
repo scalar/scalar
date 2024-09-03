@@ -19,7 +19,7 @@ public static class ScalarOptionsExtensions
         };
         return options;
     }
-    
+
     public static ScalarOptions WithApiKeyAuthentication(this ScalarOptions options, string preferredScheme, ApiKeyOptions apiKeyOptions)
     {
         options.Authentication = new ScalarAuthenticationOptions
