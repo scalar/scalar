@@ -4,6 +4,11 @@ import type {
   ValidateResult,
 } from '../types'
 
+type Queue = {
+  specification: AnyApiDefinitionFormat
+  tasks: Task[]
+}
+
 type Task = 'load' | 'validate'
 
 type Commands = {
@@ -33,28 +38,40 @@ export function openapi() {
 
 // Load function to append the 'load' task and return a new chain step
 function loadCommand(specification: AnyApiDefinitionFormat) {
-  const tasks = ['load'] as const
+  const queue = {
+    tasks: ['load'] as const,
+  }
 
   return {
-    validate: () => validate([...tasks, 'validate'] as const),
-    get: () => get([...tasks] as const),
+    validate: () => validate([...queue.tasks, 'validate'] as const),
+    get: () =>
+      get({
+        specification: {},
+        tasks: [...queue.tasks],
+      } as const),
   }
 }
 
 // Validate function to append the 'validate' task and return a new chain step
 function validate<T extends readonly Task[]>(tasks: T) {
   return {
-    get: () => get([...tasks] as const),
+    get: () =>
+      get({
+        specification: {},
+        tasks: [...tasks],
+      } as const),
   }
 }
 
 // Get function to infer the result type based on accumulated tasks
-function get<T extends Task[]>(tasks: T): CommandChain<T> {
-  console.log(tasks)
-
+function get<T extends Task[]>(
+  queue: Queue & {
+    tasks: T
+  },
+): CommandChain<T> {
   let result = {} as CommandChain<T>
 
-  tasks.forEach((task) => {
+  queue.tasks.forEach((task) => {
     if (task === 'load') {
       result = {
         ...result,
