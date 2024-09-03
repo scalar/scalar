@@ -4,7 +4,7 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.AspNetCore;
 
 [EnumExtensions]
-public enum ScalarThemes
+public enum ScalarTheme
 {
     [Description("none")]
     None,

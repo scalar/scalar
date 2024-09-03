@@ -4,7 +4,7 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.AspNetCore;
 
 [EnumExtensions]
-public enum ScalarTargets
+public enum ScalarTarget
 {
     [Description("c")]
     C,

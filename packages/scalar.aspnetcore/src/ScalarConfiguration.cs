@@ -4,21 +4,21 @@ namespace Scalar.AspNetCore;
 
 internal sealed class ScalarConfiguration
 {
-    public required string Theme { get; init; }
+    public string? Theme { get; init; }
 
-    public bool ShowSideBar { get; init; }
+    public bool? ShowSideBar { get; init; }
 
-    public bool HideModels { get; init; }
+    public bool? HideModels { get; init; }
 
-    public bool HideDownloadButton { get; init; }
+    public bool? HideDownloadButton { get; init; }
 
-    public bool DarkMode { get; init; }
+    public bool? DarkMode { get; init; }
 
-    public bool HideDarkModeToggle { get; init; }
+    public bool? HideDarkModeToggle { get; init; }
 
-    public bool DefaultOpenAllTags { get; init; }
+    public bool? DefaultOpenAllTags { get; init; }
 
-    public bool WithDefaultFonts { get; init; }
+    public bool? WithDefaultFonts { get; init; }
 
     public string? ForceDarkModeState { get; init; }
 
@@ -26,7 +26,7 @@ internal sealed class ScalarConfiguration
 
     public string? SearchHotkey { get; init; }
 
-    public Dictionary<string, string[]>? HiddenClients { get; init; }
+    public IDictionary<string, string[]>? HiddenClients { get; init; }
 
     public IDictionary<string, string>? Metadata { get; init; }
 

@@ -2,26 +2,26 @@ namespace Scalar.AspNetCore;
 
 internal static class ScalarOptionsMapper
 {
-    private static readonly Dictionary<ScalarTargets, ScalarClients[]> ClientOptions = new()
+    private static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
     {
-        { ScalarTargets.C, [ScalarClients.Libcurl] },
-        { ScalarTargets.Clojure, [ScalarClients.CljHttp] },
-        { ScalarTargets.CSharp, [ScalarClients.HttpClient, ScalarClients.RestSharp] },
-        { ScalarTargets.Http, [ScalarClients.Http11] },
-        { ScalarTargets.Java, [ScalarClients.AsyncHttp, ScalarClients.NetHttp, ScalarClients.OkHttp, ScalarClients.Unirest] },
-        { ScalarTargets.JavaScript, [ScalarClients.Xhr, ScalarClients.Axios, ScalarClients.Fetch, ScalarClients.JQuery] },
-        { ScalarTargets.Node, [ScalarClients.Undici, ScalarClients.Native, ScalarClients.Request, ScalarClients.Unirest, ScalarClients.Axios, ScalarClients.Fetch] },
-        { ScalarTargets.ObjC, [ScalarClients.Nsurlsession] },
-        { ScalarTargets.OCaml, [ScalarClients.CoHttp] },
-        { ScalarTargets.PHP, [ScalarClients.Curl, ScalarClients.Guzzle, ScalarClients.Http1, ScalarClients.Http2] },
-        { ScalarTargets.PowerShell, [ScalarClients.WebRequest, ScalarClients.RestMethod] },
-        { ScalarTargets.Python, [ScalarClients.Python3, ScalarClients.Requests] },
-        { ScalarTargets.R, [ScalarClients.Httr] },
-        { ScalarTargets.Ruby, [ScalarClients.Native] },
-        { ScalarTargets.Shell, [ScalarClients.Curl, ScalarClients.Httpie, ScalarClients.Wget] },
-        { ScalarTargets.Swift, [ScalarClients.Nsurlsession] },
-        { ScalarTargets.Go, [ScalarClients.Native] },
-        { ScalarTargets.Kotlin, [ScalarClients.OkHttp] }
+        { ScalarTarget.C, [ScalarClient.Libcurl] },
+        { ScalarTarget.Clojure, [ScalarClient.CljHttp] },
+        { ScalarTarget.CSharp, [ScalarClient.HttpClient, ScalarClient.RestSharp] },
+        { ScalarTarget.Http, [ScalarClient.Http11] },
+        { ScalarTarget.Java, [ScalarClient.AsyncHttp, ScalarClient.NetHttp, ScalarClient.OkHttp, ScalarClient.Unirest] },
+        { ScalarTarget.JavaScript, [ScalarClient.Xhr, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.JQuery] },
+        { ScalarTarget.Node, [ScalarClient.Undici, ScalarClient.Native, ScalarClient.Request, ScalarClient.Unirest, ScalarClient.Axios, ScalarClient.Fetch] },
+        { ScalarTarget.ObjC, [ScalarClient.Nsurlsession] },
+        { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
+        { ScalarTarget.PHP, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
+        { ScalarTarget.PowerShell, [ScalarClient.WebRequest, ScalarClient.RestMethod] },
+        { ScalarTarget.Python, [ScalarClient.Python3, ScalarClient.Requests] },
+        { ScalarTarget.R, [ScalarClient.Httr] },
+        { ScalarTarget.Ruby, [ScalarClient.Native] },
+        { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Httpie, ScalarClient.Wget] },
+        { ScalarTarget.Swift, [ScalarClient.Nsurlsession] },
+        { ScalarTarget.Go, [ScalarClient.Native] },
+        { ScalarTarget.Kotlin, [ScalarClient.OkHttp] }
     };
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
@@ -36,7 +36,7 @@ internal static class ScalarOptionsMapper
             DefaultOpenAllTags = options.DefaultOpenAllTags,
             ForceDarkModeState = options.ForceDarkModeState,
             ShowSideBar = options.ShowSideBar,
-            WithDefaultFonts = options.WithDefaultFonts,
+            WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotkey = options.SearchHotkey,
             Metadata = options.Metadata,
@@ -60,7 +60,7 @@ internal static class ScalarOptionsMapper
         );
     }
 
-    private static Dictionary<ScalarTargets, ScalarClients[]>? ProcessOptions(ScalarOptions options)
+    private static Dictionary<ScalarTarget, ScalarClient[]>? ProcessOptions(ScalarOptions options)
     {
         if (options.HiddenClients)
         {
@@ -72,7 +72,7 @@ internal static class ScalarOptionsMapper
             return null;
         }
 
-        var selected = new Dictionary<ScalarTargets, ScalarClients[]>();
+        var selected = new Dictionary<ScalarTarget, ScalarClient[]>();
         foreach (var item in ClientOptions)
         {
             if (options.EnabledTargets.Length != 0 &&

@@ -4,7 +4,7 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.AspNetCore;
 
 [EnumExtensions]
-public enum ScalarClients
+public enum ScalarClient
 {
     [Description("libcurl")]
     Libcurl,

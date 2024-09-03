@@ -6,14 +6,13 @@ using Scalar.AspNetCore.Playground.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
 {
-    options
-        .AddSecurityScheme("ApiKey", scheme =>
-        {
-            scheme.Type = SecuritySchemeType.ApiKey;
-            scheme.In = ParameterLocation.Header;
-            scheme.Name = "X-Api-Key";
-        })
-        .AddAuthResponse();
+    options.AddSecurityScheme("ApiKey", scheme =>
+    {
+        scheme.Type = SecuritySchemeType.ApiKey;
+        scheme.In = ParameterLocation.Header;
+        scheme.Name = "X-Api-Key";
+    });
+    options.AddAuthResponse();
 });
 
 builder.Services.AddApiKeyAuthentication();
@@ -27,6 +26,7 @@ if (app.Environment.IsDevelopment())
     {
         options
             .WithTitle("My title")
+            .WithTheme(ScalarTheme.Mars)
             .WithApiKeyAuthentication("ApiKey", x => x.Token = "my-api-key");
     });
 }

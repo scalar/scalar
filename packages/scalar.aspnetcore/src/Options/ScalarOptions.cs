@@ -36,7 +36,6 @@ public sealed class ScalarOptions
     /// <value>The default value is <c>false</c>.</value>
     public bool HideDownloadButton { get; set; }
 
-
     public bool HideTestRequestButton { get; set; }
 
     /// <summary>
@@ -72,16 +71,16 @@ public sealed class ScalarOptions
     /// <summary>
     /// Set color theme.
     /// </summary>
-    /// <value>The default value is Set <see cref="ScalarThemes.Purple" />.</value>
-    /// <remarks>Select your preferred <see cref="ScalarThemes.Purple">ScalarTheme</see>.</remarks>
-    public ScalarThemes Theme { get; set; } = ScalarThemes.Purple;
+    /// <value>The default value is Set <see cref="ScalarTheme.Purple" />.</value>
+    /// <remarks>Select your preferred <see cref="ScalarTheme.Purple">ScalarTheme</see>.</remarks>
+    public ScalarTheme Theme { get; set; } = ScalarTheme.Purple;
 
     /// <summary>
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
     /// <remarks>If you use a different font or just don�t want to use Google Fonts, pass withDefaultFonts: false to the configuration.</remarks>
-    public bool WithDefaultFonts { get; set; } = true;
+    public bool DefaultFonts { get; set; } = true;
 
     /// <summary>
     /// By default we only open the relevant tag based on the url.
@@ -101,14 +100,14 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <see cref="Array.Empty{T}" />.</value>
     /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
-    public ScalarClients[] EnabledClients { get; set; } = [];
+    public ScalarClient[] EnabledClients { get; set; } = [];
 
     /// <summary>
     /// You can pass an array of HTTPSnippet targets that you want to display in the clients menu.
     /// </summary>
     /// <value>The default value is <see cref="Array.Empty{T}" />.</value>
     /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
-    public ScalarTargets[] EnabledTargets { get; set; } = [];
+    public ScalarTarget[] EnabledTargets { get; set; } = [];
 
     /// <summary>
     /// You can pass information to the config object to configure meta information out of the box.
