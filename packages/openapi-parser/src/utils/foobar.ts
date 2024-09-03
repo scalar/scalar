@@ -73,17 +73,14 @@ export function openapi() {
  * Pass any OpenAPI document
  */
 function loadCommand(input: AnyApiDefinitionFormat) {
+  const queue = {
+    input,
+    tasks: ['load'],
+  } as Queue<['load']>
+
   return {
-    validate: () =>
-      validateCommand({
-        input,
-        tasks: ['load'] as const,
-      } as const),
-    get: () =>
-      get({
-        input,
-        tasks: ['load'] as const,
-      } as const),
+    validate: () => validateCommand(queue),
+    get: () => get(queue),
   }
 }
 
