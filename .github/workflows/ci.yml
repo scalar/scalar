@@ -9,38 +9,11 @@ on:
       - main
 
 jobs:
-  # Always use Node 20
-  # Add Node 18 to the matrix if we’re in the release PR
-  define-matrix:
-    runs-on: ubuntu-latest
-
-    outputs:
-      node-versions: ${{ steps.node-versions.outputs.node-versions }}
-
-    steps:
-      - name: Node version matrix
-        id: node-versions
-        run: |
-          if [ "${{ github.head_ref }}" == "changeset-release/main" ]; then
-            echo 'node-versions=[18, 20]' >> "$GITHUB_OUTPUT"
-          else
-            echo 'node-versions=[20]' >> "$GITHUB_OUTPUT"
-          fi
-      - name: Print Node version matrix
-        run: echo "node-versions=${{ steps.node-versions.outputs.node-versions }}"
-      - name: Check Node version matrix
-        run: |
-          if [ "${{ steps.node-versions.outputs.node-versions }}" != "[18, 20]" ] && [ "${{ steps.node-versions.outputs.node-versions }}" != "[20]" ]; then
-            echo "Node version matrix is not [18, 20] or [20]"
-            exit 1
-          fi
-
   build:
     runs-on: ubuntu-20.04
-    needs: define-matrix
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
+        node-version: [18, 20]
 
     steps:
       - name: Checkout repository
@@ -77,10 +50,10 @@ jobs:
 
   types:
     runs-on: ubuntu-20.04
-    needs: [define-matrix, build]
+    needs: [build]
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
+        node-version: [20]
 
     steps:
       - name: Checkout repository
@@ -94,10 +67,10 @@ jobs:
 
   test:
     runs-on: ubuntu-20.04
-    needs: [define-matrix, build]
+    needs: [build]
     strategy:
       matrix:
-        node-version: ${{ fromJSON(needs.define-matrix.outputs.node-versions) }}
+        node-version: [18, 20]
 
     steps:
       - name: Checkout repository
