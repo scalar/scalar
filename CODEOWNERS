@@ -1,5 +1,5 @@
 # Default code owner (overwritten by more specific entries)
-* @marclave
+* @hanspagel @amritk @geoffgscott
 
 # Root level code owners
 /.github @hanspagel
