@@ -3,11 +3,20 @@ import type {
   LoadResult,
   ValidateResult,
 } from '../types'
-import { load } from './load'
-import { validate } from './validate'
+import { type LoadOptions, load } from './load'
+import { type ValidateOptions, validate } from './validate'
 
-/** Merge types with each other */
+/**
+ * Merge types with each other
+ */
 type Merge<A, B> = A & Omit<B, keyof A>
+
+/**
+ * Unwrap a Promise to get the type of it
+ */
+type PromiseReturnType<FunctionType> = Awaited<
+  Promise<PromiseLike<FunctionType>>
+>
 
 /**
  * Input and a list of tasks to pipe the input through.
@@ -20,7 +29,15 @@ type Queue<T extends readonly Task[]> = {
 /**
  * Available tasks
  */
-type Task = 'load' | 'validate'
+type Task =
+  | {
+      name: 'load'
+      options?: LoadOptions
+    }
+  | {
+      name: 'validate'
+      options?: ValidateOptions
+    }
 
 /** Available commands */
 type Commands = {
@@ -55,7 +72,7 @@ type Commands = {
 type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
   ? First extends Task
     ? Rest extends Task[]
-      ? Merge<Commands[First], CommandChain<Rest>>
+      ? Merge<Commands[First['name']], CommandChain<Rest>>
       : never
     : never
   : NonNullable<unknown>
@@ -75,8 +92,8 @@ export function openapi() {
 function loadCommand(input: AnyApiDefinitionFormat) {
   const queue = {
     input,
-    tasks: ['load'],
-  } as Queue<['load']>
+    tasks: [{ name: 'load' }],
+  } as Queue<[{ name: 'load' }]>
 
   return {
     validate: () => validateCommand(queue),
@@ -92,7 +109,7 @@ function validateCommand<T extends Task[]>(queue: Queue<T>) {
     get: () =>
       get({
         ...queue,
-        tasks: [...queue.tasks, 'validate'],
+        tasks: [...queue.tasks, { name: 'validate' }],
       } as const),
   }
 }
@@ -103,19 +120,21 @@ function validateCommand<T extends Task[]>(queue: Queue<T>) {
 function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
   let result = {} as CommandChain<T>
 
-  queue.tasks.forEach(async (task) => {
-    if (task === 'load') {
+  queue.tasks.forEach(async ({ name }) => {
+    // load
+    if (name === 'load') {
       result = {
         ...result,
         ...(await load(queue.input)),
-      } as Merge<typeof result, LoadResult>
+      } as Merge<typeof result, PromiseReturnType<typeof load>>
     }
 
-    if (task === 'validate') {
+    // validate
+    if (name === 'validate') {
       result = {
         ...result,
         ...validate(queue.input),
-      } as Merge<typeof result, ValidateResult>
+      } as Merge<typeof result, ReturnType<typeof validate>>
     }
   })
 

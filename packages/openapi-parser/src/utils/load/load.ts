@@ -19,13 +19,15 @@ export type LoadPlugin = {
   getFilename?: (value: any) => string
 }
 
+export type LoadOptions = {
+  plugins?: LoadPlugin[]
+  filename?: string
+  filesystem?: Filesystem
+} & ThrowOnErrorOption
+
 export async function load(
   value: any,
-  options?: {
-    plugins?: LoadPlugin[]
-    filename?: string
-    filesystem?: Filesystem
-  } & ThrowOnErrorOption,
+  options?: LoadOptions,
 ): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
