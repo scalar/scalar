@@ -60,7 +60,7 @@ internal sealed class ScalarConfiguration
     {
         return new ScalarConfiguration
         {
-            Theme = options.Theme.GetDescription(),
+            Theme = options.Theme.ToStringFast(),
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
@@ -76,8 +76,8 @@ internal sealed class ScalarConfiguration
             HiddenClients = GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClientConfig
             {
-                ClientKey = options.DefaultHttpClient.ClientKey.GetDescription(),
-                TargetKey = options.DefaultHttpClient.TargetKey.GetDescription()
+                ClientKey = options.DefaultHttpClient.ClientKey.ToStringFast(),
+                TargetKey = options.DefaultHttpClient.TargetKey.ToStringFast()
             }
         };
     }
@@ -87,8 +87,8 @@ internal sealed class ScalarConfiguration
         var targets = ProcessOptions(options);
 
         return targets?.ToDictionary(k =>
-                k.Key.GetDescription(),
-            k => k.Value.Select(v => v.GetDescription()).ToArray()
+                k.Key.ToStringFast(),
+            k => k.Value.Select(v => v.ToStringFast()).ToArray()
         );
     }
 

@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
+using NetEscapades.EnumGenerators;
 
 namespace Scalar.AspNetCore;
 
+[EnumExtensions]
 public enum ScalarClients
 {
     [Description("libcurl")]
