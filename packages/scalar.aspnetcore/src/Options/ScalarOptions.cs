@@ -47,10 +47,10 @@ public sealed class ScalarOptions
     public string? ForceDarkModeState { get; set; }
 
     /// <summary>
-    /// Whether to show the dark mode toggle
+    /// Whether to show the dark mode toggle.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
-    public bool HideDarkModeToggle { get; set; } = false;
+    public bool HideDarkModeToggle { get; set; }
 
     /// <summary>
     /// You can pass custom CSS directly to the component.
@@ -83,7 +83,7 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
     /// <remarks>if you want all the tags open by default then set this configuration option.</remarks>
-    public bool DefaultOpenAllTags { get; set; } = false;
+    public bool DefaultOpenAllTags { get; set; }
 
     /// <summary>
     /// You can pass an array of httpsnippet clients to hide from the clients menu.

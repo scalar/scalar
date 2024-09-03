@@ -9,9 +9,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore", "src\Sc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "playground", "playground", "{6FEF19FA-24D8-4C93-8959-76B982CAE5FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Demo", "Scalar.AspNetCore.Demo\Scalar.AspNetCore.Demo.csproj", "{0B63A85D-5508-4353-A4DC-65AEF01116B8}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{FA180E46-9E24-4D57-919D-329C0B1E3079}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Tests", "tests\Scalar.AspNetCore.Tests\Scalar.AspNetCore.Tests.csproj", "{D9BFEFE5-82EA-4211-988A-36906B53AB9B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scalar.AspNetCore.Playground", "playground\Scalar.AspNetCore.Playground\Scalar.AspNetCore.Playground.csproj", "{1D8AE91C-5AEA-4199-885B-A4A95677344E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +25,14 @@ Global
 		{97D4723A-BCD3-4A06-B5EF-3440B206D898}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97D4723A-BCD3-4A06-B5EF-3440B206D898}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97D4723A-BCD3-4A06-B5EF-3440B206D898}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B63A85D-5508-4353-A4DC-65AEF01116B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B63A85D-5508-4353-A4DC-65AEF01116B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B63A85D-5508-4353-A4DC-65AEF01116B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B63A85D-5508-4353-A4DC-65AEF01116B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9BFEFE5-82EA-4211-988A-36906B53AB9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9BFEFE5-82EA-4211-988A-36906B53AB9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9BFEFE5-82EA-4211-988A-36906B53AB9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9BFEFE5-82EA-4211-988A-36906B53AB9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D8AE91C-5AEA-4199-885B-A4A95677344E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -36,6 +42,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{97D4723A-BCD3-4A06-B5EF-3440B206D898} = {978DB17B-DA82-43CD-A373-98DAECC9EE2C}
-		{0B63A85D-5508-4353-A4DC-65AEF01116B8} = {6FEF19FA-24D8-4C93-8959-76B982CAE5FF}
+		{D9BFEFE5-82EA-4211-988A-36906B53AB9B} = {FA180E46-9E24-4D57-919D-329C0B1E3079}
+		{1D8AE91C-5AEA-4199-885B-A4A95677344E} = {6FEF19FA-24D8-4C93-8959-76B982CAE5FF}
 	EndGlobalSection
 EndGlobal
