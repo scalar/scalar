@@ -130,11 +130,7 @@ const item = computed<Item>(() => {
       children: request.examples,
       rename: () =>
         requestMutators.edit(request.uid, 'summary', tempName.value),
-      delete: () =>
-        requestMutators.delete(
-          request,
-          props.parentUids[props.parentUids.length - 1],
-        ),
+      delete: () => requestMutators.delete(request, props.parentUids[0]),
     }
 
   return {
@@ -247,6 +243,9 @@ const openRenameModal = () => {
 
 /** Delete with redirect for both requests and requestExamples */
 const handleItemDelete = () => {
+  console.log('we even here?')
+  item.value.delete()
+
   if (activeRouterParams.value[PathId.Request] === props.uid)
     replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
 
@@ -427,7 +426,7 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
     :title="`Delete ${item.resourceTitle}`">
     <DeleteSidebarListElement
       :variableName="item.title"
-      warningMessage="Warning: Deleting this will delete all items inside of this"
+      warningMessage="Warning: Deleting this will delete all child items as well"
       @close="deleteModal.hide()"
       @delete="handleItemDelete" />
   </ScalarModal>

@@ -132,7 +132,7 @@ export function createExampleFromRequest(
   }
 
   // Populated the separated params
-  request.parameters.forEach((p) =>
+  request.parameters?.forEach((p) =>
     parameters[p.in].push(createParamInstance(p)),
   )
 

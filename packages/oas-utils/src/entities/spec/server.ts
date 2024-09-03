@@ -1,5 +1,4 @@
-import { deepMerge } from '@scalar/object-utils/merge'
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -52,3 +51,4 @@ export const serverSchema = oasServerSchema.extend({
   uid: nanoidSchema,
 })
 export type Server = z.infer<typeof serverSchema>
+export type ServerPayload = z.input<typeof serverSchema>

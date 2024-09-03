@@ -49,6 +49,8 @@ export const oasRequestSchema = z.object({
   /**
    * A list of tags for API documentation control. Tags can be used for logical
    * grouping of operations by resources or any other qualifier.
+   *
+   * These tags are the openapi spec tag names, not uids
    */
   tags: z.string().array().optional(),
   /** A short summary of what the operation does. */
@@ -79,7 +81,7 @@ export const oasRequestSchema = z.object({
   /**
    * Request parameters
    */
-  parameters: oasParameterSchema.array(),
+  parameters: oasParameterSchema.array().optional(),
   /**
    * External documentation object
    */
@@ -105,6 +107,8 @@ const extendedRequestSchema = z.object({
   method: z.enum(requestMethods),
   /** List of server UIDs specific to the request */
   servers: nanoidSchema.array().default([]),
+  /** The currently selected server */
+  selectedServerUid: z.string().default(''),
   /** List of example UIDs associated with the request */
   examples: nanoidSchema.array().default([]),
   /** List of security scheme UIDs associated with the request */
@@ -114,3 +118,4 @@ const extendedRequestSchema = z.object({
 /** Unified request schema for client usage */
 export const requestSchema = oasRequestSchema.merge(extendedRequestSchema)
 export type Request = z.infer<typeof requestSchema>
+export type RequestPayload = z.input<typeof requestSchema>

@@ -17,6 +17,7 @@ import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
+import AddressBarServers from './AddressBarServer.vue'
 
 const {
   activeRequest,
@@ -168,6 +169,10 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
             class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
 
+            <!-- Servers -->
+            <AddressBarServers />
+
+            <!-- Path + URL + env vars -->
             <CodeInput
               ref="addressBarRef"
               disableCloseBrackets
