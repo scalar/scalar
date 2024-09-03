@@ -94,5 +94,6 @@ watch(
 .collapsible-section-content {
   padding: 0;
   margin: 0;
+  scroll-margin-top: 140px;
 }
 </style>
