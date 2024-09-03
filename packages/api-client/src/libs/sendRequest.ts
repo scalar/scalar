@@ -125,9 +125,12 @@ export const sendRequest = async (
   let data: FormData | string | File | null = null
 
   if (example.body.activeBody === 'binary' && example.body.binary) {
-    headers['Content-Type'] = example.body.binary.type
+    if (example.body.binary.type) {
+      headers['Content-Type'] = example.body.binary.type
+    }
     headers['Content-Disposition'] =
       `attachment; filename="${example.body.binary.name}"`
+    // @ts-expect-error Would be rad to have access to the File type in Node 18, but we that’s not the case.
     data = example.body.binary
   } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
     data = example.body.raw.value
