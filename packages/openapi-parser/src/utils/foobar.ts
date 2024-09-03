@@ -4,9 +4,9 @@ import type {
   ValidateResult,
 } from '../types'
 
-type Queue = {
+type Queue<T extends Task[]> = {
   specification: AnyApiDefinitionFormat
-  tasks: Task[]
+  tasks: T
 }
 
 type Task = 'load' | 'validate'
@@ -38,46 +38,40 @@ export function openapi() {
 
 // Load function to append the 'load' task and return a new chain step
 function loadCommand(specification: AnyApiDefinitionFormat) {
-  const queue = {
-    tasks: ['load'] as const,
-  }
-
   return {
-    validate: () => validate([...queue.tasks, 'validate'] as const),
+    validate: () =>
+      validate({
+        specification,
+        tasks: ['load'] as const,
+      } as const),
     get: () =>
       get({
-        specification: {},
-        tasks: [...queue.tasks],
+        specification,
+        tasks: ['load'] as const,
       } as const),
   }
 }
 
 // Validate function to append the 'validate' task and return a new chain step
-function validate<T extends readonly Task[]>(tasks: T) {
+function validate<T extends Task[]>(queue: Queue<T>) {
   return {
     get: () =>
       get({
-        specification: {},
-        tasks: [...tasks],
+        ...queue,
+        tasks: [...queue.tasks, 'validate'],
       } as const),
   }
 }
 
 // Get function to infer the result type based on accumulated tasks
-function get<T extends Task[]>(
-  queue: Queue & {
-    tasks: T
-  },
-): CommandChain<T> {
+function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
   let result = {} as CommandChain<T>
 
   queue.tasks.forEach((task) => {
     if (task === 'load') {
       result = {
         ...result,
-        specification: {
-          foo: 'bar',
-        },
+        filesystem: [],
       } as Merge<typeof result, LoadResult>
     }
 
