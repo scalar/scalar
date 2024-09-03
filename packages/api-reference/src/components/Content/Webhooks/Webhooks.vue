@@ -43,13 +43,14 @@ const webhooksFiltered = computed(() => {
 })
 </script>
 <template>
-  <SectionContainer v-if="webhookKeys.length">
+  <SectionContainer
+    v-if="webhookKeys.length"
+    id="webhooks">
     <Section>
       <SectionHeader :level="2">Webhooks</SectionHeader>
       <Lazy
         id="webhooks"
         :isLazy="false">
-        <div id="webhooks" />
       </Lazy>
       <div
         class="webhooks-list"

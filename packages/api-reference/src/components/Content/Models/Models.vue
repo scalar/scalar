@@ -44,13 +44,14 @@ const models = computed(() => {
 })
 </script>
 <template>
-  <SectionContainer v-if="schemas">
+  <SectionContainer
+    v-if="schemas"
+    id="models">
     <Section>
       <SectionHeader :level="2">Models</SectionHeader>
       <Lazy
         id="models"
         :isLazy="false">
-        <div id="models" />
       </Lazy>
       <div
         class="models-list"
