@@ -31,7 +31,8 @@ const emit = defineEmits<{
       <button
         class="w-full text-left focus:bg-b-2 hover:bg-b-2 rounded gap-1.5 px-2.5 py-1.5 focus:outline-none flex items-center cursor-pointer delete-warning-button"
         :error="danger"
-        type="submit">
+        type="submit"
+        @click="emit('submit')">
         <ScalarIcon
           class="inline-flex"
           icon="Delete"

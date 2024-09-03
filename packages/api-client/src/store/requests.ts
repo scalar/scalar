@@ -33,17 +33,20 @@ export function createStoreRequests(useLocalStorage: boolean) {
  * Create the extended mutators for request where access to the workspace is required
  */
 export function extendedRequestDataFactory({
-  tags,
   requestExamples,
   requestExampleMutators,
   requestMutators,
   collectionMutators,
   collections,
+  tags,
+  tagMutators,
 }: StoreContext) {
   /** Add request */
   const addRequest = (payload: RequestPayload, collectionUid: string) => {
     const request = schemaModel(payload, requestSchema, false)
     if (!request) return console.error('INVALID REQUEST DATA', payload)
+
+    const collection = collections[collectionUid]
 
     // Create the initial example
     const example = createExampleFromRequest(
@@ -60,15 +63,35 @@ export function extendedRequestDataFactory({
 
     // Add the request to the collection
     collectionMutators.edit(collectionUid, 'requests', [
-      ...collections[collectionUid].requests,
+      ...collection.requests,
       request.uid,
     ])
+
+    // Add to the tags
+    if (request.tags?.length)
+      request.tags.forEach((tagName) => {
+        const tagUid = collection.tags.find((uid) => tags[uid].name === tagName)
+        if (!tagUid) return
+
+        tagMutators.edit(tagUid, 'children', [
+          ...tags[tagUid].children,
+          request.uid,
+        ])
+      })
+    // Add to the collection children if no tags
+    else
+      collectionMutators.edit(collectionUid, 'children', [
+        ...collection.children,
+        request.uid,
+      ])
 
     return request
   }
 
   /** Delete request */
   const deleteRequest = (request: Request, collectionUid: string) => {
+    const collection = collections[collectionUid]
+
     // Remove all examples
     request.examples.forEach((uid) => requestExampleMutators.delete(uid))
 
@@ -76,8 +99,27 @@ export function extendedRequestDataFactory({
     collectionMutators.edit(
       collectionUid,
       'requests',
-      collections[collectionUid].requests.filter((r) => r !== request.uid),
+      collection.requests.filter((r) => r !== request.uid),
     )
+
+    // And collection children
+    collectionMutators.edit(
+      collectionUid,
+      'children',
+      collection.children.filter((r) => r !== request.uid),
+    )
+
+    // And from all tags
+    request.tags?.forEach((tagName) => {
+      const tagUid = collection.tags.find((uid) => tags[uid].name === tagName)
+      if (!tagUid) return
+
+      tagMutators.edit(
+        tagUid,
+        'children',
+        tags[tagUid].children.filter((r) => r !== request.uid),
+      )
+    })
 
     // Remove request
     requestMutators.delete(request.uid)

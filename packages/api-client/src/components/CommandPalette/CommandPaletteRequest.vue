@@ -25,6 +25,7 @@ const {
   activeWorkspaceCollections,
   requestMutators,
   activeRequest,
+  requests,
   tags: _tags,
 } = useWorkspace()
 
@@ -38,7 +39,7 @@ const collections = computed(() =>
   })),
 )
 
-/** All tags in active workspace */
+/** Tags in selected collection */
 const tags = computed(() =>
   activeWorkspaceCollections.value.flatMap((collection) =>
     collection.uid === selectedCollection.value?.id
@@ -57,6 +58,10 @@ const tags = computed(() =>
       : [],
   ),
 )
+
+console.log(activeWorkspaceCollections.value)
+console.log(requests)
+console.log(_tags)
 
 /** Currently selected collection with a reasonable default */
 const selectedCollection = ref<ScalarComboboxOption | undefined>(
@@ -77,9 +82,8 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a request.', 'error')
     return
   }
-  if (!selectedCollection.value?.id && !selectedTag.value?.id) return
-  const parentUid = selectedTag.value?.id ?? selectedCollection.value?.id
-  if (!parentUid || !isHTTPMethod(requestMethod.value)) return
+  if (!selectedCollection.value?.id || !isHTTPMethod(requestMethod.value))
+    return
 
   const newRequest = requestMutators.add(
     {
@@ -88,9 +92,9 @@ const handleSubmit = () => {
       description: requestName.value,
       operationId: requestName.value,
       summary: requestName.value,
-      tags: ['default'],
+      tags: selectedTag.value ? [selectedTag.value.label] : [],
     },
-    parentUid,
+    selectedCollection.value.id,
   )
 
   if (newRequest)
