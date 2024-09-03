@@ -43,7 +43,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     public async Task MapScalarApiReference_ShouldReturnDefaultConfiguration_WhenNotSpecified()
     {
         // Arrange
-        var configuration = ScalarConfiguration.FromOptions(new ScalarOptions());
+        var configuration = new ScalarOptions().ToScalarConfiguration();
         var expectedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalaConfigurationSerializerContext.Default);
         var client = factory.CreateClient();
 

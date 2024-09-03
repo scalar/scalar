@@ -30,7 +30,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             {
                 var title = options.Title.Replace(DocumentName, documentName);
                 var dataUrl = options.SetDataUrl?.Invoke(documentName) ?? $"/openapi/{documentName}.json";
-                var configuration = JsonSerializer.Serialize(ScalarConfiguration.FromOptions(options), typeof(ScalarConfiguration), ScalaConfigurationSerializerContext.Default);
+                var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), typeof(ScalarConfiguration), ScalaConfigurationSerializerContext.Default);
 
                 return Results.Content(
                     $"""
