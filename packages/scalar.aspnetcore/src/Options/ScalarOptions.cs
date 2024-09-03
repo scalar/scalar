@@ -16,6 +16,8 @@ public sealed class ScalarOptions
     /// <remarks>You can use {documentName}, and it will be replaced by the version number.</remarks>
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
 
+    public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
+
     /// <summary>
     /// Whether the sidebar should be shown.
     /// </summary>
@@ -94,14 +96,14 @@ public sealed class ScalarOptions
     /// <summary>
     /// You can pass an array of HTTPSnippet clients that you want to display in the clients menu.
     /// </summary>
-    /// <value>The default value is <see cref="Array.Empty" />.</value>
+    /// <value>The default value is <see cref="Array.Empty{T}" />.</value>
     /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
     public ScalarClients[] EnabledClients { get; set; } = [];
 
     /// <summary>
     /// You can pass an array of HTTPSnippet targets that you want to display in the clients menu.
     /// </summary>
-    /// <value>The default value is <see cref="Array.Empty" />.</value>
+    /// <value>The default value is <see cref="Array.Empty{T}" />.</value>
     /// <remarks>If an empty array is sent, all options will be displayed.</remarks>
     public ScalarTargets[] EnabledTargets { get; set; } = [];
 

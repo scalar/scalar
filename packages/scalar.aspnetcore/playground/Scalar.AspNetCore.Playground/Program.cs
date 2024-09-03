@@ -1,29 +1,22 @@
-using Scalar.AspNetCore;
 using APIWeaver;
 using Microsoft.OpenApi.Models;
+using Scalar.AspNetCore;
+using Scalar.AspNetCore.Playground.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
 {
     options
-        .AddSecurityScheme("Bearer", scheme =>
+        .AddSecurityScheme("ApiKey", scheme =>
         {
-            scheme.Type = SecuritySchemeType.OAuth2;
-            scheme.Flows = new OpenApiOAuthFlows
-            {
-                ClientCredentials = new OpenApiOAuthFlow
-                {
-                    Scopes = new Dictionary<string, string>
-                    {
-                        { "foo", "bar" }
-                    },
-                    TokenUrl = new Uri("http://localhost:5000/token"),
-                }
-            };
+            scheme.Type = SecuritySchemeType.ApiKey;
+            scheme.In = ParameterLocation.Header;
+            scheme.Name = "X-Api-Key";
         })
         .AddAuthResponse();
 });
-builder.Services.AddAuthentication();
+
+builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
 
@@ -34,22 +27,7 @@ if (app.Environment.IsDevelopment())
     {
         options
             .WithTitle("My title")
-            .WithApiKeyAuthentication("ApiKey", x => x.Token = "MyToken")
-            .WithApiKeyAuthentication("ApiKey", new ApiKeyOptions
-            {
-                Token = "MyToken"
-            });
-
-
-        options.Authentication = new ScalarAuthenticationOptions
-        {
-            PreferredSecurityScheme = "Bearer",
-            OAuth2 = new OAuth2Options
-            {
-                ClientId = "ClientId",
-                Scopes = ["read:planets"]
-            }
-        };
+            .WithApiKeyAuthentication("ApiKey", x => x.Token = "my-api-key");
     });
 }
 
@@ -77,7 +55,7 @@ app.MapGet("/weatherforecast", () =>
 
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+internal sealed record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int) (TemperatureC / 0.5556);
 }

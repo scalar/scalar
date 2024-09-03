@@ -42,10 +42,9 @@ public static class OpenApiEndpointRouteBuilderExtensions
                      <body>
                          <script id="api-reference" data-url="{dataUrl}"></script>
                          <script>
-                         const configuration = {configuration}
-                         document.getElementById('api-reference').dataset.configuration = JSON.stringify(configuration)
+                         document.getElementById('api-reference').dataset.configuration = JSON.stringify({configuration})
                          </script>
-                         <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+                         <script src="{options.CdnUrl}"></script>
                      </body>
                      </html>
                      """, "text/html");
