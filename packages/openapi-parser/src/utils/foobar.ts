@@ -3,14 +3,23 @@ import type {
   LoadResult,
   ValidateResult,
 } from '../types'
+import { load } from './load'
+import { validate } from './validate'
 
-type Queue<T extends Task[]> = {
-  specification: AnyApiDefinitionFormat
+/**
+ * Input and a list of tasks to pipe the input through.
+ */
+type Queue<T extends readonly Task[]> = {
+  input: AnyApiDefinitionFormat
   tasks: T
 }
 
+/**
+ * Available tasks
+ */
 type Task = 'load' | 'validate'
 
+/** Available commands */
 type Commands = {
   load: LoadResult
   validate: ValidateResult
@@ -19,6 +28,7 @@ type Commands = {
 /** Utility type to merge results */
 type Merge<A, B> = A & Omit<B, keyof A>
 
+/** Command chain magic */
 type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
   ? First extends Task
     ? Rest extends Task[]
@@ -32,28 +42,32 @@ type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
  */
 export function openapi() {
   return {
-    load: (specification: AnyApiDefinitionFormat) => loadCommand(specification),
+    load: (input: AnyApiDefinitionFormat) => loadCommand(input),
   }
 }
 
-// Load function to append the 'load' task and return a new chain step
-function loadCommand(specification: AnyApiDefinitionFormat) {
+/**
+ * Pass any OpenAPI document
+ */
+function loadCommand(input: AnyApiDefinitionFormat) {
   return {
     validate: () =>
-      validate({
-        specification,
+      validateCommand({
+        input,
         tasks: ['load'] as const,
       } as const),
     get: () =>
       get({
-        specification,
+        input,
         tasks: ['load'] as const,
       } as const),
   }
 }
 
-// Validate function to append the 'validate' task and return a new chain step
-function validate<T extends Task[]>(queue: Queue<T>) {
+/**
+ * Validate the given OpenAPI document
+ */
+function validateCommand<T extends Task[]>(queue: Queue<T>) {
   return {
     get: () =>
       get({
@@ -63,22 +77,24 @@ function validate<T extends Task[]>(queue: Queue<T>) {
   }
 }
 
-// Get function to infer the result type based on accumulated tasks
+/**
+ * Run the chained tasks and return the results
+ */
 function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
   let result = {} as CommandChain<T>
 
-  queue.tasks.forEach((task) => {
+  queue.tasks.forEach(async (task) => {
     if (task === 'load') {
       result = {
         ...result,
-        filesystem: [],
+        ...(await load(queue.input)),
       } as Merge<typeof result, LoadResult>
     }
 
     if (task === 'validate') {
       result = {
         ...result,
-        valid: true,
+        ...validate(queue.input),
       } as Merge<typeof result, ValidateResult>
     }
   })
@@ -92,6 +108,6 @@ const result1 = openapi().load({}).validate().get()
 // Type: LoadResult
 const result2 = openapi().load({}).get()
 
-console.log(result1.valid, result1.specification)
+console.log(result1.valid, result1.filesystem)
 // @ts-expect-error Valid is not defined
 console.log(result2.valid)
