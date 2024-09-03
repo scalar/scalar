@@ -46,8 +46,8 @@ internal static class ScalarOptionsMapper
             HiddenClients = GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {
-                ClientKey = options.DefaultHttpClient.ClientKey.ToStringFast(),
-                TargetKey = options.DefaultHttpClient.TargetKey.ToStringFast()
+                ClientKey = options.DefaultHttpClient.Value.ToStringFast(),
+                TargetKey = options.DefaultHttpClient.Key.ToStringFast()
             }
         };
     }

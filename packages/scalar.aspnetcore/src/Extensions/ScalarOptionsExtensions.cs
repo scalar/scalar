@@ -118,11 +118,7 @@ public static class ScalarOptionsExtensions
 
     public static ScalarOptions WithDefaultHttpClient(this ScalarOptions options, ScalarTarget target, ScalarClient client)
     {
-        options.DefaultHttpClient = new ScalarDefaultHttpClient
-        {
-            ClientKey = client,
-            TargetKey = target
-        };
+        options.DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(target, client);
         return options;
     }
 

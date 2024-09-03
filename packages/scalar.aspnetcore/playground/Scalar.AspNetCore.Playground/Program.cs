@@ -30,6 +30,7 @@ app.MapScalarApiReference(options =>
         .WithSidebar(false)
         .WithDownloadButton(false)
         .WithPreferredScheme("ApiKey")
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
         .WithApiKeyAuthentication(x => x.Token = "my-api-key");
 });
 
