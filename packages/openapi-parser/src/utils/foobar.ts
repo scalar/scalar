@@ -6,16 +6,12 @@ import type {
 
 type Task = 'load' | 'validate'
 
-type LoadCommand = LoadResult
-
-type ValidateCommand = ValidateResult
-
 type Commands = {
-  load: LoadCommand
-  validate: ValidateCommand
+  load: LoadResult
+  validate: ValidateResult
 }
 
-// Utility type to merge results
+/** Utility type to merge results */
 type Merge<A, B> = A & Omit<B, keyof A>
 
 type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
@@ -65,25 +61,25 @@ function get<T extends Task[]>(tasks: T): CommandChain<T> {
         specification: {
           foo: 'bar',
         },
-      } as Merge<typeof result, LoadCommand>
+      } as Merge<typeof result, LoadResult>
     }
 
     if (task === 'validate') {
       result = {
         ...result,
         valid: true,
-      } as Merge<typeof result, ValidateCommand>
+      } as Merge<typeof result, ValidateResult>
     }
   })
 
   return result
 }
 
-// Type: LoadCommand & ValidateCommand
-const result1 = openapi().load().validate().get()
+// Type: LoadResult & ValidateResult
+const result1 = openapi().load({}).validate().get()
 
-// Type: LoadCommand
-const result2 = openapi().load().get()
+// Type: LoadResult
+const result2 = openapi().load({}).get()
 
 console.log(result1.valid, result1.specification)
 // @ts-expect-error Valid is not defined
