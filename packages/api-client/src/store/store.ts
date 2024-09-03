@@ -206,8 +206,11 @@ export const createWorkspaceStore = (
   /** The currently selected server in the addressBar */
   const activeServer = computed(
     () =>
-      activeCollection.value &&
-      servers[activeCollection.value.selectedServerUid],
+      servers[
+        activeRequest.value?.selectedServerUid ??
+          activeCollection.value?.selectedServerUid ??
+          ''
+      ],
   )
 
   /** Cookie associated with the current route */
