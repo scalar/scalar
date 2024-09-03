@@ -17,6 +17,7 @@
   },
   "scripts": {
     "build": "npm run types:check && electron-vite build",
+    "build:open": "cd open && vue-tsc --noEmit && vite build",
     "dev": "electron-vite dev",
     "dev:open": "cd open && vite",
     "dev:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
