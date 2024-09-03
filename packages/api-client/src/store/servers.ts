@@ -1,6 +1,10 @@
 import { LS_KEYS } from '@/store/local-storage'
 import type { StoreContext } from '@/store/store-context'
-import { type Server, serverSchema } from '@scalar/oas-utils/entities/spec'
+import {
+  type Server,
+  type ServerPayload,
+  serverSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 
@@ -25,24 +29,35 @@ export function extendedServerDataFactory({
   serverMutators,
   collections,
   collectionMutators,
+  requests,
+  requestMutators,
 }: StoreContext) {
   /**
    * Add a server
    * If the collectionUid is included it is added to the collection as well
    */
-  const addServer = (payload: Server, collectionUid?: string) => {
+  const addServer = (payload: ServerPayload, parentUid: string) => {
     const server = serverSchema.parse(payload)
 
     // Add to collection
-    if (collectionUid) {
-      collectionMutators.edit(collectionUid, 'servers', [
-        ...collections[collectionUid].servers,
+    if (collections[parentUid]) {
+      collectionMutators.edit(parentUid, 'servers', [
+        ...collections[parentUid].servers,
+        server.uid,
+      ])
+    }
+    // Add to request
+    else if (requests[parentUid]) {
+      requestMutators.edit(parentUid, 'servers', [
+        ...requests[parentUid].servers,
         server.uid,
       ])
     }
 
     // Add to servers
     serverMutators.add(server)
+
+    return server
   }
 
   /** Delete a server */

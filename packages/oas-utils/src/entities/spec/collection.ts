@@ -58,3 +58,4 @@ export const collectionSchema = oasCollectionSchema.merge(
   extendedCollectionSchema,
 )
 export type Collection = z.infer<typeof collectionSchema>
+export type CollectionPayload = z.input<typeof collectionSchema>

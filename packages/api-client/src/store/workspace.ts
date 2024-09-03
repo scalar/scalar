@@ -42,7 +42,7 @@ export function extendedWorkspaceDataFactory({
     const request = requestSchema.parse({
       method: 'get',
       parameters: [],
-      path: '/',
+      path: '',
       summary: 'My First Request',
       examples: [example.uid],
     })
