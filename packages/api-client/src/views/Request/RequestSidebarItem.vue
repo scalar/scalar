@@ -243,7 +243,6 @@ const openRenameModal = () => {
 
 /** Delete with redirect for both requests and requestExamples */
 const handleItemDelete = () => {
-  console.log('we even here?')
   item.value.delete()
 
   if (activeRouterParams.value[PathId.Request] === props.uid)
