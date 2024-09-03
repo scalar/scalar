@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>latest</LangVersion>
     <Version>1.2.0</Version>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
@@ -14,11 +11,6 @@
     <IsAotCompatible>true</IsAotCompatible>
     <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
     <InterceptorsPreviewNamespaces>$(InterceptorsPreviewNamespaces);Microsoft.AspNetCore.Http.Generated</InterceptorsPreviewNamespaces>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(CI) == true">
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <PropertyGroup>
