@@ -36,6 +36,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
     <template #content-start="{ spec }">
       <ClassicHeader>
         <SearchButton
+          v-if="!props.configuration.hideSearch"
           class="t-doc__sidebar"
           :searchHotKey="config.searchHotKey"
           :spec="spec" />

@@ -102,6 +102,18 @@ Whether to show the “Test Request” button
 }
 ```
 
+#### hideSearch?: boolean
+
+Whether to show the sidebar search bar
+
+`@default false`
+
+```js
+{
+  hideSearch: true
+}
+```
+
 #### darkMode?: boolean
 
 Whether dark mode is on or off initially (light mode)

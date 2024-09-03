@@ -27,6 +27,7 @@ defineEmits<{
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
   display: flex;
   align-items: center;
+  margin-left: auto;
 
   height: 24px;
   width: 24px;
