@@ -27,6 +27,8 @@ if (app.Environment.IsDevelopment())
         options
             .WithTitle("My title")
             .WithTheme(ScalarTheme.Mars)
+            .WithSearchHotKey("o")
+            .WithSidebar(false)
             .WithApiKeyAuthentication("ApiKey", x => x.Token = "my-api-key");
     });
 }

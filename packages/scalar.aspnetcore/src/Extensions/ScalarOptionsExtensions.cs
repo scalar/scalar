@@ -20,9 +20,9 @@ public static class ScalarOptionsExtensions
         return options;
     }
     
-    public static ScalarOptions WithSideBar(this ScalarOptions options, bool showSideBar)
+    public static ScalarOptions WithSidebar(this ScalarOptions options, bool showSidebar)
     {
-        options.ShowSideBar = showSideBar;
+        options.ShowSidebar = showSidebar;
         return options;
     }
     
@@ -56,9 +56,9 @@ public static class ScalarOptionsExtensions
         return options;
     }
     
-    public static ScalarOptions WithSearchHotkey(this ScalarOptions options, string searchHotkey)
+    public static ScalarOptions WithSearchHotKey(this ScalarOptions options, string searchHotKey)
     {
-        options.SearchHotkey = searchHotkey;
+        options.SearchHotKey = searchHotKey;
         return options;
     }
     

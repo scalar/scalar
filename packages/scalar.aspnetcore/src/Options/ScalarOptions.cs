@@ -22,7 +22,7 @@ public sealed class ScalarOptions
     /// Whether the sidebar should be shown.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
-    public bool ShowSideBar { get; set; } = true;
+    public bool ShowSidebar { get; set; } = true;
 
     /// <summary>
     /// Whether models (components.schemas or definitions) should be shown in the sidebar, search and content.
@@ -66,7 +66,7 @@ public sealed class ScalarOptions
     /// Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
     /// </summary>
     /// <value>The default value is <c>k</c>.</value>
-    public string? SearchHotkey { get; set; }
+    public string? SearchHotKey { get; set; }
 
     /// <summary>
     /// Set color theme.

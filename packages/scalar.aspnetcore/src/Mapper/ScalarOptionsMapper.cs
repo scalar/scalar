@@ -28,17 +28,19 @@ internal static class ScalarOptionsMapper
     {
         return new ScalarConfiguration
         {
+            Proxy = options.ProxyUrl,
             Theme = options.Theme.ToStringFast(),
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,
             HideDownloadButton = options.HideDownloadButton,
+            HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
             ForceDarkModeState = options.ForceDarkModeState,
-            ShowSideBar = options.ShowSideBar,
+            ShowSidebar = options.ShowSidebar,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
-            SearchHotkey = options.SearchHotkey,
+            SearchHotKey = options.SearchHotKey,
             Metadata = options.Metadata,
             Authentication = options.Authentication,
             HiddenClients = GetHiddenClients(options),
