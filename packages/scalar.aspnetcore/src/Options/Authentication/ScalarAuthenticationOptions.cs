@@ -1,6 +1,6 @@
 namespace Scalar.AspNetCore;
 
-public class ScalarAuthenticationOptions
+public sealed class ScalarAuthenticationOptions
 {
     /// <summary>
     /// The OpenAPI file has keys for all security schemes
