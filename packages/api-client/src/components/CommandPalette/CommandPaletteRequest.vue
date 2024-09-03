@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isHTTPMethod } from '@/components/HttpMethod'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
 import {
@@ -7,7 +8,6 @@ import {
   ScalarIcon,
   ScalarListbox,
 } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -29,7 +29,7 @@ const {
 } = useWorkspace()
 
 const requestName = ref('')
-const requestMethod = ref('GET')
+const requestMethod = ref('get')
 
 const collections = computed(() =>
   activeWorkspaceCollections.value.map((collection) => ({
@@ -79,12 +79,12 @@ const handleSubmit = () => {
   }
   if (!selectedCollection.value?.id && !selectedTag.value?.id) return
   const parentUid = selectedTag.value?.id ?? selectedCollection.value?.id
-  if (!parentUid) return
+  if (!parentUid || !isHTTPMethod(requestMethod.value)) return
 
   const newRequest = requestMutators.add(
     {
       path: '',
-      method: requestMethod.value.toUpperCase() as RequestMethod,
+      method: requestMethod.value,
       description: requestName.value,
       operationId: requestName.value,
       summary: requestName.value,

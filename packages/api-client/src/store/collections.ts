@@ -1,6 +1,7 @@
 import type { StoreContext } from '@/store/store-context'
 import {
   type Collection,
+  type CollectionPayload,
   collectionSchema,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -35,7 +36,7 @@ export function extendedCollectionDataFactory({
   collections,
   collectionMutators,
 }: StoreContext) {
-  const addCollection = (payload: Collection, workspaceUid: string) => {
+  const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
     const collection = collectionSchema.parse(payload)
     workspaceMutators.edit(workspaceUid, 'collections', [
       ...workspaces[workspaceUid].collections,
