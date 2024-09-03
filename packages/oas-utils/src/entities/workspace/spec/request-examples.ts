@@ -69,7 +69,13 @@ const requestExampleSchema = z.object({
           value: requestExampleParametersSchema.array().default([]),
         })
         .default({}),
-      binary: z.instanceof(File).optional(),
+      binary: z
+        .object({
+          name: z.string(),
+          type: z.string(),
+          size: z.number(),
+        })
+        .optional(),
       activeBody: z
         .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
         .default('raw'),
