@@ -1,4 +1,5 @@
 import type {
+  AnyApiDefinitionFormat,
   AnyObject,
   DetailsResult,
   Filesystem,
@@ -35,11 +36,6 @@ export type Queue = {
   specification: AnyApiDefinitionFormat
   tasks: Action[]
 }
-
-/**
- * JSON, YAML or object representation of an OpenAPI API definition
- */
-export type AnyApiDefinitionFormat = string | AnyObject
 
 /**
  * Creates a new pipeline

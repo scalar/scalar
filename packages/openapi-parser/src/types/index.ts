@@ -73,3 +73,8 @@ export type ThrowOnErrorOption = {
    */
   throwOnError?: boolean
 }
+
+/**
+ * JSON, YAML or object representation of an OpenAPI API definition
+ */
+export type AnyApiDefinitionFormat = string | AnyObject
