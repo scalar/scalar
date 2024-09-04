@@ -32,6 +32,7 @@ const moreThanOneDefaultTag = computed(
     <Endpoints
       v-if="moreThanOneDefaultTag"
       :id="id"
+      :isCollapsed="collapsedSidebarItems[getTagId(tag)]"
       :tag="tag" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
