@@ -30,15 +30,15 @@ type Queue<T extends readonly Task[] = readonly Task[]> = {
  * Available tasks
  */
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-type Task =
-  | {
-      name: 'load'
-      options?: LoadOptions
-    }
-  | {
-      name: 'validate'
-      options?: ValidateOptions
-    }
+// type Task =
+//   | {
+//       name: 'load'
+//       options?: LoadOptions
+//     }
+//   | {
+//       name: 'validate'
+//       options?: ValidateOptions
+//     }
 
 // declare global {
 //   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -56,7 +56,7 @@ type Task =
 // }
 
 /**
- * Available commands
+ * Available commands, can be extended dynamically
  */
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -90,7 +90,7 @@ declare global {
 type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
   ? First extends Task
     ? Rest extends Task[]
-      ? Merge<Commands[First['name']], CommandChain<Rest>>
+      ? Merge<Commands[First['name']]['result'], CommandChain<Rest>>
       : never
     : never
   : NonNullable<unknown>
@@ -104,9 +104,20 @@ export function openapi() {
   }
 }
 
+/**
+ * Available tasks, populated from the global Commands interface
+ */
+type Task = Commands[keyof Commands]['task']
+
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 interface Commands {
-  load: LoadResult
+  load: {
+    task: {
+      name: 'load'
+      options?: LoadOptions
+    }
+    result: LoadResult
+  }
 }
 
 /**
@@ -136,7 +147,13 @@ function queueTask<T extends Task[]>(queue: Queue, task: Task) {
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 interface Commands {
-  validate: ValidateResult
+  validate: {
+    task: {
+      name: 'validate'
+      options?: ValidateOptions
+    }
+    result: ValidateResult
+  }
 }
 
 /**
