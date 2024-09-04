@@ -3,6 +3,8 @@ import type { DereferenceOptions } from '../dereference'
 import type { ValidateOptions } from '../validate'
 import { dereferenceCommand } from './dereferenceCommand'
 import { get } from './get'
+import { toJson } from './toJson'
+import { toYaml } from './toYaml'
 import { queueTask } from './utils/queueTask'
 import { validateCommand } from './validateCommand'
 
@@ -32,6 +34,8 @@ export function upgradeCommand<T extends Task[]>(previousQueue: Queue<T>) {
     dereference: (dereferenceOptions?: DereferenceOptions) =>
       dereferenceCommand(queue, dereferenceOptions),
     get: () => get(queue),
+    toJson: () => toJson(queue),
+    toYaml: () => toYaml(queue),
     validate: (validateOptions?: ValidateOptions) =>
       validateCommand(queue, validateOptions),
   }

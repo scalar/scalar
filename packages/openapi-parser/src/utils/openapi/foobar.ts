@@ -26,7 +26,6 @@ const result1 = await openapi()
   .upgrade()
   .dereference()
   .get()
-
 console.log(result1.valid, result1.filesystem, result1.version, result1.schema)
 
 // Type: LoadResult & ValidateResult & UpgradeResult
@@ -41,3 +40,6 @@ console.log(result3.valid, result3.filesystem)
 const result4 = await openapi().load({}).get()
 // @ts-expect-error Valid is not defined
 console.log(result4.valid)
+
+const json = await openapi().load({}).toJson()
+console.log(json)

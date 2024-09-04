@@ -9,6 +9,8 @@ import type { LoadOptions } from '../load'
 import type { ValidateOptions } from '../validate'
 import { dereferenceCommand } from './dereferenceCommand'
 import { get } from './get'
+import { toJson } from './toJson'
+import { toYaml } from './toYaml'
 import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
 import { validateCommand } from './validateCommand'
@@ -54,6 +56,8 @@ export function loadCommand<T extends Task[]>(
       dereferenceCommand(queue, dereferenceOptions),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),
+    toJson: () => toJson(queue),
+    toYaml: () => toYaml(queue),
     validate: (validateOptions?: ValidateOptions) =>
       validateCommand(queue, validateOptions),
   }
