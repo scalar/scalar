@@ -5,8 +5,10 @@ import {
   ScalarMarkdown,
 } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { inject } from 'vue'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
+import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
 import { HttpMethod } from '../../HttpMethod'
@@ -22,6 +24,9 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
+const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
+
+console.log(!getHideTestRequestButton?.())
 </script>
 <template>
   <SectionAccordion
@@ -55,7 +60,7 @@ const { copyToClipboard } = useClipboard()
         v-if="active"
         :operation="operation" />
       <ScalarIcon
-        v-else
+        v-else-if="!getHideTestRequestButton?.()"
         class="endpoint-try-hint"
         icon="Play"
         thickness="1.75px" />
