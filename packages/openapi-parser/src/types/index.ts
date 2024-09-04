@@ -2,7 +2,24 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { ERRORS, OpenApiVersion } from '../configuration'
 
+/**
+ * Merge types with each other
+ */
+export type Merge<A, B> = A & Omit<B, keyof A>
+
+/**
+ * Unwrap a Promise to get the type of it
+ */
+export type PromiseReturnType<FunctionType> = Awaited<
+  Promise<PromiseLike<FunctionType>>
+>
+
 export type AnyObject = Record<string, any>
+
+/**
+ * JSON, YAML or object representation of an OpenAPI API definition
+ */
+export type AnyApiDefinitionFormat = string | AnyObject
 
 export type LoadResult = {
   filesystem: Filesystem
@@ -74,7 +91,23 @@ export type ThrowOnErrorOption = {
   throwOnError?: boolean
 }
 
+declare global {
+  /**
+   * Available commands, can be extended dynamically
+   */
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Commands {}
+}
+
 /**
- * JSON, YAML or object representation of an OpenAPI API definition
+ * Input and a list of tasks to pipe the input through.
  */
-export type AnyApiDefinitionFormat = string | AnyObject
+export type Queue<T extends readonly Task[] = readonly Task[]> = {
+  input: AnyApiDefinitionFormat
+  tasks: T
+}
+
+/**
+ * Available tasks, populated from the global Commands interface
+ */
+export type Task = Commands[keyof Commands]['task']

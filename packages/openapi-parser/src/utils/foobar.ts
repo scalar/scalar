@@ -1,67 +1,14 @@
 import type {
   AnyApiDefinitionFormat,
   LoadResult,
+  Merge,
+  PromiseReturnType,
+  Queue,
+  Task,
   ValidateResult,
 } from '../types'
 import { type LoadOptions, load } from './load'
 import { type ValidateOptions, validate } from './validate'
-
-/**
- * Merge types with each other
- */
-type Merge<A, B> = A & Omit<B, keyof A>
-
-/**
- * Unwrap a Promise to get the type of it
- */
-type PromiseReturnType<FunctionType> = Awaited<
-  Promise<PromiseLike<FunctionType>>
->
-
-/**
- * Input and a list of tasks to pipe the input through.
- */
-type Queue<T extends readonly Task[] = readonly Task[]> = {
-  input: AnyApiDefinitionFormat
-  tasks: T
-}
-
-/**
- * Available tasks
- */
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-// type Task =
-//   | {
-//       name: 'load'
-//       options?: LoadOptions
-//     }
-//   | {
-//       name: 'validate'
-//       options?: ValidateOptions
-//     }
-
-// declare global {
-//   // eslint-disable-next-line @typescript-eslint/no-namespace
-//   namespace QueueTasks {
-//     type Task =
-//       | {
-//           name: 'load'
-//           options?: LoadOptions
-//         }
-//       | {
-//           name: 'validate'
-//           options?: ValidateOptions
-//         }
-//   }
-// }
-
-/**
- * Available commands, can be extended dynamically
- */
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Commands {}
-}
 
 /**
  * Command chain magic
@@ -105,18 +52,25 @@ export function openapi() {
 }
 
 /**
- * Available tasks, populated from the global Commands interface
+ * Add a new task to the existing queue
  */
-type Task = Commands[keyof Commands]['task']
+function queueTask<T extends Task[]>(queue: Queue, task: Task) {
+  return {
+    ...queue,
+    tasks: [...queue.tasks, task],
+  } as Queue<T>
+}
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface Commands {
-  load: {
-    task: {
-      name: 'load'
-      options?: LoadOptions
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Commands {
+    load: {
+      task: {
+        name: 'load'
+        options?: LoadOptions
+      }
+      result: LoadResult
     }
-    result: LoadResult
   }
 }
 
@@ -135,24 +89,16 @@ function loadCommand(input: AnyApiDefinitionFormat) {
   }
 }
 
-/**
- * Add a new task to the existing queue
- */
-function queueTask<T extends Task[]>(queue: Queue, task: Task) {
-  return {
-    ...queue,
-    tasks: [...queue.tasks, task],
-  } as Queue<T>
-}
-
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-interface Commands {
-  validate: {
-    task: {
-      name: 'validate'
-      options?: ValidateOptions
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Commands {
+    validate: {
+      task: {
+        name: 'validate'
+        options?: ValidateOptions
+      }
+      result: ValidateResult
     }
-    result: ValidateResult
   }
 }
 
