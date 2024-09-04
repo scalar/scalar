@@ -14,4 +14,4 @@ paths:
         - in: query
           name: id
           schema:
-            type: string        
+            type: string
