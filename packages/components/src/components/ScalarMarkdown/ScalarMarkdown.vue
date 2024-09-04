@@ -10,6 +10,7 @@ const props = withDefaults(
     withImages?: boolean
     transform?: (node: Record<string, any>) => Record<string, any>
     transformType?: string
+    isCollapsed?: boolean
   }>(),
   {
     withImages: false,
@@ -31,9 +32,19 @@ onServerPrefetch(async () => await sleep(1))
 <template>
   <div
     class="markdown"
+    :class="{ collapsed: !isCollapsed }"
     v-html="html" />
 </template>
 
 <style>
 @import '@scalar/code-highlight/css/markdown.css';
+</style>
+<style scoped>
+.collapsed {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 7;
+  -webkit-box-orient: vertical;
+}
 </style>

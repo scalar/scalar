@@ -14,7 +14,7 @@ import {
   SectionHeader,
 } from '../../Section'
 
-const props = defineProps<{ id?: string; tag: Tag }>()
+const props = defineProps<{ id?: string; tag: Tag; isCollapsed?: boolean }>()
 
 const { getOperationId, getTagId } = useNavState()
 const { scrollToOperation } = useSidebar()
@@ -38,6 +38,7 @@ const scrollHandler = async (operation: TransformedOperation) => {
             </Anchor>
           </SectionHeader>
           <ScalarMarkdown
+            :isCollapsed="isCollapsed"
             :value="tag.description"
             withImages />
         </SectionColumn>
