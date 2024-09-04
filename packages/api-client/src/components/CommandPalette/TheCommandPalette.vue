@@ -99,8 +99,7 @@ type Command = (typeof availableCommands)[number]['commands'][number]
 
 const modalState = useModal()
 const { push } = useRouter()
-const { activeWorkspace, collections } = useWorkspace()
-console.log(collections)
+const { activeWorkspace } = useWorkspace()
 
 /** Additional metadata for the command palettes */
 const metaData = ref<string>()
