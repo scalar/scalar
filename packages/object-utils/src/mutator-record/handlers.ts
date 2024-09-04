@@ -2,7 +2,6 @@ import { Mutation } from '@/mutator-record/mutations'
 import type { Path, PathValue } from '@/nested'
 import { useDebounceFn } from '@vueuse/core'
 import { parse, stringify } from 'flatted'
-import type { ValueOf } from 'type-fest'
 
 import { LS_CONFIG } from './local-storage'
 

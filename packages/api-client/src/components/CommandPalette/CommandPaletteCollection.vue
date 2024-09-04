@@ -17,14 +17,13 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a collection.', 'error')
     return
   }
+
   collectionMutators.add(
     {
-      spec: {
-        openapi: '3.1.0',
-        info: {
-          title: collectionName.value,
-          version: '0.0.1',
-        },
+      openapi: '3.1.0',
+      info: {
+        title: collectionName.value,
+        version: '0.0.1',
       },
     },
     activeWorkspace.value.uid,
