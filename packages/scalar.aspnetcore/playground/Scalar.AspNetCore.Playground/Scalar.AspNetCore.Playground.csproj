@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Scalar.AspNetCore.csproj"/>
+    <ProjectReference Include="..\..\src\Scalar.AspNetCore\Scalar.AspNetCore.csproj" />
   </ItemGroup>
 
 </Project>
