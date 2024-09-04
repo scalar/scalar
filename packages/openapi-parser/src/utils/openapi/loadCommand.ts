@@ -18,11 +18,14 @@ declare global {
 /**
  * Pass any OpenAPI document
  */
-export function loadCommand(input: AnyApiDefinitionFormat) {
+export function loadCommand(
+  input: AnyApiDefinitionFormat,
+  options?: LoadOptions,
+) {
   const queue = {
     input,
-    tasks: [{ name: 'load' }],
-  } as Queue<[{ name: 'load' }]>
+    tasks: [{ name: 'load', options }],
+  } as Queue<[{ name: 'load'; options: LoadOptions }]>
 
   return {
     validate: () => validateCommand(queue),

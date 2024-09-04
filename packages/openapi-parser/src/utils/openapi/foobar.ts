@@ -1,12 +1,22 @@
-import type { AnyApiDefinitionFormat } from '../../types'
+import type { AnyApiDefinitionFormat, ThrowOnErrorOption } from '../../types'
+import type { LoadOptions } from '../load'
 import { loadCommand } from './loadCommand'
+
+/**
+ * Options, that can apply to all commands
+ */
+export type OpenApiOptions = ThrowOnErrorOption
 
 /**
  * Creates a fluent OpenAPI pipeline
  */
-export function openapi() {
+export function openapi(globalOptions?: OpenApiOptions) {
   return {
-    load: (input: AnyApiDefinitionFormat) => loadCommand(input),
+    load: (input: AnyApiDefinitionFormat, options?: LoadOptions) =>
+      loadCommand(input, {
+        ...(globalOptions ?? {}),
+        ...(options ?? {}),
+      }),
   }
 }
 
