@@ -1,6 +1,5 @@
 import { nanoidSchema } from '@/entities/shared'
-import { nanoid } from 'nanoid'
-import { nan, z } from 'zod'
+import { z } from 'zod'
 
 /**
  * License information for the exposed API.
@@ -93,7 +92,7 @@ export const xScalarNestedSchema = z
 export const oasTagSchema = z.object({
   'type': z.literal('tag').optional().default('tag'),
   /** REQUIRED. The name of the tag. */
-  'name': z.string().optional().default('default'),
+  'name': z.string(),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
   'description': z.string().optional(),
   /** Additional external documentation for this tag. */
@@ -107,3 +106,4 @@ export const tagSchema = oasTagSchema.extend({
 })
 
 export type Tag = z.infer<typeof tagSchema>
+export type TagPayload = z.input<typeof tagSchema>
