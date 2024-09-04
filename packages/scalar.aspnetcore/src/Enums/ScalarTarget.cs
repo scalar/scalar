@@ -4,7 +4,7 @@ using NetEscapades.EnumGenerators;
 namespace Scalar.AspNetCore;
 
 /// <summary>
-/// Represents the different scalar targets available in Scalar.
+/// Represents the different targets available in Scalar.
 /// </summary>
 [EnumExtensions]
 public enum ScalarTarget
