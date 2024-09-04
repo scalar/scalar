@@ -11,6 +11,7 @@ export function importSpecFileFactory({
   serverMutators,
   tagMutators,
   securitySchemeMutators,
+  requestExampleMutators,
   workspaceMutators,
   workspaces,
 }: StoreContext) {
@@ -37,6 +38,7 @@ export function importSpecFileFactory({
 
     // Add all basic entities to the store
     // WARNING: We expect all internal references to be set between entities at this point
+    workspaceEntities.examples.forEach((e) => requestExampleMutators.add(e))
     workspaceEntities.requests.forEach((r) => requestMutators.add(r))
     workspaceEntities.tags.forEach((t) => tagMutators.add(t))
     workspaceEntities.servers.forEach((s) => serverMutators.add(s))
