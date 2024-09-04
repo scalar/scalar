@@ -109,6 +109,13 @@ export type ReferenceConfiguration = {
    */
   metaData?: UseSeoMetaInput
   /**
+   * Path to a favicon image
+   *
+   * @default undefined
+   * @example '/favicon.svg'
+   */
+  favicon?: string
+  /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
