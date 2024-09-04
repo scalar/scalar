@@ -167,10 +167,10 @@ export const createWorkspaceStore = (
     // Can use this fallback to get an active request
     // TODO: Do we really need this? We have to handle undefined anyways
     const collection =
-      collections[activeRouterParams.value.collection] ??
+      collections[activeRouterParams.value.collection] ||
       collections[activeWorkspace.value.collections[0]]
 
-    const request = requests[key] ?? requests[collection?.requests[0]]
+    const request = requests[key] || requests[collection?.requests[0]]
 
     fallbackMissingParams(PathId.Request, request)
 
@@ -181,7 +181,7 @@ export const createWorkspaceStore = (
   const activeExample = computed<RequestExample | undefined>(() => {
     const key =
       activeRouterParams.value[PathId.Examples] === 'default'
-        ? Object.keys(requestExamples)[0]
+        ? activeRequest.value?.examples[0] || ''
         : activeRouterParams.value[PathId.Examples]
 
     return requestExamples[key]
