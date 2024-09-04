@@ -29,6 +29,7 @@ type Queue<T extends readonly Task[] = readonly Task[]> = {
 /**
  * Available tasks
  */
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
 type Task =
   | {
       name: 'load'
@@ -39,12 +40,27 @@ type Task =
       options?: ValidateOptions
     }
 
+// declare global {
+//   // eslint-disable-next-line @typescript-eslint/no-namespace
+//   namespace QueueTasks {
+//     type Task =
+//       | {
+//           name: 'load'
+//           options?: LoadOptions
+//         }
+//       | {
+//           name: 'validate'
+//           options?: ValidateOptions
+//         }
+//   }
+// }
+
 /**
  * Available commands
  */
-type Commands = {
-  load: LoadResult
-  validate: ValidateResult
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Commands {}
 }
 
 /**
@@ -88,6 +104,11 @@ export function openapi() {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+interface Commands {
+  load: LoadResult
+}
+
 /**
  * Pass any OpenAPI document
  */
@@ -113,6 +134,11 @@ function queueTask<T extends Task[]>(queue: Queue, task: Task) {
   } as Queue<T>
 }
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+interface Commands {
+  validate: ValidateResult
+}
+
 /**
  * Validate the given OpenAPI document
  */
@@ -131,10 +157,13 @@ function validateCommand<T extends Task[]>(previousQueue: Queue<T>) {
 /**
  * Run the chained tasks and return the results
  */
-function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
+async function get<T extends Task[]>(
+  queue: Queue<T>,
+): Promise<CommandChain<T>> {
   let result = {} as CommandChain<T>
 
-  queue.tasks.forEach(async ({ name }) => {
+  // Work through the whole queue
+  queue.tasks.forEach(async ({ name }: { name: keyof Commands }) => {
     const { input } = queue
 
     // load
@@ -144,13 +173,17 @@ function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
         ...(await load(input)),
       } as Merge<typeof result, PromiseReturnType<typeof load>>
     }
-
     // validate
-    if (name === 'validate') {
+    else if (name === 'validate') {
       result = {
         ...result,
         ...validate(input),
       } as Merge<typeof result, ReturnType<typeof validate>>
+    }
+    // Make TS complain when we forgot to handle a command.
+    else {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _: never = name
     }
   })
 
@@ -158,10 +191,10 @@ function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
 }
 
 // Type: LoadResult & ValidateResult
-const result1 = openapi().load({}).validate().get()
+const result1 = await openapi().load({}).validate().get()
 
 // Type: LoadResult
-const result2 = openapi().load({}).get()
+const result2 = await openapi().load({}).get()
 
 console.log(result1.valid, result1.filesystem)
 // @ts-expect-error Valid is not defined
