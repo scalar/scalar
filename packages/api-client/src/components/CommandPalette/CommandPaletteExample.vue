@@ -63,9 +63,7 @@ const handleSubmit = () => {
   emits('close')
 }
 
-onMounted(() => {
-  exampleInput.value?.focus()
-})
+onMounted(() => exampleInput.value?.focus())
 </script>
 <template>
   <div class="flex w-full flex-col gap-3">
@@ -104,12 +102,12 @@ onMounted(() => {
           <template #items>
             <div class="max-h-40 custom-scroll">
               <ScalarDropdownItem
-                v-for="request in activeWorkspaceRequests"
-                :key="request.uid"
+                v-for="uid in activeWorkspaceRequests"
+                :key="uid"
                 class="flex h-7 w-full items-center justify-between px-1 pr-[26px]"
-                @click="handleSelect(request)">
-                {{ request.summary }}
-                <HttpMethod :method="request.method" />
+                @click="handleSelect(requests[uid])">
+                {{ requests[uid].summary }}
+                <HttpMethod :method="requests[uid].method" />
               </ScalarDropdownItem>
             </div>
           </template>

@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import {
+  ScalarButton,
+  type ScalarComboboxOption,
+  ScalarIcon,
+  ScalarListbox,
+} from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onMounted, ref } from 'vue'
 
@@ -8,50 +13,43 @@ const emits = defineEmits<{
   (event: 'close'): void
 }>()
 
-const { activeWorkspaceCollections, folderMutators, activeCollection } =
+const { activeWorkspaceCollections, activeCollection, tagMutators } =
   useWorkspace()
-const folderName = ref('')
-const selectedCollectionId = ref(activeCollection.value?.uid ?? '')
 const { toast } = useToasts()
 
 const availableCollections = computed(() =>
   activeWorkspaceCollections.value.map((collection) => ({
     id: collection.uid,
-    label: collection.spec?.info?.title ?? '',
+    label: collection.info?.title ?? '',
   })),
 )
 
-const selectedCollection = computed({
-  get: () =>
-    availableCollections.value.find(
-      ({ id }) => id === selectedCollectionId.value,
-    ),
-  set: (opt) => {
-    if (opt?.id) selectedCollectionId.value = opt.id
-  },
-})
+const name = ref('')
+const selectedCollection = ref<ScalarComboboxOption | undefined>(
+  availableCollections.value.find(
+    (option) => option.id === activeCollection.value?.uid,
+  ),
+)
 
 const handleSubmit = () => {
-  if (!folderName.value) {
-    toast('Please enter a name before creating a folder.', 'error')
+  if (!name.value) {
+    toast('Please enter a name before creating a tag.', 'error')
     return
   }
-  if (folderName.value && selectedCollection.value) {
-    folderMutators.add(
-      {
-        name: folderName.value,
-      },
-      selectedCollectionId.value,
-    )
-    emits('close')
-  }
+  if (!name.value || !selectedCollection.value) return
+
+  const tag = tagMutators.add(
+    {
+      name: name.value,
+    },
+    selectedCollection.value.id,
+  )
+  if (tag) emits('close')
 }
 
-const folderInput = ref<HTMLInputElement | null>(null)
+const input = ref<HTMLInputElement | null>(null)
 
-onMounted(() => {
-  folderInput.value?.focus()
-})
+onMounted(() => input.value?.focus())
 </script>
 <template>
   <div class="flex w-full flex-col gap-3">
@@ -59,17 +57,16 @@ onMounted(() => {
       class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
       <label
         class="absolute w-full h-full opacity-0 cursor-text"
-        for="foldername"></label>
+        for="tagName"></label>
       <input
-        id="foldername"
-        ref="folderInput"
-        v-model="folderName"
+        id="tagName"
+        ref="input"
+        v-model="name"
         autocomplete="off"
         class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
         data-form-type="other"
         data-lpignore="true"
-        label="Folder Name"
-        placeholder="Folder Name"
+        placeholder="Tag Name"
         @keydown.prevent.enter="handleSubmit" />
     </div>
     <div class="flex">
@@ -94,9 +91,9 @@ onMounted(() => {
       </div>
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
-        :disabled="!folderName.trim()"
+        :disabled="!name.trim()"
         @click="handleSubmit">
-        Create Folder
+        Create Tag
       </ScalarButton>
     </div>
   </div>

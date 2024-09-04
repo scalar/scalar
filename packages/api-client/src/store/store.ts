@@ -24,7 +24,7 @@ import {
 } from '@/store/security-schemes'
 import { createStoreServers, extendedServerDataFactory } from '@/store/servers'
 import type { StoreContext } from '@/store/store-context'
-import { createStoreTags } from '@/store/tags'
+import { createStoreTags, extendedTagDataFactory } from '@/store/tags'
 import {
   createStoreWorkspaces,
   extendedWorkspaceDataFactory,
@@ -114,6 +114,8 @@ export const createWorkspaceStore = (
     extendedWorkspaceDataFactory(storeContext)
   const { addSecurityScheme, deleteSecurityScheme } =
     extendedSecurityDataFactory(storeContext)
+  const { addTag, deleteTag } = extendedTagDataFactory(storeContext)
+
   // ---------------------------------------------------------------------------
   // Active entities based on the router
 
@@ -207,8 +209,8 @@ export const createWorkspaceStore = (
   const activeServer = computed(
     () =>
       servers[
-        activeRequest.value?.selectedServerUid ??
-          activeCollection.value?.selectedServerUid ??
+        activeRequest.value?.selectedServerUid ||
+          activeCollection.value?.selectedServerUid ||
           ''
       ],
   )
@@ -294,7 +296,6 @@ export const createWorkspaceStore = (
       add: addCollection,
       delete: deleteCollection,
     },
-    tagMutators,
     environmentMutators: {
       ...environmentMutators,
       delete: deleteEnvironment,
@@ -324,6 +325,12 @@ export const createWorkspaceStore = (
       rawAdd: serverMutators.add,
       add: addServer,
       delete: deleteServer,
+    },
+    tagMutators: {
+      ...tagMutators,
+      rawAdd: tagMutators.add,
+      add: addTag,
+      delete: deleteTag,
     },
     workspaceMutators: {
       ...workspaceMutators,

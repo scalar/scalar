@@ -87,6 +87,7 @@ type Item = {
   children: string[]
   method?: RequestMethod
   link?: string
+  warning?: string
   rename: () => void
   delete: () => void
 }
@@ -104,6 +105,8 @@ const item = computed<Item>(() => {
       entity: collection,
       resourceTitle: 'Collection',
       children: collection.children,
+      warning:
+        'Warning: deleting this collection will delete all requests and tags as well',
       rename: () =>
         collectionMutators.edit(collection.uid, 'info.title', tempName.value),
       delete: () =>
@@ -117,7 +120,7 @@ const item = computed<Item>(() => {
       resourceTitle: 'Tag',
       children: tag.children,
       rename: () => tagMutators.edit(tag.uid, 'name', tempName.value),
-      delete: () => tagMutators.delete(tag.uid),
+      delete: () => tagMutators.delete(tag, props.parentUids[0]),
     }
 
   if (request)
@@ -127,6 +130,8 @@ const item = computed<Item>(() => {
       method: request.method,
       entity: request,
       resourceTitle: 'Request',
+      warning:
+        'Warning: deleting this request will delete all examples as well',
       children: request.examples,
       rename: () =>
         requestMutators.edit(request.uid, 'summary', tempName.value),
@@ -243,7 +248,6 @@ const openRenameModal = () => {
 
 /** Delete with redirect for both requests and requestExamples */
 const handleItemDelete = () => {
-  console.log('we even here?')
   item.value.delete()
 
   if (activeRouterParams.value[PathId.Request] === props.uid)
@@ -426,7 +430,7 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
     :title="`Delete ${item.resourceTitle}`">
     <DeleteSidebarListElement
       :variableName="item.title"
-      warningMessage="Warning: Deleting this will delete all child items as well"
+      :warningMessage="item.warning"
       @close="deleteModal.hide()"
       @delete="handleItemDelete" />
   </ScalarModal>
