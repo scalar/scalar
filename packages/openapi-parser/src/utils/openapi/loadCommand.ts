@@ -4,8 +4,10 @@ import type {
   Queue,
   Task,
 } from '../../types'
+import type { DereferenceOptions } from '../dereference'
 import type { LoadOptions } from '../load'
 import type { ValidateOptions } from '../validate'
+import { dereferenceCommand } from './dereferenceCommand'
 import { get } from './get'
 import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
@@ -48,6 +50,8 @@ export function loadCommand<T extends Task[]>(
   }
 
   return {
+    dereference: (dereferenceOptions?: DereferenceOptions) =>
+      dereferenceCommand(queue, dereferenceOptions),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),
     validate: (validateOptions?: ValidateOptions) =>

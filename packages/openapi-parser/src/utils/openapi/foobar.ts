@@ -19,15 +19,25 @@ export function openapi(globalOptions?: OpenApiOptions) {
   }
 }
 
+// Type: LoadResult & ValidateResult & UpgradeResult & DereferenceResult
+const result1 = await openapi()
+  .load({})
+  .validate()
+  .upgrade()
+  .dereference()
+  .get()
+
+console.log(result1.valid, result1.filesystem, result1.version, result1.schema)
+
 // Type: LoadResult & ValidateResult & UpgradeResult
-const result1 = await openapi().load({}).validate().upgrade().get()
-console.log(result1.valid, result1.filesystem, result1.version)
+const result2 = await openapi().load({}).validate().upgrade().get()
+console.log(result2.valid, result2.filesystem, result2.version)
 
 // Type: LoadResult & ValidateResult
-const result2 = await openapi().load({}).validate().get()
-console.log(result2.valid, result2.filesystem)
+const result3 = await openapi().load({}).validate().get()
+console.log(result3.valid, result3.filesystem)
 
 // Type: LoadResult
-const result3 = await openapi().load({}).get()
+const result4 = await openapi().load({}).get()
 // @ts-expect-error Valid is not defined
-console.log(result3.valid)
+console.log(result4.valid)

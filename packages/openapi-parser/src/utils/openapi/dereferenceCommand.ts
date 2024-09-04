@@ -1,33 +1,33 @@
-import type { Queue, Task, ValidateResult } from '../../types'
+import type { DereferenceResult, Queue, Task } from '../../types'
 import type { DereferenceOptions } from '../dereference'
 import type { ValidateOptions } from '../validate'
-import { dereferenceCommand } from './dereferenceCommand'
 import { get } from './get'
 import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
+import { validateCommand } from './validateCommand'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands {
-    validate: {
+    dereference: {
       task: {
-        name: 'validate'
-        options?: ValidateOptions
+        name: 'dereference'
+        options?: DereferenceOptions
       }
-      result: ValidateResult
+      result: DereferenceResult
     }
   }
 }
 
 /**
- * Validate the given OpenAPI document
+ * Dereference the given OpenAPI document
  */
-export function validateCommand<T extends Task[]>(
+export function dereferenceCommand<T extends Task[]>(
   previousQueue: Queue<T>,
-  options?: ValidateOptions,
+  options?: DereferenceOptions,
 ) {
   const task: Task = {
-    name: 'validate',
+    name: 'dereference',
     options: {
       throwOnError: previousQueue.options?.throwOnError,
       ...(options ?? {}),
@@ -37,9 +37,9 @@ export function validateCommand<T extends Task[]>(
   const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
 
   return {
-    dereference: (dereferenceOptions?: DereferenceOptions) =>
-      dereferenceCommand(queue, dereferenceOptions),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),
+    validate: (validateOptions?: ValidateOptions) =>
+      validateCommand(queue, validateOptions),
   }
 }

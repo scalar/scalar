@@ -5,6 +5,7 @@ import type {
   Queue,
   Task,
 } from '../../types'
+import { dereference } from '../dereference'
 import { load } from '../load'
 import { upgrade } from '../upgrade'
 import { validate } from '../validate'
@@ -27,6 +28,14 @@ export async function get<T extends Task[]>(
         ...result,
         ...(await load(input)),
       } as Merge<typeof result, PromiseReturnType<typeof load>>
+    }
+
+    // upgrade
+    else if (name === 'dereference') {
+      result = {
+        ...result,
+        ...(await dereference(input)),
+      } as Merge<typeof result, PromiseReturnType<typeof dereference>>
     }
 
     // upgrade

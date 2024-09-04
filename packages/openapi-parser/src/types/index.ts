@@ -5,7 +5,8 @@ import type { ERRORS, OpenApiVersion } from '../configuration'
 /**
  * Merge types with each other
  */
-export type Merge<A, B> = B & Omit<A, keyof B>
+// TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
+export type Merge<A, B> = A & Omit<B, keyof A>
 
 /**
  * Unwrap a Promise to get the type of it
