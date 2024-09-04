@@ -3,10 +3,10 @@ import { useWorkspace } from '@/store'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
-import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteServer from './CommandPaletteServer.vue'
+import CommandPaletteTag from './CommandPaletteTag.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
 /**
@@ -22,7 +22,7 @@ export const PaletteComponents = {
   'Import Collection': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
-  'Add Folder': CommandPaletteFolder,
+  'Add Tag': CommandPaletteTag,
   'Add Server': CommandPaletteServer,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
@@ -58,7 +58,7 @@ const availableCommands = [
         icon: 'Import',
       },
       {
-        name: 'Add Folder',
+        name: 'Add Tag',
         icon: 'Folder',
       },
       {

@@ -25,7 +25,6 @@ const {
   activeWorkspaceCollections,
   requestMutators,
   activeRequest,
-  requests,
   tags: _tags,
 } = useWorkspace()
 
@@ -58,10 +57,6 @@ const tags = computed(() =>
       : [],
   ),
 )
-
-console.log(activeWorkspaceCollections.value)
-console.log(requests)
-console.log(_tags)
 
 /** Currently selected collection with a reasonable default */
 const selectedCollection = ref<ScalarComboboxOption | undefined>(

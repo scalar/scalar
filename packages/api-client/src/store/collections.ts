@@ -35,6 +35,7 @@ export function extendedCollectionDataFactory({
   workspaceMutators,
   collections,
   collectionMutators,
+  tagMutators,
 }: StoreContext) {
   const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
     const collection = collectionSchema.parse(payload)
@@ -62,14 +63,19 @@ export function extendedCollectionDataFactory({
 
     // Handle data cleanup
     // NOTE: This is only for local memory management; unassociated objects will not be synced
+
+    // Remove all tags
+    collection.tags.forEach((uid) => tagMutators.delete(uid))
+
+    // Remove requests
     collection.requests.forEach((uid) => {
       const request = requests[uid]
-      if (request) {
-        requestMutators.delete(uid)
-        request.examples.forEach(
-          (e) => requestExamples[e] && requestExampleMutators.delete(e),
-        )
-      }
+      if (!request) return
+
+      requestMutators.delete(uid)
+      request.examples.forEach(
+        (e) => requestExamples[e] && requestExampleMutators.delete(e),
+      )
     })
 
     // Remove collection from workspace
