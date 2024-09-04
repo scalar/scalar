@@ -1,9 +1,11 @@
 import {
   type Collection,
   type Request,
+  type RequestExample,
   type Server,
   type Tag,
   collectionSchema,
+  createExampleFromRequest,
   requestMethods,
   requestSchema,
   serverSchema,
@@ -34,6 +36,7 @@ export async function importSpecToWorkspace(
       error: false
       collection: Collection
       requests: Request[]
+      examples: RequestExample[]
       servers: Server[]
       tags: Tag[]
       securitySchemes: SecurityScheme[]
@@ -194,6 +197,22 @@ export async function importSpecToWorkspace(
     }
   })
 
+  // ---------------------------------------------------------------------------\
+
+  const examples: RequestExample[] = []
+
+  // Ensure each request has at least 1 example
+  requests.forEach((request) => {
+    // TODO: Need to handle parsing examples
+    // if (request['x-scalar-examples']) return
+
+    // Create the initial example
+    const example = createExampleFromRequest(request, 'Default Example')
+
+    examples.push(example)
+    request.examples.push(example.uid)
+  })
+
   // ---------------------------------------------------------------------------
   // Generate Collection
 
@@ -218,6 +237,7 @@ export async function importSpecToWorkspace(
     error: false,
     servers,
     requests,
+    examples,
     collection,
     tags,
     securitySchemes,

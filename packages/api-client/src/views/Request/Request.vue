@@ -166,9 +166,6 @@ onBeforeUnmount(() => {
     border-radius: var(--scalar-radius);
   }
 }
-.gitbook-show {
-  display: none;
-}
 .empty-sidebar-item:deep(.scalar-button) {
   background: var(--scalar-button-1);
   color: var(--scalar-button-1-color);
