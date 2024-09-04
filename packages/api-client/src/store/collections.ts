@@ -63,6 +63,11 @@ export function extendedCollectionDataFactory({
 
     // Handle data cleanup
     // NOTE: This is only for local memory management; unassociated objects will not be synced
+
+    // Remove all tags
+    collection.tags.forEach((uid) => tagMutators.delete(uid))
+
+    // Remove requests
     collection.requests.forEach((uid) => {
       const request = requests[uid]
       if (!request) return
@@ -72,9 +77,6 @@ export function extendedCollectionDataFactory({
         (e) => requestExamples[e] && requestExampleMutators.delete(e),
       )
     })
-
-    // Remove all tags
-    collection.tags.forEach((uid) => tagMutators.delete(uid))
 
     // Remove collection from workspace
     workspaceMutators.edit(
