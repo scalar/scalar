@@ -103,6 +103,9 @@ function loadCommand(input: AnyApiDefinitionFormat) {
   }
 }
 
+/**
+ * Add a new task to the existing queue
+ */
 function queueTask<T extends Task[]>(queue: Queue, task: Task) {
   return {
     ...queue,
@@ -132,11 +135,13 @@ function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
   let result = {} as CommandChain<T>
 
   queue.tasks.forEach(async ({ name }) => {
+    const { input } = queue
+
     // load
     if (name === 'load') {
       result = {
         ...result,
-        ...(await load(queue.input)),
+        ...(await load(input)),
       } as Merge<typeof result, PromiseReturnType<typeof load>>
     }
 
@@ -144,7 +149,7 @@ function get<T extends Task[]>(queue: Queue<T>): CommandChain<T> {
     if (name === 'validate') {
       result = {
         ...result,
-        ...validate(queue.input),
+        ...validate(input),
       } as Merge<typeof result, ReturnType<typeof validate>>
     }
   })
