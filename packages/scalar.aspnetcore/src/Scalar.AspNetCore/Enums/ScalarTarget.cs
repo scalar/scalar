@@ -104,7 +104,7 @@ public enum ScalarTarget
     /// </summary>
     [Description("ruby")]
     Ruby,
-    
+
     /// <summary>
     /// Shell scripting language.
     /// </summary>

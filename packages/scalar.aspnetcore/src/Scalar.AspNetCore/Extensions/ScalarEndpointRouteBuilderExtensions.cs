@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 namespace Scalar.AspNetCore;
 
 /// <summary>
-/// Extension methods for <see cref="IEndpointRouteBuilder" /> to provide required endpoints. 
+/// Extension methods for <see cref="IEndpointRouteBuilder" /> to provide required endpoints.
 /// </summary>
 public static class ScalarEndpointRouteBuilderExtensions
 {
@@ -17,16 +17,16 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <summary>
     /// Maps the Scalar API reference endpoint.
     /// </summary>
-    /// <param name="endpoints"><see cref="IEndpointRouteBuilder"/>.</param>
+    /// <param name="endpoints"><see cref="IEndpointRouteBuilder" />.</param>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints)
     {
-        return endpoints.MapScalarApiReference(_ => { });
+        return endpoints.MapScalarApiReference(_ =>{});
     }
 
     /// <summary>
     /// Maps the Scalar API reference endpoint.
     /// </summary>
-    /// <param name="endpoints"><see cref="IEndpointRouteBuilder"/>.</param>
+    /// <param name="endpoints"><see cref="IEndpointRouteBuilder" />.</param>
     /// <param name="configureOptions">An action to configure the Scalar options.</param>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
     {

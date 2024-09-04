@@ -3,14 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace Scalar.AspNetCore;
 
 /// <summary>
-/// Provides extension methods for configuring <see cref="ScalarOptions"/>.
+/// Provides extension methods for configuring <see cref="ScalarOptions" />.
 /// </summary>
 public static class ScalarOptionsExtensions
 {
     /// <summary>
     /// Sets the title of the page.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="title">The title to set.</param>
     public static ScalarOptions WithTitle(this ScalarOptions options, string title)
     {
@@ -21,7 +21,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the path prefix to access the documentation.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="prefix">The path prefix to set.</param>
     public static ScalarOptions WithEndpointPrefix(this ScalarOptions options, string prefix)
     {
@@ -32,7 +32,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the proxy URL for the API requests.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="proxyUrl">The proxy URL to set.</param>
     public static ScalarOptions WithProxyUrl(this ScalarOptions options, string proxyUrl)
     {
@@ -43,7 +43,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether the sidebar should be shown.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showSidebar">Whether to show the sidebar.</param>
     public static ScalarOptions WithSidebar(this ScalarOptions options, bool showSidebar)
     {
@@ -54,7 +54,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether models should be shown in the sidebar, search, and content.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showModels">Whether to show models.</param>
     public static ScalarOptions WithModels(this ScalarOptions options, bool showModels)
     {
@@ -65,7 +65,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether to show the "Download OpenAPI Specification" button.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showDownloadButton">Whether to show the download button.</param>
     public static ScalarOptions WithDownloadButton(this ScalarOptions options, bool showDownloadButton)
     {
@@ -76,7 +76,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether to show the "Test Request" button.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showTestRequestButton">Whether to show the test request button.</param>
     public static ScalarOptions WithTestRequestButton(this ScalarOptions options, bool showTestRequestButton)
     {
@@ -87,18 +87,18 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether dark mode is on or off initially.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="darkMode">Whether dark mode is on or off initially.</param>
     public static ScalarOptions WithDarkMode(this ScalarOptions options, bool darkMode)
     {
         options.DarkMode = darkMode;
         return options;
     }
-    
+
     /// <summary>
     /// Forces the theme mode to always be the specified state.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="forceThemeMode">The theme mode to force.</param>
     /// <returns></returns>
     public static ScalarOptions WithForceThemeMode(this ScalarOptions options, ThemeMode forceThemeMode)
@@ -110,7 +110,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether to show the dark mode toggle.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="showDarkModeToggle">Whether to show the dark mode toggle.</param>
     public static ScalarOptions WithDarkModeToggle(this ScalarOptions options, bool showDarkModeToggle)
     {
@@ -121,7 +121,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets custom CSS directly to the component.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="customCss">The custom CSS to set.</param>
     public static ScalarOptions WithCustomCss(this ScalarOptions options, string customCss)
     {
@@ -132,7 +132,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the key used with CTRL/CMD to open the search modal.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="searchHotKey">The search hotkey to set.</param>
     public static ScalarOptions WithSearchHotKey(this ScalarOptions options, string searchHotKey)
     {
@@ -143,7 +143,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the color theme.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="theme">The theme to set.</param>
     public static ScalarOptions WithTheme(this ScalarOptions options, ScalarTheme theme)
     {
@@ -154,7 +154,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether to use the default fonts.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="useDefaultFonts">Whether to use the default fonts.</param>
     public static ScalarOptions WithDefaultFonts(this ScalarOptions options, bool useDefaultFonts)
     {
@@ -165,7 +165,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets whether to open all tags by default.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="useOpenAllTags">Whether to open all tags by default.</param>
     public static ScalarOptions WithDefaultOpenAllTags(this ScalarOptions options, bool useOpenAllTags)
     {
@@ -176,7 +176,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Adds metadata to the configuration.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="key">The metadata key.</param>
     /// <param name="value">The metadata value.</param>
     public static ScalarOptions AddMetadata(this ScalarOptions options, string key, string value)
@@ -189,7 +189,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the preferred authentication scheme.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="preferredScheme">The preferred authentication scheme.</param>
     public static ScalarOptions WithPreferredScheme(this ScalarOptions options, string preferredScheme)
     {
@@ -201,7 +201,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the API key authentication options.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="apiKeyOptions">The API key options to set.</param>
     public static ScalarOptions WithApiKeyAuthentication(this ScalarOptions options, ApiKeyOptions apiKeyOptions)
     {
@@ -213,7 +213,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Configures the API key authentication options.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureApiKeyOptions">The action to configure the API key options.</param>
     public static ScalarOptions WithApiKeyAuthentication(this ScalarOptions options, Action<ApiKeyOptions> configureApiKeyOptions)
     {
@@ -221,11 +221,11 @@ public static class ScalarOptionsExtensions
         configureApiKeyOptions(apiKeyOptions);
         return options.WithApiKeyAuthentication(apiKeyOptions);
     }
-    
+
     /// <summary>
     /// Configures the OAuth2 authentication options.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="oauth2Options">The OAuth2 options to set.</param>
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, OAuth2Options oauth2Options)
     {
@@ -233,11 +233,11 @@ public static class ScalarOptionsExtensions
         options.Authentication.OAuth2 = oauth2Options;
         return options;
     }
-    
+
     /// <summary>
     /// Configures the OAuth2 authentication options.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="configureOAuth2Options">The action to configure the OAuth2 options.</param>
     public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, Action<OAuth2Options> configureOAuth2Options)
     {
@@ -249,7 +249,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the default HTTP client.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="target">The target to set.</param>
     /// <param name="client">The client to set.</param>
     public static ScalarOptions WithDefaultHttpClient(this ScalarOptions options, ScalarTarget target, ScalarClient client)
@@ -261,7 +261,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the route pattern of the OpenAPI document.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="pattern">The route pattern to set.</param>
     public static ScalarOptions WithOpenApiRoutePattern(this ScalarOptions options, [StringSyntax("Route")] string pattern)
     {
@@ -272,7 +272,7 @@ public static class ScalarOptionsExtensions
     /// <summary>
     /// Sets the CDN URL for the API reference.
     /// </summary>
-    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="url">The CDN URL to set.</param>
     public static ScalarOptions WithCdnUrl(this ScalarOptions options, string url)
     {

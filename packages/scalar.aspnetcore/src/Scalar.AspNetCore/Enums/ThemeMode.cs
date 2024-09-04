@@ -1,7 +1,6 @@
 using System.ComponentModel;
 using NetEscapades.EnumGenerators;
 
-
 namespace Scalar.AspNetCore;
 
 /// <summary>

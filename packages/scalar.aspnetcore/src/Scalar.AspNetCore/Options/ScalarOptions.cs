@@ -19,7 +19,7 @@ public sealed class ScalarOptions
     /// <value>The default value is <c>'/scalar/{documentName}'</c>.</value>
     /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.</remarks>
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
-    
+
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
     /// </summary>
@@ -141,7 +141,7 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the default HTTP client.
     /// </summary>
-    /// <value>The default values are <see cref="ScalarTarget.Shell"/> and <see cref="ScalarClient.Curl"/>.</value>
+    /// <value>The default values are <see cref="ScalarTarget.Shell" /> and <see cref="ScalarClient.Curl" />.</value>
     public KeyValuePair<ScalarTarget, ScalarClient> DefaultHttpClient { get; set; } = new(ScalarTarget.Shell, ScalarClient.Curl);
 
     /// <summary>
