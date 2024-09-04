@@ -4,6 +4,7 @@ import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import type {
+  FileType,
   Request,
   RequestExample,
   RequestExampleParameter,
@@ -122,10 +123,12 @@ export const sendRequest = async (
     example.parameters.headers.filter(({ enabled }) => enabled),
   )
 
-  let data: FormData | string | File | null = null
+  let data: FormData | string | FileType | null = null
 
   if (example.body.activeBody === 'binary' && example.body.binary) {
-    headers['Content-Type'] = example.body.binary.type
+    if (example.body.binary.type) {
+      headers['Content-Type'] = example.body.binary.type
+    }
     headers['Content-Disposition'] =
       `attachment; filename="${example.body.binary.name}"`
     data = example.body.binary
@@ -148,7 +151,7 @@ export const sendRequest = async (
         (formParam: {
           key: string
           value: string
-          file?: File
+          file?: FileType
           enabled: boolean
         }) => {
           // Add File to FormData
