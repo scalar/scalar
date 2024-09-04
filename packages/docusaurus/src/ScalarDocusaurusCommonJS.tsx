@@ -23,6 +23,9 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
   }
 
   componentWillUnmount() {
+    // Clean up headless ui portal
+    const headless = document?.getElementById('headlessui-portal-root')
+    if (headless) headless.remove()
     this.observer?.disconnect()
   }
 

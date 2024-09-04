@@ -164,7 +164,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   document.addEventListener(
     'scalar:reload-references',
     () => {
-      // Check if elemenet has been removed from dom, and re-add
+      // Check if element has been removed from dom, and re-add
       if (container && !document.body.contains(container)) {
         document.body.appendChild(container)
       }
