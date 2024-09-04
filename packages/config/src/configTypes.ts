@@ -1,11 +1,18 @@
 import { type Static, Type } from '@sinclair/typebox'
 
-export const ConfigSidebarLinkType = Type.Object({
-  name: Type.String(),
-  type: Type.Literal('link'),
-  url: Type.String(),
-  icon: Type.Optional(Type.String()),
-})
+export const ConfigSidebarLinkType = Type.Recursive(
+  (This) =>
+    Type.Object({
+      name: Type.String(),
+      type: Type.Literal('link'),
+      url: Type.String(),
+      icon: Type.Optional(Type.String()),
+      children: Type.Optional(
+        Type.Array(Type.Union([This])), // TODO: fix this
+      ),
+    }),
+  { $id: 'ConfigSidebarLinkType' },
+)
 
 export type ConfigSidebarLink = Static<typeof ConfigSidebarLinkType>
 
