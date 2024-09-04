@@ -1,7 +1,6 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { ERRORS, OpenApiVersion } from '../configuration'
-import type { OpenApiOptions } from '../utils/openapi/foobar'
 
 /**
  * Merge types with each other
@@ -82,6 +81,11 @@ export type FilesystemEntry = {
   filename: string
   specification: AnyObject
 }
+
+/**
+ * Options, that can apply to all commands
+ */
+export type OpenApiOptions = ThrowOnErrorOption
 
 export type ThrowOnErrorOption = {
   /**

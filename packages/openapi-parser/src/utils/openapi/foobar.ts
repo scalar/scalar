@@ -1,15 +1,6 @@
-import type {
-  AnyApiDefinitionFormat,
-  Queue,
-  ThrowOnErrorOption,
-} from '../../types'
+import type { AnyApiDefinitionFormat, OpenApiOptions, Queue } from '../../types'
 import type { LoadOptions } from '../load'
 import { loadCommand } from './loadCommand'
-
-/**
- * Options, that can apply to all commands
- */
-export type OpenApiOptions = ThrowOnErrorOption
 
 /**
  * Creates a fluent OpenAPI pipeline

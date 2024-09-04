@@ -6,7 +6,6 @@ import type {
 } from '../../types'
 import type { LoadOptions } from '../load'
 import type { ValidateOptions } from '../validate'
-import type { OpenApiOptions } from './foobar'
 import { get } from './get'
 import { queueTask } from './utils/queueTask'
 import { validateCommand } from './validateCommand'
