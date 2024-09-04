@@ -4,6 +4,7 @@ import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
 import type {
+  FileType,
   Request,
   RequestExample,
   RequestExampleParameter,
@@ -122,7 +123,7 @@ export const sendRequest = async (
     example.parameters.headers.filter(({ enabled }) => enabled),
   )
 
-  let data: FormData | string | File | null = null
+  let data: FormData | string | FileType | null = null
 
   if (example.body.activeBody === 'binary' && example.body.binary) {
     if (example.body.binary.type) {
@@ -130,7 +131,6 @@ export const sendRequest = async (
     }
     headers['Content-Disposition'] =
       `attachment; filename="${example.body.binary.name}"`
-    // @ts-expect-error Would be rad to have access to the File type in Node 18, but we that’s not the case.
     data = example.body.binary
   } else if (example.body.activeBody === 'raw' && example.body.raw.value) {
     data = example.body.raw.value
@@ -151,7 +151,7 @@ export const sendRequest = async (
         (formParam: {
           key: string
           value: string
-          file?: File
+          file?: FileType
           enabled: boolean
         }) => {
           // Add File to FormData
@@ -159,7 +159,7 @@ export const sendRequest = async (
             if (formParam.file) {
               bodyFormData.append(
                 formParam.key,
-                formParam.file,
+                formParam.file as any,
                 formParam.file.name,
               )
             } else if (formParam.value !== undefined) {
@@ -290,7 +290,10 @@ export const sendRequest = async (
   }
 
   if (data) {
-    config.body = data
+    // WARNING: this casting is necessary because
+    // the custom defined FileType has ReadableStream<Uint8Array>
+    // Whereas RequestInit is expecting ReadableStream<unknown>
+    config.body = data as RequestInit['body']
   }
 
   // Start timer to get response duration
