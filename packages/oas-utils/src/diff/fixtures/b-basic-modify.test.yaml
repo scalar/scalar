@@ -19,4 +19,4 @@ paths:
           name: type
           schema:
             type: string
-            enum: ["cat", "dog", "frog", "bat"]
+            enum: ['cat', 'dog', 'frog', 'bat']

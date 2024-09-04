@@ -80,13 +80,22 @@ export async function importSpecToWorkspace(
 
   const security = schema.components?.securitySchemes ?? {}
 
-  const securitySchemes = schemaModel(
-    Object.entries(security).map?.(([nameKey, s]) => ({
-      ...s,
-      nameKey,
-    })),
-    securitySchemeSchema.array(),
-  )
+  const securitySchemes = Object.entries(security)
+    .map?.(([nameKey, s]) => {
+      const scheme = schemaModel(
+        {
+          ...s,
+          nameKey,
+        },
+        securitySchemeSchema,
+        false,
+      )
+
+      if (!scheme) importWarnings.push(`Security scheme ${nameKey} is invalid.`)
+
+      return scheme
+    })
+    .filter((v) => !!v)
 
   // Map of security scheme names to UIDs
   const securitySchemeMap: Record<string, string> = {}
