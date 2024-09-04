@@ -9,6 +9,7 @@ import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
+import type { Entries } from 'type-fest'
 import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
@@ -19,23 +20,7 @@ defineProps<{
   formData?: any[]
 }>()
 
-const contentTypeOptions = {
-  multipartForm: 'Multipart Form',
-  formUrlEncoded: 'Form URL Encoded',
-  binaryFile: 'Binary File',
-  json: 'JSON',
-  xml: 'XML',
-  yaml: 'YAML',
-  edn: 'EDN',
-  other: 'Other',
-  none: 'None',
-} as const
-
 const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
-
-const contentType = ref<keyof typeof contentTypeOptions>('none')
-
-const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
 /** use-codemirror package to be udpated accordingly */
 const contentTypeToLanguageMap = {
@@ -46,9 +31,38 @@ const contentTypeToLanguageMap = {
   other: 'html',
 } as const
 
+const contentTypes = {
+  multipartForm: 'Multipart Form',
+  formUrlEncoded: 'Form URL Encoded',
+  binaryFile: 'Binary File',
+  json: 'JSON',
+  xml: 'XML',
+  yaml: 'YAML',
+  edn: 'EDN',
+  other: 'Other',
+  none: 'None',
+} as const
+type Content = keyof typeof contentTypes
+
+/** Convert content types to options for the dropdown */
+const contentTypeOptions = (
+  Object.entries(contentTypes) as Entries<typeof contentTypes>
+).map(([id, label]) => ({
+  id,
+  label,
+}))
+
+/** Selected ref from options above */
+const selectedContentType = ref<(typeof contentTypeOptions)[0]>({
+  id: 'none',
+  label: 'None',
+})
+const tableWrapperRef = ref<HTMLInputElement | null>(null)
+
 const codeInputLanguage = computed(() => {
-  const type = contentType.value as keyof typeof contentTypeToLanguageMap
-  return (contentTypeToLanguageMap[type] ?? 'plaintext') as CodeMirrorLanguage
+  const type = selectedContentType.value
+    .id as keyof typeof contentTypeToLanguageMap
+  return contentTypeToLanguageMap[type] ?? 'plaintext'
 })
 
 function deleteRow() {
@@ -110,12 +124,8 @@ const formParams = computed(
   () => activeExample.value?.body?.formData?.value ?? [],
 )
 
-function defaultRow() {
-  /** ensure one empty row by default */
-  if (formParams.value.length === 0) {
-    addRow()
-  }
-}
+/** ensure one empty row by default */
+const defaultRow = () => formParams.value.length === 0 && addRow()
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
@@ -125,40 +135,40 @@ const addRow = () => {
   const newParam = requestExampleParametersSchema.parse({
     enabled: false,
   })
-
   const newParams = [...formParams.value, newParam]
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.formData.value',
-    newParams,
-  )
+  // Ensure have have formData before adding
+  if (activeExample.value.body.formData)
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'body.formData.value',
+      newParams,
+    )
+  else
+    requestExampleMutators.edit(activeExample.value.uid, 'body.formData', {
+      value: newParams,
+      encoding: 'form-data',
+    })
 }
 
-const updateRequestBody = (content: string) => {
+const updateRequestBody = (value: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.raw.value',
-    content,
-  )
+  // Ensure we have a raw value before adding
+  if (activeExample.value.body.raw)
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'body.raw.value',
+      value,
+    )
+  else
+    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
+      value,
+      encoding: codeInputLanguage.value,
+    })
 }
 
-const getContentTypeHeader = (type: keyof typeof contentTypeOptions) => {
-  if (type === 'multipartForm') {
-    return 'multipart/form-data'
-  } else if (type === 'formUrlEncoded') {
-    return 'application/x-www-form-urlencoded'
-  } else if (type === 'binaryFile') {
-    return 'application/octet-stream'
-  } else if (type !== 'none') {
-    return `application/${type}`
-  }
-  return ''
-}
-
-const getBodyType = (type: keyof typeof contentTypeOptions) => {
+const getBodyType = (type: Content) => {
   if (type === 'multipartForm' || type === 'formUrlEncoded') {
     return 'formData'
   } else if (type === 'binaryFile') {
@@ -167,58 +177,15 @@ const getBodyType = (type: keyof typeof contentTypeOptions) => {
   return 'raw'
 }
 
-const updateActiveBody = (type: keyof typeof contentTypeOptions) => {
-  const contentTypeHeader = getContentTypeHeader(type)
-  const bodyType = getBodyType(type)
-
+const updateActiveBody = (type: Content) => {
   if (!activeExample.value) return
+  const bodyType = getBodyType(type)
 
   requestExampleMutators.edit(
     activeExample.value.uid,
     'body.activeBody',
     bodyType,
   )
-
-  const oldContentTypeIdx = [
-    ...activeExample.value.parameters.headers,
-  ].findIndex(
-    (header) => header.key.toLowerCase() === 'Content-Type'.toLowerCase(),
-  )
-  const oldContentType = [...activeExample.value.parameters.headers][
-    oldContentTypeIdx
-  ]
-
-  if (oldContentType?.value === contentTypeHeader) return
-
-  if (oldContentType && contentTypeHeader) {
-    const oldHeaders = [...activeExample.value.parameters.headers]
-    oldHeaders[oldContentTypeIdx].value = contentTypeHeader
-
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'parameters.headers',
-      oldHeaders,
-    )
-  } else if (contentTypeHeader) {
-    // now lets handle the header
-    const headersWithoutContentType = [
-      ...activeExample.value.parameters.headers.filter(
-        (header) => header.key.toLowerCase() !== 'Content-Type'.toLowerCase(),
-      ),
-    ]
-
-    headersWithoutContentType.push({
-      key: 'Content-Type',
-      value: contentTypeHeader,
-      enabled: true,
-    })
-
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'parameters.headers',
-      headersWithoutContentType,
-    )
-  }
 }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
@@ -282,61 +249,13 @@ function handleFileUpload() {
   open()
 }
 
-const getContentTypeOptions = Object.entries(contentTypeOptions).map(
-  ([id, label]) => ({
-    id,
-    label,
-    value: id as keyof typeof contentTypeOptions,
-  }),
-)
-
-const selectedContentType = computed({
-  get: () => getContentTypeOptions.find((opt) => opt.id === contentType.value),
-  set: (opt) => {
-    if (opt?.id) contentType.value = opt.id as keyof typeof contentTypeOptions
-  },
-})
-
-const activeExampleContentType = computed(() => {
-  if (!activeExample.value) return 'none'
-  if (
-    activeExample.value.body.activeBody === 'formData' &&
-    activeExample.value.body.formData &&
-    activeExample.value.body.formData.value.length > 0
-  )
-    return 'multipartForm'
-
-  if (activeExample.value.body.activeBody === 'raw')
-    return activeExample.value?.body?.raw?.encoding
-
-  /** keep the content if populated */
-  return contentType.value
-})
-
-/** set content type if active example has a value */
-if (activeExampleContentType.value !== 'none') {
-  contentType.value =
-    activeExampleContentType.value as keyof typeof contentTypeOptions
-}
-
-watch(
-  activeExampleContentType,
-  (newType) => {
-    if (newType) {
-      contentType.value = newType as keyof typeof contentTypeOptions
-    }
-  },
-  { immediate: true },
-)
-
 // we always add an empty row if its empty :)
 watch(
-  contentType,
+  selectedContentType,
   (val) => {
-    if (val === 'multipartForm' || val === 'formUrlEncoded') {
-      defaultRow()
-    }
-    updateActiveBody(val)
+    if (!val) return
+    if (val.id === 'multipartForm' || val.id === 'formUrlEncoded') defaultRow()
+    updateActiveBody(val.id)
   },
   { immediate: true },
 )
@@ -363,7 +282,7 @@ watch(
               v-model="selectedContentType"
               class="text-xxs w-full"
               fullWidth
-              :options="getContentTypeOptions"
+              :options="contentTypeOptions"
               teleport>
               <ScalarButton
                 class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
@@ -379,13 +298,13 @@ watch(
           </DataTableHeader>
         </DataTableRow>
         <DataTableRow>
-          <template v-if="contentType === 'none'">
+          <template v-if="selectedContentType.id === 'none'">
             <div
               class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
               <span>No Body</span>
             </div>
           </template>
-          <template v-else-if="contentType === 'binaryFile'">
+          <template v-else-if="selectedContentType.id === 'binaryFile'">
             <div class="flex items-center justify-center p-1.5 overflow-hidden">
               <template v-if="activeExample?.body.binary">
                 <span
@@ -416,7 +335,7 @@ watch(
               </template>
             </div>
           </template>
-          <template v-else-if="contentType == 'multipartForm'">
+          <template v-else-if="selectedContentType.id == 'multipartForm'">
             <RequestTable
               ref="tableWrapperRef"
               class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
@@ -429,7 +348,7 @@ watch(
               @updateRow="updateRow"
               @uploadFile="handleFileUploadFormData" />
           </template>
-          <template v-else-if="contentType == 'formUrlEncoded'">
+          <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
             <RequestTable
               ref="tableWrapperRef"
               class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
@@ -443,9 +362,10 @@ watch(
               @uploadFile="handleFileUploadFormData" />
           </template>
           <template v-else>
+            <!-- TODO: remove this as type hack when we add syntax highligting -->
             <CodeInput
               content=""
-              :language="codeInputLanguage"
+              :language="codeInputLanguage as CodeMirrorLanguage"
               lineNumbers
               lint
               :modelValue="activeExample?.body?.raw?.value ?? ''"
