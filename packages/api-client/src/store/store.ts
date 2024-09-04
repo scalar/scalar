@@ -209,8 +209,8 @@ export const createWorkspaceStore = (
   const activeServer = computed(
     () =>
       servers[
-        activeRequest.value?.selectedServerUid ??
-          activeCollection.value?.selectedServerUid ??
+        activeRequest.value?.selectedServerUid ||
+          activeCollection.value?.selectedServerUid ||
           ''
       ],
   )
