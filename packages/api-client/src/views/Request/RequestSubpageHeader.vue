@@ -48,3 +48,8 @@ defineEmits<{
     </div>
   </div>
 </template>
+<style scoped>
+.gitbook-show {
+  display: none;
+}
+</style>
