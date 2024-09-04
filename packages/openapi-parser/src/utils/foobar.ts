@@ -21,7 +21,7 @@ type PromiseReturnType<FunctionType> = Awaited<
 /**
  * Input and a list of tasks to pipe the input through.
  */
-type Queue<T extends readonly Task[]> = {
+type Queue<T extends readonly Task[] = readonly Task[]> = {
   input: AnyApiDefinitionFormat
   tasks: T
 }
@@ -39,7 +39,9 @@ type Task =
       options?: ValidateOptions
     }
 
-/** Available commands */
+/**
+ * Available commands
+ */
 type Commands = {
   load: LoadResult
   validate: ValidateResult
@@ -101,16 +103,25 @@ function loadCommand(input: AnyApiDefinitionFormat) {
   }
 }
 
+function queueTask<T extends Task[]>(queue: Queue, task: Task) {
+  return {
+    ...queue,
+    tasks: [...queue.tasks, task],
+  } as Queue<T>
+}
+
 /**
  * Validate the given OpenAPI document
  */
-function validateCommand<T extends Task[]>(queue: Queue<T>) {
+function validateCommand<T extends Task[]>(previousQueue: Queue<T>) {
+  const task: Task = { name: 'validate' }
+
+  const queue = queueTask<[...T, typeof task]>(previousQueue, {
+    name: 'validate',
+  } as Task)
+
   return {
-    get: () =>
-      get({
-        ...queue,
-        tasks: [...queue.tasks, { name: 'validate' }],
-      } as const),
+    get: () => get(queue),
   }
 }
 
