@@ -19,6 +19,12 @@ public sealed class ScalarOptions
     /// <value>The default value is <c>'/scalar/{documentName}'</c>.</value>
     /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.</remarks>
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
+    
+    /// <summary>
+    /// Gets or sets the route pattern of the OpenAPI document.
+    /// </summary>
+    /// <value>The default value is <see cref="Constants.DefaultOpenApiRoutePattern" />.</value>
+    public string OpenApiRoutePattern { get; set; } = Constants.DefaultOpenApiRoutePattern;
 
     /// <summary>
     /// Proxy URL for the API requests.
@@ -60,7 +66,7 @@ public sealed class ScalarOptions
     /// ForceDarkModeState makes it always this state no matter what <c>'dark' | 'light'</c>.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
-    public string? ForceDarkModeState { get; set; }
+    public ThemeMode? ForceThemeMode { get; set; } = ThemeMode.Light;
 
     /// <summary>
     /// Whether to hide the dark mode toggle.
@@ -137,12 +143,6 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default values are <see cref="ScalarTarget.Shell"/> and <see cref="ScalarClient.Curl"/>.</value>
     public KeyValuePair<ScalarTarget, ScalarClient> DefaultHttpClient { get; set; } = new(ScalarTarget.Shell, ScalarClient.Curl);
-
-    /// <summary>
-    /// Gets or sets the route pattern of the OpenAPI document.
-    /// </summary>
-    /// <value>The default value is <see cref="Constants.DefaultOpenApiRoutePattern" />.</value>
-    public string OpenApiRoutePattern { get; set; } = Constants.DefaultOpenApiRoutePattern;
 
     /// <summary>
     /// Gets or sets the CDN URL for the API reference.

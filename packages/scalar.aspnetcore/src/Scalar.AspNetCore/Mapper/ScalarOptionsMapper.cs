@@ -36,7 +36,7 @@ internal static class ScalarOptionsMapper
             HideDownloadButton = options.HideDownloadButton,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
-            ForceDarkModeState = options.ForceDarkModeState,
+            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(),
             ShowSidebar = options.ShowSidebar,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,

@@ -94,6 +94,18 @@ public static class ScalarOptionsExtensions
         options.DarkMode = darkMode;
         return options;
     }
+    
+    /// <summary>
+    /// Forces the theme mode to always be the specified state.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="forceThemeMode">The theme mode to force.</param>
+    /// <returns></returns>
+    public static ScalarOptions WithForceThemeMode(this ScalarOptions options, ThemeMode forceThemeMode)
+    {
+        options.ForceThemeMode = forceThemeMode;
+        return options;
+    }
 
     /// <summary>
     /// Sets whether to show the dark mode toggle.
@@ -208,6 +220,30 @@ public static class ScalarOptionsExtensions
         var apiKeyOptions = new ApiKeyOptions();
         configureApiKeyOptions(apiKeyOptions);
         return options.WithApiKeyAuthentication(apiKeyOptions);
+    }
+    
+    /// <summary>
+    /// Configures the OAuth2 authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="oauth2Options">The OAuth2 options to set.</param>
+    public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, OAuth2Options oauth2Options)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.OAuth2 = oauth2Options;
+        return options;
+    }
+    
+    /// <summary>
+    /// Configures the OAuth2 authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions"/>.</param>
+    /// <param name="configureOAuth2Options">The action to configure the OAuth2 options.</param>
+    public static ScalarOptions WithOAuth2Authentication(this ScalarOptions options, Action<OAuth2Options> configureOAuth2Options)
+    {
+        var oauth2Options = new OAuth2Options();
+        configureOAuth2Options(oauth2Options);
+        return options.WithOAuth2Authentication(oauth2Options);
     }
 
     /// <summary>
