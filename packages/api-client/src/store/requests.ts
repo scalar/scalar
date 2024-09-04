@@ -1,9 +1,9 @@
-import { createExampleFromRequest } from '@/store/request-example'
 import {
   type Collection,
   type Request,
   type RequestPayload,
   type Tag,
+  createExampleFromRequest,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
