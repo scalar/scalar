@@ -32,7 +32,7 @@ export type Action = {
 /**
  * A queue of tasks to run on an OpenAPI specification
  */
-export type Queue = {
+export type OldQueue = {
   specification: AnyApiDefinitionFormat
   tasks: Action[]
 }
@@ -67,7 +67,7 @@ function loadAction(
     plugins?: LoadPlugin[]
   },
 ) {
-  const queue: Queue = {
+  const queue: OldQueue = {
     specification: specification,
     tasks: [
       {
@@ -108,7 +108,7 @@ function loadAction(
 /**
  * Upgrade an OpenAPI specification.
  */
-function upgradeAction(queue: Queue, options?: ThrowOnErrorOption) {
+function upgradeAction(queue: OldQueue, options?: ThrowOnErrorOption) {
   queue.tasks.push({
     action: upgrade,
   })
@@ -138,7 +138,7 @@ function upgradeAction(queue: Queue, options?: ThrowOnErrorOption) {
 /**
  * Validate an OpenAPI specification.
  */
-function validateAction(queue: Queue, options?: ThrowOnErrorOption) {
+function validateAction(queue: OldQueue, options?: ThrowOnErrorOption) {
   queue.tasks.push({
     action: validate,
     options: {
@@ -167,7 +167,7 @@ function validateAction(queue: Queue, options?: ThrowOnErrorOption) {
 /**
  * Resolve references in an OpenAPI specification.
  */
-function dereferenceAction(queue: Queue, options?: ThrowOnErrorOption) {
+function dereferenceAction(queue: OldQueue, options?: ThrowOnErrorOption) {
   queue.tasks.push({
     action: dereference,
     options: {
@@ -191,7 +191,7 @@ function dereferenceAction(queue: Queue, options?: ThrowOnErrorOption) {
  * Remove parts of an OpenAPI specification with the given callback.
  */
 function filterAction(
-  queue: Queue,
+  queue: OldQueue,
   callback: (specification: AnyApiDefinitionFormat) => boolean,
   options?: ThrowOnErrorOption,
 ) {
@@ -220,7 +220,7 @@ function filterAction(
   }
 }
 
-async function getAction(queue: Queue) {
+async function getAction(queue: OldQueue) {
   const result = await workThroughQueue(queue)
 
   // If specification is not defined, return the entrypoint specification
@@ -231,25 +231,25 @@ async function getAction(queue: Queue) {
   return result
 }
 
-async function filesAction(queue: Queue): Promise<Filesystem> {
+async function filesAction(queue: OldQueue): Promise<Filesystem> {
   const { filesystem } = await workThroughQueue(queue)
 
   return filesystem
 }
 
-async function detailsAction(queue: Queue): Promise<DetailsResult> {
+async function detailsAction(queue: OldQueue): Promise<DetailsResult> {
   const { filesystem } = await workThroughQueue(queue)
 
   return details(getEntrypoint(filesystem).specification)
 }
 
-async function toJsonAction(queue: Queue): Promise<string> {
+async function toJsonAction(queue: OldQueue): Promise<string> {
   const { filesystem } = await workThroughQueue(queue)
 
   return toJson(getEntrypoint(filesystem).specification)
 }
 
-async function toYamlAction(queue: Queue): Promise<string> {
+async function toYamlAction(queue: OldQueue): Promise<string> {
   const { filesystem } = await workThroughQueue(queue)
 
   return toYaml(getEntrypoint(filesystem).specification)
