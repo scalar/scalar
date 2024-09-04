@@ -1,6 +1,14 @@
-import type { AnyApiDefinitionFormat, LoadResult, Queue } from '../../types'
+import type {
+  AnyApiDefinitionFormat,
+  LoadResult,
+  Queue,
+  Task,
+} from '../../types'
 import type { LoadOptions } from '../load'
+import type { ValidateOptions } from '../validate'
+import type { OpenApiOptions } from './foobar'
 import { get } from './get'
+import { queueTask } from './utils/queueTask'
 import { validateCommand } from './validateCommand'
 
 declare global {
@@ -15,20 +23,33 @@ declare global {
     }
   }
 }
+
 /**
  * Pass any OpenAPI document
  */
-export function loadCommand(
+export function loadCommand<T extends Task[]>(
+  previousQueue: Queue<T>,
   input: AnyApiDefinitionFormat,
   options?: LoadOptions,
 ) {
+  const task = {
+    name: 'load',
+    options: {
+      throwOnError: previousQueue.options?.throwOnError,
+      ...options,
+    },
+  } as const
+
   const queue = {
+    // Add input to the queue
     input,
-    tasks: [{ name: 'load', options }],
-  } as Queue<[{ name: 'load'; options: LoadOptions }]>
+    // Add the load task
+    ...queueTask<[...T, typeof task]>(previousQueue, task as Task),
+  }
 
   return {
-    validate: () => validateCommand(queue),
+    validate: (validateOptions?: ValidateOptions) =>
+      validateCommand(queue, validateOptions),
     get: () => get(queue),
   }
 }

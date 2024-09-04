@@ -1,6 +1,7 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { ERRORS, OpenApiVersion } from '../configuration'
+import type { OpenApiOptions } from '../utils/openapi/foobar'
 
 /**
  * Merge types with each other
@@ -104,6 +105,7 @@ declare global {
  */
 export type Queue<T extends readonly Task[] = readonly Task[]> = {
   input: AnyApiDefinitionFormat
+  options?: OpenApiOptions
   tasks: T
 }
 

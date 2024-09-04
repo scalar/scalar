@@ -15,15 +15,23 @@ declare global {
     }
   }
 }
+
 /**
  * Validate the given OpenAPI document
  */
-export function validateCommand<T extends Task[]>(previousQueue: Queue<T>) {
-  const task: Task = { name: 'validate' }
-
-  const queue = queueTask<[...T, typeof task]>(previousQueue, {
+export function validateCommand<T extends Task[]>(
+  previousQueue: Queue<T>,
+  options?: ValidateOptions,
+) {
+  const task: Task = {
     name: 'validate',
-  } as Task)
+    options: {
+      throwOnError: previousQueue.options?.throwOnError,
+      ...(options ?? {}),
+    },
+  }
+
+  const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
 
   return {
     get: () => get(queue),
