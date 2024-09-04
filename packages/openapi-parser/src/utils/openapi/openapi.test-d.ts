@@ -1,11 +1,11 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
-import type { Filesystem } from '../types'
+import type { Filesystem } from '../../types'
 import { openapi } from './foobar'
 
 describe('openapi', () => {
-  it('returns the correct type for load()', () => {
-    const result = openapi().load({}).get()
+  it('returns the correct type for load()', async () => {
+    const result = await openapi().load({}).get()
 
     expectTypeOf(result.filesystem).toMatchTypeOf<Filesystem>()
 
@@ -13,8 +13,8 @@ describe('openapi', () => {
     expectTypeOf(result.valid).toMatchTypeOf<boolean>()
   })
 
-  it('returns the correct type for validate()', () => {
-    const result = openapi().load({}).validate().get()
+  it('returns the correct type for validate()', async () => {
+    const result = await openapi().load({}).validate().get()
 
     expectTypeOf(result.valid).toMatchTypeOf<boolean>()
   })

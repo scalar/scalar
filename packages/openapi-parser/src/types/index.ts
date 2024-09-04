@@ -111,3 +111,38 @@ export type Queue<T extends readonly Task[] = readonly Task[]> = {
  * Available tasks, populated from the global Commands interface
  */
 export type Task = Commands[keyof Commands]['task']
+
+/**
+ * Command chain magic
+ *
+ * This type recursively builds a merged type based on the sequence of tasks.
+ *
+ * How it works:
+ * 1. It uses a conditional type with recursion to process the task array.
+ * 2. For each iteration:
+ *    a. It extracts the first task (First) and the rest of the tasks (Rest).
+ *    b. It checks if First is a valid Task and Rest is a Task array.
+ *    c. If valid, it merges the Command type for the First task with the
+ *       result of recursively processing the Rest of the tasks.
+ * 3. The recursion continues until the task array is empty.
+ * 4. When empty, it returns NonNullable<unknown> (equivalent to {}).
+ *
+ * Example:
+ * For tasks ['load', 'validate']:
+ * 1st iteration: Merge<Commands['load'], CommandChain<['validate']>>
+ * 2nd iteration: Merge<Commands['load'], Merge<Commands['validate'], NonNullable<unknown>>>
+ * Result: LoadResult & ValidateResult
+ *
+ * This type enables the API to correctly infer the return type based on
+ * the sequence of method calls in the fluent interface.
+ */
+export type CommandChain<T extends Task[]> = T extends [
+  infer First,
+  ...infer Rest,
+]
+  ? First extends Task
+    ? Rest extends Task[]
+      ? Merge<Commands[First['name']]['result'], CommandChain<Rest>>
+      : never
+    : never
+  : NonNullable<unknown>
