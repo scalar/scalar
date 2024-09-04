@@ -11,7 +11,7 @@ export const blobSchema = z.object({
     .function()
     .args(z.number().optional(), z.number().optional(), z.string().optional())
     .returns(z.any()), // Returns a Blob (any type for now)
-  stream: z.function().returns(z.instanceof(ReadableStream)), // Returns a ReadableStream of Uint8Array
+  stream: z.function().returns(z.instanceof(ReadableStream<Uint8Array>)), // Returns a ReadableStream of Uint8Array
   text: z.function().returns(z.promise(z.string())), // Returns a Promise of string
 })
 

@@ -159,7 +159,7 @@ export const sendRequest = async (
             if (formParam.file) {
               bodyFormData.append(
                 formParam.key,
-                formParam.file as any,
+                formParam.file,
                 formParam.file.name,
               )
             } else if (formParam.value !== undefined) {
@@ -290,10 +290,7 @@ export const sendRequest = async (
   }
 
   if (data) {
-    // WARNING: this casting is necessary because
-    // the custom defined FileType has ReadableStream<Uint8Array>
-    // Whereas RequestInit is expecting ReadableStream<unknown>
-    config.body = data as RequestInit['body']
+    config.body = data
   }
 
   // Start timer to get response duration
