@@ -4,12 +4,15 @@ import type {
   PromiseReturnType,
   Queue,
   Task,
-} from '../../types'
-import { dereference } from '../dereference'
-import { load } from '../load'
-import { upgrade } from '../upgrade'
-import { validate } from '../validate'
+} from '../../../types'
+import { dereference } from '../../dereference'
+import { load } from '../../load'
+import { upgrade } from '../../upgrade'
+import { validate } from '../../validate'
 
+/**
+ * Takes a queue of tasks and works through them
+ */
 export async function workThroughQueue<T extends Task[]>(
   queue: Queue<T>,
 ): Promise<CommandChain<T>> {
