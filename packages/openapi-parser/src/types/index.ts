@@ -5,7 +5,7 @@ import type { ERRORS, OpenApiVersion } from '../configuration'
 /**
  * Merge types with each other
  */
-export type Merge<A, B> = A & Omit<B, keyof A>
+export type Merge<A, B> = B & Omit<A, keyof B>
 
 /**
  * Unwrap a Promise to get the type of it
@@ -29,14 +29,14 @@ export type LoadResult = {
 export type ValidateResult = {
   valid: boolean
   specification?: OpenAPI.Document
-  version?: string
+  version?: '2.0' | '3.0' | '3.1'
   errors?: ErrorObject[]
   schema?: OpenAPI.Document
 }
 
 export type UpgradeResult<T extends OpenAPI.Document = OpenAPI.Document> = {
   specification: T
-  version: string
+  version: '3.1'
 }
 
 export type FilterResult = {

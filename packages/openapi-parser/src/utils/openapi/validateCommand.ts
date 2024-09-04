@@ -1,6 +1,7 @@
 import type { Queue, Task, ValidateResult } from '../../types'
 import type { ValidateOptions } from '../validate'
 import { get } from './get'
+import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
 
 declare global {
@@ -35,5 +36,6 @@ export function validateCommand<T extends Task[]>(
 
   return {
     get: () => get(queue),
+    upgrade: () => upgradeCommand(queue),
   }
 }

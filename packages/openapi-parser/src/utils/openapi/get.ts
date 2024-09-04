@@ -6,6 +6,7 @@ import type {
   Task,
 } from '../../types'
 import { load } from '../load'
+import { upgrade } from '../upgrade'
 import { validate } from '../validate'
 
 /**
@@ -26,6 +27,14 @@ export async function get<T extends Task[]>(
         ...result,
         ...(await load(input)),
       } as Merge<typeof result, PromiseReturnType<typeof load>>
+    }
+
+    // upgrade
+    else if (name === 'upgrade') {
+      result = {
+        ...result,
+        ...upgrade(input),
+      } as Merge<typeof result, ReturnType<typeof upgrade>>
     }
 
     // validate

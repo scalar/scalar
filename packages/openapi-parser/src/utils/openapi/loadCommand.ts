@@ -7,6 +7,7 @@ import type {
 import type { LoadOptions } from '../load'
 import type { ValidateOptions } from '../validate'
 import { get } from './get'
+import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
 import { validateCommand } from './validateCommand'
 
@@ -47,8 +48,9 @@ export function loadCommand<T extends Task[]>(
   }
 
   return {
+    get: () => get(queue),
+    upgrade: () => upgradeCommand(queue),
     validate: (validateOptions?: ValidateOptions) =>
       validateCommand(queue, validateOptions),
-    get: () => get(queue),
   }
 }
