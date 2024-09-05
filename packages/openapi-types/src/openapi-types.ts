@@ -45,6 +45,11 @@ export namespace OpenAPI {
     | OpenAPIV3.ResponseObject
     | OpenAPIV3_1.ResponseObject
 
+  export type HeaderObject =
+    | OpenAPIV2.HeaderObject
+    | OpenAPIV3.HeaderObject
+    | OpenAPIV3_1.HeaderObject
+
   export type Parameter =
     | OpenAPIV3_1.ReferenceObject
     | OpenAPIV3_1.ParameterObject
