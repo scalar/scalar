@@ -127,6 +127,7 @@ const showSchema = ref(false)
       </template>
     </CardTabHeader>
     <div class="scalar-card-container custom-scroll">
+      <!-- Commenting out until we re-organize cause of height issues -->
       <!-- <CardContent
         v-if="currentResponse?.headers"
         muted>
