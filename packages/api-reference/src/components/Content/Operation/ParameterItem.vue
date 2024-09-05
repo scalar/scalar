@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 
 import { SchemaProperty } from '../Schema'
 import ContentTypeSelect from './ContentTypeSelect.vue'
+import ParameterHeaders from './ParameterHeaders.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -68,10 +69,12 @@ const shouldCollapse = computed(() => {
     <div
       v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
       class="parameter-item-container parameter-item-container-markdown">
+      <ParameterHeaders
+        v-if="parameter.headers"
+        :headers="parameter.headers" />
       <SchemaProperty
         compact
         :description="shouldCollapse ? '' : parameter.description"
-        :level="0"
         :name="shouldCollapse ? '' : parameter.name"
         :noncollapsible="showChildren"
         :required="parameter.required"
@@ -93,6 +96,10 @@ const shouldCollapse = computed(() => {
 }
 .parameter-item-container {
   padding: 0;
+}
+
+.parameter-item-headers {
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .parameter-item-name {

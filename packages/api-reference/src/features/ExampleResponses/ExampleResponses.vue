@@ -15,8 +15,6 @@ import { useClipboard } from '../../hooks'
 import { ExamplePicker } from '../ExampleRequest'
 import ExampleResponse from './ExampleResponse.vue'
 
-// import Headers from './Headers.vue'
-
 /**
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
  */
@@ -127,12 +125,6 @@ const showSchema = ref(false)
       </template>
     </CardTabHeader>
     <div class="scalar-card-container custom-scroll">
-      <!-- Commenting out until we re-organize cause of height issues -->
-      <!-- <CardContent
-        v-if="currentResponse?.headers"
-        muted>
-        <Headers :headers="currentResponse.headers" />
-      </CardContent> -->
       <CardContent muted>
         <template v-if="currentJsonResponse?.schema">
           <ScalarCodeBlock
