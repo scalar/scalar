@@ -2,13 +2,14 @@
  * This file is the entry point for the CDN version of the API Reference.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
+import type { ReferenceProps } from '@/types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { createHead } from '@unhead/vue'
 import { createApp, h, reactive } from 'vue'
 
 import { default as ApiReference } from './components/ApiReference.vue'
 
-const specScriptTag = document.getElementById('api-reference')
+const getSpecScriptTag = () => document.getElementById('api-reference')
 const specElement = document.querySelector('[data-spec]')
 const specUrlElement = document.querySelector('[data-spec-url]')
 const configurationScriptElement = document.querySelector(
@@ -36,6 +37,7 @@ const getSpecUrl = () => {
   }
 
   // <script id="api-reference" data-url="/scalar.json" />
+  const specScriptTag = getSpecScriptTag()
   if (specScriptTag) {
     const urlFromScriptTag = specScriptTag.getAttribute('data-url')?.trim()
 
@@ -61,6 +63,7 @@ const getSpecUrl = () => {
 
 const getSpec = (): string | undefined => {
   // <script id="api-reference" type="application/json">{"openapi":"3.1.0","info":{"title":"Example"},"paths":{}}</script>
+  const specScriptTag = getSpecScriptTag()
   if (specScriptTag) {
     const specFromScriptTag = specScriptTag.innerHTML?.trim()
 
@@ -86,6 +89,7 @@ const getSpec = (): string | undefined => {
 
 const getProxyUrl = () => {
   // <script id="api-reference" data-proxy-url="https://proxy.scalar.com">…</script>
+  const specScriptTag = getSpecScriptTag()
   if (specScriptTag) {
     const proxyUrl = specScriptTag.getAttribute('data-proxy-url')
 
@@ -98,21 +102,17 @@ const getProxyUrl = () => {
 }
 
 // Ensure Reference Props are reactive
-const props = reactive({})
+const props = reactive<ReferenceProps>({})
 
-if (!specUrlElement && !specElement && !specScriptTag) {
+if (!specUrlElement && !specElement && !getSpecScriptTag()) {
   console.error(
     'Couldn’t find a [data-spec], [data-spec-url] or <script id="api-reference" /> element. Try adding it like this: %c<div data-spec-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml" />',
     'font-family: monospace;',
   )
 } else {
   const specOrSpecUrl = getSpec()
-    ? {
-        content: getSpec(),
-      }
-    : {
-        url: getSpecUrl(),
-      }
+    ? { content: getSpec() }
+    : { url: getSpecUrl() }
 
   Object.assign(props, {
     configuration: {
@@ -132,6 +132,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   // We need to add a new container div before the script tag.
   const createContainer = () => {
     let _container: Element | null = null
+    const specScriptTag = getSpecScriptTag()
     if (specScriptTag) {
       _container = document.createElement('div')
       specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
@@ -141,7 +142,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     return _container
   }
 
-  const container = createContainer()
+  let container = createContainer()
 
   // Wrap create app in factory for re-loading
   const createAppFactory = () => {
@@ -165,11 +166,23 @@ if (!specUrlElement && !specElement && !specScriptTag) {
     'scalar:reload-references',
     () => {
       // Check if element has been removed from dom, and re-add
-      if (container && !document.body.contains(container)) {
-        document.body.appendChild(container)
+      if (!document.body.contains(container)) {
+        console.log('Re-adding container')
+        container = createContainer()
       }
+
       app.unmount()
       app = createAppFactory()
+    },
+    false,
+  )
+
+  // Allow user to destroy the vue app
+  document.addEventListener(
+    'scalar:destroy-references',
+    () => {
+      delete props['configuration']
+      app.unmount()
     },
     false,
   )
