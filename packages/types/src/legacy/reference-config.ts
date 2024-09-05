@@ -69,6 +69,12 @@ export type ReferenceConfiguration = {
    * @default: false
    */
   hideTestRequestButton?: boolean
+  /**
+   * Whether to show the sidebar search bar
+   *
+   * @default: false
+   */
+  hideSearch?: boolean
   /** Whether dark mode is on or off initially (light mode) */
   darkMode?: boolean
   /** forceDarkModeState makes it always this state no matter what*/
