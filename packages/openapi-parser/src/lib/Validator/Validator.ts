@@ -27,7 +27,7 @@ export const jsonSchemaVersions = {
 }
 
 export class Validator {
-  public version: string
+  public version: '2.0' | '3.0' | '3.1'
 
   public static supportedVersions = OpenApiVersions
 

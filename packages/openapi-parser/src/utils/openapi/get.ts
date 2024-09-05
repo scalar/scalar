@@ -7,5 +7,8 @@ import { workThroughQueue } from './utils/workThroughQueue'
 export async function get<T extends Task[]>(
   queue: Queue<T>,
 ): Promise<CommandChain<T>> {
-  return await workThroughQueue(queue)
+  return {
+    filesystem: [],
+    ...(await workThroughQueue(queue)),
+  }
 }

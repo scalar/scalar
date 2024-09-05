@@ -119,6 +119,10 @@ export type Queue<T extends readonly Task[] = readonly Task[]> = {
  */
 export type Task = Commands[keyof Commands]['task']
 
+export type EmptyCommandChainResult = {
+  filesystem: Filesystem
+}
+
 /**
  * Command chain magic
  *
@@ -152,4 +156,4 @@ export type CommandChain<T extends Task[]> = T extends [
       ? Merge<Commands[First['name']]['result'], CommandChain<Rest>>
       : never
     : never
-  : NonNullable<unknown>
+  : EmptyCommandChainResult

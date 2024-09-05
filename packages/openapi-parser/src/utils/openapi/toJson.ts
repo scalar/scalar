@@ -8,7 +8,7 @@ import { workThroughQueue } from './utils/workThroughQueue'
  */
 export async function toJson<T extends Task[]>(
   queue: Queue<T>,
-): Promise<string> {
+): Promise<string | undefined> {
   const { filesystem } = await workThroughQueue(queue)
 
   return toJsonUtility(getEntrypoint(filesystem).specification)

@@ -6,7 +6,7 @@ import type {
   UpgradeResult,
   ValidateResult,
 } from '../types'
-import type { Queue } from './openapi'
+import type { OldQueue } from './openapi'
 
 type WorkThroughQueueResult = Partial<
   LoadResult &
@@ -21,7 +21,7 @@ type WorkThroughQueueResult = Partial<
 /**
  * Run through a queue of tasks
  */
-export async function workThroughQueue(queue: Queue): // TODO: Better type
+export async function workThroughQueue(queue: OldQueue): // TODO: Better type
 Promise<WorkThroughQueueResult> {
   const specification = queue.specification
 
