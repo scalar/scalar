@@ -6,6 +6,7 @@ import type {
   Task,
 } from '../../../types'
 import { dereference } from '../../dereference'
+import { filter } from '../../filter'
 import { load } from '../../load'
 import { upgrade } from '../../upgrade'
 import { validate } from '../../validate'
@@ -19,47 +20,72 @@ export async function workThroughQueue<T extends Task[]>(
   let result = {} as CommandChain<T>
 
   // Work through the whole queue
-  queue.tasks.forEach(async ({ name }: { name: keyof Commands }) => {
-    const { input } = queue
+  queue.tasks.forEach(
+    async <CommandName extends keyof Commands>({
+      name,
+      options,
+    }: {
+      name: CommandName
+      options?: any
+    }) => {
+      const { input } = queue
 
-    // load
-    if (name === 'load') {
-      result = {
-        ...result,
-        ...(await load(input)),
-      } as Merge<typeof result, PromiseReturnType<typeof load>>
-    }
+      // load
+      if (name === 'load') {
+        result = {
+          ...result,
+          ...(await load(
+            input,
+            options as Commands['load']['task']['options'],
+          )),
+        } as Merge<typeof result, PromiseReturnType<typeof load>>
+      }
 
-    // upgrade
-    else if (name === 'dereference') {
-      result = {
-        ...result,
-        ...(await dereference(input)),
-      } as Merge<typeof result, PromiseReturnType<typeof dereference>>
-    }
+      // validate
+      else if (name === 'filter') {
+        result = {
+          ...result,
+          ...filter(input, options as Commands['filter']['task']['options']),
+        } as Merge<typeof result, ReturnType<typeof filter>>
+      }
 
-    // upgrade
-    else if (name === 'upgrade') {
-      result = {
-        ...result,
-        ...upgrade(input),
-      } as Merge<typeof result, ReturnType<typeof upgrade>>
-    }
+      // dereference
+      else if (name === 'dereference') {
+        result = {
+          ...result,
+          ...(await dereference(
+            input,
+            options as Commands['dereference']['task']['options'],
+          )),
+        } as Merge<typeof result, PromiseReturnType<typeof dereference>>
+      }
 
-    // validate
-    else if (name === 'validate') {
-      result = {
-        ...result,
-        ...validate(input),
-      } as Merge<typeof result, ReturnType<typeof validate>>
-    }
+      // upgrade
+      else if (name === 'upgrade') {
+        result = {
+          ...result,
+          ...upgrade(input),
+        } as Merge<typeof result, ReturnType<typeof upgrade>>
+      }
 
-    // Make TS complain when we forgot to handle a command.
-    else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _: never = name
-    }
-  })
+      // validate
+      else if (name === 'validate') {
+        result = {
+          ...result,
+          ...validate(
+            input,
+            options as Commands['validate']['task']['options'],
+          ),
+        } as Merge<typeof result, ReturnType<typeof validate>>
+      }
+
+      // Make TS complain when we forgot to handle a command.
+      else {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _: never = name
+      }
+    },
+  )
 
   return result
 }

@@ -43,3 +43,15 @@ console.log(result4.valid)
 
 const json = await openapi().load({}).toJson()
 console.log(json)
+
+const files = await openapi().load({}).files()
+console.log(files)
+
+const details = await openapi().load({}).details()
+console.log(details)
+
+const filtered = await openapi()
+  .load({})
+  .filter((specification) => !!specification)
+  .get()
+console.log(filtered.specification)

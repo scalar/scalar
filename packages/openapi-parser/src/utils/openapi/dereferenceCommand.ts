@@ -1,5 +1,7 @@
 import type { DereferenceResult, Queue, Task } from '../../types'
 import type { DereferenceOptions } from '../dereference'
+import { details } from './details'
+import { files } from './files'
 import { get } from './get'
 import { toJson } from './toJson'
 import { toYaml } from './toYaml'
@@ -36,6 +38,8 @@ export function dereferenceCommand<T extends Task[]>(
   const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
 
   return {
+    details: () => details(queue),
+    files: () => files(queue),
     get: () => get(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),

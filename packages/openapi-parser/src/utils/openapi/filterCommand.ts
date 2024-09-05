@@ -1,16 +1,10 @@
-import type {
-  AnyApiDefinitionFormat,
-  LoadResult,
-  Queue,
-  Task,
-} from '../../types'
+import type { FilterResult, Queue, Task } from '../../types'
 import type { DereferenceOptions } from '../dereference'
-import type { LoadOptions } from '../load'
+import type { FilterCallback } from '../filter'
 import type { ValidateOptions } from '../validate'
 import { dereferenceCommand } from './dereferenceCommand'
 import { details } from './details'
 import { files } from './files'
-import { filterCommand } from './filterCommand'
 import { get } from './get'
 import { toJson } from './toJson'
 import { toYaml } from './toYaml'
@@ -21,50 +15,39 @@ import { validateCommand } from './validateCommand'
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands {
-    load: {
+    filter: {
       task: {
-        name: 'load'
-        options?: LoadOptions
+        name: 'filter'
+        options?: FilterCallback
       }
-      result: LoadResult
+      result: FilterResult
     }
   }
 }
 
 /**
- * Pass any OpenAPI document
+ * Filter the given OpenAPI document
  */
-export function loadCommand<T extends Task[]>(
+export function filterCommand<T extends Task[]>(
   previousQueue: Queue<T>,
-  input: AnyApiDefinitionFormat,
-  options?: LoadOptions,
+  options?: FilterCallback,
 ) {
-  const task = {
-    name: 'load',
-    options: {
-      throwOnError: previousQueue.options?.throwOnError,
-      ...options,
-    },
-  } as const
-
-  const queue = {
-    // Add input to the queue
-    input,
-    // Add the load task
-    ...queueTask<[...T, typeof task]>(previousQueue, task as Task),
+  const task: Task = {
+    name: 'filter',
+    options,
   }
+
+  const queue = queueTask<[...T, typeof task]>(previousQueue, task as Task)
 
   return {
     dereference: (dereferenceOptions?: DereferenceOptions) =>
       dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: AnyApiDefinitionFormat) => boolean) =>
-      filterCommand(queue, callback),
     get: () => get(queue),
-    upgrade: () => upgradeCommand(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),
+    upgrade: () => upgradeCommand(queue),
     validate: (validateOptions?: ValidateOptions) =>
       validateCommand(queue, validateOptions),
   }

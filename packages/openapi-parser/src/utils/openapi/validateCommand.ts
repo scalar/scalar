@@ -1,7 +1,15 @@
-import type { Queue, Task, ValidateResult } from '../../types'
+import type {
+  AnyApiDefinitionFormat,
+  Queue,
+  Task,
+  ValidateResult,
+} from '../../types'
 import type { DereferenceOptions } from '../dereference'
 import type { ValidateOptions } from '../validate'
 import { dereferenceCommand } from './dereferenceCommand'
+import { details } from './details'
+import { files } from './files'
+import { filterCommand } from './filterCommand'
 import { get } from './get'
 import { toJson } from './toJson'
 import { toYaml } from './toYaml'
@@ -41,6 +49,10 @@ export function validateCommand<T extends Task[]>(
   return {
     dereference: (dereferenceOptions?: DereferenceOptions) =>
       dereferenceCommand(queue, dereferenceOptions),
+    details: () => details(queue),
+    files: () => files(queue),
+    filter: (callback: (specification: AnyApiDefinitionFormat) => boolean) =>
+      filterCommand(queue, callback),
     get: () => get(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),
