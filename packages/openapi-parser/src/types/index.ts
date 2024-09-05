@@ -31,7 +31,7 @@ export type LoadResult = {
 export type ValidateResult = {
   valid: boolean
   specification?: OpenAPI.Document
-  version?: '2.0' | '3.0' | '3.1'
+  version?: OpenApiVersion
   errors?: ErrorObject[]
   schema?: OpenAPI.Document
 }
@@ -52,7 +52,7 @@ export type DetailsResult = {
 }
 
 export type DereferenceResult = {
-  version: string | undefined
+  version?: OpenApiVersion
   specification?: OpenAPI.Document
   schema?: OpenAPI.Document
   errors?: ErrorObject[]
