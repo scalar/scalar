@@ -34,12 +34,13 @@ export async function getExampleCode(
 
   // httpsnippet-lite
   try {
-    return (
-      (await new HTTPSnippet(request).convert(
-        target as HttpSnippetLiteTargetId,
-        client as HttpSnippetLiteClientId,
-      )) ?? ''
+    // HTTPSnippet will return type string[] if passed input type HarEntry
+    // Since we are passing type HarRequest output is a string
+    const code = await new HTTPSnippet(request).convert(
+      target as HttpSnippetLiteTargetId,
+      client as HttpSnippetLiteClientId,
     )
+    if (typeof code === 'string') return code
   } catch (error) {
     console.error(
       '[getExampleCode] Failed to generate example code with httpsnippet-lite:',

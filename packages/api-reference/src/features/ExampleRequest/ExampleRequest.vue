@@ -9,14 +9,12 @@ import {
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
-import { type TargetId, snippetz } from '@scalar/snippetz'
 import type {
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
 } from '@scalar/types/legacy'
 import { asyncComputed } from '@vueuse/core'
-import { HTTPSnippet } from 'httpsnippet-lite'
 import {
   computed,
   inject,
@@ -35,7 +33,6 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import {
   GLOBAL_SECURITY_SYMBOL,
-  createRequest,
   getApiClientRequest,
   getExampleCode,
   getHarRequest,
@@ -196,8 +193,8 @@ const language = computed(() => {
   const key =
     // Specified language
     localHttpClient.value?.targetKey === 'customExamples'
-      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext')
+      ? customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+        'plaintext'
       : // Or language for the globally selected HTTP client
         httpClient.targetKey
 
