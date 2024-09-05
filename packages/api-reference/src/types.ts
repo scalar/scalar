@@ -32,18 +32,6 @@ export type PathRouting = {
 
 export type GettingStartedExamples = 'Petstore' | 'CoinMarketCap'
 
-export type ExampleResponseHeaders = Record<
-  string,
-  {
-    description: string
-    schema: {
-      type: string
-      format?: string
-      example?: string
-    }
-  }
->
-
 export type Parameter = {
   name: string
   required: boolean
