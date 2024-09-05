@@ -32,13 +32,21 @@ defineExpose({ comboboxPopoverRef })
     :teleport="teleport">
     <slot />
     <template #popover="{ open }">
-      <ComboboxOptions
-        :modelValue="modelValue"
-        multiselect
-        :open="open"
-        :options="options"
-        :placeholder="placeholder"
-        @update:modelValue="(v) => $emit('update:modelValue', v)" />
+      <div class="divide-1 divide-y">
+        <ComboboxOptions
+          v-if="options && options.length"
+          :modelValue="modelValue"
+          multiselect
+          :open="open"
+          :options="options"
+          :placeholder="placeholder"
+          @update:modelValue="(v) => $emit('update:modelValue', v)" />
+        <div
+          v-if="$slots.actions"
+          class="p-0.75">
+          <slot name="actions" />
+        </div>
+      </div>
     </template>
   </ComboboxPopover>
 </template>

@@ -176,6 +176,19 @@ watch(
                 icon="ChevronDown"
                 size="xs" />
             </ScalarButton>
+            <template #actions>
+              <ScalarButton
+                class="gap-1.5 font-normal h-auto justify-start px-2 py-1.5 text-c-1 text-xs hover:bg-b-2"
+                fullWidth
+                variant="ghost">
+                <div class="flex items-center justify-center p-0.75 h-4 w-4">
+                  <ScalarIcon
+                    icon="Add"
+                    thickness="3" />
+                </div>
+                Add Security Scheme
+              </ScalarButton>
+            </template>
           </ScalarComboboxMultiselect>
         </DataTableHeader>
       </DataTableRow>
