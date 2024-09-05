@@ -3,6 +3,8 @@ import { ScalarCodeBlock } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 
+import Headers from './Headers.vue'
+
 defineProps<{
   response:
     | undefined
@@ -24,6 +26,9 @@ const mergeAllObjects = (items: Record<any, any>[]): any => {
 }
 </script>
 <template>
+  <template v-if="response?.headers">
+    <Headers :headers="response.headers" />
+  </template>
   <template v-if="response?.example">
     <ScalarCodeBlock
       class="bg-b-2"
