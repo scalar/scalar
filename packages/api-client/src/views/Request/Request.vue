@@ -46,8 +46,7 @@ watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
  * called from the send button as well as keyboard shortcuts
  */
 const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value || !activeServer.value)
-    return
+  if (!activeRequest.value || !activeExample.value) return
 
   // Parse the environment string
   const e = safeJSON.parse(activeEnvironment.value.value)
@@ -109,9 +108,7 @@ onMounted(() => {
  *
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
-onBeforeUnmount(() => {
-  executeRequestBus.off(executeRequest)
-})
+onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 </script>
 <template>
   <div
