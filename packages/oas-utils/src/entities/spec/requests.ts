@@ -22,10 +22,15 @@ export const requestMethods = [
 export type RequestMethod = (typeof requestMethods)[number]
 
 /** A single set of populated values for a sent request */
-export type ResponseInstance = Response & {
+export type ResponseInstance = Omit<Response, 'headers'> & {
+  /** Store headers as an object to match what we had with axios */
+  headers: Record<string, string>
+  /** Keys of headers which set cookies */
+  cookieHeaderKeys: string[]
   /** Time in ms the request took */
   duration: number
-  data: any
+  /** The response data */
+  data: unknown
 }
 
 /** A single request/response set to save to the history stack */

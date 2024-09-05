@@ -1,11 +1,9 @@
+import { formatHeaderKey } from './normalize-headers'
+
 /**
- * Normalize headers:
+ * Normalize headers
  *
- * - Electron modifies the headers to allow CORS, this function hides the modifications
- * - Restores original headers
- * - Normalizes the header keys
- * - Sorts headers alphabetically
- *
+ * @deprecated this method is deprecated, move to the new one from './normalize-headers.ts'
  */
 export function normalizeHeaders(
   headers: Response['headers'],
@@ -56,14 +54,4 @@ export function normalizeHeaders(
 
   // Sort headers alphabetically by key
   return headers
-}
-
-/** Make the first letter and all letters after a dash uppercase */
-function formatHeaderKey(key: string) {
-  return key
-    .split('-')
-    .map((word) => {
-      return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1)
-    })
-    .join('-')
 }

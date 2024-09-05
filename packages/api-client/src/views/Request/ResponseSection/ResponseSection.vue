@@ -38,18 +38,19 @@ const responseHeaders = computed(() => {
 })
 
 // Cookies
-const responseCookies = computed(() => {
-  // todo investigate how to grab cookies
-  const cookies = props.response?.headers?.cookies
-
-  return cookies
-    ? Object.keys(cookies).map((key) => ({
-        name: key,
-        value: cookies[key],
-        required: false,
-      }))
-    : []
-})
+const responseCookies = computed(
+  () =>
+    props.response?.cookieHeaderKeys.flatMap((key) => {
+      const value = props.response?.headers?.[key]
+      return value
+        ? {
+            name: key,
+            value,
+            required: false,
+          }
+        : []
+    }) ?? [],
+)
 
 const sections = ['All', 'Body', 'Headers', 'Cookies']
 type ActiveSections = (typeof sections)[number]
