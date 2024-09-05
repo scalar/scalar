@@ -1,5 +1,6 @@
 import type {
   AnyApiDefinitionFormat,
+  AnyObject,
   Queue,
   Task,
   UpgradeResult,
@@ -43,7 +44,7 @@ export function upgradeCommand<T extends Task[]>(previousQueue: Queue<T>) {
       dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: AnyApiDefinitionFormat) => boolean) =>
+    filter: (callback: (specification: AnyObject) => boolean) =>
       filterCommand(queue, callback),
     get: () => get(queue),
     toJson: () => toJson(queue),

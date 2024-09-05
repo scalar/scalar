@@ -1,5 +1,6 @@
 import type {
   AnyApiDefinitionFormat,
+  AnyObject,
   Queue,
   Task,
   ValidateResult,
@@ -51,7 +52,7 @@ export function validateCommand<T extends Task[]>(
       dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: AnyApiDefinitionFormat) => boolean) =>
+    filter: (callback: (specification: AnyObject) => boolean) =>
       filterCommand(queue, callback),
     get: () => get(queue),
     toJson: () => toJson(queue),

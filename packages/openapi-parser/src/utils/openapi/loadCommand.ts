@@ -1,5 +1,6 @@
 import type {
   AnyApiDefinitionFormat,
+  AnyObject,
   LoadResult,
   Queue,
   Task,
@@ -48,10 +49,10 @@ export function loadCommand<T extends Task[]>(
   } as const
 
   const queue = {
-    // Add input to the queue
-    input,
     // Add the load task
     ...queueTask<[...T, typeof task]>(previousQueue, task as Task),
+    // Add input to the queue
+    input,
   }
 
   return {
@@ -59,7 +60,7 @@ export function loadCommand<T extends Task[]>(
       dereferenceCommand(queue, dereferenceOptions),
     details: () => details(queue),
     files: () => files(queue),
-    filter: (callback: (specification: AnyApiDefinitionFormat) => boolean) =>
+    filter: (callback: (specification: AnyObject) => boolean) =>
       filterCommand(queue, callback),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),

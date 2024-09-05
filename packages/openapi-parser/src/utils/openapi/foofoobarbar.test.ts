@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
-import { readFiles } from './load/plugins/readFiles'
+import { readFiles } from '../load/plugins/readFiles'
 import { openapi } from './openapi'
 
 const example = {
@@ -16,8 +16,10 @@ const example = {
 
 const EXAMPLE_FILE = join(
   new URL(import.meta.url).pathname,
-  '../examples/openapi.yaml',
+  '../../examples/openapi.yaml',
 )
+
+console.log(EXAMPLE_FILE)
 
 describe('pipeline', () => {
   it('load object', async () => {

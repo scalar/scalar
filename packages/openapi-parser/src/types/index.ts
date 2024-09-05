@@ -24,6 +24,7 @@ export type AnyApiDefinitionFormat = string | AnyObject
 
 export type LoadResult = {
   filesystem: Filesystem
+  specification: AnyObject
   errors?: ErrorObject[]
 }
 
@@ -41,7 +42,7 @@ export type UpgradeResult<T extends OpenAPI.Document = OpenAPI.Document> = {
 }
 
 export type FilterResult = {
-  specification: OpenAPI.Document
+  specification: AnyObject
 }
 
 export type DetailsResult = {
