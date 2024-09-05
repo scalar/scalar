@@ -3,13 +3,13 @@ import { type HttpHeader, httpHeaders, normalizeHeaderName } from '#legacy'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
-import { mapFromObject } from '../../../../helpers'
 import {
   SimpleCell,
   SimpleHeader,
   SimpleRow,
   SimpleTable,
-} from '../../../SimpleTable'
+} from '../../components/SimpleTable'
+import { mapFromObject } from '../../helpers'
 
 const props = defineProps<{
   headers: {

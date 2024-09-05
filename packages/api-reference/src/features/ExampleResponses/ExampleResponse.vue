@@ -4,101 +4,21 @@ import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import { mergeAllObjects } from '../../../../helpers'
-import Headers from './Headers.vue'
-
 defineProps<{
   response: OpenAPI.ResponseObject
 }>()
-
-const rules = ['oneOf', 'anyOf', 'not']
 </script>
 <template>
-  <template v-if="response?.headers">
-    <Headers :headers="response.headers" />
-  </template>
+  <!-- Example -->
   <template v-if="response?.example">
     <ScalarCodeBlock
       class="bg-b-2"
       :content="prettyPrintJson(response?.example)"
       lang="json" />
   </template>
+  <!-- Schema -->
   <template v-else-if="response?.schema">
-    <!-- oneOf, anyOf, not … -->
-    <template
-      v-for="rule in rules"
-      :key="rule">
-      <div
-        v-if="
-          response?.schema[rule] &&
-          (response?.schema[rule].length > 1 || rule === 'not')
-        "
-        class="rule">
-        <div class="rule-title">
-          {{ rule }}
-        </div>
-        <ol class="rule-items">
-          <li
-            v-for="(example, index) in response?.schema[rule]"
-            :key="index"
-            class="rule-item">
-            <ScalarCodeBlock
-              class="bg-b-2"
-              :content="
-                getExampleFromSchema(example, {
-                  emptyString: '…',
-                  mode: 'read',
-                })
-              "
-              lang="json" />
-          </li>
-        </ol>
-      </div>
-      <ScalarCodeBlock
-        v-else-if="
-          response?.schema[rule] && response?.schema[rule].length === 1
-        "
-        class="bg-b-2"
-        :content="
-          getExampleFromSchema(response?.schema[rule][0], {
-            emptyString: '…',
-            mode: 'read',
-          })
-        "
-        lang="json" />
-    </template>
-    <!-- allOf-->
     <ScalarCodeBlock
-      v-if="response?.schema['allOf']"
-      class="bg-b-2"
-      :content="
-        mergeAllObjects(
-          response?.schema['allOf'].map((schema: any) =>
-            getExampleFromSchema(schema, {
-              emptyString: '…',
-              mode: 'read',
-            }),
-          ),
-        )
-      "
-      lang="json" />
-    <ScalarCodeBlock
-      v-else-if="response?.schema['items']?.['allOf']"
-      class="bg-b-2"
-      :content="
-        mergeAllObjects(
-          response?.schema['items']['allOf'].map((schema: any) =>
-            getExampleFromSchema(schema, {
-              emptyString: '…',
-              mode: 'read',
-            }),
-          ),
-        )
-      "
-      lang="json" />
-    <!-- Single Schema -->
-    <ScalarCodeBlock
-      v-else
       class="bg-b-2"
       :content="
         prettyPrintJson(
