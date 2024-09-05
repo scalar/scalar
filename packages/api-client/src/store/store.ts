@@ -196,7 +196,7 @@ export const createWorkspaceStore = (
     const requestUid = activeRequest.value?.uid
     if (requestUid)
       return Object.values(collections).find((c) =>
-        c.requests.includes(requestUid),
+        c.requests?.includes(requestUid),
       )
 
     const fallbackUid =
