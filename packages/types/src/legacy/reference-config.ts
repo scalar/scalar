@@ -1,4 +1,9 @@
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-types'
 import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
 
@@ -8,7 +13,12 @@ import type { HarRequest, TargetId } from '../external'
  * This re-export is needed due to a typescript issue
  * @see https://github.com/microsoft/TypeScript/issues/42873
  */
-export type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+export type {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-types'
 
 export type ClientInfo = {
   key: string
@@ -224,7 +234,7 @@ export type Information = {
   'description'?: string
   'operationId'?: string | number
   'parameters'?: Parameters[]
-  'responses'?: Record<string, ScalarResponse>
+  'responses'?: Record<string, OpenAPI.ResponseObject>
   'security'?: OpenAPIV3.SecurityRequirementObject[]
   'requestBody'?: RequestBody
   'summary'?: string
@@ -291,11 +301,6 @@ export type RequestBodyMimeTypes = {
     example?: any
     examples?: any
   }
-}
-
-export type ScalarResponse = {
-  description: string
-  content: any
 }
 
 export type RequestBody = {
