@@ -8,9 +8,7 @@ import { files } from './files'
 import { get } from './get'
 import { toJson } from './toJson'
 import { toYaml } from './toYaml'
-import { upgradeCommand } from './upgradeCommand'
 import { queueTask } from './utils/queueTask'
-import { validateCommand } from './validateCommand'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -47,8 +45,5 @@ export function filterCommand<T extends Task[]>(
     get: () => get(queue),
     toJson: () => toJson(queue),
     toYaml: () => toYaml(queue),
-    upgrade: () => upgradeCommand(queue),
-    validate: (validateOptions?: ValidateOptions) =>
-      validateCommand(queue, validateOptions),
   }
 }
