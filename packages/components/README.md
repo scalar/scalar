@@ -5,7 +5,7 @@ Scalars internal component library now open sourced and [almost] ready to use! i
 ## Install
 
 ```bash
-pnpm i @scalar/theme @scalar/components
+pnpm i @scalar/themes @scalar/components
 ```
 
 ## Usage
