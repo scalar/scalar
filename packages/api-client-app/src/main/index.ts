@@ -15,6 +15,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
+import { findOpenApiDocumentUrl } from './utils/find-openapi-document-url'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
@@ -450,9 +451,17 @@ async function openAppLink(appLink?: string) {
     return
   }
 
-  // Fetch URL
-  console.log(`Fetching ${url} …`)
-  const result = await fetch(url)
+  // Find the exact OpenAPI document URL
+  const openApiDocumentUrl = await findOpenApiDocumentUrl(url)
+
+  if (!openApiDocumentUrl) {
+    console.error('Could not find an OpenAPI document URL')
+    return
+  }
+
+  // Fetch OpenAPI document
+  console.log(`Fetching ${openApiDocumentUrl} …`)
+  const result = await fetch(openApiDocumentUrl)
 
   // Error handling
   if (!result.ok) {
