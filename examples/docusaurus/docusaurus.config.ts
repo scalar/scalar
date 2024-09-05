@@ -92,7 +92,7 @@ const config: Config = {
             content: `{
   "openapi": "3.1.0",
   "info": {
-    "title": "Hello World",
+    "title": "JSON Docs",
     "version": "1.0.0"
   },
   "paths": {}
@@ -111,7 +111,7 @@ const config: Config = {
           spec: {
             content: `openapi: 3.1.0
 info:
-  title: Hello World
+  title: YAML Docs
   version: 1.0.0
 paths: {}
 `,

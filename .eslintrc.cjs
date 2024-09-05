@@ -221,7 +221,7 @@ module.exports = {
         'vue/max-lines-per-block': [
           'warn',
           {
-            script: 50,
+            script: 80,
             skipBlankLines: true,
           },
         ],
