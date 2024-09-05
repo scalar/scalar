@@ -5,7 +5,7 @@ Scalars internal component library now open sourced and [almost] ready to use! i
 ## Install
 
 ```bash
-pnpm i @scalar/theme @scalar/components
+pnpm i @scalar/components
 ```
 
 ## Usage
@@ -13,8 +13,7 @@ pnpm i @scalar/theme @scalar/components
 In your main setup file (main.ts etc)
 
 ```ts
-import '@scalar/themes/base.css'
-import '@scalar/themes/fonts.css'
+import '@scalar/components/style.css'
 ```
 
 Then to use the components
