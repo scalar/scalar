@@ -17,13 +17,23 @@ import { validate } from '../../validate'
 export async function workThroughQueue<T extends Task[]>(
   queue: Queue<T>,
 ): Promise<CommandChain<T>> {
-  const { input } = queue
+  const { input } = {
+    ...queue,
+  }
   let result = {} as CommandChain<T>
 
   // Work through the whole queue
   for (const task of queue.tasks) {
     const name: keyof Commands = task.name
     const options: any = 'options' in task ? task.options : undefined
+
+    // Use the result of the previous task, or fall back to the original input
+    const currentSpecification = result.specification
+      ? result.specification
+      : typeof input === 'object'
+        ? // Detach from the original object
+          structuredClone(input)
+        : input
 
     // load
     if (name === 'load') {
@@ -37,7 +47,10 @@ export async function workThroughQueue<T extends Task[]>(
     else if (name === 'filter') {
       result = {
         ...result,
-        ...filter(input, options as Commands['filter']['task']['options']),
+        ...filter(
+          currentSpecification,
+          options as Commands['filter']['task']['options'],
+        ),
       } as Merge<typeof result, ReturnType<typeof filter>>
     }
 
@@ -46,7 +59,7 @@ export async function workThroughQueue<T extends Task[]>(
       result = {
         ...result,
         ...(await dereference(
-          input,
+          currentSpecification,
           options as Commands['dereference']['task']['options'],
         )),
       } as Merge<typeof result, PromiseReturnType<typeof dereference>>
@@ -56,7 +69,7 @@ export async function workThroughQueue<T extends Task[]>(
     else if (name === 'upgrade') {
       result = {
         ...result,
-        ...upgrade(input),
+        ...upgrade(currentSpecification),
       } as Merge<typeof result, ReturnType<typeof upgrade>>
     }
 

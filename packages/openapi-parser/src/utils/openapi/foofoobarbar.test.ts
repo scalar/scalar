@@ -185,7 +185,7 @@ describe('pipeline', () => {
   })
 
   it('upgrade > filter', async () => {
-    const otherExample = {
+    const otherExample = JSON.stringify({
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -212,7 +212,7 @@ describe('pipeline', () => {
           },
         },
       },
-    }
+    })
 
     const { specification } = await openapi()
       .load(otherExample)

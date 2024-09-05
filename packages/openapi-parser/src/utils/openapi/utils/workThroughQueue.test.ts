@@ -13,6 +13,14 @@ describe('workThroughQueue', () => {
         },
         paths: {},
       },
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       tasks: [
         {
           name: 'load',
@@ -52,6 +60,14 @@ describe('workThroughQueue', () => {
   it('validates a specification', async () => {
     const result = workThroughQueue({
       input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+      specification: {
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -118,6 +134,14 @@ describe('workThroughQueue', () => {
         },
         paths: {},
       },
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       tasks: [
         {
           name: 'load',
@@ -171,6 +195,14 @@ describe('workThroughQueue', () => {
   it('upgrades a specification', async () => {
     const result = workThroughQueue({
       input: {
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+      specification: {
         openapi: '3.0.0',
         info: {
           title: 'Hello World',

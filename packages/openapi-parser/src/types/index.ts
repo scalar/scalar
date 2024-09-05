@@ -110,8 +110,13 @@ declare global {
  * Input and a list of tasks to pipe the input through.
  */
 export type Queue<T extends readonly Task[] = readonly Task[]> = {
+  /** The original input, can be a JSON or YAML string or an object */
   input: AnyApiDefinitionFormat
+  /** The current OpenAPI document, but as an object */
+  specification: AnyObject
+  /** Global options */
   options?: OpenApiOptions
+  /** Queued tasks */
   tasks: T
 }
 
@@ -122,6 +127,7 @@ export type Task = Commands[keyof Commands]['task']
 
 export type EmptyCommandChainResult = {
   filesystem: Filesystem
+  specification: AnyObject
 }
 
 /**
