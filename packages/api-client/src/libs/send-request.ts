@@ -6,11 +6,12 @@ import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Request,
   RequestExample,
+  RequestMethod,
   ResponseInstance,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { canMethodHaveBody, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -94,7 +95,7 @@ function setRequestCookies({
   })
 
   globalCookies.forEach((c) => {
-    const { name: key, value, comment, ...params } = c
+    const { name: key, value, ...params } = c
 
     // We only attach global cookies relevant to the current domain
     // Subdomains are matched as well
@@ -126,7 +127,14 @@ function setRequestCookies({
  * TODO: Should we be setting the content type headers here?
  * If so we must allow the user to override the content type header
  */
-function createFetchBody(example: RequestExample, env: object) {
+function createFetchBody(
+  method: RequestMethod,
+  example: RequestExample,
+  env: object,
+) {
+  if (!canMethodHaveBody(method))
+    return { body: undefined, contentType: undefined }
+
   if (example.body.activeBody === 'formData' && example.body.formData) {
     const contentType =
       example.body.formData.encoding === 'form-data'
@@ -180,7 +188,7 @@ export function createRequestOperation({
   example: RequestExample
   proxy: string
   environment: object | undefined
-  server: Server
+  server?: Server
   securitySchemes: Record<string, SecurityScheme>
   globalCookies: Cookie[]
 }) {
@@ -198,12 +206,16 @@ export function createRequestOperation({
     {},
   )
 
-  // Initialize the base URL object from the active server
-  const url = new URL(replaceTemplateVariables(server.url ?? '', env))
+  // Allow path only requests, mostly for quick testing in drafts
+  const url = server?.url
+    ? new URL(replaceTemplateVariables(server.url ?? '', env))
+    : new URL(request.path)
+
   const pathname = replaceTemplateVariables(request.path, pathVariables)
   const urlParams = createFetchQueryParams(example, env)
   const headers = createFetchHeaders(example, env)
   const { body, contentType } = createFetchBody(example, env)
+  console.log(body)
   const { cookieParams } = setRequestCookies({
     example,
     env,
@@ -268,6 +280,9 @@ export function createRequestOperation({
     url.pathname = pathname
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
 
+    console.log(body)
+    console.log(headers)
+
     const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
       signal: controller.signal,
       method: request.method,
@@ -301,6 +316,8 @@ export function createRequestOperation({
       responseType,
     )
     const responseHeaders = normalizeHeaders(response.headers)
+
+    console.log('what')
 
     return {
       timestamp: Date.now(),
