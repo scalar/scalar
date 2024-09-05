@@ -3,6 +3,7 @@ import { ScalarCodeBlock } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 
+import { mergeAllObjects } from '../../../../helpers'
 import Headers from './Headers.vue'
 
 defineProps<{
@@ -11,19 +12,11 @@ defineProps<{
     | {
         example?: any
         schema?: any
+        headers?: any
       }
 }>()
 
 const rules = ['oneOf', 'anyOf', 'not']
-
-const mergeAllObjects = (items: Record<any, any>[]): any => {
-  return items.reduce((acc, object) => {
-    return {
-      ...acc,
-      ...object,
-    }
-  }, {})
-}
 </script>
 <template>
   <template v-if="response?.headers">
