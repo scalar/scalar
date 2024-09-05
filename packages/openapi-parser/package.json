@@ -22,28 +22,27 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm types:check && rollup -c --configPlugin typescript && pnpm types:build",
-    "format": "prettier --write .",
+    "build": "scalar-build-rollup",
+    "format": "scalar-format-js",
     "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "lint:fix": "eslint . --fix",
     "test": "vitest",
     "test:prepare": "vite-node scripts/load-files.ts",
     "test:unit": "vite-node scripts/load-files.ts && vitest",
-    "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
-    "./plugins/fetch-urls": {
-      "import": "./dist/utils/load/plugins/fetchUrls.js"
-    },
-    "./plugins/read-files": {
-      "import": "./dist/utils/load/plugins/readFiles.js"
+    "./utils/load/plugins": {
+      "import": "./dist/utils/load/plugins/readFiles.js",
+      "types": "./dist/utils/load/plugins/readFiles.d.ts"
     }
   },
   "files": [
@@ -64,15 +63,14 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@babel/code-frame": "^7.24.7",
     "@google-cloud/storage": "^7.12.1",
-    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "^20.14.10",
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
-    "rollup": "^4.16.4",
     "rollup-plugin-output-size": "^1.4.1",
     "tinybench": "^2.8.0"
   }

@@ -1,64 +1,24 @@
-import json from '@rollup/plugin-json'
 import terser from '@rollup/plugin-terser'
-import typescript from '@rollup/plugin-typescript'
-import { rm } from 'node:fs/promises'
+import {
+  addPackageFileExports,
+  createRollupConfig,
+} from '@scalar/build-tooling'
 import { builtinModules } from 'node:module'
-import type { Plugin, RollupOptions } from 'rollup'
 import outputSize from 'rollup-plugin-output-size'
 
-const input = [
-  './src/index.ts',
-  './src/utils/load/plugins/fetchUrls.ts',
-  './src/utils/load/plugins/readFiles.ts',
+const entries = [
+  'src/index.ts',
+  'src/utils/load/plugins/fetchUrls.ts',
+  'src/utils/load/plugins/readFiles.ts',
 ]
 
-const dir = 'dist'
+// Do not use the findEntryPoints helper - it will overwrite the static file outputs
+export default createRollupConfig({
+  typescript: true,
 
-/**
- * Remove the output directory.
- */
-function cleanBeforeWrite(directory: string): Plugin {
-  let removePromise: Promise<void>
-
-  return {
-    generateBundle(_options, _bundle, isWrite) {
-      if (isWrite) {
-        // Only remove before first write, but make all writes wait on the removal
-        removePromise ??= rm(directory, {
-          force: true,
-          recursive: true,
-        })
-
-        return removePromise
-      }
-    },
-    name: 'clean-before-write',
-  }
-}
-
-/**
- * Rollup configuration
- */
-const config: RollupOptions[] = [
-  // Code
-  {
-    input,
-    output: [
-      // ESM
-      {
-        format: 'esm',
-        preserveModules: true,
-        preserveModulesRoot: 'src',
-        dir,
-      },
-    ],
-    plugins: [
-      cleanBeforeWrite(dir),
-      typescript(),
-      json(),
-      terser(),
-      outputSize(),
-    ],
+  options: {
+    input: entries,
+    plugins: [terser(), outputSize()],
     external: [
       ...builtinModules,
       ...builtinModules.map((m) => `node:${m}`),
@@ -68,11 +28,8 @@ const config: RollupOptions[] = [
       'yaml',
       '@scalar/openapi-types',
     ],
-    treeshake: {
-      annotations: true,
-      preset: 'recommended',
-    },
   },
-]
+  emptyOutDir: true,
+})
 
-export default config
+await addPackageFileExports({ entries })
