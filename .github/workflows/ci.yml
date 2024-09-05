@@ -297,7 +297,7 @@ jobs:
 
   deploy-examples:
     if: github.ref != 'refs/heads/main'
-    name: Examples deploy preview
+    needs: [build]
     runs-on: ubuntu-20.04
     strategy:
       matrix:
