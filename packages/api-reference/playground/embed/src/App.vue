@@ -2,7 +2,11 @@
 import { ScalarCodeBlock } from '@scalar/components'
 
 import '../../../dist/style.css'
-import { ExampleRequest, OpenApiDocument } from '../../../src/embeds/index'
+import {
+  ExampleRequest,
+  ExampleResponses,
+  OpenApiDocument,
+} from '../../../src/embeds/index'
 
 const sourcecode = `<OpenApiDocument
   v-slot="{ configuration, parsedSpec }"
@@ -13,24 +17,29 @@ const sourcecode = `<OpenApiDocument
     }
   }">
 
+  <!-- Example Request -->
   <ExampleRequest
     :configuration="configuration"
     :operation="parsedSpec.tags?.[1]?.operations?.[1]"
     :parsedSpec="parsedSpec" />
+
+  <!-- Example Responses -->
+  <ExampleResponses :operation="parsedSpec.tags?.[1]?.operations?.[1]" />
 
 </OpenApiDocument>`
 </script>
 
 <template>
   <div class="embeds">
-    <h1>Example Request Embed</h1>
-    <div class="scalar-app">
-      <ScalarCodeBlock
-        :content="sourcecode"
-        lang="js" />
+    <h1>Usage</h1>
+    <div class="embed">
+      <div class="scalar-app">
+        <ScalarCodeBlock
+          :content="sourcecode"
+          lang="js" />
+      </div>
     </div>
 
-    <h2>Preview</h2>
     <OpenApiDocument
       v-slot="{ configuration, parsedSpec }"
       :configuration="{
@@ -52,10 +61,15 @@ const sourcecode = `<OpenApiDocument
         },
       }">
       <div class="embed">
+        <h2>ExampleRequest</h2>
         <ExampleRequest
           :configuration="configuration"
           :operation="parsedSpec.tags?.[1]?.operations?.[1]"
           :parsedSpec="parsedSpec" />
+      </div>
+      <div class="embed">
+        <h2>ExampleResponses</h2>
+        <ExampleResponses :operation="parsedSpec.tags?.[1]?.operations?.[1]" />
       </div>
     </OpenApiDocument>
   </div>
@@ -65,13 +79,15 @@ const sourcecode = `<OpenApiDocument
 .embeds {
   margin: 1.5rem;
 }
+
+.embed {
+  margin: 1rem 0 3rem;
+}
+
 h1,
 h2 {
   font-size: 1.2rem;
   margin-bottom: 1rem;
   font-family: sans-serif;
-}
-.embed {
-  margin: 1rem 0;
 }
 </style>
