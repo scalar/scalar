@@ -43,7 +43,9 @@ export function loadCommand<T extends Task[]>(
   const task = {
     name: 'load',
     options: {
+      // global
       throwOnError: previousQueue.options?.throwOnError,
+      // local
       ...options,
     },
   } as const

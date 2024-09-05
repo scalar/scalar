@@ -78,7 +78,7 @@ export async function workThroughQueue<T extends Task[]>(
       result = {
         ...result,
         ...(await validate(
-          input,
+          currentSpecification,
           options as Commands['validate']['task']['options'],
         )),
       } as Merge<typeof result, PromiseReturnType<typeof validate>>

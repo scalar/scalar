@@ -46,6 +46,17 @@ describe('pipeline', () => {
     expect(specification.openapi).toBe('3.1.0')
   })
 
+  it('load file + validate', async () => {
+    const { specification } = await openapi()
+      .load(EXAMPLE_FILE, {
+        plugins: [readFiles()],
+      })
+      .validate()
+      .get()
+
+    expect(specification.openapi).toBe('3.1.0')
+  })
+
   it('files', async () => {
     const filesystem = await openapi()
       .load(EXAMPLE_FILE, {
