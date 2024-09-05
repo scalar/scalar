@@ -1,6 +1,6 @@
 import type { AnyApiDefinitionFormat, OpenApiOptions, Queue } from '../../types'
 import type { LoadOptions } from '../load'
-import { loadCommand } from './loadCommand'
+import { loadCommand } from './commands/loadCommand'
 
 /**
  * Creates a fluent OpenAPI pipeline

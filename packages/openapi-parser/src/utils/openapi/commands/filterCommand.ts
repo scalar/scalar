@@ -1,14 +1,13 @@
-import type { FilterResult, Queue, Task } from '../../types'
-import type { DereferenceOptions } from '../dereference'
-import type { FilterCallback } from '../filter'
-import type { ValidateOptions } from '../validate'
+import type { FilterResult, Queue, Task } from '../../../types'
+import type { DereferenceOptions } from '../../dereference'
+import type { FilterCallback } from '../../filter'
+import { details } from '../actions/details'
+import { files } from '../actions/files'
+import { get } from '../actions/get'
+import { toJson } from '../actions/toJson'
+import { toYaml } from '../actions/toYaml'
+import { queueTask } from '../utils/queueTask'
 import { dereferenceCommand } from './dereferenceCommand'
-import { details } from './details'
-import { files } from './files'
-import { get } from './get'
-import { toJson } from './toJson'
-import { toYaml } from './toYaml'
-import { queueTask } from './utils/queueTask'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
