@@ -11,8 +11,6 @@ import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
  */
 export function upgrade(
   value: string | AnyObject | Filesystem,
-  // TODO: Remove
-  _options?: AnyObject,
 ): UpgradeResult<OpenAPIV3_1.Document> {
   const upgraders = [upgradeFromTwoToThree, upgradeFromThreeToThreeOne]
 
