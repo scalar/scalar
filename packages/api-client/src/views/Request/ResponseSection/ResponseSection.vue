@@ -42,7 +42,10 @@ const responseCookies = computed(
   () =>
     props.response?.cookieHeaderKeys.flatMap((key) => {
       const value = props.response?.headers?.[key]
+<<<<<<< HEAD
 
+=======
+>>>>>>> d062de76d (feat: working more)
       return value
         ? {
             name: key,

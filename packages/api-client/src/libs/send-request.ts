@@ -214,8 +214,7 @@ export function createRequestOperation({
   const pathname = replaceTemplateVariables(request.path, pathVariables)
   const urlParams = createFetchQueryParams(example, env)
   const headers = createFetchHeaders(example, env)
-  const { body, contentType } = createFetchBody(example, env)
-  console.log(body)
+  const { body, contentType } = createFetchBody(request.method, example, env)
   const { cookieParams } = setRequestCookies({
     example,
     env,
@@ -277,11 +276,9 @@ export function createRequestOperation({
     const startTime = Date.now()
 
     url.search = urlParams.toString()
-    url.pathname = pathname
+    // Only add the path if we aren't using the raw path aka we have a server
+    if (server?.url) url.pathname = pathname
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-
-    console.log(body)
-    console.log(headers)
 
     const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
       signal: controller.signal,
@@ -293,21 +290,10 @@ export function createRequestOperation({
     console.log(response)
     requestStatusBus.emit('stop')
 
-    // TODO: Evaluate whether we should really be deleting response headers client-side
-    if (shouldUseProxy(proxy, url.origin)) {
-      // Remove headers, that are added by the proxy
-      const headersToRemove = [
-        'Access-Control-Allow-Headers',
-        'Access-Control-Allow-Origin',
-        'Access-Control-Allow-Methods',
-        'Access-Control-Expose-Headers',
-      ]
-
-      headersToRemove
-        .map((header) => header.toLowerCase())
-        .forEach((header) => response.headers.delete(header))
-    }
-
+    const responseHeaders = normalizeHeaders(
+      response.headers,
+      shouldUseProxy(proxy, url.origin),
+    )
     const responseType =
       response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
@@ -315,9 +301,6 @@ export function createRequestOperation({
       await response.arrayBuffer(),
       responseType,
     )
-    const responseHeaders = normalizeHeaders(response.headers)
-
-    console.log('what')
 
     return {
       timestamp: Date.now(),
@@ -325,6 +308,7 @@ export function createRequestOperation({
       response: {
         ...response,
         headers: responseHeaders,
+        cookieHeaderKeys: response.headers.getSetCookie(),
         data: responseData,
         duration: Date.now() - startTime,
       },
