@@ -2,18 +2,13 @@
 import { ScalarCodeBlock } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
+import type { OpenAPI } from '@scalar/openapi-types'
 
 import { mergeAllObjects } from '../../../../helpers'
 import Headers from './Headers.vue'
 
 defineProps<{
-  response:
-    | undefined
-    | {
-        example?: any
-        schema?: any
-        headers?: any
-      }
+  response: OpenAPI.ResponseObject
 }>()
 
 const rules = ['oneOf', 'anyOf', 'not']
