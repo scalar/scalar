@@ -15,6 +15,7 @@ In your main setup file (main.ts etc)
 ```ts
 import '@scalar/themes/base.css'
 import '@scalar/themes/fonts.css'
+import '@scalar/components/style.css'
 ```
 
 Then to use the components
