@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
 import type { Filesystem } from '../../types'
-import { openapi } from './foobar'
+import { openapi } from './openapi'
 
 describe('openapi', () => {
   it('returns the correct type for load()', async () => {
