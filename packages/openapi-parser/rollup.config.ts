@@ -1,8 +1,5 @@
 import terser from '@rollup/plugin-terser'
-import {
-  addPackageFileExports,
-  createRollupConfig,
-} from '@scalar/build-tooling'
+import { createRollupConfig } from '@scalar/build-tooling'
 import { builtinModules } from 'node:module'
 import outputSize from 'rollup-plugin-output-size'
 
@@ -31,5 +28,3 @@ export default createRollupConfig({
   },
   emptyOutDir: true,
 })
-
-await addPackageFileExports({ entries })

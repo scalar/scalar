@@ -40,9 +40,11 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./utils/load/plugins": {
-      "import": "./dist/utils/load/plugins/readFiles.js",
-      "types": "./dist/utils/load/plugins/readFiles.d.ts"
+    "./plugins/fetch-urls": {
+      "import": "./dist/utils/load/plugins/fetchUrls.js"
+    },
+    "./plugins/read-files": {
+      "import": "./dist/utils/load/plugins/readFiles.js"
     }
   },
   "files": [
