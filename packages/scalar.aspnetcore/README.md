@@ -17,6 +17,7 @@ dotnet add package Scalar.AspNetCore
 ```csharp
 using Scalar.AspNetCore;
 ```
+
 3. **Configure your application**
 
 Add the following lines to your `Program.cs` for .NET 9:
@@ -46,13 +47,12 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 ```
+
 That's it! 🎉 Now you will see the Scalar UI when using the defaults by navigating to `/scalar/v1` in your browser.
 
 ## Configuration
 
 The `MapScalarApiReference` method has an optional parameter that you can use to customize the behavior of the Scalar UI:
-
-
 
 ```csharp
 // Fluent api
@@ -84,6 +84,7 @@ app.MapScalarApiReference(options =>
     };
 });
 ```
+
 For more possible options and their default values, check out the [ScalarOptions.cs](src/Scalar.AspNetCore/Options/ScalarOptions.cs) class.
 
 It is also possible to configure the options via dependency injection, using the options pattern:
@@ -93,6 +94,7 @@ builder.Services.Configure<ScalarOptions>(options => options.Title = "My custom 
 // or
 builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 ```
+
 > [!NOTE]  
 > Options which are set via the `MapScalarApiReference` method will take precedence over options set via dependency injection.
 
