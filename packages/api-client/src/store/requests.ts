@@ -143,7 +143,7 @@ export function findRequestParentsFactory({
   /** Recursively find all parent folders (tags and collections) of a request */
   function findRequestParentss(r: Request) {
     const collection = Object.values(collections).find((c) =>
-      c.requests.includes(r.uid),
+      c.requests?.includes(r.uid),
     )
     if (!collection) return []
 
