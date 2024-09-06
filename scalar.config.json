@@ -1,4 +1,8 @@
 {
+  "siteMeta": {
+    "title": "Scalar Documentation",
+    "description": "Guides for Scalar, covering your favorite frameworks, languages and use cases."
+  },
   "publishOnMerge": true,
   "subdomain": "guides",
   "customDomain": "guides.scalar.com",
