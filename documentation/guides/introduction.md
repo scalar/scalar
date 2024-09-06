@@ -6,13 +6,13 @@ You’re working with APIs? That’s great, we’re here to make your life easie
 
 [Scalar Docs](/scalar/introduction) is our managed platform for whipping up and publishing documentation sites and API references.
 
-We’ve made it super easy to work together, and there’s an awesome free plan to get started. Plus, it plays nice with your existing setup. How cool is that? [Check out how it integrates with GitHub](/scalar/markdown-sync).
+We’ve made it super easy to work together, and there’s an awesome free plan to get started. Plus, it plays nice with your existing setup. How cool is that? [Check out how it integrates with GitHub](/scalar/docs/markdown-sync).
 
 Hop over to <https://docs.scalar.com> and take it for a spin. You don’t even need an account to play with it.
 
-## Open Source
+## Open-source
 
-We’ve also got some seriously cool open source projects on GitHub! Go ahead, dive in and play around. These tools are here to make your life easier. Whether you’re an API pro or just getting started, I bet there’s something here for you:
+We’ve also got some seriously cool open-source projects on GitHub! Go ahead, dive in and play around. These tools are here to make your life easier. Whether you’re an API pro or just getting started, I bet there’s something here for you:
 
 | Project                                                                                                | Description            |
 | ------------------------------------------------------------------------------------------------------ | ---------------------- |
