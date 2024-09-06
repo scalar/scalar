@@ -8,12 +8,80 @@
       "name": "Scalar",
       "sidebar": [
         {
-          "path": "documentation/guides/getting-started.md",
+          "path": "documentation/guides/introduction.md",
           "type": "page"
         },
         {
-          "path": "documentation/guides/markdown-sync.md",
-          "type": "page"
+          "name": "Docs",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/guides/docs/getting-started.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/guides/docs/markdown-sync.md",
+              "type": "page"
+            }
+          ]
+        },
+        {
+          "name": "Integrations",
+          "type": "folder",
+          "children": [
+            {
+              "path": "documentation/integrations/adonisjs.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/docusaurus.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/elysiajs.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/fastify.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/go.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/html.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/laravel-scribe.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/laravel.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/nextjs.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/nitro.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/platformatic.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/react.md",
+              "type": "page"
+            },
+            {
+              "path": "documentation/integrations/rust.md",
+              "type": "page"
+            }
+          ]
         }
       ]
     }
