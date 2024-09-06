@@ -179,7 +179,4 @@ const shouldCollapse = computed(() => {
 .parameter-item-trigger:hover .parameter-item-content-type {
   opacity: 1;
 }
-.parameter-item-container-markdown :deep(.property-description:last-of-type) {
-  margin-top: 0;
-}
 </style>
