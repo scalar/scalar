@@ -344,12 +344,27 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     requestExampleMutators.delete(requestExample.uid)
   }
 
+  const withActiveServer = (requestExample: RequestExample): RequestExample => {
+    if (!activeServer.value) {
+      return requestExample
+    }
+
+    const replaceDoubleCurlyBraces = /{{(.*?)}}/g
+    requestExample.url = requestExample.url.replace(
+      replaceDoubleCurlyBraces,
+      `{{${activeServer.value.url}}}`,
+    )
+
+    return requestExample
+  }
+
   /** Currently active example OR the first one */
-  const activeExample = computed(
-    () =>
+  const activeExample = computed(() => {
+    return withActiveServer(
       requestExamples[activeRouterParams.value[PathId.Examples]] ??
-      requestExamples[activeRequest.value?.childUids[0] ?? ''],
-  )
+        requestExamples[activeRequest.value?.childUids[0] ?? ''],
+    )
+  })
 
   // ---------------------------------------------------------------------------
   // REQUEST HISTORY
