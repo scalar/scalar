@@ -10,21 +10,21 @@
   --scalar-color-3: #8e8e8e;
 
   --scalar-color-accent: #0099ff;
-  --scalar-border-color: rgba(0, 0, 0, 0.1);
+  --scalar-border-color: #dfdfdf;
 }
 .dark-mode {
   --scalar-background-1: #0f0f0f;
   --scalar-background-2: #1a1a1a;
   --scalar-background-3: #272727;
 
-  --scalar-color-1: rgba(255, 255, 255, 0.9);
-  --scalar-color-2: rgba(255, 255, 255, 0.62);
-  --scalar-color-3: rgba(255, 255, 255, 0.44);
+  --scalar-color-1: #e7e7e7;
+  --scalar-color-2: #a4a4a4;
+  --scalar-color-3: #797979;
 
   --scalar-color-accent: #3ea6ff;
   --scalar-background-accent: #3ea6ff1f;
 
-  --scalar-border-color: rgba(255, 255, 255, 0.1);
+  --scalar-border-color: #2d2d2d;
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
