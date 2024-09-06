@@ -89,8 +89,8 @@
   "references": [],
   "siteConfig": {
     "logo": {
-      "darkMode": "https://scalar.com/logo-dark.svg",
-      "lightMode": "https://scalar.com/logo-light.svg"
+      "darkMode": "https://scalar.com/logo-light.svg",
+      "lightMode": "https://scalar.com/logo-dark.svg"
     },
     "footer": ""
   }
