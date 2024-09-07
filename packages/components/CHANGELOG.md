@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.43
+
+### Patch Changes
+
+- 1e41dfe: fix: adds endpoints description collapse state
+- ad89ca3: fix: autprefixer warnings
+
 ## 0.12.42
 
 ### Patch Changes

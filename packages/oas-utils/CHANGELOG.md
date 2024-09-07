@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.42
+
+### Patch Changes
+
+- 5483fc3: fix: File is not defined
+- Updated dependencies [a07cfc8]
+- Updated dependencies [023ca15]
+- Updated dependencies [85872b6]
+  - @scalar/types@0.0.7
+
 ## 0.2.41
 
 ### Patch Changes

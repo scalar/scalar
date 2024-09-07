@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.88
+
+### Patch Changes
+
+- 50eb168: fix(docusaurus): improve docusaurus memory issues
+  - @scalar/api-reference-react@0.3.86
+
 ## 0.4.87
 
 ### Patch Changes

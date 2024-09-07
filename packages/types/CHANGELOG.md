@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.0.7
+
+### Patch Changes
+
+- a07cfc8: feat: allow to hide the Test Request button
+- 023ca15: feat: adds favicon configuration
+- 85872b6: feat: allow to hide search sidebar
+
 ## 0.0.6
 
 ### Patch Changes
