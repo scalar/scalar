@@ -96,6 +96,8 @@ const server = computed(() => props.servers?.[selectedRef.value])
 .description {
   padding: 6px 12px;
   font-size: var(--scalar-small);
+  font-weight: var(--scalar-semibold);
+  color: var(--scalar-color-3);
 }
 .description :deep(.markdown) {
   font-size: var(--scalar-micro);
