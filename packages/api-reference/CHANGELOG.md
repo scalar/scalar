@@ -1,5 +1,28 @@
 # @scalar/api-reference
 
+## 1.25.10
+
+### Patch Changes
+
+- f8920be: fix: hide test icon in operation accordion
+- a07cfc8: feat: allow to hide the Test Request button
+- 1e41dfe: fix: adds endpoints description collapse state
+- 7d988b6: fix: anchor models and webhooks offset
+- 023ca15: feat: adds favicon configuration
+- 85872b6: feat: allow to hide search sidebar
+- ad89ca3: fix: autprefixer warnings
+- Updated dependencies [a07cfc8]
+- Updated dependencies [5483fc3]
+- Updated dependencies [1e41dfe]
+- Updated dependencies [023ca15]
+- Updated dependencies [85872b6]
+- Updated dependencies [ad89ca3]
+  - @scalar/types@0.0.7
+  - @scalar/oas-utils@0.2.42
+  - @scalar/components@0.12.43
+  - @scalar/use-toasts@0.7.6
+  - @scalar/api-client@2.0.63
+
 ## 1.25.9
 
 ### Patch Changes

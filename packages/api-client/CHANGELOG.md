@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.0.63
+
+### Patch Changes
+
+- Updated dependencies [a07cfc8]
+- Updated dependencies [5483fc3]
+- Updated dependencies [1e41dfe]
+- Updated dependencies [023ca15]
+- Updated dependencies [85872b6]
+- Updated dependencies [ad89ca3]
+  - @scalar/types@0.0.7
+  - @scalar/oas-utils@0.2.42
+  - @scalar/components@0.12.43
+  - @scalar/use-toasts@0.7.6
+
 ## 2.0.62
 
 ### Patch Changes

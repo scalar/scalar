@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.6
+
+### Patch Changes
+
+- ad89ca3: fix: autprefixer warnings
+
 ## 0.7.5
 
 ### Patch Changes

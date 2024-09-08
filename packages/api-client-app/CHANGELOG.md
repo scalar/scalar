@@ -1,5 +1,15 @@
 # scalar-api-client
 
+## 0.1.35
+
+### Patch Changes
+
+- 726e159: feat: find OpenAPI document URLs in various sources
+- Updated dependencies [1e41dfe]
+- Updated dependencies [ad89ca3]
+  - @scalar/components@0.12.43
+  - @scalar/api-client@2.0.63
+
 ## 0.1.34
 
 ### Patch Changes
