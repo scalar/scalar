@@ -49,7 +49,7 @@ const executeRequest = async () => {
   if (!activeRequest.value || !activeExample.value) return
 
   // Parse the environment string
-  const e = safeJSON.parse(activeEnvironment.value.value)
+  const e = safeJSON.parse(activeEnvironment.value?.value || '{}')
   if (e.error) console.error('INVALID ENVIRONMENT!')
   const environment = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
 
