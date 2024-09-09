@@ -1,5 +1,5 @@
 import { requestStatusBus } from '@/libs/event-busses'
-import { normalizeHeaders } from '@/libs/normalizeHeaders'
+import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
