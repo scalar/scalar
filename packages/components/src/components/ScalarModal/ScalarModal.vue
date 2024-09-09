@@ -50,7 +50,7 @@ const modal = cva({
 const body = cva({
   base: [
     'scalar-modal-body',
-    'relative m-1 max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 p-3',
+    'relative m-1 max-h-[calc(100dvh-240px)] rounded-lg bg-b-1 p-3',
   ].join(' '),
   variants: {
     variant: {
