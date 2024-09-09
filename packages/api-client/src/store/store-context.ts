@@ -1,11 +1,11 @@
 import type { RouterPathParams } from '@/store/router-params'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/security'
 import type {
   Collection,
   Request,
   RequestExample,
+  SecurityScheme,
   Server,
   Tag,
 } from '@scalar/oas-utils/entities/spec'
