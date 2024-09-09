@@ -1,33 +1,5 @@
 {
-  "compilerOptions": {
-    "target": "ES2022" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
-    "module": "ESNext" /* Specify what module code is generated. */,
-    "moduleResolution": "Bundler",
-    // Required for isolated module compilation (ESBuild)
-    "isolatedModules": true,
-    // Support proper ESM builds
-    "esModuleInterop": true,
-    // Ensure that casing is correct in imports.
-    "forceConsistentCasingInFileNames": true,
-    "strict": false,
-    "strictNullChecks": false,
-    "resolveJsonModule": true,
-    "skipLibCheck": true
-  },
-  "include": [
-    "src/**/*",
-    "tests/**/*",
-    "**/*.json",
-    "**/*.yaml",
-    "rollup.config.ts"
-  ],
-  "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"],
-  // Required for path rewrites
-  "ts-node": {
-    "require": ["tsconfig-paths/register"]
-  },
-  // Required for path aliasing
-  "tsc-alias": {
-    "resolveFullPaths": true
-  }
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {},
+  "include": ["src", "rollup.config.ts"]
 }
