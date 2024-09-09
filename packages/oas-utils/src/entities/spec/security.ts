@@ -203,6 +203,8 @@ const oasOauthFlowSchema = z
     oauthCommon.extend({
       type: z.literal('password'),
       tokenUrl,
+      username: z.string().optional().default(''),
+      password: z.string().optional().default(''),
     }),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
     oauthCommon.extend({

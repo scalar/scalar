@@ -1,4 +1,4 @@
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
 
 /**
  * Authorize oauth2 flow
@@ -17,7 +17,9 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
 
     // OAuth2 flows with a login popup
     else {
-      const scopes = scheme.flow.selectedScopes.join(' ')
+      const scopes = scheme.flow.scopes
+        ? Object.keys(scheme.flow.scopes).join(' ')
+        : ''
       const state = (Math.random() + 1).toString(36).substring(7)
       const url = new URL(scheme.flow.authorizationUrl)
 
@@ -28,8 +30,8 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
         url.searchParams.set('response_type', 'code')
 
       // Common to all flows
-      url.searchParams.set('client_id', scheme.clientId)
-      url.searchParams.set('redirect_uri', scheme.flow.redirectUri)
+      url.searchParams.set('client_id', scheme['x-scalar-client-id'])
+      url.searchParams.set('redirect_uri', scheme.flow['x-scalar-redirect-uri'])
       url.searchParams.set('scope', scopes)
       url.searchParams.set('state', state)
 
@@ -96,16 +98,18 @@ export const authorizeServers = async (
     )
   if (!scheme.flow) throw new Error('OAuth2 flow was not defined')
 
-  const scopes = scheme.flow.selectedScopes.join(' ')
+  const scopes = scheme.flow.scopes
+    ? Object.keys(scheme.flow.scopes).join(' ')
+    : ''
 
   const formData = new URLSearchParams()
-  formData.set('client_id', scheme.clientId)
+  formData.set('client_id', scheme['x-scalar-client-id'])
   formData.set('scope', scopes)
 
   if (scheme.flow.clientSecret)
-    formData.set('client_secret', scheme.flow.clientSecret)
-  if ('redirectUri' in scheme.flow)
-    formData.set('redirect_uri', scheme.flow.redirectUri)
+    formData.set('client_secret', scheme.flow.clientSecret as string)
+  if ('x-scalar-redirect-uri' in scheme.flow)
+    formData.set('redirect_uri', scheme.flow['x-scalar-redirect-uri'])
 
   // Authorization Code
   if (code) {
@@ -113,10 +117,10 @@ export const authorizeServers = async (
     formData.set('grant_type', 'authorization_code')
   }
   // Password
-  if ('secondValue' in scheme.flow) {
+  if (scheme.flow.type === 'password') {
     formData.set('grant_type', 'password')
-    formData.set('username', scheme.flow.value)
-    formData.set('password', scheme.flow.secondValue)
+    formData.set('username', scheme.flow.username)
+    formData.set('password', scheme.flow.password)
   }
   // Client Credentials
   else {
@@ -129,15 +133,22 @@ export const authorizeServers = async (
     }
 
     // Add client id + secret to headers
-    if (scheme.clientId && scheme.flow.clientSecret)
-      headers.Authorization = `Basic ${btoa(`${scheme.clientId}:${scheme.flow.clientSecret}`)}`
+    if (scheme['x-scalar-client-id'] && scheme.flow.clientSecret)
+      headers.Authorization = `Basic ${btoa(`${scheme['x-scalar-client-id']}:${scheme.flow.clientSecret}`)}`
 
     // Make the call
-    const resp = await fetch(scheme.flow.tokenUrl, {
-      method: 'POST',
-      headers,
-      body: formData,
-    })
+    const resp = await fetch(
+      ['authorizationCode', 'clientCredentials', 'password'].includes(
+        scheme.flow.type,
+      )
+        ? scheme.flow.tokenUrl
+        : '',
+      {
+        method: 'POST',
+        headers,
+        body: formData,
+      },
+    )
     const { access_token } = await resp.json()
     return access_token
   } catch {
