@@ -19,6 +19,7 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { computed, ref, toRaw, watch } from 'vue'
 
+import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthModal from './RequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
@@ -37,6 +38,8 @@ const {
 
 const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
 const securitySchemeModal = useModal()
+const deleteSchemeModal = useModal()
+const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
 /**
  * Available schemes that can be selected by a requestExample
@@ -116,6 +119,11 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+function handleDeleteScheme(option: { id: string; label: string }) {
+  selectedScheme.value = option
+  deleteSchemeModal.show()
+}
 </script>
 <template>
   <ViewLayoutCollapse
@@ -137,11 +145,13 @@ watch(
               ref="comboboxRef"
               class="text-xs w-full"
               fullWidth
+              isDeletable
               :modelValue="selectedAuth"
               multiple
               :options="schemeOptions"
               style="margin-left: 120px"
               teleport
+              @delete="handleDeleteScheme"
               @update:modelValue="updateSelectedAuth">
               <ScalarButton
                 class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start"
@@ -205,6 +215,10 @@ watch(
         :state="securitySchemeModal"
         @close="securitySchemeModal.hide()"
         @submit="updateSelectedAuth([...selectedAuth, { id: $event }])" />
+      <DeleteRequestAuthModal
+        :scheme="selectedScheme"
+        :state="deleteSchemeModal"
+        @close="deleteSchemeModal.hide()" />
     </form>
   </ViewLayoutCollapse>
 </template>
