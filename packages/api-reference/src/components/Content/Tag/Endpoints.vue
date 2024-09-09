@@ -38,7 +38,7 @@ const scrollHandler = async (operation: TransformedOperation) => {
             </Anchor>
           </SectionHeader>
           <ScalarMarkdown
-            :isCollapsed="isCollapsed"
+            :clamp="isCollapsed ? '7' : false"
             :value="tag.description"
             withImages />
         </SectionColumn>
@@ -57,9 +57,11 @@ const scrollHandler = async (operation: TransformedOperation) => {
                     @click="scrollHandler(operation)">
                     <HttpMethod :method="operation.httpVerb" />
                     <span
-                      :class="{ deprecated: operation.information?.deprecated }"
-                      >{{ operation.path }}</span
-                    >
+                      :class="{
+                        deprecated: operation.information?.deprecated,
+                      }">
+                      {{ operation.path }}
+                    </span>
                   </a>
                 </div>
               </CardContent>
