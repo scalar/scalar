@@ -201,15 +201,18 @@ const oasOauthFlowSchema = z
     }),
     /** Configuration for the OAuth Resource Owner Password flow */
     oauthCommon.extend({
-      type: z.literal('password'),
+      'type': z.literal('password'),
       tokenUrl,
-      username: z.string().optional().default(''),
-      password: z.string().optional().default(''),
+      'username': z.string().optional().default(''),
+      'password': z.string().optional().default(''),
+      'clientSecret': z.string().optional().default(''),
+      'x-scalar-redirect-uri': z.string().optional().default(''),
     }),
     /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
     oauthCommon.extend({
-      type: z.literal('clientCredentials'),
+      'type': z.literal('clientCredentials'),
       tokenUrl,
+      'x-scalar-redirect-uri': z.string().optional().default(''),
     }),
     /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
     oauthCommon.extend({
