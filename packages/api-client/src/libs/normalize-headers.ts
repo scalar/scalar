@@ -56,8 +56,11 @@ export const normalizeHeaders = (
 
   // Restore original headers (remove the `X-Scalar-Original-` prefix)
   Object.keys(headers).forEach((key) => {
-    if (key.toLowerCase().startsWith('x-scalar-original-')) {
-      const originalKey = key.replace('X-Scalar-Original-', '')
+    // Case-insensitive regular expression
+    const ORIGINAL_KEY_REGEX = /^x-scalar-original-/i
+
+    if (ORIGINAL_KEY_REGEX.test(key)) {
+      const originalKey = key.replace(ORIGINAL_KEY_REGEX, '')
       headers[originalKey] = headers[key]
       delete headers[key]
     }
