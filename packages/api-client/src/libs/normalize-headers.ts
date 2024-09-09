@@ -13,14 +13,7 @@ export const normalizeHeaders = (
   removeProxyHeaders = false,
 ): Record<string, string> => {
   // Convert headers to an object
-  const headers = Array.from(_headers.keys()).reduce<Record<string, string>>(
-    (prev, key) => {
-      const value = _headers.get(key)
-      if (value) prev[key] = value
-      return prev
-    },
-    {},
-  )
+  const headers = Object.fromEntries(_headers)
 
   // Remove headers, that are added by the proxy
   if (removeProxyHeaders) {
