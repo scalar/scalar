@@ -311,6 +311,9 @@ export function createRequestOperation({
         cookieHeaderKeys: response.headers.getSetCookie(),
         data: responseData,
         duration: Date.now() - startTime,
+        method: request.method,
+        status: response.status,
+        path: pathname,
       },
     }
   }

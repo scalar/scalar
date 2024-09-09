@@ -31,6 +31,12 @@ export type ResponseInstance = Omit<Response, 'headers'> & {
   duration: number
   /** The response data */
   data: unknown
+  /** The response status */
+  status: number
+  /** The response method */
+  method: RequestMethod
+  /** The request path */
+  path: string
 }
 
 /** A single request/response set to save to the history stack */
