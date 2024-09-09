@@ -189,6 +189,7 @@ const oauthCommon = z.object({
       z.object({}),
     ])
     .optional(),
+  selectedScopes: z.array(z.string()).optional().default([]),
 })
 
 const oasOauthFlowSchema = z

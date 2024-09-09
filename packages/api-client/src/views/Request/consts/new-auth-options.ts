@@ -109,6 +109,7 @@ export const ADD_AUTH_DICT = {
           type: 'oauth2',
           flow: {
             type: 'authorizationCode',
+            selectedScopes: [],
           },
         },
       },
