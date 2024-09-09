@@ -6,6 +6,7 @@ defineProps<{
   active?: boolean
   selected?: boolean
   style?: 'radio' | 'checkbox'
+  isDeletable?: boolean
 }>()
 
 const variants = cva({
@@ -25,7 +26,7 @@ const variants = cva({
 })
 </script>
 <template>
-  <li :class="cx(variants({ active, selected }))">
+  <li :class="cx(variants({ active, selected }), 'group')">
     <div
       class="flex size-4 items-center justify-center p-0.75 group-hover:shadow-border"
       :class="[
@@ -39,5 +40,12 @@ const variants = cva({
         thickness="2.5" />
     </div>
     <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
+    <ScalarIcon
+      v-if="isDeletable"
+      class="text-c-2 opacity-0 group-hover:opacity-100"
+      icon="Delete"
+      size="md"
+      thickness="1.5"
+      @click.stop="$emit('delete')" />
   </li>
 </template>

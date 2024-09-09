@@ -10,6 +10,7 @@ import {
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
+  useModal,
 } from '@scalar/components'
 import {
   type RequestExample,
@@ -18,6 +19,8 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { computed, ref, toRaw, watch } from 'vue'
 
+import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
+import RequestAuthModal from './RequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
 defineProps<{
@@ -34,6 +37,9 @@ const {
 } = useWorkspace()
 
 const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
+const securitySchemeModal = useModal()
+const deleteSchemeModal = useModal()
+const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
 /**
  * Available schemes that can be selected by a requestExample
@@ -113,6 +119,11 @@ watch(
   },
   { deep: true, immediate: true },
 )
+
+function handleDeleteScheme(option: { id: string; label: string }) {
+  selectedScheme.value = option
+  deleteSchemeModal.show()
+}
 </script>
 <template>
   <ViewLayoutCollapse
@@ -123,64 +134,92 @@ watch(
         {{ title }}
       </div>
     </template>
-    <DataTable
-      class="flex-1"
-      :columns="['']">
-      <DataTableRow>
-        <DataTableHeader
-          class="relative col-span-full cursor-pointer py-[0px] px-[0px] flex items-center">
-          <ScalarComboboxMultiselect
-            ref="comboboxRef"
-            class="text-xs w-full"
-            fullWidth
-            :modelValue="selectedAuth"
-            multiple
-            :options="schemeOptions"
-            style="margin-left: 120px"
-            teleport
-            @update:modelValue="updateSelectedAuth">
-            <ScalarButton
-              class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start"
+    <form>
+      <DataTable
+        class="flex-1"
+        :columns="['']">
+        <DataTableRow>
+          <DataTableHeader
+            class="relative col-span-full cursor-pointer py-[0px] px-[0px] flex items-center">
+            <ScalarComboboxMultiselect
+              ref="comboboxRef"
+              class="text-xs w-full"
               fullWidth
-              variant="ghost">
-              <div
-                class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
-                Auth Type
-              </div>
-              <div
-                v-if="selectedAuth.length"
-                class="flex relative scroll-timeline-x w-full">
-                <div class="fade-left"></div>
-                <div class="flex flex-1 gap-0.75 mr-1.5 items-center">
-                  <span
-                    v-for="auth in selectedAuth"
-                    :key="auth.id"
-                    class="cm-pill flex items-center mx-0 h-fit">
-                    {{ auth.label }}
-                    <ScalarIcon
-                      class="ml-1 cursor-pointer text-c-3 hover:text-c-1"
-                      icon="Close"
-                      size="xs"
-                      @click.stop="unselectAuth(auth.id)" />
-                  </span>
+              isDeletable
+              :modelValue="selectedAuth"
+              multiple
+              :options="schemeOptions"
+              style="margin-left: 120px"
+              teleport
+              @delete="handleDeleteScheme"
+              @update:modelValue="updateSelectedAuth">
+              <ScalarButton
+                class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start"
+                fullWidth
+                variant="ghost">
+                <div
+                  class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
+                  Auth Type
                 </div>
-                <div class="fade-right"></div>
-              </div>
-              <div
-                v-else
-                class="pl-2">
-                None
-              </div>
-              <ScalarIcon
-                class="min-w-3 ml-auto mr-2.5"
-                icon="ChevronDown"
-                size="xs" />
-            </ScalarButton>
-          </ScalarComboboxMultiselect>
-        </DataTableHeader>
-      </DataTableRow>
-      <RequestExampleAuth />
-    </DataTable>
+                <div
+                  v-if="selectedAuth.length"
+                  class="flex relative scroll-timeline-x w-full">
+                  <div class="fade-left"></div>
+                  <div class="flex flex-1 gap-0.75 mr-1.5 items-center">
+                    <span
+                      v-for="auth in selectedAuth"
+                      :key="auth.id"
+                      class="cm-pill flex items-center mx-0 h-fit">
+                      {{ auth.label }}
+                      <ScalarIcon
+                        class="ml-1 cursor-pointer text-c-3 hover:text-c-1"
+                        icon="Close"
+                        size="xs"
+                        @click.stop="unselectAuth(auth.id)" />
+                    </span>
+                  </div>
+                  <div class="fade-right"></div>
+                </div>
+                <div
+                  v-else
+                  class="pl-2">
+                  None
+                </div>
+                <ScalarIcon
+                  class="min-w-3 ml-auto mr-2.5"
+                  icon="ChevronDown"
+                  size="xs" />
+              </ScalarButton>
+              <template
+                v-if="!isReadOnly"
+                #actions>
+                <ScalarButton
+                  class="gap-1.5 font-normal h-auto justify-start px-2 py-1.5 text-c-1 text-xs hover:bg-b-2"
+                  fullWidth
+                  variant="ghost"
+                  @click="securitySchemeModal.show()">
+                  <div class="flex items-center justify-center p-0.75 h-4 w-4">
+                    <ScalarIcon
+                      icon="Add"
+                      thickness="3" />
+                  </div>
+                  Add Security Scheme
+                </ScalarButton>
+              </template>
+            </ScalarComboboxMultiselect>
+          </DataTableHeader>
+        </DataTableRow>
+        <RequestExampleAuth />
+      </DataTable>
+      <RequestAuthModal
+        :state="securitySchemeModal"
+        @close="securitySchemeModal.hide()"
+        @submit="updateSelectedAuth([...selectedAuth, { id: $event }])" />
+      <DeleteRequestAuthModal
+        :scheme="selectedScheme"
+        :state="deleteSchemeModal"
+        @close="deleteSchemeModal.hide()" />
+    </form>
   </ViewLayoutCollapse>
 </template>
 <style scoped>
