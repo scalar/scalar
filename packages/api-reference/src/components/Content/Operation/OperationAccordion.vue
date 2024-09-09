@@ -8,6 +8,7 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import { inject } from 'vue'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
+import { ExampleResponses } from '../../../features/ExampleResponses'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
 import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
@@ -15,7 +16,6 @@ import { HttpMethod } from '../../HttpMethod'
 import { SectionAccordion } from '../../Section'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
 import EndpointPath from './EndpointPath.vue'
-import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 
 defineProps<{
@@ -81,7 +81,7 @@ console.log(!getHideTestRequestButton?.())
     </template>
     <div class="endpoint-content">
       <EndpointDetailsCard :operation="operation" />
-      <PathResponses :operation="operation" />
+      <ExampleResponses :operation="operation" />
       <ExampleRequest :operation="operation" />
     </div>
   </SectionAccordion>

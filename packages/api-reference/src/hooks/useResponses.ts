@@ -1,3 +1,4 @@
+import type { OpenAPI } from '@scalar/openapi-types'
 import type {
   RequestBodyMimeTypes,
   TransformedOperation,
@@ -17,17 +18,19 @@ export function useResponses(operation: TransformedOperation) {
       name: string
       description: string
       content: RequestBodyMimeTypes
+      headers?: { [key: string]: OpenAPI.HeaderObject }
     }[] = []
 
-    if (responses) {
-      Object.keys(responses).forEach((statusCode: string) => {
-        res.push({
-          name: statusCode,
-          description: responses[statusCode].description,
-          content: responses[statusCode].content,
-        })
+    if (!responses) return res
+
+    Object.entries(responses).forEach(([statusCode, response]) => {
+      res.push({
+        name: statusCode,
+        description: response.description,
+        content: response.content,
+        headers: response.headers,
       })
-    }
+    })
 
     return res
   })

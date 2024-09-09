@@ -2,6 +2,7 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
+import { ExampleResponses } from '../../../features/ExampleResponses'
 import { Anchor } from '../../Anchor'
 import { Badge } from '../../Badge'
 import {
@@ -13,7 +14,6 @@ import {
 } from '../../Section'
 import EndpointDetails from './EndpointDetails.vue'
 import EndpointPath from './EndpointPath.vue'
-import { PathResponses } from './PathResponses'
 import TestRequestButton from './TestRequestButton.vue'
 
 defineProps<{
@@ -51,7 +51,7 @@ defineProps<{
                 <TestRequestButton :operation="operation" />
               </template>
             </ExampleRequest>
-            <PathResponses
+            <ExampleResponses
               :operation="operation"
               style="margin-top: 12px" />
           </div>

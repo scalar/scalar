@@ -1,5 +1,7 @@
 import type { Header } from '@scalar/types/legacy'
 
+import { normalizeHeaderName } from './normalizeHeaderName'
+
 /**
  * Transforms all header keys to lowercase
  *
@@ -12,12 +14,12 @@ export const normalizeHeaders = (
   if (Array.isArray(headers)) {
     const uniqueHeaders = new Map<string, Header>()
     headers.forEach((header) => {
-      uniqueHeaders.set(transformHeaderName(header.name), header)
+      uniqueHeaders.set(normalizeHeaderName(header.name), header)
     })
 
     return Array.from(uniqueHeaders.values()).map((header) => ({
       ...header,
-      name: transformHeaderName(header.name),
+      name: normalizeHeaderName(header.name),
     }))
   }
 
@@ -28,25 +30,10 @@ export const normalizeHeaders = (
       .filter(
         ([key, _], index, arr) =>
           arr.findIndex(
-            ([k, __]) => transformHeaderName(k) === transformHeaderName(key),
+            ([k, __]) => normalizeHeaderName(k) === normalizeHeaderName(key),
           ) === index,
       )
       .reverse() // Reverse back to maintain original order
-      .map(([key, value]) => [transformHeaderName(key), value]),
-  )
-}
-
-/**
- * Make the first letter and all letters after a dash uppercase
- */
-function transformHeaderName(name: string) {
-  // Split the header name by hyphens
-  return (
-    name
-      .split('-')
-      // Capitalize the first letter of each part
-      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-      // Join the parts back together with hyphens
-      .join('-')
+      .map(([key, value]) => [normalizeHeaderName(key), value]),
   )
 }
