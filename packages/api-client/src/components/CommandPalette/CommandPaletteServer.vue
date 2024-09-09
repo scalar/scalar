@@ -38,8 +38,7 @@ const collections = computed(() =>
 /** Currently selected collection with a reasonable default */
 const selectedCollection = ref<ScalarComboboxOption | undefined>(
   collections.value.find(
-    (collection) =>
-      collection.id === activeCollection.value?.uid ?? collections.value[0]?.id,
+    (collection) => collection.id === activeCollection.value?.uid,
   ),
 )
 
