@@ -5,6 +5,9 @@ import { fetch as nodeFetch } from './plugins/node/fetch'
 import { ofetch as nodeOFetch } from './plugins/node/ofetch'
 import { undici } from './plugins/node/undici'
 
+/**
+ * Generate code examples for HAR requests
+ */
 export function snippetz() {
   const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch]
 
@@ -14,6 +17,10 @@ export function snippetz() {
 
       if (plugin) {
         return plugin(request)
+      }
+
+      return {
+        code: '',
       }
     },
     print(target: TargetId, client: ClientId, request: Partial<Request>) {
