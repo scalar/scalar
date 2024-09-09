@@ -55,7 +55,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Fastify](packages/fastify-api-reference/README.md)
 - [Go](documentation/integrations/go.md)
 - [Hono](packages/hono-api-reference/README.md)
-- [Laravel](documentation/integrations/laravel.md)
+- [Laravel Scribe](documentation/integrations/laravel-scribe.md)
 - [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [NestJS](packages/nestjs-api-reference/README.md)
 - [Next.js](packages/nextjs-api-reference/README.md)
