@@ -91,7 +91,7 @@ const setPathVariable = (url: string) => {
 }
 
 watch(
-  () => activeExample.value?.url,
+  () => activeRequest.value?.path,
   (newURL) => {
     if (newURL) {
       setPathVariable(newURL)
