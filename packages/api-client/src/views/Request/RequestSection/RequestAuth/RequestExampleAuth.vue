@@ -48,6 +48,7 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
     <!-- Header -->
     <DataTableRow class="group/delete">
       <DataTableCell
+        v-if="security.length > 1"
         class="text-c-2 pl-2 text-xs font-medium flex items-center bg-b-2">
         {{ generateLabel(scheme) }}
       </DataTableCell>
