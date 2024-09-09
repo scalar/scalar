@@ -40,7 +40,7 @@ function addEnvironment() {
 
 function handleEnvironmentUpdate(raw: string) {
   if (activeEnvironmentID.value) {
-    environmentMutators.edit(activeEnvironmentID.value, 'raw', raw)
+    environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
   }
 }
 
