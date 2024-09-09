@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const { activeWorkspaceRequests } = useWorkspace()
+  const { activeWorkspaceRequests, requests } = useWorkspace()
 
   type FuseData = {
     title: string
@@ -88,7 +88,7 @@ export function useSearch() {
   watch(
     activeWorkspaceRequests,
     (newRequests) => {
-      populateFuseDataArray(newRequests)
+      populateFuseDataArray(newRequests.map((uid) => requests[uid]))
     },
     { immediate: true },
   )
