@@ -1,11 +1,11 @@
-import { nanoidSchema } from '@/entities/shared'
-import { oasExternalDocumentationSchema } from '@/entities/spec/spec-objects'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
+import { nanoidSchema } from '../shared'
 import { oasParameterSchema } from './parameters'
 import type { RequestExample } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
+import { oasExternalDocumentationSchema } from './spec-objects'
 
 export const requestMethods = [
   'connect',
