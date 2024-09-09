@@ -287,6 +287,7 @@ export type Parameters = {
   example?: any
   examples?: Map<string, any>
   content?: RequestBodyMimeTypes
+  headers?: { [key: string]: OpenAPI.HeaderObject }
 }
 
 export type Query = {
