@@ -204,12 +204,12 @@ export const sendRequest = async (
     }
 
     try {
-      new URL(rawUrl)
+      new URL(rawUrl, typeof window !== "undefined" ? window.location.origin : undefined)
     } catch (error) {
       throw new Error(ERRORS.INVALID_URL)
     }
 
-    const origin = new URL(rawUrl).host
+    const origin = new URL(rawUrl, typeof window !== "undefined" ? window.location.origin : undefined).host
     Object.keys(workspaceCookies).forEach((key) => {
       const c = workspaceCookies[key]
       if (!c.domain) return
