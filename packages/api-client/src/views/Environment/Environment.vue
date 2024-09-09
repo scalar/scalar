@@ -152,7 +152,7 @@ onMounted(setActiveEnvironment)
             v-if="activeEnvironmentID"
             class="px-2 py-2.5"
             lineNumbers
-            :modelValue="environments[activeEnvironmentID].raw"
+            :modelValue="environments[activeEnvironmentID].value"
             @update:modelValue="handleEnvironmentUpdate" />
         </ViewLayoutSection>
       </ViewLayoutContent>
