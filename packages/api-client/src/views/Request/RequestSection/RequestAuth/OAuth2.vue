@@ -40,10 +40,10 @@ const handleAuthorize = async () => {
       <RequestAuthDataTableInput
         id="oauth2-access-token"
         class="border-r-transparent"
-        :modelValue="scheme.flow.token"
+        :modelValue="scheme.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
-        @update:modelValue="(v) => updateScheme('flow.token', v)">
+        @update:modelValue="(v) => updateScheme('token', v)">
         Access Token
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -54,7 +54,7 @@ const handleAuthorize = async () => {
           :loading="loadingState"
           size="sm"
           variant="outlined"
-          @click="updateScheme('flow.token', '')">
+          @click="updateScheme('token', '')">
           Clear
         </ScalarButton>
       </div>
