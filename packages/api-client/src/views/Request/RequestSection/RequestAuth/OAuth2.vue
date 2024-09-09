@@ -87,9 +87,11 @@ const handleAuthorize = async () => {
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         :id="`oauth2-redirect-uri-${scheme.uid}`"
-        :modelValue="scheme.flow.redirectUri"
+        :modelValue="scheme.flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
-        @update:modelValue="(v) => updateScheme('flow.redirectUri', v)">
+        @update:modelValue="
+          (v) => updateScheme('flow.x-scalar-redirect-uri', v)
+        ">
         Redirect Url
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -100,19 +102,19 @@ const handleAuthorize = async () => {
         <RequestAuthDataTableInput
           :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
-          :modelValue="scheme.flow.value"
+          :modelValue="scheme.flow.username"
           placeholder="ScalarEnjoyer01"
-          @update:modelValue="(v) => updateScheme('flow.value', v)">
+          @update:modelValue="(v) => updateScheme('flow.username', v)">
           Username
         </RequestAuthDataTableInput>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-password-${scheme.uid}`"
-          :modelValue="scheme.flow.secondValue"
+          :modelValue="scheme.flow.password"
           placeholder="xxxxxx"
           type="password"
-          @update:modelValue="(v) => updateScheme('flow.secondValue', v)">
+          @update:modelValue="(v) => updateScheme('flow.password', v)">
           Password
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -122,9 +124,9 @@ const handleAuthorize = async () => {
     <DataTableRow>
       <RequestAuthDataTableInput
         :id="`oauth2-client-id-${scheme.uid}`"
-        :modelValue="scheme.clientId"
+        :modelValue="scheme['x-scalar-client-id']"
         placeholder="12345"
-        @update:modelValue="(v) => updateScheme('clientId', v)">
+        @update:modelValue="(v) => updateScheme('x-scalar-client-id', v)">
         Client ID
       </RequestAuthDataTableInput>
     </DataTableRow>
