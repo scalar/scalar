@@ -8,6 +8,7 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { safeJSON } from '@scalar/object-utils/parse'
+import { useToasts } from '@scalar/use-toasts'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -18,6 +19,7 @@ defineEmits<{
 }>()
 
 const workspaceContext = useWorkspace()
+const { toast } = useToasts()
 const {
   activeExample,
   activeEnvironment,
@@ -66,38 +68,19 @@ const executeRequest = async () => {
   })
 
   requestAbortController.value = controller
-
-  // TODO: Do we need this?
-  //   if (request && response) {
-  //     requestMutators.edit(activeRequest.value.uid, 'history', [
-  //       ...activeRequest.value.history,
-  //       {
-  //         request,
-  //         response,
-  //         timestamp: Date.now(),
-  //       },
-  //     ])
-  //     requestStatusBus.emit('stop')
-  //   } else {
-  //     // Toast if not cancelled by user and we have no response
-  //     if (!(error instanceof DOMException && error.name == 'AbortError'))
-  //       toast(error?.message ?? 'Send Request Failed', 'error')
-
-  //     requestStatusBus.emit('abort')
-  //   }
-  // } catch (error) {
-  //   console.error(error)
-  //   toast(`Oops! \n${error}`, 'error')
-  //   requestStatusBus.emit('abort')
-  // }
-
   const result = await sendRequest()
 
-  requestHistory.push(result)
+  // Check for error, toast if not user aborted
+  if ('error' in result)
+    toast(result.error?.message || 'Send Request Failed', 'error')
+  // All good
+  else requestHistory.push(result)
 }
 
 /** Cancel a live request */
-const cancelRequest = async () => requestAbortController.value?.abort()
+const cancelRequest = async () =>
+  requestAbortController.value?.abort('User has cancelled the request')
+
 onMounted(() => {
   executeRequestBus.on(executeRequest)
   cancelRequestBus.on(cancelRequest)

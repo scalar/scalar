@@ -265,11 +265,16 @@ export function createRequestOperation({
     }
   })
 
-  const sendRequest = async (): Promise<{
-    response: ResponseInstance
-    request: RequestExample
-    timestamp: number
-  }> => {
+  const sendRequest = async (): Promise<
+    | {
+        response: ResponseInstance
+        request: RequestExample
+        timestamp: number
+      }
+    | {
+        error: Error
+      }
+  > => {
     requestStatusBus.emit('start')
 
     // Start timer to get response duration
@@ -280,41 +285,56 @@ export function createRequestOperation({
     if (server?.url) url.pathname = pathname
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
 
-    const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
-      signal: controller.signal,
-      method: request.method,
-      body,
-      headers,
-    })
-
-    console.log(response)
-    requestStatusBus.emit('stop')
-
-    const responseHeaders = normalizeHeaders(
-      response.headers,
-      shouldUseProxy(proxy, url.origin),
-    )
-    const responseType =
-      response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-    const responseData = decodeBuffer(
-      await response.arrayBuffer(),
-      responseType,
-    )
-
-    return {
-      timestamp: Date.now(),
-      request: example,
-      response: {
-        ...response,
-        headers: responseHeaders,
-        cookieHeaderKeys: response.headers.getSetCookie(),
-        data: responseData,
-        duration: Date.now() - startTime,
+    try {
+      const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
+        signal: controller.signal,
         method: request.method,
-        status: response.status,
-        path: pathname,
-      },
+        body,
+        headers,
+      })
+
+      console.log(response)
+      requestStatusBus.emit('stop')
+
+      const responseHeaders = normalizeHeaders(
+        response.headers,
+        shouldUseProxy(proxy, url.origin),
+      )
+      const responseType =
+        response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
+
+      const responseData = decodeBuffer(
+        await response.arrayBuffer(),
+        responseType,
+      )
+
+      return {
+        timestamp: Date.now(),
+        request: example,
+        response: {
+          ...response,
+          headers: responseHeaders,
+          cookieHeaderKeys: response.headers.getSetCookie(),
+          data: responseData,
+          duration: Date.now() - startTime,
+          method: request.method,
+          status: response.status,
+          path: pathname,
+        },
+      }
+    } catch (e) {
+      requestStatusBus.emit('abort')
+      console.error(e)
+
+      // Normalize other errors
+      let error: Error
+      if (e instanceof Error) error = e
+      else if (typeof e === 'string') error = new Error(e)
+      else error = new Error('An unknown error has occurred')
+
+      return {
+        error,
+      }
     }
   }
 
