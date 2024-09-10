@@ -9,12 +9,14 @@ import type {
 } from '../types'
 import { makeFilesystem } from './makeFilesystem'
 
+export type ValidateOptions = ThrowOnErrorOption
+
 /**
  * Validates an OpenAPI schema.
  */
 export async function validate(
   value: string | AnyObject | Filesystem,
-  options?: ThrowOnErrorOption,
+  options?: ValidateOptions,
 ): Promise<ValidateResult> {
   const filesystem = makeFilesystem(value)
 

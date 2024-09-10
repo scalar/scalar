@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { getEntrypoint } from './getEntrypoint'
 import { makeFilesystem } from './makeFilesystem'
 
-describe('isFilesystem', () => {
+describe('getEntrypoint', () => {
   it('keeps the object reference', () => {
     const result = makeFilesystem({
       foo: 'bar',
@@ -16,5 +16,12 @@ describe('isFilesystem', () => {
 
     // Check whether the original was modified
     expect(result[0].specification.foo).toBe('baz')
+  })
+
+  it('returns undefined for an empty filesystem', () => {
+    const entrypoint = getEntrypoint([])
+
+    // Check whether the original was modified
+    expect(entrypoint).toBe(undefined)
   })
 })

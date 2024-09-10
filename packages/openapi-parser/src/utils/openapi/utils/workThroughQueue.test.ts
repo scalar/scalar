@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
-import { dereference } from './dereference'
-import { load } from './load'
-import { upgrade } from './upgrade'
-import { validate } from './validate'
 import { workThroughQueue } from './workThroughQueue'
 
 describe('workThroughQueue', () => {
   it('loads a specification', async () => {
     const result = workThroughQueue({
+      input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       specification: {
         openapi: '3.1.0',
         info: {
@@ -19,13 +23,21 @@ describe('workThroughQueue', () => {
       },
       tasks: [
         {
-          action: load,
+          name: 'load',
         },
       ],
     })
 
     expect(await result).toStrictEqual({
       errors: [],
+      specification: {
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        openapi: '3.1.0',
+        paths: {},
+      },
       filesystem: [
         {
           dir: './',
@@ -47,6 +59,14 @@ describe('workThroughQueue', () => {
 
   it('validates a specification', async () => {
     const result = workThroughQueue({
+      input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       specification: {
         openapi: '3.1.0',
         info: {
@@ -57,10 +77,10 @@ describe('workThroughQueue', () => {
       },
       tasks: [
         {
-          action: load,
+          name: 'load',
         },
         {
-          action: validate,
+          name: 'validate',
         },
       ],
     })
@@ -106,6 +126,14 @@ describe('workThroughQueue', () => {
 
   it('dereferences a specification', async () => {
     const result = workThroughQueue({
+      input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       specification: {
         openapi: '3.1.0',
         info: {
@@ -116,10 +144,10 @@ describe('workThroughQueue', () => {
       },
       tasks: [
         {
-          action: load,
+          name: 'load',
         },
         {
-          action: dereference,
+          name: 'dereference',
         },
       ],
     })
@@ -166,6 +194,14 @@ describe('workThroughQueue', () => {
 
   it('upgrades a specification', async () => {
     const result = workThroughQueue({
+      input: {
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
       specification: {
         openapi: '3.0.0',
         info: {
@@ -176,10 +212,10 @@ describe('workThroughQueue', () => {
       },
       tasks: [
         {
-          action: load,
+          name: 'load',
         },
         {
-          action: upgrade,
+          name: 'upgrade',
         },
       ],
     })

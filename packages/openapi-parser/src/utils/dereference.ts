@@ -1,4 +1,5 @@
 import type {
+  AnyApiDefinitionFormat,
   AnyObject,
   DereferenceResult,
   Filesystem,
@@ -9,12 +10,14 @@ import { getEntrypoint } from './getEntrypoint'
 import { makeFilesystem } from './makeFilesystem'
 import { resolveReferences } from './resolveReferences'
 
+export type DereferenceOptions = ThrowOnErrorOption
+
 /**
  * Validates an OpenAPI schema and resolves all references.
  */
 export async function dereference(
-  value: string | AnyObject | Filesystem,
-  options?: ThrowOnErrorOption,
+  value: AnyApiDefinitionFormat | Filesystem,
+  options?: DereferenceOptions,
 ): Promise<DereferenceResult> {
   const filesystem = makeFilesystem(value)
 

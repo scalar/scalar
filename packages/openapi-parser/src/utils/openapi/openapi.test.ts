@@ -2,7 +2,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
-import { readFiles } from './load/plugins/readFiles'
+import { readFiles } from '../load/plugins/readFiles'
 import { openapi } from './openapi'
 
 const example = {
@@ -16,7 +16,7 @@ const example = {
 
 const EXAMPLE_FILE = join(
   new URL(import.meta.url).pathname,
-  '../examples/openapi.yaml',
+  '../../examples/openapi.yaml',
 )
 
 describe('pipeline', () => {
@@ -39,6 +39,17 @@ describe('pipeline', () => {
       .load(EXAMPLE_FILE, {
         plugins: [readFiles()],
       })
+      .get()
+
+    expect(specification.openapi).toBe('3.1.0')
+  })
+
+  it('load file + validate', async () => {
+    const { specification } = await openapi()
+      .load(EXAMPLE_FILE, {
+        plugins: [readFiles()],
+      })
+      .validate()
       .get()
 
     expect(specification.openapi).toBe('3.1.0')
@@ -183,7 +194,7 @@ describe('pipeline', () => {
   })
 
   it('upgrade > filter', async () => {
-    const otherExample = {
+    const otherExample = JSON.stringify({
       openapi: '3.0.0',
       info: {
         title: 'Hello World',
@@ -210,7 +221,7 @@ describe('pipeline', () => {
           },
         },
       },
-    }
+    })
 
     const { specification } = await openapi()
       .load(otherExample)

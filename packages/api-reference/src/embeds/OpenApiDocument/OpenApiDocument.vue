@@ -73,7 +73,12 @@ defineSlots<{
 }>()
 
 const loadDocument = async () => {
-  const { filesystem } = await load(spec.value?.url || spec.value?.content, {
+  const content =
+    typeof spec.value?.content === 'function'
+      ? spec.value?.content()
+      : spec.value?.content
+
+  const { filesystem } = await load(spec.value?.url || content, {
     plugins: [
       fetchUrls({
         fetch: (url) =>

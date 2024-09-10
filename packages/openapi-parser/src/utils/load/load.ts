@@ -1,5 +1,6 @@
 import { ERRORS } from '../../configuration'
 import type {
+  AnyApiDefinitionFormat,
   AnyObject,
   ErrorObject,
   Filesystem,
@@ -19,19 +20,31 @@ export type LoadPlugin = {
   getFilename?: (value: any) => string
 }
 
+export type LoadOptions = {
+  plugins?: LoadPlugin[]
+  filename?: string
+  filesystem?: Filesystem
+} & ThrowOnErrorOption
+
+/**
+ * Loads an OpenAPI document, including any external references.
+ *
+ * This function handles loading content from various sources, normalizes the content,
+ * and recursively loads any external references found within the definition.
+ *
+ * It builds a filesystem representation of all loaded content and collects any errors
+ * encountered during the process.
+ */
 export async function load(
-  value: any,
-  options?: {
-    plugins?: LoadPlugin[]
-    filename?: string
-    filesystem?: Filesystem
-  } & ThrowOnErrorOption,
+  value: AnyApiDefinitionFormat,
+  options?: LoadOptions,
 ): Promise<LoadResult> {
   const errors: ErrorObject[] = []
 
   // Don’t load a reference twice, check the filesystem before fetching something
   if (options?.filesystem?.find((entry) => entry.filename === value)) {
     return {
+      specification: getEntrypoint(options.filesystem)?.specification,
       filesystem: options.filesystem,
       errors,
     }
@@ -48,16 +61,20 @@ export async function load(
     } catch (error) {
       if (options?.throwOnError) {
         throw new Error(
-          ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value),
+          ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string),
         )
       }
 
       errors.push({
         code: 'EXTERNAL_REFERENCE_NOT_FOUND',
-        message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value),
+        message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace(
+          '%s',
+          value as string,
+        ),
       })
 
       return {
+        specification: null,
         filesystem: [],
         errors,
       }
@@ -78,6 +95,7 @@ export async function load(
     })
 
     return {
+      specification: null,
       filesystem: [],
       errors,
     }
@@ -97,6 +115,7 @@ export async function load(
   // No other references
   if (listOfReferences.length === 0) {
     return {
+      specification: getEntrypoint(filesystem)?.specification,
       filesystem,
       errors,
     }
@@ -148,6 +167,7 @@ export async function load(
   }
 
   return {
+    specification: getEntrypoint(filesystem)?.specification,
     filesystem,
     errors,
   }
