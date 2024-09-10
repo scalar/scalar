@@ -1,10 +1,4 @@
-import type {
-  CommandChain,
-  Merge,
-  PromiseReturnType,
-  Queue,
-  Task,
-} from '../../../types'
+import type { CommandChain, Merge, Queue, Task } from '../../../types'
 import { dereference } from '../../dereference'
 import { filter } from '../../filter'
 import { load } from '../../load'
@@ -40,7 +34,7 @@ export async function workThroughQueue<T extends Task[]>(
       result = {
         ...result,
         ...(await load(input, options as Commands['load']['task']['options'])),
-      } as Merge<typeof result, PromiseReturnType<typeof load>>
+      } as Merge<typeof result, Awaited<typeof load>>
     }
 
     // validate
@@ -62,7 +56,7 @@ export async function workThroughQueue<T extends Task[]>(
           currentSpecification,
           options as Commands['dereference']['task']['options'],
         )),
-      } as Merge<typeof result, PromiseReturnType<typeof dereference>>
+      } as Merge<typeof result, Awaited<typeof dereference>>
     }
 
     // upgrade
@@ -81,7 +75,7 @@ export async function workThroughQueue<T extends Task[]>(
           currentSpecification,
           options as Commands['validate']['task']['options'],
         )),
-      } as Merge<typeof result, PromiseReturnType<typeof validate>>
+      } as Merge<typeof result, Awaited<typeof validate>>
     }
 
     // Make TS complain when we forgot to handle a command.

@@ -8,13 +8,6 @@ import type { ERRORS, OpenApiVersion } from '../configuration'
 // TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
 export type Merge<A, B> = A & Omit<B, keyof A>
 
-/**
- * Unwrap a Promise to get the type of it
- */
-export type PromiseReturnType<FunctionType> = Awaited<
-  Promise<PromiseLike<FunctionType>>
->
-
 export type AnyObject = Record<string, any>
 
 /**
