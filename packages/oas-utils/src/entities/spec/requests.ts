@@ -108,9 +108,9 @@ const extendedRequestSchema = z.object({
   type: z.literal('request').optional().default('request'),
   uid: nanoidSchema,
   /** Path Key */
-  path: z.string(),
+  path: z.string().optional().default(''),
   /** Request Method */
-  method: z.enum(requestMethods),
+  method: z.enum(requestMethods).default('get'),
   /** List of server UIDs specific to the request */
   servers: nanoidSchema.array().default([]),
   /** The currently selected server */

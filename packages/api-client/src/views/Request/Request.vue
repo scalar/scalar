@@ -70,11 +70,9 @@ const executeRequest = async () => {
   requestAbortController.value = controller
   const result = await sendRequest()
 
-  // Check for error, toast if not user aborted
-  if ('error' in result)
-    toast(result.error?.message || 'Send Request Failed', 'error')
-  // All good
-  else requestHistory.push(result)
+  if (result.ok) requestHistory.push(result)
+  // Send toast if error
+  else toast(result.error?.message || 'Send Request Failed', 'error')
 }
 
 /** Cancel a live request */

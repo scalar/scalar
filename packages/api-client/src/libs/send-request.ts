@@ -186,7 +186,7 @@ export function createRequestOperation({
 }: {
   request: Request
   example: RequestExample
-  proxy: string
+  proxy?: string
   environment: object | undefined
   server?: Server
   securitySchemes: Record<string, SecurityScheme>
@@ -206,25 +206,25 @@ export function createRequestOperation({
     {},
   )
 
-  // Allow path only requests, mostly for quick testing in drafts
-  const url = server?.url
-    ? new URL(replaceTemplateVariables(server.url ?? '', env))
-    : new URL(request.path)
-
   const pathname = replaceTemplateVariables(request.path, pathVariables)
   const urlParams = createFetchQueryParams(example, env)
   const headers = createFetchHeaders(example, env)
   const { body, contentType } = createFetchBody(request.method, example, env)
-  const { cookieParams } = setRequestCookies({
-    example,
-    env,
-    globalCookies,
-    domain: url.hostname,
-    proxy,
-  })
+  // const { cookieParams } = setRequestCookies({
+  //   example,
+  //   env,
+  //   globalCookies,
+  //   domain: url.hostname,
+  //   proxy,
+  // })
 
   if (contentType && !headers['content-type'])
     headers['content-type'] = contentType
+
+  // Allow path only requests, mostly for quick testing in drafts
+  const url = server?.url
+    ? new URL(replaceTemplateVariables(server.url ?? '', env))
+    : new URL(pathname)
 
   // Populate all forms of auth to the request segments
   Object.keys(example.auth).forEach((k) => {
@@ -237,8 +237,8 @@ export function createRequestOperation({
       const value = replaceTemplateVariables(exampleAuth.value, env)
       if (scheme.in === 'header') headers[scheme.nameKey] = value
       if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
-      if (scheme.in === 'cookie')
-        Cookies.set(scheme.nameKey, value, cookieParams)
+      // if (scheme.in === 'cookie')
+      //   Cookies.set(scheme.nameKey, value, cookieParams)
     }
 
     if (scheme.type === 'http' && exampleAuth.type === 'http') {
@@ -270,9 +270,11 @@ export function createRequestOperation({
         response: ResponseInstance
         request: RequestExample
         timestamp: number
+        ok: true
       }
     | {
         error: Error
+        ok: false
       }
   > => {
     requestStatusBus.emit('start')
@@ -284,16 +286,16 @@ export function createRequestOperation({
     // Only add the path if we aren't using the raw path aka we have a server
     if (server?.url) url.pathname = pathname
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+    const _url = proxy ? `${proxy}?${proxyPath.toString()}` : url
 
     try {
-      const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
+      const response = await fetch(_url, {
         signal: controller.signal,
         method: request.method,
         body,
         headers,
       })
 
-      console.log(response)
       requestStatusBus.emit('stop')
 
       const responseHeaders = normalizeHeaders(
@@ -309,6 +311,7 @@ export function createRequestOperation({
       )
 
       return {
+        ok: true,
         timestamp: Date.now(),
         request: example,
         response: {
@@ -333,6 +336,7 @@ export function createRequestOperation({
       else error = new Error('An unknown error has occurred')
 
       return {
+        ok: false,
         error,
       }
     }

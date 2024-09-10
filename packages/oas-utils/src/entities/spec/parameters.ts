@@ -23,7 +23,7 @@ export const oasParameterSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
   /** Defaulted to false */
-  required: z.boolean().optional(),
+  required: z.boolean().optional().default(false),
   /** Defaulted to false */
   deprecated: z.boolean().optional().default(false),
   schema: z.unknown().optional(),
