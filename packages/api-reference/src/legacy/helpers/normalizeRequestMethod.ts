@@ -1,8 +1,8 @@
-import type { RequestMethod } from '@scalar/oas-utils/helpers'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 
 import { isRequestMethod } from '../fixtures'
 
-const DEFAULT_REQUEST_METHOD = 'GET'
+const DEFAULT_REQUEST_METHOD = 'get'
 
 /**
  * Get a normalized request method (e.g. GET, POST, etc.)
@@ -28,5 +28,5 @@ export const normalizeRequestMethod = (method?: string): RequestMethod => {
     return DEFAULT_REQUEST_METHOD
   }
 
-  return normalizedMethod
+  return normalizedMethod as RequestMethod
 }
