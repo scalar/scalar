@@ -54,6 +54,15 @@ export const REQUEST_METHODS: {
   },
 } as const
 
+/** HTTP Methods which can have a body */
+const BODY_METHODS = ['post', 'put', 'patch', 'delete'] as const
+type BodyMethod = (typeof BODY_METHODS)[number]
+
+/** Makes a check to see if this method CAN have a body */
+export const canMethodHaveBody = (
+  method: RequestMethod,
+): method is BodyMethod => BODY_METHODS.includes(method as BodyMethod)
+
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
  */

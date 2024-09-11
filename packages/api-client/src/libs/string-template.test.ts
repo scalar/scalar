@@ -38,12 +38,25 @@ describe('Replaces template vars with context values', () => {
       country: 'Bananaland',
     },
   }
-  test('Handles basic substitution', () => {
+  test('Handles double curly variable substitution', () => {
     const res = replaceTemplateVariables(
       'My name is {{name}} from {{address.city}}',
       ctx,
     )
-
+    expect(res).toEqual('My name is Dave from Peel')
+  })
+  test('Handles single curly variable substitution', () => {
+    const res = replaceTemplateVariables(
+      'My name is {name} from { address.city }',
+      ctx,
+    )
+    expect(res).toEqual('My name is Dave from Peel')
+  })
+  test('Handles colon variable substitution', () => {
+    const res = replaceTemplateVariables(
+      'My name is :name from :address.city',
+      ctx,
+    )
     expect(res).toEqual('My name is Dave from Peel')
   })
   test('Handles object conversion to string', () => {
