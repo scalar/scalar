@@ -83,7 +83,7 @@ const executeRequest = async () => {
 
 /** Cancel a live request */
 const cancelRequest = async () =>
-  requestAbortController.value?.abort('User has cancelled the request')
+  requestAbortController.value?.abort('The request has been cancelled')
 
 onMounted(() => {
   executeRequestBus.on(executeRequest)
