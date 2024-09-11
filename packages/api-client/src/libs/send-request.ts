@@ -1,4 +1,9 @@
-import { type ErrorResponse, normalizeError } from '@/libs/errors'
+import {
+  ERRORS,
+  type ErrorResponse,
+  normalizeError,
+  prettyErrors,
+} from '@/libs/errors'
 import { requestStatusBus } from '@/libs/event-busses'
 import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
@@ -249,6 +254,9 @@ export const createRequestOperation = <ResponseDataType = unknown>({
      */
     let url = serverString || pathString
 
+    // Handle empty url
+    if (!url) throw ERRORS.URL_EMPTY
+
     const urlParams = createFetchQueryParams(example, env)
     const headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
@@ -389,7 +397,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         console.error(e)
         requestStatusBus.emit('abort')
 
-        return [normalizeError(e), null]
+        return [normalizeError(e, ERRORS.REQUEST_FAILED), null]
       }
     }
 
@@ -404,16 +412,6 @@ export const createRequestOperation = <ResponseDataType = unknown>({
     console.error(e)
     requestStatusBus.emit('abort')
 
-    // Handle this specific error to remind users to re-add files
-    const error =
-      e instanceof TypeError &&
-      e.message ===
-        `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`
-        ? 'File uploads are not saved in history, you must re-upload the file.'
-        : e
-
-    console.log(error)
-
-    return [normalizeError(error), null]
+    return [normalizeError(e), null]
   }
 }
