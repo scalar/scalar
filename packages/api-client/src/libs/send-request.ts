@@ -136,6 +136,7 @@ function createFetchBody(
   example: RequestExample,
   env: object,
 ) {
+  console.log(example)
   if (!canMethodHaveBody(method))
     return { body: undefined, contentType: undefined }
 
@@ -149,8 +150,21 @@ function createFetchBody(
       example.body.formData.encoding === 'form-data'
         ? new FormData()
         : new URLSearchParams()
+
+    // Build formData
     example.body.formData.value.forEach((entry) => {
-      form.append(entry.key, replaceTemplateVariables(entry.value, env))
+      if (!entry.enabled || !entry.key) return
+
+      console.log(entry)
+
+      // File upload
+      if (entry.file && form instanceof FormData) {
+        form.append(entry.key, entry.file, entry.file.name)
+      }
+      // Text input with variable replacement
+      else if (entry.value !== undefined) {
+        form.append(entry.key, replaceTemplateVariables(entry.value, env))
+      }
     })
     return { body: form, contentType }
   }
@@ -288,29 +302,28 @@ export const createRequestOperation = <ResponseDataType>({
 
     // Extract and merge all query params
     if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-      // Prefix with origin if the path is relative
+      /** Prefix the url with the origin if it is relative */
       const base = isRelativePath(url) ? window.location.origin + url : url
-
       const serverUrl = new URL(base)
-      const _url = new URL(pathString, base)
-      const pathSearchParams = new URLSearchParams(pathString)
+      const serverAndPath = server?.url ? new URL(pathString, base) : serverUrl
+      const pathSearchParams = new URLSearchParams(
+        isRelativePath(pathString) ? pathString : '',
+      )
 
       // Combines all query params
-      _url.search = new URLSearchParams([
+      serverAndPath.search = new URLSearchParams([
         ...serverUrl.searchParams,
         ...pathSearchParams,
         ...urlParams,
       ]).toString()
 
-      url = _url.toString()
+      url = serverAndPath.toString()
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
     const proxiedUrl = shouldUseProxy(proxy, url)
       ? `${proxy}?${proxyPath.toString()}`
       : url
-
-    console.log(headers)
 
     try {
       const response = await fetch(proxiedUrl, {
