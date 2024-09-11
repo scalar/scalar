@@ -12,22 +12,28 @@ export function getDotPathValue(path: string, context: object) {
   return typeof result === 'string' ? result : JSON.stringify(result)
 }
 
-/** Replace all double moustache variables with values from a context object  */
+/**
+ * Replace all variables with values from a context object
+ *
+ * - {{ double curly }}
+ * - { single curly }
+ * - :colon
+ */
 export function replaceTemplateVariables(
   templateString: string,
   context: object,
 ) {
-  const doubleCurlyBrackets = /\{\{([+= .a-zA-Z0-9_-]*?)\}\}/g
-
-  const matches = templateString.match(doubleCurlyBrackets) ?? []
+  /** Matches single, double curly and colon style variables */
+  const variableRegex = /{{\s*([^}\s]+?)\s*}}|{\s*([^}\s]+?)\s*}|:\b[\w.]+\b/g
+  const matches = templateString.match(variableRegex) ?? []
 
   // Very few good ways other than a `let` here
   let substitutedString = templateString
   matches.forEach((m) => {
-    const key = m.trim().slice(2, -2)
+    const key = m.startsWith(':') ? m.slice(1) : m.replace(/[{}]/g, '').trim()
 
-    const value = getDotPathValue(key, context) ?? ''
-    substitutedString = substitutedString.replaceAll(m, value)
+    const value = getDotPathValue(key, context)
+    if (value) substitutedString = substitutedString.replaceAll(m, value)
   })
 
   return substitutedString

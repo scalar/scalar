@@ -6,15 +6,13 @@ import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
 
 const { activeRequest, activeExample, isReadOnly, requestMutators } =
   useWorkspace()
-
-const bodyMethods: RequestMethod[] = ['post', 'put', 'patch', 'delete']
 
 const sections = computed(() => {
   const allSections = new Set([
@@ -29,7 +27,7 @@ const sections = computed(() => {
 
   if (!activeExample.value?.parameters.path.length)
     allSections.delete('Request')
-  if (!bodyMethods.includes(activeRequest.value?.method ?? 'get'))
+  if (!canMethodHaveBody(activeRequest.value?.method ?? 'get'))
     allSections.delete('Body')
   if (isAuthHidden.value) allSections.delete('Auth')
 
@@ -49,7 +47,7 @@ watch(activeRequest, (newRequest) => {
   if (
     activeSection.value === 'Body' &&
     newRequest &&
-    !bodyMethods.includes(newRequest.method)
+    !canMethodHaveBody(newRequest.method)
   ) {
     activeSection.value = 'All'
   }
@@ -119,7 +117,7 @@ const updateRequestNameHandler = (event: Event) => {
         v-show="
           activeRequest &&
           (activeSection === 'All' || activeSection === 'Body') &&
-          bodyMethods.includes(activeRequest.method)
+          canMethodHaveBody(activeRequest.method)
         "
         body="foo"
         title="Body" />

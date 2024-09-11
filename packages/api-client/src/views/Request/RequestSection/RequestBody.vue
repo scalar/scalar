@@ -151,6 +151,23 @@ const addRow = () => {
     })
 }
 
+/** Enable and disables the row */
+const toggleRow = (rowIdx: number, enabled: boolean) => {
+  if (!activeRequest.value || !activeExample.value) return
+
+  const currentParams = formParams.value
+  if (currentParams.length > rowIdx) {
+    const updatedParams = [...currentParams]
+    updatedParams[rowIdx].enabled = enabled
+
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'body.formData.value',
+      updatedParams,
+    )
+  }
+}
+
 const updateRequestBody = (value: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
@@ -345,6 +362,7 @@ watch(
               @addRow="addRow"
               @deleteRow="deleteRow"
               @removeFile="handleRemoveFileFormData"
+              @toggleRow="toggleRow"
               @updateRow="updateRow"
               @uploadFile="handleFileUploadFormData" />
           </template>
@@ -358,6 +376,7 @@ watch(
               @addRow="addRow"
               @deleteRow="deleteRow"
               @removeFile="handleRemoveFileFormData"
+              @toggleRow="toggleRow"
               @updateRow="updateRow"
               @uploadFile="handleFileUploadFormData" />
           </template>

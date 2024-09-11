@@ -8,6 +8,7 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { safeJSON } from '@scalar/object-utils/parse'
+import { useToasts } from '@scalar/use-toasts'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -18,6 +19,7 @@ defineEmits<{
 }>()
 
 const workspaceContext = useWorkspace()
+const { toast } = useToasts()
 const {
   activeExample,
   activeEnvironment,
@@ -46,17 +48,16 @@ watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
  * called from the send button as well as keyboard shortcuts
  */
 const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value || !activeServer.value)
-    return
+  if (!activeRequest.value || !activeExample.value) return
 
   // Parse the environment string
-  const e = safeJSON.parse(activeEnvironment.value.value)
+  const e = safeJSON.parse(activeEnvironment.value?.value || '{}')
   if (e.error) console.error('INVALID ENVIRONMENT!')
   const environment = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
 
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
-  const { controller, sendRequest } = createRequestOperation({
+  const [error, requestOperation] = createRequestOperation({
     request: activeRequest.value,
     example: activeExample.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
@@ -66,39 +67,24 @@ const executeRequest = async () => {
     server: activeServer.value,
   })
 
-  requestAbortController.value = controller
+  // Error from createRequestOperation
+  if (error) {
+    toast(error.message, 'error')
+    return
+  }
 
-  // TODO: Do we need this?
-  //   if (request && response) {
-  //     requestMutators.edit(activeRequest.value.uid, 'history', [
-  //       ...activeRequest.value.history,
-  //       {
-  //         request,
-  //         response,
-  //         timestamp: Date.now(),
-  //       },
-  //     ])
-  //     requestStatusBus.emit('stop')
-  //   } else {
-  //     // Toast if not cancelled by user and we have no response
-  //     if (!(error instanceof DOMException && error.name == 'AbortError'))
-  //       toast(error?.message ?? 'Send Request Failed', 'error')
+  requestAbortController.value = requestOperation.controller
+  const [sendRequestError, result] = await requestOperation.sendRequest()
 
-  //     requestStatusBus.emit('abort')
-  //   }
-  // } catch (error) {
-  //   console.error(error)
-  //   toast(`Oops! \n${error}`, 'error')
-  //   requestStatusBus.emit('abort')
-  // }
-
-  const result = await sendRequest()
-
-  requestHistory.push(result)
+  // Send error toast
+  if (sendRequestError) toast(sendRequestError.message, 'error')
+  else requestHistory.push(result)
 }
 
 /** Cancel a live request */
-const cancelRequest = async () => requestAbortController.value?.abort()
+const cancelRequest = async () =>
+  requestAbortController.value?.abort('The request has been cancelled')
+
 onMounted(() => {
   executeRequestBus.on(executeRequest)
   cancelRequestBus.on(cancelRequest)
@@ -109,9 +95,7 @@ onMounted(() => {
  *
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
-onBeforeUnmount(() => {
-  executeRequestBus.off(executeRequest)
-})
+onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 </script>
 <template>
   <div
