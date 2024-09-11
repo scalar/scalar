@@ -68,8 +68,16 @@ function setRequestCookies({
   env: object
   globalCookies: Cookie[]
   domain: string
-  proxy: string
+  proxy?: string
 }) {
+  let _domain: string | undefined
+
+  try {
+    _domain = new URL(proxy || domain).host
+  } catch (e) {
+    if (typeof window !== 'undefined') _domain = window.location.host
+  }
+
   /**
    * Cross-origin cookies are hard.
    *
@@ -85,7 +93,7 @@ function setRequestCookies({
    */
   const cookieParams = {
     // Must point all cookies to the proxy and let it sort them out
-    domain: new URL(proxy).host,
+    domain: _domain,
     // Means that the browser sends the cookie with both cross-site and same-site requests.
     sameSite: 'None',
     // The Secure attribute must also be set when setting SameSite=None.
@@ -111,7 +119,7 @@ function setRequestCookies({
     if (hasDomainMatch) {
       Cookies.set(key, value, {
         /** Override the domain with the proxy value */
-        domain: proxy,
+        domain: _domain,
         // TODO: path cookies probably don't worth with the proxy
         path: params.path,
         expires: params.expires ? new Date(params.expires) : undefined,
@@ -235,16 +243,22 @@ export const createRequestOperation = <ResponseDataType = unknown>({
     const serverString = replaceTemplateVariables(server?.url ?? '', env)
     const pathString = replaceTemplateVariables(request.path, pathVariables)
 
+    /**
+     * Start building the main URL, we cannot use the URL class yet as it does not work with relative servers
+     * Also handles the case of no server with pathString
+     */
+    let url = serverString || pathString
+
     const urlParams = createFetchQueryParams(example, env)
     const headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
-    // const { cookieParams } = setRequestCookies({
-    //   example,
-    //   env,
-    //   globalCookies,
-    //   domain: url.hostname,
-    //   proxy,
-    // })
+    const { cookieParams } = setRequestCookies({
+      example,
+      env,
+      globalCookies,
+      domain: url,
+      proxy,
+    })
 
     // Populate all forms of auth to the request segments
     Object.keys(example.auth).forEach((k) => {
@@ -257,8 +271,8 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         const value = replaceTemplateVariables(exampleAuth.value, env)
         if (scheme.in === 'header') headers[scheme.nameKey] = value
         if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
-        // if (scheme.in === 'cookie')
-        //   Cookies.set(scheme.nameKey, value, cookieParams)
+        if (scheme.in === 'cookie')
+          Cookies.set(scheme.nameKey, value, cookieParams)
       }
 
       if (scheme.type === 'http' && exampleAuth.type === 'http') {
@@ -298,12 +312,6 @@ export const createRequestOperation = <ResponseDataType = unknown>({
       const startTime = Date.now()
 
       try {
-        /**
-         * Start building the main URL, we cannot use the URL class here as it does not work with relative servers
-         * Also handles the case of no server
-         */
-        let url = serverString || pathString
-
         // Extract and merge all query params
         if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
           /** Prefix the url with the origin if it is relative */
@@ -352,6 +360,14 @@ export const createRequestOperation = <ResponseDataType = unknown>({
           responseType,
         )
 
+        // Safely check for cookie headers
+        // TODO: polyfill
+        const cookieHeaderKeys =
+          'getSetCookie' in response.headers &&
+          typeof response.headers.getSetCookie === 'function'
+            ? response.headers.getSetCookie()
+            : []
+
         return [
           null,
           {
@@ -360,7 +376,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
             response: {
               ...response,
               headers: responseHeaders,
-              cookieHeaderKeys: response.headers.getSetCookie(),
+              cookieHeaderKeys,
               data: responseData,
               duration: Date.now() - startTime,
               method: request.method,
