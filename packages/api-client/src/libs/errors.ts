@@ -13,30 +13,39 @@ export const ERRORS = {
 export const normalizeError = (
   e: unknown,
   defaultMessage: string = ERRORS.DEFAULT,
-) => {
-  if (e instanceof Error) return prettyError(e.message) ?? e
-  if (typeof e === 'string') return prettyError(e) ?? new Error(e)
+): Error => {
+  console.error(e)
+
+  // If we have an error, update the message but keep the rest
+  if (e instanceof Error) {
+    e.message = prettyErrorMessage(e.message)
+    return e
+  }
+  // If we have a string, return an error
+  if (typeof e === 'string') return new Error(prettyErrorMessage(e))
 
   return new Error(defaultMessage)
 }
 
 /**
  * Go like error handling
+ *
+ * Ensure we return an error or response in an array
  */
 export type ErrorResponse<ResponseType> = [Error, null] | [null, ResponseType]
 
 /** Takes javascript errors and returns a prettier message */
-export const prettyError = (message: string) => {
+export const prettyErrorMessage = (message: string) => {
   // Missing file
   if (
     message ===
     `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`
   )
-    return new Error(ERRORS.MISSING_FILE)
+    return ERRORS.MISSING_FILE
 
   // Invalid URL
   if (message === `Failed to construct 'URL': Invalid URL`)
-    return new Error(ERRORS.INVALID_URL)
+    return ERRORS.INVALID_URL
 
-  return null
+  return message
 }

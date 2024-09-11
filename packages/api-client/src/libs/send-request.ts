@@ -1,9 +1,4 @@
-import {
-  ERRORS,
-  type ErrorResponse,
-  normalizeError,
-  prettyErrors,
-} from '@/libs/errors'
+import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import { requestStatusBus } from '@/libs/event-busses'
 import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
@@ -394,9 +389,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
           },
         ]
       } catch (e) {
-        console.error(e)
         requestStatusBus.emit('abort')
-
         return [normalizeError(e, ERRORS.REQUEST_FAILED), null]
       }
     }
@@ -409,9 +402,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
       },
     ]
   } catch (e) {
-    console.error(e)
     requestStatusBus.emit('abort')
-
     return [normalizeError(e), null]
   }
 }
