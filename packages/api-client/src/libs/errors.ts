@@ -1,3 +1,14 @@
+/** Centralized list of all error messages */
+export const ERRORS = {
+  DEFAULT: 'An unknown error has occurred.',
+  INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
+  MISSING_FILE:
+    'File uploads are not saved in history, you must re-upload the file.',
+  REQUEST_ABORTED: 'The request has been cancelled',
+  REQUEST_FAILED: 'An error occurred while making the request',
+  URL_EMPTY: 'The adress bar seems to be empty. Try adding an URL.',
+} as const
+
 /** Normalizes caught error into an error instance */
 export const normalizeError = (
   e: unknown,
@@ -13,17 +24,6 @@ export const normalizeError = (
  * Go like error handling
  */
 export type ErrorResponse<ResponseType> = [Error, null] | [null, ResponseType]
-
-/** Centralized list of all error messages */
-export const ERRORS = {
-  DEFAULT: 'An unknown error has occurred.',
-  INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
-  MISSING_FILE:
-    'File uploads are not saved in history, you must re-upload the file.',
-  REQUEST_ABORTED: 'The request has been cancelled',
-  REQUEST_FAILED: 'An error occurred while making the request',
-  URL_EMPTY: 'The adress bar seems to be empty. Try adding an URL.',
-} as const
 
 /** Takes javascript errors and returns a prettier message */
 export const prettyError = (message: string) => {
