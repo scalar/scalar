@@ -1,16 +1,22 @@
+import { type ErrorResponse, normalizeError } from '@/libs/errors'
 import { requestStatusBus } from '@/libs/event-busses'
-import { normalizeHeaders } from '@/libs/normalizeHeaders'
+import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Request,
   RequestExample,
+  RequestMethod,
   ResponseInstance,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+import {
+  canMethodHaveBody,
+  isRelativePath,
+  shouldUseProxy,
+} from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -62,8 +68,16 @@ function setRequestCookies({
   env: object
   globalCookies: Cookie[]
   domain: string
-  proxy: string
+  proxy?: string
 }) {
+  let _domain: string | undefined
+
+  try {
+    _domain = new URL(proxy || domain).host
+  } catch (e) {
+    if (typeof window !== 'undefined') _domain = window.location.host
+  }
+
   /**
    * Cross-origin cookies are hard.
    *
@@ -79,7 +93,7 @@ function setRequestCookies({
    */
   const cookieParams = {
     // Must point all cookies to the proxy and let it sort them out
-    domain: new URL(proxy).host,
+    domain: _domain,
     // Means that the browser sends the cookie with both cross-site and same-site requests.
     sameSite: 'None',
     // The Secure attribute must also be set when setting SameSite=None.
@@ -94,7 +108,7 @@ function setRequestCookies({
   })
 
   globalCookies.forEach((c) => {
-    const { name: key, value, comment, ...params } = c
+    const { name: key, value, ...params } = c
 
     // We only attach global cookies relevant to the current domain
     // Subdomains are matched as well
@@ -105,7 +119,7 @@ function setRequestCookies({
     if (hasDomainMatch) {
       Cookies.set(key, value, {
         /** Override the domain with the proxy value */
-        domain: proxy,
+        domain: _domain,
         // TODO: path cookies probably don't worth with the proxy
         path: params.path,
         expires: params.expires ? new Date(params.expires) : undefined,
@@ -126,7 +140,14 @@ function setRequestCookies({
  * TODO: Should we be setting the content type headers here?
  * If so we must allow the user to override the content type header
  */
-function createFetchBody(example: RequestExample, env: object) {
+function createFetchBody(
+  method: RequestMethod,
+  example: RequestExample,
+  env: object,
+) {
+  if (!canMethodHaveBody(method))
+    return { body: undefined, contentType: undefined }
+
   if (example.body.activeBody === 'formData' && example.body.formData) {
     const contentType =
       example.body.formData.encoding === 'form-data'
@@ -137,8 +158,17 @@ function createFetchBody(example: RequestExample, env: object) {
       example.body.formData.encoding === 'form-data'
         ? new FormData()
         : new URLSearchParams()
+
+    // Build formData
     example.body.formData.value.forEach((entry) => {
-      form.append(entry.key, replaceTemplateVariables(entry.value, env))
+      if (!entry.enabled || !entry.key) return
+
+      // File upload
+      if (entry.file && form instanceof FormData)
+        form.append(entry.key, entry.file, entry.file.name)
+      // Text input with variable replacement
+      else if (entry.value !== undefined)
+        form.append(entry.key, replaceTemplateVariables(entry.value, env))
     })
     return { body: form, contentType }
   }
@@ -163,11 +193,20 @@ function createFetchBody(example: RequestExample, env: object) {
   }
 }
 
+/** Response from sendRequest hoisted so we can use it as the return type for createRequestOperation */
+type SendRequestResponse<ResponseDataType = unknown> = Promise<
+  ErrorResponse<{
+    response: ResponseInstance<ResponseDataType>
+    request: RequestExample
+    timestamp: number
+  }>
+>
+
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-export function createRequestOperation({
+export const createRequestOperation = <ResponseDataType = unknown>({
   request,
   example,
   server,
@@ -178,144 +217,203 @@ export function createRequestOperation({
 }: {
   request: Request
   example: RequestExample
-  proxy: string
+  proxy?: string
   environment: object | undefined
-  server: Server
+  server?: Server
   securitySchemes: Record<string, SecurityScheme>
   globalCookies: Cookie[]
-}) {
-  const env = environment ?? {}
-  const controller = new AbortController()
+}): ErrorResponse<{
+  controller: AbortController
+  sendRequest: () => SendRequestResponse<ResponseDataType>
+}> => {
+  try {
+    const env = environment ?? {}
+    const controller = new AbortController()
 
-  /** Parsed and evaluated values for path parameters */
-  const pathVariables = example.parameters.path.reduce<Record<string, string>>(
-    (vars, param) => {
+    /** Parsed and evaluated values for path parameters */
+    const pathVariables = example.parameters.path.reduce<
+      Record<string, string>
+    >((vars, param) => {
       if (param.enabled)
         vars[param.key] = replaceTemplateVariables(param.value, env)
 
       return vars
-    },
-    {},
-  )
+    }, {})
 
-  // Initialize the base URL object from the active server
-  const url = new URL(replaceTemplateVariables(server.url ?? '', env))
-  const pathname = replaceTemplateVariables(request.path, pathVariables)
-  const urlParams = createFetchQueryParams(example, env)
-  const headers = createFetchHeaders(example, env)
-  const { body, contentType } = createFetchBody(example, env)
-  const { cookieParams } = setRequestCookies({
-    example,
-    env,
-    globalCookies,
-    domain: url.hostname,
-    proxy,
-  })
+    const serverString = replaceTemplateVariables(server?.url ?? '', env)
+    const pathString = replaceTemplateVariables(request.path, pathVariables)
 
-  if (contentType && !headers['content-type'])
-    headers['content-type'] = contentType
+    /**
+     * Start building the main URL, we cannot use the URL class yet as it does not work with relative servers
+     * Also handles the case of no server with pathString
+     */
+    let url = serverString || pathString
 
-  // Populate all forms of auth to the request segments
-  Object.keys(example.auth).forEach((k) => {
-    const exampleAuth = example.auth[k]
-    const scheme = securitySchemes[k]
-    if (!exampleAuth || !scheme) return
+    const urlParams = createFetchQueryParams(example, env)
+    const headers = createFetchHeaders(example, env)
+    const { body } = createFetchBody(request.method, example, env)
+    const { cookieParams } = setRequestCookies({
+      example,
+      env,
+      globalCookies,
+      domain: url,
+      proxy,
+    })
 
-    // Scheme type and example value type should always match
-    if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
-      const value = replaceTemplateVariables(exampleAuth.value, env)
-      if (scheme.in === 'header') headers[scheme.nameKey] = value
-      if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
-      if (scheme.in === 'cookie')
-        Cookies.set(scheme.nameKey, value, cookieParams)
-    }
+    // Populate all forms of auth to the request segments
+    Object.keys(example.auth).forEach((k) => {
+      const exampleAuth = example.auth[k]
+      const scheme = securitySchemes[k]
+      if (!exampleAuth || !scheme) return
 
-    if (scheme.type === 'http' && exampleAuth.type === 'http') {
-      if (scheme.scheme === 'basic') {
-        const username = replaceTemplateVariables(exampleAuth.username, env)
-        const password = replaceTemplateVariables(exampleAuth.password, env)
-        const value = password ? `${username}:${password}` : username
+      // Scheme type and example value type should always match
+      if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
+        const value = replaceTemplateVariables(exampleAuth.value, env)
+        if (scheme.in === 'header') headers[scheme.nameKey] = value
+        if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
+        if (scheme.in === 'cookie')
+          Cookies.set(scheme.nameKey, value, cookieParams)
+      }
 
-        headers['Authorization'] = `Basic ${btoa(value)}`
-      } else {
-        const value = replaceTemplateVariables(exampleAuth.token, env)
-        headers['Authorization'] = `Bearer ${value}`
+      if (scheme.type === 'http' && exampleAuth.type === 'http') {
+        if (scheme.scheme === 'basic') {
+          const username = replaceTemplateVariables(exampleAuth.username, env)
+          const password = replaceTemplateVariables(exampleAuth.password, env)
+          const value = password ? `${username}:${password}` : username
+
+          headers['Authorization'] = `Basic ${btoa(value)}`
+        } else {
+          const value = replaceTemplateVariables(exampleAuth.token, env)
+          headers['Authorization'] = `Bearer ${value}`
+        }
+      }
+
+      // For OAuth we just add the token that was previously generated
+      if (
+        scheme.type === 'oauth2' &&
+        exampleAuth.type.includes('oauth') &&
+        'token' in exampleAuth
+      ) {
+        if (!exampleAuth.token) console.error('OAuth token was not created')
+        headers['Authorization'] = `Bearer ${exampleAuth.token}`
+      }
+    })
+
+    const sendRequest = async (): Promise<
+      ErrorResponse<{
+        response: ResponseInstance<ResponseDataType>
+        request: RequestExample
+        timestamp: number
+      }>
+    > => {
+      requestStatusBus.emit('start')
+
+      // Start timer to get response duration
+      const startTime = Date.now()
+
+      try {
+        // Extract and merge all query params
+        if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
+          /** Prefix the url with the origin if it is relative */
+          const base = isRelativePath(url) ? window.location.origin + url : url
+          const serverUrl = new URL(base)
+          const serverAndPath = server?.url
+            ? new URL(pathString, base)
+            : serverUrl
+          const pathSearchParams = new URLSearchParams(
+            isRelativePath(pathString) ? pathString : '',
+          )
+
+          // Combines all query params
+          serverAndPath.search = new URLSearchParams([
+            ...serverUrl.searchParams,
+            ...pathSearchParams,
+            ...urlParams,
+          ]).toString()
+
+          url = serverAndPath.toString()
+        }
+
+        const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+        const proxiedUrl = shouldUseProxy(proxy, url)
+          ? `${proxy}?${proxyPath.toString()}`
+          : url
+
+        const response = await fetch(proxiedUrl, {
+          signal: controller.signal,
+          method: request.method,
+          body,
+          headers,
+        })
+
+        requestStatusBus.emit('stop')
+
+        const responseHeaders = normalizeHeaders(
+          response.headers,
+          shouldUseProxy(proxy, url),
+        )
+        const responseType =
+          response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
+
+        const responseData = decodeBuffer(
+          await response.arrayBuffer(),
+          responseType,
+        )
+
+        // Safely check for cookie headers
+        // TODO: polyfill
+        const cookieHeaderKeys =
+          'getSetCookie' in response.headers &&
+          typeof response.headers.getSetCookie === 'function'
+            ? response.headers.getSetCookie()
+            : []
+
+        return [
+          null,
+          {
+            timestamp: Date.now(),
+            request: example,
+            response: {
+              ...response,
+              headers: responseHeaders,
+              cookieHeaderKeys,
+              data: responseData,
+              duration: Date.now() - startTime,
+              method: request.method,
+              status: response.status,
+              path: pathString,
+            },
+          },
+        ]
+      } catch (e) {
+        console.error(e)
+        requestStatusBus.emit('abort')
+
+        return [normalizeError(e), null]
       }
     }
 
-    // For OAuth we just add the token that was previously generated
-    if (
-      scheme.type === 'oauth2' &&
-      exampleAuth.type.includes('oauth') &&
-      'token' in exampleAuth
-    ) {
-      if (!exampleAuth.token) console.error('OAuth token was not created')
-      headers['Authorization'] = `Bearer ${exampleAuth.token}`
-    }
-  })
-
-  const sendRequest = async (): Promise<{
-    response: ResponseInstance
-    request: RequestExample
-    timestamp: number
-  }> => {
-    requestStatusBus.emit('start')
-
-    // Start timer to get response duration
-    const startTime = Date.now()
-
-    url.search = urlParams.toString()
-    url.pathname = pathname
-    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-
-    const response = await fetch(`${proxy}?${proxyPath.toString()}`, {
-      signal: controller.signal,
-      method: request.method,
-      body,
-      headers,
-    })
-
-    console.log(response)
-    requestStatusBus.emit('stop')
-
-    // TODO: Evaluate whether we should really be deleting response headers client-side
-    if (shouldUseProxy(proxy, url.origin)) {
-      // Remove headers, that are added by the proxy
-      const headersToRemove = [
-        'Access-Control-Allow-Headers',
-        'Access-Control-Allow-Origin',
-        'Access-Control-Allow-Methods',
-        'Access-Control-Expose-Headers',
-      ]
-
-      headersToRemove
-        .map((header) => header.toLowerCase())
-        .forEach((header) => response.headers.delete(header))
-    }
-
-    const responseType =
-      response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-    const responseData = decodeBuffer(
-      await response.arrayBuffer(),
-      responseType,
-    )
-    const responseHeaders = normalizeHeaders(response.headers)
-
-    return {
-      timestamp: Date.now(),
-      request: example,
-      response: {
-        ...response,
-        headers: responseHeaders,
-        data: responseData,
-        duration: Date.now() - startTime,
+    return [
+      null,
+      {
+        sendRequest,
+        controller,
       },
-    }
-  }
+    ]
+  } catch (e) {
+    console.error(e)
+    requestStatusBus.emit('abort')
 
-  return {
-    sendRequest,
-    controller,
+    // Handle this specific error to remind users to re-add files
+    const error =
+      e instanceof TypeError &&
+      e.message ===
+        `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`
+        ? 'File uploads are not saved in history, you must re-upload the file.'
+        : e
+
+    console.log(error)
+
+    return [normalizeError(error), null]
   }
 }

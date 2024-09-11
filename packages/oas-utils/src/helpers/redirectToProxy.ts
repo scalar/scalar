@@ -16,22 +16,19 @@ export function redirectToProxy(proxy?: string, url?: string): string {
   return newUrl.toString()
 }
 
+/** Check if the URL is relative, aka doesn't start with http[s] */
+export const isRelativePath = (url: string) => !/^https?:\/\//.test(url)
+
 /** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
 export function shouldUseProxy(proxy?: string, url?: string): boolean {
   // No proxy or url
-  if (!proxy || !url) {
-    return false
-  }
+  if (!proxy || !url) return false
 
   // Relative URLs
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    return false
-  }
+  if (isRelativePath(url)) return false
 
   // Requests to localhost
-  if (isRequestToLocalhost(url)) {
-    return false
-  }
+  if (isRequestToLocalhost(url)) return false
 
   return true
 }

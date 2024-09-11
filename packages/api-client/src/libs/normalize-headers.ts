@@ -5,11 +5,30 @@
  * - Restores original headers
  * - Normalizes the header keys
  * - Sorts headers alphabetically
+ * - converts to an object
  *
  */
-export function normalizeHeaders(
-  headers: Record<string, string>,
-): Record<string, string> {
+export const normalizeHeaders = (
+  _headers: Headers,
+  removeProxyHeaders = false,
+): Record<string, string> => {
+  // Convert headers to an object
+  const headers = Object.fromEntries(_headers)
+
+  // Remove headers, that are added by the proxy
+  if (removeProxyHeaders) {
+    const headersToRemove = [
+      'Access-Control-Allow-Headers',
+      'Access-Control-Allow-Origin',
+      'Access-Control-Allow-Methods',
+      'Access-Control-Expose-Headers',
+    ]
+
+    headersToRemove
+      .map((header) => header.toLowerCase())
+      .forEach((header) => delete headers[header])
+  }
+
   /** Exact key of the modified headers header */
   const modifiedHeaderKey = Object.keys(headers).find(
     (key) => key.toLowerCase() === 'x-scalar-modified-headers',
@@ -17,8 +36,7 @@ export function normalizeHeaders(
 
   /** List of modified headers */
   const modifiedHeaders = modifiedHeaderKey
-    ? headers
-        .get(modifiedHeaderKey)
+    ? headers[modifiedHeaderKey]
         ?.toString()
         .split(', ')
         ?.map((value: string) => value.toLowerCase()) ?? []
@@ -27,21 +45,24 @@ export function normalizeHeaders(
   // Remove headers listed in `X-Scalar-Modified-Headers`
   Object.keys(headers).forEach((key) => {
     if (modifiedHeaders.includes(key.toLowerCase())) {
-      headers.delete(key)
+      delete headers[key]
     }
   })
 
   // Remove `X-Scalar-Modified-Headers` header
   if (modifiedHeaderKey) {
-    headers.delete(modifiedHeaderKey)
+    delete headers[modifiedHeaderKey]
   }
 
   // Restore original headers (remove the `X-Scalar-Original-` prefix)
   Object.keys(headers).forEach((key) => {
-    if (key.toLowerCase().startsWith('x-scalar-original-')) {
-      const originalKey = key.replace('X-Scalar-Original-', '')
-      headers.set(originalKey, headers.get(key) ?? '')
-      headers.delete(key)
+    // Case-insensitive regular expression
+    const ORIGINAL_KEY_REGEX = /^x-scalar-original-/i
+
+    if (ORIGINAL_KEY_REGEX.test(key)) {
+      const originalKey = key.replace(ORIGINAL_KEY_REGEX, '')
+      headers[originalKey] = headers[key]
+      delete headers[key]
     }
   })
 
@@ -49,21 +70,22 @@ export function normalizeHeaders(
   Object.keys(headers).forEach((key) => {
     const formattedKey = formatHeaderKey(key)
     if (key !== formattedKey) {
-      headers.set(formattedKey, headers.get(key) ?? '')
-      headers.delete(key)
+      headers[formattedKey] = headers[key]
+      delete headers[key]
     }
   })
 
-  // Sort headers alphabetically by key
-  return headers
+  // Sort headers alphebetically by key
+  return Object.fromEntries(
+    Object.entries(headers).sort(([a], [b]) => a.localeCompare(b)),
+  )
 }
 
 /** Make the first letter and all letters after a dash uppercase */
-function formatHeaderKey(key: string) {
-  return key
+export const formatHeaderKey = (key: string) =>
+  key
     .split('-')
     .map((word) => {
       return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1)
     })
     .join('-')
-}

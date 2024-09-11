@@ -1,331 +1,382 @@
 /**
  * @vitest-environment jsdom
  */
+import { createRequestOperation } from '@/libs'
 import {
   type RequestExamplePayload,
   type RequestPayload,
   type ServerPayload,
-  createRequest,
-  createRequestExample,
-  createRequestExampleParameter,
-  createServer,
+  createExampleFromRequest,
+  requestExampleSchema,
+  requestSchema,
+  serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { describe, expect, it } from 'vitest'
-
-import { sendRequest } from './send-request'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 const PROXY_PORT = 5051
-const ECHO_PORT = 5052
+const VOID_PORT = 5052
+const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
+const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload
   requestPayload?: RequestPayload
-  requestExamplePayload?: Omit<RequestExamplePayload, 'requestUid'>
+  requestExamplePayload?: RequestExamplePayload
+  proxy?: string
 }
-function createRequestExampleServer(metaRequestPayload: MetaRequestPayload) {
-  const request = createRequest(metaRequestPayload.requestPayload ?? {})
 
-  const example = createRequestExample({
-    requestUid: request.uid,
-    ...(metaRequestPayload.requestExamplePayload || {}),
-  })
-  const server = createServer(metaRequestPayload.serverPayload ?? {})
+/** Creates the payload for createRequestOperation */
+const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
+  const request = requestSchema.parse(metaRequestPayload.requestPayload ?? {})
+  const server = serverSchema.parse(metaRequestPayload.serverPayload ?? {})
+  let example = createExampleFromRequest(request, 'example')
+
+  // Overwrite any example properties
+  if (metaRequestPayload.requestExamplePayload)
+    example = requestExampleSchema.parse({
+      ...example,
+      ...metaRequestPayload.requestExamplePayload,
+    })
 
   return {
     request,
+    environment: {},
+    globalCookies: [],
     example,
     server,
+    proxy: metaRequestPayload.proxy,
+    securitySchemes: {},
   }
 }
 
+beforeAll(async () => {
+  // Check whether the proxy-server is running
+  try {
+    const result = await fetch(PROXY_URL)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:proxy-server
+`)
+  }
+
+  // Check whether the void-server is running
+  try {
+    const result = await fetch(VOID_URL)
+
+    if (result.ok) {
+      return
+    }
+  } catch (error) {
+    throw new Error(`
+
+[sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
+
+Try to run it like this:
+
+$ pnpm dev:void-server
+`)
+  }
+})
+
 describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${PROXY_PORT}` },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: PROXY_URL },
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data ?? '').toContain(
+    expect(!error && result.response.data).toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
 
-  it('reaches the echo server *without* the proxy', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+  it('builds a request with a relative server url', async () => {
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `/api` },
+      }),
     )
+    if (e) return
 
-    expect(result?.response?.data).not.toContain('ECONNREFUSED')
-    expect(result?.response?.data).toMatchObject({
+    // Here we mock the origin to make the relative request work
+    vi.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      origin: VOID_URL,
+    })
+    const [error, result] = await requestOperation.sendRequest()
+
+    expect(!error && result.response.data).toMatchObject({
+      method: 'GET',
+      path: '/api',
+      body: '',
+    })
+  })
+
+  it('reaches the echo server *without* the proxy', async () => {
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+      }),
+    )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
+
+    expect(!error && result.response.data).not.toContain('ECONNREFUSED')
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
   })
 
+  // TODO: this doesn't actually hit the proxy due to 127.0.0.1
   it('reaches the echo server *with* the proxy', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        proxy: PROXY_URL,
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
   })
 
   it('replaces variables in urls', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-      requestExamplePayload: {
-        parameters: {
-          path: [
-            createRequestExampleParameter({
-              key: 'path',
-              value: 'example',
-              enabled: true,
-            }),
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: {
+          path: '/{path}',
+          parameters: [
+            {
+              in: 'path',
+              name: 'path',
+            },
           ],
         },
-      },
-    })
+        requestExamplePayload: {
+          parameters: {
+            path: [
+              {
+                key: 'path',
+                value: 'example',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    const result = await sendRequest(request, example, `${server?.url}/{path}`)
-
-    expect(result?.response?.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
     })
   })
 
   it('sends query parameters', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-      requestExamplePayload: {
-        parameters: {
-          query: [
-            createRequestExampleParameter({
-              key: 'foo',
-              value: 'bar',
-              enabled: true,
-            }),
-          ],
+    const [e, requestOperation] = createRequestOperation<{
+      query: { foo: 'bar' }
+    }>(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: 'bar',
+                enabled: true,
+              },
+            ],
+          },
         },
-      },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect((result?.response?.data as any).query).toMatchObject({
+    expect(!error && result.response.data.query).toMatchObject({
       foo: 'bar',
     })
   })
 
   it('merges query parameters', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}?example=parameter` },
-      requestPayload: { path: '' },
-      requestExamplePayload: {
-        parameters: {
-          query: [
-            createRequestExampleParameter({
-              key: 'foo',
-              value: 'bar',
-              enabled: true,
-            }),
-          ],
+    const [e, requestOperation] = createRequestOperation<{
+      query: { example: 'parameter'; foo: 'bar' }
+    }>(
+      createRequestPayload({
+        serverPayload: {
+          url: `${VOID_URL}/api?orange=apple`,
         },
-      },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+        requestPayload: {
+          path: '?example=parameter',
+        },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: 'bar',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data?.query).toStrictEqual({
+    expect(!error && result.response.data.query).toStrictEqual({
       example: 'parameter',
       foo: 'bar',
+      orange: 'apple',
     })
   })
 
-  // it('adds cookies as headers', async () => {
-  //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-  //     requestExamplePayload: {
-  //       parameters: {
-  //         cookies: [
-  //           createRequestExampleParameter({
-  //             key: 'foo',
-  //             value: 'bar',
-  //             enabled: true,
-  //           }),
-  //         ],
-  //       },
-  //     },
-  //   })
+  it('works with no content', async () => {
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `${VOID_URL}/204` },
+      }),
+    )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-  //   const result = await sendRequest(
-  //     request,
-  //     example,
-  //     server?.url + request.path,
-  //   )
-
-  //   expect(result?.response?.data).toMatchObject({
-  //     cookies: {
-  //       foo: 'bar',
-  //     },
-  //   })
-  // })
-
-  // it('merges cookies', async () => {
-  //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-  //     requestExamplePayload: {
-  //       parameters: {
-  //         cookies: [
-  //           createRequestExampleParameter({
-  //             key: 'foo',
-  //             value: 'bar',
-  //             enabled: true,
-  //           }),
-  //           createRequestExampleParameter({
-  //             key: 'another',
-  //             value: 'cookie',
-  //             enabled: true,
-  //           }),
-  //         ],
-  //       },
-  //     },
-  //   })
-
-  //   const result = await sendRequest(
-  //     request,
-  //     example,
-  //     server?.url + request.path,
-  //   )
-
-  //   expect(result?.response?.data).toMatchObject({
-  //     cookies: {
-  //       foo: 'bar',
-  //       another: 'cookie',
-  //     },
-  //   })
-  // })
+    expect(!error && result.response.data).toBe('')
+  })
 
   it('skips the proxy for requests to localhost', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1` },
-      requestPayload: { path: '' },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `http://localhost:${VOID_PORT}/v1` },
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/v1',
     })
   })
 
-  // it('returns error for invalid domain', async () => {
-  //   const { request, example, server } = createRequestExampleServer({
-  //     serverPayload: { url: `http://DOES_NOT_EXIST` },
-  //   })
-
-  //   const result = await sendRequest(
-  //     request,
-  //     example,
-  //     server?.url + request.path,
-  //   )
-
-  //   expect(result?.response?.data?.trim().toLowerCase()).toContain(
-  //     'dial tcp: lookup does_not_exist',
-  //   )
-  // })
-
   it('keeps the trailing slash', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}/v1/` },
-      requestPayload: { path: '' },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `${VOID_URL}/v1/` },
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })
   })
 
-  it('sends a multipart/form-data request', async () => {
-    const { request, example, server } = createRequestExampleServer({
-      serverPayload: { url: `http://127.0.0.1:${ECHO_PORT}` },
-      requestPayload: { path: '', method: 'POST' },
-      requestExamplePayload: {
-        body: {
-          activeBody: 'formData',
-          formData: {
-            encoding: 'form-data',
-            value: [
-              {
-                key: 'name',
-                value: 'John Doe',
-              },
-              {
-                key: 'file',
-                file: new File(['hello'], 'hello.txt', { type: 'text/plain' }),
-              },
-              {
-                key: 'image',
-                file: new File(['hello'], 'hello.png', { type: 'image/png' }),
-                value: 'ignore me',
-              },
-            ],
+  it('sends a multipart/form-data request with string values', async () => {
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '', method: 'post' },
+        requestExamplePayload: {
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                {
+                  key: 'name',
+                  value: 'John Doe',
+                  enabled: true,
+                },
+              ],
+            },
           },
         },
-      },
-    })
-
-    const result = await sendRequest(
-      request,
-      example,
-      server?.url + request.path,
+      }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result?.response?.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
         name: 'John Doe',
+      },
+    })
+  })
+
+  /**
+   * If we pass FormData with a file to fetch(), it seems to switch to a streaming mode and
+   * the void-server doesn't receive the body properly.
+   * It does work on other echo servers such as https://echo.free.beeceptor.com
+   *
+   * It’s not clear to me, whether we need to make the void-server handle that, or
+   * if we should disable the streaming, or
+   * if there’s another way to test this properly.
+   *
+   * - @hanspagel
+   */
+  it.todo('sends a multipart/form-data request with files', async () => {
+    const [e, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '', method: 'post' },
+        requestExamplePayload: {
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                {
+                  key: 'file',
+                  file: new File(['hello'], 'hello.txt', {
+                    type: 'text/plain',
+                  }),
+                  enabled: true,
+                },
+                {
+                  key: 'image',
+                  file: new File(['hello'], 'hello.png', { type: 'image/png' }),
+                  value: 'ignore me',
+                  enabled: true,
+                },
+              ],
+            },
+          },
+        },
+      }),
+    )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
+
+    expect(!error && result.response.data).toMatchObject({
+      method: 'POST',
+      path: '/',
+      body: {
         file: {
           name: 'hello.txt',
           sizeInBytes: 5,

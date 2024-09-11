@@ -108,7 +108,7 @@ export function createParamInstance(param: RequestParameter) {
    * - Need to handle non-string parameters much better
    * - Need to handle unions/array values for schema
    */
-  const value = String(schema.default ?? schema?.examples?.[0] ?? '')
+  const value = String(schema?.default ?? schema?.examples?.[0] ?? '')
 
   return requestExampleParametersSchema.parse({
     ...schema,

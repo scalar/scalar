@@ -20,27 +20,38 @@ const { activeRequest, requestHistory, requestExampleMutators } = useWorkspace()
 const router = useRouter()
 
 /** Use a local copy to prevent mutation of the reactive object */
-const history = computed(() => requestHistory.slice().reverse())
+const history = computed(() =>
+  requestHistory
+    .filter((entry) => entry.request.requestUid === activeRequest.value?.uid)
+    .slice()
+    .reverse(),
+)
 
-/** Generate a user readable URL */
-function getPrettyResponseUrl(rawUrl: string) {
-  const url = new URL(rawUrl)
-  const params = new URLSearchParams(url.search)
+// To be added back in later according to url management
 
-  const scalarUrl = params.get('scalar_url')
-  if (!scalarUrl) return url.href
+// /** Generate a user readable URL */
+// function getPrettyResponseUrl(rawUrl: string) {
+//   const url = new URL(rawUrl)
+//   const params = new URLSearchParams(url.search)
 
-  const scalarUrlParsed = new URL(scalarUrl)
+//   const scalarUrl = params.get('scalar_url')
+//   if (!scalarUrl) return url.href
 
-  return scalarUrlParsed.href
-}
+//   const scalarUrlParsed = new URL(scalarUrl)
+
+//   return scalarUrlParsed.href
+// }
 
 function handleHistoryClick(historicalRequest: RequestEvent) {
+  const workspaceId = router.currentRoute.value.params.workspace
+
   // see if we need to update the topnav
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value?.uid !== historicalRequest.request.requestUid) {
-    router.push(`/request/${historicalRequest.request.requestUid}`)
+    router.push(
+      `/workspace/${workspaceId}/request/${historicalRequest.request.requestUid}`,
+    )
   }
   requestExampleMutators.set({ ...historicalRequest.request })
 }
@@ -72,12 +83,12 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
         :value="index"
         @click="handleHistoryClick(entry)">
         <HttpMethod
-          v-if="entry.response.config.method"
+          v-if="entry.response.method"
           class="text-[11px]"
-          :method="entry.response.config.method" />
+          :method="entry.response.method" />
         <div class="min-w-0">
           <div class="min-w-0 truncate text-c-1">
-            {{ getPrettyResponseUrl(entry.response.config.url ?? '') }}
+            {{ entry.response.path }}
           </div>
         </div>
         <div>{{ formatMs(entry.response.duration) }}</div>
