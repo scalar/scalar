@@ -215,7 +215,7 @@ export const createRequestOperation = <ResponseDataType>({
 
   const urlParams = createFetchQueryParams(example, env)
   const headers = createFetchHeaders(example, env)
-  const { body, contentType } = createFetchBody(request.method, example, env)
+  const { body } = createFetchBody(request.method, example, env)
   // const { cookieParams } = setRequestCookies({
   //   example,
   //   env,
@@ -223,9 +223,6 @@ export const createRequestOperation = <ResponseDataType>({
   //   domain: url.hostname,
   //   proxy,
   // })
-
-  if (contentType && !headers['content-type'])
-    headers['content-type'] = contentType
 
   // Populate all forms of auth to the request segments
   Object.keys(example.auth).forEach((k) => {
@@ -283,23 +280,22 @@ export const createRequestOperation = <ResponseDataType>({
     // Start timer to get response duration
     const startTime = Date.now()
 
-    /** Start building the main URL, we cannot use the URL class here as it does not work with relative servers */
-    let url = serverString + pathString
+    /**
+     * Start building the main URL, we cannot use the URL class here as it does not work with relative servers
+     * Also handles the case of no server
+     */
+    let url = serverString || pathString
 
     // Extract and merge all query params
-    if (
-      serverString &&
-      (!isRelativePath(serverString) || typeof window !== 'undefined')
-    ) {
+    if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
       // Prefix with origin if the path is relative
-      const base = isRelativePath(serverString)
-        ? window.location.origin + serverString
-        : serverString
+      const base = isRelativePath(url) ? window.location.origin + url : url
 
       const serverUrl = new URL(base)
       const _url = new URL(pathString, base)
       const pathSearchParams = new URLSearchParams(pathString)
 
+      // Combines all query params
       _url.search = new URLSearchParams([
         ...serverUrl.searchParams,
         ...pathSearchParams,
@@ -310,7 +306,11 @@ export const createRequestOperation = <ResponseDataType>({
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-    const proxiedUrl = proxy ? `${proxy}?${proxyPath.toString()}` : url
+    const proxiedUrl = shouldUseProxy(proxy, url)
+      ? `${proxy}?${proxyPath.toString()}`
+      : url
+
+    console.log(headers)
 
     try {
       const response = await fetch(proxiedUrl, {

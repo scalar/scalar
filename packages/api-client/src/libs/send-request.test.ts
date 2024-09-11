@@ -142,7 +142,7 @@ describe('sendRequest', () => {
   it('reaches the echo server *with* the proxy', async () => {
     const { sendRequest } = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: VOID_URL },
+        serverPayload: { url: 'https://void.scalar.com' },
         proxy: PROXY_URL,
       }),
     )
@@ -242,6 +242,120 @@ describe('sendRequest', () => {
       example: 'parameter',
       foo: 'bar',
       orange: 'apple',
+    })
+  })
+
+  it('works with no content', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `${VOID_URL}/204` },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toBe('')
+  })
+
+  it('skips the proxy for requests to localhost', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `http://localhost:${VOID_PORT}/v1` },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toMatchObject({
+      method: 'GET',
+      path: '/v1',
+    })
+  })
+
+  it('keeps the trailing slash', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `${VOID_URL}/v1/` },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toMatchObject({
+      method: 'GET',
+      path: '/v1/',
+    })
+  })
+
+  it('sends a multipart/form-data request with string values', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '', method: 'post' },
+        requestExamplePayload: {
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                {
+                  key: 'name',
+                  value: 'John Doe',
+                  enabled: true,
+                },
+              ],
+            },
+          },
+        },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toMatchObject({
+      method: 'POST',
+      path: '/',
+      body: {
+        name: 'John Doe',
+      },
+    })
+  })
+
+  it('sends a multipart/form-data request with files', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: { path: '', method: 'post' },
+        requestExamplePayload: {
+          body: {
+            activeBody: 'formData',
+            formData: {
+              encoding: 'form-data',
+              value: [
+                {
+                  key: 'name',
+                  value: 'John Doe',
+                  enabled: true,
+                },
+              ],
+            },
+          },
+        },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toMatchObject({
+      method: 'POST',
+      path: '/',
+      body: {
+        file: {
+          name: 'hello.txt',
+          sizeInBytes: 5,
+          type: 'text/plain',
+        },
+        image: {
+          name: 'hello.png',
+          sizeInBytes: 5,
+          type: 'image/png',
+        },
+      },
     })
   })
 })
