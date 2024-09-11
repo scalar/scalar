@@ -37,7 +37,7 @@ import type {
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { computed, inject, reactive, ref, toRaw } from 'vue'
+import { computed, inject, reactive, ref } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
@@ -46,6 +46,13 @@ export type UpdateScheme = <P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => void
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Window {
+    dataDump: () => void
+  }
+}
 
 /**
  * Factory for creating the entire store for the api-client
@@ -255,6 +262,23 @@ export const createWorkspaceStore = (
 
   /** This state is to be used by the API Client Modal component to control the modal */
   const modalState = useModal()
+
+  /**
+   * For development, expose this method for debugging our data stores
+   * TODO: remove before 1.0
+   */
+  window.dataDump = () =>
+    console.info({
+      collections,
+      cookies,
+      environments,
+      requestExamples,
+      requests,
+      securitySchemes,
+      servers,
+      tags,
+      workspaces,
+    })
 
   return {
     // ---------------------------------------------------------------------------

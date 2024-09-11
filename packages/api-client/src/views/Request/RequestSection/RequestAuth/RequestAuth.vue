@@ -112,14 +112,6 @@ function unselectAuth(id: string) {
   requestExampleMutators.edit(activeExample.value?.uid, 'auth', auth)
 }
 
-watch(
-  () => schemeOptions.value,
-  () => {
-    console.log(toRaw(schemeOptions.value))
-  },
-  { deep: true, immediate: true },
-)
-
 function handleDeleteScheme(option: { id: string; label: string }) {
   selectedScheme.value = option
   deleteSchemeModal.show()
