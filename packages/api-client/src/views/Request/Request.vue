@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { cancelRequestBus, executeRequestBus } from '@/libs'
+import { ERRORS, cancelRequestBus, executeRequestBus } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -83,7 +83,7 @@ const executeRequest = async () => {
 
 /** Cancel a live request */
 const cancelRequest = async () =>
-  requestAbortController.value?.abort('The request has been cancelled')
+  requestAbortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 onMounted(() => {
   executeRequestBus.on(executeRequest)
