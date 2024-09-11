@@ -57,7 +57,7 @@ const executeRequest = async () => {
 
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
-  const { controller, sendRequest } = createRequestOperation({
+  const [error, requestOperation] = createRequestOperation({
     request: activeRequest.value,
     example: activeExample.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
@@ -67,12 +67,18 @@ const executeRequest = async () => {
     server: activeServer.value,
   })
 
-  requestAbortController.value = controller
-  const result = await sendRequest()
+  // Error from createRequestOperation
+  if (error) {
+    toast(error.message, 'error')
+    return
+  }
 
-  if (result.ok) requestHistory.push(result)
-  // Send toast if error
-  else toast(result.error?.message || 'Send Request Failed', 'error')
+  requestAbortController.value = requestOperation.controller
+  const [sendRequestError, result] = await requestOperation.sendRequest()
+
+  // Send error toast
+  if (sendRequestError) toast(sendRequestError.message, 'error')
+  else requestHistory.push(result)
 }
 
 /** Cancel a live request */

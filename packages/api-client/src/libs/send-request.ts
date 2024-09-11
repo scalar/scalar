@@ -1,3 +1,4 @@
+import { type ErrorResponse, normalizeError } from '@/libs/errors'
 import { requestStatusBus } from '@/libs/event-busses'
 import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
@@ -136,7 +137,6 @@ function createFetchBody(
   example: RequestExample,
   env: object,
 ) {
-  console.log(example)
   if (!canMethodHaveBody(method))
     return { body: undefined, contentType: undefined }
 
@@ -155,16 +155,12 @@ function createFetchBody(
     example.body.formData.value.forEach((entry) => {
       if (!entry.enabled || !entry.key) return
 
-      console.log(entry)
-
       // File upload
-      if (entry.file && form instanceof FormData) {
+      if (entry.file && form instanceof FormData)
         form.append(entry.key, entry.file, entry.file.name)
-      }
       // Text input with variable replacement
-      else if (entry.value !== undefined) {
+      else if (entry.value !== undefined)
         form.append(entry.key, replaceTemplateVariables(entry.value, env))
-      }
     })
     return { body: form, contentType }
   }
@@ -189,11 +185,20 @@ function createFetchBody(
   }
 }
 
+/** Response from sendRequest hoisted so we can use it as the return type for createRequestOperation */
+type SendRequestResponse<ResponseDataType = unknown> = Promise<
+  ErrorResponse<{
+    response: ResponseInstance<ResponseDataType>
+    request: RequestExample
+    timestamp: number
+  }>
+>
+
 /**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-export const createRequestOperation = <ResponseDataType>({
+export const createRequestOperation = <ResponseDataType = unknown>({
   request,
   example,
   server,
@@ -209,178 +214,190 @@ export const createRequestOperation = <ResponseDataType>({
   server?: Server
   securitySchemes: Record<string, SecurityScheme>
   globalCookies: Cookie[]
-}) => {
-  const env = environment ?? {}
-  const controller = new AbortController()
+}): ErrorResponse<{
+  controller: AbortController
+  sendRequest: () => SendRequestResponse<ResponseDataType>
+}> => {
+  try {
+    const env = environment ?? {}
+    const controller = new AbortController()
 
-  /** Parsed and evaluated values for path parameters */
-  const pathVariables = example.parameters.path.reduce<Record<string, string>>(
-    (vars, param) => {
+    /** Parsed and evaluated values for path parameters */
+    const pathVariables = example.parameters.path.reduce<
+      Record<string, string>
+    >((vars, param) => {
       if (param.enabled)
         vars[param.key] = replaceTemplateVariables(param.value, env)
 
       return vars
-    },
-    {},
-  )
+    }, {})
 
-  const serverString = replaceTemplateVariables(server?.url ?? '', env)
-  const pathString = replaceTemplateVariables(request.path, pathVariables)
+    const serverString = replaceTemplateVariables(server?.url ?? '', env)
+    const pathString = replaceTemplateVariables(request.path, pathVariables)
 
-  const urlParams = createFetchQueryParams(example, env)
-  const headers = createFetchHeaders(example, env)
-  const { body } = createFetchBody(request.method, example, env)
-  // const { cookieParams } = setRequestCookies({
-  //   example,
-  //   env,
-  //   globalCookies,
-  //   domain: url.hostname,
-  //   proxy,
-  // })
+    const urlParams = createFetchQueryParams(example, env)
+    const headers = createFetchHeaders(example, env)
+    const { body } = createFetchBody(request.method, example, env)
+    // const { cookieParams } = setRequestCookies({
+    //   example,
+    //   env,
+    //   globalCookies,
+    //   domain: url.hostname,
+    //   proxy,
+    // })
 
-  // Populate all forms of auth to the request segments
-  Object.keys(example.auth).forEach((k) => {
-    const exampleAuth = example.auth[k]
-    const scheme = securitySchemes[k]
-    if (!exampleAuth || !scheme) return
+    // Populate all forms of auth to the request segments
+    Object.keys(example.auth).forEach((k) => {
+      const exampleAuth = example.auth[k]
+      const scheme = securitySchemes[k]
+      if (!exampleAuth || !scheme) return
 
-    // Scheme type and example value type should always match
-    if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
-      const value = replaceTemplateVariables(exampleAuth.value, env)
-      if (scheme.in === 'header') headers[scheme.nameKey] = value
-      if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
-      // if (scheme.in === 'cookie')
-      //   Cookies.set(scheme.nameKey, value, cookieParams)
-    }
-
-    if (scheme.type === 'http' && exampleAuth.type === 'http') {
-      if (scheme.scheme === 'basic') {
-        const username = replaceTemplateVariables(exampleAuth.username, env)
-        const password = replaceTemplateVariables(exampleAuth.password, env)
-        const value = password ? `${username}:${password}` : username
-
-        headers['Authorization'] = `Basic ${btoa(value)}`
-      } else {
-        const value = replaceTemplateVariables(exampleAuth.token, env)
-        headers['Authorization'] = `Bearer ${value}`
+      // Scheme type and example value type should always match
+      if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
+        const value = replaceTemplateVariables(exampleAuth.value, env)
+        if (scheme.in === 'header') headers[scheme.nameKey] = value
+        if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
+        // if (scheme.in === 'cookie')
+        //   Cookies.set(scheme.nameKey, value, cookieParams)
       }
-    }
 
-    // For OAuth we just add the token that was previously generated
-    if (
-      scheme.type === 'oauth2' &&
-      exampleAuth.type.includes('oauth') &&
-      'token' in exampleAuth
-    ) {
-      if (!exampleAuth.token) console.error('OAuth token was not created')
-      headers['Authorization'] = `Bearer ${exampleAuth.token}`
-    }
-  })
+      if (scheme.type === 'http' && exampleAuth.type === 'http') {
+        if (scheme.scheme === 'basic') {
+          const username = replaceTemplateVariables(exampleAuth.username, env)
+          const password = replaceTemplateVariables(exampleAuth.password, env)
+          const value = password ? `${username}:${password}` : username
 
-  const sendRequest = async (): Promise<
-    | {
+          headers['Authorization'] = `Basic ${btoa(value)}`
+        } else {
+          const value = replaceTemplateVariables(exampleAuth.token, env)
+          headers['Authorization'] = `Bearer ${value}`
+        }
+      }
+
+      // For OAuth we just add the token that was previously generated
+      if (
+        scheme.type === 'oauth2' &&
+        exampleAuth.type.includes('oauth') &&
+        'token' in exampleAuth
+      ) {
+        if (!exampleAuth.token) console.error('OAuth token was not created')
+        headers['Authorization'] = `Bearer ${exampleAuth.token}`
+      }
+    })
+
+    const sendRequest = async (): Promise<
+      ErrorResponse<{
         response: ResponseInstance<ResponseDataType>
         request: RequestExample
         timestamp: number
-        ok: true
-      }
-    | {
-        error: Error
-        ok: false
-      }
-  > => {
-    requestStatusBus.emit('start')
+      }>
+    > => {
+      requestStatusBus.emit('start')
 
-    // Start timer to get response duration
-    const startTime = Date.now()
+      // Start timer to get response duration
+      const startTime = Date.now()
 
-    /**
-     * Start building the main URL, we cannot use the URL class here as it does not work with relative servers
-     * Also handles the case of no server
-     */
-    let url = serverString || pathString
+      try {
+        /**
+         * Start building the main URL, we cannot use the URL class here as it does not work with relative servers
+         * Also handles the case of no server
+         */
+        let url = serverString || pathString
 
-    // Extract and merge all query params
-    if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-      /** Prefix the url with the origin if it is relative */
-      const base = isRelativePath(url) ? window.location.origin + url : url
-      const serverUrl = new URL(base)
-      const serverAndPath = server?.url ? new URL(pathString, base) : serverUrl
-      const pathSearchParams = new URLSearchParams(
-        isRelativePath(pathString) ? pathString : '',
-      )
+        // Extract and merge all query params
+        if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
+          /** Prefix the url with the origin if it is relative */
+          const base = isRelativePath(url) ? window.location.origin + url : url
+          const serverUrl = new URL(base)
+          const serverAndPath = server?.url
+            ? new URL(pathString, base)
+            : serverUrl
+          const pathSearchParams = new URLSearchParams(
+            isRelativePath(pathString) ? pathString : '',
+          )
 
-      // Combines all query params
-      serverAndPath.search = new URLSearchParams([
-        ...serverUrl.searchParams,
-        ...pathSearchParams,
-        ...urlParams,
-      ]).toString()
+          // Combines all query params
+          serverAndPath.search = new URLSearchParams([
+            ...serverUrl.searchParams,
+            ...pathSearchParams,
+            ...urlParams,
+          ]).toString()
 
-      url = serverAndPath.toString()
-    }
+          url = serverAndPath.toString()
+        }
 
-    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-    const proxiedUrl = shouldUseProxy(proxy, url)
-      ? `${proxy}?${proxyPath.toString()}`
-      : url
+        const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+        const proxiedUrl = shouldUseProxy(proxy, url)
+          ? `${proxy}?${proxyPath.toString()}`
+          : url
 
-    try {
-      const response = await fetch(proxiedUrl, {
-        signal: controller.signal,
-        method: request.method,
-        body,
-        headers,
-      })
-
-      requestStatusBus.emit('stop')
-
-      const responseHeaders = normalizeHeaders(
-        response.headers,
-        shouldUseProxy(proxy, url),
-      )
-      const responseType =
-        response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
-
-      const responseData = decodeBuffer(
-        await response.arrayBuffer(),
-        responseType,
-      )
-
-      return {
-        ok: true,
-        timestamp: Date.now(),
-        request: example,
-        response: {
-          ...response,
-          headers: responseHeaders,
-          cookieHeaderKeys: response.headers.getSetCookie(),
-          data: responseData,
-          duration: Date.now() - startTime,
+        const response = await fetch(proxiedUrl, {
+          signal: controller.signal,
           method: request.method,
-          status: response.status,
-          path: pathString,
-        },
-      }
-    } catch (e) {
-      requestStatusBus.emit('abort')
-      console.error(e)
+          body,
+          headers,
+        })
 
-      // Normalize other errors
-      let error: Error
-      if (e instanceof Error) error = e
-      else if (typeof e === 'string') error = new Error(e)
-      else error = new Error('An unknown error has occurred')
+        requestStatusBus.emit('stop')
 
-      return {
-        ok: false,
-        error,
+        const responseHeaders = normalizeHeaders(
+          response.headers,
+          shouldUseProxy(proxy, url),
+        )
+        const responseType =
+          response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
+
+        const responseData = decodeBuffer(
+          await response.arrayBuffer(),
+          responseType,
+        )
+
+        return [
+          null,
+          {
+            timestamp: Date.now(),
+            request: example,
+            response: {
+              ...response,
+              headers: responseHeaders,
+              cookieHeaderKeys: response.headers.getSetCookie(),
+              data: responseData,
+              duration: Date.now() - startTime,
+              method: request.method,
+              status: response.status,
+              path: pathString,
+            },
+          },
+        ]
+      } catch (e) {
+        console.error(e)
+        requestStatusBus.emit('abort')
+
+        return [normalizeError(e), null]
       }
     }
-  }
 
-  return {
-    sendRequest,
-    controller,
+    return [
+      null,
+      {
+        sendRequest,
+        controller,
+      },
+    ]
+  } catch (e) {
+    console.error(e)
+    requestStatusBus.emit('abort')
+
+    // Handle this specific error to remind users to re-add files
+    const error =
+      e instanceof TypeError &&
+      e.message ===
+        `Failed to execute 'append' on 'FormData': parameter 2 is not of type 'Blob'.`
+        ? 'File uploads are not saved in history, you must re-upload the file.'
+        : e
+
+    console.log(error)
+
+    return [normalizeError(error), null]
   }
 }

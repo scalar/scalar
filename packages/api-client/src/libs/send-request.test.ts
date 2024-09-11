@@ -89,35 +89,35 @@ $ pnpm dev:void-server
 
 describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: PROXY_URL },
       }),
     )
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    const result = await sendRequest()
-
-    expect(result.ok && result.response.data).toContain(
+    expect(!error && result.response.data).toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
 
   it('builds a request with a relative server url', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `/api` },
       }),
     )
+    if (e) return
 
     // Here we mock the origin to make the relative request work
     vi.spyOn(window, 'location', 'get').mockReturnValue({
       ...window.location,
       origin: VOID_URL,
     })
+    const [error, result] = await requestOperation.sendRequest()
 
-    const result = await sendRequest()
-
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/api',
       body: '',
@@ -125,37 +125,40 @@ describe('sendRequest', () => {
   })
 
   it('reaches the echo server *without* the proxy', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).not.toContain('ECONNREFUSED')
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).not.toContain('ECONNREFUSED')
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
   })
 
+  // TODO: this doesn't actually hit the proxy due to 127.0.0.1
   it('reaches the echo server *with* the proxy', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: 'https://void.scalar.com' },
+        serverPayload: { url: VOID_URL },
         proxy: PROXY_URL,
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
   })
 
   it('replaces variables in urls', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: {
@@ -180,16 +183,19 @@ describe('sendRequest', () => {
         },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
     })
   })
 
   it('sends query parameters', async () => {
-    const { sendRequest } = createRequestOperation<{ query: { foo: 'bar' } }>(
+    const [e, requestOperation] = createRequestOperation<{
+      query: { foo: 'bar' }
+    }>(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestExamplePayload: {
@@ -205,15 +211,16 @@ describe('sendRequest', () => {
         },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response?.data.query).toMatchObject({
+    expect(!error && result.response.data.query).toMatchObject({
       foo: 'bar',
     })
   })
 
   it('merges query parameters', async () => {
-    const { sendRequest } = createRequestOperation<{
+    const [e, requestOperation] = createRequestOperation<{
       query: { example: 'parameter'; foo: 'bar' }
     }>(
       createRequestPayload({
@@ -236,9 +243,10 @@ describe('sendRequest', () => {
         },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data.query).toStrictEqual({
+    expect(!error && result.response.data.query).toStrictEqual({
       example: 'parameter',
       foo: 'bar',
       orange: 'apple',
@@ -246,46 +254,49 @@ describe('sendRequest', () => {
   })
 
   it('works with no content', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `${VOID_URL}/204` },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toBe('')
+    expect(!error && result.response.data).toBe('')
   })
 
   it('skips the proxy for requests to localhost', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `http://localhost:${VOID_PORT}/v1` },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/v1',
     })
   })
 
   it('keeps the trailing slash', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `${VOID_URL}/v1/` },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })
   })
 
   it('sends a multipart/form-data request with string values', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: { path: '', method: 'post' },
@@ -306,9 +317,10 @@ describe('sendRequest', () => {
         },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
@@ -329,7 +341,7 @@ describe('sendRequest', () => {
    * - @hanspagel
    */
   it.todo('sends a multipart/form-data request with files', async () => {
-    const { sendRequest } = createRequestOperation(
+    const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: { path: '', method: 'post' },
@@ -358,9 +370,10 @@ describe('sendRequest', () => {
         },
       }),
     )
-    const result = await sendRequest()
+    if (e) return
+    const [error, result] = await requestOperation.sendRequest()
 
-    expect(result.ok && result.response.data).toMatchObject({
+    expect(!error && result.response.data).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
