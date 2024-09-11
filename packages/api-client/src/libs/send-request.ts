@@ -11,7 +11,11 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { canMethodHaveBody, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import {
+  canMethodHaveBody,
+  isRelativePath,
+  shouldUseProxy,
+} from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MIMEType from 'whatwg-mimetype'
 
@@ -175,7 +179,7 @@ function createFetchBody(
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-export function createRequestOperation({
+export const createRequestOperation = <ResponseDataType>({
   request,
   example,
   server,
@@ -191,7 +195,7 @@ export function createRequestOperation({
   server?: Server
   securitySchemes: Record<string, SecurityScheme>
   globalCookies: Cookie[]
-}) {
+}) => {
   const env = environment ?? {}
   const controller = new AbortController()
 
@@ -206,7 +210,9 @@ export function createRequestOperation({
     {},
   )
 
-  const pathname = replaceTemplateVariables(request.path, pathVariables)
+  const serverString = replaceTemplateVariables(server?.url ?? '', env)
+  const pathString = replaceTemplateVariables(request.path, pathVariables)
+
   const urlParams = createFetchQueryParams(example, env)
   const headers = createFetchHeaders(example, env)
   const { body, contentType } = createFetchBody(request.method, example, env)
@@ -220,11 +226,6 @@ export function createRequestOperation({
 
   if (contentType && !headers['content-type'])
     headers['content-type'] = contentType
-
-  // Allow path only requests, mostly for quick testing in drafts
-  const url = server?.url
-    ? new URL(replaceTemplateVariables(server.url ?? '', env))
-    : new URL(pathname)
 
   // Populate all forms of auth to the request segments
   Object.keys(example.auth).forEach((k) => {
@@ -267,7 +268,7 @@ export function createRequestOperation({
 
   const sendRequest = async (): Promise<
     | {
-        response: ResponseInstance
+        response: ResponseInstance<ResponseDataType>
         request: RequestExample
         timestamp: number
         ok: true
@@ -282,14 +283,37 @@ export function createRequestOperation({
     // Start timer to get response duration
     const startTime = Date.now()
 
-    url.search = urlParams.toString()
-    // Only add the path if we aren't using the raw path aka we have a server
-    if (server?.url) url.pathname = pathname
+    /** Start building the main URL, we cannot use the URL class here as it does not work with relative servers */
+    let url = serverString + pathString
+
+    // Extract and merge all query params
+    if (
+      serverString &&
+      (!isRelativePath(serverString) || typeof window !== 'undefined')
+    ) {
+      // Prefix with origin if the path is relative
+      const base = isRelativePath(serverString)
+        ? window.location.origin + serverString
+        : serverString
+
+      const serverUrl = new URL(base)
+      const _url = new URL(pathString, base)
+      const pathSearchParams = new URLSearchParams(pathString)
+
+      _url.search = new URLSearchParams([
+        ...serverUrl.searchParams,
+        ...pathSearchParams,
+        ...urlParams,
+      ]).toString()
+
+      url = _url.toString()
+    }
+
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-    const _url = proxy ? `${proxy}?${proxyPath.toString()}` : url
+    const proxiedUrl = proxy ? `${proxy}?${proxyPath.toString()}` : url
 
     try {
-      const response = await fetch(_url, {
+      const response = await fetch(proxiedUrl, {
         signal: controller.signal,
         method: request.method,
         body,
@@ -300,7 +324,7 @@ export function createRequestOperation({
 
       const responseHeaders = normalizeHeaders(
         response.headers,
-        shouldUseProxy(proxy, url.origin),
+        shouldUseProxy(proxy, url),
       )
       const responseType =
         response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
@@ -322,7 +346,7 @@ export function createRequestOperation({
           duration: Date.now() - startTime,
           method: request.method,
           status: response.status,
-          path: pathname,
+          path: pathString,
         },
       }
     } catch (e) {

@@ -11,10 +11,12 @@ import {
   requestSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
+const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
+const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload
@@ -50,7 +52,7 @@ const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
 beforeAll(async () => {
   // Check whether the proxy-server is running
   try {
-    const result = await fetch(`http://127.0.0.1:${PROXY_PORT}`)
+    const result = await fetch(PROXY_URL)
 
     if (result.ok) {
       return
@@ -68,7 +70,7 @@ $ pnpm dev:proxy-server
 
   // Check whether the void-server is running
   try {
-    const result = await fetch(`http://127.0.0.1:${VOID_PORT}`)
+    const result = await fetch(VOID_URL)
 
     if (result.ok) {
       return
@@ -89,7 +91,7 @@ describe('sendRequest', () => {
   it('shows a warning when scalar_url is missing', async () => {
     const { sendRequest } = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `http://127.0.0.1:${PROXY_PORT}` },
+        serverPayload: { url: PROXY_URL },
       }),
     )
 
@@ -100,10 +102,32 @@ describe('sendRequest', () => {
     )
   })
 
+  it('builds a request with a relative server url', async () => {
+    const { sendRequest } = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: `/api` },
+      }),
+    )
+
+    // Here we mock the origin to make the relative request work
+    vi.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      origin: VOID_URL,
+    })
+
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data).toMatchObject({
+      method: 'GET',
+      path: '/api',
+      body: '',
+    })
+  })
+
   it('reaches the echo server *without* the proxy', async () => {
     const { sendRequest } = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
+        serverPayload: { url: VOID_URL },
       }),
     )
     const result = await sendRequest()
@@ -118,8 +142,8 @@ describe('sendRequest', () => {
   it('reaches the echo server *with* the proxy', async () => {
     const { sendRequest } = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
-        proxy: `http://127.0.0.1:${PROXY_PORT}`,
+        serverPayload: { url: VOID_URL },
+        proxy: PROXY_URL,
       }),
     )
     const result = await sendRequest()
@@ -133,7 +157,7 @@ describe('sendRequest', () => {
   it('replaces variables in urls', async () => {
     const { sendRequest } = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `http://127.0.0.1:${VOID_PORT}` },
+        serverPayload: { url: VOID_URL },
         requestPayload: {
           path: '/{path}',
           parameters: [
@@ -161,6 +185,63 @@ describe('sendRequest', () => {
     expect(result.ok && result.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
+    })
+  })
+
+  it('sends query parameters', async () => {
+    const { sendRequest } = createRequestOperation<{ query: { foo: 'bar' } }>(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: 'bar',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response?.data.query).toMatchObject({
+      foo: 'bar',
+    })
+  })
+
+  it('merges query parameters', async () => {
+    const { sendRequest } = createRequestOperation<{
+      query: { example: 'parameter'; foo: 'bar' }
+    }>(
+      createRequestPayload({
+        serverPayload: {
+          url: `${VOID_URL}/api?orange=apple`,
+        },
+        requestPayload: {
+          path: '?example=parameter',
+        },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: 'bar',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    const result = await sendRequest()
+
+    expect(result.ok && result.response.data.query).toStrictEqual({
+      example: 'parameter',
+      foo: 'bar',
+      orange: 'apple',
     })
   })
 })
