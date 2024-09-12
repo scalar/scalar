@@ -10,7 +10,7 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/api-client-app"
   },
-  "version": "0.1.36",
+  "version": "0.1.35",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -19,12 +19,12 @@
     "build": "npm run types:check && electron-vite build",
     "build:open": "cd open && vue-tsc --noEmit && vite build",
     "dev": "electron-vite dev",
-    "test": "vitest",
     "dev:open": "cd open && vite",
     "dev:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "electron-vite preview",
+    "test": "vitest",
     "todesktop:build": "npm run build && todesktop build",
     "todesktop:build:ci": "todesktop build",
     "todesktop:release": "todesktop release",
