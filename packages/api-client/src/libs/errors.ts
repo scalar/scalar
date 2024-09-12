@@ -2,6 +2,8 @@
 export const ERRORS = {
   DEFAULT: 'An unknown error has occurred.',
   INVALID_URL: 'The URL seems to be invalid. Try adding a valid URL.',
+  INVALID_HEADER:
+    'There is an invalid header present, please double check your params.',
   MISSING_FILE:
     'File uploads are not saved in history, you must re-upload the file.',
   REQUEST_ABORTED: 'The request has been cancelled',
@@ -46,6 +48,10 @@ export const prettyErrorMessage = (message: string) => {
   // Invalid URL
   if (message === `Failed to construct 'URL': Invalid URL`)
     return ERRORS.INVALID_URL
+
+  // Invalid Header
+  if (message === `Failed to execute 'fetch' on 'Window': Invalid name`)
+    return ERRORS.INVALID_HEADER
 
   return message
 }

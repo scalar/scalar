@@ -21,7 +21,6 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -93,7 +92,7 @@ const selectedAuth = computed(
 function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
   const addNewOption = entries.find((e) => e.payload)
-  const _entries = entries.filter((e) => !e.payload)
+  const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
 
   // Adding new auth
   if (addNewOption?.payload) {
@@ -103,26 +102,27 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
       activeCollection.value.uid,
     )
 
-    _entries.push({ id: scheme.uid, label: '' })
+    _entries.push(scheme.uid)
   }
 
-  // Add the existing auth values back in or create a new entry
+  // Here we grab the keys for auth that doesn't yet exist
+  const newAuth = _entries.filter((uid) => !activeCollection.value!.auth[uid])
+
+  // Create new auth entries for new auth
   collectionMutators.edit(
     activeCollection.value.uid,
     'auth',
-    _entries.reduce<Collection['auth']>((prev, { id }) => {
-      prev[id] =
-        activeCollection.value?.auth[id] ??
-        createSchemeValueSet(securitySchemes[id])
+    newAuth.reduce((prev, uid) => {
+      prev[uid] = createSchemeValueSet(securitySchemes[uid])
       return prev
-    }, {}),
+    }, activeCollection.value.auth),
   )
 
   // Set as selected on request
   requestMutators.edit(
     activeRequest.value.uid,
     'selectedSecuritySchemeUids',
-    _entries.map(({ id }) => id),
+    _entries,
   )
 }
 

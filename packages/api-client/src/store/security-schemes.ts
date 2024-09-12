@@ -74,7 +74,7 @@ export function extendedSecurityDataFactory({
       }
     })
 
-    // Remove the scheme from any examples that use it
+    // Remove the scheme from any collections that use it
     Object.values(collections).forEach((c) => {
       if (scheme.uid in c.auth) {
         const { [scheme.uid]: toDelete, ...rest } = c.auth
@@ -82,8 +82,8 @@ export function extendedSecurityDataFactory({
       }
     })
 
-    // Remove from any requests that have it as a requirement
     Object.values(requests).forEach((r) => {
+      // Remove from any requests that have it as a requirement
       if (r.security?.some((s) => Object.keys(s).includes(scheme.uid))) {
         requestMutators.edit(
           r.uid,
@@ -93,6 +93,13 @@ export function extendedSecurityDataFactory({
           ),
         )
       }
+      // Remove from any requests that have it selected
+      if (r.selectedSecuritySchemeUids.includes(scheme.uid))
+        requestMutators.edit(
+          r.uid,
+          'selectedSecuritySchemeUids',
+          r.selectedSecuritySchemeUids?.filter((uid) => uid !== scheme.uid),
+        )
     })
 
     securitySchemeMutators.delete(scheme.uid)
