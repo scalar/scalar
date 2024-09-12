@@ -191,7 +191,8 @@ const oauthCommon = z.object({
       z.record(z.string(), z.string().optional()),
       z.object({}),
     ])
-    .optional(),
+    .optional()
+    .default({}),
   selectedScopes: z.array(z.string()).optional().default([]),
 })
 

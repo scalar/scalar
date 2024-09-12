@@ -127,12 +127,15 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 }
 
 /** Remove a single auth type from an example */
-function unselectAuth(id: string) {
-  if (!activeCollection.value?.uid) return
-  const { [id]: remove, ...auth } = activeCollection.value.auth
-
-  collectionMutators.edit(activeCollection.value.uid, 'auth', auth)
-}
+const unselectAuth = (unSelectUid: string) =>
+  activeRequest.value &&
+  requestMutators.edit(
+    activeRequest.value.uid,
+    'selectedSecuritySchemeUids',
+    activeRequest.value.selectedSecuritySchemeUids.filter(
+      (uid) => uid !== unSelectUid,
+    ),
+  )
 
 function handleDeleteScheme(option: { id: string; label: string }) {
   selectedScheme.value = option

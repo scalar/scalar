@@ -83,7 +83,7 @@ const handleAuthorize = async () => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="'redirectUri' in scheme.flow">
+    <DataTableRow v-if="'x-scalar-redirect-uri' in scheme.flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         :id="`oauth2-redirect-uri-${scheme.uid}`"
