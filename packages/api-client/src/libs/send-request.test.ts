@@ -88,37 +88,38 @@ $ pnpm dev:void-server
 })
 
 describe('sendRequest', () => {
-  it.only('shows a warning when scalar_url is missing', async () => {
-    const [e, requestOperation] = createRequestOperation(
+  it('shows a warning when scalar_url is missing', async () => {
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: PROXY_URL },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
 
   it('builds a request with a relative server url', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `/api` },
       }),
     )
-    if (e) return
+    if (error) throw error
 
-    // Here we mock the origin to make the relative request work
+    // Mock the origin to make the relative request work
     vi.spyOn(window, 'location', 'get').mockReturnValue({
       ...window.location,
       origin: VOID_URL,
     })
-    const [error, result] = await requestOperation.sendRequest()
+    const [requestError, result] = await requestOperation.sendRequest()
 
-    expect(error).toBe(null)
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/api',
@@ -127,17 +128,18 @@ describe('sendRequest', () => {
   })
 
   it('reaches the echo server *without* the proxy', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).not.toContain('ECONNREFUSED')
-    expect(error).toBe(null)
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
@@ -146,16 +148,17 @@ describe('sendRequest', () => {
 
   // TODO: this doesn't actually hit the proxy due to 127.0.0.1
   it('reaches the echo server *with* the proxy', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         proxy: PROXY_URL,
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
@@ -163,7 +166,7 @@ describe('sendRequest', () => {
   })
 
   it('replaces variables in urls', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: {
@@ -188,10 +191,11 @@ describe('sendRequest', () => {
         },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
@@ -199,7 +203,7 @@ describe('sendRequest', () => {
   })
 
   it('sends query parameters', async () => {
-    const [e, requestOperation] = createRequestOperation<{
+    const [error, requestOperation] = createRequestOperation<{
       query: { foo: 'bar' }
     }>(
       createRequestPayload({
@@ -217,17 +221,18 @@ describe('sendRequest', () => {
         },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data.query).toMatchObject({
       foo: 'bar',
     })
   })
 
   it('merges query parameters', async () => {
-    const [e, requestOperation] = createRequestOperation<{
+    const [error, requestOperation] = createRequestOperation<{
       query: { example: 'parameter'; foo: 'bar' }
     }>(
       createRequestPayload({
@@ -250,10 +255,11 @@ describe('sendRequest', () => {
         },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data.query).toStrictEqual({
       example: 'parameter',
       foo: 'bar',
@@ -262,28 +268,30 @@ describe('sendRequest', () => {
   })
 
   it('works with no content', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `${VOID_URL}/204` },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toBe('')
   })
 
   it('skips the proxy for requests to localhost', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `http://localhost:${VOID_PORT}/v1` },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1',
@@ -291,15 +299,16 @@ describe('sendRequest', () => {
   })
 
   it('keeps the trailing slash', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `${VOID_URL}/v1/` },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1/',
@@ -307,7 +316,7 @@ describe('sendRequest', () => {
   })
 
   it('sends a multipart/form-data request with string values', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: { path: '', method: 'post' },
@@ -328,10 +337,11 @@ describe('sendRequest', () => {
         },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'POST',
       path: '/',
@@ -353,7 +363,7 @@ describe('sendRequest', () => {
    * - @hanspagel
    */
   it.todo('sends a multipart/form-data request with files', async () => {
-    const [e, requestOperation] = createRequestOperation(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestPayload: { path: '', method: 'post' },
@@ -382,10 +392,11 @@ describe('sendRequest', () => {
         },
       }),
     )
-    if (e) return
-    const [error, result] = await requestOperation.sendRequest()
+    if (error) throw error
 
-    expect(error).toBe(null)
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'POST',
       path: '/',
