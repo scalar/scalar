@@ -20,10 +20,10 @@ describe('normalizeRequestMethod', () => {
   })
 
   it('uses GET as the default', async () => {
-    expect(normalizeRequestMethod()).toBe('GET')
+    expect(normalizeRequestMethod()).toBe('get')
   })
 
   it('ignores invalid request methods', async () => {
-    expect(normalizeRequestMethod('fantasy')).toBe('GET')
+    expect(normalizeRequestMethod('fantasy')).toBe('get')
   })
 })
