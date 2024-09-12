@@ -40,9 +40,10 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading) return
   loadingState.startLoading()
 
-  const accessToken = await authorizeOauth2(props.scheme).finally(() =>
-    loadingState.stopLoading(),
-  )
+  const accessToken = await authorizeOauth2(
+    props.scheme,
+    props.example,
+  ).finally(() => loadingState.stopLoading())
 
   if (accessToken)
     securitySchemeMutators.edit(props.scheme.uid, 'token', accessToken)
