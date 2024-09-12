@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.29
+
+### Patch Changes
+
+- c577cde: feat(themes): make base dark mode colors opaque
+
 ## 0.9.28
 
 ### Patch Changes
