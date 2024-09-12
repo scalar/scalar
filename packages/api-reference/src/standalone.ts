@@ -110,8 +110,12 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
     'font-family: monospace;',
   )
 } else {
-  const specOrSpecUrl = getSpec()
-    ? { content: getSpec() }
+  const spec = getSpec()
+  const specOrSpecUrl = spec
+    ? {
+        content: spec,
+        url: getSpecUrl(),
+      }
     : { url: getSpecUrl() }
 
   Object.assign(props, {

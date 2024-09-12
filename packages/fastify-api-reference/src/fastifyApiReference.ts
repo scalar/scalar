@@ -1,4 +1,6 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { openapi } from '@scalar/openapi-parser'
+import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import type { OpenAPI, ReferenceConfiguration } from '@scalar/types/legacy'
 import type {
   FastifyBaseLogger,
   FastifyTypeProviderDefault,
@@ -7,6 +9,7 @@ import type {
   preHandlerHookHandler,
 } from 'fastify'
 import fp from 'fastify-plugin'
+import { slug } from 'github-slugger'
 
 import { getJavaScriptFile } from './utils'
 
@@ -15,7 +18,7 @@ export type FastifyApiReferenceOptions = {
    * If you’re prefixing Fastify with a path, you can set it here.
    * It’ll be added to the JavaScript URL and the route.
    *
-   * Example: ${publicPath}${routePrefix}/@scalar/fastify-api-reference/js/browser.js
+   * Example: `${publicPath}${routePrefix}/@scalar/fastify-api-reference/js/browser.js`
    */
   publicPath?: string
   /**
@@ -23,7 +26,39 @@ export type FastifyApiReferenceOptions = {
    *
    * @default '/reference'
    */
-  routePrefix?: string
+  routePrefix?: `/${string}`
+  /**
+   * Set where the OpenAPI specification is exposed under `${routePrefix}`.
+   *
+   * The specification is always available on these endpoints, parsed by `@scalar/openapi-parser`.
+   *
+   * The specification is sourced from, in order of precedence:
+   * - `configuration.spec.content`
+   * - `configuration.spec.url` – fetched via `@scalar/openapi-parser/plugins/fetch-urls`
+   * - `@fastify/swagger` – if `configuration.spec` is not provided
+   *
+   * These endpoints can be used to fetch the OpenAPI specification for your own programmatic use.
+   *
+   * @default{ json: '/json', yaml: '/yaml' }
+   */
+  openApiSpecEndpoint?: {
+    /**
+     * Set where the OpenAPI specification is exposed under `${routePrefix}`, in JSON format.
+     *
+     * With the default value, the endpoint is: `${publicPath}${routePrefix}/json`
+     *
+     * @default '/json'
+     */
+    json?: `/${string}`
+    /**
+     * Set where the OpenAPI specification is exposed under `${routePrefix}`, in YAML format.
+     *
+     * With the default value, the endpoint is: `${publicPath}${routePrefix}/yaml`
+     *
+     * @default '/yaml'
+     */
+    yaml?: `/${string}`
+  }
   /**
    * The universal configuration object for @scalar/api-reference.
    *
@@ -47,8 +82,16 @@ const schemaToHideRoute = {
   hide: true,
 }
 
+const getRoutePrefix = (routePrefix?: string) => routePrefix ?? '/reference'
+const getOpenApiSpecEndpoint = (
+  openApiSpecEndpoint: FastifyApiReferenceOptions['openApiSpecEndpoint'],
+) => {
+  const { json = '/json', yaml = '/yaml' } = openApiSpecEndpoint ?? {}
+  return { json, yaml }
+}
+
 const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
-  `${publicPath ?? ''}${routePrefix ?? '/reference'}/@scalar/fastify-api-reference/js/browser.js`.replace(
+  `${publicPath ?? ''}${getRoutePrefix(routePrefix)}/@scalar/fastify-api-reference/js/browser.js`.replace(
     /\/\//g,
     '/',
   )
@@ -182,14 +225,35 @@ const fastifyApiReference = fp<
 >(
   async (fastify, options) => {
     let { configuration } = options
-    const hasSwaggerPlugin = fastify.hasPlugin('@fastify/swagger')
+
+    const specSource = (() => {
+      const { content, url } = configuration?.spec ?? {}
+      if (content)
+        return {
+          type: 'content' as const,
+          get: () => {
+            if (typeof content === 'function') return content()
+            return content
+          },
+        }
+      if (url)
+        return {
+          type: 'url' as const,
+          get: () => url,
+        }
+      if (fastify.hasPlugin('@fastify/swagger')) {
+        return {
+          type: 'swagger' as const,
+          get: () => {
+            // @ts-ignore
+            return fastify.swagger() as OpenAPI.Document
+          },
+        }
+      }
+    })()
 
     // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
-    if (
-      !configuration?.spec?.content &&
-      !configuration?.spec?.url &&
-      !hasSwaggerPlugin
-    ) {
+    if (!specSource) {
       fastify.log.warn(
         '[@scalar/fastify-api-reference] You didn’t provide a spec.content or spec.url, and @fastify/swagger could not be found. Please provide one of these options.',
       )
@@ -212,28 +276,82 @@ const fastifyApiReference = fp<
       }
     }
 
+    const getLoadedSpecIfAvailable = () => {
+      return openapi().load(specSource.get(), { plugins: [fetchUrls()] })
+    }
+    const getSpecFilenameSlug = async (
+      loadedSpec: ReturnType<typeof getLoadedSpecIfAvailable>,
+    ) => {
+      const spec = await loadedSpec?.get()
+      // Same GithubSlugger and default file name as in `@scalar/api-reference`, when generating the download
+      return slug(spec?.specification?.info?.title ?? 'spec')
+    }
+
+    const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiSpecEndpoint(options.openApiSpecEndpoint).json}`
+    fastify.route({
+      method: 'GET',
+      url: openApiSpecUrlJson,
+      // @ts-ignore
+      schema: schemaToHideRoute,
+      ...hooks,
+      async handler(_, reply) {
+        const spec = getLoadedSpecIfAvailable()
+        const filename: string = await getSpecFilenameSlug(spec)
+        const json = JSON.parse(await spec.toJson()) // parsing minifies the JSON
+        return reply
+          .header('Content-Type', `application/json`)
+          .header('Content-Disposition', `filename=${filename}.json`)
+          .send(json)
+      },
+    })
+
+    const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiSpecEndpoint(options.openApiSpecEndpoint).yaml}`
+    fastify.route({
+      method: 'GET',
+      url: openApiSpecUrlYaml,
+      // @ts-ignore
+      schema: schemaToHideRoute,
+      ...hooks,
+      async handler(_, reply) {
+        const spec = getLoadedSpecIfAvailable()
+        const filename: string = await getSpecFilenameSlug(spec)
+        const yaml = await spec.toYaml()
+        return reply
+          .header('Content-Type', `application/yaml`)
+          .header('Content-Disposition', `filename=${filename}.yaml`)
+          .send(yaml)
+      },
+    })
+
     // If no theme is passed, use the default theme.
     fastify.route({
       method: 'GET',
-      url: options.routePrefix ?? '/reference',
+      url: getRoutePrefix(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
-        // If nothing is passed, try to use @fastify/swagger
-        if (
-          !configuration?.spec?.content &&
-          !configuration?.spec?.url &&
-          hasSwaggerPlugin
-        ) {
+        // If nothing is passed, spec is sourced from @fastify/swagger, and missing `spec.content` must be set
+        if (specSource.type === 'swagger') {
           configuration = {
             ...configuration,
             spec: {
-              content: () => {
-                // @ts-ignore
-                return fastify.swagger()
-              },
+              content: specSource.get(),
+            },
+          }
+        }
+
+        /**
+         * If no URL is passed, additionally provide the OpenAPI spec endpoint,
+         * to allow the download button to point to the exposed endpoint instead of generating the spec client side
+         */
+        if (specSource.type !== 'url') {
+          configuration = {
+            ...configuration,
+            spec: {
+              ...configuration?.spec,
+              url: openApiSpecUrlJson,
             },
           }
         }

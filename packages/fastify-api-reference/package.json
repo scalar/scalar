@@ -47,15 +47,19 @@
   },
   "devDependencies": {
     "@fastify/basic-auth": "^5.1.1",
+    "@fastify/swagger": "^8.10.1",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/openapi-parser": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
+    "github-slugger": "^2.0.0",
     "magic-string": "^0.30.8",
     "rollup-plugin-node-externals": "^7.1.2",
     "terser": "^5.30.0",
     "vite": "^5.2.10",
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0",
-    "vue": "^3.4.29"
+    "vue": "^3.4.29",
+    "yaml": "^2.5.1"
   }
 }
