@@ -84,7 +84,7 @@ const startDrag = (event: MouseEvent) => {
       @mousedown="startDrag"></div>
   </aside>
 </template>
-<style>
+<style scoped>
 .sidebar-height {
   min-height: calc(100% - 50px);
 }

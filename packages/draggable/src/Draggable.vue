@@ -182,7 +182,7 @@ defineExpose({
   </div>
 </template>
 
-<style>
+<style scoped>
 .dragover-asChild,
 .dragover-above,
 .dragover-below {
