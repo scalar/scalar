@@ -11,14 +11,16 @@ defineProps<
     options: Option[] | OptionGroup[]
     modelValue?: Option[]
     placeholder?: string
+    isDeletable?: boolean
   } & Omit<FloatingOptions, 'middleware'>
 >()
 
 defineEmits<{
   (e: 'update:modelValue', v: Option[]): void
+  (e: 'delete', option: Option): void
 }>()
 
-/** Propogate up the popover ref */
+/** Propagate up the popover ref */
 const comboboxPopoverRef = ref<typeof ComboboxPopover | null>(null)
 
 defineExpose({ comboboxPopoverRef })
@@ -32,13 +34,23 @@ defineExpose({ comboboxPopoverRef })
     :teleport="teleport">
     <slot />
     <template #popover="{ open }">
-      <ComboboxOptions
-        :modelValue="modelValue"
-        multiselect
-        :open="open"
-        :options="options"
-        :placeholder="placeholder"
-        @update:modelValue="(v) => $emit('update:modelValue', v)" />
+      <div class="divide-1 divide-y">
+        <ComboboxOptions
+          v-if="options && options.length"
+          :isDeletable="isDeletable"
+          :modelValue="modelValue"
+          multiselect
+          :open="open"
+          :options="options"
+          :placeholder="placeholder"
+          @delete="(option: Option) => $emit('delete', option)"
+          @update:modelValue="(v) => $emit('update:modelValue', v)" />
+        <div
+          v-if="$slots.actions"
+          class="p-0.75">
+          <slot name="actions" />
+        </div>
+      </div>
     </template>
   </ComboboxPopover>
 </template>
