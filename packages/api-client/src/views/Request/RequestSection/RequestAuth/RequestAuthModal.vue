@@ -46,12 +46,12 @@ const authTypes = computed(() =>
   })),
 )
 
-const subOptions = computed(() => {
-  const selectedType = ADD_AUTH_OPTIONS.find(
-    (option) => option.label === newScheme.value?.label,
-  )
-  return selectedType ? selectedType.options : []
-})
+// const subOptions = computed(() => {
+//   const selectedType = ADD_AUTH_OPTIONS.find(
+//     (option) => option.label === newScheme.value?.label,
+//   )
+//   return selectedType ? selectedType.options : []
+// })
 
 const addNewScheme = () => {
   if (!newScheme.value || !newFlow.value) {
@@ -137,22 +137,22 @@ const setPlaceholder = () => {
         </ScalarButton>
       </ScalarListbox>
       <div v-if="newScheme">
-        <ScalarListbox
-          v-model="newFlow"
-          :options="subOptions"
-          resize>
-          <ScalarButton
-            class="p-3 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
-            variant="outlined">
-            <span :class="newFlow ? 'text-c-1' : 'text-c-3'">
-              {{ newFlow ? newFlow.label : setPlaceholder() }}
-            </span>
-            <ScalarIcon
-              class="ml-auto text-c-3"
-              icon="ChevronDown"
-              size="xs" />
-          </ScalarButton>
-        </ScalarListbox>
+        <!-- <ScalarListbox -->
+        <!--   v-model="newFlow" -->
+        <!--   :options="subOptions" -->
+        <!--   resize> -->
+        <!--   <ScalarButton -->
+        <!--     class="p-3 max-h-8 w-full gap-1 text-xs hover:bg-b-2" -->
+        <!--     variant="outlined"> -->
+        <!--     <span :class="newFlow ? 'text-c-1' : 'text-c-3'"> -->
+        <!--       {{ newFlow ? newFlow.label : setPlaceholder() }} -->
+        <!--     </span> -->
+        <!--     <ScalarIcon -->
+        <!--       class="ml-auto text-c-3" -->
+        <!--       icon="ChevronDown" -->
+        <!--       size="xs" /> -->
+        <!--   </ScalarButton> -->
+        <!-- </ScalarListbox> -->
       </div>
       <div class="flex justify-between">
         <ScalarButton
