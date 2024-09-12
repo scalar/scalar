@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { stringify } from 'yaml'
 
 import { getEntrypoint } from '../getEntrypoint'
@@ -7,7 +7,14 @@ import { load } from './load'
 import { fetchUrls } from './plugins/fetchUrls'
 import { readFiles } from './plugins/readFiles'
 
+global.fetch = vi.fn()
+
 describe('load', async () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('loads JS object', async () => {
     const { filesystem } = await load(
       {
@@ -137,18 +144,18 @@ describe('load', async () => {
   })
 
   it('loads url', async () => {
-    global.fetch = async () =>
-      ({
-        text: async () =>
-          stringify({
-            openapi: '3.1.0',
-            info: {
-              title: 'Hello World',
-              version: '1.0.0',
-            },
-            paths: {},
-          }),
-      }) as Response
+    // @ts-expect-error
+    fetch.mockResolvedValue({
+      text: async () =>
+        stringify({
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {},
+        }),
+    })
 
     const { filesystem } = await load('https://example.com/openapi.yaml', {
       plugins: [readFiles(), fetchUrls()],
@@ -166,9 +173,10 @@ describe('load', async () => {
 
   it('handles failed requests', async () => {
     // Failed request
-    global.fetch = async () => {
-      throw new TypeError('fetch failed')
-    }
+    // @ts-expect-error
+    fetch.mockImplementation(() => {
+      throw new TypeError('[load.test.ts] fetch failed')
+    })
 
     const { filesystem } = await load(
       {
@@ -209,10 +217,10 @@ describe('load', async () => {
   })
 
   it('limits the number of requests', async () => {
-    global.fetch = async () =>
-      ({
-        text: async () => 'FOOBAR',
-      }) as unknown as Response
+    // @ts-expect-error
+    fetch.mockResolvedValue({
+      text: async () => 'FOOBAR',
+    })
 
     const { filesystem } = await load(
       {
@@ -250,27 +258,30 @@ describe('load', async () => {
   })
 
   it('loads referenced urls', async () => {
-    global.fetch = async (url: string) => {
+    // @ts-expect-error
+    fetch.mockImplementation((url: string) => {
       if (url === 'https://example.com/openapi.yaml') {
-        return {
-          text: async () =>
-            stringify({
-              openapi: '3.1.0',
-              info: {
-                title: 'Hello World',
-                version: '1.0.0',
-              },
-              paths: {
-                '/foobar': {
-                  post: {
-                    requestBody: {
-                      $ref: 'https://example.com/foobar.json',
+        return Promise.resolve({
+          text: () =>
+            Promise.resolve(
+              stringify({
+                openapi: '3.1.0',
+                info: {
+                  title: 'Hello World',
+                  version: '1.0.0',
+                },
+                paths: {
+                  '/foobar': {
+                    post: {
+                      requestBody: {
+                        $ref: 'https://example.com/foobar.json',
+                      },
                     },
                   },
                 },
-              },
-            }),
-        } as Response
+              }),
+            ),
+        } as Response)
       }
 
       if (url === 'https://example.com/foobar.json') {
@@ -288,7 +299,7 @@ describe('load', async () => {
             }),
         } as Response
       }
-    }
+    })
 
     const { filesystem } = await load('https://example.com/openapi.yaml', {
       plugins: [readFiles(), fetchUrls()],
@@ -324,21 +335,20 @@ describe('load', async () => {
   })
 
   it('loads string with url reference', async () => {
-    global.fetch = async () => {
-      return {
-        text: async () =>
-          JSON.stringify({
-            content: {
-              'application/json': {
-                schema: {
-                  type: 'string',
-                  example: 'foobar',
-                },
+    // @ts-expect-error
+    fetch.mockResolvedValue({
+      text: async () =>
+        JSON.stringify({
+          content: {
+            'application/json': {
+              schema: {
+                type: 'string',
+                example: 'foobar',
               },
             },
-          }),
-      } as Response
-    }
+          },
+        }),
+    })
 
     const { filesystem } = await load(
       stringify({
