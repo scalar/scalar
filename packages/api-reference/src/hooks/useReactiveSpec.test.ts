@@ -1,6 +1,6 @@
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/legacy'
-import { describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
 import { useReactiveSpec } from './useReactiveSpec'
@@ -13,7 +13,14 @@ const basicSpec = {
 
 const basicSpecString = JSON.stringify(basicSpec)
 
+global.fetch = vi.fn()
+
 describe('useReactiveSpec', () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   test('returns the content', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
@@ -76,8 +83,6 @@ describe('useReactiveSpec', () => {
 
     expect(rawSpec.value).toBe(basicSpecString)
   })
-
-  global.fetch = vi.fn()
 
   function createFetchResponse(data: string) {
     return { text: () => new Promise((resolve) => resolve(data)) }
