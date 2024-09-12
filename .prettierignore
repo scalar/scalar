@@ -18,7 +18,7 @@ pnpm-lock.yaml
 .changeset/*.md
 cdn
 
-fixtures
+
 .vite-ssg-temp
 .next
 
