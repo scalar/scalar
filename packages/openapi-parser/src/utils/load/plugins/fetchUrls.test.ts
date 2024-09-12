@@ -1,6 +1,8 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { fetchUrls } from './fetchUrls'
+
+global.fetch = vi.fn()
 
 describe('fetchUrls', async () => {
   it('returns true for an url', async () => {
@@ -26,16 +28,16 @@ describe('fetchUrls', async () => {
   })
 
   it('fetches the URL', async () => {
-    global.fetch = async (url: string) =>
-      ({
-        text: async () => {
-          if (url === 'http://example.com/specification/openapi.yaml') {
-            return 'OK'
-          }
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => ({
+      text: async () => {
+        if (url === 'http://example.com/specification/openapi.yaml') {
+          return 'OK'
+        }
 
-          throw new Error('Not found')
-        },
-      }) as Response
+        throw new Error('Not found')
+      },
+    }))
 
     expect(
       await fetchUrls().get('http://example.com/specification/openapi.yaml'),
@@ -43,16 +45,15 @@ describe('fetchUrls', async () => {
   })
 
   it('rewrites the URL', async () => {
-    global.fetch = async (url: string) =>
-      ({
-        text: async () => {
-          if (url === 'http://foobar.com/specification/openapi.yaml') {
-            return 'OK'
-          }
-
-          throw new Error('Not found')
-        },
-      }) as Response
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => ({
+      text: async () => {
+        if (url === 'http://foobar.com/specification/openapi.yaml') {
+          return 'OK'
+        }
+        throw new Error('Not found')
+      },
+    }))
 
     expect(
       await fetchUrls({

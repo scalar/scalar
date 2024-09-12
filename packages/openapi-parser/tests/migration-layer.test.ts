@@ -1,12 +1,14 @@
 // import OriginalSwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load'
 import { fetchUrls } from '../src/utils/load/plugins/fetchUrls'
 import { readFiles } from '../src/utils/load/plugins/readFiles'
 import { validate } from '../src/utils/validate'
+
+global.fetch = vi.fn()
 
 const myAPI = JSON.stringify({
   openapi: '3.1.0',
@@ -101,16 +103,16 @@ describe('dereference', () => {
   })
 
   it('dereferences URLs', async () => {
-    global.fetch = async (url: string) =>
-      ({
-        text: async () => {
-          if (url === 'http://example.com/specification/openapi.yaml') {
-            return myAPI
-          }
+    // @ts-expect-error
+    fetch.mockImplementation(async (url: string) => ({
+      text: async () => {
+        if (url === 'http://example.com/specification/openapi.yaml') {
+          return myAPI
+        }
 
-          throw new Error('Not found')
-        },
-      }) as Response
+        throw new Error('Not found')
+      },
+    }))
 
     const api = await SwaggerParser.dereference(
       'http://example.com/specification/openapi.yaml',
