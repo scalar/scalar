@@ -39,6 +39,7 @@ const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
     })
 
   return {
+    auth: {},
     request,
     environment: {},
     globalCookies: [],

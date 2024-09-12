@@ -47,6 +47,13 @@ export type UpdateScheme = <P extends Path<SecurityScheme>>(
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => void
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Window {
+    dataDump: () => void
+  }
+}
+
 /**
  * Factory for creating the entire store for the api-client
  * This should be injected once per app instance
@@ -255,6 +262,21 @@ export const createWorkspaceStore = (
 
   /** This state is to be used by the API Client Modal component to control the modal */
   const modalState = useModal()
+
+  /**
+   * For development, expose this method for debugging our data stores
+   */
+  window.dataDump = () => ({
+    collections: toRaw(collections),
+    cookies: toRaw(cookies),
+    environments: toRaw(environments),
+    requestExamples: toRaw(requestExamples),
+    requests: toRaw(requests),
+    securitySchemes: toRaw(securitySchemes),
+    servers: toRaw(servers),
+    tags: toRaw(tags),
+    workspaces: toRaw(workspaces),
+  })
 
   return {
     // ---------------------------------------------------------------------------

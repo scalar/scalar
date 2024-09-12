@@ -1,5 +1,4 @@
 import { nanoidSchema } from '@/entities/shared'
-import { securitySchemeExampleValueSchema } from '@/entities/spec/security'
 import { getRequestBodyFromOperation } from '@/spec-getters'
 import { z } from 'zod'
 
@@ -82,13 +81,6 @@ export const requestExampleSchema = z.object({
     })
     .optional()
     .default({}),
-  /**
-   * Map of security schemas to their value sets
-   *
-   * For each selected security schema we should have an entry here
-   * The entry will contain the secret values (but not the schema definition)
-   */
-  auth: z.record(nanoidSchema, securitySchemeExampleValueSchema).default({}),
 })
 
 /** A single set 23of params for a request example */

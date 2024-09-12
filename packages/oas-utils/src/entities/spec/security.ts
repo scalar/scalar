@@ -3,10 +3,11 @@ import { z } from 'zod'
 import { nanoidSchema } from '../shared'
 
 // ---------------------------------------------------------------------------
-// Request example values for Security Schemes
+// Collection values for Security Schemes
 
 const apiKeyExampleSchema = z.object({
-  type: z.literal('apiKey'),
+  type: z.literal('apiKey').default('apiKey'),
+  name: z.string().default(''),
   value: z.string().default(''),
 })
 
@@ -18,12 +19,12 @@ const httpExampleSchema = z.object({
 })
 
 const oauthImplicitExampleSchema = z.object({
-  type: z.literal('oauth-implicit'),
+  type: z.literal('oauth-implicit').default('oauth-implicit'),
   token: z.string().default(''),
 })
 
 const oauthPasswordExampleSchema = z.object({
-  type: z.literal('oauth-password'),
+  type: z.literal('oauth-password').default('oauth-password'),
   token: z.string().default(''),
   username: z.string().default(''),
   password: z.string().default(''),
@@ -31,13 +32,13 @@ const oauthPasswordExampleSchema = z.object({
 })
 
 const oauthClientCredentialsExampleSchema = z.object({
-  type: z.literal('oauth-clientCredentials'),
+  type: z.literal('oauth-clientCredentials').default('oauth-clientCredentials'),
   token: z.string().default(''),
   clientSecret: z.string().default(''),
 })
 
 const oauthAuthorizationCodeExampleSchema = z.object({
-  type: z.literal('oauth-authorizationCode'),
+  type: z.literal('oauth-authorizationCode').default('oauth-authorizationCode'),
   token: z.string().default(''),
   clientSecret: z.string().default(''),
 })
@@ -61,6 +62,8 @@ export type SecuritySchemeExampleValue = z.infer<
 
 /**
  * Generates a base set of example data for a given securityScheme
+ *
+ * TODO: we can probably remove this unless we really want to keep it separate
  */
 export function authExampleFromSchema(
   scheme: SecurityScheme,
@@ -282,3 +285,4 @@ export const securitySchemeSchema = z.union([
  * @see https://spec.openapis.org/oas/latest.html#security-scheme-object
  */
 export type SecurityScheme = z.infer<typeof securitySchemeSchema>
+export type SecuritySchemePayload = z.input<typeof securitySchemeSchema>

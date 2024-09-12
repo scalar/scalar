@@ -33,3 +33,4 @@ export const oasParameterSchema = z.object({
 }) satisfies ZodSchema<OpenAPI.Parameter>
 
 export type RequestParameter = z.infer<typeof oasParameterSchema>
+export type RequestParameterPayload = z.input<typeof oasParameterSchema>
