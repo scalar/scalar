@@ -282,3 +282,4 @@ export const securitySchemeSchema = z.union([
  * @see https://spec.openapis.org/oas/latest.html#security-scheme-object
  */
 export type SecurityScheme = z.infer<typeof securitySchemeSchema>
+export type SecuritySchemePayload = z.input<typeof securitySchemeSchema>

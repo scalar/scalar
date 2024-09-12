@@ -1,4 +1,5 @@
 import { nanoidSchema } from '@/entities/shared'
+import { securitySchemeExampleValueSchema } from '@/entities/spec/security'
 import { z } from 'zod'
 
 import { oasSecurityRequirementSchema } from './security'
@@ -52,6 +53,13 @@ export const extendedCollectionSchema = z.object({
   tags: nanoidSchema.array().default([]),
   /** List of requests without tags and top level tag "folders" */
   children: nanoidSchema.array().default([]),
+  /**
+   * Map of security schemas to their value sets
+   *
+   * For each selected security schema we should have an entry here
+   * The entry will contain the secret values (but not the schema definition)
+   */
+  auth: z.record(nanoidSchema, securitySchemeExampleValueSchema).default({}),
 })
 
 export const collectionSchema = oasCollectionSchema.merge(

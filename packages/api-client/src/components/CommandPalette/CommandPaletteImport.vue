@@ -25,6 +25,7 @@ const { open: openSpecFileDialog } = useFileDialog({
           toast('Import successful', 'info')
           emits('close')
         } catch (error) {
+          console.error(error)
           const errorMessage = (error as Error)?.message || 'Unknown error'
           toast(`Import failed: ${errorMessage}`, 'error')
         }

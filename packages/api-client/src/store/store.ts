@@ -37,7 +37,7 @@ import type {
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { computed, inject, reactive, ref } from 'vue'
+import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
@@ -265,20 +265,18 @@ export const createWorkspaceStore = (
 
   /**
    * For development, expose this method for debugging our data stores
-   * TODO: remove before 1.0
    */
-  window.dataDump = () =>
-    console.info({
-      collections,
-      cookies,
-      environments,
-      requestExamples,
-      requests,
-      securitySchemes,
-      servers,
-      tags,
-      workspaces,
-    })
+  window.dataDump = () => ({
+    collections: toRaw(collections),
+    cookies: toRaw(cookies),
+    environments: toRaw(environments),
+    requestExamples: toRaw(requestExamples),
+    requests: toRaw(requests),
+    securitySchemes: toRaw(securitySchemes),
+    servers: toRaw(servers),
+    tags: toRaw(tags),
+    workspaces: toRaw(workspaces),
+  })
 
   return {
     // ---------------------------------------------------------------------------

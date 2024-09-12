@@ -1,6 +1,7 @@
 export type Option = {
   id: string
   label: string
+  isDeletable?: boolean
   [x: string]: any
 }
 

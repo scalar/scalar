@@ -7,20 +7,24 @@ import {
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import {
+  ADD_AUTH_OPTIONS,
+  type SecuritySchemeGroup,
+  type SecuritySchemeOption,
+} from '@/views/Request/consts'
+import {
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
   useModal,
 } from '@scalar/components'
 import {
-  type RequestExample,
+  type Collection,
   type SecurityScheme,
   securitySchemeExampleValueSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { computed, ref, toRaw, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
-import RequestAuthModal from './RequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
 defineProps<{
@@ -30,14 +34,12 @@ defineProps<{
 const {
   activeCollection,
   activeRequest,
-  activeExample,
+  collectionMutators,
   isReadOnly,
-  requestExampleMutators,
   securitySchemes,
 } = useWorkspace()
 
 const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
-const securitySchemeModal = useModal()
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
@@ -50,8 +52,8 @@ const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
  */
 const availableSchemes = computed(() => {
   const base =
-    isReadOnly.value && activeRequest.value?.security.length
-      ? activeRequest.value.security
+    isReadOnly.value && activeRequest.value?.security?.length
+      ? activeRequest.value.security.map((s) => Object.keys(s)[0])
       : activeCollection.value?.securitySchemes
 
   return (base ?? []).map((s) => securitySchemes[s])
@@ -66,13 +68,28 @@ function displaySchemeFormatter(s: SecurityScheme) {
 }
 
 /** Display formatted options for a user to select from */
-const schemeOptions = computed(() =>
-  availableSchemes.value.map((s) => displaySchemeFormatter(s)),
+const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
+  () => {
+    const availableFormatted = availableSchemes.value.map((s) =>
+      displaySchemeFormatter(s),
+    )
+
+    // Read only mode we don't want to add new auth
+    if (isReadOnly.value) return availableFormatted
+
+    return [
+      { label: 'Select auth', options: availableFormatted },
+      {
+        label: 'Add new auth',
+        options: ADD_AUTH_OPTIONS,
+      },
+    ]
+  },
 )
 
-/** Currently selected auth schemes on the example */
+/** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  Object.keys(activeExample.value?.auth ?? {}).map((k) =>
+  Object.keys(activeCollection.value?.auth ?? {}).map((k) =>
     displaySchemeFormatter(securitySchemes[k]),
   ),
 )
@@ -90,26 +107,27 @@ function createSchemeValueSet(scheme: SecurityScheme) {
 
 /** Update the selected auth types */
 function updateSelectedAuth(entries: { id: string }[]) {
-  if (!activeExample.value?.uid) return
+  if (!activeCollection.value?.uid) return
 
-  const auth: RequestExample['auth'] = {}
+  const auth: Collection['auth'] = {}
 
   // Add the existing auth values back in or create a new entry
   entries.forEach(({ id }) => {
     auth[id] =
-      activeExample.value?.auth[id] ?? createSchemeValueSet(securitySchemes[id])
+      activeCollection.value?.auth[id] ??
+      createSchemeValueSet(securitySchemes[id])
   })
 
-  requestExampleMutators.edit(activeExample.value?.uid, 'auth', auth)
+  collectionMutators.edit(activeCollection.value.uid, 'auth', auth)
 }
 
 /** Remove a single auth type from an example */
 function unselectAuth(id: string) {
-  if (!activeExample.value?.uid) return
+  if (!activeCollection.value?.uid) return
 
-  const { [id]: remove, ...auth } = activeExample.value.auth
+  const { [id]: remove, ...auth } = activeCollection.value.auth
 
-  requestExampleMutators.edit(activeExample.value?.uid, 'auth', auth)
+  collectionMutators.edit(activeCollection.value.uid, 'auth', auth)
 }
 
 function handleDeleteScheme(option: { id: string; label: string }) {
@@ -182,31 +200,11 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                   icon="ChevronDown"
                   size="xs" />
               </ScalarButton>
-              <template
-                v-if="!isReadOnly"
-                #actions>
-                <ScalarButton
-                  class="gap-1.5 font-normal h-auto justify-start px-2 py-1.5 text-c-1 text-xs hover:bg-b-2"
-                  fullWidth
-                  variant="ghost"
-                  @click="securitySchemeModal.show()">
-                  <div class="flex items-center justify-center p-0.75 h-4 w-4">
-                    <ScalarIcon
-                      icon="Add"
-                      thickness="3" />
-                  </div>
-                  Add Security Scheme
-                </ScalarButton>
-              </template>
             </ScalarComboboxMultiselect>
           </DataTableHeader>
         </DataTableRow>
         <RequestExampleAuth />
       </DataTable>
-      <RequestAuthModal
-        :state="securitySchemeModal"
-        @close="securitySchemeModal.hide()"
-        @submit="updateSelectedAuth([...selectedAuth, { id: $event }])" />
       <DeleteRequestAuthModal
         :scheme="selectedScheme"
         :state="deleteSchemeModal"
