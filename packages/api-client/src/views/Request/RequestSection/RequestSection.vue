@@ -36,7 +36,7 @@ const sections = computed(() => {
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () => isReadOnly.value && activeRequest.value?.security.length === 0,
+  () => isReadOnly.value && activeRequest.value?.security?.length === 0,
 )
 
 type ActiveSections = (typeof sections.value)[number]
