@@ -1,25 +1,30 @@
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
+import type {
+  SecuritySchemeOauth2,
+  SecuritySchemeOauth2ExampleValue,
+} from '@scalar/oas-utils/entities/spec'
 
 /**
  * Authorize oauth2 flow
  *
  * @returns the accessToken
  */
-export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
+export const authorizeOauth2 = (
+  scheme: SecuritySchemeOauth2,
+  example: SecuritySchemeOauth2ExampleValue,
+) =>
   new Promise<string>((resolve, reject) => {
+    const scopes = scheme.flow.selectedScopes.join(' ')
+
     // Client Credentials or Password Flow
     if (
       scheme.flow.type === 'clientCredentials' ||
       scheme.flow.type === 'password'
     ) {
-      authorizeServers(scheme).then(resolve).catch(reject)
+      authorizeServers(scheme, example, scopes).then(resolve).catch(reject)
     }
 
     // OAuth2 flows with a login popup
     else {
-      const scopes = scheme.flow.scopes
-        ? Object.keys(scheme.flow.scopes).join(' ')
-        : ''
       const state = (Math.random() + 1).toString(36).substring(7)
       const url = new URL(scheme.flow.authorizationUrl)
 
@@ -69,7 +74,9 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
 
             // Authorization Code Server Flow
             else if (code) {
-              authorizeServers(scheme, code).then(resolve).catch(reject)
+              authorizeServers(scheme, example, code)
+                .then(resolve)
+                .catch(reject)
             }
             // User closed window without authorizing
             else {
@@ -84,30 +91,32 @@ export const authorizeOauth2 = (scheme: SecuritySchemeOauth2) =>
     }
   })
 
+// We don't want imlicit here
+type SecuritySchemeOauth2NoExplicit = Omit<SecuritySchemeOauth2, 'flow'> & {
+  flow: Exclude<SecuritySchemeOauth2['flow'], { type: 'implicit' }>
+}
+
 /**
  * Makes the BE authorization call to grab the token server to server
  * Used for clientCredentials and authorizationCode
  */
 export const authorizeServers = async (
-  scheme: SecuritySchemeOauth2,
+  scheme: SecuritySchemeOauth2NoExplicit,
+  example: SecuritySchemeOauth2ExampleValue,
+  scopes: string,
   code?: string,
 ): Promise<string> => {
-  if (!('clientSecret' in scheme.flow))
+  if (!('clientSecret' in example))
     throw new Error(
       'Authorize Servers only works for Client Credentials or Authorization Code flow',
     )
   if (!scheme.flow) throw new Error('OAuth2 flow was not defined')
 
-  const scopes = scheme.flow.scopes
-    ? Object.keys(scheme.flow.scopes).join(' ')
-    : ''
-
   const formData = new URLSearchParams()
   formData.set('client_id', scheme['x-scalar-client-id'])
   formData.set('scope', scopes)
 
-  if (scheme.flow.clientSecret)
-    formData.set('client_secret', scheme.flow.clientSecret as string)
+  if (example.clientSecret) formData.set('client_secret', example.clientSecret)
   if ('x-scalar-redirect-uri' in scheme.flow)
     formData.set('redirect_uri', scheme.flow['x-scalar-redirect-uri'])
 
@@ -117,10 +126,10 @@ export const authorizeServers = async (
     formData.set('grant_type', 'authorization_code')
   }
   // Password
-  if (scheme.flow.type === 'password') {
+  if (example.type === 'oauth-password') {
     formData.set('grant_type', 'password')
-    formData.set('username', scheme.flow.username)
-    formData.set('password', scheme.flow.password)
+    formData.set('username', example.username)
+    formData.set('password', example.password)
   }
   // Client Credentials
   else {
@@ -133,22 +142,15 @@ export const authorizeServers = async (
     }
 
     // Add client id + secret to headers
-    if (scheme['x-scalar-client-id'] && scheme.flow.clientSecret)
-      headers.Authorization = `Basic ${btoa(`${scheme['x-scalar-client-id']}:${scheme.flow.clientSecret}`)}`
+    if (scheme['x-scalar-client-id'] && example.clientSecret)
+      headers.Authorization = `Basic ${btoa(`${scheme['x-scalar-client-id']}:${example.clientSecret}`)}`
 
     // Make the call
-    const resp = await fetch(
-      ['authorizationCode', 'clientCredentials', 'password'].includes(
-        scheme.flow.type,
-      )
-        ? scheme.flow.tokenUrl
-        : '',
-      {
-        method: 'POST',
-        headers,
-        body: formData,
-      },
-    )
+    const resp = await fetch(scheme.flow.tokenUrl, {
+      method: 'POST',
+      headers,
+      body: formData,
+    })
     const { access_token } = await resp.json()
     return access_token
   } catch {

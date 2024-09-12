@@ -60,6 +60,12 @@ export type SecuritySchemeExampleValue = z.infer<
   typeof securitySchemeExampleValueSchema
 >
 
+/** The example values for the oauth2 schemes */
+export type SecuritySchemeOauth2ExampleValue = Extract<
+  SecuritySchemeExampleValue,
+  { type: `oauth-${string}` }
+>
+
 /**
  * Generates a base set of example data for a given securityScheme
  *

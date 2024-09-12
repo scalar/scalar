@@ -123,7 +123,7 @@ export async function importSpecToWorkspace(
               nameKey as string,
             )
           : {
-              ...security,
+              ...s,
               nameKey,
             },
         securitySchemeSchema,
