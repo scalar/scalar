@@ -18,20 +18,27 @@ import {
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
-import MIMEType from 'whatwg-mimetype'
+import MimeTypeParser from 'whatwg-mimetype'
 
 /** Decode the buffer according to its content-type */
-function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
-  const type = new MIMEType(contentType)
-  if (textMediaTypes.includes(type.essence)) {
-    const decoder = new TextDecoder(type.parameters.get('charset'))
-    const str = decoder.decode(buffer)
+function decodeBuffer(buffer: ArrayBuffer, contentType: string): unknown {
+  const mimeType = new MimeTypeParser(contentType)
 
-    if (type.subtype === 'json') return JSON.parse(str)
-    return str
-  } else {
-    return new Blob([buffer], { type: type.essence })
+  if (textMediaTypes.includes(mimeType.essence)) {
+    const decoder = new TextDecoder(mimeType.parameters.get('charset'))
+    const string = decoder.decode(buffer)
+
+    // JSON
+    if (mimeType.subtype === 'json') {
+      return JSON.parse(string) as unknown
+    }
+
+    // Text
+    return string
   }
+
+  // Binary
+  return new Blob([buffer], { type: mimeType.essence })
 }
 
 /** Populate the headers from enabled parameters */
