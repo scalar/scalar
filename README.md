@@ -322,10 +322,10 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/romanhrynevych">
-                    <img src="https://avatars.githubusercontent.com/u/82209198?v=4" width="100;" alt="romanhrynevych"/>
+                <a href="https://github.com/hrynevychroman">
+                    <img src="https://avatars.githubusercontent.com/u/82209198?v=4" width="100;" alt="hrynevychroman"/>
                     <br />
-                    <sub><b>romanhrynevych</b></sub>
+                    <sub><b>hrynevychroman</b></sub>
                 </a>
             </td>
             <td align="center">
