@@ -2,6 +2,7 @@ import { LS_KEYS } from '@/store/local-storage'
 import type { StoreContext } from '@/store/store-context'
 import {
   type SecurityScheme,
+  type SecuritySchemePayload,
   authExampleFromSchema,
   securitySchemeSchema,
 } from '@scalar/oas-utils/entities/spec'
@@ -30,23 +31,14 @@ export function extendedSecurityDataFactory({
   collections,
   requests,
   requestMutators,
-  requestExamples,
-  requestExampleMutators,
 }: StoreContext) {
   /** Adds a security scheme and appends it to either a collection or a request */
   const addSecurityScheme = (
-    payload: SecurityScheme,
+    payload: SecuritySchemePayload,
     /** Schemes will always live at the collection level */
     collectionUid: string,
-
-    /** Option to add the scheme as a requirement to an example or request */
-    options?: {
-      requestUid?: string
-      exampleUid?: string
-    },
   ) => {
     const scheme = securitySchemeSchema.parse(payload)
-
     securitySchemeMutators.add(scheme)
 
     // Add to collection dictionary
@@ -57,24 +49,16 @@ export function extendedSecurityDataFactory({
       ])
     }
 
-    // Add the scheme as a requirement to the request schema
-    if (options?.requestUid) {
-      requestMutators.edit(options.requestUid, 'security', [
-        ...requests[options.requestUid].security,
-        scheme.uid,
-      ])
-    }
+    // Add to the collection as auth
+    // This is NOT written to spec and just allows collections to use securitySchemes ad-hoc
+    const defaultValue = authExampleFromSchema(scheme)
 
-    // Check the scheme as utilized by an example
-    // This is NOT written to spec and just allows examples to use securitySchemes ad-hoc
-    if (options?.exampleUid) {
-      const defaultValue = authExampleFromSchema(scheme)
+    collectionMutators.edit(collectionUid, 'auth', {
+      ...collections[collectionUid].auth,
+      [scheme.uid]: defaultValue,
+    })
 
-      requestExampleMutators.edit(options.exampleUid, 'auth', {
-        ...requestExamples[options.exampleUid].auth,
-        [scheme.uid]: defaultValue,
-      })
-    }
+    return scheme
   }
 
   /** Delete a security scheme and remove the key from its corresponding parent */
@@ -90,23 +74,32 @@ export function extendedSecurityDataFactory({
       }
     })
 
-    // Remove the scheme from any examples that use it
-    Object.values(requestExamples).forEach((e) => {
-      if (scheme.uid in e.auth) {
-        const { [scheme.uid]: toDelete, ...rest } = requestExamples[e.uid].auth
-        requestExampleMutators.edit(e.uid, 'auth', rest)
+    // Remove the scheme from any collections that use it
+    Object.values(collections).forEach((c) => {
+      if (scheme.uid in c.auth) {
+        const { [scheme.uid]: toDelete, ...rest } = c.auth
+        collectionMutators.edit(c.uid, 'auth', rest)
       }
     })
 
-    // Remove from any requests that have it as a requirement
     Object.values(requests).forEach((r) => {
-      if (r.security.includes(scheme.uid)) {
+      // Remove from any requests that have it as a requirement
+      if (r.security?.some((s) => Object.keys(s).includes(scheme.uid))) {
         requestMutators.edit(
           r.uid,
           'security',
-          requests[r.uid].security.filter((s) => s !== scheme.uid),
+          requests[r.uid].security?.filter(
+            (s) => !Object.keys(s).includes(scheme.uid),
+          ),
         )
       }
+      // Remove from any requests that have it selected
+      if (r.selectedSecuritySchemeUids.includes(scheme.uid))
+        requestMutators.edit(
+          r.uid,
+          'selectedSecuritySchemeUids',
+          r.selectedSecuritySchemeUids?.filter((uid) => uid !== scheme.uid),
+        )
     })
 
     securitySchemeMutators.delete(scheme.uid)

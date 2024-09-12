@@ -10,7 +10,7 @@ import type {
   SpecConfiguration,
 } from '@scalar/types/legacy'
 import type { LiteralUnion } from 'type-fest'
-import { type Component, createApp, toRaw } from 'vue'
+import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'
 
 /** Configuration options for the Scalar API client */
@@ -127,8 +127,6 @@ export const createApiClient = ({
       proxyUrl: 'https://proxy.scalar.com',
     })
   }
-
-  console.log(Object.keys(store.workspaces), toRaw(store.workspaces))
 
   const app = createApp(appComponent)
   app.use(router)

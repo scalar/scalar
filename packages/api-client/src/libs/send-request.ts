@@ -5,6 +5,7 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
+  Collection,
   Request,
   RequestExample,
   RequestMethod,
@@ -216,6 +217,7 @@ type SendRequestResponse<ResponseDataType = unknown> = Promise<
  */
 export const createRequestOperation = <ResponseDataType = unknown>({
   request,
+  auth,
   example,
   server,
   securitySchemes,
@@ -223,6 +225,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
   environment,
   globalCookies,
 }: {
+  auth: Collection['auth']
   request: Request
   example: RequestExample
   proxy?: string
@@ -272,18 +275,21 @@ export const createRequestOperation = <ResponseDataType = unknown>({
     })
 
     // Populate all forms of auth to the request segments
-    Object.keys(example.auth).forEach((k) => {
-      const exampleAuth = example.auth[k]
-      const scheme = securitySchemes[k]
+    request.selectedSecuritySchemeUids.forEach((uid) => {
+      const exampleAuth = auth[uid]
+      const scheme = securitySchemes[uid]
       if (!exampleAuth || !scheme) return
 
       // Scheme type and example value type should always match
       if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
         const value = replaceTemplateVariables(exampleAuth.value, env)
-        if (scheme.in === 'header') headers[scheme.nameKey] = value
-        if (scheme.in === 'query') urlParams.append(scheme.nameKey, value)
-        if (scheme.in === 'cookie')
-          Cookies.set(scheme.nameKey, value, cookieParams)
+        if (scheme.in === 'header') headers[exampleAuth.name] = value
+        if (scheme.in === 'query') urlParams.append(exampleAuth.name, value)
+        if (scheme.in === 'cookie') {
+          Cookies.set(exampleAuth.name, value)
+          // Not sure if this one works yet
+          // Cookies.set(exampleAuth.name, value, cookieParams)
+        }
       }
 
       if (scheme.type === 'http' && exampleAuth.type === 'http') {

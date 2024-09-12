@@ -2,6 +2,8 @@ import {
   type Collection,
   type Request,
   type RequestExample,
+  type RequestParameterPayload,
+  type RequestPayload,
   type Server,
   type Tag,
   collectionSchema,
@@ -103,10 +105,6 @@ export async function importSpecToWorkspace(
     securitySchemeMap[s.nameKey] = s.uid
   })
 
-  const specSecurityRequirements = Object.keys(schema.security ?? []).map(
-    (s) => securitySchemeMap[s],
-  )
-
   // ---------------------------------------------------------------------------
   // REQUEST HANDLING
 
@@ -134,28 +132,33 @@ export async function importSpecToWorkspace(
         // TODO: make sure we add any loose requests with no tags to the collection children
         operation.tags?.forEach((t) => tagNames.add(t))
 
-        // Format the request
-        const request = requestSchema.parse({
+        // Remove security here and add it correctly below
+        const { security: removed, ...operationWithoutSecurity } = operation
+
+        const requestPayload: RequestPayload = {
+          ...operationWithoutSecurity,
           method,
           path: pathString,
-          history: [],
           selectedSecuritySchemeUids: [],
-          securitySchemeUids: [],
-          ...operation,
           // Merge path and operation level parameters
           parameters: [
             ...(path?.parameters ?? []),
             ...(operation.parameters ?? []),
-          ],
+          ] as RequestParameterPayload[],
           servers: [...pathServers, ...operationServers].map((s) => s.uid),
-          // Add list of UIDs to associate security schemes
-          // As per the spec if there is operation level security we ignore the top level requirements
-          security: operation.security
-            ? Object.keys(operation.security ?? []).map(
-                (s) => securitySchemeMap[s],
-              )
-            : specSecurityRequirements,
-        })
+        }
+
+        // Add list of UIDs to associate security schemes
+        // As per the spec if there is operation level security we ignore the top level requirements
+        if (operation.security)
+          requestPayload.security = Object.keys(operation.security ?? []).map(
+            (s) => ({
+              [securitySchemeMap[s]]: [],
+            }),
+          )
+
+        // Format the request
+        const request = requestSchema.parse(requestPayload)
 
         requests.push(request)
       }

@@ -21,6 +21,7 @@ defineEmits<{
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
 const {
+  activeCollection,
   activeExample,
   activeEnvironment,
   activeRequest,
@@ -48,7 +49,8 @@ watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
  * called from the send button as well as keyboard shortcuts
  */
 const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value) return
+  if (!activeRequest.value || !activeExample.value || !activeCollection.value)
+    return
 
   // Parse the environment string
   const e = safeJSON.parse(activeEnvironment.value?.value || '{}')
@@ -58,6 +60,7 @@ const executeRequest = async () => {
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
   const [error, requestOperation] = createRequestOperation({
+    auth: activeCollection.value.auth,
     request: activeRequest.value,
     example: activeExample.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
