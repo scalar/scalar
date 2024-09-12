@@ -20,8 +20,9 @@ import {
 import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
 
+// TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
 /** Decode the buffer according to its content-type */
-function decodeBuffer(buffer: ArrayBuffer, contentType: string): unknown {
+function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
   const mimeType = new MimeTypeParser(contentType)
 
   if (textMediaTypes.includes(mimeType.essence)) {
@@ -30,7 +31,7 @@ function decodeBuffer(buffer: ArrayBuffer, contentType: string): unknown {
 
     // JSON
     if (mimeType.subtype === 'json') {
-      return JSON.parse(string) as unknown
+      return JSON.parse(string)
     }
 
     // Text
