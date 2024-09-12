@@ -69,10 +69,10 @@ const getEnvColor = (
       },
 ) => {
   if ('_scalarEnvId' in item) {
-    return `bg-${props.environments[item._scalarEnvId as string].color}`
+    return props.environments[item._scalarEnvId as string].color
   }
   // this is a server but we can eventually is a 🌐 icon
-  return `bg-grey`
+  return '#8E8E8E'
 }
 </script>
 <template>

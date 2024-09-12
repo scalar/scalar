@@ -11,7 +11,7 @@ const parsed = z.object({
 const environmentSchema = z.object({
   uid: nanoidSchema,
   name: z.string().optional().default('Default Environment'),
-  color: z.string().optional().default('blue'),
+  color: z.string().optional().default('#0082D0'),
   raw: z
     .string()
     .optional()

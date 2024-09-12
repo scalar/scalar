@@ -44,18 +44,20 @@ const modal = cva({
     variant: {
       history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
+      color: 'scalar-modal-color',
     },
   },
 })
 const body = cva({
   base: [
     'scalar-modal-body',
-    'relative m-1 max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 p-3',
+    'relative m-1 mt-0 max-h-[calc(100dvh-240px)] overflow-y-auto rounded-lg bg-b-1 p-2',
   ].join(' '),
   variants: {
     variant: {
       history: 'pt-3',
       search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
+      color: 'w-fit',
     },
     size: {
       xxs: 'max-h-[calc(100dvh-240px)]',
@@ -136,6 +138,9 @@ export const useModal = () =>
   max-width: 540px;
   max-height: 440px;
   background-color: transparent;
+}
+.scalar-modal.scalar-modal-color {
+  width: fit-content;
 }
 .modal-content-search .modal-body {
   padding: 0;

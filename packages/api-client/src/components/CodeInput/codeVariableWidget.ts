@@ -27,10 +27,10 @@ const getEnvColor = (
   environments: Record<string, Environment>,
 ) => {
   if ('_scalarEnvId' in item) {
-    return `bg-${environments[item._scalarEnvId as string].color}`
+    return environments[item._scalarEnvId as string].color
   }
   // this is a server but we can eventually is a 🌐 icon
-  return `bg-grey`
+  return '#8E8E8E'
 }
 
 type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
@@ -67,7 +67,10 @@ class PillWidget extends WidgetType {
           (thing) => thing.key === this.variableName,
         )
         if (val) {
-          span.className += ` ${getEnvColor(val, this.environments)}`
+          span.style.setProperty(
+            '--tw-bg-base',
+            getEnvColor(val, this.environments),
+          )
         }
         const tooltipContent = val
           ? h('div', { class: 'p-2' }, val.value as string)

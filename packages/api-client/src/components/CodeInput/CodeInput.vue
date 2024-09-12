@@ -290,7 +290,6 @@ export default {
   --tw-bg-base: var(--scalar-color-1);
   color: var(--tw-bg-base);
   padding: 0 6px;
-  margin: 0 6px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;

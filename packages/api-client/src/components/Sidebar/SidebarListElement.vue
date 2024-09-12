@@ -14,6 +14,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
+  (e: 'colorModal', id: string): void
 }>()
 
 const router = useRouter()
@@ -29,10 +30,15 @@ const handleNavigation = (event: MouseEvent, uid: string) => {
 const handleDelete = (id: string) => {
   emit('delete', id)
 }
+
+const handleColorClick = (uid: string) => {
+  emit('colorModal', uid)
+}
 </script>
 <template>
   <li>
     <router-link
+      v-bind="$attrs"
       class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1 rounded py-1 pr-2 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
@@ -41,10 +47,11 @@ const handleDelete = (id: string) => {
       <button
         v-if="variable.color"
         class="hover:bg-b-3 rounded p-1.5"
-        type="button">
+        type="button"
+        @click="handleColorClick(variable.uid)">
         <div
           class="h-2.5 w-2.5 rounded-xl"
-          :class="`bg-${variable.color}`"></div>
+          :style="{ backgroundColor: variable.color }"></div>
       </button>
       <span class="empty-variable-name">{{ variable.name }}</span>
       <SidebarListElementActions

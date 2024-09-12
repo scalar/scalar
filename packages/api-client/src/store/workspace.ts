@@ -370,9 +370,9 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     default: createEnvironment({
       uid: 'default',
       name: 'Global Environment',
-      color: 'blue',
+      color: '#0082D0',
       raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
-      parsed: [],
+      parsed: [{ key: 'exampleKey', value: 'exampleValue' }],
       isDefault: true,
     }),
   })
@@ -381,6 +381,21 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     reactive({}),
     persistData && LS_KEYS.ENVIRONMENT,
   )
+
+  // Ensure the default environment is added to the mutators
+  if (!environments.default) {
+    environmentMutators.add(environments.default)
+  }
+
+  const editEnvironment = <K extends keyof Environment>(
+    uid: string,
+    key: K,
+    value: Environment[K],
+  ) => {
+    if (environments[uid]) {
+      environments[uid][key] = value
+    }
+  }
 
   /** prevent deletion of the default environment */
   const deleteEnvironment = (uid: string) => {
@@ -418,6 +433,35 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
 
     return [...flattenedServers, ...flattenedEnvs]
   })
+
+  const getParsedEnvironmentVariables = (uid: string) => {
+    return computed(() => {
+      const environment = environments[uid]
+      if (environment) {
+        try {
+          const raw = environment.raw
+          const parsed = JSON.parse(raw)
+          const variables = Object.entries(parsed).map(([key, value]) => ({
+            key,
+            value: value as string,
+          }))
+          // Ensure there is always an empty row at the end
+          if (
+            variables.length === 0 ||
+            variables[variables.length - 1].key !== '' ||
+            variables[variables.length - 1].value !== ''
+          ) {
+            variables.push({ key: '', value: '' })
+          }
+          return variables
+        } catch (e) {
+          console.error('Failed to parse environment variables:', e)
+          return [{ key: '', value: '' }]
+        }
+      }
+      return [{ key: '', value: '' }]
+    })
+  }
 
   // ---------------------------------------------------------------------------
   // COOKIES
@@ -1005,6 +1049,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     router,
     sidebarWidth,
     setSidebarWidth,
+    getParsedEnvironmentVariables,
     // ---------------------------------------------------------------------------
     // METHODS
     findRequestFolders,
@@ -1019,6 +1064,7 @@ export const createWorkspaceStore = (router: Router, persistData = true) => {
     },
     environmentMutators: {
       ...environmentMutators,
+      edit: editEnvironment,
       delete: deleteEnvironment,
     },
     folderMutators: {
