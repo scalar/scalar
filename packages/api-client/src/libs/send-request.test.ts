@@ -281,10 +281,10 @@ describe('sendRequest', () => {
     expect(result?.response.data).toBe('')
   })
 
-  it('skips the proxy for requests to localhost', async () => {
+  it('skips the proxy for requests to 127.0.0.1 (localhost)', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
-        serverPayload: { url: `http://localhost:${VOID_PORT}/v1` },
+        serverPayload: { url: `http://127.0.0.1:${VOID_PORT}/v1` },
       }),
     )
     if (error) throw error
