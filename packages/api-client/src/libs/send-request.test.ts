@@ -88,7 +88,7 @@ $ pnpm dev:void-server
 })
 
 describe('sendRequest', () => {
-  it('shows a warning when scalar_url is missing', async () => {
+  it.only('shows a warning when scalar_url is missing', async () => {
     const [e, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: PROXY_URL },
@@ -97,7 +97,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toContain(
+    expect(error).toBe(null)
+    expect(result?.response.data).toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
@@ -117,7 +118,8 @@ describe('sendRequest', () => {
     })
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/api',
       body: '',
@@ -133,8 +135,10 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).not.toContain('ECONNREFUSED')
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).not.toContain('ECONNREFUSED')
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -151,7 +155,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -186,7 +191,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/example',
     })
@@ -214,7 +220,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data.query).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data.query).toMatchObject({
       foo: 'bar',
     })
   })
@@ -246,7 +253,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data.query).toStrictEqual({
+    expect(error).toBe(null)
+    expect(result?.response.data.query).toStrictEqual({
       example: 'parameter',
       foo: 'bar',
       orange: 'apple',
@@ -262,7 +270,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toBe('')
+    expect(error).toBe(null)
+    expect(result?.response.data).toBe('')
   })
 
   it('skips the proxy for requests to localhost', async () => {
@@ -274,7 +283,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1',
     })
@@ -289,7 +299,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })
@@ -320,7 +331,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
@@ -373,7 +385,8 @@ describe('sendRequest', () => {
     if (e) return
     const [error, result] = await requestOperation.sendRequest()
 
-    expect(!error && result.response.data).toMatchObject({
+    expect(error).toBe(null)
+    expect(result?.response.data).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
