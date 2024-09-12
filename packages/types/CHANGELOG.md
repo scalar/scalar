@@ -1,5 +1,15 @@
 # @scalar/types
 
+## 0.0.8
+
+### Patch Changes
+
+- dc9aff2: chore: replace proprietary ScalarResponse with OpenAPI ResponseObject
+- Updated dependencies [c577cde]
+- Updated dependencies [dc9aff2]
+  - @scalar/themes@0.9.29
+  - @scalar/openapi-types@0.1.1
+
 ## 0.0.7
 
 ### Patch Changes

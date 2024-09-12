@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.1
+
+### Patch Changes
+
+- dc9aff2: feat: expose HeadersObject
+
 ## 0.1.0
 
 ### Minor Changes

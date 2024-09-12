@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.3
+
+### Patch Changes
+
+- 5c16ded: chore: streamline output for get when no plugin was found
+
 ## 0.2.2
 
 ### Patch Changes

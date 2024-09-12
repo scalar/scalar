@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.44
+
+### Patch Changes
+
+- 0fc3460: feat(components): make markdown line clamping configurable
+  - @scalar/code-highlight@0.0.11
+
 ## 0.12.43
 
 ### Patch Changes

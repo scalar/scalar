@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.0.64
+
+### Patch Changes
+
+- e9253af: fix(api-client): scope api client draggable styles
+- Updated dependencies [0fc3460]
+- Updated dependencies [c577cde]
+- Updated dependencies [e9253af]
+- Updated dependencies [dc9aff2]
+- Updated dependencies [6bb85a5]
+- Updated dependencies [dc9aff2]
+  - @scalar/components@0.12.44
+  - @scalar/themes@0.9.29
+  - @scalar/draggable@0.1.5
+  - @scalar/openapi-types@0.1.1
+  - @scalar/openapi-parser@0.8.2
+  - @scalar/types@0.0.8
+  - @scalar/oas-utils@0.2.43
+
 ## 2.0.63
 
 ### Patch Changes
