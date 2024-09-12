@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { stringify } from 'yaml'
 
 import { getEntrypoint } from '../getEntrypoint'
@@ -10,6 +10,11 @@ import { readFiles } from './plugins/readFiles'
 global.fetch = vi.fn()
 
 describe('load', async () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('loads JS object', async () => {
     const { filesystem } = await load(
       {

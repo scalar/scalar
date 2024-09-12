@@ -1,6 +1,6 @@
 // import OriginalSwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load'
@@ -64,6 +64,11 @@ class SwaggerParser {
 
 // https://github.com/APIDevTools/swagger-parser?tab=readme-ov-file#example
 describe('validate', async () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('validates', async () => {
     return new Promise((resolve, reject) => {
       SwaggerParser.validate(myAPI, (err, api) => {
@@ -94,6 +99,11 @@ describe('validate', async () => {
 
 // https://apitools.dev/swagger-parser/docs/swagger-parser.html#dereferenceapi-options-callback
 describe('dereference', () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('dereferences', async () => {
     const api = await SwaggerParser.dereference(myAPI)
 

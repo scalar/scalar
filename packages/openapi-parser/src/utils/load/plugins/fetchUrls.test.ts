@@ -1,10 +1,15 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { fetchUrls } from './fetchUrls'
 
 global.fetch = vi.fn()
 
 describe('fetchUrls', async () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('returns true for an url', async () => {
     expect(
       fetchUrls().check('http://example.com/specification/openapi.yaml'),

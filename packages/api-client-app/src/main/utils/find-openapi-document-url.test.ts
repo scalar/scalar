@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { findOpenApiDocumentUrl } from './find-openapi-document-url'
 
@@ -12,6 +12,11 @@ function createFetchResponse(data: string) {
 }
 
 describe('findOpenApiDocumentUrl', () => {
+  beforeEach(() => {
+    // @ts-expect-error
+    global.fetch.mockReset()
+  })
+
   it('returns JSON urls', async () => {
     const result = await findOpenApiDocumentUrl(
       'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
