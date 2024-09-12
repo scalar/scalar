@@ -202,9 +202,8 @@ export default {
   </div>
   <EnvironmentVariableDropdown
     v-if="showDropdown && props.withVariables && !isReadOnly"
-    :activeEnvVariables="computed(() => Array.from(activeEnvVariables))"
+    :activeEnvVariables="computed(() => activeEnvVariables)"
     :dropdownPosition="dropdownPosition"
-    :environments="environments"
     :query="dropdownQuery"
     :router="router"
     @select="handleDropdownSelect" />
@@ -297,8 +296,7 @@ export default {
 .cm-pill {
   --tw-bg-base: var(--scalar-color-1);
   color: var(--tw-bg-base);
-  padding: 0 6px;
-  margin: 0 6px;
+  padding: 0px 9px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;

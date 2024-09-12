@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { parseEnvVariables } from '@/libs'
 import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
@@ -9,7 +10,6 @@ import type { Router } from 'vue-router'
 const props = defineProps<{
   query: string
   activeEnvVariables: WorkspaceStore['activeEnvVariables']
-  environments: WorkspaceStore['environments']
   router: Router
   // withServers?: boolean
   dropdownPosition?: { left: number; top: number }
@@ -30,7 +30,7 @@ const redirectToEnvironment = () => {
 
 const { push, currentRoute } = props.router
 
-const fuse = new Fuse(props.activeEnvVariables.value, {
+const fuse = new Fuse(parseEnvVariables(props.activeEnvVariables.value), {
   keys: ['key', 'value'],
 })
 
@@ -39,7 +39,7 @@ const filteredVariables = computed(() => {
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return props.activeEnvVariables.value.slice(-4)
+    return parseEnvVariables(props.activeEnvVariables.value).slice(-4)
   }
 
   /** filter environment variables by name */
@@ -55,23 +55,12 @@ const selectVariable = (variableKey: string) => {
   emit('select', variableKey)
 }
 
-const getEnvColor = (
-  item:
-    | {
-        key: string
-        value: string
-      }
-    | {
-        _scalarEnvId: any
-        key: string
-        value: unknown
-      },
-) => {
-  if ('_scalarEnvId' in item) {
-    return `bg-${props.environments[item._scalarEnvId as string].color}`
-  }
-  // this is a server but we can eventually is a 🌐 icon
-  return `bg-grey`
+const getEnvColor = () => {
+  return props.activeEnvVariables.value.map((variable) => {
+    if (variable.key === 'color') {
+      return `bg-${variable.value}`
+    }
+  })
 }
 
 onClickOutside(
@@ -105,7 +94,7 @@ onClickOutside(
             <div class="flex items-center gap-1.5 whitespace-nowrap">
               <span
                 class="h-2.5 w-2.5 min-w-2.5 rounded-full"
-                :class="getEnvColor(item)"></span>
+                :class="getEnvColor()"></span>
               {{ item.key }}
             </div>
             <span
