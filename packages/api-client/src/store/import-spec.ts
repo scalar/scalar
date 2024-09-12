@@ -1,6 +1,7 @@
 import type { StoreContext } from '@/store/store-context'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
+import type { Spec } from '@scalar/types/legacy'
 import { toRaw } from 'vue'
 
 /** Generate the import functions from a store context */
@@ -17,6 +18,12 @@ export function importSpecFileFactory({
   const importSpecFile = async (
     _spec: string | Record<string, any>,
     workspaceUid = 'default',
+    /**
+     * TODO: What do these look like?
+     * Ideally we reference some existing UIDs in the store and
+     * attach those as needed to entities below
+     */
+    overloadServers?: Spec['servers'],
   ) => {
     const spec = toRaw(_spec)
     const workspaceEntities = await importSpecToWorkspace(spec)
@@ -48,10 +55,14 @@ export function importSpecFileFactory({
   }
 
   // Function to fetch and import a spec from a URL
-  async function importSpecFromUrl(url: string, proxy?: string) {
+  async function importSpecFromUrl(
+    url: string,
+    proxy?: string,
+    overloadServers?: Spec['servers'],
+  ) {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(spec)
+      await importSpecFile(spec, undefined, overloadServers)
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
     }
