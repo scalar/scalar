@@ -175,7 +175,7 @@ describe('load', async () => {
     // Failed request
     // @ts-expect-error
     fetch.mockImplementation(() => {
-      throw new TypeError('fetch failed')
+      throw new TypeError('[load.test.ts] fetch failed')
     })
 
     const { filesystem } = await load(
