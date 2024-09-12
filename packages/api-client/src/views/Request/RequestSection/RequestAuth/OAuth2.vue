@@ -4,16 +4,32 @@ import { type UpdateScheme, useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
+import type {
+  SecuritySchemeExampleValue,
+  SecuritySchemeOauth2,
+} from '@scalar/oas-utils/entities/spec'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 
 const props = defineProps<{
+  example: SecuritySchemeExampleValue
   scheme: SecuritySchemeOauth2
 }>()
 
 const loadingState = useLoadingState()
-const { isReadOnly, securitySchemeMutators } = useWorkspace()
+const {
+  activeCollection,
+  collectionMutators,
+  isReadOnly,
+  securitySchemeMutators,
+} = useWorkspace()
+
+type CollectionArgs = Parameters<typeof collectionMutators.edit>
+
+/** Update the current auth */
+const updateAuth = (path: CollectionArgs[1], value: CollectionArgs[2]) =>
+  activeCollection.value &&
+  collectionMutators.edit(activeCollection.value.uid, path, value)
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
@@ -83,7 +99,7 @@ const handleAuthorize = async () => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="'redirectUri' in scheme.flow">
+    <DataTableRow v-if="'x-scalar-redirect-uri' in scheme.flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         :id="`oauth2-redirect-uri-${scheme.uid}`"
@@ -132,13 +148,15 @@ const handleAuthorize = async () => {
     </DataTableRow>
 
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
-    <DataTableRow v-if="'clientSecret' in scheme.flow">
+    <DataTableRow v-if="'clientSecret' in example">
       <RequestAuthDataTableInput
         :id="`oauth2-client-secret-${scheme.uid}`"
-        :modelValue="scheme.flow.clientSecret"
+        :modelValue="example.clientSecret"
         placeholder="XYZ123"
         type="password"
-        @update:modelValue="(v) => updateScheme('flow.clientSecret', v)">
+        @update:modelValue="
+          (v) => updateAuth(`auth.${scheme.uid}.clientSecret`, v)
+        ">
         Client Secret
       </RequestAuthDataTableInput>
     </DataTableRow>

@@ -22,6 +22,37 @@ import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
+import type { Entries } from 'type-fest'
+
+/**
+ * We need to convert from openapi spec flows to our singular flow object here
+ * If we ever go spec compliant (flows), we will no longer need this conversion
+ */
+const convertOauth2Flows = (
+  security: OpenAPIV3_1.OAuth2SecurityScheme,
+  nameKey: string,
+) => {
+  if (security.type === 'oauth2') {
+    const entries = Object.entries(security.flows ?? {})
+    if (entries.length) {
+      const [[type, flow]] = entries
+
+      return {
+        ...security,
+        nameKey,
+        flow: {
+          ...flow,
+          type,
+        },
+      }
+    }
+  }
+
+  return {
+    ...security,
+    nameKey,
+  }
+}
 
 /**
  * Import an OpenAPI spec file and convert it to workspace entities
@@ -82,13 +113,19 @@ export async function importSpecToWorkspace(
 
   const security = schema.components?.securitySchemes ?? {}
 
-  const securitySchemes = Object.entries(security)
+  const securitySchemes = (Object.entries(security) as Entries<typeof security>)
     .map?.(([nameKey, s]) => {
       const scheme = schemaModel(
-        {
-          ...s,
-          nameKey,
-        },
+        // We must convert flows to a singular object, technically not spec compliant so we grab the first
+        s.type === 'oauth2'
+          ? convertOauth2Flows(
+              s as OpenAPIV3_1.OAuth2SecurityScheme,
+              nameKey as string,
+            )
+          : {
+              ...s,
+              nameKey,
+            },
         securitySchemeSchema,
         false,
       )

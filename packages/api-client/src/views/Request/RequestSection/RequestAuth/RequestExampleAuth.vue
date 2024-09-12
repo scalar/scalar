@@ -139,6 +139,7 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
     <!-- OAuth 2 -->
     <OAuth2
       v-else-if="scheme.type === 'oauth2'"
+      :example="example"
       :scheme="scheme" />
   </template>
 </template>
