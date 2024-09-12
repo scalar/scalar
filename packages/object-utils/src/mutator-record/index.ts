@@ -1,4 +1,4 @@
 export * from './mutations'
 export * from './local-storage'
 
-export { mutationFactory } from './handlers'
+export { mutationFactory, type Mutators } from './handlers'
