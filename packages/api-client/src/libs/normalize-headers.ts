@@ -18,9 +18,10 @@ export const normalizeHeaders = (
   // Remove headers, that are added by the proxy
   if (removeProxyHeaders) {
     const headersToRemove = [
+      'Access-Control-Allow-Credentials',
       'Access-Control-Allow-Headers',
-      'Access-Control-Allow-Origin',
       'Access-Control-Allow-Methods',
+      'Access-Control-Allow-Origin',
       'Access-Control-Expose-Headers',
     ]
 
