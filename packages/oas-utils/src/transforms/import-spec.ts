@@ -132,11 +132,14 @@ export async function importSpecToWorkspace(
         // TODO: make sure we add any loose requests with no tags to the collection children
         operation.tags?.forEach((t) => tagNames.add(t))
 
+        // Remove security here and add it correctly below
+        const { security: removed, ...operationWithoutSecurity } = operation
+
         const requestPayload: RequestPayload = {
+          ...operationWithoutSecurity,
           method,
           path: pathString,
           selectedSecuritySchemeUids: [],
-          tags: operation.tags,
           // Merge path and operation level parameters
           parameters: [
             ...(path?.parameters ?? []),

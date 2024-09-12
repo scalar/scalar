@@ -10,15 +10,22 @@ import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
 
-const { activeExample, isReadOnly, requestExampleMutators, securitySchemes } =
-  useWorkspace()
+const {
+  activeCollection,
+  activeRequest,
+  collectionMutators,
+  isReadOnly,
+  securitySchemes,
+} = useWorkspace()
 
-const security = computed(() =>
-  Object.entries(activeExample.value?.auth ?? {}).map(([uid, example]) => ({
-    example,
+const security = computed(() => {
+  if (!activeCollection.value || !activeRequest.value) return []
+
+  return activeRequest.value.selectedSecuritySchemeUids.map((uid) => ({
+    example: activeCollection.value!.auth[uid],
     scheme: securitySchemes[uid],
-  })),
-)
+  }))
+})
 
 function generateLabel(scheme: SecurityScheme) {
   return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' ? scheme.flow.type : ''}`
@@ -31,10 +38,10 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
   key: keyof T & string,
   value: string,
 ) {
-  if (!activeExample.value?.uid) return
+  if (!activeCollection.value?.uid) return
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
+  collectionMutators.edit(
+    activeCollection.value.uid,
     `auth.${uid}.${key}`,
     value as any,
   )
@@ -107,9 +114,11 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`api-key-name-${scheme.uid}`"
-            disabled
-            :modelValue="scheme.name"
-            placeholder="api-key">
+            :modelValue="example.name"
+            placeholder="api-key"
+            @update:modelValue="
+              (v) => updateExampleValue(scheme.uid, example, 'name', v)
+            ">
             Name
           </RequestAuthDataTableInput>
         </DataTableRow>

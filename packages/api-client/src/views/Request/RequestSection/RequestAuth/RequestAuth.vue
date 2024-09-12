@@ -12,16 +12,16 @@ import {
   type SecuritySchemeOption,
 } from '@/views/Request/consts'
 import {
+  createSchemeValueSet,
+  displaySchemeFormatter,
+} from '@/views/Request/libs'
+import {
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
   useModal,
 } from '@scalar/components'
-import {
-  type Collection,
-  type SecurityScheme,
-  securitySchemeExampleValueSchema,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -36,7 +36,9 @@ const {
   activeRequest,
   collectionMutators,
   isReadOnly,
+  requestMutators,
   securitySchemes,
+  securitySchemeMutators,
 } = useWorkspace()
 
 const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
@@ -59,14 +61,6 @@ const availableSchemes = computed(() => {
   return (base ?? []).map((s) => securitySchemes[s])
 })
 
-/** Format a scheme object into a display object */
-function displaySchemeFormatter(s: SecurityScheme) {
-  return {
-    id: s.uid,
-    label: s.nameKey,
-  }
-}
-
 /** Display formatted options for a user to select from */
 const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   () => {
@@ -88,43 +82,53 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 )
 
 /** Currently selected auth schemes on the collection */
-const selectedAuth = computed(() =>
-  Object.keys(activeCollection.value?.auth ?? {}).map((k) =>
-    displaySchemeFormatter(securitySchemes[k]),
-  ),
+const selectedAuth = computed(
+  () =>
+    activeRequest.value?.selectedSecuritySchemeUids.map((uid) =>
+      displaySchemeFormatter(securitySchemes[uid]),
+    ) ?? [],
 )
 
-/** Create a new value set for a given scheme type */
-function createSchemeValueSet(scheme: SecurityScheme) {
-  // Determine the value entry type
-  const valueType =
-    scheme.type === 'oauth2' ? `oauth-${scheme.flow.type}` : scheme.type
-
-  return securitySchemeExampleValueSchema.parse({
-    type: valueType,
-  })
-}
-
 /** Update the selected auth types */
-function updateSelectedAuth(entries: { id: string }[]) {
-  if (!activeCollection.value?.uid) return
+function updateSelectedAuth(entries: SecuritySchemeOption[]) {
+  if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
+  const addNewOption = entries.find((e) => e.payload)
+  const _entries = entries.filter((e) => !e.payload)
 
-  const auth: Collection['auth'] = {}
+  // Adding new auth
+  if (addNewOption?.payload) {
+    // Create new scheme
+    const scheme = securitySchemeMutators.add(
+      addNewOption.payload,
+      activeCollection.value.uid,
+    )
+
+    _entries.push({ id: scheme.uid, label: '' })
+  }
 
   // Add the existing auth values back in or create a new entry
-  entries.forEach(({ id }) => {
-    auth[id] =
-      activeCollection.value?.auth[id] ??
-      createSchemeValueSet(securitySchemes[id])
-  })
+  collectionMutators.edit(
+    activeCollection.value.uid,
+    'auth',
+    _entries.reduce<Collection['auth']>((prev, { id }) => {
+      prev[id] =
+        activeCollection.value?.auth[id] ??
+        createSchemeValueSet(securitySchemes[id])
+      return prev
+    }, {}),
+  )
 
-  collectionMutators.edit(activeCollection.value.uid, 'auth', auth)
+  // Set as selected on request
+  requestMutators.edit(
+    activeRequest.value.uid,
+    'selectedSecuritySchemeUids',
+    _entries.map(({ id }) => id),
+  )
 }
 
 /** Remove a single auth type from an example */
 function unselectAuth(id: string) {
   if (!activeCollection.value?.uid) return
-
   const { [id]: remove, ...auth } = activeCollection.value.auth
 
   collectionMutators.edit(activeCollection.value.uid, 'auth', auth)

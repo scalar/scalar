@@ -2,6 +2,7 @@ import { LS_KEYS } from '@/store/local-storage'
 import type { StoreContext } from '@/store/store-context'
 import {
   type SecurityScheme,
+  type SecuritySchemePayload,
   authExampleFromSchema,
   securitySchemeSchema,
 } from '@scalar/oas-utils/entities/spec'
@@ -33,7 +34,7 @@ export function extendedSecurityDataFactory({
 }: StoreContext) {
   /** Adds a security scheme and appends it to either a collection or a request */
   const addSecurityScheme = (
-    payload: SecurityScheme,
+    payload: SecuritySchemePayload,
     /** Schemes will always live at the collection level */
     collectionUid: string,
   ) => {
@@ -56,6 +57,8 @@ export function extendedSecurityDataFactory({
       ...collections[collectionUid].auth,
       [scheme.uid]: defaultValue,
     })
+
+    return scheme
   }
 
   /** Delete a security scheme and remove the key from its corresponding parent */
