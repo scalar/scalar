@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.2
+
+### Patch Changes
+
+- 6bb85a5: feat: `openapi()` returns dynamic types based on the chained commands
+
 ## 0.8.1
 
 ### Patch Changes

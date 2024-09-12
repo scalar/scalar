@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.5
+
+### Patch Changes
+
+- e9253af: fix(api-client): scope api client draggable styles
+
 ## 0.1.4
 
 ### Patch Changes

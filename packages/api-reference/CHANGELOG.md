@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.25.11
+
+### Patch Changes
+
+- e6cc267: fix: server description color style
+- 0fc3460: fix(api-reference): only clamp endpoint descriptions
+- dc9aff2: refactor: move `ExampleResponses` component to the features folder
+- Updated dependencies [0fc3460]
+- Updated dependencies [c577cde]
+- Updated dependencies [e9253af]
+- Updated dependencies [dc9aff2]
+- Updated dependencies [5c16ded]
+- Updated dependencies [6bb85a5]
+- Updated dependencies [dc9aff2]
+  - @scalar/components@0.12.44
+  - @scalar/themes@0.9.29
+  - @scalar/api-client@2.0.64
+  - @scalar/openapi-types@0.1.1
+  - @scalar/snippetz@0.2.3
+  - @scalar/openapi-parser@0.8.2
+  - @scalar/types@0.0.8
+  - @scalar/code-highlight@0.0.11
+  - @scalar/oas-utils@0.2.43
+
 ## 1.25.10
 
 ### Patch Changes
