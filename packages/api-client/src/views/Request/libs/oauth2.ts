@@ -151,7 +151,7 @@ export const authorizeServers = async (
     formData.set('grant_type', 'authorization_code')
   }
   // Password
-  if (example.type === 'oauth-password') {
+  else if (example.type === 'oauth-password') {
     formData.set('grant_type', 'password')
     formData.set('username', example.username)
     formData.set('password', example.password)
