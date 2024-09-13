@@ -333,6 +333,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
           /** Prefix the url with the origin if it is relative */
           const base = isRelativePath(url) ? window.location.origin + url : url
+          /** We create a seoarate server URL to snag any search params from the server */
           const serverUrl = new URL(base)
           const serverAndPath = server?.url
             ? new URL(base + pathString)
