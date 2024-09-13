@@ -194,10 +194,12 @@ export async function importSpecToWorkspace(
             }),
           )
 
-        // Format the request
-        const request = requestSchema.parse(requestPayload)
+        // Save parse the request
+        const request = schemaModel(requestPayload, requestSchema, false)
 
-        requests.push(request)
+        if (!request)
+          importWarnings.push(`${method} Request at ${path} is invalid.`)
+        else requests.push(request)
       }
     })
   })
