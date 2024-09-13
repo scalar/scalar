@@ -20,6 +20,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier', 'eslint-plugin-jsdoc'],
   ignorePatterns: [
     '**/dist/**',
+    '*.generated.ts',
     'api-reference/packages/swagger-parser/**',
     '**/dist-publish/**',
     '**/.vite-ssg-temp/**',
