@@ -10,7 +10,7 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="Side Navigation"
-    class="text-c-2 w-15 flex items-center scalar-sidenav relative no-drag-region mr-2"
+    class="text-c-2 w-15 flex items-center scalar-sidenav relative no-drag-region mr-4"
     role="navigation">
     <!-- <WorkspaceProfileIcon class="no-drag-region" /> -->
     <ul class="flex gap-1.5">

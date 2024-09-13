@@ -146,68 +146,72 @@ onMounted(() => hotKeyBus.on(handleHotKey))
 onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
-  <nav class="flex h-10 w-full">
+  <nav class="flex h-10 min-w-0 w-full">
     <div
-      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium relative">
-      <template v-if="topNavItems.length === 1">
-        <div class="h-full w-full">
-          <ScalarContextMenu
-            triggerClass="flex gap-1.5 h-full items-center justify-center w-full">
-            <template #trigger>
-              <ScalarIcon
-                :icon="topNavItems[0].icon"
-                size="xs"
-                thickness="2.5" />
-              <span>{{ topNavItems[0].label }}</span>
-            </template>
-            <template #content>
-              <ScalarDropdown
-                class="scalar-client"
-                static>
-                <template #items>
-                  <ScalarDropdownItem
-                    class="flex items-center gap-1.5"
-                    @click="addNavItem">
-                    <ScalarIcon
-                      icon="AddTab"
-                      size="sm"
-                      thickness="1.5" />
-                    New Tab
-                    <ScalarHotkey
-                      class="bg-b-2 ml-auto"
-                      hotkey="T" />
-                  </ScalarDropdownItem>
-                  <ScalarDropdownItem
-                    class="flex items-center gap-1.5"
-                    @click="copyUrl(activeNavItemIdxValue)">
-                    <ScalarIcon
-                      icon="Link"
-                      size="sm"
-                      thickness="1.5" />
-                    Copy URL
-                  </ScalarDropdownItem>
-                </template>
-              </ScalarDropdown>
-            </template>
-          </ScalarContextMenu>
-        </div>
-      </template>
-      <template v-else>
-        <TopNavItem
-          v-for="(topNavItem, index) in topNavItems"
-          :key="index"
-          :active="index === activeNavItemIdxValue"
-          :hotkey="(index + 1).toString()"
-          :icon="topNavItem.icon"
-          :label="topNavItem.label"
-          @click="setNavItemIdx(index)"
-          @close="removeNavItem(index)"
-          @closeOtherTabs="closeOtherTabs(index)"
-          @copyUrl="copyUrl(index)"
-          @newTab="addNavItem" />
-      </template>
+      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium relative overflow-auto">
+      <div class="overflow-auto flex-1 flex gap-1.5 scroll-timeline-x-hidden">
+        <template v-if="topNavItems.length === 1">
+          <div class="h-full w-full">
+            <ScalarContextMenu
+              triggerClass="flex gap-1.5 h-full items-center justify-center w-full">
+              <template #trigger>
+                <span class="flex gap-1.5 items-center justify-center text-xs">
+                  <ScalarIcon
+                    :icon="topNavItems[0].icon"
+                    size="xs"
+                    thickness="2.5" />
+                  <span>{{ topNavItems[0].label }}</span>
+                </span>
+              </template>
+              <template #content>
+                <ScalarDropdown
+                  class="scalar-client"
+                  static>
+                  <template #items>
+                    <ScalarDropdownItem
+                      class="flex items-center gap-1.5"
+                      @click="addNavItem">
+                      <ScalarIcon
+                        icon="AddTab"
+                        size="sm"
+                        thickness="1.5" />
+                      New Tab
+                      <ScalarHotkey
+                        class="bg-b-2 ml-auto"
+                        hotkey="T" />
+                    </ScalarDropdownItem>
+                    <ScalarDropdownItem
+                      class="flex items-center gap-1.5"
+                      @click="copyUrl(activeNavItemIdxValue)">
+                      <ScalarIcon
+                        icon="Link"
+                        size="sm"
+                        thickness="1.5" />
+                      Copy URL
+                    </ScalarDropdownItem>
+                  </template>
+                </ScalarDropdown>
+              </template>
+            </ScalarContextMenu>
+          </div>
+        </template>
+        <template v-else>
+          <TopNavItem
+            v-for="(topNavItem, index) in topNavItems"
+            :key="index"
+            :active="index === activeNavItemIdxValue"
+            :hotkey="(index + 1).toString()"
+            :icon="topNavItem.icon"
+            :label="topNavItem.label"
+            @click="setNavItemIdx(index)"
+            @close="removeNavItem(index)"
+            @closeOtherTabs="closeOtherTabs(index)"
+            @copyUrl="copyUrl(index)"
+            @newTab="addNavItem" />
+        </template>
+      </div>
       <button
-        class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag"
+        class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag sticky right-0"
         type="button"
         @click="addNavItem">
         <ScalarIcon
@@ -221,5 +225,17 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 <style scoped>
 .webkit-app-no-drag {
   -webkit-app-region: no-drag;
+}
+.scroll-timeline-x-hidden {
+  overflow: hidden;
+}
+.scroll-timeline-x-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scroll-timeline-x-hidden::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
 }
 </style>

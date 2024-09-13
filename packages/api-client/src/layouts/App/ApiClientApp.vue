@@ -96,7 +96,7 @@ const fontsStyleTag = computed(
     <div class="t-app__top-nav-draggable h-10"></div>
     <SideNav />
     <TopNav :openNewTab="newTab" />
-    <div class="flex no-drag-region relative max-h-[28px] ml-1.5">
+    <div class="flex no-drag-region relative max-h-[28px] ml-auto">
       <DarkModeIconToggle />
       <SideHelp />
     </div>

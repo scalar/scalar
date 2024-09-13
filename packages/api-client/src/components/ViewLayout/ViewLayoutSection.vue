@@ -9,7 +9,7 @@ const id = nanoid()
     class="flex xl:min-w-0 xl:flex-1 flex-col xl:custom-scroll bg-b-1">
     <div
       :id="id"
-      class="py-2.5 flex items-center border-b-1/2 px-4 xl:px-6 text-sm font-medium sticky top-0 bg-b-1 z-20 rounded-t xl:rounded-none xl:min-h-header">
+      class="py-2.5 flex items-center border-b-1/2 px-4 xl:px-5 text-sm font-medium sticky top-0 bg-b-1 z-20 rounded-t xl:rounded-none xl:min-h-header">
       <slot name="title" />
     </div>
     <slot />

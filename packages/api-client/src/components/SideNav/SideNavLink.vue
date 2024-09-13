@@ -19,7 +19,7 @@ const { currentRoute } = useRouter()
 <template>
   <router-link
     activeClass="active-link"
-    class="flex flex-col items-center gap-1 group no-underline"
+    class="flex flex-col items-center gap-0.5 group no-underline"
     :to="`/workspace/${activeWorkspace.uid}/${name}/default`">
     <div
       class="min-w-[28px] max-w-[28px] group-hover:bg-b-3 active:text-c-1 flex items-center justify-center rounded-lg p-1.5 scalar-app-nav-padding text-c-3"
@@ -29,6 +29,9 @@ const { currentRoute } = useRouter()
       <ScalarIcon
         :icon="icon"
         thickness="1.5" />
+      <!-- <div class="no-underline uppercase whitespace-nowrap">
+        {{ prettyName }}
+      </div> -->
     </div>
     <span class="sr-only"><slot /></span>
   </router-link>

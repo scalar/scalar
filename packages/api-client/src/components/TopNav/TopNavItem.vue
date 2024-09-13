@@ -135,6 +135,7 @@ defineEmits<{
   min-width: 0;
   overflow: hidden;
   position: relative;
+  min-width: 194px;
 }
 .dark-mode .nav-item {
   background: color-mix(in srgb, var(--scalar-background-2), transparent);
