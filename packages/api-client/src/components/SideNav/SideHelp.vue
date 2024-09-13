@@ -12,7 +12,7 @@ import {
     class="max-w-[150px]"
     :placement="'top-end'">
     <button
-      class="min-w-[28px] max-w-[28px] hover:bg-b-3 flex items-center justify-center rounded-lg p-1.5 text-c-3 focus:text-c-1 scalar-app-nav-padding"
+      class="min-w-[28px] max-w-[28px] hover:bg-b-3 flex items-center justify-center rounded-lg p-1.25 text-c-3 focus:text-c-1 scalar-app-nav-padding"
       type="button">
       <ScalarIcon
         icon="Help"

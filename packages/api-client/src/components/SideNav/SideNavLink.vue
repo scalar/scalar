@@ -22,7 +22,7 @@ const { currentRoute } = useRouter()
     class="flex flex-col items-center gap-0.5 group no-underline"
     :to="`/workspace/${activeWorkspace.uid}/${name}/default`">
     <div
-      class="min-w-[28px] max-w-[28px] group-hover:bg-b-3 active:text-c-1 flex items-center justify-center rounded-lg p-1.5 scalar-app-nav-padding text-c-3"
+      class="min-w-[28px] max-w-[28px] group-hover:bg-b-3 active:text-c-1 flex items-center justify-center rounded-lg p-1.25 scalar-app-nav-padding text-c-3"
       :class="{
         'bg-b-3 transition-none group-hover:cursor-auto !text-c-1': active,
       }">
