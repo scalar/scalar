@@ -333,20 +333,24 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
           /** Prefix the url with the origin if it is relative */
           const base = isRelativePath(url) ? window.location.origin + url : url
-          /** We create a seoarate server URL to snag any search params from the server */
-          const serverUrl = new URL(base)
-          const serverAndPath = server?.url
-            ? new URL(base + pathString)
-            : serverUrl
+          /** We create a separate server URL to snag any search params from the server */
+          const serverURL = new URL(base)
+          /** We create a separate path URL to grab the path params */
+          const pathURL = new URL(pathString, serverURL.origin)
+
+          /** Finally we combine the two but make sure that we keep the path from server */
+          const combinedURL = new URL(serverURL)
+          if (serverURL.pathname === '/') combinedURL.pathname = pathString
+          else combinedURL.pathname = serverURL.pathname + pathString
 
           // Combines all query params
-          serverAndPath.search = new URLSearchParams([
-            ...serverAndPath.searchParams,
-            ...serverUrl.searchParams,
+          combinedURL.search = new URLSearchParams([
+            ...serverURL.searchParams,
+            ...pathURL.searchParams,
             ...urlParams,
           ]).toString()
 
-          url = serverAndPath.toString()
+          url = combinedURL.toString()
         }
 
         const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])

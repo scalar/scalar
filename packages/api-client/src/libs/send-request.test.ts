@@ -109,6 +109,26 @@ describe('sendRequest', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `/api` },
+        requestPayload: {
+          path: '/{path}',
+          parameters: [
+            {
+              in: 'path',
+              name: 'path',
+            },
+          ],
+        },
+        requestExamplePayload: {
+          parameters: {
+            path: [
+              {
+                key: 'path',
+                value: 'example',
+                enabled: true,
+              },
+            ],
+          },
+        },
       }),
     )
     if (error) throw error
@@ -123,7 +143,7 @@ describe('sendRequest', () => {
     expect(requestError).toBe(null)
     expect(result?.response.data).toMatchObject({
       method: 'GET',
-      path: '/api',
+      path: '/api/example',
       body: '',
     })
   })
@@ -266,6 +286,24 @@ describe('sendRequest', () => {
       foo: 'bar',
       orange: 'apple',
     })
+  })
+
+  it('doesnt have any query parameters', async () => {
+    const [error, requestOperation] = createRequestOperation<{
+      query: { example: 'parameter'; foo: 'bar' }
+    }>(
+      createRequestPayload({
+        serverPayload: {
+          url: VOID_URL,
+        },
+      }),
+    )
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(result?.response.data.query).toStrictEqual({})
   })
 
   it('works with no content', async () => {
