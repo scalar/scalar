@@ -1,0 +1,15 @@
+import { z } from 'zod'
+
+import { nanoidSchema } from '../shared'
+
+export const environmentSchema = z.object({
+  uid: nanoidSchema,
+  name: z.string().optional().default('Default Environment'),
+  color: z.string().optional().default('blue'),
+  value: z.string().default(''),
+  isDefault: z.boolean().optional(),
+})
+
+/** Environment */
+export type Environment = z.infer<typeof environmentSchema>
+export type EnvironmentPayload = z.input<typeof environmentSchema>
