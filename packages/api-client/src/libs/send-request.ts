@@ -335,16 +335,13 @@ export const createRequestOperation = <ResponseDataType = unknown>({
           const base = isRelativePath(url) ? window.location.origin + url : url
           const serverUrl = new URL(base)
           const serverAndPath = server?.url
-            ? new URL(pathString, base)
+            ? new URL(base + pathString)
             : serverUrl
-          const pathSearchParams = new URLSearchParams(
-            isRelativePath(pathString) ? pathString : '',
-          )
 
           // Combines all query params
           serverAndPath.search = new URLSearchParams([
+            ...serverAndPath.searchParams,
             ...serverUrl.searchParams,
-            ...pathSearchParams,
             ...urlParams,
           ]).toString()
 
