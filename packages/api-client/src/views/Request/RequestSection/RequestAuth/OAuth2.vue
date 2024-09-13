@@ -40,8 +40,6 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading) return
   loadingState.startLoading()
 
-  console.log(props.example)
-
   const accessToken = await authorizeOauth2(
     props.scheme,
     props.example,
