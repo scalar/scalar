@@ -27,8 +27,6 @@ export const authorizeOauth2 = (
   new Promise<string>((resolve, reject) => {
     const scopes = scheme.flow.selectedScopes.join(' ')
 
-    console.log(scopes)
-
     // Client Credentials or Password Flow
     if (
       scheme.flow.type === 'clientCredentials' ||
@@ -73,6 +71,13 @@ export const authorizeOauth2 = (
             const urlParams = new URL(authWindow.location.href).searchParams
             accessToken = urlParams.get('access_token')
             code = urlParams.get('code')
+
+            // We may get the properties in a hash
+            const hashParams = new URLSearchParams(
+              authWindow.location.href.split('#')[1],
+            )
+            accessToken ||= hashParams.get('access_token')
+            code ||= hashParams.get('code')
           } catch (e) {
             // Ignore CORS error from popup
           }
