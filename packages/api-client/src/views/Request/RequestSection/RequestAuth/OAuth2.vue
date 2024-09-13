@@ -37,7 +37,7 @@ const updateScheme: UpdateScheme = (path, value) =>
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
-  if (loadingState.isLoading) return
+  if (loadingState.isLoading || !activeCollection.value?.uid) return
   loadingState.startLoading()
 
   const accessToken = await authorizeOauth2(
@@ -45,22 +45,23 @@ const handleAuthorize = async () => {
     props.example,
   ).finally(() => loadingState.stopLoading())
 
-  if (accessToken)
-    securitySchemeMutators.edit(props.scheme.uid, 'token', accessToken)
+  if (accessToken) updateAuth(`auth.${props.scheme.uid}.token`, accessToken)
 }
 </script>
 
 <template>
   <!-- Access Token Granted -->
-  <template v-if="scheme.token">
+  <template v-if="example.token">
     <DataTableRow>
       <RequestAuthDataTableInput
         id="oauth2-access-token"
         class="border-r-transparent"
-        :modelValue="scheme.token"
+        :modelValue="example.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
-        @update:modelValue="(v) => updateScheme('token', v)">
+        @update:modelValue="
+          (v) => updateAuth(`auth.${props.scheme.uid}.token`, v)
+        ">
         Access Token
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -71,7 +72,7 @@ const handleAuthorize = async () => {
           :loading="loadingState"
           size="sm"
           variant="outlined"
-          @click="updateScheme('token', '')">
+          @click="updateAuth(`auth.${props.scheme.uid}.token`, '')">
           Clear
         </ScalarButton>
       </div>

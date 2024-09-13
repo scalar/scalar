@@ -244,11 +244,9 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   'x-scalar-client-id': z.string().optional().default(''),
 })
 
-export const securityOauthSchema = oasSecuritySchemeOauth2
-  .extend({
-    token: z.string().optional().default(''),
-  })
-  .merge(extendedSecuritySchema)
+export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
+  extendedSecuritySchema,
+)
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 
