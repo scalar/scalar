@@ -13,7 +13,7 @@ type SecuritySchemeOauth2NonImplicit = Omit<SecuritySchemeOauth2, 'flow'> & {
 export const isOauth2Example = (
   example: SecuritySchemeExampleValue,
 ): example is SecuritySchemeOauth2ExampleValue =>
-  example.type.startsWith('oauth2')
+  example.type.startsWith('oauth')
 
 /**
  * Authorize oauth2 flow
@@ -26,6 +26,8 @@ export const authorizeOauth2 = (
 ) =>
   new Promise<string>((resolve, reject) => {
     const scopes = scheme.flow.selectedScopes.join(' ')
+
+    console.log(scopes)
 
     // Client Credentials or Password Flow
     if (
@@ -95,6 +97,7 @@ export const authorizeOauth2 = (
               authorizeServers(
                 scheme as SecuritySchemeOauth2NonImplicit,
                 example,
+                scopes,
                 code,
               )
                 .then(resolve)
