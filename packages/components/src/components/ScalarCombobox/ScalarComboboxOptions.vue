@@ -12,10 +12,12 @@ const props = defineProps<{
   placeholder?: string
   open?: boolean
   multiselect?: boolean
+  isDeletable?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: Option[]): void
+  (e: 'delete', option: Option): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -132,9 +134,11 @@ function moveActive(dir: 1 | -1) {
         <ComboboxOption
           v-if="group.options.some((o) => o.id === option.id)"
           :active="active?.id === option.id"
+          :isDeletable="option.isDeletable ?? isDeletable"
           :selected="selected.some((o) => o.id === option.id)"
           :style="multiselect ? 'checkbox' : 'radio'"
           @click="toggleSelected(option)"
+          @delete="$emit('delete', option)"
           @mousedown.prevent
           @mouseenter="active = option">
           {{ option.label }}
