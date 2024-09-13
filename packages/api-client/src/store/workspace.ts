@@ -1,5 +1,4 @@
 import { PathId, fallbackMissingParams } from '@/router'
-import { LS_KEYS } from '@/store'
 import { useModal } from '@scalar/components'
 import {
   type Workspace,
@@ -55,6 +54,8 @@ import type { Spec } from '@scalar/types/legacy'
 import type { Entries } from 'type-fest'
 import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
+
+import { LS_KEYS } from './local-storage'
 
 type AnyObject = Record<string, any>
 
