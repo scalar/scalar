@@ -26,6 +26,11 @@ export function importSpecFileFactory({
     overloadServers?: Spec['servers'],
   ) => {
     const spec = toRaw(_spec)
+
+    // Overload the servers
+    if (overloadServers?.length && typeof spec === 'object')
+      spec.servers = overloadServers
+
     const workspaceEntities = await importSpecToWorkspace(spec)
 
     if (workspaceEntities.error) {
