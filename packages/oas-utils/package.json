@@ -54,18 +54,6 @@
       "import": "./dist/entities/workspace/index.js",
       "types": "./dist/entities/workspace/index.d.ts"
     },
-    "./entities/workspace/spec": {
-      "import": "./dist/entities/workspace/spec/index.js",
-      "types": "./dist/entities/workspace/spec/index.d.ts"
-    },
-    "./entities/workspace/shared": {
-      "import": "./dist/entities/workspace/shared/index.js",
-      "types": "./dist/entities/workspace/shared/index.d.ts"
-    },
-    "./entities/workspace/server": {
-      "import": "./dist/entities/workspace/server/index.js",
-      "types": "./dist/entities/workspace/server/index.d.ts"
-    },
     "./entities/workspace/security": {
       "import": "./dist/entities/workspace/security/index.js",
       "types": "./dist/entities/workspace/security/index.d.ts"
@@ -74,25 +62,29 @@
       "import": "./dist/entities/workspace/folder/index.js",
       "types": "./dist/entities/workspace/folder/index.d.ts"
     },
-    "./entities/workspace/environment": {
-      "import": "./dist/entities/workspace/environment/index.js",
-      "types": "./dist/entities/workspace/environment/index.d.ts"
-    },
-    "./entities/workspace/cookie": {
-      "import": "./dist/entities/workspace/cookie/index.js",
-      "types": "./dist/entities/workspace/cookie/index.d.ts"
-    },
     "./entities/workspace/consts": {
       "import": "./dist/entities/workspace/consts/index.js",
       "types": "./dist/entities/workspace/consts/index.d.ts"
     },
-    "./entities/workspace/collection": {
-      "import": "./dist/entities/workspace/collection/index.js",
-      "types": "./dist/entities/workspace/collection/index.d.ts"
+    "./entities/spec": {
+      "import": "./dist/entities/spec/index.js",
+      "types": "./dist/entities/spec/index.d.ts"
+    },
+    "./entities/shared": {
+      "import": "./dist/entities/shared/index.js",
+      "types": "./dist/entities/shared/index.d.ts"
     },
     "./entities/hotkeys": {
       "import": "./dist/entities/hotkeys/index.js",
       "types": "./dist/entities/hotkeys/index.d.ts"
+    },
+    "./entities/environment": {
+      "import": "./dist/entities/environment/index.js",
+      "types": "./dist/entities/environment/index.d.ts"
+    },
+    "./entities/cookie": {
+      "import": "./dist/entities/cookie/index.js",
+      "types": "./dist/entities/cookie/index.d.ts"
     }
   },
   "files": [
