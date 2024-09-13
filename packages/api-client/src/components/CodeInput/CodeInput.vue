@@ -293,7 +293,7 @@ export default {
   margin: 0 6px;
   border-radius: 3px;
   display: inline-block;
-  border-radius: 30px;
+  border-radius: var(--scalar-radius);
   font-size: var(--scalar-mini);
   background: color-mix(in srgb, var(--tw-bg-base), transparent 94%) !important;
 }

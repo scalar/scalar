@@ -93,77 +93,75 @@ onMounted(() => {
 })
 </script>
 <template>
-  <SubpageHeader>
-    <ViewLayout>
-      <Sidebar title="Cookies">
-        <template #content>
-          <div class="flex-1">
-            <SidebarList>
+  <ViewLayout>
+    <Sidebar title="Cookies">
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <div
+              v-for="(paths, domain) in groupedCookies"
+              :key="domain">
+              <button
+                class="flex font-medium gap-1.5 items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                type="button"
+                @click="toggleSidebarFolder(domain)">
+                <ScalarIcon
+                  class="text-c-3"
+                  :class="{
+                    'rotate-90': collapsedSidebarFolders[domain],
+                  }"
+                  icon="ChevronRight"
+                  size="sm"
+                  thickness="2.5" />
+                {{ domain }}
+              </button>
               <div
-                v-for="(paths, domain) in groupedCookies"
-                :key="domain">
-                <button
-                  class="flex font-medium gap-1.5 items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
-                  type="button"
-                  @click="toggleSidebarFolder(domain)">
-                  <ScalarIcon
-                    class="text-c-3"
-                    :class="{
-                      'rotate-90': collapsedSidebarFolders[domain],
-                    }"
-                    icon="ChevronRight"
-                    size="sm"
-                    thickness="2.5" />
-                  {{ domain }}
-                </button>
+                v-show="showChildren(domain)"
+                class="before:bg-b-3 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                 <div
-                  v-show="showChildren(domain)"
-                  class="before:bg-b-3 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                  v-for="(cookieList, path) in paths"
+                  :key="path">
+                  <button
+                    class="flex font-medium gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                    type="button"
+                    @click="toggleSidebarFolder(domain + path)">
+                    <ScalarIcon
+                      class="text-c-3"
+                      :class="{
+                        'rotate-90': collapsedSidebarFolders[domain + path],
+                      }"
+                      icon="ChevronRight"
+                      size="sm"
+                      thickness="2.5" />
+                    {{ path }}
+                  </button>
                   <div
-                    v-for="(cookieList, path) in paths"
-                    :key="path">
-                    <button
-                      class="flex font-medium gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
-                      type="button"
-                      @click="toggleSidebarFolder(domain + path)">
-                      <ScalarIcon
-                        class="text-c-3"
-                        :class="{
-                          'rotate-90': collapsedSidebarFolders[domain + path],
-                        }"
-                        icon="ChevronRight"
-                        size="sm"
-                        thickness="2.5" />
-                      {{ path }}
-                    </button>
-                    <div
-                      v-show="showChildren(domain + path)"
-                      class="before:bg-b-3 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
-                      <SidebarListElement
-                        v-for="cookie in cookieList"
-                        :key="cookie.uid"
-                        class="cookie text-xs"
-                        :variable="{ name: cookie.name, uid: cookie.uid }"
-                        :warningMessage="`Are you sure you want to delete this cookie?`"
-                        @delete="removeCookie(cookie.uid)" />
-                    </div>
+                    v-show="showChildren(domain + path)"
+                    class="before:bg-b-3 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                    <SidebarListElement
+                      v-for="cookie in cookieList"
+                      :key="cookie.uid"
+                      class="cookie text-xs"
+                      :variable="{ name: cookie.name, uid: cookie.uid }"
+                      :warningMessage="`Are you sure you want to delete this cookie?`"
+                      @delete="removeCookie(cookie.uid)" />
                   </div>
                 </div>
               </div>
-            </SidebarList>
-          </div>
-        </template>
-        <template #button>
-          <SidebarButton :click="addCookieHandler">
-            <template #title>Add Item</template>
-          </SidebarButton>
-        </template>
-      </Sidebar>
+            </div>
+          </SidebarList>
+        </div>
+      </template>
+      <template #button>
+        <SidebarButton :click="addCookieHandler">
+          <template #title>Add Item</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
 
-      <ViewLayoutContent class="flex-1">
-        <CookieForm />
-        <CookieRaw />
-      </ViewLayoutContent>
-    </ViewLayout>
-  </SubpageHeader>
+    <ViewLayoutContent class="flex-1">
+      <CookieForm />
+      <CookieRaw />
+    </ViewLayoutContent>
+  </ViewLayout>
 </template>

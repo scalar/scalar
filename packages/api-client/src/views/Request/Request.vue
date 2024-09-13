@@ -309,17 +309,20 @@ const newTab = (name: string, uid: string) => {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden"
+    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden"
     :class="{
       '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
     }">
     <div
-      class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container border-b-1/2">
+      class="lg:min-h-header flex items-center justify-center p-1 flex-wrap t-app__top-container border-b-1/2">
       <div
-        class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
+        class="flex flex-row items-center lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
         <SidebarToggle
           v-model="showSideBar"
           class="gitbook-hidden" />
+        <div>
+          <WorkspaceDropdown v-if="!activeWorkspace.isReadOnly" />
+        </div>
         <a
           class="text-c-2 text-sm font-medium gitbook-show ml-.5 hover:text-c-1 border p-1 rounded hover:bg-b-3"
           href="https://scalar.com/"
@@ -353,7 +356,6 @@ const newTab = (name: string, uid: string) => {
         <template
           v-if="!activeWorkspace.isReadOnly"
           #header>
-          <WorkspaceDropdown />
         </template>
         <template #content>
           <div class="search-button-fade sticky px-3 py-2.5 top-0 z-50">

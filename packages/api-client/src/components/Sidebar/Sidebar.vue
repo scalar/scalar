@@ -62,7 +62,7 @@ const startDrag = (event: MouseEvent) => {
     ref="sidebarRef"
     class="sidebar overflow-hidden relative flex flex-col border-r-1/2 bg-b-1"
     :class="{ dragging: isDragging }"
-    :style="{ width: sidebarWidth }">
+    :style="{ width: sidebarWidth, minWidth: sidebarWidth }">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
@@ -86,7 +86,7 @@ const startDrag = (event: MouseEvent) => {
 </template>
 <style scoped>
 .sidebar-height {
-  min-height: calc(100% - 50px);
+  min-height: 100%;
 }
 .sidebar-mask {
   padding-bottom: 42px;

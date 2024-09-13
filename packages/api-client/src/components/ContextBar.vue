@@ -12,11 +12,11 @@ defineEmits<{
   <div
     class="fade-request-section-content sticky top-0 z-10 pointer-events-none">
     <div
-      class="request-section-content request-section-content-filter bg-b-1 border-1/2 text-c-3 bg-b-1 mb-2.5 hidden xl:flex justify-center rounded p-[2.25px] text-xs gap-0.5 pointer-events-auto">
+      class="request-section-content request-section-content-filter bg-b-1 text-c-3 bg-b-1 hidden xl:flex justify-center rounded text-3xs gap-[1px] pointer-events-auto flex-row-reverse">
       <button
         v-for="section in sections"
         :key="section"
-        class="hover:bg-b-2 w-full rounded px-1 py-1 text-center font-medium"
+        class="hover:bg-b-2 w-full rounded px-1.5 py-1 text-center font-bold font-code uppercase"
         :class="[
           activeSection === section
             ? 'bg-b-2 text-c-1  pointer-events-none'

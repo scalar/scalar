@@ -25,29 +25,27 @@ const addServerHandler = () => {
 }
 </script>
 <template>
-  <SubpageHeader>
-    <ViewLayout>
-      <Sidebar title="Servers">
-        <template #content>
-          <div class="flex-1">
-            <SidebarList>
-              <SidebarListElement
-                v-for="serverUid in activeCollection?.spec.serverUids"
-                :key="serverUid"
-                class="text-xs"
-                :variable="{ name: servers[serverUid].url, uid: serverUid }" />
-            </SidebarList>
-          </div>
-        </template>
-        <template #button>
-          <SidebarButton :click="addServerHandler">
-            <template #title>Add Server</template>
-          </SidebarButton>
-        </template>
-      </Sidebar>
-      <ViewLayoutContent class="flex-1">
-        <ServerForm />
-      </ViewLayoutContent>
-    </ViewLayout>
-  </SubpageHeader>
+  <ViewLayout>
+    <Sidebar title="Servers">
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="serverUid in activeCollection?.spec.serverUids"
+              :key="serverUid"
+              class="text-xs"
+              :variable="{ name: servers[serverUid].url, uid: serverUid }" />
+          </SidebarList>
+        </div>
+      </template>
+      <template #button>
+        <SidebarButton :click="addServerHandler">
+          <template #title>Add Server</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
+    <ViewLayoutContent class="flex-1">
+      <ServerForm />
+    </ViewLayoutContent>
+  </ViewLayout>
 </template>

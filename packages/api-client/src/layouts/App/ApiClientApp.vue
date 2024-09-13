@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { TheCommandPalette } from '@/components/CommandPalette'
+import DarkModeIconToggle from '@/components/DarkModeToggle/DarkModeIconToggle.vue'
+import SideHelp from '@/components/SideNav/SideHelp.vue'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
@@ -90,19 +92,25 @@ const fontsStyleTag = computed(
 </script>
 <template>
   <div v-html="fontsStyleTag"></div>
-  <TopNav :openNewTab="newTab" />
+  <div class="flex w-full h-10 t-app__top-nav items-center">
+    <div class="t-app__top-nav-draggable h-10"></div>
+    <SideNav />
+    <TopNav :openNewTab="newTab" />
+    <div class="flex no-drag-region relative max-h-[28px] ml-1.5">
+      <DarkModeIconToggle />
+      <SideHelp />
+    </div>
+  </div>
 
   <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
     v-if="workspaceStore.activeWorkspace.value?.uid"
     class="flex min-h-0 flex-1 z-0">
-    <SideNav />
-
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
 
-    <div class="flex flex-1 flex-col min-w-0">
+    <div class="flex flex-1 flex-col min-w-0 border-t-1/2">
       <RouterView
         v-slot="{ Component }"
         @newTab="handleNewTab">
@@ -130,5 +138,20 @@ const fontsStyleTag = computed(
 }
 .dark-mode #scalar-client {
   background-color: color-mix(in srgb, var(--scalar-background-1) 30%, black);
+}
+.t-app__top-nav {
+  padding-left: 12px;
+  padding-right: 9px;
+  position: relative;
+}
+.t-app__top-nav-draggable {
+  -webkit-app-region: drag;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+.no-drag-region {
+  -webkit-app-region: no-drag;
 }
 </style>

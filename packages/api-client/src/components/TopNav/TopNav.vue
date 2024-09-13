@@ -146,8 +146,7 @@ onMounted(() => hotKeyBus.on(handleHotKey))
 onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
-  <nav class="flex h-10 t-app__top-nav">
-    <div class="t-app__top-nav-draggable"></div>
+  <nav class="flex h-10 w-full">
     <div
       class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium relative">
       <template v-if="topNavItems.length === 1">
@@ -220,19 +219,6 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   </nav>
 </template>
 <style scoped>
-.t-app__top-nav {
-  padding-left: 52px;
-  padding-right: 9px;
-  position: relative;
-}
-.t-app__top-nav-draggable {
-  -webkit-app-region: drag;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
 .webkit-app-no-drag {
   -webkit-app-region: no-drag;
 }

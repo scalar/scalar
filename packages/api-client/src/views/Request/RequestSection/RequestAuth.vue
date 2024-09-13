@@ -263,7 +263,7 @@ const unselectAuth = (id: string) => {
                   v-if="selectedAuth.length"
                   class="flex relative scroll-timeline-x w-full">
                   <div class="fade-left"></div>
-                  <div class="flex flex-1 gap-0.75 mr-1.5 items-center">
+                  <div class="flex flex-1 gap-0.75 mr-1.5 items-center pl-0.5">
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
