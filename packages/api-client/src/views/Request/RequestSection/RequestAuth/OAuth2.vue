@@ -5,14 +5,14 @@ import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAut
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import type {
-  SecuritySchemeExampleValue,
   SecuritySchemeOauth2,
+  SecuritySchemeOauth2ExampleValue,
 } from '@scalar/oas-utils/entities/spec'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 
 const props = defineProps<{
-  example: SecuritySchemeExampleValue
+  example: SecuritySchemeOauth2ExampleValue
   scheme: SecuritySchemeOauth2
 }>()
 
@@ -39,6 +39,8 @@ const updateScheme: UpdateScheme = (path, value) =>
 const handleAuthorize = async () => {
   if (loadingState.isLoading) return
   loadingState.startLoading()
+
+  console.log(props.example)
 
   const accessToken = await authorizeOauth2(
     props.scheme,
