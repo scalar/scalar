@@ -2,6 +2,7 @@
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
+import { isOauth2Example } from '@/views/Request/libs'
 import type {
   SecurityScheme,
   SecuritySchemeExampleValue,
@@ -138,7 +139,7 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
 
     <!-- OAuth 2 -->
     <OAuth2
-      v-else-if="scheme.type === 'oauth2'"
+      v-else-if="scheme.type === 'oauth2' && isOauth2Example(example)"
       :example="example"
       :scheme="scheme" />
   </template>

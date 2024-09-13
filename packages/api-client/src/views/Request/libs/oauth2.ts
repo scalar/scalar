@@ -1,7 +1,19 @@
 import type {
+  SecuritySchemeExampleValue,
   SecuritySchemeOauth2,
   SecuritySchemeOauth2ExampleValue,
 } from '@scalar/oas-utils/entities/spec'
+
+/** Oauth2 security schemes which are not implicit */
+type SecuritySchemeOauth2NonImplicit = Omit<SecuritySchemeOauth2, 'flow'> & {
+  flow: Exclude<SecuritySchemeOauth2['flow'], { type: 'implicit' }>
+}
+
+/** Type guard to check for oauth2 example */
+export const isOauth2Example = (
+  example: SecuritySchemeExampleValue,
+): example is SecuritySchemeOauth2ExampleValue =>
+  example.type.startsWith('oauth2')
 
 /**
  * Authorize oauth2 flow
@@ -20,7 +32,13 @@ export const authorizeOauth2 = (
       scheme.flow.type === 'clientCredentials' ||
       scheme.flow.type === 'password'
     ) {
-      authorizeServers(scheme, example, scopes).then(resolve).catch(reject)
+      authorizeServers(
+        scheme as SecuritySchemeOauth2NonImplicit,
+        example,
+        scopes,
+      )
+        .then(resolve)
+        .catch(reject)
     }
 
     // OAuth2 flows with a login popup
@@ -74,7 +92,11 @@ export const authorizeOauth2 = (
 
             // Authorization Code Server Flow
             else if (code) {
-              authorizeServers(scheme, example, code)
+              authorizeServers(
+                scheme as SecuritySchemeOauth2NonImplicit,
+                example,
+                code,
+              )
                 .then(resolve)
                 .catch(reject)
             }
@@ -91,17 +113,12 @@ export const authorizeOauth2 = (
     }
   })
 
-// We don't want imlicit here
-type SecuritySchemeOauth2NoExplicit = Omit<SecuritySchemeOauth2, 'flow'> & {
-  flow: Exclude<SecuritySchemeOauth2['flow'], { type: 'implicit' }>
-}
-
 /**
  * Makes the BE authorization call to grab the token server to server
  * Used for clientCredentials and authorizationCode
  */
 export const authorizeServers = async (
-  scheme: SecuritySchemeOauth2NoExplicit,
+  scheme: SecuritySchemeOauth2NonImplicit,
   example: SecuritySchemeOauth2ExampleValue,
   scopes: string,
   code?: string,
