@@ -89,6 +89,10 @@
     "./entities/workspace/collection": {
       "import": "./dist/entities/workspace/collection/index.js",
       "types": "./dist/entities/workspace/collection/index.d.ts"
+    },
+    "./entities/hotkeys": {
+      "import": "./dist/entities/hotkeys/index.js",
+      "types": "./dist/entities/hotkeys/index.d.ts"
     }
   },
   "files": [
