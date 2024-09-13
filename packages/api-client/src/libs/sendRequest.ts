@@ -1,4 +1,4 @@
-import { ERRORS } from '@/errors'
+import { ERRORS } from '@/libs'
 import { normalizeHeaders } from '@/libs/normalizeHeaders'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/workspace/cookie'

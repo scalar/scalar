@@ -47,13 +47,15 @@ import {
 import { fetchSpecFromUrl, iterateTitle } from '@scalar/oas-utils/helpers'
 import { getRequestBodyFromOperation } from '@scalar/oas-utils/spec-getters'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
-import { LS_KEYS, mutationFactory } from '@scalar/object-utils/mutator-record'
+import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { Entries } from 'type-fest'
 import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
+
+import { LS_KEYS } from './local-storage'
 
 type AnyObject = Record<string, any>
 
