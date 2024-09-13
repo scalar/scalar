@@ -234,10 +234,12 @@ export const createWorkspaceStore = (
   const activeEnvVariables = computed(() => {
     // TODO: Must merge global variables and collection level variables here
     // Return a list of key value pairs that includes dot nested paths
-    return flattenEnvVars(activeEnvironment.value).map(([key, value]) => ({
-      key,
-      value,
-    }))
+    return flattenEnvVars(JSON.parse(activeEnvironment.value.value)).map(
+      ([key, value]) => ({
+        key,
+        value,
+      }),
+    )
   })
 
   // ---------------------------------------------------------------------------
