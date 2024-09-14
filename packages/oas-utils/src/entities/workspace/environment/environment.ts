@@ -8,7 +8,7 @@ const parsed = z.object({
   value: z.string(),
 })
 
-const environmentSchema = z.object({
+export const environmentSchema = z.object({
   uid: nanoidSchema,
   name: z.string().optional().default('Default Environment'),
   color: z.string().optional().default('blue'),

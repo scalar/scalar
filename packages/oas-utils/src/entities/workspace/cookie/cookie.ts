@@ -3,7 +3,7 @@ import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 
-const cookieSchema = z.object({
+export const cookieSchema = z.object({
   uid: nanoidSchema,
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string().default('Default Cookie'),

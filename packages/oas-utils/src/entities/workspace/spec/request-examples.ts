@@ -25,7 +25,7 @@ const fileSchema = z
 
 export type FileType = z.infer<typeof fileSchema>
 
-const requestExampleParametersSchema = z.object({
+export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.union([z.string(), z.number()]).transform(String).default(''),
   enabled: z.boolean().default(true),
@@ -60,7 +60,7 @@ export const createRequestExampleParameter = (
     payload as Partial<RequestExampleParameter>,
   )
 
-const requestExampleSchema = z.object({
+export const requestExampleSchema = z.object({
   uid: nanoidSchema,
   url: z.string().optional().default(''),
   requestUid: z.string().min(7),

@@ -2,7 +2,7 @@ import { nanoidSchema } from '@/entities/workspace/shared'
 import { deepMerge } from '@scalar/object-utils/merge'
 import { z } from 'zod'
 
-const folderSchema = z.object({
+export const folderSchema = z.object({
   /** Used for database sync only */
   uid: nanoidSchema,
   /** Will correspond to the slash separate path some, some/nested or some/nested/folder */
