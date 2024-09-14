@@ -60,6 +60,6 @@
     "vite-plugin-static-copy": "^1.0.2",
     "vitest": "^1.6.0",
     "vue": "^3.4.29",
-    "yaml": "^2.5.1"
+    "yaml": "^2.4.5"
   }
 }

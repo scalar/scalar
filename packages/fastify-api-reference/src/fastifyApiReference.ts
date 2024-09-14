@@ -39,23 +39,23 @@ export type FastifyApiReferenceOptions = {
    *
    * These endpoints can be used to fetch the OpenAPI specification for your own programmatic use.
    *
-   * @default{ json: '/json', yaml: '/yaml' }
+   * @default{ json: '/openapi.json', yaml: '/openapi.yaml' }
    */
-  openApiSpecEndpoint?: {
+  openApiDocumentEndpoints?: {
     /**
      * Set where the OpenAPI specification is exposed under `${routePrefix}`, in JSON format.
      *
-     * With the default value, the endpoint is: `${publicPath}${routePrefix}/json`
+     * With the default value, the endpoint is: `${publicPath}${routePrefix}/openapi.json`
      *
-     * @default '/json'
+     * @default '/openapi.json'
      */
     json?: `/${string}`
     /**
      * Set where the OpenAPI specification is exposed under `${routePrefix}`, in YAML format.
      *
-     * With the default value, the endpoint is: `${publicPath}${routePrefix}/yaml`
+     * With the default value, the endpoint is: `${publicPath}${routePrefix}/openapi.yaml`
      *
-     * @default '/yaml'
+     * @default '/openapi.yaml'
      */
     yaml?: `/${string}`
   }
@@ -83,10 +83,11 @@ const schemaToHideRoute = {
 }
 
 const getRoutePrefix = (routePrefix?: string) => routePrefix ?? '/reference'
-const getOpenApiSpecEndpoint = (
-  openApiSpecEndpoint: FastifyApiReferenceOptions['openApiSpecEndpoint'],
+const getOpenApiDocumentEndpoints = (
+  openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints'],
 ) => {
-  const { json = '/json', yaml = '/yaml' } = openApiSpecEndpoint ?? {}
+  const { json = '/openapi.json', yaml = '/openapi.yaml' } =
+    openApiDocumentEndpoints ?? {}
   return { json, yaml }
 }
 
@@ -245,11 +246,11 @@ const fastifyApiReference = fp<
         return {
           type: 'swagger' as const,
           get: () => {
-            // @ts-ignore
             return fastify.swagger() as OpenAPI.Document
           },
         }
       }
+      return void 0
     })()
 
     // If no OpenAPI specification is passed and @fastify/swagger isn’t loaded, show a warning.
@@ -287,11 +288,10 @@ const fastifyApiReference = fp<
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
 
-    const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiSpecEndpoint(options.openApiSpecEndpoint).json}`
+    const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlJson,
-      // @ts-ignore
       schema: schemaToHideRoute,
       ...hooks,
       async handler(_, reply) {
@@ -305,11 +305,10 @@ const fastifyApiReference = fp<
       },
     })
 
-    const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiSpecEndpoint(options.openApiSpecEndpoint).yaml}`
+    const openApiSpecUrlYaml = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).yaml}`
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlYaml,
-      // @ts-ignore
       schema: schemaToHideRoute,
       ...hooks,
       async handler(_, reply) {
@@ -328,29 +327,18 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getRoutePrefix(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-      // @ts-ignore
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
-        // If nothing is passed, spec is sourced from @fastify/swagger, and missing `spec.content` must be set
-        if (specSource.type === 'swagger') {
-          configuration = {
-            ...configuration,
-            spec: {
-              content: specSource.get(),
-            },
-          }
-        }
-
         /**
-         * If no URL is passed, additionally provide the OpenAPI spec endpoint,
-         * to allow the download button to point to the exposed endpoint instead of generating the spec client side
+         * Regardless of where we source the spec from, provide it as a URL, to have the
+         * download button point to the exposed endpoint.
+         * If the URL is explicitly passed, defer to that URL instead.
          */
         if (specSource.type !== 'url') {
           configuration = {
             ...configuration,
             spec: {
-              ...configuration?.spec,
               url: openApiSpecUrlJson,
             },
           }
@@ -374,7 +362,6 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getJavaScriptUrl(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
-      // @ts-ignore
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
