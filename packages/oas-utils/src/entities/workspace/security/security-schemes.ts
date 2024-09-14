@@ -17,7 +17,7 @@ const commonProps = z.object({
 
 export const securitySchemeApiKeyIn = ['query', 'header', 'cookie'] as const
 
-const securitySchemeApiKey = commonProps.extend({
+export const securitySchemeApiKey = commonProps.extend({
   type: z.literal('apiKey'),
   /** REQUIRED. The name of the header, query or cookie parameter to be used. */
   name: z.string().optional().default(''),
@@ -28,7 +28,7 @@ const securitySchemeApiKey = commonProps.extend({
 
 export type SecuritySchemeApiKey = z.infer<typeof securitySchemeApiKey>
 
-const securitySchemeHttp = commonProps.extend({
+export const securitySchemeHttp = commonProps.extend({
   type: z.literal('http'),
   /**
    * REQUIRED. The name of the HTTP Authorization scheme to be used in the Authorization header as defined in
@@ -121,7 +121,7 @@ const oauthFlowSchema = z
   .optional()
   .default({ type: 'implicit' })
 
-const securitySchemeOauth2 = commonProps.extend({
+export const securitySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
   /** REQUIRED. An object containing configuration information for the flow types supported. */
   flow: oauthFlowSchema,
@@ -138,7 +138,7 @@ const securitySchemeOpenId = commonProps.extend({
   openIdConnectUrl: z.string().optional().default(''),
 })
 
-const securityScheme = z.union([
+export const securityScheme = z.union([
   securitySchemeApiKey,
   securitySchemeHttp,
   securitySchemeOauth2,

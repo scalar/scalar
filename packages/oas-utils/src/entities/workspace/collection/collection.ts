@@ -115,7 +115,7 @@ const specSchema = z.object({
   externalDocs: exteralDocumentationSchema.optional(),
 })
 
-const collectionSchema = z.object({
+export const collectionSchema = z.object({
   uid: nanoidSchema,
   spec: specSchema.optional().default({}),
   /** A dictionary which maps the openapi spec name keys to the security-scheme UID's for lookup */

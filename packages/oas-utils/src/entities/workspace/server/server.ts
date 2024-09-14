@@ -28,7 +28,7 @@ const serverVariableSchema = z.object({
   value: z.string().optional(),
 })
 
-const serverSchema = z.object({
+export const serverSchema = z.object({
   uid: nanoidSchema,
   /**
    * REQUIRED. A URL to the target host. This URL supports Server Variables and MAY be relative, to indicate that
