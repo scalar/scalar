@@ -27,6 +27,7 @@
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
+    "typegen:migration": "vite-node ./src/migrations/generate-types.ts",
     "test:unit": "vitest .",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
