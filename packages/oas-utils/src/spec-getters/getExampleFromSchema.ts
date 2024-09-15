@@ -125,7 +125,12 @@ export const getExampleFromSchema = (
   }
 
   // Check if the property is required
-  const isObjectOrArray = schema.type === 'object' || schema.type === 'array'
+  const isObjectOrArray =
+    schema.type === 'object' ||
+    schema.type === 'array' ||
+    !!schema.allOf?.at?.(0) ||
+    !!schema.anyOf?.at?.(0) ||
+    !!schema.oneOf?.at?.(0)
   if (!isObjectOrArray && options?.omitEmptyAndOptionalProperties === true) {
     const isRequired =
       schema.required === true ||
