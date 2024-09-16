@@ -104,11 +104,6 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
-> [!NOTE]\
-> [Scalar Townhall every 2nd Thursday in Discord](https://discord.gg/scalar?event=1219363385485824000)
->
-> Join us to see upcoming features, discuss the roadmap and chat about APIs. 💬
-
 ## Contributors
 
 Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING) guide.
