@@ -328,6 +328,48 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject({ foo: 1 })
   })
 
+  it('uses the first example in object anyOf when type is not defined', () => {
+    expect(
+      getExampleFromSchema({
+        anyOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ foo: 1 })
+  })
+
+  it('uses the first example in object oneOf when type is not defined', () => {
+    expect(
+      getExampleFromSchema({
+        oneOf: [
+          {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          {
+            type: 'object',
+            properties: {
+              bar: { type: 'string' },
+            },
+          },
+        ],
+      }),
+    ).toMatchObject({ foo: 1 })
+  })
+
   it('uses all examples in object allOf', () => {
     expect(
       getExampleFromSchema({
