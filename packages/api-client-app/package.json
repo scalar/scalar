@@ -21,8 +21,6 @@
     "dev": "electron-vite dev",
     "dev:open": "cd open && vite",
     "dev:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
     "preview": "electron-vite preview",
     "test": "vitest",
     "todesktop:build": "npm run build && todesktop build",
