@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ScalarCodeBlock } from '@scalar/components'
 import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
 import { computed, ref, toRaw } from 'vue'
@@ -32,7 +33,9 @@ useCodeMirror({
 })
 </script>
 <template>
-  <div ref="codeMirrorRef" />
+  <ScalarCodeBlock
+    :content="content"
+    :lang="language" />
 </template>
 <style scoped>
 :deep(.cm-editor) {

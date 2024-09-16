@@ -37,7 +37,11 @@ const highlightedCode = computed(() => {
 const { copyToClipboard } = useClipboard()
 
 const isContentValid = computed(() => {
-  return props.content !== null && props.content !== 'null'
+  return (
+    props.content !== null &&
+    props.content !== 'null' &&
+    props.content !== '404 Not Found'
+  )
 })
 </script>
 <template>
@@ -62,6 +66,7 @@ const isContentValid = computed(() => {
 <style>
 @import '@scalar/code-highlight/css/code.css';
 .scalar-code-block {
+  background: inherit;
   position: relative;
   overflow: auto;
   padding: 0.5rem 0.5rem 0.5rem 0.75rem;
