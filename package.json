@@ -81,7 +81,7 @@
     "test:e2e:local": "pnpm --filter playwright test:e2e local",
     "test:e2e:themes": "pnpm --filter playwright test:e2e themes",
     "test:e2e:nuxt": "pnpm --filter playwright test:e2e nuxt",
-    "types:check": "turbo --concurrency=100 types:check",
+    "types:check": "turbo --concurrency=8 types:check",
     "bootstrap:package": "vite-node scripts/bootstrap-package/bootstrap-package.ts",
     "markdown:check": "remark --frail ."
   },

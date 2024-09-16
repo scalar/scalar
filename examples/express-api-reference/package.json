@@ -20,7 +20,7 @@
     "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/express-api-reference/Dockerfile .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "dependencies": {
