@@ -15,6 +15,7 @@ import {
   type StreamLanguage,
   bracketMatching,
   defaultHighlightStyle,
+  foldGutter,
   indentOnInput,
   syntaxHighlighting,
 } from '@codemirror/language'
@@ -28,12 +29,15 @@ import {
   lineNumbers as lineNumbersExtension,
   placeholder as placeholderExtension,
 } from '@codemirror/view'
+import { ScalarIcon } from '@scalar/components'
 import {
   type MaybeRefOrGetter,
   type Ref,
   computed,
+  h,
   onBeforeUnmount,
   ref,
+  render,
   toValue,
   watch,
 } from 'vue'
@@ -293,6 +297,7 @@ function getCodeMirrorExtensions({
     EditorView.theme({
       '.cm-line': {
         lineHeight: '20px',
+        padding: '0 2px 0 4px',
       },
       '.cm-gutterElement': {
         lineHeight: '20px',
@@ -307,6 +312,11 @@ function getCodeMirrorExtensions({
       '.cm-diagnostic-error': {
         borderLeft: '0',
         color: '#dc1b19',
+      },
+      '.cm-foldPlaceholder': {
+        background: 'var(--scalar-background-1)',
+        border: 'none',
+        fontFamily: 'var(--scalar-font)',
       },
     }),
     // Listen to updates
@@ -368,9 +378,26 @@ function getCodeMirrorExtensions({
     extensions.push(placeholderExtension(placeholder))
   }
 
+  // Line numbers
+  if (lineNumbers) extensions.push(lineNumbersExtension())
+
   // Syntax highlighting
   if (language && languageExtensions[language]) {
-    extensions.push(languageExtensions[language]())
+    extensions.push(
+      languageExtensions[language](),
+      foldGutter({
+        markerDOM: (open) => {
+          const icon = document.createElement('div')
+          icon.classList.add('cm-foldMarker')
+          const vnode = h(ScalarIcon, {
+            icon: open ? 'ChevronDown' : 'ChevronRight',
+            size: 'xs',
+          })
+          render(vnode, icon)
+          return icon
+        },
+      }),
+    )
   }
 
   // JSON Linter
@@ -396,9 +423,6 @@ function getCodeMirrorExtensions({
     })
     extensions.push(jsonLinter)
   }
-
-  // Line numbers
-  if (lineNumbers) extensions.push(lineNumbersExtension())
 
   // Highlight variables
   if (withVariables) extensions.push(variables())
