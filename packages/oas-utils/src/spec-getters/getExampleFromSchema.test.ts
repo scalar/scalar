@@ -873,4 +873,41 @@ describe('getExampleFromSchema', () => {
       c: true,
     })
   })
+
+  it('deals with circular references', () => {
+    const schema = {
+      type: 'object',
+      properties: {
+        foobar: {},
+      },
+    }
+
+    // Create a circular reference
+    schema.properties.foobar = schema
+
+    // 10 levels deep, that’s enough. It should return null then.
+    expect(getExampleFromSchema(schema)).toStrictEqual({
+      foobar: {
+        foobar: {
+          foobar: {
+            foobar: {
+              foobar: {
+                foobar: {
+                  foobar: {
+                    foobar: {
+                      foobar: {
+                        foobar: {
+                          foobar: null,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+  })
 })

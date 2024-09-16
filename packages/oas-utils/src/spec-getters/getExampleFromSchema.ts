@@ -1,3 +1,6 @@
+/** Hard limit to prevent infinite recursion due to circular references */
+const MAX_LEVELS_DEEP = 10
+
 /**
  * We can use the `format` to generate some random values.
  */
@@ -71,7 +74,7 @@ export const getExampleFromSchema = (
   name?: string,
 ): any => {
   // Break an infinite loop
-  if (level > 5) {
+  if (level > MAX_LEVELS_DEEP) {
     return null
   }
 
