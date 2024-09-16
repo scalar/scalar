@@ -44,7 +44,6 @@ export const NoAuthentication: Story = {
       },
       components: {
         securitySchemes: {
-          // @ts-expect-error TODO
           none: {},
         },
       },
@@ -63,7 +62,6 @@ export const BasicAuthentication: Story = {
       components: {
         securitySchemes: {
           basic: {
-            // @ts-expect-error TODO
             type: 'basic',
             description: 'Use HTTP **Basic** Auth.',
           },
@@ -162,10 +160,8 @@ export const MultipleMethods: Story = {
       },
       components: {
         securitySchemes: {
-          // @ts-expect-error TODO
           none: {},
           basic: {
-            // @ts-expect-error TODO
             type: 'basic',
             description: 'Use HTTP **Basic** Auth.',
           },
@@ -176,7 +172,6 @@ export const MultipleMethods: Story = {
           },
           oauth: {
             type: 'oauth2',
-            // @ts-expect-error TODO
             flow: 'accessCode',
             authorizationUrl: '',
             tokenUrl: '',
