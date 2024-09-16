@@ -40,9 +40,9 @@ describe('getExampleCode', () => {
         method: 'POST',
         url: 'https://example.com',
       }),
-      // @ts-expect error TODO
+      // @ts-expect-error TODO
       'fantasy',
-      // @ts-expect error TODO
+      // @ts-expect-error TODO
       'blue',
     )
 
