@@ -1,8 +1,7 @@
 {
   "extends": "../../tsconfig.json",
-  "include": ["./src", "./playground", "./global.d.ts"],
+  "include": ["./src", "./playground"],
   "compilerOptions": {
-    "rootDir": "./",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]

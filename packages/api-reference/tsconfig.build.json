@@ -9,6 +9,7 @@
     "**/*.spec.ts"
   ],
   "compilerOptions": {
+    "rootDir": "./src",
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
