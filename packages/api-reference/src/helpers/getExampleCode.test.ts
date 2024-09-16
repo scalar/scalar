@@ -42,7 +42,6 @@ describe('getExampleCode', () => {
       }),
       // @ts-expect-error TODO
       'fantasy',
-      // @ts-expect-error TODO
       'blue',
     )
 
