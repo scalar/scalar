@@ -17,8 +17,8 @@
   "scripts": {
     "build": "vue-tsc && vite build",
     "dev": "vite",
-    "lint": "eslint \"src/**/*.{js,vue}\"",
-    "lint:fix": "eslint \"src/**/*.{js,vue}\" --fix",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },

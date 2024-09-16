@@ -24,6 +24,8 @@
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "scalar-build-rollup",
     "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "screenshot": "./scripts/take-screenshots.sh",
     "test": "vitest",
     "types:build": "scalar-types-build",

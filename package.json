@@ -1,6 +1,8 @@
 {
   "name": "root",
   "type": "module",
+  "version": "1.0.0",
+  "private": true,
   "engines": {
     "pnpm": "^9.1.0"
   },
@@ -41,7 +43,6 @@
     "vue-eslint-parser": "^9.4.2",
     "vue-tsc": "^2.0.26"
   },
-  "private": true,
   "scripts": {
     "build": "turbo build",
     "build:docker-base": "docker build -t scalar-base -f ./tooling/base-docker-builder/Dockerfile .",

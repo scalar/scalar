@@ -17,7 +17,10 @@
   "scripts": {
     "build": "tsc --p tsconfig.json && tsc-alias -p tsconfig.json",
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/express-api-reference --watch ./",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/express-api-reference/Dockerfile ."
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/express-api-reference/Dockerfile .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "dependencies": {
@@ -26,6 +29,7 @@
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/swagger-jsdoc": "^6.0.3",
     "vite": "^5.2.10"

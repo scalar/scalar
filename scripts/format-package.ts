@@ -18,6 +18,15 @@ type PackageType = 'examples' | 'packages'
  * Sorts, defaults and overrides keys as specified in the definitions below
  */
 
+/** While we strive to make everything ESM, we just accept that some packages aren’t ESM. */
+const NO_MODULE_PACKAGES = [
+  'scalar-api-client',
+  '@scalar/docusaurus',
+  '@scalar-examples/docusaurus',
+  '@scalar-examples/nestjs-api-reference-express',
+  '@scalar-examples/nestjs-api-reference-fastify',
+]
+
 /** List of keys to sort and format */
 const restrictedKeys = [
   'name',
@@ -72,10 +81,10 @@ async function formatPackage(filepath: string) {
 
   const data = JSON.parse(file)
 
-  if (data.type !== 'module') {
+  if (data.type !== 'module' && !NO_MODULE_PACKAGES.includes(data.name)) {
     printColor(
       'brightRed',
-      `Package ${data.name} must be an ESM module with "type"="module"`,
+      `Package ${data.name} must be an ECMAScript module with "type": "module"`,
     )
   }
   if (

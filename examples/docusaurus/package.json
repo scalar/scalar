@@ -20,9 +20,11 @@
     "deploy": "docusaurus deploy",
     "dev": "docusaurus start --port=5063 --no-open",
     "docusaurus": "docusaurus",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "serve": "docusaurus serve",
     "swizzle": "docusaurus swizzle",
-    "typecheck": "tsc",
+    "types:check": "tsc",
     "write-heading-ids": "docusaurus write-heading-ids",
     "write-translations": "docusaurus write-translations"
   },

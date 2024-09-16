@@ -16,7 +16,10 @@
   },
   "scripts": {
     "build": "tsup ./src/index.ts --format esm,cjs --dts",
-    "test": "vitest run"
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test": "vitest run",
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.cjs",

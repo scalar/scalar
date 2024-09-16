@@ -18,6 +18,8 @@
     "build": "tsc --p tsconfig.json && tsc-alias -p tsconfig.json",
     "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
     "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/fastify-api-reference/Dockerfile .",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
