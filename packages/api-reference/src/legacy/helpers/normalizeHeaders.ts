@@ -28,9 +28,9 @@ export const normalizeHeaders = (
     Object.entries(headers ?? {})
       .reverse() // Reverse to keep the last occurrence
       .filter(
-        ([key, _], index, arr) =>
+        ([key], index, arr) =>
           arr.findIndex(
-            ([k, __]) => normalizeHeaderName(k) === normalizeHeaderName(key),
+            ([k]) => normalizeHeaderName(k) === normalizeHeaderName(key),
           ) === index,
       )
       .reverse() // Reverse back to maintain original order
