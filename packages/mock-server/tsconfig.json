@@ -1,5 +1,5 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {},
-  "include": ["src", "playground", "rollup.config.ts", "env.d.ts"]
+  "include": ["src", "playground", "rollup.config.ts", "env.d.ts", "tests"]
 }
