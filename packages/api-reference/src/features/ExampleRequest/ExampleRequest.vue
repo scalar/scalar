@@ -149,13 +149,7 @@ async function generateSnippet() {
     ),
   )
 
-  const clientKey =
-    httpClient.clientKey === 'undici' ||
-    httpClient.clientKey === 'fetch' ||
-    httpClient.clientKey === 'ofetch'
-      ? httpClient.clientKey
-      : null
-
+  const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
   return (
