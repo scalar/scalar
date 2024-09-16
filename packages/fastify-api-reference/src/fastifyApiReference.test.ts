@@ -1,4 +1,6 @@
-import FastifyBasicAuth, { FastifyBasicAuthOptions } from '@fastify/basic-auth'
+import FastifyBasicAuth, {
+  type FastifyBasicAuthOptions,
+} from '@fastify/basic-auth'
 import Fastify from 'fastify'
 import { describe, expect, it } from 'vitest'
 
