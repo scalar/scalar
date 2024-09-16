@@ -16,13 +16,13 @@ const { activeRequest, activeExample, isReadOnly, requestMutators } =
 
 const sections = computed(() => {
   const allSections = new Set([
-    'All',
+    'Query',
     'Auth',
     'Request',
     'Cookies',
     'Headers',
-    'Query',
     'Body',
+    'All',
   ])
 
   if (!activeExample.value?.parameters.path.length)
@@ -82,13 +82,13 @@ const updateRequestNameHandler = (event: Event) => {
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
       </div>
-    </template>
-    <div
-      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <ContextBar
         :activeSection="activeSection"
         :sections="sections"
         @setActiveSection="activeSection = $event" />
+    </template>
+    <div
+      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <RequestAuth
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
