@@ -275,10 +275,11 @@ export const getExampleFromSchema = (
     return exampleValues[schema.type]
   }
 
-  // Check if property has the `oneOf` key
-  if (Array.isArray(schema.oneOf) && schema.oneOf.length > 0) {
-    // Get the first item from the `oneOf` array
-    const firstOneOfItem = schema.oneOf[0]
+  const discriminateSchema = schema.oneOf || schema.anyOf
+  // Check if property has the `oneOf` | `anyOf` key
+  if (Array.isArray(discriminateSchema) && discriminateSchema.length > 0) {
+    // Get the first item from the `oneOf` | `anyOf` array
+    const firstOneOfItem = discriminateSchema[0]
 
     // Return an example for the first item
     return getExampleFromSchema(firstOneOfItem, options, level + 1)
