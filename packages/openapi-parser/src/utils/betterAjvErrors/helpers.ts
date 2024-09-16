@@ -133,7 +133,7 @@ export function createErrorInstances(root, options) {
 
 export default function prettify(ajvErrors, options) {
   const tree = makeTree(ajvErrors || [])
-  // @ts-ignore
+  // @ts-expect error TODO
   filterRedundantErrors(tree)
   return createErrorInstances(tree, options)
 }

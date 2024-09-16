@@ -110,7 +110,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -146,7 +146,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -225,7 +225,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -261,7 +261,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -297,7 +297,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -327,7 +327,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -357,7 +357,7 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
+            // @ts-expect error TODO
             type: 'basic',
           },
         },
@@ -435,7 +435,7 @@ describe('getRequestFromAuthentication', () => {
           },
         },
         apiKey: {
-          // @ts-ignore
+          // @ts-expect error TODO
           token: null,
         },
       },
