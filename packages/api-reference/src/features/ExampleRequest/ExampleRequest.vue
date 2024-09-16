@@ -178,16 +178,6 @@ onServerPrefetch(async () => {
   ctx!.payload.data[ssrStateKey] = await generateSnippet()
 })
 
-/** @hans TODO What is this doing? Computed properties should not be used as side effects  */
-computed(() => {
-  return getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: props.operation,
-    globalSecurity: getGlobalSecurity?.(),
-  })
-})
-
 /** Code language of the snippet */
 const language = computed(() => {
   const key =
