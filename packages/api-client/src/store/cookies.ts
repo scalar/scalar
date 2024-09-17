@@ -1,8 +1,7 @@
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
+import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
-
-import { LS_KEYS } from './local-storage'
 
 /** Create cookie mutators for the workspace */
 export function createStoreCookies(useLocalStorage: boolean) {

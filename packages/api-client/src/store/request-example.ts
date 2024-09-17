@@ -4,11 +4,9 @@ import {
   type RequestExample,
   createExampleFromRequest,
 } from '@scalar/oas-utils/entities/spec'
-import { iterateTitle } from '@scalar/oas-utils/helpers'
+import { LS_KEYS, iterateTitle } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
-
-import { LS_KEYS } from './local-storage'
 
 /** Create top level examples storage for the workspace */
 export function createStoreRequestExamples(useLocalStorage: boolean) {

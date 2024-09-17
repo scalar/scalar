@@ -1,10 +1,10 @@
-import { LS_KEYS } from '@/store/local-storage'
 import type { StoreContext } from '@/store/store-context'
 import {
   type Server,
   type ServerPayload,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 

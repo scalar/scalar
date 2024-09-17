@@ -5,10 +5,9 @@ import {
   collectionSchema,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
-
-import { LS_KEYS } from './local-storage'
 
 /** Initiate the workspace collections */
 export function createStoreCollections(useLocalStorage: boolean) {

@@ -115,24 +115,28 @@ const handleAuthorize = async () => {
     </DataTableRow>
 
     <!-- Username and password -->
-    <template v-if="scheme.flow.type === 'password'">
+    <template v-if="example.type === 'oauth-password'">
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
-          :modelValue="scheme.flow.username"
+          :modelValue="example.username"
           placeholder="ScalarEnjoyer01"
-          @update:modelValue="(v) => updateScheme('flow.username', v)">
+          @update:modelValue="
+            (v) => updateAuth(`auth.${scheme.uid}.username`, v)
+          ">
           Username
         </RequestAuthDataTableInput>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-password-${scheme.uid}`"
-          :modelValue="scheme.flow.password"
+          :modelValue="example.password"
           placeholder="xxxxxx"
           type="password"
-          @update:modelValue="(v) => updateScheme('flow.password', v)">
+          @update:modelValue="
+            (v) => updateAuth(`auth.${scheme.uid}.password`, v)
+          ">
           Password
         </RequestAuthDataTableInput>
       </DataTableRow>

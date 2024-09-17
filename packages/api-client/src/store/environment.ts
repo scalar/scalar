@@ -3,10 +3,9 @@ import {
   type Environment,
   environmentSchema,
 } from '@scalar/oas-utils/entities/environment'
+import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
-
-import { LS_KEYS } from './local-storage'
 
 /** Generate reactive environments for the workspace */
 export function createStoreEnvironments(useLocalStorage: boolean) {

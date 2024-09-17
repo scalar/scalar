@@ -6,11 +6,10 @@ import {
   createExampleFromRequest,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
+import { LS_KEYS, iterateTitle, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 
-import { LS_KEYS } from './local-storage'
 import type { StoreContext } from './store-context'
 
 /** Create top level request handlers for a workspace */
