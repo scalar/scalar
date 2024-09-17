@@ -277,7 +277,7 @@ export default {
   align-items: center;
   justify-content: flex-end;
 }
-:deep(.cm-gutter + .cm-gutter .cm-gutterElement) {
+:deep(.cm-gutter + .cm-gutter :not(.cm-foldGutter) .cm-gutterElement) {
   padding-left: 0 !important;
 }
 :deep(.cm-scroller) {
@@ -307,5 +307,24 @@ export default {
 }
 .cm-editor .cm-widgetBuffer {
   display: none;
+}
+.cm-foldPlaceholder:hover {
+  color: var(--scalar-color-1);
+}
+.cm-foldGutter .cm-gutterElement {
+  font-size: var(--scalar-heading-4);
+  padding: 2px !important;
+}
+.cm-foldGutter .cm-gutterElement:first-of-type {
+  display: none;
+}
+.cm-foldGutter .cm-gutterElement .cm-foldMarker {
+  padding: 2px;
+  padding-top: 2px;
+}
+.cm-foldGutter .cm-gutterElement:hover .cm-foldMarker {
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-color-1);
 }
 </style>

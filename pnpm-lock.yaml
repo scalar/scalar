@@ -2064,6 +2064,9 @@ importers:
       '@replit/codemirror-css-color-picker':
         specifier: ^6.1.0
         version: 6.1.1(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@uiw/codemirror-themes':
         specifier: ^4.21.21
         version: 4.22.2(@codemirror/language@6.10.2)(@codemirror/state@6.4.1)(@codemirror/view@6.28.1)
@@ -20623,7 +20626,7 @@ snapshots:
 
   '@floating-ui/core@1.6.2':
     dependencies:
-      '@floating-ui/utils': 0.2.2
+      '@floating-ui/utils': 0.2.7
 
   '@floating-ui/core@1.6.7':
     dependencies:
