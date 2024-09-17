@@ -242,10 +242,12 @@ const fastifyApiReference = fp<
           type: 'url' as const,
           get: () => url,
         }
+
       if (fastify.hasPlugin('@fastify/swagger')) {
         return {
           type: 'swagger' as const,
           get: () => {
+            // @ts-ignore We know that @fastify/swagger is loaded.
             return fastify.swagger() as OpenAPI.Document
           },
         }
@@ -284,7 +286,7 @@ const fastifyApiReference = fp<
       loadedSpec: ReturnType<typeof getLoadedSpecIfAvailable>,
     ) => {
       const spec = await loadedSpec?.get()
-      // Same GithubSlugger and default file name as in `@scalar/api-reference`, when generating the download
+      // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
       return slug(spec?.specification?.info?.title ?? 'spec')
     }
 
@@ -292,6 +294,7 @@ const fastifyApiReference = fp<
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlJson,
+      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       async handler(_, reply) {
@@ -309,6 +312,7 @@ const fastifyApiReference = fp<
     fastify.route({
       method: 'GET',
       url: openApiSpecUrlYaml,
+      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       async handler(_, reply) {
@@ -327,6 +331,7 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getRoutePrefix(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
+      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
@@ -362,6 +367,7 @@ const fastifyApiReference = fp<
       method: 'GET',
       url: getJavaScriptUrl(options.routePrefix),
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
+      // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
