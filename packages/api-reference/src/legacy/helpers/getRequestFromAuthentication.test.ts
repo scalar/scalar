@@ -110,7 +110,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -146,7 +145,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -225,7 +223,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -261,7 +258,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -297,7 +293,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -327,7 +322,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -357,7 +351,6 @@ describe('getRequestFromAuthentication', () => {
         preferredSecurityScheme: 'basic',
         securitySchemes: {
           basic: {
-            // @ts-ignore
             type: 'basic',
           },
         },
@@ -435,7 +428,7 @@ describe('getRequestFromAuthentication', () => {
           },
         },
         apiKey: {
-          // @ts-ignore
+          // @ts-expect-error pass rubbish
           token: null,
         },
       },

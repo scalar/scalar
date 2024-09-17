@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error TODO
 import { describe, expect, it } from 'vitest'
 
 import galaxy from '../../galaxy/src/specifications/3.1.yaml?raw'

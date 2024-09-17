@@ -1,4 +1,4 @@
-import { type JSDoc, type Node, getAllJSDocTags } from 'typescript'
+import type { JSDoc, Node } from 'typescript'
 
 /**
  * Extract items from jsDoc comments

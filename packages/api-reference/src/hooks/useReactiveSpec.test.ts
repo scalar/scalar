@@ -84,7 +84,7 @@ describe('useReactiveSpec', () => {
   }
 
   test('fetches JSON from an URL', async () => {
-    // @ts-ignore
+    // @ts-expect-error TODO
     fetch.mockResolvedValue(createFetchResponse(basicSpecString))
 
     const { rawSpec } = useReactiveSpec({

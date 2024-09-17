@@ -75,9 +75,8 @@ describe('getExampleCode', () => {
         method: 'POST',
         url: 'https://example.com',
       }),
-      // @ts-ignore
+      // @ts-expect-error TODO
       'fantasy',
-      // @ts-ignore
       'blue',
     )
 

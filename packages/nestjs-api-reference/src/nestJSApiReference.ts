@@ -1,7 +1,7 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 import type { Request, Response } from 'express'
-import { type FastifyRequest } from 'fastify'
-import { type ServerResponse } from 'http'
+import type { FastifyRequest } from 'fastify'
+import type { ServerResponse } from 'http'
 
 export type NestJSReferenceConfiguration = ReferenceConfiguration & {
   withFastify?: boolean
