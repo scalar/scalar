@@ -219,13 +219,6 @@ module.exports = {
           },
         ],
         'vue/custom-event-name-casing': ['error', 'camelCase'],
-        'vue/max-lines-per-block': [
-          'warn',
-          {
-            script: 150,
-            skipBlankLines: true,
-          },
-        ],
       },
     },
     /** Other rule overrides */
