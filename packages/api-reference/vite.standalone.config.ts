@@ -11,7 +11,7 @@ import { name, version } from './package.json'
 
 function replaceVariables(template: string, variables: Record<string, string>) {
   return Object.entries(variables).reduce((content, [key, value]) => {
-    return content.replace(new RegExp(`\\$\\{${key}\\}`, 'g'), value)
+    return content.replace(new RegExp(`\\{\\{ ${key} \\}\\}`, 'g'), value)
   }, template)
 }
 
