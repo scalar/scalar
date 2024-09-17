@@ -2,10 +2,27 @@
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import { executeRequestBus } from '@/libs'
+import {
+  type HotKeyEvents,
+  commandPaletteBus,
+  executeRequestBus,
+  hotKeyBus,
+} from '@/libs'
 import { useWorkspace } from '@/store'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 const { isReadOnly, activeWorkspace } = useWorkspace()
+
+const openCommandPaletteRequest = () => {
+  commandPaletteBus.emit({ commandName: 'Create Request' })
+}
+
+const handleHotKey = (event: HotKeyEvents) => {
+  if (event.openCommandPaletteRequest) openCommandPaletteRequest()
+}
+
+onMounted(() => hotKeyBus.on(handleHotKey))
+onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
@@ -37,7 +54,8 @@ const { isReadOnly, activeWorkspace } = useWorkspace()
       <button
         v-if="!isReadOnly"
         class="flex items-center gap-1.5"
-        type="button">
+        type="button"
+        @click="openCommandPaletteRequest">
         New Request
         <ScalarHotkey hotkey="N" />
       </button>

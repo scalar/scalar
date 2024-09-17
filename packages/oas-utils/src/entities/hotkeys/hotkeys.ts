@@ -7,6 +7,7 @@ export const HOTKEY_EVENT_NAMES = [
   'selectSearchResult',
   'navigateSearchResultsUp',
   'openCommandPalette',
+  'openCommandPaletteRequest',
   'toggleSidebar',
   'addTopNav',
   'closeTopNav',
