@@ -22,6 +22,7 @@ const method = computed(() => getHttpMethodInfo(props.method))
 const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
   id: id as RequestMethod,
   label: id.charAt(0) + id.toLowerCase().slice(1),
+  color: getHttpMethodInfo(id).color,
 }))
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
@@ -49,6 +50,7 @@ const httpLabel = computed(() => method.value.short)
   <ScalarListbox
     v-if="isEditable"
     v-model="selectedMethod"
+    class="mt-1 font-code uppercase"
     :options="methodOptions">
     <div
       class="h-full"
