@@ -97,9 +97,11 @@ const variants = cva({
                   icon="Checkmark"
                   thickness="2.5" />
               </div>
-              <span class="inline-block min-w-0 flex-1 truncate text-c-1">{{
-                option.label
-              }}</span>
+              <span
+                class="inline-block min-w-0 flex-1 truncate"
+                :class="option.color ? option.color : 'text-c-1'">
+                {{ option.label }}
+              </span>
             </li>
           </ListboxOption>
           <div

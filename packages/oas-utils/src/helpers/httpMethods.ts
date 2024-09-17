@@ -1,5 +1,9 @@
 import type { RequestMethod } from '@/entities/spec/requests'
 
+/**
+ * HTTP methods in a specific order
+ * Do not change the order
+ */
 export const REQUEST_METHODS: {
   [x in RequestMethod]: {
     short: string
@@ -7,35 +11,10 @@ export const REQUEST_METHODS: {
     backgroundColor: string
   }
 } = {
-  connect: {
-    short: 'CONN',
-    color: 'text-c-2',
-    backgroundColor: 'bg-c-2',
-  },
-  delete: {
-    short: 'DEL',
-    color: 'text-red',
-    backgroundColor: 'bg-red',
-  },
   get: {
     short: 'GET',
     color: 'text-blue',
     backgroundColor: 'bg-blue',
-  },
-  head: {
-    short: 'HEAD',
-    color: 'text-scalar-c-2',
-    backgroundColor: 'bg-c-2',
-  },
-  options: {
-    short: 'OPTS',
-    color: 'text-purple',
-    backgroundColor: 'bg-purple',
-  },
-  patch: {
-    short: 'PATCH',
-    color: 'text-yellow',
-    backgroundColor: 'bg-yellow',
   },
   post: {
     short: 'POST',
@@ -46,6 +25,31 @@ export const REQUEST_METHODS: {
     short: 'PUT',
     color: 'text-orange',
     backgroundColor: 'bg-orange',
+  },
+  patch: {
+    short: 'PATCH',
+    color: 'text-yellow',
+    backgroundColor: 'bg-yellow',
+  },
+  delete: {
+    short: 'DEL',
+    color: 'text-red',
+    backgroundColor: 'bg-red',
+  },
+  options: {
+    short: 'OPTS',
+    color: 'text-purple',
+    backgroundColor: 'bg-purple',
+  },
+  head: {
+    short: 'HEAD',
+    color: 'text-scalar-c-2',
+    backgroundColor: 'bg-c-2',
+  },
+  connect: {
+    short: 'CONN',
+    color: 'text-c-2',
+    backgroundColor: 'bg-c-2',
   },
   trace: {
     short: 'TRACE',
