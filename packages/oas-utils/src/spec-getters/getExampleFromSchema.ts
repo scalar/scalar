@@ -1,3 +1,6 @@
+/** Hard limit for rendering circular references */
+const MAX_LEVELS_DEEP = 5
+
 /**
  * We can use the `format` to generate some random values.
  */
@@ -70,9 +73,14 @@ export const getExampleFromSchema = (
   parentSchema?: Record<string, any>,
   name?: string,
 ): any => {
-  // Break an infinite loop
-  if (level > 5) {
-    return null
+  // Check whether it’s a circular reference
+  if (level === MAX_LEVELS_DEEP + 1) {
+    try {
+      // Fails if it contains a circular reference
+      JSON.stringify(schema)
+    } catch {
+      return '[Circular Reference]'
+    }
   }
 
   // Sometimes, we just want the structure and no values.
