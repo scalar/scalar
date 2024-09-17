@@ -22,7 +22,7 @@ export async function getExampleCode(
   client: ClientId,
 ) {
   // @scalar/snippetz
-  const snippetzTargetKey = target.replace('javascript', 'js')
+  const snippetzTargetKey = target
 
   if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
@@ -34,11 +34,17 @@ export async function getExampleCode(
 
   // httpsnippet-lite
   try {
+    const httpSnippetLiteTargetKey = target.replace(
+      'js',
+      'javascript',
+    ) as HttpSnippetLiteTargetId
+    const httpSnippetLiteClientKey = client as HttpSnippetLiteClientId
+
     // HTTPSnippet will return type string[] if passed input type HarEntry
     // Since we are passing type HarRequest output is a string
     const code = await new HTTPSnippet(request).convert(
-      target as HttpSnippetLiteTargetId,
-      client as HttpSnippetLiteClientId,
+      httpSnippetLiteTargetKey,
+      httpSnippetLiteClientKey,
     )
     if (typeof code === 'string') return code
   } catch (error) {

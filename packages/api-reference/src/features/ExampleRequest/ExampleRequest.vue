@@ -149,13 +149,7 @@ async function generateSnippet() {
     ),
   )
 
-  const clientKey =
-    httpClient.clientKey === 'undici' ||
-    httpClient.clientKey === 'fetch' ||
-    httpClient.clientKey === 'ofetch'
-      ? httpClient.clientKey
-      : null
-
+  const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
   return (
@@ -176,16 +170,6 @@ const generatedCode = asyncComputed<string>(async () => {
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()
   ctx!.payload.data[ssrStateKey] = await generateSnippet()
-})
-
-/** @hans TODO What is this doing? Computed properties should not be used as side effects  */
-computed(() => {
-  return getApiClientRequest({
-    serverState: serverState,
-    authenticationState: authenticationState,
-    operation: props.operation,
-    globalSecurity: getGlobalSecurity?.(),
-  })
 })
 
 /** Code language of the snippet */
