@@ -66,7 +66,7 @@ const dataUrl = computed<string>(() => {
     <div
       v-if="data"
       class="mx-1 border-1/2 flex flex-col rounded bg-b-1">
-      <div class="flex justify-between items-center border-b-1/2 p-1.5">
+      <div class="flex justify-between items-center border-b-1/2 px-3 py-1.5">
         <span class="text-xxs leading-3 font-code">
           {{ mimeType.essence }}
         </span>

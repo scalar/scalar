@@ -212,7 +212,8 @@ export default {
 }
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  padding: 8px 0;
 }
 /* Tooltip helper */
 :deep(.cm-tooltip) {
@@ -267,7 +268,7 @@ export default {
   background-color: var(--scalar-background-1);
   border-right: none;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   line-height: 1.44;
 }
 :deep(.cm-gutterElement) {
