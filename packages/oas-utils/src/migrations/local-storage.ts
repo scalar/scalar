@@ -1,4 +1,5 @@
 import type { LS_KEYS } from '@/helpers'
+import { DATA_VERSION_LS_LEY } from '@/migrations/data-version'
 import type { v_2_1_0 } from '@/migrations/v-2.1.0'
 import { parse } from 'flatted'
 
@@ -17,7 +18,7 @@ export const parseLocalStorage = (
 /** Take a best guess of the localStorage version */
 export const getLocalStorageVersion = (): string => {
   const collectionStr = localStorage.getItem('collection')
-  const dataVersion = localStorage.getItem('version')
+  const dataVersion = localStorage.getItem(DATA_VERSION_LS_LEY)
 
   // No flatted means first version
   if (!collectionStr?.length || collectionStr?.[0] === '{') return '0.0.0'

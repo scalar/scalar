@@ -1,5 +1,9 @@
 import type { useWorkspace } from '@/store'
-import { DATA_VERSION, migrator } from '@scalar/oas-utils/migrations'
+import {
+  DATA_VERSION,
+  DATA_VERSION_LS_LEY,
+  migrator,
+} from '@scalar/oas-utils/migrations'
 
 /**
  * Loads all resources from localStorage and applies any migrations, then loads into mutators
@@ -45,7 +49,7 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
     workspaceMutators.loadLocalStorage(workspaces)
 
     // Set localStorage version for future migrations
-    localStorage.setItem('version', DATA_VERSION)
+    localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
   } catch (e) {
     console.error(e)
   }
