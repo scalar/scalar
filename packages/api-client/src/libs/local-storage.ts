@@ -34,7 +34,6 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
       workspaces,
     } = migrator()
 
-    // We run through schemaModel out here since we will only have the most current models
     collectionMutators.loadLocalStorage(collections)
     cookieMutators.loadLocalStorage(cookies)
     environmentMutators.loadLocalStorage(environments)
