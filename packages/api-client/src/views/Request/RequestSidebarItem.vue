@@ -3,6 +3,7 @@ import { HttpMethod } from '@/components/HttpMethod'
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useSidebar } from '@/hooks'
 import { getModifiers } from '@/libs'
+import { commandPaletteBus } from '@/libs/event-busses'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import {
@@ -266,6 +267,16 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
     else if (_item.link) router.push(_item.link)
   }
 }
+
+function openCommandPaletteRequest() {
+  commandPaletteBus.emit({
+    commandName: 'Create Request',
+    metaData: {
+      itemUid: props.uid,
+      parentUid: props.parentUids[0],
+    },
+  })
+}
 </script>
 <template>
   <div
@@ -408,9 +419,7 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
       </ScalarContextMenu>
 
       <!-- Children -->
-      <div
-        v-if="item.children.length"
-        v-show="showChildren">
+      <div v-show="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
           v-for="childUid in item.children"
@@ -421,6 +430,18 @@ const handleNavigation = (event: KeyboardEvent, _item: Item) => {
           :uid="childUid"
           @newTab="(name, uid) => $emit('newTab', name, uid)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)" />
+        <ScalarButton
+          v-if="item.children.length === 0"
+          class="mb-[.5px] flex gap-1.5 h-8 text-c-1 py-0 justify-start text-xs w-full hover:bg-b-2"
+          :class="parentUids.length ? 'pl-9' : ''"
+          variant="ghost"
+          @click="openCommandPaletteRequest()">
+          <ScalarIcon
+            class="ml-0.5 h-2.5 w-2.5"
+            icon="Add"
+            thickness="3" />
+          <span>Add Request</span>
+        </ScalarButton>
       </div>
     </Draggable>
   </div>

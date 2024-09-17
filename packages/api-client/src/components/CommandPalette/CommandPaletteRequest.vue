@@ -9,8 +9,15 @@ import {
   ScalarListbox,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+const props = defineProps<{
+  metaData?: {
+    itemUid: string
+    parentUid: string
+  }
+}>()
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -60,14 +67,22 @@ const tags = computed(() =>
 
 /** Currently selected collection with a reasonable default */
 const selectedCollection = ref<ScalarComboboxOption | undefined>(
-  collections.value.find(
-    (collection) => collection.id === activeCollection.value?.uid,
-  ),
+  props.metaData
+    ? collections.value.find(
+        (collection) =>
+          collection.id === props.metaData?.itemUid ||
+          collection.id === props.metaData?.parentUid,
+      )
+    : collections.value.find(
+        (collection) => collection.id === activeCollection.value?.uid,
+      ),
 )
 
 /** Currently selected tag with a reasonable default */
 const selectedTag = ref<ScalarComboboxOption | undefined>(
-  tags.value.find((tag) => tag.label === activeRequest.value?.tags?.[0]),
+  props.metaData
+    ? tags.value.find((tag) => tag.id === props.metaData?.itemUid)
+    : tags.value.find((tag) => tag.label === activeRequest.value?.tags?.[0]),
 )
 
 const handleChangeMethod = (method: string) => (requestMethod.value = method)
@@ -99,7 +114,7 @@ const handleSubmit = () => {
 }
 
 const requestInput = ref<HTMLInputElement | null>(null)
-onMounted(() => {
+nextTick(() => {
   requestInput.value?.focus()
 })
 </script>

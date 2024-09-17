@@ -5,7 +5,7 @@ export type CommandPaletteEvent = {
   /** The command name which matches with the command palette */
   commandName?: CommandNames
   /** Any extra metadata we want to pass to the command palettes */
-  metaData?: string
+  metaData?: Record<string, any>
 }
 const commandPaletteKey: EventBusKey<CommandPaletteEvent> = Symbol()
 
