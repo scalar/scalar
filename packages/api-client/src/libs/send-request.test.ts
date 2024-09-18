@@ -290,6 +290,40 @@ describe('sendRequest', () => {
     })
   })
 
+  it('sends query parameters as arrays', async () => {
+    const [error, requestOperation] = createRequestOperation<{
+      query: { foo: ['foo', 'bar'] }
+    }>(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: 'foo',
+                enabled: true,
+              },
+              {
+                key: 'foo',
+                value: 'bar',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(result?.response.data.query).toMatchObject({
+      foo: ['foo', 'bar'],
+    })
+  })
+
   it('merges query parameters', async () => {
     const [error, requestOperation] = createRequestOperation<{
       query: { example: 'parameter'; foo: 'bar' }
