@@ -149,8 +149,6 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
   }
   .sidebar-active-width {
     width: 100%;
-    border: 1px solid var(--scalar-border-color);
-    border-radius: var(--scalar-radius);
   }
 }
 .empty-sidebar-item:deep(.scalar-button) {

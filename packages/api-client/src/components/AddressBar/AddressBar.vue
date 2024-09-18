@@ -140,7 +140,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   <div
     v-if="activeRequest && activeExample"
     class="order-last lg:order-none lg:w-auto w-full">
-    <div class="m-auto flex basis-1/2 flex-row items-center">
+    <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <Listbox
         v-slot="{ open }"

@@ -14,6 +14,8 @@ const props = withDefaults(
 )
 const { isReadOnly, sidebarWidth, setSidebarWidth } = useWorkspace()
 const isDragging = ref(false)
+
+const isNarrow = useMediaQuery('(max-width: 780px)')
 const sidebarRef = ref<HTMLElement | null>(null)
 const isMobile = useMediaQuery('(max-width: 800px)')
 
@@ -64,7 +66,7 @@ const startDrag = (event: MouseEvent) => {
     ref="sidebarRef"
     class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit"
     :class="{ dragging: isDragging }"
-    :style="{ width: isMobile ? '100%' : sidebarWidth }">
+    :style="{ width: isNarrow ? '100%' : sidebarWidth }">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
@@ -87,6 +89,7 @@ const startDrag = (event: MouseEvent) => {
       v-if="!isMobile"
       name="button" />
     <div
+      v-if="!isNarrow"
       class="resizer"
       @mousedown="startDrag"></div>
   </aside>
