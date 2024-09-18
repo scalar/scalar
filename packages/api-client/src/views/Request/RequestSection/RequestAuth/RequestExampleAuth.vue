@@ -11,13 +11,8 @@ import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
 
-const {
-  activeCollection,
-  activeRequest,
-  collectionMutators,
-  isReadOnly,
-  securitySchemes,
-} = useWorkspace()
+const { activeCollection, activeRequest, collectionMutators, securitySchemes } =
+  useWorkspace()
 
 const security = computed(() => {
   if (!activeCollection.value || !activeRequest.value) return []
@@ -110,31 +105,28 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
 
     <!-- API Key -->
     <template v-else-if="scheme.type === 'apiKey' && example.type === 'apiKey'">
-      <!-- Custom auth -->
-      <template v-if="!isReadOnly">
-        <DataTableRow>
-          <RequestAuthDataTableInput
-            :id="`api-key-name-${scheme.uid}`"
-            :modelValue="example.name"
-            placeholder="api-key"
-            @update:modelValue="
-              (v) => updateExampleValue(scheme.uid, example, 'name', v)
-            ">
-            Name
-          </RequestAuthDataTableInput>
-        </DataTableRow>
-        <DataTableRow>
-          <RequestAuthDataTableInput
-            :id="`api-key-value-add-${scheme.uid}`"
-            :modelValue="example.value"
-            placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-            @update:modelValue="
-              (v) => updateExampleValue(scheme.uid, example, 'value', v)
-            ">
-            Value
-          </RequestAuthDataTableInput>
-        </DataTableRow>
-      </template>
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :id="`api-key-name-${scheme.uid}`"
+          :modelValue="example.name"
+          placeholder="api-key"
+          @update:modelValue="
+            (v) => updateExampleValue(scheme.uid, example, 'name', v)
+          ">
+          Name
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :id="`api-key-value-add-${scheme.uid}`"
+          :modelValue="example.value"
+          placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+          @update:modelValue="
+            (v) => updateExampleValue(scheme.uid, example, 'value', v)
+          ">
+          Value
+        </RequestAuthDataTableInput>
+      </DataTableRow>
     </template>
 
     <!-- OAuth 2 -->

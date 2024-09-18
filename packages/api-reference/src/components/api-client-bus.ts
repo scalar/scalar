@@ -1,15 +1,16 @@
 import type { OpenClientPayload } from '@scalar/api-client/libs'
 import type { ModalState } from '@scalar/components'
-import type {
-  AuthenticationState,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { SpecConfiguration } from '@scalar/types/legacy'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
 import type { RequireAtLeastOne } from 'type-fest'
 
 type ApiClientEvents = RequireAtLeastOne<{
   open?: OpenClientPayload
-  updateAuth?: AuthenticationState
+  updateAuth?: {
+    nameKey: string
+    propertyKey: string
+    value: string
+  }
   updateSpec?: SpecConfiguration
 }>
 const apiClientBusKey: EventBusKey<ApiClientEvents> = Symbol()

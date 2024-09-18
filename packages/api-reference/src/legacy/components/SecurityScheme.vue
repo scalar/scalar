@@ -7,6 +7,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 
+import { apiClientBus } from '../../components/api-client-bus'
 import { getUrlFromServerState } from '../helpers'
 import { useAuthenticationStore, useServerStore } from '../stores'
 import CardForm from './CardForm.vue'
@@ -31,12 +32,23 @@ const { server } = useServerStore()
 const { authentication, setAuthentication } = useAuthenticationStore()
 
 const handleApiKeyTokenInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
   setAuthentication({
     apiKey: {
       ...authentication.apiKey,
-      token: (event.target as HTMLInputElement).value,
+      token: value,
     },
   })
+
+  // Update the client as well
+  if (authentication.preferredSecurityScheme)
+    apiClientBus.emit({
+      updateAuth: {
+        nameKey: authentication.preferredSecurityScheme,
+        propertyKey: 'value',
+        value,
+      },
+    })
 }
 
 const handleHttpBasicUsernameInput = (event: Event) => {

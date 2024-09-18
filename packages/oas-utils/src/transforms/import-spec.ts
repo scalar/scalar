@@ -15,6 +15,7 @@ import {
 } from '@/entities/spec'
 import {
   type SecurityScheme,
+  authExampleFromSchema,
   securitySchemeSchema,
 } from '@/entities/spec/security'
 import { schemaModel } from '@/helpers/schema-model'
@@ -254,7 +255,7 @@ export async function importSpecToWorkspace(
     }
   })
 
-  // ---------------------------------------------------------------------------\
+  // ---------------------------------------------------------------------------
 
   const examples: RequestExample[] = []
 
@@ -272,9 +273,16 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
+  // Create the auth examples
+  const auth = securitySchemes?.reduce<Collection['auth']>((prev, s) => {
+    const example = authExampleFromSchema(s)
+    if (example) prev[s.uid] = example
+    return prev
+  }, {})
 
   const collection = collectionSchema.parse({
     ...schema,
+    auth,
     requests: requests.map((r) => r.uid),
     servers: servers.map((s) => s.uid),
     tags: tags.map((t) => t.uid),
