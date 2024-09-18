@@ -50,5 +50,6 @@ export const oasServerSchema = z.object({
 export const serverSchema = oasServerSchema.extend({
   uid: nanoidSchema,
 })
+
 export type Server = z.infer<typeof serverSchema>
 export type ServerPayload = z.input<typeof serverSchema>

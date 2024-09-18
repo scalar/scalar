@@ -17,9 +17,15 @@ const {
   requestExampleMutators,
 } = useWorkspace()
 
-const params = computed(
-  () => activeExample.value?.parameters[props.paramKey] ?? [],
-)
+const params = computed(() => {
+  const example = activeExample.value
+  if (!example) return []
+
+  return example.parameters[props.paramKey].map((param) => ({
+    ...param,
+    enum: param.enum || example.serverVariables?.[param.key],
+  }))
+})
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
@@ -66,7 +72,7 @@ const setPathVariable = (url: string) => {
 
   /** matching regex for nested curly braces {value} */
   const pathVariables =
-    url.match(/(?<!{){([^{}]+)}(?!})/g)?.map((v) => v.slice(1, -1)) || []
+    url.match(/{([^{}]+)}/g)?.map((v) => v.slice(1, -1)) || []
   const parameters = activeExample.value.parameters[props.paramKey]
 
   const paramMap = new Map(parameters.map((param) => [param.key, param]))

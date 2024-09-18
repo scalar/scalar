@@ -1,9 +1,13 @@
 import { nanoidSchema } from '@/entities/shared'
-import { getRequestBodyFromOperation } from '@/spec-getters'
+import {
+  getRequestBodyFromOperation,
+  getServerVariableExamples,
+} from '@/spec-getters'
 import { z } from 'zod'
 
 import type { RequestParameter } from './parameters'
 import type { Request } from './requests'
+import type { Server } from './server'
 
 export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
@@ -81,6 +85,7 @@ export const requestExampleSchema = z.object({
     })
     .optional()
     .default({}),
+  serverVariables: z.record(z.string(), z.array(z.string())).optional(),
 })
 
 /** A single set 23of params for a request example */
@@ -120,6 +125,7 @@ export function createParamInstance(param: RequestParameter) {
 export function createExampleFromRequest(
   request: Request,
   name: string,
+  server?: Server,
 ): RequestExample {
   // ---------------------------------------------------------------------------
   // Populate all parameters with an example value
@@ -189,11 +195,15 @@ export function createExampleFromRequest(
       body.formData = undefined
     }
   }
+
+  const serverVariables = server ? getServerVariableExamples(server) : {}
+
   const example = requestExampleSchema.parse({
     requestUid: request.uid,
     parameters,
     name,
     body,
+    serverVariables,
   })
 
   return example
