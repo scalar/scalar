@@ -26,9 +26,6 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
           prev.requestUids.add(uid)
           // Security
           request.securitySchemeUids?.forEach((s) => prev.authUids.add(s))
-          request.selectedSecuritySchemeUids?.forEach((s) =>
-            prev.authUids.add(s),
-          )
         }
 
         // Folder -> tag
@@ -109,16 +106,24 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     }
   }
 
+  /** This is needed due to our previous data being poluted, we will only allow auth on a requst which is in the spec */
+  const requestSecurityDict: Record<string, string[]> = {}
+
   // Collections
   const collections = Object.values(oldData.collections ?? {}).map((c) => {
     const { requestUids, tagUids, authUids } = flattenChildren(
       c.childUids ?? [],
     )
 
-    const securitySchemes = [
+    // Ensure we got unique uids
+    const securitySchemesSet = new Set([
       ...authUids,
       ...Object.values(c.securitySchemeDict ?? {}),
-    ]
+    ])
+    const securitySchemes = [...securitySchemesSet]
+
+    // Add this auth to each request
+    requestUids.forEach((r) => (requestSecurityDict[r] = securitySchemes))
 
     // Migrate auth
     const auth = securitySchemes.reduce(
@@ -171,13 +176,18 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
       ...Object.values(r.parameters?.cookies ?? {}),
     ].filter((p) => p)
 
+    // Ensure this request can access these schemes
+    const selectedSecuritySchemeUids = (
+      r.selectedSecuritySchemeUids || []
+    ).filter((s) => requestSecurityDict[r.uid].includes(s))
+
     return {
       ...r,
       parameters,
       type: 'request',
       method: (r.method?.toLowerCase() as v_2_1_0.Request['method']) ?? 'get',
       examples: r.childUids || [],
-      selectedSecuritySchemeUids: r.selectedSecuritySchemeUids || [],
+      selectedSecuritySchemeUids,
       selectedServerUid: '',
       servers: [],
     } satisfies v_2_1_0.Request
