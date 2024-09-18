@@ -63,13 +63,16 @@ describe('createVoidServer', () => {
     })
   })
 
-  it('returns the query string', async () => {
+  it('deals with array query parameters', async () => {
     const server = await createVoidServer()
 
-    const response = await server.request('/?foo=bar&foo=bar')
+    const response = await server.request('/?foo=foo&foo=bar&example=value')
 
     expect(await response.json()).toMatchObject({
-      queryString: '?foo=bar&foo=bar',
+      query: {
+        foo: ['foo', 'bar'],
+        example: 'value',
+      },
     })
   })
 
