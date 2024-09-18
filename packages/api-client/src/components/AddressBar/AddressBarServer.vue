@@ -59,43 +59,42 @@ const handleAddServer = () =>
   })
 </script>
 <template>
-  <template
-    v-if="
-      !isReadOnly &&
-      (requestServerOptions?.length || collectionServerOptions?.length)
-    ">
-    <ScalarDropdown teleport="#scalar-client">
-      <button
-        class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
-        type="button"
-        @click.stop>
-        {{ activeServer?.url }}
-      </button>
-      <template #items>
-        <!-- Request -->
-        <div
-          v-if="showDropdownLabels"
-          class="text-xxs text-c-2 ml-8">
-          Request Servers
-        </div>
-        <AddressBarServerItem
-          v-for="serverOption in requestServerOptions"
-          :key="serverOption.id"
-          :serverOption="serverOption"
-          type="request" />
+  <ScalarDropdown
+    v-if="requestServerOptions?.length || collectionServerOptions?.length"
+    teleport="#scalar-client">
+    <button
+      class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
+      type="button"
+      @click.stop>
+      {{ activeServer?.url }}
+    </button>
+    <template #items>
+      <!-- Request -->
+      <div
+        v-if="showDropdownLabels"
+        class="text-xxs text-c-2 ml-8">
+        Request Servers
+      </div>
+      <AddressBarServerItem
+        v-for="serverOption in requestServerOptions"
+        :key="serverOption.id"
+        :serverOption="serverOption"
+        type="request" />
 
-        <template v-if="showDropdownLabels">
-          <ScalarDropdownDivider />
-          <div class="text-xxs text-c-2 ml-8">Collection Servers</div>
-        </template>
+      <template v-if="showDropdownLabels">
+        <ScalarDropdownDivider />
+        <div class="text-xxs text-c-2 ml-8">Collection Servers</div>
+      </template>
 
-        <!-- Collection -->
-        <AddressBarServerItem
-          v-for="serverOption in collectionServerOptions"
-          :key="serverOption.id"
-          :serverOption="serverOption"
-          type="collection" />
+      <!-- Collection -->
+      <AddressBarServerItem
+        v-for="serverOption in collectionServerOptions"
+        :key="serverOption.id"
+        :serverOption="serverOption"
+        type="collection" />
 
+      <!-- Add Server -->
+      <template v-if="!isReadOnly">
         <ScalarDropdownDivider />
         <ScalarDropdownItem>
           <div
@@ -110,12 +109,11 @@ const handleAddServer = () =>
           </div>
         </ScalarDropdownItem>
       </template>
-    </ScalarDropdown>
-  </template>
-  <template v-else-if="activeServer?.url">
-    <div
-      class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
-      {{ activeServer.url }}
-    </div>
-  </template>
+    </template>
+  </ScalarDropdown>
+  <div
+    v-else-if="activeServer?.url"
+    class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
+    {{ activeServer.url }}
+  </div>
 </template>

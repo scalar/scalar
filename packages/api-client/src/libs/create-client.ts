@@ -151,12 +151,13 @@ export const createApiClient = ({
   const {
     activeCollection,
     activeWorkspace,
+    collectionMutators,
     importSpecFile,
     importSpecFromUrl,
     modalState,
     requests,
     securitySchemes,
-    serverMutators,
+    servers,
     workspaceMutators,
   } = store
 
@@ -209,16 +210,17 @@ export const createApiClient = ({
         importSpecFile(newConfig.spec)
       }
     },
-    /**
-     * TODO this is just temporary for the modal, we'll put in a proper solution later
-     * Here we update the currently selected serverUrl
-     */
-    updateServerUrl: (serverUrl: string) =>
-      serverMutators.edit(
-        activeCollection.value?.selectedServerUid ?? '',
-        'url',
-        serverUrl,
-      ),
+    /** Update the currently selected server via URL */
+    updateServer: (serverUrl: string) => {
+      const server = Object.values(servers).find((s) => s.url === serverUrl)
+
+      if (server && activeCollection.value)
+        collectionMutators.edit(
+          activeCollection.value?.uid,
+          'selectedServerUid',
+          server.uid,
+        )
+    },
     /**
      * Update the security schemes
      * maps the references useAuthenticationStore to the client auth

@@ -1,6 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
 import { createModalRouter } from '@/router'
-import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 
 import ApiClientModal from './ApiClientModal.vue'
 

@@ -26,7 +26,7 @@ onMounted(async () => {
 
   const { createApiClientModal } = await import('@scalar/api-client')
 
-  const { app, open, updateAuth, updateServerUrl, modalState, updateSpec } =
+  const { app, open, updateAuth, modalState, updateSpec, updateServer } =
     await createApiClientModal(el.value, {
       spec: props.spec ?? {},
       proxyUrl: props.proxyUrl,
@@ -42,14 +42,16 @@ onMounted(async () => {
     if (event.open) {
       updateAuth(authentication)
 
-      // Just replace the current server with this string
-      const serverUrl = getUrlFromServerState(server)
-      if (serverUrl) updateServerUrl(serverUrl)
-
       open(event.open)
     }
 
     if (event.updateSpec) updateSpec(event.updateSpec)
+  })
+
+  // Update the server on select
+  watch(server, (newServer) => {
+    const serverUrl = getUrlFromServerState(newServer)
+    if (serverUrl) updateServer(serverUrl)
   })
 
   watch(
