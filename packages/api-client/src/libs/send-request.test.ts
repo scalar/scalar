@@ -148,6 +148,44 @@ describe('sendRequest', () => {
     })
   })
 
+  it('builds a request with no server and a path', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        requestPayload: {
+          path: 'https://void.scalar.com/me',
+        },
+      }),
+    )
+    if (error) throw error
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(result?.response.data).toMatchObject({
+      method: 'GET',
+      path: '/me',
+      body: '',
+    })
+  })
+
+  it('builds a request with no server and no path', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        requestPayload: {
+          path: 'https://void.scalar.com',
+        },
+      }),
+    )
+    if (error) throw error
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(result?.response.data).toMatchObject({
+      method: 'GET',
+      path: '/',
+      body: '',
+    })
+  })
+
   it('reaches the echo server *without* the proxy', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
