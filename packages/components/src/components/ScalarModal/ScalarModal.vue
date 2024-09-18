@@ -42,6 +42,7 @@ const modal = cva({
       full: 'mt-0 overflow-hidden',
     },
     variant: {
+      form: 'scalar-modal-form',
       history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
     },
@@ -54,6 +55,7 @@ const body = cva({
   ].join(' '),
   variants: {
     variant: {
+      form: 'overflow-visible',
       history: 'pt-3',
       search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
     },

@@ -14,7 +14,8 @@ export type SidebarItem = {
   method?: RequestMethod
   link?: string
   warning?: string
-  rename: (name: string) => void
+  icon?: string
+  edit: (name: string, icon?: string) => void
   delete: () => void
 }
 

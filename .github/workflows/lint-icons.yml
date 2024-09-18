@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'packages/components/src/components/ScalarIcon/**'
+      - 'packages/icons/src/icons/**'
 
 jobs:
   ci:
@@ -24,5 +25,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Lint SVG Icons
+      - name: Lint Component Library Icons
         run: pnpm --filter components lint:icons
+      - name: Lint Icon Library Icons
+        run: pnpm --filter icons lint:icons

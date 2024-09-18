@@ -6,8 +6,8 @@ import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
 
 const oasCollectionSchema = z.object({
-  type: z.literal('collection').optional().default('collection'),
-  openapi: z
+  'type': z.literal('collection').optional().default('collection'),
+  'openapi': z
     .union([
       z.string(),
       z.literal('3.0.0'),
@@ -16,8 +16,8 @@ const oasCollectionSchema = z.object({
     ])
     .optional()
     .default('3.1.0'),
-  jsonSchemaDialect: z.string().optional(),
-  info: oasInfoSchema.optional(),
+  'jsonSchemaDialect': z.string().optional(),
+  'info': oasInfoSchema.optional(),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
@@ -25,12 +25,14 @@ const oasCollectionSchema = z.object({
    * Individual operations can override this definition. To make security optional, an empty
    * security requirement ({}) can be included in the array.
    */
-  security: z.array(oasSecurityRequirementSchema).optional().default([]),
-  externalDocs: oasExternalDocumentationSchema.optional(),
+  'security': z.array(oasSecurityRequirementSchema).optional().default([]),
+  'externalDocs': oasExternalDocumentationSchema.optional(),
   /** TODO: Type these */
-  components: z.record(z.string(), z.unknown()).optional(),
+  'components': z.record(z.string(), z.unknown()).optional(),
   /** TODO: Type these */
-  webhooks: z.record(z.string(), z.unknown()).optional(),
+  'webhooks': z.record(z.string(), z.unknown()).optional(),
+  /** A custom icon representing the collection */
+  'x-scalar-icon': z.string().optional().default('interface-content-folder'),
   // These properties will be stripped out and mapped back as id lists
   // servers
   // paths/**
