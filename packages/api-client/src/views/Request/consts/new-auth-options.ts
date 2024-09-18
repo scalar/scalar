@@ -1,9 +1,10 @@
-import type { SecuritySchemePayload } from '@scalar/oas-utils/entities/workspace/security'
+import type { SecuritySchemePayload } from '@scalar/oas-utils/entities/spec'
 import type { Entries } from 'type-fest'
 
 export type SecuritySchemeOption = {
   id: string
   label: string
+  isDeletable?: boolean
   payload?: SecuritySchemePayload
 }
 
@@ -23,6 +24,7 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'apiKey',
       in: 'cookie',
+      nameKey: 'apiKeyCookie',
     },
   },
   apiKeyHeader: {
@@ -30,6 +32,7 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'apiKey',
       in: 'header',
+      nameKey: 'apiKeyHeader',
     },
   },
   apiKeyQuery: {
@@ -37,6 +40,7 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'apiKey',
       in: 'query',
+      nameKey: 'apiKeyQuery',
     },
   },
   httpBasic: {
@@ -44,6 +48,7 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'http',
       scheme: 'basic',
+      nameKey: 'httpBasic',
     },
   },
   httpBearer: {
@@ -51,12 +56,14 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'http',
       scheme: 'bearer',
+      nameKey: 'httpBearer',
     },
   },
   oauth2Implicit: {
     label: 'Oauth2 Implicit Flow',
     payload: {
       type: 'oauth2',
+      nameKey: 'oauth2Implicit',
       flow: {
         type: 'implicit',
       },
@@ -66,6 +73,7 @@ export const ADD_AUTH_DICT = {
     label: 'Oauth2 Password Flow',
     payload: {
       type: 'oauth2',
+      nameKey: 'oauth2Password',
       flow: {
         type: 'password',
       },
@@ -75,6 +83,7 @@ export const ADD_AUTH_DICT = {
     label: 'Oauth2 Client Credentials',
     payload: {
       type: 'oauth2',
+      nameKey: 'oauth2ClientCredentials',
       flow: {
         type: 'clientCredentials',
       },
@@ -84,6 +93,7 @@ export const ADD_AUTH_DICT = {
     label: 'Oauth2 Authorization Code',
     payload: {
       type: 'oauth2',
+      nameKey: 'oauth2AuthorizationFlow',
       flow: {
         type: 'authorizationCode',
       },
@@ -98,6 +108,7 @@ export const ADD_AUTH_OPTIONS: SecuritySchemeOption[] = entries.map(
   ([id, value]) =>
     ({
       id,
+      isDeletable: false,
       ...value,
     }) as const,
 )

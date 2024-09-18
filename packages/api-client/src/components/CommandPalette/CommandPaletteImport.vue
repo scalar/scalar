@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from '@/hooks'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
@@ -25,6 +25,7 @@ const { open: openSpecFileDialog } = useFileDialog({
           toast('Import successful', 'info')
           emits('close')
         } catch (error) {
+          console.error(error)
           const errorMessage = (error as Error)?.message || 'Unknown error'
           toast(`Import failed: ${errorMessage}`, 'error')
         }

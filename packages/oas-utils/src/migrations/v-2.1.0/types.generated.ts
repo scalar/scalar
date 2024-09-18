@@ -1,0 +1,51 @@
+import { Cookie as Ck } from '@/entities/cookie'
+import { Environment as E } from '@/entities/environment'
+import {
+  Collection as Co,
+  Request as R,
+  RequestExample as RE,
+  Server as S,
+  SecurityScheme as SS,
+  Tag as T,
+} from '@/entities/spec'
+import { Workspace as W } from '@/entities/workspace'
+
+/**
+ * TODO: These types are no longer generated, this was manually grabbed but we must generate them before the next
+ * migration else we will have issues!
+ */
+export namespace v_2_1_0 {
+  export type Cookie = Ck
+  export type Environment = E
+  export type Collection = Co
+  export type Request = R
+  export type RequestExample = RE
+  export type SecurityScheme = SS
+  export type Server = S
+  export type Tag = T
+  export type Workspace = W
+
+  export type DataRecord = {
+    collections: Record<string, Collection>
+    cookies: Record<string, Cookie>
+    environments: Record<string, Environment>
+    requestExamples: Record<string, RequestExample>
+    requests: Record<string, Request>
+    securitySchemes: Record<string, SecurityScheme>
+    servers: Record<string, Server>
+    tags: Record<string, Tag>
+    workspaces: Record<string, Workspace>
+  }
+
+  export type DataArray = {
+    collections: Collection[]
+    cookies: Cookie[]
+    environments: Environment[]
+    requestExamples: RequestExample[]
+    requests: Request[]
+    securitySchemes: SecurityScheme[]
+    servers: Server[]
+    tags: Tag[]
+    workspaces: Workspace[]
+  }
+}

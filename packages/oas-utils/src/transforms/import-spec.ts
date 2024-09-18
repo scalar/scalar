@@ -1,153 +1,96 @@
-import { createCollection } from '@/entities/workspace/collection'
-import { type Folder, createFolder } from '@/entities/workspace/folder'
-import { type ServerPayload, createServer } from '@/entities/workspace/server'
-import { type Request, createRequest } from '@/entities/workspace/spec'
-import { tagObjectSchema } from '@/entities/workspace/spec/spec'
-import type { RequestMethod } from '@/helpers'
+import {
+  type Collection,
+  type Request,
+  type RequestExample,
+  type RequestParameterPayload,
+  type RequestPayload,
+  type Server,
+  type Tag,
+  collectionSchema,
+  createExampleFromRequest,
+  requestMethods,
+  requestSchema,
+  serverSchema,
+  tagSchema,
+} from '@/entities/spec'
+import {
+  type SecurityScheme,
+  securitySchemeSchema,
+} from '@/entities/spec/security'
 import { schemaModel } from '@/helpers/schema-model'
-import { dereference, load } from '@scalar/openapi-parser'
-import type { Spec } from '@scalar/types/legacy'
+import { keysOf } from '@scalar/object-utils/arrays'
+import { dereference, load, upgrade } from '@scalar/openapi-parser'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
+import type { Entries } from 'type-fest'
 
-const PARAM_DICTIONARY = {
-  cookie: 'cookies',
-  header: 'headers',
-  path: 'path',
-  query: 'query',
-} as const
-
-/** Import an OpenAPI spec file and convert it to workspace entities */
-export const importSpecToWorkspace = async (
-  spec: string | UnknownObject,
-  overloadServers?: Spec['servers'],
+/**
+ * We need to convert from openapi spec flows to our singular flow object here
+ * If we ever go spec compliant (flows), we will no longer need this conversion
+ */
+const convertOauth2Flows = (
+  security: OpenAPIV3_1.OAuth2SecurityScheme,
+  nameKey: string,
 ) => {
-  const importWarnings: string[] = []
-  const requests: Request[] = []
+  if (security.type === 'oauth2') {
+    const entries = Object.entries(security.flows ?? {})
+    if (entries.length) {
+      const [[type, flow]] = entries
 
-  // TODO: `parsedSpec` can have circular reference and will break.
-  // We always have to use the original document.
-  const { filesystem } = await load(spec)
-  const { schema, errors } = await dereference(filesystem)
-
-  if (errors?.length || !schema) {
-    console.warn(
-      'Please open an issue on https://github.com/scalar/scalar\n',
-      'Scalar OpenAPI Parser Warning:\n',
-      errors,
-    )
+      return {
+        ...security,
+        nameKey,
+        flow: {
+          ...flow,
+          type,
+        },
+      }
+    }
   }
 
-  // Keep a list of all tags used in requests so we can reference them later
-  const requestTags: Set<string> = new Set()
+  return {
+    ...security,
+    nameKey,
+  }
+}
 
-  Object.entries(schema?.paths || {}).forEach(([pathString, path]) => {
-    if (!path) return
-
-    const methods = [
-      'get',
-      'put',
-      'post',
-      'delete',
-      'options',
-      'head',
-      'patch',
-      'trace',
-    ] as const
-
-    methods.forEach((method) => {
-      const operation = path[method]
-      if (!operation) return
-
-      if ('$ref' in operation) {
-        importWarnings.push(
-          `${method.toUpperCase}:${pathString} - Importing of $ref paths is not yet supported`,
-        )
-        return
-      }
-
-      const parameters: Request['parameters'] = {
-        path: {},
-        query: {},
-        headers: {},
-        cookies: {},
-      }
-
-      // An operation can have component level parameters as well :)
-      const pathAndOperationParameters = [
-        ...(path.parameters || []),
-        ...(operation.parameters || []),
-      ].filter((p) => p)
-
-      // Loop over params to set request params
-      pathAndOperationParameters.forEach((_param: any) => {
-        const param = _param
-
-        if (
-          'name' in param &&
-          PARAM_DICTIONARY[param.in as keyof typeof PARAM_DICTIONARY]
-        ) {
-          parameters[
-            // Map cookie -> and header -> headers
-            PARAM_DICTIONARY[param.in as keyof typeof PARAM_DICTIONARY]
-          ][param.name] = param
-        }
-      })
-
-      const request = createRequest({
-        method: method.toUpperCase() as RequestMethod,
-        path: pathString,
-        tags: operation.tags || ['default'],
-        description: operation.description,
-        operationId: operation.operationId,
-        security: operation.security,
-        summary: operation.summary || pathString,
-        externalDocs: operation.externalDocs,
-        requestBody: operation.requestBody,
-        parameters,
-      })
-
-      request.tags?.forEach((t) => requestTags.add(t))
-      requests.push(request)
-    })
-  })
-
-  // todo workaround till we rethink how we do createTags
-  const tags = schemaModel(schema?.tags, tagObjectSchema.array(), false) ?? [
-    { name: 'default' },
-  ]
-
-  // If there are request tags that are only defined in
-  requestTags.forEach((requestTag) => {
-    if (!tags.some((tag) => tag.name === requestTag)) {
-      // Warn the user about implicit tags
-      importWarnings.push(
-        `The tag *${requestTags}* is does not have an explicit tag object in the specification file. `,
-      )
-
-      tags.push({ name: requestTag })
+/**
+ * Import an OpenAPI spec file and convert it to workspace entities
+ *
+ * We will aim to keep the entities as close to the specification as possible
+ * to leverage bi-directional translation. Where entities are able to be
+ * created and used at various levels we will index via the uids to create
+ * the relationships
+ */
+export async function importSpecToWorkspace(
+  spec: string | UnknownObject,
+): Promise<
+  | {
+      error: false
+      collection: Collection
+      requests: Request[]
+      examples: RequestExample[]
+      servers: Server[]
+      tags: Tag[]
+      securitySchemes: SecurityScheme[]
     }
-  })
+  | { error: true; importWarnings: string[] }
+> {
+  const { filesystem } = await load(spec)
+  const { specification } = upgrade(filesystem)
+  const { schema: _schema, errors = [] } = await dereference(specification)
+  const schema = _schema as OpenAPIV3.Document | OpenAPIV3_1.Document
 
-  // TODO: Consider if we want this for production or just for data mocking
-  // Create a basic folder structure from tags
-  const folders: Folder[] = []
-  tags.forEach((t) => {
-    const folder = createFolder({
-      ...t,
-      childUids: requests
-        .filter((r) => r.tags?.includes(t.name))
-        .map((r) => r.uid),
-    })
+  const importWarnings: string[] = [...errors.map((e) => e.message)]
 
-    folders.push(folder)
-  })
-
-  // Toss in a default server if there aren't any
-  const unparsedServers: ServerPayload[] =
-    overloadServers ??
-    (schema?.servers?.length
-      ? schema.servers!
-      : [
+  if (!schema) return { importWarnings, error: true }
+  // ---------------------------------------------------------------------------
+  // Some entities will be broken out as individual lists for modification in the workspace
+  const requests: Request[] = []
+  const servers: Server[] = serverSchema.array().parse(
+    schema.servers?.map(
+      (s) =>
+        s ?? [
           {
             url:
               typeof window !== 'undefined'
@@ -155,34 +98,200 @@ export const importSpecToWorkspace = async (
                 : 'http://localhost',
             description: 'Replace with your API server',
           },
-        ])
+        ],
+    ) ?? [],
+  )
 
-  const servers = unparsedServers.map((server) => createServer(server))
+  /**
+   * List of all tag strings. For non compliant specs we may need to
+   * add top level tag objects for missing tag objects
+   */
+  const tagNames: Set<string> = new Set()
 
-  const collection = createCollection({
-    spec: {
-      openapi: schema?.openapi,
-      info: schema?.info,
-      security: schema?.security || schema?.securityDefinitions,
-      externalDocs: schema?.externalDocs,
-      serverUids: servers.map(({ uid }) => uid),
-      tags,
-    },
-    selectedServerUid: servers[0].uid,
-    // We default to having all the requests in the root folder
-    childUids: folders.map(({ uid }) => uid),
+  // ---------------------------------------------------------------------------
+  // SECURITY HANDLING
+
+  const security = schema.components?.securitySchemes ?? {}
+
+  const securitySchemes = (Object.entries(security) as Entries<typeof security>)
+    .map?.(([nameKey, s]) => {
+      const scheme = schemaModel(
+        // We must convert flows to a singular object, technically not spec compliant so we grab the first
+        s.type === 'oauth2'
+          ? convertOauth2Flows(
+              s as OpenAPIV3_1.OAuth2SecurityScheme,
+              nameKey as string,
+            )
+          : {
+              ...s,
+              nameKey,
+            },
+        securitySchemeSchema,
+        false,
+      )
+
+      if (!scheme) importWarnings.push(`Security scheme ${nameKey} is invalid.`)
+
+      return scheme
+    })
+    .filter((v) => !!v)
+
+  // Map of security scheme names to UIDs
+  const securitySchemeMap: Record<string, string> = {}
+  securitySchemes.forEach((s) => {
+    securitySchemeMap[s.nameKey] = s.uid
   })
 
-  const components = schema?.components
-  const securityDefinitions = schema?.securityDefinitions
+  // ---------------------------------------------------------------------------
+  // REQUEST HANDLING
 
+  keysOf(schema.paths ?? {}).forEach((pathString) => {
+    const path = schema?.paths?.[pathString]
+
+    if (!path) return
+    // Path level servers must be saved
+    const pathServers = serverSchema.array().parse(path.servers ?? [])
+    servers.push(...pathServers)
+
+    requestMethods.forEach((method) => {
+      const operation: OpenAPIV3_1.OperationObject<{
+        tags?: string[]
+        security?: OpenAPIV3_1.SecurityRequirementObject[]
+      }> = path[method as keyof typeof path]
+      if (operation && typeof operation === 'object') {
+        const operationServers = serverSchema
+          .array()
+          .parse(operation.servers ?? [])
+
+        servers.push(...operationServers)
+
+        // We will save a list of all tags to ensure they exists at the top level
+        // TODO: make sure we add any loose requests with no tags to the collection children
+        operation.tags?.forEach((t) => tagNames.add(t))
+
+        // Remove security here and add it correctly below
+        const { security: removed, ...operationWithoutSecurity } = operation
+
+        const requestPayload: RequestPayload = {
+          ...operationWithoutSecurity,
+          method,
+          path: pathString,
+          selectedSecuritySchemeUids: [],
+          // Merge path and operation level parameters
+          parameters: [
+            ...(path?.parameters ?? []),
+            ...(operation.parameters ?? []),
+          ] as RequestParameterPayload[],
+          servers: [...pathServers, ...operationServers].map((s) => s.uid),
+        }
+
+        // Add list of UIDs to associate security schemes
+        // As per the spec if there is operation level security we ignore the top level requirements
+        if (operation.security?.length)
+          requestPayload.security = operation.security?.map((s) => {
+            const [key] = Object.keys(s)
+            return {
+              [key]: s[key],
+            }
+          })
+
+        // Save parse the request
+        const request = schemaModel(requestPayload, requestSchema, false)
+
+        if (!request)
+          importWarnings.push(`${method} Request at ${path} is invalid.`)
+        else requests.push(request)
+      }
+    })
+  })
+
+  // ---------------------------------------------------------------------------
+  // TAG HANDLING
+
+  // TODO: We may need to handle de-duping tags
+  const tags = schemaModel(schema?.tags ?? [], tagSchema.array(), false) ?? []
+
+  // Delete any tag names that already have a definition
+  tags.forEach((t) => tagNames.delete(t.name))
+
+  // Add an entry for any tags that are used but do not have a definition
+  tagNames.forEach((name) => tags.push(tagSchema.parse({ name })))
+
+  // Tag name to UID map
+  const tagMap: Record<string, Tag> = {}
+  tags.forEach((t) => {
+    tagMap[t.name] = t
+  })
+
+  // Add all tags by default. We will remove nested ones
+  const collectionChildren = new Set(tags.map((t) => t.uid))
+
+  // Nested folders go before any requests
+  tags.forEach((t) => {
+    t['x-scalar-children']?.forEach((c) => {
+      // Add the uid to the appropriate parent.children
+      const nestedUid = tagMap[c.tagName].uid
+      t.children.push(nestedUid)
+
+      // Remove the nested uid from the root folder
+      collectionChildren.delete(nestedUid)
+    })
+  })
+
+  // Add the request UIDs to the tag children (or collection root)
+  requests.forEach((r) => {
+    if (r.tags) {
+      r.tags.forEach((t) => {
+        tagMap[t].children.push(r.uid)
+      })
+    } else {
+      collectionChildren.add(r.uid)
+    }
+  })
+
+  // ---------------------------------------------------------------------------\
+
+  const examples: RequestExample[] = []
+
+  // Ensure each request has at least 1 example
+  requests.forEach((request) => {
+    // TODO: Need to handle parsing examples
+    // if (request['x-scalar-examples']) return
+
+    // Create the initial example
+    const example = createExampleFromRequest(request, 'Default Example')
+
+    examples.push(example)
+    request.examples.push(example.uid)
+  })
+
+  // ---------------------------------------------------------------------------
+  // Generate Collection
+
+  const collection = collectionSchema.parse({
+    ...schema,
+    requests: requests.map((r) => r.uid),
+    servers: servers.map((s) => s.uid),
+    tags: tags.map((t) => t.uid),
+    children: [...collectionChildren],
+    security: schema.security ?? [{}],
+    components: {
+      ...schema.components,
+    },
+    securitySchemes: securitySchemes.map((s) => s.uid),
+  })
+
+  /**
+   * Servers and requests will be saved in top level maps and indexed via UID to
+   * maintain specification relationships
+   */
   return {
-    tags,
-    folders,
+    error: false,
     servers,
     requests,
+    examples,
     collection,
-    components,
-    securityDefinitions,
+    tags,
+    securitySchemes,
   }
 }

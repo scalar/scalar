@@ -3,9 +3,8 @@ import { TheCommandPalette } from '@/components/CommandPalette'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
-import { handleHotKeyDown, loadAllResources } from '@/libs'
-import { LS_KEYS } from '@/store'
-import { useWorkspace } from '@/store/workspace'
+import { handleHotKeyDown } from '@/libs'
+import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
@@ -41,34 +40,6 @@ const workspaceStore = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
-  // Check if we have localStorage data
-  if (localStorage.getItem(LS_KEYS.WORKSPACE)) {
-    const size: Record<string, string> = {}
-    let _lsTotal = 0
-    let _xLen = 0
-    let _key = ''
-
-    for (_key in localStorage) {
-      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
-        continue
-      }
-      _xLen = (localStorage[_key].length + _key.length) * 2
-      _lsTotal += _xLen
-      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
-    }
-    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
-    console.table(size)
-
-    loadAllResources(workspaceStore)
-  } else {
-    // Create default workspace
-    workspaceStore.workspaceMutators.add({
-      uid: 'default',
-      name: 'Workspace',
-      proxyUrl: 'https://proxy.scalar.com',
-    })
-  }
-
   addScalarClassesToHeadless()
 })
 

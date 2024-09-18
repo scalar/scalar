@@ -1,15 +1,15 @@
-import { createWorkspaceStore } from '@/store/workspace'
-import { createWorkspace } from '@scalar/oas-utils/entities/workspace'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/workspace/security'
-import { type RequestMethod, objectMerge } from '@scalar/oas-utils/helpers'
-import { getNestedValue } from '@scalar/object-utils/nested'
+import { loadAllResources } from '@/libs/local-storage'
+import { createWorkspaceStore } from '@/store'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
+import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { ThemeId } from '@scalar/themes'
 import type {
   AuthenticationState,
   Spec,
   SpecConfiguration,
 } from '@scalar/types/legacy'
-import type { LiteralUnion, Paths } from 'type-fest'
+import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -98,15 +98,37 @@ export const createApiClient = ({
 }: CreateApiClientParams) => {
   const store = createWorkspaceStore(router, persistData)
 
-  // Strictly make the default workspace with no side effects, to be overwritten by importing a spec
-  store.workspaceMutators.rawAdd(
-    createWorkspace({
+  // Load from localStorage if available
+  // Check if we have localStorage data
+  if (localStorage.getItem(LS_KEYS.WORKSPACE) && !isReadOnly) {
+    const size: Record<string, string> = {}
+    let _lsTotal = 0
+    let _xLen = 0
+    let _key = ''
+
+    for (_key in localStorage) {
+      if (!Object.prototype.hasOwnProperty.call(localStorage, _key)) {
+        continue
+      }
+      _xLen = (localStorage[_key].length + _key.length) * 2
+      _lsTotal += _xLen
+      size[_key] = (_xLen / 1024).toFixed(2) + ' KB'
+    }
+    size['Total'] = (_lsTotal / 1024).toFixed(2) + ' KB'
+    console.table(size)
+
+    loadAllResources(store)
+  } else {
+    // Create default workspace
+    store.workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: configuration?.proxyUrl,
-    }),
-  )
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+
+    localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
+  }
 
   const app = createApp(appComponent)
   app.use(router)
@@ -119,7 +141,6 @@ export const createApiClient = ({
     importSpecFromUrl,
     modalState,
     requests,
-    securitySchemeMutators,
     securitySchemes,
     serverMutators,
     workspaceMutators,
@@ -191,53 +212,54 @@ export const createApiClient = ({
     updateAuth: (auth: AuthenticationState) => {
       const schemes = Object.values(securitySchemes)
 
+      // TODO: @amrit need to update this
       // Loop on all schemes from client to see which types we have
-      schemes.forEach((scheme) => {
-        /**
-         * Edit helper to reduce some boilerplate in the switch statements
-         * Ensures the passed in value exists and one does not exist already
-         */
-        const edit = (
-          value: string | string[],
-          path: Paths<SecurityScheme> = 'value',
-        ) =>
-          value.length &&
-          !getNestedValue(scheme, path).length &&
-          securitySchemeMutators.edit(scheme.uid, path, value)
+      // schemes.forEach((scheme) => {
+      //   /**
+      //    * Edit helper to reduce some boilerplate in the switch statements
+      //    * Ensures the passed in value exists and one does not exist already
+      //    */
+      //   const edit = (
+      //     value: string | string[],
+      //     path: Paths<SecurityScheme> = 'value',
+      //   ) =>
+      //     value.length &&
+      //     !getNestedValue(scheme, path).length &&
+      //     securitySchemeMutators.edit(scheme.uid, path, value)
 
-        switch (scheme.type) {
-          case 'apiKey':
-            edit(auth.apiKey.token)
-            break
+      //   switch (scheme.type) {
+      //     case 'apiKey':
+      //       edit(auth.apiKey.token)
+      //       break
 
-          case 'http':
-            if (scheme.scheme === 'bearer') edit(auth.http.bearer.token)
-            else if (scheme.scheme === 'basic') {
-              edit(auth.http.basic.username)
-              edit(auth.http.basic.password, 'secondValue')
-            }
-            break
+      //     case 'http':
+      //       if (scheme.scheme === 'bearer') edit(auth.http.bearer.token)
+      //       else if (scheme.scheme === 'basic') {
+      //         edit(auth.http.basic.username)
+      //         edit(auth.http.basic.password, 'secondValue')
+      //       }
+      //       break
 
-          // Currently we only support implicit + password on the references side
-          case 'oauth2':
-            edit(auth.oAuth2.clientId, 'clientId')
+      //     // Currently we only support implicit + password on the references side
+      //     case 'oauth2':
+      //       edit(auth.oAuth2.clientId, 'clientId')
 
-            if (
-              scheme.flow.type === 'implicit' ||
-              scheme.flow.type === 'password'
-            ) {
-              edit(auth.oAuth2.accessToken, 'flow.token')
-              edit(auth.oAuth2.scopes, 'flow.selectedScopes')
+      //       if (
+      //         scheme.flow.type === 'implicit' ||
+      //         scheme.flow.type === 'password'
+      //       ) {
+      //         edit(auth.oAuth2.accessToken, 'flow.token')
+      //         edit(auth.oAuth2.scopes, 'flow.selectedScopes')
 
-              if (scheme.flow.type === 'password') {
-                edit(auth.oAuth2.username, 'flow.value')
-                edit(auth.oAuth2.password, 'flow.secondValue')
-              }
-            }
+      //         if (scheme.flow.type === 'password') {
+      //           edit(auth.oAuth2.username, 'flow.value')
+      //           edit(auth.oAuth2.password, 'flow.secondValue')
+      //         }
+      //       }
 
-            break
-        }
-      })
+      //       break
+      //   }
+      // })
 
       // Select the correct scheme
       // TODO for updating the selected auth from references -> client

@@ -4,14 +4,14 @@ import {
   useCodeMirror,
   type CodeMirrorLanguage,
   type Extension,
+  useDropdown,
 } from '@scalar/use-codemirror'
 import { nanoid } from 'nanoid'
 import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
-
-import { dropdownPlugin } from './codeDropdownWidget'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
-import { useWorkspace } from '@/store/workspace'
+import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
+import { useWorkspace } from '@/store'
 
 const props = withDefaults(
   defineProps<{
@@ -33,7 +33,6 @@ const props = withDefaults(
     type?: string
     nullable?: boolean
     withVariables?: boolean
-    withServers?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -43,7 +42,6 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     withVariables: true,
-    withServers: false,
   },
 )
 const emit = defineEmits<{
@@ -56,13 +54,12 @@ const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
 
-const {
-  activeWorkspace,
-  activeParsedEnvironments,
-  isReadOnly,
-  environments,
-  router,
-} = useWorkspace()
+// Environment variable dropdown init
+const showDropdown = ref(false)
+const dropdownQuery = ref('')
+const dropdownPosition = ref({ left: 0, top: 0 })
+
+const { activeEnvVariables, isReadOnly, environments, router } = useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -97,18 +94,12 @@ function handleBlur(value: string) {
 
 const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
-if (props.withVariables && !activeWorkspace.value.isReadOnly) {
-  extensions.push(
-    dropdownPlugin({
-      withServers: props.withServers,
-      activeParsedEnvironments,
-      environments,
-      router,
-    }),
-  )
-}
 extensions.push(
-  pillPlugin({ environments, activeParsedEnvironments, isReadOnly }),
+  pillPlugin({
+    environments,
+    activeEnvVariables,
+    isReadOnly,
+  }),
   backspaceCommand,
 )
 const codeMirrorRef: Ref<HTMLDivElement | null> = ref(null)
@@ -117,7 +108,9 @@ const { codeMirror } = useCodeMirror({
   content: toRef(() =>
     props.modelValue !== undefined ? String(props.modelValue) : '',
   ),
-  onChange: handleChange,
+  onChange: (value) => {
+    handleChange(value), updateDropdownVisibility()
+  },
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),
   codeMirrorRef,
@@ -141,6 +134,13 @@ watch(codeMirror, () => {
   ) {
     codeMirror.value.focus()
   }
+})
+
+const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
+  codeMirror,
+  query: dropdownQuery,
+  showDropdown,
+  dropdownPosition,
 })
 
 // Computed property to check if type is boolean and nullable
@@ -200,6 +200,13 @@ export default {
     class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0 pointer-events-none">
     Required
   </div>
+  <EnvironmentVariableDropdown
+    v-if="showDropdown && props.withVariables && !isReadOnly"
+    :activeEnvVariables="computed(() => activeEnvVariables)"
+    :dropdownPosition="dropdownPosition"
+    :query="dropdownQuery"
+    :router="router"
+    @select="handleDropdownSelect" />
 </template>
 <style scoped>
 /*
@@ -213,7 +220,8 @@ export default {
 }
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
+  padding: 8px 0;
 }
 /* Tooltip helper */
 :deep(.cm-tooltip) {
@@ -268,7 +276,7 @@ export default {
   background-color: var(--scalar-background-1);
   border-right: none;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-mini);
+  font-size: var(--scalar-small);
   line-height: 1.44;
 }
 :deep(.cm-gutterElement) {
@@ -278,7 +286,7 @@ export default {
   align-items: center;
   justify-content: flex-end;
 }
-:deep(.cm-gutter + .cm-gutter .cm-gutterElement) {
+:deep(.cm-gutter + .cm-gutter :not(.cm-foldGutter) .cm-gutterElement) {
   padding-left: 0 !important;
 }
 :deep(.cm-scroller) {
@@ -289,8 +297,7 @@ export default {
 .cm-pill {
   --tw-bg-base: var(--scalar-color-1);
   color: var(--tw-bg-base);
-  padding: 0 6px;
-  margin: 0 6px;
+  padding: 0px 9px;
   border-radius: 3px;
   display: inline-block;
   border-radius: 30px;
@@ -308,5 +315,24 @@ export default {
 }
 .cm-editor .cm-widgetBuffer {
   display: none;
+}
+.cm-foldPlaceholder:hover {
+  color: var(--scalar-color-1);
+}
+.cm-foldGutter .cm-gutterElement {
+  font-size: var(--scalar-heading-4);
+  padding: 2px !important;
+}
+.cm-foldGutter .cm-gutterElement:first-of-type {
+  display: none;
+}
+.cm-foldGutter .cm-gutterElement .cm-foldMarker {
+  padding: 2px;
+  padding-top: 2px;
+}
+.cm-foldGutter .cm-gutterElement:hover .cm-foldMarker {
+  background: var(--scalar-background-2);
+  border-radius: var(--scalar-radius);
+  color: var(--scalar-color-1);
 }
 </style>

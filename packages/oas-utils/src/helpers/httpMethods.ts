@@ -1,66 +1,82 @@
-export const REQUEST_METHODS = {
-  CONNECT: {
-    short: 'CONN',
-    color: 'text-c-2',
-    backgroundColor: 'bg-c-2',
-  },
-  DELETE: {
-    short: 'DEL',
-    color: 'text-red',
-    backgroundColor: 'bg-red',
-  },
-  GET: {
+import type { RequestMethod } from '@/entities/spec/requests'
+
+/**
+ * HTTP methods in a specific order
+ * Do not change the order
+ */
+export const REQUEST_METHODS: {
+  [x in RequestMethod]: {
+    short: string
+    color: string
+    backgroundColor: string
+  }
+} = {
+  get: {
     short: 'GET',
     color: 'text-blue',
     backgroundColor: 'bg-blue',
   },
-  HEAD: {
-    short: 'HEAD',
-    color: 'text-scalar-c-2',
-    backgroundColor: 'bg-c-2',
-  },
-  OPTIONS: {
-    short: 'OPTS',
-    color: 'text-purple',
-    backgroundColor: 'bg-purple',
-  },
-  PATCH: {
-    short: 'PATCH',
-    color: 'text-yellow',
-    backgroundColor: 'bg-yellow',
-  },
-  POST: {
+  post: {
     short: 'POST',
     color: 'text-green',
     backgroundColor: 'bg-green',
   },
-  PUT: {
+  put: {
     short: 'PUT',
     color: 'text-orange',
     backgroundColor: 'bg-orange',
   },
-  TRACE: {
+  patch: {
+    short: 'PATCH',
+    color: 'text-yellow',
+    backgroundColor: 'bg-yellow',
+  },
+  delete: {
+    short: 'DEL',
+    color: 'text-red',
+    backgroundColor: 'bg-red',
+  },
+  options: {
+    short: 'OPTS',
+    color: 'text-purple',
+    backgroundColor: 'bg-purple',
+  },
+  head: {
+    short: 'HEAD',
+    color: 'text-scalar-c-2',
+    backgroundColor: 'bg-c-2',
+  },
+  connect: {
+    short: 'CONN',
+    color: 'text-c-2',
+    backgroundColor: 'bg-c-2',
+  },
+  trace: {
     short: 'TRACE',
     color: 'text-c-2',
     backgroundColor: 'bg-c-2',
   },
 } as const
 
-export type RequestMethod = keyof typeof REQUEST_METHODS
+/** HTTP Methods which can have a body */
+const BODY_METHODS = ['post', 'put', 'patch', 'delete'] as const
+type BodyMethod = (typeof BODY_METHODS)[number]
+
+/** Makes a check to see if this method CAN have a body */
+export const canMethodHaveBody = (
+  method: RequestMethod,
+): method is BodyMethod => BODY_METHODS.includes(method as BodyMethod)
 
 /**
  * Accepts an HTTP Method name and returns some properties for the tag
  */
-export const getRequest = (methodName: string) => {
-  const normalizedMethod = methodName.trim().toUpperCase()
-
-  if (normalizedMethod in REQUEST_METHODS)
-    return REQUEST_METHODS[normalizedMethod as RequestMethod]
-  else {
-    return {
+export const getHttpMethodInfo = (methodName: string) => {
+  const normalizedMethod = methodName.trim().toLowerCase()
+  return (
+    REQUEST_METHODS[normalizedMethod as RequestMethod] ?? {
       short: normalizedMethod,
       color: 'text-c-2',
       backgroundColor: 'bg-c-2',
     }
-  }
+  )
 }

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
   type RequestExample,
-  createRequestExampleParameter,
-} from '@scalar/oas-utils/entities/workspace/spec'
+  requestExampleParametersSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
@@ -29,7 +29,7 @@ const addRow = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   /** Create a new parameter instance with 'enabled' set to false */
-  const newParam = createRequestExampleParameter({ enabled: false })
+  const newParam = requestExampleParametersSchema.parse({ enabled: false })
   const newParams = [...params.value, newParam]
 
   requestExampleMutators.edit(
@@ -74,7 +74,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     )
   } else {
     /** if there is no row at the index, add a new one */
-    const payload = [createRequestExampleParameter({ [field]: value })]
+    const payload = [requestExampleParametersSchema.parse({ [field]: value })]
     requestExampleMutators.edit(
       activeExample.value.uid,
       `parameters.${props.paramKey}`,

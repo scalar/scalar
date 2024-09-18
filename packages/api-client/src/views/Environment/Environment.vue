@@ -8,7 +8,8 @@ import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
 import { nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -23,14 +24,14 @@ const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 
 function addEnvironment() {
-  const environment = {
+  const environment = environmentSchema.parse({
     name: 'New Environment',
     uid: nanoid(),
     color: 'grey',
     raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
     parsed: [],
     isDefault: false,
-  }
+  })
 
   environmentMutators.add(environment)
   activeEnvironmentID.value = environment.uid
@@ -39,7 +40,7 @@ function addEnvironment() {
 
 function handleEnvironmentUpdate(raw: string) {
   if (activeEnvironmentID.value) {
-    environmentMutators.edit(activeEnvironmentID.value, 'raw', raw)
+    environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
   }
 }
 
@@ -151,7 +152,7 @@ onMounted(setActiveEnvironment)
             v-if="activeEnvironmentID"
             class="px-2 py-2.5"
             lineNumbers
-            :modelValue="environments[activeEnvironmentID].raw"
+            :modelValue="environments[activeEnvironmentID].value"
             @update:modelValue="handleEnvironmentUpdate" />
         </ViewLayoutSection>
       </ViewLayoutContent>

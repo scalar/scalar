@@ -1,11 +1,12 @@
 <script lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
-import CommandPaletteFolder from './CommandPaletteFolder.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
+import CommandPaletteServer from './CommandPaletteServer.vue'
+import CommandPaletteTag from './CommandPaletteTag.vue'
 import CommandPaletteWorkspace from './CommandPaletteWorkspace.vue'
 
 /**
@@ -21,7 +22,8 @@ export const PaletteComponents = {
   'Import Collection': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
-  'Add Folder': CommandPaletteFolder,
+  'Add Tag': CommandPaletteTag,
+  'Add Server': CommandPaletteServer,
   'Create Collection': CommandPaletteCollection,
   'Add Example': CommandPaletteExample,
 } as const
@@ -56,7 +58,7 @@ const availableCommands = [
         icon: 'Import',
       },
       {
-        name: 'Add Folder',
+        name: 'Add Tag',
         icon: 'Folder',
       },
       {
@@ -67,6 +69,10 @@ const availableCommands = [
         name: 'Add Example',
         icon: 'Example',
       },
+      {
+        name: 'Add Server',
+        icon: 'Server',
+      },
     ],
   },
   {
@@ -76,11 +82,6 @@ const availableCommands = [
         name: 'Create Workspace',
         icon: 'Workspace',
       },
-      // {
-      //   name: 'Add Server',
-      //   icon: 'Server',
-      //   path: '/servers',
-      // },
       {
         name: 'Add Environment',
         icon: 'Brackets',
@@ -101,7 +102,7 @@ const { push } = useRouter()
 const { activeWorkspace } = useWorkspace()
 
 /** Additional metadata for the command palettes */
-const metaData = ref<string>()
+const metaData = ref<Record<string, any> | undefined>()
 const commandQuery = ref('')
 const activeCommand = ref<keyof typeof PaletteComponents | null>(null)
 const selectedSearchResult = ref<number>(-1)

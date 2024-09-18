@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { ScalarIcon, ScalarListbox } from '@scalar/components'
-import {
-  REQUEST_METHODS,
-  type RequestMethod,
-  getRequest,
-} from '@scalar/oas-utils/helpers'
+import { ScalarListbox } from '@scalar/components'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { REQUEST_METHODS, getHttpMethodInfo } from '@scalar/oas-utils/helpers'
 import { cva, cx } from 'cva'
 import { computed } from 'vue'
 
@@ -21,14 +18,12 @@ const emit = defineEmits<{
   (e: 'change', value: RequestMethod): void
 }>()
 
-const method = computed(() => getRequest(props.method))
-
-const methodOptions = Object.entries(REQUEST_METHODS).map(
-  ([id, { short }]) => ({
-    id: id as RequestMethod,
-    label: id.charAt(0) + id.toLowerCase().slice(1),
-  }),
-)
+const method = computed(() => getHttpMethodInfo(props.method))
+const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
+  id: id as RequestMethod,
+  label: id.charAt(0) + id.toLowerCase().slice(1),
+  color: getHttpMethodInfo(id).color,
+}))
 const selectedMethod = computed({
   get: () => methodOptions.find(({ id }) => id === props.method),
   set: (opt) => opt?.id && emit('change', opt.id),
@@ -55,6 +50,7 @@ const httpLabel = computed(() => method.value.short)
   <ScalarListbox
     v-if="isEditable"
     v-model="selectedMethod"
+    class="mt-1 font-code uppercase"
     :options="methodOptions">
     <div
       class="h-full"

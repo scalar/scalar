@@ -6,7 +6,7 @@ import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ResponseInstance } from '@scalar/oas-utils/entities/workspace/spec'
+import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
 import ResponseCookies from './ResponseCookies.vue'
@@ -53,7 +53,7 @@ const responseCookies = computed(
     }) ?? [],
 )
 
-const sections = ['All', 'Body', 'Headers', 'Cookies']
+const sections = ['Cookies', 'Headers', 'Body', 'All']
 type ActiveSections = (typeof sections)[number]
 
 const activeSection = ref<ActiveSections>('All')
@@ -72,17 +72,17 @@ const activeSection = ref<ActiveSections>('All')
           v-if="response"
           :response="response" />
       </div>
+      <ContextBar
+        :activeSection="activeSection"
+        :sections="sections"
+        @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="custom-scroll relative flex flex-1 flex-col px-2 xl:px-6 py-2.5">
+      class="custom-scroll relative flex flex-1 flex-col px-2 xl:px-4 py-2.5">
       <template v-if="!response">
         <ResponseEmpty />
       </template>
       <template v-else>
-        <ContextBar
-          :activeSection="activeSection"
-          :sections="sections"
-          @setActiveSection="activeSection = $event" />
         <ResponseCookies
           v-if="activeSection === 'All' || activeSection === 'Cookies'"
           :cookies="responseCookies" />

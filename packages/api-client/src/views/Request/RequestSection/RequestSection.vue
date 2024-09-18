@@ -1,55 +1,42 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useWorkspace } from '@/store/workspace'
-import RequestAuth from '@/views/Request/RequestSection/RequestAuth.vue'
+import { useWorkspace } from '@/store'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarIcon } from '@scalar/components'
+import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
-const {
-  activeRequest,
-  activeSecuritySchemes,
-  activeExample,
-  activeSecurityRequirements,
-  isReadOnly,
-  requestMutators,
-} = useWorkspace()
+import RequestAuth from './RequestAuth/RequestAuth.vue'
 
-const bodyMethods = ['POST', 'PUT', 'PATCH', 'DELETE']
+const { activeRequest, activeExample, isReadOnly, requestMutators } =
+  useWorkspace()
 
 const sections = computed(() => {
-  const allSections = [
-    'All',
+  const allSections = new Set([
+    'Query',
     'Auth',
     'Request',
     'Cookies',
     'Headers',
-    'Query',
     'Body',
-  ]
+    'All',
+  ])
 
-  if (!activeExample.value.parameters.path.length) {
-    allSections.splice(allSections.indexOf('Request'), 1)
-  }
+  if (!activeExample.value?.parameters.path.length)
+    allSections.delete('Request')
+  if (!canMethodHaveBody(activeRequest.value?.method ?? 'get'))
+    allSections.delete('Body')
+  if (isAuthHidden.value) allSections.delete('Auth')
 
-  if (!bodyMethods.includes(activeRequest.value.method)) {
-    allSections.splice(allSections.indexOf('Body'), 1)
-  }
-
-  if (isAuthHidden.value) allSections.splice(allSections.indexOf('Auth'), 1)
-
-  return allSections
+  return [...allSections]
 })
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () =>
-    isReadOnly.value &&
-    (activeSecurityRequirements.value.length === 0 ||
-      JSON.stringify(activeSecurityRequirements.value) === '[{}]'),
+  () => isReadOnly.value && activeRequest.value?.security?.length === 0,
 )
 
 type ActiveSections = (typeof sections.value)[number]
@@ -59,13 +46,16 @@ const activeSection = ref<ActiveSections>('All')
 watch(activeRequest, (newRequest) => {
   if (
     activeSection.value === 'Body' &&
-    !bodyMethods.includes(newRequest.method)
+    newRequest &&
+    !canMethodHaveBody(newRequest.method)
   ) {
     activeSection.value = 'All'
   }
 })
 
 const updateRequestNameHandler = (event: Event) => {
+  if (!activeRequest.value) return
+
   const target = event.target as HTMLInputElement
   requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
 }
@@ -92,24 +82,22 @@ const updateRequestNameHandler = (event: Event) => {
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
       </div>
-    </template>
-    <div
-      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <ContextBar
         :activeSection="activeSection"
         :sections="sections"
         @setActiveSection="activeSection = $event" />
+    </template>
+    <div
+      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <RequestAuth
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
-        :index="0"
-        :securityScheme="activeSecuritySchemes[0]"
         title="Authentication" />
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Request') &&
-          activeExample.parameters.path.length > 0
+          activeExample?.parameters?.path?.length
         "
         paramKey="path"
         title="Path Variables" />
@@ -127,8 +115,9 @@ const updateRequestNameHandler = (event: Event) => {
         title="Query Parameters" />
       <RequestBody
         v-show="
+          activeRequest &&
           (activeSection === 'All' || activeSection === 'Body') &&
-          bodyMethods.includes(activeRequest.method)
+          canMethodHaveBody(activeRequest.method)
         "
         body="foo"
         title="Body" />

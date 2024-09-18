@@ -6,8 +6,8 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { useWorkspace } from '@/store/workspace'
-import { createServer } from '@scalar/oas-utils/entities/workspace/server'
+import { useWorkspace } from '@/store'
+import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
@@ -18,7 +18,7 @@ const { push } = useRouter()
 const addServerHandler = () => {
   if (!activeCollection.value) return
 
-  const newServer = createServer({ url: 'http://localhost' })
+  const newServer = serverSchema.parse({ url: 'http://localhost' })
   serverMutators.add(newServer, activeCollection.value.uid)
 
   push(`/servers/${newServer.uid}`)
@@ -32,10 +32,13 @@ const addServerHandler = () => {
           <div class="flex-1">
             <SidebarList>
               <SidebarListElement
-                v-for="serverUid in activeCollection?.spec.serverUids"
+                v-for="serverUid in activeCollection?.servers"
                 :key="serverUid"
                 class="text-xs"
-                :variable="{ name: servers[serverUid].url, uid: serverUid }" />
+                :variable="{
+                  name: servers[serverUid].url ?? '',
+                  uid: serverUid,
+                }" />
             </SidebarList>
           </div>
         </template>

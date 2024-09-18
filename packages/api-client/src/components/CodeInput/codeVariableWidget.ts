@@ -1,7 +1,8 @@
 /* eslint-disable vue/one-component-per-file */
-import type { WorkspaceStore } from '@/store/workspace'
+import { parseEnvVariables } from '@/libs'
+import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/workspace/environment'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   Decoration,
   type DecorationSet,
@@ -13,45 +14,31 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
-const getEnvColor = (
-  item:
-    | {
-        key: string
-        value: string
-      }
-    | {
-        _scalarEnvId: any
-        key: string
-        value: unknown
-      },
-  environments: Record<string, Environment>,
-) => {
-  if ('_scalarEnvId' in item) {
-    return `bg-${environments[item._scalarEnvId as string].color}`
-  }
-  // this is a server but we can eventually is a 🌐 icon
-  return `bg-grey`
-}
-
-type ActiveParsedEnvironments = WorkspaceStore['activeParsedEnvironments']
+type ActiveParsedEnvironments = WorkspaceStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
+const getEnvColor = (activeEnvVariables: ActiveParsedEnvironments) => {
+  const colorVariable = activeEnvVariables.value.find(
+    (variable) => variable.key === 'color',
+  )?.value
+  return colorVariable || 'grey'
+}
 class PillWidget extends WidgetType {
   private app: any
   environments: Record<string, Environment>
-  activeParsedEnvironments: ActiveParsedEnvironments
+  activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
     environments: Record<string, Environment>,
-    activeParsedEnvironments: ActiveParsedEnvironments,
+    activeEnvVariables: ActiveParsedEnvironments,
     isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
     this.environments = environments
-    this.activeParsedEnvironments = activeParsedEnvironments
+    this.activeEnvVariables = activeEnvVariables
     this.isReadOnly = isReadOnly
   }
 
@@ -63,11 +50,11 @@ class PillWidget extends WidgetType {
     const tooltipComponent = defineComponent({
       props: { variableName: { type: String, default: null } },
       render: () => {
-        const val = this.activeParsedEnvironments.value.find(
+        const val = parseEnvVariables(this.activeEnvVariables.value).find(
           (thing) => thing.key === this.variableName,
         )
         if (val) {
-          span.className += ` ${getEnvColor(val, this.environments)}`
+          span.className += ` bg-${getEnvColor(this.activeEnvVariables)}`
         }
         const tooltipContent = val
           ? h('div', { class: 'p-2' }, val.value as string)
@@ -143,7 +130,7 @@ class PillWidget extends WidgetType {
 
 export const pillPlugin = (props: {
   environments: Record<string, Environment>
-  activeParsedEnvironments: ActiveParsedEnvironments
+  activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
@@ -179,7 +166,7 @@ export const pillPlugin = (props: {
                 widget: new PillWidget(
                   variableName,
                   props.environments,
-                  props.activeParsedEnvironments,
+                  props.activeEnvVariables,
                   props.isReadOnly,
                 ),
                 side: 1,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
-import { useWorkspace } from '@/store/workspace'
-import type { Server } from '@scalar/oas-utils/entities/workspace/server'
+import { useWorkspace } from '@/store'
+import type { Server } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -22,8 +22,8 @@ const activeServer = computed(
   () =>
     servers[
       activeCollection.value && route.params.server === 'default'
-        ? activeCollection.value?.spec.serverUids[0]
-        : activeCollection.value?.spec.serverUids.find(
+        ? activeCollection.value?.servers[0]
+        : activeCollection.value?.servers.find(
             (uid) => uid === route.params.server,
           ) ?? ''
     ],
@@ -45,7 +45,7 @@ const variableOptions = computed(() =>
     ([key, variable]) => ({
       key,
       label: key,
-      placeholder: variable.default ?? variable?.enum?.[0] ?? '',
+      placeholder: (variable.default ?? variable?.enum?.[0] ?? '').toString(),
     }),
   ),
 )
@@ -55,7 +55,7 @@ const variablesData = computed(() =>
   Object.entries(activeServer.value.variables ?? {}).reduce<
     Record<string, string>
   >((acc, [key, variable]) => {
-    acc[key] = variable.value ?? variable.default ?? variable?.enum?.[0] ?? ''
+    acc[key] = (variable.default ?? variable?.enum?.[0] ?? '').toString()
     return acc
   }, {}),
 )

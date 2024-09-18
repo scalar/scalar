@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type HotKeyEvents, handleHotKeyDown, hotKeyBus } from '@/libs'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterView } from 'vue-router'

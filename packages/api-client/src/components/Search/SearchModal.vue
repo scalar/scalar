@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   type ModalState,
   ScalarModal,
@@ -8,7 +8,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, ref, watch } from 'vue'
@@ -20,7 +20,7 @@ const props = defineProps<{
 
 const router = useRouter()
 
-const { activeWorkspaceRequests } = useWorkspace()
+const { activeWorkspaceRequests, requests } = useWorkspace()
 
 const keys = useMagicKeys()
 
@@ -48,14 +48,15 @@ const resetSearch = () => {
   searchResults.value = []
 }
 
-const populateFuseDataArray = (requests: Request[]) => {
-  fuseDataArray.value = requests.map((request: Request) => ({
+const populateFuseDataArray = (specifiedRequests: Request[]) => {
+  fuseDataArray.value = specifiedRequests.map((request: Request) => ({
     id: request.uid,
     title: request.summary ?? request.method,
     description: request.description ?? '',
     httpVerb: request.method,
     path: request.path,
   }))
+
   fuse.setCollection(fuseDataArray.value)
 }
 
@@ -76,7 +77,9 @@ watch(
     }
     searchModalRef.value?.focus()
     resetSearch()
-    populateFuseDataArray(activeWorkspaceRequests.value)
+    populateFuseDataArray(
+      activeWorkspaceRequests.value.map((uid) => requests[uid]),
+    )
   },
 )
 
@@ -84,7 +87,7 @@ watch(
 watch(
   activeWorkspaceRequests,
   (newRequests) => {
-    populateFuseDataArray(newRequests)
+    populateFuseDataArray(newRequests.map((uid) => requests[uid]))
   },
   { immediate: true },
 )

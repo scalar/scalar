@@ -6,28 +6,28 @@ import {
   hotKeyBus,
   requestStatusBus,
 } from '@/libs'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { REQUEST_METHODS, type RequestMethod } from '@scalar/oas-utils/helpers'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
+import AddressBarServers from './AddressBarServer.vue'
 
 const {
   activeRequest,
   activeExample,
   isReadOnly,
   requestMutators,
-  requestExampleMutators,
-  requestsHistory,
+  requestHistory,
 } = useWorkspace()
 
-const history = requestsHistory
-const selectedRequest = ref(history.value[0])
+const selectedRequest = ref(requestHistory[0])
 const addressBarRef = ref<typeof CodeInput | null>(null)
 
 const keys = useMagicKeys()
@@ -46,7 +46,7 @@ const onUrlChange = (newPath: string) => {
 watch(
   () => activeRequest.value?.path,
   (newURL) => {
-    if (!activeRequest.value) return
+    if (!activeRequest.value || !newURL) return
     onUrlChange(newURL)
   },
 )
@@ -108,7 +108,7 @@ function updateRequestMethod(method: RequestMethod) {
 function getBackgroundColor() {
   if (!activeRequest.value) return undefined
   const { method } = activeRequest.value
-  return REQUEST_METHODS[method as RequestMethod].backgroundColor
+  return REQUEST_METHODS[method].backgroundColor
 }
 
 function handleExecuteRequest() {
@@ -117,12 +117,17 @@ function handleExecuteRequest() {
   executeRequestBus.emit()
 }
 
-const updateExampleUrlHandler = (url: string) => {
-  requestExampleMutators.edit(activeExample.value.uid, 'url', url)
+/**
+ * TODO: Should we handle query params here somehow?
+ */
+function updateRequestPath(url: string) {
+  if (!activeRequest.value) return
+
+  requestMutators.edit(activeRequest.value.uid, 'path', url)
 }
 
 /** Handle hotkeys */
-const handleHotKey = (event: HotKeyEvents) => {
+function handleHotKey(event: HotKeyEvents) {
   if (event.focusAddressBar) {
     addressBarRef.value?.focus()
   }
@@ -164,6 +169,10 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
             class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden relative flex w-full">
             <div class="fade-left"></div>
 
+            <!-- Servers -->
+            <AddressBarServers />
+
+            <!-- Path + URL + env vars -->
             <CodeInput
               ref="addressBarRef"
               disableCloseBrackets
@@ -171,11 +180,11 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
               disableEnter
               disableTabIndent
               :emitOnBlur="false"
-              :modelValue="activeExample.url"
+              :modelValue="activeRequest.path"
               placeholder="Enter URL to get started"
               server
               @submit="handleExecuteRequest"
-              @update:modelValue="updateExampleUrlHandler" />
+              @update:modelValue="updateRequestPath" />
             <div class="fade-right"></div>
           </div>
 

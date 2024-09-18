@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import { ScalarButton } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { onMounted, ref } from 'vue'
@@ -17,14 +17,13 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a collection.', 'error')
     return
   }
+
   collectionMutators.add(
     {
-      spec: {
-        openapi: '3.1.0',
-        info: {
-          title: collectionName.value,
-          version: '0.0.1',
-        },
+      openapi: '3.1.0',
+      info: {
+        title: collectionName.value,
+        version: '0.0.1',
       },
     },
     activeWorkspace.value.uid,

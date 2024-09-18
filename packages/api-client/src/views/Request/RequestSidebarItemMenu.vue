@@ -6,18 +6,18 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/workspace/collection'
-import type { Folder } from '@scalar/oas-utils/entities/workspace/folder'
 import type {
+  Collection,
   Request,
   RequestExample,
-} from '@scalar/oas-utils/entities/workspace/spec'
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const props = withDefaults(
   defineProps<{
     /** Both inidicate the level and provide a way to traverse upwards */
-    item: Collection | Folder | Request | RequestExample
+    item: Collection | Tag | Request | RequestExample
     resourceTitle: string
     static?: boolean
   }>(),
@@ -33,7 +33,9 @@ const emit = defineEmits<{
 const handleAddExample = () =>
   commandPaletteBus.emit({
     commandName: 'Add Example',
-    metaData: props.item.uid,
+    metaData: {
+      itemUid: props.item.uid,
+    },
   })
 
 const isRequest = computed(() => 'summary' in props.item)
@@ -42,7 +44,7 @@ const isRequest = computed(() => 'summary' in props.item)
 <template>
   <ScalarDropdown
     :static="static"
-    :teleport="!static ?? '#scalar-client'">
+    :teleport="!static">
     <ScalarButton
       class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
       size="sm"

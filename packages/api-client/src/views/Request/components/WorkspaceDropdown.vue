@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
-import { useWorkspace } from '@/store/workspace'
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarContextMenu,
@@ -43,7 +43,7 @@ const openRenameModal = (uid: string) => {
 
 const handleWorkspaceRename = () => {
   if (tempName.value.trim()) {
-    workspaceMutators.rename(tempUid.value, tempName.value.trim())
+    workspaceMutators.edit(tempUid.value, 'name', tempName.value.trim())
     renameModal.hide()
   }
 }

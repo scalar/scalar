@@ -5,34 +5,31 @@ export function schemaModel<T, I = any>(
   data: I,
   schema: ZodSchema<T, ZodTypeDef, any>,
   throwError?: true,
+  errorLocation?: string,
 ): T
 export function schemaModel<T, I = any>(
   data: I,
   schema: ZodSchema<T, ZodTypeDef, any>,
   throwError?: false,
+  errorLocation?: string,
 ): T | null
+/** Parse a Zod */
 export function schemaModel<T, I = any>(
   data: I,
   schema: ZodSchema<T, ZodTypeDef, any>,
   throwError = true,
+  errorLocation?: string,
 ) {
-  if (throwError) {
-    const result = schema.safeParse(data)
+  const result = schema.safeParse(data)
 
-    if (!result.success) {
-      console.error('Zod Schema Error')
-      console.group()
-      result.error.issues.forEach((issue) => {
-        console.log(`Path: ${issue.path.join(', ')} \nError: ${issue.message}`)
-      })
-
-      console.groupEnd()
-      throw new Error('Zod validation failure')
-    }
-
-    return result.data
-  } else {
-    const res = schema.safeParse(data)
-    return res.success ? res.data : null
+  if (!result.success) {
+    console.group('Schema Error' + (errorLocation ? ` - ${errorLocation}` : ''))
+    console.warn(JSON.stringify(result.error.format(), null, 2))
+    console.log('Recieved: ', data)
+    console.groupEnd()
   }
+
+  if (throwError && !result.success) throw new Error('Zod validation failure')
+
+  return result.data
 }

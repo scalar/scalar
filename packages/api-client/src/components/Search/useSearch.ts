@@ -1,5 +1,5 @@
-import { useWorkspace } from '@/store/workspace'
-import type { Request } from '@scalar/oas-utils/entities/workspace/spec'
+import { useWorkspace } from '@/store'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const { activeWorkspaceRequests } = useWorkspace()
+  const { activeWorkspaceRequests, requests } = useWorkspace()
 
   type FuseData = {
     title: string
@@ -88,7 +88,7 @@ export function useSearch() {
   watch(
     activeWorkspaceRequests,
     (newRequests) => {
-      populateFuseDataArray(newRequests)
+      populateFuseDataArray(newRequests.map((uid) => requests[uid]))
     },
     { immediate: true },
   )

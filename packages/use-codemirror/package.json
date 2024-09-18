@@ -60,6 +60,7 @@
     "@lezer/highlight": "^1.2.0",
     "@lezer/lr": "^1.4.0",
     "@replit/codemirror-css-color-picker": "^6.1.0",
+    "@scalar/components": "workspace:*",
     "@uiw/codemirror-themes": "^4.21.21",
     "codemirror": "^6.0.0",
     "vue": "^3.4.29"
