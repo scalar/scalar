@@ -72,10 +72,6 @@ const activeSection = ref<ActiveSections>('All')
           v-if="response"
           :response="response" />
       </div>
-      <ContextBar
-        :activeSection="activeSection"
-        :sections="sections"
-        @setActiveSection="activeSection = $event" />
     </template>
     <div
       class="custom-scroll relative flex flex-1 flex-col px-2 xl:px-4 py-2.5">
@@ -83,6 +79,10 @@ const activeSection = ref<ActiveSections>('All')
         <ResponseEmpty />
       </template>
       <template v-else>
+        <ContextBar
+          :activeSection="activeSection"
+          :sections="sections"
+          @setActiveSection="activeSection = $event" />
         <ResponseCookies
           v-if="activeSection === 'All' || activeSection === 'Cookies'"
           :cookies="responseCookies" />

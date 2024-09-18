@@ -34,7 +34,7 @@ const variants = cva({
   base: 'flex items-center rounded border bg-b-1 text-sm font-medium',
   variants: {
     sidebar: {
-      true: 'gap-1.5 p-1.5',
+      true: 'h-8 gap-1.5 px-1.5 ',
       false: 'h-10 p-3',
     },
   },
