@@ -1,0 +1,46 @@
+{
+  "name": "@scalar/postman-to-openapi",
+  "description": "Converts Postman collections to OpenAPI specifications",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "keywords": [],
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-rollup",
+    "types:check": "scalar-types-check",
+    "types:build": "scalar-types-build",
+    "format": "scalar-format-js",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "watch": "scalar-build-rollup -w"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    "import": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/postman-to-openapi"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@types/lodash.camelcase": "^4.3.9",
+    "vitest": "^0.34.1"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1",
+    "lodash.camelcase": "^4.3.0"
+  }
+}
