@@ -43,13 +43,26 @@ export async function getRequestData(c: Context) {
 
   const cookies = getCookie(c)
 
+  // Get all query parameters as array
+  const query: Record<string, string | string[] | undefined> = c.req.queries()
+
+  // Some query parameters are arrays, some are single values.
+  Object.keys(query).forEach((key) => {
+    query[key] =
+      query?.[key] && query?.[key]?.length > 1
+        ? // Array
+          query[key]
+        : // Single value
+          c.req.query(key)
+  })
+
   return {
     method: c.req.method,
     path: c.req.path,
     headers,
     ...authentication,
     cookies,
-    query: c.req.query(),
+    query,
     body: body,
   }
 }
