@@ -50,11 +50,18 @@ const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
  * Any utilized auth must have a scheme object at the collection or request level
  * In readonly mode we will use operation level schemes if they are provided
  * Otherwise we only use collection level schemes
+ *
+ * Currently we just filter out empty object for optional but when we add required security we shall handle it!
  */
 const availableSchemes = computed(() => {
+  /** With optional ({}) filtered out */
+  const requestSecurity = activeRequest.value?.security?.filter(
+    (s) => Object.keys(s).length,
+  )
+
   const base =
-    isReadOnly.value && activeRequest.value?.security?.length
-      ? activeRequest.value.security.map((s) => Object.keys(s)[0])
+    isReadOnly.value && requestSecurity?.length
+      ? requestSecurity.map((s) => Object.keys(s)[0])
       : activeCollection.value?.securitySchemes
 
   return (base ?? []).map((s) => securitySchemes[s])

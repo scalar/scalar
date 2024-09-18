@@ -189,10 +189,15 @@ export async function importSpecToWorkspace(
         // As per the spec if there is operation level security we ignore the top level requirements
         if (operation.security?.length)
           requestPayload.security = operation.security?.map((s) => {
-            const [key] = Object.keys(s)
-            return {
-              [key]: s[key],
-            }
+            const keys = Object.keys(s)
+
+            // Handle the case of {} for optional
+            if (keys.length) {
+              const [key] = Object.keys(s)
+              return {
+                [key]: s[key],
+              }
+            } else return s
           })
 
         // Save parse the request
@@ -275,6 +280,7 @@ export async function importSpecToWorkspace(
     tags: tags.map((t) => t.uid),
     children: [...collectionChildren],
     security: schema.security ?? [{}],
+    selectedServerUid: servers?.[0]?.uid,
     components: {
       ...schema.components,
     },

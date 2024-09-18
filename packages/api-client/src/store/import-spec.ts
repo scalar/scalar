@@ -54,7 +54,7 @@ export function importSpecFileFactory({
 
     // Add the collection UID to the workspace
     workspaceMutators.edit(workspaceUid, 'collections', [
-      ...workspaces[workspaceUid].collections,
+      ...(workspaces[workspaceUid]?.collections ?? []),
       workspaceEntities.collection.uid,
     ])
   }

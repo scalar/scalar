@@ -29,31 +29,21 @@ export const createApiClientModal = async (
     router: createModalRouter(),
   })
 
-  const { importSpecFile, importSpecFromUrl, workspaceMutators } = client.store
+  const { importSpecFile, importSpecFromUrl } = client.store
 
   // Import the spec if needed
-  if (configuration.spec?.url) {
+  if (configuration.spec?.url)
     await importSpecFromUrl(
       configuration.spec.url,
       configuration.proxyUrl,
       configuration?.servers,
     )
-  } else if (configuration.spec?.content) {
+  else if (configuration.spec?.content)
     await importSpecFile(
       configuration.spec?.content,
       undefined,
       configuration?.servers,
     )
-  }
-  // Or add default workspace
-  else {
-    workspaceMutators.add({
-      uid: 'default',
-      name: 'Workspace',
-      isReadOnly: true,
-      proxyUrl: 'https://proxy.scalar.com',
-    })
-  }
 
   return client
 }

@@ -1,6 +1,7 @@
 import { loadAllResources } from '@/libs/local-storage'
 import { createWorkspaceStore } from '@/store'
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { ThemeId } from '@scalar/themes'
@@ -68,7 +69,8 @@ type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for API client */
-  configuration?: Omit<ClientConfiguration, 'spec'>
+  configuration?: Partial<Pick<ClientConfiguration, 'spec'>> &
+    ClientConfiguration
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -118,7 +120,9 @@ export const createApiClient = ({
     console.table(size)
 
     loadAllResources(store)
-  } else {
+  }
+  // Create the default store
+  else if (!isReadOnly || !configuration.spec) {
     // Create default workspace
     store.workspaceMutators.add({
       uid: 'default',
@@ -129,6 +133,16 @@ export const createApiClient = ({
 
     localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
   }
+  // Add a barebones workspace if we want to load a spec in the modal
+  else {
+    const workspace = workspaceSchema.parse({
+      uid: 'default',
+      name: 'Workspace',
+      isReadOnly: true,
+      proxyUrl: 'https://proxy.scalar.com',
+    })
+    store.workspaceMutators.rawAdd(workspace)
+  }
 
   const app = createApp(appComponent)
   app.use(router)
@@ -137,12 +151,13 @@ export const createApiClient = ({
   const {
     activeCollection,
     activeWorkspace,
+    collectionMutators,
     importSpecFile,
     importSpecFromUrl,
     modalState,
     requests,
     securitySchemes,
-    serverMutators,
+    servers,
     workspaceMutators,
   } = store
 
@@ -195,16 +210,17 @@ export const createApiClient = ({
         importSpecFile(newConfig.spec)
       }
     },
-    /**
-     * TODO this is just temporary for the modal, we'll put in a proper solution later
-     * Here we update the currently selected serverUrl
-     */
-    updateServerUrl: (serverUrl: string) =>
-      serverMutators.edit(
-        activeCollection.value?.selectedServerUid ?? '',
-        'url',
-        serverUrl,
-      ),
+    /** Update the currently selected server via URL */
+    updateServer: (serverUrl: string) => {
+      const server = Object.values(servers).find((s) => s.url === serverUrl)
+
+      if (server && activeCollection.value)
+        collectionMutators.edit(
+          activeCollection.value?.uid,
+          'selectedServerUid',
+          server.uid,
+        )
+    },
     /**
      * Update the security schemes
      * maps the references useAuthenticationStore to the client auth
