@@ -221,14 +221,14 @@ export const createApiClient = ({
     /**
      * Update the auth values, we currently don't change the auth selection
      */
-    updateAuth: <P extends Path<Collection>>({
+    updateAuth: <P extends Path<Collection['auth'][string]>>({
       nameKey,
       propertyKey,
       value,
     }: {
       nameKey: string
       propertyKey: P
-      value: PathValue<Collection, P>
+      value: PathValue<Collection['auth'][string], P>
     }) => {
       const schemes = Object.values(securitySchemes)
       const scheme = schemes.find((s) => s.nameKey === nameKey)

@@ -33,6 +33,7 @@ const { authentication, setAuthentication } = useAuthenticationStore()
 
 const handleApiKeyTokenInput = (event: Event) => {
   const value = (event.target as HTMLInputElement).value
+
   setAuthentication({
     apiKey: {
       ...authentication.apiKey,
@@ -52,39 +53,72 @@ const handleApiKeyTokenInput = (event: Event) => {
 }
 
 const handleHttpBasicUsernameInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+
   setAuthentication({
     http: {
       ...authentication.http,
       basic: {
         ...authentication.http.basic,
-        username: (event.target as HTMLInputElement).value,
+        username: value,
       },
     },
   })
+
+  if (authentication.preferredSecurityScheme)
+    apiClientBus.emit({
+      updateAuth: {
+        nameKey: authentication.preferredSecurityScheme,
+        propertyKey: 'username',
+        value,
+      },
+    })
 }
 
 const handleHttpBasicPasswordInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+
   setAuthentication({
     http: {
       ...authentication.http,
       basic: {
         ...authentication.http.basic,
-        password: (event.target as HTMLInputElement).value,
+        password: value,
       },
     },
   })
+
+  if (authentication.preferredSecurityScheme)
+    apiClientBus.emit({
+      updateAuth: {
+        nameKey: authentication.preferredSecurityScheme,
+        propertyKey: 'password',
+        value,
+      },
+    })
 }
 
 const handleHttpBearerTokenInput = (event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+
   setAuthentication({
     http: {
       ...authentication.http,
       bearer: {
         ...authentication.http.bearer,
-        token: (event.target as HTMLInputElement).value,
+        token: value,
       },
     },
   })
+
+  if (authentication.preferredSecurityScheme)
+    apiClientBus.emit({
+      updateAuth: {
+        nameKey: authentication.preferredSecurityScheme,
+        propertyKey: 'token',
+        value,
+      },
+    })
 }
 
 const handleOpenAuth2ClientIdInput = (event: Event) => {
