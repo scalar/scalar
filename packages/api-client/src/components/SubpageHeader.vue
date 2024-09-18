@@ -8,7 +8,7 @@ const currentRoute = useRoute()
   <div
     class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden">
     <div
-      class="lg:min-h-header items-center w-full p-1 t-app__top-container flex items-center border-b-1/2">
+      class="hidden md:flex lg:min-h-header items-center w-full p-1 t-app__top-container items-center border-b-1/2">
       <router-link
         class="text-c-2 text-sm font-medium ml-1 flex items-center p-1.5 hover:bg-b-2 rounded cursor-pointer gap-0.5 active:text-c-1 no-underline dark:hover:bg-b-2"
         :to="`/workspace/${currentRoute.params.workspace}/request/default`">

@@ -19,7 +19,7 @@ defineProps<{
         v-else
         name="title" />
     </template>
-    <div class="custom-scroll flex flex-1 flex-col gap-1.5 px-5 py-5">
+    <div class="custom-scroll flex flex-1 flex-col gap-1.5 p-2 md:p-5">
       <DataTable
         v-if="Object.keys(data).length > 0"
         :columns="['']">

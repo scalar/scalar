@@ -7,7 +7,7 @@ defineProps<{
 </script>
 <template>
   <div
-    class="border-1/2 rounded mx-1 bg-b-1"
+    class="border-1/2 rounded bg-b-1 md:mx-1"
     :class="scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible'">
     <table
       class="grid auto-rows-auto min-h-8 mb-0"

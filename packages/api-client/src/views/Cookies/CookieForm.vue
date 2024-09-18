@@ -36,7 +36,7 @@ const updateCookie = (key: any, value: any) => {
           for="cookiename"></label>
         <input
           id="cookiename"
-          class="pl-1 outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
+          class="md:pl-1 outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
           placeholder="Cookie Name"
           :value="activeCookie.name"
           @input="
