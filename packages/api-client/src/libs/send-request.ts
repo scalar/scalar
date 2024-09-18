@@ -340,8 +340,10 @@ export const createRequestOperation = <ResponseDataType = unknown>({
 
           /** Finally we combine the two but make sure that we keep the path from server */
           const combinedURL = new URL(serverURL)
-          if (serverURL.pathname === '/') combinedURL.pathname = pathString
-          else combinedURL.pathname = serverURL.pathname + pathString
+          if (server?.url) {
+            if (serverURL.pathname === '/') combinedURL.pathname = pathString
+            else combinedURL.pathname = serverURL.pathname + pathString
+          }
 
           // Combines all query params
           combinedURL.search = new URLSearchParams([
