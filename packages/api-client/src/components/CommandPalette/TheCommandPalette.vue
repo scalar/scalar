@@ -177,8 +177,10 @@ const selectedCommand = computed(
 )
 
 /** Handle enter keydown in the menu */
-const handleSelect = () => {
-  if (!selectedCommand.value) return
+const handleSelect = (ev: KeyboardEvent) => {
+  if (!selectedCommand.value || activeCommand.value) return
+  ev.preventDefault()
+  ev.stopPropagation()
   executeCommand(selectedCommand.value)
 }
 
@@ -186,11 +188,6 @@ const handleSelect = () => {
 const handleHotKey = (event: HotKeyEvents) => {
   if (!modalState.open) return
   if (event.closeModal) closeHandler()
-  if (event.navigateSearchResultsUp)
-    handleArrowKey('up', event.navigateSearchResultsUp)
-  if (event.navigateSearchResultsDown)
-    handleArrowKey('down', event.navigateSearchResultsDown)
-  if (event.selectSearchResult) handleSelect()
 }
 
 onMounted(() => {
@@ -230,7 +227,10 @@ onBeforeUnmount(() => {
           autofocus
           class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
           placeholder="Search commands..."
-          type="text" />
+          type="text"
+          @keydown.down.stop="handleArrowKey('down', $event)"
+          @keydown.enter.stop="handleSelect"
+          @keydown.up.stop="handleArrowKey('up', $event)" />
       </div>
       <template
         v-for="group in availableCommands"

@@ -78,10 +78,6 @@ const handleHotKey = (event: HotKeyEvents) => {
   if (event.focusRequestSearch) {
     searchInputRef.value?.focus()
   }
-
-  if (event.navigateSearchResultsUp) navigateSearchResults('up')
-  if (event.navigateSearchResultsDown) navigateSearchResults('down')
-  if (event.selectSearchResult) selectSearchResult()
 }
 
 onMounted(() => {
@@ -114,7 +110,10 @@ onBeforeUnmount(() => {
           ref="searchInputRef"
           v-model="searchText"
           sidebar
-          @input="fuseSearch" />
+          @input="fuseSearch"
+          @keydown.down.stop="navigateSearchResults('down')"
+          @keydown.enter.stop="selectSearchResult()"
+          @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
         class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
