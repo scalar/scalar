@@ -19,7 +19,7 @@ const emit = defineEmits<{
     @submit="emit('delete')">
     <p
       v-if="warningMessage"
-      class="text-c-3 font-medium text-xs mb-2">
+      class="leading-normal text-c-2 text-sm text-pretty">
       {{ warningMessage }}
     </p>
   </SidebarListElementForm>
