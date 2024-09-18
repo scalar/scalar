@@ -43,6 +43,10 @@ export async function getRequestData(c: Context) {
 
   const cookies = getCookie(c)
 
+  const url = new URL(c.req.url)
+
+  const queryString = url.search
+
   return {
     method: c.req.method,
     path: c.req.path,
@@ -50,6 +54,7 @@ export async function getRequestData(c: Context) {
     ...authentication,
     cookies,
     query: c.req.query(),
+    queryString,
     body: body,
   }
 }
