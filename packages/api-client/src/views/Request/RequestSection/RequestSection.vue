@@ -68,19 +68,24 @@ const updateRequestNameHandler = (event: Event) => {
         icon="ExternalLink"
         size="sm"
         thickness="2.5" />
-      <div class="flex-1 flex items-center pointer-events-none">
+      <div class="flex-1 flex gap-1 items-center pointer-events-none">
         Request
         <label
           v-if="!isReadOnly"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
           for="requestname"></label>
         <input
+          v-if="!isReadOnly"
           id="requestname"
-          class="pl-1 outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
-          :disabled="isReadOnly"
+          class="outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
+        <span
+          v-else
+          class="text-c-2">
+          {{ activeRequest?.summary }}
+        </span>
       </div>
       <ContextBar
         :activeSection="activeSection"
