@@ -1,4 +1,5 @@
 import {
+  type RouteLocationNormalized,
   type RouteRecordRaw,
   createMemoryHistory,
   createRouter,
@@ -59,11 +60,11 @@ export const modalRoutes = [
 const routes = [
   {
     path: '/',
-    redirect: '/workspace/default/request/default',
+    redirect: redirectToDefaultWorkspace,
   },
   {
     path: '/workspace',
-    redirect: '/workspace/default/request/default',
+    redirect: redirectToDefaultWorkspace,
   },
   {
     path: `/workspace/:${PathId.Workspace}`,
@@ -147,6 +148,21 @@ export const createModalRouter = () =>
     history: createMemoryHistory(),
     routes: modalRoutes,
   })
+
+/** Tracks the active workspace in localstorage for when the client reloads */
+const WORKSPACE_KEY = 'activeWorkspace' as const
+
+/** Save the active workspace in localstorage for when the client reloads */
+export function saveWorkspace(to: RouteLocationNormalized) {
+  const workspace = to.params[PathId.Workspace]
+  if (workspace) localStorage.setItem(WORKSPACE_KEY, `${workspace}`)
+}
+
+/** Redirect to the saved workspace or the default workspace */
+export function redirectToDefaultWorkspace() {
+  const workspace = localStorage.getItem(WORKSPACE_KEY) ?? 'default'
+  return `/workspace/${workspace}/request/default`
+}
 
 /** If we try to navigate to a entity UID that does not exist then we fallback to the default */
 export function fallbackMissingParams(

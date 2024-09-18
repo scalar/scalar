@@ -1,5 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { router as _router } from '@/router'
+import { router as _router, saveWorkspace } from '@/router'
 
 import ApiClientApp from './ApiClientApp.vue'
 
@@ -28,6 +28,7 @@ export const createApiClientApp = async (
   })
 
   const { importSpecFile, importSpecFromUrl } = client.store
+  router.afterEach(saveWorkspace)
 
   // Import the spec if needed
   if (configuration.spec?.url) {
