@@ -18,8 +18,10 @@
     "build": "next build",
     "dev": "next dev -p 5058",
     "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile .",
-    "lint": "next lint",
-    "start": "next start"
+    "lint:check": "next lint",
+    "lint:fix": "next lint --fix",
+    "start": "next start",
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "dependencies": {
@@ -30,6 +32,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^14.2.11",
     "@types/node": "^20.14.10",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19"
