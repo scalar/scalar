@@ -81,6 +81,8 @@ type CreateApiClientParams = {
   router: Router
 }
 
+export type ApiClient = ReturnType<typeof createApiClient>
+
 /**
  * Sync method to create the api client vue app and store
  *

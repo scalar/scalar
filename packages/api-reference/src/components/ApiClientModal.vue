@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
+import type { ApiClient } from '@scalar/api-client/libs'
 import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
-import { type App, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
@@ -11,15 +12,8 @@ const props = defineProps<{
   servers?: Spec['servers']
 }>()
 
-// We only add the types we are using, we cannot import the type due to lazy load
-type Client = {
-  app: App<HTMLDivElement>
-  updateServer: (serverUrl: string) => void
-  updateSpec: (spec: SpecConfiguration) => void
-}
-
 const el = ref<HTMLDivElement | null>(null)
-const client = ref<Client | null>(null)
+const client = ref<ApiClient | null>(null)
 
 const { server } = useServerStore()
 
