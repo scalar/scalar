@@ -52,10 +52,33 @@ const contentTypeOptions = (
   label,
 }))
 
+/** Match the activeBody to the contentTypeOptions */
+const activeExampleContentType = computed(() => {
+  if (!activeExample.value) return 'none'
+
+  // Form
+  if (activeExample.value.body.activeBody === 'formData')
+    return activeExample.value.body.formData?.encoding === 'urlencoded'
+      ? 'formUrlEncoded'
+      : 'multipartForm'
+  // Raw
+  else if (
+    activeExample.value.body.activeBody === 'raw' &&
+    activeExample.value.body.raw?.encoding
+  )
+    return activeExample.value.body.raw.encoding
+
+  return 'none'
+})
 /** Selected ref from options above */
-const selectedContentType = ref<(typeof contentTypeOptions)[0]>({
-  id: 'none',
-  label: 'None',
+const selectedContentType = computed({
+  get: () =>
+    contentTypeOptions.find(
+      (opt) => opt.id === activeExampleContentType.value,
+    ) ?? contentTypeOptions[contentTypeOptions.length - 1],
+  set: (opt) => {
+    if (opt?.id) updateActiveBody(opt.id)
+  },
 })
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
@@ -270,9 +293,7 @@ function handleFileUpload() {
 watch(
   selectedContentType,
   (val) => {
-    if (!val) return
-    if (val.id === 'multipartForm' || val.id === 'formUrlEncoded') defaultRow()
-    updateActiveBody(val.id)
+    if (['multipartForm', 'formUrlEncoded'].includes(val?.id)) defaultRow()
   },
   { immediate: true },
 )

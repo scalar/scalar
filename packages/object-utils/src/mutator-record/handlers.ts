@@ -1,7 +1,7 @@
 import { Mutation } from '@/mutator-record/mutations'
 import type { Path, PathValue } from '@/nested'
 import { useDebounceFn } from '@vueuse/core'
-import { parse, stringify } from 'flatted'
+import { stringify } from 'flatted'
 
 import { LS_CONFIG } from './local-storage'
 
@@ -43,20 +43,10 @@ export function mutationFactory<
     onChange()
   }
 
-  /** Load the previous entity map state from localStorage into the active state */
-  const loadLocalStorage = () => {
-    if (!localStorageKey) return
-
-    const lsItem = localStorage.getItem(localStorageKey)
-
-    const data =
-      // Check for the new data structure to support the old ones
-      lsItem?.[0] === '['
-        ? parse(localStorage.getItem(localStorageKey) || '[{}]')
-        : JSON.parse(localStorage.getItem(localStorageKey) || '{}')
-
-    const instances = Object.values(data) as T[]
-
+  /**
+   * Loads localStorage data into the mutator after migration
+   */
+  const loadLocalStorage = (instances: T[]) => {
     // TODO: Validation should be provided for each entity
     instances.forEach(add)
   }

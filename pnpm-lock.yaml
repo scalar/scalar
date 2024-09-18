@@ -1770,6 +1770,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      flatted:
+        specifier: ^3.3.1
+        version: 3.3.1
       microdiff:
         specifier: ^1.4.0
         version: 1.4.0

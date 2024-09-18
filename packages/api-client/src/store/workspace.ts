@@ -1,4 +1,3 @@
-import { LS_KEYS } from '@/store/local-storage'
 import type { StoreContext } from '@/store/store-context'
 import {
   collectionSchema,
@@ -9,6 +8,7 @@ import {
   type Workspace,
   workspaceSchema,
 } from '@scalar/oas-utils/entities/workspace'
+import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 

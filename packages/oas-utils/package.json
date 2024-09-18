@@ -43,6 +43,18 @@
       "import": "./dist/spec-getters/index.js",
       "types": "./dist/spec-getters/index.d.ts"
     },
+    "./migrations": {
+      "import": "./dist/migrations/index.js",
+      "types": "./dist/migrations/index.d.ts"
+    },
+    "./migrations/v-2.1.0": {
+      "import": "./dist/migrations/v-2.1.0/index.js",
+      "types": "./dist/migrations/v-2.1.0/index.d.ts"
+    },
+    "./migrations/v-0.0.0": {
+      "import": "./dist/migrations/v-0.0.0/index.js",
+      "types": "./dist/migrations/v-0.0.0/index.d.ts"
+    },
     "./helpers": {
       "import": "./dist/helpers/index.js",
       "types": "./dist/helpers/index.d.ts"
@@ -91,6 +103,7 @@
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
+    "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
     "nanoid": "^5.0.7",
     "yaml": "^2.4.5",

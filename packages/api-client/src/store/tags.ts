@@ -4,11 +4,9 @@ import {
   type TagPayload,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { schemaModel } from '@scalar/oas-utils/helpers'
+import { LS_KEYS, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
-
-import { LS_KEYS } from './local-storage'
 
 /** Create cookie mutators for the workspace */
 export function createStoreTags(useLocalStorage: boolean) {

@@ -1,12 +1,15 @@
-/** localStorage keys for resources */
+/**
+ * localStorage keys for resources
+ * DO NOT CHANGE THESE AS IT WILL BREAK THE MIGRATION
+ */
 export const LS_KEYS = {
   COLLECTION: 'collection',
   COOKIE: 'cookie',
   ENVIRONMENT: 'environment',
-  TAG: 'tag',
-  REQUEST_EXAMPLE: 'requestExample',
   REQUEST: 'request',
-  SERVER: 'server',
+  REQUEST_EXAMPLE: 'requestExample',
   SECURITY_SCHEME: 'securityScheme',
+  SERVER: 'server',
+  TAG: 'tag',
   WORKSPACE: 'workspace',
 } as const

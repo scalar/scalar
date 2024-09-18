@@ -9,6 +9,7 @@ import {
 } from '@/entities/spec'
 import { tagSchema } from '@/entities/spec/spec-objects'
 import { workspaceSchema } from '@/entities/workspace'
+import { DATA_VERSION } from '@/migrations/data-version'
 import { writeFile } from 'fs'
 import { createTypeAlias, printNode, zodToTs } from 'zod-to-ts'
 
@@ -29,16 +30,39 @@ const entities = [
   { identifier: 'Workspace', schema: workspaceSchema },
 ]
 
-const typeString = entities.reduce((prev, { identifier, schema }) => {
-  const { node } = zodToTs(schema, identifier)
-  const typeAlias = createTypeAlias(node, identifier)
-  const nodeString = 'export ' + printNode(typeAlias) + '\n\n'
-  return prev + nodeString
-}, '')
+/**
+ * Export the types in a namespace
+ * TODO:
+ * - go back to typescript compiler api and print pretty types as these ones are optional
+ */
+let typeString = entities.reduce(
+  (prev, { identifier, schema }) => {
+    const { node } = zodToTs(schema, identifier)
+    const typeAlias = createTypeAlias(node, identifier)
+    const nodeString = 'export ' + printNode(typeAlias) + '\n\n'
+    return prev + nodeString
+  },
+  `export namespace v_${DATA_VERSION.replace(/\./g, '_')} {\n`,
+)
+
+// Add all types data object
+typeString += `export type Data = { 
+  collections: Record<string, Collection>
+  cookies: Record<string, Cookie>
+  environments: Record<string, Environment>
+  requestExamples: Record<string, RequestExample>
+  requests: Record<string, Request>
+  securitySchemes: Record<string, SecurityScheme>
+  servers: Record<string, Server>
+  tags: Record<string, Tag>
+  workspaces: Record<string, Workspace>
+}
+}
+`
 
 // Write to file
 writeFile(
-  __dirname + '/v-2.1.0/types.generated.ts',
+  __dirname + `/v-${DATA_VERSION}/types.generated.ts`,
   typeString,
   { flag: 'w' },
   (err) => (err ? console.error(err) : console.log('Generation complete!')),

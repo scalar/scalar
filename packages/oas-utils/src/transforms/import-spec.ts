@@ -156,7 +156,7 @@ export async function importSpecToWorkspace(
     requestMethods.forEach((method) => {
       const operation: OpenAPIV3_1.OperationObject<{
         tags?: string[]
-        security?: OpenAPIV3_1.SecurityRequirementObject
+        security?: OpenAPIV3_1.SecurityRequirementObject[]
       }> = path[method as keyof typeof path]
       if (operation && typeof operation === 'object') {
         const operationServers = serverSchema
@@ -187,12 +187,13 @@ export async function importSpecToWorkspace(
 
         // Add list of UIDs to associate security schemes
         // As per the spec if there is operation level security we ignore the top level requirements
-        if (operation.security)
-          requestPayload.security = Object.keys(operation.security ?? []).map(
-            (s) => ({
-              [securitySchemeMap[s]]: [],
-            }),
-          )
+        if (operation.security?.length)
+          requestPayload.security = operation.security?.map((s) => {
+            const [key] = Object.keys(s)
+            return {
+              [key]: s[key],
+            }
+          })
 
         // Save parse the request
         const request = schemaModel(requestPayload, requestSchema, false)
