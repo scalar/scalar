@@ -61,7 +61,7 @@ const handleAddServer = () =>
 <template>
   <ScalarDropdown
     v-if="requestServerOptions?.length || collectionServerOptions?.length"
-    teleport="#scalar-client">
+    teleport=".scalar-client">
     <button
       class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
       type="button"

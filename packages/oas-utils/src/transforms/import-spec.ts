@@ -280,6 +280,7 @@ export async function importSpecToWorkspace(
     tags: tags.map((t) => t.uid),
     children: [...collectionChildren],
     security: schema.security ?? [{}],
+    selectedServerUid: servers?.[0]?.uid,
     components: {
       ...schema.components,
     },

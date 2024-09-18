@@ -60,7 +60,6 @@ onMounted(async () => {
     { deep: true },
   )
 
-  // @ts-expect-error not sure why this complains about the type, ends up working correctly
   appRef.value = app
 })
 
