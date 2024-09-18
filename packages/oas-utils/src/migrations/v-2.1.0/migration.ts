@@ -157,7 +157,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     (e) =>
       ({
         ...e,
-        value: '',
+        value: e.raw ?? '',
       }) satisfies v_2_1_0.Environment,
   )
 
