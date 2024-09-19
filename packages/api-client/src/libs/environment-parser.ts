@@ -14,6 +14,6 @@ export function parseEnvVariables(
         // Skip invalid environment editor JSON entries
       }
     }
-    return []
+    return [variable]
   })
 }
