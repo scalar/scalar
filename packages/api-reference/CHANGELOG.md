@@ -1,5 +1,43 @@
 # @scalar/api-reference
 
+## 1.25.12
+
+### Patch Changes
+
+- 099233d: fix: request example code works for some examples only
+- 9d88423: feat: added one way auth sync from references to client
+- e15b021: feat: render deeply nested schemas, but not circular references
+- Updated dependencies [b8fdc19]
+- Updated dependencies [18c58af]
+- Updated dependencies [dd06d00]
+- Updated dependencies [7e5dfbb]
+- Updated dependencies [641c1ec]
+- Updated dependencies [b8fdc19]
+- Updated dependencies [9d88423]
+- Updated dependencies [88a4ec3]
+- Updated dependencies [674922f]
+- Updated dependencies [86e1f46]
+- Updated dependencies [44f3300]
+- Updated dependencies [7df5770]
+- Updated dependencies [a08aa37]
+- Updated dependencies [e15b021]
+- Updated dependencies [9269f5a]
+- Updated dependencies [73f728e]
+- Updated dependencies [ee22a82]
+- Updated dependencies [b8fdc19]
+- Updated dependencies [a002783]
+- Updated dependencies [9cd23e3]
+- Updated dependencies [c030024]
+- Updated dependencies [6fd83dc]
+- Updated dependencies [121bc7e]
+  - @scalar/api-client@2.1.0
+  - @scalar/oas-utils@0.2.44
+  - @scalar/openapi-parser@0.8.3
+  - @scalar/components@0.12.45
+  - @scalar/themes@0.9.30
+  - @scalar/code-highlight@0.0.11
+  - @scalar/types@0.0.9
+
 ## 1.25.11
 
 ### Patch Changes

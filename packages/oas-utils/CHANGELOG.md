@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.2.44
+
+### Patch Changes
+
+- 7e5dfbb: feat: server variables from examples
+- 9d88423: feat: added one way auth sync from references to client
+- e15b021: feat: render deeply nested schemas, but not circular references
+- 73f728e: chore: cherrypicking refactor branch for object utils changes
+- 9cd23e3: Generate examples for schemas with `anyOf` defined when `type` is not defined
+- Updated dependencies [73f728e]
+- Updated dependencies [121bc7e]
+  - @scalar/object-utils@1.1.8
+  - @scalar/themes@0.9.30
+  - @scalar/types@0.0.9
+
 ## 0.2.43
 
 ### Patch Changes

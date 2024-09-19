@@ -1,5 +1,35 @@
 # scalar-api-client
 
+## 0.1.37
+
+### Patch Changes
+
+- b8fdc19: feat: foldable code blocks
+- 121bc7e: chore: update lint, prettier and format theme
+- Updated dependencies [b8fdc19]
+- Updated dependencies [18c58af]
+- Updated dependencies [dd06d00]
+- Updated dependencies [7e5dfbb]
+- Updated dependencies [641c1ec]
+- Updated dependencies [b8fdc19]
+- Updated dependencies [9d88423]
+- Updated dependencies [88a4ec3]
+- Updated dependencies [86e1f46]
+- Updated dependencies [44f3300]
+- Updated dependencies [7df5770]
+- Updated dependencies [a08aa37]
+- Updated dependencies [9269f5a]
+- Updated dependencies [73f728e]
+- Updated dependencies [ee22a82]
+- Updated dependencies [b8fdc19]
+- Updated dependencies [a002783]
+- Updated dependencies [c030024]
+- Updated dependencies [6fd83dc]
+- Updated dependencies [121bc7e]
+  - @scalar/api-client@2.1.0
+  - @scalar/components@0.12.45
+  - @scalar/themes@0.9.30
+
 ## 0.1.36
 
 ### Patch Changes

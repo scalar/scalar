@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.8
+
+### Patch Changes
+
+- 73f728e: chore: cherrypicking refactor branch for object utils changes
+
 ## 1.1.7
 
 ### Patch Changes
