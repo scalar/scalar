@@ -3,6 +3,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+import { pathRegex } from '@scalar/oas-utils/helpers'
 import { computed, watch } from 'vue'
 
 const props = defineProps<{
@@ -71,8 +72,7 @@ const setPathVariable = (url: string) => {
   if (!activeExample.value) return
 
   /** matching regex for nested curly braces {value} */
-  const pathVariables =
-    url.match(/{([^{}]+)}/g)?.map((v) => v.slice(1, -1)) || []
+  const pathVariables = url.match(pathRegex)?.map((v) => v.slice(1, -1)) || []
   const parameters = activeExample.value.parameters[props.paramKey]
 
   const paramMap = new Map(parameters.map((param) => [param.key, param]))
