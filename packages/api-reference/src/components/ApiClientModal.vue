@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import {
-  getUrlFromServerState,
-  useAuthenticationStore,
-  useServerStore,
-} from '#legacy'
+import { getUrlFromServerState, useServerStore } from '#legacy'
+import type { ApiClient } from '@scalar/api-client/libs'
 import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
-import { type App, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
@@ -16,9 +13,8 @@ const props = defineProps<{
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
-const appRef = ref<App<HTMLDivElement> | null>(null)
+const client = ref<ApiClient | null>(null)
 
-const { authentication } = useAuthenticationStore()
 const { server } = useServerStore()
 
 onMounted(async () => {
@@ -33,38 +29,37 @@ onMounted(async () => {
       servers: props.servers,
     })
 
+  client.value = {
+    // @ts-expect-error not sure what the beef with app is, possible router related
+    app,
+    updateSpec,
+    updateServer,
+  }
+
   modalStateBus.emit(modalState)
 
   // Event bus to listen to apiClient events
   apiClientBus.on((event) => {
-    // Right now we just update auth every time we open but eventually we should do it when something in auth changes
-    // if (event.updateAuth) updateAuth(event.updateAuth)
-    if (event.open) {
-      updateAuth(authentication)
-
-      open(event.open)
-    }
-
+    if (event.open) open(event.open)
     if (event.updateSpec) updateSpec(event.updateSpec)
+    if (event.updateAuth) updateAuth(event.updateAuth)
   })
-
-  // Update the server on select
-  watch(server, (newServer) => {
-    const serverUrl = getUrlFromServerState(newServer)
-    if (serverUrl) updateServer(serverUrl)
-  })
-
-  watch(
-    () => props.spec,
-    (newSpec) => newSpec && updateSpec(newSpec),
-    { deep: true },
-  )
-
-  // @ts-expect-error not sure why this complains about the type, ends up working correctly
-  appRef.value = app
 })
 
-onBeforeUnmount(() => appRef.value?.unmount())
+// Update the server on select
+watch(server, (newServer) => {
+  const serverUrl = getUrlFromServerState(newServer)
+  if (serverUrl && client.value) client.value.updateServer(serverUrl)
+})
+
+// Update the spec on change
+watch(
+  () => props.spec,
+  (newSpec) => newSpec && client.value?.updateSpec(newSpec),
+  { deep: true },
+)
+
+onBeforeUnmount(() => client.value?.app.unmount())
 </script>
 
 <template>

@@ -75,7 +75,8 @@ export function authExampleFromSchema(
   scheme: SecurityScheme,
   baseValues: any = {},
 ) {
-  if (scheme.type === 'apiKey') return apiKeyExampleSchema.parse(baseValues)
+  if (scheme.type === 'apiKey')
+    return apiKeyExampleSchema.parse({ name: scheme.name, ...baseValues })
   if (scheme.type === 'http') return httpExampleSchema.parse(baseValues)
   if (scheme.type === 'oauth2') {
     if (scheme.flow.type === 'authorizationCode')

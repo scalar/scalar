@@ -1,15 +1,12 @@
 import { loadAllResources } from '@/libs/local-storage'
 import { createWorkspaceStore } from '@/store'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type { ThemeId } from '@scalar/themes'
-import type {
-  AuthenticationState,
-  Spec,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
 import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'
@@ -83,6 +80,8 @@ type CreateApiClientParams = {
   /** Instance of a vue router */
   router: Router
 }
+
+export type ApiClient = ReturnType<typeof createApiClient>
 
 /**
  * Sync method to create the api client vue app and store
@@ -222,83 +221,27 @@ export const createApiClient = ({
         )
     },
     /**
-     * Update the security schemes
-     * maps the references useAuthenticationStore to the client auth
+     * Update the auth values, we currently don't change the auth selection
      */
-    updateAuth: (auth: AuthenticationState) => {
+    updateAuth: <P extends Path<Collection['auth'][string]>>({
+      nameKey,
+      propertyKey,
+      value,
+    }: {
+      nameKey: string
+      propertyKey: P
+      value: PathValue<Collection['auth'][string], P>
+    }) => {
       const schemes = Object.values(securitySchemes)
+      const scheme = schemes.find((s) => s.nameKey === nameKey)
 
-      // TODO: @amrit need to update this
-      // Loop on all schemes from client to see which types we have
-      // schemes.forEach((scheme) => {
-      //   /**
-      //    * Edit helper to reduce some boilerplate in the switch statements
-      //    * Ensures the passed in value exists and one does not exist already
-      //    */
-      //   const edit = (
-      //     value: string | string[],
-      //     path: Paths<SecurityScheme> = 'value',
-      //   ) =>
-      //     value.length &&
-      //     !getNestedValue(scheme, path).length &&
-      //     securitySchemeMutators.edit(scheme.uid, path, value)
-
-      //   switch (scheme.type) {
-      //     case 'apiKey':
-      //       edit(auth.apiKey.token)
-      //       break
-
-      //     case 'http':
-      //       if (scheme.scheme === 'bearer') edit(auth.http.bearer.token)
-      //       else if (scheme.scheme === 'basic') {
-      //         edit(auth.http.basic.username)
-      //         edit(auth.http.basic.password, 'secondValue')
-      //       }
-      //       break
-
-      //     // Currently we only support implicit + password on the references side
-      //     case 'oauth2':
-      //       edit(auth.oAuth2.clientId, 'clientId')
-
-      //       if (
-      //         scheme.flow.type === 'implicit' ||
-      //         scheme.flow.type === 'password'
-      //       ) {
-      //         edit(auth.oAuth2.accessToken, 'flow.token')
-      //         edit(auth.oAuth2.scopes, 'flow.selectedScopes')
-
-      //         if (scheme.flow.type === 'password') {
-      //           edit(auth.oAuth2.username, 'flow.value')
-      //           edit(auth.oAuth2.password, 'flow.secondValue')
-      //         }
-      //       }
-
-      //       break
-      //   }
-      // })
-
-      // Select the correct scheme
-      // TODO for updating the selected auth from references -> client
-      // if (auth.preferredSecurityScheme) {
-      //   const payload = {
-      //     uid: auth.preferredSecurityScheme,
-      //   }
-      //   const preferredScheme = auth.securitySchemes?.[
-      //     auth.preferredSecurityScheme ?? ''
-      //   ] as OpenAPIV3_1.SecuritySchemeObject
-      //
-      //   if (preferredScheme?.type === 'oauth2') {
-      //     payload.flowKey = preferredScheme.flows?.implicit
-      //       ? 'implicit'
-      //       : 'password'
-      //   }
-      //
-      //   collectionMutators.edit(
-      //     activeCollection.value!.uid,
-      //     'selectedSecuritySchemes',
-      //     [payload],
-      //   )
-      // }
+      if (scheme && activeCollection.value)
+        collectionMutators.edit(
+          activeCollection.value.uid,
+          `auth.${scheme.uid}.${propertyKey}`,
+          // @ts-expect-error why typescript why
+          value,
+        )
     },
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: async (spec: SpecConfiguration) => {
