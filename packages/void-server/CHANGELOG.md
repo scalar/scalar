@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.11
+
+### Patch Changes
+
+- 8380788: feat: query parameter arrays
+
 ## 2.0.10
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.30
+
+### Patch Changes
+
+- 121bc7e: chore: update lint, prettier and format theme
+
 ## 0.9.29
 
 ### Patch Changes

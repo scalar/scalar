@@ -1,5 +1,16 @@
 # @scalar/use-codemirror
 
+## 0.11.11
+
+### Patch Changes
+
+- b8fdc19: feat: foldable code blocks
+- b8fdc19: feat: adds useDropdown hook
+- Updated dependencies [a08aa37]
+- Updated dependencies [ee22a82]
+- Updated dependencies [6fd83dc]
+  - @scalar/components@0.12.45
+
 ## 0.11.10
 
 ### Patch Changes

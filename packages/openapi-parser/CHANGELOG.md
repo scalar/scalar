@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.3
+
+### Patch Changes
+
+- 674922f: chore: update fetch global tests
+
 ## 0.8.2
 
 ### Patch Changes

@@ -1,5 +1,49 @@
 # @scalar/api-client
 
+## 2.1.0
+
+### Minor Changes
+
+- 88a4ec3: feat: releasing the api-client openapi compliant
+
+### Patch Changes
+
+- b8fdc19: feat: foldable code blocks
+- 18c58af: fix: request header style
+- dd06d00: fix(api-client): path only urls in send-request
+- 7e5dfbb: feat: server variables from examples
+- 641c1ec: style: new modal layout
+- b8fdc19: feat: favors useDropdown hook over dropdown widget
+- 9d88423: feat: added one way auth sync from references to client
+- 86e1f46: feat(api-client): fix up and polish command palette
+- 44f3300: feat(api-client): disable sidebar resizing on small screens
+- 7df5770: fix: sidebar width and long request content handling
+- 9269f5a: fix: environment and cookie mutators
+- 73f728e: chore: cherrypicking refactor branch for object utils changes
+- b8fdc19: feat: adds create request button in request sidebar
+- a002783: fix: command palette consistency and styles
+- c030024: feat(api-client): track active workspace in local storage
+- 6fd83dc: style: sets context bar back to previous position
+- Updated dependencies [b8fdc19]
+- Updated dependencies [7e5dfbb]
+- Updated dependencies [b8fdc19]
+- Updated dependencies [9d88423]
+- Updated dependencies [674922f]
+- Updated dependencies [a08aa37]
+- Updated dependencies [e15b021]
+- Updated dependencies [73f728e]
+- Updated dependencies [ee22a82]
+- Updated dependencies [9cd23e3]
+- Updated dependencies [6fd83dc]
+- Updated dependencies [121bc7e]
+  - @scalar/use-codemirror@0.11.11
+  - @scalar/oas-utils@0.2.44
+  - @scalar/openapi-parser@0.8.3
+  - @scalar/components@0.12.45
+  - @scalar/object-utils@1.1.8
+  - @scalar/themes@0.9.30
+  - @scalar/types@0.0.9
+
 ## 2.0.64
 
 ### Patch Changes
