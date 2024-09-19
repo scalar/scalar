@@ -37,7 +37,7 @@
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "turbo": "^2.0.1",
-    "typescript": "^5.5.2",
+    "typescript": "^5.6.2",
     "vite-node": "^2.0.3",
     "vitest": "^1.6.0",
     "vue-eslint-parser": "^9.4.2",
