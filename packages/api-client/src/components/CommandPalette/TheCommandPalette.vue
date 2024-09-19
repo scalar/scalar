@@ -277,7 +277,7 @@ onBeforeUnmount(() => {
     <!-- Specific command palette -->
     <template v-else>
       <button
-        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 m-1.5 z-10"
+        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.5 z-10"
         type="button"
         @click="activeCommand = null">
         <ScalarIcon
@@ -300,7 +300,7 @@ onBeforeUnmount(() => {
   background-color: var(--scalar-background-1);
   width: 100%;
   max-width: 580px;
-  padding: 12px;
+  padding: 6px 12px 12px 12px;
   margin: 12px;
   position: fixed;
   z-index: 10;
