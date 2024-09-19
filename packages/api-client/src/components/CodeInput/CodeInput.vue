@@ -109,7 +109,8 @@ const { codeMirror } = useCodeMirror({
     props.modelValue !== undefined ? String(props.modelValue) : '',
   ),
   onChange: (value) => {
-    handleChange(value), updateDropdownVisibility()
+    handleChange(value)
+    updateDropdownVisibility()
   },
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),

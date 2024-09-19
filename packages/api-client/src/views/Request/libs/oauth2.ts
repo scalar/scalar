@@ -78,7 +78,7 @@ export const authorizeOauth2 = (
             )
             accessToken ||= hashParams.get('access_token')
             code ||= hashParams.get('code')
-          } catch (e) {
+          } catch {
             // Ignore CORS error from popup
           }
 

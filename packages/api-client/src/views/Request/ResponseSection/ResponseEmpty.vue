@@ -35,9 +35,9 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
         <div class="mt-1">
           <a
             href="https://github.com/scalar/scalar/issues/2669"
-            target="_blank"
-            >Roadmap</a
-          >
+            target="_blank">
+            Roadmap
+          </a>
         </div>
       </div>
       <ScalarAsciiArt :art="Computer" />

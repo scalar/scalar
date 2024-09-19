@@ -39,31 +39,31 @@ const hasItemProperties = computed(
           <span v-if="props.item.type">{{ props.item.type }}</span>
           <span
             v-if="props.item.format"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex"
-            >{{ props.item.format }}</span
-          >
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex">
+            {{ props.item.format }}
+          </span>
           <span
             v-if="props.item.minimum"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >min: {{ props.item.minimum }}</span
-          >
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap">
+            min: {{ props.item.minimum }}
+          </span>
           <span
             v-if="props.item.maximum"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >max: {{ props.item.maximum }}</span
-          >
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap">
+            max: {{ props.item.maximum }}
+          </span>
           <span
             v-if="props.item.default"
-            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
-            >default: {{ props.item.default }}</span
-          >
+            class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap">
+            default: {{ props.item.default }}
+          </span>
         </div>
         <span
           v-if="props.item.description"
           class="leading-snug text-pretty text-sm"
-          :style="{ maxWidth: '16rem' }"
-          >{{ props.item.description }}</span
-        >
+          :style="{ maxWidth: '16rem' }">
+          {{ props.item.description }}
+        </span>
       </div>
     </template>
   </ScalarTooltip>

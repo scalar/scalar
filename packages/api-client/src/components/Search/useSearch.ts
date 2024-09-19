@@ -40,8 +40,8 @@ export function useSearch() {
     }
   }
 
-  const populateFuseDataArray = (requests: Request[]) => {
-    fuseDataArray.value = requests.map((request: Request) => ({
+  const populateFuseDataArray = (requestList: Request[]) => {
+    fuseDataArray.value = requestList.map((request: Request) => ({
       id: request.uid,
       title: request.summary ?? request.method,
       description: request.description ?? '',
