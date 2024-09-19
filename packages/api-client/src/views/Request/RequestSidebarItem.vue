@@ -320,7 +320,7 @@ function openCommandPaletteRequest() {
               ]"
               tabindex="0">
               <span
-                class="z-10 font-medium w-full pl-2 word-break-break-word"
+                class="line-clamp-3 z-10 font-medium w-full pl-2 word-break-break-word"
                 :class="{
                   'editable-sidebar-hover-item': !isReadOnly,
                 }">
@@ -389,7 +389,7 @@ function openCommandPaletteRequest() {
             <div
               class="flex flex-1 flex-row justify-between editable-sidebar-hover">
               <span
-                class="z-10 font-medium text-left w-full word-break-break-word"
+                class="line-clamp-3 z-10 font-medium text-left w-full word-break-break-word"
                 :class="{
                   'editable-sidebar-hover-item': !isReadOnly,
                 }">

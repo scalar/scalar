@@ -148,11 +148,11 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   <nav class="flex h-10 t-app__top-nav">
     <div class="t-app__top-nav-draggable"></div>
     <div
-      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium relative">
+      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-1 relative overflow-hidden">
       <template v-if="topNavItems.length === 1">
-        <div class="h-full w-full">
+        <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu
-            triggerClass="flex gap-1.5 h-full items-center justify-center w-full">
+            triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
               <ScalarIcon
                 :icon="topNavItems[0].icon"

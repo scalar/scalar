@@ -187,3 +187,12 @@ onBeforeUnmount(() => {
     </template>
   </Sidebar>
 </template>
+<style scoped>
+.search-button-fade {
+  background: linear-gradient(
+    var(--scalar-background-1) 44px,
+    color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
+    transparent
+  );
+}
+</style>

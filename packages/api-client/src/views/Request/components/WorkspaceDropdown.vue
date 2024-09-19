@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store'
 import {
@@ -10,7 +11,6 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
   ScalarModal,
-  ScalarTextField,
   ScalarTooltip,
   useModal,
 } from '@scalar/components'
@@ -74,19 +74,21 @@ const deleteWorkspace = async () => {
 
 <template>
   <div
-    class="xl:min-h-header xl:py-2.5 py-1 flex items-center border-b-1/2 px-2.5 text-sm">
+    class="xl:min-h-header xl:py-2.5 py-1 flex items-center border-b-1/2 px-2.5 text-sm w-[inherit]">
     <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
+        class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
         fullWidth
         variant="ghost">
-        <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">
-          {{ activeWorkspace.name }}
+        <div class="font-medium m-0 text-sm flex gap-1.5 items-center">
+          <h2 class="line-clamp-1 text-left w-[calc(100%-10px)]">
+            {{ activeWorkspace.name }}
+          </h2>
           <ScalarIcon
             class="size-2.5"
             icon="ChevronDown"
             thickness="3.5" />
-        </h2>
+        </div>
       </ScalarButton>
 
       <!-- Workspace list -->
@@ -110,7 +112,9 @@ const deleteWorkspace = async () => {
                   icon="Checkmark"
                   thickness="3.5" />
               </div>
-              {{ workspace.name }}
+              <span class="text-ellipsis overflow-hidden">{{
+                workspace.name
+              }}</span>
             </ScalarDropdownItem>
           </template>
           <template #content>
@@ -185,35 +189,22 @@ const deleteWorkspace = async () => {
     </ScalarDropdown>
   </div>
   <ScalarModal
-    :size="'sm'"
+    :size="'xxs'"
     :state="deleteModal"
-    :title="`Delete ${tempName}`">
+    title="Delete workspace">
     <DeleteSidebarListElement
       :variableName="tempName"
-      warningMessage="Warning: Deleting this will delete all items inside of this"
+      warningMessage="This cannot be undone. You’re about to delete the workspace and everything inside it."
       @close="deleteModal.hide()"
       @delete="deleteWorkspace" />
   </ScalarModal>
   <ScalarModal
+    :size="'xxs'"
     :state="renameModal"
     title="Rename Workspace">
-    <ScalarTextField
-      v-model="tempName"
-      label="Workspace"
-      @keydown.prevent.enter="handleWorkspaceRename" />
-    <div class="flex gap-3">
-      <ScalarButton
-        class="flex-1"
-        variant="outlined"
-        @click="renameModal.hide()">
-        Cancel
-      </ScalarButton>
-      <ScalarButton
-        class="flex-1"
-        type="submit"
-        @click="handleWorkspaceRename">
-        Save
-      </ScalarButton>
-    </div>
+    <RenameSidebarListElement
+      :name="tempName"
+      @close="renameModal.hide()"
+      @rename="handleWorkspaceRename" />
   </ScalarModal>
 </template>

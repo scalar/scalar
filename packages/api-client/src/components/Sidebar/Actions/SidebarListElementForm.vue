@@ -27,7 +27,7 @@ const variants = cva({
     class="flex flex-col gap-4 text-base"
     @submit.prevent="emit('submit')">
     <slot />
-    <div class="flex justify-between">
+    <div class="flex gap-10 justify-between">
       <ScalarButton
         class="gap-1.5 px-2.5 h-8 shadow-none focus:outline-none flex items-center cursor-pointer"
         type="button"
@@ -36,6 +36,7 @@ const variants = cva({
         Cancel
       </ScalarButton>
       <ScalarButton
+        class="custom-scroll whitespace-nowrap"
         :class="cx(variants({ danger }))"
         type="submit">
         {{ label ?? 'Save' }}

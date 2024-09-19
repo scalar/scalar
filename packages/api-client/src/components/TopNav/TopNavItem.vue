@@ -27,7 +27,7 @@ defineEmits<{
 </script>
 
 <template>
-  <ScalarContextMenu triggerClass="w-full">
+  <ScalarContextMenu triggerClass="overflow-hidden w-full">
     <template #trigger>
       <ScalarTooltip
         class="scalar-client"
@@ -46,7 +46,9 @@ defineEmits<{
                 :icon="icon"
                 size="xs"
                 thickness="2.5" />
-              <span class="nav-item-copy text-xs">{{ label }}</span>
+              <span class="custom-scroll nav-item-copy text-xs">{{
+                label
+              }}</span>
             </div>
             <button
               class="nav-item-close"
