@@ -215,6 +215,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   padding: 0;
   display: flex;
   align-items: center;
+  font-size: var(--scalar-mini);
 }
 .scroll-timeline-x {
   scroll-timeline: --scroll-timeline x;
