@@ -1,15 +1,39 @@
-# Scalar API Reference
-
 [![CI](https://github.com/scalar/scalar/actions/workflows/ci.yml/badge.svg)](https://github.com/scalar/scalar/actions/workflows/ci.yml)
 [![Contributors](https://img.shields.io/github/contributors/scalar/scalar)](https://github.com/scalar/scalar/graphs/contributors)
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-Generate interactive API documentation from OpenAPI/Swagger documents. [Try our Demo](https://docs.scalar.com/swagger-editor)
+# Scalar - API Client / Reference
 
-<img width="830" height="455" src="https://github.com/scalar/scalar/assets/6201407/046aaeca-f0fe-453d-a661-c747399c56ef">
+### An offline first API Client built for OpenAPI
 
-## Features
+<p>
+	<a href="https://scalar.com/download">Download</a> &nbsp;&nbsp;
+	<a href="https://client.scalar.com/">Try Demo</a>
+</p>
+
+<p>
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/d4ba1717-1583-44b7-9b00-f7acd4550eea#gh-light-mode-only">
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/8c670164-6218-47b0-8595-f6244d1a1cd2#gh-dark-mode-only">
+</p>
+
+<!-- minimal line break-->
+<p>
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/7d7e7ba7-2b02-49f3-abcd-b24c566a3c16#gh-light-mode-only">
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/341bfb1d-5cb0-4ec6-89eb-4b1dcc07eeb7#gh-dark-mode-only">
+</p>
+<!-- end minimal line break-->
+
+<h3>Interactive API Reference from OpenAPI/Swagger</h3>
+<p>
+	<a href="https://docs.scalar.com/swagger-editor">Try Demo</a> &nbsp;&nbsp;
+</p>
+<p>
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/c49da979-3b6d-4594-beb4-086777d8fd17#gh-light-mode-only">
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/80da26af-0c7d-4c13-b37d-e4d2beec58db#gh-dark-mode-only">
+</p>
+
+### Features
 
 - Uses OpenAPI/Swagger documents
 - Request examples for many favorite languages and frameworks
@@ -17,7 +41,7 @@ Generate interactive API documentation from OpenAPI/Swagger documents. [Try our 
 - Integrates with your favorite framework
 - Doesn’t look like it’s 2011
 
-## Quickstart
+### Quickstart
 
 You’re just one HTML file away from having an awesome API reference:
 
@@ -43,7 +67,7 @@ You’re just one HTML file away from having an awesome API reference:
 
 And there’s an ever-growing list of plugins and integrations:
 
-## Integrations
+### Integrations
 
 - [HTML](documentation/integrations/html.md)
 - [.NET](packages/scalar.aspnetcore/README.md)
@@ -66,7 +90,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Rust](documentation/integrations/rust.md)
 - [Vue.js](packages/api-reference/README.md)
 
-## Managed Hosting
+### Managed Hosting
 
 We’re offering a free and paid managed hosting on the edge, too:
 
@@ -78,7 +102,7 @@ We’re offering a free and paid managed hosting on the edge, too:
 
 Ready? [Create your account on scalar.com](https://scalar.com).
 
-## Projects
+### Projects
 
 | Project                                                     | Description            |
 | ----------------------------------------------------------- | ---------------------- |
@@ -91,7 +115,7 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | [Scalar Open API Parser](packages/openapi-parser/README.md) | OpenAPI SDK            |
 | [Scalar Sandbox](https://sandbox.scalar.com/)               | Online OpenAPI Editor  |
 
-## Documentation
+### Documentation
 
 | Topic                                           | Description                        |
 | ----------------------------------------------- | ---------------------------------- |
@@ -100,11 +124,11 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it   |
 | [Markdown](documentation/markdown.md)           | Markdown syntax                    |
 
-## Community
+### Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
-## Contributors
+### Contributors
 
 Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING) guide.
 
