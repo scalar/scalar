@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store'
 import {
@@ -10,7 +11,6 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
   ScalarModal,
-  ScalarTextField,
   ScalarTooltip,
   useModal,
 } from '@scalar/components'
@@ -189,35 +189,22 @@ const deleteWorkspace = async () => {
     </ScalarDropdown>
   </div>
   <ScalarModal
-    :size="'sm'"
+    :size="'xxs'"
     :state="deleteModal"
-    :title="`Delete ${tempName}`">
+    title="Delete workspace">
     <DeleteSidebarListElement
       :variableName="tempName"
-      warningMessage="Warning: Deleting this will delete all items inside of this"
+      warningMessage="This cannot be undone. You’re about to delete the workspace and everything inside it."
       @close="deleteModal.hide()"
       @delete="deleteWorkspace" />
   </ScalarModal>
   <ScalarModal
+    :size="'xxs'"
     :state="renameModal"
     title="Rename Workspace">
-    <ScalarTextField
-      v-model="tempName"
-      label="Workspace"
-      @keydown.prevent.enter="handleWorkspaceRename" />
-    <div class="flex gap-3">
-      <ScalarButton
-        class="flex-1"
-        variant="outlined"
-        @click="renameModal.hide()">
-        Cancel
-      </ScalarButton>
-      <ScalarButton
-        class="flex-1"
-        type="submit"
-        @click="handleWorkspaceRename">
-        Save
-      </ScalarButton>
-    </div>
+    <RenameSidebarListElement
+      :name="tempName"
+      @close="renameModal.hide()"
+      @rename="handleWorkspaceRename" />
   </ScalarModal>
 </template>
