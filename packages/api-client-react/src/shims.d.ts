@@ -1,4 +1,6 @@
 /* eslint-disable no-var */
+/* eslint-disable @typescript-eslint/prefer-namespace-keyword */
+// @ts-expect-error
 declare module globalThis {
   var __VUE_OPTIONS_API__: boolean
   var __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: boolean
