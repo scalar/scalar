@@ -51,11 +51,9 @@ const removeEnvironment = (uid: string) => {
   }
 }
 
-const handleColorSelect = (color: string) => {
-  if (activeEnvironmentID.value) {
-    environments[activeEnvironmentID.value].color = color
-  }
-}
+const handleColorSelect = (color: string) =>
+  activeEnvironmentID.value &&
+  environmentMutators.edit(activeEnvironmentID.value, 'color', color)
 
 /** set active environment based on the route */
 const setActiveEnvironment = () => {

@@ -10,8 +10,16 @@ import { reactive } from 'vue'
 /** Generate reactive environments for the workspace */
 export function createStoreEnvironments(useLocalStorage: boolean) {
   /** Initialize default environment */
-  const environments = reactive<Record<string, Environment>>({
-    default: environmentSchema.parse({
+  const environments = reactive<Record<string, Environment>>({})
+  const environmentMutators = mutationFactory(
+    environments,
+    reactive({}),
+    useLocalStorage && LS_KEYS.ENVIRONMENT,
+  )
+
+  // Add default environment
+  environmentMutators.add(
+    environmentSchema.parse({
       uid: 'default',
       name: 'Global Environment',
       color: 'blue',
@@ -19,11 +27,6 @@ export function createStoreEnvironments(useLocalStorage: boolean) {
       parsed: [],
       isDefault: true,
     }),
-  })
-  const environmentMutators = mutationFactory(
-    environments,
-    reactive({}),
-    useLocalStorage && LS_KEYS.ENVIRONMENT,
   )
 
   return {
