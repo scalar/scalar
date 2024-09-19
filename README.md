@@ -33,7 +33,6 @@
 	<img width="830" height="500" src="https://github.com/user-attachments/assets/80da26af-0c7d-4c13-b37d-e4d2beec58db#gh-dark-mode-only">
 </p>
 
-
 ### Features
 
 - Uses OpenAPI/Swagger documents
