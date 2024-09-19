@@ -74,6 +74,7 @@ module.exports = {
     {
       files: ['**.vue', '**.ts'],
       rules: {
+        '@typescript-eslint/no-unused-expressions': 'warn',
         '@typescript-eslint/no-import-type-side-effects': 'warn',
         'no-array-constructor': 'off',
         '@typescript-eslint/no-array-constructor': 'error',

@@ -89,11 +89,13 @@ function addLines(
       const split: string[] = child.value.split(/\n/)
 
       split.forEach((content: string, i: number) => {
-        copyParent
-          ? line().children.push({ ...node, children: [textElement(content)] })
-          : line().children.push(textElement(content))
+        if (copyParent) {
+          line().children.push({ ...node, children: [textElement(content)] })
+        } else {
+          line().children.push(textElement(content))
+        }
 
-        i !== split.length - 1 && lines.push(createLine())
+        return i !== split.length - 1 && lines.push(createLine())
       })
     } else if (isElement(child) && child.children.some(hasLineBreak)) {
       addLines(child, lines, true)

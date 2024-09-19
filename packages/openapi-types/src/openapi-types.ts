@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 /**
  * These types are copied from openapi-types, with two modifications:
  *
