@@ -36,7 +36,11 @@ const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
 /** Fallback to div wrapper if a button element is not provided */
 const targetRef = computed(
-  () => (wrapperRef.value?.children?.[0] || wrapperRef.value) ?? undefined,
+  () =>
+    (props.targetRef?.value ||
+      wrapperRef.value?.children?.[0] ||
+      wrapperRef.value) ??
+    undefined,
 )
 
 const targetSize = useResizeWithTarget(targetRef, {

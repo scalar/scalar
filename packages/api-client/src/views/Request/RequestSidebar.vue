@@ -6,6 +6,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
 import { type HotKeyEvents, commandPaletteBus, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
+import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
 import {
   ScalarIcon,
@@ -13,7 +14,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -34,6 +35,7 @@ const {
   activeRequest,
   activeWorkspaceRequests,
   findRequestParents,
+  isReadOnly,
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
@@ -80,8 +82,11 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
 }
 
+onBeforeMount(() => console.time('sidebar'))
+
 onMounted(() => {
   hotKeyBus.on(handleHotKey)
+  setTimeout(() => console.timeEnd('sidebar'), 0)
 })
 
 /**
@@ -186,6 +191,9 @@ onBeforeUnmount(() => {
       </SidebarButton>
     </template>
   </Sidebar>
+
+  <!-- Menu -->
+  <RequestSidebarItemMenu v-if="!isReadOnly" />
 </template>
 <style scoped>
 .search-button-fade {

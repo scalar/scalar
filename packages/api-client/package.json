@@ -45,6 +45,10 @@
       "import": "./dist/views/Request/libs/index.js",
       "types": "./dist/views/Request/libs/index.d.ts"
     },
+    "./views/Request/libs/event-busses": {
+      "import": "./dist/views/Request/libs/event-busses/index.js",
+      "types": "./dist/views/Request/libs/event-busses/index.d.ts"
+    },
     "./views/Request/consts": {
       "import": "./dist/views/Request/consts/index.js",
       "types": "./dist/views/Request/consts/index.d.ts"

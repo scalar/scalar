@@ -1,33 +1,30 @@
 <script setup lang="ts">
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
+import { PathId } from '@/router'
+import { useWorkspace } from '@/store'
+import { requestSidebarMenuBus } from '@/views/Request/libs/event-busses'
 import {
-  ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
+  ScalarModal,
+  useModal,
 } from '@scalar/components'
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  Tag,
-} from '@scalar/oas-utils/entities/spec'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-const props = withDefaults(
-  defineProps<{
-    /** Both inidicate the level and provide a way to traverse upwards */
-    item: Collection | Tag | Request | RequestExample
-    resourceTitle: string
-    static?: boolean
-  }>(),
-  { static: false },
-)
+const { replace } = useRouter()
+const { activeWorkspace, activeRouterParams } = useWorkspace()
 
-const emit = defineEmits<{
-  (event: 'delete'): void
-  (event: 'rename'): void
-}>()
+// @delete="deleteModal.show()"
+// @rename="openRenameModal" />
+
+const resource = ref(null)
+const tempName = ref('')
+const renameModal = useModal()
+const deleteModal = useModal()
 
 /** Add example */
 const handleAddExample = () =>
@@ -38,31 +35,37 @@ const handleAddExample = () =>
     },
   })
 
-const isRequest = computed(() => 'summary' in props.item)
+const openRenameModal = () => {
+  tempName.value = item.value.title || ''
+  renameModal.show()
+}
+
+const handleItemRename = (newName: string) => {
+  tempName.value = newName
+  item.value.rename()
+  renameModal.hide()
+}
+
+/** Delete with redirect for both requests and requestExamples */
+const handleItemDelete = () => {
+  item.value.delete()
+
+  if (activeRouterParams.value[PathId.Request] === props.uid)
+    replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+
+  if (activeRouterParams.value[PathId.Examples] === props.uid)
+    replace(`/workspace/${activeWorkspace.value}/request/default`)
+}
+
+// Listen for menu open events
+requestSidebarMenuBus.on((ev) => (resource.value = ev))
 </script>
 
 <template>
   <ScalarDropdown
-    :static="static"
-    :teleport="!static">
-    <ScalarButton
-      class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
-      size="sm"
-      variant="ghost"
-      @click="
-        (ev) => {
-          // We must stop propagation on folders and collections to prevent them from toggling
-          if (
-            props.resourceTitle === 'Collection' ||
-            props.resourceTitle === 'Folder'
-          )
-            ev.stopPropagation()
-        }
-      ">
-      <ScalarIcon
-        icon="Ellipses"
-        size="sm" />
-    </ScalarButton>
+    v-if="resource"
+    :targetRef="resource.targetRef"
+    teleport>
     <template #items>
       <!-- Add example -->
       <ScalarDropdownItem
@@ -115,6 +118,27 @@ const isRequest = computed(() => 'summary' in props.item)
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
+
+  <!-- Modals -->
+  <!-- <ScalarModal -->
+  <!--   :size="'xxs'" -->
+  <!--   :state="deleteModal" -->
+  <!--   :title="`Delete ${item.resourceTitle}`"> -->
+  <!--   <DeleteSidebarListElement -->
+  <!--     :variableName="item.title" -->
+  <!--     :warningMessage="item.warning" -->
+  <!--     @close="deleteModal.hide()" -->
+  <!--     @delete="handleItemDelete" /> -->
+  <!-- </ScalarModal> -->
+  <!-- <ScalarModal -->
+  <!--   :size="'xxs'" -->
+  <!--   :state="renameModal" -->
+  <!--   :title="`Rename ${item.resourceTitle}`"> -->
+  <!--   <RenameSidebarListElement -->
+  <!--     :name="item.title" -->
+  <!--     @close="renameModal.hide()" -->
+  <!--     @rename="handleItemRename" /> -->
+  <!-- </ScalarModal> -->
 </template>
 <style scoped>
 .ellipsis-position {
