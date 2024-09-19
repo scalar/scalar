@@ -84,7 +84,7 @@
     "nanoid": "^5.0.7",
     "unhead": "^1.8.3",
     "unified": "^11.0.4",
-    "vue": "^3.4.29"
+    "vue": "^3.5.6"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
