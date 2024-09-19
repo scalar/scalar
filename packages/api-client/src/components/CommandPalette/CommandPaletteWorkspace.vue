@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
-import { onMounted, ref } from 'vue'
+import { useToasts } from '@scalar/use-toasts'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandActionForm from './CommandActionForm.vue'
@@ -11,21 +12,22 @@ const emits = defineEmits<{
 }>()
 
 const { push } = useRouter()
+const { toast } = useToasts()
 const { workspaceMutators } = useWorkspace()
 const workspaceName = ref('')
 
 const handleSubmit = () => {
+  if (!workspaceName.value.trim()) {
+    toast('Please enter a name before creating a workspace.', 'error')
+    return
+  }
+
   const workspace = workspaceMutators.add({
     name: workspaceName.value,
   })
   push(`/workspace/${workspace.uid}`)
   emits('close')
 }
-
-const workspaceInput = ref<HTMLInputElement | null>(null)
-onMounted(() => {
-  workspaceInput.value?.focus()
-})
 </script>
 <template>
   <CommandActionForm

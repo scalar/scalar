@@ -7,7 +7,10 @@ import {
   ScalarListbox,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+
+import CommandActionForm from './CommandActionForm.vue'
+import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -57,51 +60,32 @@ const handleSubmit = () => {
 
   emits('close')
 }
-
-const input = ref<HTMLInputElement | null>(null)
-onMounted(() => nextTick(() => input.value?.focus()))
 </script>
 <template>
-  <div class="flex w-full flex-col gap-3">
-    <div
-      class="gap-3 rounded bg-b-2 focus-within:bg-b-1 focus-within:shadow-border min-h-20 relative">
-      <input
-        id="serverName"
-        ref="input"
-        v-model="url"
-        autocomplete="off"
-        class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-        data-form-type="other"
-        data-lpignore="true"
-        placeholder="Server URL"
-        @keydown.prevent.enter="handleSubmit" />
-    </div>
-    <div class="flex">
-      <div class="flex flex-1 gap-2 max-h-8">
-        <ScalarListbox
-          v-model="selectedCollection"
-          :options="collections">
-          <ScalarButton
-            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
-            variant="outlined">
-            <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
-              selectedCollection
-                ? selectedCollection.label
-                : 'Select Collection'
-            }}</span>
-            <ScalarIcon
-              class="text-c-3"
-              icon="ChevronDown"
-              size="xs" />
-          </ScalarButton>
-        </ScalarListbox>
-      </div>
-      <ScalarButton
-        class="max-h-8 text-xs p-0 px-3"
-        :disabled="!url.trim()"
-        @click="handleSubmit">
-        Create Server
-      </ScalarButton>
-    </div>
-  </div>
+  <CommandActionForm
+    :disabled="!url.trim()"
+    @submit="handleSubmit">
+    <CommandActionInput
+      v-model="url"
+      label="Server URL"
+      placeholder="Server URL" />
+    <template #options>
+      <ScalarListbox
+        v-model="selectedCollection"
+        :options="collections">
+        <ScalarButton
+          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+          variant="outlined">
+          <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
+            selectedCollection ? selectedCollection.label : 'Select Collection'
+          }}</span>
+          <ScalarIcon
+            class="text-c-3"
+            icon="ChevronDown"
+            size="xs" />
+        </ScalarButton>
+      </ScalarListbox>
+    </template>
+    <template #submit>Create Server</template>
+  </CommandActionForm>
 </template>

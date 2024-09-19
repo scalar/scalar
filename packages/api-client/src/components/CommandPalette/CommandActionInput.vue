@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 
 const props = defineProps<{
   modelValue?: string
@@ -12,12 +12,10 @@ const emit = defineEmits<{
 
 defineOptions({ inheritAttrs: false })
 
-const id = nanoid
+const id = nanoid()
 
 const input = ref<HTMLInputElement | null>(null)
-onMounted(() => {
-  input.value?.focus()
-})
+onMounted(() => nextTick(() => input.value?.focus()))
 
 const model = computed<string>({
   get: () => props.modelValue ?? '',
