@@ -95,7 +95,7 @@ declare global {
   /**
    * Available commands, can be extended dynamically
    */
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface Commands {}
 }
 
