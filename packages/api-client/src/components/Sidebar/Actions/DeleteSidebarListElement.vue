@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import SidebarListElementForm from '@/components/Sidebar/Actions/SidebarListElementForm.vue'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   variableName: string
   warningMessage?: string
 }>()
@@ -10,11 +11,18 @@ const emit = defineEmits<{
   (e: 'close'): void
   (e: 'delete'): void
 }>()
+
+const truncatedName = computed(() => {
+  if (props.variableName.length > 18) {
+    return props.variableName.slice(0, 18) + '…'
+  }
+  return props.variableName
+})
 </script>
 <template>
   <SidebarListElementForm
     danger
-    :label="`Delete ${variableName}`"
+    :label="`Delete ${truncatedName}`"
     @cancel="emit('close')"
     @submit="emit('delete')">
     <p
