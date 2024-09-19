@@ -136,13 +136,6 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
   );
   box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
-.search-button-fade {
-  background: linear-gradient(
-    var(--scalar-background-1) 44px,
-    color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
-    transparent
-  );
-}
 @media screen and (max-width: 780px) {
   .sidebar-active-hide-layout {
     display: none;
