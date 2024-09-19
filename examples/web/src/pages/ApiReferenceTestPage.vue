@@ -12,7 +12,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const configuration = reactive<ReferenceConfiguration>({
-  theme: (`${route.params['theme']}` as ThemeId) ?? 'default',
+  theme: (`${route.params['theme']}` as ThemeId) || 'default',
   isEditable: false,
   layout: `${route.params['layout']}` as ReferenceLayoutType,
   darkMode: !!route.query['darkMode'],
