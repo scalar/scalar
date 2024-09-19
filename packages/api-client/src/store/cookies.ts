@@ -5,8 +5,16 @@ import { reactive } from 'vue'
 
 /** Create cookie mutators for the workspace */
 export function createStoreCookies(useLocalStorage: boolean) {
-  const cookies = reactive<Record<string, Cookie>>({
-    default: cookieSchema.parse({
+  const cookies = reactive<Record<string, Cookie>>({})
+
+  const cookieMutators = mutationFactory(
+    cookies,
+    reactive({}),
+    useLocalStorage && LS_KEYS.COOKIE,
+  )
+
+  cookieMutators.add(
+    cookieSchema.parse({
       uid: 'default',
       name: 'Cookie',
       value: '',
@@ -16,12 +24,6 @@ export function createStoreCookies(useLocalStorage: boolean) {
       httpOnly: false,
       sameSite: 'None',
     }),
-  })
-
-  const cookieMutators = mutationFactory(
-    cookies,
-    reactive({}),
-    useLocalStorage && LS_KEYS.COOKIE,
   )
 
   return {
