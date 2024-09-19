@@ -27,7 +27,7 @@
     "@scalar/api-reference": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/types": "workspace:*",
-    "vue": "^3.4.29"
+    "vue": "^3.5.6"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
