@@ -46,6 +46,7 @@ export const exampleRequestBodyEncoding = [
   'yaml',
   'edn',
 ] as const
+export type BodyEncoding = (typeof exampleRequestBodyEncoding)[number]
 
 export const exampleRequestBodySchema = z.object({
   raw: z
@@ -67,7 +68,6 @@ export const exampleRequestBodySchema = z.object({
     .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
     .default('raw'),
 })
-
 export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
 export const requestExampleSchema = z.object({

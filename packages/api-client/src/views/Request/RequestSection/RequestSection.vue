@@ -124,7 +124,6 @@ const updateRequestNameHandler = (event: Event) => {
           (activeSection === 'All' || activeSection === 'Body') &&
           canMethodHaveBody(activeRequest.method)
         "
-        body="foo"
         title="Body" />
     </div>
   </ViewLayoutSection>

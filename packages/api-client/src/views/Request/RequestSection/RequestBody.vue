@@ -8,6 +8,7 @@ import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
+import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -16,8 +17,6 @@ import RequestTable from './RequestTable.vue'
 
 defineProps<{
   title: string
-  body?: string
-  formData?: any[]
 }>()
 
 const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
@@ -61,12 +60,16 @@ const activeExampleContentType = computed(() => {
     return activeExample.value.body.formData?.encoding === 'urlencoded'
       ? 'formUrlEncoded'
       : 'multipartForm'
+  // Binary
+  else if (activeExample.value.body.activeBody === 'binary') return 'binaryFile'
   // Raw
   else if (
     activeExample.value.body.activeBody === 'raw' &&
     activeExample.value.body.raw?.encoding
-  )
+  ) {
+    if (activeExample.value.body.raw.encoding === 'html') return 'other'
     return activeExample.value.body.raw.encoding
+  }
 
   return 'none'
 })
@@ -160,18 +163,11 @@ const addRow = () => {
   })
   const newParams = [...formParams.value, newParam]
 
-  // Ensure have have formData before adding
-  if (activeExample.value.body.formData)
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.formData.value',
-      newParams,
-    )
-  else
-    requestExampleMutators.edit(activeExample.value.uid, 'body.formData', {
-      value: newParams,
-      encoding: 'form-data',
-    })
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    'body.formData.value',
+    newParams,
+  )
 }
 
 /** Enable and disables the row */
@@ -194,37 +190,115 @@ const toggleRow = (rowIdx: number, enabled: boolean) => {
 const updateRequestBody = (value: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
-  // Ensure we have a raw value before adding
-  if (activeExample.value.body.raw)
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.raw.value',
-      value,
-    )
-  else
-    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
-      value,
-      encoding: codeInputLanguage.value,
-    })
+  requestExampleMutators.edit(activeExample.value.uid, 'body.raw.value', value)
 }
 
+/** Take the select option and return bodyType with encoding and header */
 const getBodyType = (type: Content) => {
-  if (type === 'multipartForm' || type === 'formUrlEncoded') {
-    return 'formData'
-  } else if (type === 'binaryFile') {
-    return 'binary'
-  }
-  return 'raw'
+  if (type === 'multipartForm')
+    return {
+      activeBody: 'formData',
+      encoding: 'form-data',
+      header: 'multipart/form-data',
+    } as const
+  if (type === 'formUrlEncoded')
+    return {
+      activeBody: 'formData',
+      encoding: 'urlencoded',
+      header: 'application/x-www-form-urlencoded',
+    } as const
+  if (type === 'binaryFile')
+    return {
+      activeBody: 'binary',
+      encoding: undefined,
+      header: 'application/octet-stream',
+    } as const
+  if (type === 'json')
+    return {
+      activeBody: 'raw',
+      encoding: 'json',
+      header: 'application/json',
+    } as const
+  if (type === 'xml')
+    return {
+      activeBody: 'raw',
+      encoding: 'xml',
+      header: 'application/xml',
+    } as const
+  if (type === 'yaml')
+    return {
+      activeBody: 'raw',
+      encoding: 'yaml',
+      header: 'application/yaml',
+    } as const
+  if (type === 'edn')
+    return {
+      activeBody: 'raw',
+      encoding: 'edn',
+      header: 'application/edn',
+    } as const
+  if (type === 'other')
+    return {
+      activeBody: 'raw',
+      encoding: 'html',
+      header: 'application/html',
+    } as const
+
+  return { activeBody: 'raw', encoding: undefined, header: undefined } as const
 }
 
+/** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
   if (!activeExample.value) return
-  const bodyType = getBodyType(type)
 
+  const { activeBody, encoding, header } = getBodyType(type)
   requestExampleMutators.edit(
     activeExample.value.uid,
     'body.activeBody',
-    bodyType,
+    activeBody,
+  )
+
+  // Set encoding safely
+  if (encoding && activeBody === 'raw') {
+    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
+      encoding,
+      value: activeExample.value.body.raw?.value ?? '',
+    })
+  } else if (encoding && activeBody === 'formData')
+    requestExampleMutators.edit(activeExample.value.uid, `body.formData`, {
+      encoding,
+      value: activeExample.value.body.formData?.value ?? [],
+    })
+  // Remove raw if no encoding
+  else if (!encoding) {
+    const { raw: deleteMe, ...body } = activeExample.value.body
+    requestExampleMutators.edit(activeExample.value.uid, 'body', body)
+  }
+
+  // Handle headers
+  const headers = [...activeExample.value.parameters.headers]
+  const contentTypeIdx = headers.findIndex(
+    (h) => h.key.toLowerCase() === 'content-type',
+  )
+
+  if (contentTypeIdx >= 0) {
+    // Update header if exists
+    if (header) headers[contentTypeIdx].value = header
+    // Remove header if we don't want one
+    else headers.splice(contentTypeIdx, 1)
+  }
+  // Add header if doesn't
+  else if (header)
+    headers.unshift({
+      key: 'Content-Type',
+      value: header,
+      enabled: true,
+    })
+
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    'parameters.headers',
+    headers,
   )
 }
 
@@ -297,124 +371,122 @@ watch(
   },
   { immediate: true },
 )
+
+watch(
+  () => activeExample.value?.uid,
+  () => {
+    activeRequest.value?.method &&
+      canMethodHaveBody(activeRequest.value.method) &&
+      updateActiveBody(activeExampleContentType.value as Content)
+  },
+  { immediate: true },
+)
 </script>
 <template>
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
-    <template
-      v-if="body && body.length === 0 && formData && formData.length === 0">
-      <div
-        class="text-c-3 flex min-h-14 w-full items-center justify-center rounded border border-dashed text-center text-base">
-        <span>No Body</span>
-      </div>
-    </template>
-    <template v-else-if="formData && formData.length > 0">
-      <!-- add grid component -->
-    </template>
-    <template v-else>
-      <DataTable :columns="['']">
-        <DataTableRow>
-          <DataTableHeader
-            class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
-            <ScalarListbox
-              v-model="selectedContentType"
-              class="text-xxs w-full"
+    <DataTable :columns="['']">
+      <DataTableRow>
+        <DataTableHeader
+          class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
+          <ScalarListbox
+            v-model="selectedContentType"
+            class="text-xxs w-full"
+            fullWidth
+            :options="contentTypeOptions"
+            teleport>
+            <ScalarButton
+              class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
               fullWidth
-              :options="contentTypeOptions"
-              teleport>
+              variant="ghost">
+              <span>{{ selectedContentType?.label }}</span>
+              <ScalarIcon
+                icon="ChevronDown"
+                size="xs"
+                thickness="2.5" />
+            </ScalarButton>
+          </ScalarListbox>
+        </DataTableHeader>
+      </DataTableRow>
+      <DataTableRow>
+        <template v-if="selectedContentType.id === 'none'">
+          <div
+            class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
+            <span>No Body</span>
+          </div>
+        </template>
+        <template v-else-if="selectedContentType.id === 'binaryFile'">
+          <div class="flex items-center justify-center p-1.5 overflow-hidden">
+            <template v-if="activeExample?.body.binary">
+              <span
+                class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
+                {{ (activeExample?.body.binary as File).name }}
+              </span>
               <ScalarButton
-                class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
-                fullWidth
-                variant="ghost">
-                <span>{{ selectedContentType?.label }}</span>
+                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
+                size="sm"
+                variant="outlined"
+                @click="removeBinaryFile">
+                Delete
+              </ScalarButton>
+            </template>
+            <template v-else>
+              <ScalarButton
+                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
+                size="sm"
+                variant="outlined"
+                @click="handleFileUpload">
+                <span>Upload File</span>
                 <ScalarIcon
-                  icon="ChevronDown"
+                  class="ml-1"
+                  icon="UploadSimple"
                   size="xs"
                   thickness="2.5" />
               </ScalarButton>
-            </ScalarListbox>
-          </DataTableHeader>
-        </DataTableRow>
-        <DataTableRow>
-          <template v-if="selectedContentType.id === 'none'">
-            <div
-              class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
-              <span>No Body</span>
-            </div>
-          </template>
-          <template v-else-if="selectedContentType.id === 'binaryFile'">
-            <div class="flex items-center justify-center p-1.5 overflow-hidden">
-              <template v-if="activeExample?.body.binary">
-                <span
-                  class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
-                  {{ (activeExample?.body.binary as File).name }}
-                </span>
-                <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
-                  size="sm"
-                  variant="outlined"
-                  @click="removeBinaryFile">
-                  Delete
-                </ScalarButton>
-              </template>
-              <template v-else>
-                <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
-                  size="sm"
-                  variant="outlined"
-                  @click="handleFileUpload">
-                  <span>Upload File</span>
-                  <ScalarIcon
-                    class="ml-1"
-                    icon="UploadSimple"
-                    size="xs"
-                    thickness="2.5" />
-                </ScalarButton>
-              </template>
-            </div>
-          </template>
-          <template v-else-if="selectedContentType.id == 'multipartForm'">
-            <RequestTable
-              ref="tableWrapperRef"
-              class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-              :columns="['32px', '', '', '61px']"
-              :items="formParams"
-              showUploadButton
-              @addRow="addRow"
-              @deleteRow="deleteRow"
-              @removeFile="handleRemoveFileFormData"
-              @toggleRow="toggleRow"
-              @updateRow="updateRow"
-              @uploadFile="handleFileUploadFormData" />
-          </template>
-          <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
-            <RequestTable
-              ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-              :columns="['32px', '', '', '61px']"
-              :items="formParams"
-              showUploadButton
-              @addRow="addRow"
-              @deleteRow="deleteRow"
-              @removeFile="handleRemoveFileFormData"
-              @toggleRow="toggleRow"
-              @updateRow="updateRow"
-              @uploadFile="handleFileUploadFormData" />
-          </template>
-          <template v-else>
-            <!-- TODO: remove this as type hack when we add syntax highligting -->
-            <CodeInput
-              content=""
-              :language="codeInputLanguage as CodeMirrorLanguage"
-              lineNumbers
-              lint
-              :modelValue="activeExample?.body?.raw?.value ?? ''"
-              @update:modelValue="updateRequestBody" />
-          </template>
-        </DataTableRow>
-        <!-- Hacky... but effective, extra table row to trick the last group -->
-        <DataTableRow />
-      </DataTable>
-    </template>
+            </template>
+          </div>
+        </template>
+        <template v-else-if="selectedContentType.id == 'multipartForm'">
+          <RequestTable
+            ref="tableWrapperRef"
+            class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+            :columns="['32px', '', '', '61px']"
+            :items="formParams"
+            showUploadButton
+            @addRow="addRow"
+            @deleteRow="deleteRow"
+            @removeFile="handleRemoveFileFormData"
+            @toggleRow="toggleRow"
+            @updateRow="updateRow"
+            @uploadFile="handleFileUploadFormData" />
+        </template>
+        <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
+          <RequestTable
+            ref="tableWrapperRef"
+            class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+            :columns="['32px', '', '', '61px']"
+            :items="formParams"
+            showUploadButton
+            @addRow="addRow"
+            @deleteRow="deleteRow"
+            @removeFile="handleRemoveFileFormData"
+            @toggleRow="toggleRow"
+            @updateRow="updateRow"
+            @uploadFile="handleFileUploadFormData" />
+        </template>
+        <template v-else>
+          <!-- TODO: remove this as type hack when we add syntax highligting -->
+          <CodeInput
+            content=""
+            :language="codeInputLanguage as CodeMirrorLanguage"
+            lineNumbers
+            lint
+            :modelValue="activeExample?.body?.raw?.value ?? ''"
+            @update:modelValue="updateRequestBody" />
+        </template>
+      </DataTableRow>
+      <!-- Hacky... but effective, extra table row to trick the last group -->
+      <DataTableRow />
+    </DataTable>
   </ViewLayoutCollapse>
 </template>
