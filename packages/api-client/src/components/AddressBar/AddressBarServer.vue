@@ -57,16 +57,23 @@ const handleAddServer = () =>
   commandPaletteBus.emit({
     commandName: 'Add Server',
   })
+
+const serverUrlWithoutTrailingSlash = computed(() => {
+  return activeServer.value?.url?.replace(/\/$/, '') ?? ''
+})
 </script>
 <template>
   <ScalarDropdown
-    v-if="requestServerOptions?.length || collectionServerOptions?.length"
+    v-if="
+      (requestServerOptions && requestServerOptions?.length > 1) ||
+      (collectionServerOptions && collectionServerOptions?.length > 1)
+    "
     teleport=".scalar-client">
     <button
       class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
       type="button"
       @click.stop>
-      {{ activeServer?.url }}
+      {{ serverUrlWithoutTrailingSlash }}
     </button>
     <template #items>
       <!-- Request -->
@@ -92,7 +99,6 @@ const handleAddServer = () =>
         :key="serverOption.id"
         :serverOption="serverOption"
         type="collection" />
-
       <!-- Add Server -->
       <template v-if="!isReadOnly">
         <ScalarDropdownDivider />
@@ -112,8 +118,8 @@ const handleAddServer = () =>
     </template>
   </ScalarDropdown>
   <div
-    v-else-if="activeServer?.url"
+    v-else-if="serverUrlWithoutTrailingSlash"
     class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
-    {{ activeServer.url }}
+    {{ serverUrlWithoutTrailingSlash }}
   </div>
 </template>
