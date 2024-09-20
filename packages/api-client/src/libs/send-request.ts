@@ -48,8 +48,14 @@ function createFetchHeaders(example: RequestExample, env: object) {
   const headers: NonNullable<RequestInit['headers']> = {}
 
   example.parameters.headers.forEach((h) => {
-    if (h.enabled)
-      headers[h.key.toLowerCase()] = replaceTemplateVariables(h.value, env)
+    const lowerCaseKey = h.key.toLowerCase()
+
+    // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
+    if (
+      h.enabled &&
+      (lowerCaseKey !== 'content-type' || h.value !== 'multipart/form-data')
+    )
+      headers[lowerCaseKey] = replaceTemplateVariables(h.value, env)
   })
 
   return headers

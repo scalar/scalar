@@ -7,10 +7,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import {
-  type ExampleRequestBody,
-  requestExampleParametersSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -195,28 +192,65 @@ const updateRequestBody = (value: string) => {
   requestExampleMutators.edit(activeExample.value.uid, 'body.raw.value', value)
 }
 
-/** Take the select option and return bodyType with encoding */
+/** Take the select option and return bodyType with encoding and header */
 const getBodyType = (type: Content) => {
   if (type === 'multipartForm')
-    return { activeBody: 'formData', encoding: 'form-data' } as const
+    return {
+      activeBody: 'formData',
+      encoding: 'form-data',
+      header: 'multipart/form-data',
+    } as const
   if (type === 'formUrlEncoded')
-    return { activeBody: 'formData', encoding: 'urlencoded' } as const
+    return {
+      activeBody: 'formData',
+      encoding: 'urlencoded',
+      header: 'application/x-www-form-urlencoded',
+    } as const
   if (type === 'binaryFile')
-    return { activeBody: 'binary', encoding: undefined } as const
-  if (type === 'json') return { activeBody: 'raw', encoding: 'json' } as const
-  if (type === 'xml') return { activeBody: 'raw', encoding: 'xml' } as const
-  if (type === 'yaml') return { activeBody: 'raw', encoding: 'yaml' } as const
-  if (type === 'edn') return { activeBody: 'raw', encoding: 'edn' } as const
-  if (type === 'other') return { activeBody: 'raw', encoding: 'html' } as const
+    return {
+      activeBody: 'binary',
+      encoding: undefined,
+      header: 'application/octet-stream',
+    } as const
+  if (type === 'json')
+    return {
+      activeBody: 'raw',
+      encoding: 'json',
+      header: 'application/json',
+    } as const
+  if (type === 'xml')
+    return {
+      activeBody: 'raw',
+      encoding: 'xml',
+      header: 'application/xml',
+    } as const
+  if (type === 'yaml')
+    return {
+      activeBody: 'raw',
+      encoding: 'yaml',
+      header: 'application/yaml',
+    } as const
+  if (type === 'edn')
+    return {
+      activeBody: 'raw',
+      encoding: 'edn',
+      header: 'application/edn',
+    } as const
+  if (type === 'other')
+    return {
+      activeBody: 'raw',
+      encoding: 'html',
+      header: 'application/html',
+    } as const
 
-  return { activeBody: 'raw', encoding: undefined } as const
+  return { activeBody: 'raw', encoding: undefined, header: undefined } as const
 }
 
 /** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
   if (!activeExample.value) return
 
-  const { activeBody, encoding } = getBodyType(type)
+  const { activeBody, encoding, header } = getBodyType(type)
   requestExampleMutators.edit(
     activeExample.value.uid,
     'body.activeBody',
@@ -234,6 +268,37 @@ const updateActiveBody = (type: Content) => {
       encoding,
       value: activeExample.value.body.formData?.value ?? [],
     })
+  // Remove raw if no encoding
+  else if (!encoding) {
+    const { raw: deleteMe, ...body } = activeExample.value.body
+    requestExampleMutators.edit(activeExample.value.uid, 'body', body)
+  }
+
+  // Handle headers
+  const headers = [...activeExample.value.parameters.headers]
+  const contentTypeIdx = headers.findIndex(
+    (h) => h.key.toLowerCase() === 'content-type',
+  )
+
+  if (contentTypeIdx >= 0) {
+    // Update header if exists
+    if (header) headers[contentTypeIdx].value = header
+    // Remove header if we don't want one
+    else headers.splice(contentTypeIdx, 1)
+  }
+  // Add header if doesn't
+  else if (header)
+    headers.unshift({
+      key: 'Content-Type',
+      value: header,
+      enabled: true,
+    })
+
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    'parameters.headers',
+    headers,
+  )
 }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
@@ -302,6 +367,7 @@ watch(
   selectedContentType,
   (val) => {
     if (['multipartForm', 'formUrlEncoded'].includes(val?.id)) defaultRow()
+    console.log('triggered')
   },
   { immediate: true },
 )
