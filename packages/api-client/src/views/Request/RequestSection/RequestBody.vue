@@ -8,6 +8,7 @@ import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
+import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -367,7 +368,16 @@ watch(
   selectedContentType,
   (val) => {
     if (['multipartForm', 'formUrlEncoded'].includes(val?.id)) defaultRow()
-    console.log('triggered')
+  },
+  { immediate: true },
+)
+
+watch(
+  () => activeExample.value?.uid,
+  () => {
+    activeRequest.value?.method &&
+      canMethodHaveBody(activeRequest.value.method) &&
+      updateActiveBody(activeExampleContentType.value as Content)
   },
   { immediate: true },
 )
