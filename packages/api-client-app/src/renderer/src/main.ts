@@ -17,7 +17,7 @@ const client = await createApiClientApp(
  * @see https://usefathom.com/
  */
 load('EUNBEXQC', {
-  spa: 'hash',
+  spa: 'auto',
 })
 
 // Track the launch event
