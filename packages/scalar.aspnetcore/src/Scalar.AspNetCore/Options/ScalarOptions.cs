@@ -66,7 +66,7 @@ public sealed class ScalarOptions
     /// ForceDarkModeState makes it always this state no matter what <c>'dark' | 'light'</c>.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
-    public ThemeMode? ForceThemeMode { get; set; } = ThemeMode.Light;
+    public ThemeMode? ForceThemeMode { get; set; }
 
     /// <summary>
     /// Whether to hide the dark mode toggle.
