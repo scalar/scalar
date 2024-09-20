@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.1.2
+
+### Patch Changes
+
+- feb6960: fix: hide modal event typo
+
 ## 2.1.1
 
 ### Patch Changes
