@@ -1,5 +1,13 @@
 # scalar-api-client
 
+## 0.1.39
+
+### Patch Changes
+
+- c2c3e2e: fix: sets load analytics spa to auto
+- Updated dependencies [feb6960]
+  - @scalar/api-client@2.1.2
+
 ## 0.1.38
 
 ### Patch Changes
