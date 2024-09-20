@@ -109,7 +109,7 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
     <RequestSubpageHeader
       v-model="showSideBar"
       :isReadonly="activeWorkspace.isReadOnly"
-      @hideModel="() => modalState.hide()" />
+      @hideModal="() => modalState.hide()" />
     <ViewLayout>
       <RequestSidebar
         :isReadonly="activeWorkspace.isReadOnly"
