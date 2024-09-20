@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.1
+
+### Patch Changes
+
+- 9351a90: avoid overwriting parameters in queries to support arrays as query params
+- 9486091: fix: respect the proxy url config
+
 ## 2.1.0
 
 ### Minor Changes
