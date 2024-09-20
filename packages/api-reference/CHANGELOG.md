@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.25.13
+
+### Patch Changes
+
+- 9486091: fix: respect the proxy url config
+- Updated dependencies [9351a90]
+- Updated dependencies [9486091]
+  - @scalar/api-client@2.1.1
+
 ## 1.25.12
 
 ### Patch Changes
