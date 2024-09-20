@@ -61,10 +61,16 @@ const availableSchemes = computed(() => {
 
   const base =
     isReadOnly.value && requestSecurity?.length
-      ? requestSecurity.map((s) => Object.keys(s)[0])
+      ? requestSecurity.map((s) => {
+          const nameKey = Object.keys(s)[0]
+          return (
+            Object.values(securitySchemes).find((ss) => ss.nameKey === nameKey)
+              ?.uid ?? ''
+          )
+        })
       : activeCollection.value?.securitySchemes
 
-  return (base ?? []).map((s) => securitySchemes[s])
+  return (base ?? []).map((s) => securitySchemes[s]).filter((s) => s)
 })
 
 /** Display formatted options for a user to select from */
