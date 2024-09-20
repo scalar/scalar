@@ -69,9 +69,9 @@ Congratulations, you’ve set up your (first?) Fastify project!
 
 ## Set up Fastify Swagger (optional)
 
-Wait … _Swagger_, isn’t that the outdated standard? Yes, you’re right! Anyway, this is what the offical package is called to generate OpenAPI 3.0 files.
+Wait … _Swagger_, isn’t that the outdated standard? Yes, you’re right! Anyway, this is what the official package is called to generate OpenAPI 3.0 files.
 
-In order to use it, we need to install the offical package first:
+In order to use it, we need to install the official package first:
 
 ```bash
 npm install @fastify/swagger
