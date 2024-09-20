@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.1.3
+
+### Patch Changes
+
+- ddeaada: fix: adds path regex helper
+- c1d39c5: fix: remove trailing slash in examples and in client for server
+- 71278e1: fix(api-client): add back content header
+- Updated dependencies [ddeaada]
+- Updated dependencies [71278e1]
+  - @scalar/oas-utils@0.2.45
+
 ## 2.1.2
 
 ### Patch Changes

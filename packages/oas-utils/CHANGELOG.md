@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.45
+
+### Patch Changes
+
+- ddeaada: fix: adds path regex helper
+- 71278e1: fix(api-client): add back content header
+
 ## 0.2.44
 
 ### Patch Changes

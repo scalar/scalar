@@ -1,5 +1,12 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.154
+
+### Patch Changes
+
+- Updated dependencies [c1d39c5]
+  - @scalar/api-reference@1.25.15
+
 ## 0.3.153
 
 ### Patch Changes
