@@ -16,7 +16,7 @@ export type FloatingOptions = {
    * Override the targetRef, useful if we are not passing a button
    * into the slot but is controlled from an external button
    */
-  targetRef?: Ref<HTMLElement | null>
+  targetRef?: HTMLElement
   /**
    * Floating UI Middleware to be passed to Floating UI
    * @see https://floating-ui.com/docs/computePosition#middleware

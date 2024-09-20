@@ -229,6 +229,7 @@ function openCommandPaletteRequest() {
   })
 }
 </script>
+
 <template>
   <div
     class="relative flex flex-row"

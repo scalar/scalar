@@ -24,7 +24,7 @@ defineOptions({ inheritAttrs: false })
       :targetRef="targetRef"
       :teleport="teleport">
       <MenuButton
-        v-if="!static && !targetRef"
+        v-if="!static"
         as="template">
         <slot />
       </MenuButton>

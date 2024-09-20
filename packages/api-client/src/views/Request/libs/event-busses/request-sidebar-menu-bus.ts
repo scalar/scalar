@@ -6,7 +6,6 @@ import type {
   Tag,
 } from '@scalar/oas-utils/entities/spec'
 import { type EventBusKey, useEventBus } from '@vueuse/core'
-import type { Ref } from 'vue'
 
 export type Item = {
   title: string
@@ -26,7 +25,7 @@ export type RequestSidebarMenuBusEvent = {
   /** Array of parentUids used when nesting in the sidemenu */
   parentUids: string[]
   /** Target ref from the button which triggered the menu for positioning */
-  targetRef: Ref<HTMLButtonElement>
+  targetRef: HTMLButtonElement
 }
 const RequestSidebarMenuBusKey: EventBusKey<RequestSidebarMenuBusEvent> =
   Symbol()

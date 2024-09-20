@@ -37,9 +37,7 @@ const wrapperRef: Ref<HTMLElement | null> = ref(null)
 /** Fallback to div wrapper if a button element is not provided */
 const targetRef = computed(
   () =>
-    (props.targetRef?.value ||
-      wrapperRef.value?.children?.[0] ||
-      wrapperRef.value) ??
+    (props.targetRef || wrapperRef.value?.children?.[0] || wrapperRef.value) ??
     undefined,
 )
 
