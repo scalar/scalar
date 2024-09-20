@@ -7,7 +7,10 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
+import {
+  type ExampleRequestBody,
+  requestExampleParametersSchema,
+} from '@scalar/oas-utils/entities/spec'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -162,18 +165,11 @@ const addRow = () => {
   })
   const newParams = [...formParams.value, newParam]
 
-  // Ensure have have formData before adding
-  if (activeExample.value.body.formData)
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.formData.value',
-      newParams,
-    )
-  else
-    requestExampleMutators.edit(activeExample.value.uid, 'body.formData', {
-      value: newParams,
-      encoding: 'form-data',
-    })
+  requestExampleMutators.edit(
+    activeExample.value.uid,
+    'body.formData.value',
+    newParams,
+  )
 }
 
 /** Enable and disables the row */
@@ -196,38 +192,48 @@ const toggleRow = (rowIdx: number, enabled: boolean) => {
 const updateRequestBody = (value: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
-  // Ensure we have a raw value before adding
-  if (activeExample.value.body.raw)
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.raw.value',
-      value,
-    )
-  else
-    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
-      value,
-      encoding: codeInputLanguage.value,
-    })
+  requestExampleMutators.edit(activeExample.value.uid, 'body.raw.value', value)
 }
 
+/** Take the select option and return bodyType with encoding */
 const getBodyType = (type: Content) => {
-  if (type === 'multipartForm' || type === 'formUrlEncoded') {
-    return 'formData'
-  } else if (type === 'binaryFile') {
-    return 'binary'
-  }
-  return 'raw'
+  if (type === 'multipartForm')
+    return { activeBody: 'formData', encoding: 'form-data' } as const
+  if (type === 'formUrlEncoded')
+    return { activeBody: 'formData', encoding: 'urlencoded' } as const
+  if (type === 'binaryFile')
+    return { activeBody: 'binary', encoding: undefined } as const
+  if (type === 'json') return { activeBody: 'raw', encoding: 'json' } as const
+  if (type === 'xml') return { activeBody: 'raw', encoding: 'xml' } as const
+  if (type === 'yaml') return { activeBody: 'raw', encoding: 'yaml' } as const
+  if (type === 'edn') return { activeBody: 'raw', encoding: 'edn' } as const
+  if (type === 'other') return { activeBody: 'raw', encoding: 'html' } as const
+
+  return { activeBody: 'raw', encoding: undefined } as const
 }
 
+/** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
   if (!activeExample.value) return
-  const bodyType = getBodyType(type)
 
+  const { activeBody, encoding } = getBodyType(type)
   requestExampleMutators.edit(
     activeExample.value.uid,
     'body.activeBody',
-    bodyType,
+    activeBody,
   )
+
+  // Set encoding safely
+  if (encoding && activeBody === 'raw') {
+    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
+      encoding,
+      value: activeExample.value.body.raw?.value ?? '',
+    })
+  } else if (encoding && activeBody === 'formData')
+    requestExampleMutators.edit(activeExample.value.uid, `body.formData`, {
+      encoding,
+      value: activeExample.value.body.formData?.value ?? [],
+    })
 }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
