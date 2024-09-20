@@ -127,7 +127,7 @@ export const createApiClient = ({
       uid: 'default',
       name: 'Workspace',
       isReadOnly,
-      proxyUrl: 'https://proxy.scalar.com',
+      proxyUrl: configuration.proxyUrl,
     })
 
     localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
@@ -138,7 +138,7 @@ export const createApiClient = ({
       uid: 'default',
       name: 'Workspace',
       isReadOnly: true,
-      proxyUrl: 'https://proxy.scalar.com',
+      proxyUrl: configuration.proxyUrl,
     })
     store.workspaceMutators.rawAdd(workspace)
   }
