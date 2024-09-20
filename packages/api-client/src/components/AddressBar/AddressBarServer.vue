@@ -59,7 +59,10 @@ const handleAddServer = () =>
   })
 
 const serverUrlWithoutTrailingSlash = computed(() => {
-  return activeServer.value?.url?.replace(/\/$/, '') ?? ''
+  if (activeServer.value?.url?.endsWith('/')) {
+    return activeServer.value.url.slice(0, -1)
+  }
+  return activeServer.value?.url || ''
 })
 </script>
 <template>
