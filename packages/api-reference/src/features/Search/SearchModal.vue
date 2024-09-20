@@ -66,14 +66,46 @@ const tagRegex = /#(tag\/[^/]*)/
 
 // Ensure we open the section
 function onSearchResultClick(entry: FuseResult<FuseData>) {
+  // Determine the parent ID for sidebar navigation
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
 
   if (tagMatch?.length && tagMatch.length > 1) {
     parentId = tagMatch[1]
   }
+  // Expand the corresponding sidebar item
   setCollapsedSidebarItem(parentId, true)
-  props.modalState.hide()
+
+  // Extract the target ID from the href
+  const targetId = entry.item.href.replace('#', '')
+
+  let observer: MutationObserver | null = null
+
+  // Function to execute when the target element appears
+  const onElementAppears = () => {
+    window.location.href = getFullUrlFromHash(entry.item.href)
+    props.modalState.hide()
+    if (observer) {
+      observer.disconnect()
+    }
+  }
+
+  // Check if the target element already exists
+  if (document.getElementById(targetId)) {
+    onElementAppears()
+  } else {
+    // If not, set up an observer to wait for it
+    observer = new MutationObserver(() => {
+      if (document.getElementById(targetId)) {
+        onElementAppears()
+      }
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    })
+  }
 }
 
 // given just a #hash-name, we grab the full URL to be explicit to
