@@ -155,6 +155,7 @@
     "@types/js-cookie": "^3.0.6",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
     "jsdom": "^22.1.0",
     "postcss": "^8.4.38",

@@ -16,8 +16,6 @@ import RequestTable from './RequestTable.vue'
 
 defineProps<{
   title: string
-  body?: string
-  formData?: any[]
 }>()
 
 const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
@@ -61,12 +59,16 @@ const activeExampleContentType = computed(() => {
     return activeExample.value.body.formData?.encoding === 'urlencoded'
       ? 'formUrlEncoded'
       : 'multipartForm'
+  // Binary
+  else if (activeExample.value.body.activeBody === 'binary') return 'binaryFile'
   // Raw
   else if (
     activeExample.value.body.activeBody === 'raw' &&
     activeExample.value.body.raw?.encoding
-  )
+  ) {
+    if (activeExample.value.body.raw.encoding === 'html') return 'other'
     return activeExample.value.body.raw.encoding
+  }
 
   return 'none'
 })
@@ -301,120 +303,108 @@ watch(
 <template>
   <ViewLayoutCollapse>
     <template #title>{{ title }}</template>
-    <template
-      v-if="body && body.length === 0 && formData && formData.length === 0">
-      <div
-        class="text-c-3 flex min-h-14 w-full items-center justify-center rounded border border-dashed text-center text-base">
-        <span>No Body</span>
-      </div>
-    </template>
-    <template v-else-if="formData && formData.length > 0">
-      <!-- add grid component -->
-    </template>
-    <template v-else>
-      <DataTable :columns="['']">
-        <DataTableRow>
-          <DataTableHeader
-            class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
-            <ScalarListbox
-              v-model="selectedContentType"
-              class="text-xxs w-full"
+    <DataTable :columns="['']">
+      <DataTableRow>
+        <DataTableHeader
+          class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
+          <ScalarListbox
+            v-model="selectedContentType"
+            class="text-xxs w-full"
+            fullWidth
+            :options="contentTypeOptions"
+            teleport>
+            <ScalarButton
+              class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
               fullWidth
-              :options="contentTypeOptions"
-              teleport>
+              variant="ghost">
+              <span>{{ selectedContentType?.label }}</span>
+              <ScalarIcon
+                icon="ChevronDown"
+                size="xs"
+                thickness="2.5" />
+            </ScalarButton>
+          </ScalarListbox>
+        </DataTableHeader>
+      </DataTableRow>
+      <DataTableRow>
+        <template v-if="selectedContentType.id === 'none'">
+          <div
+            class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
+            <span>No Body</span>
+          </div>
+        </template>
+        <template v-else-if="selectedContentType.id === 'binaryFile'">
+          <div class="flex items-center justify-center p-1.5 overflow-hidden">
+            <template v-if="activeExample?.body.binary">
+              <span
+                class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
+                {{ (activeExample?.body.binary as File).name }}
+              </span>
               <ScalarButton
-                class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
-                fullWidth
-                variant="ghost">
-                <span>{{ selectedContentType?.label }}</span>
+                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
+                size="sm"
+                variant="outlined"
+                @click="removeBinaryFile">
+                Delete
+              </ScalarButton>
+            </template>
+            <template v-else>
+              <ScalarButton
+                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
+                size="sm"
+                variant="outlined"
+                @click="handleFileUpload">
+                <span>Upload File</span>
                 <ScalarIcon
-                  icon="ChevronDown"
+                  class="ml-1"
+                  icon="UploadSimple"
                   size="xs"
                   thickness="2.5" />
               </ScalarButton>
-            </ScalarListbox>
-          </DataTableHeader>
-        </DataTableRow>
-        <DataTableRow>
-          <template v-if="selectedContentType.id === 'none'">
-            <div
-              class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
-              <span>No Body</span>
-            </div>
-          </template>
-          <template v-else-if="selectedContentType.id === 'binaryFile'">
-            <div class="flex items-center justify-center p-1.5 overflow-hidden">
-              <template v-if="activeExample?.body.binary">
-                <span
-                  class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
-                  {{ (activeExample?.body.binary as File).name }}
-                </span>
-                <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
-                  size="sm"
-                  variant="outlined"
-                  @click="removeBinaryFile">
-                  Delete
-                </ScalarButton>
-              </template>
-              <template v-else>
-                <ScalarButton
-                  class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
-                  size="sm"
-                  variant="outlined"
-                  @click="handleFileUpload">
-                  <span>Upload File</span>
-                  <ScalarIcon
-                    class="ml-1"
-                    icon="UploadSimple"
-                    size="xs"
-                    thickness="2.5" />
-                </ScalarButton>
-              </template>
-            </div>
-          </template>
-          <template v-else-if="selectedContentType.id == 'multipartForm'">
-            <RequestTable
-              ref="tableWrapperRef"
-              class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-              :columns="['32px', '', '', '61px']"
-              :items="formParams"
-              showUploadButton
-              @addRow="addRow"
-              @deleteRow="deleteRow"
-              @removeFile="handleRemoveFileFormData"
-              @toggleRow="toggleRow"
-              @updateRow="updateRow"
-              @uploadFile="handleFileUploadFormData" />
-          </template>
-          <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
-            <RequestTable
-              ref="tableWrapperRef"
-              class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-              :columns="['32px', '', '', '61px']"
-              :items="formParams"
-              showUploadButton
-              @addRow="addRow"
-              @deleteRow="deleteRow"
-              @removeFile="handleRemoveFileFormData"
-              @toggleRow="toggleRow"
-              @updateRow="updateRow"
-              @uploadFile="handleFileUploadFormData" />
-          </template>
-          <template v-else>
-            <!-- TODO: remove this as type hack when we add syntax highligting -->
-            <CodeInput
-              content=""
-              :language="codeInputLanguage as CodeMirrorLanguage"
-              lineNumbers
-              lint
-              :modelValue="activeExample?.body?.raw?.value ?? ''"
-              @update:modelValue="updateRequestBody" />
-          </template>
-        </DataTableRow>
-        <!-- Hacky... but effective, extra table row to trick the last group -->
-        <DataTableRow />
-      </DataTable>
-    </template>
+            </template>
+          </div>
+        </template>
+        <template v-else-if="selectedContentType.id == 'multipartForm'">
+          <RequestTable
+            ref="tableWrapperRef"
+            class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+            :columns="['32px', '', '', '61px']"
+            :items="formParams"
+            showUploadButton
+            @addRow="addRow"
+            @deleteRow="deleteRow"
+            @removeFile="handleRemoveFileFormData"
+            @toggleRow="toggleRow"
+            @updateRow="updateRow"
+            @uploadFile="handleFileUploadFormData" />
+        </template>
+        <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
+          <RequestTable
+            ref="tableWrapperRef"
+            class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+            :columns="['32px', '', '', '61px']"
+            :items="formParams"
+            showUploadButton
+            @addRow="addRow"
+            @deleteRow="deleteRow"
+            @removeFile="handleRemoveFileFormData"
+            @toggleRow="toggleRow"
+            @updateRow="updateRow"
+            @uploadFile="handleFileUploadFormData" />
+        </template>
+        <template v-else>
+          <!-- TODO: remove this as type hack when we add syntax highligting -->
+          <CodeInput
+            content=""
+            :language="codeInputLanguage as CodeMirrorLanguage"
+            lineNumbers
+            lint
+            :modelValue="activeExample?.body?.raw?.value ?? ''"
+            @update:modelValue="updateRequestBody" />
+        </template>
+      </DataTableRow>
+      <!-- Hacky... but effective, extra table row to trick the last group -->
+      <DataTableRow />
+    </DataTable>
   </ViewLayoutCollapse>
 </template>
