@@ -1,4 +1,5 @@
 import type { Middleware, Placement } from '@floating-ui/vue'
+import type { Ref } from 'vue'
 
 export type FloatingOptions = {
   /**
@@ -11,6 +12,11 @@ export type FloatingOptions = {
    * If enabled it will set `width` slot prop of the floating slot
    */
   resize?: boolean
+  /**
+   * Override the targetRef, useful if we are not passing a button
+   * into the slot but is controlled from an external button
+   */
+  targetRef?: HTMLElement
   /**
    * Floating UI Middleware to be passed to Floating UI
    * @see https://floating-ui.com/docs/computePosition#middleware
