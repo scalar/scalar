@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.46
+
+### Patch Changes
+
+- b856652: chore: performance upgrades for api client sidebar
+
 ## 0.12.45
 
 ### Patch Changes
