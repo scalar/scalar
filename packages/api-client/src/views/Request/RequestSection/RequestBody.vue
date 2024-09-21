@@ -163,11 +163,18 @@ const addRow = () => {
   })
   const newParams = [...formParams.value, newParam]
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.formData.value',
-    newParams,
-  )
+  // Ensure we have formData
+  if (activeExample.value.body.formData)
+    requestExampleMutators.edit(
+      activeExample.value.uid,
+      'body.formData.value',
+      newParams,
+    )
+  else
+    requestExampleMutators.edit(activeExample.value.uid, 'body.formData', {
+      value: newParams,
+      encoding: 'form-data',
+    })
 }
 
 /** Enable and disables the row */

@@ -6,14 +6,16 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
 import { type HotKeyEvents, commandPaletteBus, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
+import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
+import type { SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarIcon,
   ScalarSearchInput,
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -34,10 +36,14 @@ const {
   activeRequest,
   activeWorkspaceRequests,
   findRequestParents,
+  isReadOnly,
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+
+/** The currently selected sidebarMenuItem for the context menu */
+const menuItem = reactive<SidebarMenuItem>({ open: false })
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
 watch(
@@ -80,8 +86,11 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
 }
 
+onBeforeMount(() => console.time('sidebar'))
+
 onMounted(() => {
   hotKeyBus.on(handleHotKey)
+  setTimeout(() => console.timeEnd('sidebar'), 0)
 })
 
 /**
@@ -151,10 +160,12 @@ onBeforeUnmount(() => {
             :key="collection.uid"
             :isDraggable="!isReadonly && collection.info?.title !== 'Drafts'"
             :isDroppable="isDroppable"
+            :menuItem="menuItem"
             :parentUids="[]"
             :uid="collection.uid"
             @newTab="(name, uid) => emit('newTab', { name, uid })"
-            @onDragEnd="handleDragEnd">
+            @onDragEnd="handleDragEnd"
+            @openMenu="(item) => Object.assign(menuItem, item)">
             <template #leftIcon>
               <ScalarIcon
                 class="text-sidebar-c-2 text-sm group-hover:hidden"
@@ -186,6 +197,12 @@ onBeforeUnmount(() => {
       </SidebarButton>
     </template>
   </Sidebar>
+
+  <!-- Menu -->
+  <RequestSidebarItemMenu
+    v-if="!isReadOnly && menuItem"
+    :menuItem="menuItem"
+    @closeMenu="menuItem.open = false" />
 </template>
 <style scoped>
 .search-button-fade {

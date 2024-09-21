@@ -1,72 +1,92 @@
 <script setup lang="ts">
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
+import { PathId } from '@/router'
+import { useWorkspace } from '@/store'
+import type { SidebarMenuItem } from '@/views/Request/types'
 import {
-  ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
+  ScalarModal,
+  useModal,
 } from '@scalar/components'
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  Tag,
-} from '@scalar/oas-utils/entities/spec'
-import { computed } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-const props = withDefaults(
-  defineProps<{
-    /** Both inidicate the level and provide a way to traverse upwards */
-    item: Collection | Tag | Request | RequestExample
-    resourceTitle: string
-    static?: boolean
-  }>(),
-  { static: false },
-)
+const props = defineProps<{ menuItem: SidebarMenuItem }>()
 
 const emit = defineEmits<{
-  (event: 'delete'): void
-  (event: 'rename'): void
+  closeMenu: []
 }>()
+
+const { replace } = useRouter()
+const { activeWorkspace, activeRouterParams } = useWorkspace()
+
+const tempName = ref('')
+const renameModal = useModal()
+const deleteModal = useModal()
 
 /** Add example */
 const handleAddExample = () =>
   commandPaletteBus.emit({
     commandName: 'Add Example',
     metaData: {
-      itemUid: props.item.uid,
+      itemUid: props.menuItem.item?.entity.uid,
     },
   })
 
-const isRequest = computed(() => 'summary' in props.item)
+const openRenameModal = () => {
+  tempName.value = props.menuItem.item?.title || ''
+  renameModal.show()
+}
+
+const handleItemRename = (newName: string) => {
+  tempName.value = newName
+  props.menuItem.item?.rename(newName)
+  renameModal.hide()
+}
+
+/** Delete with redirect for both requests and requestExamples */
+const handleItemDelete = () => {
+  props.menuItem.item?.delete()
+
+  if (
+    activeRouterParams.value[PathId.Request] === props.menuItem.item?.entity.uid
+  )
+    replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+
+  if (
+    activeRouterParams.value[PathId.Examples] ===
+    props.menuItem.item?.entity.uid
+  )
+    replace(`/workspace/${activeWorkspace.value}/request/default`)
+}
+
+// Manually focus the popup - not pretty but it works
+const menuRef = ref<typeof ScalarDropdown | null>(null)
+watch([() => props.menuItem.open, menuRef], async ([open]) => {
+  if (open && menuRef.value?.$parent?.$el) menuRef.value.$parent.$el.focus()
+})
+
+// Close menu on click becuse headless dont seem to work
+const globalClickListener = () => props.menuItem.open && emit('closeMenu')
+onMounted(() => window.addEventListener('click', globalClickListener))
+onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 </script>
 
 <template>
   <ScalarDropdown
-    :static="static"
-    :teleport="!static">
-    <ScalarButton
-      class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex ui-open:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
-      size="sm"
-      variant="ghost"
-      @click="
-        (ev) => {
-          // We must stop propagation on folders and collections to prevent them from toggling
-          if (
-            props.resourceTitle === 'Collection' ||
-            props.resourceTitle === 'Folder'
-          )
-            ev.stopPropagation()
-        }
-      ">
-      <ScalarIcon
-        icon="Ellipses"
-        size="sm" />
-    </ScalarButton>
+    v-if="menuItem.targetRef && menuItem.open"
+    static
+    :targetRef="menuItem.targetRef"
+    teleport
+    @keydown.escape="$emit('closeMenu')">
     <template #items>
       <!-- Add example -->
       <ScalarDropdownItem
-        v-if="isRequest"
+        v-if="menuItem.item?.entity.type === 'request'"
         class="flex gap-2"
         @click="handleAddExample">
         <ScalarIcon
@@ -79,8 +99,9 @@ const isRequest = computed(() => 'summary' in props.item)
 
       <!-- Rename -->
       <ScalarDropdownItem
+        ref="menuRef"
         class="flex gap-2"
-        @click="emit('rename')">
+        @click="openRenameModal">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
@@ -105,7 +126,7 @@ const isRequest = computed(() => 'summary' in props.item)
       <!-- Delete -->
       <ScalarDropdownItem
         class="flex gap-2"
-        @click="emit('delete')">
+        @click="deleteModal.show()">
         <ScalarIcon
           class="inline-flex"
           icon="Delete"
@@ -115,6 +136,27 @@ const isRequest = computed(() => 'summary' in props.item)
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
+
+  <!-- Modals -->
+  <ScalarModal
+    :size="'xxs'"
+    :state="deleteModal"
+    :title="`Delete ${menuItem.item?.resourceTitle}`">
+    <DeleteSidebarListElement
+      :variableName="menuItem.item?.title ?? ''"
+      :warningMessage="menuItem.item?.warning"
+      @close="deleteModal.hide()"
+      @delete="handleItemDelete" />
+  </ScalarModal>
+  <ScalarModal
+    :size="'xxs'"
+    :state="renameModal"
+    :title="`Rename ${menuItem.item?.resourceTitle}`">
+    <RenameSidebarListElement
+      :name="menuItem.item?.title ?? ''"
+      @close="renameModal.hide()"
+      @rename="handleItemRename" />
+  </ScalarModal>
 </template>
 <style scoped>
 .ellipsis-position {
