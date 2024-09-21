@@ -232,6 +232,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/xC0dex">
+                    <img src="https://avatars.githubusercontent.com/u/22918366?v=4" width="100;" alt="xC0dex"/>
+                    <br />
+                    <sub><b>xC0dex</b></sub>
+                </a>
+            </td>
+            <td align="center">
                 <a href="https://github.com/Mohib834">
                     <img src="https://avatars.githubusercontent.com/u/47316464?v=4" width="100;" alt="Mohib834"/>
                     <br />
@@ -246,13 +253,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/mpminardi">
-                    <img src="https://avatars.githubusercontent.com/u/8587567?v=4" width="100;" alt="mpminardi"/>
-                    <br />
-                    <sub><b>mpminardi</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/soulchild">
                     <img src="https://avatars.githubusercontent.com/u/59642?v=4" width="100;" alt="soulchild"/>
                     <br />
@@ -260,14 +260,21 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
+                <a href="https://github.com/mpminardi">
+                    <img src="https://avatars.githubusercontent.com/u/8587567?v=4" width="100;" alt="mpminardi"/>
+                    <br />
+                    <sub><b>mpminardi</b></sub>
+                </a>
+            </td>
+		</tr>
+		<tr>
+            <td align="center">
                 <a href="https://github.com/hex0id">
                     <img src="https://avatars.githubusercontent.com/u/5276261?v=4" width="100;" alt="hex0id"/>
                     <br />
                     <sub><b>hex0id</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/ykdojo">
                     <img src="https://avatars.githubusercontent.com/u/1811651?v=4" width="100;" alt="ykdojo"/>
@@ -297,13 +304,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/federicobond">
-                    <img src="https://avatars.githubusercontent.com/u/138426?v=4" width="100;" alt="federicobond"/>
-                    <br />
-                    <sub><b>federicobond</b></sub>
-                </a>
-            </td>
-            <td align="center">
                 <a href="https://github.com/gsmcdonald">
                     <img src="https://avatars.githubusercontent.com/u/36003378?v=4" width="100;" alt="gsmcdonald"/>
                     <br />
@@ -312,6 +312,13 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
             </td>
 		</tr>
 		<tr>
+            <td align="center">
+                <a href="https://github.com/federicobond">
+                    <img src="https://avatars.githubusercontent.com/u/138426?v=4" width="100;" alt="federicobond"/>
+                    <br />
+                    <sub><b>federicobond</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/dotfortun">
                     <img src="https://avatars.githubusercontent.com/u/11822957?v=4" width="100;" alt="dotfortun"/>
@@ -347,6 +354,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>STP5940</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/hrynevychroman">
                     <img src="https://avatars.githubusercontent.com/u/82209198?v=4" width="100;" alt="hrynevychroman"/>
@@ -354,8 +363,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>hrynevychroman</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/rbange">
                     <img src="https://avatars.githubusercontent.com/u/13252574?v=4" width="100;" alt="rbange"/>
@@ -391,6 +398,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>MarioGK</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/alewin">
                     <img src="https://avatars.githubusercontent.com/u/980844?v=4" width="100;" alt="alewin"/>
@@ -398,8 +407,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>alewin</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/soGit">
                     <img src="https://avatars.githubusercontent.com/u/10682798?v=4" width="100;" alt="soGit"/>
@@ -435,6 +442,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>bitlab-ruizhi</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/Chinlinlee">
                     <img src="https://avatars.githubusercontent.com/u/49154622?v=4" width="100;" alt="Chinlinlee"/>
@@ -442,8 +451,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>Chinlinlee</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/WilliamBonvini">
                     <img src="https://avatars.githubusercontent.com/u/37834150?v=4" width="100;" alt="WilliamBonvini"/>
@@ -479,6 +486,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>dunklesToast</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/tsiwek-piwik">
                     <img src="https://avatars.githubusercontent.com/u/117373332?v=4" width="100;" alt="tsiwek-piwik"/>
@@ -486,8 +495,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>tsiwek-piwik</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/sigpwned">
                     <img src="https://avatars.githubusercontent.com/u/1236302?v=4" width="100;" alt="sigpwned"/>
@@ -523,6 +530,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>bdpiprava</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/brunogrcsada">
                     <img src="https://avatars.githubusercontent.com/u/54673205?v=4" width="100;" alt="brunogrcsada"/>
@@ -530,8 +539,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>brunogrcsada</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/chadwhitacre">
                     <img src="https://avatars.githubusercontent.com/u/134455?v=4" width="100;" alt="chadwhitacre"/>
@@ -567,6 +574,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>emmanuel-ferdman</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/facus26">
                     <img src="https://avatars.githubusercontent.com/u/18079059?v=4" width="100;" alt="facus26"/>
@@ -574,8 +583,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>facus26</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/Fdawgs">
                     <img src="https://avatars.githubusercontent.com/u/43814140?v=4" width="100;" alt="Fdawgs"/>
@@ -611,6 +618,15 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>IceyWu</b></sub>
                 </a>
             </td>
+		</tr>
+		<tr>
+            <td align="center">
+                <a href="https://github.com/eltociear">
+                    <img src="https://avatars.githubusercontent.com/u/22633385?v=4" width="100;" alt="eltociear"/>
+                    <br />
+                    <sub><b>eltociear</b></sub>
+                </a>
+            </td>
             <td align="center">
                 <a href="https://github.com/kevinand11">
                     <img src="https://avatars.githubusercontent.com/u/48160414?v=4" width="100;" alt="kevinand11"/>
@@ -618,8 +634,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>kevinand11</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/JacobCoffee">
                     <img src="https://avatars.githubusercontent.com/u/45884264?v=4" width="100;" alt="JacobCoffee"/>
@@ -648,13 +662,8 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>IHIutch</b></sub>
                 </a>
             </td>
-            <td align="center">
-                <a href="https://github.com/xC0dex">
-                    <img src="https://avatars.githubusercontent.com/u/22918366?v=4" width="100;" alt="xC0dex"/>
-                    <br />
-                    <sub><b>xC0dex</b></sub>
-                </a>
-            </td>
+		</tr>
+		<tr>
             <td align="center">
                 <a href="https://github.com/KiARC">
                     <img src="https://avatars.githubusercontent.com/u/73847484?v=4" width="100;" alt="KiARC"/>
@@ -662,8 +671,6 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                     <sub><b>KiARC</b></sub>
                 </a>
             </td>
-		</tr>
-		<tr>
             <td align="center">
                 <a href="https://github.com/kyllian">
                     <img src="https://avatars.githubusercontent.com/u/5831233?v=4" width="100;" alt="kyllian"/>
