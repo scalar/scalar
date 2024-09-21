@@ -1,4 +1,5 @@
 import { nanoidSchema } from '@/entities/shared'
+import { schemaModel } from '@/helpers'
 import {
   getRequestBodyFromOperation,
   getServerVariableExamples,
@@ -107,15 +108,25 @@ export function createParamInstance(param: RequestParameter) {
    */
   const value = String(schema?.default ?? schema?.examples?.[0] ?? '')
 
-  return requestExampleParametersSchema.parse({
-    ...schema,
-    key: param.name,
-    value,
-    description: param.description,
-    required: param.required,
-    /** Initialized all required properties to enabled */
-    enabled: !!param.required,
-  })
+  // safe parse the example
+  const example = schemaModel(
+    {
+      ...schema,
+      key: param.name,
+      value,
+      description: param.description,
+      required: param.required,
+      /** Initialized all required properties to enabled */
+      enabled: !!param.required,
+    },
+    requestExampleParametersSchema,
+    false,
+  )
+
+  if (!example) {
+    console.warn(`Example at ${param.name} is invalid.`)
+    return requestExampleParametersSchema.parse({})
+  } else return example
 }
 
 /**
