@@ -281,7 +281,9 @@ function openCommandPaletteRequest() {
                 v-if="!isReadOnly"
                 class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
                 :class="{
-                  flex: menuItem?.item?.entity.uid === item.entity.uid,
+                  flex:
+                    menuItem?.item?.entity.uid === item.entity.uid &&
+                    menuItem.open,
                 }"
                 size="sm"
                 type="button"
@@ -347,7 +349,11 @@ function openCommandPaletteRequest() {
             <ScalarButton
               v-if="!isReadOnly && !isDraftCollection"
               class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
-              :class="{ flex: menuItem.item?.entity.uid === item.entity.uid }"
+              :class="{
+                flex:
+                  menuItem.item?.entity.uid === item.entity.uid &&
+                  menuItem.open,
+              }"
               size="sm"
               variant="ghost"
               @click.stop.prevent="
