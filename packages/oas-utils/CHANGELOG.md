@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.46
+
+### Patch Changes
+
+- 2b75354: fix: null example bug
+- 437d54d: fix: runtime null error prettyprint
+
 ## 0.2.45
 
 ### Patch Changes
