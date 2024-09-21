@@ -209,13 +209,21 @@ export function createExampleFromRequest(
 
   const serverVariables = server ? getServerVariableExamples(server) : {}
 
-  const example = requestExampleSchema.parse({
-    requestUid: request.uid,
-    parameters,
-    name,
-    body,
-    serverVariables,
-  })
+  // safe parse the example
+  const example = schemaModel(
+    {
+      requestUid: request.uid,
+      parameters,
+      name,
+      body,
+      serverVariables,
+    },
+    requestExampleSchema,
+    false,
+  )
 
-  return example
+  if (!example) {
+    console.warn(`Example at ${request.uid} is invalid.`)
+    return requestExampleSchema.parse({})
+  } else return example
 }
