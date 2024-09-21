@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.1.4
+
+### Patch Changes
+
+- b856652: chore: performance upgrades for api client sidebar
+- 2bab01a: fix: request security requirement lookup
+- Updated dependencies [b856652]
+  - @scalar/components@0.12.46
+  - @scalar/use-codemirror@0.11.12
+
 ## 2.1.3
 
 ### Patch Changes
