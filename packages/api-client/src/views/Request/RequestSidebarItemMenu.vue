@@ -12,7 +12,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
@@ -65,8 +65,17 @@ const handleItemDelete = () => {
     replace(`/workspace/${activeWorkspace.value}/request/default`)
 }
 
+// Manually focus the popup
+const menuRef = ref<typeof ScalarDropdown | null>(null)
+watch([() => props.menuItem.open, menuRef], async ([open]) => {
+  if (open && menuRef.value) {
+    await nextTick()
+    menuRef.value.$parent.$el.focus()
+  }
+})
+
 // Close menu on click becuse headless dont seem to work
-const globalClickListener = () => emit('closeMenu')
+const globalClickListener = () => props.menuItem.open && emit('closeMenu')
 onMounted(() => window.addEventListener('click', globalClickListener))
 onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 </script>
@@ -74,10 +83,10 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 <template>
   <ScalarDropdown
     v-if="menuItem.targetRef && menuItem.open"
-    ref="ref"
     static
     :targetRef="menuItem.targetRef"
-    teleport>
+    teleport
+    @keydown.escape="$emit('closeMenu')">
     <template #items>
       <!-- Add example -->
       <ScalarDropdownItem
@@ -94,6 +103,7 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 
       <!-- Rename -->
       <ScalarDropdownItem
+        ref="menuRef"
         class="flex gap-2"
         @click="openRenameModal">
         <ScalarIcon
