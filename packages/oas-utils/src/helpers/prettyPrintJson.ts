@@ -25,7 +25,7 @@ export const prettyPrintJson = (
     }
   }
 
-  return value.toString()
+  return value?.toString() ?? ''
 }
 
 /**
