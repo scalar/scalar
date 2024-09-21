@@ -12,7 +12,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
@@ -38,7 +38,6 @@ const handleAddExample = () =>
   })
 
 const openRenameModal = () => {
-  console.log('opening')
   tempName.value = props.menuItem.item?.title || ''
   renameModal.show()
 }
@@ -65,13 +64,10 @@ const handleItemDelete = () => {
     replace(`/workspace/${activeWorkspace.value}/request/default`)
 }
 
-// Manually focus the popup
+// Manually focus the popup - not pretty but it works
 const menuRef = ref<typeof ScalarDropdown | null>(null)
 watch([() => props.menuItem.open, menuRef], async ([open]) => {
-  if (open && menuRef.value) {
-    await nextTick()
-    menuRef.value.$parent.$el.focus()
-  }
+  if (open && menuRef.value?.$parent?.$el) menuRef.value.$parent.$el.focus()
 })
 
 // Close menu on click becuse headless dont seem to work
