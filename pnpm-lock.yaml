@@ -88,7 +88,7 @@ importers:
         version: 12.3.2(typescript@5.5.2)
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
+        version: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -1630,17 +1630,16 @@ importers:
         version: 20.14.10
 
   packages/nestjs-api-reference:
-    dependencies:
+    devDependencies:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      express:
-        specifier: ^4.19.2
-        version: 4.19.2
-    devDependencies:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
+      express:
+        specifier: ^4.19.2
+        version: 4.19.2
       fastify:
         specifier: ^4.26.2
         version: 4.28.0
@@ -31018,7 +31017,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.14.10
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -31049,7 +31048,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.14.10
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -33735,7 +33734,7 @@ snapshots:
       yaml: 2.4.5
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2)
 
   postcss-load-config@5.1.0(jiti@1.21.6)(postcss@8.4.39):
     dependencies:
@@ -36440,7 +36439,7 @@ snapshots:
       '@swc/core': 1.5.29(@swc/helpers@0.5.5)
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.5.2):
+  ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
