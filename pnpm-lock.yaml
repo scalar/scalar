@@ -1473,17 +1473,16 @@ importers:
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
   packages/express-api-reference:
-    dependencies:
+    devDependencies:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      express:
-        specifier: ^4.19.2
-        version: 4.19.2
-    devDependencies:
       '@types/express':
         specifier: ^4.17.21
         version: 4.17.21
+      express:
+        specifier: ^4.19.2
+        version: 4.19.2
       tsup:
         specifier: ^7.2.0
         version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.39)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.5.2))(typescript@5.5.2)
