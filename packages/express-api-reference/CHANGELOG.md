@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.4.157
+
+### Patch Changes
+
+- 70b318e: chore: move `express` and `@scalar/api-reference` to `devDependencies`
+
 ## 0.4.156
 
 ### Patch Changes
