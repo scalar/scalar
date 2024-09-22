@@ -1473,6 +1473,10 @@ importers:
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
   packages/express-api-reference:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@scalar/api-reference':
         specifier: workspace:*
@@ -1629,6 +1633,10 @@ importers:
         version: 20.14.10
 
   packages/nestjs-api-reference:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@scalar/api-reference':
         specifier: workspace:*

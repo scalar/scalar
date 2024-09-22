@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/api-reference'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { Request, Response } from 'express'
 
 export type ApiReferenceOptions = ReferenceConfiguration & {
