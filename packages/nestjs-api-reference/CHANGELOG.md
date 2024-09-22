@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.157
+
+### Patch Changes
+
+- 70b318e: chore: move `express` and `@scalar/api-reference` to `devDependencies`
+
 ## 0.3.156
 
 ### Patch Changes
