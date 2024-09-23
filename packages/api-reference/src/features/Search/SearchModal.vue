@@ -11,7 +11,9 @@ import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { ref, toRef, watch } from 'vue'
 
+import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
+import { scrollToId } from '../../helpers'
 import { useSidebar } from '../../hooks'
 import { useKeyboardNavigation } from './useKeyboardNavigation'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
@@ -79,32 +81,17 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
   // Extract the target ID from the href
   const targetId = entry.item.href.replace('#', '')
 
-  let observer: MutationObserver | null = null
-
-  // Function to execute when the target element appears
-  const onElementAppears = () => {
-    window.location.href = getFullUrlFromHash(entry.item.href)
-    props.modalState.hide()
-    if (observer) {
-      observer.disconnect()
-    }
-  }
-
-  // Check if the target element already exists
-  if (document.getElementById(targetId)) {
-    onElementAppears()
-  } else {
-    // If not, set up an observer to wait for it
-    observer = new MutationObserver(() => {
-      if (document.getElementById(targetId)) {
-        onElementAppears()
+  if (!document.getElementById(targetId)) {
+    const unsubscribe = lazyBus.on((ev) => {
+      if (ev.id === targetId) {
+        scrollToId(targetId)
+        unsubscribe()
+        props.modalState.hide()
       }
     })
-
-    observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-    })
+  } else {
+    scrollToId(targetId)
+    props.modalState.hide()
   }
 }
 
