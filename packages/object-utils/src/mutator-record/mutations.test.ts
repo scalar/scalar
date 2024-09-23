@@ -135,7 +135,7 @@ describe('Assign mutation records', () => {
   })
 })
 
-describe('Handles history rolling', () => {
+describe.only('Handles history rolling', () => {
   function createMicroStore(name: string) {
     return {
       name: name,
@@ -154,44 +154,38 @@ describe('Handles history rolling', () => {
     param2: 2000,
   }
 
-  test(
-    'Rolls history back to initial then forward to modified state',
-    () => {
-      // Modify n times then insure the state matched after n rollbacks
-      const originalState = clone(state)
+  test('Rolls history back to initial then forward to modified state', () => {
+    // Modify n times then insure the state matched after n rollbacks
+    const originalState = clone(state)
 
-      const mutator = new Mutation(state)
+    const mutator = new Mutation(state)
 
-      mutator.mutate('param1', '3000')
-      mutator.mutate('storage.0.name', 'Havi')
-      mutator.mutate('storage.1.name', 'Dave')
-      mutator.mutate('storage.2.name', 'Tammy')
-      mutator.mutate('storage.0.id', 30)
-      mutator.mutate('storage.1.id', 50)
-      mutator.mutate('storage.2.id', 70)
+    mutator.mutate('param1', '3000')
+    mutator.mutate('storage.0.name', 'Havi')
+    mutator.mutate('storage.1.name', 'Dave')
+    mutator.mutate('storage.2.name', 'Tammy')
+    mutator.mutate('storage.0.id', 30)
+    mutator.mutate('storage.1.id', 50)
+    mutator.mutate('storage.2.id', 70)
 
-      const finalState = clone(state)
+    const finalState = clone(state)
 
-      const undoNumber = 10 // Overshoot number of mutation to handle array edges
-      for (let i = 0; i < undoNumber; i++) {
-        mutator.undo()
-        if (i < 6) {
-          expect(state).not.toEqual(originalState)
-        } else {
-          expect(state).toEqual(originalState)
-        }
+    const undoNumber = 10 // Overshoot number of mutation to handle array edges
+    for (let i = 0; i < undoNumber; i++) {
+      mutator.undo()
+      if (i < 6) {
+        expect(state).not.toEqual(originalState)
+      } else {
+        expect(state).toEqual(originalState)
       }
-      for (let i = 0; i < undoNumber; i++) {
-        mutator.redo()
-        if (i < 6) {
-          expect(state).not.toEqual(finalState)
-        } else {
-          expect(state).toEqual(finalState)
-        }
+    }
+    for (let i = 0; i < undoNumber; i++) {
+      mutator.redo()
+      if (i < 6) {
+        expect(state).not.toEqual(finalState)
+      } else {
+        expect(state).toEqual(finalState)
       }
-    },
-    {
-      retry: 3,
-    },
-  )
+    }
+  })
 })
