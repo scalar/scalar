@@ -1,6 +1,6 @@
 {
   "name": "@scalar/postman-to-openapi",
-  "description": "Converts Postman collections to OpenAPI specifications",
+  "description": "Convert Postman collections to OpenAPI documents",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
