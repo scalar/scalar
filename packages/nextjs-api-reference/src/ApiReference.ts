@@ -1,4 +1,4 @@
-import type { ReferenceConfiguration } from '@scalar/api-reference'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 
 import { nextjsThemeCss } from './theme'
 
