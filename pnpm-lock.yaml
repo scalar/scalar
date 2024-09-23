@@ -708,6 +708,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1602,6 +1605,10 @@ importers:
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
   packages/import:
+    dependencies:
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

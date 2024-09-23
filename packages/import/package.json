@@ -42,6 +42,9 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
+  "dependencies": {
+    "@scalar/openapi-parser": "workspace:*"
+  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "vite": "^5.2.10"
