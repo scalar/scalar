@@ -1,23 +1,24 @@
 /**
  * Bootstrap a new package
  *
- * Will initialize the standard project package.json, tsconfig, and vite config
+ * Will initialize the default package.json, tsconfig.json, and Vite configuration.
  */
 import fs from 'fs/promises'
 import { createInterface } from 'node:readline/promises'
 
 import pkg from './package.json'
 
+// Creating an interface for reading input from the command line
 const readline = createInterface({
   input: process.stdin,
   output: process.stdout,
 })
-const name = await readline.question(
-  `Package name (do not add @scalar prefix): `,
-)
+
+// Prompting the user for package details
+const name = await readline.question(`Package name: @scalar/`)
 const description = await readline.question(`Package description: `)
 const keywords = await readline.question(`Package keywords (comma separated): `)
-const useVue = (await readline.question(`Include Vue (y/n): `))
+const useVue = (await readline.question(`Add Vue as a dependency (y/n): `))
   .trim()
   .toLocaleLowerCase()
   .startsWith('y')
@@ -34,14 +35,14 @@ const newPackageFile: Record<string, any> = {
   },
 }
 
+// If Vue is not used, remove Vue-related dependencies and update scripts
 if (!useVue) {
   delete newPackageFile.dependencies.vue
   delete newPackageFile.devDependencies.vue
-  delete newPackageFile.peerDependencies.vue
   delete newPackageFile.devDependencies['@vitejs/plugin-vue']
   delete newPackageFile.devDependencies['vite-svg-loader']
 
-  // Need to switch type checker
+  // Need to switch type checker from vue-tsc to tsc
   newPackageFile.scripts['types:build'] = newPackageFile.scripts[
     'types:build'
   ].replaceAll('vue-tsc', 'tsc')
@@ -49,19 +50,28 @@ if (!useVue) {
     'types:check'
   ].replaceAll('vue-tsc', 'tsc')
 }
+
+// Ensure peerDependencies is defined
 newPackageFile.peerDependencies = newPackageFile.peerDependencies || {}
 
+// Read the existing directories in the packages folder
 const dirs = (await fs.readdir('./packages', { withFileTypes: true }))
   .filter((e) => e.isDirectory())
   .map((e) => e.name)
 
+// Check if the package name conflicts with an existing package
 if (dirs.includes(name)) {
   console.error('This package name conflicts with an existing package.')
 } else {
+  // Define the prefix for the script files
   const prefix = './scripts/bootstrap-package'
+  // Define the new directory name for the package
   const newDirName = `./packages/${name}`
+
+  // Create the new package directory and subdirectories
   await fs.mkdir(newDirName)
   await fs.mkdir(`${newDirName}/src`)
+
   await fs.copyFile(
     `${prefix}/${useVue ? 'vue-vite-config.ts' : 'vite.config.ts'}`,
     `${newDirName}/vite.config.ts`,
@@ -79,7 +89,11 @@ if (dirs.includes(name)) {
 
   await fs.writeFile(`${newDirName}/src/index.ts`, '')
 
-  console.log(`\x1b[33m Package created! Checkout ./packages/${name} \x1b[0m`)
+  console.log()
+  console.log(`\x1b[33mPackage created.\x1b[0m`)
+  console.log()
+  console.log(`$ cd ./packages/${name}`)
+  console.log()
 }
 
 readline.close()
