@@ -35,6 +35,7 @@ const newPackageFile: Record<string, any> = {
 }
 
 if (!useVue) {
+  delete newPackageFile.dependencies.vue
   delete newPackageFile.devDependencies.vue
   delete newPackageFile.peerDependencies.vue
   delete newPackageFile.devDependencies['@vitejs/plugin-vue']
