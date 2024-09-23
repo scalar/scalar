@@ -3,6 +3,7 @@ import { Command } from 'commander'
 import kleur from 'kleur'
 import prettyjson from 'prettyjson'
 
+import { ERRORS } from '../../libs/errors'
 import { useGivenFileOrConfiguration } from '../../utils'
 
 /**
@@ -24,7 +25,7 @@ export function CheckCommand() {
 
     if (result) {
       console.log(kleur.green('Success'))
-      console.log(kleur.green('Matches the Scalar config specifications'))
+      console.log(kleur.green('The Scalar Configuration is valid.'))
 
       const endTime = performance.now()
 
@@ -41,9 +42,7 @@ export function CheckCommand() {
     } else {
       console.log(prettyjson.render(result))
       console.error(kleur.red('Error'))
-      console.error(
-        kleur.red('File doesn’t match the Scalar config specification.'),
-      )
+      console.error(kleur.red(ERRORS.INVALID_SCALAR_CONFIGURATION))
       console.log()
       // console.error(
       //   kleur.red(
