@@ -27,7 +27,6 @@ app.MapScalarApiReference(options =>
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
         .WithSearchHotKey("s")
-        .WithSidebar(false)
         .WithDownloadButton(false)
         .WithPreferredScheme("ApiKey")
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
