@@ -1,6 +1,6 @@
 {
   "name": "@scalar/config",
-  "description": "Define and validate scalar configuration files",
+  "description": "Define and validate Scalar Configuration files",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
