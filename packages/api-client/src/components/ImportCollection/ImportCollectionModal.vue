@@ -86,10 +86,18 @@ async function importCollection() {
         props.input.startsWith('http://') ||
         props.input.startsWith('https://')
       ) {
-        const collection = await importSpecFromUrl(props.input)
+        const collection = await importSpecFromUrl(
+          props.input,
+          undefined,
+          undefined,
+          activeWorkspace.value.uid,
+        )
         redirectToFirstRequestInCollection(collection)
       } else {
-        const collection = await importSpecFile(props.input)
+        const collection = await importSpecFile(
+          props.input,
+          activeWorkspace.value.uid,
+        )
         redirectToFirstRequestInCollection(collection)
       }
 
