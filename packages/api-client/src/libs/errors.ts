@@ -8,7 +8,7 @@ export const ERRORS = {
     'File uploads are not saved in history, you must re-upload the file.',
   REQUEST_ABORTED: 'The request has been cancelled',
   REQUEST_FAILED: 'An error occurred while making the request',
-  URL_EMPTY: 'The adress bar seems to be empty. Try adding an URL.',
+  URL_EMPTY: 'The address bar input seems to be empty. Try adding a URL.',
 } as const
 
 /** Normalizes caught error into an error instance */
