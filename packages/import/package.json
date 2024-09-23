@@ -1,0 +1,49 @@
+{
+  "name": "@scalar/import",
+  "description": "Import any file, URL or content to get an OpenAPI document",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/import"
+  },
+  "keywords": [
+    "openapi",
+    "swagger",
+    "postman",
+    "scalar"
+  ],
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-rollup",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint .  --fix",
+    "test": "vitest",
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "module": "dist/index.js",
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "vite": "^5.2.10"
+  }
+}
