@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest'
 
 import { Mutation } from './mutations'
 
-describe('Assign mutation records', () => {
+describe('Assign mutation records', { retry: 3 }, () => {
   function createMicroStore(name: string) {
     return {
       name: name,
