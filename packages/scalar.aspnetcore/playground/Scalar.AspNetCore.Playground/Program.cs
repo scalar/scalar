@@ -6,16 +6,18 @@ using Scalar.AspNetCore.Playground.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi(options =>
 {
+    // Adds api key security scheme to the api
     options.AddSecurityScheme("ApiKey", scheme =>
     {
         scheme.Type = SecuritySchemeType.ApiKey;
         scheme.In = ParameterLocation.Header;
         scheme.Name = "X-Api-Key";
     });
+    // Adds 401 and 403 responses to operations
     options.AddAuthResponse();
 });
 
-// Adds a very simple api key authentication to the api
+// Adds api key authentication to the api
 builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
