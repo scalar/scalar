@@ -99,6 +99,9 @@ onBeforeUnmount(() => {
   cursor: pointer;
   animation: scalardrawerexitfadein 0.35s forwards;
 }
+.dark-mode .scalar .scalar-app-exit {
+  background: rgba(0, 0, 0, 0.45);
+}
 .scalar .scalar-app-exit:before {
   font-family: sans-serif;
   position: absolute;
