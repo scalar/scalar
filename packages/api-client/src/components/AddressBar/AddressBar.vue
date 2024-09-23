@@ -162,6 +162,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
               :isEditable="!isReadOnly"
               isSquare
               :method="activeRequest.method"
+              teleport=".scalar-client"
               @change="updateRequestMethod" />
           </div>
           <div
