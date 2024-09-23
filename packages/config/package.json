@@ -21,7 +21,7 @@
     "format": "scalar-format-js",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test:unit": "vitest",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
