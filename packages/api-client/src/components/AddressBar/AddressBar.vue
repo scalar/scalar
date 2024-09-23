@@ -304,12 +304,6 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-2);
 }
-.addressbar-bg-states :deep(.adressbar-history-button:hover) {
-  background: var(--scalar-background-3);
-}
-.addressbar-bg-states:focus-within :deep(.adressbar-history-button:hover) {
-  background: var(--scalar-background-2);
-}
 .addressbar-bg-states:focus-within .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-1);
 }

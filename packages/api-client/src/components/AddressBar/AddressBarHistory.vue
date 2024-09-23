@@ -60,7 +60,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
   <!-- History -->
   <ListboxButton
     v-if="history?.length"
-    class="adressbar-history-button mr-1 rounded p-1.5 text-c-3 focus:text-c-1">
+    class="addressbar-history-button mr-1 rounded-lg p-1.5 text-c-3 focus:text-c-1">
     <ScalarIcon
       icon="History"
       size="sm"
@@ -70,12 +70,12 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
   <!-- History shadow and placement-->
   <div
     :class="[
-      'absolute left-0 top-[33px] w-full rounded before:pointer-events-none before:absolute before:left-0 before:top-[-33px] before:h-[calc(100%+33px)] before:w-full before:rounded z-50',
+      'absolute bg-white left-0 top-8 w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-50',
       { 'before:shadow-lg': open },
     ]">
     <!-- History Item -->
     <ListboxOptions
-      class="bg-b-1 custom-scroll bg-mix-transparent bg-mix-amount-30 max-h-[300px] rounded-b p-[3px] pt-0 backdrop-blur grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
+      class="bg-b-1 border-t custom-scroll max-h-[300px] rounded-b-lg p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
       <ListboxOption
         v-for="(entry, index) in history"
         :key="index"
@@ -102,3 +102,11 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
     </ListboxOptions>
   </div>
 </template>
+<style scoped>
+.addressbar-history-button:hover {
+  background: var(--scalar-background-3);
+}
+.addressbar-history-button:focus-within {
+  background: var(--scalar-background-2);
+}
+</style>
