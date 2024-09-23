@@ -1,5 +1,13 @@
+import type { OpenAPIV3 } from '@scalar/openapi-types'
 import { parse as parseJsonc } from 'jsonc-parser'
 import camelCase from 'lodash.camelcase'
+
+import type {
+  Options,
+  PostmanUrl,
+  PostmanVariable,
+  SecurityDefinition,
+} from './types'
 
 function parseMdTable(): Record<string, any> {
   return {}
@@ -8,55 +16,6 @@ function parseMdTable(): Record<string, any> {
 function replacePostmanVariables(collectionFile: any): any {
   return collectionFile
 }
-
-type PostmanVariable = {
-  key: string
-  value: string
-}
-
-type PostmanUrl = {
-  raw: string
-  protocol?: string
-  host?: string[]
-  path?: string[]
-  query?: any[]
-  variable?: PostmanVariable[]
-}
-
-type OpenApiDocument = {
-  openapi: string
-  info: any
-  servers?: any[]
-  paths: Record<string, any>
-  components?: any
-  security?: any[]
-  tags?: any[]
-  externalDocs?: any
-}
-
-type Options = {
-  info?: any
-  defaultTag?: string
-  pathDepth?: number
-  auth?: any
-  servers?: any[]
-  externalDocs?: any
-  folders?: any
-  responseHeaders?: boolean
-  replaceVars?: boolean
-  additionalVars?: Record<string, any>
-  outputFormat?: 'json'
-  disabledParams?: { includeQuery?: boolean; includeHeader?: boolean }
-  operationId?: 'off' | 'auto' | 'brackets'
-}
-
-type SecurityDefinition = {
-  type: string
-  scheme: string
-  [key: string]: any
-}
-
-const VERSION = '1.0.0'
 
 /**
  * Converts a Postman collection to an OpenAPI specification.
@@ -155,7 +114,8 @@ async function postmanToOpenApi(
     }
   }
 
-  const openApi: OpenApiDocument = {
+  const openApi: OpenAPIV3.Document = {
+    // TODO: We should output `3.1.0`, it’s probably enough to bump the version number here.
     openapi: '3.0.0',
     info: compileInfo(postmanJson, info),
     ...parseExternalDocs(variable, externalDocs),
@@ -812,7 +772,5 @@ function calculateOperationId(
   }
   return operationId ? { operationId } : {}
 }
-
-;(postmanToOpenApi as any).version = VERSION
 
 export default postmanToOpenApi
