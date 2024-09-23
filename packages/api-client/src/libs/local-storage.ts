@@ -1,9 +1,36 @@
 import type { useWorkspace } from '@/store'
+import { cookieSchema } from '@scalar/oas-utils/entities/cookie'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
+import {
+  collectionSchema,
+  requestExampleSchema,
+  requestSchema,
+  securitySchemeSchema,
+  serverSchema,
+  tagSchema,
+} from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
+import { schemaModel } from '@scalar/oas-utils/helpers'
 import {
   DATA_VERSION,
   DATA_VERSION_LS_LEY,
   migrator,
 } from '@scalar/oas-utils/migrations'
+import type { ZodSchema, ZodTypeDef } from 'zod'
+
+/** Loads the migrated resource into the mutator safely */
+const loadResources = <T extends (object & { uid: string })[]>(
+  resources: T,
+  schema: ZodSchema<T[number], ZodTypeDef, any>,
+  add: (payload: T[number]) => void | T[number],
+) =>
+  resources.forEach((payload) => {
+    // Use schema model for safe parsing
+    const resource = schemaModel(payload, schema, false)
+
+    // Success, a failure should log a warning in the console already through the schema model
+    if (resource) add(resource)
+  })
 
 /**
  * Loads all resources from localStorage and applies any migrations, then loads into mutators
@@ -38,15 +65,25 @@ export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
       workspaces,
     } = migrator()
 
-    collectionMutators.loadLocalStorage(collections)
-    cookieMutators.loadLocalStorage(cookies)
-    environmentMutators.loadLocalStorage(environments)
-    requestExampleMutators.loadLocalStorage(requestExamples)
-    requestMutators.loadLocalStorage(requests)
-    serverMutators.loadLocalStorage(servers)
-    securitySchemeMutators.loadLocalStorage(securitySchemes)
-    tagMutators.loadLocalStorage(tags)
-    workspaceMutators.loadLocalStorage(workspaces)
+    // Load the migrated data up into the mutators with safe parsing
+    // TODO: we should probably make rawAdd -> add, and add a new name for adding with side effects
+    loadResources(collections, collectionSchema, collectionMutators.rawAdd)
+    loadResources(cookies, cookieSchema, cookieMutators.add)
+    loadResources(environments, environmentSchema, environmentMutators.add)
+    loadResources(
+      requestExamples,
+      requestExampleSchema,
+      requestExampleMutators.rawAdd,
+    )
+    loadResources(requests, requestSchema, requestMutators.rawAdd)
+    loadResources(servers, serverSchema, serverMutators.rawAdd)
+    loadResources(
+      securitySchemes,
+      securitySchemeSchema,
+      securitySchemeMutators.rawAdd,
+    )
+    loadResources(tags, tagSchema, tagMutators.rawAdd)
+    loadResources(workspaces, workspaceSchema, workspaceMutators.rawAdd)
 
     // Set localStorage version for future migrations
     localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
