@@ -15,7 +15,7 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { onBeforeMount, onBeforeUnmount, onMounted, reactive, watch } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
@@ -86,12 +86,7 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
 }
 
-onBeforeMount(() => console.time('sidebar'))
-
-onMounted(() => {
-  hotKeyBus.on(handleHotKey)
-  setTimeout(() => console.timeEnd('sidebar'), 0)
-})
+onMounted(() => hotKeyBus.on(handleHotKey))
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak

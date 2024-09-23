@@ -28,7 +28,7 @@ export const getLocalStorageVersion = (): string => {
     const [collection] = Object.values(
       parse(collectionStr) ?? {},
     ) as v_2_1_0.Collection[]
-    if (collection.type === 'collection') return '2.1.0'
+    if (collection?.type === 'collection') return '2.1.0'
 
     if (dataVersion) return dataVersion
     return '0.0.0'

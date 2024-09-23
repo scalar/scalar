@@ -43,14 +43,6 @@ export function mutationFactory<
     onChange()
   }
 
-  /**
-   * Loads localStorage data into the mutator after migration
-   */
-  const loadLocalStorage = (instances: T[]) => {
-    // TODO: Validation should be provided for each entity
-    instances.forEach(add)
-  }
-
   return {
     /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
     add,
@@ -93,7 +85,6 @@ export function mutationFactory<
       mutator?.redo()
       onChange()
     },
-    loadLocalStorage,
   }
 }
 
