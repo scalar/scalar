@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
@@ -7,10 +7,37 @@ import {
   useModal,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, onMounted, ref } from 'vue'
+import { computed, watch } from 'vue'
 
-const { importSpecFromUrl } = useWorkspace()
+const props = defineProps<{
+  input: string | null
+  title?: string | null
+}>()
+
+const emit = defineEmits<{
+  (e: 'importFinished'): void
+}>()
+
+const modalState = useModal()
+
+const { importSpecFromUrl, importSpecFile, activeWorkspace } = useWorkspace()
 const { toast } = useToasts()
+
+watch(
+  () => props.input,
+  (v) => {
+    if (v) {
+      modalState.show()
+    } else {
+      modalState.hide()
+    }
+  },
+)
+
+// TODO: What if an OpenAPI document is passed directly?
+const url = computed(() => {
+  return props.input
+})
 
 /**
  * Operating system of the user
@@ -25,27 +52,14 @@ const platform = computed((): 'Windows' | 'macOS' | 'Linux' | '' => {
   return ''
 })
 
-/** Title (`title` query parameter) */
-const title = computed(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-
-  // Get the `title` parameter
-  return urlParams.get('title')
-})
-
-/** App link (based on `url` parameter) */
+/** App link (based on url) */
 const scalarAppLink = computed(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-
-  // Get the `url` parameter
-  const url = urlParams.get('url')
-
-  if (!url) {
+  if (!url.value) {
     return ''
   }
 
   // Redirect
-  const target = `scalar://${encodeURIComponent(url)}`
+  const target = `scalar://${encodeURIComponent(url.value)}`
 
   console.info(`Opening ${target} …`)
 
@@ -61,11 +75,22 @@ function openScalarApp() {
 
 async function importCollection() {
   try {
-    await importSpecFromUrl(url.value)
-    toast('Import successful', 'info')
-    modalState.hide()
+    if (props.input) {
+      if (
+        props.input.startsWith('http://') ||
+        props.input.startsWith('https://')
+      ) {
+        await importSpecFromUrl(props.input)
+      } else {
+        await importSpecFile(props.input)
+      }
+
+      toast('Import successfully completed', 'info')
+      modalState.hide()
+      emit('importFinished')
+    }
   } catch (error) {
-    console.error('the error ', error)
+    console.error('ERROR', error)
     const errorMessage = (error as Error)?.message || 'Unknown error'
     toast(`Import failed: ${errorMessage}`, 'error')
   }
@@ -74,19 +99,6 @@ async function importCollection() {
 async function joinTheWaitlist() {
   window.location.href = 'https://scalar.com/download'
 }
-
-const url = ref('')
-const modalState = useModal()
-
-onMounted(() => {
-  const urlParams = new URLSearchParams(window.location.search)
-  const urlParam = urlParams.get('url')
-
-  if (urlParam) {
-    url.value = urlParam
-    modalState.show()
-  }
-})
 </script>
 
 <template>
@@ -95,6 +107,8 @@ onMounted(() => {
     :state="modalState"
     title="Import Collection">
     <div class="p-3 flex flex-col gap-2 items-center">
+      <!-- Active Workspace -->
+      Workspace: {{ activeWorkspace.name }}
       <!-- The title -->
       <div
         v-if="title"
