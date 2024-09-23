@@ -385,6 +385,14 @@ watch(
     activeRequest.value?.method &&
       canMethodHaveBody(activeRequest.value.method) &&
       updateActiveBody(activeExampleContentType.value as Content)
+
+    // Add extra row on page route change as well
+    if (
+      ['multipartForm', 'formUrlEncoded'].includes(
+        activeExampleContentType.value as Content,
+      )
+    )
+      defaultRow()
   },
   { immediate: true },
 )
