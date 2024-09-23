@@ -3,18 +3,36 @@
 [![GitHub License](https://img.shields.io/github/license/scalar/scalar)](https://github.com/scalar/scalar/blob/main/LICENSE)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-# Scalar - API Client / Reference
+<h1>
+	<p>Scalar</p>
+	<p>
+		<a href="https://scalar.com/download" target="_blank">
+			<picture>
+				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/179223ab-5206-488e-89f2-ba286942381f">
+				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/a8181eb3-3c3c-4bf1-948e-c95fc09d2dca">
+				<img width="48.494%" height="185" src="https://github.com/user-attachments/assets/179223ab-5206-488e-89f2-ba286942381f#gh-light-mode-only" alt="Scalar API client">
+			</picture>
+		</a>
+		<a href="https://docs.scalar.com/swagger-editor" target="_blank">
+			<picture>
+				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/76868e6d-466c-4097-8d42-f426557752ba">
+				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/2029bec0-58e9-4fa1-ad80-0045e828978e">
+				<img width="48.494%" height="185" src="https://github.com/user-attachments/assets/76868e6d-466c-4097-8d42-f426557752ba#gh-light-mode-only" alt="Scalar API Reference">
+			</picture>
+	 	</a>
+	</p>
+</h1>
+
+<p>
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/d4ba1717-1583-44b7-9b00-f7acd4550eea#gh-light-mode-only">
+	<img width="830" height="500" src="https://github.com/user-attachments/assets/8c670164-6218-47b0-8595-f6244d1a1cd2#gh-dark-mode-only">
+</p>
 
 ### An offline first API Client built for OpenAPI
 
 <p>
 	<a href="https://scalar.com/download">Download</a> &nbsp;&nbsp;
 	<a href="https://client.scalar.com/">Try Demo</a>
-</p>
-
-<p>
-	<img width="830" height="500" src="https://github.com/user-attachments/assets/d4ba1717-1583-44b7-9b00-f7acd4550eea#gh-light-mode-only">
-	<img width="830" height="500" src="https://github.com/user-attachments/assets/8c670164-6218-47b0-8595-f6244d1a1cd2#gh-dark-mode-only">
 </p>
 
 <!-- minimal line break-->
@@ -24,14 +42,35 @@
 </p>
 <!-- end minimal line break-->
 
-<h3>Interactive API Reference from OpenAPI/Swagger</h3>
-<p>
-	<a href="https://docs.scalar.com/swagger-editor">Try Demo</a> &nbsp;&nbsp;
-</p>
 <p>
 	<img width="830" height="500" src="https://github.com/user-attachments/assets/c49da979-3b6d-4594-beb4-086777d8fd17#gh-light-mode-only">
 	<img width="830" height="500" src="https://github.com/user-attachments/assets/80da26af-0c7d-4c13-b37d-e4d2beec58db#gh-dark-mode-only">
 </p>
+
+<h3>Interactive API Reference from OpenAPI/Swagger</h3>
+<p>
+	<a href="https://docs.scalar.com/swagger-editor">Try Demo</a> &nbsp;&nbsp;
+</p>
+
+<!-- minimal line break-->
+<p>
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/7d7e7ba7-2b02-49f3-abcd-b24c566a3c16#gh-light-mode-only">
+	<img width="1200" height="1" src="https://github.com/user-attachments/assets/341bfb1d-5cb0-4ec6-89eb-4b1dcc07eeb7#gh-dark-mode-only">
+</p>
+<!-- end minimal line break-->
+
+### Trusted by:
+
+<br>
+
+<p>
+	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/73dcef95-fc4f-4111-bb09-f3ce37453a81#gh-light-mode-only">
+	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/1da6b904-34be-4760-b535-0dd2160e6d12#gh-light-mode-only">
+	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/c792c977-8551-432c-9417-3ea05e408151#gh-dark-mode-only">
+	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/54a9ea69-c50a-4f49-8c3e-ddd6f8fbe1f3#gh-dark-mode-only">
+</p>
+
+<br>
 
 ### Features
 
@@ -40,6 +79,8 @@
 - Comes with an integrated API client
 - Integrates with your favorite framework
 - Doesn’t look like it’s 2011
+
+<br>
 
 ### Quickstart
 
@@ -90,6 +131,8 @@ And there’s an ever-growing list of plugins and integrations:
 - [Rust](documentation/integrations/rust.md)
 - [Vue.js](packages/api-reference/README.md)
 
+<br>
+
 ### Managed Hosting
 
 We’re offering a free and paid managed hosting on the edge, too:
@@ -101,6 +144,8 @@ We’re offering a free and paid managed hosting on the edge, too:
 - Use any domain (paid)
 
 Ready? [Create your account on scalar.com](https://scalar.com).
+
+<br>
 
 ### Projects
 
@@ -115,6 +160,8 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | [Scalar Open API Parser](packages/openapi-parser/README.md) | OpenAPI SDK            |
 | [Scalar Sandbox](https://sandbox.scalar.com/)               | Online OpenAPI Editor  |
 
+<br>
+
 ### Documentation
 
 | Topic                                           | Description                        |
@@ -124,13 +171,19 @@ Ready? [Create your account on scalar.com](https://scalar.com).
 | [OpenAPI](documentation/openapi.md)             | OpenAPI and our extensions to it   |
 | [Markdown](documentation/markdown.md)           | Markdown syntax                    |
 
+<br>
+
 ### Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
+<br>
+
 ### Contributors
 
 Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING) guide.
+
+<br>
 
 <!-- readme: collaborators,contributors -start -->
 <table>
