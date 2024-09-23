@@ -1601,6 +1601,15 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
+  packages/import:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      vite:
+        specifier: ^5.2.10
+        version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
+
   packages/mock-server:
     dependencies:
       '@scalar/oas-utils':
