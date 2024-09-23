@@ -50,7 +50,7 @@ const httpLabel = computed(() => method.value.short)
   <ScalarListbox
     v-if="isEditable"
     v-model="selectedMethod"
-    class="mt-1 font-code uppercase"
+    class="mt-1 font-code text-sm uppercase"
     :options="methodOptions">
     <div
       class="h-full"
