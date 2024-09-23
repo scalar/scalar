@@ -80,7 +80,9 @@ export async function addPackageFileExports({
     ...(allowCss ? cssExports : {}),
   }
 
-  console.log('\x1b[32m%s\x1b[0m', '...Updating package.json exports field') //cyan
+  // Green text
+  console.log('\x1b[32m%s\x1b[0m', 'Updating package.json exports field…')
+
   await fs.writeFile(
     './package.json',
     JSON.stringify(packageFile, null, 2) + '\n',
