@@ -18,6 +18,7 @@ export function importSpecFileFactory({
 }: StoreContext) {
   const importSpecFile = async (
     _spec: string | Record<string, any>,
+    // TODO: I don’t think this should have a default, this seems dangerous. - @hanspagel
     workspaceUid = 'default',
     /**
      * TODO: What do these look like?
@@ -43,7 +44,7 @@ export function importSpecFileFactory({
       workspaceEntities.importWarnings.forEach((w) => console.warn(w))
       console.groupEnd()
 
-      return
+      return undefined
     }
 
     // Add all basic entities to the store
@@ -62,6 +63,8 @@ export function importSpecFileFactory({
       ...(workspaces[workspaceUid]?.collections ?? []),
       workspaceEntities.collection.uid,
     ])
+
+    return workspaceEntities.collection
   }
 
   // Function to fetch and import a spec from a URL
@@ -70,17 +73,21 @@ export function importSpecFileFactory({
     proxy?: string,
     overloadServers?: Spec['servers'],
     preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme'],
+    // TODO: I don’t think this should have a default, and it should probably not be the last parameter. Compare it to importSpecFromFile.
+    workspaceUid = 'default',
   ) {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(
+
+      return await importSpecFile(
         spec,
-        undefined,
+        workspaceUid,
         overloadServers,
         preferredSecurityScheme,
       )
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
+      return undefined
     }
   }
 

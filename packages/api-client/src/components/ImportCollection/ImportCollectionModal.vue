@@ -80,9 +80,11 @@ async function importCollection() {
         props.input.startsWith('http://') ||
         props.input.startsWith('https://')
       ) {
-        await importSpecFromUrl(props.input)
+        const collection = await importSpecFromUrl(props.input)
+        console.log('url', collection)
       } else {
-        await importSpecFile(props.input)
+        const collection = await importSpecFile(props.input)
+        console.log('file', collection)
       }
 
       toast('Import successfully completed', 'info')
