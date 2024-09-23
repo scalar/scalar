@@ -318,7 +318,6 @@ function openCommandPaletteRequest() {
         v-else-if="!isReadOnly || parentUids.length"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
         :class="highlightClasses"
-        :disabled="isReadOnly"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
         <span class="z-10 flex h-5 items-center justify-center max-w-[14px]">
