@@ -39,6 +39,7 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/import": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@todesktop/runtime": "^1.6.3",
     "electron-window-state": "^5.0.3",
