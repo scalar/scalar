@@ -88,7 +88,7 @@ export const useServerStore = ({
         const normalizedSpecification =
           // Use the specification
           servers?.value === undefined
-            ? specification?.value ?? createEmptySpecification()
+            ? (specification?.value ?? createEmptySpecification())
             : // Or create an empty one with the specified servers list
               createEmptySpecification({
                 servers: servers.value,

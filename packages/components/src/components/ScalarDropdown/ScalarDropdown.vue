@@ -18,7 +18,7 @@ defineOptions({ inheritAttrs: false })
 <template>
   <Menu v-slot="{ open }">
     <ScalarFloating
-      :isOpen="static ? staticOpen : open ?? isOpen"
+      :isOpen="static ? staticOpen : (open ?? isOpen)"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :targetRef="targetRef"

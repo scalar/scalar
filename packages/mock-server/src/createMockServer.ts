@@ -185,7 +185,7 @@ export async function createMockServer(options?: {
         const statusCode = parseInt(
           preferredResponseKey === 'default'
             ? '200'
-            : preferredResponseKey ?? '200',
+            : (preferredResponseKey ?? '200'),
           10,
         ) as StatusCode
 

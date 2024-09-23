@@ -77,8 +77,8 @@ const currentResponseWithExample = computed(() => ({
   ...currentJsonResponse.value,
   example:
     hasMultipleExamples.value && selectedExampleKey.value
-      ? currentJsonResponse.value.examples[selectedExampleKey.value].value ??
-        currentJsonResponse.value.examples[selectedExampleKey.value]
+      ? (currentJsonResponse.value.examples[selectedExampleKey.value].value ??
+        currentJsonResponse.value.examples[selectedExampleKey.value])
       : getFirstExampleResponse(),
 }))
 
