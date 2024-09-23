@@ -6,8 +6,10 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   input: string | null
@@ -17,6 +19,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'importFinished'): void
 }>()
+
+const router = useRouter()
+
+const APP_DOWNLOAD_URL = 'https://scalar.com/download'
 
 const modalState = useModal()
 
@@ -81,13 +87,13 @@ async function importCollection() {
         props.input.startsWith('https://')
       ) {
         const collection = await importSpecFromUrl(props.input)
-        console.log('url', collection)
+        redirectToFirstRequestInCollection(collection)
       } else {
         const collection = await importSpecFile(props.input)
-        console.log('file', collection)
+        redirectToFirstRequestInCollection(collection)
       }
 
-      toast('Import successfully completed', 'info')
+      toast('Import successful', 'info')
       modalState.hide()
       emit('importFinished')
     }
@@ -99,7 +105,21 @@ async function importCollection() {
 }
 
 async function joinTheWaitlist() {
-  window.location.href = 'https://scalar.com/download'
+  window.location.href = APP_DOWNLOAD_URL
+}
+
+function redirectToFirstRequestInCollection(collection?: Collection) {
+  if (!collection) {
+    return
+  }
+
+  router.push({
+    name: 'request',
+    params: {
+      workspace: activeWorkspace.value.uid,
+      request: collection?.requests[0],
+    },
+  })
 }
 </script>
 
