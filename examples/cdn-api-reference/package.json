@@ -9,7 +9,7 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "examples/cdn-api-reference"
   },
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "engines": {
     "node": ">=18"
