@@ -156,6 +156,7 @@ describe('Handles history rolling', () => {
 
   test(
     'Rolls history back to initial then forward to modified state',
+    { retry: 3 },
     () => {
       // Modify n times then insure the state matched after n rollbacks
       const originalState = clone(state)
@@ -189,9 +190,6 @@ describe('Handles history rolling', () => {
           expect(state).toEqual(finalState)
         }
       }
-    },
-    {
-      retry: 3,
     },
   )
 })
