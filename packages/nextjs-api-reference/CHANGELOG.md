@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.88
+
+### Patch Changes
+
+- 86a4c9c: chore: fix import of ReferenceConfiguration
+
 ## 0.4.87
 
 ### Patch Changes
