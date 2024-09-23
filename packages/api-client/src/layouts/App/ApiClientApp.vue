@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TheCommandPalette } from '@/components/CommandPalette'
+import { ImportFlow } from '@/components/ImportFlow'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
@@ -72,6 +73,9 @@ const fontsStyleTag = computed(
 
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
+
+    <!-- When an `url` query parameter is passed, it tries to import from the given URL. -->
+    <ImportFlow />
 
     <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
       <RouterView
