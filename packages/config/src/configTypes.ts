@@ -16,7 +16,6 @@ export const ConfigSidebarPageType = Type.Object({
   backgroundImage: Type.Optional(Type.String()),
   icon: Type.Optional(Type.String()),
   type: Type.Literal('page'),
-  // children: Type.Optional(Type.Array(Type.String())),
 })
 
 export type ConfigSidebarPage = Static<typeof ConfigSidebarPageType>
@@ -24,11 +23,25 @@ export type ConfigSidebarPage = Static<typeof ConfigSidebarPageType>
 export const ConfigSidebarFolderType = Type.Object({
   name: Type.String(),
   type: Type.Literal('folder'),
-  // children: Type.Optional(Type.Array(Type.String())),
   icon: Type.Optional(Type.String()),
 })
 
 export type ConfigSidebarFolder = Static<typeof ConfigSidebarFolderType>
+
+export const SidebarItemType = Type.Recursive(
+  (This) =>
+    Type.Composite([
+      Type.Union([
+        ConfigSidebarPageType,
+        ConfigSidebarFolderType,
+        ConfigSidebarLinkType,
+      ]),
+      Type.Object({
+        children: Type.Optional(Type.Array(This)),
+      }),
+    ]),
+  { $id: 'SidebarItemType' },
+)
 
 export const ConfigGuideType = Type.Union([
   Type.Object({
@@ -39,13 +52,7 @@ export const ConfigGuideType = Type.Union([
   Type.Object({
     name: Type.String(),
     description: Type.Optional(Type.String()),
-    sidebar: Type.Array(
-      Type.Union([
-        ConfigSidebarPageType,
-        ConfigSidebarFolderType,
-        ConfigSidebarLinkType,
-      ]),
-    ),
+    sidebar: Type.Array(SidebarItemType),
   }),
 ])
 

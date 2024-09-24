@@ -38,7 +38,7 @@ describe('Example schema parse', () => {
     expect(result).toEqual(true)
   })
 
-  it('throws errors in nested children schemas with missing properties', () => {
+  it('throws errors in nested link children schemas with missing properties', () => {
     const nestedInput = {
       path: 'src/page-two.md',
       type: 'page',
@@ -57,11 +57,32 @@ describe('Example schema parse', () => {
         },
       ],
     }
-
     const result = Value.Check(SidebarItemType, nestedInput)
-
     console.log([...Value.Errors(SidebarItemType, nestedInput)])
+    expect(result).toEqual(false)
+  })
 
+  it('throws errors in nested page children schemas with missing properties', () => {
+    const nestedInput = {
+      path: 'src/page-two.md',
+      type: 'page',
+      name: 'Page title',
+      children: [
+        {
+          name: 'First Folder',
+          type: 'folder',
+          children: [
+            {
+              name: 'Nested link',
+              type: 'page',
+              // path: 'some/path' ERROR: required value
+            },
+          ],
+        },
+      ],
+    }
+    const result = Value.Check(SidebarItemType, nestedInput)
+    console.log([...Value.Errors(SidebarItemType, nestedInput)])
     expect(result).toEqual(false)
   })
   it('throws errors in nested children schemas with wrong properties', () => {
@@ -78,17 +99,37 @@ describe('Example schema parse', () => {
               url: 'https://scalar.com/',
               name: 'Nested link',
               type: 'link',
-              path: 'some/path/', // ERROR: required value
+              path: 'some/path/', // ERROR: link should not have path property
             },
           ],
         },
       ],
     }
-
     const result = Value.Check(SidebarItemType, nestedInput)
-
     console.log([...Value.Errors(SidebarItemType, nestedInput)])
-
+    expect(result).toEqual(false)
+  })
+  it('throws errors in nested children schemas with wrong types', () => {
+    const nestedInput = {
+      path: 'src/page-two.md',
+      type: 'page',
+      name: 'Page title',
+      children: [
+        {
+          name: 'First Folder',
+          type: 'folder',
+          children: [
+            {
+              url: 'https://scalar.com/',
+              name: 'Nested link',
+              type: 5,
+            },
+          ],
+        },
+      ],
+    }
+    const result = Value.Check(SidebarItemType, nestedInput)
+    console.log([...Value.Errors(SidebarItemType, nestedInput)])
     expect(result).toEqual(false)
   })
 })
