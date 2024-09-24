@@ -9,11 +9,9 @@ import {
 } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { parse } from 'yaml'
-
-import WorkspaceDropdown from '../../views/Request/components/WorkspaceDropdown.vue'
 
 const props = defineProps<{
   input: string | null
@@ -23,6 +21,20 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'importFinished'): void
 }>()
+
+type PrefetchResult = {
+  state: 'idle' | 'loading'
+  content: string | null
+  error: string | null
+  version: string | null
+}
+
+const prefetchResult = reactive<PrefetchResult>({
+  state: 'idle',
+  content: null,
+  error: null,
+  version: null,
+})
 
 const router = useRouter()
 
@@ -35,8 +47,14 @@ const { toast } = useToasts()
 
 watch(
   () => props.input,
-  (v) => {
-    if (v && (isUrl.value || getOpenApiDocumentVersion(v))) {
+  (value) => {
+    prefetchUrl(value)
+
+    if (!value) {
+      modalState.hide()
+    } else if (isUrl(value)) {
+      modalState.show()
+    } else if (isDocument(value) && getOpenApiDocumentVersion(value)) {
       modalState.show()
     } else {
       modalState.hide()
@@ -44,21 +62,66 @@ watch(
   },
 )
 
-// TODO: What if an OpenAPI document is passed directly?
-const url = computed(() => {
-  return props.input
-})
+async function prefetchUrl(value: string | null) {
+  // No URL
+  if (!value || !isUrl(value)) {
+    return Object.assign(prefetchResult, {
+      state: 'idle',
+      content: null,
+      error: null,
+    })
+  }
 
-const isUrl = computed(
-  () =>
-    props.input &&
-    (props.input?.startsWith('http://') || props.input?.startsWith('https://')),
-)
+  Object.assign(prefetchResult, {
+    state: 'loading',
+  })
 
-const isDocument = computed(() => props.input && !isUrl.value)
+  // TODO: Remove wait
+  await new Promise((resolve) => setTimeout(resolve, 1000))
+
+  try {
+    // TODO: Proxy
+    const result = await fetch(value)
+
+    if (!result.ok) {
+      return Object.assign(prefetchResult, {
+        state: 'idle',
+        content: null,
+        error: `${result.status} ${result.statusText}`,
+      })
+    }
+
+    const content = await result.text()
+    const version = getOpenApiDocumentVersion(content)
+
+    console.log('getOpenApiDocumentVersion', version)
+
+    return Object.assign(prefetchResult, {
+      state: 'idle',
+      content,
+      error: null,
+      version,
+    })
+  } catch (error: any) {
+    console.log('done')
+    return Object.assign(prefetchResult, {
+      state: 'idle',
+      content: null,
+      error: error?.message,
+    })
+  }
+}
+
+function isUrl(input: string | null) {
+  return input && (input.startsWith('http://') || input.startsWith('https://'))
+}
+
+function isDocument(input: string | null) {
+  return input && !isUrl(input)
+}
 
 function getOpenApiDocumentVersion(input: string | null) {
-  if (!isDocument.value) {
+  if (!isDocument(input)) {
     return false
   }
 
@@ -73,6 +136,7 @@ function getOpenApiDocumentVersion(input: string | null) {
       return `Swagger ${result.swagger} (JSON)`
     }
 
+    console.log('JSON failed')
     return false
   } catch {
     //
@@ -89,21 +153,15 @@ function getOpenApiDocumentVersion(input: string | null) {
       return `Swagger ${result.swagger} (YAML)`
     }
 
+    console.log('YAML failed')
     return false
   } catch {
     //
   }
 
+  console.log('SOMETHING FAILED')
   return false
 }
-
-const isValidDocument = computed(() => {
-  if (!isDocument.value) {
-    return false
-  }
-
-  return getOpenApiDocumentVersion(props.input)
-})
 
 /**
  * Operating system of the user
@@ -120,12 +178,12 @@ const platform = computed((): 'Windows' | 'macOS' | 'Linux' | '' => {
 
 /** App link (based on the given url) */
 const scalarAppLink = computed(() => {
-  if (!url.value) {
+  if (!props.input || !isUrl(props.input)) {
     return ''
   }
 
   // Redirect
-  const target = `scalar://${encodeURIComponent(url.value)}`
+  const target = `scalar://${encodeURIComponent(props.input)}`
 
   console.info(`Opening ${target} …`)
 
@@ -142,7 +200,7 @@ function openScalarApp() {
 async function importCollection() {
   try {
     if (props.input) {
-      if (isUrl.value) {
+      if (isUrl(props.input)) {
         const collection = await importSpecFromUrl(
           props.input,
           undefined,
@@ -197,16 +255,12 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
       <!-- Text -->
       <p>
         You are about to import the following
-        {{ isUrl ? 'url' : 'document' }} as a new collection to your workspace:
+        {{ isUrl(input) ? 'url' : 'document' }} as a new collection to your
+        workspace:
       </p>
       <div class="flex gap-2 flex-col w-full">
-        <!-- Active Workspace -->
-        <div class="text-sm font-medium text-c-3 pt-2">Workspace</div>
-        <div class="border flex flex-col gap-2">
-          <WorkspaceDropdown />
-        </div>
-        <!-- Preview -->
-        <template v-if="input && isUrl">
+        <!-- URL preview -->
+        <template v-if="input && isUrl(input)">
           <!-- The title -->
           <div
             v-if="title"
@@ -216,8 +270,27 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
           <div class="overflow-hidden border rounded">
             <ScalarCodeBlock :content="input" />
           </div>
+          <div>
+            <template v-if="prefetchResult.state === 'loading'">
+              loading…
+            </template>
+            <template v-else>
+              <template v-if="prefetchResult.version">
+                {{ prefetchResult.version }}
+              </template>
+              <div class="text-red">
+                <template v-if="prefetchResult.error">
+                  {{ prefetchResult.error }}
+                </template>
+                <template v-else-if="!prefetchResult.version">
+                  This doesn’t look like an OpenAPI/Swagger document.
+                </template>
+              </div>
+            </template>
+          </div>
         </template>
-        <template v-else-if="input && isDocument">
+        <!-- Document preview -->
+        <template v-else-if="input && isDocument(input)">
           <div class="text-sm text-c-3 font-medium pt-2">
             {{ getOpenApiDocumentVersion(input) }}
           </div>
@@ -234,17 +307,17 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
           class="px-6 max-h-8 w-full gap-2 hover:bg-b-2"
           size="md"
           type="button"
-          :variant="isDocument ? 'solid' : 'outlined'"
+          :variant="isDocument(input) ? 'solid' : 'outlined'"
           @click="importCollection">
           <ScalarIcon
             icon="CodeFolder"
             size="md" />
-          <template v-if="isDocument">Import Collection</template>
+          <template v-if="isDocument(input)">Import Collection</template>
           <template v-else>Open in the Browser</template>
         </ScalarButton>
 
         <!-- Open in App (only URLs) -->
-        <template v-if="isUrl">
+        <template v-if="isUrl(input)">
           <!-- Join the waitlist -->
           <template v-if="platform === 'Windows'">
             <ScalarButton
@@ -279,7 +352,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
 
       <!-- Download link -->
       <div
-        v-if="isUrl"
+        v-if="isUrl(input)"
         class="text-sm mt-4">
         Don’t have the Scalar app?
         <a
