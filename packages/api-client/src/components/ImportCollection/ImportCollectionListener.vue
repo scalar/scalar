@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { ScalarIcon } from '@scalar/components'
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import ImportCollectionModal from './ImportCollectionModal.vue'
@@ -6,6 +7,9 @@ import ImportCollectionModal from './ImportCollectionModal.vue'
 // Keep the data
 const input = ref<string | null>(null)
 const title = ref<string | null>(null)
+
+const isDragging = ref<boolean>(false)
+let dragCounter = 0
 
 // Register listeners
 onMounted(() => {
@@ -24,16 +28,21 @@ onMounted(() => {
   // Paste event
   document.addEventListener('paste', handlePaste)
 
-  // Drop event
-  document.addEventListener('drop', handleDrop)
+  // Drag events
+  document.addEventListener('dragenter', handleDragEnter)
+  document.addEventListener('dragleave', handleDragLeave)
   document.addEventListener('dragover', handleDragOver)
+  document.addEventListener('drop', handleDrop)
 })
 
 // Unregister listeners
 onBeforeUnmount(() => {
   document.removeEventListener('paste', handlePaste)
-  document.removeEventListener('drop', handleDrop)
+
+  document.removeEventListener('dragenter', handleDragEnter)
   document.removeEventListener('dragover', handleDragOver)
+  document.removeEventListener('dragleave', handleDragLeave)
+  document.removeEventListener('drop', handleDrop)
 })
 
 // Paste
@@ -54,6 +63,8 @@ async function handlePaste(event: ClipboardEvent) {
 // Drop
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
+  isDragging.value = false
+  dragCounter = 0
 
   if (event.dataTransfer) {
     // Text
@@ -90,21 +101,60 @@ function handleDragOver(event: DragEvent) {
   event.preventDefault()
 }
 
+function handleDragLeave() {
+  dragCounter--
+
+  if (dragCounter === 0) {
+    isDragging.value = false
+  }
+}
+
+function handleDragEnter(event: DragEvent) {
+  event.preventDefault()
+  dragCounter++
+  isDragging.value = true
+}
+
 // Reset the data when the modal was closed
 function resetData() {
   title.value = null
   input.value = null
 }
-
-document.addEventListener('paste', handlePaste)
-document.addEventListener('drop', handleDrop)
-document.addEventListener('dragover', handleDragOver)
 </script>
 
 <template>
+  <transition name="fade">
+    <div
+      v-if="isDragging"
+      class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded border transition-opacity duration-200">
+      <div class="flex flex-col items-center justify-center h-full">
+        <div>
+          <ScalarIcon
+            icon="Download"
+            size="md"
+            thickness="1.75" />
+        </div>
+        <div class="text-center m-4 text-c-1">
+          Drop your OpenAPI document here
+        </div>
+      </div>
+    </div>
+  </transition>
+  <!-- Add this line -->
   <ImportCollectionModal
     :input="input"
     :title="title"
     @importFinished="resetData" />
   <slot />
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity duration-200;
+}
+.fade-enter-from,
+.fade-leave-to {
+  @apply opacity-0;
+}
+</style>
