@@ -8,7 +8,7 @@ import {
   useModal,
 } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { isJsonString, redirectToProxy } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -102,7 +102,8 @@ async function prefetchUrl(value: string | null, proxy?: string) {
       version,
     })
   } catch (error: any) {
-    console.log('done')
+    console.error('[prefetchDocument]', error)
+
     return Object.assign(prefetchResult, {
       state: 'idle',
       content: null,
@@ -282,7 +283,15 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
                   {{ prefetchResult.error }}
                 </template>
                 <template v-else-if="!prefetchResult.version">
-                  This doesn’t look like an OpenAPI/Swagger document.
+                  <div class="flex flex-col gap-2">
+                    <div>
+                      This doesn’t look like an OpenAPI/Swagger document:
+                    </div>
+                    <div class="border rounded h-32 overflow-hidden">
+                      <ScalarCodeBlock
+                        :content="prefetchResult.content?.trim() ?? ''" />
+                    </div>
+                  </div>
                 </template>
               </div>
             </template>
@@ -296,7 +305,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
           <div class="h-32 overflow-hidden border rounded">
             <ScalarCodeBlock
               :content="input"
-              lang="json" />
+              :lang="isJsonString(input) ? 'json' : 'yaml'" />
           </div>
         </template>
       </div>
