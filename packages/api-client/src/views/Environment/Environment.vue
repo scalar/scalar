@@ -149,6 +149,7 @@ onMounted(setActiveEnvironment)
           <CodeInput
             v-if="activeEnvironmentID"
             class="pl-px pr-2 md:px-2 py-2.5"
+            language="json"
             lineNumbers
             :modelValue="environments[activeEnvironmentID].value"
             @update:modelValue="handleEnvironmentUpdate" />
