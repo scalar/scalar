@@ -344,4 +344,53 @@ describe('upgradeFromTwoToThree', () => {
 
     expect(result.paths['/planets'].get.produces).toBeUndefined()
   })
+
+  it('migrates formData', async () => {
+    const result = upgradeFromTwoToThree({
+      swagger: '2.0',
+      paths: {
+        '/planets': {
+          get: {
+            description:
+              'Returns all planets from the system that the user has access to',
+            parameters: [
+              {
+                name: 'additionalMetadata',
+                in: 'formData',
+                description: 'Additional data to pass to server',
+                required: false,
+                type: 'string',
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    expect(result.paths).toStrictEqual({
+      '/planets': {
+        get: {
+          description:
+            'Returns all planets from the system that the user has access to',
+          requestBody: {
+            content: {
+              'application/x-www-form-urlencoded': {
+                schema: {
+                  properties: {
+                    additionalMetadata: {
+                      description: 'Additional data to pass to server',
+                      type: 'string',
+                    },
+                  },
+                  type: 'object',
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.paths['/planets'].get.produces).toBeUndefined()
+  })
 })
