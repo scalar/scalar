@@ -8,6 +8,7 @@ import {
   useModal,
 } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -48,7 +49,7 @@ const { toast } = useToasts()
 watch(
   () => props.input,
   (value) => {
-    prefetchUrl(value)
+    prefetchUrl(value, activeWorkspace.value.proxyUrl)
 
     if (!value) {
       modalState.hide()
@@ -62,7 +63,8 @@ watch(
   },
 )
 
-async function prefetchUrl(value: string | null) {
+// TODO: This does not work with URLs to API references and such.
+async function prefetchUrl(value: string | null, proxy?: string) {
   // No URL
   if (!value || !isUrl(value)) {
     return Object.assign(prefetchResult, {
@@ -80,8 +82,7 @@ async function prefetchUrl(value: string | null) {
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   try {
-    // TODO: Proxy
-    const result = await fetch(value)
+    const result = await fetch(redirectToProxy(proxy, value))
 
     if (!result.ok) {
       return Object.assign(prefetchResult, {
@@ -93,8 +94,6 @@ async function prefetchUrl(value: string | null) {
 
     const content = await result.text()
     const version = getOpenApiDocumentVersion(content)
-
-    console.log('getOpenApiDocumentVersion', version)
 
     return Object.assign(prefetchResult, {
       state: 'idle',
