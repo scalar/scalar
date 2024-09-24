@@ -7,23 +7,23 @@ import PasteEventListener from './PasteEventListener.vue'
 import UrlQueryParameterChecker from './UrlQueryParameterChecker.vue'
 
 /** Source to import from */
-const input = ref<string | null>(null)
+const source = ref<string | null>(null)
 /** Title for the source (optional) */
 const title = ref<string | null>(null)
 
 /** Reset the data when the modal was closed */
 async function resetData() {
   title.value = null
-  input.value = null
+  source.value = null
   await nextTick()
 }
 
 /** Receive data from the paste event listener */
-async function handleInput(newInput: string, newTitle?: string | null) {
+async function handleInput(newSource: string, newTitle?: string | null) {
   // Reset, to trigger the modal to reopen
   await resetData()
 
-  input.value = newInput
+  source.value = newSource
 
   if (newTitle) {
     title.value = newTitle
@@ -34,7 +34,7 @@ async function handleInput(newInput: string, newTitle?: string | null) {
 <template>
   <!-- Modal -->
   <ImportCollectionModal
-    :input="input"
+    :source="source"
     :title="title"
     @importFinished="resetData" />
 

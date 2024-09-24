@@ -99,15 +99,15 @@ function handleDragEnter(event: DragEvent) {
     leaveToClass="opacity-0">
     <div
       v-if="isDragging"
-      class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded border transition-opacity duration-200">
+      class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded-xl border transition-opacity duration-200">
       <div class="flex flex-col items-center justify-center h-full">
         <div>
           <ScalarIcon
             icon="Download"
-            size="md"
-            thickness="1.75" />
+            size="xl"
+            thickness="2" />
         </div>
-        <div class="text-center m-4 text-c-1">
+        <div class="text-center text-c-1 m-4">
           Drop your OpenAPI document here
         </div>
       </div>
