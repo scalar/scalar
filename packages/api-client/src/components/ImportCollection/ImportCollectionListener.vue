@@ -2,6 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
+import HandlePasteListener from './HandlePasteListener.vue'
 import ImportCollectionModal from './ImportCollectionModal.vue'
 
 // Keep the data
@@ -25,9 +26,6 @@ onMounted(() => {
     title.value = titleQueryParameter
   }
 
-  // Paste event
-  document.addEventListener('paste', handlePaste)
-
   // Drag events
   document.addEventListener('dragenter', handleDragEnter)
   document.addEventListener('dragleave', handleDragLeave)
@@ -37,40 +35,11 @@ onMounted(() => {
 
 // Unregister listeners
 onBeforeUnmount(() => {
-  document.removeEventListener('paste', handlePaste)
-
   document.removeEventListener('dragenter', handleDragEnter)
   document.removeEventListener('dragover', handleDragOver)
   document.removeEventListener('dragleave', handleDragLeave)
   document.removeEventListener('drop', handleDrop)
 })
-
-// Paste
-async function handlePaste(event: ClipboardEvent) {
-  // Ignore paste events in input, textarea, or contenteditable elements
-  const target = event.target as HTMLElement
-
-  if (
-    target &&
-    (target.tagName === 'INPUT' ||
-      target.tagName === 'TEXTAREA' ||
-      target.isContentEditable)
-  ) {
-    return
-  }
-
-  if (event.clipboardData) {
-    const pastedText = event.clipboardData.getData('text')
-    if (pastedText) {
-      // Reset, to trigger the modal to reopen
-      input.value = null
-      await nextTick()
-
-      title.value = null
-      input.value = pastedText
-    }
-  }
-}
 
 // Drop
 async function handleDrop(event: DragEvent) {
@@ -151,9 +120,21 @@ function resetData() {
   title.value = null
   input.value = null
 }
+
+/** Receive data from the paste event listener */
+async function handlePasteInput(value: string) {
+  // Reset, to trigger the modal to reopen
+  title.value = null
+  input.value = null
+
+  await nextTick()
+
+  input.value = value
+}
 </script>
 
 <template>
+  <HandlePasteListener @input="handlePasteInput" />
   <transition
     enterActiveClass="transition-opacity duration-200"
     enterFromClass="opacity-0"
