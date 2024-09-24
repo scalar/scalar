@@ -221,6 +221,7 @@ export default {
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);
+  max-height: 20px;
   padding: 8px 0;
 }
 /* Tooltip helper */
