@@ -47,6 +47,18 @@ onBeforeUnmount(() => {
 
 // Paste
 async function handlePaste(event: ClipboardEvent) {
+  // Ignore paste events in input, textarea, or contenteditable elements
+  const target = event.target as HTMLElement
+
+  if (
+    target &&
+    (target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.isContentEditable)
+  ) {
+    return
+  }
+
   if (event.clipboardData) {
     const pastedText = event.clipboardData.getData('text')
     if (pastedText) {
@@ -68,7 +80,8 @@ async function handleDrop(event: DragEvent) {
 
   if (event.dataTransfer) {
     // Text
-    const droppedText = event.dataTransfer.getData('text')
+    const droppedText = event.dataTransfer.getData('text').replace(/^blob:/, '')
+
     if (droppedText) {
       // Reset, to trigger the modal to reopen
       input.value = null
@@ -118,7 +131,7 @@ function handleDragEnter(event: DragEvent) {
     const items = event.dataTransfer.items
     for (let i = 0; i < items.length; i++) {
       const item = items[i]
-      console.log('item', item)
+
       if (
         item.kind === 'string' ||
         item.type.includes('json') ||
@@ -141,7 +154,11 @@ function resetData() {
 </script>
 
 <template>
-  <transition name="fade">
+  <transition
+    enterActiveClass="transition-opacity duration-200"
+    enterFromClass="opacity-0"
+    leaveActiveClass="transition-opacity duration-200"
+    leaveToClass="opacity-0">
     <div
       v-if="isDragging"
       class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded border transition-opacity duration-200">
@@ -165,14 +182,3 @@ function resetData() {
     @importFinished="resetData" />
   <slot />
 </template>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  @apply transition-opacity duration-200;
-}
-.fade-enter-from,
-.fade-leave-to {
-  @apply opacity-0;
-}
-</style>

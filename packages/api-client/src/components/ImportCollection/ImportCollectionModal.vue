@@ -71,24 +71,32 @@ async function prefetchUrl(value: string | null, proxy?: string) {
       state: 'idle',
       content: null,
       error: null,
+      version: null,
     })
   }
 
   Object.assign(prefetchResult, {
     state: 'loading',
+    content: null,
+    error: null,
+    version: null,
   })
 
   // TODO: Remove wait
   await new Promise((resolve) => setTimeout(resolve, 1000))
 
   try {
-    const result = await fetch(redirectToProxy(proxy, value))
+    const result = await fetch(redirectToProxy(proxy, value), {
+      cache: 'no-store',
+    })
 
     if (!result.ok) {
+      console.log(result)
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
-        error: `${result.status} ${result.statusText}`,
+        error: `Couldn’t fetch the URL, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+        version: null,
       })
     }
 
@@ -108,6 +116,7 @@ async function prefetchUrl(value: string | null, proxy?: string) {
       state: 'idle',
       content: null,
       error: error?.message,
+      version: null,
     })
   }
 }
@@ -115,6 +124,8 @@ async function prefetchUrl(value: string | null, proxy?: string) {
 function isUrl(input: string | null) {
   return input && (input.startsWith('http://') || input.startsWith('https://'))
 }
+
+// TODO: Doesn’t work: "blob:https://outline.apidocumentation.com/e9cf4232-e27d-4535-b297-8474610f3043"
 
 function isDocument(input: string | null) {
   return input && !isUrl(input)
@@ -153,7 +164,7 @@ function getOpenApiDocumentVersion(input: string | null) {
       return `Swagger ${result.swagger} (YAML)`
     }
 
-    console.log('YAML failed')
+    console.log('YAML failed', input)
     return false
   } catch {
     //
@@ -254,9 +265,8 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <div class="flex flex-col gap-4">
       <!-- Text -->
       <p>
-        You are about to import the following
-        {{ isUrl(input) ? 'url' : 'document' }} as a new collection to your
-        workspace:
+        You’re importing an OpenAPI
+        {{ isUrl(input) ? 'Document URL' : 'Document' }} to your workspace.
       </p>
       <div class="flex gap-2 flex-col w-full">
         <!-- URL preview -->
@@ -270,22 +280,58 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
           <div class="overflow-hidden border rounded">
             <ScalarCodeBlock :content="input" />
           </div>
-          <div>
+          <div class="text-sm">
             <template v-if="prefetchResult.state === 'loading'">
-              loading…
+              <div
+                class="w-full p-4 border text-center h-12 flex justify-center items-center bg-b-2">
+                <div>fetching…</div>
+              </div>
             </template>
             <template v-else>
               <template v-if="prefetchResult.version">
-                {{ prefetchResult.version }}
+                <div class="flex gap-2 flex-col w-full">
+                  <div class="text-sm text-c-3 font-medium pt-2">
+                    <div class="flex gap-2 items-center">
+                      <ScalarIcon
+                        class="text-green"
+                        icon="Checkmark"
+                        size="sm" />
+                      <div>
+                        {{ prefetchResult.version }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="h-32 overflow-hidden border rounded">
+                    <ScalarCodeBlock
+                      :content="prefetchResult.content ?? ''"
+                      :lang="
+                        isJsonString(prefetchResult.content) ? 'json' : 'yaml'
+                      " />
+                  </div>
+                </div>
               </template>
-              <div class="text-red">
+              <div>
                 <template v-if="prefetchResult.error">
-                  {{ prefetchResult.error }}
+                  <div class="flex gap-2 items-center">
+                    <ScalarIcon
+                      class="text-red"
+                      icon="Error"
+                      size="sm" />
+                    <div>
+                      {{ prefetchResult.error }}
+                    </div>
+                  </div>
                 </template>
                 <template v-else-if="!prefetchResult.version">
                   <div class="flex flex-col gap-2">
-                    <div>
-                      This doesn’t look like an OpenAPI/Swagger document:
+                    <div class="flex items-center gap-2">
+                      <ScalarIcon
+                        class="text-red"
+                        icon="Error"
+                        size="sm" />
+                      <div>
+                        This doesn’t look like an OpenAPI/Swagger document:
+                      </div>
                     </div>
                     <div class="border rounded h-32 overflow-hidden">
                       <ScalarCodeBlock
@@ -300,7 +346,15 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
         <!-- Document preview -->
         <template v-else-if="input && isDocument(input)">
           <div class="text-sm text-c-3 font-medium pt-2">
-            {{ getOpenApiDocumentVersion(input) }}
+            <div class="flex gap-2 items-center">
+              <ScalarIcon
+                class="text-green"
+                icon="Checkmark"
+                size="sm" />
+              <div>
+                {{ getOpenApiDocumentVersion(input) }}
+              </div>
+            </div>
           </div>
           <div class="h-32 overflow-hidden border rounded">
             <ScalarCodeBlock
@@ -312,7 +366,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
       <div class="flex gap-2 w-full mt-4">
         <!-- Import right-away -->
         <ScalarButton
-          class="px-6 max-h-8 w-full gap-2 hover:bg-b-2"
+          class="px-6 max-h-8 w-full gap-2"
           size="md"
           type="button"
           :variant="isDocument(input) ? 'solid' : 'outlined'"
@@ -325,7 +379,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
         </ScalarButton>
 
         <!-- Open in App (only URLs) -->
-        <template v-if="isUrl(input)">
+        <template v-if="scalarAppLink">
           <!-- Join the waitlist -->
           <template v-if="platform === 'Windows'">
             <ScalarButton
@@ -360,7 +414,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
 
       <!-- Download link -->
       <div
-        v-if="isUrl(input)"
+        v-if="scalarAppLink"
         class="text-sm mt-4">
         Don’t have the Scalar app?
         <a
