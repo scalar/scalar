@@ -101,7 +101,8 @@ function handleDragOver(event: DragEvent) {
   event.preventDefault()
 }
 
-function handleDragLeave() {
+function handleDragLeave(event: DragEvent) {
+  event.preventDefault()
   dragCounter--
 
   if (dragCounter === 0) {
@@ -112,7 +113,24 @@ function handleDragLeave() {
 function handleDragEnter(event: DragEvent) {
   event.preventDefault()
   dragCounter++
-  isDragging.value = true
+
+  if (event.dataTransfer) {
+    const items = event.dataTransfer.items
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i]
+      console.log('item', item)
+      if (
+        item.kind === 'string' ||
+        item.type.includes('json') ||
+        item.type.includes('yml') ||
+        item.type.includes('yaml')
+      ) {
+        isDragging.value = true
+        return
+      }
+    }
+  }
+  isDragging.value = false
 }
 
 // Reset the data when the modal was closed
