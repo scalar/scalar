@@ -37,12 +37,12 @@ public static class ScalarEndpointRouteBuilderExtensions
         {
             throw new ArgumentException($"`EndpointPathPrefix` must define `{DocumentName}`.");
         }
+        var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
             {
                 var title = options.Title.Replace(DocumentName, documentName);
                 var documentUrl = options.OpenApiRoutePattern.Replace(DocumentName, documentName);
-                var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), typeof(ScalarConfiguration), ScalaConfigurationSerializerContext.Default);
 
                 return Results.Content(
                     $"""
