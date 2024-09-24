@@ -11,7 +11,9 @@ import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { ref, toRef, watch } from 'vue'
 
+import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
+import { scrollToId } from '../../helpers'
 import { useSidebar } from '../../hooks'
 import { useKeyboardNavigation } from './useKeyboardNavigation'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
@@ -66,14 +68,31 @@ const tagRegex = /#(tag\/[^/]*)/
 
 // Ensure we open the section
 function onSearchResultClick(entry: FuseResult<FuseData>) {
+  // Determine the parent ID for sidebar navigation
   let parentId = 'models'
   const tagMatch = entry.item.href.match(tagRegex)
 
   if (tagMatch?.length && tagMatch.length > 1) {
     parentId = tagMatch[1]
   }
+  // Expand the corresponding sidebar item
   setCollapsedSidebarItem(parentId, true)
-  props.modalState.hide()
+
+  // Extract the target ID from the href
+  const targetId = entry.item.href.replace('#', '')
+
+  if (!document.getElementById(targetId)) {
+    const unsubscribe = lazyBus.on((ev) => {
+      if (ev.id === targetId) {
+        scrollToId(targetId)
+        unsubscribe()
+        props.modalState.hide()
+      }
+    })
+  } else {
+    scrollToId(targetId)
+    props.modalState.hide()
+  }
 }
 
 // given just a #hash-name, we grab the full URL to be explicit to
