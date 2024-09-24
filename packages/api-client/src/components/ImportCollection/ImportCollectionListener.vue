@@ -1,165 +1,48 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, ref } from 'vue'
 
-import HandlePasteListener from './HandlePasteListener.vue'
+import DropEventListener from './DropEventListener.vue'
 import ImportCollectionModal from './ImportCollectionModal.vue'
+import PasteEventListener from './PasteEventListener.vue'
+import UrlQueryParameterChecker from './UrlQueryParameterChecker.vue'
 
-// Keep the data
+/** Source to import from */
 const input = ref<string | null>(null)
+/** Title for the source (optional) */
 const title = ref<string | null>(null)
 
-const isDragging = ref<boolean>(false)
-let dragCounter = 0
-
-// Register listeners
-onMounted(() => {
-  // Query parameters
-  const queryParameters = new URLSearchParams(window.location.search)
-  const urlQueryParameter = queryParameters.get('url')
-  if (urlQueryParameter) {
-    input.value = urlQueryParameter
-  }
-
-  const titleQueryParameter = queryParameters.get('title')
-  if (titleQueryParameter) {
-    title.value = titleQueryParameter
-  }
-
-  // Drag events
-  document.addEventListener('dragenter', handleDragEnter)
-  document.addEventListener('dragleave', handleDragLeave)
-  document.addEventListener('dragover', handleDragOver)
-  document.addEventListener('drop', handleDrop)
-})
-
-// Unregister listeners
-onBeforeUnmount(() => {
-  document.removeEventListener('dragenter', handleDragEnter)
-  document.removeEventListener('dragover', handleDragOver)
-  document.removeEventListener('dragleave', handleDragLeave)
-  document.removeEventListener('drop', handleDrop)
-})
-
-// Drop
-async function handleDrop(event: DragEvent) {
-  event.preventDefault()
-  isDragging.value = false
-  dragCounter = 0
-
-  if (event.dataTransfer) {
-    // Text
-    const droppedText = event.dataTransfer.getData('text').replace(/^blob:/, '')
-
-    if (droppedText) {
-      // Reset, to trigger the modal to reopen
-      input.value = null
-      await nextTick()
-
-      title.value = null
-      input.value = droppedText
-    }
-    // Files
-    else if (event.dataTransfer.files.length > 0) {
-      const file = event.dataTransfer.files[0]
-      const reader = new FileReader()
-
-      reader.onload = async (e) => {
-        if (e.target && typeof e.target.result === 'string') {
-          // Reset, to trigger the modal to reopen
-          input.value = null
-          await nextTick()
-
-          title.value = null
-          input.value = e.target.result
-        }
-      }
-      reader.readAsText(file)
-    }
-  }
-}
-
-function handleDragOver(event: DragEvent) {
-  event.preventDefault()
-}
-
-function handleDragLeave(event: DragEvent) {
-  event.preventDefault()
-  dragCounter--
-
-  if (dragCounter === 0) {
-    isDragging.value = false
-  }
-}
-
-function handleDragEnter(event: DragEvent) {
-  event.preventDefault()
-  dragCounter++
-
-  if (event.dataTransfer) {
-    const items = event.dataTransfer.items
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i]
-
-      if (
-        item.kind === 'string' ||
-        item.type.includes('json') ||
-        item.type.includes('yml') ||
-        item.type.includes('yaml')
-      ) {
-        isDragging.value = true
-        return
-      }
-    }
-  }
-  isDragging.value = false
-}
-
-// Reset the data when the modal was closed
-function resetData() {
+/** Reset the data when the modal was closed */
+async function resetData() {
   title.value = null
   input.value = null
+  await nextTick()
 }
 
 /** Receive data from the paste event listener */
-async function handlePasteInput(value: string) {
+async function handleInput(newInput: string, newTitle?: string | null) {
   // Reset, to trigger the modal to reopen
-  title.value = null
-  input.value = null
+  await resetData()
 
-  await nextTick()
+  input.value = newInput
 
-  input.value = value
+  if (newTitle) {
+    title.value = newTitle
+  }
 }
 </script>
 
 <template>
-  <HandlePasteListener @input="handlePasteInput" />
-  <transition
-    enterActiveClass="transition-opacity duration-200"
-    enterFromClass="opacity-0"
-    leaveActiveClass="transition-opacity duration-200"
-    leaveToClass="opacity-0">
-    <div
-      v-if="isDragging"
-      class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded border transition-opacity duration-200">
-      <div class="flex flex-col items-center justify-center h-full">
-        <div>
-          <ScalarIcon
-            icon="Download"
-            size="md"
-            thickness="1.75" />
-        </div>
-        <div class="text-center m-4 text-c-1">
-          Drop your OpenAPI document here
-        </div>
-      </div>
-    </div>
-  </transition>
-  <!-- Add this line -->
+  <!-- Modal -->
   <ImportCollectionModal
     :input="input"
     :title="title"
     @importFinished="resetData" />
+
+  <!-- Event listeners-->
+  <PasteEventListener @input="handleInput" />
+  <DropEventListener @input="handleInput" />
+  <UrlQueryParameterChecker @input="handleInput" />
+
+  <!-- Wrapped content -->
   <slot />
 </template>

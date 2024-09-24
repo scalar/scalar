@@ -263,7 +263,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
       <!-- Text -->
       <p>
         You’re importing an OpenAPI
-        {{ isUrl(input) ? 'Document URL' : 'Document' }} to your workspace.
+        {{ isUrl(input) ? 'document URL' : 'document' }} to your workspace.
       </p>
       <div class="flex gap-2 flex-col w-full">
         <!-- URL preview -->
