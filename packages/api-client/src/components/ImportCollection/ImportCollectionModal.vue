@@ -91,7 +91,6 @@ async function prefetchUrl(value: string | null, proxy?: string) {
     })
 
     if (!result.ok) {
-      console.log(result)
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
@@ -147,7 +146,6 @@ function getOpenApiDocumentVersion(input: string | null) {
       return `Swagger ${result.swagger} (JSON)`
     }
 
-    console.log('JSON failed')
     return false
   } catch {
     //
@@ -164,13 +162,11 @@ function getOpenApiDocumentVersion(input: string | null) {
       return `Swagger ${result.swagger} (YAML)`
     }
 
-    console.log('YAML failed', input)
     return false
   } catch {
     //
   }
 
-  console.log('SOMETHING FAILED')
   return false
 }
 
@@ -232,7 +228,8 @@ async function importCollection() {
       emit('importFinished')
     }
   } catch (error) {
-    console.error('ERROR', error)
+    console.error('[importCollection]', error)
+
     const errorMessage = (error as Error)?.message || 'Unknown error'
     toast(`Import failed: ${errorMessage}`, 'error')
   }
