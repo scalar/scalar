@@ -121,6 +121,8 @@ const item = computed<SidebarItem>(() => {
     method: requests[requestExample.requestUid]?.method,
     entity: requestExample,
     resourceTitle: 'Example',
+    warning:
+      'This cannot be undone. You’re about to delete the example from the request.',
     children: [],
     rename: (name: string) =>
       requestExampleMutators.edit(requestExample.uid, 'name', name),
