@@ -68,14 +68,14 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
 <template>
   <ScalarButton
     v-if="source"
-    class="px-6 max-h-8 w-full gap-2"
+    class="px-6 max-h-8 gap-2"
     size="md"
     type="button"
     :variant="isDocument(source) ? 'solid' : 'outlined'"
     @click="importCollection">
     <ScalarIcon
-      icon="CodeFolder"
+      icon="Import"
       size="md" />
-    Import Collection
+    Import in the browser
   </ScalarButton>
 </template>

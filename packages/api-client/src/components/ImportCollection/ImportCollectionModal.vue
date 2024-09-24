@@ -72,8 +72,14 @@ watch(
           {{ title }}
         </div>
 
+        <!-- Document preview -->
+        <template v-if="source && isDocument(source)">
+          <OpenApiDocumentPreview :content="source" />
+        </template>
+
         <!-- URL preview -->
-        <template v-if="source && isUrl(source)">
+        <template v-else-if="source && isUrl(source)">
+          <!-- URL -->
           <div class="mb-4">
             <div class="flex flex-col gap-2">
               <div class="text-sm">URL</div>
@@ -82,10 +88,12 @@ watch(
                 :content="source" />
             </div>
           </div>
+          <!-- Loading -->
           <template v-if="prefetchResult.state === 'loading'">
             <LoadingScreen />
           </template>
           <template v-else>
+            <!-- Prefetch error -->
             <template v-if="prefetchResult.error">
               <div class="flex gap-2 items-center text-sm">
                 <ScalarIcon
@@ -98,22 +106,20 @@ watch(
               </div>
             </template>
             <template v-else>
+              <!-- Content preview -->
               <OpenApiDocumentPreview :content="prefetchResult.content" />
             </template>
           </template>
         </template>
-        <!-- Document preview -->
-        <template v-else-if="source && isDocument(source)">
-          <OpenApiDocumentPreview :content="source" />
-        </template>
       </div>
 
       <!-- Actions -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 mt-4">
+        <OpenAppButton :source="source" />
         <ImportNowButton
+          class="w-auto"
           :source="source"
           @importFinished="() => $emit('importFinished')" />
-        <OpenAppButton :source="source" />
       </div>
 
       <!-- Download App -->
