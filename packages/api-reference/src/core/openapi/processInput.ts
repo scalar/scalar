@@ -1,8 +1,9 @@
-import { createEmptySpecification } from '@/helpers'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+
+import { createEmptySpecification } from '../../helpers'
 
 type ProxyOption = {
   proxy?: string
@@ -21,8 +22,6 @@ export function processInput(
       return resolve(createEmptySpecification() as OpenAPIV3_1.Document)
     }
 
-    const start = performance.now()
-
     return load(input, {
       plugins: [
         fetchUrls({
@@ -32,9 +31,6 @@ export function processInput(
     })
       .then(({ filesystem }) => dereference(filesystem))
       .then(({ schema, errors }) => {
-        const end = performance.now()
-        console.log(`dereference: ${Math.round(end - start)} ms`)
-
         if (errors?.length) {
           console.warn(
             'Please open an issue on https://github.com/scalar/scalar\n',

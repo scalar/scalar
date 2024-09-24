@@ -1,6 +1,9 @@
-import { processInput } from '@/core/openapi/processInput'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { ref, watch } from 'vue'
+
+import { processInput } from './processInput'
+import { measure } from './utils/measure'
+import { pending } from './utils/pending'
 
 // load
 // upgrade
@@ -29,15 +32,23 @@ export function useOpenApiDocument(input: Record<string, any>) {
   const errors: Error[] = []
 
   watch(
-    input,
+    () => input,
     async () => {
-      state.value = State.Processing
-      const result = await processInput(input)
-      state.value = State.Done
+      await pending<State>(
+        {
+          state,
+          before: State.Processing,
+          after: State.Done,
+          debug: 'process-input',
+        },
+        async () => {
+          const result = await processInput(input)
 
-      if (result) {
-        schema.value = result
-      }
+          if (result) {
+            schema.value = result
+          }
+        },
+      )
     },
     {
       immediate: true,
