@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.0.2
+
+### Patch Changes
+
+- ed0bd1e: chore: upgrade typescript to 5.6.2
+
 ## 0.0.1
 
 ### Patch Changes

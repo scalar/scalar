@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.9
+
+### Patch Changes
+
+- 2b8ce6c: feat: adds safe-parsing to the end of the migration
+
 ## 1.1.8
 
 ### Patch Changes

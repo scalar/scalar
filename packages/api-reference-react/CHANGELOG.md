@@ -1,5 +1,12 @@
 # @scalar/api-reference-react
 
+## 0.3.94
+
+### Patch Changes
+
+- Updated dependencies [fdecdb4]
+  - @scalar/api-reference@1.25.18
+
 ## 0.3.93
 
 ### Patch Changes

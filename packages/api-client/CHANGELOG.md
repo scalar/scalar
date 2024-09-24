@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.1.6
+
+### Patch Changes
+
+- ca00556: fix: sidebar example and delete modal
+- 2b8ce6c: feat: adds safe-parsing to the end of the migration
+- 3c098f9: fix: teleports http methods dropdown
+- 7beeef3: fix: modal dark mode bg
+- d22523e: fix: add empty row on route change
+- 40850bb: fix: enables sidebar item toggle on readonly
+- c92cfa0: fix: code input content height
+- cdb8f55: fix: address bar style and error typo
+- Updated dependencies [2b8ce6c]
+- Updated dependencies [9aa4562]
+- Updated dependencies [7beeef3]
+  - @scalar/object-utils@1.1.9
+  - @scalar/oas-utils@0.2.47
+  - @scalar/components@0.12.47
+  - @scalar/themes@0.9.31
+  - @scalar/use-codemirror@0.11.13
+  - @scalar/types@0.0.10
+
 ## 2.1.5
 
 ### Patch Changes

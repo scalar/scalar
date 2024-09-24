@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.47
+
+### Patch Changes
+
+- 2b8ce6c: feat: adds safe-parsing to the end of the migration
+- 9aa4562: fix: lowerCase http auth schemes before validation
+- Updated dependencies [2b8ce6c]
+- Updated dependencies [7beeef3]
+  - @scalar/object-utils@1.1.9
+  - @scalar/themes@0.9.31
+  - @scalar/types@0.0.10
+
 ## 0.2.46
 
 ### Patch Changes

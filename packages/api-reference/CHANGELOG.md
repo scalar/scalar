@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.25.18
+
+### Patch Changes
+
+- fdecdb4: fix: search results scroll to wrong position
+- Updated dependencies [ca00556]
+- Updated dependencies [2b8ce6c]
+- Updated dependencies [3c098f9]
+- Updated dependencies [9aa4562]
+- Updated dependencies [7beeef3]
+- Updated dependencies [d22523e]
+- Updated dependencies [40850bb]
+- Updated dependencies [c92cfa0]
+- Updated dependencies [cdb8f55]
+  - @scalar/api-client@2.1.6
+  - @scalar/oas-utils@0.2.47
+  - @scalar/components@0.12.47
+  - @scalar/themes@0.9.31
+  - @scalar/code-highlight@0.0.11
+  - @scalar/types@0.0.10
+
 ## 1.25.17
 
 ### Patch Changes
