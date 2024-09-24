@@ -2,6 +2,7 @@
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
+  ScalarCodeBlock,
   ScalarIcon,
   ScalarModal,
   useModal,
@@ -10,6 +11,8 @@ import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import WorkspaceDropdown from '../../views/Request/components/WorkspaceDropdown.vue'
 
 const props = defineProps<{
   input: string | null
@@ -45,6 +48,14 @@ const url = computed(() => {
   return props.input
 })
 
+const isUrl = computed(
+  () =>
+    props.input &&
+    (props.input?.startsWith('http://') || props.input?.startsWith('https://')),
+)
+
+const isDocument = computed(() => props.input && !isUrl.value)
+
 /**
  * Operating system of the user
  */
@@ -58,7 +69,7 @@ const platform = computed((): 'Windows' | 'macOS' | 'Linux' | '' => {
   return ''
 })
 
-/** App link (based on url) */
+/** App link (based on the given url) */
 const scalarAppLink = computed(() => {
   if (!url.value) {
     return ''
@@ -82,10 +93,7 @@ function openScalarApp() {
 async function importCollection() {
   try {
     if (props.input) {
-      if (
-        props.input.startsWith('http://') ||
-        props.input.startsWith('https://')
-      ) {
+      if (isUrl.value) {
         const collection = await importSpecFromUrl(
           props.input,
           undefined,
@@ -138,59 +146,81 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     title="Import Collection">
     <div class="p-3 flex flex-col gap-2 items-center">
       <!-- Active Workspace -->
-      Workspace: {{ activeWorkspace.name }}
+      <p class="w-2/3 m-4">
+        You are about to import the following
+        {{ isUrl ? 'url' : 'document' }} as a new collection to your workspace:
+      </p>
+      <div class="w-2/3 border">
+        <WorkspaceDropdown />
+      </div>
+      <!-- Preview -->
+      <template v-if="input && isUrl">
+        <div class="w-2/3 overflow-hidden border rounded mb-10">
+          <ScalarCodeBlock :content="input" />
+        </div>
+      </template>
+      <template v-else-if="input && isDocument">
+        <div class="w-2/3 h-32 overflow-hidden border rounded mb-10">
+          <ScalarCodeBlock
+            :content="input"
+            lang="json" />
+        </div>
+      </template>
       <!-- The title -->
       <div
         v-if="title"
-        class="text-sm font-bold p-2">
+        class="font-bold p-2">
         {{ title }}
       </div>
       <div class="flex flex-col gap-2 w-1/2">
-        <!-- Join the waitlist -->
-        <template v-if="platform === 'Windows'">
-          <ScalarButton
-            class="px-6 max-h-8 w-full gap-2 text-xs"
-            size="md"
-            type="button"
-            variant="solid"
-            @click="joinTheWaitlist">
-            <ScalarIcon
-              icon="Email"
-              size="md" />
-            Join the waitlist for Windows
-          </ScalarButton>
-        </template>
-        <!-- Open the app -->
-        <template v-else>
-          <ScalarButton
-            class="px-6 max-h-8 w-full gap-2 text-xs"
-            size="md"
-            type="button"
-            variant="solid"
-            @click="openScalarApp">
-            <ScalarIcon
-              icon="Download"
-              size="md" />
-            Open in Scalar
-            <template v-if="platform"> for {{ platform }} </template>
-          </ScalarButton>
+        <!-- Open in App (only URLs) -->
+        <template v-if="isUrl">
+          <!-- Join the waitlist -->
+          <template v-if="platform === 'Windows'">
+            <ScalarButton
+              class="px-6 max-h-8 w-full gap-2"
+              size="md"
+              type="button"
+              variant="solid"
+              @click="joinTheWaitlist">
+              <ScalarIcon
+                icon="Email"
+                size="md" />
+              Join the waitlist for Windows
+            </ScalarButton>
+          </template>
+          <!-- Open the app -->
+          <template v-else>
+            <ScalarButton
+              class="px-6 max-h-8 w-full gap-2"
+              size="md"
+              type="button"
+              variant="solid"
+              @click="openScalarApp">
+              <ScalarIcon
+                icon="Download"
+                size="md" />
+              Open in Scalar
+              <template v-if="platform"> for {{ platform }} </template>
+            </ScalarButton>
+          </template>
         </template>
 
         <!-- Import right-away -->
         <ScalarButton
-          class="px-6 max-h-8 w-full gap-2 text-xs hover:bg-b-2"
+          class="px-6 max-h-8 w-full gap-2 hover:bg-b-2"
           size="md"
           type="button"
-          variant="outlined"
+          :variant="isDocument ? 'solid' : 'outlined'"
           @click="importCollection">
           <ScalarIcon
-            icon="Workspace"
+            icon="CodeFolder"
             size="md" />
-          Open in the Browser
+          Import Collection
         </ScalarButton>
       </div>
       <!-- Download link -->
-      <div class="text-sm py-4 text-center">
+      <div class="py-4 text-center text-sm">
         Don’t have the app?
         <a
           href="https://scalar.com/download"

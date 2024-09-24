@@ -110,7 +110,9 @@ onBeforeUnmount(() => {
     <template
       v-if="!isReadonly"
       #header>
-      <WorkspaceDropdown />
+      <div class="border-b-1/2">
+        <WorkspaceDropdown />
+      </div>
     </template>
     <template #content>
       <div class="search-button-fade sticky px-3 py-2.5 top-0 z-50">
