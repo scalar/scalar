@@ -7,13 +7,13 @@ import { ScalarConfigType } from './configTypes'
 export function check(file: string) {
   try {
     const scalarConfigFile = fs.readFileSync(file, 'utf8')
-    const scalarConfiguration = JSON.parse(scalarConfigFile)
+    const scalarConfigJson = JSON.parse(scalarConfigFile)
 
-    const result = Value.Check(ScalarConfigType, scalarConfiguration)
+    const result = Value.Check(ScalarConfigType, scalarConfigJson)
 
     return {
       valid: result,
-      errors: [...Value.Errors(ScalarConfigType, scalarConfiguration)],
+      errors: [...Value.Errors(ScalarConfigType, scalarConfigJson)],
     }
   } catch (error: any) {
     return {

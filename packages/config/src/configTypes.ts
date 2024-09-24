@@ -1,53 +1,32 @@
 import { type Static, Type } from '@sinclair/typebox'
 
-export const ConfigSidebarLinkType = Type.Recursive(
-  (This) =>
-    Type.Object({
-      name: Type.String(),
-      type: Type.Literal('link'),
-      url: Type.String(),
-      icon: Type.Optional(Type.String()),
-      children: Type.Optional(
-        Type.Array(Type.Union([This])), // TODO: fix this
-      ),
-    }),
-  { $id: 'ConfigSidebarLinkType' },
-)
+export const ConfigSidebarLinkType = Type.Object({
+  name: Type.String(),
+  type: Type.Literal('link'),
+  url: Type.String(),
+  icon: Type.Optional(Type.String()),
+})
 
 export type ConfigSidebarLink = Static<typeof ConfigSidebarLinkType>
 
-export const ConfigSidebarPageType = Type.Recursive(
-  (This) =>
-    Type.Object({
-      path: Type.String(),
-      name: Type.Optional(Type.String()),
-      description: Type.Optional(Type.String()),
-      backgroundImage: Type.Optional(Type.String()),
-      icon: Type.Optional(Type.String()),
-      type: Type.Literal('page'),
-      children: Type.Optional(
-        Type.Array(Type.Union([This, ConfigSidebarLinkType])), // TODO: fix this so a folder can be a child of a page
-      ),
-    }),
-  { $id: 'ConfigSidebarPageType' },
-)
+export const ConfigSidebarPageType = Type.Object({
+  path: Type.String(),
+  name: Type.Optional(Type.String()),
+  description: Type.Optional(Type.String()),
+  backgroundImage: Type.Optional(Type.String()),
+  icon: Type.Optional(Type.String()),
+  type: Type.Literal('page'),
+  // children: Type.Optional(Type.Array(Type.String())),
+})
 
 export type ConfigSidebarPage = Static<typeof ConfigSidebarPageType>
 
-export const ConfigSidebarFolderType = Type.Recursive(
-  (This) =>
-    Type.Object({
-      name: Type.String(),
-      type: Type.Literal('folder'),
-      children: Type.Optional(
-        Type.Array(
-          Type.Union([This, ConfigSidebarPageType, ConfigSidebarLinkType]),
-        ),
-      ),
-      icon: Type.Optional(Type.String()),
-    }),
-  { $id: 'ConfigSidebarFolderType' },
-)
+export const ConfigSidebarFolderType = Type.Object({
+  name: Type.String(),
+  type: Type.Literal('folder'),
+  // children: Type.Optional(Type.Array(Type.String())),
+  icon: Type.Optional(Type.String()),
+})
 
 export type ConfigSidebarFolder = Static<typeof ConfigSidebarFolderType>
 
