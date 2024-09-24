@@ -1,8 +1,8 @@
+import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { ref, watch } from 'vue'
+import { type Ref, isRef, ref, watch } from 'vue'
 
 import { processInput } from './processInput'
-import { measure } from './utils/measure'
 import { pending } from './utils/pending'
 
 // load
@@ -12,7 +12,6 @@ import { pending } from './utils/pending'
 enum State {
   Idle = 'idle',
   Processing = 'processing',
-  Done = 'done',
 }
 
 type Error = {
@@ -24,7 +23,9 @@ type Error = {
 /**
  * WIP
  */
-export function useOpenApiDocument(input: Record<string, any>) {
+export function useOpenApiDocument(
+  input: Record<string, any> | Ref<Record<string, any>>,
+) {
   const state = ref<State>(State.Idle)
 
   const schema = ref<OpenAPI.Document>({})
@@ -32,17 +33,21 @@ export function useOpenApiDocument(input: Record<string, any>) {
   const errors: Error[] = []
 
   watch(
-    () => input,
+    isRef(input) ? input : () => input,
     async () => {
       await pending<State>(
         {
           state,
           before: State.Processing,
-          after: State.Done,
+          after: State.Idle,
           debug: 'process-input',
         },
         async () => {
-          const result = await processInput(input)
+          const content = (isRef(input) ? input.value : input) as string
+
+          const obj = normalize(content)
+
+          const result = await processInput(obj)
 
           if (result) {
             schema.value = result

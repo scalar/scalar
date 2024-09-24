@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { type Ref, watch } from 'vue'
+import { type Ref, nextTick, ref, watch } from 'vue'
 
 import { useOpenApiDocument } from './useOpenApiDocument'
 
@@ -11,7 +11,7 @@ describe('useOpenApiDocument', () => {
 
     expect(state.value).toBe('processing')
 
-    await waitFor(state, 'done')
+    await waitFor(state, 'idle')
 
     expect(schema.value).toStrictEqual({
       openapi: '3.1.0',
@@ -23,20 +23,46 @@ describe('useOpenApiDocument', () => {
       openapi: '3.1.0',
     })
 
-    await waitFor(state, 'done')
+    await waitFor(state, 'idle')
 
-    expect(state.value).toBe('done')
+    expect(state.value).toBe('idle')
   })
 
-  it('has schema', async () => {
+  it('has a schema', async () => {
     const { state, schema } = useOpenApiDocument({
       openapi: '3.1.0',
     })
 
-    await waitFor(state, 'done')
+    await waitFor(state, 'idle')
 
     expect(schema.value).toStrictEqual({
       openapi: '3.1.0',
+    })
+  })
+
+  it('updates the schema', async () => {
+    const input = ref<string>(
+      JSON.stringify({
+        openapi: '3.1.0',
+      }),
+    )
+
+    const { state, schema } = useOpenApiDocument(input)
+
+    await waitFor(state, 'idle')
+
+    expect(schema.value).toStrictEqual({
+      openapi: '3.1.0',
+    })
+
+    input.value = JSON.stringify({
+      swagger: '2.0',
+    })
+
+    await waitFor(state, 'idle')
+
+    expect(schema.value).toStrictEqual({
+      swagger: '2.0',
     })
   })
 })
