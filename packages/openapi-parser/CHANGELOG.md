@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.4
+
+### Patch Changes
+
+- 96c921c: feat: upgrade Swagger 2.0 formData parameters
+
 ## 0.8.3
 
 ### Patch Changes
