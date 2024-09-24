@@ -17,7 +17,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const props = defineProps<{
   /** The request uid to pre-select */
-  metaData?: string
+  metaData?: { itemUid: string }
 }>()
 
 const emits = defineEmits<{
@@ -37,7 +37,7 @@ const { toast } = useToasts()
 const exampleName = ref('')
 const selectedRequest = ref(
   // Ensure we pre-select the correct request
-  requests[props.metaData ?? ''] ?? activeRequest.value,
+  requests[props.metaData?.itemUid ?? ''] ?? activeRequest.value,
 )
 
 /** Select request in dropdown */
