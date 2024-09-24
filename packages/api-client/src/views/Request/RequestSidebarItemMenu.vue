@@ -62,6 +62,8 @@ const handleItemDelete = () => {
     props.menuItem.item?.entity.uid
   )
     replace(`/workspace/${activeWorkspace.value}/request/default`)
+
+  deleteModal.hide()
 }
 
 // Manually focus the popup - not pretty but it works
