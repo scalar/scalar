@@ -11,6 +11,7 @@ import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { parse } from 'yaml'
 
 import WorkspaceDropdown from '../../views/Request/components/WorkspaceDropdown.vue'
 
@@ -35,7 +36,7 @@ const { toast } = useToasts()
 watch(
   () => props.input,
   (v) => {
-    if (v) {
+    if (v && (isUrl.value || getOpenApiDocumentVersion(v))) {
       modalState.show()
     } else {
       modalState.hide()
@@ -55,6 +56,54 @@ const isUrl = computed(
 )
 
 const isDocument = computed(() => props.input && !isUrl.value)
+
+function getOpenApiDocumentVersion(input: string | null) {
+  if (!isDocument.value) {
+    return false
+  }
+
+  try {
+    const result = JSON.parse(input ?? '')
+
+    if (typeof result?.openapi === 'string') {
+      return `OpenAPI ${result.openapi} (JSON)`
+    }
+
+    if (typeof result?.swagger === 'string') {
+      return `Swagger ${result.swagger} (JSON)`
+    }
+
+    return false
+  } catch {
+    //
+  }
+
+  try {
+    const result = parse(input ?? '')
+
+    if (typeof result?.openapi === 'string') {
+      return `OpenAPI ${result.openapi} (YAML)`
+    }
+
+    if (typeof result?.swagger === 'string') {
+      return `Swagger ${result.swagger} (YAML)`
+    }
+
+    return false
+  } catch {
+    //
+  }
+
+  return false
+}
+
+const isValidDocument = computed(() => {
+  if (!isDocument.value) {
+    return false
+  }
+
+  return getOpenApiDocumentVersion(props.input)
+})
 
 /**
  * Operating system of the user
@@ -141,38 +190,59 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
 
 <template>
   <ScalarModal
-    size="lg"
+    size="md"
     :state="modalState"
     title="Import Collection">
-    <div class="p-3 flex flex-col gap-2 items-center">
-      <!-- Active Workspace -->
-      <p class="w-2/3 m-4">
+    <div class="flex flex-col gap-4">
+      <!-- Text -->
+      <p>
         You are about to import the following
         {{ isUrl ? 'url' : 'document' }} as a new collection to your workspace:
       </p>
-      <div class="w-2/3 border">
-        <WorkspaceDropdown />
-      </div>
-      <!-- Preview -->
-      <template v-if="input && isUrl">
-        <div class="w-2/3 overflow-hidden border rounded mb-10">
-          <ScalarCodeBlock :content="input" />
+      <div class="flex gap-2 flex-col w-full">
+        <!-- Active Workspace -->
+        <div class="text-sm font-medium text-c-3 pt-2">Workspace</div>
+        <div class="border flex flex-col gap-2">
+          <WorkspaceDropdown />
         </div>
-      </template>
-      <template v-else-if="input && isDocument">
-        <div class="w-2/3 h-32 overflow-hidden border rounded mb-10">
-          <ScalarCodeBlock
-            :content="input"
-            lang="json" />
-        </div>
-      </template>
-      <!-- The title -->
-      <div
-        v-if="title"
-        class="font-bold p-2">
-        {{ title }}
+        <!-- Preview -->
+        <template v-if="input && isUrl">
+          <!-- The title -->
+          <div
+            v-if="title"
+            class="font-bold p-2">
+            {{ title }}
+          </div>
+          <div class="overflow-hidden border rounded">
+            <ScalarCodeBlock :content="input" />
+          </div>
+        </template>
+        <template v-else-if="input && isDocument">
+          <div class="text-sm text-c-3 font-medium pt-2">
+            {{ getOpenApiDocumentVersion(input) }}
+          </div>
+          <div class="h-32 overflow-hidden border rounded">
+            <ScalarCodeBlock
+              :content="input"
+              lang="json" />
+          </div>
+        </template>
       </div>
-      <div class="flex flex-col gap-2 w-1/2">
+      <div class="flex gap-2 w-full mt-4">
+        <!-- Import right-away -->
+        <ScalarButton
+          class="px-6 max-h-8 w-full gap-2 hover:bg-b-2"
+          size="md"
+          type="button"
+          :variant="isDocument ? 'solid' : 'outlined'"
+          @click="importCollection">
+          <ScalarIcon
+            icon="CodeFolder"
+            size="md" />
+          <template v-if="isDocument">Import Collection</template>
+          <template v-else>Open in the Browser</template>
+        </ScalarButton>
+
         <!-- Open in App (only URLs) -->
         <template v-if="isUrl">
           <!-- Join the waitlist -->
@@ -205,23 +275,13 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
             </ScalarButton>
           </template>
         </template>
-
-        <!-- Import right-away -->
-        <ScalarButton
-          class="px-6 max-h-8 w-full gap-2 hover:bg-b-2"
-          size="md"
-          type="button"
-          :variant="isDocument ? 'solid' : 'outlined'"
-          @click="importCollection">
-          <ScalarIcon
-            icon="CodeFolder"
-            size="md" />
-          Import Collection
-        </ScalarButton>
       </div>
+
       <!-- Download link -->
-      <div class="py-4 text-center text-sm">
-        Don’t have the app?
+      <div
+        v-if="isUrl"
+        class="text-sm mt-4">
+        Don’t have the Scalar app?
         <a
           href="https://scalar.com/download"
           target="_blank">
