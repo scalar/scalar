@@ -137,6 +137,7 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
                   schema: {
                     type: 'object',
                     properties: {},
+                    required: [], // Initialize required array
                   },
                 }
 
@@ -146,6 +147,13 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
                   ].schema.properties[param.name] = {
                     type: param.type,
                     description: param.description,
+                  }
+
+                  // Add to required array if param is required
+                  if (param.required) {
+                    operationItem.requestBody.content[
+                      'application/x-www-form-urlencoded'
+                    ].schema.required.push(param.name)
                   }
                 }
 

@@ -358,7 +358,7 @@ describe('upgradeFromTwoToThree', () => {
                 name: 'additionalMetadata',
                 in: 'formData',
                 description: 'Additional data to pass to server',
-                required: false,
+                required: true,
                 type: 'string',
               },
             ],
@@ -376,6 +376,7 @@ describe('upgradeFromTwoToThree', () => {
             content: {
               'application/x-www-form-urlencoded': {
                 schema: {
+                  required: ['additionalMetadata'],
                   properties: {
                     additionalMetadata: {
                       description: 'Additional data to pass to server',
