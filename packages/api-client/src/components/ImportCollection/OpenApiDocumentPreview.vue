@@ -13,26 +13,29 @@ defineProps<{
     class="flex gap-2 flex-col w-full">
     <div class="flex gap-2 items-center">
       <template v-if="getOpenApiDocumentVersion(content)">
+        <div class="text-sm">
+          {{ getOpenApiDocumentVersion(content) }}
+        </div>
         <ScalarIcon
           class="text-green"
           icon="Checkmark"
           size="sm" />
-        <div class="text-sm">
-          {{ getOpenApiDocumentVersion(content) }}
-        </div>
       </template>
       <template v-else>
         <ScalarIcon
           class="text-red"
           icon="Error"
           size="sm" />
-        <div>Oh, this doesn’t seem to be an OpenAPI/Swagger document:</div>
+        <div class="text-sm">
+          Oh, this doesn’t seem to be an OpenAPI/Swagger document:
+        </div>
       </template>
     </div>
     <div class="h-32 overflow-hidden border rounded">
       <ScalarCodeBlock
         class="bg-b-2"
         :content="content ?? ''"
+        :copy="false"
         :lang="isJsonString(content) ? 'json' : 'yaml'" />
     </div>
   </div>

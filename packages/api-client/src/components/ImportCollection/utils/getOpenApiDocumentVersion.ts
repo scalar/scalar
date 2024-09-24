@@ -13,11 +13,11 @@ export function getOpenApiDocumentVersion(input: string | null) {
     const result = JSON.parse(input ?? '')
 
     if (typeof result?.openapi === 'string') {
-      return `OpenAPI ${result.openapi} (JSON)`
+      return `OpenAPI ${result.openapi} JSON`
     }
 
     if (typeof result?.swagger === 'string') {
-      return `Swagger ${result.swagger} (JSON)`
+      return `Swagger ${result.swagger} JSON`
     }
 
     return false
@@ -29,11 +29,11 @@ export function getOpenApiDocumentVersion(input: string | null) {
     const result = parse(input ?? '')
 
     if (typeof result?.openapi === 'string') {
-      return `OpenAPI ${result.openapi} (YAML)`
+      return `OpenAPI ${result.openapi} YAML`
     }
 
     if (typeof result?.swagger === 'string') {
-      return `Swagger ${result.swagger} (YAML)`
+      return `Swagger ${result.swagger} YAML`
     }
 
     return false

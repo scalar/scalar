@@ -15,10 +15,12 @@ const props = withDefaults(
     lang?: string
     lineNumbers?: boolean
     hideCredentials?: string | string[]
+    copy?: boolean
   }>(),
   {
     lang: 'plaintext',
     lineNumbers: false,
+    copy: true,
   },
 )
 
@@ -46,7 +48,9 @@ const isContentValid = computed(() => {
 </script>
 <template>
   <div class="scalar-code-block custom-scroll">
-    <div class="scalar-code-copy">
+    <div
+      v-if="copy"
+      class="scalar-code-copy">
       <button
         v-if="isContentValid"
         class="copy-button"

@@ -55,23 +55,10 @@ watch(
   <ScalarModal
     size="md"
     :state="modalState"
-    title="Import Collection">
+    :title="title ? `Import ${title} Collection` : 'Import Collection'">
     <div class="flex flex-col gap-2">
-      <!-- Text -->
-      <p class="text-sm">
-        You’re importing an OpenAPI
-        {{ isUrl(source) ? 'document URL' : 'document' }} to your workspace.
-      </p>
-
       <!-- Preview -->
-      <div class="flex gap-2 flex-col py-4">
-        <!-- Title -->
-        <div
-          v-if="title"
-          class="font-bold p-2">
-          {{ title }}
-        </div>
-
+      <div class="flex gap-2 flex-col pb-4">
         <!-- Document preview -->
         <template v-if="source && isDocument(source)">
           <OpenApiDocumentPreview :content="source" />
@@ -84,8 +71,9 @@ watch(
             <div class="flex flex-col gap-2">
               <div class="text-sm">URL</div>
               <ScalarCodeBlock
-                class="border rounded overflow-hidden"
-                :content="source" />
+                class="border bg-b-2 rounded overflow-hidden"
+                :content="source"
+                :copy="false" />
             </div>
           </div>
           <!-- Loading -->
