@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.31
+
+### Patch Changes
+
+- 7beeef3: fix: modal dark mode bg
+
 ## 0.9.30
 
 ### Patch Changes

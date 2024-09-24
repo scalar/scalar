@@ -1,5 +1,15 @@
 # @scalar/nextjs-openapi
 
+## 0.0.7
+
+### Patch Changes
+
+- ed0bd1e: chore: upgrade typescript to 5.6.2
+- Updated dependencies [ed0bd1e]
+  - @scalar/ts-to-openapi@0.0.2
+  - @scalar/types@0.0.10
+  - @scalar/nextjs-api-reference@0.4.89
+
 ## 0.0.6
 
 ### Patch Changes
