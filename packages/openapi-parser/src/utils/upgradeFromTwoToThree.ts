@@ -115,6 +115,54 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
               )
 
               delete operationItem.consumes
+
+              // formData parameters
+              const formDataParameters = operationItem.parameters.filter(
+                (parameter: OpenAPIV2.ParameterObject) =>
+                  parameter.in === 'formData',
+              )
+
+              if (formDataParameters.length > 0) {
+                if (typeof operationItem.requestBody !== 'object') {
+                  operationItem.requestBody = {}
+                }
+
+                if (typeof operationItem.requestBody.content !== 'object') {
+                  operationItem.requestBody.content = {}
+                }
+
+                operationItem.requestBody.content[
+                  'application/x-www-form-urlencoded'
+                ] = {
+                  schema: {
+                    type: 'object',
+                    properties: {},
+                    required: [], // Initialize required array
+                  },
+                }
+
+                for (const param of formDataParameters) {
+                  operationItem.requestBody.content[
+                    'application/x-www-form-urlencoded'
+                  ].schema.properties[param.name] = {
+                    type: param.type,
+                    description: param.description,
+                  }
+
+                  // Add to required array if param is required
+                  if (param.required) {
+                    operationItem.requestBody.content[
+                      'application/x-www-form-urlencoded'
+                    ].schema.required.push(param.name)
+                  }
+                }
+
+                // Remove formData parameters from the parameters array
+                operationItem.parameters = operationItem.parameters.filter(
+                  (parameter: OpenAPIV2.ParameterObject) =>
+                    parameter.in !== 'formData',
+                )
+              }
             }
 
             // Responses
