@@ -1,15 +1,15 @@
 import { type Static, Type } from '@sinclair/typebox'
 
-export const ConfigSidebarLinkType = Type.Object({
+export const ConfigSidebarLinkSchema = Type.Object({
   name: Type.String(),
   type: Type.Literal('link'),
   url: Type.String(),
   icon: Type.Optional(Type.String()),
 })
 
-export type ConfigSidebarLink = Static<typeof ConfigSidebarLinkType>
+export type ConfigSidebarLink = Static<typeof ConfigSidebarLinkSchema>
 
-export const ConfigSidebarPageType = Type.Object({
+export const ConfigSidebarPageSchema = Type.Object({
   path: Type.String(),
   name: Type.Optional(Type.String()),
   description: Type.Optional(Type.String()),
@@ -18,23 +18,23 @@ export const ConfigSidebarPageType = Type.Object({
   type: Type.Literal('page'),
 })
 
-export type ConfigSidebarPage = Static<typeof ConfigSidebarPageType>
+export type ConfigSidebarPage = Static<typeof ConfigSidebarPageSchema>
 
-export const ConfigSidebarFolderType = Type.Object({
+export const ConfigSidebarFolderSchema = Type.Object({
   name: Type.String(),
   type: Type.Literal('folder'),
   icon: Type.Optional(Type.String()),
 })
 
-export type ConfigSidebarFolder = Static<typeof ConfigSidebarFolderType>
+export type ConfigSidebarFolder = Static<typeof ConfigSidebarFolderSchema>
 
-export const SidebarItemType = Type.Recursive(
+export const SidebarItemSchema = Type.Recursive(
   (This) =>
     Type.Composite([
       Type.Union([
-        ConfigSidebarPageType,
-        ConfigSidebarFolderType,
-        ConfigSidebarLinkType,
+        ConfigSidebarPageSchema,
+        ConfigSidebarFolderSchema,
+        ConfigSidebarLinkSchema,
       ]),
       Type.Object({
         children: Type.Optional(Type.Array(This)),
@@ -43,36 +43,37 @@ export const SidebarItemType = Type.Recursive(
   { $id: 'SidebarItemType' },
 )
 
-export type SidebarItem = Static<typeof SidebarItemType>
+export type SidebarItem = Static<typeof SidebarItemSchema>
 
-export const ConfigGuideDirectoryType = Type.Object({
+export const ConfigGuideDirectorySchema = Type.Object({
   name: Type.String(),
   description: Type.Optional(Type.String()),
   folder: Type.String(),
 })
 
-export const ConfigGuideExplicitType = Type.Object({
+export const ConfigGuideExplicitSchema = Type.Object({
   name: Type.String(),
   description: Type.Optional(Type.String()),
-  sidebar: Type.Array(SidebarItemType),
+  sidebar: Type.Array(SidebarItemSchema),
 })
 
-export const ConfigGuideType = Type.Union([
-  ConfigGuideDirectoryType,
-  ConfigGuideExplicitType,
+// TODO: Currently only using the explicit guide schema
+export const ConfigGuideSchema = Type.Union([
+  ConfigGuideDirectorySchema,
+  ConfigGuideExplicitSchema,
 ])
 
-export type ConfigGuide = Static<typeof ConfigGuideType>
+export type ConfigGuide = Static<typeof ConfigGuideSchema>
 
-export const ConfigReferenceType = Type.Object({
+export const ConfigReferenceSchema = Type.Object({
   name: Type.String(),
   path: Type.String(),
   description: Type.Optional(Type.String()),
 })
 
-export type ConfigReference = Static<typeof ConfigReferenceType>
+export type ConfigReference = Static<typeof ConfigReferenceSchema>
 
-export const ScalarConfigType = Type.Object({
+export const ScalarConfigSchema = Type.Object({
   publishOnMerge: Type.Optional(Type.Boolean()),
   subdomain: Type.String(),
   customDomain: Type.Optional(Type.String()),
@@ -103,8 +104,14 @@ export const ScalarConfigType = Type.Object({
       ),
     }),
   ),
-  guides: Type.Array(ConfigGuideExplicitType), // TODO: include directory type
-  references: Type.Array(ConfigReferenceType),
+  guides: Type.Array(ConfigGuideExplicitSchema), // TODO: include directory type
+  references: Type.Array(ConfigReferenceSchema),
 })
 
-export type ScalarConfig = Static<typeof ScalarConfigType>
+export type ScalarConfig = Static<typeof ScalarConfigSchema>
+
+export const sidebarSchemaMap = {
+  page: ConfigSidebarPageSchema,
+  folder: ConfigSidebarFolderSchema,
+  link: ConfigSidebarLinkSchema,
+}
