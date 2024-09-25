@@ -174,6 +174,28 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Adds a server to the list of servers in the <see cref="ScalarOptions" />.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="server">The <see cref="ScalarServer" /> to add.</param>
+    public static ScalarOptions AddServer(this ScalarOptions options, ScalarServer server)
+    {
+        options.Servers ??= new List<ScalarServer>();
+        options.Servers.Add(server);
+        return options;
+    }
+
+    /// <summary>
+    /// Adds a server to the list of servers in the <see cref="ScalarOptions" /> using a URL.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="url">The URL of the server to add.</param>
+    public static ScalarOptions AddServer(this ScalarOptions options, string url)
+    {
+        return options.AddServer(new ScalarServer(url));
+    }
+
+    /// <summary>
     /// Adds metadata to the configuration.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
@@ -183,6 +205,17 @@ public static class ScalarOptionsExtensions
     {
         options.Metadata ??= new Dictionary<string, string>();
         options.Metadata.Add(key, value);
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the tag sorter for the <see cref="ScalarOptions" />.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="tagSorter">The <see cref="TagSorter" /> to use.</param>
+    public static ScalarOptions WithTagSorter(this ScalarOptions options, TagSorter tagSorter)
+    {
+        options.TagSorter = tagSorter;
         return options;
     }
 

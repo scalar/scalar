@@ -108,6 +108,12 @@ public sealed class ScalarOptions
     public bool DefaultOpenAllTags { get; set; }
 
     /// <summary>
+    /// Represents a sorter for tags in the Scalar API reference.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public TagSorter? TagSorter { get; set; }
+    
+    /// <summary>
     /// You can pass an array of HTTPSnippet clients to hide from the clients menu.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>
@@ -150,4 +156,11 @@ public sealed class ScalarOptions
     /// <value>The default value is <i>https://cdn.jsdelivr.net/npm/@scalar/api-reference</i></value>
     /// <remarks>Use this option to load the API reference from a different CDN or local server.</remarks>
     public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
+
+    /// <summary>
+    /// Gets or sets the list of servers for the Scalar API reference.
+    /// </summary>
+    /// <value>A list of <see cref="ScalarServer" /> representing the servers. The default value is <c>null</c>.</value>
+    /// <remarks>This list will override the servers defined in the OpenAPI document.</remarks>
+    public IList<ScalarServer>? Servers { get; set; }
 }
