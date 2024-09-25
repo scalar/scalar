@@ -3,6 +3,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/types/legacy'
 import type {
   FastifyBaseLogger,
+  FastifyRequest,
   FastifyTypeProviderDefault,
   RawServerDefault,
 } from 'fastify'
@@ -21,7 +22,12 @@ const schemaToHideRoute = {
   hide: true,
 }
 
-const getRoutePrefix = (routePrefix?: string) => routePrefix ?? '/reference'
+const getRoutePrefix = (routePrefix?: string) => {
+  const prefix = routePrefix ?? '/reference'
+
+  // Remove trailing slash if present
+  return prefix.endsWith('/') ? prefix.slice(0, -1) : prefix
+}
 const getOpenApiDocumentEndpoints = (
   openApiDocumentEndpoints: FastifyApiReferenceOptions['openApiDocumentEndpoints'],
 ) => {
@@ -30,8 +36,10 @@ const getOpenApiDocumentEndpoints = (
   return { json, yaml }
 }
 
+const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
+
 const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
-  `${publicPath ?? ''}${getRoutePrefix(routePrefix)}/@scalar/fastify-api-reference/js/browser.js`.replace(
+  `${publicPath ?? ''}${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(
     /\/\//g,
     '/',
   )
@@ -132,7 +140,7 @@ export const javascript = (options: FastifyApiReferenceOptions) => {
             : JSON.stringify(configuration?.spec?.content)
           : ''
       }</script>
-      <script src="${getJavaScriptUrl(options.routePrefix, options.publicPath)}"></script>
+      <script src="${RELATIVE_JAVASCRIPT_PATH}"></script>
   `
 }
 
@@ -265,10 +273,25 @@ const fastifyApiReference = fp<
       },
     })
 
+    // Redirect route without a trailing slash to force a trailing slash:
+    // We need this so the request to the JS file is relative.
+    if (getRoutePrefix(options.routePrefix)) {
+      fastify.route({
+        method: 'GET',
+        url: getRoutePrefix(options.routePrefix),
+        // @ts-ignore We don't know whether @fastify/swagger is loaded.
+        schema: schemaToHideRoute,
+        ...hooks,
+        handler(_, reply) {
+          return reply.redirect(getRoutePrefix(options.routePrefix) + '/', 302)
+        },
+      })
+    }
+
     // If no theme is passed, use the default theme.
     fastify.route({
       method: 'GET',
-      url: getRoutePrefix(options.routePrefix),
+      url: `${getRoutePrefix(options.routePrefix)}/`,
       // We don’t know whether @fastify/swagger is registered, but it doesn’t hurt to add a schema anyway.
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,

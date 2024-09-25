@@ -6,7 +6,7 @@ export type FastifyApiReferenceOptions = {
    * If you’re prefixing Fastify with a path, you can set it here.
    * It’ll be added to the JavaScript URL and the route.
    *
-   * Example: `${publicPath}${routePrefix}/@scalar/fastify-api-reference/js/browser.js`
+   * Example: `${publicPath}${routePrefix}/js/scalar.js`
    */
   publicPath?: string
   /**
