@@ -1,9 +1,23 @@
-import type { SidebarItem } from '@/configTypes'
+import type {
+  ConfigSidebarFolder,
+  ConfigSidebarLink,
+  ConfigSidebarPage,
+  SidebarItem,
+} from '@/configTypes'
 import { Value } from '@sinclair/typebox/value'
 
 /** Checks an object against a Typebox schema and returns the errors */
-export function getSchemaErrors<T>(item: T, schema: any) {
-  return Value.Errors(schema, item)
+export function getSchemaErrors<
+  T extends ConfigSidebarFolder | ConfigSidebarLink | ConfigSidebarPage,
+>(item: T, schema: any) {
+  const errors = [...Value.Errors(schema, item)]
+
+  // Add the item name for better errors
+  errors.forEach((error) => {
+    const errorMessage = `${error.message} on sidebar item: ${item.name}`
+    error.message = errorMessage
+  })
+  return errors
 }
 
 /** Recursively iterate over the sidebar items and their children */

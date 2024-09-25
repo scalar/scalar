@@ -12,6 +12,7 @@ describe('check', () => {
     const result = check(path.resolve('./test/invalid.json'))
     expect(result.errors).toBeDefined()
     expect(result.valid).toBe(false)
+    console.log(result.errors)
   })
   it('checks the comprehensive invalid json file', () => {
     const result = check(path.resolve('./test/invalid-comprehensive.json'))
