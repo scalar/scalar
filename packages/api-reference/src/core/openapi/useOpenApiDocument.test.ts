@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { type Ref, nextTick, ref, watch } from 'vue'
+import { ref } from 'vue'
 
 import { useOpenApiDocument } from './useOpenApiDocument'
+import { waitFor } from './utils/waitFor'
 
 describe('useOpenApiDocument', () => {
   it('has processing state', async () => {
@@ -66,14 +67,3 @@ describe('useOpenApiDocument', () => {
     })
   })
 })
-
-function waitFor(input: Ref<any>, expectedValue: any) {
-  return new Promise<void>((resolve) => {
-    const unwatch = watch(input, (newValue) => {
-      if (newValue === expectedValue) {
-        unwatch()
-        resolve()
-      }
-    })
-  })
-}

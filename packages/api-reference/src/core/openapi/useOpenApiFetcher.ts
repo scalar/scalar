@@ -1,4 +1,4 @@
-import { ref, watch } from 'vue'
+import { type Ref, isRef, ref, watch } from 'vue'
 
 import { pending } from './utils/pending'
 
@@ -14,7 +14,7 @@ enum State {
 /**
  * WIP
  */
-export function useOpenApiDocumentUrl(url: string) {
+export function useOpenApiFetcher(url: string | Ref<string>) {
   const state = ref<State>(State.Idle)
 
   const content = ref<string | undefined>()
@@ -22,7 +22,7 @@ export function useOpenApiDocumentUrl(url: string) {
   //   const errors: Error[] = []
 
   watch(
-    () => url,
+    isRef(url) ? url : () => url,
     async () => {
       await pending<State>(
         {
@@ -32,7 +32,10 @@ export function useOpenApiDocumentUrl(url: string) {
           debug: 'fetch-openapi-document',
         },
         async () => {
-          const result = await fetch(url, {
+          // TODO: Do two requests?
+          // 1. one with 'force-cache' (use fresh or stale entries) and
+          // 2. one with 'reload' (force to get a fresh file)
+          const result = await fetch(isRef(url) ? url.value : url, {
             cache: 'no-cache',
           })
 
@@ -40,7 +43,7 @@ export function useOpenApiDocumentUrl(url: string) {
             content.value = await result.text()
           }
 
-          // TODO: add error
+          // TODO: add error handling
         },
       )
     },
