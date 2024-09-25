@@ -598,6 +598,9 @@ importers:
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
+      microdiff:
+        specifier: ^1.4.0
+        version: 1.4.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -1572,6 +1575,9 @@ importers:
       vite:
         specifier: ^5.2.10
         version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
+      yaml:
+        specifier: ^2.4.5
+        version: 2.4.5
 
   packages/hono-api-reference:
     dependencies:
