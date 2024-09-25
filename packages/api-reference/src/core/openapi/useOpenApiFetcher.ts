@@ -2,6 +2,8 @@ import { type Ref, isRef, ref, watch } from 'vue'
 
 import { pending } from './utils/pending'
 
+// TODO: proxy support
+
 enum State {
   Idle = 'idle',
   Processing = 'processing',
