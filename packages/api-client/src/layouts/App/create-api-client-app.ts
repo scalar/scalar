@@ -32,7 +32,9 @@ export const createApiClientApp = async (
 
   // Import the spec if needed
   if (configuration.spec?.url) {
-    await importSpecFromUrl(configuration.spec.url, configuration.proxyUrl)
+    await importSpecFromUrl(configuration.spec.url, {
+      proxy: configuration.proxyUrl,
+    })
   } else if (configuration.spec?.content) {
     await importSpecFile(configuration.spec?.content)
   }

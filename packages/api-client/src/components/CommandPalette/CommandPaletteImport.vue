@@ -34,6 +34,7 @@ const documentType = computed(() =>
 
 const isInputUrl = computed(() => isUrl(inputContent.value))
 const isInputDocument = computed(() => !!documentDetails.value)
+const liveSync = ref(false)
 
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: async (files) => {
@@ -65,12 +66,10 @@ async function importCollection() {
   loader.startLoading()
   try {
     if (isInputUrl.value)
-      await importSpecFromUrl(
-        inputContent.value,
-        undefined,
-        undefined,
-        activeWorkspace.value.uid,
-      )
+      await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
+        proxy: activeWorkspace.value.proxyUrl,
+        liveSync: liveSync.value,
+      })
     else if (isInputDocument.value)
       await importSpecFile(
         String(inputContent.value),

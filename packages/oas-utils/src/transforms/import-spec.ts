@@ -1,5 +1,6 @@
 import {
   type Collection,
+  type CollectionPayload,
   type Request,
   type RequestExample,
   type RequestParameterPayload,
@@ -56,6 +57,15 @@ const convertOauth2Flows = (
   }
 }
 
+/** Takes a string or object and parses it into an openapi spec compliant schema */
+export const parseSchema = async (spec: string | UnknownObject) => {
+  const { filesystem } = await load(spec)
+  const { specification } = upgrade(filesystem)
+  const { schema, errors = [] } = await dereference(specification)
+
+  return { schema: schema as OpenAPIV3.Document | OpenAPIV3_1.Document, errors }
+}
+
 /**
  * Import an OpenAPI spec file and convert it to workspace entities
  *
@@ -66,12 +76,18 @@ const convertOauth2Flows = (
  */
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
-  preferredSecurityScheme?: AuthenticationState['preferredSecurityScheme'],
+  {
+    documentUrl,
+    liveSync,
+    preferredSecurityScheme,
+  }: Pick<CollectionPayload, 'documentUrl' | 'liveSync'> &
+    Pick<Partial<AuthenticationState>, 'preferredSecurityScheme'> = {},
 ): Promise<
   | {
       error: false
       collection: Collection
       requests: Request[]
+      schema: OpenAPIV3.Document | OpenAPIV3_1.Document
       examples: RequestExample[]
       servers: Server[]
       tags: Tag[]
@@ -79,11 +95,7 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[] }
 > {
-  const { filesystem } = await load(spec)
-  const { specification } = upgrade(filesystem)
-  const { schema: _schema, errors = [] } = await dereference(specification)
-  const schema = _schema as OpenAPIV3.Document | OpenAPIV3_1.Document
-
+  const { schema, errors } = await parseSchema(spec)
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
   if (!schema) return { importWarnings, error: true }
@@ -310,6 +322,8 @@ export async function importSpecToWorkspace(
 
   const collection = collectionSchema.parse({
     ...schema,
+    liveSync,
+    documentUrl,
     auth,
     requests: requests.map((r) => r.uid),
     servers: servers.map((s) => s.uid),
@@ -330,6 +344,7 @@ export async function importSpecToWorkspace(
   return {
     error: false,
     servers,
+    schema,
     requests,
     examples,
     collection,

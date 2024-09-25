@@ -62,6 +62,10 @@ export const extendedCollectionSchema = z.object({
    * The entry will contain the secret values (but not the schema definition)
    */
   auth: z.record(nanoidSchema, securitySchemeExampleValueSchema).default({}),
+  /** A link to where this document is stored, useful for live sync and possibly git sync down the line */
+  documentUrl: z.string().optional(),
+  /** Enable live sync, polling for schema changes, documentUrl is required for this to work */
+  liveSync: z.boolean().optional().default(false),
 })
 
 export const collectionSchema = oasCollectionSchema.merge(

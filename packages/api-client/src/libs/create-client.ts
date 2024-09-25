@@ -225,7 +225,7 @@ export const createApiClient = ({
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: async (spec: SpecConfiguration) => {
       if (spec?.url) {
-        await importSpecFromUrl(spec.url, configuration?.proxyUrl)
+        await importSpecFromUrl(spec.url, { proxy: configuration?.proxyUrl })
       } else if (spec?.content) {
         await importSpecFile(spec?.content)
       } else {
