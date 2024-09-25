@@ -43,6 +43,7 @@ export function useOpenApiFetcher(url: string | Ref<string>) {
 
           if (result.ok) {
             content.value = await result.text()
+            console.info('size:', Math.round(content.value.length / 1024), 'kB')
           }
 
           // TODO: add error handling

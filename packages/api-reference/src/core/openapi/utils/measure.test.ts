@@ -4,7 +4,7 @@ import { measure } from './measure'
 
 describe('measure', () => {
   it('outputs something to the console', async () => {
-    const consoleSpy = vi.spyOn(console, 'log')
+    const consoleSpy = vi.spyOn(console, 'info')
 
     await measure('some-heavy-lifting', () => {
       return new Promise((resolve) => setTimeout(resolve, 10))

@@ -11,5 +11,5 @@ export async function measure(
 
   const end = performance.now()
 
-  console.log(`${key}: ${Math.round(end - start)} ms`)
+  console.info(`${key}: ${Math.round(end - start)} ms`)
 }
