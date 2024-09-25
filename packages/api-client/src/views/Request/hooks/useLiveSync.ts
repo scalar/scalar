@@ -1,7 +1,6 @@
 import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import { diffSpec } from '@scalar/oas-utils/diff'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { getNestedValue } from '@scalar/object-utils/nested'
@@ -18,7 +17,7 @@ export const useLiveSync = () => {
     useWorkspace()
 
   /** Live Sync polling timeout */
-  const FIFTEEN_SECONDS = 5 * 1000
+  const FIFTEEN_SECONDS = 15 * 1000
 
   const { pause, resume } = useTimeoutPoll(async () => {
     const url = activeCollection.value?.documentUrl

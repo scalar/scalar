@@ -28,10 +28,11 @@ export function diffSpec(a: object, b: object) {
     {
       type: DiffChangeType
       path: (string | number)[]
-      mutations: object[]
       value?: object
-    }
+    }[]
   > = {}
+
+  console.log({ diff })
 
   diff
     .filter((d) => allowedProperties[d.path[0]])
@@ -41,18 +42,12 @@ export function diffSpec(a: object, b: object) {
         .map((p) => String(p).replaceAll('/', '~1'))
         .join('/')
 
-      if (!requestChanges[key])
-        requestChanges[key] = {
-          type: types[d.type],
-          path: d.path,
-          mutations: [],
-        }
-
-      if (d.type === 'CHANGE') {
-        requestChanges[key].mutations.push(d)
-      } else if (d.type === 'CREATE') {
-        requestChanges[key].value = d.value
-      }
+      requestChanges[key] ||= []
+      requestChanges[key].push(
+        d.type === 'REMOVE'
+          ? { type: types[d.type], path: d.path }
+          : { type: types[d.type], path: d.path, value: d.value },
+      )
     })
 
   return requestChanges
