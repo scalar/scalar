@@ -2,14 +2,16 @@ import { createWebHashRouter } from '@scalar/api-client'
 import { createApiClientApp } from '@scalar/api-client/layouts/App'
 import '@scalar/api-client/style.css'
 import type { IpcRendererEvent } from 'electron'
-import { load, trackEvent } from 'fathom-client'
+import { load, trackEvent, trackPageview } from 'fathom-client'
 
 // Initialize
+const router = createWebHashRouter()
+
 const client = await createApiClientApp(
   document.getElementById('scalar-client'),
   {},
   true,
-  createWebHashRouter(),
+  router,
 )
 
 // Anonymous tracking
@@ -19,9 +21,10 @@ if (window.electron) {
    * @see https://usefathom.com/
    */
   load('EUNBEXQC', {
-    spa: 'auto',
+    auto: false,
   })
 
+  // Determine the operating system
   const { platform } = window.electron.process
 
   const os =
@@ -33,7 +36,20 @@ if (window.electron) {
           ? 'linux'
           : 'unknown'
 
+  // Track the launch of the app
   trackEvent(`launch: ${os}`)
+
+  // Hook into the router
+  router.beforeEach((route) => {
+    if (typeof route.name !== 'string') {
+      return
+    }
+
+    trackPageview({
+      // We don’t need to know the route, the name of the route is enough.
+      url: `${os}/${route.name}`,
+    })
+  })
 }
 
 // Open… menu
