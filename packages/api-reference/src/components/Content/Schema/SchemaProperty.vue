@@ -112,6 +112,26 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         value.example || value?.items.example
       }}</code>
     </div>
+    <template
+      v-if="
+        value?.examples &&
+        typeof value.examples === 'object' &&
+        Object.keys(value.examples).length > 0
+      ">
+      <div class="property-example custom-scroll">
+        <span class="property-example-label">
+          {{
+            Object.keys(value.examples).length === 1 ? 'Example' : 'Examples'
+          }}
+        </span>
+        <code
+          v-for="(example, key) in value.examples"
+          :key="key"
+          class="property-example-value">
+          {{ example }}
+        </code>
+      </div>
+    </template>
     <!-- Enum -->
     <div
       v-if="getEnumFromValue(value)?.length > 1"
@@ -252,10 +272,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-example {
   display: flex;
   flex-direction: column;
-  gap: 6px;
 
   margin-top: 6px;
-  padding: 6px;
 
   max-height: calc(((var(--full-height) - var(--refs-header-height))) / 2);
 
@@ -268,10 +286,14 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-example-label {
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-3);
+
+  padding: 6px;
 }
 .property-example-value {
   font-family: var(--scalar-font-code);
   white-space: pre;
+  padding: 6px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 
 .property-rule {
