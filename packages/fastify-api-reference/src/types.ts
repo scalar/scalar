@@ -7,6 +7,7 @@ export type FastifyApiReferenceOptions = {
    * It’ll be added to the JavaScript URL and the route.
    *
    * Example: `${publicPath}${routePrefix}/js/scalar.js`
+   * @deprecated We don't use this anymore.
    */
   publicPath?: string
   /**

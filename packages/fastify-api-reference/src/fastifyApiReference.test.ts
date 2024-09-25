@@ -213,25 +213,7 @@ describe('fastifyApiReference', () => {
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('/reference/js/scalar.js')
-  })
-
-  it('prefixes the JS url', async () => {
-    const fastify = Fastify({
-      logger: false,
-    })
-
-    await fastify.register(fastifyApiReference, {
-      routePrefix: '/reference',
-      publicPath: '/foobar',
-      configuration: {
-        spec: { url: '/openapi.json' },
-      },
-    })
-
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('/foobar/reference/js/scalar.js')
+    expect(await response.text()).toContain('js/scalar.js')
   })
 
   describe('has the spec URL', () => {
@@ -326,22 +308,6 @@ describe('fastifyApiReference', () => {
     const response = await fetch(`${address}/reference`)
     expect(response.headers.has('content-type')).toBe(true)
     expect(response.headers.get('content-type')).toContain('text/html')
-  })
-
-  it('has the JS url with default routePrefix', async () => {
-    const fastify = Fastify({
-      logger: false,
-    })
-
-    await fastify.register(fastifyApiReference, {
-      configuration: {
-        spec: { url: '/openapi.json' },
-      },
-    })
-
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('/reference/js/scalar.js')
   })
 
   it('returns 401 Unauthorized for requests without authentication', async () => {

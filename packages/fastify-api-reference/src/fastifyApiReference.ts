@@ -38,8 +38,8 @@ const getOpenApiDocumentEndpoints = (
 
 const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
 
-const getJavaScriptUrl = (routePrefix?: string, publicPath?: string) =>
-  `${publicPath ?? ''}${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(
+const getJavaScriptUrl = (routePrefix?: string) =>
+  `${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(
     /\/\//g,
     '/',
   )
