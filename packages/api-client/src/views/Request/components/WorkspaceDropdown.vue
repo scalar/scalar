@@ -5,7 +5,6 @@ import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
-  ScalarContextMenu,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
@@ -41,9 +40,9 @@ const openRenameModal = (uid: string) => {
   renameModal.show()
 }
 
-const handleWorkspaceRename = () => {
-  if (tempName.value.trim()) {
-    workspaceMutators.edit(tempUid.value, 'name', tempName.value.trim())
+const handleWorkspaceRename = (name: string) => {
+  if (name.trim()) {
+    workspaceMutators.edit(tempUid.value, 'name', name.trim())
     renameModal.hide()
   }
 }
@@ -93,84 +92,90 @@ const deleteWorkspace = async () => {
 
       <!-- Workspace list -->
       <template #items>
-        <ScalarContextMenu
+        <ScalarDropdownItem
           v-for="(workspace, uid) in workspaces"
-          :key="uid">
-          <template #trigger>
-            <ScalarDropdownItem
-              class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
-              @click.stop="updateSelected(uid)">
-              <div
-                class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
-                :class="
-                  activeWorkspace.uid === uid
-                    ? 'bg-blue text-b-1'
-                    : 'text-transparent'
-                ">
+          :key="uid"
+          class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
+          @click.stop="updateSelected(uid)">
+          <div
+            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
+            :class="
+              activeWorkspace.uid === uid
+                ? 'bg-blue text-b-1'
+                : 'text-transparent'
+            ">
+            <ScalarIcon
+              class="size-2.5"
+              icon="Checkmark"
+              thickness="3.5" />
+          </div>
+          <span class="text-ellipsis overflow-hidden">{{
+            workspace.name
+          }}</span>
+          <ScalarDropdown teleport=".scalar-client">
+            <ScalarButton
+              class="px-0.5 py-0 hover:bg-b-3 group-hover/item:flex aspect-square ml-auto -mr-1 h-fit"
+              size="sm"
+              type="button"
+              variant="ghost">
+              <ScalarIcon
+                icon="Ellipses"
+                size="sm" />
+            </ScalarButton>
+            <template #items>
+              <ScalarDropdownItem
+                class="flex gap-2"
+                @mousedown="openRenameModal(uid)"
+                @touchend.prevent="openRenameModal(uid)">
                 <ScalarIcon
-                  class="size-2.5"
-                  icon="Checkmark"
-                  thickness="3.5" />
-              </div>
-              <span class="text-ellipsis overflow-hidden">{{
-                workspace.name
-              }}</span>
-            </ScalarDropdownItem>
-          </template>
-          <template #content>
-            <ScalarDropdown static>
-              <template #items>
-                <ScalarDropdownItem
-                  class="flex gap-2"
-                  @mousedown="openRenameModal(uid)">
-                  <ScalarIcon
-                    class="inline-flex"
-                    icon="Edit"
-                    size="md"
-                    thickness="1.5" />
-                  <span>Rename</span>
-                </ScalarDropdownItem>
-                <ScalarTooltip
-                  v-if="isLastWorkspace"
-                  class="z-10"
-                  side="bottom">
-                  <template #trigger>
-                    <ScalarDropdownItem
-                      class="flex gap-2 w-full"
-                      disabled
-                      @mousedown.prevent>
-                      <ScalarIcon
-                        class="inline-flex"
-                        icon="Delete"
-                        size="md"
-                        thickness="1.5" />
-                      <span>Delete</span>
-                    </ScalarDropdownItem>
-                  </template>
-                  <template #content>
-                    <div
-                      class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-                      <div class="flex items-center text-c-2">
-                        <span>Only workspace cannot be deleted.</span>
-                      </div>
+                  class="inline-flex"
+                  icon="Edit"
+                  size="md"
+                  thickness="1.5" />
+                <span>Rename</span>
+              </ScalarDropdownItem>
+              <ScalarTooltip
+                v-if="isLastWorkspace"
+                class="z-10"
+                side="bottom">
+                <template #trigger>
+                  <ScalarDropdownItem
+                    class="flex gap-2 w-full"
+                    disabled
+                    @mousedown.prevent
+                    @touchend.prevent>
+                    <ScalarIcon
+                      class="inline-flex"
+                      icon="Delete"
+                      size="md"
+                      thickness="1.5" />
+                    <span>Delete</span>
+                  </ScalarDropdownItem>
+                </template>
+                <template #content>
+                  <div
+                    class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                    <div class="flex items-center text-c-2">
+                      <span>Only workspace cannot be deleted.</span>
                     </div>
-                  </template>
-                </ScalarTooltip>
-                <ScalarDropdownItem
-                  v-else
-                  class="flex !gap-2"
-                  @mousedown.prevent="openDeleteModal(uid)">
-                  <ScalarIcon
-                    class="inline-flex"
-                    icon="Delete"
-                    size="sm"
-                    thickness="1.5" />
-                  <span>Delete</span>
-                </ScalarDropdownItem>
-              </template>
-            </ScalarDropdown>
-          </template>
-        </ScalarContextMenu>
+                  </div>
+                </template>
+              </ScalarTooltip>
+              <ScalarDropdownItem
+                v-else
+                class="flex !gap-2"
+                @mousedown.prevent="openDeleteModal(uid)"
+                @touchend.prevent="openDeleteModal(uid)">
+                <ScalarIcon
+                  class="inline-flex"
+                  icon="Delete"
+                  size="sm"
+                  thickness="1.5" />
+                <span>Delete</span>
+              </ScalarDropdownItem>
+            </template>
+          </ScalarDropdown>
+        </ScalarDropdownItem>
         <ScalarDropdownDivider />
 
         <!-- Add new workspace -->
