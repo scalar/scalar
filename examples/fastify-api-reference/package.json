@@ -24,9 +24,9 @@
   },
   "type": "module",
   "dependencies": {
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/swagger": "^9.0.0",
     "@scalar/fastify-api-reference": "workspace:*",
-    "fastify": "^4.26.2"
+    "fastify": "^5.0.0"
   },
   "devDependencies": {
     "vite": "^5.2.10"

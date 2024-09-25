@@ -43,15 +43,15 @@
   "module": "./dist/index.js",
   "dependencies": {
     "@scalar/types": "workspace:*",
-    "fastify-plugin": "^4.5.1"
+    "fastify-plugin": "^5.0.1"
   },
   "devDependencies": {
-    "@fastify/basic-auth": "^5.1.1",
-    "@fastify/swagger": "^8.10.1",
+    "@fastify/basic-auth": "^6.0.1",
+    "@fastify/swagger": "^9.0.0",
     "@scalar/api-reference": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
-    "fastify": "^4.26.2",
+    "fastify": "^5.0.0",
     "github-slugger": "^2.0.0",
     "magic-string": "^0.30.8",
     "rollup-plugin-node-externals": "^7.1.2",
