@@ -43,17 +43,23 @@ export const SidebarItemType = Type.Recursive(
   { $id: 'SidebarItemType' },
 )
 
+export type SidebarItem = Static<typeof SidebarItemType>
+
+export const ConfigGuideDirectoryType = Type.Object({
+  name: Type.String(),
+  description: Type.Optional(Type.String()),
+  folder: Type.String(),
+})
+
+export const ConfigGuideExplicitType = Type.Object({
+  name: Type.String(),
+  description: Type.Optional(Type.String()),
+  sidebar: Type.Array(SidebarItemType),
+})
+
 export const ConfigGuideType = Type.Union([
-  Type.Object({
-    name: Type.String(),
-    description: Type.Optional(Type.String()),
-    folder: Type.String(),
-  }),
-  Type.Object({
-    name: Type.String(),
-    description: Type.Optional(Type.String()),
-    sidebar: Type.Array(SidebarItemType),
-  }),
+  ConfigGuideDirectoryType,
+  ConfigGuideExplicitType,
 ])
 
 export type ConfigGuide = Static<typeof ConfigGuideType>
@@ -97,7 +103,7 @@ export const ScalarConfigType = Type.Object({
       ),
     }),
   ),
-  guides: Type.Array(ConfigGuideType),
+  guides: Type.Array(ConfigGuideExplicitType), // TODO: include directory type
   references: Type.Array(ConfigReferenceType),
 })
 
