@@ -209,6 +209,17 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the tag sorter for the <see cref="ScalarOptions" />.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="tagSorter">The <see cref="TagSorter" /> to use.</param>
+    public static ScalarOptions WithTagSorter(this ScalarOptions options, TagSorter tagSorter)
+    {
+        options.TagSorter = tagSorter;
+        return options;
+    }
+
+    /// <summary>
     /// Sets the preferred authentication scheme.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>

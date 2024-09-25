@@ -42,6 +42,8 @@ internal sealed class ScalarConfiguration
 
     public required bool? DefaultOpenAllTags { get; init; }
 
+    public required string? TagSorter { get; init; }
+
     public required string? Theme { get; init; }
 }
 

@@ -44,6 +44,7 @@ internal static class ScalarOptionsMapper
             Servers = options.Servers,
             Metadata = options.Metadata,
             Authentication = options.Authentication,
+            TagSorter = options.TagSorter?.ToStringFast(),
             HiddenClients = GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {

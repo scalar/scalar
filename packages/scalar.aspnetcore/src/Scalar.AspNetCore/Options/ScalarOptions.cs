@@ -108,6 +108,12 @@ public sealed class ScalarOptions
     public bool DefaultOpenAllTags { get; set; }
 
     /// <summary>
+    /// Represents a sorter for tags in the Scalar API reference.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public TagSorter? TagSorter { get; set; }
+    
+    /// <summary>
     /// You can pass an array of HTTPSnippet clients to hide from the clients menu.
     /// </summary>
     /// <value>The default value is <c>false</c>.</value>

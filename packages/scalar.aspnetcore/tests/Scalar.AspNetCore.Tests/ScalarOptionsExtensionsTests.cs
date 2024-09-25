@@ -33,6 +33,7 @@ public class ScalarOptionsExtensionsTests
             .WithCustomCss("*{}")
             .WithDarkModeToggle(false)
             .WithForceThemeMode(ThemeMode.Light)
+            .WithTagSorter(TagSorter.Alpha)
             .AddServer("https://example.com")
             .AddServer(new ScalarServer("https://example.org", "My other server"));
 
@@ -60,5 +61,6 @@ public class ScalarOptionsExtensionsTests
         options.Servers.Should().HaveCount(2);
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
+        options.TagSorter.Should().Be(TagSorter.Alpha);
     }
 }
