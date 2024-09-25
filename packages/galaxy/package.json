@@ -52,6 +52,7 @@
     "@scalar/hono-api-reference": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "vite": "^5.2.10"
+    "vite": "^5.2.10",
+    "yaml": "^2.4.5"
   }
 }
