@@ -12,16 +12,16 @@ const client = await createApiClientApp(
   createWebHashRouter(),
 )
 
-/**
- * Fathom Analytics offers simple & privacy-first tracking
- * @see https://usefathom.com/
- */
-load('EUNBEXQC', {
-  spa: 'auto',
-})
-
-// Track the launch event
+// Anonymous tracking
 if (window.electron) {
+  /**
+   * Fathom Analytics offers simple & privacy-first tracking
+   * @see https://usefathom.com/
+   */
+  load('EUNBEXQC', {
+    spa: 'auto',
+  })
+
   const { platform } = window.electron.process
 
   const os =
