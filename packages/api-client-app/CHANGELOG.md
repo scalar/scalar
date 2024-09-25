@@ -1,5 +1,11 @@
 # scalar-api-client
 
+## 0.1.45
+
+### Patch Changes
+
+- 81b9975: fix: fathom script
+
 ## 0.1.44
 
 ### Patch Changes
