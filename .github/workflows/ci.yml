@@ -334,10 +334,10 @@ jobs:
             https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
           comment_tag: 'netlify-preview'
 
-  build-test-aspnetcore:
+  aspnetcore-build-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup .NET
