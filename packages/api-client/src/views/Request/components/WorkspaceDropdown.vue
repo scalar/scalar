@@ -183,7 +183,7 @@ const deleteWorkspace = async () => {
               icon="Add"
               thickness="3" />
           </div>
-          <span>Create new workspace</span>
+          <span>Create Workspace</span>
         </ScalarDropdownItem>
       </template>
     </ScalarDropdown>
