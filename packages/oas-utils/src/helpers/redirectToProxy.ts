@@ -28,7 +28,7 @@ export function shouldUseProxy(proxy?: string, url?: string): boolean {
   if (isRelativePath(url)) return false
 
   // Requests to localhost
-  // if (isRequestToLocalhost(url)) return false
+  if (isRequestToLocalhost(url)) return false
 
   return true
 }
