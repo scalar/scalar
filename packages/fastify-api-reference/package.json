@@ -53,7 +53,6 @@
     "@scalar/openapi-parser": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
-    "fastify-list-routes": "^1.0.0",
     "github-slugger": "^2.0.0",
     "magic-string": "^0.30.8",
     "rollup-plugin-node-externals": "^7.1.2",

@@ -1,6 +1,5 @@
 import HttpProxy from '@fastify/http-proxy'
 import Fastify from 'fastify'
-import ListRoutes from 'fastify-list-routes'
 import { describe, expect, it } from 'vitest'
 
 import Scalar from './index'
@@ -11,8 +10,6 @@ describe('fastifyApiReference', () => {
     const origin = Fastify({
       logger: false,
     })
-
-    await origin.register(ListRoutes, { colors: true })
 
     await origin.register(Scalar, {
       routePrefix: '/documentation',
@@ -30,8 +27,6 @@ describe('fastifyApiReference', () => {
     const proxy = Fastify({
       logger: false,
     })
-
-    await proxy.register(ListRoutes, { colors: true })
 
     await proxy.register(HttpProxy, {
       upstream: originAddress,
