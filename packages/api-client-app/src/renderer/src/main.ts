@@ -46,8 +46,8 @@ if (window.electron) {
     }
 
     trackPageview({
-      // We don’t need to know the route, the name of the route is enough.
-      url: `${os}/${route.name}`,
+      // We don’t need to know the path, the name of the route is enough.
+      url: `https://scalar-${os}/${route.name}`,
     })
   })
 }
