@@ -2,15 +2,23 @@ import microdiff from 'microdiff'
 
 const types = {
   CREATE: 'add',
-  REMOVE: 'remove',
-  CHANGE: 'modify',
+  REMOVE: 'delete',
+  CHANGE: 'edit',
 } as const
+
+/** TODO: add a ref dictionary to the parser to handle components */
+const allowedProperties: Record<string, boolean> = {
+  info: true,
+  servers: true,
+  security: true,
+  tags: true,
+  paths: true,
+}
 
 export type DiffChangeType = (typeof types)[keyof typeof types]
 
 /**
  * Compare two specs and return the changes for each request entry
- *
  */
 export function diffSpec(a: object, b: object) {
   const diff = microdiff(a, b)
@@ -19,13 +27,14 @@ export function diffSpec(a: object, b: object) {
     string,
     {
       type: DiffChangeType
+      path: (string | number)[]
       mutations: object[]
       value?: object
     }
   > = {}
 
   diff
-    .filter((d) => d.path[0] === 'paths')
+    .filter((d) => allowedProperties[d.path[0]])
     .forEach((d) => {
       const key = d.path
         .slice(0, 3)
@@ -35,18 +44,16 @@ export function diffSpec(a: object, b: object) {
       if (!requestChanges[key])
         requestChanges[key] = {
           type: types[d.type],
+          path: d.path,
           mutations: [],
         }
 
       if (d.type === 'CHANGE') {
-        requestChanges[key].mutations.push({
-          ...d,
-          path: d.path.slice(3),
-        })
+        requestChanges[key].mutations.push(d)
       } else if (d.type === 'CREATE') {
         requestChanges[key].value = d.value
       }
     })
 
-  return JSON.stringify(requestChanges, null, 2)
+  return requestChanges
 }
