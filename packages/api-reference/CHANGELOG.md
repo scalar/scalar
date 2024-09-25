@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.25.21
+
+### Patch Changes
+
+- ba40c63: fix: css missing comma
+
 ## 1.25.20
 
 ## 1.25.19
