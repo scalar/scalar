@@ -40,7 +40,7 @@ if (window.electron) {
   trackEvent(`launch: ${os}`)
 
   // Hook into the router
-  router.beforeEach((route) => {
+  router.afterEach((route) => {
     if (typeof route.name !== 'string') {
       return
     }
