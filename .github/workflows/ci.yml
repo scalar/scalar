@@ -333,3 +333,23 @@ jobs:
 
             https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
           comment_tag: 'netlify-preview'
+
+  build-test-aspnetcore:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build -c Release --no-restore
+
+      - name: Test solution
+        run: dotnet test -c Release --no-build
