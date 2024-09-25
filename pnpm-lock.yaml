@@ -2027,9 +2027,6 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../themes
       '@unhead/schema':
         specifier: ^1.9.5
         version: 1.9.15
