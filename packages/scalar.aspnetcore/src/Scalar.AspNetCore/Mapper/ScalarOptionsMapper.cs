@@ -41,6 +41,7 @@ internal static class ScalarOptionsMapper
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,
+            Servers = options.Servers,
             Metadata = options.Metadata,
             Authentication = options.Authentication,
             HiddenClients = GetHiddenClients(options),

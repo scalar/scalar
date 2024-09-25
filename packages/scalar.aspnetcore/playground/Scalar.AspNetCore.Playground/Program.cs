@@ -32,7 +32,9 @@ app.MapScalarApiReference(options =>
         .WithDownloadButton(false)
         .WithPreferredScheme("ApiKey")
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
-        .WithApiKeyAuthentication(x => x.Token = "my-api-key");
+        .WithApiKeyAuthentication(x => x.Token = "my-api-key")
+        .AddServer("https://example.com")
+        .AddServer(new ScalarServer("https://example.org", "My other server"));
 });
 
 var summaries = new[]

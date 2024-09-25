@@ -28,6 +28,8 @@ internal sealed class ScalarConfiguration
 
     public required string? SearchHotKey { get; init; }
 
+    public required IEnumerable<ScalarServer>? Servers { get; init; }
+    
     public required IDictionary<string, string>? Metadata { get; init; }
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }

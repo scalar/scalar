@@ -32,7 +32,9 @@ public class ScalarOptionsExtensionsTests
             .WithDefaultOpenAllTags(true)
             .WithCustomCss("*{}")
             .WithDarkModeToggle(false)
-            .WithForceThemeMode(ThemeMode.Light);
+            .WithForceThemeMode(ThemeMode.Light)
+            .AddServer("https://example.com")
+            .AddServer(new ScalarServer("https://example.org", "My other server"));
 
         // Assert
         options.HideModels.Should().BeTrue();
@@ -55,5 +57,8 @@ public class ScalarOptionsExtensionsTests
         options.CustomCss.Should().Be("*{}");
         options.HideDarkModeToggle.Should().BeTrue();
         options.ForceThemeMode.Should().Be(ThemeMode.Light);
+        options.Servers.Should().HaveCount(2);
+        options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
+        options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
     }
 }
