@@ -1,10 +1,10 @@
 import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
-import { diffSpec } from '@scalar/oas-utils/diff'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import { useTimeoutPoll } from '@vueuse/core'
+import microdiff from 'microdiff'
 import { watch } from 'vue'
 
 /**
@@ -17,7 +17,7 @@ export const useLiveSync = () => {
     useWorkspace()
 
   /** Live Sync polling timeout */
-  const FIFTEEN_SECONDS = 15 * 1000
+  const FIFTEEN_SECONDS = 5 * 1000
 
   const { pause, resume } = useTimeoutPoll(async () => {
     const url = activeCollection.value?.documentUrl
@@ -47,44 +47,45 @@ export const useLiveSync = () => {
     else if (old.hash && old.hash !== hash) {
       const { schema } = await parseSchema(spec)
 
-      const diff = diffSpec(old.schema, schema)
+      const diff = microdiff(old.schema, schema)
+      console.log(diff)
 
-      Object.values(diff ?? {}).forEach((d) => {
-        const { path, type, mutations, value } = d
-        if (!path.length || !activeCollection.value?.uid) return
-
-        console.log(mutations.length)
-
-        // Info
-        if (path[0] === 'info' && (type === 'delete' || type === 'add')) {
-          const key = path.pop()
-          if (!key) return
-
-          // TODO: remove these any before PR merge
-          let payload: any = value
-          const propertyPath: any = path.join('.')
-
-          // Destructure to remove the property from the object
-          if (type === 'delete') {
-            const { [key]: deleteMe, ...rest } = getNestedValue(
-              activeCollection.value,
-              propertyPath,
-            )
-            payload = rest
-          }
-          // Add the property to the payload
-          else {
-            payload[key] = value
-          }
-
-          if (payload)
-            collectionMutators.edit(
-              activeCollection.value?.uid,
-              propertyPath,
-              payload,
-            )
-        }
-      })
+      // Object.values(diff ?? {}).forEach((d) => {
+      //   const { path, type, mutations, value } = d
+      //   if (!path.length || !activeCollection.value?.uid) return
+      //
+      //   console.log(mutations.length)
+      //
+      //   // Info
+      //   if (path[0] === 'info' && (type === 'delete' || type === 'add')) {
+      //     const key = path.pop()
+      //     if (!key) return
+      //
+      //     // TODO: remove these any before PR merge
+      //     let payload: any = value
+      //     const propertyPath: any = path.join('.')
+      //
+      //     // Destructure to remove the property from the object
+      //     if (type === 'delete') {
+      //       const { [key]: deleteMe, ...rest } = getNestedValue(
+      //         activeCollection.value,
+      //         propertyPath,
+      //       )
+      //       payload = rest
+      //     }
+      //     // Add the property to the payload
+      //     else {
+      //       payload[key] = value
+      //     }
+      //
+      //     if (payload)
+      //       collectionMutators.edit(
+      //         activeCollection.value?.uid,
+      //         propertyPath,
+      //         payload,
+      //       )
+      //   }
+      // })
       console.log({ diff })
     } else console.log('nothing to see here')
   }, FIFTEEN_SECONDS)
