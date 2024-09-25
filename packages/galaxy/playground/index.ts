@@ -1,7 +1,9 @@
 import { serve } from '@hono/node-server'
 import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
+import { readFileSync } from 'fs'
 import fs from 'fs/promises'
+import { parse } from 'yaml'
 
 const specification = await fs
   .readFile('./src/specifications/3.1.yaml', 'utf-8')
@@ -29,6 +31,11 @@ app.get(
     },
     pageTitle: 'Scalar Galaxy Spec',
   }),
+)
+
+// Live load the spec on every request
+app.get('/live', async (c) =>
+  c.json(parse(readFileSync('./src/specifications/3.1.yaml', 'utf-8'))),
 )
 
 // Start the server
