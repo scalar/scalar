@@ -1,5 +1,14 @@
 # @scalar/fastify-api-reference
 
+## 1.25.21
+
+## 1.25.20
+
+### Patch Changes
+
+- b966dfe: fix: JS can't be fetched in proxied environments
+- b966dfe: chore!: mark `publicPath` as deprecated, remove it from the configuration
+
 ## 1.25.19
 
 ## 1.25.18

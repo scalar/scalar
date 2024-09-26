@@ -1509,6 +1509,9 @@ importers:
       '@fastify/basic-auth':
         specifier: ^5.1.1
         version: 5.1.1
+      '@fastify/http-proxy':
+        specifier: ^9.0.0
+        version: 9.5.0
       '@fastify/swagger':
         specifier: ^8.10.1
         version: 8.14.0
@@ -4362,11 +4365,17 @@ packages:
   '@fastify/formbody@7.4.0':
     resolution: {integrity: sha512-H3C6h1GN56/SMrZS8N2vCT2cZr7mIHzBHzOBa5OPpjfB/D6FzP9mMpE02ZzrFX0ANeh0BAJdoXKOF2e7IbV+Og==}
 
+  '@fastify/http-proxy@9.5.0':
+    resolution: {integrity: sha512-1iqIdV10d5k9YtfHq9ylX5zt1NiM50fG+rIX40qt00R694sqWso3ukyTFZVk33SDoSiBW8roB7n11RUVUoN+Ag==}
+
   '@fastify/merge-json-schemas@0.1.1':
     resolution: {integrity: sha512-fERDVz7topgNjtXsJTTW1JKLy0rhuLRcquYqNR9rF7OcVpCa2OVW49ZPDIhaRRCaUuvVxI+N416xUoF76HNSXA==}
 
   '@fastify/middie@8.3.1':
     resolution: {integrity: sha512-qrQ8U3iCdjNum3+omnIvAyz21ifFx+Pp5jYW7PJJ7b9ueKTCPXsH6vEvaZQrjEZvOpTnWte+CswfBODWD0NqYQ==}
+
+  '@fastify/reply-from@9.8.0':
+    resolution: {integrity: sha512-bPNVaFhEeNI0Lyl6404YZaPFokudCplidE3QoOcr78yOy6H9sYw97p5KPYvY/NJNUHfFtvxOaSAHnK+YSiv/Mg==}
 
   '@fastify/send@2.1.0':
     resolution: {integrity: sha512-yNYiY6sDkexoJR0D8IDy3aRP3+L4wdqCpvx5WP+VtEU58sn7USmKynBzDQex5X42Zzvw2gNzzYgP90UfWShLFA==}
@@ -20982,6 +20991,16 @@ snapshots:
       fast-querystring: 1.1.2
       fastify-plugin: 4.5.1
 
+  '@fastify/http-proxy@9.5.0':
+    dependencies:
+      '@fastify/reply-from': 9.8.0
+      fast-querystring: 1.1.2
+      fastify-plugin: 4.5.1
+      ws: 8.18.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
   '@fastify/merge-json-schemas@0.1.1':
     dependencies:
       fast-deep-equal: 3.1.3
@@ -20992,6 +21011,16 @@ snapshots:
       fastify-plugin: 4.5.1
       path-to-regexp: 6.2.2
       reusify: 1.0.4
+
+  '@fastify/reply-from@9.8.0':
+    dependencies:
+      '@fastify/error': 3.4.1
+      end-of-stream: 1.4.4
+      fast-content-type-parse: 1.1.0
+      fast-querystring: 1.1.2
+      fastify-plugin: 4.5.1
+      toad-cache: 3.7.0
+      undici: 5.28.4
 
   '@fastify/send@2.1.0':
     dependencies:

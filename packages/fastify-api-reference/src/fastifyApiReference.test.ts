@@ -213,29 +213,7 @@ describe('fastifyApiReference', () => {
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain(
-      '/reference/@scalar/fastify-api-reference/js/browser.js',
-    )
-  })
-
-  it('prefixes the JS url', async () => {
-    const fastify = Fastify({
-      logger: false,
-    })
-
-    await fastify.register(fastifyApiReference, {
-      routePrefix: '/reference',
-      publicPath: '/foobar',
-      configuration: {
-        spec: { url: '/openapi.json' },
-      },
-    })
-
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain(
-      '/foobar/reference/@scalar/fastify-api-reference/js/browser.js',
-    )
+    expect(await response.text()).toContain('js/scalar.js')
   })
 
   describe('has the spec URL', () => {
@@ -332,24 +310,6 @@ describe('fastifyApiReference', () => {
     expect(response.headers.get('content-type')).toContain('text/html')
   })
 
-  it('has the JS url with default routePrefix', async () => {
-    const fastify = Fastify({
-      logger: false,
-    })
-
-    await fastify.register(fastifyApiReference, {
-      configuration: {
-        spec: { url: '/openapi.json' },
-      },
-    })
-
-    const address = await fastify.listen({ port: 0 })
-    const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain(
-      '/reference/@scalar/fastify-api-reference/js/browser.js',
-    )
-  })
-
   it('returns 401 Unauthorized for requests without authentication', async () => {
     const fastify = Fastify({
       logger: false,
@@ -369,9 +329,7 @@ describe('fastifyApiReference', () => {
     let response = await fetch(`${address}/reference`)
     expect(response.status).toBe(401)
 
-    response = await fetch(
-      `${address}/reference/@scalar/fastify-api-reference/js/browser.js`,
-    )
+    response = await fetch(`${address}/reference/js/scalar.js`)
     expect(response.status).toBe(401)
   })
 
@@ -398,14 +356,11 @@ describe('fastifyApiReference', () => {
     })
     expect(response.status).toBe(200)
 
-    response = await fetch(
-      `${address}/reference/@scalar/fastify-api-reference/js/browser.js`,
-      {
-        headers: {
-          authorization: basicAuthEncode('admin', 'admin'),
-        },
+    response = await fetch(`${address}/reference/js/scalar.js`, {
+      headers: {
+        authorization: basicAuthEncode('admin', 'admin'),
       },
-    )
+    })
     expect(response.status).toBe(200)
   })
 })

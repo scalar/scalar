@@ -451,7 +451,7 @@ const fontsStyleTag = computed(
   position: sticky;
   top: var(--refs-header-height);
   height: calc(100dvh - var(--refs-header-height));
-  background: var(--scalar-sidebar-background-1 var(--scalar-background-1));
+  background: var(--scalar-sidebar-background-1, var(--scalar-background-1));
   overflow-y: auto;
   display: flex;
   flex-direction: column;

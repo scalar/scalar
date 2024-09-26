@@ -1,5 +1,11 @@
 # scalar-api-client
 
+## 0.1.46
+
+### Patch Changes
+
+- 0a90f10: fix: allow to load images from fathom
+
 ## 0.1.45
 
 ### Patch Changes
