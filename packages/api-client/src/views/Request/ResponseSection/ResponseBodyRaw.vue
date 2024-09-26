@@ -4,7 +4,7 @@ import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
 import { ref } from 'vue'
 
 const props = defineProps<{
-  data: any
+  content: any
   language?: CodeMirrorLanguage
 }>()
 
@@ -14,13 +14,13 @@ useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: props.data,
+  content: props.content,
   language: props.language,
 })
 </script>
 <template>
   <ScalarCodeBlock
-    :content="data"
+    :content="content"
     :lang="language" />
 </template>
 <style scoped>
