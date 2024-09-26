@@ -71,21 +71,31 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <!-- Button -->
     <ScalarButton
       v-if="variant === 'button'"
-      class="px-6 max-h-8 gap-2"
+      class="px-6 gap-2"
       size="md"
-      type="button">
+      type="button"
+      @click="importCollection">
       <ScalarIcon
         icon="Import"
         size="md" />
       Try it in the browser
     </ScalarButton>
     <!-- Link -->
-    <a
+    <ScalarButton
+      v-else
+      class="px-6 gap-2 text-c-1"
+      size="md"
+      type="button"
+      variant="ghost"
+      @click="importCollection">
+      Try it in the browser
+    </ScalarButton>
+    <!-- <a
       v-else
       class="no-underline text-sm"
       href="#"
       @click="importCollection">
       Try it in the browser
-    </a>
+    </a> -->
   </template>
 </template>

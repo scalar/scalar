@@ -50,29 +50,31 @@ const operations = computed(() => {
 </template>
 
 <style>
-@keyframes scroll-left {
-  0% {
+@keyframes scroll-left-right {
+  0%,
+  100% {
     transform: translateX(0);
   }
-  100% {
-    transform: translateX(-100%);
+  50% {
+    transform: translateX(-50%);
   }
 }
 
-@keyframes scroll-right {
-  0% {
-    transform: translateX(-100%);
-  }
+@keyframes scroll-right-left {
+  0%,
   100% {
+    transform: translateX(-50%);
+  }
+  50% {
     transform: translateX(0);
   }
 }
 
 .animate-scroll-left {
-  animation: scroll-left 120s linear infinite;
+  animation: scroll-left-right 60s linear infinite;
 }
 
 .animate-scroll-right {
-  animation: scroll-right 120s linear infinite;
+  animation: scroll-right-left 60s linear infinite;
 }
 </style>

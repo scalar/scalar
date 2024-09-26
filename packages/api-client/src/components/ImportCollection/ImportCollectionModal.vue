@@ -23,7 +23,6 @@ import OpenApiDocumentPreview from './PlayfulOpenApiDocumentPreview.vue'
 
 const props = defineProps<{
   source: string | null
-  // title?: string | null
 }>()
 
 defineEmits<{
@@ -43,8 +42,10 @@ const openApiDocument = computed(() => {
   ) as OpenAPI.Document
 })
 
+/** Title from the OpenAPI document */
 const title = computed(() => openApiDocument.value.info?.title)
 
+/** Open/close modal on events  */
 watch(
   () => props.source,
   (value) => {
@@ -70,7 +71,11 @@ watch(
     <div class="flex flex-col gap-2">
       <!-- Title -->
       <div class="text-center text-xl font-medium mb-4 mt-8">
-        {{ title }}
+        <template v-if="title">Import {{ title }}</template>
+        <template v-else>
+          <!-- Keep the height -->
+          &nbsp;
+        </template>
       </div>
       <!-- Preview -->
       <div class="flex gap-2 flex-col pt-2 pb-4">
