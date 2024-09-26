@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.48
+
+### Patch Changes
+
+- dc20180: feat(api-client): custom icons for collections
+  - @scalar/code-highlight@0.0.11
+
 ## 0.12.47
 
 ### Patch Changes

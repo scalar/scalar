@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.48
+
+### Patch Changes
+
+- dc20180: feat(api-client): custom icons for collections
+- Updated dependencies [f961940]
+- Updated dependencies [f961940]
+  - @scalar/types@0.0.11
+  - @scalar/themes@0.9.32
+
 ## 0.2.47
 
 ### Patch Changes

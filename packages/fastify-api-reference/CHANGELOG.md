@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.22
+
+### Patch Changes
+
+- 90ef407: feat(fastify-api-reference): use relative URL for fetching spec from Fastify
+- Updated dependencies [f961940]
+  - @scalar/types@0.0.11
+
 ## 1.25.21
 
 ## 1.25.20
