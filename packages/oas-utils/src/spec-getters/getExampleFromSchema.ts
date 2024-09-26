@@ -126,7 +126,7 @@ export const getExampleFromSchema = (
   }
 
   // enum: [ 'available', 'pending', 'sold' ]
-  if (schema.enum !== undefined) {
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return schema.enum[0]
   }
 
