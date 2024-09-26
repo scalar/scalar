@@ -7,7 +7,6 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import { smoothScroll } from '@scalar/oas-utils/helpers'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nextTick, ref, toRef, watch } from 'vue'
