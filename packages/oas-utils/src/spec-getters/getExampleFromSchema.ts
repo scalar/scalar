@@ -156,24 +156,30 @@ export const getExampleFromSchema = (
 
     // Regular properties
     if (schema.properties !== undefined) {
-      Object.keys(schema.properties).forEach((propertyName: string) => {
-        const property = schema.properties[propertyName]
-        const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
-
-        response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
-          property,
-          options,
-          level + 1,
-          schema,
-          propertyName,
-        )
-
+      for (const propertyName in schema.properties) {
         if (
-          typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+          Object.prototype.hasOwnProperty.call(schema.properties, propertyName)
         ) {
-          delete response[propertyXmlTagName ?? propertyName]
+          const property = schema.properties[propertyName]
+          const propertyXmlTagName = options?.xml
+            ? property.xml?.name
+            : undefined
+
+          response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
+            property,
+            options,
+            level + 1,
+            schema,
+            propertyName,
+          )
+
+          if (
+            typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+          ) {
+            delete response[propertyXmlTagName ?? propertyName]
+          }
         }
-      })
+      }
     }
 
     // Additional properties
