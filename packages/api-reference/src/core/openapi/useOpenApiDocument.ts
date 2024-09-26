@@ -2,7 +2,9 @@ import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type Ref, isRef, ref, watch } from 'vue'
 
-import { processInput } from './processInput'
+import { createDefaultTag } from './utils/createDefaultTag'
+import { filterInternalItems } from './utils/filterInternalItems'
+import { getOpenApiDocument } from './utils/getOpenApiDocument'
 import { pending } from './utils/pending'
 
 // load
@@ -21,7 +23,7 @@ type Error = {
 // TODO: Don't forget to add the proxy
 
 /**
- * WIP
+ * Reactive wrapper around the OpenAPI helpers
  */
 export function useOpenApiDocument(
   input: Record<string, any> | Ref<Record<string, any>>,
@@ -45,9 +47,7 @@ export function useOpenApiDocument(
         async () => {
           const content = (isRef(input) ? input.value : input) as string
 
-          const obj = normalize(content)
-
-          const result = await processInput(obj)
+          const result = await handle(content)
 
           if (result) {
             schema.value = result
@@ -65,4 +65,18 @@ export function useOpenApiDocument(
     errors,
     schema,
   }
+}
+
+const pipeline = [getOpenApiDocument, filterInternalItems, createDefaultTag]
+
+/**
+ * Get any OpenAPI Document and prepare it for the rendering
+ */
+async function handle(content: string) {
+  return pipeline.reduce(
+    async (acc, nextTask) => {
+      return nextTask(await acc)
+    },
+    Promise.resolve(normalize(content)),
+  )
 }
