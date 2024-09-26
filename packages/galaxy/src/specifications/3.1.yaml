@@ -266,6 +266,17 @@ paths:
           application/json:
             schema:
               '$ref': '#/components/schemas/NewUser'
+            examples:
+              Marc:
+                value:
+                  name: Marc
+                  email: marc@scalar.com
+                  password: i-love-scalar
+              Cam:
+                value:
+                  name: Cam
+                  email: cam@scalar.com
+                  password: scalar-is-cool
       responses:
         '201':
           description: Created
@@ -424,17 +435,20 @@ components:
         name:
           type: string
           examples:
-            - Marc
+            - Hans
+            - Brynn
         email:
           type: string
           format: email
           examples:
-            - marc@scalar.com
+            - hans@scalar.com
+            - brynn@scalar.com
         password:
           type: string
           minLength: 8
           examples:
             - i-love-scalar
+            - scalar-is-cool
     User:
       type: object
       required:
