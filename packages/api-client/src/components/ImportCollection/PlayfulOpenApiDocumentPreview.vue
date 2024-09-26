@@ -1,37 +1,42 @@
 <script lang="ts" setup>
+import type { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+
 import OperationBadge from './OperationBadge.vue'
 
-const items = [
+const items: {
+  method: keyof typeof REQUEST_METHODS
+  name: string
+}[] = [
   {
-    method: 'POST',
+    method: 'post',
     name: 'Create a user',
   },
   {
-    method: 'PATCH',
+    method: 'patch',
     name: 'Update a user',
   },
   {
-    method: 'DELETE',
+    method: 'delete',
     name: 'Delete a user',
   },
   {
-    method: 'GET',
+    method: 'get',
     name: 'Retrieve a user',
   },
   {
-    method: 'GET',
+    method: 'get',
     name: 'List all users',
   },
   {
-    method: 'PUT',
+    method: 'put',
     name: 'Replace a user',
   },
   {
-    method: 'HEAD',
+    method: 'head',
     name: 'Check user existence',
   },
   {
-    method: 'OPTIONS',
+    method: 'options',
     name: 'Get user options',
   },
 ]

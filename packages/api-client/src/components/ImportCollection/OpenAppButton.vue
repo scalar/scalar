@@ -50,7 +50,7 @@ async function redirectToWaitList() {
     <!-- Join the waitlist -->
     <template v-if="platform === 'Windows'">
       <ScalarButton
-        class="px-6 max-h-8 gap-2"
+        class="gap-2"
         size="md"
         type="button"
         variant="solid"
@@ -64,13 +64,13 @@ async function redirectToWaitList() {
     <!-- Open the app -->
     <template v-else>
       <ScalarButton
-        class="px-6 max-h-8 gap-2"
+        class="gap-2"
         size="md"
         type="button"
         variant="solid"
         @click="openScalarApp">
         <ScalarIcon
-          icon="Download"
+          icon="Import"
           size="md" />
         Open in Scalar
         <template v-if="platform"> for {{ platform }} </template>

@@ -1,15 +1,21 @@
 <script setup lang="ts">
-defineProps<{
-  method: string
+import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import { computed } from 'vue'
+
+const props = defineProps<{
+  method: keyof typeof REQUEST_METHODS
   name: string
 }>()
+
+const requestMethod = computed(() => {
+  return REQUEST_METHODS[props.method]
+})
 </script>
 
 <template>
   <div
-    class="inline-flex items-center gap-2 text-green py-2 px-3 text-sm font-bold rounded whitespace-nowrap"
-    style="background-color: rgba(0, 182, 72, 0.1)">
-    <div class="text-xs">{{ method }}</div>
+    :class="`inline-flex items-center gap-2 py-1.5 px-2.5 text-sm font-bold font-code rounded whitespace-nowrap ${requestMethod.color} ${requestMethod.backgroundColor} bg-mix-transparent bg-mix-amount-90`">
+    <div class="text-xs">{{ requestMethod.short }}</div>
     <div>{{ name }}</div>
   </div>
 </template>
