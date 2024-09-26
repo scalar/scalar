@@ -93,7 +93,9 @@ watch(
       <div class="flex gap-2 flex-col pt-2 pb-4">
         <!-- Document preview -->
         <template v-if="source && isDocument(source)">
-          <OpenApiDocumentPreview :content="openApiDocument" />
+          <OpenApiDocumentPreview
+            class="-mx-3"
+            :content="openApiDocument" />
         </template>
 
         <!-- URL preview -->
