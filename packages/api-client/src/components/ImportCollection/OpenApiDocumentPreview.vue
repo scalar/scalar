@@ -9,6 +9,7 @@ const props = defineProps<{
   content?: OpenAPI.Document
 }>()
 
+/** Get all operations from the OpenAPI document */
 const operations = computed(() => {
   return Object.entries(props.content?.paths || {})
     .flatMap(([path, item]: [string, OpenAPI.Document['paths']]) =>
@@ -23,11 +24,30 @@ const operations = computed(() => {
       Object.keys(REQUEST_METHODS).includes(operation.method),
     )
 })
+
+/** Random order */
+function shuffle(items: any[]) {
+  return [...items].sort(() => Math.random() - 0.5)
+}
+
+/** Make the array have at least the given number of items */
+function fill(items: any[], count: number) {
+  const result = [...items]
+
+  // Less than `count`? Let’s copy a few items
+  while (result.length && result.length < count) {
+    const remaining = count - result.length
+    const itemsToCopy = items.slice(0, Math.min(remaining, items.length))
+    result.push(...itemsToCopy)
+  }
+
+  return result
+}
 </script>
 
 <template>
   <div
-    v-if="content"
+    v-if="content && operations.length"
     class="flex flex-col gap-2 overflow-hidden">
     <template
       v-for="(direction, row) in [
@@ -38,9 +58,7 @@ const operations = computed(() => {
       :key="row">
       <div :class="`flex gap-2 ${direction}`">
         <template
-          v-for="({ method, name }, operation) in [...operations].sort(
-            () => Math.random() - 0.5,
-          )"
+          v-for="({ method, name }, operation) in shuffle(fill(operations, 10))"
           :key="`row-${row}-${operation}`">
           <OperationBadge
             :method="method"
