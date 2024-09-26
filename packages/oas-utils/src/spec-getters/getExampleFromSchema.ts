@@ -87,13 +87,11 @@ export const getExampleFromSchema = (
   // But if `emptyString` is  set, we do want to see some values.
   const makeUpRandomData = !!options?.emptyString
 
-  // Check if the property is read-only
-  if (options?.mode === 'write' && schema.readOnly) {
-    return undefined
-  }
-
-  // Check if the property is write-only
-  if (options?.mode === 'read' && schema.writeOnly) {
+  // Check if the property is read-only/write-only
+  if (
+    (options?.mode === 'write' && schema.readOnly) ||
+    (options?.mode === 'read' && schema.writeOnly)
+  ) {
     return undefined
   }
 
