@@ -3,7 +3,9 @@ import { specDictionary } from '@/store/import-spec'
 import {
   type Collection,
   type Server,
+  type Tag,
   serverSchema,
+  tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
@@ -48,6 +50,8 @@ export const useLiveSync = () => {
     collectionMutators,
     servers,
     serverMutators,
+    tags,
+    tagMutators,
   } = useWorkspace()
 
   /** Live Sync polling timeout */
@@ -81,6 +85,8 @@ export const useLiveSync = () => {
     else if (old.hash && old.hash !== hash) {
       const { schema } = await parseSchema(spec)
       const diff = microdiff(old.schema, schema)
+
+      console.log(diff)
 
       diff.forEach((d) => {
         const { path, type } = d
@@ -132,6 +138,36 @@ export const useLiveSync = () => {
           else if (type === 'CREATE')
             serverMutators.add(
               serverSchema.parse(d.value),
+              activeCollection.value.uid,
+            )
+        }
+        // TODO: security
+        // Tags
+        else if (path[0] === 'tags') {
+          const [, index, key] = path as ['tags', number, keyof Tag]
+
+          // Edit: update properties
+          if (key) {
+            const uid = activeCollection.value.tags[index]
+            const tag = tags[uid]
+
+            if (!tag) {
+              console.warn('Live Sync: Tag not found, update not applied')
+              return
+            }
+
+            tagMutators.edit(uid, key, d.value)
+          }
+          // Delete whole object
+          else if (type === 'REMOVE') {
+            const uid = activeCollection.value.tags[index]
+            if (uid) tagMutators.delete(tags[uid], activeCollection.value.uid)
+            else console.warn('Live Sync: Tag not found, update not applied')
+          }
+          // Add whole object
+          else if (type === 'CREATE')
+            tagMutators.add(
+              tagSchema.parse(d.value),
               activeCollection.value.uid,
             )
         }
