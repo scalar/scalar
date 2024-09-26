@@ -10,7 +10,6 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { isJsonString } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, watch } from 'vue'
@@ -18,9 +17,8 @@ import { computed, watch } from 'vue'
 import DownloadLink from './DownloadLink.vue'
 import ImportNowButton from './ImportNowButton.vue'
 import LoadingScreen from './LoadingScreen.vue'
-// import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
+import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
 import OpenAppButton from './OpenAppButton.vue'
-import OpenApiDocumentPreview from './PlayfulOpenApiDocumentPreview.vue'
 
 const props = defineProps<{
   source: string | null
@@ -51,13 +49,9 @@ const openApiDocument = computed(() => {
 const title = computed(() => openApiDocument.value?.info?.title)
 
 /** The OpenAPI/Swagger version */
-const version = computed(() => {
-  return openApiDocument.value?.openapi
-    ? `OpenAPI ${openApiDocument.value?.openapi}`
-    : openApiDocument.value?.swagger
-      ? `Swagger ${openApiDocument.value?.swagger}`
-      : undefined
-})
+const version = computed(() =>
+  getOpenApiDocumentVersion(prefetchResult.content || props.source || ''),
+)
 
 /** Open/close modal on events  */
 watch(
@@ -98,16 +92,6 @@ watch(
 
         <!-- URL preview -->
         <template v-else-if="source && isUrl(source)">
-          <!-- URL -->
-          <!-- <div class="mb-4">
-            <div class="flex flex-col gap-2">
-              <div class="text-sm">URL</div>
-              <ScalarCodeBlock
-                class="border bg-b-2 rounded overflow-hidden"
-                :content="source"
-                :copy="false" />
-            </div>
-          </div> -->
           <!-- Loading -->
           <template v-if="prefetchResult.state === 'loading'">
             <LoadingScreen />
@@ -141,15 +125,17 @@ watch(
                     icon="Error"
                     size="sm" />
                   <div>
-                    Oh, this doesn’t seem to be a valid OpenAPI/Swagger
-                    document:
+                    This doesn’t look like a valid OpenAPI/Swagger document.
                   </div>
                 </div>
 
-                <div class="h-32 overflow-hidden border rounded">
+                <div class="bg-b-2 h-48 border rounded custom-scroll">
                   <ScalarCodeBlock
-                    class="bg-b-2"
-                    :content="prefetchResult.content || props.source || ''"
+                    :content="
+                      prefetchResult.content?.trim() ||
+                      props.source?.trim() ||
+                      ''
+                    "
                     :copy="false" />
                 </div>
               </template>
@@ -159,7 +145,9 @@ watch(
       </div>
 
       <!-- Actions -->
-      <div class="inline-flex flex-col gap-2 mt-4 mb-6 items-center">
+      <div
+        v-if="version"
+        class="inline-flex flex-col gap-2 mt-4 mb-6 items-center">
         <OpenAppButton :source="source" />
         <ImportNowButton
           :source="source"
@@ -168,7 +156,9 @@ watch(
       </div>
 
       <!-- Download App -->
-      <DownloadLink />
+      <div class="text-center mt-4">
+        <DownloadLink />
+      </div>
     </div>
   </ScalarModal>
 </template>

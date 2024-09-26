@@ -1,5 +1,5 @@
 <template>
-  <div class="text-sm mt-4">
+  <div class="text-sm">
     Don’t have the Scalar app?
     <a
       href="https://scalar.com/download"

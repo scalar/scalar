@@ -1,4 +1,3 @@
-import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
@@ -7,7 +6,6 @@ type PrefetchResult = {
   state: 'idle' | 'loading'
   content: string | null
   error: string | null
-  version: string | null
 }
 
 /**
@@ -18,7 +16,6 @@ export function useUrlPrefetcher() {
     state: 'idle',
     content: null,
     error: null,
-    version: null,
   })
 
   // TODO: This does not work with URLs to API references and such, we need @scalar/import to resolve those URLs
@@ -30,7 +27,6 @@ export function useUrlPrefetcher() {
         state: 'idle',
         content: null,
         error: null,
-        version: null,
       })
     }
 
@@ -38,7 +34,6 @@ export function useUrlPrefetcher() {
       state: 'loading',
       content: null,
       error: null,
-      version: null,
     })
 
     // TODO: Remove wait
@@ -54,18 +49,15 @@ export function useUrlPrefetcher() {
           state: 'idle',
           content: null,
           error: `Couldn’t fetch ${value}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
-          version: null,
         })
       }
 
       const content = await result.text()
-      const version = getOpenApiDocumentVersion(content)
 
       return Object.assign(prefetchResult, {
         state: 'idle',
         content,
         error: null,
-        version,
       })
     } catch (error: any) {
       console.error('[prefetchDocument]', error)
@@ -79,7 +71,6 @@ export function useUrlPrefetcher() {
         state: 'idle',
         content: null,
         error: message,
-        version: null,
       })
     }
   }
