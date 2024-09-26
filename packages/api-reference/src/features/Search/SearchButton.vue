@@ -6,7 +6,7 @@ import { useMagicKeys, whenever } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
 import { modalStateBus } from '../../components/api-client-bus'
-import Search from './Search.vue'
+import SearchModal from './SearchModal.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -67,7 +67,7 @@ whenever(
       </span>
     </div>
   </button>
-  <Search
+  <SearchModal
     :modalState="modalState"
     :parsedSpec="spec" />
 </template>

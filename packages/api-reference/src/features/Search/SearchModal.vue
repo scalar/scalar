@@ -7,15 +7,15 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
+import { smoothScroll } from '@scalar/oas-utils/helpers'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
-import { ref, toRef, watch } from 'vue'
+import { nextTick, ref, toRef, watch } from 'vue'
 
 import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
 import { scrollToId } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { useKeyboardNavigation } from './useKeyboardNavigation'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
 const props = defineProps<{
@@ -24,7 +24,6 @@ const props = defineProps<{
 }>()
 
 const specification = toRef(props, 'parsedSpec')
-const modalIsOpen = toRef(props.modalState.open)
 
 const {
   resetSearch,
@@ -34,13 +33,6 @@ const {
   searchText,
 } = useSearchIndex({
   specification,
-})
-
-useKeyboardNavigation({
-  selectedSearchResult,
-  active: modalIsOpen,
-  searchResultsWithPlaceholderResults,
-  onSearchResultClick,
 })
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
@@ -95,6 +87,31 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
   }
 }
 
+const searchResultRefs = ref<(typeof ScalarSearchResultItem)[]>([])
+const scrollerEl = ref<typeof ScalarSearchResultList | null>(null)
+
+const navigateSearchResults = (direction: 'up' | 'down') => {
+  const offset = direction === 'up' ? -1 : 1
+  const length = searchResultsWithPlaceholderResults.value.length
+
+  // Ensures we loop around the array by using the remainder
+  selectedSearchResult.value =
+    (selectedSearchResult.value + offset + length) % length
+
+  // Scroll the selected item into view
+  nextTick(() => {
+    // We gotta use the fistChild due to display: contents
+    const element =
+      searchResultRefs.value[selectedSearchResult.value].$el.firstChild
+
+    if (element instanceof HTMLElement)
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      })
+  })
+}
+
 // given just a #hash-name, we grab the full URL to be explicit to
 // handle edge cases of other framework routers resetting to base URL on navigation
 function getFullUrlFromHash(href: string) {
@@ -108,7 +125,14 @@ function getFullUrlFromHash(href: string) {
 <template>
   <ScalarModal
     :state="modalState"
-    variant="search">
+    variant="search"
+    @keydown.down.stop="navigateSearchResults('down')"
+    @keydown.enter.stop="
+      onSearchResultClick(
+        searchResultsWithPlaceholderResults[selectedSearchResult],
+      )
+    "
+    @keydown.up.stop="navigateSearchResults('up')">
     <div
       ref="searchModalRef"
       class="ref-search-container">
@@ -117,12 +141,14 @@ function getFullUrlFromHash(href: string) {
         @input="fuseSearch" />
     </div>
     <ScalarSearchResultList
+      ref="scrollerEl"
       class="ref-search-results custom-scroll"
       :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="entry.item.href"
         :key="entry.refIndex"
+        ref="searchResultRefs"
         :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
         :icon="ENTRY_ICONS[entry.item.type]"
