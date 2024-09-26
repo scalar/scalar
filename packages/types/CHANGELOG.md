@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.11
+
+### Patch Changes
+
+- f961940: feat: remove @scalar/themes from the dependencies of @scalar/types
+
 ## 0.0.10
 
 ### Patch Changes

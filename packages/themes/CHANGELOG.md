@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.32
+
+### Patch Changes
+
+- f961940: chore: add @scalar/types to dependency for ThemeId type
+- Updated dependencies [f961940]
+  - @scalar/types@0.0.11
+
 ## 0.9.31
 
 ### Patch Changes

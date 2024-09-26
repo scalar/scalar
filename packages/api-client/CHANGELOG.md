@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.1.8
+
+### Patch Changes
+
+- dc20180: feat(api-client): custom icons for collections
+- 70857ed: fix: favors button over context menu in workspace dropdown
+- Updated dependencies [f961940]
+- Updated dependencies [f961940]
+- Updated dependencies [dc20180]
+- Updated dependencies [dc20180]
+  - @scalar/types@0.0.11
+  - @scalar/themes@0.9.32
+  - @scalar/components@0.12.48
+  - @scalar/oas-utils@0.2.48
+  - @scalar/icons@0.1.0
+  - @scalar/use-codemirror@0.11.14
+
 ## 2.1.7
 
 ### Patch Changes

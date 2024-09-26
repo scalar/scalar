@@ -1,5 +1,17 @@
 # scalar-api-client
 
+## 0.1.47
+
+### Patch Changes
+
+- 728bdb1: fix: invalid pageview url
+- Updated dependencies [f961940]
+- Updated dependencies [dc20180]
+- Updated dependencies [70857ed]
+  - @scalar/themes@0.9.32
+  - @scalar/api-client@2.1.8
+  - @scalar/components@0.12.48
+
 ## 0.1.46
 
 ### Patch Changes
