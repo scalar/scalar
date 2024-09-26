@@ -1,16 +1,20 @@
 <script setup lang="ts">
+import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { ERRORS, cancelRequestBus, executeRequestBus } from '@/libs'
+import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
+import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import RequestSidebar from './RequestSidebar.vue'
 
@@ -31,10 +35,16 @@ const {
   modalState,
   requestHistory,
   securitySchemes,
+  requestMutators,
+  serverMutators,
+  servers,
 } = workspaceContext
 
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 const requestAbortController = ref<AbortController>()
+const parsedCurl = ref<RequestPayload>()
+const selectedServerUid = ref('')
+const router = useRouter()
 
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
@@ -100,6 +110,49 @@ onMounted(() => {
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
 onBeforeUnmount(() => executeRequestBus.off(executeRequest))
+
+function createRequestFromCurl({ requestName }: { requestName: string }) {
+  if (!parsedCurl.value) return
+
+  if (parsedCurl.value.servers) {
+    // Find existing server to avoid duplication
+    const existingServer = Object.values(servers).find(
+      (s) => s.url === parsedCurl?.value?.servers?.[0],
+    )
+    if (existingServer) {
+      selectedServerUid.value = existingServer.uid
+    } else {
+      selectedServerUid.value = serverMutators.add(
+        { url: parsedCurl.value.servers[0] },
+        activeWorkspace.value.collections[0],
+      ).uid
+    }
+  }
+
+  const newRequest = requestMutators.add(
+    {
+      summary: requestName,
+      path: parsedCurl?.value?.path,
+      method: parsedCurl?.value?.method,
+      parameters: parsedCurl?.value?.parameters,
+      selectedServerUid: selectedServerUid.value,
+      requestBody: parsedCurl?.value?.requestBody,
+    },
+    activeWorkspace.value.collections[0],
+  )
+
+  if (newRequest) {
+    router.push(
+      `/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`,
+    )
+  }
+  modalState.hide()
+}
+
+function handleCurlImport(curl: string) {
+  parsedCurl.value = importCurlCommand(curl)
+  modalState.show()
+}
 </script>
 <template>
   <div
@@ -110,7 +163,8 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
     <RequestSubpageHeader
       v-model="showSideBar"
       :isReadonly="activeWorkspace.isReadOnly"
-      @hideModal="() => modalState.hide()" />
+      @hideModal="() => modalState.hide()"
+      @importCurl="handleCurlImport" />
     <ViewLayout>
       <RequestSidebar
         :isReadonly="activeWorkspace.isReadOnly"
@@ -127,6 +181,12 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
       </ViewLayoutContent>
     </ViewLayout>
   </div>
+  <ImportCurlModal
+    v-if="parsedCurl"
+    :parsedCurl="parsedCurl"
+    :state="modalState"
+    @close="modalState.hide()"
+    @importCurl="createRequestFromCurl" />
 </template>
 <style scoped>
 .request-text-color-text {

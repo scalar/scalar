@@ -12,6 +12,7 @@ defineProps<{
 defineEmits<{
   (e: 'update:modelValue', v: boolean): void
   (e: 'hideModal'): void
+  (e: 'importCurl', value: string): void
 }>()
 </script>
 <template>
@@ -30,7 +31,7 @@ defineEmits<{
         Powered by Scalar.com
       </a>
     </div>
-    <AddressBar />
+    <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
       class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
       <EnvironmentSelector v-if="!isReadonly" />

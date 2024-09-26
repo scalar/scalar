@@ -19,6 +19,10 @@ import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
 import AddressBarServers from './AddressBarServer.vue'
 
+defineEmits<{
+  (e: 'importCurl', value: string): void
+}>()
+
 const {
   activeRequest,
   activeExample,
@@ -181,9 +185,11 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
               disableEnter
               disableTabIndent
               :emitOnBlur="false"
+              importCurl
               :modelValue="activeRequest.path"
-              :placeholder="activeServer ? '' : 'Enter URL to get started'"
+              :placeholder="activeServer ? '' : 'Enter a URL or cURL command'"
               server
+              @curl="$emit('importCurl', $event)"
               @submit="handleExecuteRequest"
               @update:modelValue="updateRequestPath" />
             <div class="fade-right"></div>
