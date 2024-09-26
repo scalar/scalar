@@ -5,6 +5,7 @@ import { type Ref, isRef, ref, watch } from 'vue'
 import { createDefaultTag } from './utils/createDefaultTag'
 import { filterInternalItems } from './utils/filterInternalItems'
 import { getOpenApiDocument } from './utils/getOpenApiDocument'
+import { measure } from './utils/measure'
 import { pending } from './utils/pending'
 
 // load
@@ -67,7 +68,12 @@ export function useOpenApiDocument(
   }
 }
 
-const pipeline = [getOpenApiDocument, filterInternalItems, createDefaultTag]
+const pipeline = [
+  getOpenApiDocument,
+  // addRequiredProperties,
+  filterInternalItems,
+  createDefaultTag,
+]
 
 /**
  * Get any OpenAPI Document and prepare it for the rendering
@@ -75,8 +81,25 @@ const pipeline = [getOpenApiDocument, filterInternalItems, createDefaultTag]
 async function handle(content: string) {
   return pipeline.reduce(
     async (acc, nextTask) => {
+      // return await measure<OpenAPI.Document>(`- ${nextTask.name}`, async () => {
       return nextTask(await acc)
+      // })
     },
     Promise.resolve(normalize(content)),
   )
 }
+
+// // paths, tags
+// function addRequiredProperties(content: OpenAPI.Document) {
+//   const updatedContent = { ...content }
+
+//   if (!updatedContent.paths) {
+//     updatedContent.paths = {}
+//   }
+
+//   if (!updatedContent.tags) {
+//     updatedContent.tags = []
+//   }
+
+//   return updatedContent
+// }
