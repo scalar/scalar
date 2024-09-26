@@ -306,7 +306,8 @@ const fastifyApiReference = fp<
           configuration = {
             ...configuration,
             spec: {
-              url: openApiSpecUrlJson,
+              // Use a relative URL in case we're proxied
+              url: `.${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`,
             },
           }
         }
