@@ -3,17 +3,16 @@
 import { onMounted } from 'vue'
 
 const emit = defineEmits<{
-  (e: 'input', input: string, title?: string | null): void
+  (e: 'input', input: string): void
 }>()
 
 // Check query parameters
 onMounted(() => {
   const queryParameters = new URLSearchParams(window.location.search)
   const urlQueryParameter = queryParameters.get('url')
-  const titleQueryParameter = queryParameters.get('title')
 
   if (urlQueryParameter) {
-    emit('input', urlQueryParameter, titleQueryParameter)
+    emit('input', urlQueryParameter)
   }
 })
 </script>

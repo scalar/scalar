@@ -10,7 +10,9 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { watch } from 'vue'
+import { normalize } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
+import { computed, watch } from 'vue'
 
 import DownloadLink from './DownloadLink.vue'
 import ImportNowButton from './ImportNowButton.vue'
@@ -21,7 +23,7 @@ import OpenApiDocumentPreview from './PlayfulOpenApiDocumentPreview.vue'
 
 const props = defineProps<{
   source: string | null
-  title?: string | null
+  // title?: string | null
 }>()
 
 defineEmits<{
@@ -33,6 +35,15 @@ const { activeWorkspace } = useWorkspace()
 const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
+
+/** Try to make the retrieved content an OpenAPI document */
+const openApiDocument = computed(() => {
+  return normalize(
+    prefetchResult.content || props.source || '',
+  ) as OpenAPI.Document
+})
+
+const title = computed(() => openApiDocument.value.info?.title)
 
 watch(
   () => props.source,
@@ -55,17 +66,17 @@ watch(
 <template>
   <ScalarModal
     size="md"
-    :state="modalState"
-    title="Import Collection">
+    :state="modalState">
     <div class="flex flex-col gap-2">
+      <!-- Title -->
       <div class="text-center text-xl font-medium mb-4 mt-8">
         {{ title }}
       </div>
       <!-- Preview -->
-      <div class="flex gap-2 flex-col pb-4">
+      <div class="flex gap-2 flex-col pt-2 pb-4">
         <!-- Document preview -->
         <template v-if="source && isDocument(source)">
-          <OpenApiDocumentPreview :content="source" />
+          <OpenApiDocumentPreview :content="openApiDocument" />
         </template>
 
         <!-- URL preview -->
@@ -101,7 +112,7 @@ watch(
               <!-- Content preview -->
               <OpenApiDocumentPreview
                 class="-mx-3"
-                :content="prefetchResult.content" />
+                :content="openApiDocument" />
             </template>
           </template>
         </template>
@@ -111,8 +122,8 @@ watch(
       <div class="inline-flex flex-col gap-2 mt-4 mb-8 items-center">
         <OpenAppButton :source="source" />
         <ImportNowButton
-          class="w-auto"
           :source="source"
+          :variant="isDocument(source) ? 'button' : 'link'"
           @importFinished="() => $emit('importFinished')" />
       </div>
 

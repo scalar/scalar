@@ -1,81 +1,51 @@
 <script lang="ts" setup>
-import type { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import type { OpenAPI } from '@scalar/openapi-types'
+import { computed } from 'vue'
 
 import OperationBadge from './OperationBadge.vue'
 
-const items: {
-  method: keyof typeof REQUEST_METHODS
-  name: string
-}[] = [
-  {
-    method: 'post',
-    name: 'Create a user',
-  },
-  {
-    method: 'patch',
-    name: 'Update a user',
-  },
-  {
-    method: 'delete',
-    name: 'Delete a user',
-  },
-  {
-    method: 'get',
-    name: 'Retrieve a user',
-  },
-  {
-    method: 'get',
-    name: 'List all users',
-  },
-  {
-    method: 'put',
-    name: 'Replace a user',
-  },
-  {
-    method: 'head',
-    name: 'Check user existence',
-  },
-  {
-    method: 'options',
-    name: 'Get user options',
-  },
-]
+const props = defineProps<{
+  content: OpenAPI.Document
+}>()
+
+const operations = computed(() => {
+  return Object.entries(props.content?.paths || {})
+    .flatMap(([path, item]: [string, OpenAPI.Document['paths']]) =>
+      Object.entries(item || {}).map(
+        ([method, operation]: [string, OpenAPI.Operation]) => ({
+          method: method.toLowerCase() as keyof typeof REQUEST_METHODS,
+          name: operation.summary || operation.operationId || path,
+        }),
+      ),
+    )
+    .filter((operation) =>
+      Object.keys(REQUEST_METHODS).includes(operation.method),
+    )
+})
 </script>
 
 <template>
   <div class="flex flex-col gap-2 overflow-hidden">
-    <!-- Row 1: Scroll left -->
-    <div class="flex gap-2 animate-scroll-left">
-      <template
-        v-for="({ method, name }, index) in items"
-        :key="`row3-${index}`">
-        <OperationBadge
-          :method="method"
-          :name="name" />
-      </template>
-    </div>
-
-    <!-- Row 2: Scroll right -->
-    <div class="flex gap-2 animate-scroll-right">
-      <template
-        v-for="({ method, name }, index) in items"
-        :key="`row2-${index}`">
-        <OperationBadge
-          :method="method"
-          :name="name" />
-      </template>
-    </div>
-
-    <!-- Row 3: Scroll left -->
-    <div class="flex gap-2 animate-scroll-left">
-      <template
-        v-for="({ method, name }, index) in items"
-        :key="`row3-${index}`">
-        <OperationBadge
-          :method="method"
-          :name="name" />
-      </template>
-    </div>
+    <template
+      v-for="(direction, row) in [
+        'animate-scroll-left',
+        'animate-scroll-right',
+        'animate-scroll-left',
+      ]"
+      :key="row">
+      <div :class="`flex gap-2 ${direction}`">
+        <template
+          v-for="({ method, name }, operation) in [...operations].sort(
+            () => Math.random() - 0.5,
+          )"
+          :key="`row-${row}-${operation}`">
+          <OperationBadge
+            :method="method"
+            :name="name" />
+        </template>
+      </div>
+    </template>
   </div>
 </template>
 

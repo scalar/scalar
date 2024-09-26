@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   source?: string | null
+  variant?: 'button' | 'link'
 }>()
 
 const emit = defineEmits<{
@@ -66,11 +67,25 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
 </script>
 
 <template>
-  <a
-    v-if="source"
-    class="no-underline text-sm"
-    href="#"
-    @click="importCollection">
-    Try it in the browser
-  </a>
+  <template v-if="source">
+    <!-- Button -->
+    <ScalarButton
+      v-if="variant === 'button'"
+      class="px-6 max-h-8 gap-2"
+      size="md"
+      type="button">
+      <ScalarIcon
+        icon="Import"
+        size="md" />
+      Try it in the browser
+    </ScalarButton>
+    <!-- Link -->
+    <a
+      v-else
+      class="no-underline text-sm"
+      href="#"
+      @click="importCollection">
+      Try it in the browser
+    </a>
+  </template>
 </template>
