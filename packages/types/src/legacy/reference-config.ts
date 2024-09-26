@@ -4,7 +4,6 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-types'
-import type { ThemeId } from '@scalar/themes'
 import type { UseSeoMetaInput } from '@unhead/schema'
 
 import type { HarRequest, TargetId } from '../external'
@@ -47,6 +46,19 @@ type HttpClientState = { targetKey: TargetId; clientKey: string }
 export type PathRouting = {
   basePath: string
 }
+
+export type ThemeId =
+  | 'alternate'
+  | 'default'
+  | 'moon'
+  | 'purple'
+  | 'solarized'
+  | 'bluePlanet'
+  | 'deepSpace'
+  | 'saturn'
+  | 'kepler'
+  | 'mars'
+  | 'none'
 
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */

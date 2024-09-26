@@ -2008,6 +2008,10 @@ importers:
         version: 1.2.15
 
   packages/themes:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2055,9 +2059,6 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../themes
       '@unhead/schema':
         specifier: ^1.9.5
         version: 1.9.15
