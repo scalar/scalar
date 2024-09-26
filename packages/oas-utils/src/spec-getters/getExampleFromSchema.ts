@@ -340,7 +340,7 @@ export const getExampleFromSchema = (
   }
 
   // Warn if the type is unknown …
-  console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
+  // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
 
   // … and just return null for now.
   return null
