@@ -107,7 +107,6 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
     if (element instanceof HTMLElement)
       element.scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
       })
   })
 }
