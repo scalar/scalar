@@ -6,7 +6,7 @@ import { computed } from 'vue'
 import OperationBadge from './OperationBadge.vue'
 
 const props = defineProps<{
-  content: OpenAPI.Document
+  content?: OpenAPI.Document
 }>()
 
 const operations = computed(() => {
@@ -26,7 +26,9 @@ const operations = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 overflow-hidden">
+  <div
+    v-if="content"
+    class="flex flex-col gap-2 overflow-hidden">
     <template
       v-for="(direction, row) in [
         'animate-scroll-left',

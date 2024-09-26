@@ -5,11 +5,12 @@ import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
 import {
-  // ScalarCodeBlock,
+  ScalarCodeBlock,
   ScalarIcon,
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import { isJsonString } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, watch } from 'vue'
@@ -37,13 +38,26 @@ const modalState = useModal()
 
 /** Try to make the retrieved content an OpenAPI document */
 const openApiDocument = computed(() => {
-  return normalize(
-    prefetchResult.content || props.source || '',
-  ) as OpenAPI.Document
+  try {
+    return normalize(
+      prefetchResult.content || props.source || '',
+    ) as OpenAPI.Document
+  } catch {
+    return undefined
+  }
 })
 
 /** Title from the OpenAPI document */
-const title = computed(() => openApiDocument.value.info?.title)
+const title = computed(() => openApiDocument.value?.info?.title)
+
+/** The OpenAPI/Swagger version */
+const version = computed(() => {
+  return openApiDocument.value?.openapi
+    ? `OpenAPI ${openApiDocument.value?.openapi}`
+    : openApiDocument.value?.swagger
+      ? `Swagger ${openApiDocument.value?.swagger}`
+      : undefined
+})
 
 /** Open/close modal on events  */
 watch(
@@ -70,12 +84,10 @@ watch(
     :state="modalState">
     <div class="flex flex-col gap-2">
       <!-- Title -->
-      <div class="text-center text-xl font-medium mb-4 mt-8">
-        <template v-if="title">Import {{ title }}</template>
-        <template v-else>
-          <!-- Keep the height -->
-          &nbsp;
-        </template>
+      <div class="mb-4 mt-6">
+        <div class="text-center text-xl font-medium">
+          Import {{ title ?? 'Collection' }}
+        </div>
       </div>
       <!-- Preview -->
       <div class="flex gap-2 flex-col pt-2 pb-4">
@@ -103,28 +115,48 @@ watch(
           <template v-else>
             <!-- Prefetch error -->
             <template v-if="prefetchResult.error">
-              <div class="flex gap-2 items-center text-sm">
+              <div
+                class="flex gap-2 items-center p-3 font-code text-sm border rounded">
                 <ScalarIcon
                   class="text-red"
                   icon="Error"
                   size="sm" />
-                <div>
-                  {{ prefetchResult.error }}
-                </div>
+                <div>{{ prefetchResult.error }}</div>
               </div>
             </template>
             <template v-else>
-              <!-- Content preview -->
+              <!-- Content preview (content has a version, seems legit) -->
               <OpenApiDocumentPreview
+                v-if="version"
                 class="-mx-3"
                 :content="openApiDocument" />
+              <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+              <template v-else>
+                <div
+                  class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+                  <ScalarIcon
+                    class="text-red"
+                    icon="Error"
+                    size="sm" />
+                  <div>
+                    Oh, this doesn’t seem to be an OpenAPI/Swagger document:
+                  </div>
+                </div>
+
+                <div class="h-32 overflow-hidden border rounded">
+                  <ScalarCodeBlock
+                    class="bg-b-2"
+                    :content="prefetchResult.content || props.source || ''"
+                    :copy="false" />
+                </div>
+              </template>
             </template>
           </template>
         </template>
       </div>
 
       <!-- Actions -->
-      <div class="inline-flex flex-col gap-2 mt-4 mb-8 items-center">
+      <div class="inline-flex flex-col gap-2 mt-4 mb-6 items-center">
         <OpenAppButton :source="source" />
         <ImportNowButton
           :source="source"

@@ -4,7 +4,7 @@
     <a
       href="https://scalar.com/download"
       target="_blank">
-      Download it for free
+      Try it out, it’s free.
     </a>
   </div>
 </template>
