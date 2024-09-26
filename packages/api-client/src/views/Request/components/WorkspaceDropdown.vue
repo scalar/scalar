@@ -40,12 +40,12 @@ const openRenameModal = (uid: string) => {
   editModal.show()
 }
 
-const handleWorkspaceEdit = () => {
-  if (!tempName.value.trim()) {
+const handleWorkspaceEdit = (name: string) => {
+  if (!name.trim()) {
     return
   }
 
-  workspaceMutators.edit(tempUid.value, 'name', tempName.value.trim())
+  workspaceMutators.edit(tempUid.value, 'name', name.trim())
   editModal.hide()
 }
 
