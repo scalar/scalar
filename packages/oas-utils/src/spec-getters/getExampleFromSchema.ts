@@ -1,5 +1,5 @@
 /** Hard limit for rendering circular references */
-const MAX_LEVELS_DEEP = 5
+const MAX_LEVELS_DEEP = 10
 
 /**
  * We can use the `format` to generate some random values.
