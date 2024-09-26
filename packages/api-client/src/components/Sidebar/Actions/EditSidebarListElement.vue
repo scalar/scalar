@@ -9,7 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'rename', newName: string): void
+  (e: 'edit', newName: string): void
 }>()
 
 const newName = ref(props.name)
@@ -17,7 +17,7 @@ const newName = ref(props.name)
 <template>
   <SidebarListElementForm
     @cancel="emit('close')"
-    @submit="emit('rename', newName)">
+    @submit="emit('edit', newName)">
     <ScalarTextField
       v-model="newName"
       autofocus />

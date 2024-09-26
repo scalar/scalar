@@ -136,19 +136,20 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     )
 
     return {
-      type: 'collection',
-      openapi: c.spec?.openapi || '3.1.0',
-      info: c.spec?.info || { title: 'OpenAPI Spec', version: '0.0.1' },
-      security: c.spec?.security || [],
-      externalDocs: c.spec?.externalDocs,
-      uid: c.uid,
+      'type': 'collection',
+      'openapi': c.spec?.openapi || '3.1.0',
+      'info': c.spec?.info || { title: 'OpenAPI Spec', version: '0.0.1' },
+      'security': c.spec?.security || [],
+      'externalDocs': c.spec?.externalDocs,
+      'uid': c.uid,
       securitySchemes,
-      selectedServerUid: c.selectedServerUid || c.spec?.serverUids?.[0] || '',
-      servers: c.spec?.serverUids || [],
-      requests: [...requestUids],
-      tags: [...tagUids],
+      'selectedServerUid': c.selectedServerUid || c.spec?.serverUids?.[0] || '',
+      'servers': c.spec?.serverUids || [],
+      'requests': [...requestUids],
+      'tags': [...tagUids],
       auth,
-      children: c.childUids || [],
+      'children': c.childUids || [],
+      'x-scalar-icon': 'interface-content-folder',
     } satisfies v_2_1_0.Collection
   })
 

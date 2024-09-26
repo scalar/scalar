@@ -21,10 +21,13 @@ defineOptions({ inheritAttrs: false })
       </PopoverButton>
       <template #floating="{ width, height }">
         <PopoverPanel
+          v-slot="{ close }"
           class="relative flex flex-col p-0.75"
           :style="{ width, height }"
           v-bind="$attrs">
-          <slot name="popover" />
+          <slot
+            :close="() => close()"
+            name="popover" />
           <div
             class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
         </PopoverPanel>

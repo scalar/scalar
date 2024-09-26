@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
+import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarListCollection.vue'
+import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
@@ -24,8 +25,7 @@ const emit = defineEmits<{
 const { replace } = useRouter()
 const { activeWorkspace, activeRouterParams } = useWorkspace()
 
-const tempName = ref('')
-const renameModal = useModal()
+const editModal = useModal()
 const deleteModal = useModal()
 
 /** Add example */
@@ -37,15 +37,9 @@ const handleAddExample = () =>
     },
   })
 
-const openRenameModal = () => {
-  tempName.value = props.menuItem.item?.title || ''
-  renameModal.show()
-}
-
-const handleItemRename = (newName: string) => {
-  tempName.value = newName
-  props.menuItem.item?.rename(newName)
-  renameModal.hide()
+const handleEdit = (newName: string, newIcon?: string) => {
+  props.menuItem.item?.edit(newName, newIcon)
+  editModal.hide()
 }
 
 /** Delete with redirect for both requests and requestExamples */
@@ -72,7 +66,7 @@ watch([() => props.menuItem.open, menuRef], async ([open]) => {
   if (open && menuRef.value?.$parent?.$el) menuRef.value.$parent.$el.focus()
 })
 
-// Close menu on click becuse headless dont seem to work
+// Close menu on click because headless doesn't seem to work
 const globalClickListener = () => props.menuItem.open && emit('closeMenu')
 onMounted(() => window.addEventListener('click', globalClickListener))
 onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
@@ -103,13 +97,18 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
       <ScalarDropdownItem
         ref="menuRef"
         class="flex gap-2"
-        @click="openRenameModal">
+        @click="editModal.show()">
         <ScalarIcon
           class="inline-flex"
           icon="Edit"
           size="md"
           thickness="1.5" />
-        <span>Rename</span>
+        <span>
+          <template v-if="menuItem.item?.entity.type === 'collection'">
+            Edit
+          </template>
+          <template v-else> Rename </template>
+        </span>
       </ScalarDropdownItem>
 
       <!-- Duplicate -->
@@ -152,12 +151,19 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
   </ScalarModal>
   <ScalarModal
     :size="'xxs'"
-    :state="renameModal"
-    :title="`Rename ${menuItem.item?.resourceTitle}`">
-    <RenameSidebarListElement
+    :state="editModal"
+    :title="`Edit ${menuItem.item?.resourceTitle}`">
+    <EditSidebarListCollection
+      v-if="menuItem.item?.resourceTitle === 'Collection'"
+      :icon="menuItem.item?.icon || 'interface-content-folder'"
+      :name="menuItem.item?.title"
+      @close="editModal.hide()"
+      @edit="handleEdit" />
+    <EditSidebarListElement
+      v-else
       :name="menuItem.item?.title ?? ''"
-      @close="renameModal.hide()"
-      @rename="handleItemRename" />
+      @close="editModal.hide()"
+      @edit="handleEdit" />
   </ScalarModal>
 </template>
 <style scoped>

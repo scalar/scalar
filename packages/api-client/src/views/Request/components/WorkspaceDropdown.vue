@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import RenameSidebarListElement from '@/components/Sidebar/Actions/RenameSidebarListElement.vue'
+import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store'
 import {
@@ -31,20 +31,22 @@ const createNewWorkspace = () =>
 
 const tempName = ref('')
 const tempUid = ref('')
-const renameModal = useModal()
+const editModal = useModal()
 const deleteModal = useModal()
 
 const openRenameModal = (uid: string) => {
   tempName.value = workspaces[uid].name
   tempUid.value = uid
-  renameModal.show()
+  editModal.show()
 }
 
-const handleWorkspaceRename = (name: string) => {
-  if (name.trim()) {
-    workspaceMutators.edit(tempUid.value, 'name', name.trim())
-    renameModal.hide()
+const handleWorkspaceEdit = (name: string) => {
+  if (!name.trim()) {
+    return
   }
+
+  workspaceMutators.edit(tempUid.value, 'name', name.trim())
+  editModal.hide()
 }
 
 const openDeleteModal = (uid: string) => {
@@ -205,11 +207,11 @@ const deleteWorkspace = async () => {
   </ScalarModal>
   <ScalarModal
     :size="'xxs'"
-    :state="renameModal"
+    :state="editModal"
     title="Rename Workspace">
-    <RenameSidebarListElement
+    <EditSidebarListElement
       :name="tempName"
-      @close="renameModal.hide()"
-      @rename="handleWorkspaceRename" />
+      @close="editModal.hide()"
+      @edit="handleWorkspaceEdit" />
   </ScalarModal>
 </template>

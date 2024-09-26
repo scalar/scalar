@@ -132,6 +132,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
+    "@scalar/icons": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

@@ -81,10 +81,13 @@ const item = computed<SidebarItem>(() => {
       entity: collection,
       resourceTitle: 'Collection',
       children: collection.children,
+      icon: collection['x-scalar-icon'],
       warning:
-        'This cannot be undone. You’re about to delete the collection and all folders andrequests inside it.',
-      rename: (name: string) =>
-        collectionMutators.edit(collection.uid, 'info.title', name),
+        'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
+      edit: (name: string, icon?: string) => {
+        collectionMutators.edit(collection.uid, 'info.title', name)
+        if (icon) collectionMutators.edit(collection.uid, 'x-scalar-icon', icon)
+      },
       delete: () =>
         collectionMutators.delete(collection, activeWorkspace.value),
     }
@@ -97,7 +100,7 @@ const item = computed<SidebarItem>(() => {
       children: tag.children,
       warning:
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
-      rename: (name: string) => tagMutators.edit(tag.uid, 'name', name),
+      edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
       delete: () => tagMutators.delete(tag, props.parentUids[0]),
     }
 
@@ -110,7 +113,7 @@ const item = computed<SidebarItem>(() => {
       resourceTitle: 'Request',
       warning: 'This cannot be undone. You’re about to delete the request.',
       children: request.examples,
-      rename: (name: string) =>
+      edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
       delete: () => requestMutators.delete(request, props.parentUids[0]),
     }
@@ -124,7 +127,7 @@ const item = computed<SidebarItem>(() => {
     warning:
       'This cannot be undone. You’re about to delete the example from the request.',
     children: [],
-    rename: (name: string) =>
+    edit: (name: string) =>
       requestExampleMutators.edit(requestExample.uid, 'name', name),
     delete: () => requestExampleMutators.delete(requestExample),
   }
@@ -405,7 +408,6 @@ function openCommandPaletteRequest() {
     </Draggable>
   </div>
 </template>
-
 <style>
 @import '@scalar/draggable/style.css';
 </style>
