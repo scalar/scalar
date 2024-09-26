@@ -25,7 +25,7 @@ export function schemaModel<T, I = any>(
   if (!result.success) {
     console.group('Schema Error' + (errorLocation ? ` - ${errorLocation}` : ''))
     console.warn(JSON.stringify(result.error.format(), null, 2))
-    console.log('Recieved: ', data)
+    console.log('Received: ', data)
     console.groupEnd()
   }
 
