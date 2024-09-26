@@ -21,6 +21,7 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
+import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -43,6 +44,9 @@ const {
 const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
+
+/** A local div to teleport the combobox to (rather than `body` which we don't control) */
+const teleportId = `combobox-${nanoid()}`
 
 /**
  * Available schemes that can be selected by a requestExample
@@ -180,7 +184,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               multiple
               :options="schemeOptions"
               style="margin-left: 120px"
-              teleport
+              :teleport="`#${teleportId}`"
               @delete="handleDeleteScheme"
               @update:modelValue="updateSelectedAuth">
               <ScalarButton
@@ -208,6 +212,11 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                         @click.stop="unselectAuth(auth.id)" />
                     </span>
                   </div>
+                  <Teleport
+                    v-if="selectedAuth.length"
+                    to="body">
+                    <div>Hello World</div>
+                  </Teleport>
                   <div class="fade-right"></div>
                 </div>
                 <div
@@ -229,6 +238,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
         :scheme="selectedScheme"
         :state="deleteSchemeModal"
         @close="deleteSchemeModal.hide()" />
+      <div :id="teleportId" />
     </form>
   </ViewLayoutCollapse>
 </template>
