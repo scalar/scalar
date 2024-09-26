@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
 import { useMediaQuery } from '@vueuse/core'
-import { defineProps, ref } from 'vue'
+import { ref } from 'vue'
 
 const props = withDefaults(
   defineProps<{
