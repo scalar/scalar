@@ -53,7 +53,7 @@ export function useUrlPrefetcher() {
         return Object.assign(prefetchResult, {
           state: 'idle',
           content: null,
-          error: `Couldn’t fetch the URL, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+          error: `Couldn’t fetch ${value}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
           version: null,
         })
       }
@@ -70,10 +70,15 @@ export function useUrlPrefetcher() {
     } catch (error: any) {
       console.error('[prefetchDocument]', error)
 
+      const message =
+        error?.message === 'Failed to fetch'
+          ? `Couldn’t reach ${value} — is it publicly accessible?`
+          : error?.message
+
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
-        error: error?.message,
+        error: message,
         version: null,
       })
     }

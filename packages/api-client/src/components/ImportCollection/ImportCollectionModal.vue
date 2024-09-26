@@ -118,10 +118,12 @@ watch(
               <div
                 class="flex gap-2 items-center p-3 font-code text-sm border rounded">
                 <ScalarIcon
-                  class="text-red"
+                  class="text-red flex-shrink-0"
                   icon="Error"
                   size="sm" />
-                <div>{{ prefetchResult.error }}</div>
+                <div>
+                  {{ prefetchResult.error }}
+                </div>
               </div>
             </template>
             <template v-else>
@@ -139,7 +141,8 @@ watch(
                     icon="Error"
                     size="sm" />
                   <div>
-                    Oh, this doesn’t seem to be an OpenAPI/Swagger document:
+                    Oh, this doesn’t seem to be a valid OpenAPI/Swagger
+                    document:
                   </div>
                 </div>
 
