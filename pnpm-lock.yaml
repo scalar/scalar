@@ -607,6 +607,9 @@ importers:
       pretty-ms:
         specifier: ^8.0.0
         version: 8.0.0
+      shell-quote:
+        specifier: ^1.8.1
+        version: 1.8.1
       vue:
         specifier: ^3.4.29
         version: 3.4.31(typescript@5.6.2)
@@ -632,6 +635,9 @@ importers:
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
+      '@types/shell-quote':
+        specifier: ^1.7.5
+        version: 1.7.5
       '@types/whatwg-mimetype':
         specifier: ^3.0.2
         version: 3.0.2
@@ -6945,6 +6951,9 @@ packages:
 
   '@types/serve-static@1.15.7':
     resolution: {integrity: sha512-W8Ym+h8nhuRwaKPaDw34QUkwsGi6Rc4yYqvKFo5rm2FUEhCFbzVWrxXUxuKK8TASjWsysJY0nsmNCGhCOIsrOw==}
+
+  '@types/shell-quote@1.7.5':
+    resolution: {integrity: sha512-+UE8GAGRPbJVQDdxi16dgadcBfQ+KG2vgZhV1+3A1XmHbmwcdwhCUwIdy+d3pAGrbvgRoVSjeI9vOWyq376Yzw==}
 
   '@types/sockjs@0.3.36':
     resolution: {integrity: sha512-MK9V6NzAS1+Ud7JV9lJLFqW85VbC9dq3LmwZCuBe4wBDgKC0Kj/jd8Xl+nSviU+Qc3+m7umHHyHg//2KSa0a0Q==}
@@ -24572,6 +24581,8 @@ snapshots:
       '@types/http-errors': 2.0.4
       '@types/node': 20.14.10
       '@types/send': 0.17.4
+
+  '@types/shell-quote@1.7.5': {}
 
   '@types/sockjs@0.3.36':
     dependencies:
