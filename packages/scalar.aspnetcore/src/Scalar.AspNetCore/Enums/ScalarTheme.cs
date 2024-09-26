@@ -48,7 +48,7 @@ public enum ScalarTheme
     /// <summary>
     /// Blue Planet theme.
     /// </summary>
-    [Description("blueplanet")]
+    [Description("bluePlanet")]
     BluePlanet,
 
     /// <summary>
@@ -72,6 +72,6 @@ public enum ScalarTheme
     /// <summary>
     /// Deep Space theme.
     /// </summary>
-    [Description("deepspace")]
+    [Description("deepSpace")]
     DeepSpace
 }
