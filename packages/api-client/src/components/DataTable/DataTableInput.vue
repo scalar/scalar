@@ -116,7 +116,7 @@ const handleDropdownMouseUp = () => {
     </div>
     <slot name="icon" />
     <ScalarIconButton
-      v-if="type === 'password'"
+      v-if="props.type === 'password'"
       class="-ml-.5 mr-1 h-6 w-6 self-center p-1.5"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
