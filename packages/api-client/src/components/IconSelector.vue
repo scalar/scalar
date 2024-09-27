@@ -33,7 +33,7 @@ const value = computed<string>({
         class="flex flex-col">
         <div class="flex text-sm">
           <RadioGroupLabel class="text-c-2 py-1 px-1">
-            <slot name="title">Select an icon...</slot>
+            <slot name="title">Select an icon</slot>
           </RadioGroupLabel>
         </div>
         <ul
@@ -48,7 +48,9 @@ const value = computed<string>({
             <RadioGroupLabel class="sr-only">
               {{ icon.src.replaceAll('-', ' ') }} Icon
             </RadioGroupLabel>
-            <LibraryIcon :src="icon.src" />
+            <LibraryIcon
+              class="stroke-2"
+              :src="icon.src" />
           </RadioGroupOption>
         </ul>
       </RadioGroup>
