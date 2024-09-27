@@ -92,7 +92,7 @@ watch(selectedSearchResult, (index) => {
 
   document.getElementById(newResult.item.href)?.scrollIntoView({
     behavior: 'smooth',
-    block: 'start',
+    block: 'nearest',
   })
 })
 
