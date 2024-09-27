@@ -1,14 +1,16 @@
 import type { RouteRecordRaw } from 'vue-router'
 
 import Bar from './views/Bar.vue'
-import Foo from './views/Foo.vue'
+import Introduction from './views/Introduction.vue'
+import Operation from './views/Operation.vue'
 
 /**
  * All route names as an enum
  */
 export const ROUTE_NAMES = {
-  FOO: 'scalar.foo',
+  INTRODUCTION: 'scalar.introduction',
   BAR: 'scalar.bar',
+  OPERATION: 'scalar.operation',
 } as const
 
 export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
@@ -19,8 +21,13 @@ export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
 export const routes: (RouteRecordRaw & {
   name: RouteName
 })[] = [
-  { path: '/', component: Foo, name: ROUTE_NAMES.FOO },
+  { path: '/', component: Introduction, name: ROUTE_NAMES.INTRODUCTION },
   { path: '/bar', component: Bar, name: ROUTE_NAMES.BAR },
+  {
+    path: '/:method([^/]+):path',
+    component: Operation,
+    name: ROUTE_NAMES.OPERATION,
+  },
 ].map((route) => {
   return {
     ...route,

@@ -28,12 +28,12 @@ if (WITH_ROUTING) {
     history: createWebHistory(),
     routes: [
       {
-        path: '/',
+        path: '/home',
         name: 'home',
         component: Home,
       },
       {
-        path: '/scalar',
+        path: '/',
         // We need this to route to a generic entrypoint `to: { name: 'scalar' }`
         name: 'scalar',
         component: ScalarApiReference,

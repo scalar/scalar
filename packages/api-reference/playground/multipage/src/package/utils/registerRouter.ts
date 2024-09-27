@@ -53,10 +53,13 @@ export function registerRouter(
       return
     }
 
-    const targetElement = document.getElementById(targetId)
+    const targetElement = document.querySelector(`[data-id="${route.path}"]`)
 
     if (!targetElement) {
-      console.error('[router.beforeEach] Can’t find the ID:', targetId)
+      console.error(
+        '[router.beforeEach] Can’t find the section:',
+        `[data-id="${route.path}"]`,
+      )
       return
     }
 
