@@ -6,12 +6,12 @@ import Foo from './views/Foo.vue'
 /**
  * All route names as an enum
  */
-export const ROUTES = {
+export const ROUTE_NAMES = {
   FOO: 'scalar.foo',
   BAR: 'scalar.bar',
 } as const
 
-export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]
+export type RouteName = (typeof ROUTE_NAMES)[keyof typeof ROUTE_NAMES]
 
 /**
  * All the routes, registered on the root level
@@ -19,12 +19,13 @@ export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]
 export const routes: (RouteRecordRaw & {
   name: RouteName
 })[] = [
-  { path: '/', component: Foo, name: ROUTES.FOO },
-  { path: '/bar', component: Bar, name: ROUTES.BAR },
+  { path: '/', component: Foo, name: ROUTE_NAMES.FOO },
+  { path: '/bar', component: Bar, name: ROUTE_NAMES.BAR },
 ].map((route) => {
   return {
     ...route,
     meta: {
+      // Helps us to hook into our routes only
       scalar: true,
     },
   }

@@ -7,8 +7,8 @@ import {
 } from 'vue-router'
 
 import Placeholder from '../components/Placeholder.vue'
-import RegisterRouter from './components/RegisterRouter.vue'
-import { ROUTES } from './routes'
+import { RegisterRouter } from './components/RegisterRouter'
+import { ROUTE_NAMES } from './routes'
 import Bar from './views/Bar.vue'
 import Foo from './views/Foo.vue'
 
@@ -38,10 +38,10 @@ withDefaults(
             class="flex flex-col gap-2 p-4"
             style="position: sticky; top: 20px">
             <li>
-              <RouterLink :to="{ name: ROUTES.FOO }">Foo</RouterLink>
+              <RouterLink :to="{ name: ROUTE_NAMES.FOO }">Foo</RouterLink>
             </li>
             <li>
-              <RouterLink :to="{ name: ROUTES.BAR }">Bar</RouterLink>
+              <RouterLink :to="{ name: ROUTE_NAMES.BAR }">Bar</RouterLink>
             </li>
           </ul>
         </Placeholder>
@@ -49,10 +49,10 @@ withDefaults(
         <Placeholder class="flex-grow w-full">
           <template v-if="pages === 'single'">
             <Foo
-              :id="ROUTES.FOO"
+              :id="ROUTE_NAMES.FOO"
               style="scroll-margin-top: 100px" />
             <Bar
-              :id="ROUTES.BAR"
+              :id="ROUTE_NAMES.BAR"
               style="scroll-margin-top: 100px" />
           </template>
           <template v-else>

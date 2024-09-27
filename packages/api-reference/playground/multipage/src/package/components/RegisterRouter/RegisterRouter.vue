@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { getCurrentInstance } from 'vue'
-import { type RouterHistory, createRouter, createWebHistory } from 'vue-router'
+import type { RouterHistory } from 'vue-router'
 
-import { ROUTES, type RouteName, routes } from '../routes'
+import { ROUTE_NAMES, type RouteName } from '../../routes'
+import { getOrCreateRouter } from './utils/getOrCreateRouter'
 
 const props = withDefaults(
   defineProps<{
@@ -14,33 +14,9 @@ const props = withDefaults(
   },
 )
 
-const router = getOrCreateRouter()
-
-/**
- * Retrieve the router from the Vue app instance or create and register a new one
- */
-function getOrCreateRouter() {
-  const instance = getCurrentInstance()
-
-  // Check if the app already has a router
-  if (instance?.proxy?.$router) {
-    return instance.proxy.$router
-  }
-
-  // If no router exists, create a new one
-  const newRouter = createRouter({
-    history: props.history ?? createWebHistory(),
-    routes: routes,
-  })
-
-  if (instance) {
-    instance.appContext.app.use(newRouter)
-  } else {
-    console.error('Failed to get current instance. Router not registered.')
-  }
-
-  return newRouter
-}
+const router = getOrCreateRouter({
+  history: props.history,
+})
 
 /**
  * Hook into the router to scroll instead of changing the views
@@ -56,9 +32,9 @@ router.afterEach((route) => {
 
   if (
     typeof targetRouteName === 'string' &&
-    !Object.values(ROUTES).includes(targetRouteName as RouteName)
+    !Object.values(ROUTE_NAMES).includes(targetRouteName as RouteName)
   ) {
-    const firstRoute = Object.values(ROUTES)[0]
+    const firstRoute = Object.values(ROUTE_NAMES)[0]
     router.replace({ name: firstRoute })
     return
   }

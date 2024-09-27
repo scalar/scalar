@@ -1,4 +1,4 @@
-// TODO: Remove
+// TODO: Remove CSS imports eventually
 import '@scalar/components/style.css'
 import '@scalar/themes/style.css'
 import { createApp } from 'vue'
@@ -34,14 +34,18 @@ if (WITH_ROUTING) {
       },
       {
         path: '/scalar',
+        // We need this to route to a generic entrypoint `to: { name: 'scalar' }`
         name: 'scalar',
         component: ScalarApiReference,
         props: {
+          // Render a onepager or separate pages
           pages: PAGES,
         },
         meta: {
+          // Otherwise we won’t hook into the routing
           scalar: true,
         },
+        // All routes without a leading slash
         children: routesAsChildren,
       },
     ],
