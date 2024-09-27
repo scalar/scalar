@@ -1,6 +1,6 @@
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { type Ref, isRef, ref, watch } from 'vue'
+import { type Ref, isRef, reactive, ref, watch } from 'vue'
 
 import { createDefaultTag } from '../utils/createDefaultTag'
 import { createMissingTags } from '../utils/createMissingTags'
@@ -32,7 +32,7 @@ export function useOpenApiDocument(
 ) {
   const state = ref<State>(State.Idle)
 
-  const openApiDocument = ref<OpenAPI.Document>({})
+  const openApiDocument = reactive<OpenAPI.Document>({})
 
   const errors: Error[] = []
 
@@ -52,7 +52,12 @@ export function useOpenApiDocument(
           const result = await handle(content)
 
           if (result) {
-            openApiDocument.value = result
+            console.log('UPADTED OPENAPI DOCUMENT')
+            // Overwrite openApiDocument with the new result
+            Object.keys(openApiDocument).forEach((key) => {
+              delete openApiDocument[key]
+            })
+            Object.assign(openApiDocument, result)
           }
         },
       )

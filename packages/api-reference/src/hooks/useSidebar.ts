@@ -1,7 +1,7 @@
 import { useApiClientStore, useOpenApiStore } from '#legacy'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Tag, TransformedOperation } from '@scalar/types/legacy'
+import type { Tag } from '@scalar/types/legacy'
 import { computed, reactive, ref, watch } from 'vue'
 
 // TODO: The result of `useSidebar` should be stored in a ref,
@@ -259,7 +259,7 @@ const items = computed(() => {
                   title:
                     webhook.summary ||
                     webhook.operationId ||
-                    `${webhook['x-scalar-computed'].name?.toUpperCase()} ${webhook['x-scalar-computed']?.path}`,
+                    `${webhook['x-scalar-computed']?.name?.toUpperCase()} ${webhook['x-scalar-computed']?.path}`,
                   httpVerb: httpVerb as string,
                   show: !state.showApiClient,
                 }

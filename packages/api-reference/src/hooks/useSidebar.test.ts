@@ -5,6 +5,8 @@ import { toValue } from 'vue'
 import { handle } from '../packages/openapi-sdk'
 import { type TagsSorterOption, useSidebar } from './useSidebar'
 
+// TODO: Webhooks don’t have name/title
+
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
  */
@@ -60,6 +62,27 @@ describe('useSidebar', async () => {
       }),
     ).toMatchObject({
       entries: [{ title: 'Hello World' }],
+    })
+  })
+
+  it('has an id', async () => {
+    expect(
+      await getItemsForDocument({
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/hello': {
+            get: {
+              summary: 'Hello World',
+            },
+          },
+        },
+      }),
+    ).toMatchObject({
+      entries: [{ id: 'tag/default/GET/hello' }],
     })
   })
 

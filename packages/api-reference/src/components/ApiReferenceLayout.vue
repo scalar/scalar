@@ -44,7 +44,6 @@ import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
 const props = defineProps<Omit<ReferenceLayoutProps, 'isDark'>>()
-
 defineEmits<{
   (e: 'changeTheme', { id, label }: { id: ThemeId; label: string }): void
   (e: 'updateContent', value: string): void
@@ -52,6 +51,8 @@ defineEmits<{
   (e: 'linkSwaggerFile'): void
   (e: 'toggleDarkMode'): void
 }>()
+
+const input = ref<string>('')
 
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
@@ -94,7 +95,7 @@ const {
   setCollapsedSidebarItem,
   hideModels,
   defaultOpenAllTags,
-  setParsedSpec,
+  setOpenApiDocument,
   scrollToOperation,
 } = useSidebar()
 
@@ -171,8 +172,20 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   spec: props.parsedSpec,
 }))
 
-// Keep the parsed spec up to date
-watch(() => props.parsedSpec, setParsedSpec, { deep: true })
+/**
+ * This is going to replace `legacyParse` and `parsedSpec`, it’s the future.
+ * It’s a OpenAPI-compatible and well typed OpenAPI document.
+ */
+const { openApiDocument } = useOpenApiDocument(input)
+
+// TODO: Can we replace with a toRef?
+watch(
+  () => props.rawSpec,
+  () => {
+    input.value = props.rawSpec
+  },
+  { immediate: true },
+)
 
 // Initialize the server state
 onServerPrefetch(() => {
@@ -254,12 +267,6 @@ const fontsStyleTag = computed(
     fonts: props.configuration.withDefaultFonts,
   })}</style>`,
 )
-
-/**
- * This is going to replace `legacyParse` and `parsedSpec`, it’s the future.
- * It’s a OpenAPI-compatible and well typed OpenAPI document.
- */
-const { openApiDocument } = useOpenApiDocument(props.rawSpec)
 </script>
 <template>
   <div v-html="fontsStyleTag"></div>
