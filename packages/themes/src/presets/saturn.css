@@ -71,7 +71,7 @@
 }
 .dark-mode h2.t-editor__heading,
 .dark-mode .t-editor__page-title h1,
-.dark-mode h1.section-header,
+.dark-mode h1.section-header:not(::selection),
 .dark-mode .markdown h1,
 .dark-mode .markdown h2,
 .dark-mode .markdown h3,

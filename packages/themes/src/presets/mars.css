@@ -17,6 +17,13 @@
   --scalar-background-accent: #dcbfa81f;
 
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 90%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 .dark-mode {
   --scalar-background-1: #140507;
@@ -32,6 +39,13 @@
   --scalar-background-accent: #441313;
 
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 50%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 
 /* Document Sidebar */
@@ -81,7 +95,7 @@
 /* Custom Theme */
 .dark-mode h2.t-editor__heading,
 .dark-mode .t-editor__page-title h1,
-.dark-mode h1.section-header,
+.dark-mode h1.section-header:not(::selection),
 .dark-mode .markdown h1,
 .dark-mode .markdown h2,
 .dark-mode .markdown h3,
