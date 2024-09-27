@@ -1,10 +1,22 @@
 import vue from '@vitejs/plugin-vue'
-import { defineConfig } from 'vitest/config'
+import type { UserConfig } from 'vite'
 
-export default defineConfig({
+const config: UserConfig = {
   root: './playground/multipage',
   plugins: [vue()],
-  resolve: {
-    dedupe: ['vue'],
+  // @ts-expect-error TODO
+  ssgOptions: {
+    script: 'async',
+    formatting: 'prettify',
+    entry: 'src/ssg.ts',
+    includeAllRoutes: false,
+    includedRoutes(paths) {
+      paths.push('/POST/%2Ffoobar')
+      paths.push('/GET/%2Ffoobar')
+
+      return paths.filter((path) => !path.includes(':'))
+    },
   },
-})
+}
+
+export default config

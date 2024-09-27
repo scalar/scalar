@@ -15,7 +15,7 @@ const props = withDefaults(
     history?: RouterHistory
   }>(),
   {
-    pages: 'single',
+    pages: 'multi',
   },
 )
 
