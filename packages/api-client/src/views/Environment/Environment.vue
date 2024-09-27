@@ -4,7 +4,6 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
-import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
@@ -90,71 +89,67 @@ const updateEnvironmentName = (event: Event) => {
 onMounted(setActiveEnvironment)
 </script>
 <template>
-  <SubpageHeader>
-    <ViewLayout>
-      <Sidebar title="Environment">
-        <template #content>
-          <div class="flex-1">
-            <SidebarList>
-              <SidebarListElement
-                v-for="environment in environments"
-                :key="environment.uid"
-                class="text-xs"
-                :variable="{
-                  name: environment.name,
-                  uid: environment.uid,
-                  color: environment.color,
-                  isDefault: environment.isDefault,
-                }"
-                :warningMessage="`Are you sure you want to delete this environment?`"
-                @click="activeEnvironmentID = environment.uid"
-                @delete="removeEnvironment(environment.uid)" />
-            </SidebarList>
+  <ViewLayout>
+    <Sidebar title="Environment">
+      <template #content>
+        <div class="flex-1">
+          <SidebarList>
+            <SidebarListElement
+              v-for="environment in environments"
+              :key="environment.uid"
+              class="text-xs"
+              :variable="{
+                name: environment.name,
+                uid: environment.uid,
+                color: environment.color,
+                isDefault: environment.isDefault,
+              }"
+              :warningMessage="`Are you sure you want to delete this environment?`"
+              @click="activeEnvironmentID = environment.uid"
+              @delete="removeEnvironment(environment.uid)" />
+          </SidebarList>
+        </div>
+      </template>
+      <template #button>
+        <SidebarButton :click="addEnvironment">
+          <template #title>Add Environment</template>
+        </SidebarButton>
+      </template>
+    </Sidebar>
+    <ViewLayoutContent class="flex-1">
+      <ViewLayoutSection>
+        <template
+          v-if="activeEnvironmentID"
+          #title>
+          <span
+            v-if="!isEditingName || environments[activeEnvironmentID].isDefault"
+            @dblclick="enableNameEditing">
+            {{ environments[activeEnvironmentID].name }}
+          </span>
+          <input
+            v-else
+            ref="nameInputRef"
+            class="ring-1 ring-offset-4 ring-b-outline rounded"
+            spellcheck="false"
+            type="text"
+            :value="environments[activeEnvironmentID].name"
+            @blur="isEditingName = false"
+            @input="updateEnvironmentName"
+            @keyup.enter="isEditingName = false" />
+          <div class="colors ml-auto">
+            <EnvironmentColors
+              :activeColor="environments[activeEnvironmentID].color"
+              @select="handleColorSelect" />
           </div>
         </template>
-        <template #button>
-          <SidebarButton :click="addEnvironment">
-            <template #title>Add Environment</template>
-          </SidebarButton>
-        </template>
-      </Sidebar>
-      <ViewLayoutContent class="flex-1">
-        <ViewLayoutSection>
-          <template
-            v-if="activeEnvironmentID"
-            #title>
-            <span
-              v-if="
-                !isEditingName || environments[activeEnvironmentID].isDefault
-              "
-              @dblclick="enableNameEditing">
-              {{ environments[activeEnvironmentID].name }}
-            </span>
-            <input
-              v-else
-              ref="nameInputRef"
-              class="ring-1 ring-offset-4 ring-b-outline rounded"
-              spellcheck="false"
-              type="text"
-              :value="environments[activeEnvironmentID].name"
-              @blur="isEditingName = false"
-              @input="updateEnvironmentName"
-              @keyup.enter="isEditingName = false" />
-            <div class="colors ml-auto">
-              <EnvironmentColors
-                :activeColor="environments[activeEnvironmentID].color"
-                @select="handleColorSelect" />
-            </div>
-          </template>
-          <CodeInput
-            v-if="activeEnvironmentID"
-            class="pl-px pr-2 md:px-2 py-2.5"
-            language="json"
-            lineNumbers
-            :modelValue="environments[activeEnvironmentID].value"
-            @update:modelValue="handleEnvironmentUpdate" />
-        </ViewLayoutSection>
-      </ViewLayoutContent>
-    </ViewLayout>
-  </SubpageHeader>
+        <CodeInput
+          v-if="activeEnvironmentID"
+          class="pl-px pr-2 md:px-2 py-2.5"
+          language="json"
+          lineNumbers
+          :modelValue="environments[activeEnvironmentID].value"
+          @update:modelValue="handleEnvironmentUpdate" />
+      </ViewLayoutSection>
+    </ViewLayoutContent>
+  </ViewLayout>
 </template>

@@ -17,7 +17,7 @@ const getLineAnimation = (chars: number, row: number): StyleValue => ({
 </script>
 <template>
   <div
-    class="ascii-art font-code text-c-3 flex flex-col items-start text-[6px] leading-[7px]"
+    class="ascii-art font-code flex flex-col items-start text-[6px] leading-[7px]"
     :class="{ 'ascii-art-animate': animate }">
     <span
       v-for="(line, i) in lines"

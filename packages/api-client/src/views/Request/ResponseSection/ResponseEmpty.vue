@@ -40,7 +40,9 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
           >
         </div>
       </div>
-      <ScalarAsciiArt :art="Computer" />
+      <ScalarAsciiArt
+        :art="Computer"
+        class="text-c-3" />
     </div>
     <div
       class="text-c-3 right-4 mt-auto flex w-full flex-col items-end gap-2 text-sm">

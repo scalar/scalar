@@ -71,6 +71,10 @@ const activeSection = ref<ActiveSections>('All')
         <ResponseMetaInformation
           v-if="response"
           :response="response" />
+        <ContextBar
+          :activeSection="activeSection"
+          :sections="sections"
+          @setActiveSection="activeSection = $event" />
       </div>
     </template>
     <div
@@ -79,10 +83,6 @@ const activeSection = ref<ActiveSections>('All')
         <ResponseEmpty />
       </template>
       <template v-else>
-        <ContextBar
-          :activeSection="activeSection"
-          :sections="sections"
-          @setActiveSection="activeSection = $event" />
         <ResponseCookies
           v-if="activeSection === 'All' || activeSection === 'Cookies'"
           :cookies="responseCookies" />

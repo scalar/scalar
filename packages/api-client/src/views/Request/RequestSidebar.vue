@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import Rabbit from '@/assets/rabbit.ascii?raw'
+import RabbitJump from '@/assets/rabbitjump.ascii?raw'
 import { Sidebar } from '@/components'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
@@ -183,14 +186,35 @@ onBeforeUnmount(() => {
       </div>
     </template>
     <template #button>
-      <SidebarButton
-        v-if="!isReadonly"
+      <div
+        class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 -translate-y-full w-[inherit]"
         :class="{
           'empty-sidebar-item': activeWorkspaceRequests.length === 1,
-        }"
-        :click="commandPaletteBus.emit">
-        <template #title>Add Item</template>
-      </SidebarButton>
+          'border-t-1/2': activeWorkspaceRequests.length === 1,
+        }">
+        <div class="empty-sidebar-item-content px-2.5 py-2.5">
+          <div class="w-[60px] h-[68px] m-auto rabbit-ascii mt-2 relative">
+            <ScalarAsciiArt
+              :art="Rabbit"
+              class="font-bold rabbitsit" />
+            <ScalarAsciiArt
+              :art="RabbitJump"
+              class="font-bold absolute top-0 left-0 rabbitjump" />
+          </div>
+          <div class="text-center text-balance text-sm mb-2 mt-2">
+            <b class="font-medium">Let's Get Started</b>
+            <p class="mt-2">
+              Create request, folder, collection or import OpenAPI, Postman or
+              Insomnia
+            </p>
+          </div>
+        </div>
+        <SidebarButton
+          v-if="!isReadonly"
+          :click="commandPaletteBus.emit">
+          <template #title>Add Item</template>
+        </SidebarButton>
+      </div>
     </template>
   </Sidebar>
 
@@ -207,5 +231,76 @@ onBeforeUnmount(() => {
     color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
     transparent
   );
+}
+.empty-sidebar-item:deep(.scalar-button) {
+  background: var(--scalar-button-1);
+  color: var(--scalar-button-1-color);
+}
+.empty-sidebar-item:deep(.scalar-button:hover) {
+  background: var(--scalar-button-1-hover);
+}
+.empty-sidebar-item:deep(.add-item-hotkey) {
+  color: var(--scalar-button-1-color);
+  background: color-mix(in srgb, var(--scalar-button-1), white 20%);
+  border-color: transparent;
+}
+.empty-sidebar-item-content {
+  display: none;
+}
+.empty-sidebar-item .empty-sidebar-item-content {
+  display: block;
+}
+.rabbitjump {
+  opacity: 0;
+}
+.empty-sidebar-item:hover .rabbitjump {
+  opacity: 1;
+  animation: rabbitAnimation 0.5s steps(1) infinite;
+}
+.empty-sidebar-item:hover .rabbitsit {
+  opacity: 0;
+  animation: rabbitAnimation2 0.5s steps(1) infinite;
+}
+.empty-sidebar-item:hover .rabbit-ascii {
+  animation: rabbitRun 8s infinite linear;
+}
+@keyframes rabbitRun {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  25% {
+    transform: translate3d(250px, 0, 0);
+  }
+  25.01% {
+    transform: translate3d(-250px, 0, 0);
+  }
+  75% {
+    transform: translate3d(250px, 0, 0);
+  }
+  75.01% {
+    transform: translate3d(-250px, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes rabbitAnimation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes rabbitAnimation2 {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    transform: translate3d(0, -8px, 0);
+  }
 }
 </style>

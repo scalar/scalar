@@ -279,6 +279,7 @@ export default {
   color: var(--scalar-color-3);
   font-size: var(--scalar-small);
   line-height: 1.44;
+  border-radius: 0 0 0 3px;
 }
 :deep(.cm-gutterElement) {
   font-family: var(--scalar-font-code) !important;
