@@ -26,7 +26,7 @@ onMounted(async () => {
   const { app, open, updateAuth, modalState, updateSpec, updateServer } =
     await createApiClientModal(el.value, {
       spec: props.spec ?? {},
-      initialScheme: props.preferredSecurityScheme,
+      preferredSecurityScheme: props.preferredSecurityScheme,
       proxyUrl: props.proxyUrl,
       servers: props.servers,
     })

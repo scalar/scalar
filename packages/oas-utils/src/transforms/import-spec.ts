@@ -22,6 +22,7 @@ import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { AuthenticationState } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -65,7 +66,7 @@ const convertOauth2Flows = (
  */
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
-  initialScheme?: string | null,
+  preferredSecurityScheme?: AuthenticationState['preferredSecurityScheme'],
 ): Promise<
   | {
       error: false
@@ -191,8 +192,9 @@ export async function importSpecToWorkspace(
         // Set the initially selected security scheme
         if (securityRequirements.length) {
           const name =
-            initialScheme && securityRequirements.includes(initialScheme ?? '')
-              ? initialScheme
+            preferredSecurityScheme &&
+            securityRequirements.includes(preferredSecurityScheme ?? '')
+              ? preferredSecurityScheme
               : securityRequirements[0]
           const uid = securitySchemeMap[name]
           selectedSecuritySchemeUids = [uid]

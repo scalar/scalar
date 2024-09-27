@@ -25,7 +25,7 @@ export function importSpecFileFactory({
      * attach those as needed to entities below
      */
     overloadServers?: Spec['servers'],
-    initialScheme?: ClientConfiguration['initialScheme'],
+    preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme'],
   ) => {
     const spec = toRaw(_spec)
 
@@ -33,7 +33,10 @@ export function importSpecFileFactory({
     if (overloadServers?.length && typeof spec === 'object')
       spec.servers = overloadServers
 
-    const workspaceEntities = await importSpecToWorkspace(spec, initialScheme)
+    const workspaceEntities = await importSpecToWorkspace(
+      spec,
+      preferredSecurityScheme,
+    )
 
     if (workspaceEntities.error) {
       console.group('IMPORT ERRORS')
@@ -66,11 +69,16 @@ export function importSpecFileFactory({
     url: string,
     proxy?: string,
     overloadServers?: Spec['servers'],
-    initialScheme?: ClientConfiguration['initialScheme'],
+    preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme'],
   ) {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(spec, undefined, overloadServers, initialScheme)
+      await importSpecFile(
+        spec,
+        undefined,
+        overloadServers,
+        preferredSecurityScheme,
+      )
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
     }

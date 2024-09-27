@@ -5,57 +5,24 @@ import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { ThemeId } from '@scalar/themes'
-import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
+import type {
+  AuthenticationState,
+  ReferenceConfiguration,
+  SpecConfiguration,
+} from '@scalar/types/legacy'
 import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp } from 'vue'
 import type { Router } from 'vue-router'
 
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
-  /** The Swagger/OpenAPI spec to render */
-  spec?: SpecConfiguration
-  /** Pass in a proxy to the API client */
-  proxyUrl?: string
-  /** Pass in a theme API client */
-  themeId?: ThemeId
-  /** Whether to show the sidebar */
-  showSidebar?: boolean
-  /** The initially selected security scheme */
-  initialScheme?: string | null
-  /** override the initial servers */
-  servers?: Spec['servers']
-  /** Whether dark mode is on or off initially (light mode) */
-  // darkMode?: boolean
-  /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
-  searchHotKey?:
-    | 'a'
-    | 'b'
-    | 'c'
-    | 'd'
-    | 'e'
-    | 'f'
-    | 'g'
-    | 'h'
-    | 'i'
-    | 'j'
-    | 'k'
-    | 'l'
-    | 'm'
-    | 'n'
-    | 'o'
-    | 'p'
-    | 'q'
-    | 'r'
-    | 's'
-    | 't'
-    | 'u'
-    | 'v'
-    | 'w'
-    | 'x'
-    | 'y'
-    | 'z'
-}
+  proxyUrl?: ReferenceConfiguration['proxy']
+  themeId?: ReferenceConfiguration['theme']
+  preferredSecurityScheme?: AuthenticationState['preferredSecurityScheme']
+} & Pick<
+  ReferenceConfiguration,
+  'spec' | 'showSidebar' | 'servers' | 'searchHotKey'
+>
 
 export type OpenClientPayload = {
   path: string
