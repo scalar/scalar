@@ -86,7 +86,16 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
   }
 }
 
-const searchResultRefs = ref<(typeof ScalarSearchResultItem)[]>([])
+// Scroll to the currently selected result
+watch(selectedSearchResult, (index) => {
+  const newResult = searchResultsWithPlaceholderResults.value[index]
+
+  document.getElementById(newResult.item.href)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  })
+})
+
 const scrollerEl = ref<typeof ScalarSearchResultList | null>(null)
 
 const navigateSearchResults = (direction: 'up' | 'down') => {
@@ -94,20 +103,8 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
   const length = searchResultsWithPlaceholderResults.value.length
 
   // Ensures we loop around the array by using the remainder
-  selectedSearchResult.value =
-    (selectedSearchResult.value + offset + length) % length
-
-  // Scroll the selected item into view
-  nextTick(() => {
-    // We gotta use the fistChild due to display: contents
-    const element =
-      searchResultRefs.value[selectedSearchResult.value].$el.firstChild
-
-    if (element instanceof HTMLElement)
-      element.scrollIntoView({
-        behavior: 'smooth',
-      })
-  })
+  const newIndex = (selectedSearchResult.value + offset + length) % length
+  selectedSearchResult.value = newIndex
 }
 
 // given just a #hash-name, we grab the full URL to be explicit to
@@ -146,16 +143,17 @@ function getFullUrlFromHash(href: string) {
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
         :id="entry.item.href"
         :key="entry.refIndex"
-        ref="searchResultRefs"
         :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
         :icon="ENTRY_ICONS[entry.item.type]"
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         <span
-          :class="{ deprecated: entry.item.operation?.information?.deprecated }"
-          >{{ entry.item.title }}</span
-        >
+          :class="{
+            deprecated: entry.item.operation?.information?.deprecated,
+          }">
+          {{ entry.item.title }}
+        </span>
         <template
           v-if="
             (entry.item.httpVerb || entry.item.path) &&
