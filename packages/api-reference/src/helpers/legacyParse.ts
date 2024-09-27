@@ -18,11 +18,16 @@ import type {
 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 
-import { createEmptySpecification } from '../helpers'
+import { createEmptySpecification } from '.'
 
 type AnyObject = Record<string, any>
 
-export const parse = (
+/**
+ * This function takes an OpenAPI Document and loads it and transforms it (in strange ways).
+ *
+ * @deprecated We’re moving away from this function, to a new `useOpenApiDocument` hook and related helper methods
+ */
+export const legacyParse = (
   specification: any,
   {
     proxy,

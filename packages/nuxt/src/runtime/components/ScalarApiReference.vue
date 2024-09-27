@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useHead, useRequestURL, useSeoMeta } from '#imports'
-import { ModernLayout, parse } from '@scalar/api-reference'
+import { ModernLayout, legacyParse } from '@scalar/api-reference'
 import { reactive, ref, toRaw } from 'vue'
 import type { Configuration } from '~/src/types'
 
@@ -21,7 +21,7 @@ const content: unknown = props.configuration.spec?.content
 if (!content)
   throw new Error('You must provide a spec for Scalar API References')
 
-const parsedSpec = reactive(await parse(content))
+const parsedSpec = reactive(await legacyParse(content))
 const rawSpec = JSON.stringify(content)
 
 // Load up the metadata

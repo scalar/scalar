@@ -62,7 +62,7 @@ defineSlots<{
     errors: typeof errors.value
     /** OpenAPI version of the given document */
     version: typeof version.value
-    /** The dereferenced OpenAPI Document */
+    /** Just the dereferenced OpenAPI Document, without any transformations */
     dereferenced: typeof dereferenced.value
     /**
      * Dereferenced, normalized and parsedSpec OpenAPI document

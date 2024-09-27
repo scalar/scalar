@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
 
-import { parse } from '../helpers'
+import { legacyParse } from '../helpers'
 import { type TagsSorterOption, useSidebar } from './useSidebar'
 
 /**
@@ -11,7 +11,7 @@ async function getItemsForDocument(
   definition: Record<string, any>,
   options?: TagsSorterOption,
 ) {
-  const parsedSpec = await parse(definition)
+  const parsedSpec = await legacyParse(definition)
 
   const { items } = useSidebar({
     ...{

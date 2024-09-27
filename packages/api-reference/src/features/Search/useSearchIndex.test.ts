@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { toRef } from 'vue'
 
-import { createEmptySpecification, parse } from '../../helpers'
+import { createEmptySpecification, legacyParse } from '../../helpers'
 import { useSearchIndex } from './useSearchIndex'
 
 describe('useSearchIndex', () => {
   it('should create the search index from an OpenAPI document', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         paths: {
           '/foobar': {

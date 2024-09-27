@@ -3,7 +3,7 @@
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
 import { createApiClientModal } from '@scalar/api-client'
-import { parse } from '@scalar/api-reference'
+import { legacyParse } from '@scalar/api-reference'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { reactive } from 'vue'
 
@@ -72,7 +72,7 @@ if (!specUrlElement && !specElement && !specScriptTag) {
   const createAppFactory = async () => {
     const specUrl = getSpecUrl()
 
-    const parsedSpec: Spec = reactive(await parse(specUrl))
+    const parsedSpec: Spec = reactive(await legacyParse(specUrl))
 
     if (!container) {
       console.error('Could not find a mount point for API References')
