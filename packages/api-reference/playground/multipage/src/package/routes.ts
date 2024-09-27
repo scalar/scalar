@@ -24,7 +24,7 @@ export const routes: (RouteRecordRaw & {
   { path: '/', component: Introduction, name: ROUTE_NAMES.INTRODUCTION },
   { path: '/bar', component: Bar, name: ROUTE_NAMES.BAR },
   {
-    path: '/:method([^/]+):path',
+    path: '/:method/:path',
     component: Operation,
     name: ROUTE_NAMES.OPERATION,
   },

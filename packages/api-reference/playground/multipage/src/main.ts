@@ -11,7 +11,7 @@ import { ScalarApiReference, routesAsChildren } from './package'
 /** Simulate a main app with an existing router, using just our component */
 const WITH_ROUTING = true
 /** Configure to render a onepager or a separate page for every operation */
-const PAGES: 'single' | 'multi' = 'single'
+const PAGES: 'single' | 'multi' = 'multi'
 
 const app = createApp(
   WITH_ROUTING ? App : ScalarApiReference,

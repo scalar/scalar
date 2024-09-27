@@ -106,17 +106,11 @@ const operations = [
                   path,
                 },
               }">
-              <Operation>
-                {{
-                  $router.resolve({
-                    name: ROUTE_NAMES.OPERATION,
-                    params: {
-                      method,
-                      path,
-                    },
-                  }).path
-                }}
-              </Operation>
+              <Operation
+                :params="{
+                  method,
+                  path,
+                }" />
             </Section>
           </template>
         </template>
