@@ -164,7 +164,7 @@ onBeforeUnmount(() => {
             @openMenu="(item) => Object.assign(menuItem, item)">
             <template #leftIcon>
               <LibraryIcon
-                class="text-sidebar-c-2 size-3.5 group-hover:hidden"
+                class="text-sidebar-c-2 size-3.5 stroke-[2.5] group-hover:hidden"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
                 " />
