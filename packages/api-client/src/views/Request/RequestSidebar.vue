@@ -189,8 +189,8 @@ onBeforeUnmount(() => {
       <div
         class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 -translate-y-full w-[inherit]"
         :class="{
-          'empty-sidebar-item': activeWorkspaceRequests.length === 1,
-          'border-t-1/2': activeWorkspaceRequests.length === 1,
+          'empty-sidebar-item': activeWorkspaceRequests.length <= 1,
+          'border-t-1/2': activeWorkspaceRequests.length <= 1,
         }">
         <div class="empty-sidebar-item-content px-2.5 py-2.5">
           <div class="w-[60px] h-[68px] m-auto rabbit-ascii mt-2 relative">
