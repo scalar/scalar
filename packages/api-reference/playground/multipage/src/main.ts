@@ -9,7 +9,7 @@ import Home from './Home.vue'
 import { ScalarApiReference, routesAsChildren } from './package'
 
 /** Simulate a main app with an existing router, using just our component */
-const WITH_ROUTING = true
+const WITH_ROUTING = false
 /** Configure to render a onepager or a separate page for every operation */
 const PAGES: 'single' | 'multi' = 'multi'
 
@@ -38,6 +38,9 @@ if (WITH_ROUTING) {
         component: ScalarApiReference,
         props: {
           pages: PAGES,
+        },
+        meta: {
+          scalar: true,
         },
         children: routesAsChildren,
       },

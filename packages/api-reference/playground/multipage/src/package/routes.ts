@@ -11,19 +11,21 @@ export const ROUTES = {
   BAR: 'scalar.bar',
 } as const
 
+export type RouteName = (typeof ROUTES)[keyof typeof ROUTES]
+
 /**
  * All the routes, registered on the root level
  */
 export const routes: (RouteRecordRaw & {
-  name: (typeof ROUTES)[keyof typeof ROUTES]
+  name: RouteName
 })[] = [
-  { path: '/foo', component: Foo, name: ROUTES.FOO },
+  { path: '/', component: Foo, name: ROUTES.FOO },
   { path: '/bar', component: Bar, name: ROUTES.BAR },
 ].map((route) => {
   return {
     ...route,
     meta: {
-      fromScalar: true,
+      scalar: true,
     },
   }
 })

@@ -2,7 +2,7 @@
 import { getCurrentInstance } from 'vue'
 import { type RouterHistory, createRouter, createWebHistory } from 'vue-router'
 
-import { routes } from '../routes'
+import { ROUTES, type RouteName, routes } from '../routes'
 
 const props = withDefaults(
   defineProps<{
@@ -45,31 +45,45 @@ function getOrCreateRouter() {
 /**
  * Hook into the router to scroll instead of changing the views
  */
-router.beforeEach((to, from, next) => {
-  // No need to hook into the router if we have multiple pages
-  if (props.pages === 'multi' || to.meta?.fromScalar !== true) {
-    next()
+router.afterEach((route) => {
+  // No need to hook into the router if it’s not our route
+  if (route.meta?.scalar !== true) {
+    return
+  }
+
+  // Redirect if the route is invalid
+  const targetRouteName = route.name
+
+  if (
+    typeof targetRouteName === 'string' &&
+    !Object.values(ROUTES).includes(targetRouteName as RouteName)
+  ) {
+    const firstRoute = Object.values(ROUTES)[0]
+    router.replace({ name: firstRoute })
+    return
+  }
+
+  // No need to hook into the router if we have multiple pages,
+  if (props.pages === 'multi') {
     return
   }
 
   // Scroll to the target element
-  const targetId = to.name
+  const targetId = route.name
 
   if (typeof targetId !== 'string') {
-    console.error(`[router.beforeEach] Route doesn’t have a name.`, to)
+    console.error(`[router.beforeEach] Route doesn’t have a name:`, route)
     return
   }
 
   const targetElement = document.getElementById(targetId)
 
   if (!targetElement) {
-    console.error('[router.beforeEach] Can’t find the ID.', targetId)
+    console.error('[router.beforeEach] Can’t find the ID:', targetId)
     return
   }
 
   targetElement.scrollIntoView({ behavior: 'smooth' })
-
-  next()
 })
 </script>
 <template>

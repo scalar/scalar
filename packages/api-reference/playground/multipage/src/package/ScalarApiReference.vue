@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { type RouterHistory, RouterLink, RouterView } from 'vue-router'
+import {
+  type RouterHistory,
+  RouterLink,
+  RouterView,
+  useRouter,
+} from 'vue-router'
 
 import Placeholder from '../components/Placeholder.vue'
 import RegisterRouter from './components/RegisterRouter.vue'
@@ -43,8 +48,12 @@ withDefaults(
         <!-- Content -->
         <Placeholder class="flex-grow w-full">
           <template v-if="pages === 'single'">
-            <Foo :id="ROUTES.FOO" />
-            <Bar :id="ROUTES.BAR" />
+            <Foo
+              :id="ROUTES.FOO"
+              style="scroll-margin-top: 100px" />
+            <Bar
+              :id="ROUTES.BAR"
+              style="scroll-margin-top: 100px" />
           </template>
           <template v-else>
             <RouterView />
