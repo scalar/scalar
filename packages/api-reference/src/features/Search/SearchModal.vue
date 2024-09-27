@@ -9,13 +9,12 @@ import {
 } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
-import { ref, toRef, watch } from 'vue'
+import { nextTick, ref, toRef, watch } from 'vue'
 
 import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
 import { scrollToId } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { useKeyboardNavigation } from './useKeyboardNavigation'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
 const props = defineProps<{
@@ -24,7 +23,6 @@ const props = defineProps<{
 }>()
 
 const specification = toRef(props, 'parsedSpec')
-const modalIsOpen = toRef(props.modalState.open)
 
 const {
   resetSearch,
@@ -34,13 +32,6 @@ const {
   searchText,
 } = useSearchIndex({
   specification,
-})
-
-useKeyboardNavigation({
-  selectedSearchResult,
-  active: modalIsOpen,
-  searchResultsWithPlaceholderResults,
-  onSearchResultClick,
 })
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
@@ -95,6 +86,26 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
   }
 }
 
+// Scroll to the currently selected result
+watch(selectedSearchResult, (index) => {
+  const newResult = searchResultsWithPlaceholderResults.value[index]
+
+  document.getElementById(newResult.item.href)?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+  })
+})
+
+/** Keyboard navigation */
+const navigateSearchResults = (direction: 'up' | 'down') => {
+  const offset = direction === 'up' ? -1 : 1
+  const length = searchResultsWithPlaceholderResults.value.length
+
+  // Ensures we loop around the array by using the remainder
+  const newIndex = (selectedSearchResult.value + offset + length) % length
+  selectedSearchResult.value = newIndex
+}
+
 // given just a #hash-name, we grab the full URL to be explicit to
 // handle edge cases of other framework routers resetting to base URL on navigation
 function getFullUrlFromHash(href: string) {
@@ -108,7 +119,14 @@ function getFullUrlFromHash(href: string) {
 <template>
   <ScalarModal
     :state="modalState"
-    variant="search">
+    variant="search"
+    @keydown.down.stop.prevent="navigateSearchResults('down')"
+    @keydown.enter.stop.prevent="
+      onSearchResultClick(
+        searchResultsWithPlaceholderResults[selectedSearchResult],
+      )
+    "
+    @keydown.up.stop.prevent="navigateSearchResults('up')">
     <div
       ref="searchModalRef"
       class="ref-search-container">
@@ -129,9 +147,11 @@ function getFullUrlFromHash(href: string) {
         @click="onSearchResultClick(entry)"
         @focus="selectedSearchResult = index">
         <span
-          :class="{ deprecated: entry.item.operation?.information?.deprecated }"
-          >{{ entry.item.title }}</span
-        >
+          :class="{
+            deprecated: entry.item.operation?.information?.deprecated,
+          }">
+          {{ entry.item.title }}
+        </span>
         <template
           v-if="
             (entry.item.httpVerb || entry.item.path) &&
