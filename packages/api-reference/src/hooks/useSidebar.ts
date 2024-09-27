@@ -165,7 +165,8 @@ const items = computed(() => {
               show: true,
               children: operations?.map((operation: OpenAPI.Operation) => {
                 const id = getOperationId(operation, tag)
-                const title = operation.name ?? operation.path
+                const title =
+                  operation['x-scalar-computed'].name ?? operation.path
                 titlesById[id] = title
 
                 return {
@@ -190,7 +191,7 @@ const items = computed(() => {
           firstTag,
         ).map((operation) => {
           const id = getOperationId(operation, firstTag)
-          const title = operation.name ?? operation.path
+          const title = operation['x-scalar-computed'].name ?? operation.path
           titlesById[id] = title
 
           return {
@@ -319,6 +320,12 @@ const items = computed(() => {
     titles: titlesById,
   }
 })
+
+/**
+ * Controls whether or not the sidebar is open on mobile-only.
+ * Desktop uses the standard showSidebar prop which supercedes this one.
+ */
+const isSidebarOpen = ref(false)
 
 const breadcrumb = computed(() => items.value?.titles?.[hash.value] ?? '')
 
