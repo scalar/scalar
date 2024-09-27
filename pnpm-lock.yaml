@@ -1114,6 +1114,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/config':
+        specifier: workspace:*
+        version: link:../config
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server
@@ -1393,6 +1396,28 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2)
+
+  packages/config:
+    dependencies:
+      '@sinclair/typebox':
+        specifier: ^0.33.3
+        version: 0.33.3
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.14.10
+      rollup:
+        specifier: ^4.16.4
+        version: 4.18.1
+      vite:
+        specifier: ^5.2.10
+        version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
   packages/docusaurus:
     dependencies:
@@ -6043,6 +6068,9 @@ packages:
 
   '@sinclair/typebox@0.27.8':
     resolution: {integrity: sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==}
+
+  '@sinclair/typebox@0.33.3':
+    resolution: {integrity: sha512-2MputLKNw0OxPGWF8KWkLt8B/csTZUkK2tCtiZwJT3NtVOfYPVi6ZEchZAHEHre/qJ4skcS9fL7TuHG36Dk3WQ==}
 
   '@sindresorhus/is@0.14.0':
     resolution: {integrity: sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==}
@@ -23276,6 +23304,8 @@ snapshots:
 
   '@sinclair/typebox@0.27.8': {}
 
+  '@sinclair/typebox@0.33.3': {}
+
   '@sindresorhus/is@0.14.0': {}
 
   '@sindresorhus/is@4.6.0': {}
@@ -36630,7 +36660,7 @@ snapshots:
       joycon: 3.1.1
       postcss-load-config: 4.0.2(postcss@8.4.39)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2))
       resolve-from: 5.0.0
-      rollup: 4.18.0
+      rollup: 4.18.1
       source-map: 0.8.0-beta.0
       sucrase: 3.35.0
       tree-kill: 1.2.2

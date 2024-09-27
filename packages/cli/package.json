@@ -23,7 +23,7 @@
   "scripts": {
     "@scalar/cli": "pnpm vite-node src/index.ts",
     "build": "scalar-build-rollup",
-    "link:cli": "pnpm run build && npm unlink -g @scalar/cli && npm link",
+    "cli:link": "pnpm run build && npm unlink -g @scalar/cli && npm link",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "screenshot": "./scripts/take-screenshots.sh",
@@ -49,6 +49,7 @@
     "@hono/node-server": "^1.11.0",
     "@parcel/watcher": "^2.4.1",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/config": "workspace:*",
     "@scalar/mock-server": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

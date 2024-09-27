@@ -172,6 +172,20 @@ scalar init
 
 This will create a `scalar.config.json` file for you. All commands will use the configured OpenAPI file by default.
 
+### check
+
+Validate a Scalar Configuration file (`scalar.config.json`), gives helpful hints to fix invalid configurations. To check a `scalar.config.json` in the same folder:
+
+```bash
+scalar check
+```
+
+Or to validate a specific file:
+
+```bash
+scalar check some-custom-folder/scalar.config.json
+```
+
 ## Options
 
 ### --version
