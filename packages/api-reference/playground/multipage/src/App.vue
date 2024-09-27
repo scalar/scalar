@@ -5,9 +5,13 @@ import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <div>
-    <RouterLink :to="{ name: 'home' }">Home</RouterLink>
-    <RouterLink :to="{ name: 'scalar' }">Scalar API Reference</RouterLink>
+  <div class="scalar-app">
+    <div class="p-3 pb-0">
+      <div class="border p-3 flex gap-4 font-code">
+        <RouterLink :to="{ name: 'home' }">Home</RouterLink>
+        <RouterLink :to="{ name: 'scalar' }">Scalar API Reference</RouterLink>
+      </div>
+    </div>
+    <RouterView />
   </div>
-  <RouterView />
 </template>

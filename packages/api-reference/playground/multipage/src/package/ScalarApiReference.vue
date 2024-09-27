@@ -3,6 +3,7 @@ import { type RouterHistory, RouterLink, RouterView } from 'vue-router'
 
 import Placeholder from '../components/Placeholder.vue'
 import RegisterRouter from './components/RegisterRouter.vue'
+import { ROUTES } from './routes'
 import Bar from './views/Bar.vue'
 import Foo from './views/Foo.vue'
 
@@ -32,18 +33,18 @@ withDefaults(
             class="flex flex-col gap-2 p-4"
             style="position: sticky; top: 20px">
             <li>
-              <RouterLink :to="{ name: 'scalar.foo' }">Foo</RouterLink>
+              <RouterLink :to="{ name: ROUTES.FOO }">Foo</RouterLink>
             </li>
             <li>
-              <RouterLink :to="{ name: 'scalar.bar' }">Bar</RouterLink>
+              <RouterLink :to="{ name: ROUTES.BAR }">Bar</RouterLink>
             </li>
           </ul>
         </Placeholder>
         <!-- Content -->
         <Placeholder class="flex-grow w-full">
           <template v-if="pages === 'single'">
-            <Foo id="foo" />
-            <Bar id="bar" />
+            <Foo :id="ROUTES.FOO" />
+            <Bar :id="ROUTES.BAR" />
           </template>
           <template v-else>
             <RouterView />

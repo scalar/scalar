@@ -56,15 +56,18 @@ router.beforeEach((to, from, next) => {
   const targetId = to.name
 
   if (typeof targetId !== 'string') {
-    console.error(`[router.beforeEach] route doesn’t have a name`, to)
+    console.error(`[router.beforeEach] Route doesn’t have a name.`, to)
     return
   }
 
   const targetElement = document.getElementById(targetId)
 
-  if (targetElement) {
-    targetElement.scrollIntoView({ behavior: 'smooth' })
+  if (!targetElement) {
+    console.error('[router.beforeEach] Can’t find the ID.', targetId)
+    return
   }
+
+  targetElement.scrollIntoView({ behavior: 'smooth' })
 
   next()
 })

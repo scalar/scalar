@@ -10,13 +10,15 @@ import { ScalarApiReference, routesAsChildren } from './package'
 
 /** Simulate a main app with an existing router, using just our component */
 const WITH_ROUTING = true
+/** Configure to render a onepager or a separate page for every operation */
+const PAGES: 'single' | 'multi' = 'multi'
 
 const app = createApp(
   WITH_ROUTING ? App : ScalarApiReference,
   WITH_ROUTING
     ? {}
     : {
-        pages: 'single',
+        pages: PAGES,
         history: createWebHistory(),
       },
 )
@@ -35,7 +37,7 @@ if (WITH_ROUTING) {
         name: 'scalar',
         component: ScalarApiReference,
         props: {
-          pages: 'multi',
+          pages: PAGES,
         },
         children: routesAsChildren,
       },
