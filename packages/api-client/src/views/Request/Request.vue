@@ -102,7 +102,7 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden"
+    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden"
     :class="{
       '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
     }">
@@ -143,17 +143,5 @@ onBeforeUnmount(() => executeRequestBus.off(executeRequest))
   .sidebar-active-width {
     width: 100%;
   }
-}
-.empty-sidebar-item:deep(.scalar-button) {
-  background: var(--scalar-button-1);
-  color: var(--scalar-button-1-color);
-}
-.empty-sidebar-item:deep(.scalar-button:hover) {
-  background: var(--scalar-button-1-hover);
-}
-.empty-sidebar-item:deep(.add-item-hotkey) {
-  color: var(--scalar-button-1-color);
-  background: color-mix(in srgb, var(--scalar-button-1), white 20%);
-  border-color: transparent;
 }
 </style>

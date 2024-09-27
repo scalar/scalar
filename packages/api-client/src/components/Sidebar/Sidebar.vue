@@ -79,7 +79,7 @@ const startDrag = (event: MouseEvent) => {
         name="button" />
     </div>
     <div
-      class="custom-scroll sidebar-height pb-0 md:pb-[42px] w-[inherit]"
+      class="custom-scroll sidebar-height pb-0 md:pb-[37px] w-[inherit]"
       :class="{
         'sidebar-mask': !isReadOnly,
       }">

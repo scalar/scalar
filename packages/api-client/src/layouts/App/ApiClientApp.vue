@@ -73,7 +73,7 @@ const fontsStyleTag = computed(
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
 
-    <div class="flex flex-1 flex-col min-w-0">
+    <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
       <RouterView
         v-slot="{ Component }"
         @newTab="handleNewTab">

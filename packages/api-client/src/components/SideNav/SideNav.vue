@@ -12,10 +12,9 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="Side Navigation"
-    class="text-c-2 w-15 flex flex-col items-center px-2 py-2 scalar-sidenav relative drag-region"
+    class="text-c-2 w-15 flex flex-col items-center px-2 py-2 scalar-sidenav relative drag-region bg-b-1 border-t-1/2"
     role="navigation">
-    <WorkspaceProfileIcon class="no-drag-region" />
-    <ul class="mt-3.5 flex flex-col gap-1.5">
+    <ul class="flex flex-col gap-1.5">
       <li
         v-for="({ icon, name, prettyName }, i) in ROUTES"
         :key="i"

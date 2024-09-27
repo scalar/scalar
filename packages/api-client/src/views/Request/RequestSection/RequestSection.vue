@@ -68,7 +68,7 @@ const updateRequestNameHandler = (event: Event) => {
         icon="ExternalLink"
         size="sm"
         thickness="2.5" />
-      <div class="flex-1 flex gap-1 items-center pointer-events-none">
+      <div class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none">
         Request
         <label
           v-if="!isReadOnly"
@@ -87,13 +87,13 @@ const updateRequestNameHandler = (event: Event) => {
           {{ activeRequest?.summary }}
         </span>
       </div>
-    </template>
-    <div
-      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <ContextBar
         :activeSection="activeSection"
         :sections="sections"
         @setActiveSection="activeSection = $event" />
+    </template>
+    <div
+      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-5 py-2.5">
       <RequestAuth
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
