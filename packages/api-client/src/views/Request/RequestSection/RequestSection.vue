@@ -68,7 +68,7 @@ const updateRequestNameHandler = (event: Event) => {
         icon="ExternalLink"
         size="sm"
         thickness="2.5" />
-      <div class="flex-1 flex gap-1 items-center pointer-events-none">
+      <div class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none">
         Request
         <label
           v-if="!isReadOnly"

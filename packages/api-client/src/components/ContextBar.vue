@@ -11,17 +11,15 @@ defineEmits<{
 }>()
 </script>
 <template>
-  <div class="flex ml-auto filter-hover group">
+  <div class="hidden lg:flex ml-auto filter-hover group lg:w-[120px]">
     <div
-      class="request-section-content request-section-content-filter text-c-3 hidden xl:flex justify-end rounded text-xs gap-[1.5px] pointer-events-auto relative w-full py-2">
+      class="request-section-content request-section-content-filter fade-request-section-content text-c-3 hidden xl:flex justify-end rounded text-xs gap-[1.5px] pointer-events-auto relative w-full py-2">
       <button
         v-for="section in sections"
         :key="section"
         class="hover:bg-b-2 rounded p-1 px-2 text-center font-medium w-fit"
         :class="[
-          activeSection === section
-            ? 'bg-b-2 text-c-1  pointer-events-none'
-            : '',
+          activeSection === section ? 'text-c-1  pointer-events-none' : '',
         ]"
         :isActive="activeSection === section"
         type="button"
@@ -29,10 +27,11 @@ defineEmits<{
         {{ section }}
       </button>
       <div
-        class="flex items-center group-hover:text-c-1 absolute -right-8 top-1/2 -translate-y-1/2">
+        class="flex items-center group-hover:text-c-1 absolute -right-6 top-1/2 -translate-y-1/2">
+        <span class="mr-4 group-hover:hidden">{{ activeSection }}</span>
         <ScalarIcon
           icon="FilterList"
-          size="xs"
+          size="md"
           thickness="2" />
       </div>
     </div>
@@ -41,20 +40,19 @@ defineEmits<{
 <style scoped>
 .fade-request-section-content {
   background: linear-gradient(
-    var(--scalar-background-1) 31px,
-    color-mix(in srgb, var(--scalar-background-1), transparent) 43px,
+    to left,
+    var(--scalar-background-1) 64%,
     transparent
   );
 }
 .filter-hover {
-  width: 48px;
   height: 100%;
   padding-right: 48px;
   padding-left: 24px;
   position: absolute;
   right: 0;
   z-index: 100;
-  transition: width 0s ease-in-out 0.2;
+  transition: width 0s ease-in-out 0.2s;
   overflow: hidden;
 }
 .filter-hover:hover {
@@ -74,6 +72,8 @@ defineEmits<{
 }
 .filter-hover button {
   opacity: 0;
+}
+.filter-hover button:not(:last-of-type) {
   transform: translate3d(0, 3px, 0);
 }
 .filter-hover:hover button {
