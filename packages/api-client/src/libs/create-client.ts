@@ -21,6 +21,8 @@ export type ClientConfiguration = {
   themeId?: ThemeId
   /** Whether to show the sidebar */
   showSidebar?: boolean
+  /** The initially selected security scheme */
+  initialScheme?: string | null
   /** override the initial servers */
   servers?: Spec['servers']
   /** Whether dark mode is on or off initially (light mode) */
