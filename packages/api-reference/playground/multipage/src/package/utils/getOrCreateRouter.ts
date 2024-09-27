@@ -1,7 +1,7 @@
 import { getCurrentInstance } from 'vue'
 import { type RouterHistory, createRouter, createWebHistory } from 'vue-router'
 
-import { routes } from '../../../routes'
+import { routes } from '../routes'
 
 /**
  * Retrieve the router from the Vue app instance or create and register a new one
