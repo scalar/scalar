@@ -2,6 +2,7 @@ import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
   type Collection,
+  type Request,
   type Server,
   type Tag,
   serverSchema,
@@ -38,6 +39,19 @@ const buildPayload = (diff: Difference, resource: Collection | Server) => {
   }
 }
 
+/** Like array.find but returns the resource instead of the uid */
+const findResource = <T>(
+  arr: string[],
+  resources: Record<string, T>,
+  condtion: (resource: T) => boolean,
+) => {
+  for (let i = 0; i < arr.length; i++) {
+    const r = resources[arr[i]]
+    if (condtion(r)) return r
+  }
+  return null
+}
+
 /**
  * Hook which handles polling the documentUrl for changes then attempts to merge what is new
  *
@@ -48,6 +62,8 @@ export const useLiveSync = () => {
     activeCollection,
     activeWorkspace,
     collectionMutators,
+    requests,
+    requestMutators,
     servers,
     serverMutators,
     tags,
@@ -170,6 +186,19 @@ export const useLiveSync = () => {
               tagSchema.parse(d.value),
               activeCollection.value.uid,
             )
+        }
+        // Paths
+        else if (path[0] === 'paths') {
+          const [, _path, method, key] = path
+          console.log(_path, method, key)
+
+          // Find the request
+          const request = findResource<Request>(
+            activeCollection.value.requests,
+            requests,
+            (r) => r.path === _path && r.method === method,
+          )
+          console.log(request)
         }
       })
 
