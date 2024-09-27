@@ -96,8 +96,7 @@ watch(selectedSearchResult, (index) => {
   })
 })
 
-const scrollerEl = ref<typeof ScalarSearchResultList | null>(null)
-
+/** Keyboard navigation */
 const navigateSearchResults = (direction: 'up' | 'down') => {
   const offset = direction === 'up' ? -1 : 1
   const length = searchResultsWithPlaceholderResults.value.length
@@ -136,7 +135,6 @@ function getFullUrlFromHash(href: string) {
         @input="fuseSearch" />
     </div>
     <ScalarSearchResultList
-      ref="scrollerEl"
       class="ref-search-results custom-scroll"
       :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
