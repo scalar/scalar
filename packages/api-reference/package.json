@@ -37,6 +37,7 @@
     "lint:fix": "eslint .  --fix",
     "playground:embed": "vite ./playground/embed -c ./vite.config.ts",
     "playground:examples": "vite ./playground/examples -c ./vite.config.ts",
+    "playground:multipage": "vite ./playground/multipage -c ./vite.config.ts",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6005",
     "test": "vitest",
@@ -81,7 +82,8 @@
     "github-slugger": "^2.0.0",
     "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.7",
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "vue-router": "^4.3.0"
   },
   "devDependencies": {
     "@etchteam/storybook-addon-css-variables-theme": "^1.5.1",
