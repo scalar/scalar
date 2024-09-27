@@ -9,8 +9,8 @@ type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] }
  * All the routes, registered on the root level
  */
 export const routes: WithRequired<RouteRecordRaw, 'name'>[] = [
-  { path: '/foo', component: Foo, name: 'foo' },
-  { path: '/bar', component: Bar, name: 'bar' },
+  { path: '/foo', component: Foo, name: 'scalar.foo' },
+  { path: '/bar', component: Bar, name: 'scalar.bar' },
 ].map((route) => {
   return {
     ...route,

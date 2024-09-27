@@ -32,10 +32,10 @@ withDefaults(
             class="flex flex-col gap-2 p-4"
             style="position: sticky; top: 20px">
             <li>
-              <RouterLink :to="{ name: 'foo' }">Foo</RouterLink>
+              <RouterLink :to="{ name: 'scalar.foo' }">Foo</RouterLink>
             </li>
             <li>
-              <RouterLink :to="{ name: 'bar' }">Bar</RouterLink>
+              <RouterLink :to="{ name: 'scalar.bar' }">Bar</RouterLink>
             </li>
           </ul>
         </Placeholder>

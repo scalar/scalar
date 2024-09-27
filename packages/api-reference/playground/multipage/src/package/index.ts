@@ -1,2 +1,2 @@
 export { default as ScalarApiReference } from './ScalarApiReference.vue'
-export { routesAsChildren } from './routes'
+export { routesAsChildren, routes } from './routes'
