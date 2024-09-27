@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
+import { waitFor } from '../utils/waitFor'
 import { useOpenApiFetcher } from './useOpenApiFetcher'
-import { waitFor } from './utils/waitFor'
 
 global.fetch = vi.fn()
 

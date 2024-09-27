@@ -2,11 +2,11 @@ import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type Ref, isRef, ref, watch } from 'vue'
 
-import { createDefaultTag } from './utils/createDefaultTag'
-import { filterInternalItems } from './utils/filterInternalItems'
-import { getOpenApiDocument } from './utils/getOpenApiDocument'
-import { measure } from './utils/measure'
-import { pending } from './utils/pending'
+import { createDefaultTag } from '../utils/createDefaultTag'
+import { filterInternalItems } from '../utils/filterInternalItems'
+import { getOpenApiDocument } from '../utils/getOpenApiDocument'
+// import { measure } from '../utils/measure'
+import { pending } from '../utils/pending'
 
 // load
 // upgrade
@@ -27,11 +27,11 @@ type Error = {
  * Reactive wrapper around the OpenAPI helpers
  */
 export function useOpenApiDocument(
-  input: Record<string, any> | Ref<Record<string, any>>,
+  input: string | Record<string, any> | Ref<Record<string, any>>,
 ) {
   const state = ref<State>(State.Idle)
 
-  const schema = ref<OpenAPI.Document>({})
+  const openApiDocument = ref<OpenAPI.Document>({})
 
   const errors: Error[] = []
 
@@ -51,7 +51,7 @@ export function useOpenApiDocument(
           const result = await handle(content)
 
           if (result) {
-            schema.value = result
+            openApiDocument.value = result
           }
         },
       )
@@ -64,7 +64,7 @@ export function useOpenApiDocument(
   return {
     state,
     errors,
-    schema,
+    openApiDocument,
   }
 }
 

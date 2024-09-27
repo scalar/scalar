@@ -1,6 +1,6 @@
 import { type Ref, isRef, ref, watch } from 'vue'
 
-import { pending } from './utils/pending'
+import { pending } from '../utils/pending'
 
 // TODO: proxy support
 

@@ -32,6 +32,7 @@ import {
   sleep,
 } from '../helpers'
 import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
+import { useOpenApiDocument } from '../packages/openapi-sdk/'
 import type {
   ReferenceLayoutProps,
   ReferenceLayoutSlot,
@@ -253,6 +254,12 @@ const fontsStyleTag = computed(
     fonts: props.configuration.withDefaultFonts,
   })}</style>`,
 )
+
+/**
+ * This is going to replace `legacyParse` and `parsedSpec`, it’s the future.
+ * It’s a OpenAPI-compatible and well typed OpenAPI document.
+ */
+const { openApiDocument } = useOpenApiDocument(props.rawSpec)
 </script>
 <template>
   <div v-html="fontsStyleTag"></div>
@@ -285,6 +292,7 @@ const fontsStyleTag = computed(
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
+        {{ openApiDocument }}
         <Sidebar
           :parsedSpec="parsedSpec"
           :tagsSorter="configuration.tagsSorter">
