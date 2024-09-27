@@ -57,7 +57,7 @@ function setOpenApiDocument(content: OpenAPI.Document) {
   // Sort tags alphabetically
   if (optionsRef.tagsSorter === 'alpha') {
     content.tags = content.tags?.sort((a: OpenAPI.Tag, b: OpenAPI.Tag) =>
-      a['x-scalar-computed']?.name?.localeCompare(b['x-scalar-computed'].name),
+      typeof b.name === 'string' ? a.name?.localeCompare(b.name) : 0,
     )
   }
   // Custom tags sorting
@@ -147,7 +147,6 @@ const items = computed(() => {
     tags[0].name !== 'default' ||
     tags[0].description !== ''
 
-  // TODO: tags.operations is empty
   const operationEntries: SidebarEntry[] | undefined =
     firstTag && moreThanOneDefaultTag(openApiDocument.value.tags)
       ? openApiDocument.value.tags
@@ -191,7 +190,8 @@ const items = computed(() => {
           firstTag,
         ).map((operation) => {
           const id = getOperationId(operation, firstTag)
-          const title = operation['x-scalar-computed'].name ?? operation.path
+          const title = operation['x-scalar-computed'].name
+
           titlesById[id] = title
 
           return {
@@ -251,9 +251,15 @@ const items = computed(() => {
                   openApiDocument.value.webhooks?.[name] ?? {},
                 ) as OpenAPIV3_1.HttpMethods[]
               ).map((httpVerb) => {
+                const webhook: OpenAPI.Operation =
+                  openApiDocument.value.webhooks?.[name][httpVerb]
+
                 return {
                   id: getWebhookId(name, httpVerb),
-                  title: openApiDocument.value.webhooks?.[name][httpVerb]?.name,
+                  title:
+                    webhook.summary ||
+                    webhook.operationId ||
+                    `${webhook['x-scalar-computed'].name?.toUpperCase()} ${webhook['x-scalar-computed']?.path}`,
                   httpVerb: httpVerb as string,
                   show: !state.showApiClient,
                 }

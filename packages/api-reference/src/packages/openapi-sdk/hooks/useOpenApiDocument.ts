@@ -3,6 +3,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import { type Ref, isRef, ref, watch } from 'vue'
 
 import { createDefaultTag } from '../utils/createDefaultTag'
+import { createMissingTags } from '../utils/createMissingTags'
 import { filterInternalItems } from '../utils/filterInternalItems'
 import { getOpenApiDocument } from '../utils/getOpenApiDocument'
 // import { measure } from '../utils/measure'
@@ -73,6 +74,7 @@ const pipeline = [
   // addRequiredProperties,
   filterInternalItems,
   createDefaultTag,
+  createMissingTags,
 ]
 
 /**

@@ -30,9 +30,19 @@ export function filterInternalItems(
   // Filter webhooks
   if (filteredContent.webhooks) {
     filteredContent.webhooks = Object.fromEntries(
-      Object.entries(filteredContent.webhooks).filter(
-        ([_, webhook]) => !webhook['x-internal'],
-      ),
+      Object.entries(filteredContent.webhooks).filter(([_, webhookItem]) => {
+        if (webhookItem['x-internal']) return false
+
+        // Filter operations within each webhook
+        Object.keys(webhookItem).forEach((key) => {
+          const operation = webhookItem[key as keyof typeof webhookItem]
+          if (typeof operation === 'object' && operation['x-internal']) {
+            delete webhookItem[key as keyof typeof webhookItem]
+          }
+        })
+
+        return Object.keys(webhookItem).length > 0
+      }),
     )
   }
 

@@ -14,8 +14,6 @@ async function getItemsForDocument(
 ) {
   const openApiDocument = (await handle(definition)) as OpenAPI.Document
 
-  console.log('openApiDocument', openApiDocument)
-
   const { items } = useSidebar({
     ...{
       tagsSorter: undefined,
@@ -44,7 +42,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('has a single entry for a single operation', async () => {
+  it('has a single entry for a single operation', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -124,7 +122,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('has a tag', async () => {
+  it('has a single tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -354,18 +352,18 @@ describe('useSidebar', async () => {
     ).toMatchObject({
       entries: [
         {
-          title: 'foobar',
-          children: [
-            {
-              title: 'Get Hello World',
-            },
-          ],
-        },
-        {
           title: 'default',
           children: [
             {
               title: 'Post Hello World',
+            },
+          ],
+        },
+        {
+          title: 'foobar',
+          children: [
+            {
+              title: 'Get Hello World',
             },
           ],
         },
