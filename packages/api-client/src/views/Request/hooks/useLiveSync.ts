@@ -104,7 +104,8 @@ export const useLiveSync = () => {
 
       console.log(diff)
 
-      diff.forEach((d) => {
+      diff
+        .forEach((d) => {
         const { path, type } = d
         if (!path.length || !activeCollection.value?.uid) return
 
@@ -189,8 +190,16 @@ export const useLiveSync = () => {
         }
         // Paths
         else if (path[0] === 'paths') {
-          const [, _path, method, key] = path
-          console.log(_path, method, key)
+          const [, _path, method, property] = path as [
+            'paths',
+            Request['path'],
+            Request['method'],
+            keyof Request,
+          ]
+          console.log(_path, method, property)
+          
+          // Path change
+          if (!method)
 
           // Find the request
           const request = findResource<Request>(
@@ -199,6 +208,10 @@ export const useLiveSync = () => {
             (r) => r.path === _path && r.method === method,
           )
           console.log(request)
+          // Primitive properties
+          if (['summary', 'description', 'operationId', 'deprecated'].includes(property) && request) 
+            requestMutators.edit(request.uid, property, d.value)
+          
         }
       })
 
