@@ -6,6 +6,7 @@ import { getOrCreateRouter } from './getOrCreateRouter'
 /** Register or create a new router */
 export function registerRouter(
   {
+    pages,
     history,
   }: {
     pages?: 'single' | 'multi'
