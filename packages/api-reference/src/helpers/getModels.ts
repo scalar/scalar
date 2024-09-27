@@ -1,10 +1,15 @@
-import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 
 /**
  * Returns all models from the specification, no matter if it’s Swagger 2.0 or OpenAPI 3.x.
  */
-export function getModels(spec?: Spec) {
+export function getModels(spec?: Spec | OpenAPI.Document) {
   if (!spec) {
     return {} as Record<string, OpenAPIV3_1.SchemaObject>
   }

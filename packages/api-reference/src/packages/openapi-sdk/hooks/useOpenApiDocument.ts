@@ -78,7 +78,7 @@ const pipeline = [
 /**
  * Get any OpenAPI Document and prepare it for the rendering
  */
-async function handle(content: string) {
+export async function handle(content: string | Record<string, any>) {
   return pipeline.reduce(
     async (acc, nextTask) => {
       // return await measure<OpenAPI.Document>(`- ${nextTask.name}`, async () => {

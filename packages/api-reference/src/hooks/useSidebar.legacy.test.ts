@@ -1,8 +1,7 @@
-import type { OpenAPI } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
 
-import { handle } from '../packages/openapi-sdk'
+import { legacyParse } from '../helpers'
 import { type TagsSorterOption, useSidebar } from './useSidebar'
 
 /**
@@ -12,16 +11,14 @@ async function getItemsForDocument(
   definition: Record<string, any>,
   options?: TagsSorterOption,
 ) {
-  const openApiDocument = (await handle(definition)) as OpenAPI.Document
-
-  console.log('openApiDocument', openApiDocument)
+  const parsedSpec = await legacyParse(definition)
 
   const { items } = useSidebar({
     ...{
       tagsSorter: undefined,
       ...options,
     },
-    openApiDocument,
+    parsedSpec,
   })
 
   return toValue(items)
@@ -44,7 +41,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it.only('has a single entry for a single operation', async () => {
+  it('has a single entry for a single operation', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',

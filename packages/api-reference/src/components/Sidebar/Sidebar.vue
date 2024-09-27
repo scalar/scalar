@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Spec } from '@scalar/types/legacy'
+import type { OpenAPI } from '@scalar/openapi-types'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
@@ -9,7 +9,7 @@ import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<
   {
-    parsedSpec: Spec
+    openApiDocument: OpenAPI.Document
   } & TagsSorterOption
 >()
 
@@ -17,7 +17,7 @@ const { hash, isIntersectionEnabled } = useNavState()
 
 const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
-    parsedSpec: props.parsedSpec,
+    openApiDocument: props.openApiDocument,
     tagsSorter: props.tagsSorter,
   },
 )

@@ -292,9 +292,8 @@ const { openApiDocument } = useOpenApiDocument(props.rawSpec)
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
-        {{ openApiDocument }}
         <Sidebar
-          :parsedSpec="parsedSpec"
+          :openApiDocument="openApiDocument"
           :tagsSorter="configuration.tagsSorter">
           <template #sidebar-start>
             <slot
