@@ -120,13 +120,13 @@ function getFullUrlFromHash(href: string) {
   <ScalarModal
     :state="modalState"
     variant="search"
-    @keydown.down.stop="navigateSearchResults('down')"
-    @keydown.enter.stop="
+    @keydown.down.stop.prevent="navigateSearchResults('down')"
+    @keydown.enter.stop.prevent="
       onSearchResultClick(
         searchResultsWithPlaceholderResults[selectedSearchResult],
       )
     "
-    @keydown.up.stop="navigateSearchResults('up')">
+    @keydown.up.stop.prevent="navigateSearchResults('up')">
     <div
       ref="searchModalRef"
       class="ref-search-container">
