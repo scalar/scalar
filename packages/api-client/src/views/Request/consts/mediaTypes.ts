@@ -1,6 +1,6 @@
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 
-export type MediaPreview = 'object' | 'image' | 'video' | 'audio'
+export type MediaPreview = 'image' | 'video' | 'audio'
 
 export type MediaConfig = {
   preview?: MediaPreview
@@ -26,7 +26,7 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
   'application/msword': { extension: '.doc' },
   'application/octet-stream': { extension: '.bin' },
   'application/ogg': { extension: '.ogx' },
-  'application/pdf': { extension: '.pdf', preview: 'object' },
+  'application/pdf': { extension: '.pdf' },
   'application/rtf': { extension: '.rtf', raw: true },
   'application/vnd.amazon.ebook': { extension: '.azw' },
   'application/vnd.apple.installer+xml': {
@@ -103,7 +103,6 @@ export const mediaTypes: { [type: string]: MediaConfig | undefined } = {
     extension: '.html',
     raw: true,
     language: 'html',
-    preview: 'object',
   },
   'text/javascript': { extension: '.js', raw: true },
   'text/plain': { extension: '.txt', raw: true },

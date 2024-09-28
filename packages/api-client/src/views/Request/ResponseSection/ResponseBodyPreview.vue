@@ -50,12 +50,6 @@ watch(
         :src="src"
         :type="type" />
     </audio>
-    <object
-      v-else
-      class="w-full aspect-[4/3]"
-      :data="src"
-      :type="type"
-      @error="error = true" />
   </div>
   <ResponseBodyInfo v-else>Preview unavailable</ResponseBodyInfo>
 </template>
