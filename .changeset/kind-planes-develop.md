@@ -1,5 +1,0 @@
----
-'@scalar/config': minor
----
-
-init :)

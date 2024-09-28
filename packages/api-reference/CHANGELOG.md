@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.23
+
+### Patch Changes
+
+- e4b326e: feat: support for multiple examples in schemas
+- 963b9cd: fix: removed global listeners to prevent random jumping bug
+- cd8ba1c: feat: added setting of initial security schemes in the client
+- e4b326e: fix(api-reference): show examples in models section
+- Updated dependencies [963b9cd]
+- Updated dependencies [cd8ba1c]
+- Updated dependencies [8b6633d]
+- Updated dependencies [fb0d9a3]
+  - @scalar/api-client@2.1.9
+  - @scalar/oas-utils@0.2.49
+
 ## 1.25.22
 
 ### Patch Changes

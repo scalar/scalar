@@ -1,5 +1,20 @@
 # @scalar/cli
 
+## 0.2.206
+
+### Patch Changes
+
+- a9aea44: feat: add new check command to validate a scalar.config.json
+- Updated dependencies [e4b326e]
+- Updated dependencies [963b9cd]
+- Updated dependencies [a9aea44]
+- Updated dependencies [cd8ba1c]
+- Updated dependencies [e4b326e]
+  - @scalar/api-reference@1.25.23
+  - @scalar/config@0.1.0
+  - @scalar/oas-utils@0.2.49
+  - @scalar/mock-server@0.2.53
+
 ## 0.2.205
 
 ### Patch Changes

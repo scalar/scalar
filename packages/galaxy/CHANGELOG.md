@@ -1,5 +1,12 @@
 # @scalar/galaxy
 
+## 0.2.8
+
+### Patch Changes
+
+- e4b326e: feat(galaxy): add multiple examples to request body and schema
+- e4b326e: feat: add multiple examples to some schemas
+
 ## 0.2.7
 
 ### Patch Changes

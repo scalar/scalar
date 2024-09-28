@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.49
+
+### Patch Changes
+
+- cd8ba1c: feat: added setting of initial security schemes in the client
+
 ## 0.2.48
 
 ### Patch Changes
