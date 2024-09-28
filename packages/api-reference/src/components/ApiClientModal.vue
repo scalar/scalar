@@ -8,6 +8,7 @@ import { apiClientBus, modalStateBus } from './api-client-bus'
 
 const props = defineProps<{
   proxyUrl?: string
+  preferredSecurityScheme?: string | null
   spec?: SpecConfiguration
   servers?: Spec['servers']
 }>()
@@ -25,6 +26,7 @@ onMounted(async () => {
   const { app, open, updateAuth, modalState, updateSpec, updateServer } =
     await createApiClientModal(el.value, {
       spec: props.spec ?? {},
+      preferredSecurityScheme: props.preferredSecurityScheme,
       proxyUrl: props.proxyUrl,
       servers: props.servers,
     })

@@ -1,3 +1,4 @@
+import type { ClientConfiguration } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
@@ -24,6 +25,7 @@ export function importSpecFileFactory({
      * attach those as needed to entities below
      */
     overloadServers?: Spec['servers'],
+    preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme'],
   ) => {
     const spec = toRaw(_spec)
 
@@ -31,7 +33,10 @@ export function importSpecFileFactory({
     if (overloadServers?.length && typeof spec === 'object')
       spec.servers = overloadServers
 
-    const workspaceEntities = await importSpecToWorkspace(spec)
+    const workspaceEntities = await importSpecToWorkspace(
+      spec,
+      preferredSecurityScheme,
+    )
 
     if (workspaceEntities.error) {
       console.group('IMPORT ERRORS')
@@ -64,10 +69,16 @@ export function importSpecFileFactory({
     url: string,
     proxy?: string,
     overloadServers?: Spec['servers'],
+    preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme'],
   ) {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
-      await importSpecFile(spec, undefined, overloadServers)
+      await importSpecFile(
+        spec,
+        undefined,
+        overloadServers,
+        preferredSecurityScheme,
+      )
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
     }

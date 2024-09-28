@@ -353,6 +353,9 @@ const fontsStyleTag = computed(
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal
+      :preferredSecurityScheme="
+        configuration.authentication?.preferredSecurityScheme
+      "
       :proxyUrl="configuration.proxy"
       :servers="configuration.servers"
       :spec="configuration.spec" />

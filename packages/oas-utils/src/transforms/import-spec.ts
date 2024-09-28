@@ -22,6 +22,7 @@ import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { AuthenticationState } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -65,6 +66,7 @@ const convertOauth2Flows = (
  */
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
+  preferredSecurityScheme?: AuthenticationState['preferredSecurityScheme'],
 ): Promise<
   | {
       error: false
@@ -171,13 +173,38 @@ export async function importSpecToWorkspace(
         operation.tags?.forEach((t) => tagNames.add(t))
 
         // Remove security here and add it correctly below
-        const { security: removed, ...operationWithoutSecurity } = operation
+        const { security: operationSecurity, ...operationWithoutSecurity } =
+          operation
+
+        // Grab the security requirements for this operation
+        const securityRequirements = (
+          operationSecurity ??
+          (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
+          []
+        ).flatMap((s) => {
+          const keys = Object.keys(s)
+          if (keys.length) return keys[0]
+          else return []
+        })
+
+        let selectedSecuritySchemeUids: string[] = []
+
+        // Set the initially selected security scheme
+        if (securityRequirements.length) {
+          const name =
+            preferredSecurityScheme &&
+            securityRequirements.includes(preferredSecurityScheme ?? '')
+              ? preferredSecurityScheme
+              : securityRequirements[0]
+          const uid = securitySchemeMap[name]
+          selectedSecuritySchemeUids = [uid]
+        }
 
         const requestPayload: RequestPayload = {
           ...operationWithoutSecurity,
           method,
           path: pathString,
-          selectedSecuritySchemeUids: [],
+          selectedSecuritySchemeUids,
           // Merge path and operation level parameters
           parameters: [
             ...(path?.parameters ?? []),
@@ -188,8 +215,8 @@ export async function importSpecToWorkspace(
 
         // Add list of UIDs to associate security schemes
         // As per the spec if there is operation level security we ignore the top level requirements
-        if (operation.security?.length)
-          requestPayload.security = operation.security?.map((s) => {
+        if (operationSecurity?.length)
+          requestPayload.security = operationSecurity.map((s) => {
             const keys = Object.keys(s)
 
             // Handle the case of {} for optional

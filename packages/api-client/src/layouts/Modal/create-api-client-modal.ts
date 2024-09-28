@@ -36,13 +36,15 @@ export const createApiClientModal = async (
     await importSpecFromUrl(
       configuration.spec.url,
       configuration.proxyUrl,
-      configuration?.servers,
+      configuration.servers,
+      configuration.preferredSecurityScheme,
     )
   else if (configuration.spec?.content)
     await importSpecFile(
       configuration.spec?.content,
       undefined,
       configuration?.servers,
+      configuration.preferredSecurityScheme,
     )
 
   return client
