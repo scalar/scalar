@@ -103,9 +103,35 @@ export const useLiveSync = () => {
       const diff = microdiff(old.schema, schema)
 
       console.log(diff)
+      //  In some instances we want to manually create the diff
+      const combined = diff.reduce((acc, current, index) => {
+        const next = diff[index + 1]
+        const prev = diff[index - 1]
 
-      diff
-        .forEach((d) => {
+        if (current.path[0] !== 'paths' || next?.path?.[0] !== 'paths')
+          return acc
+        console.log(next, prev)
+
+        // We combine this into one mutation
+        if (current.type === 'REMOVE' && next?.type === 'CREATE') {
+          console.log('diff')
+          const [, currPath, currMethod] = current.path
+          const [, nextPath, nextMethod] = next.path
+
+          // We only need to diff the paths here
+          const _diff = microdiff(current.oldValue, next.value)
+          if (_diff.length === 0) {
+            if (currMethod !== nextMethod)
+              acc.push({ oldValue: current.oldValue })
+          }
+          console.log()
+        }
+
+        return acc
+      }, [])
+      console.log(combined)
+
+      diff.forEach((d) => {
         const { path, type } = d
         if (!path.length || !activeCollection.value?.uid) return
 
@@ -197,9 +223,6 @@ export const useLiveSync = () => {
             keyof Request,
           ]
           console.log(_path, method, property)
-          
-          // Path change
-          if (!method)
 
           // Find the request
           const request = findResource<Request>(
@@ -209,9 +232,13 @@ export const useLiveSync = () => {
           )
           console.log(request)
           // Primitive properties
-          if (['summary', 'description', 'operationId', 'deprecated'].includes(property) && request) 
+          if (
+            ['summary', 'description', 'operationId', 'deprecated'].includes(
+              property,
+            ) &&
+            request
+          )
             requestMutators.edit(request.uid, property, d.value)
-          
         }
       })
 
