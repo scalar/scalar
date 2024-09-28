@@ -463,13 +463,15 @@ const startAuthentication = (url: string) => {
                 value !== undefined &&
                 Object.entries(
                   (value as any).flows.implicit?.scopes ??
-                    (value as any).flows.password!.scopes,
+                    (value as any).flows.password?.scopes ??
+                    (value as any).flows.authorizationCode?.scopes,
                 ).length > 0
               "
               v-model:selected="oauth2SelectedScopes"
               :scopes="
                 (value as any).flows.implicit?.scopes ??
-                (value as any).flows.password!.scopes
+                (value as any).flows.password?.scopes ??
+                (value as any).flows.authorizationCode?.scopes
               " />
             <button
               class="cardform-auth-button"
