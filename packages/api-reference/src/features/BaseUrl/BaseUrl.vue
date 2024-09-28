@@ -1,9 +1,10 @@
 <script lang="ts" setup>
 import { useServerStore } from '#legacy'
 import type { Server, Spec } from '@scalar/types/legacy'
-import { ref, toRef, watch } from 'vue'
+import { computed, toRef } from 'vue'
 
 import ServerForm from './ServerForm.vue'
+import type { ServerVariableValues } from './types'
 
 const props = defineProps<{
   /**
@@ -30,38 +31,19 @@ const { server: serverState, setServer } = useServerStore({
   servers,
 })
 
-// Keep the selected item in sync with the store
-const selected = ref<number>(0)
+const selected = computed<number>({
+  get: () => serverState.selectedServer || 0,
+  set: (i) => setServer({ selectedServer: i }),
+})
 
-watch(
-  selected,
-  () =>
-    setServer({
-      selectedServer: selected.value,
-    }),
-  {
-    immediate: true,
-  },
-)
-
-function onUpdateVariable(name: string, value: string) {
-  setServer({
-    variables: {
-      ...serverState.variables,
-      [name]: value,
-    },
-  })
-}
+const variables = computed<ServerVariableValues>({
+  get: () => serverState.variables,
+  set: (v) => setServer({ variables: v }),
+})
 </script>
 <template>
   <ServerForm
-    :selected="selected"
-    :servers="serverState.servers as Server[]"
-    :variables="serverState.variables"
-    @update:selected="
-      (value) => {
-        selected = value
-      }
-    "
-    @update:variable="onUpdateVariable" />
+    v-model:selected="selected"
+    v-model:variables="variables"
+    :servers="serverState.servers as Server[]" />
 </template>

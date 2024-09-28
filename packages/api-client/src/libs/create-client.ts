@@ -11,7 +11,7 @@ import type {
   SpecConfiguration,
 } from '@scalar/types/legacy'
 import type { LiteralUnion } from 'type-fest'
-import { type Component, createApp } from 'vue'
+import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
 /** Configuration options for the Scalar API client */
@@ -188,6 +188,16 @@ export const createApiClient = ({
           'selectedServerUid',
           server.uid,
         )
+    },
+    /** Update the currently selected server via URL */
+    onUpdateServer: (callback: (url: string) => void) => {
+      watch(
+        () => activeCollection.value?.selectedServerUid,
+        (uid) => {
+          const server = Object.values(servers).find((s) => s.uid === uid)
+          if (server?.url) callback(server.url)
+        },
+      )
     },
     /**
      * Update the auth values, we currently don't change the auth selection

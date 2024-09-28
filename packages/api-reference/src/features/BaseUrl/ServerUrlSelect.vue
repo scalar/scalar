@@ -10,11 +10,11 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   options: Server[]
-  value: number
+  modelValue: number
 }>()
 
 const emit = defineEmits<{
-  (e: 'change', v: string): void
+  (e: 'update:modelValue', v: number): void
 }>()
 
 const options = computed<ScalarListboxOption[]>(() =>
@@ -25,8 +25,10 @@ const options = computed<ScalarListboxOption[]>(() =>
 )
 
 const selected = computed<ScalarListboxOption | undefined>({
-  get: () => options.value?.find((opt) => opt.id === props.value.toString()),
-  set: (opt?: ScalarListboxOption) => emit('change', opt?.id ?? ''),
+  get: () =>
+    options.value?.find((opt) => opt.id === props.modelValue.toString()),
+  set: (opt?: ScalarListboxOption) =>
+    emit('update:modelValue', parseInt(opt?.id ?? '', 10)),
 })
 </script>
 <template>
