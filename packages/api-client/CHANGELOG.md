@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.1.9
+
+### Patch Changes
+
+- 963b9cd: fix: removed global listeners to prevent random jumping bug
+- cd8ba1c: feat: added setting of initial security schemes in the client
+- 8b6633d: style: increases icon library usage stroke
+- fb0d9a3: fix(api-client): don't teleport auth combobox to body
+- Updated dependencies [cd8ba1c]
+  - @scalar/oas-utils@0.2.49
+
 ## 2.1.8
 
 ### Patch Changes
