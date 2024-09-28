@@ -51,7 +51,6 @@ onMounted(async () => {
   onUpdateServer((url) => {
     if (!server.servers) return
     const index = server.servers.findIndex((s) => s.url === url)
-    console.log('Set server', index, url)
     if (index >= 0) setServer({ selectedServer: index })
   })
 
