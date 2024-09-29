@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.10
+
+### Patch Changes
+
+- 3647181: fix: skip empty value of query parameters
+- e22c6ce: fix(api-client): add Content-Security-Policy to client.scalar.com
+
 ## 2.1.9
 
 ### Patch Changes
