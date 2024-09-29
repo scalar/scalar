@@ -378,6 +378,35 @@ describe('sendRequest', () => {
     expect(result?.response.data.query).toStrictEqual({})
   })
 
+  it('should ignore query parameters with empty values', async () => {
+    const [error, requestOperation] = createRequestOperation<{
+      query: { example: 'parameter'; foo: 'bar' }
+    }>(
+      createRequestPayload({
+        serverPayload: {
+          url: VOID_URL,
+        },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: '',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(result?.response.data.query).toStrictEqual({})
+  })
+
   it('works with no content', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({

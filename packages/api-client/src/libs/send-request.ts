@@ -65,7 +65,8 @@ function createFetchHeaders(example: RequestExample, env: object) {
 function createFetchQueryParams(example: RequestExample, env: object) {
   const params = new URLSearchParams()
   example.parameters.query.forEach((p) => {
-    if (p.enabled) params.append(p.key, replaceTemplateVariables(p.value, env))
+    if (p.enabled && p.value)
+      params.append(p.key, replaceTemplateVariables(p.value, env))
   })
 
   return params
