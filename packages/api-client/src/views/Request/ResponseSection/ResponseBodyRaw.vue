@@ -1,34 +1,20 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import { isJsonString } from '@scalar/oas-utils/helpers'
 import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
-import { computed, ref, toRaw } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps<{
-  data: any
+  content: any
   language?: CodeMirrorLanguage
 }>()
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
-// Pretty print JSON
-const content = computed<string>(() => {
-  // Format JSON
-  const value = props.data
-  // Format JSON
-  if (value && isJsonString(value)) {
-    return JSON.stringify(JSON.parse(value as string), null, 2)
-  } else if (value && typeof toRaw(value) === 'object') {
-    return JSON.stringify(value, null, 2)
-  }
-  return value
-})
-
 useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content,
+  content: props.content,
   language: props.language,
 })
 </script>
