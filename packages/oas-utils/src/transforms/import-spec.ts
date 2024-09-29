@@ -114,7 +114,8 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security = schema.components?.securitySchemes ?? {}
+  const security =
+    schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
 
   const securitySchemes = (Object.entries(security) as Entries<typeof security>)
     .map?.(([nameKey, s]) => {
