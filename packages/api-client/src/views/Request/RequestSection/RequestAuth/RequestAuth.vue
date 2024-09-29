@@ -212,11 +212,6 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                         @click.stop="unselectAuth(auth.id)" />
                     </span>
                   </div>
-                  <Teleport
-                    v-if="selectedAuth.length"
-                    to="body">
-                    <div>Hello World</div>
-                  </Teleport>
                   <div class="fade-right"></div>
                 </div>
                 <div
