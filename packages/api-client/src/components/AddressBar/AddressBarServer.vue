@@ -68,6 +68,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 <template>
   <ScalarDropdown
     v-if="
+      !isReadOnly ||
       (requestServerOptions && requestServerOptions?.length > 1) ||
       (collectionServerOptions && collectionServerOptions?.length > 1)
     "
