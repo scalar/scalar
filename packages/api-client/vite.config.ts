@@ -10,6 +10,9 @@ import svgLoader from 'vite-svg-loader'
 
 export default defineConfig({
   plugins: [vue(), svgLoader(), ViteWatchWorkspace()],
+  define: {
+    PACKAGE_VERSION: JSON.stringify(process.env.npm_package_version),
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -11,8 +11,6 @@ import {
 import { useWorkspace } from '@/store'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-import { version } from '../../../../package.json'
-
 const { isReadOnly, activeWorkspace } = useWorkspace()
 
 const openCommandPaletteRequest = () => {
@@ -22,6 +20,8 @@ const openCommandPaletteRequest = () => {
 const handleHotKey = (event: HotKeyEvents) => {
   if (event.openCommandPaletteRequest) openCommandPaletteRequest()
 }
+
+const packageVersion = PACKAGE_VERSION
 
 onMounted(() => hotKeyBus.on(handleHotKey))
 onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
@@ -33,7 +33,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
       <div
         v-if="!activeWorkspace.isReadOnly"
         class="scalar-version-number">
-        Scalar V{{ version }} <b>Beta</b> Release
+        Scalar V{{ packageVersion }} <b>Beta</b> Release
         <div class="mt-1">
           <a
             href="https://github.com/scalar/scalar/issues/2669"
