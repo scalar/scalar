@@ -8,6 +8,7 @@ import { registerRouter } from './utils/registerRouter'
 import Bar from './views/Bar.vue'
 import Introduction from './views/Introduction.vue'
 import Operation from './views/Operation.vue'
+import Tag from './views/Tag.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -24,14 +25,25 @@ registerRouter({
   history: props.history,
 })
 
+const tags = [
+  {
+    name: 'Authentication',
+  },
+  {
+    name: 'Planets',
+  },
+]
+
 const operations = [
   {
     path: '/foobar',
     method: 'GET',
+    tags: ['Authentication'],
   },
   {
     path: '/foobar',
     method: 'POST',
+    tags: ['Planets'],
   },
 ]
 </script>
@@ -55,6 +67,19 @@ const operations = [
           <li>
             <RouterLink :to="{ name: ROUTE_NAMES.BAR }">Bar</RouterLink>
           </li>
+          <template
+            v-for="({ name }, index) in tags"
+            :key="index">
+            <RouterLink
+              :to="{
+                name: ROUTE_NAMES.TAG,
+                params: {
+                  tag: name,
+                },
+              }">
+              {{ name }}
+            </RouterLink>
+          </template>
           <li
             v-for="({ method, path }, index) in operations"
             :key="index">
@@ -69,7 +94,9 @@ const operations = [
               {{ method }} {{ path }}
             </RouterLink>
           </li>
-          <li>
+        </ul>
+        <ul class="border p-3 mt-2">
+          <li class="py-1">
             path: <br />
             {{ $router.currentRoute.value.path }}
           </li>
@@ -94,6 +121,24 @@ const operations = [
             }">
             <Bar />
           </Section>
+          <!-- Tags -->
+          <template
+            v-for="({ name }, index) in tags"
+            :key="index">
+            <Section
+              :route="{
+                name: ROUTE_NAMES.TAG,
+                params: {
+                  tag: name,
+                },
+              }">
+              <Tag
+                :params="{
+                  tag: name,
+                }" />
+            </Section>
+          </template>
+
           <!-- Operations -->
           <template
             v-for="({ method, path }, index) in operations"

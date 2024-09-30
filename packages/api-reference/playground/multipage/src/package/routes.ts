@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import Bar from './views/Bar.vue'
 import Introduction from './views/Introduction.vue'
 import Operation from './views/Operation.vue'
+import Tag from './views/Tag.vue'
 
 /**
  * All route names as an enum
@@ -10,6 +11,7 @@ import Operation from './views/Operation.vue'
 export const ROUTE_NAMES = {
   INTRODUCTION: 'scalar.introduction',
   BAR: 'scalar.bar',
+  TAG: 'scalar.tag',
   OPERATION: 'scalar.operation',
 } as const
 
@@ -23,6 +25,11 @@ export const routes: (RouteRecordRaw & {
 })[] = [
   { path: '/', component: Introduction, name: ROUTE_NAMES.INTRODUCTION },
   { path: '/bar', component: Bar, name: ROUTE_NAMES.BAR },
+  {
+    path: '/:tag',
+    component: Tag,
+    name: ROUTE_NAMES.TAG,
+  },
   {
     path: '/:method/:path',
     component: Operation,
