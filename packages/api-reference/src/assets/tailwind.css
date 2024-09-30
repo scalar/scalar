@@ -1,11 +1,13 @@
 @import 'tailwindcss/base' layer(scalar-base);
 
-.scalar-client {
+.scalar-api-reference {
   @tailwind components;
   @tailwind utilities;
   @tailwind variants;
 
-  line-height: 1.5;
+  /* TODO: This is not what we used as the default previously. */
+  /* line-height: 1.5; */
+
   color: var(--scalar-color-1);
 
   /**
