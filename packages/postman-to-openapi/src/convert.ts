@@ -318,19 +318,17 @@ function parseParameters(
 ): any {
   const parameters = [
     ...Array.from(
-      header
-        .reduce(
+      Array.isArray(header) ? 
+        header.reduce(
           mapParameters('header', includeHeader, paramInserter),
           new Map(),
-        )
-        .values(),
+        ) : [] // If not an array, default to an empty array
     ),
   ]
+
   parameters.push(
     ...Array.from(
-      query
-        .reduce(mapParameters('query', includeQuery, paramInserter), new Map())
-        .values(),
+      query.reduce(mapParameters('query', includeQuery, paramInserter), new Map()).values(),
     ),
   )
   parameters.push(...extractPathParameters(paths, paramsMeta, pathVars))
@@ -567,14 +565,18 @@ function parseTags(tagsObj: Record<string, any>): any {
   return tags.length > 0 ? { tags } : {}
 }
 
-function descriptionParse(description: string): any {
-  if (description == null) return { description }
-  const splitDesc = description.split(/# postman-to-openapi/gi)
-  if (splitDesc.length === 1) return { description }
+function descriptionParse(description: any): any {
+  // Ensure description is a string
+  if (typeof description !== 'string') {
+    return { description };
+  }
+
+  const splitDesc = description.split(/# postman-to-openapi/gi);
+  if (splitDesc.length === 1) return { description };
   return {
     description: splitDesc[0].trim(),
     paramsMeta: parseMdTable(),
-  }
+  };
 }
 
 function parseResponse(
@@ -714,13 +716,11 @@ function safeSampleParse(body: string, name: string, language: string): any {
   return body
 }
 
-function parseResponseHeaders(
-  headerArray: any[] | undefined,
-  responseHeaders: boolean,
-): any {
-  if (!responseHeaders || !headerArray) {
+function parseResponseHeaders(headerArray: any[] | undefined, responseHeaders: boolean): any {
+  if (!responseHeaders || !Array.isArray(headerArray)) {
     return {}
   }
+
   const headers = headerArray.reduce((acc: any, { key, value }: any) => {
     acc[key] = {
       schema: {
@@ -730,6 +730,7 @@ function parseResponseHeaders(
     }
     return acc
   }, {})
+
   return Object.keys(headers).length > 0 ? { headers } : {}
 }
 
