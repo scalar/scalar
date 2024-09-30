@@ -23,9 +23,9 @@ const activeServer = computed(
     servers[
       activeCollection.value && route.params.server === 'default'
         ? activeCollection.value?.servers[0]
-        : activeCollection.value?.servers.find(
+        : (activeCollection.value?.servers.find(
             (uid) => uid === route.params.server,
-          ) ?? ''
+          ) ?? '')
     ],
 )
 

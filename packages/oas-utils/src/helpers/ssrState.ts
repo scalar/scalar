@@ -13,5 +13,5 @@ export const defaultStateFactory = (): ScalarState => ({})
  */
 export const ssrState: ScalarState =
   typeof window !== 'undefined'
-    ? window.__SCALAR__ ?? defaultStateFactory()
+    ? (window.__SCALAR__ ?? defaultStateFactory())
     : defaultStateFactory()

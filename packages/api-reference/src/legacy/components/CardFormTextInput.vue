@@ -14,7 +14,7 @@ const inputType = computed(() =>
     ? mask.value
       ? 'password'
       : 'text'
-    : props.type ?? 'text',
+    : (props.type ?? 'text'),
 )
 
 defineOptions({

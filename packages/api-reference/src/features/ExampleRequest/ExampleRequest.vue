@@ -177,8 +177,8 @@ const language = computed(() => {
   const key =
     // Specified language
     localHttpClient.value?.targetKey === 'customExamples'
-      ? customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext'
+      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+        'plaintext')
       : // Or language for the globally selected HTTP client
         httpClient.targetKey
 
