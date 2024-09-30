@@ -15,7 +15,8 @@ import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, watch } from 'vue'
 
-import DownloadLink from './DownloadLink.vue'
+import { WorkspaceDropdown } from '../../views/Request/components'
+// import DownloadLink from './DownloadLink.vue'
 import ImportNowButton from './ImportNowButton.vue'
 import LoadingScreen from './LoadingScreen.vue'
 import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
@@ -85,11 +86,18 @@ watch(
     :state="modalState">
     <div class="flex flex-col gap-2">
       <!-- Title -->
-      <div class="mb-4 mt-6">
+      <div class="mb-4 mt-6 flex flex-col gap-4">
         <div class="text-center text-xl font-medium">
           Import {{ title ?? 'Collection' }}
         </div>
+        <!-- Select the workspace -->
+        <div class="flex justify-center">
+          <div class="border inline-block">
+            <WorkspaceDropdown />
+          </div>
+        </div>
       </div>
+
       <!-- Preview -->
       <div class="flex gap-2 flex-col pt-2 pb-4">
         <!-- Document preview -->

@@ -111,7 +111,7 @@ onBeforeUnmount(() => {
       v-if="!isReadonly"
       #header>
       <div class="border-b-1/2">
-        <WorkspaceDropdown />
+        <WorkspaceDropdown class="xl:min-h-header xl:py-2.5 py-1 px-2.5" />
       </div>
     </template>
     <template #content>
