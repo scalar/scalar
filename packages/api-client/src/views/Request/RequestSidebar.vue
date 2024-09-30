@@ -204,8 +204,7 @@ onBeforeUnmount(() => {
           <div class="text-center text-balance text-sm mb-2 mt-2">
             <b class="font-medium">Let's Get Started</b>
             <p class="mt-2">
-              Create request, folder, collection or import OpenAPI, Postman or
-              Insomnia
+              Create request, folder, collection or import OpenAPI document
             </p>
           </div>
         </div>
