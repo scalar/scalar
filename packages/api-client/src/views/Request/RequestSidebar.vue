@@ -166,7 +166,13 @@ onBeforeUnmount(() => {
             @onDragEnd="handleDragEnd"
             @openMenu="(item) => Object.assign(menuItem, item)">
             <template #leftIcon>
+              <ScalarIcon
+                v-if="collection.info?.title === 'Drafts'"
+                class="text-sidebar-c-2 group-hover:hidden"
+                icon="Scribble"
+                thickness="2.5" />
               <LibraryIcon
+                v-else
                 class="text-sidebar-c-2 size-3.5 stroke-[2.5] group-hover:hidden"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
