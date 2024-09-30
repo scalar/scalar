@@ -31,7 +31,7 @@ export const routes: (RouteRecordRaw & {
     name: ROUTE_NAMES.TAG,
   },
   {
-    path: '/:method/:path',
+    path: '/tag/:tag/:method/:path',
     component: Operation,
     name: ROUTE_NAMES.OPERATION,
   },

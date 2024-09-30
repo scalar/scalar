@@ -3,6 +3,6 @@ import Placeholder from '../../components/Placeholder.vue'
 </script>
 <template>
   <div class="p-1">
-    <Placeholder style="height: 1200px">Foo</Placeholder>
+    <Placeholder style="height: 1200px">Introduction</Placeholder>
   </div>
 </template>

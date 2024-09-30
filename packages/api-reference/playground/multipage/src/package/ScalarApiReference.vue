@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { computed } from 'vue'
 import { type RouterHistory, RouterLink, RouterView } from 'vue-router'
 
 import Placeholder from '../components/Placeholder.vue'
@@ -46,6 +47,34 @@ const operations = [
     tags: ['Planets'],
   },
 ]
+
+const items = computed(() => {
+  const tagItems = tags.map((tag) => ({
+    label: tag.name,
+    to: { name: ROUTE_NAMES.TAG, params: { tag: tag.name } },
+    children: operations
+      .filter((op) => op.tags.includes(tag.name))
+      .map((op) => ({
+        label: `${op.method} ${op.path}`,
+        to: {
+          name: ROUTE_NAMES.OPERATION,
+          params: {
+            tag: tag.name.toLowerCase(),
+            method: op.method,
+            path: op.path,
+          },
+        },
+      })),
+  }))
+
+  return [
+    {
+      label: 'Introduction',
+      to: { name: ROUTE_NAMES.INTRODUCTION },
+    },
+    ...tagItems,
+  ]
+})
 </script>
 <template>
   <div class="scalar-app">
@@ -59,41 +88,25 @@ const operations = [
         <ul
           class="flex flex-col gap-2 p-4"
           style="position: sticky; top: 20px">
-          <li>
-            <RouterLink :to="{ name: ROUTE_NAMES.INTRODUCTION }">
-              Introduction
-            </RouterLink>
-          </li>
-          <li>
-            <RouterLink :to="{ name: ROUTE_NAMES.BAR }">Bar</RouterLink>
-          </li>
           <template
-            v-for="({ name }, index) in tags"
+            v-for="(item, index) in items"
             :key="index">
-            <RouterLink
-              :to="{
-                name: ROUTE_NAMES.TAG,
-                params: {
-                  tag: name,
-                },
-              }">
-              {{ name }}
-            </RouterLink>
+            <li>
+              <RouterLink :to="item.to">
+                {{ item.label }}
+              </RouterLink>
+              <ul
+                v-if="'children' in item && item.children.length"
+                class="mt-2">
+                <li
+                  v-for="(child, childIndex) in item.children"
+                  :key="childIndex">
+                  > <RouterLink :to="child.to">{{ child.label }} </RouterLink>
+                </li>
+              </ul>
+              <br />
+            </li>
           </template>
-          <li
-            v-for="({ method, path }, index) in operations"
-            :key="index">
-            <RouterLink
-              :to="{
-                name: ROUTE_NAMES.OPERATION,
-                params: {
-                  method,
-                  path,
-                },
-              }">
-              {{ method }} {{ path }}
-            </RouterLink>
-          </li>
         </ul>
         <ul class="border p-3 mt-2">
           <li class="py-1">
