@@ -369,7 +369,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
 
         const response = await fetch(proxiedUrl, {
           signal: controller.signal,
-          method: request.method,
+          method: request.method.toUpperCase(),
           body,
           headers,
         })
