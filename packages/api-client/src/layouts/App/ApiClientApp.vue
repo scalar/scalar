@@ -76,9 +76,6 @@ const fontsStyleTag = computed(
       <!-- Popup command palette to add resources from anywhere -->
       <TheCommandPalette />
 
-      <!-- When an `url` query parameter is passed, it tries to import from the given URL. -->
-      <ImportFlow />
-
       <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
         <RouterView
           v-slot="{ Component }"
