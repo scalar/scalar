@@ -149,6 +149,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   todesktop-release:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
     needs: [build, test]
     strategy:
