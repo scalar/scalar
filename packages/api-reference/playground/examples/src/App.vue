@@ -47,7 +47,6 @@ function selectRandomExample() {
         </option>
       </select>
       <button
-        style="padding: 5px 20px; display: inline-block"
         type="button"
         @click="selectRandomExample">
         Random
@@ -81,17 +80,23 @@ function selectRandomExample() {
   z-index: 100;
   padding: 10px;
 }
-.custom-header,
-.custom-header nav {
+
+.custom-header {
   display: flex;
   align-items: center;
   gap: 18px;
 }
+
 .custom-header a:hover {
   color: var(--scalar-color-2);
 }
 
 select {
   padding: 5px 0 5px 5px;
+}
+
+button {
+  padding: 5px 20px;
+  display: inline-block;
 }
 </style>
