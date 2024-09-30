@@ -19,7 +19,8 @@ import DownloadLink from './DownloadLink.vue'
 import ImportNowButton from './ImportNowButton.vue'
 import LoadingScreen from './LoadingScreen.vue'
 import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
-import OpenAppButton from './OpenAppButton.vue'
+
+// import OpenAppButton from './OpenAppButton.vue'
 
 const props = defineProps<{
   source: string | null
@@ -156,17 +157,17 @@ watch(
       <div
         v-if="version"
         class="inline-flex flex-col gap-2 mt-4 mb-6 items-center">
-        <OpenAppButton :source="source" />
+        <!-- <OpenAppButton :source="source" /> -->
         <ImportNowButton
           :source="source"
-          :variant="isDocument(source) ? 'button' : 'link'"
+          variant="button"
           @importFinished="() => $emit('importFinished')" />
       </div>
 
       <!-- Download App -->
-      <div class="text-center mt-4">
+      <!-- <div class="text-center mt-4">
         <DownloadLink />
-      </div>
+      </div> -->
     </div>
   </ScalarModal>
 </template>

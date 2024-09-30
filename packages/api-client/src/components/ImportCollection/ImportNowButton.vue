@@ -78,7 +78,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
       <ScalarIcon
         icon="Import"
         size="md" />
-      Try it in the browser
+      Import Collection
     </ScalarButton>
     <!-- Link -->
     <ScalarButton

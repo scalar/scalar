@@ -89,10 +89,6 @@
       "import": "./dist/components/Sidebar/index.js",
       "types": "./dist/components/Sidebar/index.d.ts"
     },
-    "./components/Search": {
-      "import": "./dist/components/Search/index.js",
-      "types": "./dist/components/Search/index.d.ts"
-    },
     "./components/ImportCollection": {
       "import": "./dist/components/ImportCollection/index.js",
       "types": "./dist/components/ImportCollection/index.d.ts"
