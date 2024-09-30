@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.1.11
+
+### Patch Changes
+
+- 9b010e6: fix: force show servers when not in read only mode
+- d8baf4e: feat: sets draft collection icon
+- 8554e60: fix: add proper scalar version in ascii preview
+- b4d1e1b: fix: remove stray hello world html
+- d9ff13e: fix: updates empty sidebar content
+- Updated dependencies [d8baf4e]
+- Updated dependencies [9057781]
+  - @scalar/components@0.12.49
+  - @scalar/oas-utils@0.2.50
+  - @scalar/use-codemirror@0.11.15
+
 ## 2.1.10
 
 ### Patch Changes

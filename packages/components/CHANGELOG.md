@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.49
+
+### Patch Changes
+
+- d8baf4e: feat: adds scribble icon
+
 ## 0.12.48
 
 ### Patch Changes
