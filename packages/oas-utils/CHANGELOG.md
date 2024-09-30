@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.50
+
+### Patch Changes
+
+- 9057781: fix: add missing securityDefinitions check on import
+
 ## 0.2.49
 
 ### Patch Changes
