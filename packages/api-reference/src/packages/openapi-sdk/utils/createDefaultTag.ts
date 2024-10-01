@@ -1,11 +1,11 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-export function createDefaultTag(content: OpenAPI.Document): OpenAPI.Document {
-  const defaultTag: OpenAPI.Tag = {
-    name: 'default',
-    description: '',
-  }
+const DEFAULT_TAG: OpenAPI.Tag = {
+  name: 'default',
+  description: '',
+}
 
+export function createDefaultTag(content: OpenAPI.Document): OpenAPI.Document {
   // Check if there are any operations without tags
   const hasUntaggedOperations = Object.values(content.paths || {}).some(
     (pathItem: OpenAPI.PathItem) =>
@@ -16,13 +16,14 @@ export function createDefaultTag(content: OpenAPI.Document): OpenAPI.Document {
       ),
   )
 
+  // Add the default tag if it doesn't exist
   if (hasUntaggedOperations) {
-    // Add the default tag if it doesn't exist
     if (!content.tags) {
       content.tags = []
     }
+
     if (!content.tags.some((tag: OpenAPI.Tag) => tag.name === 'default')) {
-      content.tags.push(defaultTag)
+      content.tags.push(DEFAULT_TAG)
     }
 
     // Assign the default tag to operations without tags

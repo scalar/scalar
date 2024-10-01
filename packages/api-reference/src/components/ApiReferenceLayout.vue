@@ -18,8 +18,8 @@ import {
   onServerPrefetch,
   provide,
   ref,
+  toRef,
   useSSRContext,
-  watch,
 } from 'vue'
 
 import {
@@ -52,7 +52,14 @@ defineEmits<{
   (e: 'toggleDarkMode'): void
 }>()
 
-const input = ref<string>('')
+/** Reactive input */
+const rawSpecRef = toRef(props, 'rawSpec')
+
+/**
+ * This is going to replace `legacyParse` and `parsedSpec`, it’s the future.
+ * It’s a OpenAPI-compatible and well typed OpenAPI document.
+ */
+const { openApiDocument } = useOpenApiDocument(rawSpecRef)
 
 // Configure Reference toasts to use vue-sonner
 const { initializeToasts, toast } = useToasts()
@@ -171,21 +178,6 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
-
-/**
- * This is going to replace `legacyParse` and `parsedSpec`, it’s the future.
- * It’s a OpenAPI-compatible and well typed OpenAPI document.
- */
-const { openApiDocument } = useOpenApiDocument(input)
-
-// TODO: Can we replace with a toRef?
-watch(
-  () => props.rawSpec,
-  () => {
-    input.value = props.rawSpec
-  },
-  { immediate: true },
-)
 
 // Initialize the server state
 onServerPrefetch(() => {

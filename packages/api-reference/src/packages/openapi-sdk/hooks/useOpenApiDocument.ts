@@ -1,28 +1,29 @@
-import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type Ref, isRef, reactive, ref, watch } from 'vue'
 
-import { createDefaultTag } from '../utils/createDefaultTag'
-import { createMissingTags } from '../utils/createMissingTags'
-import { filterInternalItems } from '../utils/filterInternalItems'
-import { getOpenApiDocument } from '../utils/getOpenApiDocument'
-// import { measure } from '../utils/measure'
-import { pending } from '../utils/pending'
+import { type OpenApiDocumentTask, State } from '../types'
+import {
+  addRequiredProperties,
+  createDefaultTag,
+  createMissingTags,
+  filterInternalItems,
+  getOpenApiDocument,
+  pending,
+} from '../utils'
+import { handle } from '../utils/handle'
 
-// load
-// upgrade
-// transform
-
-enum State {
-  Idle = 'idle',
-  Processing = 'processing',
-}
-
-type Error = {
-  message: string
-}
-
-// TODO: Don't forget to add the proxy
+/** A list of tasks */
+const pipeline: OpenApiDocumentTask[] = [
+  (content) =>
+    getOpenApiDocument(content, {
+      // TODO: Don't forget to make that dynamic
+      proxy: 'https://proxy.scalar.com',
+    }),
+  addRequiredProperties,
+  filterInternalItems,
+  createDefaultTag,
+  createMissingTags,
+]
 
 /**
  * Reactive wrapper around the OpenAPI helpers
@@ -49,10 +50,9 @@ export function useOpenApiDocument(
         async () => {
           const content = (isRef(input) ? input.value : input) as string
 
-          const result = await handle(content)
+          const result = await handle(content, pipeline)
 
           if (result) {
-            console.log('UPADTED OPENAPI DOCUMENT')
             // Overwrite openApiDocument with the new result
             Object.keys(openApiDocument).forEach((key) => {
               delete openApiDocument[key]
@@ -73,40 +73,3 @@ export function useOpenApiDocument(
     openApiDocument,
   }
 }
-
-const pipeline = [
-  getOpenApiDocument,
-  // addRequiredProperties,
-  filterInternalItems,
-  createDefaultTag,
-  createMissingTags,
-]
-
-/**
- * Get any OpenAPI Document and prepare it for the rendering
- */
-export async function handle(content: string | Record<string, any>) {
-  return pipeline.reduce(
-    async (acc, nextTask) => {
-      // return await measure<OpenAPI.Document>(`- ${nextTask.name}`, async () => {
-      return nextTask(await acc)
-      // })
-    },
-    Promise.resolve(normalize(content)),
-  )
-}
-
-// // paths, tags
-// function addRequiredProperties(content: OpenAPI.Document) {
-//   const updatedContent = { ...content }
-
-//   if (!updatedContent.paths) {
-//     updatedContent.paths = {}
-//   }
-
-//   if (!updatedContent.tags) {
-//     updatedContent.tags = []
-//   }
-
-//   return updatedContent
-// }

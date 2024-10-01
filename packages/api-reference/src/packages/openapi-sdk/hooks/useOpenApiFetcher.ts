@@ -9,10 +9,6 @@ enum State {
   Processing = 'processing',
 }
 
-// type Error = {
-//   message: string
-// }
-
 /**
  * WIP
  */
