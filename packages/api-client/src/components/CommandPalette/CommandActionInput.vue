@@ -4,11 +4,13 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 
 const props = defineProps<{
   modelValue?: string
+  placeholder?: string
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
   (e: 'onDelete', event: KeyboardEvent): void
+  (e: 'paste', event: ClipboardEvent): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -27,6 +29,10 @@ const handleBack = (event: KeyboardEvent) => {
   if (model.value !== '') return
   emit('onDelete', event)
 }
+
+const handlePaste = (event: ClipboardEvent) => {
+  emit('paste', event)
+}
 </script>
 <template>
   <label
@@ -40,6 +46,8 @@ const handleBack = (event: KeyboardEvent) => {
     class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
     data-form-type="other"
     data-lpignore="true"
+    :placeholder="props.placeholder"
     v-bind="$attrs"
-    @keydown.delete.stop="handleBack($event)" />
+    @keydown.delete.stop="handleBack($event)"
+    @paste="handlePaste($event)" />
 </template>
