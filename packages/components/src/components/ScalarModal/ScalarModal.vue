@@ -121,15 +121,17 @@ export const useModal = () =>
 </template>
 <style scoped>
 .scalar-modal-layout {
-  animation: modal-fade 0.2s forwards;
+  animation: fadein-layout ease-in-out 0.3s forwards;
 }
 .scalar-modal {
-  animation: modal-pop 0.15s 0.15s forwards;
+  animation: fadein-modal ease-in-out 0.3s forwards;
+  animation-delay: 0.1s;
   position: fixed;
   left: 0;
   top: 0;
   right: 0;
   box-shadow: var(--scalar-shadow-2);
+  transform: translate3d(0, 10px, 0);
 }
 .dark-mode .scalar-modal {
   background-color: color-mix(in srgb, var(--scalar-background-1), black);
@@ -152,20 +154,22 @@ export const useModal = () =>
     top: 28px;
   }
 }
-@keyframes modal-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes modal-pop {
+@keyframes fadein-layout {
   0% {
     opacity: 0;
   }
   100% {
     opacity: 1;
+  }
+}
+@keyframes fadein-modal {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 </style>
