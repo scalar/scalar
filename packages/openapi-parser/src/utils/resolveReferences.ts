@@ -183,7 +183,7 @@ function resolveUri(
   const [prefix, path] = uri.split('#', 2)
 
   // External references
-  if (prefix) {
+  if (prefix && prefix != file.filename) {
     const externalReference = filesystem.find((entry) => {
       return entry.filename === prefix
     })
