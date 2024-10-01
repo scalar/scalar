@@ -302,6 +302,7 @@ describe('create-request-operation', () => {
     )
     if (error) throw error
 
+    // @ts-expect-error Not added yet
     const [requestError, result, fetchOptions] =
       await requestOperation.sendRequest()
 

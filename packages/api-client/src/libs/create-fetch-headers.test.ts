@@ -43,7 +43,7 @@ describe('createFetchHeaders', () => {
       },
     }
 
-    const result = createFetchHeaders(example)
+    const result = createFetchHeaders(example, {})
 
     expect(result).toStrictEqual({
       'x-custom-header': 'custom value',
@@ -60,7 +60,7 @@ describe('createFetchHeaders', () => {
       },
     }
 
-    const result = createFetchHeaders(example)
+    const result = createFetchHeaders(example, {})
 
     expect(result).toStrictEqual({})
   })
@@ -78,7 +78,7 @@ describe('createFetchHeaders', () => {
       },
     }
 
-    const result = createFetchHeaders(example)
+    const result = createFetchHeaders(example, {})
 
     expect(result).toStrictEqual({
       'x-strange-header': 'MixedCaseValue',
@@ -107,7 +107,7 @@ describe('createFetchHeaders', () => {
       },
     }
 
-    const result = createFetchHeaders(example)
+    const result = createFetchHeaders(example, {})
 
     expect(result).toStrictEqual({
       'x-trailing-space': 'value with space ',
@@ -136,7 +136,7 @@ describe('createFetchHeaders', () => {
       },
     }
 
-    const result = createFetchHeaders(example)
+    const result = createFetchHeaders(example, {})
 
     expect(result).toStrictEqual({
       'x-trailing-space-header': 'value',

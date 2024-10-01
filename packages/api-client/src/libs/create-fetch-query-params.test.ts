@@ -18,7 +18,7 @@ describe('create-fetch-query-params', () => {
       },
     }
 
-    const result = createFetchQueryParams(requestExample)
+    const result = createFetchQueryParams(requestExample, {})
 
     expect(result.toString()).toEqual('page=1&limit=10&search=John')
   })
@@ -37,7 +37,7 @@ describe('create-fetch-query-params', () => {
       },
     }
 
-    const result = createFetchQueryParams(requestExample)
+    const result = createFetchQueryParams(requestExample, {})
 
     expect(result.toString()).toEqual('color=red&color=blue&size=large')
   })
@@ -52,7 +52,7 @@ describe('create-fetch-query-params', () => {
       },
     }
 
-    const result = createFetchQueryParams(requestExample)
+    const result = createFetchQueryParams(requestExample, {})
 
     expect(result.toString()).toEqual('')
     expect(result).toBeInstanceOf(URLSearchParams)
