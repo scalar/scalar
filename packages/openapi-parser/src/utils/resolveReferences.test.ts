@@ -647,4 +647,48 @@ describe('resolveReferences', () => {
     // Resolve the *path* from the given file
     expect(schema.components.schemas.Upload.allOf[0].title).toBe('Coordinates')
   })
+
+  it('resolves reference to self by filename', async () => {
+    const filesystem = [
+      {
+        dir: '/Foobar',
+        isEntrypoint: true,
+        references: [],
+        filename: 'openapi.json',
+        specification: {
+          openapi: '3.1.0',
+          info: {},
+          paths: {
+            '/foobar': {
+              post: {
+                requestBody: {
+                  $ref: 'openapi.json#/components/requestBodies/Foobar',
+                },
+              },
+            },
+          },
+          components: {
+            requestBodies: {
+              Foobar: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                      example: 'foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    ]
+
+    const { schema } = resolveReferences(filesystem)
+    expect(
+      schema.paths['/foobar'].post.requestBody.content['application/json']
+        .schema.example,
+    ).toBe('foobar')
+  })
 })
