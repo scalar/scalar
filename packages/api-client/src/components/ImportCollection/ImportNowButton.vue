@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
