@@ -2,20 +2,45 @@
 import { ScalarCodeBlock } from '@scalar/components'
 import { computed, ref } from 'vue'
 
-import type { ClientId, TargetId } from '../../src/core'
 import { snippetz } from '../../src/snippetz'
 
-const targets: TargetId[] = ['node', 'js']
-const clients: ClientId[] = ['undici', 'fetch', 'ofetch']
+const pluginsMap = {
+  'node-undici': {
+    target: 'node',
+    client: 'undici',
+  },
+  'node-fetch': {
+    target: 'node',
+    client: 'fetch',
+  },
+  'js-fetch': {
+    target: 'js',
+    client: 'fetch',
+  },
+  'js-ofetch': {
+    target: 'js',
+    client: 'ofetch',
+  },
+  'node-ofetch': {
+    target: 'node',
+    client: 'ofetch',
+  },
+}
 
-const targetId = ref(targets[0])
-const clientId = ref(clients[0])
+const pluginKeys = Object.keys(pluginsMap)
+
+const plugin = ref('node-undici')
+
 const url = ref('https://example.com')
 
 const snippet = computed(() =>
-  snippetz().print(targetId.value, clientId.value, {
-    url: 'https://example.com',
-  }),
+  snippetz().print(
+    pluginsMap[plugin.value].target,
+    pluginsMap[plugin.value].client,
+    {
+      url: url.value,
+    },
+  ),
 )
 </script>
 
@@ -28,27 +53,17 @@ const snippet = computed(() =>
       type="text" />
   </div>
   <div>
-    Target:
-    <select v-model="targetId">
+    Plugins:
+    <select v-model="plugin">
       <option
-        v-for="target in targets"
-        :key="target"
-        :value="target">
-        {{ target }}
+        v-for="key in pluginKeys"
+        :key="key"
+        :value="key">
+        {{ key }}
       </option>
     </select>
   </div>
-  <div>
-    Client:
-    <select v-model="targetId">
-      <option
-        v-for="client in clients"
-        :key="client"
-        :value="client">
-        {{ client }}
-      </option>
-    </select>
-  </div>
+
   <ScalarCodeBlock v-bind="{ content: snippet }"></ScalarCodeBlock>
 </template>
 
