@@ -1,12 +1,39 @@
 <script setup lang="ts">
 import '@scalar/api-reference/style.css'
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
 import { ApiReference, type ReferenceConfiguration } from '../../../src'
-import { examples } from './examples'
+
+const LIST_OF_OPENAPI_EXAMPLES =
+  'https://raw.githubusercontent.com/scalar/awesome-openapi/refs/heads/main/data/openapi-document-urls.json'
 
 /** OpenAPI document URL */
-const url = ref<string>(examples[0].url)
+const url = ref<string | undefined>()
+
+/** Store the fetched list of URLs */
+const urls = reactive<
+  {
+    url: string
+    name: string
+  }[]
+>([])
+
+/** Fetch example URLs */
+onMounted(async () => {
+  const response = await fetch(LIST_OF_OPENAPI_EXAMPLES)
+
+  if (response.ok) {
+    const data = await response.json()
+    Object.assign(urls, data)
+
+    // Set the URL to the first entry in the fetched list
+    if (urls.length > 0) {
+      url.value = urls[0].url
+    }
+  } else {
+    console.error('Failed to fetch example URLs:', response.statusText)
+  }
+})
 
 /** Configuration */
 const configuration = reactive<ReferenceConfiguration>({
@@ -19,19 +46,17 @@ const configuration = reactive<ReferenceConfiguration>({
 /** Pick a random example from the list */
 function selectRandomExample() {
   // Get the index of the current item
-  const currentIndex = examples.findIndex(
-    (example) => example.url === url.value,
-  )
+  const currentIndex = urls.findIndex((example) => example.url === url.value)
 
   // Pick a random item, that’s not the current one
   let randomIndex: number
 
   do {
-    randomIndex = Math.floor(Math.random() * examples.length)
+    randomIndex = Math.floor(Math.random() * urls.length)
   } while (randomIndex === currentIndex)
 
   // Update the selected item
-  url.value = examples[randomIndex].url
+  url.value = urls[randomIndex].url
 }
 </script>
 
@@ -40,7 +65,7 @@ function selectRandomExample() {
     <div>
       <select v-model="url">
         <option
-          v-for="(example, index) in examples"
+          v-for="(example, index) in urls"
           :key="index"
           :value="example.url">
           {{ example.name }}
