@@ -53,7 +53,11 @@ export function ValidateCommand() {
     } else {
       console.log(prettyjson.render(result.errors))
       console.log()
-      console.error(kleur.red('File doesn’t match the OpenAPI specification.'))
+      console.error(
+        kleur.red(
+          `File does not match the OpenAPI ${result.version ? `${result.version} ` : ''}specification.`,
+        ),
+      )
       console.log()
       console.error(
         kleur.red(

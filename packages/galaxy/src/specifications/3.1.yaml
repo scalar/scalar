@@ -50,8 +50,15 @@ info:
     email: marc@scalar.com
 servers:
   - url: https://galaxy.scalar.com
-  - url: https://void.scalar.com
+  - url: '{protocol}://void.scalar.com/{path}'
     description: Responds with your request data
+    variables:
+      protocol:
+        enum:
+          - https
+        default: https
+      path:
+        default: ''
 security:
   - bearerAuth: []
   - basicAuth: []
