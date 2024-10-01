@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
+  (e: 'onDelete', event: KeyboardEvent): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -21,6 +22,11 @@ const model = computed<string>({
   get: () => props.modelValue ?? '',
   set: (v) => emit('update:modelValue', v),
 })
+
+const handleBack = (event: KeyboardEvent) => {
+  if (model.value !== '') return
+  emit('onDelete', event)
+}
 </script>
 <template>
   <label
@@ -34,5 +40,6 @@ const model = computed<string>({
     class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
     data-form-type="other"
     data-lpignore="true"
-    v-bind="$attrs" />
+    v-bind="$attrs"
+    @keydown.delete.stop="handleBack($event)" />
 </template>

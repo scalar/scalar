@@ -24,6 +24,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { push } = useRouter()
@@ -123,7 +124,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="requestName"
       label="Request Name"
-      placeholder="Request Name" />
+      placeholder="Request Name"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <div class="flex gap-2">
         <HttpMethod

@@ -10,6 +10,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
@@ -59,7 +60,8 @@ const handleSubmit = async () => {
     <CommandActionInput
       v-model="specUrl"
       label="Paste Swagger File URL"
-      placeholder="Paste Swagger File URL" />
+      placeholder="Paste Swagger File URL"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarButton
         class="p-2 max-h-8 gap-1 text-xs hover:bg-b-2 relative"

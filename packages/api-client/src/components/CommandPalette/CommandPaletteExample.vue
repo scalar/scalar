@@ -22,6 +22,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { push } = useRouter()
@@ -69,7 +70,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="exampleName"
       label="Example Name"
-      placeholder="Example Name" />
+      placeholder="Example Name"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarDropdown
         placement="bottom"

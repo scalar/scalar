@@ -11,6 +11,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { activeWorkspace, collectionMutators } = useWorkspace()
@@ -45,7 +46,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="collectionName"
       label="Collection Name"
-      placeholder="Collection Name" />
+      placeholder="Collection Name"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <IconSelector
         v-model="collectionIcon"

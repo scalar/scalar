@@ -126,9 +126,11 @@ const closeHandler = () => {
 }
 
 /** Reset state on back */
-const backHandler = () => {
+const backHandler = (event: KeyboardEvent) => {
   // Prevent delete event from removing query command character
-  event.preventDefault()
+  if (commandQuery.value !== '') {
+    event?.preventDefault()
+  }
   activeCommand.value = null
   nextTick(() => commandInputRef.value?.focus())
 }
@@ -303,6 +305,7 @@ onBeforeUnmount(() => {
       <component
         :is="PaletteComponents[activeCommand]"
         v-bind="metaData ? { metaData: metaData } : {}"
+        @back="backHandler($event)"
         @close="closeHandler" />
     </template>
   </div>
