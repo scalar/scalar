@@ -25,7 +25,7 @@ describe('create-fetch-body', () => {
       },
     }
 
-    const result = createFetchBody('post', example)
+    const result = createFetchBody('post', example, {})
 
     expect(result).toEqual({
       body: 'hello world',

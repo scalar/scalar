@@ -44,7 +44,10 @@ export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
 }
 
 /** Populate the headers from enabled parameters */
-export function createFetchHeaders(example: RequestExample, env: object) {
+export function createFetchHeaders(
+  example: Pick<RequestExample, 'parameters'>,
+  env: object,
+) {
   const headers: NonNullable<RequestInit['headers']> = {}
 
   example.parameters.headers.forEach((h) => {
@@ -62,7 +65,10 @@ export function createFetchHeaders(example: RequestExample, env: object) {
 }
 
 /** Populate the query parameters from the example  */
-export function createFetchQueryParams(example: RequestExample, env: object) {
+export function createFetchQueryParams(
+  example: Pick<RequestExample, 'parameters'>,
+  env: object,
+) {
   const params = new URLSearchParams()
   example.parameters.query.forEach((p) => {
     if (p.enabled && p.value)
