@@ -29,15 +29,15 @@
     "@scalar/themes": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "monaco-editor": "^0.47.0",
-    "vue": "^3.4.29",
+    "vue": "^3.4.35",
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "^5.1.1",
     "autoprefixer": "^10.4.19",
     "eslint-plugin-vue": "^9.21.1",
     "postcss": "^8.4.38",
     "postcss-nested": "^6.0.1",
-    "vite": "^5.2.10"
+    "vite": "^5.3.5"
   }
 }

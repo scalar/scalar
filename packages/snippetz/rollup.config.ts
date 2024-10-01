@@ -6,6 +6,8 @@ import {
 
 const entries = await findEntryPoints()
 
+console.log(entries)
+
 export default createRollupConfig({
   typescript: true,
   options: {

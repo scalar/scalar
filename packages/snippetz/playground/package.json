@@ -1,0 +1,24 @@
+{
+  "name": "@scalar-examples/snippetz",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc && vite build",
+    "types:build": "vue-tsc -p tsconfig.build.json",
+    "types:check": "vue-tsc --composite false",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@scalar/snippetz": "workspace:*",
+    "vue": "^3.4.35"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.1",
+    "shikiji": "^0.10.2",
+    "typescript": "^5.6.2",
+    "vite": "^5.3.5",
+    "vue-tsc": "^2.0.29"
+  }
+}

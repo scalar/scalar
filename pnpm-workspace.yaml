@@ -3,3 +3,4 @@ packages:
   - 'examples/*'
   - 'projects/*'
   - 'playwright'
+  - 'packages/snippetz/playground'

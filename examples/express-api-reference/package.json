@@ -32,6 +32,6 @@
     "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/swagger-jsdoc": "^6.0.3",
-    "vite": "^5.2.10"
+    "vite": "^5.3.5"
   }
 }

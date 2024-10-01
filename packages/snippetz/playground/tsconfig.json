@@ -1,0 +1,19 @@
+{
+  "extends": "../tsconfig.json",
+  "include": ["./src"],
+  "compilerOptions": {
+    "rootDir": "./src",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    },
+    "types": ["vite/client"],
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist/"
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  }
+}

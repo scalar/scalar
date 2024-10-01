@@ -55,12 +55,12 @@
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
     "unhead": "^1.8.3",
-    "vue": "^3.4.29"
+    "vue": "^3.4.35"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.2.10",
+    "@vitejs/plugin-vue": "^5.1.1",
+    "vite": "^5.3.5",
     "vite-svg-loader": "^5.1.0"
   }
 }
