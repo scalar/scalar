@@ -34,7 +34,7 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
@@ -125,6 +125,14 @@ const closeHandler = () => {
   selectedSearchResult.value = -1
 }
 
+/** Reset state on back */
+const backHandler = () => {
+  // Prevent delete event from removing query command character
+  event.preventDefault()
+  activeCommand.value = null
+  nextTick(() => commandInputRef.value?.focus())
+}
+
 /** Handle execution of the command, some have routes while others show another palette */
 const executeCommand = (
   command: (typeof availableCommands)[number]['commands'][number],
@@ -152,6 +160,13 @@ const openCommandPalette = ({
   // Need nextTick to focus after a click since focus goes to the button
   nextTick(() => commandInputRef.value?.focus())
 }
+
+/** Focus on first result when conducting a search */
+watch(commandQuery, (newQuery) => {
+  if (newQuery && searchResultsWithPlaceholderResults.value.length > 0) {
+    selectedSearchResult.value = 0
+  }
+})
 
 /** Handle up and down arrow keys in the menu */
 const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
@@ -207,7 +222,7 @@ onBeforeUnmount(() => {
 
   <div
     v-show="modalState.open"
-    class="commandmenu">
+    class="commandmenu custom-scroll">
     <!-- Default palette (command list) -->
     <template v-if="!activeCommand">
       <div
@@ -298,6 +313,7 @@ onBeforeUnmount(() => {
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
+  max-height: 50dvh;
   width: 100%;
   max-width: 580px;
   padding: 6px 12px 12px 12px;
