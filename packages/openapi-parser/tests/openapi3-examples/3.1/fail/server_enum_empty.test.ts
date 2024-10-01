@@ -7,10 +7,10 @@ describe('server_enum_empty', () => {
   it('returns an error', async () => {
     const result = await validate(server_enum_empty)
 
-    // TODO: The error should return something related to the empty enum
     expect(result.errors?.[0]?.message).toBe(
-      `format must match format "uri-reference"`,
+      `minItems must NOT have fewer than 1 items`,
     )
+
     expect(result.valid).toBe(false)
   })
 })
