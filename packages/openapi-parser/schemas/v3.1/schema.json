@@ -152,7 +152,7 @@
       "properties": {
         "url": {
           "type": "string",
-          "format": "uri-reference"
+          "pattern": "^[^{}]*(?:\\{[^{}]+\\}[^{}]*)*$"
         },
         "description": {
           "type": "string"
