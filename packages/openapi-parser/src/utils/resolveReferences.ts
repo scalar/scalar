@@ -182,8 +182,11 @@ function resolveUri(
   // Understand the URI
   const [prefix, path] = uri.split('#', 2)
 
+  /** Check whether the file is pointing to itself */
+  const isDifferentFile = prefix !== file.filename
+
   // External references
-  if (prefix && prefix !== file.filename) {
+  if (prefix && isDifferentFile) {
     const externalReference = filesystem.find((entry) => {
       return entry.filename === prefix
     })
