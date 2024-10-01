@@ -287,7 +287,7 @@ onBeforeUnmount(() => {
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
-        :metaData="metaData"
+        v-bind="metaData ? { metaData: metaData } : {}"
         @close="closeHandler" />
     </template>
   </div>
