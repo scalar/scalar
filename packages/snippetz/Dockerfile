@@ -1,0 +1,28 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS builder
+WORKDIR /app
+
+ENV BUILD_PLAYGROUND=1
+
+# Build the package with the BUILD_PLAYGROUND flag set
+RUN pnpm --filter @scalar/snippetz build:playground
+
+FROM node:20-bullseye-slim AS runner
+# install simple http server for serving static content
+RUN npm install -g http-server
+
+ENV NODE_ENV=production
+
+# Use default non-root user from the node image
+USER node
+WORKDIR /app
+RUN chown node:node /app
+
+# Copy root node modules and any utilized packages
+COPY --from=builder /app/node_modules /app/node_modules
+COPY --from=builder /app/packages/components /app/packages/components
+COPY --from=builder /app/packages/snippetz /app/packages/snippetz
+WORKDIR /app/packages/snippetz
+
+EXPOSE 8080
+CMD [ "http-server", "playground/dist" ]
