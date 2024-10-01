@@ -57,7 +57,7 @@
     "clean:turbo": "find . -name .turbo -type d -exec rm -rf {} \\;",
     "dev": "turbo dev --concurrency=100 --filter './examples/*' --filter=@scalar/nuxt --filter=@scalar/draggable --filter @scalar/components --filter @scalar/api-client --filter @scalar/nextjs-openapi",
     "dev:app": "turbo dev --filter @scalar/api-client",
-    "dev:client": "turbo dev --filter @scalar-examples/api-client",
+    "dev:client": "turbo dev --filter client-scalar-com",
     "dev:components": "turbo dev --filter @scalar/components",
     "dev:modal": "turbo playground:modal --filter @scalar/api-client",
     "dev:nuxt": "turbo dev --filter @scalar/nuxt",
