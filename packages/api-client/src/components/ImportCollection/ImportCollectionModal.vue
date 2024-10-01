@@ -17,8 +17,6 @@ import { computed, watch } from 'vue'
 
 import { WorkspaceDropdown } from '../../views/Request/components'
 import ImportNowButton from './ImportNowButton.vue'
-import LoadingScreen from './LoadingScreen.vue'
-import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
 
 // import OpenAppButton from './OpenAppButton.vue'
 
@@ -83,87 +81,57 @@ watch(
   <ScalarModal
     size="md"
     :state="modalState">
-    <div class="flex flex-col gap-2">
+    <div class="flex gap-5 flex-col my-24">
       <!-- Title -->
-      <div class="mb-4 mt-6 flex flex-col gap-4">
-        <div class="text-center text-xl font-medium">
-          Import {{ title ?? 'Collection' }}
+      <div class="text-center text-xl font-medium">
+        {{ title ?? 'Import Collection' }}
+      </div>
+
+      <!-- Select the workspace -->
+      <div class="flex justify-center">
+        <div class="inline-block bg-b-2 py-1 px-4 rounded">
+          <WorkspaceDropdown />
         </div>
-        <!-- Select the workspace -->
-        <div class="flex justify-center">
-          <div class="border inline-block">
-            <WorkspaceDropdown />
+      </div>
+
+      <!-- Prefetch error -->
+      <template
+        v-if="prefetchResult.state !== 'loading' && prefetchResult.error">
+        <div
+          class="flex gap-2 items-center p-3 font-code text-sm border rounded break-words">
+          <ScalarIcon
+            class="text-red flex-shrink-0"
+            icon="Error"
+            size="sm" />
+          <div class="break-all">
+            {{ prefetchResult.error }}
           </div>
         </div>
-      </div>
+      </template>
+      <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+      <template v-else-if="!version">
+        <div
+          class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+          <ScalarIcon
+            class="text-red"
+            icon="Error"
+            size="sm" />
+          <div>This doesn’t look like a valid OpenAPI/Swagger document.</div>
+        </div>
 
-      <!-- Preview -->
-      <div class="flex gap-2 flex-col pt-2 pb-4">
-        <!-- Document preview -->
-        <template v-if="source && isDocument(source)">
-          <OpenApiDocumentPreview
-            class="-mx-3"
-            :content="openApiDocument" />
-        </template>
-
-        <!-- URL preview -->
-        <template v-else-if="source && isUrl(source)">
-          <!-- Loading -->
-          <template v-if="prefetchResult.state === 'loading'">
-            <LoadingScreen />
-          </template>
-          <template v-else>
-            <!-- Prefetch error -->
-            <template v-if="prefetchResult.error">
-              <div
-                class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-                <ScalarIcon
-                  class="text-red flex-shrink-0"
-                  icon="Error"
-                  size="sm" />
-                <div>
-                  {{ prefetchResult.error }}
-                </div>
-              </div>
-            </template>
-            <template v-else>
-              <!-- Content preview (content has a version, seems legit) -->
-              <OpenApiDocumentPreview
-                v-if="version"
-                class="-mx-3"
-                :content="openApiDocument" />
-              <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-              <template v-else>
-                <div
-                  class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-                  <ScalarIcon
-                    class="text-red"
-                    icon="Error"
-                    size="sm" />
-                  <div>
-                    This doesn’t look like a valid OpenAPI/Swagger document.
-                  </div>
-                </div>
-
-                <div class="bg-b-2 h-48 border rounded custom-scroll">
-                  <ScalarCodeBlock
-                    :content="
-                      prefetchResult.content?.trim() ||
-                      props.source?.trim() ||
-                      ''
-                    "
-                    :copy="false" />
-                </div>
-              </template>
-            </template>
-          </template>
-        </template>
-      </div>
+        <div class="bg-b-2 h-48 border rounded custom-scroll">
+          <ScalarCodeBlock
+            :content="
+              prefetchResult.content?.trim() || props.source?.trim() || ''
+            "
+            :copy="false" />
+        </div>
+      </template>
 
       <!-- Actions -->
       <div
         v-if="version"
-        class="inline-flex flex-col gap-2 mt-4 mb-6 items-center">
+        class="inline-flex flex-col gap-2 items-center mt-2">
         <!-- <OpenAppButton :source="source" /> -->
         <ImportNowButton
           :source="source"
