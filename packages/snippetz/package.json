@@ -69,6 +69,7 @@
   "module": "./dist/index.js",
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/components": "workspace:*",
     "@types/har-format": "^1.2.15",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vueuse/core": "^10.10.0",

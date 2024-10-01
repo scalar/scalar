@@ -2028,6 +2028,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
       '@types/har-format':
         specifier: ^1.2.15
         version: 1.2.15
