@@ -2,9 +2,9 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-ENV BUILD_PLAYGROUND=1
-
-# Build the package with the BUILD_PLAYGROUND flag set
+# Build the package
+RUN pnpm --filter @scalar/snippetz build
+# Build the playground
 RUN pnpm --filter @scalar/snippetz build:playground
 
 FROM node:20-bullseye-slim AS runner

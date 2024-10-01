@@ -52,14 +52,6 @@
     "./core": {
       "import": "./dist/core/index.js",
       "types": "./dist/core/index.d.ts"
-    },
-    "./css/*.css": {
-      "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css"
-    },
-    "./*.css": {
-      "import": "./dist/*.css",
-      "require": "./dist/*.css"
     }
   },
   "files": [
