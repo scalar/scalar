@@ -358,7 +358,7 @@ jobs:
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [aspnetcore-build-test]
 
