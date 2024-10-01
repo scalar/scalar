@@ -184,7 +184,7 @@ const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
 
   commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
     behavior: 'smooth',
-    block: 'center',
+    block: 'nearest',
   })
 }
 
@@ -228,7 +228,7 @@ onBeforeUnmount(() => {
     <!-- Default palette (command list) -->
     <template v-if="!activeCommand">
       <div
-        class="bg-b-2 flex items-center rounded mb-2 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
+        class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
         <label for="commandmenu">
           <ScalarIcon
             class="text-c-1 mr-2.5"
@@ -258,7 +258,7 @@ onBeforeUnmount(() => {
               command.name.toLowerCase().includes(commandQuery.toLowerCase()),
             ).length > 0
           "
-          class="text-c-3 font-medium text-xs mt-2">
+          class="text-c-3 font-medium text-xs px-2 mb-1 mt-2">
           {{ group.label }}
         </div>
         <div
@@ -319,7 +319,7 @@ onBeforeUnmount(() => {
   max-height: 50dvh;
   width: 100%;
   max-width: 580px;
-  padding: 6px 12px 12px 12px;
+  padding: 6px;
   margin: 12px;
   position: fixed;
   z-index: 10;
