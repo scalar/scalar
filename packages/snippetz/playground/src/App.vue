@@ -26,16 +26,16 @@ const pluginsMap = {
     client: 'ofetch',
   },
 }
-
 const pluginKeys = Object.keys(pluginsMap)
 
 const plugin = ref('node-undici')
-
 const url = ref('https://example.com')
 
 const snippet = computed(() =>
   snippetz().print(
+    // @ts-ignore
     pluginsMap[plugin.value].target,
+    // @ts-ignore
     pluginsMap[plugin.value].client,
     {
       url: url.value,
@@ -53,7 +53,7 @@ const snippet = computed(() =>
       type="text" />
   </div>
   <div>
-    Plugins:
+    Select target-client:
     <select v-model="plugin">
       <option
         v-for="key in pluginKeys"
@@ -63,8 +63,10 @@ const snippet = computed(() =>
       </option>
     </select>
   </div>
-
-  <ScalarCodeBlock v-bind="{ content: snippet }"></ScalarCodeBlock>
+  <ScalarCodeBlock
+    :content="snippet"
+    lineNumbers>
+  </ScalarCodeBlock>
 </template>
 
 <style scoped></style>
