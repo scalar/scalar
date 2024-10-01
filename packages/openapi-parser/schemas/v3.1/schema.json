@@ -151,8 +151,7 @@
       "type": "object",
       "properties": {
         "url": {
-          "type": "string",
-          "pattern": "^[^{}]*(?:\\{[^{}]+\\}[^{}]*)*$"
+          "type": "string"
         },
         "description": {
           "type": "string"
