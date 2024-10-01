@@ -181,9 +181,14 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ### Contributors
 
-Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING) guide.
+Top 10 contributors September 2024.
+
+<img width="830" height="560" src="https://github.com/user-attachments/assets/09cf5d60-3bc7-432e-8356-1cec7c78e638">
 
 <br>
+<br>
+
+Top contributors all time.
 
 <!-- readme: collaborators,contributors -start -->
 <table>
