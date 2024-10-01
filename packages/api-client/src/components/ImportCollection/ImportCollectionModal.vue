@@ -16,7 +16,6 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, watch } from 'vue'
 
 import { WorkspaceDropdown } from '../../views/Request/components'
-// import DownloadLink from './DownloadLink.vue'
 import ImportNowButton from './ImportNowButton.vue'
 import LoadingScreen from './LoadingScreen.vue'
 import OpenApiDocumentPreview from './OpenApiDocumentPreview.vue'
@@ -171,11 +170,6 @@ watch(
           variant="button"
           @importFinished="() => $emit('importFinished')" />
       </div>
-
-      <!-- Download App -->
-      <!-- <div class="text-center mt-4">
-        <DownloadLink />
-      </div> -->
     </div>
   </ScalarModal>
 </template>
