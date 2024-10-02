@@ -5,9 +5,11 @@ import microdiff, { type Difference } from 'microdiff'
  * - first we check if the payloads are the same then it was just a simple rename
  * - next we will add the rename and also handle any changes in the diff
  */
-export const combineRenameDiffs = (diff: Difference[]): Difference[] => {
+export const combineRenameDiffs = (
+  diff: Difference[],
+  pathPrefix: string[] = [],
+): Difference[] => {
   const combined: Difference[] = []
-  console.log(diff)
   let skipNext = false
 
   for (let i = 0; i < diff.length; i++) {
@@ -19,14 +21,21 @@ export const combineRenameDiffs = (diff: Difference[]): Difference[] => {
     const current = diff[i]
     const next = diff[i + 1]
 
-    if (current.path[0] !== 'paths') {
+    // Prefix the paths when nested
+    if (pathPrefix.length) {
+      current.path.unshift(...pathPrefix)
+      if (next) next.path.unshift(...pathPrefix)
+    }
+    // Only mutate paths
+    else if (current.path[0] !== 'paths') {
       combined.push(current)
       continue
     }
 
     if (current.type === 'REMOVE' && next?.type === 'CREATE') {
-      const [, currPath, currMethod] = current.path
-      const [, nextPath, nextMethod] = next.path
+      const [, currPath, currMethod] = current.path as string[]
+      const [, nextPath, nextMethod] = next.path as string[]
+      const nestedPrefix = ['paths', nextPath]
 
       // Handle path rename
       if (currPath !== nextPath) {
@@ -46,21 +55,16 @@ export const combineRenameDiffs = (diff: Difference[]): Difference[] => {
           oldValue: currMethod,
           value: nextMethod,
         })
+        nestedPrefix.push(nextMethod)
       }
 
-      // Handle other changes within the renamed path or method
-      const innerDiff = microdiff(current.oldValue, next.value)
-      for (const change of innerDiff) {
-        if (change.type === 'CHANGE') {
-          combined.push({
-            ...change,
-            path: [
-              'paths',
-              nextPath,
-              ...(nextMethod ? [nextMethod] : []),
-              ...change.path,
-            ],
-          })
+      // Only go one level deep
+      if (pathPrefix.length === 0) {
+        // Handle other changes within the renamed path or method
+        const innerDiff = microdiff(current.oldValue, next.value)
+        if (innerDiff.length) {
+          const innerCombined = combineRenameDiffs(innerDiff, nestedPrefix)
+          combined.push(...innerCombined)
         }
       }
 
