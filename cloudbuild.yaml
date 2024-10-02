@@ -396,6 +396,44 @@ steps:
         '--service-account=$_SERVICE_ACCOUNT',
       ]
   # ---------------------------------------------------------------
+  # Snippetz Playground
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-snippetz'
+    waitFor: ['push-base']
+    args:
+      [
+        'buildx',
+        'build',
+        '--build-arg',
+        'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
+        '-t',
+        'gcr.io/${_PROJECT_ID}/${_SERVICE_SNIPPETZ}',
+        '-f',
+        './packages/snippetz/Dockerfile',
+        '.',
+      ]
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-snippetz'
+    waitFor: ['build-snippetz']
+    args: ['push', 'gcr.io/${_PROJECT_ID}/${_SERVICE_SNIPPETZ}']
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    waitFor: ['push-snippetz']
+    args:
+      [
+        'run',
+        'deploy',
+        '$_SERVICE_SNIPPETZ',
+        '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_SNIPPETZ}',
+        '--region=$_REGION',
+        '--platform=managed',
+        '--allow-unauthenticated',
+        '--execution-environment=gen2',
+        '--cpu=$_CPU',
+        '--memory=$_MEMORY',
+        '--service-account=$_SERVICE_ACCOUNT',
+      ]
+  # ---------------------------------------------------------------
   # Other Integration
   # - name: OTHER INTEGRATION
 # ---------------------------------------------------------------
