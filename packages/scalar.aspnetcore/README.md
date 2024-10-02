@@ -1,10 +1,16 @@
 # Scalar .NET API Reference Integration
 
-This .NET package `Scalar.AspNetCore` provides an easy way to render a beautiful API reference based on an OpenAPI/Swagger. Made possible by the wonderful work of [captainsafia](https://github.com/captainsafia) on [building the integration & docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/aspnetcore-openapi?view=aspnetcore-9.0&tabs=visual-studio#using-scalar-for-interactive-api-documentation) for the Scalar & .NET integration.
+[![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore)](https://www.nuget.org/packages/Scalar.AspNetCore)
+[![Downloads](https://img.shields.io/nuget/dt/Scalar.AspNetCore)](https://www.nuget.org/packages/Scalar.AspNetCore)
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
+This .NET package `Scalar.AspNetCore` provides an easy way to render beautiful API references based on OpenAPI/Swagger documents.
+
+Made possible by the wonderful work of [@captainsafia](https://github.com/captainsafia) on [building the integration and docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/aspnetcore-openapi?view=aspnetcore-9.0&tabs=visual-studio#using-scalar-for-interactive-api-documentation) for the Scalar & .NET integration. Thanks to [@xC0dex](https://github.com/xC0dex) for making it awesome.
 
 ![dotnet](./dotnet.jpg)
 
-## 🚀 Getting Started
+## Usage
 
 1. **Install the package**
 
@@ -55,7 +61,7 @@ That's it! 🎉 Now you will see the Scalar UI when using the defaults by naviga
 The `MapScalarApiReference` method has an optional parameter that you can use to customize the behavior of the Scalar UI:
 
 ```csharp
-// Fluent api
+// Fluent API
 app.MapScalarApiReference(options =>
 {
     options
@@ -95,13 +101,26 @@ builder.Services.Configure<ScalarOptions>(options => options.Title = "My custom 
 builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 ```
 
-> [!NOTE]  
+> [!NOTE]
 > Options which are set via the `MapScalarApiReference` method will take precedence over options set via dependency injection.
 
-## Building & Release
+## Development
 
-```bash
-dotnet build
-dotnet pack --configuration Release
-# then ping marc until we set up ci auto release!
-```
+1. Download [.NET 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
+2. Jump to the package folder: `cd packages/scalar.aspnetcore`
+3. Do a fresh build: `dotnet build`
+4. Run the tests: `dotnet test`
+
+And see it in action here:
+
+1. Switch to the playground: `cd playground`
+2. Start the playground: `dotnet run`
+3. Open this URL in the browser: <http://localhost:5056/scalar/v1>
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/openapi-parser/blob/main/LICENSE).
