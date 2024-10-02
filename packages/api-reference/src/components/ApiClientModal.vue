@@ -81,7 +81,3 @@ onBeforeUnmount(() => client.value?.app.unmount())
 <template>
   <div ref="el" />
 </template>
-
-<style>
-@import '@scalar/api-client/style.css';
-</style>
