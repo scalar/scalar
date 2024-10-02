@@ -124,7 +124,7 @@ export const getSchemaFromNode = (
       properties: node.properties.reduce((prev, property) => {
         const key =
           property.name && isIdentifier(property.name)
-            ? property.name.escapedText ?? 'unkown'
+            ? (property.name.escapedText ?? 'unkown')
             : 'unknown'
         return {
           ...prev,

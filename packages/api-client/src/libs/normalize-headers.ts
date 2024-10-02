@@ -37,10 +37,10 @@ export const normalizeHeaders = (
 
   /** List of modified headers */
   const modifiedHeaders = modifiedHeaderKey
-    ? headers[modifiedHeaderKey]
+    ? (headers[modifiedHeaderKey]
         ?.toString()
         .split(', ')
-        ?.map((value: string) => value.toLowerCase()) ?? []
+        ?.map((value: string) => value.toLowerCase()) ?? [])
     : []
 
   // Remove headers listed in `X-Scalar-Modified-Headers`

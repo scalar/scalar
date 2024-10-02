@@ -22,7 +22,7 @@ export function syntaxHighlight(
   const credentials = (
     typeof options?.maskCredentials === 'string'
       ? [options.maskCredentials]
-      : options?.maskCredentials ?? []
+      : (options?.maskCredentials ?? [])
   ).filter((c) => {
     if (c.length < 3) {
       console.error(

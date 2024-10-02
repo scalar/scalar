@@ -55,7 +55,8 @@ const executeRequest = async () => {
   // Parse the environment string
   const e = safeJSON.parse(activeEnvironment.value?.value || '{}')
   if (e.error) console.error('INVALID ENVIRONMENT!')
-  const environment = e.error || typeof e.data !== 'object' ? {} : e.data ?? {}
+  const environment =
+    e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
 
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
