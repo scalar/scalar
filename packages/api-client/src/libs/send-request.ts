@@ -23,7 +23,7 @@ import MimeTypeParser from 'whatwg-mimetype'
 
 // TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
 /** Decode the buffer according to its content-type */
-function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
+export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
   const mimeType = new MimeTypeParser(contentType)
 
   if (textMediaTypes.includes(mimeType.essence)) {
@@ -44,11 +44,14 @@ function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
 }
 
 /** Populate the headers from enabled parameters */
-function createFetchHeaders(example: RequestExample, env: object) {
+export function createFetchHeaders(
+  example: Pick<RequestExample, 'parameters'>,
+  env: object,
+) {
   const headers: NonNullable<RequestInit['headers']> = {}
 
   example.parameters.headers.forEach((h) => {
-    const lowerCaseKey = h.key.toLowerCase()
+    const lowerCaseKey = h.key.trim().toLowerCase()
 
     // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
     if (
@@ -62,7 +65,10 @@ function createFetchHeaders(example: RequestExample, env: object) {
 }
 
 /** Populate the query parameters from the example  */
-function createFetchQueryParams(example: RequestExample, env: object) {
+export function createFetchQueryParams(
+  example: Pick<RequestExample, 'parameters'>,
+  env: object,
+) {
   const params = new URLSearchParams()
   example.parameters.query.forEach((p) => {
     if (p.enabled && p.value)
@@ -73,7 +79,7 @@ function createFetchQueryParams(example: RequestExample, env: object) {
 }
 
 /** Set all cookie params and workspace level cookies that are applicable */
-function setRequestCookies({
+export function setRequestCookies({
   example,
   env,
   globalCookies,
@@ -156,7 +162,7 @@ function setRequestCookies({
  * TODO: Should we be setting the content type headers here?
  * If so we must allow the user to override the content type header
  */
-function createFetchBody(
+export function createFetchBody(
   method: RequestMethod,
   example: RequestExample,
   env: object,
