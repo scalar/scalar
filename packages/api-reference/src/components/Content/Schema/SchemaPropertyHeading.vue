@@ -17,7 +17,7 @@ withDefaults(
 
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 
-const flattenValue = (value: Record<string, any>) => {
+const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
     ? value.default[0]
     : value?.default
@@ -115,10 +115,10 @@ const flattenValue = (value: Record<string, any>) => {
       </SchemaPropertyDetail>
       <SchemaPropertyDetail v-if="$props.enum">enum</SchemaPropertyDetail>
       <SchemaPropertyDetail
-        v-if="value.default"
+        v-if="value.default !== undefined"
         truncate>
         <template #prefix>default:</template>
-        {{ flattenValue(value) }}
+        {{ flattenDefaultValue(value) }}
       </SchemaPropertyDetail>
     </div>
     <div
