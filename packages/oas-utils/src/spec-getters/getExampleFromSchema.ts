@@ -1,42 +1,42 @@
 /** Hard limit for rendering circular references */
-const MAX_LEVELS_DEEP = 5
+const MAX_LEVELS_DEEP = 10
+
+const genericExampleValues: Record<string, string> = {
+  // 'date-time': '1970-01-01T00:00:00Z',
+  'date-time': new Date().toISOString(),
+  // 'date': '1970-01-01',
+  'date': new Date().toISOString().split('T')[0],
+  'email': 'hello@example.com',
+  'hostname': 'example.com',
+  // https://tools.ietf.org/html/rfc6531#section-3.3
+  'idn-email': 'jane.doe@example.com',
+  // https://tools.ietf.org/html/rfc5890#section-2.3.2.3
+  'idn-hostname': 'example.com',
+  'ipv4': '127.0.0.1',
+  'ipv6': '51d4:7fab:bfbf:b7d7:b2cb:d4b4:3dad:d998',
+  'iri-reference': '/entitiy/1',
+  // https://tools.ietf.org/html/rfc3987
+  'iri': 'https://example.com/entity/123',
+  'json-pointer': '/nested/objects',
+  'password': 'super-secret',
+  'regex': '/[a-z]/',
+  // https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01
+  'relative-json-pointer': '1/nested/objects',
+  // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
+  // 'time': '00:00:00Z',
+  'time': new Date().toISOString().split('T')[1].split('.')[0],
+  // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
+  'uri-reference': '../folder',
+  'uri-template': 'https://example.com/{id}',
+  'uri': 'https://example.com',
+  'uuid': '123e4567-e89b-12d3-a456-426614174000',
+}
 
 /**
  * We can use the `format` to generate some random values.
  */
 function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
-  const exampleValues: Record<string, string> = {
-    // 'date-time': '1970-01-01T00:00:00Z',
-    'date-time': new Date().toISOString(),
-    // 'date': '1970-01-01',
-    'date': new Date().toISOString().split('T')[0],
-    'email': 'hello@example.com',
-    'hostname': 'example.com',
-    // https://tools.ietf.org/html/rfc6531#section-3.3
-    'idn-email': 'jane.doe@example.com',
-    // https://tools.ietf.org/html/rfc5890#section-2.3.2.3
-    'idn-hostname': 'example.com',
-    'ipv4': '127.0.0.1',
-    'ipv6': '51d4:7fab:bfbf:b7d7:b2cb:d4b4:3dad:d998',
-    'iri-reference': '/entitiy/1',
-    // https://tools.ietf.org/html/rfc3987
-    'iri': 'https://example.com/entity/123',
-    'json-pointer': '/nested/objects',
-    'password': 'super-secret',
-    'regex': '/[a-z]/',
-    // https://tools.ietf.org/html/draft-handrews-relative-json-pointer-01
-    'relative-json-pointer': '1/nested/objects',
-    // full-time in https://tools.ietf.org/html/rfc3339#section-5.6
-    // 'time': '00:00:00Z',
-    'time': new Date().toISOString().split('T')[1].split('.')[0],
-    // either a URI or relative-reference https://tools.ietf.org/html/rfc3986#section-4.1
-    'uri-reference': '../folder',
-    'uri-template': 'https://example.com/{id}',
-    'uri': 'https://example.com',
-    'uuid': '123e4567-e89b-12d3-a456-426614174000',
-  }
-
-  return exampleValues[schema.format] ?? fallback
+  return genericExampleValues[schema.format] ?? fallback
 }
 
 /**
@@ -87,13 +87,11 @@ export const getExampleFromSchema = (
   // But if `emptyString` is  set, we do want to see some values.
   const makeUpRandomData = !!options?.emptyString
 
-  // Check if the property is read-only
-  if (options?.mode === 'write' && schema.readOnly) {
-    return undefined
-  }
-
-  // Check if the property is write-only
-  if (options?.mode === 'read' && schema.writeOnly) {
+  // Check if the property is read-only/write-only
+  if (
+    (options?.mode === 'write' && schema.readOnly) ||
+    (options?.mode === 'read' && schema.writeOnly)
+  ) {
     return undefined
   }
 
@@ -128,7 +126,7 @@ export const getExampleFromSchema = (
   }
 
   // enum: [ 'available', 'pending', 'sold' ]
-  if (schema.enum !== undefined) {
+  if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return schema.enum[0]
   }
 
@@ -156,24 +154,30 @@ export const getExampleFromSchema = (
 
     // Regular properties
     if (schema.properties !== undefined) {
-      Object.keys(schema.properties).forEach((propertyName: string) => {
-        const property = schema.properties[propertyName]
-        const propertyXmlTagName = options?.xml ? property.xml?.name : undefined
-
-        response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
-          property,
-          options,
-          level + 1,
-          schema,
-          propertyName,
-        )
-
+      for (const propertyName in schema.properties) {
         if (
-          typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+          Object.prototype.hasOwnProperty.call(schema.properties, propertyName)
         ) {
-          delete response[propertyXmlTagName ?? propertyName]
+          const property = schema.properties[propertyName]
+          const propertyXmlTagName = options?.xml
+            ? property.xml?.name
+            : undefined
+
+          response[propertyXmlTagName ?? propertyName] = getExampleFromSchema(
+            property,
+            options,
+            level + 1,
+            schema,
+            propertyName,
+          )
+
+          if (
+            typeof response[propertyXmlTagName ?? propertyName] === 'undefined'
+          ) {
+            delete response[propertyXmlTagName ?? propertyName]
+          }
         }
-      })
+      }
     }
 
     // Additional properties
@@ -336,7 +340,7 @@ export const getExampleFromSchema = (
   }
 
   // Warn if the type is unknown …
-  console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
+  // console.warn(`[getExampleFromSchema] Unknown property type "${schema.type}".`)
 
   // … and just return null for now.
   return null

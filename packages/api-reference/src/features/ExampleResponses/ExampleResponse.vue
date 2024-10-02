@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
 import type { OpenAPI } from '@scalar/openapi-types'
 
@@ -13,7 +12,7 @@ defineProps<{
   <template v-if="response?.example">
     <ScalarCodeBlock
       class="bg-b-2"
-      :content="prettyPrintJson(response?.example)"
+      :content="response?.example"
       lang="json" />
   </template>
   <!-- Schema -->
@@ -21,12 +20,10 @@ defineProps<{
     <ScalarCodeBlock
       class="bg-b-2"
       :content="
-        prettyPrintJson(
-          getExampleFromSchema(response?.schema, {
-            emptyString: '…',
-            mode: 'read',
-          }),
-        )
+        getExampleFromSchema(response?.schema, {
+          emptyString: '…',
+          mode: 'read',
+        })
       "
       lang="json" />
   </template>
