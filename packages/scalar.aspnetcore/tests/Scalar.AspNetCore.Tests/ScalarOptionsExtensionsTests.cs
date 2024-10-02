@@ -3,13 +3,15 @@ namespace Scalar.AspNetCore.Tests;
 public class ScalarOptionsExtensionsTests
 {
     [Fact]
-    public void Do()
+    public void Extensions_ShouldSetAllPropertiesCorrectly()
     {
         // Arrange
         var options = new ScalarOptions();
 
         // Act
         options
+            .WithTitle("My title")
+            .WithEndpointPrefix("/docs/{documentName}")
             .WithModels(false)
             .WithDownloadButton(false)
             .WithTestRequestButton(false)
@@ -34,10 +36,13 @@ public class ScalarOptionsExtensionsTests
             .WithDarkModeToggle(false)
             .WithForceThemeMode(ThemeMode.Light)
             .WithTagSorter(TagSorter.Alpha)
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .AddServer("https://example.com")
             .AddServer(new ScalarServer("https://example.org", "My other server"));
 
         // Assert
+        options.Title.Should().Be("My title");
+        options.EndpointPathPrefix.Should().Be("/docs/{documentName}");
         options.HideModels.Should().BeTrue();
         options.HideDownloadButton.Should().BeTrue();
         options.HideTestRequestButton.Should().BeTrue();
@@ -58,6 +63,8 @@ public class ScalarOptionsExtensionsTests
         options.CustomCss.Should().Be("*{}");
         options.HideDarkModeToggle.Should().BeTrue();
         options.ForceThemeMode.Should().Be(ThemeMode.Light);
+        options.DefaultHttpClient.Key.Should().Be(ScalarTarget.CSharp);
+        options.DefaultHttpClient.Value.Should().Be(ScalarClient.HttpClient);
         options.Servers.Should().HaveCount(2);
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");

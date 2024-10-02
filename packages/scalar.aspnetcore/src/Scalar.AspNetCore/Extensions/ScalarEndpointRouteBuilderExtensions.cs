@@ -35,7 +35,7 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         if (!options.EndpointPathPrefix.Contains(DocumentName))
         {
-            throw new ArgumentException($"`EndpointPathPrefix` must define `{DocumentName}`.");
+            throw new ArgumentException($"'EndpointPathPrefix' must define '{DocumentName}'.");
         }
         var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
 
