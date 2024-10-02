@@ -28,6 +28,7 @@
     "types:check": "scalar-types-check"
   },
   "type": "module",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
