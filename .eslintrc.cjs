@@ -129,7 +129,14 @@ module.exports = {
         ],
         'jsdoc/require-jsdoc': [
           'warn',
-          { publicOnly: true, enableFixer: false },
+          {
+            publicOnly: true,
+            enableFixer: false,
+            require: {
+              ArrowFunctionExpression: true,
+              FunctionExpression: true,
+            },
+          },
         ],
         'jsdoc/check-alignment': 'warn',
         'jsdoc/check-param-names': 'warn',
