@@ -333,3 +333,78 @@ jobs:
 
             https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
           comment_tag: 'netlify-preview'
+
+  aspnetcore-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Restore dependencies
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet restore
+
+      - name: Build solution
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet build -c Release --no-restore
+
+      - name: Test solution
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet test -c Release --no-build
+
+  aspnetcore-publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: [aspnetcore-build-test]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Git Status
+        run: git status
+
+      - name: Stash changes
+        run: git stash
+
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+        name: Check for new NuGet package version
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            aspnetcore_package:
+              - packages/scalar.aspnetcore/package.json
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Extract version from package.json
+        working-directory: packages/scalar.aspnetcore
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Restore dependencies
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet restore
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Pack Scalar.AspNetCore
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Publish Scalar.AspNetCore
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json
