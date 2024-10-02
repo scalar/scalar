@@ -51,9 +51,9 @@
     "character-entities": "^2.0.2",
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
-    "vite": "^5.3.5",
+    "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
-    "vue": "^3.4.35"
+    "vue": "^3.4.29"
   },
   "peerDependencies": {
     "react": "^18.0.0"

@@ -41,7 +41,7 @@
     "vite-node": "^2.1.1",
     "vitest": "^1.6.0",
     "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^2.0.29"
+    "vue-tsc": "^2.0.26"
   },
   "scripts": {
     "build": "turbo build",

@@ -43,6 +43,6 @@
     "@scalar/galaxy": "workspace:*"
   },
   "devDependencies": {
-    "vite": "^5.3.5"
+    "vite": "^5.2.10"
   }
 }
