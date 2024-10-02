@@ -175,7 +175,7 @@ export const createApiClient = ({
         objectMerge(configuration ?? {}, newConfig)
       }
       if (newConfig.spec) {
-        importSpecFile(newConfig.spec)
+        importSpecFile(newConfig.spec, activeWorkspace.value.uid)
       }
     },
     /** Update the currently selected server via URL */
@@ -225,9 +225,11 @@ export const createApiClient = ({
     /** Update the spec file, this will re-parse it and clear your store */
     updateSpec: async (spec: SpecConfiguration) => {
       if (spec?.url) {
-        await importSpecFromUrl(spec.url, { proxy: configuration?.proxyUrl })
+        await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+          proxy: configuration?.proxyUrl,
+        })
       } else if (spec?.content) {
-        await importSpecFile(spec?.content)
+        await importSpecFile(spec?.content, activeWorkspace.value.uid)
       } else {
         console.error(
           `[@scalar/api-client-modal] Could not create the API client.`,
