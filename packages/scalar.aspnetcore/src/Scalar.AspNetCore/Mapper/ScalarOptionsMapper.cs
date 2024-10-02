@@ -30,6 +30,7 @@ internal static class ScalarOptionsMapper
         {
             Proxy = options.ProxyUrl,
             Theme = options.Theme.ToStringFast(),
+            Favicon = options.Favicon,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
             HideDarkModeToggle = options.HideDarkModeToggle,

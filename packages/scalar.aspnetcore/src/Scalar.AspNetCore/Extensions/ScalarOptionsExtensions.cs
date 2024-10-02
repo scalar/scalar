@@ -19,6 +19,17 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the favicon path or URL that will be used for the documentation.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="favicon">The path or URL to the favicon.</param>
+    public static ScalarOptions WithFavicon(this ScalarOptions options, string favicon)
+    {
+        options.Favicon = favicon;
+        return options;
+    }
+
+    /// <summary>
     /// Sets the path prefix to access the documentation.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>

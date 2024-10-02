@@ -14,6 +14,12 @@ public sealed class ScalarOptions
     public string Title { get; set; } = "Scalar API Reference -- {documentName}";
 
     /// <summary>
+    /// Specify a path or URL to a favicon to be used for the documentation.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public string? Favicon { get; set; }
+
+    /// <summary>
     /// Path prefix to access the documentation.
     /// </summary>
     /// <value>The default value is <c>'/scalar/{documentName}'</c>.</value>

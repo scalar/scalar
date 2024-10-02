@@ -22,12 +22,16 @@ builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 app.MapOpenApi();
+
 app.MapScalarApiReference(options =>
 {
     options
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
+        .WithFavicon("/favicon.png")
         .WithSearchHotKey("s")
         .WithDownloadButton(false)
         .WithPreferredScheme("ApiKey")
