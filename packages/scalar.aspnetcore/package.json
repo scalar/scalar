@@ -7,7 +7,7 @@
   "version": "1.2.5",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "repository": {
     "type": "git",
