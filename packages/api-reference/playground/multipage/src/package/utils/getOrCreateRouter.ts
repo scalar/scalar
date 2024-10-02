@@ -1,5 +1,10 @@
 import { getCurrentInstance } from 'vue'
-import { type RouterHistory, createRouter, createWebHistory } from 'vue-router'
+import {
+  type RouterHistory,
+  createMemoryHistory,
+  createRouter,
+  createWebHistory,
+} from 'vue-router'
 
 import { routes } from '../routes'
 
@@ -20,7 +25,10 @@ export function getOrCreateRouter({
 
   // If no router exists, create a new one
   const newRouter = createRouter({
-    history: history ?? createWebHistory(),
+    history:
+      (history ?? typeof window === 'undefined')
+        ? createMemoryHistory()
+        : createWebHistory(),
     routes: routes,
   })
 

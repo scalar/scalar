@@ -65,4 +65,6 @@ export function registerRouter(
 
     targetElement.scrollIntoView({ behavior: 'smooth' })
   })
+
+  return router
 }
