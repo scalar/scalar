@@ -1,5 +1,5 @@
 {
-  "name": "@scalar.aspnetcore",
+  "name": "@scalar/aspnetcore",
   "private": true,
-  "version": "1.2.4"
+  "version": "1.2.5"
 }
