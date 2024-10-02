@@ -2,7 +2,7 @@ namespace Scalar.AspNetCore;
 
 internal static class ScalarOptionsMapper
 {
-    private static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
+    internal static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
     {
         { ScalarTarget.C, [ScalarClient.Libcurl] },
         { ScalarTarget.Clojure, [ScalarClient.CljHttp] },

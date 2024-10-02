@@ -79,7 +79,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
-    public async Task MapScalarApiReference_ShouldHandleCustom_WhenSpecified()
+    public async Task MapScalarApiReference_ShouldHandleCustomEndpointPath_WhenSpecified()
     {
         // Arrange
         var client = factory.WithWebHostBuilder(builder =>
@@ -95,5 +95,24 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
+    public void MapScalarApiReference_ShouldThrowException_WhenDocumentNameNotSpecified()
+    {
+        // Arrange
+        var tmpFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.ConfigureTestServices(services =>
+            {
+                services.Configure<ScalarOptions>(options => options.EndpointPathPrefix = "/custom-path");
+            });
+        });
+
+        // Act
+        var act = () => tmpFactory.CreateClient(); // CreateClient starts the app
+        
+        // Assert
+        act.Should().Throw<ArgumentException>().WithMessage("'EndpointPathPrefix' must define '{documentName}'.");
     }
 }
