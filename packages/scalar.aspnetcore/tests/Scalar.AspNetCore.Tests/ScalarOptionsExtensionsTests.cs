@@ -35,7 +35,11 @@ public class ScalarOptionsExtensionsTests
             .WithForceThemeMode(ThemeMode.Light)
             .WithTagSorter(TagSorter.Alpha)
             .AddServer("https://example.com")
-            .AddServer(new ScalarServer("https://example.org", "My other server"));
+            .AddServer(new ScalarServer("https://example.org", "My other server"))
+            .WithEndpointPrefix("my-prefix")
+            .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+            .WithTitle("My title")
+            .WithFavicon("/favicon.png");
 
         // Assert
         options.HideModels.Should().BeTrue();
@@ -62,5 +66,9 @@ public class ScalarOptionsExtensionsTests
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
         options.TagSorter.Should().Be(TagSorter.Alpha);
+        options.EndpointPathPrefix.Should().Be("my-prefix");
+        options.DefaultHttpClient.Should().Be(new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient));
+        options.Title.Should().Be("My title");
+        options.Favicon.Should().Be("/favicon.png");
     }
 }
