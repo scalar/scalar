@@ -1,5 +1,14 @@
 # @scalar/themes
 
+## 0.9.33
+
+### Patch Changes
+
+- 1026d81: feat: adds themes high contrast selection
+- 07b5439: feat: enhances command palette navigation and style
+- Updated dependencies [8f12149]
+  - @scalar/types@0.0.12
+
 ## 0.9.32
 
 ### Patch Changes

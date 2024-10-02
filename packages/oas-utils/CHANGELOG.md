@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.2.51
+
+### Patch Changes
+
+- ef49617: chore: improve performance of getExampleFromSchema
+- Updated dependencies [8f12149]
+- Updated dependencies [1026d81]
+- Updated dependencies [07b5439]
+  - @scalar/types@0.0.12
+  - @scalar/themes@0.9.33
+
 ## 0.2.50
 
 ### Patch Changes

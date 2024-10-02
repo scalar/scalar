@@ -1,5 +1,32 @@
 # @scalar/api-reference
 
+## 1.25.26
+
+### Patch Changes
+
+- 3ded00b: fix(api-references): sync selected server state with api client modal
+- 040ca78: fix: show oauth code authorization
+- 94b8ffd: fix(api-reference): check if default value is undefined instead of falsy
+- Updated dependencies [513e0ad]
+- Updated dependencies [8f12149]
+- Updated dependencies [5127a37]
+- Updated dependencies [3ded00b]
+- Updated dependencies [1026d81]
+- Updated dependencies [983a5e4]
+- Updated dependencies [aee166c]
+- Updated dependencies [aa39741]
+- Updated dependencies [07b5439]
+- Updated dependencies [513e0ad]
+- Updated dependencies [ef49617]
+- Updated dependencies [4a78aae]
+  - @scalar/components@0.12.50
+  - @scalar/types@0.0.12
+  - @scalar/api-client@2.1.12
+  - @scalar/themes@0.9.33
+  - @scalar/openapi-parser@0.8.5
+  - @scalar/oas-utils@0.2.51
+  - @scalar/code-highlight@0.0.11
+
 ## 1.25.25
 
 ### Patch Changes

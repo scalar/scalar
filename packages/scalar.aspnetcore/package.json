@@ -4,7 +4,7 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "engines": {
     "node": ">=18"
