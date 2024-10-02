@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { TheCommandPalette } from '@/components/CommandPalette'
+// TODO: Disabled until we polished the UI.
+// import { ImportCollectionListener } from '@/components/ImportCollection'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
@@ -60,6 +62,8 @@ const fontsStyleTag = computed(
 )
 </script>
 <template>
+  <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
+  <!-- <ImportCollectionListener> -->
   <div v-html="fontsStyleTag"></div>
   <TopNav :openNewTab="newTab" />
 
@@ -83,7 +87,9 @@ const fontsStyleTag = computed(
       </RouterView>
     </div>
   </main>
+
   <ScalarToasts />
+  <!-- </ImportCollectionListener> -->
 </template>
 <style>
 @import '@scalar/components/style.css';

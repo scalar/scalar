@@ -616,6 +616,9 @@ importers:
       whatwg-mimetype:
         specifier: ^4.0.0
         version: 4.0.0
+      yaml:
+        specifier: ^2.4.5
+        version: 2.4.5
       zod:
         specifier: ^3.23.8
         version: 3.23.8

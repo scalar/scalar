@@ -89,6 +89,10 @@
       "import": "./dist/components/Sidebar/index.js",
       "types": "./dist/components/Sidebar/index.d.ts"
     },
+    "./components/ImportCollection": {
+      "import": "./dist/components/ImportCollection/index.js",
+      "types": "./dist/components/ImportCollection/index.d.ts"
+    },
     "./components/HttpMethod": {
       "import": "./dist/components/HttpMethod/index.js",
       "types": "./dist/components/HttpMethod/index.d.ts"
@@ -148,6 +152,7 @@
     "vue": "^3.4.29",
     "vue-router": "^4.3.0",
     "whatwg-mimetype": "^4.0.0",
+    "yaml": "^2.4.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
