@@ -9,6 +9,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { push } = useRouter()
@@ -36,7 +37,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="workspaceName"
       label="Workspace Name"
-      placeholder="Workspace Name" />
+      placeholder="Workspace Name"
+      @onDelete="emits('back', $event)" />
     <template #submit>Create Workspace</template>
   </CommandActionForm>
 </template>

@@ -34,7 +34,7 @@ export type CommandNames = keyof typeof PaletteComponents
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import {
@@ -125,6 +125,16 @@ const closeHandler = () => {
   selectedSearchResult.value = -1
 }
 
+/** Reset state on back */
+const backHandler = (event: KeyboardEvent) => {
+  // Prevent delete event from removing query command character
+  if (commandQuery.value !== '') {
+    event?.preventDefault()
+  }
+  activeCommand.value = null
+  nextTick(() => commandInputRef.value?.focus())
+}
+
 /** Handle execution of the command, some have routes while others show another palette */
 const executeCommand = (
   command: (typeof availableCommands)[number]['commands'][number],
@@ -153,6 +163,13 @@ const openCommandPalette = ({
   nextTick(() => commandInputRef.value?.focus())
 }
 
+/** Focus on first result when conducting a search */
+watch(commandQuery, (newQuery) => {
+  if (newQuery && searchResultsWithPlaceholderResults.value.length > 0) {
+    selectedSearchResult.value = 0
+  }
+})
+
 /** Handle up and down arrow keys in the menu */
 const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
   if (!modalState.open) return
@@ -167,7 +184,7 @@ const handleArrowKey = (direction: 'up' | 'down', ev: KeyboardEvent) => {
 
   commandRefs.value[selectedSearchResult.value]?.scrollIntoView({
     behavior: 'smooth',
-    block: 'center',
+    block: 'nearest',
   })
 }
 
@@ -207,11 +224,11 @@ onBeforeUnmount(() => {
 
   <div
     v-show="modalState.open"
-    class="commandmenu">
+    class="commandmenu custom-scroll">
     <!-- Default palette (command list) -->
     <template v-if="!activeCommand">
       <div
-        class="bg-b-2 flex items-center rounded mb-2 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
+        class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
         <label for="commandmenu">
           <ScalarIcon
             class="text-c-1 mr-2.5"
@@ -241,7 +258,7 @@ onBeforeUnmount(() => {
               command.name.toLowerCase().includes(commandQuery.toLowerCase()),
             ).length > 0
           "
-          class="text-c-3 font-medium text-xs mt-2">
+          class="text-c-3 font-medium text-xs px-2 mb-1 mt-2">
           {{ group.label }}
         </div>
         <div
@@ -287,7 +304,8 @@ onBeforeUnmount(() => {
       </button>
       <component
         :is="PaletteComponents[activeCommand]"
-        :metaData="metaData"
+        v-bind="metaData ? { metaData: metaData } : {}"
+        @back="backHandler($event)"
         @close="closeHandler" />
     </template>
   </div>
@@ -298,9 +316,10 @@ onBeforeUnmount(() => {
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
+  max-height: 50dvh;
   width: 100%;
   max-width: 580px;
-  padding: 6px 12px 12px 12px;
+  padding: 6px;
   margin: 12px;
   position: fixed;
   z-index: 10;

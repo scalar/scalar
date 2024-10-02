@@ -14,6 +14,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { toast } = useToasts()
@@ -68,7 +69,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="url"
       label="Server URL"
-      placeholder="Server URL" />
+      placeholder="Server URL"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarListbox
         v-model="selectedCollection"

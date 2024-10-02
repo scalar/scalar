@@ -8,6 +8,7 @@ defineProps<{
 defineEmits<{
   (event: 'submit'): void
   (event: 'cancel'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 </script>
 <template>

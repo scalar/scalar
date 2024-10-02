@@ -14,6 +14,7 @@ import CommandActionInput from './CommandActionInput.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
+  (event: 'back', e: KeyboardEvent): void
 }>()
 
 const { activeWorkspaceCollections, activeCollection, tagMutators } =
@@ -57,7 +58,8 @@ const handleSubmit = () => {
     <CommandActionInput
       v-model="name"
       label="Tag Name"
-      placeholder="Tag Name" />
+      placeholder="Tag Name"
+      @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarListbox
         v-model="selectedCollection"
