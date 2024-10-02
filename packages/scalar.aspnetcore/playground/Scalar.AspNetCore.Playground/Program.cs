@@ -28,6 +28,7 @@ app.MapScalarApiReference(options =>
     options
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
+        .WithFavicon("/favicon.png")
         .WithSearchHotKey("s")
         .WithDownloadButton(false)
         .WithPreferredScheme("ApiKey")
@@ -56,6 +57,14 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .RequireAuthorization();
+
+
+// Serve the favicon.png file directly from the "Assets" folder. This is only for demonstration purposes on playground.
+app.MapGet("/favicon.png", () =>
+{
+    var filePath = Path.Combine(app.Environment.ContentRootPath, "Assets/favicon.png");
+    return Results.File(filePath, "image/png");
+}).ExcludeFromDescription();
 
 app.Run();
 
