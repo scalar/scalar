@@ -66,7 +66,6 @@ describe('combineRenameDiffs', () => {
 
     const diff = microdiff(original, mutated)
     const combinedDiff = combineRenameDiffs(diff)
-    console.log(combinedDiff)
 
     expect(combinedDiff).toEqual([
       {
