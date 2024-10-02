@@ -382,6 +382,12 @@ components:
           scopes:
             write:planets: modify planets in your account
             read:planets: read your planets
+        authorizationCode:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            write:planets: modify planets in your account
+            read:planets: read your planets
   parameters:
     planetId:
       name: planetId
