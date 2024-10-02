@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.8.5
+
+### Patch Changes
+
+- 983a5e4: feat: self reference the document
+- aee166c: fix: server URLs with variables are considered not valid
+
 ## 0.8.4
 
 ### Patch Changes

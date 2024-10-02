@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.12.50
+
+### Patch Changes
+
+- 513e0ad: feat: allow to disable the copy to clipboard button in ScalarCodeBlock
+- 5127a37: style: updates scalar modal animation
+  - @scalar/code-highlight@0.0.11
+
 ## 0.12.49
 
 ### Patch Changes

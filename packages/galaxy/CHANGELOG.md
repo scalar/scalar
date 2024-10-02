@@ -1,5 +1,12 @@
 # @scalar/galaxy
 
+## 0.2.9
+
+### Patch Changes
+
+- aee166c: feat: add variables to the second server
+- 040ca78: feat: add oauth code authorization
+
 ## 0.2.8
 
 ### Patch Changes

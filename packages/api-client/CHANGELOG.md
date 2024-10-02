@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.1.12
+
+### Patch Changes
+
+- 3ded00b: fix(api-references): sync selected server state with api client modal
+- aa39741: fix: header names can have leading/trailing whitespaces
+- 07b5439: feat: enhances command palette navigation and style
+- 513e0ad: feat: add import modal
+- 4a78aae: fix: uppercase method on request send
+- Updated dependencies [513e0ad]
+- Updated dependencies [8f12149]
+- Updated dependencies [5127a37]
+- Updated dependencies [1026d81]
+- Updated dependencies [983a5e4]
+- Updated dependencies [aee166c]
+- Updated dependencies [07b5439]
+- Updated dependencies [ef49617]
+  - @scalar/components@0.12.50
+  - @scalar/types@0.0.12
+  - @scalar/themes@0.9.33
+  - @scalar/openapi-parser@0.8.5
+  - @scalar/oas-utils@0.2.51
+  - @scalar/use-codemirror@0.11.16
+
 ## 2.1.11
 
 ### Patch Changes

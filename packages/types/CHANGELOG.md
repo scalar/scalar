@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.12
+
+### Patch Changes
+
+- 8f12149: chore: add point to declaration file
+
 ## 0.0.11
 
 ### Patch Changes
