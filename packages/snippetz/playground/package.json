@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -p tsconfig.build.json && vite build",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --composite false",
+    "build": "scalar-build-vite",
+    "types:check": "scalar-types-check-vue",
+    "types:build": "scalar-types-build-vue",
+    "format": "scalar-format-js",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +16,7 @@
     "vue": "^3.4.29"
   },
   "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "shikiji": "^0.10.2",
     "typescript": "^5.6.2",

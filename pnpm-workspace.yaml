@@ -1,6 +1,6 @@
 packages:
   - 'packages/*'
+  - 'packages/snippetz/playground'
   - 'examples/*'
   - 'projects/*'
   - 'playwright'
-  - 'packages/snippetz/playground'
