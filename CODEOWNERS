@@ -28,7 +28,7 @@
 # /packages/use-modal
 /packages/build-watch @geoffgscott
 /packages/nestjs-api-reference @marclave
-/packages/scalar.aspnetcore @marclave
+/packages/scalar.aspnetcore @xC0dex @marclave
 # /packages/use-toasts
 /packages/api-client-react @amritk
 /packages/cli @hanspagel
