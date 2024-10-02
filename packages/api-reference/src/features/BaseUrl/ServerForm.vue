@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
 import type { Server } from '@scalar/types/legacy'
-import { computed, toRef } from 'vue'
+import { computed } from 'vue'
 
 import ServerUrl from './ServerUrl.vue'
 import ServerUrlSelect from './ServerUrlSelect.vue'
@@ -10,7 +10,7 @@ import type { ServerVariableValues } from './types'
 
 const props = withDefaults(
   defineProps<{
-    selected?: string | number
+    selected?: number
     servers?: Server[]
     variables?: ServerVariableValues
   }>(),
@@ -21,21 +21,20 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   (e: 'update:selected', v: number): void
-  (e: 'update:variable', name: string, value: string): void
+  (e: 'update:variables', v: ServerVariableValues): void
 }>()
 
-/** Keep local reference to the selected server, so updates work without the prop, too. */
-const selectedRef = toRef<number>(Number(props.selected))
-
-const updateSelectedIndex = (value: string) => {
-  const newIndex = parseInt(value, 10)
-
-  emit('update:selected', newIndex)
-  selectedRef.value = newIndex
-}
+const selectedIndex = computed<number>({
+  get: () => props.selected,
+  set: (v) => emit('update:selected', v),
+})
 
 /** Selected server */
-const server = computed(() => props.servers?.[selectedRef.value])
+const server = computed(() => props.servers?.[selectedIndex.value])
+
+function updateVariable(name: string, value: string) {
+  emit('update:variables', { ...props.variables, [name]: value })
+}
 </script>
 
 <template>
@@ -46,9 +45,8 @@ const server = computed(() => props.servers?.[selectedRef.value])
         <!-- Dropdown -->
         <div class="server-item">
           <ServerUrlSelect
-            :options="servers"
-            :value="selectedRef"
-            @change="updateSelectedIndex">
+            v-model="selectedIndex"
+            :options="servers">
             <ServerUrl
               :server="server"
               :variables="variables" />
@@ -58,9 +56,7 @@ const server = computed(() => props.servers?.[selectedRef.value])
         <ServerVariablesForm
           :values="variables"
           :variables="server?.variables"
-          @update:variable="
-            (name, value) => $emit('update:variable', name, value)
-          " />
+          @update:variable="updateVariable" />
       </div>
     </div>
     <!-- Description -->

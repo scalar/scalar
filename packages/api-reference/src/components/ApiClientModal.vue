@@ -16,20 +16,27 @@ const props = defineProps<{
 const el = ref<HTMLDivElement | null>(null)
 const client = ref<ApiClient | null>(null)
 
-const { server } = useServerStore()
+const { server, setServer } = useServerStore()
 
 onMounted(async () => {
   if (!el.value) return
 
   const { createApiClientModal } = await import('@scalar/api-client')
 
-  const { app, open, updateAuth, modalState, updateSpec, updateServer } =
-    await createApiClientModal(el.value, {
-      spec: props.spec ?? {},
-      preferredSecurityScheme: props.preferredSecurityScheme,
-      proxyUrl: props.proxyUrl,
-      servers: props.servers,
-    })
+  const {
+    app,
+    open,
+    updateAuth,
+    modalState,
+    updateSpec,
+    updateServer,
+    onUpdateServer,
+  } = await createApiClientModal(el.value, {
+    spec: props.spec ?? {},
+    preferredSecurityScheme: props.preferredSecurityScheme,
+    proxyUrl: props.proxyUrl,
+    servers: props.servers,
+  })
 
   client.value = {
     // @ts-expect-error not sure what the beef with app is, possible router related
@@ -39,6 +46,13 @@ onMounted(async () => {
   }
 
   modalStateBus.emit(modalState)
+
+  // Update the references server when the client server changes
+  onUpdateServer((url) => {
+    if (!server.servers) return
+    const index = server.servers.findIndex((s) => s.url === url)
+    if (index >= 0) setServer({ selectedServer: index })
+  })
 
   // Event bus to listen to apiClient events
   apiClientBus.on((event) => {
