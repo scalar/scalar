@@ -24,12 +24,11 @@ export function syntaxHighlight(
       ? [options.maskCredentials]
       : (options?.maskCredentials ?? [])
   ).filter((c) => {
+    // Credentials must be at least 3 characters to mask.
     if (c.length < 3) {
-      console.error(
-        `Codeblock credentials must be at least 3 characters to mask. Will not mask "${c}"`,
-      )
       return false
     }
+
     return true
   })
 
