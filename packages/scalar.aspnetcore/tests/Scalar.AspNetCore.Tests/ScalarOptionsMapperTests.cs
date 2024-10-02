@@ -96,4 +96,75 @@ public class ScalarOptionsMapperTests
         configuration.TagSorter.Should().Be(TagSorter.Alpha.ToStringFast());
         configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
     }
+
+    [Fact]
+    public void GetHiddenClients_ShouldReturnNull_WhenEnabledTargetsAndEnabledClientsAreEmpty()
+    {
+        // Arrange
+        var options = new ScalarOptions();
+
+        // Act
+        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+
+        // Assert
+        hiddenClients.Should().BeNull();
+    }
+
+    [Fact]
+    public void GetHiddenClients_ShouldReturnAllClients_WhenHiddenClientsIsTrue()
+    {
+        // Arrange
+        var options = new ScalarOptions { HiddenClients = true };
+
+        // Act
+        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+
+        // Assert
+        hiddenClients.Should().ContainKeys(ScalarOptionsMapper.ClientOptions.Keys.Select(x => x.ToStringFast()));
+    }
+
+    [Fact]
+    public void GetHiddenClients_ShouldReturnFilteredClients_WhenEnabledTargetsIsNotEmpty()
+    {
+        // Arrange
+        var options = new ScalarOptions { EnabledTargets = [ScalarTarget.CSharp] };
+
+        // Act
+        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+
+        // Assert
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().NotContainKey(ScalarTarget.CSharp.ToStringFast());
+    }
+
+    [Fact]
+    public void GetHiddenClients_ShouldReturnFilteredClients_WhenEnabledClientsIsNotEmpty()
+    {
+        // Arrange
+        var options = new ScalarOptions { EnabledClients = [ScalarClient.HttpClient, ScalarClient.Python3] };
+
+        // Act
+        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+
+        // Assert
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
+        hiddenClients.Should().ContainKey(ScalarTarget.CSharp.ToStringFast())
+            .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp.ToStringFast());
+        hiddenClients.Should().ContainKey(ScalarTarget.Python.ToStringFast())
+            .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.Requests.ToStringFast());
+    }
+
+    [Fact]
+    public void GetHiddenClients_ShouldNotReturnTarget_WhenAllClientsAreEnabled()
+    {
+        // Arrange
+        var options = new ScalarOptions { EnabledClients = [ScalarClient.OkHttp] }; // All Kotlin clients are enabled
+
+        // Act
+        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+
+        // Assert
+        hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
+        hiddenClients.Should().NotContainKey(ScalarTarget.Kotlin.ToStringFast());
+    }
 }

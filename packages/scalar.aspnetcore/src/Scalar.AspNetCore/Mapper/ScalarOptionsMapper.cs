@@ -54,13 +54,13 @@ internal static class ScalarOptionsMapper
         };
     }
 
-    private static Dictionary<string, string[]>? GetHiddenClients(ScalarOptions options)
+    private static Dictionary<string, IEnumerable<string>>? GetHiddenClients(ScalarOptions options)
     {
         var targets = ProcessOptions(options);
 
         return targets?.ToDictionary(k =>
                 k.Key.ToStringFast(),
-            k => k.Value.Select(v => v.ToStringFast()).ToArray()
+            k => k.Value.Select(v => v.ToStringFast())
         );
     }
 

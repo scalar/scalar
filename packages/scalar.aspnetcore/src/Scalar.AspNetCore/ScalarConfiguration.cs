@@ -34,7 +34,7 @@ internal sealed class ScalarConfiguration
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }
 
-    public required IDictionary<string, string[]>? HiddenClients { get; init; }
+    public required IDictionary<string, IEnumerable<string>>? HiddenClients { get; init; }
 
     public required ScalarAuthenticationOptions? Authentication { get; init; }
 
