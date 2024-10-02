@@ -22,7 +22,10 @@ builder.Services.AddApiKeyAuthentication();
 
 var app = builder.Build();
 
+app.UseStaticFiles();
+
 app.MapOpenApi();
+
 app.MapScalarApiReference(options =>
 {
     options
@@ -57,14 +60,6 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast")
     .RequireAuthorization();
-
-
-// Serve the favicon.png file directly from the "Assets" folder. This is only for demonstration purposes on playground.
-app.MapGet("/favicon.png", () =>
-{
-    var filePath = Path.Combine(app.Environment.ContentRootPath, "Assets/favicon.png");
-    return Results.File(filePath, "image/png");
-}).ExcludeFromDescription();
 
 app.Run();
 
