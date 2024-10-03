@@ -8,7 +8,10 @@ import { getNestedValue } from '@scalar/object-utils/nested'
 import microdiff, { type Difference } from 'microdiff'
 
 /**
+ * Combine Rename Diffs
+ * Rename diffs show up as a delete and an add.
  * This will go through the diff and combine any diff items which are next to each other which go from remove to add.
+ *
  * - first we check if the payloads are the same then it was just a simple rename
  * - next we will add the rename and also handle any changes in the diff
  */
