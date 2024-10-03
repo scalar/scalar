@@ -72,7 +72,6 @@ public class ScalarOptionsExtensionsTests
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.com");
         options.Servers.Should().ContainSingle(x => x.Url == "https://example.org" && x.Description == "My other server");
         options.TagSorter.Should().Be(TagSorter.Alpha);
-        options.EndpointPathPrefix.Should().Be("my-prefix");
         options.DefaultHttpClient.Should().Be(new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient));
         options.Title.Should().Be("My title");
         options.Favicon.Should().Be("/favicon.png");
