@@ -1,0 +1,32 @@
+name: Test ASP.NET Integration
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/scalar.aspnetcore/**'
+
+jobs:
+  aspnetcore-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Restore dependencies
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet restore
+
+      - name: Build solution
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet build -c Release --no-restore
+
+      - name: Test solution
+        working-directory: packages/scalar.aspnetcore
+        run: dotnet test -c Release --no-build
