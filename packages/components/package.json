@@ -85,7 +85,7 @@
     "svglint": "^2.7.1",
     "tailwindcss": "^3.4.4",
     "tailwindcss-color-mix": "^0.0.8",
-    "vite": "^5.2.10",
+    "vite": "^5.3.6",
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
     "vitest": "^1.6.0"

@@ -31,6 +31,6 @@
   "type": "module",
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "^5.2.10"
+    "vite": "^5.3.6"
   }
 }
