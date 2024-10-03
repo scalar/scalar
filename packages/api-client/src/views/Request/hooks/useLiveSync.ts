@@ -280,10 +280,10 @@ export const useLiveSync = () => {
       })
 
       // Update the dict
-      // specDictionary[url] = {
-      //   hash,
-      //   schema,
-      // }
+      specDictionary[url] = {
+        hash,
+        schema,
+      }
     } else console.log('nothing to see here')
   }, FIVE_SECONDS)
 
