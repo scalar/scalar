@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.1.13
+
+### Patch Changes
+
+- cebca7a: feat: updates request and response section order and naming
+- 3b12248: fix: removed showing servers dropdown if empty
+- a78b0a6: fix(api-client): don't error if there aren't any collections
+
 ## 2.1.12
 
 ### Patch Changes
