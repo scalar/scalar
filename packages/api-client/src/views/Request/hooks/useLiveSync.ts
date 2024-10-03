@@ -8,13 +8,21 @@ import {
 import {
   type Collection,
   type Request,
+  type RequestParameterPayload,
+  type RequestPayload,
   type Server,
   type Tag,
+  requestSchema,
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
+import {
+  createHash,
+  fetchSpecFromUrl,
+  schemaModel,
+} from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useTimeoutPoll } from '@vueuse/core'
 import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
@@ -25,6 +33,7 @@ import { watch } from 'vue'
  * TODO:
  * - check lastModified or similar headers
  * - speed up the polling when there's a change then slowly slow it down
+ * - ensure we upgrade the spec if required
  */
 export const useLiveSync = () => {
   const {
@@ -40,7 +49,7 @@ export const useLiveSync = () => {
   } = useWorkspace()
 
   /** Live Sync polling timeout */
-  const FIFTEEN_SECONDS = 5 * 1000
+  const FIVE_SECONDS = 5 * 1000
 
   const { pause, resume } = useTimeoutPoll(async () => {
     const url = activeCollection.value?.documentUrl
@@ -106,7 +115,11 @@ export const useLiveSync = () => {
               return
             }
 
-            serverMutators.edit(serverUid, key, d.value)
+            serverMutators.edit(
+              serverUid,
+              key,
+              'value' in d ? d.value : undefined,
+            )
           }
           // Delete whole object
           else if (type === 'REMOVE') {
@@ -137,7 +150,7 @@ export const useLiveSync = () => {
               return
             }
 
-            tagMutators.edit(uid, key, d.value)
+            tagMutators.edit(uid, key, 'value' in d ? d.value : undefined)
           }
           // Delete whole object
           else if (type === 'REMOVE') {
@@ -181,10 +194,70 @@ export const useLiveSync = () => {
                 requestMutators.edit(uid, 'method', d.value),
             )
           }
-          // Add new
-          // else if (type === 'CREATE') {
-          // } else if (type === 'REMOVE') {
-          // }
+          // Add
+          else if (type === 'CREATE' && method && method !== 'method') {
+            const operation = d.value as OpenAPIV3_1.OperationObject<{
+              tags?: string[]
+              security?: OpenAPIV3_1.SecurityRequirementObject[]
+            }>
+
+            // TODO: match servers up and add if we don't have
+            const operationServers = serverSchema
+              .array()
+              .parse(operation.servers ?? [])
+
+            // TODO: match tags up and add if we don't have
+            // d.value.tags
+
+            // Remove security here and add it correctly below
+            const { security: operationSecurity, ...operationWithoutSecurity } =
+              operation
+
+            const requestPayload: RequestPayload = {
+              ...operationWithoutSecurity,
+              method,
+              path: _path,
+              parameters: (operation.parameters ??
+                []) as RequestParameterPayload[],
+              servers: operationServers.map((s) => s.uid),
+            }
+
+            // Add list of UIDs to associate security schemes
+            // As per the spec if there is operation level security we ignore the top level requirements
+            if (operationSecurity?.length)
+              requestPayload.security = operationSecurity.map((s) => {
+                const keys = Object.keys(s)
+
+                // Handle the case of {} for optional
+                if (keys.length) {
+                  const [key] = Object.keys(s)
+                  return {
+                    [key]: s[key],
+                  }
+                } else return s
+              })
+
+            // Save parse the request
+            const request = schemaModel(requestPayload, requestSchema, false)
+            if (request)
+              requestMutators.add(request, activeCollection.value.uid)
+            else
+              console.warn(
+                'Live Sync: Was unable to add the new reqeust, please refresh to try again.',
+              )
+          }
+          // Delete
+          else if (type === 'REMOVE') {
+            const request = findResource<Request>(
+              activeCollection.value.requests,
+              requests,
+              (_request) =>
+                _request.path === _path && _request.method === method,
+            )
+            if (request)
+              requestMutators.delete(request, activeCollection.value.uid)
+          }
+          // Edit
           else if (type === 'CHANGE') {
             // Switch to build payload etc
             // Find the request
@@ -207,12 +280,12 @@ export const useLiveSync = () => {
       })
 
       // Update the dict
-      specDictionary[url] = {
-        hash,
-        schema,
-      }
+      // specDictionary[url] = {
+      //   hash,
+      //   schema,
+      // }
     } else console.log('nothing to see here')
-  }, FIFTEEN_SECONDS)
+  }, FIVE_SECONDS)
 
   // Ensure we are only polling when we should liveSync
   watch(
