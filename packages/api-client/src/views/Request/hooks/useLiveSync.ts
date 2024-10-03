@@ -1,6 +1,11 @@
 import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
+  combineRenameDiffs,
+  findResource,
+  generateInfoPayload,
+} from '@/views/Request/libs/live-sync'
+import {
   type Collection,
   type Request,
   type Server,
@@ -10,52 +15,16 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
-import { getNestedValue } from '@scalar/object-utils/nested'
 import { useTimeoutPoll } from '@vueuse/core'
 import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
 
-/** Build a payload for updating specific properties, only works with objects */
-const buildPayload = (diff: Difference, resource: Collection | Server) => {
-  const path = [...diff.path]
-
-  const key = path.pop()
-  if (!key) return null
-
-  // If we are indexing a resource, then we don't need the first couple path items
-  const value =
-    typeof path[1] === 'number'
-      ? resource
-      : getNestedValue(resource, path.join('.') as keyof typeof resource)
-
-  // Destructure to remove the property from the object
-  if (diff.type === 'REMOVE') {
-    const { [key]: removeMe, ...rest } = value
-    return rest
-  }
-  // Add or edit the property
-  else {
-    return { ...value, [key]: diff.value }
-  }
-}
-
-/** Like array.find but returns the resource instead of the uid */
-const findResource = <T>(
-  arr: string[],
-  resources: Record<string, T>,
-  condtion: (resource: T) => boolean,
-) => {
-  for (let i = 0; i < arr.length; i++) {
-    const r = resources[arr[i]]
-    if (condtion(r)) return r
-  }
-  return null
-}
-
 /**
  * Hook which handles polling the documentUrl for changes then attempts to merge what is new
  *
- * Currently we will hash the
+ * TODO:
+ * - check lastModified or similar headers
+ * - speed up the polling when there's a change then slowly slow it down
  */
 export const useLiveSync = () => {
   const {
@@ -102,49 +71,18 @@ export const useLiveSync = () => {
       const { schema } = await parseSchema(spec)
       const diff = microdiff(old.schema, schema)
 
-      console.log(diff)
-      //  In some instances we want to manually create the diff
-      const combined = diff.reduce((acc, current, index) => {
-        const next = diff[index + 1]
-        const prev = diff[index - 1]
+      // Combines add/remove diffs into single rename diffs
+      const combined = combineRenameDiffs(diff)
 
-        if (current.path[0] !== 'paths' || next?.path?.[0] !== 'paths')
-          return acc
-        console.log(next, prev)
-
-        // We combine this into one mutation
-        if (current.type === 'REMOVE' && next?.type === 'CREATE') {
-          console.log('diff')
-          const [, currPath, currMethod] = current.path
-          const [, nextPath, nextMethod] = next.path
-
-          // We only need to diff the paths here
-          const _diff = microdiff(current.oldValue, next.value)
-          if (_diff.length === 0) {
-            if (currMethod !== nextMethod)
-              acc.push({ oldValue: current.oldValue })
-          }
-          console.log()
-        }
-
-        return acc
-      }, [])
-      console.log(combined)
-
-      diff.forEach((d) => {
+      // Transform and apply the diffs to our mutators
+      combined.forEach((d) => {
         const { path, type } = d
         if (!path.length || !activeCollection.value?.uid) return
 
         // Info
         if (path[0] === 'info') {
-          const payload = buildPayload(d, activeCollection.value)
-          if (!payload) return
-
-          // Property path is all but the last item
-          const prop = d.path
-            .slice(0, d.path.length - 1)
-            .join('.') as keyof Collection
-          collectionMutators.edit(activeCollection.value?.uid, prop, payload)
+          const infoPayload = generateInfoPayload(d, activeCollection.value)
+          if (infoPayload) collectionMutators.edit(...infoPayload)
         }
         // Servers
         else if (path[0] === 'servers') {
@@ -216,29 +154,55 @@ export const useLiveSync = () => {
         }
         // Paths
         else if (path[0] === 'paths') {
+          console.log('=========')
+          console.log(d)
           const [, _path, method, property] = path as [
             'paths',
             Request['path'],
-            Request['method'],
+            Request['method'] | 'method',
             keyof Request,
           ]
           console.log(_path, method, property)
 
-          // Find the request
-          const request = findResource<Request>(
-            activeCollection.value.requests,
-            requests,
-            (r) => r.path === _path && r.method === method,
-          )
-          console.log(request)
-          // Primitive properties
-          if (
-            ['summary', 'description', 'operationId', 'deprecated'].includes(
-              property,
-            ) &&
-            request
-          )
-            requestMutators.edit(request.uid, property, d.value)
+          // Path has changed
+          if (_path === 'path' && type === 'CHANGE') {
+            activeCollection.value.requests.forEach(
+              (uid) =>
+                requests[uid].path === d.oldValue &&
+                requestMutators.edit(uid, 'path', d.value),
+            )
+          }
+          // Method has changed
+          // TODO: check if we need to change anything in the examples
+          else if (method === 'method' && type === 'CHANGE') {
+            activeCollection.value.requests.forEach(
+              (uid) =>
+                requests[uid].method === d.oldValue &&
+                requestMutators.edit(uid, 'method', d.value),
+            )
+          }
+          // Add new
+          // else if (type === 'CREATE') {
+          // } else if (type === 'REMOVE') {
+          // }
+          else if (type === 'CHANGE') {
+            // Switch to build payload etc
+            // Find the request
+            const request = findResource<Request>(
+              activeCollection.value.requests,
+              requests,
+              (r) => r.path === _path && r.method === method,
+            )
+
+            // Primitive properties
+            if (
+              ['summary', 'description', 'operationId', 'deprecated'].includes(
+                property,
+              ) &&
+              request
+            )
+              requestMutators.edit(request.uid, property, d.value)
+          }
         }
       })
 
