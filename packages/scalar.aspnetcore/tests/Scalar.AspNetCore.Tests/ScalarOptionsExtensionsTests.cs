@@ -39,7 +39,6 @@ public class ScalarOptionsExtensionsTests
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .AddServer("https://example.com")
             .AddServer(new ScalarServer("https://example.org", "My other server"))
-            .WithEndpointPrefix("my-prefix")
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithTitle("My title")
             .WithFavicon("/favicon.png");
