@@ -147,7 +147,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
         v-model="selectedRequest">
         <div
           :class="[
-            'addressbar-bg-states text-xxs relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg border-1/2 p-[3px]',
+            'addressbar-bg-states text-xxs relative flex w-full lg:min-w-[620px] lg:max-w-[620px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg border-1/2 p-[3px]',
             { 'border-transparent overflow-visible rounded-b-none': open },
           ]">
           <div
@@ -302,13 +302,13 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   }
 }
 .codemirror-bg-switcher {
-  --scalar-background-1: var(--scalar-background-2);
+  --scalar-background-1: var(--scalar-background-3);
 }
 .addressbar-bg-states:focus-within .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-1);
 }
 .addressbar-bg-states {
-  background: var(--scalar-background-2);
+  background: var(--scalar-background-3);
   border-color: transparent;
 }
 .addressbar-bg-states:focus-within {

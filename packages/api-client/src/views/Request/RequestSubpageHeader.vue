@@ -4,6 +4,8 @@ import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSel
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { ScalarIcon } from '@scalar/components'
 
+import { WorkspaceDropdown } from './components'
+
 defineProps<{
   modelValue: boolean
   isReadonly: boolean
@@ -16,13 +18,14 @@ defineEmits<{
 </script>
 <template>
   <div
-    class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container border-b-1/2">
+    class="lg:min-h-header flex items-center w-full justify-center p-1 flex-wrap t-app__top-container pr-8">
     <div
       class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
       <SidebarToggle
-        class="gitbook-hidden"
+        class="gitbook-hidden sidebar-app-margin"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)" />
+      <WorkspaceDropdown />
       <a
         class="text-c-2 text-sm font-medium gitbook-show ml-.5 hover:text-c-1 border p-1 rounded hover:bg-b-3"
         href="https://scalar.com/"
@@ -37,7 +40,7 @@ defineEmits<{
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
         v-if="isReadonly"
-        class="text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded"
+        class="text-c-3 hover:bg-b-3 active:text-c-1 p-2 rounded text-xs"
         type="button"
         @click="$emit('hideModal')">
         <ScalarIcon

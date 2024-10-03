@@ -42,7 +42,7 @@ function setScope(id: string, checked: boolean) {
 <template>
   <DataTableCell class="items-center min-h-8 h-auto">
     <div class="flex h-full w-full">
-      <div class="text-c-2 min-w-[120px] items-center pl-2 h-full border-r-1/2">
+      <div class="text-c-1 min-w-[120px] items-center pl-2 h-full border-r-1/2">
         <span class="h-8 flex items-center"> Scopes </span>
       </div>
       <Disclosure

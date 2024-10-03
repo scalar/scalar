@@ -335,7 +335,7 @@ function openCommandPaletteRequest() {
                 class="text-c-3 text-sm"
                 icon="ChevronRight"
                 size="sm"
-                thickness="2.5" />
+                thickness="2" />
             </div>
           </slot>
           &hairsp;

@@ -71,7 +71,7 @@ function createWindow(): void {
     height: mainWindowState.height,
     show: false,
     title: 'Scalar',
-    trafficLightPosition: { x: 9.5, y: 12 },
+    trafficLightPosition: { x: 17, y: 18 },
     // Borderless Window, for macOS only
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' } : {}),
     autoHideMenuBar: true,

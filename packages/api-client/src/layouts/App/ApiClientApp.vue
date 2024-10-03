@@ -7,15 +7,18 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
 import { handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
+import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
+import { useMediaQuery } from '@vueuse/core'
 import {
   computed,
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
   ref,
+  watch,
   watchEffect,
 } from 'vue'
 import { RouterView } from 'vue-router'
@@ -36,10 +39,14 @@ onMounted(() => {
     document.body.classList.toggle('light-mode', !isDark.value)
   })
 })
-
+const workspaceContext = useWorkspace()
+const { activeWorkspace, modalState } = workspaceContext
 const { isDark } = useDarkModeState()
 const workspaceStore = useWorkspace()
+const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
 
+const isNarrow = useMediaQuery('(max-width: 780px)')
+watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(async () => {
   addScalarClassesToHeadless()
@@ -65,8 +72,11 @@ const fontsStyleTag = computed(
   <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
   <!-- <ImportCollectionListener> -->
   <div v-html="fontsStyleTag"></div>
+  <RequestSubpageHeader
+    v-model="showSideBar"
+    :isReadonly="activeWorkspace.isReadOnly"
+    @hideModal="() => modalState.hide()" />
   <TopNav :openNewTab="newTab" />
-
   <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main

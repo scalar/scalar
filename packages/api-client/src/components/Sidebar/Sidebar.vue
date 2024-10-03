@@ -96,7 +96,7 @@ const startDrag = (event: MouseEvent) => {
 </template>
 <style scoped>
 .sidebar-height {
-  min-height: calc(100% - 50px);
+  min-height: 100%;
 }
 @screen md {
   .sidebar-mask {

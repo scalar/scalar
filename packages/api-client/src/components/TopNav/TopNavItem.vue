@@ -129,9 +129,8 @@ defineEmits<{
   justify-content: center;
   align-items: center;
   display: flex;
-  border-radius: var(--scalar-radius);
   background: var(--scalar-background-3);
-  border: var(--scalar-border-width) solid var(--scalar-background-2);
+  border-right: 0.5px solid var(--scalar-border-color);
   color: var(--scalar-color-3);
   padding: 4.5px;
   min-width: 0;
@@ -165,7 +164,7 @@ defineEmits<{
   color: var(--scalar-color-1);
 }
 .nav-item__active {
-  background-color: var(--scalar-background-1);
+  background-color: var(--scalar-background-2);
   color: var(--scalar-color-1);
   border-color: var(--scalar-border-color);
 }

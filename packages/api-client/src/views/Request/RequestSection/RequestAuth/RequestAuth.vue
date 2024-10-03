@@ -192,7 +192,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                 fullWidth
                 variant="ghost">
                 <div
-                  class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
+                  class="text-c-1 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
                   Auth Type
                 </div>
                 <div

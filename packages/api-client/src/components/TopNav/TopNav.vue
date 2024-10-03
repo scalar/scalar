@@ -145,21 +145,14 @@ onMounted(() => hotKeyBus.on(handleHotKey))
 onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 </script>
 <template>
-  <nav class="flex h-10 t-app__top-nav">
+  <nav class="flex t-app__top-nav">
     <div class="t-app__top-nav-draggable"></div>
     <div
-      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-1 relative overflow-hidden">
+      class="flex flex-1 items-center text-sm font-medium pr-1 relative overflow-hidden">
       <template v-if="topNavItems.length === 1">
         <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
-            <template #trigger>
-              <ScalarIcon
-                :icon="topNavItems[0].icon"
-                size="xs"
-                thickness="2.5" />
-              <span>{{ topNavItems[0].label }}</span>
-            </template>
             <template #content>
               <ScalarDropdown
                 class="scalar-client"
@@ -206,22 +199,22 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
           @copyUrl="copyUrl(index)"
           @newTab="addNavItem" />
       </template>
-      <button
-        class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag"
-        type="button"
-        @click="addNavItem">
-        <ScalarIcon
-          icon="Add"
-          size="xs"
-          thickness="2.5" />
-      </button>
+      <div class="fixed top-0 right-0 min-h-header flex min-w-8 py-3">
+        <button
+          class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag aspect-square"
+          type="button"
+          @click="addNavItem">
+          <ScalarIcon
+            icon="Add"
+            size="xs"
+            thickness="2.5" />
+        </button>
+      </div>
     </div>
   </nav>
 </template>
 <style scoped>
 .t-app__top-nav {
-  padding-left: 52px;
-  padding-right: 9px;
   position: relative;
 }
 .t-app__top-nav-draggable {

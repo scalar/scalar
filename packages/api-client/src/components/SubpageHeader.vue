@@ -6,7 +6,7 @@ const currentRoute = useRoute()
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-1/2 rounded mr-1.5 mb-1.5 overflow-hidden">
+    class="flex flex-1 flex-col rounded pt-0 h-full bg-b-1 relative border-t-1/2 border-l-1/2 overflow-hidden">
     <div
       class="hidden md:flex lg:min-h-header items-center w-full p-1 t-app__top-container items-center border-b-1/2">
       <router-link

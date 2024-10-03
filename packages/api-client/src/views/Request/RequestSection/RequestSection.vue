@@ -63,11 +63,6 @@ const updateRequestNameHandler = (event: Event) => {
 <template>
   <ViewLayoutSection>
     <template #title>
-      <ScalarIcon
-        class="text-c-3 mr-2 pointer-events-none"
-        icon="ExternalLink"
-        size="sm"
-        thickness="2.5" />
       <div class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none">
         Request
         <label
