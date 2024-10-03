@@ -16,17 +16,14 @@ import { type ThemeId, themeLabels } from '@scalar/themes'
 
 import SettingsGeneralMode from './SettingsGeneralMode.vue'
 
-const { activeWorkspace, workspaceMutators } = useWorkspace()
+const { activeWorkspace, workspaceMutators, proxyUrl, setProxyUrl } =
+  useWorkspace()
 
 const toggleScalarProxy = () => {
-  if (activeWorkspace.value.proxyUrl) {
-    workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', '')
+  if (proxyUrl.value) {
+    setProxyUrl('')
   } else {
-    workspaceMutators.edit(
-      activeWorkspace.value.uid,
-      'proxyUrl',
-      'https://proxy.scalar.com',
-    )
+    setProxyUrl('https://proxy.scalar.com')
   }
 }
 
@@ -56,7 +53,7 @@ const changeTheme = (themeId: ThemeId) => {
           <DataTableText text="Use Scalar Proxy" />
           <DataTableCheckbox
             align="left"
-            :modelValue="!!activeWorkspace.proxyUrl"
+            :modelValue="!!proxyUrl"
             @update:modelValue="toggleScalarProxy" />
         </DataTableRow>
         <DataTableRow>
