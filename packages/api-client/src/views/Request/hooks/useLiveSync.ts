@@ -169,13 +169,12 @@ export const useLiveSync = () => {
         else if (path[0] === 'paths') {
           console.log('=========')
           console.log(d)
-          const [, _path, method, property] = path as [
+          const [, _path, method, ...properties] = path as [
             'paths',
             Request['path'],
             Request['method'] | 'method',
             keyof Request,
           ]
-          console.log(_path, method, property)
 
           // Path has changed
           if (_path === 'path' && type === 'CHANGE') {
@@ -243,7 +242,7 @@ export const useLiveSync = () => {
               requestMutators.add(request, activeCollection.value.uid)
             else
               console.warn(
-                'Live Sync: Was unable to add the new reqeust, please refresh to try again.',
+                'Live Sync: was unable to add the new reqeust, please refresh to try again.',
               )
           }
           // Delete
@@ -259,22 +258,20 @@ export const useLiveSync = () => {
           }
           // Edit
           else if (type === 'CHANGE') {
-            // Switch to build payload etc
-            // Find the request
             const request = findResource<Request>(
               activeCollection.value.requests,
               requests,
               (r) => r.path === _path && r.method === method,
             )
 
-            // Primitive properties
-            if (
-              ['summary', 'description', 'operationId', 'deprecated'].includes(
-                property,
-              ) &&
-              request
-            )
-              requestMutators.edit(request.uid, property, d.value)
+            if (request)
+              requestMutators.edit(
+                request.uid,
+                properties.join('.') as keyof Request,
+                d.value,
+              )
+            else
+              console.warn('Live Sync: request not found, was unable to update')
           }
         }
       })
@@ -284,7 +281,7 @@ export const useLiveSync = () => {
         hash,
         schema,
       }
-    } else console.log('nothing to see here')
+    } else console.log('Live Sync: no changes detected yet...')
   }, FIVE_SECONDS)
 
   // Ensure we are only polling when we should liveSync
@@ -294,8 +291,10 @@ export const useLiveSync = () => {
       () => activeCollection.value?.liveSync,
     ],
     ([documentUrl, liveSync]) => {
-      if (documentUrl && liveSync) resume()
-      else pause()
+      if (documentUrl && liveSync) {
+        console.info('Live Sync: we are live!')
+        resume()
+      } else pause()
     },
     { immediate: true },
   )
