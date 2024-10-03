@@ -29,9 +29,7 @@ const { isDark } = useDarkModeState()
 const workspaceStore = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root
-onBeforeMount(async () => {
-  addScalarClassesToHeadless()
-})
+onBeforeMount(() => addScalarClassesToHeadless())
 
 /** Handles the hotkey events, we will pass in custom hotkeys here */
 const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev)
