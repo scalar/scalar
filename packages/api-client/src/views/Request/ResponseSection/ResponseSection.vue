@@ -53,7 +53,7 @@ const responseCookies = computed(
     }) ?? [],
 )
 
-const sections = ['Cookies', 'Headers', 'Body', 'All']
+const sections = ['All', 'Cookies', 'Headers', 'Body']
 type ActiveSections = (typeof sections)[number]
 
 const activeSection = ref<ActiveSections>('All')

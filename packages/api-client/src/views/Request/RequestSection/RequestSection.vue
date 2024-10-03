@@ -16,17 +16,17 @@ const { activeRequest, activeExample, isReadOnly, requestMutators } =
 
 const sections = computed(() => {
   const allSections = new Set([
+    'All',
     'Query',
     'Auth',
-    'Request',
+    'Variables',
     'Cookies',
     'Headers',
     'Body',
-    'All',
   ])
 
   if (!activeExample.value?.parameters.path.length)
-    allSections.delete('Request')
+    allSections.delete('Variables')
   if (!canMethodHaveBody(activeRequest.value?.method ?? 'get'))
     allSections.delete('Body')
   if (isAuthHidden.value) allSections.delete('Auth')
@@ -101,7 +101,7 @@ const updateRequestNameHandler = (event: Event) => {
         title="Authentication" />
       <RequestPathParams
         v-show="
-          (activeSection === 'All' || activeSection === 'Request') &&
+          (activeSection === 'All' || activeSection === 'Variables') &&
           activeExample?.parameters?.path?.length
         "
         paramKey="path"
