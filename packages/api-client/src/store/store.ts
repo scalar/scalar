@@ -207,7 +207,7 @@ export const createWorkspaceStore = (
       )
 
     const fallbackUid =
-      activeWorkspace.value.collections[0] ?? collections[0].uid
+      activeWorkspace.value.collections[0] ?? collections[0]?.uid
 
     return collections[fallbackUid]
   })
