@@ -69,6 +69,7 @@ export const ICONS = [
   'Settings',
   'Show',
   'Sort',
+  'Table',
   'Terminal',
   'ThumbsDown',
   'ThumbsUp',
