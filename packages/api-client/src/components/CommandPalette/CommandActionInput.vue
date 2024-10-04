@@ -10,7 +10,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
   (e: 'onDelete', event: KeyboardEvent): void
-  (e: 'paste', event: ClipboardEvent): void
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -27,11 +26,9 @@ const model = computed<string>({
 
 const handleBack = (event: KeyboardEvent) => {
   if (model.value !== '') return
+  event.preventDefault()
+  event.stopPropagation()
   emit('onDelete', event)
-}
-
-const handlePaste = (event: ClipboardEvent) => {
-  emit('paste', event)
 }
 </script>
 <template>
@@ -48,6 +45,5 @@ const handlePaste = (event: ClipboardEvent) => {
     data-lpignore="true"
     :placeholder="props.placeholder"
     v-bind="$attrs"
-    @keydown.delete.stop="handleBack($event)"
-    @paste="handlePaste($event)" />
+    @keydown.delete="handleBack($event)" />
 </template>

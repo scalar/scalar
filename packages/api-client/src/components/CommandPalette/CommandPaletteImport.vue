@@ -71,14 +71,9 @@ async function importCollection() {
 }
 
 function getOpenApiDocumentType() {
-  return (getOpenApiDocumentVersion(inputContent.value) || {}).type ?? 'json'
-}
-
-function handlePaste(event: ClipboardEvent) {
-  const pastedData = event.clipboardData?.getData('text')
-  if (pastedData) {
-    inputContent.value = pastedData
-  }
+  const version = getOpenApiDocumentVersion(inputContent.value)
+  if (version) return version.type
+  else return 'json'
 }
 </script>
 <template>
@@ -90,8 +85,7 @@ function handlePaste(event: ClipboardEvent) {
       <CommandActionInput
         v-model="inputContent"
         placeholder="Paste Swagger/OpenAPI File URL or content"
-        @onDelete="emits('back', $event)"
-        @paste="handlePaste($event)" />
+        @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
       <ScalarButton
