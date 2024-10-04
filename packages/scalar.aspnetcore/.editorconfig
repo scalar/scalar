@@ -2,7 +2,7 @@ root = true
 
 [*]
 charset = utf-8
-end_of_line = crlf
+# end_of_line = crlf
 trim_trailing_whitespace = false
 insert_final_newline = false
 indent_style = space
