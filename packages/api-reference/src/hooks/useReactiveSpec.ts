@@ -6,8 +6,7 @@ import {
 import type { SpecConfiguration } from '@scalar/types/legacy'
 import { type MaybeRefOrGetter, reactive, ref, toValue, watch } from 'vue'
 
-import { createEmptySpecification } from '../helpers'
-import { parse } from '../helpers/parse'
+import { createEmptySpecification, legacyParse } from '../helpers'
 
 /**
  * Get the spec content from the provided configuration:
@@ -80,7 +79,7 @@ export function useReactiveSpec({
   function parseInput(value?: string) {
     if (!value) return Object.assign(parsedSpec, createEmptySpecification())
 
-    return parse(value, {
+    return legacyParse(value, {
       proxy: proxy ? toValue(proxy) : undefined,
     })
       .then((validSpec) => {

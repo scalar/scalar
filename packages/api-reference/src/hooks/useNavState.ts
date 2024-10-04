@@ -1,5 +1,6 @@
 import { ssrState } from '@scalar/oas-utils/helpers'
-import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
+import type { OpenAPI } from '@scalar/openapi-types'
+import type { Heading, Tag } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
 
@@ -52,8 +53,8 @@ const getModelId = (name?: string) => {
   return `model/${encodedSlug}`
 }
 
-const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
-  `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
+const getOperationId = (operation: OpenAPI.Document, parentTag: Tag) =>
+  `${getTagId(parentTag)}/${operation?.['x-scalar-computed']?.method?.toUpperCase() ?? operation.httpVerb}${operation?.['x-scalar-computed']?.path ?? operation.path}`
 
 const getTagId = ({ name }: Tag) => {
   const tagSlug = slug(name)

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { createEmptySpecification, parse } from '../../../helpers'
+import { createEmptySpecification, legacyParse } from '../../../helpers'
 import { getServers } from './getServers'
 
 describe('getServers', () => {
   it('returns a single server', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [
           {
@@ -23,7 +23,7 @@ describe('getServers', () => {
   })
 
   it('returns two servers', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [
           {
@@ -47,7 +47,7 @@ describe('getServers', () => {
   })
 
   it('works with Swagger 2.0 files', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         host: 'example.com',
         schemes: ['https'],
@@ -62,7 +62,7 @@ describe('getServers', () => {
   })
 
   it('falls back to http', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         host: 'example.com',
       }),
@@ -76,7 +76,7 @@ describe('getServers', () => {
   })
 
   it('uses a given base server URL instead of an empty list', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [],
       }),
@@ -94,7 +94,7 @@ describe('getServers', () => {
   })
 
   it('prefixes relative paths with the given server url', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [
           {
@@ -133,7 +133,7 @@ describe('getServers', () => {
       origin: 'http://localhost',
     } as unknown as Location
 
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [],
       }),
@@ -147,7 +147,7 @@ describe('getServers', () => {
   })
 
   it('returns variables', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [
           {
@@ -195,7 +195,7 @@ describe('getServers', () => {
   })
 
   it('adds variables from URLs', async () => {
-    const specification = await parse(
+    const specification = await legacyParse(
       createEmptySpecification({
         servers: [
           {

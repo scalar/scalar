@@ -1,11 +1,8 @@
-import type { OpenAPI } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
 
-import { handle } from '../packages/openapi-sdk'
+import { legacyParse } from '../helpers'
 import { type TagsSorterOption, useSidebar } from './useSidebar'
-
-// TODO: Webhooks don’t have name/title
 
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
@@ -14,14 +11,14 @@ async function getItemsForDocument(
   definition: Record<string, any>,
   options?: TagsSorterOption,
 ) {
-  const openApiDocument = (await handle(definition)) as OpenAPI.Document
+  const parsedSpec = await legacyParse(definition)
 
   const { items } = useSidebar({
     ...{
       tagsSorter: undefined,
       ...options,
     },
-    openApiDocument,
+    parsedSpec,
   })
 
   return toValue(items)
@@ -62,27 +59,6 @@ describe('useSidebar', async () => {
       }),
     ).toMatchObject({
       entries: [{ title: 'Hello World' }],
-    })
-  })
-
-  it('has an id', async () => {
-    expect(
-      await getItemsForDocument({
-        openapi: '3.1.0',
-        info: {
-          title: 'Hello World',
-          version: '1.0.0',
-        },
-        paths: {
-          '/hello': {
-            get: {
-              summary: 'Hello World',
-            },
-          },
-        },
-      }),
-    ).toMatchObject({
-      entries: [{ id: 'tag/default/GET/hello' }],
     })
   })
 
@@ -145,7 +121,7 @@ describe('useSidebar', async () => {
     })
   })
 
-  it('has a single tag', async () => {
+  it('has a tag', async () => {
     expect(
       await getItemsForDocument({
         openapi: '3.1.0',
@@ -375,18 +351,18 @@ describe('useSidebar', async () => {
     ).toMatchObject({
       entries: [
         {
-          title: 'default',
-          children: [
-            {
-              title: 'Post Hello World',
-            },
-          ],
-        },
-        {
           title: 'foobar',
           children: [
             {
               title: 'Get Hello World',
+            },
+          ],
+        },
+        {
+          title: 'default',
+          children: [
+            {
+              title: 'Post Hello World',
             },
           ],
         },

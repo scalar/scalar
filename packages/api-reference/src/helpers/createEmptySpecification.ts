@@ -11,6 +11,7 @@ export function createEmptySpecification(
   partialSpecification?: Partial<OpenAPI.Document>,
 ) {
   return deepMerge(partialSpecification ?? {}, {
+    version: '3.1.0',
     info: {
       title: '',
       description: '',

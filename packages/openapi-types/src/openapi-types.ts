@@ -28,6 +28,16 @@ export namespace OpenAPI {
     | OpenAPIV3.Document<T>
     | OpenAPIV3_1.Document<T>
 
+  export type Tag =
+    | OpenAPIV2.TagObject
+    | OpenAPIV3.TagObject
+    | OpenAPIV3_1.TagObject
+
+  export type PathItem<T = {}> =
+    | OpenAPIV2.PathItemObject<T>
+    | OpenAPIV3.PathItemObject<T>
+    | OpenAPIV3_1.PathItemObject<T>
+
   export type Operation<T = {}> =
     | OpenAPIV2.OperationObject<T>
     | OpenAPIV3.OperationObject<T>

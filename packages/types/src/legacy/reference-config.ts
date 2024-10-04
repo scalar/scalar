@@ -340,6 +340,7 @@ export type Schema = {
   properties?: Record<string, Schema>
 }
 
+/** @deprecated Use generic OpenAPI types instead */
 export type TransformedOperation = Operation & {
   pathParameters?: Parameters[]
 }
@@ -430,6 +431,11 @@ export type Webhooks = Record<
   >
 >
 
+/**
+ * A heavily-transformed OpenAPI Document
+ *
+ * @deprecated Try to use OpenAPI.Document instead
+ */
 export type Spec = {
   'tags'?: Tag[]
   'info':
