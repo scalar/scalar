@@ -67,7 +67,10 @@ async function importCollection() {
   try {
     if (inputContent.value) {
       if (isUrl(inputContent.value)) {
-        await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid)
+        await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
+          proxy: activeWorkspace.value.proxyUrl,
+          liveSync: liveSync.value,
+        })
       } else if (isDocument(inputContent.value)) {
         await importSpecFile(
           String(inputContent.value),
