@@ -57,7 +57,7 @@ export function createRollupConfig(props: {
   if (props?.copy)
     plugins.push(
       copy({
-        targets: props.copy,
+        targets: [...props.copy],
         // Use the `generateBundle` hook to copy files, otherwise they are deleted by the `emptyOutDir` plugin
         hook: 'generateBundle',
       }),

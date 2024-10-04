@@ -94,7 +94,7 @@
     "@types/hast": "^3.0.4",
     "@types/mdast": "^4.0.4",
     "@types/unist": "^3.0.2",
-    "rollup": "^4.16.4",
+    "rollup": "^4.24.0",
     "vfile": "^6.0.1",
     "vite": "^5.2.10",
     "vue": "^3.4.29"

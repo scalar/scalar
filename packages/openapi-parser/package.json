@@ -72,7 +72,7 @@
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",
-    "rollup": "^4.16.4",
+    "rollup": "^4.24.0",
     "rollup-plugin-output-size": "^1.4.1",
     "tinybench": "^2.8.0"
   }
