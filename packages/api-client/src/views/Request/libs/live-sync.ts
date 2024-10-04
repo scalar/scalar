@@ -79,7 +79,17 @@ export const combineRenameDiffs = (
       }
 
       skipNext = true
-    } else {
+    }
+    // If adding anthing other than a path or method we can just change instead
+    else if (current.type === 'CREATE' && current.path.length > 3) {
+      combined.push({ ...current, type: 'CHANGE', oldValue: undefined })
+    }
+    // If deleting anthing other than a path or method we can also do a change
+    else if (current.type === 'REMOVE' && current.path.length > 3) {
+      combined.push({ ...current, type: 'CHANGE', value: undefined })
+    }
+    // Just regular things
+    else {
       combined.push(current)
     }
   }
