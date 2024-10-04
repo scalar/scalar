@@ -1,3 +1,4 @@
+import type { extendedTagDataFactory } from '@/store/tags'
 import {
   type Collection,
   type Request,
@@ -29,6 +30,8 @@ export function createStoreRequests(useLocalStorage: boolean) {
   }
 }
 
+type AddTag = ReturnType<typeof extendedTagDataFactory>['addTag']
+
 /**
  * Create the extended mutators for request where access to the workspace is required
  */
@@ -43,7 +46,7 @@ export function extendedRequestDataFactory(
     tagMutators,
   }: StoreContext,
   // We want the add tag with side effects here so it gets properly added to the colleciton
-  addTag: (payload: TagPayload, collectionUid: string) => Tag,
+  addTag: AddTag,
 ) {
   /** Add request */
   const addRequest = (payload: RequestPayload, collectionUid: string) => {
