@@ -186,7 +186,6 @@ export const useLiveSync = () => {
             )
           }
           // Method has changed
-          // TODO: check if we need to change anything in the examples
           else if (method === 'method') {
             activeCollection.value.requests.forEach(
               (uid) =>
@@ -267,13 +266,15 @@ export const useLiveSync = () => {
               (r) => r.path === _path && r.method === method,
             )
 
-            if (request)
+            if (request) {
               requestMutators.edit(
                 request.uid,
                 properties.join('.') as keyof Request,
                 d.value,
               )
-            else
+
+              // TODO: Override the example bodies
+            } else
               console.warn('Live Sync: request not found, was unable to update')
           }
         }
