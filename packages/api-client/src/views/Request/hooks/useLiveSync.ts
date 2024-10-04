@@ -1,3 +1,4 @@
+import { isHTTPMethod } from '@/components/HttpMethod'
 import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
@@ -172,7 +173,7 @@ export const useLiveSync = () => {
           const [, _path, method, ...properties] = path as [
             'paths',
             Request['path'],
-            Request['method'] | 'method',
+            Request['method'] | 'method' | undefined,
             keyof Request,
           ]
 
@@ -186,27 +187,29 @@ export const useLiveSync = () => {
           }
           // Method has changed
           // TODO: check if we need to change anything in the examples
-          else if (method === 'method' && type === 'CHANGE') {
+          else if (method === 'method') {
             activeCollection.value.requests.forEach(
               (uid) =>
+                type === 'CHANGE' &&
                 requests[uid].method === d.oldValue &&
                 requestMutators.edit(uid, 'method', d.value),
             )
           }
           // Add
-          else if (type === 'CREATE' && method && method !== 'method') {
-            const operation = d.value as OpenAPIV3_1.OperationObject<{
+          else if (type === 'CREATE') {
+            // In some cases value goes { method: operation }
+            const [[_method, _operation]] = Object.entries(d.value)
+
+            const operation: OpenAPIV3_1.OperationObject<{
               tags?: string[]
               security?: OpenAPIV3_1.SecurityRequirementObject[]
-            }>
+            }> = method ? d.value : _operation
+            const newMethod = method || _method
 
             // TODO: match servers up and add if we don't have
             const operationServers = serverSchema
               .array()
               .parse(operation.servers ?? [])
-
-            // TODO: match tags up and add if we don't have
-            // d.value.tags
 
             // Remove security here and add it correctly below
             const { security: operationSecurity, ...operationWithoutSecurity } =
@@ -214,7 +217,7 @@ export const useLiveSync = () => {
 
             const requestPayload: RequestPayload = {
               ...operationWithoutSecurity,
-              method,
+              method: isHTTPMethod(newMethod) ? newMethod : 'get',
               path: _path,
               parameters: (operation.parameters ??
                 []) as RequestParameterPayload[],
