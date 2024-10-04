@@ -85,9 +85,11 @@ const startDrag = (event: MouseEvent) => {
       }">
       <slot name="content" />
     </div>
-    <slot
+    <div
       v-if="!isMobile"
-      name="button" />
+      class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 -translate-y-full w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
+      <slot name="button" />
+    </div>
     <div
       v-if="!isNarrow"
       class="resizer"
