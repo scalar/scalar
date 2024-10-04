@@ -67,7 +67,9 @@ export function importSpecFileFactory({
     return workspaceEntities.collection
   }
 
-  // Function to fetch and import a spec from a URL
+  /**
+   * Function to fetch and import a spec from a URL
+   */
   async function importSpecFromUrl(
     url: string,
     proxy?: string,
@@ -76,19 +78,14 @@ export function importSpecFileFactory({
     // TODO: I don’t think this should have a default, and it should probably not be the last parameter. Compare it to importSpecFromFile.
     workspaceUid = 'default',
   ) {
-    try {
-      const spec = await fetchSpecFromUrl(url, proxy)
+    const spec = await fetchSpecFromUrl(url, proxy)
 
-      return await importSpecFile(
-        spec,
-        workspaceUid,
-        overloadServers,
-        preferredSecurityScheme,
-      )
-    } catch (error) {
-      console.error('Failed to fetch spec from URL:', error)
-      return undefined
-    }
+    return await importSpecFile(
+      spec,
+      workspaceUid,
+      overloadServers,
+      preferredSecurityScheme,
+    )
   }
 
   return {

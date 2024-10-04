@@ -37,9 +37,13 @@ const editorContent = ref('')
 function setSpec({ url, content }: SpecConfiguration) {
   if (url) {
     // For URLs we just set the value to fetched string
-    fetchSpecFromUrl(url).then((val) => {
-      editorContent.value = val
-    })
+    try {
+      fetchSpecFromUrl(url).then((val) => {
+        editorContent.value = val
+      })
+    } catch (error) {
+      console.error('Failed to fetch spec from URL:', error)
+    }
   } else if (typeof content === 'string') {
     // For string values we don't want to stringify as it will alter the format
     editorContent.value = content

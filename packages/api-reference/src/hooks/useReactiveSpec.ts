@@ -26,17 +26,21 @@ const getSpecContent = async (
   if (url) {
     const start = performance.now()
 
-    // If the url is not valid, we can assume its a path and
-    // if it’s a path we can skip the proxy.
-    const result = !isValidUrl(url)
-      ? await fetchSpecFromUrl(url)
-      : await fetchSpecFromUrl(url, proxy)
+    try {
+      // If the url is not valid, we can assume its a path and
+      // if it’s a path we can skip the proxy.
+      const result = !isValidUrl(url)
+        ? await fetchSpecFromUrl(url)
+        : await fetchSpecFromUrl(url, proxy)
 
-    const end = performance.now()
-    console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
-    console.log('size:', Math.round(result.length / 1024), 'kB')
+      const end = performance.now()
+      console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
+      console.log('size:', Math.round(result.length / 1024), 'kB')
 
-    return result
+      return result
+    } catch (error) {
+      console.error('Failed to fetch spec from URL:', error)
+    }
   }
 
   // Callback
