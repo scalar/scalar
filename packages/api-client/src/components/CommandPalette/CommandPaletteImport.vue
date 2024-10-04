@@ -65,20 +65,17 @@ async function importCollection() {
 
   loader.startLoading()
   try {
-    if (isInputUrl.value)
-      await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
-        proxy: activeWorkspace.value.proxyUrl,
-        liveSync: liveSync.value,
-      })
-    else if (isInputDocument.value)
-      await importSpecFile(
-        String(inputContent.value),
-        activeWorkspace.value.uid,
-      )
-    else {
-      toast('Import failed: Invalid URL or OpenAPI document', 'error')
-      loader.invalidate(2000, true)
-      return
+    if (inputContent.value) {
+      if (isUrl(inputContent.value)) {
+        await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid)
+      } else if (isDocument(inputContent.value)) {
+        await importSpecFile(
+          String(inputContent.value),
+          activeWorkspace.value.uid,
+        )
+      } else {
+        toast('Import failed: Invalid URL or OpenAPI document', 'error')
+      }
     }
 
     loader.clear()
@@ -122,16 +119,28 @@ async function importCollection() {
         :lang="documentType" />
     </template>
     <template #options>
-      <ScalarButton
-        class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
-        variant="outlined"
-        @click="openSpecFileDialog">
-        JSON, or YAML File
-        <ScalarIcon
-          class="text-c-3"
-          icon="UploadSimple"
-          size="md" />
-      </ScalarButton>
+      <div class="flex flex-row items-center justify-start gap-3">
+        <ScalarButton
+          class="p-2 max-h-8 gap-1 text-xs hover:bg-b-2 relative"
+          variant="outlined"
+          @click="openSpecFileDialog">
+          JSON, or YAML Files
+          <ScalarIcon
+            class="text-c-3 -rotate-90"
+            icon="ArrowRight"
+            size="sm" />
+        </ScalarButton>
+
+        <!-- Live Sync Checkbox -->
+        <label
+          v-if="isUrl(inputContent)"
+          class="cursor-pointer">
+          <input
+            v-model="liveSync"
+            type="checkbox" />
+          Live Sync
+        </label>
+      </div>
     </template>
     <template #submit>
       Import
