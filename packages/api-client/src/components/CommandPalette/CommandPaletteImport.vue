@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useFileDialog } from '@/hooks'
-import { getOpenApiDocumentVersion, isUrl } from '@/libs'
+import { getOpenApiDocumentDetails, isUrl } from '@/libs'
 import { useWorkspace } from '@/store'
 import { ScalarButton, ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
@@ -18,16 +18,16 @@ const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const { toast } = useToasts()
 const inputContent = ref('')
 
-const documentVersion = computed(() =>
-  getOpenApiDocumentVersion(inputContent.value),
+const documentDetails = computed(() =>
+  getOpenApiDocumentDetails(inputContent.value),
 )
 
 const documentType = computed(() =>
-  documentVersion.value ? documentVersion.value.type : 'json',
+  documentDetails.value ? documentDetails.value.type : 'json',
 )
 
 const isInputUrl = computed(() => isUrl(inputContent.value))
-const isInputDocument = computed(() => !!documentVersion.value)
+const isInputDocument = computed(() => !!documentDetails.value)
 
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: async (files) => {
@@ -86,7 +86,7 @@ async function importCollection() {
   <CommandActionForm
     :disabled="!inputContent.trim()"
     @submit="importCollection">
-    <template v-if="!documentVersion || isUrl(inputContent)">
+    <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         v-model="inputContent"
         placeholder="Paste Swagger/OpenAPI File URL or content"
@@ -103,7 +103,7 @@ async function importCollection() {
         </ScalarButton>
       </div>
       <ScalarCodeBlock
-        v-if="documentVersion && !isUrl(inputContent)"
+        v-if="documentDetails && !isUrl(inputContent)"
         class="border max-h-[40dvh] mt-1 bg-b-2 rounded"
         :content="inputContent"
         :copy="false"
@@ -124,8 +124,11 @@ async function importCollection() {
     <template #submit>
       Import
       <template v-if="isInputUrl"> from URL </template>
-      <template v-else-if="documentVersion && documentType">
-        {{ documentVersion.version }} Spec
+      <template v-else-if="documentDetails && documentType">
+        <template v-if="documentDetails.title">
+          "{{ documentDetails.title }}"
+        </template>
+        <template v-else>{{ documentDetails.version }} Spec</template>
       </template>
       <template v-else>Collection</template>
     </template>
