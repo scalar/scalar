@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useFileDialog } from '@/hooks'
+import { getOpenApiDocumentVersion, isDocument, isUrl } from '@/libs'
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarCodeBlock, ScalarIcon } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 
@@ -14,8 +15,8 @@ const emits = defineEmits<{
 }>()
 
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
-const specUrl = ref('')
 const { toast } = useToasts()
+const inputContent = ref('')
 
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: async (files) => {
@@ -41,37 +42,81 @@ const { open: openSpecFileDialog } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
-const handleSubmit = async () => {
-  if (specUrl.value) {
-    try {
-      await importSpecFromUrl(specUrl.value)
-      toast('Import successful', 'info')
-      emits('close')
-    } catch (error) {
-      console.error('the error ', error)
-      const errorMessage = (error as Error)?.message || 'Unknown error'
-      toast(`Import failed: ${errorMessage}`, 'error')
+async function importCollection() {
+  try {
+    if (inputContent.value) {
+      if (isUrl(inputContent.value)) {
+        await importSpecFromUrl(
+          inputContent.value,
+          undefined,
+          undefined,
+          activeWorkspace.value.uid,
+        )
+      } else if (isDocument(inputContent.value)) {
+        await importSpecFile(
+          String(inputContent.value),
+          activeWorkspace.value.uid,
+        )
+      } else {
+        toast('Import failed: Invalid URL or OpenAPI document', 'error')
+      }
     }
+    emits('close')
+    toast('Import successful', 'info')
+  } catch (error) {
+    console.error('[importCollection]', error)
+    const errorMessage = (error as Error)?.message || 'Unknown error'
+    toast(`Import failed: ${errorMessage}`, 'error')
+  }
+}
+
+function getOpenApiDocumentType() {
+  return (getOpenApiDocumentVersion(inputContent.value) || {}).type ?? 'json'
+}
+
+function handlePaste(event: ClipboardEvent) {
+  const pastedData = event.clipboardData?.getData('text')
+  if (pastedData) {
+    inputContent.value = pastedData
   }
 }
 </script>
 <template>
-  <CommandActionForm @submit="handleSubmit">
-    <CommandActionInput
-      v-model="specUrl"
-      label="Paste Swagger File URL"
-      placeholder="Paste Swagger File URL"
-      @onDelete="emits('back', $event)" />
+  <CommandActionForm
+    :disabled="!inputContent.trim()"
+    @submit="importCollection">
+    <template
+      v-if="!getOpenApiDocumentVersion(inputContent) || isUrl(inputContent)">
+      <CommandActionInput
+        v-model="inputContent"
+        placeholder="Paste Swagger/OpenAPI File URL or content"
+        @onDelete="emits('back', $event)"
+        @paste="handlePaste($event)" />
+    </template>
+    <template v-else>
+      <ScalarButton
+        class="ml-auto p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
+        variant="ghost"
+        @click="inputContent = ''">
+        Clear
+      </ScalarButton>
+      <ScalarCodeBlock
+        v-if="getOpenApiDocumentVersion(inputContent) && !isUrl(inputContent)"
+        class="bg-backdropdark border max-h-[25dvh] mt-2 rounded"
+        :content="inputContent"
+        :copy="false"
+        :lang="getOpenApiDocumentType()" />
+    </template>
     <template #options>
       <ScalarButton
-        class="p-2 max-h-8 gap-1 text-xs hover:bg-b-2 relative"
+        class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
         variant="outlined"
         @click="openSpecFileDialog">
-        JSON, or YAML Files
+        JSON, or YAML File
         <ScalarIcon
-          class="text-c-3 -rotate-90"
-          icon="ArrowRight"
-          size="sm" />
+          class="text-c-3"
+          icon="UploadSimple"
+          size="md" />
       </ScalarButton>
     </template>
     <template #submit>Import Collection</template>
