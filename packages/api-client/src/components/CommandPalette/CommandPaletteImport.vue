@@ -2,7 +2,12 @@
 import { useFileDialog } from '@/hooks'
 import { getOpenApiDocumentDetails, isUrl } from '@/libs'
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarCodeBlock, ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarCodeBlock,
+  ScalarIcon,
+  useLoadingState,
+} from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 
@@ -16,6 +21,7 @@ const emits = defineEmits<{
 
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const { toast } = useToasts()
+const loader = useLoadingState()
 const inputContent = ref('')
 
 const documentDetails = computed(() =>
@@ -54,7 +60,9 @@ const { open: openSpecFileDialog } = useFileDialog({
 })
 
 async function importCollection() {
-  if (!inputContent.value) return
+  if (!inputContent.value || loader.isLoading) return
+
+  loader.startLoading()
   try {
     if (isInputUrl.value)
       await importSpecFromUrl(
@@ -70,14 +78,18 @@ async function importCollection() {
       )
     else {
       toast('Import failed: Invalid URL or OpenAPI document', 'error')
+      loader.invalidate(2000, true)
       return
     }
+
+    loader.clear()
 
     emits('close')
     toast('Import successful', 'info')
   } catch (error) {
     console.error('[importCollection]', error)
     const errorMessage = (error as Error)?.message || 'Unknown error'
+    loader.invalidate(2000, true)
     toast(`Import failed: ${errorMessage}`, 'error')
   }
 }
@@ -85,6 +97,7 @@ async function importCollection() {
 <template>
   <CommandActionForm
     :disabled="!inputContent.trim()"
+    :loading="loader"
     @submit="importCollection">
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput

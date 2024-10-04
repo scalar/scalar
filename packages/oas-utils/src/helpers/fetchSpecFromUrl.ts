@@ -27,8 +27,9 @@ export async function fetchSpecFromUrl(
 
   // Looks like the request failed
   if (response.status !== 200) {
-    const message = `Failed to fetch the specification at ${url} (Status: ${response.status})`
-    console.error(`[fetchSpecFromUrl] ${message}`)
+    console.error(
+      `[fetchSpecFromUrl] Failed to fetch the specification at ${url} (Status: ${response.status})`,
+    )
 
     if (!proxy) {
       console.warn(
@@ -36,7 +37,9 @@ export async function fetchSpecFromUrl(
       )
     }
 
-    throw new Error(message)
+    throw new Error(
+      `Failed to fetch the specification (Status: ${response.status})`,
+    )
   }
 
   // If it’s JSON, make it pretty

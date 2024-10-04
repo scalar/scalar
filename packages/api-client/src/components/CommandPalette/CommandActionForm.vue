@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton, type useLoadingState } from '@scalar/components'
 
 defineProps<{
+  loading?: ReturnType<typeof useLoadingState>
   disabled?: boolean
 }>()
 
@@ -26,6 +27,7 @@ defineEmits<{
       <ScalarButton
         class="max-h-8 text-xs p-0 px-3"
         :disabled="disabled"
+        :loading="loading"
         type="submit">
         <slot name="submit">Continue</slot>
       </ScalarButton>
