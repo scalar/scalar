@@ -29,6 +29,7 @@ app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
     options
+        .WithLocalResources(true)
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
         .WithFavicon("/favicon.png")

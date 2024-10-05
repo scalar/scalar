@@ -325,6 +325,28 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets whether to use local resources instead of the <see cref="ScalarOptions.CdnUrl"/>.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="useLocalResources">Whether to use local resources.</param>
+    public static ScalarOptions WithLocalResources(this ScalarOptions options, bool useLocalResources)
+    {
+        options.LocalResources = useLocalResources;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the path prefix to access local resources.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="routePattern">The path prefix to set.</param>
+    public static ScalarOptions WithLocalResourcesRoutePattern(this ScalarOptions options, [StringSyntax("Route")] string routePattern)
+    {
+        options.LocalResourcesRoutePattern = routePattern;
+        return options;
+    }
+
+    /// <summary>
     /// Sets the CDN URL for the API reference.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
