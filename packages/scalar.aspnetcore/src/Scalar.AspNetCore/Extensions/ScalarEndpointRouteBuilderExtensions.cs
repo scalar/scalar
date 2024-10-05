@@ -48,7 +48,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             // Don't use default fonts provided by the CDN
             options.DefaultFonts = false;
             standaloneResourceUrl = options.LocalResourcesRoutePattern.Replace("{file}", "standalone.js");
-            endpoints.MapLocalResourcesEndpoint(options);
+            endpoints.MapLocalResourcesEndpoint(options.LocalResourcesRoutePattern);
         }
 
         var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
@@ -79,13 +79,14 @@ public static class ScalarEndpointRouteBuilderExtensions
             .ExcludeFromDescription();
     }
 
-    private static void MapLocalResourcesEndpoint(this IEndpointRouteBuilder endpoints, ScalarOptions options)
+    private static void MapLocalResourcesEndpoint(this IEndpointRouteBuilder endpoints, string routePattern)
     {
         var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
         var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-        endpoints.MapGet(options.LocalResourcesRoutePattern, (string file) =>
+        endpoints.MapGet(routePattern, (string file) =>
         {
+            
             var resourceFile = fileProvider.GetFileInfo(file);
             if (resourceFile.Exists)
             {
