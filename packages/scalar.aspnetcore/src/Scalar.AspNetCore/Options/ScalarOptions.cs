@@ -103,7 +103,7 @@ public sealed class ScalarOptions
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
-    /// <remarks>If you use a different font or just don’t want to use Google Fonts, pass withDefaultFonts: false to the configuration.</remarks>
+    /// <remarks>If you use a different font or just don’t want to use Google Fonts, set this to <c>false</c>.</remarks>
     public bool DefaultFonts { get; set; } = true;
 
     /// <summary>

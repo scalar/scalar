@@ -45,6 +45,8 @@ public static class ScalarEndpointRouteBuilderExtensions
         var standaloneResourceUrl = options.CdnUrl;
         if (options.LocalResources)
         {
+            // Don't use default fonts provided by the CDN
+            options.DefaultFonts = false;
             standaloneResourceUrl = options.LocalResourcesRoutePattern.Replace("{file}", "standalone.js");
             endpoints.MapLocalResourcesEndpoint(options);
         }
