@@ -85,7 +85,10 @@ describe('useReactiveSpec', () => {
   })
 
   function createFetchResponse(data: string) {
-    return { text: () => new Promise((resolve) => resolve(data)) }
+    return {
+      status: 200,
+      text: () => new Promise((resolve) => resolve(data)),
+    }
   }
 
   test('fetches JSON from an URL', async () => {
