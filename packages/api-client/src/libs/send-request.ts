@@ -309,7 +309,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         if (scheme.scheme === 'basic') {
           const username = replaceTemplateVariables(exampleAuth.username, env)
           const password = replaceTemplateVariables(exampleAuth.password, env)
-          const value = password ? `${username}:${password}` : username
+          const value = `${username}:${password}`
 
           headers['Authorization'] = `Basic ${btoa(value)}`
         } else {
