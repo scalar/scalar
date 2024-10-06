@@ -3,14 +3,14 @@ import type { Spec } from '@scalar/types/legacy'
 import { onMounted, ref, watch } from 'vue'
 
 import { sleep } from '../../helpers'
-import { type TagsSorterOption, useNavState, useSidebar } from '../../hooks'
+import { type SorterOption, useNavState, useSidebar } from '../../hooks'
 import SidebarElement from './SidebarElement.vue'
 import SidebarGroup from './SidebarGroup.vue'
 
 const props = defineProps<
   {
     parsedSpec: Spec
-  } & TagsSorterOption
+  } & SorterOption
 >()
 
 const { hash, isIntersectionEnabled } = useNavState()
@@ -19,6 +19,7 @@ const { items, toggleCollapsedSidebarItem, collapsedSidebarItems } = useSidebar(
   {
     parsedSpec: props.parsedSpec,
     tagsSorter: props.tagsSorter,
+    operationsSorter: props.operationsSorter,
   },
 )
 

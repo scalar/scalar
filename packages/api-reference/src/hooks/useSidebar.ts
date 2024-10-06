@@ -42,7 +42,7 @@ const {
 const parsedSpec = ref<Spec | undefined>(undefined)
 
 /** Keep track of the given options */
-const optionsRef = reactive<Partial<ParsedSpecOption & TagsSorterOption>>({})
+const optionsRef = reactive<Partial<ParsedSpecOption & SorterOption>>({})
 
 /** Helper to overwrite the current OpenAPI document */
 function setParsedSpec(spec: Spec) {
@@ -53,6 +53,40 @@ function setParsedSpec(spec: Spec) {
   // Custom tags sorting
   else if (typeof optionsRef.tagsSorter === 'function') {
     spec.tags = spec.tags?.sort(optionsRef.tagsSorter)
+  }
+
+  // Sort function for operations by title
+  const sortByTitle = (a: TransformedOperation, b: TransformedOperation) => {
+    const titleA = a.name ?? a.path
+    const titleB = b.name ?? b.path
+
+    return titleA.localeCompare(titleB)
+  }
+  // Sort function for operations by method
+  const sortByMethod = (a: TransformedOperation, b: TransformedOperation) =>
+    a.httpVerb.localeCompare(b.httpVerb)
+
+  let operationSorterFunc:
+    | ((a: TransformedOperation, b: TransformedOperation) => number)
+    | undefined
+
+  // Sort operations alphabetically
+  if (optionsRef.operationsSorter === 'alpha') {
+    operationSorterFunc = sortByTitle
+  }
+  // Sort operations by method
+  else if (optionsRef.operationsSorter === 'method') {
+    operationSorterFunc = sortByMethod
+  }
+  // Custom operations sorting
+  else if (typeof optionsRef.operationsSorter === 'function') {
+    operationSorterFunc = optionsRef.operationsSorter
+  }
+  // Apply sorting to operations if a sorter function exists
+  if (operationSorterFunc) {
+    spec.tags?.forEach((tag) => {
+      tag.operations = tag.operations?.sort(operationSorterFunc)
+    })
   }
 
   return (parsedSpec.value = spec)
@@ -313,8 +347,12 @@ export type ParsedSpecOption = {
   parsedSpec: Spec
 }
 
-export type TagsSorterOption = {
+export type SorterOption = {
   tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number)
+  operationsSorter?:
+    | 'alpha'
+    | 'method'
+    | ((a: TransformedOperation, b: TransformedOperation) => number)
 }
 
 /**
@@ -344,7 +382,7 @@ export const scrollToOperation = (operationId: string) => {
 /**
  * Provides the sidebar state and methods to control it.
  */
-export function useSidebar(options?: ParsedSpecOption & TagsSorterOption) {
+export function useSidebar(options?: ParsedSpecOption & SorterOption) {
   Object.assign(optionsRef, options)
 
   if (options?.parsedSpec) {

@@ -286,6 +286,7 @@ const fontsStyleTag = computed(
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
         <Sidebar
+          :operationsSorter="configuration.operationsSorter"
           :parsedSpec="parsedSpec"
           :tagsSorter="configuration.tagsSorter">
           <template #sidebar-start>
