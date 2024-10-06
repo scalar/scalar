@@ -347,6 +347,31 @@ Or specify a custom function to sort the tags.
 
 Learn more about Array sort functions: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
 
+#### operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number)
+
+```js
+{
+  operationsSorter: 'alpha'
+}
+```
+
+Or specify a custom function to sort the operations.
+
+```js
+{
+  operationsSorter: (a, b) => {
+    const methodOrder = ['GET', 'POST', 'PUT', 'DELETE']
+    const methodComparison = methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+
+    if (methodComparison !== 0) {
+      return methodComparison
+    }
+
+    return a.path.localeCompare(b.path)
+  },
+}
+```
+
 #### theme?: string
 
 You don’t like the color scheme? We’ve prepared some themes for you:
