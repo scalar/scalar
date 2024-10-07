@@ -11,7 +11,7 @@
 # Packages
 /packages/api-client @amritk
 /packages/api-reference-editor @geoffgscott
-# /packages/components
+/packages/components @hwkr
 /packages/galaxy @hanspagel
 # /packages/oas-utils
 /packages/themes @hwkr
