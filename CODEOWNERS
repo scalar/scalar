@@ -11,10 +11,10 @@
 # Packages
 /packages/api-client @amritk
 /packages/api-reference-editor @geoffgscott
-# /packages/components
+/packages/components @hwkr
 /packages/galaxy @hanspagel
 # /packages/oas-utils
-# /packages/themes
+/packages/themes @hwkr
 /packages/api-client-app @hanspagel
 /packages/api-reference-react @amritk
 /packages/docusaurus @amritk
