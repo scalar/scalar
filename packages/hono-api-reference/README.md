@@ -32,7 +32,7 @@ app.get(
 )
 ```
 
-The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/packages/api-reference#props) in the core package README.
+The Hono middleware takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/blob/main/documentation/configuration.md) in the core package README.
 
 ### Themes
 
@@ -74,13 +74,17 @@ app.get(
 
 You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api-reference`.
 
+You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
+
+You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
+
 ```ts
 import { apiReference } from '@scalar/hono-api-reference'
 
 app.use(
   '/reference',
   apiReference({
-    cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
+    cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
     spec: {
       content: OpenApiSpecification,
     },
