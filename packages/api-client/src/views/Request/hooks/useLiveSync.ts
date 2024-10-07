@@ -3,15 +3,14 @@ import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
   combineRenameDiffs,
+  diffToInfoPayload,
+  diffToServerPayload,
   findResource,
-  generateInfoPayload,
 } from '@/views/Request/libs/live-sync'
 import {
-  type Collection,
   type Request,
   type RequestParameterPayload,
   type RequestPayload,
-  type Server,
   type Tag,
   requestSchema,
   serverSchema,
@@ -25,7 +24,7 @@ import {
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useTimeoutPoll } from '@vueuse/core'
-import microdiff, { type Difference } from 'microdiff'
+import microdiff from 'microdiff'
 import { watch } from 'vue'
 
 /**
@@ -86,57 +85,29 @@ export const useLiveSync = () => {
 
       // Transform and apply the diffs to our mutators
       combined.forEach((d) => {
+        console.log('=========')
+        console.log(d)
         const { path, type } = d
         if (!path.length || !activeCollection.value?.uid) return
 
         // Info
         if (path[0] === 'info') {
-          const infoPayload = generateInfoPayload(d, activeCollection.value)
+          const infoPayload = diffToInfoPayload(d, activeCollection.value)
           if (infoPayload) collectionMutators.edit(...infoPayload)
         }
+        // TODO: security
         // Servers
         else if (path[0] === 'servers') {
-          const [, index, key] = path as ['servers', number, keyof Server]
-
-          // TODO: server variables
-          if (key === 'variables') {
-            console.warn(
-              'Live Sync: Syncing server variables are not supported at this time, please open a github issue if you would like to see this added.',
-            )
-            return
+          const serverPayload = diffToServerPayload(
+            d,
+            activeCollection.value,
+            servers,
+          )
+          if (serverPayload) {
+            const [method, ...payload] = serverPayload
+            serverMutators[method](...payload)
           }
-
-          // Edit: update properties
-          if (key) {
-            const serverUid = activeCollection.value.servers[index]
-            const server = servers[serverUid]
-
-            if (!server) {
-              console.warn('Live Sync: Server not found, update not applied')
-              return
-            }
-
-            serverMutators.edit(
-              serverUid,
-              key,
-              'value' in d ? d.value : undefined,
-            )
-          }
-          // Delete whole object
-          else if (type === 'REMOVE') {
-            const serverUid = activeCollection.value.servers[index]
-            if (serverUid)
-              serverMutators.delete(serverUid, activeCollection.value.uid)
-            else console.warn('Live Sync: Server not found, update not applied')
-          }
-          // Add whole object
-          else if (type === 'CREATE')
-            serverMutators.add(
-              serverSchema.parse(d.value),
-              activeCollection.value.uid,
-            )
         }
-        // TODO: security
         // Tags
         else if (path[0] === 'tags') {
           const [, index, key] = path as ['tags', number, keyof Tag]

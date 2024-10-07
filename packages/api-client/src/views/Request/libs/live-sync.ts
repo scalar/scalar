@@ -1,8 +1,10 @@
-import type {
-  Collection,
-  Request,
-  Server,
-  Tag,
+import {
+  type Collection,
+  type Request,
+  type Server,
+  type Tag,
+  serverSchema,
+  tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { getNestedValue } from '@scalar/object-utils/nested'
 import microdiff, { type Difference } from 'microdiff'
@@ -97,33 +99,6 @@ export const combineRenameDiffs = (
   return combined
 }
 
-/** Build a payload for updating specific properties, only works with objects */
-export const buildPayload = (
-  diff: Difference,
-  resource: Collection | Server,
-) => {
-  const path = [...diff.path]
-
-  const key = path.pop()
-  if (!key) return null
-
-  // If we are indexing a resource, then we don't need the first couple path items
-  const value =
-    typeof path[1] === 'number'
-      ? resource
-      : getNestedValue(resource, path.join('.') as keyof typeof resource)
-
-  // Destructure to remove the property from the object
-  if (diff.type === 'REMOVE') {
-    const { [key]: removeMe, ...rest } = value
-    return rest
-  }
-  // Add or edit the property
-  else {
-    return { ...value, [key]: diff.value }
-  }
-}
-
 /** Like array.find but returns the resource instead of the uid */
 export const findResource = <T>(
   arr: string[],
@@ -138,14 +113,89 @@ export const findResource = <T>(
 }
 
 /** Generates a payload for the collection mutator from the info diff */
-export const generateInfoPayload = (
+export const diffToInfoPayload = (diff: Difference, collection: Collection) => {
+  if (diff.type === 'CHANGE' || diff.type === 'CREATE')
+    return [collection.uid, diff.path.join('.'), diff.value] as const
+  else if (diff.type === 'REMOVE')
+    return [collection.uid, diff.path.join('.'), undefined] as const
+
+  return null
+}
+
+/** Generates a payload for the server mutator from the server diff including the mutator method */
+export const diffToServerPayload = (
   diff: Difference,
   collection: Collection,
+  servers: Record<string, Server>,
 ) => {
-  const payload = buildPayload(diff, collection)
-  if (!payload) return null
+  const [, index, ...keys] = diff.path as ['servers', number, keyof Server]
 
-  const prop = diff.path.slice(0, diff.path.length - 1).join('.')
+  // Edit: update properties
+  if (keys?.length) {
+    const serverUid = collection.servers[index]
+    const server = servers[serverUid]
 
-  return [collection.uid, prop as keyof Collection, payload] as const
+    if (!server) {
+      console.warn('Live Sync: Server not found, update not applied')
+      return null
+    }
+
+    let value: undefined | unknown = undefined
+    if (diff.type === 'CHANGE' || diff.type === 'CREATE') {
+      value = diff.value
+    } else if (keys[keys.length - 1] === 'variables') {
+      value = {}
+    }
+
+    return ['edit', serverUid, keys.join('.'), value] as const
+  }
+  // Delete whole object
+  else if (diff.type === 'REMOVE') {
+    const serverUid = collection.servers[index]
+    if (serverUid) return ['delete', serverUid, collection.uid] as const
+    else console.warn('Live Sync: Server not found, update not applied')
+  }
+  // Add whole object
+  else if (diff.type === 'CREATE')
+    return ['add', serverSchema.parse(diff.value), collection.uid] as const
+
+  return null
+}
+
+/** Generates a payload for the tag mutator from the tag diff */
+export const diffToTagPayload = (
+  diff: Difference,
+  tags: Record<string, Tag>,
+  collection: Collection,
+) => {
+  const [, index, ...keys] = diff.path as ['tags', number, keyof Tag]
+
+  if (keys?.length) {
+    const tagUid = collection.tags[index]
+    const tag = tags[tagUid]
+
+    if (!tag) {
+      console.warn('Live Sync: Tag not found, update not applied')
+      return null
+    }
+
+    return [
+      'edit',
+      tagUid,
+      keys.join('.'),
+      'value' in diff ? diff.value : undefined,
+    ] as const
+  }
+  // Delete whole object
+  else if (diff.type === 'REMOVE') {
+    const tagUid = collection.tags[index]
+    const tag = tags[tagUid]
+    if (tag) return ['delete', tag, collection.uid] as const
+    else console.warn('Live Sync: Server not found, update not applied')
+  }
+  // Add whole object
+  else if (diff.type === 'CREATE')
+    return ['add', tagSchema.parse(diff.value), collection.uid] as const
+
+  return null
 }
