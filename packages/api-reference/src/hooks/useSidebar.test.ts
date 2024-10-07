@@ -2,20 +2,21 @@ import { describe, expect, it } from 'vitest'
 import { toValue } from 'vue'
 
 import { parse } from '../helpers'
-import { type TagsSorterOption, useSidebar } from './useSidebar'
+import { type SorterOption, useSidebar } from './useSidebar'
 
 /**
  * Parse the given OpenAPI definition and return the items for the sidebar.
  */
 async function getItemsForDocument(
   definition: Record<string, any>,
-  options?: TagsSorterOption,
+  options?: SorterOption,
 ) {
   const parsedSpec = await parse(definition)
 
   const { items } = useSidebar({
     ...{
       tagsSorter: undefined,
+      operationsSorter: undefined,
       ...options,
     },
     parsedSpec,
@@ -827,6 +828,212 @@ describe('useSidebar', async () => {
             {
               id: 'description/barfoo',
               title: 'Barfoo',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('sorts operations alphabetically with summary', async () => {
+    expect(
+      await getItemsForDocument(
+        {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              get: {
+                summary: 'Hello',
+                tags: ['Hello'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Also Hello',
+                tags: ['Hello'],
+              },
+            },
+          },
+        },
+        {
+          operationsSorter: 'alpha',
+        },
+      ),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'Hello',
+          children: [
+            {
+              title: 'Also Hello',
+            },
+            {
+              title: 'Hello',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('sorts operations alphabetically with paths', async () => {
+    expect(
+      await getItemsForDocument(
+        {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/foo': {
+              get: {
+                tags: ['Hello'],
+              },
+            },
+            '/bar': {
+              get: {
+                tags: ['Hello'],
+              },
+            },
+          },
+        },
+        {
+          operationsSorter: 'alpha',
+        },
+      ),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'Hello',
+          children: [
+            {
+              title: '/bar',
+            },
+            {
+              title: '/foo',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('sorts operations by method', async () => {
+    expect(
+      await getItemsForDocument(
+        {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/hello': {
+              post: {
+                summary: 'Also Hello',
+                tags: ['Hello'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Hello',
+                tags: ['Hello'],
+              },
+            },
+          },
+        },
+        {
+          operationsSorter: 'method',
+        },
+      ),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'Hello',
+          children: [
+            {
+              title: 'Hello',
+            },
+            {
+              title: 'Also Hello',
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('sorts operations with custom function', async () => {
+    expect(
+      await getItemsForDocument(
+        {
+          openapi: '3.1.0',
+          info: {
+            title: 'Hello World',
+            version: '1.0.0',
+          },
+          paths: {
+            '/foo': {
+              post: {
+                summary: 'Hello World',
+                tags: ['Foobar'],
+              },
+            },
+            '/hello': {
+              delete: {
+                summary: 'Also World',
+                tags: ['Foobar'],
+              },
+            },
+            '/world': {
+              get: {
+                summary: 'Also Hello World',
+                tags: ['Foobar'],
+              },
+            },
+            '/bar': {
+              get: {
+                summary: 'Bar',
+                tags: ['Foobar'],
+              },
+            },
+          },
+        },
+        {
+          operationsSorter: (a, b) => {
+            const methodOrder = ['GET', 'POST', 'DELETE']
+            const methodComparison =
+              methodOrder.indexOf(a.httpVerb) - methodOrder.indexOf(b.httpVerb)
+
+            if (methodComparison !== 0) {
+              return methodComparison
+            }
+
+            return a.path.localeCompare(b.path)
+          },
+        },
+      ),
+    ).toMatchObject({
+      entries: [
+        {
+          title: 'Foobar',
+          children: [
+            {
+              title: 'Bar',
+            },
+            {
+              title: 'Also Hello World',
+            },
+            {
+              title: 'Hello World',
+            },
+            {
+              title: 'Also World',
             },
           ],
         },

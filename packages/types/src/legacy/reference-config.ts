@@ -199,6 +199,13 @@ export type ReferenceConfiguration = {
    * Sort tags alphabetically or with a custom sort function
    */
   tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number)
+  /**
+   * Sort operations alphabetically, by method or with a custom sort function
+   */
+  operationsSorter?:
+    | 'alpha'
+    | 'method'
+    | ((a: TransformedOperation, b: TransformedOperation) => number)
 }
 
 export type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
