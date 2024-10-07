@@ -76,6 +76,8 @@ You can use a custom CDN ，default is `https://cdn.jsdelivr.net/npm/@scalar/api
 
 You can also pin the CDN to a specific version by specifying it in the CDN string like `https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.28`
 
+You can find all available CDN versions [here](https://www.jsdelivr.com/package/npm/@scalar/api-reference?tab=files)
+
 ```ts
 import { apiReference } from '@scalar/hono-api-reference'
 

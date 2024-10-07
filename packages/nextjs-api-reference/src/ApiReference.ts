@@ -2,6 +2,10 @@ import type { ReferenceConfiguration } from '@scalar/types/legacy'
 
 import { nextjsThemeCss } from './theme'
 
+export type ApiReferenceOptions = ReferenceConfiguration & {
+  cdn?: string
+}
+
 /**
  * Next.js adapter for an Api Reference
  *
@@ -10,7 +14,7 @@ import { nextjsThemeCss } from './theme'
  * @params config - the Api Reference config object
  * @params options - reserved for future use to add customization to the response
  */
-export const ApiReference = (config: ReferenceConfiguration) => {
+export const ApiReference = (config: ApiReferenceOptions) => {
   // If no spec is passed, show a warning.
   if (!config.spec?.content && !config.spec?.url) {
     throw new Error(
@@ -40,6 +44,11 @@ export const ApiReference = (config: ReferenceConfiguration) => {
     config.customCss = nextjsThemeCss
   }
 
+  // Check the config for a custom CDN string or set to default
+  const cdnString = config?.cdn
+    ? config.cdn
+    : 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest'
+
   // Convert the configuration to a string
   const configString = JSON.stringify(config ?? {})
     .split('"')
@@ -62,7 +71,7 @@ export const ApiReference = (config: ReferenceConfiguration) => {
       data-configuration="${configString}">
       ${documentString}
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+    <script src="${cdnString}"></script>
   </body>
 </html>
       `,
