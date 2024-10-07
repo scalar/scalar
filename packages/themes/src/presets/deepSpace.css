@@ -16,6 +16,13 @@
 
   --scalar-border-color: rgb(228, 228, 231);
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 .dark-mode {
   --scalar-color-1: #fafafa;
@@ -30,6 +37,13 @@
 
   --scalar-border-color: rgba(255, 255, 255, 0.16);
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 
 /* Document Sidebar */
@@ -187,4 +201,9 @@
   background-size: 200px 200px;
   mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
   opacity: 0.2;
+}
+/* High contrast custom selection */
+*::selection {
+  background: var(--scalar-selection-background);
+  color: var(--scalar-selection-color);
 }

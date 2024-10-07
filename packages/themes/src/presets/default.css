@@ -11,6 +11,13 @@
 
   --scalar-color-accent: #0099ff;
   --scalar-border-color: #dfdfdf;
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 .dark-mode {
   --scalar-background-1: #0f0f0f;
@@ -25,6 +32,13 @@
   --scalar-background-accent: #3ea6ff1f;
 
   --scalar-border-color: #2d2d2d;
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
@@ -69,4 +83,9 @@
   --scalar-button-1: rgba(255, 255, 255, 1);
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
+}
+/* High contrast custom selection */
+*::selection {
+  background: var(--scalar-selection-background);
+  color: var(--scalar-selection-color);
 }

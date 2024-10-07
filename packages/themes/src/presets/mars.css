@@ -139,3 +139,8 @@
 .light-mode .section-flare {
   display: none;
 }
+/* High contrast custom selection */
+*::selection {
+  background: var(--scalar-selection-background);
+  color: var(--scalar-selection-color);
+}

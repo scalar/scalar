@@ -13,6 +13,13 @@
   --scalar-border-color: rgba(0, 0, 0, 0.1);
 
   --scalar-code-language-color-supersede: var(--scalar-color-3);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 .dark-mode {
   --scalar-color-1: #f7f8f8;
@@ -27,6 +34,13 @@
 
   --scalar-border-color: #313245;
   --scalar-code-language-color-supersede: var(--scalar-color-3);
+
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar {
@@ -147,4 +161,9 @@
     transparent
   );
   height: 100vh;
+}
+/* High contrast custom selection */
+*::selection {
+  background: var(--scalar-selection-background);
+  color: var(--scalar-selection-color);
 }
