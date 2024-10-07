@@ -3,9 +3,8 @@ import { TheCommandPalette } from '@/components/CommandPalette'
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
 import SideNav from '@/components/SideNav/SideNav.vue'
-import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
-import { DEFAULT_HOTKEYS, handleHotKeyDown } from '@/libs'
+import { handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
@@ -15,24 +14,9 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
-  ref,
   watchEffect,
 } from 'vue'
 import { RouterView } from 'vue-router'
-
-import { APP_HOTKEYS } from './hotkeys'
-
-defineEmits<{
-  (e: 'newTab', item: { name: string; uid: string }): void
-}>()
-
-const hotKeys = { ...DEFAULT_HOTKEYS, ...APP_HOTKEYS }
-
-const newTab = ref<{ name: string; uid: string } | null>(null)
-
-const handleNewTab = (item: { name: string; uid: string }) => {
-  newTab.value = item
-}
 
 onMounted(() => {
   watchEffect(() => {
@@ -48,7 +32,7 @@ const workspaceStore = useWorkspace()
 onBeforeMount(() => addScalarClassesToHeadless())
 
 /** Handles the hotkey events, we will pass in custom hotkeys here */
-const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev, { hotKeys })
+const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev)
 
 // Hotkey listeners
 onMounted(() => window.addEventListener('keydown', handleKeyDown))
@@ -67,7 +51,6 @@ const fontsStyleTag = computed(
   <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
   <!-- <ImportCollectionListener> -->
   <div v-html="fontsStyleTag"></div>
-  <TopNav :openNewTab="newTab" />
 
   <!-- Ensure we have the workspace loaded from localStorage above -->
   <!-- min-h-0 is to allow scrolling of individual flex children -->
@@ -80,9 +63,7 @@ const fontsStyleTag = computed(
     <TheCommandPalette />
 
     <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
-      <RouterView
-        v-slot="{ Component }"
-        @newTab="handleNewTab">
+      <RouterView v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />
         </keep-alive>

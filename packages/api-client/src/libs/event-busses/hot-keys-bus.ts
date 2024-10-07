@@ -44,7 +44,6 @@ const inputHotkeys = [
  * Passing an empty object for hotkeys will disable them
  *
  * TODO we can add a merge or overwrite option
- * TODO need a way to switch between web + electron
  *
  * The modifier can be set by the user but defaults to ctrl for windows/linux and meta for macos
  *
@@ -56,22 +55,6 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Escape: { event: 'closeModal' },
   b: { event: 'toggleSidebar', modifiers: ['default'] },
   k: { event: 'openCommandPalette', modifiers: ['default'] },
-  t: { event: 'addTopNav', modifiers: ['default'] },
-  w: { event: 'closeTopNav', modifiers: ['default'] },
-  ArrowLeft: { event: 'navigateTopNavLeft', modifiers: ['default', 'Alt'] },
-  ArrowRight: { event: 'navigateTopNavRight', modifiers: ['default', 'Alt'] },
-  l: { event: 'focusAddressBar', modifiers: ['default'] },
-  1: { event: 'jumpToTab', modifiers: ['default'] },
-  2: { event: 'jumpToTab', modifiers: ['default'] },
-  3: { event: 'jumpToTab', modifiers: ['default'] },
-  4: { event: 'jumpToTab', modifiers: ['default'] },
-  5: { event: 'jumpToTab', modifiers: ['default'] },
-  6: { event: 'jumpToTab', modifiers: ['default'] },
-  7: { event: 'jumpToTab', modifiers: ['default'] },
-  8: { event: 'jumpToTab', modifiers: ['default'] },
-  9: { event: 'jumpToLastTab', modifiers: ['default'] },
-  f: { event: 'focusRequestSearch', modifiers: ['default'] },
-  n: { event: 'openCommandPaletteRequest', modifiers: ['default'] },
 }
 
 /** Checks if we are in an "input" */
