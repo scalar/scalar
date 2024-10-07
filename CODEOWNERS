@@ -14,7 +14,7 @@
 # /packages/components
 /packages/galaxy @hanspagel
 # /packages/oas-utils
-# /packages/themes
+/packages/themes @hwkr
 /packages/api-client-app @hanspagel
 /packages/api-reference-react @amritk
 /packages/docusaurus @amritk
