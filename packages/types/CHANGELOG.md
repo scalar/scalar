@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.13
+
+### Patch Changes
+
+- 9dc2ab7: feat: new `operationsSorter` option
+
 ## 0.0.12
 
 ### Patch Changes

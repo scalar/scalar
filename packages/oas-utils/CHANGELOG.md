@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.52
+
+### Patch Changes
+
+- Updated dependencies [9dc2ab7]
+  - @scalar/types@0.0.13
+  - @scalar/themes@0.9.34
+
 ## 0.2.51
 
 ### Patch Changes
