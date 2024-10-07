@@ -207,7 +207,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
           @newTab="addNavItem" />
       </template>
       <button
-        class="text-c-3 hover:bg-b-3 p-1.5 rounded-lg webkit-app-no-drag"
+        class="text-c-3 hover:bg-b-3 p-1.5 rounded webkit-app-no-drag"
         type="button"
         @click="addNavItem">
         <ScalarIcon
@@ -221,7 +221,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 <style scoped>
 .t-app__top-nav {
   padding-left: 52px;
-  padding-right: 9px;
+  padding-right: 10px;
   position: relative;
 }
 .t-app__top-nav-draggable {

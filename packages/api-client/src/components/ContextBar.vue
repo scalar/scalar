@@ -47,7 +47,7 @@ defineEmits<{
 }
 .filter-hover {
   height: 100%;
-  padding-right: 48px;
+  padding-right: 42px;
   padding-left: 24px;
   position: absolute;
   right: 0;

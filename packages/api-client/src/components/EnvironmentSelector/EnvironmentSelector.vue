@@ -43,9 +43,9 @@ const envs = computed(() => [
         <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">
           {{ activeEnvironment?.name ?? 'No Environment' }}
           <ScalarIcon
-            class="size-2.5"
+            class="size-3"
             icon="ChevronDown"
-            thickness="3.5" />
+            thickness="3" />
         </h2>
       </ScalarButton>
       <!-- Workspace list -->

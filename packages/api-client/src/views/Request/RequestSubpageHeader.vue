@@ -32,7 +32,7 @@ defineEmits<{
     </div>
     <AddressBar />
     <div
-      class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
+      class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-0.5 lg:flex-1 justify-end w-6/12">
       <EnvironmentSelector v-if="!isReadonly" />
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
