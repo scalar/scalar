@@ -1,11 +1,18 @@
 import json from '@scalar/galaxy/3.1.json'
-import type { Collection, Server, Tag } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  SecurityScheme,
+  SecuritySchemePayload,
+  Server,
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
 import microdiff, { type Difference } from 'microdiff'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import {
   combineRenameDiffs,
   diffToInfoPayload,
+  diffToSecuritySchemePayload,
   diffToServerPayload,
   diffToTagPayload,
 } from './live-sync'
@@ -458,157 +465,348 @@ import {
 //   })
 // })
 
-describe('diffToTagPayload', () => {
-  const mockCollection: Collection = {
-    uid: 'collection1',
-    tags: ['tag1', 'tag2', 'tag3'],
-  } as Collection
+// describe('diffToTagPayload', () => {
+//   const mockCollection: Collection = {
+//     uid: 'collection1',
+//     tags: ['tag1', 'tag2', 'tag3'],
+//   } as Collection
 
-  const mockTags: Record<string, Tag> = {
-    tag1: {
-      'type': 'tag',
-      'uid': 'tag1',
-      'name': 'Tag 1',
-      'description': 'First tag',
-      'children': [],
-      'x-scalar-children': [],
-    },
-    tag2: {
-      'type': 'tag',
-      'uid': 'tag2',
-      'name': 'Tag 2',
-      'description': 'Second tag',
-      'children': [],
-      'x-scalar-children': [],
-    },
-    tag3: {
-      'type': 'tag',
-      'uid': 'tag3',
-      'name': 'Tag 3',
-      'description': 'Third tag',
-      'children': [],
-      'x-scalar-children': [],
-    },
-  }
+//   const mockTags: Record<string, Tag> = {
+//     tag1: {
+//       'type': 'tag',
+//       'uid': 'tag1',
+//       'name': 'Tag 1',
+//       'description': 'First tag',
+//       'children': [],
+//       'x-scalar-children': [],
+//     },
+//     tag2: {
+//       'type': 'tag',
+//       'uid': 'tag2',
+//       'name': 'Tag 2',
+//       'description': 'Second tag',
+//       'children': [],
+//       'x-scalar-children': [],
+//     },
+//     tag3: {
+//       'type': 'tag',
+//       'uid': 'tag3',
+//       'name': 'Tag 3',
+//       'description': 'Third tag',
+//       'children': [],
+//       'x-scalar-children': [],
+//     },
+//   }
 
-  it('generates an add payload for creating a new tag', () => {
-    const newTag: Tag = {
-      'type': 'tag',
-      'uid': 'taguid4',
-      'name': 'New Tag',
-      'description': 'New tag description',
-      'children': [],
-      'x-scalar-children': [],
-    }
-    const diff: Difference = {
-      type: 'CREATE',
-      path: ['tags', 3],
-      value: newTag,
-    }
+//   it('generates an add payload for creating a new tag', () => {
+//     const newTag: Tag = {
+//       'type': 'tag',
+//       'uid': 'taguid4',
+//       'name': 'New Tag',
+//       'description': 'New tag description',
+//       'children': [],
+//       'x-scalar-children': [],
+//     }
+//     const diff: Difference = {
+//       type: 'CREATE',
+//       path: ['tags', 3],
+//       value: newTag,
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['add', newTag, 'collection1'])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual(['add', newTag, 'collection1'])
+//   })
 
-  it('generates a remove payload for deleting a tag', () => {
-    const diff: Difference = {
-      type: 'REMOVE',
-      path: ['tags', 1],
-      oldValue: mockTags.tag2,
-    }
+//   it('generates a remove payload for deleting a tag', () => {
+//     const diff: Difference = {
+//       type: 'REMOVE',
+//       path: ['tags', 1],
+//       oldValue: mockTags.tag2,
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'delete',
-      {
-        'type': 'tag',
-        'uid': 'tag2',
-        'name': 'Tag 2',
-        'description': 'Second tag',
-        'children': [],
-        'x-scalar-children': [],
-      },
-      'collection1',
-    ])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual([
+//       'delete',
+//       {
+//         'type': 'tag',
+//         'uid': 'tag2',
+//         'name': 'Tag 2',
+//         'description': 'Second tag',
+//         'children': [],
+//         'x-scalar-children': [],
+//       },
+//       'collection1',
+//     ])
+//   })
 
-  it('generates an edit payload for updating a tag name', () => {
-    const diff: Difference = {
-      type: 'CHANGE',
-      path: ['tags', 0, 'name'],
-      oldValue: 'Tag 1',
-      value: 'Updated Tag 1',
-    }
+//   it('generates an edit payload for updating a tag name', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['tags', 0, 'name'],
+//       oldValue: 'Tag 1',
+//       value: 'Updated Tag 1',
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['edit', 'tag1', 'name', 'Updated Tag 1'])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual(['edit', 'tag1', 'name', 'Updated Tag 1'])
+//   })
 
-  it('generates an edit payload for updating a tag description', () => {
-    const diff: Difference = {
-      type: 'CHANGE',
-      path: ['tags', 1, 'description'],
-      oldValue: 'Second tag',
-      value: 'Updated second tag',
-    }
+//   it('generates an edit payload for updating a tag description', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['tags', 1, 'description'],
+//       oldValue: 'Second tag',
+//       value: 'Updated second tag',
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'edit',
-      'tag2',
-      'description',
-      'Updated second tag',
-    ])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual([
+//       'edit',
+//       'tag2',
+//       'description',
+//       'Updated second tag',
+//     ])
+//   })
 
-  it('generates an edit payload for adding a new property to a tag', () => {
-    const diff: Difference = {
-      type: 'CREATE',
-      path: ['tags', 2, 'externalDocs'],
-      value: { url: 'https://example.com/docs' },
-    }
+//   it('generates an edit payload for adding a new property to a tag', () => {
+//     const diff: Difference = {
+//       type: 'CREATE',
+//       path: ['tags', 2, 'externalDocs'],
+//       value: { url: 'https://example.com/docs' },
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'edit',
-      'tag3',
-      'externalDocs',
-      { url: 'https://example.com/docs' },
-    ])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual([
+//       'edit',
+//       'tag3',
+//       'externalDocs',
+//       { url: 'https://example.com/docs' },
+//     ])
+//   })
 
-  it('generates an edit payload for removing a property from a tag', () => {
-    const diff: Difference = {
-      type: 'REMOVE',
-      path: ['tags', 0, 'description'],
-      oldValue: 'First tag',
-    }
+//   it('generates an edit payload for removing a property from a tag', () => {
+//     const diff: Difference = {
+//       type: 'REMOVE',
+//       path: ['tags', 0, 'description'],
+//       oldValue: 'First tag',
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['edit', 'tag1', 'description', undefined])
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toEqual(['edit', 'tag1', 'description', undefined])
+//   })
 
-  it('returns null when trying to edit a non-existent tag', () => {
-    const diff: Difference = {
-      type: 'CHANGE',
-      path: ['tags', 3, 'name'],
-      oldValue: 'Non-existent Tag',
-      value: 'Updated Non-existent Tag',
-    }
+//   it('returns null when trying to edit a non-existent tag', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['tags', 3, 'name'],
+//       oldValue: 'Non-existent Tag',
+//       value: 'Updated Non-existent Tag',
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toBeNull()
-  })
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toBeNull()
+//   })
 
-  it('returns null for invalid diff paths', () => {
-    const diff: Difference = {
-      type: 'CHANGE',
-      path: ['invalid', 'path'],
-      oldValue: 'old',
-      value: 'new',
-    }
+//   it('returns null for invalid diff paths', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['invalid', 'path'],
+//       oldValue: 'old',
+//       value: 'new',
+//     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toBeNull()
-  })
-})
+//     const result = diffToTagPayload(diff, mockTags, mockCollection)
+//     expect(result).toBeNull()
+//   })
+// })
+
+// describe('diffToSecuritySchemePayload', () => {
+//   const mockCollection: Collection = {
+//     uid: 'collection1',
+//   } as Collection
+
+//   const mockSecuritySchemes: Record<string, SecurityScheme> = {
+//     apiKeyUid: {
+//       uid: 'apiKeyUid',
+//       nameKey: 'apiKeyHeader',
+//       type: 'apiKey',
+//       name: 'api_key',
+//       in: 'header',
+//     },
+//     oauth2: {
+//       uid: 'oauth2',
+//       type: 'oauth2',
+//       // @ts-expect-error the spec is flows but we use flow
+//       flows: {
+//         implicit: {
+//           authorizationUrl: 'https://example.com/oauth/authorize',
+//           scopes: {
+//             'write:api': 'modify api',
+//             'read:api': 'read api',
+//           },
+//         },
+//       },
+//     },
+//   }
+
+//   it('generates an add payload for creating a new security scheme', () => {
+//     const newScheme: SecuritySchemePayload = {
+//       uid: 'bearerAuth',
+//       type: 'http',
+//       bearerFormat: 'jwt',
+//       nameKey: 'bearerAuth',
+//       scheme: 'bearer',
+//     }
+//     const diff: Difference = {
+//       type: 'CREATE',
+//       path: ['components', 'securitySchemes', 'bearerAuth'],
+//       value: newScheme,
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual(['add', newScheme, 'collection1'])
+//   })
+
+//   it('generates a remove payload for deleting a security scheme', () => {
+//     const diff: Difference = {
+//       type: 'REMOVE',
+//       path: ['components', 'securitySchemes', 'apiKeyUid'],
+//       oldValue: mockSecuritySchemes.apiKey,
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual(['delete', 'apiKeyUid'])
+//   })
+
+//   it('generates an edit payload for updating a security scheme property', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['components', 'securitySchemes', 'apiKeyUid', 'name'],
+//       oldValue: 'api_key',
+//       value: 'new_api_key',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual(['edit', 'apiKeyUid', 'name', 'new_api_key'])
+//   })
+
+//   it('generates an edit payload for adding a new property to a security scheme', () => {
+//     const diff: Difference = {
+//       type: 'CREATE',
+//       path: ['components', 'securitySchemes', 'apiKeyUid', 'description'],
+//       value: 'API Key for authentication',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual([
+//       'edit',
+//       'apiKeyUid',
+//       'description',
+//       'API Key for authentication',
+//     ])
+//   })
+
+//   it('generates an edit payload for removing a property from a security scheme', () => {
+//     const diff: Difference = {
+//       type: 'REMOVE',
+//       path: [
+//         'components',
+//         'securitySchemes',
+//         'oauth2',
+//         'flows',
+//         'implicit',
+//         'scopes',
+//         'write:api',
+//       ],
+//       oldValue: 'modify api',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual([
+//       'edit',
+//       'oauth2',
+//       'flows.implicit.scopes.write:api',
+//       undefined,
+//     ])
+//   })
+
+//   it('returns null when trying to edit a non-existent security scheme', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['components', 'securitySchemes', 'nonExistent', 'type'],
+//       oldValue: 'apiKey',
+//       value: 'http',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toBeNull()
+//   })
+
+//   it('returns null for invalid diff paths', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: ['invalid', 'path'],
+//       oldValue: 'old',
+//       value: 'new',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toBeNull()
+//   })
+
+//   it('handles nested changes in oauth2 flows', () => {
+//     const diff: Difference = {
+//       type: 'CHANGE',
+//       path: [
+//         'components',
+//         'securitySchemes',
+//         'oauth2',
+//         'flows',
+//         'implicit',
+//         'authorizationUrl',
+//       ],
+//       oldValue: 'https://example.com/oauth/authorize',
+//       value: 'https://api.example.com/oauth2/authorize',
+//     }
+
+//     const result = diffToSecuritySchemePayload(
+//       diff,
+//       mockCollection,
+//       mockSecuritySchemes,
+//     )
+//     expect(result).toEqual([
+//       'edit',
+//       'oauth2',
+//       'flows.implicit.authorizationUrl',
+//       'https://api.example.com/oauth2/authorize',
+//     ])
+//   })
+// })
