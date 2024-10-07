@@ -31,4 +31,17 @@ describe('javascript', () => {
       }).toString(),
     ).toContain('script src="https://custom.example.com/cdn/@scalar/galaxy"')
   })
+
+  it('pins the CDN to a specified version', () => {
+    expect(
+      javascript({
+        spec: {
+          url,
+        },
+        cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.0',
+      }).toString(),
+    ).toContain(
+      'script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.0"',
+    )
+  })
 })
