@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.1.14
+
+### Patch Changes
+
+- dea7b57: feat: adds open api document content import from command palette
+- 008eca4: fix: Basic Auth should still include a colon after the username
+- 9ba2c9f: fix: updates sidebar call to action position
+
 ## 2.1.13
 
 ### Patch Changes
