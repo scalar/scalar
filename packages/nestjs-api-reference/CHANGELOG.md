@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.162
+
+### Patch Changes
+
+- 95351fe: feat: pin cdn version in integrations
+
 ## 0.3.161
 
 ### Patch Changes

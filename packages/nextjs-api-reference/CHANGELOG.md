@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.93
+
+### Patch Changes
+
+- 95351fe: feat: pin cdn version in integrations
+
 ## 0.4.92
 
 ### Patch Changes

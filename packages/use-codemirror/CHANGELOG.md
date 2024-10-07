@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.17
+
+### Patch Changes
+
+- c9a0d57: fix: sets focused selection color variables
+
 ## 0.11.16
 
 ### Patch Changes

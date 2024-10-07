@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.5.152
+
+### Patch Changes
+
+- 95351fe: feat: pin cdn version in integrations
+
 ## 0.5.151
 
 ### Patch Changes
