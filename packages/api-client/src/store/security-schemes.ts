@@ -62,47 +62,47 @@ export function extendedSecurityDataFactory({
   }
 
   /** Delete a security scheme and remove the key from its corresponding parent */
-  const deleteSecurityScheme = (scheme: SecurityScheme) => {
+  const deleteSecurityScheme = (schemeUid: string) => {
     // Remove the scheme from any collections that reference it (should only be 1 collection)
     Object.values(collections).forEach((c) => {
-      if (c.securitySchemes.includes(scheme.uid)) {
+      if (c.securitySchemes.includes(schemeUid)) {
         collectionMutators.edit(
           c.uid,
           'securitySchemes',
-          c.securitySchemes.filter((s) => s !== scheme.uid),
+          c.securitySchemes.filter((s) => s !== schemeUid),
         )
       }
     })
 
     // Remove the scheme from any collections that use it
     Object.values(collections).forEach((c) => {
-      if (scheme.uid in c.auth) {
-        const { [scheme.uid]: toDelete, ...rest } = c.auth
+      if (schemeUid in c.auth) {
+        const { [schemeUid]: toDelete, ...rest } = c.auth
         collectionMutators.edit(c.uid, 'auth', rest)
       }
     })
 
     Object.values(requests).forEach((r) => {
       // Remove from any requests that have it as a requirement
-      if (r.security?.some((s) => Object.keys(s).includes(scheme.uid))) {
+      if (r.security?.some((s) => Object.keys(s).includes(schemeUid))) {
         requestMutators.edit(
           r.uid,
           'security',
           requests[r.uid].security?.filter(
-            (s) => !Object.keys(s).includes(scheme.uid),
+            (s) => !Object.keys(s).includes(schemeUid),
           ),
         )
       }
       // Remove from any requests that have it selected
-      if (r.selectedSecuritySchemeUids.includes(scheme.uid))
+      if (r.selectedSecuritySchemeUids.includes(schemeUid))
         requestMutators.edit(
           r.uid,
           'selectedSecuritySchemeUids',
-          r.selectedSecuritySchemeUids?.filter((uid) => uid !== scheme.uid),
+          r.selectedSecuritySchemeUids?.filter((uid) => uid !== schemeUid),
         )
     })
 
-    securitySchemeMutators.delete(scheme.uid)
+    securitySchemeMutators.delete(schemeUid)
   }
 
   return {

@@ -1,8 +1,10 @@
 import {
   type Collection,
   type Request,
+  type SecurityScheme,
   type Server,
   type Tag,
+  securitySchemeSchema,
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
@@ -168,7 +170,7 @@ export const diffToTagPayload = (
   tags: Record<string, Tag>,
   collection: Collection,
 ) => {
-  const [, index, ...keys] = diff.path as ['tags', number, keyof Tag]
+  const [, index, ...keys] = diff.path as ['tags', number, ...string[]]
 
   if (keys?.length) {
     const tagUid = collection.tags[index]
@@ -196,6 +198,52 @@ export const diffToTagPayload = (
   // Add whole object
   else if (diff.type === 'CREATE')
     return ['add', tagSchema.parse(diff.value), collection.uid] as const
+
+  return null
+}
+
+/** Generates a payload for the security scheme mutator from the security scheme diff */
+export const diffToSecuritySchemePayload = (
+  diff: Difference,
+  collection: Collection,
+  securitySchemes: Record<string, SecurityScheme>,
+) => {
+  const [, , schemeName, ...keys] = diff.path as [
+    'components',
+    'securitySchemes',
+    string,
+    ...string[],
+  ]
+
+  // Edit: update properties
+  if (keys?.length) {
+    const scheme = securitySchemes[schemeName]
+
+    if (!scheme) {
+      console.warn('Live Sync: security scheme not found, update not applied')
+      return null
+    }
+
+    let value: undefined | unknown = undefined
+    if (diff.type === 'CHANGE' || diff.type === 'CREATE') {
+      value = diff.value
+    }
+
+    return ['edit', schemeName, keys.join('.'), value] as const
+  }
+  // Delete whole object
+  else if (diff.type === 'REMOVE') {
+    if (schemeName in securitySchemes) return ['delete', schemeName] as const
+    else
+      console.warn('Live Sync: security scheme not found, delete not applied')
+  }
+  // Add whole object
+  else if (diff.type === 'CREATE')
+    return [
+      'add',
+      securitySchemeSchema.parse(diff.value),
+      collection.uid,
+    ] as const
 
   return null
 }

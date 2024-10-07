@@ -4,7 +4,9 @@ import { specDictionary } from '@/store/import-spec'
 import {
   combineRenameDiffs,
   diffToInfoPayload,
+  diffToSecuritySchemePayload,
   diffToServerPayload,
+  diffToTagPayload,
   findResource,
 } from '@/views/Request/libs/live-sync'
 import {
@@ -42,6 +44,8 @@ export const useLiveSync = () => {
     collectionMutators,
     requests,
     requestMutators,
+    securitySchemes,
+    securitySchemeMutators,
     servers,
     serverMutators,
     tags,
@@ -95,7 +99,23 @@ export const useLiveSync = () => {
           const infoPayload = diffToInfoPayload(d, activeCollection.value)
           if (infoPayload) collectionMutators.edit(...infoPayload)
         }
-        // TODO: security
+        // Security
+        else if (path[0] === 'security') {
+          // const securityPayload = diffToSecurityPayload(d, activeCollection.value)
+          // if (securityPayload) collectionMutators.edit(...securityPayload)
+        }
+        // Components.securitySchemes
+        else if (path[0] === 'components' && path[1] === 'securitySchemes') {
+          const securitySchemePayload = diffToSecuritySchemePayload(
+            d,
+            activeCollection.value,
+            securitySchemes,
+          )
+          if (securitySchemePayload) {
+            const [method, ...payload] = securitySchemePayload
+            securitySchemeMutators[method](...payload)
+          }
+        }
         // Servers
         else if (path[0] === 'servers') {
           const serverPayload = diffToServerPayload(
@@ -110,32 +130,11 @@ export const useLiveSync = () => {
         }
         // Tags
         else if (path[0] === 'tags') {
-          const [, index, key] = path as ['tags', number, keyof Tag]
-
-          // Edit: update properties
-          if (key) {
-            const uid = activeCollection.value.tags[index]
-            const tag = tags[uid]
-
-            if (!tag) {
-              console.warn('Live Sync: Tag not found, update not applied')
-              return
-            }
-
-            tagMutators.edit(uid, key, 'value' in d ? d.value : undefined)
+          const tagPayload = diffToTagPayload(d, tags, activeCollection.value)
+          if (tagPayload) {
+            const [method, ...payload] = tagPayload
+            tagMutators[method](...payload)
           }
-          // Delete whole object
-          else if (type === 'REMOVE') {
-            const uid = activeCollection.value.tags[index]
-            if (uid) tagMutators.delete(tags[uid], activeCollection.value.uid)
-            else console.warn('Live Sync: Tag not found, update not applied')
-          }
-          // Add whole object
-          else if (type === 'CREATE')
-            tagMutators.add(
-              tagSchema.parse(d.value),
-              activeCollection.value.uid,
-            )
         }
         // Paths
         else if (path[0] === 'paths') {
