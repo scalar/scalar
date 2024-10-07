@@ -31,6 +31,7 @@ public class ScalarOptionsMapperTests
         configuration.WithDefaultFonts.Should().BeTrue();
         configuration.DefaultOpenAllTags.Should().BeFalse();
         configuration.TagSorter.Should().BeNull();
+        configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().Be(ScalarTheme.Purple.ToStringFast());
     }
 
@@ -65,7 +66,8 @@ public class ScalarOptionsMapperTests
             },
             DefaultFonts = false,
             DefaultOpenAllTags = true,
-            TagSorter = TagSorter.Alpha
+            TagSorter = TagSorter.Alpha,
+            OperationSorter = OperationSorter.Method
         };
 
         // Act
@@ -94,6 +96,7 @@ public class ScalarOptionsMapperTests
         configuration.WithDefaultFonts.Should().BeFalse();
         configuration.DefaultOpenAllTags.Should().BeTrue();
         configuration.TagSorter.Should().Be(TagSorter.Alpha.ToStringFast());
+        configuration.OperationsSorter.Should().Be(OperationSorter.Method.ToStringFast());
         configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
     }
 

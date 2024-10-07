@@ -118,6 +118,12 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public TagSorter? TagSorter { get; set; }
+
+    /// <summary>
+    /// Represents a sorter for operations in the Scalar API reference.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    public OperationSorter? OperationSorter { get; set; }
     
     /// <summary>
     /// You can pass an array of HTTPSnippet clients to hide from the clients menu.

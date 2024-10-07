@@ -44,6 +44,8 @@ internal sealed class ScalarConfiguration
 
     public required string? TagSorter { get; init; }
 
+    public required string? OperationsSorter { get; init; }
+
     public required string? Theme { get; init; }
 
     public required string? Favicon { get; init; }
