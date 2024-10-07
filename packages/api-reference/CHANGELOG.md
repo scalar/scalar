@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.25.29
+
+### Patch Changes
+
+- 9dc2ab7: feat: new `operationsSorter` option
+- Updated dependencies [9dc2ab7]
+  - @scalar/types@0.0.13
+  - @scalar/api-client@2.1.15
+  - @scalar/oas-utils@0.2.52
+  - @scalar/themes@0.9.34
+  - @scalar/code-highlight@0.0.11
+  - @scalar/components@0.12.50
+
 ## 1.25.28
 
 ### Patch Changes
