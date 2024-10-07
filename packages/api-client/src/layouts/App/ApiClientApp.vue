@@ -54,19 +54,16 @@ const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev, { hotKeys })
 onMounted(() => window.addEventListener('keydown', handleKeyDown))
 onBeforeUnmount(() => window.removeEventListener('keydown', handleKeyDown))
 
-const fontsStyleTag = computed(
+const themeStyleTag = computed(
   () =>
     workspaceStore.activeWorkspace.value &&
-    `<style>
-  ${getThemeStyles(workspaceStore.activeWorkspace.value.themeId, {
-    fonts: true,
-  })}</style>`,
+    `<style>${getThemeStyles(workspaceStore.activeWorkspace.value.themeId)}</style>`,
 )
 </script>
 <template>
   <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
   <!-- <ImportCollectionListener> -->
-  <div v-html="fontsStyleTag"></div>
+  <div v-html="themeStyleTag"></div>
   <TopNav :openNewTab="newTab" />
 
   <!-- Ensure we have the workspace loaded from localStorage above -->

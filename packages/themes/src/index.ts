@@ -11,7 +11,6 @@ import moonTheme from './presets/moon.css?inline'
 import purpleTheme from './presets/purple.css?inline'
 import saturnTheme from './presets/saturn.css?inline'
 import solarizedTheme from './presets/solarized.css?inline'
-import baseVariables from './variables.css?inline'
 
 export { migrateThemeVariables } from './utilities/legacy'
 export { hasObtrusiveScrollbars } from './utilities/hasObtrusiveScrollbars'
@@ -112,14 +111,10 @@ export const getThemeById = (themeId?: ThemeId) => {
  * Get the theme and base variables for a given theme
  */
 export const getThemeStyles = (themeId?: ThemeId, opts?: GetThemeOpts) => {
-  const { variables = true, fonts = true, layer = 'scalar-theme' } = opts ?? {}
+  const { fonts = true, layer = 'scalar-theme' } = opts ?? {}
 
   // Combined theme, base variables and default fonts if configured
-  const styles = [
-    getThemeById(themeId),
-    variables ? baseVariables : '',
-    fonts ? defaultFonts : '',
-  ].join('')
+  const styles = [getThemeById(themeId), fonts ? defaultFonts : ''].join('')
 
   // Wrap the styles in a layer if configured
   if (layer) return `@layer ${layer} {\n${styles}}`

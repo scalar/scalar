@@ -247,7 +247,7 @@ defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
 
 useDeprecationWarnings(props.configuration)
 
-const fontsStyleTag = computed(
+const themeStyleTag = computed(
   () => `<style>
   ${getThemeStyles(props.configuration.theme, {
     fonts: props.configuration.withDefaultFonts,
@@ -255,7 +255,7 @@ const fontsStyleTag = computed(
 )
 </script>
 <template>
-  <div v-html="fontsStyleTag"></div>
+  <div v-html="themeStyleTag"></div>
   <div
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
