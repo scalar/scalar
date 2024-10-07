@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 1.2.9
+
+### Patch Changes
+
+- f744812: feat: Add OperationSorter option
+
 ## 1.2.8
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.1.16
+
+### Patch Changes
+
+- c9a0d57: fix: sets focused selection color variables
+- Updated dependencies [c9a0d57]
+  - @scalar/use-codemirror@0.11.17
+
 ## 2.1.15
 
 ### Patch Changes
