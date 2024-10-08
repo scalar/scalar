@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Scalar Galaxyasd
+  title: Scalar Galaxy
   description: |
     The Scalar Galaxy is an example OpenAPI specification to test OpenAPI tools and libraries. It’s a fictional universe with fictional planets and fictional data. Get all the data for [all planets](#tag/planets/GET/planets).
 
@@ -43,13 +43,13 @@ info:
       ![Empty placeholder image showing the width/height](https://images.placeholders.dev/?width=1280&height=720)
 
     </details>
-  version: 1.0.5
+  version: 1.0.0
   contact:
     name: Marc from Scalar
     url: https://scalar.com
     email: marc@scalar.com
 servers:
-  - url: https://galaxy.scaasdlar.com
+  - url: https://galaxy.scalar.com
   - url: '{protocol}://void.scalar.com/{path}'
     description: Responds with your request data
     variables:
