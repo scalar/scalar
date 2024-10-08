@@ -1,4 +1,4 @@
-export const ROUTES = [
+export const ROUTE_NAMES = [
   { prettyName: 'Request', name: 'request', icon: 'ExternalLink' },
   { prettyName: 'Cookies', name: 'cookies', icon: 'Cookie' },
   { prettyName: 'Env Vars', name: 'environment', icon: 'Brackets' },

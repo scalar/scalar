@@ -19,3 +19,4 @@ test-*.json
 
 
 .DS_Store
+/packages/api-reference/playground/multipage/.vite-ssg-temp

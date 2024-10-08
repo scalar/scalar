@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DarkModeIconToggle from '@/components/DarkModeToggle/DarkModeIconToggle.vue'
-import { ROUTES } from '@/constants'
+import { ROUTE_NAMES } from '@/constants'
 import { useRouter } from 'vue-router'
 
 import SideHelp from './SideHelp.vue'
@@ -16,7 +16,7 @@ const { currentRoute } = useRouter()
     role="navigation">
     <ul class="flex flex-col gap-1.5">
       <li
-        v-for="({ icon, name, prettyName }, i) in ROUTES"
+        v-for="({ icon, name, prettyName }, i) in ROUTE_NAMES"
         :key="i"
         class="no-drag-region">
         <SideNavLink

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import { ROUTES } from '@/constants'
+import { ROUTE_NAMES } from '@/constants'
 import { useClipboard } from '@/hooks/useClipboard'
 import { type HotKeyEvents, hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
@@ -32,7 +32,7 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
  * based on the current route
  */
 function handleNavLabelAdd() {
-  const activeRoute = ROUTES.find((route) => {
+  const activeRoute = ROUTE_NAMES.find((route) => {
     return router.currentRoute.value.name == route.name
   })
 
