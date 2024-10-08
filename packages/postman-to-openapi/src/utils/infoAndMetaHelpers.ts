@@ -27,7 +27,11 @@ export function compileInfo(
   postmanJson: any,
   optsInfo: Record<string, any>,
 ): Record<string, any> {
-  const { info: { name, description: desc } = {}, variable = [] } = postmanJson
+  const {
+    info: { name, description: desc } = { name: '', description: '' },
+    variable = [],
+  } = postmanJson
+
   const version = getVarValue(variable, 'version', '1.0.0')
   const {
     title = name,

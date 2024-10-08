@@ -56,6 +56,8 @@ export async function convert(
   const postmanJson = _postmanJson.collection || _postmanJson
   const { item: items = [], variable = [] } = postmanJson
 
+  console.log('marc', postmanJson, 'marc')
+
   const paths: Record<string, any> = {}
   const domains = new Set<string>()
   const tags: Record<string, string> = {}
