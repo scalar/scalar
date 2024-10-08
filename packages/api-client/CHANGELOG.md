@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.1.17
+
+### Patch Changes
+
+- 8396e92: style: updates overall alignments
+- 6279c59: feat (api-client): remove tabs on client.scalar.com
+- 5581a28: fix: displays address bar placeholder according to active server
+
 ## 2.1.16
 
 ### Patch Changes
