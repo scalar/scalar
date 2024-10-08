@@ -32,19 +32,23 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./utils": {
       "import": "./dist/utils/index.js",
-      "types": "./dist/utils/index.d.ts"
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     },
     "./legacy": {
       "import": "./dist/legacy/index.js",
-      "types": "./dist/legacy/index.d.ts"
+      "types": "./dist/legacy/index.d.ts",
+      "default": "./dist/legacy/index.js"
     },
     "./external": {
       "import": "./dist/external/index.js",
-      "types": "./dist/external/index.d.ts"
+      "types": "./dist/external/index.d.ts",
+      "default": "./dist/external/index.js"
     }
   },
   "files": [

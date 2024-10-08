@@ -12,11 +12,13 @@ const cssExports = {
   './css/*.css': {
     import: './dist/css/*.css',
     require: './dist/css/*.css',
+    default: './dist/css/*.css',
   },
   /** Optional root folder css files */
   './*.css': {
     import: './dist/*.css',
     require: './dist/*.css',
+    default: './dist/*.css',
   },
 }
 
@@ -30,6 +32,18 @@ export async function findEntryPoints({
   await addPackageFileExports({ allowCss, entries })
   return entries
 }
+
+type PackageExports = Record<
+  string,
+  {
+    /**  ECMAScript module loader */
+    import: string
+    /** Typescript types */
+    types: string
+    /** Default export */
+    default: string
+  }
+>
 
 /**
  * For a series of imports we add package.json exports to enable nested typescript definitions
@@ -45,7 +59,7 @@ export async function addPackageFileExports({
   entries: string | string[]
 }) {
   /** package.json type exports need to be updated */
-  const packageExports: Record<string, { import: string; types: string }> = {}
+  const packageExports: PackageExports = {}
 
   const paths = Array.isArray(entries) ? entries : [entries]
 
@@ -70,6 +84,7 @@ export async function addPackageFileExports({
     packageExports[namespace.length ? `./${namespace.join('/')}` : '.'] = {
       import: `./dist/${filepath}.js`,
       types: `./dist/${filepath}.d.ts`,
+      default: `./dist/${filepath}.js`,
     }
   })
 

@@ -35,31 +35,38 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./rehype-highlight": {
       "import": "./dist/rehype-highlight/index.js",
-      "types": "./dist/rehype-highlight/index.d.ts"
+      "types": "./dist/rehype-highlight/index.d.ts",
+      "default": "./dist/rehype-highlight/index.js"
     },
     "./markdown": {
       "import": "./dist/markdown/index.js",
-      "types": "./dist/markdown/index.d.ts"
+      "types": "./dist/markdown/index.d.ts",
+      "default": "./dist/markdown/index.js"
     },
     "./languages": {
       "import": "./dist/languages/index.js",
-      "types": "./dist/languages/index.d.ts"
+      "types": "./dist/languages/index.d.ts",
+      "default": "./dist/languages/index.js"
     },
     "./code": {
       "import": "./dist/code/index.js",
-      "types": "./dist/code/index.d.ts"
+      "types": "./dist/code/index.d.ts",
+      "default": "./dist/code/index.js"
     },
     "./css/*.css": {
       "import": "./dist/css/*.css",
-      "require": "./dist/css/*.css"
+      "require": "./dist/css/*.css",
+      "default": "./dist/css/*.css"
     },
     "./*.css": {
       "import": "./dist/*.css",
-      "require": "./dist/*.css"
+      "require": "./dist/*.css",
+      "default": "./dist/*.css"
     }
   },
   "files": [

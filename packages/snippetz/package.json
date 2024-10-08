@@ -28,31 +28,38 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./plugins/node/undici": {
       "import": "./dist/plugins/node/undici/index.js",
-      "types": "./dist/plugins/node/undici/index.d.ts"
+      "types": "./dist/plugins/node/undici/index.d.ts",
+      "default": "./dist/plugins/node/undici/index.js"
     },
     "./plugins/node/ofetch": {
       "import": "./dist/plugins/node/ofetch/index.js",
-      "types": "./dist/plugins/node/ofetch/index.d.ts"
+      "types": "./dist/plugins/node/ofetch/index.d.ts",
+      "default": "./dist/plugins/node/ofetch/index.js"
     },
     "./plugins/node/fetch": {
       "import": "./dist/plugins/node/fetch/index.js",
-      "types": "./dist/plugins/node/fetch/index.d.ts"
+      "types": "./dist/plugins/node/fetch/index.d.ts",
+      "default": "./dist/plugins/node/fetch/index.js"
     },
     "./plugins/js/ofetch": {
       "import": "./dist/plugins/js/ofetch/index.js",
-      "types": "./dist/plugins/js/ofetch/index.d.ts"
+      "types": "./dist/plugins/js/ofetch/index.d.ts",
+      "default": "./dist/plugins/js/ofetch/index.js"
     },
     "./plugins/js/fetch": {
       "import": "./dist/plugins/js/fetch/index.js",
-      "types": "./dist/plugins/js/fetch/index.d.ts"
+      "types": "./dist/plugins/js/fetch/index.d.ts",
+      "default": "./dist/plugins/js/fetch/index.js"
     },
     "./core": {
       "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
     }
   },
   "files": [
