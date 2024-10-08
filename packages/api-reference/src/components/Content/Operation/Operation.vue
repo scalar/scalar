@@ -40,7 +40,9 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest :operation="operation">
+            <ExampleRequest
+              fallback
+              :operation="operation">
               <template #header>
                 <EndpointPath
                   class="example-path"

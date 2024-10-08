@@ -193,7 +193,8 @@ console.log(!getHideTestRequestButton?.())
 
 .endpoint-content {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: 9px;
   padding: 9px;
 }

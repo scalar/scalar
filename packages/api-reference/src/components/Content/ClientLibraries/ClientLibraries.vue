@@ -6,19 +6,17 @@ const { availableTargets, httpTargetTitle, httpClientTitle } =
   useHttpClientStore()
 </script>
 <template>
-  <div>
-    <template v-if="availableTargets.length">
-      <div class="client-libraries-heading">Client Libraries</div>
-      <div>
-        <ClientSelector />
-      </div>
-      <div
-        class="selected-client card-footer"
-        muted>
-        {{ httpClientTitle }}
-        {{ httpTargetTitle }}
-      </div>
-    </template>
+  <div v-if="availableTargets.length">
+    <div class="client-libraries-heading">Client Libraries</div>
+    <div>
+      <ClientSelector />
+    </div>
+    <div
+      class="selected-client card-footer"
+      muted>
+      {{ httpClientTitle }}
+      {{ httpTargetTitle }}
+    </div>
   </div>
 </template>
 <style scoped>
