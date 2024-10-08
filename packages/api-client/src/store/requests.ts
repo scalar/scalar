@@ -4,7 +4,6 @@ import {
   type Request,
   type RequestPayload,
   type Tag,
-  type TagPayload,
   createExampleFromRequest,
   requestSchema,
 } from '@scalar/oas-utils/entities/spec'
