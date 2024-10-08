@@ -117,7 +117,7 @@ async function importCollection() {
       </div>
       <ScalarCodeBlock
         v-if="documentDetails && !isUrl(inputContent)"
-        class="border max-h-[40dvh] mt-1 bg-b-2 rounded"
+        class="border max-h-[40dvh] mt-1 bg-b-2 rounded [--scalar-small:--scalar-font-size-4]"
         :content="inputContent"
         :copy="false"
         :lang="documentType" />
