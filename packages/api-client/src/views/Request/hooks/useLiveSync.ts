@@ -3,7 +3,7 @@ import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
   combineRenameDiffs,
-  diffToInfoPayload,
+  diffToCollectionPayload,
   diffToSecuritySchemePayload,
   diffToServerPayload,
   diffToTagPayload,
@@ -94,15 +94,10 @@ export const useLiveSync = () => {
         const { path, type } = d
         if (!path.length || !activeCollection.value?.uid) return
 
-        // Info
-        if (path[0] === 'info') {
-          const infoPayload = diffToInfoPayload(d, activeCollection.value)
-          if (infoPayload) collectionMutators.edit(...infoPayload)
-        }
-        // Security
-        else if (path[0] === 'security') {
-          // const securityPayload = diffToSecurityPayload(d, activeCollection.value)
-          // if (securityPayload) collectionMutators.edit(...securityPayload)
+        // Info/Security
+        if (path[0] === 'info' || path[0] === 'security') {
+          const payload = diffToCollectionPayload(d, activeCollection.value)
+          if (payload) collectionMutators.edit(...payload)
         }
         // Components.securitySchemes
         else if (path[0] === 'components' && path[1] === 'securitySchemes') {
