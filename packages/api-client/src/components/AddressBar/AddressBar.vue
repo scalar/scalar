@@ -22,6 +22,7 @@ import AddressBarServers from './AddressBarServer.vue'
 const {
   activeRequest,
   activeExample,
+  activeServer,
   isReadOnly,
   requestMutators,
   requestHistory,
@@ -181,7 +182,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
               disableTabIndent
               :emitOnBlur="false"
               :modelValue="activeRequest.path"
-              placeholder="Enter URL to get started"
+              :placeholder="activeServer ? '' : 'Enter URL to get started'"
               server
               @submit="handleExecuteRequest"
               @update:modelValue="updateRequestPath" />
