@@ -1,14 +1,20 @@
+import { isHTTPMethod } from '@/components/HttpMethod/helpers'
 import {
   type Collection,
   type Request,
+  type RequestParameterPayload,
+  type RequestPayload,
   type SecurityScheme,
   type Server,
   type Tag,
+  requestSchema,
   securitySchemeSchema,
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { schemaModel } from '@scalar/oas-utils/helpers'
 import { getNestedValue } from '@scalar/object-utils/nested'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import microdiff, { type Difference } from 'microdiff'
 
 /**
@@ -138,6 +144,104 @@ export const diffToCollectionPayload = (
   }
 
   return [collection.uid, path, value] as const
+}
+
+/** Generates an array of payloads for the request mutator from the request diff */
+export const diffToRequestPayload = (
+  diff: Difference,
+  collection: Collection,
+  requests: Record<string, Request>,
+) => {
+  const [, _path, method, ...keys] = diff.path as [
+    'paths',
+    Request['path'],
+    Request['method'] | 'method' | undefined,
+    ...string[],
+  ]
+
+  // Path has changed
+  if (_path === 'path' && diff.type === 'CHANGE') {
+    return collection.requests
+      .filter((uid) => requests[uid].path === diff.oldValue)
+      .map((uid) => ['edit', uid, 'path', diff.value] as const)
+  }
+  // Method has changed
+  else if (method === 'method' && diff.type === 'CHANGE') {
+    return collection.requests
+      .filter((uid) => requests[uid].method === diff.oldValue)
+      .map((uid) => ['edit', uid, 'method', diff.value] as const)
+  }
+  // Add
+  else if (diff.type === 'CREATE') {
+    // In some cases value goes { method: operation }
+    const [[_method, _operation]] = Object.entries(diff.value)
+
+    const operation: OpenAPIV3_1.OperationObject<{
+      tags?: string[]
+      security?: OpenAPIV3_1.SecurityRequirementObject[]
+    }> = method ? diff.value : _operation
+    const newMethod = method || _method
+
+    // TODO: match servers up and add if we don't have
+    const operationServers = serverSchema.array().parse(operation.servers ?? [])
+
+    // Remove security here and add it correctly below
+    const { security: operationSecurity, ...operationWithoutSecurity } =
+      operation
+
+    const requestPayload: RequestPayload = {
+      ...operationWithoutSecurity,
+      method: isHTTPMethod(newMethod) ? newMethod : 'get',
+      path: _path,
+      parameters: (operation.parameters ?? []) as RequestParameterPayload[],
+      servers: operationServers.map((s) => s.uid),
+    }
+
+    // Add list of UIDs to associate security schemes
+    // As per the spec if there is operation level security we ignore the top level requirements
+    if (operationSecurity?.length)
+      requestPayload.security = operationSecurity.map((s) => {
+        const _keys = Object.keys(s)
+
+        // Handle the case of {} for optional
+        if (_keys.length) {
+          const [key] = Object.keys(s)
+          return {
+            [key]: s[key],
+          }
+        } else return s
+      })
+
+    // Save parse the request
+    const request = schemaModel(requestPayload, requestSchema, false)
+    if (request) return [['add', request, collection.uid]] as const
+    else
+      console.warn(
+        'Live Sync: was unable to add the new reqeust, please refresh to try again.',
+      )
+  }
+  // Delete
+  else if (diff.type === 'REMOVE') {
+    const request = findResource<Request>(
+      collection.requests,
+      requests,
+      (_request) => _request.path === _path && _request.method === method,
+    )
+    if (request) return [['delete', request, collection.uid]] as const
+  }
+  // Edit
+  else if (diff.type === 'CHANGE') {
+    const request = findResource<Request>(
+      collection.requests,
+      requests,
+      (r) => r.path === _path && r.method === method,
+    )
+
+    if (request)
+      return [['edit', request.uid, keys.join('.'), diff.value]] as const
+    else console.warn('Live Sync: request not found, was unable to update')
+  }
+  return [] as const
 }
 
 /** Generates a payload for the server mutator from the server diff including the mutator method */
