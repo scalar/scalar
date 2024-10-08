@@ -119,7 +119,6 @@ const startDrag = (event: MouseEvent) => {
   bottom: 0;
   border-right: 2px solid transparent;
   transition: border-right-color 0.3s;
-  z-index: 100;
 }
 .resizer:hover,
 .dragging .resizer {
@@ -134,6 +133,5 @@ const startDrag = (event: MouseEvent) => {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 99;
 }
 </style>

@@ -24,7 +24,7 @@ requestStatusBus.on((status) => {
   <Transition>
     <div
       v-if="loading.isLoading"
-      class="absolute inset-0 bg-b-1 z-10 flex flex-col gap-6 items-center justify-center">
+      class="absolute inset-0 bg-b-1 flex flex-col gap-6 items-center justify-center">
       <ScalarLoading
         class="text-c-3"
         :loadingState="loading"

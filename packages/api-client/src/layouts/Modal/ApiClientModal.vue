@@ -74,7 +74,6 @@ onBeforeUnmount(() => {
   margin: auto;
   opacity: 0;
   animation: scalarapiclientfadein 0.35s forwards;
-  z-index: 1002;
   position: relative;
   overflow: hidden;
   border-radius: 8px;
@@ -95,7 +94,6 @@ onBeforeUnmount(() => {
   height: 100vh;
   background: #00000038;
   transition: all 0.3s ease-in-out;
-  z-index: 1000;
   cursor: pointer;
   animation: scalardrawerexitfadein 0.35s forwards;
 }
@@ -136,7 +134,6 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: center;

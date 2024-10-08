@@ -241,7 +241,7 @@ function openCommandPaletteRequest() {
     :class="[
       (isReadOnly && parentUids.length > 1) ||
       (!isReadOnly && parentUids.length)
-        ? 'before:bg-b-3 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 indent-border-line-offset'
+        ? 'before:bg-b-3 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 indent-border-line-offset'
         : '',
     ]">
     <Draggable
@@ -273,7 +273,7 @@ function openCommandPaletteRequest() {
           ]"
           tabindex="0">
           <span
-            class="line-clamp-3 z-10 font-medium w-full pl-2 word-break-break-word"
+            class="line-clamp-3 font-medium w-full pl-2 word-break-break-word"
             :class="{
               'editable-sidebar-hover-item': !isReadOnly,
             }">
@@ -284,7 +284,7 @@ function openCommandPaletteRequest() {
             <div class="relative">
               <ScalarButton
                 v-if="!isReadOnly"
-                class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+                class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
                 :class="{
                   flex:
                     menuItem?.item?.entity.uid === item.entity.uid &&
@@ -321,11 +321,11 @@ function openCommandPaletteRequest() {
       <!-- Collection/Folder -->
       <button
         v-else-if="!isReadOnly || parentUids.length"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 z-[1]"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
-        <span class="z-10 flex h-5 items-center justify-center max-w-[14px]">
+        <span class="flex h-5 items-center justify-center max-w-[14px]">
           <slot name="leftIcon">
             <div
               :class="{
@@ -343,7 +343,7 @@ function openCommandPaletteRequest() {
         <div
           class="flex flex-1 flex-row justify-between editable-sidebar-hover">
           <span
-            class="line-clamp-3 z-10 font-medium text-left w-full word-break-break-word"
+            class="line-clamp-3 font-medium text-left w-full word-break-break-word"
             :class="{
               'editable-sidebar-hover-item': !isReadOnly,
             }">
@@ -352,7 +352,7 @@ function openCommandPaletteRequest() {
           <div class="relative flex h-fit">
             <ScalarButton
               v-if="!isReadOnly && !isDraftCollection"
-              class="px-0.5 py-0 z-10 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+              class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
               :class="{
                 flex:
                   menuItem.item?.entity.uid === item.entity.uid &&

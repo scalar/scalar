@@ -261,7 +261,6 @@ function handleDeleteScheme(option: { id: string; label: string }) {
   animation-timeline: --scroll-timeline;
   min-height: 24px;
   pointer-events: none;
-  z-index: 1;
 }
 .fade-left {
   background: linear-gradient(

@@ -70,7 +70,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
   <!-- History shadow and placement-->
   <div
     :class="[
-      'absolute bg-white left-0 top-8 w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-50',
+      'absolute bg-white left-0 top-8 w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
       { 'before:shadow-lg': open },
     ]">
     <!-- History Item -->

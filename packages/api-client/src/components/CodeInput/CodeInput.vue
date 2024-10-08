@@ -246,7 +246,6 @@ export default {
 }
 :deep(.cm-tooltip-autocomplete ul) {
   padding: 6px !important;
-  z-index: 10000;
   position: relative;
 }
 :deep(.cm-tooltip-autocomplete ul li:hover) {

@@ -70,7 +70,7 @@ const themeStyleTag = computed(
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
     v-if="workspaceStore.activeWorkspace.value?.uid"
-    class="flex min-h-0 flex-1 z-0">
+    class="flex min-h-0 flex-1">
     <SideNav />
 
     <!-- Popup command palette to add resources from anywhere -->

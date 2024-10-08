@@ -111,7 +111,7 @@ onMounted(() => {
               </button>
               <div
                 v-show="showChildren(domain)"
-                class="before:bg-b-3 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                class="before:bg-b-3 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                 <div
                   v-for="(cookieList, path) in paths"
                   :key="path">
@@ -131,7 +131,7 @@ onMounted(() => {
                   </button>
                   <div
                     v-show="showChildren(domain + path)"
-                    class="before:bg-b-3 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:z-10 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                    class="before:bg-b-3 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                     <SidebarListElement
                       v-for="cookie in cookieList"
                       :key="cookie.uid"

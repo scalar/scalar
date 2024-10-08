@@ -219,12 +219,12 @@ onBeforeUnmount(() => {
 <template>
   <div
     v-show="modalState.open"
-    class="commandmenu-clickout"
+    class="commandmenu-clickout z-overlay"
     @click="closeHandler()"></div>
 
   <div
     v-show="modalState.open"
-    class="commandmenu custom-scroll">
+    class="commandmenu z-overlay custom-scroll">
     <!-- Default palette (command list) -->
     <template v-if="!activeCommand">
       <div
@@ -294,7 +294,7 @@ onBeforeUnmount(() => {
     <!-- Specific command palette -->
     <template v-else>
       <button
-        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.5 z-10"
+        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.5 z-1"
         type="button"
         @click="activeCommand = null">
         <ScalarIcon
@@ -322,12 +322,10 @@ onBeforeUnmount(() => {
   padding: 6px;
   margin: 12px;
   position: fixed;
-  z-index: 10;
   left: 50%;
   top: 150px;
   opacity: 0;
   transform: translate3d(-50%, 10px, 0);
-  z-index: 100;
   animation: fadeincommandmenu ease-in-out 0.3s forwards;
   animation-delay: 0.1s;
 }
@@ -339,7 +337,6 @@ onBeforeUnmount(() => {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 100;
   cursor: pointer;
 }
 @keyframes fadeincommand {
