@@ -88,7 +88,7 @@ export async function convert(
       const { path, query, protocol, host, port, valid, pathVars } =
         scrapeURL(url)
 
-      if (valid) {
+      if (valid && protocol && path) {
         const summary = name.replace(/ \[([^[\]]*)\]/gi, '')
         domains.add(calculateDomains(protocol, host, port))
         const joinedPath = calculatePath(path, pathDepth)
@@ -180,6 +180,6 @@ function descriptionParse(description: any): {
   if (splitDesc.length === 1) return { description }
   return {
     description: splitDesc[0].trim(),
-    paramsMeta: parseMdTable(),
+    paramsMeta: parseMdTable(splitDesc[1]),
   }
 }
