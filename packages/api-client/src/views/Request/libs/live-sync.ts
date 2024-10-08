@@ -90,12 +90,20 @@ export const combineRenameDiffs = (
 
       skipNext = true
     }
-    // If adding anthing other than a path or method we can just change instead
-    else if (current.type === 'CREATE' && current.path.length > 3) {
+    // If adding anthing other than a path, method, or array we can just change instead
+    else if (
+      current.type === 'CREATE' &&
+      current.path.length > 3 &&
+      typeof current.path.at(-1) !== 'number'
+    ) {
       combined.push({ ...current, type: 'CHANGE', oldValue: undefined })
     }
-    // If deleting anthing other than a path or method we can also do a change
-    else if (current.type === 'REMOVE' && current.path.length > 3) {
+    // If deleting anthing other than a path, method, or array we can also do a change
+    else if (
+      current.type === 'REMOVE' &&
+      current.path.length > 3 &&
+      typeof current.path.at(-1) !== 'number'
+    ) {
       combined.push({ ...current, type: 'CHANGE', value: undefined })
     }
     // Just regular things
@@ -148,14 +156,16 @@ export const diffToCollectionPayload = (
 /**
  * Generates an array of payloads for the request mutator from the request diff
  *
- * This one returns an array due to changing path r
+ * This one returns an array due to changing path triggering a series of changes
+ * Also a CREATE OR REMOVE on an array will always be at the end so we can pop/push,
+ * the rest of the array will be a CHANGE
  */
 export const diffToRequestPayload = (
   diff: Difference,
   collection: Collection,
   requests: Record<string, Request>,
 ) => {
-  const [, _path, method, ...keys] = diff.path as [
+  const [, path, method, ...keys] = diff.path as [
     'paths',
     Request['path'],
     Request['method'] | 'method' | undefined,
@@ -163,7 +173,7 @@ export const diffToRequestPayload = (
   ]
 
   // Path has changed
-  if (_path === 'path' && diff.type === 'CHANGE') {
+  if (path === 'path' && diff.type === 'CHANGE') {
     return collection.requests
       .filter((uid) => requests[uid].path === diff.oldValue)
       .map((uid) => ['edit', uid, 'path', diff.value] as const)
@@ -173,11 +183,36 @@ export const diffToRequestPayload = (
     return collection.requests
       .filter(
         (uid) =>
-          requests[uid].method === diff.oldValue &&
-          requests[uid].path === _path,
+          requests[uid].method === diff.oldValue && requests[uid].path === path,
       )
       .map((uid) => ['edit', uid, 'method', diff.value] as const)
   }
+  // Adding or removing to the end of an array - special case
+  else if (diff.type !== 'CHANGE' && typeof keys.at(-1) === 'number') {
+    const request = findResource<Request>(
+      collection.requests,
+      requests,
+      (r) => r.path === path && r.method === method,
+    )
+
+    if (!request) {
+      console.warn('Live Sync: request not found, was unable to update')
+      return []
+    }
+
+    // Chop off the path, method and array index
+    const _path = diff.path.slice(3, -1).join('.')
+    const value = [...getNestedValue(request, _path)]
+
+    if (diff.type === 'CREATE') {
+      value.push(diff.value)
+    } else if (diff.type === 'REMOVE') {
+      value.pop()
+    }
+
+    return [['edit', request.uid, _path, value]] as const
+  }
+
   // Add
   else if (diff.type === 'CREATE') {
     // In some cases value goes { method: operation }
@@ -199,7 +234,7 @@ export const diffToRequestPayload = (
     const requestPayload: RequestPayload = {
       ...operationWithoutSecurity,
       method: isHTTPMethod(newMethod) ? newMethod : 'get',
-      path: _path,
+      path,
       parameters: (operation.parameters ?? []) as RequestParameterPayload[],
       servers: operationServers.map((s) => s.uid),
     }
@@ -232,7 +267,7 @@ export const diffToRequestPayload = (
     const request = findResource<Request>(
       collection.requests,
       requests,
-      (_request) => _request.path === _path && _request.method === method,
+      (_request) => _request.path === path && _request.method === method,
     )
     if (request) return [['delete', request, collection.uid]] as const
   }
@@ -241,7 +276,7 @@ export const diffToRequestPayload = (
     const request = findResource<Request>(
       collection.requests,
       requests,
-      (r) => r.path === _path && r.method === method,
+      (r) => r.path === path && r.method === method,
     )
 
     if (request)

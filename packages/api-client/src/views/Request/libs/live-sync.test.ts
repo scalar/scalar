@@ -8,6 +8,7 @@ import {
   type Tag,
   collectionSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { parseSchema } from '@scalar/oas-utils/transforms'
 import microdiff, { type Difference } from 'microdiff'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -30,7 +31,29 @@ const mockRequests: Record<`request${number}uid`, Request> = {
     selectedSecuritySchemeUids: [],
     selectedServerUid: '',
     servers: [],
-    parameters: [],
+    parameters: [
+      {
+        name: 'limit',
+        in: 'query',
+        required: false,
+        deprecated: false,
+        schema: { type: 'integer', format: 'int64', default: 10 },
+      },
+      {
+        name: 'offset',
+        in: 'query',
+        required: false,
+        deprecated: false,
+        schema: { type: 'integer', format: 'int64', default: 0 },
+      },
+      {
+        name: 'else',
+        in: 'query',
+        required: false,
+        deprecated: false,
+        schema: { type: 'boolean', default: false },
+      },
+    ] as const,
     summary: 'Get all planets',
     description: 'Retrieve all planets',
   },
@@ -81,8 +104,9 @@ const mockCollection = Object.freeze(
   }),
 )
 
+const original = (await parseSchema(json)).schema
+
 describe('combineRenameDiffs', () => {
-  const original = json
   let mutated: any
 
   // Clone fresh schemas
@@ -238,15 +262,79 @@ describe('combineRenameDiffs', () => {
     ])
   })
 
-  it('handles deep changes in the schema', () => {
-    // Modify a deep property in the schema
-    mutated.paths['/planets'].get.responses['200'].content[
-      'application/json'
-    ].schema.allOf[0].properties.data = { type: 'number', examples: [1] }
+  it('creates a create diff for adding a parameter to a request', () => {
+    mutated.paths['/planets'].get.parameters.push({
+      name: 'highroller',
+      in: 'query',
+      required: false,
+      deprecated: false,
+      schema: { type: 'integer', format: 'int32' },
+    })
 
     const diff = microdiff(original, mutated)
     const combinedDiff = combineRenameDiffs(diff)
 
+    expect(combinedDiff).toEqual([
+      {
+        type: 'CREATE',
+        path: ['paths', '/planets', 'get', 'parameters', 2],
+        value: {
+          name: 'highroller',
+          in: 'query',
+          required: false,
+          deprecated: false,
+          schema: { type: 'integer', format: 'int32' },
+        },
+      },
+    ])
+  })
+
+  it('creates a remove diff for removing a parameter', () => {
+    mutated.paths['/planets'].get.parameters.pop()
+
+    const diff = microdiff(original, mutated)
+    const combinedDiff = combineRenameDiffs(diff)
+
+    expect(combinedDiff).toEqual([
+      {
+        type: 'REMOVE',
+        path: ['paths', '/planets', 'get', 'parameters', 1],
+        oldValue: {
+          description:
+            'The number of items to skip before starting to collect the result set',
+          name: 'offset',
+          in: 'query',
+          required: false,
+          schema: { default: 0, type: 'integer', format: 'int64' },
+        },
+      },
+    ])
+  })
+
+  it('creates a change diff for changing a parameter', () => {
+    mutated.paths['/planets'].get.parameters[0].name = 'highroller'
+
+    const diff = microdiff(original, mutated)
+    const combinedDiff = combineRenameDiffs(diff)
+
+    expect(combinedDiff).toEqual([
+      {
+        type: 'CHANGE',
+        path: ['paths', '/planets', 'get', 'parameters', 0, 'name'],
+        oldValue: 'limit',
+        value: 'highroller',
+      },
+    ])
+  })
+
+  it('handles deep changes in the schema', () => {
+    // Modify a deep property in the schema
+    mutated.paths['/planets'].get.responses['200'].content[
+      'application/json'
+    ].schema.allOf[0].properties.data.type = 'number'
+
+    const diff = microdiff(original, mutated)
+    const combinedDiff = combineRenameDiffs(diff)
     expect(combinedDiff).toEqual([
       {
         type: 'CHANGE',
@@ -1001,11 +1089,12 @@ describe('diffToRequestPayload', () => {
   it('generates an edit payload for adding a parameter to a request', () => {
     const diff: Difference = {
       type: 'CREATE',
-      path: ['paths', '/planets', 'get', 'parameters', 0],
+      path: ['paths', '/planets', 'get', 'parameters', 3],
       value: {
-        name: 'limit',
+        name: 'highroller',
         in: 'query',
         required: false,
+        deprecated: false,
         schema: { type: 'integer', format: 'int32' },
       },
     }
@@ -1017,13 +1106,40 @@ describe('diffToRequestPayload', () => {
         'request1uid',
         'parameters',
         [
+          ...(mockRequests.request1uid.parameters ?? []),
           {
-            name: 'limit',
+            name: 'highroller',
             in: 'query',
             required: false,
+            deprecated: false,
             schema: { type: 'integer', format: 'int32' },
           },
         ],
+      ],
+    ])
+  })
+
+  it('generates an edit payload for removing a parameter from a request', () => {
+    const diff: Difference = {
+      type: 'REMOVE',
+      path: ['paths', '/planets', 'get', 'parameters', 1],
+      oldValue: {
+        description:
+          'The number of items to skip before starting to collect the result set',
+        name: 'offset',
+        in: 'query',
+        required: false,
+        schema: { default: 0, type: 'integer', format: 'int64' },
+      },
+    }
+
+    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
+    expect(result).toEqual([
+      [
+        'edit',
+        'request1uid',
+        'parameters',
+        mockRequests.request1uid.parameters?.toSpliced(-1),
       ],
     ])
   })
