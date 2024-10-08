@@ -231,9 +231,9 @@ onBeforeUnmount(() => {
         class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
         <label for="commandmenu">
           <ScalarIcon
-            class="text-c-1 mr-2.5"
+            class="text-c-2 mr-2.5"
             icon="Search"
-            size="sm"
+            size="md"
             thickness="1.5" />
         </label>
         <input
@@ -277,7 +277,7 @@ onBeforeUnmount(() => {
           }"
           @click="executeCommand(command)">
           <ScalarIcon
-            class="text-c-1 mr-2.5"
+            class="text-c-2 mr-2.5"
             :icon="command.icon"
             size="md"
             thickness="1.5" />
