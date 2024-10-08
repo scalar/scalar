@@ -44,12 +44,12 @@ onBeforeUnmount(() => {
   <div
     v-show="modalState.open"
     class="scalar">
-    <div className="scalar-container">
+    <div className="scalar-container z-overlay">
       <div className="scalar-app scalar-client scalar-app-layout">
         <RouterView key="$route.fullPath" />
       </div>
       <div
-        class="scalar-app-exit"
+        class="scalar-app-exit -z-1"
         @click="modalState.hide()"></div>
     </div>
   </div>
