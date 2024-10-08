@@ -43,8 +43,8 @@ export const combineRenameDiffs = (
 
     // Prefix the paths when nested
     if (pathPrefix.length) {
-      current.path.unshift(...pathPrefix)
-      if (next) next.path.unshift(...pathPrefix)
+      current.path = [...pathPrefix, ...current.path]
+      if (next) next.path = [...pathPrefix, ...next.path]
     }
     // Only mutate paths
     else if (current.path[0] !== 'paths') {
@@ -112,14 +112,13 @@ export const findResource = <T>(
   arr: string[],
   resources: Record<string, T>,
   condition: (resource: T) => boolean,
-) => {
-  for (let i = 0; i < arr.length; i++) {
-    const r = resources[arr[i]]
-    if (condition(r)) return r
+): T | null => {
+  for (const uid of arr) {
+    const resource = resources[uid]
+    if (condition(resource)) return resource
   }
   return null
 }
-
 /** Generates a payload for the collection mutator from the basic info/security diffs */
 export const diffToCollectionPayload = (
   diff: Difference,
@@ -146,7 +145,11 @@ export const diffToCollectionPayload = (
   return [collection.uid, path, value] as const
 }
 
-/** Generates an array of payloads for the request mutator from the request diff */
+/**
+ * Generates an array of payloads for the request mutator from the request diff
+ *
+ * This one returns an array due to changing path r
+ */
 export const diffToRequestPayload = (
   diff: Difference,
   collection: Collection,
@@ -168,7 +171,11 @@ export const diffToRequestPayload = (
   // Method has changed
   else if (method === 'method' && diff.type === 'CHANGE') {
     return collection.requests
-      .filter((uid) => requests[uid].method === diff.oldValue)
+      .filter(
+        (uid) =>
+          requests[uid].method === diff.oldValue &&
+          requests[uid].path === _path,
+      )
       .map((uid) => ['edit', uid, 'method', diff.value] as const)
   }
   // Add
