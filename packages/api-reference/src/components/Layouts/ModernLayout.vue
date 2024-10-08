@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
 import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
@@ -63,10 +64,21 @@ watch(hash, (newHash, oldHash) => {
       </div>
     </template>
     <template #sidebar-end>
-      <DarkModeToggle
-        v-if="!!!props.configuration.hideDarkModeToggle"
-        :isDarkMode="isDark"
-        @toggleDarkMode="$emit('toggleDarkMode')" />
+      <div class="darklight-reference">
+        <a
+          class="darklight-reference-client"
+          href="#">
+          <ScalarIcon
+            icon="ExternalLink"
+            size="xs"
+            thickness="2.5" />
+          Scalar API Client</a
+        >
+        <DarkModeToggle
+          v-if="!!!props.configuration.hideDarkModeToggle"
+          :isDarkMode="isDark"
+          @toggleDarkMode="$emit('toggleDarkMode')" />
+      </div>
     </template>
   </ApiReferenceLayout>
 </template>
@@ -82,5 +94,37 @@ watch(hash, (newHash, oldHash) => {
   display: flex;
   flex-direction: column;
   padding: 12px 12px 6px 12px;
+}
+.darklight-reference {
+  width: 100%;
+  margin-top: auto;
+  border-top: var(--scalar-border-width) solid
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
+  padding: 12px;
+}
+.darklight-reference-client {
+  width: 100%;
+  padding: 9px 12px;
+  height: 31px;
+  display: block;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--scalar-mini);
+  font-weight: var(--scalar-semibold);
+  line-height: 1.385;
+  text-decoration: none;
+  border-radius: var(--scalar-radius);
+  box-shadow: 0 0 0 0.5px var(--scalar-border-color);
+  margin-bottom: 12px;
+  gap: 6px;
+  color: var(--scalar-sidebar-color-1);
+}
+.darklight-reference-client:hover {
+  background: var(
+    --scalar-sidebar-item-hover-background,
+    var(--scalar-background-2)
+  );
 }
 </style>
