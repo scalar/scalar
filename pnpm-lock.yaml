@@ -1561,6 +1561,16 @@ importers:
         specifier: ^2.4.5
         version: 2.4.5
 
+  packages/fetch:
+    dependencies:
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+
   packages/galaxy:
     devDependencies:
       '@hono/node-server':
