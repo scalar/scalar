@@ -47,7 +47,7 @@ import {
 /** Available Commands for the Command Palette */
 const availableCommands = [
   {
-    label: 'Add to Request Sidebar',
+    label: '',
     commands: [
       {
         name: 'Create Request',
