@@ -15,6 +15,8 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
+    "build:playground": "cd ./playground && pnpm build",
+    "dev": "cd ./playground && pnpm dev",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
