@@ -114,14 +114,30 @@ export const findResource = <T>(
   return null
 }
 
-/** Generates a payload for the collection mutator from the info diff */
-export const diffToInfoPayload = (diff: Difference, collection: Collection) => {
-  if (diff.type === 'CHANGE' || diff.type === 'CREATE')
-    return [collection.uid, diff.path.join('.'), diff.value] as const
-  else if (diff.type === 'REMOVE')
-    return [collection.uid, diff.path.join('.'), undefined] as const
+/** Generates a payload for the collection mutator from the basic info/security diffs */
+export const diffToCollectionPayload = (
+  diff: Difference,
+  collection: Collection,
+) => {
+  let path = diff.path.join('.')
+  let value = diff.type === 'REMOVE' ? undefined : diff.value
 
-  return null
+  // We need to handle a special case for arrays, it only adds or removes the last element,
+  // the rest are a series of changes
+  if (
+    typeof diff.path[diff.path.length - 1] === 'number' &&
+    (diff.type === 'CREATE' || diff.type === 'REMOVE')
+  ) {
+    path = diff.path.slice(0, -1).join('.')
+    value = [...getNestedValue(collection, path)]
+    if (diff.type === 'CREATE') {
+      value.push(diff.value)
+    } else if (diff.type === 'REMOVE') {
+      value.pop()
+    }
+  }
+
+  return [collection.uid, path, value] as const
 }
 
 /** Generates a payload for the server mutator from the server diff including the mutator method */
