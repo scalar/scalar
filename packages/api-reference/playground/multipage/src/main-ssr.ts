@@ -13,6 +13,7 @@ const WITH_ROUTING = false
 /** Configure to render a onepager or a separate page for every operation */
 const PAGES: 'single' | 'multi' = 'multi'
 
+/** Create Vue SSR app */
 export function createApp() {
   const app = createSSRApp(WITH_ROUTING ? App : ScalarApiReference, {
     props: {

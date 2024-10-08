@@ -5,7 +5,7 @@ import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 import App from './App.vue'
-import Home from './Home.vue'
+import Home from './components/Home.vue'
 import { ScalarApiReference, routesAsChildren } from './package'
 
 /** Simulate a main app with an existing router, using just our component */

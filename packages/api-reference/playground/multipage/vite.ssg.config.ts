@@ -7,10 +7,10 @@ const config: UserConfig = {
   ssgOptions: {
     script: 'async',
     formatting: 'prettify',
-    entry: 'src/ssg.ts',
+    entry: './src/main-ssg.ts',
     includeAllRoutes: false,
+    // TODO: Make this dynamic
     includedRoutes(paths) {
-      // TODO: Make this dynamic
       paths.push('/POST/%2Ffoobar')
       paths.push('/GET/%2Ffoobar')
 

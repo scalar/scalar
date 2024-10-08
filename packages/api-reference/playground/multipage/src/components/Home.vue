@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Placeholder from './components/Placeholder.vue'
+import Placeholder from '../components/Placeholder.vue'
 </script>
 <template>
   <div class="p-2">

@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
-import { type RouterHistory, RouterLink, RouterView } from 'vue-router'
 
+// import { type RouterHistory, RouterLink, RouterView } from 'vue-router'
 import Placeholder from '../components/Placeholder.vue'
 import Section from './components/Section.vue'
 import { ROUTE_NAMES } from './routes'
-import { registerRouter } from './utils/registerRouter'
+// import { registerRouter } from './utils/registerRouter'
 import Bar from './views/Bar.vue'
 import Introduction from './views/Introduction.vue'
 import Operation from './views/Operation.vue'
@@ -14,17 +14,17 @@ import Tag from './views/Tag.vue'
 const props = withDefaults(
   defineProps<{
     pages?: 'single' | 'multi'
-    history?: RouterHistory
+    // history?: RouterHistory
   }>(),
   {
     pages: 'multi',
   },
 )
 
-registerRouter({
-  pages: props.pages,
-  history: props.history,
-})
+// registerRouter({
+//   pages: props.pages,
+//   history: props.history,
+// })
 
 const tags = [
   {
