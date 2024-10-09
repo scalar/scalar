@@ -105,10 +105,6 @@
       "import": "./dist/components/DataTable/index.js",
       "types": "./dist/components/DataTable/index.d.ts"
     },
-    "./components/DarkModeToggle": {
-      "import": "./dist/components/DarkModeToggle/index.js",
-      "types": "./dist/components/DarkModeToggle/index.d.ts"
-    },
     "./components/CommandPalette": {
       "import": "./dist/components/CommandPalette/index.js",
       "types": "./dist/components/CommandPalette/index.d.ts"
