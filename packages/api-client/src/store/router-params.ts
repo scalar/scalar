@@ -15,6 +15,7 @@ export function getRouterParams(router: Router) {
       [PathId.Cookies]: 'default',
       [PathId.Servers]: 'default',
       [PathId.Workspace]: 'default',
+      [PathId.Settings]: 'default',
     }
 
     const currentRoute = router.currentRoute.value

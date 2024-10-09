@@ -9,23 +9,11 @@ import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
-import {
-  computed,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  watchEffect,
-} from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
-onMounted(() => {
-  watchEffect(() => {
-    document.body.classList.toggle('dark-mode', isDark.value)
-    document.body.classList.toggle('light-mode', !isDark.value)
-  })
-})
-
-const { isDark } = useDarkModeState()
+// Initialize dark mode state globally
+const { colorMode } = useDarkModeState()
 const workspaceStore = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root

@@ -127,11 +127,15 @@ export const createWorkspaceStore = (
   // Active entities based on the router
 
   /** The currently selected workspace OR the first one */
-  const activeWorkspace = computed(
-    () =>
+  const activeWorkspace = computed(() => {
+    const workspace =
       workspaces[activeRouterParams.value[PathId.Workspace]] ??
-      workspaces[Object.keys(workspaces)[0]],
-  )
+      workspaces[Object.keys(workspaces)[0]]
+    if (workspace) {
+      workspace.proxyUrl = proxyUrl.value
+    }
+    return workspace
+  })
 
   /** Ordered list of the active workspace's collections with drafts last */
   const activeWorkspaceCollections = computed(() =>
@@ -281,6 +285,19 @@ export const createWorkspaceStore = (
     workspaces: toRaw(workspaces),
   })
 
+  // ---------------------------------------------------------------------------
+  // PROXY URL STATE
+  const PROXY_URL = 'proxyUrl' as const
+
+  // Initialize proxyUrl with the value from localStorage
+  const proxyUrl = ref(localStorage.getItem(PROXY_URL) || '')
+
+  const setProxyUrl = (url: string) => {
+    proxyUrl.value = url
+    localStorage.setItem(PROXY_URL, url)
+    workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', url)
+  }
+
   return {
     // ---------------------------------------------------------------------------
     // STATE
@@ -310,6 +327,8 @@ export const createWorkspaceStore = (
     router,
     sidebarWidth,
     setSidebarWidth,
+    proxyUrl,
+    setProxyUrl,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

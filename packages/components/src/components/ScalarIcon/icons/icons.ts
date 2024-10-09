@@ -66,6 +66,7 @@ export const ICONS = [
   'Scribble',
   'Search',
   'Server',
+  'Settings',
   'Show',
   'Sort',
   'Terminal',

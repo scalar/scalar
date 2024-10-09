@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import {
-  ScalarButton,
   ScalarDropdown,
-  ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
