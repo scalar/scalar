@@ -20,6 +20,7 @@
     "format": "scalar-format-js",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -35,6 +36,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "msw": "^2.4.9",
+    "vitest": "^1.6.0"
   }
 }
