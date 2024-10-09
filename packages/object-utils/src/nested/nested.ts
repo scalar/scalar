@@ -300,7 +300,7 @@ export function getNestedValue<T, P extends Path<T>>(obj: T, path: P) {
 export const parseTypedPath = <T, P extends string>(
   obj: T,
   path: P,
-): ParsePathResult<T, P> => {
+): ParsePathResult<T, P> | null => {
   const keys = path.split('.')
   let current: any = obj
 
@@ -309,12 +309,12 @@ export const parseTypedPath = <T, P extends string>(
 
     if (current === undefined || current === null) {
       console.error(`Cannot access ${key} of undefined or null`)
-      return null as ParsePathResult<T, P>
+      return null
     }
 
     if (!(key in current)) {
       console.error(`Invalid key: ${key}`)
-      return null as ParsePathResult<T, P>
+      return null
     }
     current = current[key]
   }
