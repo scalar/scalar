@@ -7,7 +7,11 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 // Does work
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
-/** Fetches an OpenAPI/Swagger specification from a given URL. */
+/**
+ * Fetches an OpenAPI/Swagger specification from a given URL.
+ *
+ * @throws an error if the fetch fails
+ */
 export async function fetchSpecFromUrl(
   url: string,
   proxy?: string,
@@ -32,6 +36,10 @@ export async function fetchSpecFromUrl(
         `[fetchSpecFromUrl] Tried to fetch the specification (url: ${url}) without a proxy. Are the CORS headers configured to allow cross-domain requests? https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`,
       )
     }
+
+    throw new Error(
+      `Failed to fetch the specification (Status: ${response.status})`,
+    )
   }
 
   // If it’s JSON, make it pretty

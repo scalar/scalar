@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { nanoid } from 'nanoid'
 import { computed, nextTick, onMounted, ref } from 'vue'
 
 const props = defineProps<{
@@ -10,12 +9,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', v: string): void
   (e: 'onDelete', event: KeyboardEvent): void
-  (e: 'paste', event: ClipboardEvent): void
 }>()
 
 defineOptions({ inheritAttrs: false })
-
-const id = nanoid()
 
 const input = ref<HTMLInputElement | null>(null)
 onMounted(() => nextTick(() => input.value?.focus()))
@@ -25,29 +21,31 @@ const model = computed<string>({
   set: (v) => emit('update:modelValue', v),
 })
 
-const handleBack = (event: KeyboardEvent) => {
-  if (model.value !== '') return
-  emit('onDelete', event)
+/** Re-emits enter as a submit event for the form  */
+function handleEnter(event: KeyboardEvent) {
+  if (event.shiftKey || !event.target) return
+  event.preventDefault()
+  const target = event.target as HTMLTextAreaElement
+  const submitEvent = new Event('submit', { cancelable: true })
+  target.form?.dispatchEvent(submitEvent)
 }
 
-const handlePaste = (event: ClipboardEvent) => {
-  emit('paste', event)
+/** Emits a back event if the input is empty */
+function handleBack(event: KeyboardEvent) {
+  if (model.value !== '') return
+  event.preventDefault()
+  event.stopPropagation()
+  emit('onDelete', event)
 }
 </script>
 <template>
-  <label
-    class="absolute w-full h-full opacity-0 cursor-text"
-    :for="id"></label>
-  <input
-    :id="id"
+  <textarea
     ref="input"
     v-model="model"
-    autocomplete="off"
-    class="border-transparent outline-none w-full pl-8 text-sm min-h-8 py-1.5"
-    data-form-type="other"
-    data-lpignore="true"
+    class="border-none outline-none flex-1 w-full pl-8 text-sm min-h-8 py-1.5 resize-none"
     :placeholder="props.placeholder"
+    wrap="hard"
     v-bind="$attrs"
-    @keydown.delete.stop="handleBack($event)"
-    @paste="handlePaste($event)" />
+    @keydown.delete="handleBack($event)"
+    @keydown.enter="handleEnter($event)" />
 </template>

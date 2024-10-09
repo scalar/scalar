@@ -316,7 +316,7 @@ onBeforeUnmount(() => {
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
-  max-height: 50dvh;
+  max-height: 60dvh;
   width: 100%;
   max-width: 580px;
   padding: 6px;
