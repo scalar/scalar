@@ -8,6 +8,7 @@ import {
   diffToServerPayload,
   diffToTagPayload,
 } from '@/views/Request/libs/live-sync'
+import { createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useTimeoutPoll } from '@vueuse/core'
@@ -31,6 +32,8 @@ export const useLiveSync = () => {
     collectionMutators,
     requests,
     requestMutators,
+    requestExamples,
+    requestExampleMutators,
     securitySchemes,
     securitySchemeMutators,
     servers,
@@ -127,6 +130,28 @@ export const useLiveSync = () => {
             requestPayloads.forEach((rp) => {
               const [method, ...payload] = rp
               requestMutators[method](...payload)
+
+              // V0 just generate a new example
+              // V1 after linking parameters we can remove this part
+              if (
+                rp[0] === 'edit' &&
+                (d.path[3] === 'parameters' || d.path[3] === 'requestBody')
+              ) {
+                const requestUid = rp[1]
+                const request = requests[requestUid]
+
+                request?.examples.forEach((exampleUid) => {
+                  const newExample = createExampleFromRequest(
+                    request,
+                    requestExamples[exampleUid].name,
+                  )
+                  if (newExample)
+                    requestExampleMutators.set({
+                      ...newExample,
+                      uid: exampleUid,
+                    })
+                })
+              }
             })
           }
         })
