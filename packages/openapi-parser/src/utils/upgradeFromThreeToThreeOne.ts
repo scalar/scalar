@@ -7,7 +7,7 @@ import { traverse } from './traverse'
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
  */
 export function upgradeFromThreeToThreeOne(originalSpecification: AnyObject) {
-  let specification = structuredClone(originalSpecification)
+  let specification = originalSpecification
 
   // Version
   if (specification.openapi?.startsWith('3.0')) {
