@@ -54,11 +54,9 @@
   color-scheme: dark;
   --scalar-scrollbar-color: rgba(255, 255, 255, 0.18);
   --scalar-scrollbar-color-active: rgba(255, 255, 255, 0.36);
-  --scalar-background-1: #0f0f0f;
   --scalar-button-1: rgba(255, 255, 255, 1);
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
-  --scalar-color-1: #e7e7e7;
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
   --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
@@ -70,23 +68,14 @@
   --scalar-sidebar-indent-border: transparent;
   --scalar-sidebar-indent-border-hover: transparent;
   --scalar-sidebar-indent-border-active: transparent;
-
-  --scalar-selection-background: color-mix(
-    in sRGB,
-    var(--scalar-color-1) 80%,
-    transparent
-  );
-  --scalar-selection-color: var(--scalar-background-1);
 }
 .light-mode {
   color-scheme: light;
   --scalar-scrollbar-color-active: rgba(0, 0, 0, 0.36);
   --scalar-scrollbar-color: rgba(0, 0, 0, 0.18);
-  --scalar-background-1: #fff;
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
   --scalar-button-1-color: rgba(255, 255, 255, 0.9);
-  --scalar-color-1: #2a2f45;
 
   --scalar-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.11);
   --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
@@ -98,13 +87,6 @@
   --scalar-sidebar-indent-border: transparent;
   --scalar-sidebar-indent-border-hover: transparent;
   --scalar-sidebar-indent-border-active: transparent;
-
-  --scalar-selection-background: color-mix(
-    in sRGB,
-    var(--scalar-color-1) 80%,
-    transparent
-  );
-  --scalar-selection-color: var(--scalar-background-1);
 }
 /* On some browsers, the light color scheme takes precedence when the light mode is active */
 .light-mode .dark-mode {

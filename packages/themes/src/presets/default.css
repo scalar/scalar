@@ -44,7 +44,16 @@
   --scalar-sidebar-search-color: var(--scalar-color-3);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
 }
-
+/* selection colors */
+.light-mode,
+.dark-mode {
+  --scalar-selection-background: color-mix(
+    in sRGB,
+    var(--scalar-color-1) 80%,
+    transparent
+  );
+  --scalar-selection-color: var(--scalar-background-1);
+}
 /* advanced */
 .light-mode {
   --scalar-color-green: #069061;
