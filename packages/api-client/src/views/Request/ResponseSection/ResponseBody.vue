@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { extractFilename } from '@/libs/extractAttachmentFilename'
 import { mediaTypes } from '@/views/Request/consts'
 import { computed, ref } from 'vue'
 import MIMEType from 'whatwg-mimetype'
@@ -36,6 +37,14 @@ const mimeType = computed(() => {
   return new MIMEType(contentType)
 })
 
+const attachmentFilename = computed(() => {
+  const value =
+    props.headers.find(
+      (header) => header.name.toLowerCase() === 'content-disposition',
+    )?.value ?? ''
+  return extractFilename(value)
+})
+
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
 
 const dataUrl = computed<string>(() => {
@@ -60,6 +69,7 @@ const dataUrl = computed<string>(() => {
       v-if="data && dataUrl"
       #actions>
       <ResponseBodyDownload
+        :filename="attachmentFilename"
         :href="dataUrl"
         :type="mimeType.essence" />
     </template>
