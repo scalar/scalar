@@ -6,7 +6,9 @@ import { traverse } from './traverse'
  *
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
  */
-export function upgradeFromThreeToThreeOne(specification: AnyObject) {
+export function upgradeFromThreeToThreeOne(originalSpecification: AnyObject) {
+  let specification = structuredClone(originalSpecification)
+
   // Version
   if (specification.openapi?.startsWith('3.0')) {
     specification.openapi = '3.1.0'
@@ -45,10 +47,17 @@ export function upgradeFromThreeToThreeOne(specification: AnyObject) {
   })
 
   // Use examples not example
-  specification = traverse(specification, (schema) => {
+  specification = traverse(specification, (schema, path) => {
     if (schema.example !== undefined) {
-      schema.examples = {
-        default: schema.example,
+      // Arrays in schemas
+      if (isSchemaPath(path)) {
+        schema.examples = [schema.example]
+      }
+      // Objects everywhere else
+      else {
+        schema.examples = {
+          default: schema.example,
+        }
       }
       delete schema.example
     }
@@ -104,4 +113,29 @@ export function upgradeFromThreeToThreeOne(specification: AnyObject) {
   // }
 
   return specification
+}
+
+/** Determine if the current path is within a schema */
+export function isSchemaPath(path: string[]): boolean {
+  const schemaLocations = [
+    ['components', 'schemas'],
+    'properties',
+    'items',
+    'allOf',
+    'anyOf',
+    'oneOf',
+    'not',
+    'additionalProperties',
+  ]
+
+  return (
+    schemaLocations.some((location) => {
+      if (Array.isArray(location)) {
+        return location.every((segment, index) => path[index] === segment)
+      }
+      return path.includes(location)
+    }) ||
+    path.includes('schema') ||
+    path.some((segment) => segment.endsWith('Schema'))
+  )
 }
