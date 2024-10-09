@@ -1,48 +1,25 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 // State - null to indicate system preference
-const isDark = ref<boolean | null>(null)
+const colorMode = ref<'light' | 'dark' | 'system'>('dark')
 
 /** This hook helps with retrieving the dark mode setting from local storage or from system settings. */
-export function useDarkModeState(isDarkInitially?: boolean) {
-  // Get initial dark mode state
-  const getDarkModeState = () => {
-    // Use setting from local storage
-    const isDarkFromLocalStorage =
-      typeof window !== 'undefined'
-        ? window.localStorage?.getItem('isDark')
-        : null
-
-    if (isDarkFromLocalStorage === 'system') {
-      return null
-    }
-
-    if (typeof isDarkFromLocalStorage === 'string') {
-      return !!JSON.parse(isDarkFromLocalStorage)
-    }
-
-    // Fall back to system setting
-    return getSystemModePreference()
-  }
-
+export function useDarkModeState() {
   // Toggle dark mode
   const toggleDarkMode = () => {
     // Update state
-    isDark.value = !isDark.value
+    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
 
     // Store in local storage
     if (typeof window !== 'undefined') {
-      window?.localStorage?.setItem('isDark', JSON.stringify(isDark.value))
+      window?.localStorage?.setItem('colorMode', colorMode.value)
     }
   }
 
   function setDarkMode(value: boolean | null) {
-    isDark.value = value
+    colorMode.value = value === null ? 'system' : value ? 'dark' : 'light'
     if (typeof window !== 'undefined') {
-      window?.localStorage?.setItem(
-        'isDark',
-        value === null ? 'system' : JSON.stringify(isDark.value),
-      )
+      window?.localStorage?.setItem('colorMode', colorMode.value)
     }
   }
 
@@ -69,23 +46,25 @@ export function useDarkModeState(isDarkInitially?: boolean) {
   }
 
   // Priority of initial values is: LocalStorage/App Config/Fallback
-  isDark.value =
-    (typeof window === 'undefined'
-      ? null
-      : window.localStorage?.getItem('isDark') === 'system'
-        ? null
-        : JSON.parse(window.localStorage?.getItem('isDark') || 'null')) ??
-    isDarkInitially ??
-    getDarkModeState()
+  colorMode.value =
+    typeof window === 'undefined'
+      ? 'dark'
+      : (localStorage.getItem('colorMode') as 'light' | 'dark' | 'system') ||
+        'dark'
 
   // Apply the correct class immediately
-  applyDarkModeClass(isDark.value)
+  applyDarkModeClass(
+    colorMode.value === 'dark' ||
+      (colorMode.value === 'system' && getSystemModePreference()),
+  )
 
-  // Watch for changes in isDark to update the class
+  // Watch for changes in colorMode to update the class
   watch(
-    isDark,
-    (dark) => {
-      applyDarkModeClass(dark)
+    colorMode,
+    (mode) => {
+      applyDarkModeClass(
+        mode === 'dark' || (mode === 'system' && getSystemModePreference()),
+      )
     },
     { immediate: true },
   )
@@ -98,8 +77,8 @@ export function useDarkModeState(isDarkInitially?: boolean) {
     ) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const handleChange = () => {
-        if (isDark.value === null) {
-          applyDarkModeClass(null)
+        if (colorMode.value === 'system') {
+          applyDarkModeClass(getSystemModePreference())
         }
       }
       mediaQuery.addEventListener('change', handleChange)
@@ -111,8 +90,9 @@ export function useDarkModeState(isDarkInitially?: boolean) {
   })
 
   return {
-    isDark,
+    colorMode,
     toggleDarkMode,
     setDarkMode,
+    getSystemModePreference,
   }
 }

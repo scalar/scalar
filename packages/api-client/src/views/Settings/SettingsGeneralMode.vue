@@ -10,28 +10,17 @@ import {
 } from '@scalar/components'
 import { ref, watch } from 'vue'
 
-const { isDark, setDarkMode } = useDarkModeState()
+const { colorMode, setDarkMode } = useDarkModeState()
 const currentMode = ref<string>('System Preference')
 
-// Initialize currentMode based on isDark value
-if (isDark.value === null) {
+// Initialize currentMode based on colorMode value
+if (colorMode.value === 'system') {
   currentMode.value = 'System Preference'
-} else if (isDark.value) {
+} else if (colorMode.value === 'dark') {
   currentMode.value = 'Dark'
 } else {
   currentMode.value = 'Light'
 }
-
-// Watch for changes in isDark to update currentMode
-watch(isDark, (newVal) => {
-  if (newVal === null) {
-    currentMode.value = 'System Preference'
-  } else if (newVal) {
-    currentMode.value = 'Dark'
-  } else {
-    currentMode.value = 'Light'
-  }
-})
 
 const setSystemDarkMode = () => {
   setDarkMode(null)
