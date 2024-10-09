@@ -25,7 +25,7 @@
   --scalar-color-accent: #5469d4;
   --scalar-background-accent: #5469d41f;
 
-  --scalar-border-color: rgba(255, 255, 255, 0.18);
+  --scalar-border-color: #3f4145;
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,

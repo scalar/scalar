@@ -32,7 +32,7 @@
   --scalar-color-accent: var(--scalar-color-1);
   --scalar-background-accent: var(--scalar-background-3);
 
-  --scalar-border-color: rgba(255, 255, 255, 0.1);
+  --scalar-border-color: #2a2b2a;
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
