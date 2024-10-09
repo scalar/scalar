@@ -2,7 +2,6 @@
 import { Sidebar } from '@/components'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
-import SubpageHeader from '@/components/SubpageHeader.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { type DefineComponent, ref } from 'vue'
@@ -33,10 +32,11 @@ const activeSetting = ref('general')
               v-for="setting in settings"
               :key="setting.title"
               class="text-xs capitalize"
+              :isCopyable="false"
+              :isDeletable="false"
               :variable="{
                 uid: setting.title,
                 name: setting.title,
-                isDefault: setting.title === 'General',
               }">
               {{ setting.title }}
             </SidebarListElement>

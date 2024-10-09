@@ -2,15 +2,23 @@
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
 import { useRouter } from 'vue-router'
 
-defineProps<{
-  variable: {
-    uid: string
-    name: string
-    color?: string
-    isDefault?: boolean
-  }
-  warningMessage?: string
-}>()
+withDefaults(
+  defineProps<{
+    variable: {
+      uid: string
+      name: string
+      color?: string
+      isDefault?: boolean
+    }
+    warningMessage?: string
+    isDeletable: boolean
+    isCopyable: boolean
+  }>(),
+  {
+    isCopyable: true,
+    isDeletable: true,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
@@ -48,6 +56,8 @@ const handleDelete = (id: string) => {
       </button>
       <span class="empty-variable-name">{{ variable.name }}</span>
       <SidebarListElementActions
+        :isCopyable="isCopyable"
+        :isDeletable="isDeletable"
         :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
         :warningMessage="warningMessage"
         @delete="handleDelete" />

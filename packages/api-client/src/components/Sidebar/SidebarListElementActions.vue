@@ -11,6 +11,8 @@ const { variable } = defineProps<{
     isDefault: boolean
   }
   warningMessage?: string
+  isCopyable?: boolean
+  isDeletable?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -45,6 +47,7 @@ function handleDelete(id: string) {
 <template>
   <div class="absolute flex right-1 opacity-0 group-hover:opacity-100">
     <button
+      v-if="isCopyable"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-[5px]"
       type="button"
       @click="copyToClipboard(variable.name)">
@@ -53,7 +56,7 @@ function handleDelete(id: string) {
         icon="Clipboard" />
     </button>
     <button
-      v-if="!variable.isDefault"
+      v-if="!variable.isDefault && isDeletable"
       class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-1"
       type="button"
       @click.prevent="startActionFlow(ModalAction.Delete)">
