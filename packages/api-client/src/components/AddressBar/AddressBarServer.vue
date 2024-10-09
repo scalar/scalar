@@ -73,7 +73,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     "
     teleport=".scalar-client">
     <button
-      class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 z-[1]"
+      class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2"
       type="button"
       @click.stop>
       {{ serverUrlWithoutTrailingSlash }}

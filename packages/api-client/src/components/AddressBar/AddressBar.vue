@@ -152,7 +152,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
             { 'border-transparent overflow-visible rounded-b-none': open },
           ]">
           <div
-            class="pointer-events-none absolute left-0 top-0 z-10 block h-full w-full overflow-hidden">
+            class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
             <div
               class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full"
               :class="getBackgroundColor()"
@@ -191,14 +191,14 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
 
           <AddressBarHistory :open="open" />
           <ScalarButton
-            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 z-[1] font-bold"
+            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 font-bold"
             :disabled="isRequesting"
             @click="handleExecuteRequest">
             <ScalarIcon
-              class="relative z-10 shrink-0 fill-current"
+              class="relative shrink-0 fill-current"
               icon="Play"
               size="xs" />
-            <span class="text-xxs relative z-10 lg:flex hidden">Send</span>
+            <span class="text-xxs relative lg:flex hidden">Send</span>
           </ScalarButton>
         </div>
       </Listbox>
@@ -270,7 +270,6 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
   animation-duration: 1ms;
   animation-direction: reverse;
   animation-timeline: --scroll-timeline;
-  z-index: 1;
   pointer-events: none;
 }
 .fade-left {

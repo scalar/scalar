@@ -51,7 +51,6 @@ defineEmits<{
   padding-left: 24px;
   position: absolute;
   right: 0;
-  z-index: 100;
   transition: width 0s ease-in-out 0.2s;
   overflow: hidden;
 }

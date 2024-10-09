@@ -114,7 +114,7 @@ onBeforeUnmount(() => {
         class="xl:min-h-header xl:py-2.5 py-1 px-2.5 border-b-1/2" />
     </template>
     <template #content>
-      <div class="search-button-fade sticky px-3 py-2.5 top-0 z-50">
+      <div class="search-button-fade sticky px-3 py-2.5 top-0 z-1">
         <ScalarSearchInput
           ref="searchInputRef"
           v-model="searchText"
