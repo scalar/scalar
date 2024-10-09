@@ -1,4 +1,4 @@
-import type { APIError, APIResponse } from '@/types'
+import type { APIError, APIResponse } from './types'
 
 /** Create a standardized API return object */
 export function formatApiResponse<T>(data: T, status: number): APIResponse<T> {
