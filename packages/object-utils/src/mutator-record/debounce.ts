@@ -2,6 +2,7 @@ type CallbackFunction = (...args: any[]) => any
 
 /**
  * Dependency-less debounce function with max wait
+ * derived from @url https://dev.to/cantem/how-to-write-a-debounce-function-1bdf
  *
  * @param fn - any function to debounce
  * @param wait - time in ms to wait after function call to invoke function
