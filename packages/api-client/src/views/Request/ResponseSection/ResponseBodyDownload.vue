@@ -6,16 +6,18 @@ import { computed } from 'vue'
 const props = defineProps<{
   href: string
   type?: string
+  filename?: string
 }>()
 
-const extension = computed(
-  () => mediaTypes[props.type ?? '']?.extension ?? '.unknown',
-)
+const filenameExtension = computed(() => {
+  const extension = mediaTypes[props.type ?? '']?.extension ?? '.unknown'
+  return props.filename ? props.filename : `response${extension}`
+})
 </script>
 <template>
   <a
     class="flex gap-1 text-c-3 text-xxs no-underline items-center hover:bg-b-3 rounded py-0.5 px-1.5"
-    :download="`response${extension}`"
+    :download="`${filenameExtension}`"
     :href="href"
     @click.stop>
     <ScalarIcon
