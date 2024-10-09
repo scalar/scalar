@@ -128,7 +128,7 @@ const routes = [
       },
       {
         path: 'settings',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/general`,
       },
       {
         name: PathId.Settings,
