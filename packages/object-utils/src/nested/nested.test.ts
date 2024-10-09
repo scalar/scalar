@@ -1,7 +1,7 @@
 import { clone } from '@/clone'
 import { describe, expect, test } from 'vitest'
 
-import { setNestedValue } from './nested'
+import { parseTypedPath, setNestedValue } from './nested'
 
 const nestedObj = {
   a: {
@@ -21,12 +21,22 @@ const nestedObj = {
 }
 
 const request = {
+  tags: ['Planets'],
+  summary: 'Get a planet',
+  description:
+    'You’ll better learn a little bit more about the planets. It might come in handy once space travel is available for everyone.',
+  operationId: 'getPlanet',
+  security: [{}],
   parameters: [
     {
+      in: 'path',
+      name: 'planetId',
+      required: true,
+      deprecated: false,
       schema: { type: 'integer', format: 'int64', examples: [1] },
     },
   ],
-}
+} as const
 
 describe('Set a nested value', () => {
   test('Basic nested set', () => {
@@ -68,5 +78,15 @@ describe('Set a nested value', () => {
     copy.c[2] = { name: 'asda' }
 
     expect(baseObj).toEqual(copy)
+  })
+
+  test('Parse a path', () => {
+    expect(parseTypedPath(request, 'parameters.0.schema.examples.0')).toEqual(
+      'parameters.0.schema.examples.0',
+    )
+  })
+
+  test('Parse an invalid path', () => {
+    expect(parseTypedPath(request, 'parameters.stuff.others')).toBeNull()
   })
 })

@@ -172,6 +172,19 @@ type PathValue<T, P extends Path<T> | ArrayPath<T>> = T extends any
         : never
   : never
 
+/** Used for parsing a string path into one which can be used to set a value */
+type ParsePathResult<T, P extends string> = P extends keyof T
+  ? P
+  : P extends `${infer Key}.${infer Rest}`
+    ? Key extends keyof T
+      ? ParsePathResult<T[Key], Rest> extends infer NestedPath
+        ? NestedPath extends string
+          ? `${Key}.${NestedPath}`
+          : null
+        : null
+      : null
+    : null
+
 /**
  * See {@link PathValue}
  */
@@ -281,6 +294,32 @@ export function getNestedValue<T, P extends Path<T>>(obj: T, path: P) {
   return keys.reduce((acc, current) => {
     return acc[current]
   }, obj as any)
+}
+
+/** Parse a string path into a typed path */
+export const parseTypedPath = <T, P extends string>(
+  obj: T,
+  path: P,
+): ParsePathResult<T, P> => {
+  const keys = path.split('.')
+  let current: any = obj
+
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+
+    if (current === undefined || current === null) {
+      console.error(`Cannot access ${key} of undefined or null`)
+      return null as ParsePathResult<T, P>
+    }
+
+    if (!(key in current)) {
+      console.error(`Invalid key: ${key}`)
+      return null as ParsePathResult<T, P>
+    }
+    current = current[key]
+  }
+
+  return path as ParsePathResult<T, P>
 }
 
 /** Export the path and path value types to create other setter functions */
