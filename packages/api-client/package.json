@@ -65,6 +65,10 @@
       "import": "./dist/libs/index.js",
       "types": "./dist/libs/index.d.ts"
     },
+    "./libs/importers": {
+      "import": "./dist/libs/importers/index.js",
+      "types": "./dist/libs/importers/index.d.ts"
+    },
     "./libs/event-busses": {
       "import": "./dist/libs/event-busses/index.js",
       "types": "./dist/libs/event-busses/index.d.ts"
@@ -153,6 +157,7 @@
     "nanoid": "^5.0.7",
     "pretty-bytes": "^6.1.1",
     "pretty-ms": "^8.0.0",
+    "shell-quote": "^1.8.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.0",
     "whatwg-mimetype": "^4.0.0",
@@ -163,6 +168,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@types/content-type": "^1.1.8",
     "@types/js-cookie": "^3.0.6",
+    "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",

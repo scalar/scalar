@@ -33,6 +33,7 @@ const props = withDefaults(
     type?: string
     nullable?: boolean
     withVariables?: boolean
+    importCurl?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -47,6 +48,7 @@ const props = withDefaults(
 const emit = defineEmits<{
   (e: 'submit', v: string): void
   (e: 'update:modelValue', v: string): void
+  (e: 'curl', v: string): void
 }>()
 
 const attrs = useAttrs()
@@ -69,6 +71,19 @@ function handleChange(value: string) {
   // We need to be careful, only if the value is different we trigger an update
   // on initial load of the component, this gets triggered cause we set the content
   if (value === props.modelValue) return null
+  if (props.importCurl && value.trim().toLowerCase().startsWith('curl')) {
+    emit('curl', value)
+    // Maintain previous input value
+    codeMirror.value?.dispatch({
+      changes: {
+        from: 0,
+        to: codeMirror.value.state.doc.length,
+        insert: String(props.modelValue),
+      },
+    })
+    // Prevent table value population on current request
+    return null
+  }
   return props.handleFieldChange
     ? props.handleFieldChange(value)
     : emit('update:modelValue', value)
