@@ -244,15 +244,26 @@ export function setNestedValue<T, P extends Path<T>>(
   value: PathValue<T, P>,
 ) {
   const keys = path.split('.')
-  const lastKey = keys.at(-1)
+  let current: any = obj
+  const lastIndex = keys.length - 1
 
-  // Loop over to get the nested object reference. Then assign the value to it
-  keys.reduce((acc, current) => {
-    if (current === lastKey) acc[current] = value
+  for (let i = 0; i < lastIndex; i++) {
+    const key = keys[i]
+    const nextKey = keys[i + 1]
+    const isNextKeyNumeric = /^\d+$/.test(nextKey)
 
-    return acc[current]
-  }, obj as any)
+    if (current[key] === undefined) {
+      current[key] = isNextKeyNumeric ? [] : {}
+    } else if (Array.isArray(current[key]) !== isNextKeyNumeric) {
+      throw new Error(
+        `Type mismatch at '${keys.slice(0, i + 1).join('.')}': expected ${isNextKeyNumeric ? 'array' : 'object'}`,
+      )
+    }
 
+    current = current[key]
+  }
+
+  current[keys[lastIndex]] = value
   return obj
 }
 

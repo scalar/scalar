@@ -20,6 +20,14 @@ const nestedObj = {
   },
 }
 
+const request = {
+  parameters: [
+    {
+      schema: { type: 'integer', format: 'int64', examples: [1] },
+    },
+  ],
+}
+
 describe('Set a nested value', () => {
   test('Basic nested set', () => {
     const baseObj = clone(nestedObj)
@@ -38,6 +46,16 @@ describe('Set a nested value', () => {
 
     setNestedValue(baseObj, 'c.1.name', 'three')
     copy.c[1].name = 'three'
+
+    expect(baseObj).toEqual(copy)
+  })
+
+  test('Nested array replacement on request parameters', () => {
+    const baseObj = clone(request)
+    const copy = clone(request)
+
+    setNestedValue(baseObj, 'parameters.0.schema.examples.0', 122)
+    copy.parameters[0].schema.examples[0] = 122
 
     expect(baseObj).toEqual(copy)
   })
