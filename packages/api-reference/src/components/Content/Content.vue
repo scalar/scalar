@@ -4,14 +4,13 @@ import { computed } from 'vue'
 
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
-import { useNavState, useSidebar } from '../../hooks'
+import { useSidebar } from '../../hooks'
 import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
-import { Lazy, Loading } from './Lazy'
+import { Loading } from './Lazy'
 import { Models, ModelsAccordion } from './Models'
-import { Operation, OperationAccordion } from './Operation'
-import { Tag, TagAccordion } from './Tag'
+import { TagList } from './Tag'
 import { Webhooks } from './Webhooks'
 
 const props = defineProps<{
@@ -22,23 +21,11 @@ const props = defineProps<{
   proxy?: string
 }>()
 
-const { getOperationId, getTagId, hash } = useNavState()
-const { hideModels, collapsedSidebarItems } = useSidebar()
-
-const tagLayout = computed<typeof Tag>(() =>
-  props.layout === 'accordion' ? TagAccordion : Tag,
-)
-
-const endpointLayout = computed<typeof Operation>(() =>
-  props.layout === 'accordion' ? OperationAccordion : Operation,
-)
+const { hideModels } = useSidebar()
 
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
 )
-
-// If the first load is models, we do not lazy load tags/operations
-const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
 </script>
 <template>
   <!-- For adding gradients + animations to introduction of documents that :before / :after won't work for -->
@@ -83,29 +70,23 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
       v-else
       name="empty-state" />
 
-    <Lazy
-      v-for="tag in parsedSpec.tags"
-      :id="getTagId(tag)"
-      :key="getTagId(tag)"
-      :isLazy="isLazy && !collapsedSidebarItems[getTagId(tag)]">
-      <Component
-        :is="tagLayout"
-        :id="getTagId(tag)"
+    <template v-if="parsedSpec.tags">
+      <template v-if="parsedSpec['x-tagGroups']">
+        <TagList
+          v-for="tagGroup in parsedSpec['x-tagGroups']"
+          :key="tagGroup.name"
+          :layout="layout"
+          :spec="parsedSpec"
+          :tags="
+            parsedSpec.tags.filter((t) => tagGroup.tags.includes(t.name))
+          " />
+      </template>
+      <TagList
+        v-else
+        :layout="layout"
         :spec="parsedSpec"
-        :tag="tag">
-        <Lazy
-          v-for="(operation, operationIndex) in tag.operations"
-          :id="getOperationId(operation, tag)"
-          :key="`${operation.httpVerb}-${operation.operationId}`"
-          :isLazy="operationIndex > 0">
-          <Component
-            :is="endpointLayout"
-            :id="getOperationId(operation, tag)"
-            :operation="operation"
-            :tag="tag" />
-        </Lazy>
-      </Component>
-    </Lazy>
+        :tags="parsedSpec.tags" />
+    </template>
 
     <template v-if="parsedSpec.webhooks">
       <Webhooks :webhooks="parsedSpec.webhooks" />
