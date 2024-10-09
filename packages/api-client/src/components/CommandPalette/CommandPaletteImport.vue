@@ -22,7 +22,9 @@ const emits = defineEmits<{
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const { toast } = useToasts()
 const loader = useLoadingState()
+
 const inputContent = ref('')
+const liveSync = ref(false)
 
 const documentDetails = computed(() =>
   getOpenApiDocumentDetails(inputContent.value),
@@ -34,7 +36,6 @@ const documentType = computed(() =>
 
 const isInputUrl = computed(() => isUrl(inputContent.value))
 const isInputDocument = computed(() => !!documentDetails.value)
-const liveSync = ref(false)
 
 const { open: openSpecFileDialog } = useFileDialog({
   onChange: async (files) => {
@@ -65,20 +66,20 @@ async function importCollection() {
 
   loader.startLoading()
   try {
-    if (inputContent.value) {
-      if (isUrl(inputContent.value)) {
-        await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
-          proxy: activeWorkspace.value.proxyUrl,
-          liveSync: liveSync.value,
-        })
-      } else if (isDocument(inputContent.value)) {
-        await importSpecFile(
-          String(inputContent.value),
-          activeWorkspace.value.uid,
-        )
-      } else {
-        toast('Import failed: Invalid URL or OpenAPI document', 'error')
-      }
+    if (isInputUrl.value)
+      await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
+        proxy: activeWorkspace.value.proxyUrl,
+        liveSync: liveSync.value,
+      })
+    else if (isInputDocument.value)
+      await importSpecFile(
+        String(inputContent.value),
+        activeWorkspace.value.uid,
+      )
+    else {
+      toast('Import failed: Invalid URL or OpenAPI document', 'error')
+      loader.invalidate(2000, true)
+      return
     }
 
     loader.clear()
@@ -124,14 +125,14 @@ async function importCollection() {
     <template #options>
       <div class="flex flex-row items-center justify-start gap-3">
         <ScalarButton
-          class="p-2 max-h-8 gap-1 text-xs hover:bg-b-2 relative"
+          class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
           variant="outlined"
           @click="openSpecFileDialog">
-          JSON, or YAML Files
+          JSON, or YAML File
           <ScalarIcon
-            class="text-c-3 -rotate-90"
-            icon="ArrowRight"
-            size="sm" />
+            class="text-c-3"
+            icon="UploadSimple"
+            size="md" />
         </ScalarButton>
 
         <!-- Live Sync Checkbox -->
