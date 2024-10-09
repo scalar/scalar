@@ -1,7 +1,8 @@
 import { clone } from '@/clone'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, expectTypeOf, test } from 'vitest'
 
 import { parseTypedPath, setNestedValue } from './nested'
+import type { ParsePathResult } from './nested'
 
 const nestedObj = {
   a: {
@@ -88,5 +89,32 @@ describe('Set a nested value', () => {
 
   test('Parse an invalid path', () => {
     expect(parseTypedPath(request, 'parameters.stuff.others')).toBeNull()
+  })
+})
+
+describe('ParsePathResult type tests', () => {
+  test('Valid nested path', () => {
+    type Result = ParsePathResult<typeof nestedObj, 'a.aa'>
+    expectTypeOf<Result>().toEqualTypeOf<'a.aa'>()
+  })
+
+  test('Valid array path', () => {
+    type Result = ParsePathResult<typeof nestedObj, 'c.0.name'>
+    expectTypeOf<Result>().toEqualTypeOf<'c.0.name'>()
+  })
+
+  test('Invalid path', () => {
+    type Result = ParsePathResult<typeof nestedObj, 'a.nonexistent'>
+    expectTypeOf<Result>().toEqualTypeOf<null>()
+  })
+
+  test('Partial valid path', () => {
+    type Result = ParsePathResult<typeof nestedObj, 'a.aa.nonexistent'>
+    expectTypeOf<Result>().toEqualTypeOf<null>()
+  })
+
+  test('Deep nested path', () => {
+    type Result = ParsePathResult<typeof nestedObj, 'd.da.daa.daaa'>
+    expectTypeOf<Result>().toEqualTypeOf<'d.da.daa.daaa'>()
   })
 })
