@@ -1,6 +1,6 @@
-import { formatApiError, formatApiResponse } from '@/format'
-import { schemaModel } from '@/schemaModel'
-import type { RequestConfig } from '@/types'
+import { formatApiError, formatApiResponse } from './format'
+import { schemaModel } from './schemaModel'
+import type { RequestConfig } from './types'
 
 export async function request<T>({
   disableAuth = false,
