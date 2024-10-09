@@ -1,5 +1,17 @@
 # @scalar/cli
 
+## 0.2.215
+
+### Patch Changes
+
+- f8fd854: chore: release cli for public config
+- Updated dependencies [46a55ae]
+- Updated dependencies [90e4baf]
+- Updated dependencies [b26144c]
+  - @scalar/api-reference@1.25.32
+  - @scalar/oas-utils@0.2.53
+  - @scalar/mock-server@0.2.57
+
 ## 0.2.214
 
 ### Patch Changes

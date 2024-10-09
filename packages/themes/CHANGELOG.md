@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.35
+
+### Patch Changes
+
+- b26144c: fix(themes): remove variables from theme layer and move selection to default (base) theme
+
 ## 0.9.34
 
 ### Patch Changes
