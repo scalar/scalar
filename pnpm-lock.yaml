@@ -1859,9 +1859,6 @@ importers:
 
   packages/object-utils:
     dependencies:
-      '@vueuse/core':
-        specifier: ^10.10.0
-        version: 10.11.0(vue@3.4.31(typescript@5.6.2))
       flatted:
         specifier: ^3.3.1
         version: 3.3.1
