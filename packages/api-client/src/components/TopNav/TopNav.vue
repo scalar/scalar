@@ -2,7 +2,7 @@
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
 import { useClipboard } from '@/hooks/useClipboard'
-import { type HotKeyEvents, hotKeyBus } from '@/libs'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import {
   type Icon,
@@ -19,7 +19,7 @@ import TopNavItem from './TopNavItem.vue'
 const props = defineProps<{
   openNewTab: { name: string; uid: string } | null
 }>()
-const { activeRequest, router } = useWorkspace()
+const { activeRequest, router, events } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
 /** Nav Items list */
@@ -107,7 +107,8 @@ const closeOtherTabs = (idx: number) => {
 }
 
 /** Handle hotkeys */
-const handleHotKey = (event: HotKeyEvents) => {
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (!event) return
   if (event.addTopNav) addNavItem()
   if (event.closeTopNav) removeNavItem(activeNavItemIdx.value)
   if (event.navigateTopNavLeft)
@@ -141,8 +142,8 @@ watch(
   { immediate: true },
 )
 
-onMounted(() => hotKeyBus.on(handleHotKey))
-onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
+onMounted(() => events.hotKeys.on(handleHotKey))
+onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <nav class="flex h-10 t-app__top-nav">

@@ -30,6 +30,13 @@ export const PaletteComponents = {
 
 /** Infer the types from the commands  */
 export type CommandNames = keyof typeof PaletteComponents
+
+export type CommandPaletteEvent = {
+  /** The command name which matches with the command palette */
+  commandName?: CommandNames
+  /** Any extra metadata we want to pass to the command palettes */
+  metaData?: Record<string, any>
+}
 </script>
 
 <script setup lang="ts">
@@ -37,12 +44,7 @@ import { ScalarIcon, useModal } from '@scalar/components'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import {
-  commandPaletteBus,
-  hotKeyBus,
-  type HotKeyEvents,
-  type CommandPaletteEvent,
-} from '@/libs'
+import type { HotKeyEvent } from '@/libs'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -99,7 +101,7 @@ type Command = (typeof availableCommands)[number]['commands'][number]
 
 const modalState = useModal()
 const { push } = useRouter()
-const { activeWorkspace } = useWorkspace()
+const { activeWorkspace, events } = useWorkspace()
 
 /** Additional metadata for the command palettes */
 const metaData = ref<Record<string, any> | undefined>()
@@ -202,18 +204,18 @@ const handleSelect = (ev: KeyboardEvent) => {
 }
 
 /** Handle hotkeys */
-const handleHotKey = (event: HotKeyEvents) => {
+const handleHotKey = (event?: HotKeyEvent) => {
   if (!modalState.open) return
-  if (event.closeModal) closeHandler()
+  if (event?.closeModal) closeHandler()
 }
 
 onMounted(() => {
-  commandPaletteBus.on(openCommandPalette)
-  hotKeyBus.on(handleHotKey)
+  events.commandPalette.on(openCommandPalette)
+  events.hotKeys.on(handleHotKey)
 })
 onBeforeUnmount(() => {
-  commandPaletteBus.off(openCommandPalette)
-  hotKeyBus.off(handleHotKey)
+  events.commandPalette.off(openCommandPalette)
+  events.hotKeys.off(handleHotKey)
 })
 </script>
 <template>

@@ -1,5 +1,5 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
-import { requestStatusBus } from '@/libs/event-busses'
+import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
@@ -20,6 +20,8 @@ import {
 } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
+
+export type RequestStatus = 'start' | 'stop' | 'abort'
 
 // TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
 /** Decode the buffer according to its content-type */
@@ -235,6 +237,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
   server,
   securitySchemes,
   proxy,
+  status,
   environment,
   globalCookies,
 }: {
@@ -242,6 +245,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
   request: Request
   example: RequestExample
   proxy?: string
+  status?: EventBus<RequestStatus>
   environment: object | undefined
   server?: Server
   securitySchemes: Record<string, SecurityScheme>
@@ -279,7 +283,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
     const urlParams = createFetchQueryParams(example, env)
     const headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
-    const { cookieParams } = setRequestCookies({
+    setRequestCookies({
       example,
       env,
       globalCookies,
@@ -336,7 +340,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         timestamp: number
       }>
     > => {
-      requestStatusBus.emit('start')
+      status?.emit('start')
 
       // Start timer to get response duration
       const startTime = Date.now()
@@ -380,7 +384,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
           headers,
         })
 
-        requestStatusBus.emit('stop')
+        status?.emit('stop')
 
         const responseHeaders = normalizeHeaders(
           response.headers,
@@ -420,7 +424,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
           },
         ]
       } catch (e) {
-        requestStatusBus.emit('abort')
+        status?.emit('abort')
         return [normalizeError(e, ERRORS.REQUEST_FAILED), null]
       }
     }
@@ -433,7 +437,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
       },
     ]
   } catch (e) {
-    requestStatusBus.emit('abort')
+    status?.emit('abort')
     return [normalizeError(e), null]
   }
 }

@@ -9,6 +9,7 @@ import {
   createStoreEnvironments,
   extendedEnvironmentDataFactory,
 } from '@/store/environment'
+import { createStoreEvents } from '@/store/events'
 import { importSpecFileFactory } from '@/store/import-spec'
 import {
   createStoreRequestExamples,
@@ -298,6 +299,10 @@ export const createWorkspaceStore = (
     workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', url)
   }
 
+  // ---------------------------------------------------------------------------
+  // Events Busses
+  const events = createStoreEvents()
+
   return {
     // ---------------------------------------------------------------------------
     // STATE
@@ -325,6 +330,7 @@ export const createWorkspaceStore = (
     modalState,
     isReadOnly,
     router,
+    events,
     sidebarWidth,
     setSidebarWidth,
     proxyUrl,

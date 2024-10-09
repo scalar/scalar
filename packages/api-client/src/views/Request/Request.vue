@@ -2,7 +2,7 @@
 import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { ERRORS, cancelRequestBus, executeRequestBus } from '@/libs'
+import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
@@ -38,6 +38,7 @@ const {
   requestMutators,
   serverMutators,
   servers,
+  events,
 } = workspaceContext
 
 const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
@@ -77,6 +78,7 @@ const executeRequest = async () => {
     proxy: activeWorkspace.value.proxyUrl ?? '',
     environment,
     globalCookies,
+    status: events.requestStatus,
     securitySchemes: securitySchemes,
     server: activeServer.value,
   })
@@ -100,8 +102,8 @@ const cancelRequest = async () =>
   requestAbortController.value?.abort(ERRORS.REQUEST_ABORTED)
 
 onMounted(() => {
-  executeRequestBus.on(executeRequest)
-  cancelRequestBus.on(cancelRequest)
+  events.executeRequest.on(executeRequest)
+  events.cancelRequest.on(cancelRequest)
 })
 
 /**
@@ -109,7 +111,7 @@ onMounted(() => {
  *
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
-onBeforeUnmount(() => executeRequestBus.off(executeRequest))
+onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 
 function createRequestFromCurl({ requestName }: { requestName: string }) {
   if (!parsedCurl.value) return

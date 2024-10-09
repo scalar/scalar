@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
-import { commandPaletteBus } from '@/libs/event-busses'
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
@@ -16,7 +15,8 @@ import {
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, workspaces, workspaceMutators } = useWorkspace()
+const { activeWorkspace, workspaces, workspaceMutators, events } =
+  useWorkspace()
 const { push } = useRouter()
 
 const updateSelected = (uid: string) => {
@@ -27,7 +27,7 @@ const updateSelected = (uid: string) => {
 const isLastWorkspace = computed(() => Object.keys(workspaces).length === 1)
 
 const createNewWorkspace = () =>
-  commandPaletteBus.emit({ commandName: 'Create Workspace' })
+  events.commandPalette.emit({ commandName: 'Create Workspace' })
 
 const tempName = ref('')
 const tempUid = ref('')

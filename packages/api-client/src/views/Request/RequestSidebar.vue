@@ -7,7 +7,7 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import { useSearch } from '@/components/Search/useSearch'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
-import { type HotKeyEvents, commandPaletteBus, hotKeyBus } from '@/libs'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
@@ -41,6 +41,7 @@ const {
   activeWorkspaceRequests,
   findRequestParents,
   isReadOnly,
+  events,
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
@@ -76,13 +77,15 @@ const {
 } = useSearch()
 
 /** Handle hotkey events from the bus */
-const handleHotKey = (event: HotKeyEvents) => {
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (!event) return
+
   if (event.toggleSidebar) emit('update:showSidebar', props.showSidebar)
 
   // We prevent default on open command so we can use it on the web
   if (event.openCommandPalette) {
     event.openCommandPalette.preventDefault()
-    commandPaletteBus.emit()
+    events.commandPalette.emit()
   }
 
   if (event.focusRequestSearch) {
@@ -90,7 +93,7 @@ const handleHotKey = (event: HotKeyEvents) => {
   }
 }
 
-onMounted(() => hotKeyBus.on(handleHotKey))
+onMounted(() => events.hotKeys.on(handleHotKey))
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak
@@ -98,7 +101,7 @@ onMounted(() => hotKeyBus.on(handleHotKey))
  * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
  */
 onBeforeUnmount(() => {
-  hotKeyBus.off(handleHotKey)
+  events.hotKeys.off(handleHotKey)
 })
 </script>
 <template>
@@ -215,7 +218,7 @@ onBeforeUnmount(() => {
         </div>
         <SidebarButton
           v-if="!isReadonly"
-          :click="commandPaletteBus.emit">
+          :click="events.commandPalette.emit">
           <template #title>Add Item</template>
         </SidebarButton>
       </div>
