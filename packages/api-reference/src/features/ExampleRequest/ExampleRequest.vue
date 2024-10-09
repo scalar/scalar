@@ -33,7 +33,6 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import {
   GLOBAL_SECURITY_SYMBOL,
-  getApiClientRequest,
   getExampleCode,
   getHarRequest,
 } from '../../helpers'
@@ -43,6 +42,8 @@ import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
   operation: TransformedOperation
+  /** Show a simplified card if no example are available */
+  fallback?: boolean
 }>()
 
 const ssrHash = createHash(
@@ -308,6 +309,20 @@ function updateHttpClient(value: string) {
       <slot name="footer" />
     </CardFooter>
   </Card>
+  <Card
+    v-else-if="fallback"
+    class="dark-mode">
+    <CardContent class="request-card-simple">
+      <div class="request-header">
+        <HttpMethod
+          as="span"
+          class="request-method"
+          :method="operation.httpVerb" />
+        <slot name="header" />
+      </div>
+      <slot name="footer" />
+    </CardContent>
+  </Card>
 </template>
 <style scoped>
 .request {
@@ -343,6 +358,15 @@ function updateHttpClient(value: string) {
 .request-editor-section {
   display: flex;
   flex: 1;
+}
+.request-card-simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 8px 8px 8px 12px;
+
+  font-size: var(--scalar-small);
 }
 .code-snippet {
   display: flex;
