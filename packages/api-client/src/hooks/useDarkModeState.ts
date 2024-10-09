@@ -1,6 +1,5 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
-// State - null to indicate system preference
 const colorMode = ref<'light' | 'dark' | 'system'>('dark')
 
 /** This hook helps with retrieving the dark mode setting from local storage or from system settings. */
