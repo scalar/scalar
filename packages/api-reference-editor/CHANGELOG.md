@@ -1,5 +1,19 @@
 # @scalar/api-reference-editor
 
+## 0.1.91
+
+### Patch Changes
+
+- 46a55ae: feat(api-client): improve client import ux
+- Updated dependencies [7c2e291]
+- Updated dependencies [46a55ae]
+- Updated dependencies [90e4baf]
+- Updated dependencies [5d996a8]
+- Updated dependencies [b26144c]
+  - @scalar/api-client@2.1.18
+  - @scalar/api-reference@1.25.32
+  - @scalar/oas-utils@0.2.53
+
 ## 0.1.90
 
 ### Patch Changes

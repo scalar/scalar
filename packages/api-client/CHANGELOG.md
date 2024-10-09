@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.1.18
+
+### Patch Changes
+
+- 7c2e291: style: removes comamand palette command label + style fixtures
+- 46a55ae: feat(api-client): improve client import ux
+- 5d996a8: feat: download response with filename
+- b26144c: fix(themes): remove variables from theme layer and move selection to default (base) theme
+- Updated dependencies [46a55ae]
+- Updated dependencies [b26144c]
+  - @scalar/oas-utils@0.2.53
+  - @scalar/themes@0.9.35
+  - @scalar/components@0.12.50
+
 ## 2.1.17
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.53
+
+### Patch Changes
+
+- 46a55ae: feat(api-client): improve client import ux
+- Updated dependencies [b26144c]
+  - @scalar/themes@0.9.35
+
 ## 0.2.52
 
 ### Patch Changes
