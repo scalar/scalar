@@ -1,8 +1,8 @@
 import { Mutation } from '@/mutator-record/mutations'
 import type { Path, PathValue } from '@/nested'
-import { useDebounceFn } from '@vueuse/core'
 import { stringify } from 'flatted'
 
+import { debounce } from './debounce'
 import { LS_CONFIG } from './local-storage'
 
 const MAX_MUTATION_RECORDS = 500
@@ -29,7 +29,7 @@ export function mutationFactory<
 
   /** Triggers on any changes so we can save to localStorage */
   const onChange = localStorageKey
-    ? useDebounceFn(
+    ? debounce(
         () => localStorage.setItem(localStorageKey, stringify(entityMap)),
         LS_CONFIG.DEBOUNCE_MS,
         { maxWait: LS_CONFIG.MAX_WAIT_MS },
