@@ -67,7 +67,7 @@ const overrides: Record<string, unknown> = {
 /** Provide default values for some fields */
 const fallbacks: Record<string, unknown> = {
   engines: {
-    node: '>=20',
+    node: '>=18',
   },
 }
 

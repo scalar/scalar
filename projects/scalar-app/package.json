@@ -13,7 +13,7 @@
   "version": "0.1.57",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "npm run types:check && electron-vite build",

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "test:e2e": "playwright test",
