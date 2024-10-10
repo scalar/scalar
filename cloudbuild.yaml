@@ -371,7 +371,7 @@ steps:
         '-t',
         'gcr.io/${_PROJECT_ID}/${_SERVICE_OPEN_API_CLIENT}',
         '-f',
-        './packages/api-client-app/Dockerfile',
+        './projects/app/Dockerfile',
         '.',
       ]
   - name: 'gcr.io/cloud-builders/docker'
