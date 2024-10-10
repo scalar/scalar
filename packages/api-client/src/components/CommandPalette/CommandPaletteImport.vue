@@ -24,7 +24,7 @@ const { toast } = useToasts()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const liveSync = ref(false)
+const watchForChanges = ref(true)
 
 const documentDetails = computed(() =>
   getOpenApiDocumentDetails(inputContent.value),
@@ -69,7 +69,7 @@ async function importCollection() {
     if (isInputUrl.value)
       await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
         proxy: activeWorkspace.value.proxyUrl,
-        liveSync: liveSync.value,
+        watchForChanges: watchForChanges.value,
       })
     else if (isInputDocument.value)
       await importSpecFile(
@@ -102,10 +102,11 @@ async function importCollection() {
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         v-model="inputContent"
-        placeholder="Paste Swagger/OpenAPI File URL or content"
+        placeholder="Your OpenAPI/Swagger document or URL"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
+      <!-- OpenAPI document preview -->
       <div class="flex justify-between">
         <div class="pl-8 text-xs min-h-8 py-2 text-c-2">Preview</div>
         <ScalarButton
@@ -124,6 +125,7 @@ async function importCollection() {
     </template>
     <template #options>
       <div class="flex flex-row items-center justify-start gap-3">
+        <!-- Upload -->
         <ScalarButton
           class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
           variant="outlined"
@@ -135,14 +137,14 @@ async function importCollection() {
             size="md" />
         </ScalarButton>
 
-        <!-- Live Sync Checkbox -->
+        <!-- Watch -->
         <label
           v-if="isUrl(inputContent)"
           class="cursor-pointer">
           <input
-            v-model="liveSync"
+            v-model="watchForChanges"
             type="checkbox" />
-          Live Sync
+          Watch for changes
         </label>
       </div>
     </template>
