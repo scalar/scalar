@@ -259,7 +259,7 @@ const themeStyleTag = computed(
 </script>
 <template>
   <div v-html="themeStyleTag"></div>
-  <div
+  <main
     ref="documentEl"
     class="scalar-app scalar-api-reference references-layout"
     :class="[
@@ -363,7 +363,7 @@ const themeStyleTag = computed(
       :proxyUrl="configuration.proxy"
       :servers="configuration.servers"
       :spec="configuration.spec" />
-  </div>
+  </main>
   <ScalarToasts />
 </template>
 <style>
