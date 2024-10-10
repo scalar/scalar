@@ -1,5 +1,13 @@
 # @scalar/hono-api-reference
 
+## 0.5.153
+
+### Patch Changes
+
+- e911047: Add default exports
+- Updated dependencies [e911047]
+  - @scalar/types@0.0.14
+
 ## 0.5.152
 
 ### Patch Changes

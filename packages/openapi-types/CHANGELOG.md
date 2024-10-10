@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.2
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.1.1
 
 ### Patch Changes

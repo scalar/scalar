@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.10
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.2.9
 
 ### Patch Changes

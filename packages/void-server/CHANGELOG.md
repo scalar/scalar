@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.12
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 2.0.11
 
 ### Patch Changes

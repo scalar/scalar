@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.11
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.1.10
 
 ### Patch Changes

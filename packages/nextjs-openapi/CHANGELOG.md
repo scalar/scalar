@@ -1,5 +1,15 @@
 # @scalar/nextjs-openapi
 
+## 0.0.12
+
+### Patch Changes
+
+- e911047: Add default exports
+- Updated dependencies [e911047]
+  - @scalar/ts-to-openapi@0.0.3
+  - @scalar/types@0.0.14
+  - @scalar/nextjs-api-reference@0.4.94
+
 ## 0.0.11
 
 ### Patch Changes

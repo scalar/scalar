@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.36
+
+### Patch Changes
+
+- d02d70c: style: updates border color presets
+- Updated dependencies [e911047]
+  - @scalar/types@0.0.14
+
 ## 0.9.35
 
 ### Patch Changes
