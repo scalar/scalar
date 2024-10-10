@@ -69,7 +69,6 @@ const introCardsSlot = computed(() =>
     <slot
       v-else
       name="empty-state" />
-
     <template v-if="parsedSpec.tags">
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList
@@ -78,7 +77,9 @@ const introCardsSlot = computed(() =>
           :layout="layout"
           :spec="parsedSpec"
           :tags="
-            parsedSpec.tags.filter((t) => tagGroup.tags.includes(t.name))
+            tagGroup.tags
+              .map((name) => parsedSpec.tags?.find((t) => t.name === name))
+              .filter((tag) => !!tag)
           " />
       </template>
       <TagList
