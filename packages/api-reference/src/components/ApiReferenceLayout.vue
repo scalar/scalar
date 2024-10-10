@@ -72,16 +72,6 @@ const documentEl = ref<HTMLElement | null>(null)
 useResizeObserver(documentEl, (entries) => {
   elementHeight.value = entries[0].contentRect.height + 'px'
 })
-// Find scalar Y offset to support users who have tried to add their own headers
-const yPosition = ref(0)
-onMounted(() => {
-  const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
-  const bcr = documentEl.value?.getBoundingClientRect()
-  if (pbcr && bcr) {
-    const difference = bcr.top - pbcr.top
-    yPosition.value = difference < 2 ? 0 : difference
-  }
-})
 
 // Check for Obtrusive Scrollbars
 const obtrusiveScrollbars = computed(hasObtrusiveScrollbars)
@@ -125,6 +115,8 @@ const scrollToSection = async (id?: string) => {
   isIntersectionEnabled.value = true
 }
 
+const yPosition = ref(0)
+
 /**
  * Ensure we add our scalar wrapper class to the headless ui root
  * mounted is too late
@@ -132,10 +124,21 @@ const scrollToSection = async (id?: string) => {
 onBeforeMount(() => addScalarClassesToHeadless())
 
 onMounted(() => {
+  // Prevent the browser from restoring scroll position on refresh
+  history.scrollRestoration = 'manual'
+
   // Enable the spec download event bus
   downloadSpecBus.on(({ specTitle }) => {
     downloadSpecFile(props.rawSpec, specTitle)
   })
+
+  // Find scalar Y offset to support users who have tried to add their own headers
+  const pbcr = documentEl.value?.parentElement?.getBoundingClientRect()
+  const bcr = documentEl.value?.getBoundingClientRect()
+  if (pbcr && bcr) {
+    const difference = bcr.top - pbcr.top
+    yPosition.value = difference < 2 ? 0 : difference
+  }
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = () =>
