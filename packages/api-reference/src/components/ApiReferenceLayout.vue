@@ -261,6 +261,7 @@ const themeStyleTag = computed(
   <div v-html="themeStyleTag"></div>
   <main
     ref="documentEl"
+    :aria-label="`Open API Documentation for ${parsedSpec.info?.title}`"
     class="scalar-app scalar-api-reference references-layout"
     :class="[
       {
