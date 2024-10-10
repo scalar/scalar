@@ -39,8 +39,23 @@ function guessFromFormat(schema: Record<string, any>, fallback: string = '') {
   return genericExampleValues[schema.format] ?? fallback
 }
 
+/** Map of all the results */
+const resultCache = new WeakMap<Record<string, any>, any>()
+
+/** Store result in the cache, and return the result */
+function cache(schema: Record<string, any>, result: unknown) {
+  // Avoid unnecessary WeakMap operations for primitive values
+  if (typeof result !== 'object' || result === null) {
+    return result
+  }
+
+  resultCache.set(schema, result)
+
+  return result
+}
+
 /**
- * This function takes a properties object and generates an example response content.
+ * This function takes an OpenAPI schema and generates an example from it
  */
 export const getExampleFromSchema = (
   schema: Record<string, any>,
@@ -73,6 +88,11 @@ export const getExampleFromSchema = (
   parentSchema?: Record<string, any>,
   name?: string,
 ): any => {
+  // Check if the result is already cached
+  if (resultCache.has(schema)) {
+    return resultCache.get(schema)
+  }
+
   // Check whether it’s a circular reference
   if (level === MAX_LEVELS_DEEP + 1) {
     try {
@@ -106,28 +126,28 @@ export const getExampleFromSchema = (
         return parseInt(value, 10)
       }
 
-      return value
+      return cache(schema, value)
     }
   }
 
   // Use the first example, if there’s an array
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return schema.examples[0]
+    return cache(schema, schema.examples[0])
   }
 
   // Use an example, if there’s one
   if (schema.example !== undefined) {
-    return schema.example
+    return cache(schema, schema.example)
   }
 
   // Use a default value, if there’s one
   if (schema.default !== undefined) {
-    return schema.default
+    return cache(schema, schema.default)
   }
 
   // enum: [ 'available', 'pending', 'sold' ]
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
-    return schema.enum[0]
+    return cache(schema, schema.enum[0])
   }
 
   // Check if the property is required
@@ -221,7 +241,7 @@ export const getExampleFromSchema = (
       )
     }
 
-    return response
+    return cache(schema, response)
   }
 
   // Array
@@ -230,7 +250,10 @@ export const getExampleFromSchema = (
     const wrapItems = !!(options?.xml && schema.xml?.wrapped && itemsXmlTagName)
 
     if (schema.example !== undefined) {
-      return wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example
+      return cache(
+        schema,
+        wrapItems ? { [itemsXmlTagName]: schema.example } : schema.example,
+      )
     }
 
     // Check whether the array has a anyOf, oneOf, or allOf rule
@@ -257,9 +280,12 @@ export const getExampleFromSchema = (
           )
           .filter((item: any) => item !== undefined)
 
-        return wrapItems
-          ? [{ [itemsXmlTagName]: exampleFromRule }]
-          : exampleFromRule
+        return cache(
+          schema,
+          wrapItems
+            ? [{ [itemsXmlTagName]: exampleFromRule }]
+            : exampleFromRule,
+        )
       }
     }
 
@@ -289,7 +315,7 @@ export const getExampleFromSchema = (
   }
 
   if (schema.type !== undefined && exampleValues[schema.type] !== undefined) {
-    return exampleValues[schema.type]
+    return cache(schema, exampleValues[schema.type])
   }
 
   const discriminateSchema = schema.oneOf || schema.anyOf
@@ -323,7 +349,7 @@ export const getExampleFromSchema = (
             : newExample
     })
 
-    return example
+    return cache(schema, example)
   }
 
   // Check if schema is a union type
@@ -335,7 +361,7 @@ export const getExampleFromSchema = (
     // Return an example for the first type in the union
     const exampleValue = exampleValues[schema.type[0]]
     if (exampleValue !== undefined) {
-      return exampleValue
+      return cache(schema, exampleValue)
     }
   }
 
