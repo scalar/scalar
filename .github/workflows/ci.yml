@@ -247,7 +247,7 @@ jobs:
   #
   deploy-api-client:
     # Only run this job for PRs from the same repository
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-20.04
     needs: [build]
     strategy:
