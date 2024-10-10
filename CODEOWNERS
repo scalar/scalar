@@ -18,7 +18,7 @@
 /packages/galaxy @hanspagel
 # /packages/oas-utils
 /packages/themes @hwkr
-/projects/app @hanspagel
+/projects/scalar-app @hanspagel
 /packages/api-reference-react @amritk
 /packages/docusaurus @amritk
 /packages/hono-api-reference @hanspagel

@@ -26,5 +26,5 @@ cdn
 
 examples/docusaurus/**/*.mdx
 packages/nuxt/src/runtime/plugins/hydrateClient.d.mts
-projects/app/out
+projects/scalar-app/out
 packages/openapi-parser/tests/**/*.yaml

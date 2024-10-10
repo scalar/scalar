@@ -174,7 +174,7 @@ jobs:
         with:
           files_yaml: |
             api_client_app:
-              - projects/app/package.json
+              - projects/scalar-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build in the toDesktop cloud
         run: pnpm --filter scalar-app todesktop:build:ci

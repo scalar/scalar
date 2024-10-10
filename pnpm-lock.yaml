@@ -675,7 +675,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2)
 
-  projects/app:
+  projects/scalar-app:
     dependencies:
       '@electron-toolkit/preload':
         specifier: ^3.0.0

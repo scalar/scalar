@@ -31,7 +31,7 @@ module.exports = {
     '**/cdn/**',
     '**/hydrateClient.d.ts',
     '**/hydrateClient.d.mts',
-    'projects/app/src/preload/index.d.ts',
+    'projects/scalar-app/src/preload/index.d.ts',
   ],
   rules: {
     // ---------------------------------------------------------------------------
