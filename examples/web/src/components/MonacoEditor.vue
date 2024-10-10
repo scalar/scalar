@@ -8,7 +8,7 @@ import Swagger20 from '../specifications/swagger-2.0.json'
 
 const props = withDefaults(
   defineProps<{
-    darkMode: boolean
+    darkMode?: boolean
   }>(),
   {
     darkMode: false,
