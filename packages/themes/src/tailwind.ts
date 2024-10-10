@@ -126,6 +126,7 @@ export default {
     },
     extend: {
       borderColor: { DEFAULT: 'var(--scalar-border-color)' },
+      ringColor: { DEFAULT: 'var(--scalar-color-accent)' },
       brightness: {
         lifted: 'var(--scalar-lifted-brightness)',
         backdrop: 'var(--scalar-backdrop-brightness)',

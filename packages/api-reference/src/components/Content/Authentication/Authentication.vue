@@ -47,14 +47,10 @@ onServerPrefetch(async () => {
 <template>
   <div v-if="hasSecuritySchemes(parsedSpec)">
     <div class="authentication-header">
-      <!-- <template #actions> -->
       <div class="selector">
         <SecuritySchemeSelector
-          :value="
-            parsedSpec?.components?.securitySchemes
-          "></SecuritySchemeSelector>
+          :value="parsedSpec?.components?.securitySchemes" />
       </div>
-      <!-- </template> -->
     </div>
     <div
       v-if="showSecurityScheme"

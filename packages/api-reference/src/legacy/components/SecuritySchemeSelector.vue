@@ -127,12 +127,14 @@ const selected = computed<ScalarListboxOption | undefined>({
   <template v-else-if="keys.length > 1">
     <ScalarListbox
       v-model="selected"
+      label="Security Scheme"
       :options="options"
       resize>
       <ScalarButton
         class="security-scheme-button"
         fullWidth
         variant="ghost">
+        <span class="sr-only">Selected:</span>
         {{
           authentication.preferredSecurityScheme
             ? getLabelForScheme(
