@@ -103,7 +103,7 @@ public sealed class ScalarOptions
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
-    /// <remarks>If you use a different font or just don’t want to use Google Fonts, pass withDefaultFonts: false to the configuration.</remarks>
+    /// <remarks>If you use a different font or just don’t want to use Google Fonts, set this to <c>false</c>.</remarks>
     public bool DefaultFonts { get; set; } = true;
 
     /// <summary>
@@ -168,6 +168,21 @@ public sealed class ScalarOptions
     /// <value>The default value is <i>https://cdn.jsdelivr.net/npm/@scalar/api-reference</i></value>
     /// <remarks>Use this option to load the API reference from a different CDN or local server.</remarks>
     public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
+
+
+    /// <summary>
+    /// Indicates whether to use local resources instead of the <see cref="CdnUrl"/>.
+    /// </summary>
+    /// <value>The default value is <c>false</c>.</value>
+    /// <remarks>If set to <c>true</c>, the <see cref="LocalResourcesRoutePattern"/> will be used instead of the <see cref="CdnUrl"/>.</remarks>
+    public bool LocalResources { get; set; }
+
+    /// <summary>
+    /// Path prefix to access local resources.
+    /// </summary>
+    /// <value>The default value is <c>'/scalar-assets/{file}'</c>.</value>
+    /// <remarks>This path will be used if <see cref="LocalResources"/> is set to <c>true</c>.</remarks>
+    public string LocalResourcesRoutePattern { get; set; } = "/scalar-assets/{file}";
 
     /// <summary>
     /// Gets or sets the list of servers for the Scalar API reference.

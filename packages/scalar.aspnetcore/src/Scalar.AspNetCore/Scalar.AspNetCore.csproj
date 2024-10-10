@@ -40,6 +40,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="StaticAssets/*">
+      <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="..\..\icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -48,6 +54,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="StaticAssets\" />
   </ItemGroup>
 
 </Project>

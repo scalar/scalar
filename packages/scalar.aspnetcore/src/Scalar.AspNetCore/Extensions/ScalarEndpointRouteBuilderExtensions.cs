@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 
 namespace Scalar.AspNetCore;
@@ -13,6 +15,10 @@ namespace Scalar.AspNetCore;
 public static class ScalarEndpointRouteBuilderExtensions
 {
     private const string DocumentName = "{documentName}";
+    
+    private const string FileName = "{file}";
+
+    private const string StaticAssets = "ScalarStaticAssets";
 
     /// <summary>
     /// Maps the Scalar API reference endpoint.
@@ -35,15 +41,28 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         if (!options.EndpointPathPrefix.Contains(DocumentName))
         {
-            throw new ArgumentException($"'EndpointPathPrefix' must define '{DocumentName}'.");
+            throw new ArgumentException($"'{nameof(ScalarOptions.EndpointPathPrefix)}' must define '{DocumentName}'.");
         }
+
+        var standaloneResourceUrl = options.CdnUrl;
+        if (options.LocalResources)
+        {
+            if (!options.LocalResourcesRoutePattern.Contains(FileName))
+            {
+                throw new ArgumentException($"'{nameof(ScalarOptions.LocalResourcesRoutePattern)}' must define '{FileName}'.");
+            }
+            // Don't use default fonts provided by the CDN
+            options.DefaultFonts = false;
+            standaloneResourceUrl = options.LocalResourcesRoutePattern.Replace(FileName, "standalone.js");
+            endpoints.MapLocalResourcesEndpoint(options.LocalResourcesRoutePattern);
+        }
+
         var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
             {
                 var title = options.Title.Replace(DocumentName, documentName);
                 var documentUrl = options.OpenApiRoutePattern.Replace(DocumentName, documentName);
-
                 return Results.Content(
                     $"""
                      <!doctype html>
@@ -58,11 +77,30 @@ public static class ScalarEndpointRouteBuilderExtensions
                          <script>
                          document.getElementById('api-reference').dataset.configuration = JSON.stringify({configuration})
                          </script>
-                         <script src="{options.CdnUrl}"></script>
+                         <script src="{standaloneResourceUrl}"></script>
                      </body>
                      </html>
                      """, "text/html");
             })
             .ExcludeFromDescription();
+    }
+
+    private static void MapLocalResourcesEndpoint(this IEndpointRouteBuilder endpoints, string routePattern)
+    {
+        var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
+        var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
+
+        endpoints.MapGet(routePattern, (string file) =>
+        {
+            
+            var resourceFile = fileProvider.GetFileInfo(file);
+            if (resourceFile.Exists)
+            {
+                var contentType = fileExtensionContentTypeProvider.TryGetContentType(file, out var type) ? type : "application/octet-stream";
+                return Results.Stream(resourceFile.CreateReadStream(), contentType, lastModified: resourceFile.LastModified);
+            }
+
+            return Results.NotFound();
+        }).ExcludeFromDescription();
     }
 }
