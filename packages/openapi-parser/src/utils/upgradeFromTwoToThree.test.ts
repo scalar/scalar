@@ -394,4 +394,69 @@ describe('upgradeFromTwoToThree', () => {
 
     expect(result.paths['/planets'].get.produces).toBeUndefined()
   })
+
+  it('upgrades securityDefinitions from Swagger 2.0 to OpenAPI 3.0', () => {
+    const input = {
+      swagger: '2.0',
+      securityDefinitions: {
+        api_key: {
+          type: 'apiKey',
+          name: 'api_key',
+          in: 'header',
+        },
+        petstore_auth: {
+          type: 'oauth2',
+          authorizationUrl: 'https://petstore.swagger.io/oauth/authorize',
+          flow: 'implicit',
+          scopes: {
+            'read:pets': 'read your pets',
+            'write:pets': 'modify pets in your account',
+          },
+        },
+      },
+      paths: {
+        '/pets': {
+          get: {
+            summary: 'List all pets',
+            security: [
+              {
+                petstore_auth: ['read:pets'],
+              },
+            ],
+          },
+        },
+      },
+    }
+
+    const result = upgradeFromTwoToThree(input)
+
+    expect(result.components.securitySchemes).toStrictEqual({
+      api_key: {
+        type: 'apiKey',
+        name: 'api_key',
+        in: 'header',
+      },
+      petstore_auth: {
+        type: 'oauth2',
+        flows: {
+          implicit: {
+            authorizationUrl: 'https://petstore.swagger.io/oauth/authorize',
+            scopes: {
+              'read:pets': 'read your pets',
+              'write:pets': 'modify pets in your account',
+            },
+          },
+        },
+      },
+    })
+
+    expect(result.securityDefinitions).toBeUndefined()
+
+    // Check if the security attribute in the operation is upgraded
+    expect(result.paths['/pets'].get.security).toStrictEqual([
+      {
+        petstore_auth: ['read:pets'],
+      },
+    ])
+  })
 })
