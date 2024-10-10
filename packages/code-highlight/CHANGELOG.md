@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.12
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.0.11
 
 ### Patch Changes

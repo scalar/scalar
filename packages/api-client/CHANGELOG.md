@@ -1,5 +1,34 @@
 # @scalar/api-client
 
+## 2.1.19
+
+### Patch Changes
+
+- e5ee02f: fix: too many z-index layers
+- 8da2152: style: enhances responsiveness
+- 2a77f7b: fix: comment out stackBlitz in the ci
+- d02d70c: feat: add settings page to api client
+- e911047: Add default exports
+- 9a2d5ca: feat: adds curl importer
+- Updated dependencies [d064a78]
+- Updated dependencies [3db9355]
+- Updated dependencies [2ff5905]
+- Updated dependencies [9a2d5ca]
+- Updated dependencies [e911047]
+- Updated dependencies [d02d70c]
+- Updated dependencies [3acbf26]
+  - @scalar/openapi-parser@0.8.6
+  - @scalar/oas-utils@0.2.54
+  - @scalar/object-utils@1.1.10
+  - @scalar/openapi-types@0.1.2
+  - @scalar/types@0.0.14
+  - @scalar/themes@0.9.36
+  - @scalar/components@0.12.51
+  - @scalar/icons@0.1.0
+  - @scalar/use-codemirror@0.11.18
+  - @scalar/use-toasts@0.7.6
+  - @scalar/use-tooltip@1.0.2
+
 ## 2.1.18
 
 ### Patch Changes

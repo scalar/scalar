@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.0.14
+
+### Patch Changes
+
+- e911047: Add default exports
+- Updated dependencies [e911047]
+  - @scalar/openapi-types@0.1.2
+
 ## 0.0.13
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.0.3
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.0.2
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/mock-server
 
+## 0.2.58
+
+### Patch Changes
+
+- e911047: Add default exports
+- Updated dependencies [d064a78]
+- Updated dependencies [3db9355]
+- Updated dependencies [2ff5905]
+- Updated dependencies [9a2d5ca]
+- Updated dependencies [e911047]
+  - @scalar/openapi-parser@0.8.6
+  - @scalar/oas-utils@0.2.54
+  - @scalar/openapi-types@0.1.2
+
 ## 0.2.57
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/oas-utils
 
+## 0.2.54
+
+### Patch Changes
+
+- 2ff5905: chore: cache results of getExampleFromSchema
+- 9a2d5ca: fix: schema model console log typo
+- e911047: Add default exports
+- Updated dependencies [e911047]
+- Updated dependencies [d02d70c]
+- Updated dependencies [3acbf26]
+  - @scalar/object-utils@1.1.10
+  - @scalar/openapi-types@0.1.2
+  - @scalar/types@0.0.14
+  - @scalar/themes@0.9.36
+
 ## 0.2.53
 
 ### Patch Changes

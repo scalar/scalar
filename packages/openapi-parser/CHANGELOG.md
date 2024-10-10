@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.8.6
+
+### Patch Changes
+
+- d064a78: chore: make examples an array if it’s in a schema
+- 3db9355: feat: upgrade Swagger 2.0 securityDefinitions
+
 ## 0.8.5
 
 ### Patch Changes

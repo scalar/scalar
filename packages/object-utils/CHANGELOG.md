@@ -1,5 +1,12 @@
 # @scalar/object-utils
 
+## 1.1.10
+
+### Patch Changes
+
+- e911047: Add default exports
+- 3acbf26: feat(object-utils): new debounce function without dependencies
+
 ## 1.1.9
 
 ### Patch Changes

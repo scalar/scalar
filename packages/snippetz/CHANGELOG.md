@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.4
+
+### Patch Changes
+
+- e911047: Add default exports
+
 ## 0.2.3
 
 ### Patch Changes

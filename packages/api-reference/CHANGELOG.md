@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.25.33
+
+### Patch Changes
+
+- 0da6063: chore: add tailwind
+- 1d815d4: fix: download is triggered twice
+- 3db9355: feat: upgrade Swagger 2.0 securityDefinitions
+- 8e31ccd: fix: lazyLoading content jump
+- 2ff5905: chore: cache results of getExampleFromSchema
+- Updated dependencies [e5ee02f]
+- Updated dependencies [d064a78]
+- Updated dependencies [3db9355]
+- Updated dependencies [8da2152]
+- Updated dependencies [2a77f7b]
+- Updated dependencies [2ff5905]
+- Updated dependencies [9a2d5ca]
+- Updated dependencies [d02d70c]
+- Updated dependencies [e911047]
+- Updated dependencies [d02d70c]
+- Updated dependencies [9a2d5ca]
+  - @scalar/api-client@2.1.19
+  - @scalar/openapi-parser@0.8.6
+  - @scalar/oas-utils@0.2.54
+  - @scalar/code-highlight@0.0.12
+  - @scalar/openapi-types@0.1.2
+  - @scalar/snippetz@0.2.4
+  - @scalar/types@0.0.14
+  - @scalar/themes@0.9.36
+  - @scalar/components@0.12.51
+  - @scalar/use-toasts@0.7.6
+  - @scalar/use-tooltip@1.0.2
+
 ## 1.25.32
 
 ### Patch Changes
