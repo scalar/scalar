@@ -203,5 +203,45 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
     }
   }
 
+  // Upgrade securityDefinitions
+  if (specification.securityDefinitions) {
+    if (typeof specification.components !== 'object') {
+      specification.components = {}
+    }
+
+    specification.components.securitySchemes = {}
+
+    for (const [key, securityScheme] of Object.entries(
+      specification.securityDefinitions,
+    )) {
+      if (typeof securityScheme === 'object') {
+        if ('type' in securityScheme && securityScheme.type === 'oauth2') {
+          const { flow, authorizationUrl, tokenUrl, scopes } =
+            securityScheme as {
+              type: 'oauth2'
+              flow?: string
+              authorizationUrl?: string
+              tokenUrl?: string
+              scopes?: Record<string, string>
+            }
+          specification.components.securitySchemes[key] = {
+            type: 'oauth2',
+            flows: {
+              [flow as string]: {
+                ...(authorizationUrl && { authorizationUrl }),
+                ...(tokenUrl && { tokenUrl }),
+                ...(scopes && { scopes }),
+              },
+            },
+          }
+        } else {
+          specification.components.securitySchemes[key] = securityScheme
+        }
+      }
+    }
+
+    delete specification.securityDefinitions
+  }
+
   return specification as OpenAPIV3.Document
 }
