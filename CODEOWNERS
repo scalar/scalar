@@ -8,6 +8,9 @@
 # Documentation
 /documentation/* @hanspagel
 
+# Changesets
+/.changeset/*
+
 # Packages
 /packages/api-client @amritk
 /packages/api-reference-editor @geoffgscott
