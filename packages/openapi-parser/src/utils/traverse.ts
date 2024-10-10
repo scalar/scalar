@@ -5,7 +5,7 @@ import type { AnyObject } from '../types'
  */
 export function traverse(
   specification: AnyObject,
-  transform: (specification: AnyObject, path: string[]) => AnyObject,
+  transform: (specification: AnyObject, path?: string[]) => AnyObject,
   path: string[] = [],
 ) {
   const result: AnyObject = {}
