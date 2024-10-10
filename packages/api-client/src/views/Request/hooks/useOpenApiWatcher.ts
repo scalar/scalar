@@ -25,7 +25,7 @@ const FIVE_SECONDS = 5 * 1000
  * - check lastModified or similar headers
  * - speed up the polling when there's a change then slowly slow it down
  */
-export const useLiveSync = () => {
+export const useOpenApiWatcher = () => {
   const {
     activeCollection,
     activeWorkspace,
