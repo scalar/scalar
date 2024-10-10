@@ -934,17 +934,7 @@ describe('getExampleFromSchema', () => {
           foobar: {
             foobar: {
               foobar: {
-                foobar: {
-                  foobar: {
-                    foobar: {
-                      foobar: {
-                        foobar: {
-                          foobar: '[Circular Reference]',
-                        },
-                      },
-                    },
-                  },
-                },
+                foobar: '[Circular Reference]',
               },
             },
           },
