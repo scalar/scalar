@@ -369,6 +369,8 @@ const themeStyleTag = computed(
 <style>
 @import '@scalar/components/style.css';
 @import '@scalar/themes/style.css';
+@import '../assets/tailwind.css';
+@import '@scalar/api-client/style.css';
 
 /** Used to check if css is loaded */
 :root {
