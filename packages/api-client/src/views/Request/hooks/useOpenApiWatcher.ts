@@ -175,7 +175,7 @@ export const useOpenApiWatcher = () => {
     ],
     ([documentUrl, watchForChanges]) => {
       if (documentUrl && watchForChanges) {
-        console.info(`[useOpenApiWatcher]: Watching ${documentUrl} …`)
+        console.info(`[useOpenApiWatcher] Watching ${documentUrl} …`)
         resume()
       } else pause()
     },
