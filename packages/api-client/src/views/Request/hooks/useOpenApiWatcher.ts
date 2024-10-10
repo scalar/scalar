@@ -167,15 +167,15 @@ export const useOpenApiWatcher = () => {
     } else console.log('Live Sync: no changes detected yet...')
   }, FIVE_SECONDS)
 
-  // Ensure we are only polling when we should liveSync
+  // Ensure we are only polling when we should watchForChanges
   watch(
     [
       () => activeCollection.value?.documentUrl,
-      () => activeCollection.value?.liveSync,
+      () => activeCollection.value?.watchForChanges,
     ],
-    ([documentUrl, liveSync]) => {
-      if (documentUrl && liveSync) {
-        console.info('Live Sync: we are live!')
+    ([documentUrl, watchForChanges]) => {
+      if (documentUrl && watchForChanges) {
+        console.info(`[useOpenApiWatcher]: watching ${documentUrl} …`)
         resume()
       } else pause()
     },
