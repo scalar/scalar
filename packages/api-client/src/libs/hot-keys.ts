@@ -1,3 +1,4 @@
+import type { EventBus } from '@/libs'
 import type {
   HotkeyEventName,
   KeydownKey,
@@ -7,13 +8,8 @@ import type {
   HotKeyModifiers,
 } from '@scalar/oas-utils/entities/workspace'
 import { isMacOS } from '@scalar/use-tooltip'
-import { type EventBusKey, useEventBus } from '@vueuse/core'
 
-export type HotKeyEvents = Partial<Record<HotkeyEventName, KeyboardEvent>>
-const hotKeyBusKey: EventBusKey<HotKeyEvents> = Symbol()
-
-/** Event bus for hot keys */
-export const hotKeyBus = useEventBus(hotKeyBusKey)
+export type HotKeyEvent = Partial<Record<HotkeyEventName, KeyboardEvent>>
 
 /**
  * These are unrelated to an input so they will still fire if we are in one,
@@ -95,6 +91,7 @@ export const getModifiers = (modifiers: HotKeyModifiers) => {
  */
 export const handleHotKeyDown = (
   ev: KeyboardEvent,
+  eventBus: EventBus<HotKeyEvent>,
   {
     hotKeys = DEFAULT_HOTKEYS,
     modifiers = ['default'] as HotKeyModifiers,
@@ -107,17 +104,17 @@ export const handleHotKeyDown = (
   if (hotKeyEvent) {
     // For escape we always send it
     if (key === 'Escape') {
-      hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+      eventBus.emit({ [hotKeyEvent.event]: ev })
     } else {
       const _modifiers = getModifiers(hotKeyEvent.modifiers || modifiers)
       const areModifiersPressed = _modifiers.every((mod) => ev[mod] === true)
 
       // Check for modifiers as defined
       if (areModifiersPressed && !isInput(ev)) {
-        hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+        eventBus.emit({ [hotKeyEvent.event]: ev })
       } else if (!isInput(ev) && hotKeyEvent.modifiers === undefined) {
         // Check if we are in an input as modifier === 'undefined'
-        hotKeyBus.emit({ [hotKeyEvent.event]: ev })
+        eventBus.emit({ [hotKeyEvent.event]: ev })
       }
     }
   }

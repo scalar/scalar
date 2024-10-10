@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import HelpfulLink from '@/components/HelpfulLink.vue'
-import { requestStatusBus } from '@/libs'
+import { useWorkspace } from '@/store'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { type HttpStatusCode, httpStatusCodes } from '@scalar/oas-utils/helpers'
 import prettyBytes from 'pretty-bytes'
@@ -9,10 +9,11 @@ import { computed, ref } from 'vue'
 
 const props = defineProps<{ response: ResponseInstance }>()
 
+const { events } = useWorkspace()
 const interval = ref<ReturnType<typeof setInterval>>()
 const stopwatch = ref(0)
 
-requestStatusBus.on((status) => {
+events.requestStatus.on((status) => {
   if (status === 'start')
     interval.value = setInterval(() => (stopwatch.value += 1000), 1000)
   else

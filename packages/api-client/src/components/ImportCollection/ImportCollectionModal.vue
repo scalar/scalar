@@ -3,7 +3,6 @@ import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPref
 import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
-import { hotKeyBus } from '@/libs'
 import { useWorkspace } from '@/store'
 import {
   ScalarCodeBlock,
@@ -28,16 +27,14 @@ defineEmits<{
   (e: 'importFinished'): void
 }>()
 
-const { activeWorkspace } = useWorkspace()
+const { activeWorkspace, events } = useWorkspace()
 
 const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
 
 /** Close modal when a keyboard shortcut is pressed */
-hotKeyBus.on(() => {
-  modalState.hide()
-})
+events.hotKeys.on(() => modalState.hide())
 
 /** Try to make the retrieved content an OpenAPI document */
 const openApiDocument = computed(() => {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cancelRequestBus, requestStatusBus } from '@/libs'
+import { useWorkspace } from '@/store'
 import {
   ScalarButton,
   ScalarLoading,
@@ -7,11 +7,12 @@ import {
 } from '@scalar/components'
 import { ref } from 'vue'
 
+const { events } = useWorkspace()
 const loading = useLoadingState()
 
 const timeout = ref<ReturnType<typeof setTimeout>>()
 
-requestStatusBus.on((status) => {
+events.requestStatus.on((status) => {
   if (status === 'start')
     timeout.value = setTimeout(() => loading.startLoading(), 1000)
   else
@@ -31,7 +32,7 @@ requestStatusBus.on((status) => {
         size="3xl" />
       <ScalarButton
         variant="ghost"
-        @click="cancelRequestBus.emit()">
+        @click="events.cancelRequest.emit()">
         Cancel
       </ScalarButton>
     </div>

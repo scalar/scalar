@@ -2,7 +2,6 @@
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarListCollection.vue'
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
-import { commandPaletteBus } from '@/libs/event-busses'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import type { SidebarMenuItem } from '@/views/Request/types'
@@ -23,14 +22,14 @@ const emit = defineEmits<{
 }>()
 
 const { replace } = useRouter()
-const { activeWorkspace, activeRouterParams } = useWorkspace()
+const { activeWorkspace, activeRouterParams, events } = useWorkspace()
 
 const editModal = useModal()
 const deleteModal = useModal()
 
 /** Add example */
 const handleAddExample = () =>
-  commandPaletteBus.emit({
+  events.commandPalette.emit({
     commandName: 'Add Example',
     metaData: {
       itemUid: props.menuItem.item?.entity.uid,

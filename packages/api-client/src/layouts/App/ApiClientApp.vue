@@ -28,14 +28,17 @@ const handleNewTab = (item: { name: string; uid: string }) => {
 }
 
 // Initialize dark mode state globally
-const { colorMode } = useDarkModeState()
+useDarkModeState()
+
 const workspaceStore = useWorkspace()
+const { events } = workspaceStore
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
 
 /** Handles the hotkey events, we will pass in custom hotkeys here */
-const handleKeyDown = (ev: KeyboardEvent) => handleHotKeyDown(ev, { hotKeys })
+const handleKeyDown = (ev: KeyboardEvent) =>
+  handleHotKeyDown(ev, events.hotKeys, { hotKeys })
 
 // Hotkey listeners
 onMounted(() => window.addEventListener('keydown', handleKeyDown))

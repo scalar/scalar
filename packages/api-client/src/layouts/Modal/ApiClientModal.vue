@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { type HotKeyEvents, handleHotKeyDown, hotKeyBus } from '@/libs'
+import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
-const { activeWorkspace, modalState } = useWorkspace()
+const { activeWorkspace, modalState, events } = useWorkspace()
 
 /** Handles the hotkey events as well as custom config */
 const handleKeyDown = (ev: KeyboardEvent) =>
-  handleHotKeyDown(ev, activeWorkspace.value.hotKeyConfig)
+  handleHotKeyDown(ev, events.hotKeys, activeWorkspace.value.hotKeyConfig)
 
 // Disable scrolling while the modal is open, also our global hotkey listeners
 watch(
@@ -29,14 +29,14 @@ watch(
 onBeforeMount(() => addScalarClassesToHeadless())
 
 // Close on escape
-const onCloseModal = (event: HotKeyEvents) =>
-  event.closeModal && modalState.open && modalState.hide()
-onMounted(() => hotKeyBus.on(onCloseModal))
+const onCloseModal = (event?: HotKeyEvent) =>
+  event?.closeModal && modalState.open && modalState.hide()
+onMounted(() => events.hotKeys.on(onCloseModal))
 
 onBeforeUnmount(() => {
   // Make sure scrolling is back!
   document.documentElement.style.removeProperty('overflow')
-  hotKeyBus.off(onCloseModal)
+  events.hotKeys.off(onCloseModal)
 })
 </script>
 

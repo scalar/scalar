@@ -2,7 +2,6 @@
 import { HttpMethod } from '@/components/HttpMethod'
 import { useSidebar } from '@/hooks'
 import { getModifiers } from '@/libs'
-import { commandPaletteBus } from '@/libs/event-busses'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
@@ -65,6 +64,7 @@ const {
   requestMutators,
   requestExampleMutators,
   router,
+  events,
 } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
@@ -225,7 +225,7 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
 }
 
 function openCommandPaletteRequest() {
-  commandPaletteBus.emit({
+  events.commandPalette.emit({
     commandName: 'Create Request',
     metaData: {
       itemUid: props.uid,

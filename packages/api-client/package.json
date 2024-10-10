@@ -69,10 +69,6 @@
       "import": "./dist/libs/importers/index.js",
       "types": "./dist/libs/importers/index.d.ts"
     },
-    "./libs/event-busses": {
-      "import": "./dist/libs/event-busses/index.js",
-      "types": "./dist/libs/event-busses/index.d.ts"
-    },
     "./layouts/Web": {
       "import": "./dist/layouts/Web/index.js",
       "types": "./dist/layouts/Web/index.d.ts"
