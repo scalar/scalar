@@ -4,9 +4,10 @@ import { z } from 'zod'
 import { request } from '../src/request'
 
 const BASE_URL = 'https://rest-endpoint.example'
+const accessToken = '1234567890'
 
 describe('Executes requests and handles errors', () => {
-  test.only('Request to endpoint without auth token', async () => {
+  test('Basic request without auth token', async () => {
     const result = await request({
       disableAuth: true,
       baseUrl: BASE_URL,
@@ -23,69 +24,108 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.status).toEqual(200)
-    expect(result.error).toEqual(false)
+    if (result.error) return
     expect(result.data.length).toEqual(1)
   })
+
   test('Basic request with string return', async () => {
     const result = await request({
-      url: '/simple-query?name=dave',
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
+      url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
     })
 
-    expect(result.error).toBe(false)
+    expect(result.status).toEqual(200)
     if (result.error) return
-    expect(result.data).toEqual('dave')
+    expect(result.data).toEqual('first post title')
   })
-  test('Gets JSON object', async () => {
+
+  test('Basic request with JSON return', async () => {
     const result = await request({
-      url: '/object-fetch',
-      method: 'post',
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
+      url: '/object-fetch/1',
+      method: 'get',
       schema: z.object({
-        name: z.string(),
-        email: z.string().email(),
+        userId: z.number(),
+        id: z.number(),
+        title: z.string(),
+        body: z.string(),
       }),
-      data: {
-        name: 'dave',
-        email: 'dave@example.com',
-      },
     })
 
-    expect(result.error).toEqual(false)
+    expect(result.status).toEqual(200)
+    if (result.error) return
+    expect(result.data).toEqual({
+      userId: 1,
+      id: 1,
+      title: 'first post title',
+      body: 'first post body',
+    })
+  })
+
+  test('authenticated post request with data', async () => {
+    const result = await request({
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
+      url: '/object-fetch',
+      method: 'post',
+      data: {
+        title: 'first post title',
+        body: 'first post body',
+      },
+      schema: z.object({
+        userId: z.number(),
+        id: z.number(),
+        title: z.string(),
+        body: z.string(),
+      }),
+    })
+
+    expect(result.status).toEqual(200)
     if (result.error) return
 
     expect(result.data).toEqual({
-      name: 'dave',
-      email: 'dave@example.com',
+      userId: 1,
+      id: 1,
+      title: 'first post title',
+      body: 'first post body',
     })
   })
+
   test('Throws for invalid request body', async () => {
     const result = await request({
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
       url: '/object-fetch',
       method: 'post',
-      schema: z.any(),
       data: {
         email: 'dave@example.com',
       },
+      schema: z.any(),
     })
-
     expect(result.error).toEqual(true)
     expect(result.status).toEqual(400)
-
+    console.log(result)
     if (!result.error) return
-    expect(result.message).toEqual("Invalid request body. 'name' is Required")
+    expect(result.message).toEqual('Invalid request body')
   })
+
   test('Throws for unexpected response', async () => {
     const result = await request({
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
       url: '/object-fetch',
       method: 'post',
+      data: {
+        title: 'first post title',
+        body: 'first post body',
+      },
       schema: z.object({
         address: z.string(),
       }),
-      data: {
-        name: 'Dave',
-        email: 'dave@example.com',
-      },
     })
 
     expect(result.error).toEqual(true)
@@ -93,18 +133,22 @@ describe('Executes requests and handles errors', () => {
 
     if (!result.error) return
     expect(result.message).toEqual(
-      'Invalid response data from endpoint: http://localhost:4747/object-fetch',
+      'Invalid response data from endpoint: https://rest-endpoint.example/object-fetch',
     )
   })
 
   test('Handles incorrect http method', async () => {
     const result = await request({
-      url: 'https://example.com/object-fetch',
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
+      url: '/object-fetch/1',
       method: 'post',
       schema: z.object({
-        address: z.string(),
+        userId: z.number(),
+        id: z.number(),
+        title: z.string(),
+        body: z.string(),
       }),
-      data: {},
     })
 
     expect(result.error).toEqual(true)
@@ -122,7 +166,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.status).toEqual(404)
   })
 
-  test.todo('Handles missing access token', async () => {
+  test('Handles missing access token', async () => {
     const result = await request({
       url: 'https://example.com/undefined',
       method: 'get',
@@ -133,36 +177,45 @@ describe('Executes requests and handles errors', () => {
     expect(result.status).toEqual(404)
   })
 
-  test.todo('Handles string access token', async () => {
+  test('Handles string access token', async () => {
     const result = await request({
-      url: 'https://example.com/undefined',
+      baseUrl: BASE_URL,
+      accessToken: accessToken,
+      url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
     })
 
-    expect(result.error).toEqual(true)
-    expect(result.status).toEqual(404)
+    expect(result.status).toEqual(200)
+    if (result.error) return
+    expect(result.data).toEqual('first post title')
   })
 
-  test.todo('Handles Promise<string> access token', async () => {
+  test('Handles Promise<string> access token', async () => {
     const result = await request({
-      url: 'https://example.com/undefined',
+      baseUrl: BASE_URL,
+      accessToken: Promise.resolve(accessToken),
+      url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
     })
 
-    expect(result.error).toEqual(true)
-    expect(result.status).toEqual(404)
+    expect(result.status).toEqual(200)
+    if (result.error) return
+    expect(result.data).toEqual('first post title')
   })
 
-  test.todo('Handles function access token', async () => {
+  test('Handles function access token', async () => {
     const result = await request({
-      url: 'https://example.com/undefined',
+      baseUrl: BASE_URL,
+      accessToken: () => accessToken,
+      url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
     })
 
-    expect(result.error).toEqual(true)
-    expect(result.status).toEqual(404)
+    expect(result.status).toEqual(200)
+    if (result.error) return
+    expect(result.data).toEqual('first post title')
   })
 })
