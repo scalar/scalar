@@ -12,7 +12,7 @@ const handleClick = () => {
 </script>
 <template>
   <ScalarButton
-    class="bg-b-1 text-c-1 hover:bg-b-2 group relative w-full border-1/2 px-2 py-1 md:p-1.5 h-auto"
+    class="bg-b-1 text-c-1 hover:bg-b-2 group relative w-auto md:w-full border-1/2 px-2 py-1 md:p-1.5 h-auto"
     icon="Plus"
     variant="outlined"
     @click="handleClick">

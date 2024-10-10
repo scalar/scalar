@@ -226,8 +226,18 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
     transparent
   );
   padding-left: 52px;
-  padding-right: 10px;
+  padding-right: 4px;
   position: relative;
+}
+@screen lg {
+  .t-app__top-nav {
+    padding-right: 6px;
+  }
+}
+@screen lg {
+  .t-app__top-nav {
+    padding-right: 10px;
+  }
 }
 .t-app__top-nav-draggable {
   -webkit-app-region: drag;

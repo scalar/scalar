@@ -6,10 +6,10 @@ const id = nanoid()
 <template>
   <section
     :aria-labelledby="id"
-    class="flex xl:min-w-0 xl:flex-1 flex-col xl:custom-scroll bg-b-1">
+    class="flex h-full xl:min-w-0 xl:flex-1 flex-col xl:custom-scroll bg-b-1">
     <div
       :id="id"
-      class="xl:min-h-header flex items-center border-b-1/2 p-2 md:px-4 md:py-2.5 xl:px-6 xl:pr-5 text-sm font-medium sticky top-0 bg-b-1 rounded-t xl:rounded-none">
+      class="min-h-11 xl:min-h-header flex items-center border-b-1/2 px-3.5 py-2 md:px-4 md:py-2.5 xl:px-6 xl:pr-5 text-sm font-medium sticky top-0 bg-b-1 xl:rounded-none">
       <slot name="title" />
     </div>
     <slot />
