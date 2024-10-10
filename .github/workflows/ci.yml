@@ -287,7 +287,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - if: github.ref != 'refs/heads/main' && steps.deploy-client.outputs.deployment-url
         name: Add Cloudflare Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             **Cloudflare Preview for the API Client**
@@ -326,7 +326,7 @@ jobs:
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
       - name: Add Netlify Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
             **Preview Examples**
