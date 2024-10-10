@@ -1,16 +1,18 @@
 import { serve } from '@hono/node-server'
 import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
-import { readFileSync } from 'fs'
 import fs from 'fs/promises'
-import { parse } from 'yaml'
 
-const specification = await fs
-  .readFile('./src/specifications/3.1.yaml', 'utf-8')
-  .catch(() => {
-    console.error('MISSING GALAXY SPEC FOR PLAYGROUND')
-    return ''
-  })
+const specification = await readOpenApiDocumentFromDisk()
+
+async function readOpenApiDocumentFromDisk() {
+  return await fs
+    .readFile('./src/specifications/3.1.yaml', 'utf-8')
+    .catch(() => {
+      console.error('Missing @scalar/galaxy OpenAPI document')
+      return ''
+    })
+}
 
 const port = process.env.PORT || 5052
 
@@ -33,10 +35,12 @@ app.get(
   }),
 )
 
-// Live load the spec on every request
-app.get('/live', async (c) =>
-  c.json(parse(readFileSync('./src/specifications/3.1.yaml', 'utf-8'))),
-)
+// Read the OpenAPI document on every request
+app.get('/_fresh/openapi.yaml', async (c) => {
+  const content = await readOpenApiDocumentFromDisk()
+
+  return c.text(content)
+})
 
 // Start the server
 serve(
