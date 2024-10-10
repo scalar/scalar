@@ -194,57 +194,57 @@ jobs:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
-  stackblitz:
-    if: github.head_ref == 'changeset-release/main'
-    runs-on: ubuntu-20.04
-    needs: [build]
-    strategy:
-      matrix:
-        node-version: [20]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
-      - name: Bump versions
-        # Let’s apply the changesets and bump the version already,
-        # so it’ll have the upcoming version numbers already.
-        run: pnpm changeset version
-      - name: Publish on Stackblitz
-        # We can’t use npx pkg-pr-new publish ./packages/* here.
-        # We want to explicitly publish the packages we want to save some time.
-        run: npx pkg-pr-new publish
-          ./packages/api-client
-          ./packages/api-reference
-          ./packages/api-reference-editor
-          ./packages/api-reference-react
-          ./packages/build-tooling
-          ./packages/cli
-          ./packages/code-highlight
-          ./packages/components
-          ./packages/docusaurus
-          ./packages/draggable
-          ./packages/express-api-reference
-          ./packages/fastify-api-reference
-          ./packages/galaxy
-          ./packages/hono-api-reference
-          ./packages/mock-server
-          ./packages/nestjs-api-reference
-          ./packages/nextjs-api-reference
-          ./packages/nuxt
-          ./packages/oas-utils
-          ./packages/object-utils
-          ./packages/play-button
-          ./packages/themes
-          ./packages/use-codemirror
-          ./packages/use-toasts
-          ./packages/use-tooltip
-          ./packages/void-server
-
+  # stackblitz:
+  #   if: github.head_ref == 'changeset-release/main'
+  #   runs-on: ubuntu-20.04
+  #   needs: [build]
+  #   strategy:
+  #     matrix:
+  #       node-version: [20]
+  #
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #     - name: Build packages
+  #       uses: ./.github/actions/build
+  #       with:
+  #         node-version: ${{ matrix.node-version }}
+  #         packages-only: 'true'
+  #     - name: Bump versions
+  #       # Let’s apply the changesets and bump the version already,
+  #       # so it’ll have the upcoming version numbers already.
+  #       run: pnpm changeset version
+  #     - name: Publish on Stackblitz
+  #       # We can’t use npx pkg-pr-new publish ./packages/* here.
+  #       # We want to explicitly publish the packages we want to save some time.
+  #       run: npx pkg-pr-new publish
+  #         ./packages/api-client
+  #         ./packages/api-reference
+  #         ./packages/api-reference-editor
+  #         ./packages/api-reference-react
+  #         ./packages/build-tooling
+  #         ./packages/cli
+  #         ./packages/code-highlight
+  #         ./packages/components
+  #         ./packages/docusaurus
+  #         ./packages/draggable
+  #         ./packages/express-api-reference
+  #         ./packages/fastify-api-reference
+  #         ./packages/galaxy
+  #         ./packages/hono-api-reference
+  #         ./packages/mock-server
+  #         ./packages/nestjs-api-reference
+  #         ./packages/nextjs-api-reference
+  #         ./packages/nuxt
+  #         ./packages/oas-utils
+  #         ./packages/object-utils
+  #         ./packages/play-button
+  #         ./packages/themes
+  #         ./packages/use-codemirror
+  #         ./packages/use-toasts
+  #         ./packages/use-tooltip
+  #         ./packages/void-server
+  #
   deploy-api-client:
     # Only run this job for PRs from the same repository
     if: github.event.pull_request.head.repo.full_name == github.repository
