@@ -8,7 +8,7 @@ This .NET package `Scalar.AspNetCore` provides an easy way to render beautiful A
 
 Made possible by the wonderful work of [@captainsafia](https://github.com/captainsafia) on [building the integration and docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents?view=aspnetcore-9.0#use-scalar-for-interactive-api-documentation) for the Scalar & .NET integration. Thanks to [@xC0dex](https://github.com/xC0dex) for making it awesome.
 
-![dotnet](./dotnet.jpg)
+![dotnet](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/dotnet.jpg)
 
 ## Usage
 
@@ -113,7 +113,7 @@ builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 
 And see it in action here:
 
-1. Switch to the playground: `cd playground`
+1. Switch to the playground: `cd playground/Scalar.AspNetCore.Playground`
 2. Start the playground: `dotnet run`
 3. Open this URL in the browser: <http://localhost:5056/scalar/v1>
 
