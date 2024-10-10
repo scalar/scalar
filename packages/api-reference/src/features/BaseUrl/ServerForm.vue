@@ -39,11 +39,15 @@ function updateVariable(name: string, value: string) {
 
 <template>
   <div v-if="servers?.length">
-    <span class="server-form-title">Base URL</span>
+    <span
+      aria-label="Base URL"
+      class="server-form-title"
+      >Base URL</span
+    >
     <div class="server-form">
       <div class="server-form-container">
         <!-- Dropdown -->
-        <div class="server-item">
+        <div>
           <ServerUrlSelect
             v-model="selectedIndex"
             :options="servers">
@@ -85,9 +89,6 @@ function updateVariable(name: string, value: string) {
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.server-item {
-  padding: 0 9px;
 }
 .description {
   padding: 6px 12px;

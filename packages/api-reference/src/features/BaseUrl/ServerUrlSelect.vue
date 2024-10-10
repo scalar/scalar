@@ -56,7 +56,7 @@ const selected = computed<ScalarListboxOption | undefined>({
 
 <style scoped>
 .url-select {
-  padding: 0;
+  padding: 0 9px;
   min-height: 32px;
   color: var(--scalar-color-1);
   align-items: center;
