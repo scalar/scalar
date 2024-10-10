@@ -14,6 +14,7 @@ const props = defineProps<{
   icon: Icon
   size?: IconVariants['size']
   thickness?: string
+  label?: string
 }>()
 
 const iconProps = cva({
@@ -35,11 +36,21 @@ const iconProps = cva({
 })
 
 const stroke = computed(() => props.thickness ?? '2')
+
+const accessibilityAttrs = computed(() =>
+  props.label
+    ? { ariaLabel: props.label }
+    : {
+        ariaHidden: true,
+        role: 'presentation',
+      },
+)
 </script>
 <template>
   <component
     :is="getIcon(icon)"
-    :class="cx('scalar-icon', iconProps({ size }))" />
+    :class="cx('scalar-icon', iconProps({ size }))"
+    v-bind="accessibilityAttrs" />
 </template>
 <style scoped>
 .scalar-icon,
