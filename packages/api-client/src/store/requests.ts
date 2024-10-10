@@ -1,3 +1,4 @@
+import type { extendedTagDataFactory } from '@/store/tags'
 import {
   type Collection,
   type Request,
@@ -28,18 +29,24 @@ export function createStoreRequests(useLocalStorage: boolean) {
   }
 }
 
+type AddTag = ReturnType<typeof extendedTagDataFactory>['addTag']
+
 /**
  * Create the extended mutators for request where access to the workspace is required
  */
-export function extendedRequestDataFactory({
-  requestExamples,
-  requestExampleMutators,
-  requestMutators,
-  collectionMutators,
-  collections,
-  tags,
-  tagMutators,
-}: StoreContext) {
+export function extendedRequestDataFactory(
+  {
+    requestExamples,
+    requestExampleMutators,
+    requestMutators,
+    collectionMutators,
+    collections,
+    tags,
+    tagMutators,
+  }: StoreContext,
+  // We want the add tag with side effects here so it gets properly added to the colleciton
+  addTag: AddTag,
+) {
   /** Add request */
   const addRequest = (payload: RequestPayload, collectionUid: string) => {
     const request = schemaModel(payload, requestSchema, false)
@@ -70,12 +77,14 @@ export function extendedRequestDataFactory({
     if (request.tags?.length)
       request.tags.forEach((tagName) => {
         const tagUid = collection.tags.find((uid) => tags[uid].name === tagName)
-        if (!tagUid) return
 
-        tagMutators.edit(tagUid, 'children', [
-          ...tags[tagUid].children,
-          request.uid,
-        ])
+        if (tagUid)
+          tagMutators.edit(tagUid, 'children', [
+            ...tags[tagUid].children,
+            request.uid,
+          ])
+        // We must add a new tag
+        else addTag({ name: tagName, children: [request.uid] }, collectionUid)
       })
     // Add to the collection children if no tags
     else

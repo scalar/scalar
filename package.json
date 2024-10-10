@@ -59,6 +59,7 @@
     "dev:app": "turbo dev --filter @scalar/api-client",
     "dev:client": "turbo dev --filter client-scalar-com",
     "dev:components": "turbo dev --filter @scalar/components",
+    "dev:galaxy": "turbo dev --filter @scalar/galaxy",
     "dev:modal": "turbo playground:modal --filter @scalar/api-client",
     "dev:nuxt": "turbo dev --filter @scalar/nuxt",
     "dev:proxy-server": "pnpm --filter @scalar-examples/proxy-server dev",

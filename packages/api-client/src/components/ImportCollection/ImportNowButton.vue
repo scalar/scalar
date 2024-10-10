@@ -26,8 +26,6 @@ async function importCollection() {
       if (isUrl(props.source)) {
         const collection = await importSpecFromUrl(
           props.source,
-          undefined,
-          undefined,
           activeWorkspace.value.uid,
         )
         redirectToFirstRequestInCollection(collection)

@@ -15,6 +15,7 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
 export async function fetchSpecFromUrl(
   url: string,
   proxy?: string,
+  beautify = true,
 ): Promise<string> {
   // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
   if (proxy === OLD_PROXY_URL) {
@@ -43,5 +44,6 @@ export async function fetchSpecFromUrl(
   }
 
   // If it’s JSON, make it pretty
-  return formatJsonOrYamlString(await response.text())
+  if (beautify) return formatJsonOrYamlString(await response.text())
+  else return await response.text()
 }

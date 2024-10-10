@@ -251,6 +251,8 @@ const fastifyApiReference = fp<
         return reply
           .header('Content-Type', `application/json`)
           .header('Content-Disposition', `filename=${filename}.json`)
+          .header('Access-Control-Allow-Origin', '*')
+          .header('Access-Control-Allow-Methods', '*')
           .send(json)
       },
     })
