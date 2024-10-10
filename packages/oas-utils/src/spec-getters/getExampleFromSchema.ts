@@ -1,5 +1,5 @@
 /** Hard limit for rendering circular references */
-const MAX_LEVELS_DEEP = 10
+const MAX_LEVELS_DEEP = 5
 
 const genericExampleValues: Record<string, string> = {
   // 'date-time': '1970-01-01T00:00:00Z',
