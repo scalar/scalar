@@ -3,7 +3,7 @@ FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
 # Build the package
-RUN pnpm --filter scalar-api-client build:open
+RUN pnpm --filter scalar-app build:open
 
 FROM node:20-bullseye-slim AS runner
 # install simple http server for serving static content

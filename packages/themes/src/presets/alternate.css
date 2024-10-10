@@ -83,7 +83,7 @@
   --scalar-button-1-color: black;
 }
 
-.scalar-api-client__item,
+.scalar-app__item,
 .scalar-card,
 .dark-mode .dark-mode.scalar-card {
   --scalar-background-1: var(--scalar-background-card);

@@ -1,4 +1,4 @@
-# scalar-api-client
+# scalar-app
 
 ## 0.1.57
 
