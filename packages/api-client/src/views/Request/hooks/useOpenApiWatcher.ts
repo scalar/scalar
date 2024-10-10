@@ -162,9 +162,9 @@ export const useOpenApiWatcher = () => {
           schema,
         }
       } catch (e) {
-        console.error('Live Sync: error', e)
+        console.error('[useOpenApiWatcher] Error:', e)
       }
-    } else console.log('Live Sync: no changes detected yet...')
+    } else console.log('[useOpenApiWatcher] No changes detected yet…')
   }, FIVE_SECONDS)
 
   // Ensure we are only polling when we should watchForChanges
@@ -175,7 +175,7 @@ export const useOpenApiWatcher = () => {
     ],
     ([documentUrl, watchForChanges]) => {
       if (documentUrl && watchForChanges) {
-        console.info(`[useOpenApiWatcher]: watching ${documentUrl} …`)
+        console.info(`[useOpenApiWatcher]: Watching ${documentUrl} …`)
         resume()
       } else pause()
     },
