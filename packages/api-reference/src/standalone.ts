@@ -129,12 +129,12 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
   }
 
   // If it’s a script tag, we can’t mount the Vue.js app inside that tag.
-  // We need to add a new container div before the script tag.
+  // We need to add a new container element before the script tag.
   const createContainer = () => {
     let _container: Element | null = null
     const specScriptTag = getSpecScriptTag()
     if (specScriptTag) {
-      _container = document.createElement('div')
+      _container = document.createElement('main')
       specScriptTag?.parentNode?.insertBefore(_container, specScriptTag)
     } else {
       _container = specElement || specUrlElement || document.body

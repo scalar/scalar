@@ -2,6 +2,7 @@
 import {
   Listbox,
   ListboxButton,
+  ListboxLabel,
   ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
@@ -24,7 +25,8 @@ withDefaults(
       modelValue?: Option | Option[]
       fullWidth?: boolean
       id?: string
-    } & Omit<FloatingOptions, 'middleware' | 'offset'>
+      label?: string
+    } & Omit<FloatingOptions, 'middleware' | 'offset' | 'targetRef'>
   >(),
   { multiple: false },
 )
@@ -61,6 +63,11 @@ const variants = cva({
     :modelValue="modelValue"
     :multiple="multiple"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
+    <ListboxLabel
+      v-if="label"
+      class="sr-only">
+      {{ label }}
+    </ListboxLabel>
     <ScalarFloating
       :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
@@ -69,7 +76,7 @@ const variants = cva({
       <ListboxButton
         :id="id"
         as="template"
-        class="justify-start">
+        class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent">
         <slot />
       </ListboxButton>
       <template #floating="{ width }">

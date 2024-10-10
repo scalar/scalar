@@ -288,8 +288,9 @@ const themeStyleTag = computed(
         name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
-    <aside
+    <nav
       v-if="configuration.showSidebar"
+      :aria-label="`Contents of ${parsedSpec.info?.title}`"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
@@ -309,7 +310,7 @@ const themeStyleTag = computed(
           </template>
         </Sidebar>
       </div>
-    </aside>
+    </nav>
     <!-- Swagger file editing -->
     <div
       v-show="configuration.isEditable"
@@ -322,7 +323,9 @@ const themeStyleTag = computed(
     </div>
     <!-- Rendered reference -->
     <template v-if="showRenderedContent">
-      <div class="references-rendered">
+      <section
+        :aria-label="`Open API Documentation for ${parsedSpec.info?.title}`"
+        class="references-rendered">
         <Content
           :baseServerURL="configuration.baseServerURL"
           :layout="configuration.layout === 'classic' ? 'accordion' : 'default'"
@@ -350,7 +353,7 @@ const themeStyleTag = computed(
               name="content-end" />
           </template>
         </Content>
-      </div>
+      </section>
       <div
         v-if="$slots.footer"
         class="references-footer">

@@ -75,21 +75,25 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   <div
     ref="containerRef"
     class="client-libraries-content">
-    <div
+    <button
       v-for="client in featuredClients"
       :key="client.clientKey"
       class="client-libraries rendered-code-sdks"
       :class="{
         'client-libraries__active': isSelectedClient(client),
       }"
+      type="button"
       @click="() => setHttpClient(client)">
       <div :class="`client-libraries-icon__${client.targetKey}`">
         <ScalarIcon
+          aria-hidden="true"
           class="client-libraries-icon"
-          :icon="getIconByLanguageKey(client.targetKey)" />
+          focusable="false"
+          :icon="getIconByLanguageKey(client.targetKey)"
+          role="presentation" />
       </div>
       <span>{{ getTargetTitle(client) }}</span>
-    </div>
+    </button>
 
     <div
       class="client-libraries client-libraries__select"
@@ -178,9 +182,12 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   gap: 6px;
   color: var(--scalar-color-3);
   user-select: none;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.client-libraries:hover:before {
+.client-libraries:first-child {
+  border-radius: var(--scalar-radius) 0 0 0;
+}
+
+.client-libraries:not(.client-libraries__active):hover:before {
   content: '';
   position: absolute;
   width: calc(100% - 4px);
@@ -193,6 +200,10 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .client-libraries:active {
   color: var(--scalar-color-1);
+}
+.client-libraries:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 /* remove php and c on mobile */
 @media screen and (max-width: 450px) {

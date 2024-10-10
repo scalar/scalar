@@ -29,21 +29,10 @@ const formattedServerUrl = computed(() => {
 })
 </script>
 <template>
-  <template v-if="server">
-    <a
-      class="base-url"
-      :title="server.description"
-      v-html="formattedServerUrl" />
-  </template>
+  <span
+    class="base-url"
+    v-html="formattedServerUrl" />
 </template>
-
-<style>
-/* This variable is only added through code and must not be scoped. */
-.base-url-variable {
-  color: var(--scalar-color-1);
-}
-</style>
-
 <style scoped>
 .base-url {
   color: var(--scalar-color-1);
@@ -53,5 +42,9 @@ const formattedServerUrl = computed(() => {
   min-width: 0;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.base-url :deep(.base-url-variable) {
+  color: var(--scalar-color-1);
 }
 </style>

@@ -10,6 +10,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   enum: string[]
   value: string
+  controls?: string
 }>()
 
 const emit = defineEmits<{
@@ -26,23 +27,24 @@ const selected = computed<ScalarListboxOption | undefined>({
 })
 </script>
 <template>
-  <div class="w-full">
-    <ScalarListbox
-      v-model="selected"
-      :options="options">
-      <ScalarButton
-        class="variable-select"
-        fullWidth
-        variant="ghost">
-        <span>
-          {{ value }}
-        </span>
-        <ScalarIcon
-          icon="ChevronDown"
-          size="xs" />
-      </ScalarButton>
-    </ScalarListbox>
-  </div>
+  <ScalarListbox
+    v-model="selected"
+    fullWidth
+    :options="options">
+    <ScalarButton
+      :aria-controls="controls"
+      class="variable-select"
+      fullWidth
+      variant="ghost">
+      <span>
+        <span class="sr-only">Selected:</span>
+        {{ value }}
+      </span>
+      <ScalarIcon
+        icon="ChevronDown"
+        size="xs" />
+    </ScalarButton>
+  </ScalarListbox>
 </template>
 
 <style scoped>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ScalarMarkdown } from '@scalar/components'
 import type { Server } from '@scalar/types/legacy'
+import { nanoid } from 'nanoid'
 import { computed } from 'vue'
 
 import ServerUrl from './ServerUrl.vue'
@@ -24,6 +25,9 @@ const emit = defineEmits<{
   (e: 'update:variables', v: ServerVariableValues): void
 }>()
 
+const selectorId = `server-selector-${nanoid()}`
+const descriptionId = `server-description-${nanoid()}`
+
 const selectedIndex = computed<number>({
   get: () => props.selected,
   set: (v) => emit('update:selected', v),
@@ -39,14 +43,18 @@ function updateVariable(name: string, value: string) {
 
 <template>
   <div v-if="servers?.length">
-    <span class="server-form-title">Base URL</span>
+    <label class="server-form-title">Base URL</label>
     <div class="server-form">
       <div class="server-form-container">
         <!-- Dropdown -->
-        <div class="server-item">
+        <div>
           <ServerUrlSelect
+            :id="selectorId"
             v-model="selectedIndex"
+            :describedBy="descriptionId"
+            label="Base URL"
             :options="servers">
+            <span class="sr-only">Selected:</span>
             <ServerUrl
               :server="server"
               :variables="variables" />
@@ -54,6 +62,7 @@ function updateVariable(name: string, value: string) {
         </div>
         <!-- Variables -->
         <ServerVariablesForm
+          :controls="selectorId"
           :values="variables"
           :variables="server?.variables"
           @update:variable="updateVariable" />
@@ -62,6 +71,7 @@ function updateVariable(name: string, value: string) {
     <!-- Description -->
     <div
       v-if="server?.description"
+      :id="descriptionId"
       muted>
       <div class="description">
         <ScalarMarkdown :value="server.description" />
@@ -85,9 +95,6 @@ function updateVariable(name: string, value: string) {
   border-radius: var(--scalar-radius);
   background: var(--scalar-background-2);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-}
-.server-item {
-  padding: 0 9px;
 }
 .description {
   padding: 6px 12px;
