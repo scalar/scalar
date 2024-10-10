@@ -16,6 +16,7 @@ import {
   onBeforeMount,
   onMounted,
   onServerPrefetch,
+  onUnmounted,
   provide,
   ref,
   useSSRContext,
@@ -172,6 +173,10 @@ const referenceSlotProps = computed<ReferenceSlotProps>(() => ({
   breadcrumb: breadcrumb.value,
   spec: props.parsedSpec,
 }))
+
+onUnmounted(() => {
+  downloadSpecBus.reset()
+})
 
 // Keep the parsed spec up to date
 watch(() => props.parsedSpec, setParsedSpec, { deep: true })
