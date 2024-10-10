@@ -62,7 +62,7 @@ onBeforeUnmount(() => {
 </style>
 
 <style scoped>
-.scalar .scalar-api-client {
+.scalar .scalar-app {
   max-height: calc(100% - calc(var(--scalar-app-header-height)));
   border-radius: 8px;
 }

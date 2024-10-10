@@ -1,5 +1,5 @@
 {
-  "name": "scalar-api-client",
+  "name": "scalar-app",
   "description": "HTTP Client to play with any API",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -8,12 +8,12 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/api-client-app"
+    "directory": "projects/scalar-app"
   },
   "version": "0.1.57",
   "private": true,
   "engines": {
-    "node": ">=20"
+    "node": ">=18"
   },
   "scripts": {
     "build": "npm run types:check && electron-vite build",
