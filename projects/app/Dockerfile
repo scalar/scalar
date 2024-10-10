@@ -21,8 +21,8 @@ COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/components /app/packages/components
 COPY --from=builder /app/packages/themes /app/packages/themes
 COPY --from=builder /app/packages/api-client /app/packages/api-client
-COPY --from=builder /app/packages/api-client-app /app/packages/api-client-app
-WORKDIR /app/packages/api-client-app
+COPY --from=builder /app/projects/app /app/projects/app
+WORKDIR /app/projects/app
 
 
 CMD ["http-server", "open/dist"]

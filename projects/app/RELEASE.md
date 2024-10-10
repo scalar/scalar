@@ -13,7 +13,7 @@ pnpm turbo build
 Time to test the app manually. Go to the app directory and run Electron locally:
 
 ```bash
-cd packages/api-client-app
+cd projects/app
 pnpm dev
 ```
 
