@@ -16,6 +16,12 @@ $ pnpm install
 $ pnpm dev
 ```
 
+Simulate an update:
+
+```bash
+$ pnpm dev:update
+```
+
 ### Build
 
 ```bash
