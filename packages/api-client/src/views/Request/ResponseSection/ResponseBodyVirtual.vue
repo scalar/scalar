@@ -17,7 +17,7 @@ const textContent = computed(() => formatJsonOrYamlString(props.content))
 
     <div
       class="py-1.5 px-2.5 font-code text-xxs border-1/2 rounded-t border-b-0">
-      Response is too large for syntax highlighting
+      This response body is massive! Syntax highlighting won’t work here.
     </div>
 
     <ScalarVirtualText
