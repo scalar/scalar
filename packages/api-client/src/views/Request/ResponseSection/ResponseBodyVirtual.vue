@@ -8,7 +8,7 @@ const props = defineProps<{
   content: string
 }>()
 
-const textContent = computed(() => formatJsonOrYamlString(props.content || ''))
+const textContent = computed(() => formatJsonOrYamlString(props.content))
 </script>
 
 <template>
