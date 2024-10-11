@@ -13,7 +13,7 @@ defineEmits<{
       class="darklight-reference-promo"
       href="https://www.scalar.com"
       target="_blank">
-      powered by scalar
+      Powered by Scalar
     </a>
     <button
       class="darklight"
