@@ -59,7 +59,7 @@ describe('validate', () => {
     expect(exitCode).toBe(0)
   })
 
-  it.only('validates external files', () => {
+  it('validates external files', () => {
     const file = fileURLToPath(
       new URL('./fixtures/file-reference.yaml', import.meta.url),
     )

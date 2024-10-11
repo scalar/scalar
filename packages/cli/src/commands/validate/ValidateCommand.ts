@@ -1,4 +1,4 @@
-import { openapi } from '@scalar/openapi-parser'
+import { load, validate } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import { readFiles } from '@scalar/openapi-parser/plugins/read-files'
 import { Command } from 'commander'
@@ -22,12 +22,11 @@ export function ValidateCommand() {
     const input = useGivenFileOrConfiguration(inputArgument)
 
     // Validate
-    const result = await openapi()
-      .load(input, {
-        plugins: [fetchUrls(), readFiles()],
-      })
-      .validate()
-      .get()
+    const { filesystem } = await load(input, {
+      plugins: [fetchUrls(), readFiles()],
+    })
+
+    const result = await validate(filesystem)
 
     if (result.valid && result.version) {
       console.log(
