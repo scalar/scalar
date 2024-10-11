@@ -24,6 +24,7 @@ const {
   activeWorkspaceCollections,
   collectionMutators,
   serverMutators,
+  events,
 } = useWorkspace()
 
 const url = ref('')
@@ -52,7 +53,10 @@ const handleSubmit = () => {
     return
   }
   const collectionUid = selectedCollection.value?.id
-  if (!collectionUid) return
+  if (!collectionUid) {
+    toast('Please select a collection before creating a server.', 'error')
+    return
+  }
 
   const server = serverMutators.add({ url: url.value }, collectionUid)
 
@@ -61,10 +65,14 @@ const handleSubmit = () => {
 
   emits('close')
 }
+
+const redirectToCreateCollection = () => {
+  events.commandPalette.emit({ commandName: 'Create Collection' })
+}
 </script>
 <template>
   <CommandActionForm
-    :disabled="!url.trim()"
+    :disabled="!url.trim() || !selectedCollection"
     @submit="handleSubmit">
     <CommandActionInput
       v-model="url"
@@ -76,6 +84,7 @@ const handleSubmit = () => {
         v-model="selectedCollection"
         :options="collections">
         <ScalarButton
+          v-if="collections.length > 0"
           class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
           variant="outlined">
           <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
@@ -85,6 +94,13 @@ const handleSubmit = () => {
             class="text-c-3"
             icon="ChevronDown"
             size="xs" />
+        </ScalarButton>
+        <ScalarButton
+          v-else
+          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+          variant="outlined"
+          @click="redirectToCreateCollection">
+          <span class="text-c-1">Create Collection</span>
         </ScalarButton>
       </ScalarListbox>
     </template>
