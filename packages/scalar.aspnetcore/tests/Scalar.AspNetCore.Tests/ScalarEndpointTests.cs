@@ -13,32 +13,49 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         var client = factory.CreateClient();
+        
         // Act
         var response = await client.GetAsync("/scalar/v1");
 
         // Assert
-        const string expected = """
-                                <!doctype html>
-                                <html>
-                                <head>
-                                    <title>Scalar API Reference -- v1</title>
-                                    <meta charset="utf-8" />
-                                    <meta name="viewport" content="width=device-width, initial-scale=1" />
-                                </head>
-                                <body>
-                                    <script id="api-reference" data-url="/openapi/v1.json"></script>
-                                    <script>
-                                    document.getElementById('api-reference').dataset.configuration = JSON.stringify(*)
-                                    </script>
-                                    <script src="/scalar/standalone-api-reference.js"></script>
-                                </body>
-                                </html>
-                                """;
+        const string expected = $"""
+                                 <!doctype html>
+                                 <html>
+                                 <head>
+                                     <title>Scalar API Reference -- v1</title>
+                                     <meta charset="utf-8" />
+                                     <meta name="viewport" content="width=device-width, initial-scale=1" />
+                                 </head>
+                                 <body>
+                                     <script id="api-reference" data-url="/openapi/v1.json"></script>
+                                     <script>
+                                     document.getElementById('api-reference').dataset.configuration = JSON.stringify(*)
+                                     </script>
+                                     <script src="/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}"></script>
+                                 </body>
+                                 </html>
+                                 """;
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         content.ReplaceLineEndings().Should().Match(expected);
     }
 
+    [Fact]
+    public async Task MapScalarApiReference_ShouldReturnStandaloneApiReference_WhenRequested()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+        
+        // Act
+        var response = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}");
+
+        // Assert
+        const string expected = "/** DO NOT REMOVE ME **/";
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync();
+        content.ReplaceLineEndings().Should().Match(expected);
+    }
+    
     [Fact]
     public async Task MapScalarApiReference_ShouldReturnDefaultConfiguration_WhenNotSpecified()
     {
@@ -57,7 +74,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
-    public async Task MapScalarApiReference_ShouldUseCustomCdn_WhenSpecified()
+    public async Task MapScalarApiReference_ShouldUseCustomCdnAndNotHandleStandaloneApiReference_WhenRequested()
     {
         // Arrange
         const string cdnUrl = "/local-script.js";
@@ -70,12 +87,16 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         }).CreateClient();
 
         // Act
-        var response = await client.GetAsync("/scalar/v1");
+        var index = await client.GetAsync("/scalar/v1");
+        var standalone = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
-        content.ReplaceLineEndings().Should().Contain($"<script src=\"{cdnUrl}\"></script>");
+        index.StatusCode.Should().Be(HttpStatusCode.OK);
+        var indexContent = await index.Content.ReadAsStringAsync();
+        indexContent.ReplaceLineEndings().Should().Contain($"<script src=\"{cdnUrl}\"></script>");
+        standalone.StatusCode.Should().Be(HttpStatusCode.OK);
+        var standaloneContent = await standalone.Content.ReadAsStringAsync();
+        standaloneContent.ReplaceLineEndings().Should().NotContain("DO NOT REMOVE ME");
     }
 
     [Fact]
