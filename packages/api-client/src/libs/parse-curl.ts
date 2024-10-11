@@ -25,6 +25,17 @@ export function parseCurlCommand(curlCommand: string) {
 
   while (arg) {
     if (typeof arg === 'object' && 'op' in arg) {
+      if (arg.op === '&') {
+        // Extract query parameters
+        const nextArg = iterator.next().value
+        if (typeof nextArg === 'string') {
+          const queryParameters = parseQueryParameters(`?${nextArg}`)
+          result.queryParameters = {
+            ...result.queryParameters,
+            ...queryParameters,
+          }
+        }
+      }
       arg = iterator.next().value
       continue
     }
@@ -54,7 +65,7 @@ export function parseCurlCommand(curlCommand: string) {
     ) {
       parseUrl([arg][Symbol.iterator]() as Iterator<string>, result)
     } else if (arg === '-P') {
-      parseQueryParam(iterator as Iterator<string>, result)
+      parsePathVariables(iterator as Iterator<string>, result)
     } else if (
       typeof arg === 'string' &&
       arg.toLowerCase().includes('content-type')
@@ -68,13 +79,7 @@ export function parseCurlCommand(curlCommand: string) {
     arg = iterator.next().value
   }
 
-  return {
-    ...result,
-    queryParameters: {
-      ...parseQueryParameters(result.url),
-      ...result.queryParameters,
-    },
-  }
+  return result
 }
 
 /** Get the method from a curl command */
@@ -89,14 +94,8 @@ function parseUrl(iterator: Iterator<string>, result: any) {
   result.path = url.pathname !== '/' ? url.pathname : ''
   result.url = result.servers[0] + result.path
 
-  // Extract query parameters from the URL
-  result.queryParameters = result.queryParameters || {}
-  const queryString = url.search.substring(1)
-  if (queryString) {
-    queryString.split('&').forEach((param) => {
-      parseQueryParam([param][Symbol.iterator]() as Iterator<string>, result)
-    })
-  }
+  // Extract query parameters
+  result.queryParameters = parseQueryParameters(url.search)
 }
 
 /** Get the headers from a curl command */
@@ -111,13 +110,13 @@ function parseHeader(iterator: Iterator<string>, result: any) {
 }
 
 /** Get the {query} parameters from a curl command */
-function parseQueryParam(iterator: Iterator<string>, result: any) {
+function parsePathVariables(iterator: Iterator<string>, result: any) {
   const param = iterator.next().value.replace(/['"]/g, '').split('=')
-  result.queryParameters = result.queryParameters || {}
+  result.pathVariables = result.pathVariables || {}
   if (param[1] !== undefined) {
-    result.queryParameters[param[0].trim()] = param[1].trim()
+    result.pathVariables[param[0].trim()] = param[1].trim()
   } else {
-    result.queryParameters[param[0].trim()] = ''
+    result.pathVariables[param[0].trim()] = ''
   }
 }
 
@@ -127,10 +126,10 @@ function parseQueryParameters(url: string) {
   const queryParameters: Record<string, string> = {}
   if (paramPosition !== -1) {
     const paramsString = url.substring(paramPosition + 1)
-    const params = paramsString.split('&') || []
+    const params = paramsString.split('&')
     params.forEach((param) => {
-      const splitParam = param.split('=')
-      queryParameters[splitParam[0]] = splitParam[1]
+      const [key, value] = param.split('=')
+      queryParameters[key.trim()] = value ? value.trim() : ''
     })
   }
 
