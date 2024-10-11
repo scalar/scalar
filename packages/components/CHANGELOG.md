@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.52
+
+### Patch Changes
+
+- 0ddd4f3: feat: added virtual text component
+
 ## 0.12.51
 
 ### Patch Changes
