@@ -42,9 +42,32 @@ function exampleSpec() {
 }
 
 describe('fastifyApiReference', () => {
-  it('returns 200 OK for the HTML', async () => {
+  it('returns 200 OK for the HTML and redirects to the route with a trailing slash', async () => {
     const fastify = Fastify({
       logger: false,
+    })
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/openapi.json' },
+      },
+    })
+
+    const address = await fastify.listen({ port: 0 })
+    const response = await fetch(`${address}/reference`, { redirect: 'manual' })
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toBe('/reference/')
+
+    const finalResponse = await fetch(`${address}/reference/`)
+    expect(finalResponse.status).toBe(200)
+  })
+
+  it('works with ignoreTrailingSlash', async () => {
+    const fastify = Fastify({
+      logger: false,
+      ignoreTrailingSlash: true,
     })
 
     await fastify.register(fastifyApiReference, {

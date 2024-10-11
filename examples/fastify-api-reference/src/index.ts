@@ -5,6 +5,7 @@ import Fastify from 'fastify'
 // Init Fastify
 const fastify = Fastify({
   logger: false,
+  // ignoreTrailingSlash: true,
 })
 
 // Register Swagger

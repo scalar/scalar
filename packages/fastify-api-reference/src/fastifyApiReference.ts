@@ -3,7 +3,6 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/types/legacy'
 import type {
   FastifyBaseLogger,
-  FastifyRequest,
   FastifyTypeProviderDefault,
   RawServerDefault,
 } from 'fastify'
@@ -275,7 +274,12 @@ const fastifyApiReference = fp<
 
     // Redirect route without a trailing slash to force a trailing slash:
     // We need this so the request to the JS file is relative.
-    if (getRoutePrefix(options.routePrefix)) {
+
+    // With ignoreTrailingSlash, fastify registeres both routes anyway.
+    const doesNotIgnoreTrailingSlash =
+      fastify.initialConfig.ignoreTrailingSlash !== true
+
+    if (doesNotIgnoreTrailingSlash && getRoutePrefix(options.routePrefix)) {
       fastify.route({
         method: 'GET',
         url: getRoutePrefix(options.routePrefix),
@@ -297,6 +301,13 @@ const fastifyApiReference = fp<
       schema: schemaToHideRoute,
       ...hooks,
       handler(_, reply) {
+        // Redirect if it’s the route without a slash
+        const currentUrl = new URL(_.url, `${_.protocol}://${_.hostname}`)
+
+        if (!currentUrl.pathname.endsWith('/')) {
+          return reply.redirect(`${currentUrl.pathname}/`, 301)
+        }
+
         /**
          * Regardless of where we source the spec from, provide it as a URL, to have the
          * download button point to the exposed endpoint.
