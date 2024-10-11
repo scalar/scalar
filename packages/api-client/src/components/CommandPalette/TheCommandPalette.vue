@@ -296,7 +296,7 @@ onBeforeUnmount(() => {
     <!-- Specific command palette -->
     <template v-else>
       <button
-        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.5 z-1"
+        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.25 z-1"
         type="button"
         @click="activeCommand = null">
         <ScalarIcon
