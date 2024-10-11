@@ -27,8 +27,8 @@
     "lint:fix": "eslint .  --fix",
     "test:prepare": "vite-node scripts/load-files.ts",
     "test:unit": "vite-node scripts/load-files.ts && vitest",
-    "types:build": "tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "exports": {
