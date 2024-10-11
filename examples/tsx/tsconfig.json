@@ -1,0 +1,7 @@
+{
+  "extends": "@tsconfig/recommended",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
+  }
+}
