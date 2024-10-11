@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.25.34
+
+### Patch Changes
+
+- af5cd26: fix: doesn’t work with ignoreTrailingSlash: true
+
 ## 1.25.33
 
 ### Patch Changes

@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.1.20
+
+### Patch Changes
+
+- 0ddd4f3: feat: added virtual text component
+- deb13b9: fix: updates command palette server collection logic
+- b99799e: refactor(api-client): localize event bus in workspace store
+- Updated dependencies [0ddd4f3]
+  - @scalar/components@0.12.52
+  - @scalar/oas-utils@0.2.55
+  - @scalar/use-codemirror@0.11.19
+
 ## 2.1.19
 
 ### Patch Changes

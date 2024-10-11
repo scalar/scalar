@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.55
+
+### Patch Changes
+
+- 0ddd4f3: feat: added virtual text component
+
 ## 0.2.54
 
 ### Patch Changes

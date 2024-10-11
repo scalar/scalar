@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.25.34
+
+### Patch Changes
+
+- e57b9a9: fix(api-reference): render tags in tag group order if set
+- Updated dependencies [0ddd4f3]
+- Updated dependencies [deb13b9]
+- Updated dependencies [b99799e]
+  - @scalar/api-client@2.1.20
+  - @scalar/components@0.12.52
+  - @scalar/oas-utils@0.2.55
+
 ## 1.25.33
 
 ### Patch Changes
