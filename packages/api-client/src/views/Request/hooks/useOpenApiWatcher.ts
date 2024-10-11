@@ -43,7 +43,7 @@ export const useOpenApiWatcher = () => {
   } = useWorkspace()
 
   // Transforms and applies the diff to our mutators
-  const applyCombinedDiffs = (d: Difference) => {
+  const applyDiff = (d: Difference) => {
     if (!d.path.length || !activeCollection.value?.uid) return
 
     // Info/Security
@@ -155,7 +155,7 @@ export const useOpenApiWatcher = () => {
 
       try {
         // Transform and apply the diffs to our mutators
-        combined.forEach(applyCombinedDiffs)
+        combined.forEach(applyDiff)
 
         // Update the dict
         specDictionary[url] = {
