@@ -12,7 +12,7 @@ import { createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useTimeoutPoll } from '@vueuse/core'
-import microdiff from 'microdiff'
+import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
 
 /** Live Sync polling timeout */
@@ -41,6 +41,85 @@ export const useOpenApiWatcher = () => {
     tags,
     tagMutators,
   } = useWorkspace()
+
+  // Transforms and applies the diff to our mutators
+  const applyCombinedDiffs = (d: Difference) => {
+    if (!d.path.length || !activeCollection.value?.uid) return
+
+    // Info/Security
+    if (d.path[0] === 'info' || d.path[0] === 'security') {
+      const payload = diffToCollectionPayload(d, activeCollection.value)
+      if (payload) collectionMutators.edit(...payload)
+    }
+    // Components.securitySchemes
+    else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
+      const securitySchemePayload = diffToSecuritySchemePayload(
+        d,
+        activeCollection.value,
+        securitySchemes,
+      )
+      if (securitySchemePayload) {
+        const [method, ...payload] = securitySchemePayload
+        securitySchemeMutators[method](...payload)
+      }
+    }
+    // Servers
+    else if (d.path[0] === 'servers') {
+      const serverPayload = diffToServerPayload(
+        d,
+        activeCollection.value,
+        servers,
+      )
+      if (serverPayload) {
+        const [method, ...payload] = serverPayload
+        serverMutators[method](...payload)
+      }
+    }
+    // Tags
+    else if (d.path[0] === 'tags') {
+      const tagPayload = diffToTagPayload(d, tags, activeCollection.value)
+      if (tagPayload) {
+        const [method, ...payload] = tagPayload
+        tagMutators[method](...payload)
+      }
+    }
+    // Paths
+    else if (d.path[0] === 'paths') {
+      const requestPayloads = diffToRequestPayload(
+        d,
+        activeCollection.value,
+        requests,
+      )
+
+      requestPayloads.forEach((rp) => {
+        const [method, ...payload] = rp
+        requestMutators[method](...payload)
+
+        if (
+          rp[0] !== 'edit' ||
+          (d.path[3] !== 'parameters' && d.path[3] !== 'requestBody')
+        )
+          return
+
+        const requestUid = rp[1]
+        const request = requests[requestUid]
+
+        // V0 just generate a new example
+        // V1 We can do some better diffing
+        request?.examples.forEach((exampleUid) => {
+          const newExample = createExampleFromRequest(
+            request,
+            requestExamples[exampleUid].name,
+          )
+          if (newExample)
+            requestExampleMutators.set({
+              ...newExample,
+              uid: exampleUid,
+            })
+        })
+      })
+    }
+  }
 
   const { pause, resume } = useTimeoutPoll(async () => {
     const url = activeCollection.value?.documentUrl
@@ -76,85 +155,7 @@ export const useOpenApiWatcher = () => {
 
       try {
         // Transform and apply the diffs to our mutators
-        combined.forEach((d) => {
-          if (!d.path.length || !activeCollection.value?.uid) return
-
-          // Info/Security
-          if (d.path[0] === 'info' || d.path[0] === 'security') {
-            const payload = diffToCollectionPayload(d, activeCollection.value)
-            if (payload) collectionMutators.edit(...payload)
-          }
-          // Components.securitySchemes
-          else if (
-            d.path[0] === 'components' &&
-            d.path[1] === 'securitySchemes'
-          ) {
-            const securitySchemePayload = diffToSecuritySchemePayload(
-              d,
-              activeCollection.value,
-              securitySchemes,
-            )
-            if (securitySchemePayload) {
-              const [method, ...payload] = securitySchemePayload
-              securitySchemeMutators[method](...payload)
-            }
-          }
-          // Servers
-          else if (d.path[0] === 'servers') {
-            const serverPayload = diffToServerPayload(
-              d,
-              activeCollection.value,
-              servers,
-            )
-            if (serverPayload) {
-              const [method, ...payload] = serverPayload
-              serverMutators[method](...payload)
-            }
-          }
-          // Tags
-          else if (d.path[0] === 'tags') {
-            const tagPayload = diffToTagPayload(d, tags, activeCollection.value)
-            if (tagPayload) {
-              const [method, ...payload] = tagPayload
-              tagMutators[method](...payload)
-            }
-          }
-          // Paths
-          else if (d.path[0] === 'paths') {
-            const requestPayloads = diffToRequestPayload(
-              d,
-              activeCollection.value,
-              requests,
-            )
-
-            requestPayloads.forEach((rp) => {
-              const [method, ...payload] = rp
-              requestMutators[method](...payload)
-
-              // V0 just generate a new example
-              // V1 after linking parameters we can remove this part
-              if (
-                rp[0] === 'edit' &&
-                (d.path[3] === 'parameters' || d.path[3] === 'requestBody')
-              ) {
-                const requestUid = rp[1]
-                const request = requests[requestUid]
-
-                request?.examples.forEach((exampleUid) => {
-                  const newExample = createExampleFromRequest(
-                    request,
-                    requestExamples[exampleUid].name,
-                  )
-                  if (newExample)
-                    requestExampleMutators.set({
-                      ...newExample,
-                      uid: exampleUid,
-                    })
-                })
-              }
-            })
-          }
-        })
+        combined.forEach(applyCombinedDiffs)
 
         // Update the dict
         specDictionary[url] = {
