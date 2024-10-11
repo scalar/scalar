@@ -56,8 +56,4 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="StaticAssets\" />
-  </ItemGroup>
-
 </Project>
