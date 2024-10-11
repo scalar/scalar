@@ -27,10 +27,16 @@ export async function request<T>({
 
   // Add the bearer auth unless disabled
   if (!disableAuth) {
-    if (!accessToken)
+    // Get the token string or call the function
+    const token = accessToken
+      ? typeof accessToken === 'function'
+        ? accessToken()
+        : accessToken
+      : undefined
+    if (!token)
       console.warn('WARNING: Auth token function returned an empty value')
 
-    headers['authorization'] = `Bearer ${accessToken}`
+    headers['authorization'] = `Bearer ${token}`
   }
 
   // Allow overriding of the base URL. Remove duplicate slashes
