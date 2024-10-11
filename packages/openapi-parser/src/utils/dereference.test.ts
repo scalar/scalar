@@ -193,23 +193,110 @@ it('throws an error', async () => {
     'Can’t resolve reference: #/components/requestBodies/DoesNotExist',
   )
 })
-it('calls onDereference when resolving references', async () => {
-  const openapi = {
-    openapi: '3.1.0',
-    info: {
-      title: 'Hello World',
-      version: '1.0.0',
+
+it('resolves external file references', async () => {
+  const filesystem = [
+    {
+      isEntrypoint: true,
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'File Reference',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            ExternalSchema: {
+              $ref: 'valid.yaml#/components/schemas/ExampleSchema',
+            },
+          },
+        },
+      },
+      filename: 'file-reference.yaml',
+      dir: './',
+      references: ['valid.yaml'],
     },
-    paths: {
-      '/test': {
-        get: {
-          responses: {
-            '200': {
-              description: 'foobar',
-              content: {
-                'application/json': {
-                  schema: {
-                    $ref: '#/components/schemas/Test',
+    {
+      isEntrypoint: false,
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            ExampleSchema: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'integer',
+                  description: 'Unique identifier for the example',
+                },
+                name: {
+                  type: 'string',
+                  description: 'Name of the example',
+                },
+                description: {
+                  type: 'string',
+                  description: 'Detailed description of the example',
+                },
+              },
+              required: ['id', 'name'],
+            },
+          },
+        },
+      },
+      filename: 'valid.yaml',
+      dir: './',
+      references: [],
+    },
+  ]
+
+  const result = await dereference(filesystem)
+
+  expect(result.errors).toStrictEqual([])
+
+  // Check if the external reference was resolved
+  expect(result.schema.components.schemas.ExternalSchema).toEqual({
+    type: 'object',
+    properties: {
+      id: {
+        type: 'integer',
+        description: 'Unique identifier for the example',
+      },
+      name: {
+        type: 'string',
+        description: 'Name of the example',
+      },
+      description: {
+        type: 'string',
+        description: 'Detailed description of the example',
+      },
+    },
+    required: ['id', 'name'],
+  })
+
+  it('calls onDereference when resolving references', async () => {
+    const openapi = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            responses: {
+              '200': {
+                description: 'foobar',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Test',
+                    },
                   },
                 },
               },
@@ -217,40 +304,39 @@ it('calls onDereference when resolving references', async () => {
           },
         },
       },
-    },
-    components: {
-      schemas: {
-        Test: {
-          type: 'object',
-          properties: {
-            id: {
-              type: 'string',
+      components: {
+        schemas: {
+          Test: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+              },
             },
           },
         },
       },
-    },
-  }
+    }
 
-  const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
+    const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
 
-  const result = await dereference(openapi, {
-    onDereference: ({ schema, ref }) => {
-      dereferencedSchemas.push({ schema, ref })
-    },
-  })
+    const result = await dereference(openapi, {
+      onDereference: ({ schema, ref }) => {
+        dereferencedSchemas.push({ schema, ref })
+      },
+    })
 
-  expect(result.errors).toStrictEqual([])
-  expect(dereferencedSchemas).toHaveLength(1)
-  expect(dereferencedSchemas[0]).toEqual({
-    schema: {
-      type: 'object',
-      properties: {
-        id: {
-          type: 'string',
+    expect(result.errors).toStrictEqual([])
+    expect(dereferencedSchemas).toHaveLength(1)
+    expect(dereferencedSchemas[0]).toEqual({
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+          },
         },
       },
-    },
-    ref: '#/components/schemas/Test',
-  })
+      ref: '#/components/schemas/Test',
+    })
 })
