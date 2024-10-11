@@ -30,7 +30,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                     <script>
                                     document.getElementById('api-reference').dataset.configuration = JSON.stringify(*)
                                     </script>
-                                    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+                                    <script src="/scalar/standalone-api-reference.js"></script>
                                 </body>
                                 </html>
                                 """;

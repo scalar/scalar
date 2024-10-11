@@ -16,8 +16,6 @@ public static class ScalarEndpointRouteBuilderExtensions
 {
     private const string DocumentName = "{documentName}";
 
-    private const string FileName = "{file}";
-
     private const string StaticAssets = "ScalarStaticAssets";
 
     /// <summary>
@@ -45,24 +43,26 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
         var useLocalAssets = string.IsNullOrEmpty(options.CdnUrl);
+        var standaloneResourceUrl = useLocalAssets ? options.EndpointPathPrefix.Replace(DocumentName, "standalone-api-reference.js") : options.CdnUrl;
 
-        if (useLocalAssets)
-        {
-            if (!options.LocalResourcesRoutePattern.Contains(FileName))
-            {
-                throw new ArgumentException($"'{nameof(ScalarOptions.LocalResourcesRoutePattern)}' must define '{FileName}'.");
-            }
+        var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
+        var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-            // Don't use default fonts provided by the CDN
-            options.DefaultFonts = false;
-            endpoints.MapLocalResourcesEndpoint(options.LocalResourcesRoutePattern);
-        }
-
-        var standaloneResourceUrl = useLocalAssets ? options.LocalResourcesRoutePattern.Replace(FileName, "standalone.js") : options.CdnUrl;
         var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
             {
+                // Handle static assets
+                if (useLocalAssets)
+                {
+                    var resourceFile = fileProvider.GetFileInfo(documentName);
+                    if (resourceFile.Exists)
+                    {
+                        var contentType = fileExtensionContentTypeProvider.TryGetContentType(documentName, out var type) ? type : "application/octet-stream";
+                        return Results.Stream(resourceFile.CreateReadStream(), contentType, lastModified: resourceFile.LastModified);
+                    }
+                }
+
                 var title = options.Title.Replace(DocumentName, documentName);
                 var documentUrl = options.OpenApiRoutePattern.Replace(DocumentName, documentName);
                 return Results.Content(
@@ -85,23 +85,5 @@ public static class ScalarEndpointRouteBuilderExtensions
                      """, "text/html");
             })
             .ExcludeFromDescription();
-    }
-
-    private static void MapLocalResourcesEndpoint(this IEndpointRouteBuilder endpoints, string routePattern)
-    {
-        var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
-        var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
-
-        endpoints.MapGet(routePattern, (string file) =>
-        {
-            var resourceFile = fileProvider.GetFileInfo(file);
-            if (resourceFile.Exists)
-            {
-                var contentType = fileExtensionContentTypeProvider.TryGetContentType(file, out var type) ? type : "application/octet-stream";
-                return Results.Stream(resourceFile.CreateReadStream(), contentType, lastModified: resourceFile.LastModified);
-            }
-
-            return Results.NotFound();
-        }).ExcludeFromDescription();
     }
 }
