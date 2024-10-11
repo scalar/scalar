@@ -2,6 +2,20 @@ import { formatApiError, formatApiResponse } from './format'
 import { schemaModel } from './schemaModel'
 import type { RequestConfig } from './types'
 
+/**
+ * Lightweight fetch wrapper for making http requests
+ *
+ * @param {boolean} disableAuth - When true the authorization header will not be added
+ * @param {string | (() => string)} accessToken - The access token or function returning the token to use for authorization
+ * @param {string} [baseUrl] - The base URL to use for the request
+ * @param {string} url - The URL to request
+ * @param {ZodSchema<T>} schema - The Zod schema to validate the response data against
+ * @param {FormData | object} data - The data to send in the request body
+ * @param {RequestConfig<T>} config - Additional fetch configuration options in type RequestConfig will be passed through
+ *
+ * @returns {Promise<ApiResponse<T> | APIError>}
+ */
+
 export async function request<T>({
   disableAuth = false,
   accessToken,
