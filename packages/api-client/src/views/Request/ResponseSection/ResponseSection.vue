@@ -65,8 +65,6 @@ const shouldVirtualize = computed(
     typeof props.response?.data === 'string' &&
     props.response.data.length > VIRTUALIZATION_THRESHOLD,
 )
-
-console.log(props.response?.data.length)
 </script>
 <template>
   <ViewLayoutSection>
