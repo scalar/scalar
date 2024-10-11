@@ -17,7 +17,7 @@ export type RequestConfig<T> = Omit<RequestInit, 'body'> & {
   // why do we omit the body param?
   baseUrl?: string
   url: string
-  accessToken?: string | (() => string) | Promise<string>
+  accessToken?: string | (() => string) // TODO: | Promise<string>
   schema: ZodSchema<T, ZodTypeDef, any>
   disableAuth?: boolean // Require explicit flag to disable auth
   headers?: Record<string, string>
