@@ -287,10 +287,12 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   left: 0;
   cursor: pointer;
   z-index: 1;
-  -moz-appearance: none;
-  -webkit-appearance: none;
   appearance: none;
   border: none;
+}
+.client-libraries__select:has(select:focus-visible) {
+  border-radius: var(--scalar-radius);
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 .client-libraries__select span {
   position: relative;
