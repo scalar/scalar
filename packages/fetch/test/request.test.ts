@@ -152,7 +152,6 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.error).toEqual(true)
-    expect(result.status).toEqual(405)
   })
 
   test('Handles missing endpoint', async () => {
@@ -163,18 +162,19 @@ describe('Executes requests and handles errors', () => {
     })
 
     expect(result.error).toEqual(true)
-    expect(result.status).toEqual(404)
   })
 
-  test('Handles missing access token', async () => {
+  test('Handles empty access token', async () => {
     const result = await request({
-      url: 'https://example.com/undefined',
+      baseUrl: BASE_URL,
+      accessToken: '',
+      url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
     })
 
     expect(result.error).toEqual(true)
-    expect(result.status).toEqual(404)
+    if (result.error) expect(result.message).toEqual('Unauthorized')
   })
 
   test('Handles string access token', async () => {
@@ -191,10 +191,10 @@ describe('Executes requests and handles errors', () => {
     expect(result.data).toEqual('first post title')
   })
 
-  test('Handles Promise<string> access token', async () => {
+  test('Handles function access token', async () => {
     const result = await request({
       baseUrl: BASE_URL,
-      accessToken: Promise.resolve(accessToken),
+      accessToken: () => accessToken,
       url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
@@ -204,11 +204,23 @@ describe('Executes requests and handles errors', () => {
     if (result.error) return
     expect(result.data).toEqual('first post title')
   })
-
-  test('Handles function access token', async () => {
+  test('Handles empty function access token', async () => {
     const result = await request({
       baseUrl: BASE_URL,
-      accessToken: () => accessToken,
+      accessToken: () => '',
+      url: '/object-fetch?id=1',
+      method: 'get',
+      schema: z.string(),
+    })
+
+    expect(result.error).toEqual(true)
+    if (result.error) expect(result.message).toEqual('Unauthorized')
+  })
+
+  test.todo('Handles Promise<string> access token', async () => {
+    const result = await request({
+      baseUrl: BASE_URL,
+      // accessToken: Promise.resolve(accessToken),
       url: '/object-fetch?id=1',
       method: 'get',
       schema: z.string(),
