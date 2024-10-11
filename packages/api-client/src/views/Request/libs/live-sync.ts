@@ -180,12 +180,13 @@ export const traverseZodSchema = (
 export const parseDiff = <T>(
   schema: ZodSchema<T, ZodTypeDef, any>,
   diff: Difference,
-): { path: Path<T>; value?: PathValue<T, Path<T>> } | null => {
+): { path: Path<T>; value: PathValue<T, Path<T>> | undefined } | null => {
   const parsedSchema = traverseZodSchema(schema, diff.path)
   if (!parsedSchema) return null
 
-  // If we are removing, we don't need a value
-  if (diff.type === 'REMOVE') return { path: diff.path.join('.') as Path<T> }
+  // If we are removing, value is undefined
+  if (diff.type === 'REMOVE')
+    return { path: diff.path.join('.') as Path<T>, value: undefined }
 
   // Safe parse the value as well
   const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
@@ -202,25 +203,35 @@ export const diffToCollectionPayload = (
   diff: Difference,
   collection: Collection,
 ) => {
-  let path = diff.path.join('.')
-  let value = diff.type === 'REMOVE' ? undefined : diff.value
-
   // We need to handle a special case for arrays, it only adds or removes the last element,
   // the rest are a series of changes
   if (
     typeof diff.path[diff.path.length - 1] === 'number' &&
     (diff.type === 'CREATE' || diff.type === 'REMOVE')
   ) {
-    path = diff.path.slice(0, -1).join('.')
-    value = [...getNestedValue(collection, path)]
+    const parsed = parseDiff(collectionSchema, {
+      ...diff,
+      path: diff.path.slice(0, -1),
+    })
+    if (!parsed) return null
+
+    const oldValue = [...getNestedValue(collection, parsed.path)]
     if (diff.type === 'CREATE') {
-      value.push(diff.value)
+      oldValue.push(parsed.value)
     } else if (diff.type === 'REMOVE') {
-      value.pop()
+      oldValue.pop()
     }
+    return [collection.uid, parsed.path, oldValue] as const
+  }
+  // Non array + array change
+  else {
+    const parsed = parseDiff(collectionSchema, diff)
+    if (!parsed) return null
+
+    return [collection.uid, parsed.path, parsed.value] as const
   }
 
-  return [collection.uid, path, value] as const
+  return null
 }
 
 /**
