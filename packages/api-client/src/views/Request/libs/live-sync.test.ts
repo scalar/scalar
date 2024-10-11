@@ -11,6 +11,7 @@ import {
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import microdiff, { type Difference } from 'microdiff'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { z } from 'zod'
 
 import {
   combineRenameDiffs,
@@ -19,6 +20,8 @@ import {
   diffToSecuritySchemePayload,
   diffToServerPayload,
   diffToTagPayload,
+  parseDiff,
+  traverseZodSchema,
 } from './live-sync'
 
 const mockRequests: Record<`request${number}uid`, Request> = {
@@ -1207,5 +1210,161 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([])
+  })
+})
+
+describe('traverseZodSchema', () => {
+  const testSchema = z.object({
+    name: z.string(),
+    age: z.number().optional(),
+    address: z
+      .object({
+        street: z.string(),
+        city: z.string(),
+        zipCode: z.string().optional(),
+      })
+      .optional(),
+    hobbies: z.array(z.string()),
+  })
+
+  it('returns the correct schema for a top-level property', () => {
+    const result = traverseZodSchema(testSchema, ['name'])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
+
+  it('returns the correct schema for a nested property', () => {
+    const result = traverseZodSchema(testSchema, ['address', 'street'])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
+
+  it('handles optional properties correctly', () => {
+    const result = traverseZodSchema(testSchema, ['age'])
+    expect(result).toBeInstanceOf(z.ZodNumber)
+  })
+
+  it('handles nested optional properties correctly', () => {
+    const result = traverseZodSchema(testSchema, ['address', 'zipCode'])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
+
+  it('returns the correct schema for an array', () => {
+    const result = traverseZodSchema(testSchema, ['hobbies'])
+    expect(result).toBeInstanceOf(z.ZodArray)
+  })
+
+  it('returns the correct schema for an array element', () => {
+    const result = traverseZodSchema(testSchema, ['hobbies', 0])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
+
+  it('returns null for a non-existent path', () => {
+    const result = traverseZodSchema(testSchema, ['nonexistent'])
+    expect(result).toBeNull()
+  })
+
+  it('returns null for a partially non-existent path', () => {
+    const result = traverseZodSchema(testSchema, ['address', 'nonexistent'])
+    expect(result).toBeNull()
+  })
+})
+
+describe('parseDiff', () => {
+  const testSchema = z.object({
+    name: z.string(),
+    age: z.number().optional(),
+    address: z
+      .object({
+        street: z.string(),
+        city: z.string(),
+        zipCode: z.string().optional(),
+      })
+      .optional(),
+    hobbies: z.array(z.string()),
+  })
+
+  it('parses a valid diff for a string property', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['name'],
+      oldValue: 'John',
+      value: 'Jane',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toEqual({ path: 'name', value: 'Jane' })
+  })
+
+  it('parses a valid diff for a number property', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['age'],
+      oldValue: 25,
+      value: 26,
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toEqual({ path: 'age', value: 26 })
+  })
+
+  it('parses a valid diff for a nested property', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['address', 'street'],
+      oldValue: 'Old Street',
+      value: 'New Street',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toEqual({ path: 'address.street', value: 'New Street' })
+  })
+
+  it('parses a valid diff for an array element', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['hobbies', 0],
+      oldValue: 'reading',
+      value: 'writing',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toEqual({ path: 'hobbies.0', value: 'writing' })
+  })
+
+  it('returns null for an invalid diff path', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['nonexistent'],
+      oldValue: 'old',
+      value: 'new',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toBeNull()
+  })
+
+  it('returns null for an invalid diff value', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: ['age'],
+      oldValue: 25,
+      value: 'not a number',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toBeNull()
+  })
+
+  it('handles a REMOVE diff correctly', () => {
+    const diff: Difference = {
+      type: 'REMOVE',
+      path: ['address', 'zipCode'],
+      oldValue: '12345',
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toEqual({ path: 'address.zipCode' })
+  })
+
+  it('returns null for a CREATE diff with an invalid value', () => {
+    const diff: Difference = {
+      type: 'CREATE',
+      path: ['hobbies', 0],
+      value: 123, // Should be a string
+    }
+    const result = parseDiff(testSchema, diff)
+    expect(result).toBeNull()
   })
 })

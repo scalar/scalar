@@ -7,15 +7,21 @@ import {
   type SecurityScheme,
   type Server,
   type Tag,
+  collectionSchema,
   requestSchema,
   securitySchemeSchema,
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { schemaModel } from '@scalar/oas-utils/helpers'
-import { getNestedValue } from '@scalar/object-utils/nested'
+import {
+  type Path,
+  type PathValue,
+  getNestedValue,
+} from '@scalar/object-utils/nested'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import microdiff, { type Difference } from 'microdiff'
+import { type ZodSchema, type ZodTypeDef, z } from 'zod'
 
 /**
  * Combine Rename Diffs
@@ -127,6 +133,70 @@ export const findResource = <T>(
   }
   return null
 }
+
+/**
+ * Traverses a zod schema based on the path and returns the schema at the end of the path
+ * or null if the path doesn't exist. Handles optional unwrapping
+ */
+export const traverseZodSchema = (
+  schema: ZodSchema,
+  path: (string | number)[],
+): ZodSchema | null => {
+  let currentSchema: ZodSchema = schema
+
+  for (const key of path) {
+    // Unrap an optional
+    if (currentSchema instanceof z.ZodOptional)
+      currentSchema = currentSchema.unwrap()
+
+    // Traverse an object
+    if (
+      currentSchema instanceof z.ZodObject &&
+      typeof key === 'string' &&
+      key in currentSchema.shape
+    ) {
+      currentSchema = currentSchema.shape[key]
+    }
+    // Traverse into an array
+    else if (currentSchema instanceof z.ZodArray && typeof key === 'number') {
+      currentSchema = currentSchema.element
+    } else {
+      // Path doesn't exist in the schema
+      return null
+    }
+
+    // Unrap an optional again :)
+    if (currentSchema instanceof z.ZodOptional)
+      currentSchema = currentSchema.unwrap()
+  }
+
+  return currentSchema
+}
+
+/**
+ * Takes in diff, uses the path to get to the nested schema then parse the value
+ * If there is a sub schema and it successfully parses, both the path and new value are valid and returned as such
+ */
+export const parseDiff = <T>(
+  schema: ZodSchema<T, ZodTypeDef, any>,
+  diff: Difference,
+): { path: Path<T>; value?: PathValue<T, Path<T>> } | null => {
+  const parsedSchema = traverseZodSchema(schema, diff.path)
+  if (!parsedSchema) return null
+
+  // If we are removing, we don't need a value
+  if (diff.type === 'REMOVE') return { path: diff.path.join('.') as Path<T> }
+
+  // Safe parse the value as well
+  const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
+  if (!parsedValue) return null
+
+  return {
+    path: diff.path.join('.') as Path<T>,
+    value: parsedValue as PathValue<T, Path<T>>,
+  }
+}
+
 /** Generates a payload for the collection mutator from the basic info/security diffs */
 export const diffToCollectionPayload = (
   diff: Difference,
