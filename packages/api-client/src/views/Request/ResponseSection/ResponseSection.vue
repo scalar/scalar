@@ -59,7 +59,7 @@ type ActiveSections = (typeof sections)[number]
 const activeSection = ref<ActiveSections>('All')
 
 /** Threshold for virtualizing text responses */
-const VIRTUALIZATION_THRESHOLD = 100
+const VIRTUALIZATION_THRESHOLD = 1000000
 const shouldVirtualize = computed(
   () =>
     typeof props.response?.data === 'string' &&
