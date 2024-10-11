@@ -46,7 +46,7 @@ withDefaults(
         </div>
       </div>
     </DisclosureButton>
-    <DisclosurePanel class="rounded-b">
+    <DisclosurePanel class="rounded-b diclosure-panel">
       <slot :open="open" />
     </DisclosurePanel>
   </Disclosure>

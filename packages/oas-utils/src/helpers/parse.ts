@@ -68,7 +68,7 @@ export const transformToJson = (value: string) => {
 export function formatJsonOrYamlString(value: string) {
   // If we don't start with a bracket assume yaml
   const trimmed = value.trim()
-  if (trimmed[0] !== '{') return value
+  if (trimmed[0] !== '{' && trimmed[0] !== '[') return value
 
   try {
     // JSON
