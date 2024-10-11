@@ -53,7 +53,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         const string expected = "/** DO NOT REMOVE ME **/";
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
-        content.ReplaceLineEndings().Should().Match(expected);
+        content.ReplaceLineEndings().Should().Contain(expected);
     }
     
     [Fact]
