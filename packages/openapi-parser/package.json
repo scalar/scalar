@@ -37,13 +37,19 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./plugins/fetch-urls": {
-      "import": "./dist/utils/load/plugins/fetchUrls.js"
+      "import": "./dist/plugins/fetch-urls/index.js",
+      "types": "./dist/plugins/fetch-urls/index.d.ts",
+      "default": "./dist/plugins/fetch-urls/index.js"
     },
     "./plugins/read-files": {
-      "import": "./dist/utils/load/plugins/readFiles.js"
+      "import": "./dist/plugins/read-files/index.js",
+      "types": "./dist/plugins/read-files/index.d.ts",
+      "default": "./dist/plugins/read-files/index.js"
     }
   },
   "files": [
@@ -67,6 +73,7 @@
     "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@types/node": "^20.14.10",
     "glob": "^10.3.10",

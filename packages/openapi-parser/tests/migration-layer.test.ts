@@ -2,10 +2,10 @@
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { fetchUrls } from '../src/plugins/fetch-urls/fetchUrls'
+import { readFiles } from '../src/plugins/read-files/readFiles'
 import { dereference } from '../src/utils/dereference'
 import { load } from '../src/utils/load'
-import { fetchUrls } from '../src/utils/load/plugins/fetchUrls'
-import { readFiles } from '../src/utils/load/plugins/readFiles'
 import { validate } from '../src/utils/validate'
 
 global.fetch = vi.fn()

@@ -7,8 +7,8 @@ import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { load } from '.'
+import { readFiles } from '../plugins/read-files/readFiles'
 import type { AnyObject } from '../types'
-import { readFiles } from './load/plugins/readFiles'
 import { resolveReferences } from './resolveReferences'
 
 const EXAMPLE_FILE = path.join(

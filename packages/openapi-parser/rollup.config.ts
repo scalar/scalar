@@ -1,16 +1,19 @@
 import json from '@rollup/plugin-json'
 import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
+import { addPackageFileExports } from '@scalar/build-tooling'
 import { rm } from 'node:fs/promises'
 import { builtinModules } from 'node:module'
 import type { Plugin, RollupOptions } from 'rollup'
 import outputSize from 'rollup-plugin-output-size'
 
-const input = [
+const entries = [
   './src/index.ts',
-  './src/utils/load/plugins/fetchUrls.ts',
-  './src/utils/load/plugins/readFiles.ts',
+  './src/plugins/fetch-urls/index.ts',
+  './src/plugins/read-files/index.ts',
 ]
+
+await addPackageFileExports({ entries })
 
 const dir = 'dist'
 
@@ -42,7 +45,7 @@ function cleanBeforeWrite(directory: string): Plugin {
 const config: RollupOptions[] = [
   // Code
   {
-    input,
+    input: entries,
     output: [
       // ESM
       {
