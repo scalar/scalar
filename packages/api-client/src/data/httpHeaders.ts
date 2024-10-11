@@ -525,4 +525,4 @@ export const httpHeaders: HttpHeader[] = [
     name: 'Report-To',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to',
   },
-]
+] as const
