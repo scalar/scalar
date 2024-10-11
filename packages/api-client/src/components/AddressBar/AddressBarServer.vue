@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { commandPaletteBus } from '@/libs'
 import { useWorkspace } from '@/store'
 import {
   ScalarDropdown,
@@ -18,6 +17,7 @@ const {
   isReadOnly,
   servers,
   collectionMutators,
+  events,
 } = useWorkspace()
 
 const requestServerOptions = computed(() =>
@@ -54,7 +54,7 @@ watch([activeCollection, activeRequest], ([collection, request]) => {
 
 /** Add server */
 const handleAddServer = () =>
-  commandPaletteBus.emit({
+  events.commandPalette.emit({
     commandName: 'Add Server',
   })
 

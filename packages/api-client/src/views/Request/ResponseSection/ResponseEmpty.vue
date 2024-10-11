@@ -2,29 +2,24 @@
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
-import {
-  type HotKeyEvents,
-  commandPaletteBus,
-  executeRequestBus,
-  hotKeyBus,
-} from '@/libs'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-const { isReadOnly, activeWorkspace } = useWorkspace()
+const { isReadOnly, activeWorkspace, events } = useWorkspace()
 
 const openCommandPaletteRequest = () => {
-  commandPaletteBus.emit({ commandName: 'Create Request' })
+  events.commandPalette.emit({ commandName: 'Create Request' })
 }
 
-const handleHotKey = (event: HotKeyEvents) => {
-  if (event.openCommandPaletteRequest) openCommandPaletteRequest()
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (event?.openCommandPaletteRequest) openCommandPaletteRequest()
 }
 
 const packageVersion = PACKAGE_VERSION
 
-onMounted(() => hotKeyBus.on(handleHotKey))
-onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
+onMounted(() => events.hotKeys.on(handleHotKey))
+onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
@@ -51,7 +46,7 @@ onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
       <button
         class="flex items-center gap-1.5"
         type="button"
-        @click="executeRequestBus.emit()">
+        @click="events.executeRequest.emit()">
         Send Request
         <ScalarHotkey hotkey="↵" />
       </button>

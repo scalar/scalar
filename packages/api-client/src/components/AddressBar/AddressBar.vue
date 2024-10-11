@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import {
-  type HotKeyEvents,
-  executeRequestBus,
-  hotKeyBus,
-  requestStatusBus,
-} from '@/libs'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -30,6 +25,7 @@ const {
   isReadOnly,
   requestMutators,
   requestHistory,
+  events,
 } = useWorkspace()
 
 const selectedRequest = ref(requestHistory[0])
@@ -37,7 +33,7 @@ const addressBarRef = ref<typeof CodeInput | null>(null)
 
 const keys = useMagicKeys()
 whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
-  executeRequestBus.emit(),
+  events.executeRequest.emit(),
 )
 
 /** update the instance path parameters on change */
@@ -99,7 +95,7 @@ function abortLoading() {
   isRequesting.value = false
 }
 
-requestStatusBus.on((status) => {
+events.requestStatus.on((status) => {
   if (status === 'start') startLoading()
   if (status === 'stop') stopLoading()
   if (status === 'abort') abortLoading()
@@ -119,7 +115,7 @@ function getBackgroundColor() {
 function handleExecuteRequest() {
   if (isRequesting.value) return
   isRequesting.value = true
-  executeRequestBus.emit()
+  events.executeRequest.emit()
 }
 
 /**
@@ -132,14 +128,14 @@ function updateRequestPath(url: string) {
 }
 
 /** Handle hotkeys */
-function handleHotKey(event: HotKeyEvents) {
-  if (event.focusAddressBar) {
+function handleHotKey(event?: HotKeyEvent) {
+  if (event?.focusAddressBar) {
     addressBarRef.value?.focus()
   }
 }
 
-onMounted(() => hotKeyBus.on(handleHotKey))
-onBeforeUnmount(() => hotKeyBus.off(handleHotKey))
+onMounted(() => events.hotKeys.on(handleHotKey))
+onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <div
