@@ -16,9 +16,8 @@ const posts = [
 const handleAuth = (request: Request) => {
   const auth = request.headers.get('Authorization')
   if (auth !== `Bearer ${accessToken}`) {
-    return new HttpResponse(null, {
+    return new HttpResponse('Unauthorized', {
       status: 404,
-      statusText: 'Unauthorized',
     })
   }
 }
@@ -72,9 +71,8 @@ export const restHandlers = [
 
       const data = await request.json()
       if (!data || typeof data !== 'object' || !('title' in data)) {
-        return new HttpResponse(null, {
+        return new HttpResponse('Invalid request body', {
           status: 400,
-          statusText: 'Invalid request body',
         })
       }
 
