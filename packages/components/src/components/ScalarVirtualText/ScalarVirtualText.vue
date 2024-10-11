@@ -94,10 +94,10 @@ watchEffect(() => {
 <template>
   <div
     ref="containerRef"
-    class="scalar-virtual-text relative h-full overflow-auto"
+    class="scalar-virtual-text relative overflow-auto"
     :class="containerClass"
     @scroll="handleScroll">
-    <div
+    <code
       ref="contentRef"
       class="scalar-virtual-text-content absolute"
       :class="contentClass"
@@ -105,7 +105,7 @@ watchEffect(() => {
       <div
         v-for="(line, index) in visibleLines"
         :key="visibleStartIndex + index"
-        class="scalar-virtual-text-line overflow-hidden whitespace-pre"
+        class="scalar-virtual-text-line"
         :class="lineClass"
         :style="{
           height: `${props.lineHeight}px`,
@@ -113,6 +113,6 @@ watchEffect(() => {
         }">
         {{ line }}
       </div>
-    </div>
+    </code>
   </div>
 </template>

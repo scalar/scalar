@@ -9,6 +9,7 @@ import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
+import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 
@@ -55,8 +56,15 @@ const responseCookies = computed(
 
 const sections = ['All', 'Cookies', 'Headers', 'Body']
 type ActiveSections = (typeof sections)[number]
-
 const activeSection = ref<ActiveSections>('All')
+
+/** Threshold for virtualizing text responses */
+const VIRTUALIZATION_THRESHOLD = 100
+const shouldVirtualize = computed(
+  () =>
+    typeof props.response?.data === 'string' &&
+    props.response.data.length > VIRTUALIZATION_THRESHOLD,
+)
 </script>
 <template>
   <ViewLayoutSection>
@@ -89,12 +97,20 @@ const activeSection = ref<ActiveSections>('All')
         <ResponseHeaders
           v-if="activeSection === 'All' || activeSection === 'Headers'"
           :headers="responseHeaders" />
-        <ResponseBody
-          v-if="activeSection === 'All' || activeSection === 'Body'"
-          :active="true"
-          :data="props.response?.data"
-          :headers="responseHeaders"
-          title="Body" />
+
+        <template v-if="activeSection === 'All' || activeSection === 'Body'">
+          <!-- Virtualized Text for massive responses -->
+          <ResponseBodyVirtual
+            v-if="shouldVirtualize"
+            :content="props.response!.data as string" />
+
+          <ResponseBody
+            v-else
+            :active="true"
+            :data="props.response?.data"
+            :headers="responseHeaders"
+            title="Body" />
+        </template>
       </template>
       <ResponseLoadingOverlay />
     </div>
