@@ -58,13 +58,15 @@ const sections = ['All', 'Cookies', 'Headers', 'Body']
 type ActiveSections = (typeof sections)[number]
 const activeSection = ref<ActiveSections>('All')
 
-/** Threshold for virtualizing text responses */
-const VIRTUALIZATION_THRESHOLD = 1000000
+/** Threshold for virtualizing text responses in characters */
+const VIRTUALIZATION_THRESHOLD = 5_000_000
 const shouldVirtualize = computed(
   () =>
     typeof props.response?.data === 'string' &&
     props.response.data.length > VIRTUALIZATION_THRESHOLD,
 )
+
+console.log(props.response?.data.length)
 </script>
 <template>
   <ViewLayoutSection>
