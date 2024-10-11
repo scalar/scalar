@@ -1,6 +1,5 @@
 <script setup lang="ts">
-// TODO: Disabled until we polished the UI.
-// import { ImportCollectionListener } from '@/components/ImportCollection'
+import { ImportCollectionListener } from '@/components/ImportCollection'
 import { useDarkModeState } from '@/hooks'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
@@ -53,22 +52,22 @@ const themeStyleTag = computed(
 </script>
 <template>
   <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
-  <!-- <ImportCollectionListener> -->
-  <div v-html="themeStyleTag"></div>
+  <ImportCollectionListener>
+    <div v-html="themeStyleTag"></div>
 
-  <!-- Ensure we have the workspace loaded from localStorage above -->
-  <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
-    <RouterView v-slot="{ Component }">
-      <keep-alive>
-        <component
-          :is="Component"
-          isApp="false" />
-      </keep-alive>
-    </RouterView>
-  </MainLayout>
+    <!-- Ensure we have the workspace loaded from localStorage above -->
+    <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
+      <RouterView v-slot="{ Component }">
+        <keep-alive>
+          <component
+            :is="Component"
+            isApp="false" />
+        </keep-alive>
+      </RouterView>
+    </MainLayout>
 
-  <ScalarToasts />
-  <!-- </ImportCollectionListener> -->
+    <ScalarToasts />
+  </ImportCollectionListener>
 </template>
 <style>
 @import '@scalar/components/style.css';
