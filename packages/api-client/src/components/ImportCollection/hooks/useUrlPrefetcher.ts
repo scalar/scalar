@@ -37,7 +37,7 @@ export function useUrlPrefetcher() {
     })
 
     // TODO: Remove wait
-    // await new Promise((resolve) => setTimeout(resolve, 1000))
+    // await new Promise((resolve) => setTimeout(resolve, 5000))
 
     try {
       const result = await fetch(redirectToProxy(proxy, value), {
