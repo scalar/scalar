@@ -15,8 +15,11 @@ Made possible by the wonderful work of [@captainsafia](https://github.com/captai
 1. **Install the package**
 
 ```shell
-dotnet add package Scalar.AspNetCore
+dotnet add package Scalar.AspNetCore --version 1.2.*
 ```
+
+> [!NOTE]
+> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `1.2.*`.
 
 2. **Add the using directive**
 
@@ -91,7 +94,7 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-For more possible options and their default values, check out the [ScalarOptions.cs](src/Scalar.AspNetCore/Options/ScalarOptions.cs) class.
+For more possible options and their default values, check out the [ScalarOptions.cs](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) class.
 
 It is also possible to configure the options via dependency injection, using the options pattern:
 
