@@ -15,7 +15,7 @@ namespace Scalar.AspNetCore;
 public static class ScalarEndpointRouteBuilderExtensions
 {
     private const string DocumentName = "{documentName}";
-    
+
     private const string FileName = "{file}";
 
     private const string StaticAssets = "ScalarStaticAssets";
@@ -44,19 +44,21 @@ public static class ScalarEndpointRouteBuilderExtensions
             throw new ArgumentException($"'{nameof(ScalarOptions.EndpointPathPrefix)}' must define '{DocumentName}'.");
         }
 
-        var standaloneResourceUrl = options.CdnUrl;
-        if (options.LocalResources)
+        var useLocalAssets = string.IsNullOrEmpty(options.CdnUrl);
+
+        if (useLocalAssets)
         {
             if (!options.LocalResourcesRoutePattern.Contains(FileName))
             {
                 throw new ArgumentException($"'{nameof(ScalarOptions.LocalResourcesRoutePattern)}' must define '{FileName}'.");
             }
+
             // Don't use default fonts provided by the CDN
             options.DefaultFonts = false;
-            standaloneResourceUrl = options.LocalResourcesRoutePattern.Replace(FileName, "standalone.js");
             endpoints.MapLocalResourcesEndpoint(options.LocalResourcesRoutePattern);
         }
 
+        var standaloneResourceUrl = useLocalAssets ? options.LocalResourcesRoutePattern.Replace(FileName, "standalone.js") : options.CdnUrl;
         var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
@@ -92,7 +94,6 @@ public static class ScalarEndpointRouteBuilderExtensions
 
         endpoints.MapGet(routePattern, (string file) =>
         {
-            
             var resourceFile = fileProvider.GetFileInfo(file);
             if (resourceFile.Exists)
             {

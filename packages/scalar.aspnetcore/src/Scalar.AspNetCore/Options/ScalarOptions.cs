@@ -165,23 +165,15 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the CDN URL for the API reference.
     /// </summary>
-    /// <value>The default value is <i>https://cdn.jsdelivr.net/npm/@scalar/api-reference</i></value>
+    /// <value>The default value is <c>null</c></value>
     /// <remarks>Use this option to load the API reference from a different CDN or local server.</remarks>
-    public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
-
-
-    /// <summary>
-    /// Indicates whether to use local resources instead of the <see cref="CdnUrl"/>.
-    /// </summary>
-    /// <value>The default value is <c>false</c>.</value>
-    /// <remarks>If set to <c>true</c>, the <see cref="LocalResourcesRoutePattern"/> will be used instead of the <see cref="CdnUrl"/>.</remarks>
-    public bool LocalResources { get; set; }
+    public string? CdnUrl { get; set; }
 
     /// <summary>
     /// Path prefix to access local resources.
     /// </summary>
     /// <value>The default value is <c>'/scalar-assets/{file}'</c>.</value>
-    /// <remarks>This path will be used if <see cref="LocalResources"/> is set to <c>true</c>.</remarks>
+    /// <remarks>An endpoint for serving the static files will be registered under this route.</remarks>
     public string LocalResourcesRoutePattern { get; set; } = "/scalar-assets/{file}";
 
     /// <summary>
