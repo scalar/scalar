@@ -27,7 +27,7 @@
   },
   "type": "module",
   "dependencies": {
-    "vue": "^3.4.29"
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240620.0",

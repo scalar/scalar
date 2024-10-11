@@ -39,7 +39,7 @@
   ],
   "dependencies": {
     "nanoid": "^5.0.7",
-    "vue": "^3.4.29",
+    "vue": "^3.5.12",
     "vue-sonner": "^1.0.3"
   },
   "devDependencies": {

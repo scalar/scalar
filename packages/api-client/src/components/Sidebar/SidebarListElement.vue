@@ -11,8 +11,8 @@ withDefaults(
       isDefault?: boolean
     }
     warningMessage?: string
-    isDeletable: boolean
-    isCopyable: boolean
+    isDeletable?: boolean
+    isCopyable?: boolean
   }>(),
   {
     isCopyable: true,
