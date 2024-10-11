@@ -1,4 +1,5 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
+import type { RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
 
 /** Data parsing for request body */
 function parseData(data: string): Record<string, any> {
@@ -34,13 +35,29 @@ export function importCurlCommand(curlCommand: string): object {
       : headers['Content-Type'] || 'application/json'
   const requestBody = body ? parseData(body) : {}
 
+  // Create parameters using the requestExampleParametersSchema
+  const parameters = [
+    ...Object.entries(queryParameters || {}).map(
+      ([key, value]) => ({
+        name: key,
+        in: 'query',
+        schema: { type: typeof value, examples: [value] },
+      }),
+      ...Object.entries(headers || {}).map(([key, value]) => ({
+        name: key,
+        in: 'headers',
+        schema: { type: typeof value },
+        example: value,
+      })),
+    ),
+  ] as RequestParameterPayload[]
+
   return {
     method,
     url,
     path,
     headers,
     servers: servers,
-    queryParameters: queryParameters,
     ...(Object.keys(requestBody).length > 0 && {
       requestBody: {
         content: {
@@ -59,15 +76,6 @@ export function importCurlCommand(curlCommand: string): object {
         },
       },
     }),
-    ...(Object.keys(headers).length > 0 && {
-      parameters: Object.entries(headers).map(([key, value]) => ({
-        name: key,
-        in: 'header',
-        schema: {
-          type: 'string',
-        },
-        example: value,
-      })),
-    }),
+    parameters,
   }
 }
