@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.53
+
+### Patch Changes
+
+- f935fad: style: adds focus visible style to listbox button
+
 ## 0.12.52
 
 ### Patch Changes
