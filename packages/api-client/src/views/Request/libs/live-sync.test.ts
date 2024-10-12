@@ -534,12 +534,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual([
-      'edit',
-      'server1',
-      'url',
-      'https://new-api.example.com',
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['server1', 'url', 'https://new-api.example.com'],
+    })
   })
 
   it('generates a delete payload for removing a server', () => {
