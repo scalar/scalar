@@ -1337,7 +1337,11 @@ describe('parseDiff', () => {
       value: 'Jane',
     }
     const result = parseDiff(testSchema, diff)
-    expect(result).toEqual({ path: 'name', value: 'Jane' })
+    expect(result).toEqual({
+      path: 'name',
+      pathMinusOne: '',
+      value: 'Jane',
+    })
   })
 
   it('parses a valid diff for a number property', () => {
@@ -1348,7 +1352,7 @@ describe('parseDiff', () => {
       value: 26,
     }
     const result = parseDiff(testSchema, diff)
-    expect(result).toEqual({ path: 'age', value: 26 })
+    expect(result).toEqual({ path: 'age', pathMinusOne: '', value: 26 })
   })
 
   it('parses a valid diff for a nested property', () => {
@@ -1359,7 +1363,11 @@ describe('parseDiff', () => {
       value: 'New Street',
     }
     const result = parseDiff(testSchema, diff)
-    expect(result).toEqual({ path: 'address.street', value: 'New Street' })
+    expect(result).toEqual({
+      path: 'address.street',
+      pathMinusOne: 'address',
+      value: 'New Street',
+    })
   })
 
   it('parses a valid diff for an array element', () => {
@@ -1370,7 +1378,11 @@ describe('parseDiff', () => {
       value: 'writing',
     }
     const result = parseDiff(testSchema, diff)
-    expect(result).toEqual({ path: 'hobbies.0', value: 'writing' })
+    expect(result).toEqual({
+      path: 'hobbies.0',
+      pathMinusOne: 'hobbies',
+      value: 'writing',
+    })
   })
 
   it('returns null for an invalid diff path', () => {
@@ -1402,7 +1414,11 @@ describe('parseDiff', () => {
       oldValue: '12345',
     }
     const result = parseDiff(testSchema, diff)
-    expect(result).toEqual({ path: 'address.zipCode' })
+    expect(result).toEqual({
+      path: 'address.zipCode',
+      pathMinusOne: 'address',
+      value: undefined,
+    })
   })
 
   it('returns null for a CREATE diff with an invalid value', () => {
