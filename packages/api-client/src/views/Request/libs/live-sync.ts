@@ -176,6 +176,8 @@ export const traverseZodSchema = (
 /**
  * Takes in diff, uses the path to get to the nested schema then parse the value
  * If there is a sub schema and it successfully parses, both the path and new value are valid and returned as such
+ *
+ * We return a tuple to make it easier to pass into the mutators
  */
 export const parseDiff = <T>(
   schema: ZodSchema<T, ZodTypeDef, any>,
@@ -230,8 +232,6 @@ export const diffToCollectionPayload = (
 
     return [collection.uid, parsed.path, parsed.value] as const
   }
-
-  return null
 }
 
 /**
@@ -379,31 +379,32 @@ export const diffToServerPayload = (
   if (keys?.length) {
     const serverUid = collection.servers[index]
     const server = servers[serverUid]
+    const parsed = parseDiff(serverSchema, diff)
 
-    if (!server) {
-      console.warn('Live Sync: Server not found, update not applied')
-      return null
-    }
+    if (!server || !parsed) return null
 
-    let value: undefined | unknown = undefined
-    if (diff.type === 'CHANGE' || diff.type === 'CREATE') {
-      value = diff.value
-    } else if (keys[keys.length - 1] === 'variables') {
-      value = {}
-    }
+    const removeVariables =
+      diff.type === 'REMOVE' && keys[keys.length - 1] === 'variables'
+    const value = removeVariables ? {} : parsed.value
 
-    return ['edit', serverUid, keys.join('.'), value] as const
+    return { method: 'edit', args: [serverUid, parsed.path, value] } as const
   }
   // Delete whole object
-  else if (diff.type === 'REMOVE') {
-    const serverUid = collection.servers[index]
-    if (serverUid) return ['delete', serverUid, collection.uid] as const
-    else console.warn('Live Sync: Server not found, update not applied')
+  else if (diff.type === 'REMOVE' && collection.servers[index]) {
+    return {
+      method: 'delete',
+      args: [collection.servers[index], collection.uid],
+    } as const
   }
   // Add whole object
-  else if (diff.type === 'CREATE')
-    return ['add', serverSchema.parse(diff.value), collection.uid] as const
-
+  else if (diff.type === 'CREATE') {
+    const server = schemaModel(diff.value, serverSchema, false)
+    if (server)
+      return {
+        method: 'add',
+        args: [server, collection.uid],
+      } as const
+  }
   return null
 }
 
@@ -418,29 +419,30 @@ export const diffToTagPayload = (
   if (keys?.length) {
     const tagUid = collection.tags[index]
     const tag = tags[tagUid]
+    const parsed = parseDiff(tagSchema, diff)
 
-    if (!tag) {
-      console.warn('Live Sync: Tag not found, update not applied')
-      return null
-    }
+    if (!tag || !parsed) return null
 
-    return [
-      'edit',
-      tagUid,
-      keys.join('.'),
-      'value' in diff ? diff.value : undefined,
-    ] as const
+    return {
+      method: 'edit',
+      args: [tagUid, parsed.path, parsed.value],
+    } as const
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
     const tagUid = collection.tags[index]
     const tag = tags[tagUid]
-    if (tag) return ['delete', tag, collection.uid] as const
-    else console.warn('Live Sync: Server not found, update not applied')
+    if (tag) return { method: 'delete', args: [tag, collection.uid] } as const
   }
   // Add whole object
-  else if (diff.type === 'CREATE')
-    return ['add', tagSchema.parse(diff.value), collection.uid] as const
+  else if (diff.type === 'CREATE') {
+    const parsed = schemaModel(diff.value, tagSchema, false)
+    if (parsed)
+      return {
+        method: 'add',
+        args: [parsed, collection.uid],
+      } as const
+  }
 
   return null
 }
@@ -451,7 +453,7 @@ export const diffToSecuritySchemePayload = (
   collection: Collection,
   securitySchemes: Record<string, SecurityScheme>,
 ) => {
-  const [, , schemeName, ...keys] = diff.path as [
+  const [, , schemeUid, ...keys] = diff.path as [
     'components',
     'securitySchemes',
     string,
@@ -460,33 +462,26 @@ export const diffToSecuritySchemePayload = (
 
   // Edit: update properties
   if (keys?.length) {
-    const scheme = securitySchemes[schemeName]
+    const scheme = securitySchemes[schemeUid]
+    const parsed = parseDiff(securitySchemeSchema, diff)
 
-    if (!scheme) {
-      console.warn('Live Sync: security scheme not found, update not applied')
-      return null
-    }
+    if (!scheme || !parsed) return null
 
-    let value: undefined | unknown = undefined
-    if (diff.type === 'CHANGE' || diff.type === 'CREATE') {
-      value = diff.value
-    }
-
-    return ['edit', schemeName, keys.join('.'), value] as const
+    return {
+      method: 'edit',
+      args: [schemeUid, parsed.path, parsed.value],
+    } as const
   }
   // Delete whole object
-  else if (diff.type === 'REMOVE') {
-    if (schemeName in securitySchemes) return ['delete', schemeName] as const
-    else
-      console.warn('Live Sync: security scheme not found, delete not applied')
+  else if (diff.type === 'REMOVE' && schemeUid in securitySchemes) {
+    return { method: 'delete', args: [schemeUid] } as const
   }
   // Add whole object
   else if (diff.type === 'CREATE')
-    return [
-      'add',
-      securitySchemeSchema.parse(diff.value),
-      collection.uid,
-    ] as const
+    return {
+      method: 'add',
+      args: [securitySchemeSchema.parse(diff.value), collection.uid],
+    } as const
 
   return null
 }
