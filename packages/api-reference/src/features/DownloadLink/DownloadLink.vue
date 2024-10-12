@@ -36,6 +36,7 @@ const handleDownloadClick = () => {
       <template v-else>
         <button
           class="download-button"
+          role="link"
           type="button"
           @click="handleDownloadClick">
           Download OpenAPI Document

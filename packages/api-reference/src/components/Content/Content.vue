@@ -126,7 +126,7 @@ const introCardsSlot = computed(() =>
   border-radius: var(--scalar-radius-lg);
 }
 .introduction-card-item {
-  padding: 9px 12px;
+  padding: 9px;
   border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   display: flex;
   flex-direction: column;

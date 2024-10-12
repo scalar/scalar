@@ -75,13 +75,16 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   <div
     ref="containerRef"
     class="client-libraries-content">
-    <div
+    <button
       v-for="client in featuredClients"
       :key="client.clientKey"
+      aria-hidden="true"
       class="client-libraries rendered-code-sdks"
       :class="{
         'client-libraries__active': isSelectedClient(client),
       }"
+      tabindex="-1"
+      type="button"
       @click="() => setHttpClient(client)">
       <div :class="`client-libraries-icon__${client.targetKey}`">
         <ScalarIcon
@@ -89,14 +92,15 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
       <span>{{ getTargetTitle(client) }}</span>
-    </div>
+    </button>
 
-    <div
+    <label
       class="client-libraries client-libraries__select"
       :class="{
         'client-libraries__active':
           httpClient && !checkIfClientIsFeatured(httpClient),
       }">
+      <span class="sr-only">Select Client Library</span>
       <select
         class="language-select"
         :value="JSON.stringify(httpClient)"
@@ -111,6 +115,10 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           <option
             v-for="client in target.clients"
             :key="client.key"
+            :aria-label="`${target.title} ${getClientTitle({
+              targetKey: target.key,
+              clientKey: client.key,
+            })}`"
             :value="
               JSON.stringify({
                 targetKey: target.key,
@@ -126,8 +134,9 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           </option>
         </optgroup>
       </select>
-
-      <div class="client-libraries-icon__more">
+      <div
+        aria-hidden="true"
+        class="client-libraries-icon__more">
         <template v-if="httpClient && !checkIfClientIsFeatured(httpClient)">
           <div :class="`client-libraries-icon__${httpClient.targetKey}`">
             <ScalarIcon
@@ -139,6 +148,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           <svg
             class="client-libraries-icon"
             height="50"
+            role="presentation"
             viewBox="0 0 50 50"
             width="50"
             xmlns="http://www.w3.org/2000/svg">
@@ -151,8 +161,12 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           </svg>
         </template>
       </div>
-      <span v-if="availableTargets.length">More</span>
-    </div>
+      <span
+        v-if="availableTargets.length"
+        aria-hidden="true">
+        More
+      </span>
+    </label>
   </div>
 </template>
 <style scoped>
@@ -178,9 +192,12 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   gap: 6px;
   color: var(--scalar-color-3);
   user-select: none;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
 }
-.client-libraries:hover:before {
+.client-libraries:first-child {
+  border-radius: var(--scalar-radius) 0 0 0;
+}
+
+.client-libraries:not(.client-libraries__active):hover:before {
   content: '';
   position: absolute;
   width: calc(100% - 4px);
@@ -193,6 +210,10 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .client-libraries:active {
   color: var(--scalar-color-1);
+}
+.client-libraries:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 /* remove php and c on mobile */
 @media screen and (max-width: 450px) {
@@ -266,10 +287,12 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   left: 0;
   cursor: pointer;
   z-index: 1;
-  -moz-appearance: none;
-  -webkit-appearance: none;
   appearance: none;
   border: none;
+}
+.client-libraries__select:has(select:focus-visible) {
+  border-radius: var(--scalar-radius);
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 .client-libraries__select span {
   position: relative;

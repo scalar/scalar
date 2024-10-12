@@ -1,5 +1,10 @@
 <script lang="ts" setup>
-import { ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarListbox,
+  type ScalarListboxOption,
+} from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, onMounted, onServerPrefetch } from 'vue'
 
@@ -93,6 +98,21 @@ const getAuthorizationTypeLabel = (item: any) => {
 
 // Alias
 const keys = computed(() => Object.keys(props.value ?? {}))
+
+const options = computed<ScalarListboxOption[]>(() =>
+  keys.value.map((key) => ({
+    id: key,
+    label: getLabelForScheme(props.value?.[key], key),
+  })),
+)
+
+const selected = computed<ScalarListboxOption | undefined>({
+  get: () =>
+    options.value?.find(
+      (opt) => opt.id === authentication.preferredSecurityScheme,
+    ),
+  set: (opt?: ScalarListboxOption) => setSecuritySchemeKey(opt?.id ?? ''),
+})
 </script>
 <template>
   <!-- Single security scheme -->
@@ -105,8 +125,16 @@ const keys = computed(() => Object.keys(props.value ?? {}))
 
   <!-- Multiple security schemes -->
   <template v-else-if="keys.length > 1">
-    <div class="security-scheme-selector">
-      <span class="security-scheme-label">
+    <ScalarListbox
+      v-model="selected"
+      label="Security Scheme"
+      :options="options"
+      resize>
+      <ScalarButton
+        class="security-scheme-button"
+        fullWidth
+        variant="ghost">
+        <span class="sr-only">Selected:</span>
         {{
           authentication.preferredSecurityScheme
             ? getLabelForScheme(
@@ -115,62 +143,24 @@ const keys = computed(() => Object.keys(props.value ?? {}))
               )
             : 'No Authentication'
         }}
-      </span>
-      <ScalarIcon icon="ChevronDown" />
-      <select
-        :value="authentication.preferredSecurityScheme"
-        @click.prevent
-        @input="handleAuthenticationTypeInput">
-        <option value="">No Authentication</option>
-        <template
-          v-for="key in keys"
-          :key="key">
-          <option :value="key ?? null">
-            {{ getLabelForScheme(value?.[key], key) }}
-          </option>
-        </template>
-      </select>
-    </div>
+        <ScalarIcon
+          icon="ChevronDown"
+          size="xs" />
+      </ScalarButton>
+    </ScalarListbox>
   </template>
 </template>
 
 <style scoped>
-.security-scheme-selector {
-  position: relative;
-  display: flex;
-  border-radius: var(--scalar-radius);
+.security-scheme-button {
   color: var(--scalar-color-3);
-  display: flex;
-  align-items: center;
+  display: inline-flex;
   gap: 4px;
-  cursor: pointer;
+  height: auto;
+  padding: 0;
+  text-transform: uppercase;
 }
 .security-scheme-selector:hover {
   color: var(--scalar-color-1);
-}
-.security-scheme-label {
-  color: var(--scalar-color-3);
-  font-size: var(--scalar-mini);
-}
-.security-scheme-selector:hover .security-scheme-label {
-  color: var(--scalar-color-1);
-}
-.security-scheme-selector select {
-  position: absolute;
-  cursor: pointer;
-  opacity: 0;
-  right: 0;
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-  width: 100%;
-  /** Increase clickable area */
-  margin-top: -5px;
-  padding: 10px 0;
-}
-
-.security-scheme-selector svg {
-  width: 12px;
-  stroke: currentColor;
 }
 </style>

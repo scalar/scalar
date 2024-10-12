@@ -11,6 +11,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   options: Server[]
   modelValue: number
+  describedBy?: string
 }>()
 
 const emit = defineEmits<{
@@ -32,31 +33,31 @@ const selected = computed<ScalarListboxOption | undefined>({
 })
 </script>
 <template>
-  <div class="w-full">
-    <ScalarListbox
-      v-model="selected"
-      :options="options"
-      resize>
-      <ScalarButton
-        class="url-select"
-        :class="{ 'pointer-events-none': options.length <= 1 }"
-        fullWidth
-        variant="ghost">
-        <span class="custom-scroll">
-          <slot></slot>
-        </span>
-        <ScalarIcon
-          v-if="options.length > 1"
-          icon="ChevronDown"
-          size="xs" />
-      </ScalarButton>
-    </ScalarListbox>
-  </div>
+  <ScalarListbox
+    v-model="selected"
+    fullWidth
+    :options="options"
+    resize>
+    <ScalarButton
+      :aria-describedby="describedBy"
+      class="url-select"
+      :class="{ 'pointer-events-none': options.length <= 1 }"
+      fullWidth
+      variant="ghost">
+      <span class="custom-scroll">
+        <slot></slot>
+      </span>
+      <ScalarIcon
+        v-if="options.length > 1"
+        icon="ChevronDown"
+        size="xs" />
+    </ScalarButton>
+  </ScalarListbox>
 </template>
 
 <style scoped>
 .url-select {
-  padding: 0;
+  padding: 0 9px;
   min-height: 32px;
   color: var(--scalar-color-1);
   align-items: center;

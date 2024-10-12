@@ -3,6 +3,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   value: string
+  controls?: string
 }>()
 
 const emit = defineEmits<{
@@ -17,6 +18,7 @@ const model = computed<string>({
 <template>
   <input
     v-model="model"
+    :aria-controls="controls"
     autocomplete="off"
     class="variable-textbox"
     placeholder="value"
