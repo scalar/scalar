@@ -10,6 +10,7 @@ defineProps<{
   loading?: LoadingState
   modelValue?: string
   sidebar?: boolean
+  label?: string
 }>()
 
 const emit = defineEmits<{
@@ -31,7 +32,7 @@ const attrs = computed(() => {
 })
 
 const variants = cva({
-  base: 'flex items-center rounded border bg-b-1 text-sm font-medium',
+  base: 'flex items-center rounded border bg-b-1 text-sm font-medium has-[:focus-visible]:outline',
   variants: {
     sidebar: {
       true: 'h-8 gap-1.5 px-1.5',
@@ -50,10 +51,7 @@ defineExpose({
 })
 </script>
 <template>
-  <label
-    v-bind="attrs.rest"
-    :class="cx(variants({ sidebar }), attrs.className)">
-    <span class="sr-only"><slot name="label">Enter search</slot></span>
+  <label :class="cx(variants({ sidebar }), attrs.className)">
     <ScalarIcon
       v-if="sidebar"
       class="text-c-2"
@@ -62,13 +60,15 @@ defineExpose({
       thickness="2.5" />
     <input
       ref="inputRef"
+      v-bind="attrs.rest"
+      :aria-label="label ?? 'Enter search query'"
       autocapitalize="off"
       autocomplete="off"
       autocorrect="off"
-      class="flex-1 rounded border-none bg-transparent outline-none"
+      class="flex-1 appearance-none rounded border-none bg-transparent outline-none"
       placeholder="Search..."
       spellcheck="false"
-      type="text"
+      type="search"
       :value="modelValue"
       @input="handleInput" />
     <ScalarLoading

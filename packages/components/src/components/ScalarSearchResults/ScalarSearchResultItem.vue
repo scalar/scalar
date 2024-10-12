@@ -18,7 +18,9 @@ const attrs = computed(() => {
 })
 </script>
 <template>
-  <li class="contents">
+  <li
+    class="contents"
+    role="option">
     <a
       v-bind="attrs.rest"
       :class="

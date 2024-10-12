@@ -9,7 +9,8 @@ import {
 } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
-import { nextTick, ref, toRef, watch } from 'vue'
+import { nanoid } from 'nanoid'
+import { computed, ref, toRef, watch } from 'vue'
 
 import { lazyBus } from '../../components/Content/Lazy/lazyBus'
 import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
@@ -23,6 +24,15 @@ const props = defineProps<{
 }>()
 
 const specification = toRef(props, 'parsedSpec')
+
+/** Base id for the search form */
+const id = nanoid()
+/** An id for the results listbox */
+const listboxId = `${id}-search-result`
+/** An id for the results instructions */
+const instructionsId = `${id}-search-instructions`
+/** Constructs and unique id for a given option */
+const getOptionId = (href: string) => `${id}${href}`
 
 const {
   resetSearch,
@@ -40,6 +50,14 @@ const ENTRY_ICONS: { [x in EntryType]: Icon } = {
   req: 'Terminal',
   tag: 'CodeFolder',
   webhook: 'Terminal',
+}
+
+const ENTRY_LABELS: { [x in EntryType]: string } = {
+  heading: 'Document Heading',
+  model: '', // The title of the entry is already :"Model"
+  req: 'Request',
+  tag: 'Tag',
+  webhook: 'Webhook',
 }
 
 const searchModalRef = ref<HTMLElement | null>(null)
@@ -89,11 +107,18 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
 // Scroll to the currently selected result
 watch(selectedSearchResult, (index) => {
   const newResult = searchResultsWithPlaceholderResults.value[index]
+  const optionId = getOptionId(newResult?.item.href)
 
-  document.getElementById(newResult.item.href)?.scrollIntoView({
+  document.getElementById(optionId)?.scrollIntoView({
     behavior: 'smooth',
     block: 'nearest',
   })
+})
+
+const selectedSearchResultId = computed<string>(() => {
+  const index = selectedSearchResult.value
+  const result = searchResultsWithPlaceholderResults.value[index]
+  return getOptionId(result?.item.href)
 })
 
 /** Keyboard navigation */
@@ -106,8 +131,11 @@ const navigateSearchResults = (direction: 'up' | 'down') => {
   selectedSearchResult.value = newIndex
 }
 
-// given just a #hash-name, we grab the full URL to be explicit to
-// handle edge cases of other framework routers resetting to base URL on navigation
+/**
+ * Given just a #hash-name, we grab the full URL to be explicit to
+ * handle edge cases of other framework routers resetting to base URL
+ * on navigation
+ */
 function getFullUrlFromHash(href: string) {
   const newUrl = new URL(window.location.href)
 
@@ -129,17 +157,25 @@ function getFullUrlFromHash(href: string) {
     @keydown.up.stop.prevent="navigateSearchResults('up')">
     <div
       ref="searchModalRef"
-      class="ref-search-container">
+      aria-label="Reference Search"
+      class="ref-search-container"
+      role="search">
       <ScalarSearchInput
         v-model="searchText"
+        :aria-activedescendant="selectedSearchResultId"
+        :aria-controls="listboxId"
+        :aria-describedby="instructionsId"
         @input="fuseSearch" />
     </div>
     <ScalarSearchResultList
+      :id="listboxId"
+      :aria-describedby="instructionsId"
+      aria-label="Reference Search Results"
       class="ref-search-results custom-scroll"
       :noResults="!searchResultsWithPlaceholderResults.length">
       <ScalarSearchResultItem
         v-for="(entry, index) in searchResultsWithPlaceholderResults"
-        :id="entry.item.href"
+        :id="getOptionId(entry.item.href)"
         :key="entry.refIndex"
         :active="selectedSearchResult === index"
         :href="getFullUrlFromHash(entry.item.href)"
@@ -150,7 +186,14 @@ function getFullUrlFromHash(href: string) {
           :class="{
             deprecated: entry.item.operation?.information?.deprecated,
           }">
+          <span class="sr-only">
+            {{ ENTRY_LABELS[entry.item.type] }}:&nbsp;
+            <template v-if="entry.item.operation?.information?.deprecated">
+              (Deprecated)&nbsp;
+            </template>
+          </span>
           {{ entry.item.title }}
+          <span class="sr-only">,</span>
         </span>
         <template
           v-if="
@@ -158,17 +201,24 @@ function getFullUrlFromHash(href: string) {
             entry.item.path !== entry.item.title
           "
           #description>
+          <span class="sr-only">Path:&nbsp;</span>
           {{ entry.item.path }}
         </template>
         <template
           v-else-if="entry.item.description"
           #description>
+          <span class="sr-only">Description:&nbsp;</span>
           {{ entry.item.description }}
         </template>
         <template
           v-if="entry.item.type === 'req'"
           #addon>
-          <SidebarHttpBadge :method="entry.item.httpVerb ?? 'get'" />
+          <SidebarHttpBadge
+            aria-hidden="true"
+            :method="entry.item.httpVerb ?? 'get'" />
+          <span class="sr-only">
+            HTTP Method: {{ entry.item.httpVerb ?? 'get' }},
+          </span>
         </template>
       </ScalarSearchResultItem>
       <template #query>{{ searchText }}</template>
@@ -176,6 +226,12 @@ function getFullUrlFromHash(href: string) {
     <div class="ref-search-meta">
       <span>↑↓ Navigate</span>
       <span>⏎ Select</span>
+    </div>
+    <div
+      :id="instructionsId"
+      class="sr-only">
+      Press up arrow / down arrow to navigate, enter to select, type to filter
+      results
     </div>
   </ScalarModal>
 </template>
