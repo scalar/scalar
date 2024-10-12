@@ -88,16 +88,16 @@ export const useOpenApiWatcher = () => {
       )
 
       requestPayloads.forEach((rp) => {
-        const [method, ...payload] = rp
-        requestMutators[method](...payload)
+        if (rp.method === 'edit') requestMutators.edit(...rp.args)
+        else requestMutators[rp.method](...rp.args)
 
         if (
-          rp[0] !== 'edit' ||
+          rp.method !== 'edit' ||
           (d.path[3] !== 'parameters' && d.path[3] !== 'requestBody')
         )
           return
 
-        const requestUid = rp[1]
+        const requestUid = rp.args[0]
         const request = requests[requestUid]
 
         // V0 just generate a new example

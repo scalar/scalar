@@ -2,6 +2,7 @@ import { isHTTPMethod } from '@/components/HttpMethod/helpers'
 import {
   type Collection,
   type Request,
+  type RequestMethod,
   type RequestParameterPayload,
   type RequestPayload,
   type SecurityScheme,
@@ -257,7 +258,10 @@ export const diffToRequestPayload = (
   if (path === 'path' && diff.type === 'CHANGE') {
     return collection.requests
       .filter((uid) => requests[uid].path === diff.oldValue)
-      .map((uid) => ['edit', uid, 'path', diff.value] as const)
+      .map((uid) => ({
+        method: 'edit',
+        args: [uid, 'path', diff.value],
+      })) as { method: 'edit'; args: [string, 'path', string] }[]
   }
   // Method has changed
   else if (method === 'method' && diff.type === 'CHANGE') {
@@ -266,7 +270,10 @@ export const diffToRequestPayload = (
         (uid) =>
           requests[uid].method === diff.oldValue && requests[uid].path === path,
       )
-      .map((uid) => ['edit', uid, 'method', diff.value] as const)
+      .map((uid) => ({
+        method: 'edit',
+        args: [uid, 'method', diff.value],
+      })) as { method: 'edit'; args: [string, 'method', RequestMethod] }[]
   }
   // Adding or removing to the end of an array - special case
   else if (diff.type !== 'CHANGE' && typeof keys.at(-1) === 'number') {
@@ -275,23 +282,24 @@ export const diffToRequestPayload = (
       requests,
       (r) => r.path === path && r.method === method,
     )
-
-    if (!request) {
-      console.warn('Live Sync: request not found, was unable to update')
-      return []
-    }
+    const parsed = parseDiff(requestSchema, {
+      ...diff,
+      path: diff.path.slice(3, -1),
+    })
+    if (!request || !parsed) return []
 
     // Chop off the path, method and array index
-    const _path = diff.path.slice(3, -1).join('.')
-    const value = [...getNestedValue(request, _path)]
+    const oldValue = [...getNestedValue(request, parsed.path)]
 
     if (diff.type === 'CREATE') {
-      value.push(diff.value)
+      oldValue.push(parsed.value)
     } else if (diff.type === 'REMOVE') {
-      value.pop()
+      oldValue.pop()
     }
 
-    return [['edit', request.uid, _path, value]] as const
+    return [
+      { method: 'edit', args: [request.uid, parsed.path, oldValue] },
+    ] as const
   }
 
   // Add
@@ -337,11 +345,8 @@ export const diffToRequestPayload = (
 
     // Save parse the request
     const request = schemaModel(requestPayload, requestSchema, false)
-    if (request) return [['add', request, collection.uid]] as const
-    else
-      console.warn(
-        'Live Sync: was unable to add the new reqeust, please refresh to try again.',
-      )
+    if (request)
+      return [{ method: 'add', args: [request, collection.uid] }] as const
   }
   // Delete
   else if (diff.type === 'REMOVE') {
@@ -350,7 +355,8 @@ export const diffToRequestPayload = (
       requests,
       (_request) => _request.path === path && _request.method === method,
     )
-    if (request) return [['delete', request, collection.uid]] as const
+    if (request)
+      return [{ method: 'delete', args: [request, collection.uid] }] as const
   }
   // Edit
   else if (diff.type === 'CHANGE') {
@@ -360,11 +366,14 @@ export const diffToRequestPayload = (
       (r) => r.path === path && r.method === method,
     )
 
-    if (request)
-      return [['edit', request.uid, keys.join('.'), diff.value]] as const
-    else console.warn('Live Sync: request not found, was unable to update')
+    const parsed = parseDiff(requestSchema, { ...diff, path: keys })
+    if (!request || !parsed) return []
+
+    return [
+      { method: 'edit', args: [request.uid, parsed.path, parsed.value] },
+    ] as const
   }
-  return [] as const
+  return []
 }
 
 /** Generates a payload for the server mutator from the server diff including the mutator method */
@@ -379,7 +388,7 @@ export const diffToServerPayload = (
   if (keys?.length) {
     const serverUid = collection.servers[index]
     const server = servers[serverUid]
-    const parsed = parseDiff(serverSchema, diff)
+    const parsed = parseDiff(serverSchema, { ...diff, path: keys })
 
     if (!server || !parsed) return null
 
@@ -419,7 +428,7 @@ export const diffToTagPayload = (
   if (keys?.length) {
     const tagUid = collection.tags[index]
     const tag = tags[tagUid]
-    const parsed = parseDiff(tagSchema, diff)
+    const parsed = parseDiff(tagSchema, { ...diff, path: keys })
 
     if (!tag || !parsed) return null
 
@@ -463,7 +472,7 @@ export const diffToSecuritySchemePayload = (
   // Edit: update properties
   if (keys?.length) {
     const scheme = securitySchemes[schemeUid]
-    const parsed = parseDiff(securitySchemeSchema, diff)
+    const parsed = parseDiff(securitySchemeSchema, { ...diff, path: keys })
 
     if (!scheme || !parsed) return null
 
