@@ -185,6 +185,7 @@ export const parseDiff = <T>(
   diff: Difference,
 ): { path: Path<T>; value: PathValue<T, Path<T>> | undefined } | null => {
   const parsedSchema = traverseZodSchema(schema, diff.path)
+
   if (!parsedSchema) return null
 
   // If we are removing, value is undefined
@@ -192,7 +193,9 @@ export const parseDiff = <T>(
     return { path: diff.path.join('.') as Path<T>, value: undefined }
 
   // Safe parse the value as well
+  console.log(diff.value)
   const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
+  console.log(parsedValue)
   if (!parsedValue) return null
 
   return {
@@ -258,10 +261,13 @@ export const diffToRequestPayload = (
   if (path === 'path' && diff.type === 'CHANGE') {
     return collection.requests
       .filter((uid) => requests[uid].path === diff.oldValue)
-      .map((uid) => ({
-        method: 'edit',
-        args: [uid, 'path', diff.value],
-      })) as { method: 'edit'; args: [string, 'path', string] }[]
+      .map(
+        (uid) =>
+          ({
+            method: 'edit',
+            args: [uid, 'path', diff.value],
+          }) as const,
+      )
   }
   // Method has changed
   else if (method === 'method' && diff.type === 'CHANGE') {
@@ -270,10 +276,13 @@ export const diffToRequestPayload = (
         (uid) =>
           requests[uid].method === diff.oldValue && requests[uid].path === path,
       )
-      .map((uid) => ({
-        method: 'edit',
-        args: [uid, 'method', diff.value],
-      })) as { method: 'edit'; args: [string, 'method', RequestMethod] }[]
+      .map(
+        (uid) =>
+          ({
+            method: 'edit',
+            args: [uid, 'method', diff.value],
+          }) as const,
+      )
   }
   // Adding or removing to the end of an array - special case
   else if (diff.type !== 'CHANGE' && typeof keys.at(-1) === 'number') {

@@ -548,7 +548,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual(['delete', 'server2', 'collection1'])
+    expect(result).toEqual({
+      method: 'delete',
+      args: ['server2', 'collection1'],
+    })
   })
 
   it('generates an add payload for creating a new server', () => {
@@ -564,7 +567,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual(['add', newServer, 'collection1'])
+    expect(result).toEqual({
+      method: 'add',
+      args: [newServer, 'collection1'],
+    })
   })
 
   it('generates an edit payload for adding a server variable', () => {
@@ -575,12 +581,14 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual([
-      'edit',
-      'server1',
-      'variables.newVar',
-      { default: 'default', enum: ['default', 'other'] },
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: [
+        'server1',
+        'variables.newVar',
+        { default: 'default', enum: ['default', 'other'] },
+      ],
+    })
   })
 
   it('generates an edit payload for updating a server variable', () => {
@@ -592,12 +600,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual([
-      'edit',
-      'server3',
-      'variables.version.default',
-      'v2',
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['server3', 'variables.version.default', 'v2'],
+    })
   })
 
   it('generates an edit payload for removing a server variable', () => {
@@ -608,7 +614,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual(['edit', 'server3', 'variables.version', undefined])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['server3', 'variables.version', undefined],
+    })
   })
 
   it('generates an edit payload for adding all variables to a server', () => {
@@ -622,15 +631,17 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual([
-      'edit',
-      'server2',
-      'variables',
-      {
-        version: { default: 'v1', enum: ['v1', 'v2'] },
-        environment: { default: 'staging', enum: ['production', 'staging'] },
-      },
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: [
+        'server2',
+        'variables',
+        {
+          version: { default: 'v1', enum: ['v1', 'v2'] },
+          environment: { default: 'staging', enum: ['production', 'staging'] },
+        },
+      ],
+    })
   })
 
   it('generates an edit payload for removing all variables from a server', () => {
@@ -641,7 +652,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual(['edit', 'server3', 'variables', {}])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['server3', 'variables', {}],
+    })
   })
 
   it('generates an edit payload for updating a server variable enum', () => {
@@ -653,12 +667,10 @@ describe('diffToServerPayload', () => {
     }
 
     const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual([
-      'edit',
-      'server3',
-      'variables.version.enum',
-      ['v1', 'v2', 'v3'],
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['server3', 'variables.version.enum', ['v1', 'v2', 'v3']],
+    })
   })
 
   it('returns null when trying to edit a non-existent server', () => {
@@ -742,7 +754,7 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['add', newTag, 'collection1'])
+    expect(result).toEqual({ method: 'add', args: [newTag, 'collection1'] })
   })
 
   it('generates a remove payload for deleting a tag', () => {
@@ -753,18 +765,20 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'delete',
-      {
-        'type': 'tag',
-        'uid': 'tag2uid',
-        'name': 'Tag 2',
-        'description': 'Second tag',
-        'children': [],
-        'x-scalar-children': [],
-      },
-      'collection1',
-    ])
+    expect(result).toEqual({
+      method: 'delete',
+      args: [
+        {
+          'type': 'tag',
+          'uid': 'tag2uid',
+          'name': 'Tag 2',
+          'description': 'Second tag',
+          'children': [],
+          'x-scalar-children': [],
+        },
+        'collection1',
+      ],
+    })
   })
 
   it('generates an edit payload for updating a tag name', () => {
@@ -776,7 +790,10 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['edit', 'tag1uid', 'name', 'Updated Tag 1'])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['tag1uid', 'name', 'Updated Tag 1'],
+    })
   })
 
   it('generates an edit payload for updating a tag description', () => {
@@ -788,12 +805,10 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'edit',
-      'tag2uid',
-      'description',
-      'Updated second tag',
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['tag2uid', 'description', 'Updated second tag'],
+    })
   })
 
   it('generates an edit payload for adding a new property to a tag', () => {
@@ -804,12 +819,10 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual([
-      'edit',
-      'tag3uid',
-      'externalDocs',
-      { url: 'https://example.com/docs' },
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['tag3uid', 'externalDocs', { url: 'https://example.com/docs' }],
+    })
   })
 
   it('generates an edit payload for removing a property from a tag', () => {
@@ -820,7 +833,10 @@ describe('diffToTagPayload', () => {
     }
 
     const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual(['edit', 'tag1uid', 'description', undefined])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['tag1uid', 'description', undefined],
+    })
   })
 
   it('returns null when trying to edit a non-existent tag', () => {
@@ -892,7 +908,7 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual(['add', newScheme, 'collection1'])
+    expect(result).toEqual({ method: 'add', args: [newScheme, 'collection1'] })
   })
 
   it('generates a remove payload for deleting a security scheme', () => {
@@ -907,7 +923,7 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual(['delete', 'apiKeyUid'])
+    expect(result).toEqual({ method: 'delete', args: ['apiKeyUid'] })
   })
 
   it('generates an edit payload for updating a security scheme property', () => {
@@ -923,7 +939,10 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual(['edit', 'apiKeyUid', 'name', 'new_api_key'])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['apiKeyUid', 'name', 'new_api_key'],
+    })
   })
 
   it('generates an edit payload for adding a new property to a security scheme', () => {
@@ -938,12 +957,10 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual([
-      'edit',
-      'apiKeyUid',
-      'description',
-      'API Key for authentication',
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['apiKeyUid', 'description', 'API Key for authentication'],
+    })
   })
 
   it('generates an edit payload for removing a property from a security scheme', () => {
@@ -966,12 +983,10 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual([
-      'edit',
-      'oauth2',
-      'flows.implicit.scopes.write:api',
-      undefined,
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['oauth2', 'flows.implicit.scopes.write:api', undefined],
+    })
   })
 
   it('returns null when trying to edit a non-existent security scheme', () => {
@@ -1026,12 +1041,14 @@ describe('diffToSecuritySchemePayload', () => {
       mockCollection,
       mockSecuritySchemes,
     )
-    expect(result).toEqual([
-      'edit',
-      'oauth2',
-      'flows.implicit.authorizationUrl',
-      'https://api.example.com/oauth2/authorize',
-    ])
+    expect(result).toEqual({
+      method: 'edit',
+      args: [
+        'oauth2',
+        'flows.implicit.authorizationUrl',
+        'https://api.example.com/oauth2/authorize',
+      ],
+    })
   })
 })
 
@@ -1057,7 +1074,9 @@ describe('diffToRequestPayload', () => {
     }
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([['add', newRequest, mockCollection.uid]])
+    expect(result).toEqual([
+      { method: 'add', args: [newRequest, mockCollection.uid] },
+    ])
   })
 
   it('generates a delete payload for removing a request', () => {
@@ -1069,7 +1088,10 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      ['delete', mockRequests.request2uid, mockCollection.uid],
+      {
+        method: 'delete',
+        args: [mockRequests.request2uid, mockCollection.uid],
+      },
     ])
   })
 
@@ -1083,7 +1105,10 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      ['edit', 'request3uid', 'summary', 'Retrieve planet details'],
+      {
+        method: 'edit',
+        args: ['request3uid', 'summary', 'Retrieve planet details'],
+      },
     ])
   })
 
@@ -1102,21 +1127,23 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      [
-        'edit',
-        'request1uid',
-        'parameters',
-        [
-          ...(mockRequests.request1uid.parameters ?? []),
-          {
-            name: 'highroller',
-            in: 'query',
-            required: false,
-            deprecated: false,
-            schema: { type: 'integer', format: 'int32' },
-          },
+      {
+        method: 'edit',
+        args: [
+          'request1uid',
+          'parameters',
+          [
+            ...(mockRequests.request1uid.parameters ?? []),
+            {
+              name: 'highroller',
+              in: 'query',
+              required: false,
+              deprecated: false,
+              schema: { type: 'integer', format: 'int32' },
+            },
+          ],
         ],
-      ],
+      },
     ])
   })
 
@@ -1136,12 +1163,14 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      [
-        'edit',
-        'request1uid',
-        'parameters',
-        mockRequests.request1uid.parameters?.toSpliced(-1),
-      ],
+      {
+        method: 'edit',
+        args: [
+          'request1uid',
+          'parameters',
+          mockRequests.request1uid.parameters?.toSpliced(-1),
+        ],
+      },
     ])
   })
 
@@ -1155,7 +1184,10 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      ['edit', 'request1uid', 'description', 'Get the list of all planets'],
+      {
+        method: 'edit',
+        args: ['request1uid', 'description', 'Get the list of all planets'],
+      },
     ])
   })
 
@@ -1181,8 +1213,8 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([
-      ['edit', 'request1uid', 'path', '/planets/list'],
-      ['edit', 'request2uid', 'path', '/planets/list'],
+      { method: 'edit', args: ['request1uid', 'path', '/planets/list'] },
+      { method: 'edit', args: ['request2uid', 'path', '/planets/list'] },
     ])
   })
 
@@ -1195,7 +1227,9 @@ describe('diffToRequestPayload', () => {
     }
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([['edit', 'request1uid', 'method', 'post']])
+    expect(result).toEqual([
+      { method: 'edit', args: ['request1uid', 'method', 'post'] },
+    ])
   })
 
   it('handles invalid diff paths', () => {
