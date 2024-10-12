@@ -88,8 +88,15 @@ export const useOpenApiWatcher = () => {
       )
 
       requestPayloads.forEach((rp) => {
-        if (rp.method === 'edit') requestMutators.edit(...rp.args)
-        else requestMutators[rp.method](...rp.args)
+        const { method, args } = rp
+
+        // Specially handle these cases for some reason
+        if (args[1] === 'method')
+          requestMutators.edit(args[0] as string, 'method', args[2])
+        else if (args[1] === 'path')
+          requestMutators.edit(args[0] as string, 'path', args[2])
+        else if (method === 'edit') requestMutators.edit(...args)
+        else requestMutators[method](...args)
 
         if (
           rp.method !== 'edit' ||
