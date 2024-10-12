@@ -211,26 +211,23 @@ export const parseDiff = <T>(
 ): {
   /** Typed path as it has been checked agains the schema */
   path: Path<T>
-  /** Used for getting the whole array instead of an item of the array */
-  pathWithoutLastDigit: Path<T>
+  /** Path without the last item, used for getting the whole array instead of an item of the array */
+  pathMinusOne: Path<T>
   /** Typed value which has been parsed against the schema */
   value: PathValue<T, Path<T>> | undefined
 } | null => {
-  console.log('=================')
-  console.log(diff.path)
   const parsedSchema = traverseZodSchema(schema, diff.path)
-  console.log(parsedSchema)
 
   if (!parsedSchema) return null
 
   const path = diff.path.join('.') as Path<T>
-  const pathWithoutLastDigit = diff.path.slice(0, -1).join('.') as Path<T>
+  const pathMinusOne = diff.path.slice(0, -1).join('.') as Path<T>
 
   // If we are removing, value is undefined
   if (diff.type === 'REMOVE')
     return {
       path,
-      pathWithoutLastDigit,
+      pathMinusOne,
       value: undefined,
     }
 
@@ -240,7 +237,7 @@ export const parseDiff = <T>(
 
   return {
     path,
-    pathWithoutLastDigit,
+    pathMinusOne,
     value: parsedValue as PathValue<T, Path<T>>,
   }
 }
@@ -262,15 +259,13 @@ export const diffToCollectionPayload = (
     })
     if (!parsed) return null
 
-    const oldValue = [
-      ...getNestedValue(collection, parsed.pathWithoutLastDigit),
-    ]
+    const oldValue = [...getNestedValue(collection, parsed.pathMinusOne)]
     if (diff.type === 'CREATE') {
       oldValue.push(parsed.value)
     } else if (diff.type === 'REMOVE') {
       oldValue.pop()
     }
-    return [collection.uid, parsed.pathWithoutLastDigit, oldValue] as const
+    return [collection.uid, parsed.pathMinusOne, oldValue] as const
   }
   // Non array + array change
   else {
@@ -336,12 +331,12 @@ export const diffToRequestPayload = (
     )
     const parsed = parseDiff(requestSchema, {
       ...diff,
-      path: diff.path.slice(3, -1),
+      path: diff.path.slice(3),
     })
     if (!request || !parsed) return []
 
     // Chop off the path, method and array index
-    const oldValue = [...getNestedValue(request, parsed.path)]
+    const oldValue = [...getNestedValue(request, parsed.pathMinusOne)]
 
     if (diff.type === 'CREATE') {
       oldValue.push(parsed.value)
@@ -350,7 +345,10 @@ export const diffToRequestPayload = (
     }
 
     return [
-      { method: 'edit', args: [request.uid, parsed.path, oldValue] },
+      {
+        method: 'edit',
+        args: [request.uid, parsed.pathMinusOne, oldValue],
+      },
     ] as const
   }
 
@@ -523,7 +521,6 @@ export const diffToSecuritySchemePayload = (
 
   // Edit: update properties
   if (keys?.length) {
-    console.log('keys', keys)
     const scheme = securitySchemes[schemeUid]
     const parsed = parseDiff(securitySchemeSchema, { ...diff, path: keys })
 
