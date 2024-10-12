@@ -53,35 +53,31 @@ export const useOpenApiWatcher = () => {
     }
     // Components.securitySchemes
     else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
-      const securitySchemePayload = diffToSecuritySchemePayload(
+      const payload = diffToSecuritySchemePayload(
         d,
         activeCollection.value,
         securitySchemes,
       )
-      if (securitySchemePayload) {
-        const [method, ...payload] = securitySchemePayload
-        securitySchemeMutators[method](...payload)
-      }
+
+      if (payload?.method === 'add') securitySchemeMutators.add(...payload.args)
+      else if (payload?.method === 'edit')
+        securitySchemeMutators.edit(...payload.args)
+      else if (payload?.method === 'delete')
+        securitySchemeMutators.delete(...payload.args)
     }
     // Servers
     else if (d.path[0] === 'servers') {
-      const serverPayload = diffToServerPayload(
-        d,
-        activeCollection.value,
-        servers,
-      )
-      if (serverPayload) {
-        const [method, ...payload] = serverPayload
-        serverMutators[method](...payload)
-      }
+      const payload = diffToServerPayload(d, activeCollection.value, servers)
+      if (payload?.method === 'edit') serverMutators.edit(...payload.args)
+      else if (payload?.method === 'add') serverMutators.add(...payload.args)
+      else if (payload?.method === 'delete')
+        serverMutators.delete(...payload.args)
     }
     // Tags
     else if (d.path[0] === 'tags') {
-      const tagPayload = diffToTagPayload(d, tags, activeCollection.value)
-      if (tagPayload) {
-        const [method, ...payload] = tagPayload
-        tagMutators[method](...payload)
-      }
+      const payload = diffToTagPayload(d, tags, activeCollection.value)
+      if (payload?.method === 'edit') tagMutators.edit(...payload.args)
+      else if (payload) tagMutators[payload.method](...payload.args)
     }
     // Paths
     else if (d.path[0] === 'paths') {
