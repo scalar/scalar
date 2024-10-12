@@ -29,6 +29,10 @@
     border-style: solid;
     border-color: var(--scalar-border-color);
 
+    outline-width: 1px;
+    outline-style: none;
+    outline-color: var(--scalar-color-accent);
+
     font-family: inherit;
     font-feature-settings: inherit;
     font-variation-settings: inherit;
@@ -81,15 +85,20 @@
     font-family: var(--scalar-font);
   }
 
+  /** Remove chrome search input decorations */
+  input[type='search']::-webkit-search-cancel-button,
+  input[type='search']::-webkit-search-decoration {
+    appearance: none;
+  }
+
   /** Remove yellow/blue autofill indicator */
   input:-webkit-autofill {
     background-clip: text !important;
   }
 
-  /** Custom outline style for focus visible */
+  /** Add outline for focus visible */
   :focus-visible {
-    outline: 1px solid var(--scalar-color-accent);
-    outline-offset: 1px;
+    outline-style: solid;
   }
 
   /** Set the default cursor for buttons. */
