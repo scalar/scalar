@@ -1246,9 +1246,14 @@ describe('diffToRequestPayload', () => {
 })
 
 describe('traverseZodSchema', () => {
+  const smallSchema = z.record(
+    z.string(),
+    z.array(z.string()).optional().default([]),
+  )
   const testSchema = z.object({
     name: z.string(),
     age: z.number().optional(),
+    small: z.array(smallSchema).optional().default([]),
     address: z
       .object({
         street: z.string(),
@@ -1266,6 +1271,16 @@ describe('traverseZodSchema', () => {
 
   it('returns the correct schema for a nested property', () => {
     const result = traverseZodSchema(testSchema, ['address', 'street'])
+    expect(result).toBeInstanceOf(z.ZodString)
+  })
+
+  it('returns the correct schema for a nested array property', () => {
+    const result = traverseZodSchema(testSchema, ['small', 0])
+    expect(result).toEqual(smallSchema)
+  })
+
+  it('returns the correct schema for a nested record property', () => {
+    const result = traverseZodSchema(testSchema, ['small', 0, 'test', 0])
     expect(result).toBeInstanceOf(z.ZodString)
   })
 

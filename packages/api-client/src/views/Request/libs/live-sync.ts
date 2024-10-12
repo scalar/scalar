@@ -135,6 +135,13 @@ export const findResource = <T>(
   return null
 }
 
+/** Helper function to unwrap optional and default schemas */
+const unwrapSchema = (schema: ZodSchema): ZodSchema => {
+  if (schema instanceof z.ZodOptional) return unwrapSchema(schema.unwrap())
+  if (schema instanceof z.ZodDefault) return unwrapSchema(schema._def.innerType)
+  return schema
+}
+
 /**
  * Traverses a zod schema based on the path and returns the schema at the end of the path
  * or null if the path doesn't exist. Handles optional unwrapping
@@ -146,9 +153,8 @@ export const traverseZodSchema = (
   let currentSchema: ZodSchema = schema
 
   for (const key of path) {
-    // Unrap an optional
-    if (currentSchema instanceof z.ZodOptional)
-      currentSchema = currentSchema.unwrap()
+    // Unwrap optional and default schemas
+    currentSchema = unwrapSchema(currentSchema)
 
     // Traverse an object
     if (
@@ -159,16 +165,35 @@ export const traverseZodSchema = (
       currentSchema = currentSchema.shape[key]
     }
     // Traverse into an array
-    else if (currentSchema instanceof z.ZodArray && typeof key === 'number') {
-      currentSchema = currentSchema.element
+    else if (currentSchema instanceof z.ZodArray) {
+      if (typeof key === 'number') {
+        // If the key is a number, we're accessing an array element
+        currentSchema = currentSchema.element
+      } else if (typeof key === 'string') {
+        // If the key is a string, we're accessing a property of the array elements
+        currentSchema = currentSchema.element
+        if (
+          currentSchema instanceof z.ZodObject &&
+          key in currentSchema.shape
+        ) {
+          currentSchema = currentSchema.shape[key]
+        } else {
+          return null
+        }
+      } else {
+        return null
+      }
+    }
+    // Traverse into a record
+    else if (currentSchema instanceof z.ZodRecord) {
+      currentSchema = currentSchema.valueSchema
     } else {
       // Path doesn't exist in the schema
       return null
     }
 
-    // Unrap an optional again :)
-    if (currentSchema instanceof z.ZodOptional)
-      currentSchema = currentSchema.unwrap()
+    // Unwrap again after traversing
+    currentSchema = unwrapSchema(currentSchema)
   }
 
   return currentSchema
@@ -183,23 +208,39 @@ export const traverseZodSchema = (
 export const parseDiff = <T>(
   schema: ZodSchema<T, ZodTypeDef, any>,
   diff: Difference,
-): { path: Path<T>; value: PathValue<T, Path<T>> | undefined } | null => {
+): {
+  /** Typed path as it has been checked agains the schema */
+  path: Path<T>
+  /** Used for getting the whole array instead of an item of the array */
+  pathWithoutLastDigit: Path<T>
+  /** Typed value which has been parsed against the schema */
+  value: PathValue<T, Path<T>> | undefined
+} | null => {
+  console.log('=================')
+  console.log(diff.path)
   const parsedSchema = traverseZodSchema(schema, diff.path)
+  console.log(parsedSchema)
 
   if (!parsedSchema) return null
 
+  const path = diff.path.join('.') as Path<T>
+  const pathWithoutLastDigit = diff.path.slice(0, -1).join('.') as Path<T>
+
   // If we are removing, value is undefined
   if (diff.type === 'REMOVE')
-    return { path: diff.path.join('.') as Path<T>, value: undefined }
+    return {
+      path,
+      pathWithoutLastDigit,
+      value: undefined,
+    }
 
   // Safe parse the value as well
-  console.log(diff.value)
   const parsedValue = schemaModel<T>(diff.value, parsedSchema, false)
-  console.log(parsedValue)
   if (!parsedValue) return null
 
   return {
-    path: diff.path.join('.') as Path<T>,
+    path,
+    pathWithoutLastDigit,
     value: parsedValue as PathValue<T, Path<T>>,
   }
 }
@@ -217,17 +258,19 @@ export const diffToCollectionPayload = (
   ) {
     const parsed = parseDiff(collectionSchema, {
       ...diff,
-      path: diff.path.slice(0, -1),
+      path: diff.path,
     })
     if (!parsed) return null
 
-    const oldValue = [...getNestedValue(collection, parsed.path)]
+    const oldValue = [
+      ...getNestedValue(collection, parsed.pathWithoutLastDigit),
+    ]
     if (diff.type === 'CREATE') {
       oldValue.push(parsed.value)
     } else if (diff.type === 'REMOVE') {
       oldValue.pop()
     }
-    return [collection.uid, parsed.path, oldValue] as const
+    return [collection.uid, parsed.pathWithoutLastDigit, oldValue] as const
   }
   // Non array + array change
   else {
@@ -480,6 +523,7 @@ export const diffToSecuritySchemePayload = (
 
   // Edit: update properties
   if (keys?.length) {
+    console.log('keys', keys)
     const scheme = securitySchemes[schemeUid]
     const parsed = parseDiff(securitySchemeSchema, { ...diff, path: keys })
 
