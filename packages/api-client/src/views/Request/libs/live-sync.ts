@@ -546,16 +546,26 @@ export const diffToSecuritySchemePayload = (
   collection: Collection,
   securitySchemes: Record<string, SecurityScheme>,
 ) => {
-  const [, , schemeUid, ...keys] = diff.path as [
+  const [, , schemeName, ...keys] = diff.path as [
     'components',
     'securitySchemes',
     string,
     ...string[],
   ]
 
+  const scheme =
+    securitySchemes[schemeName] ??
+    findResource<SecurityScheme>(
+      collection.securitySchemes,
+      securitySchemes,
+      (s) => s.nameKey === schemeName,
+    )
+
+  console.log(scheme)
+
   // Edit update properties
   if (keys?.length) {
-    const scheme = securitySchemes[schemeUid]
+    if (!scheme) return null
 
     // Narrows the schema and path based on oauth2 vs non oauth2
     const { schema, _path } =
@@ -587,7 +597,7 @@ export const diffToSecuritySchemePayload = (
 
       return {
         method: 'edit',
-        args: [schemeUid, 'flow.scopes', scopes],
+        args: [scheme.uid, 'flow.scopes', scopes],
       } as const
     }
 
@@ -603,12 +613,13 @@ export const diffToSecuritySchemePayload = (
 
     return {
       method: 'edit',
-      args: [schemeUid, path, parsed.value],
+      args: [scheme.uid, path, parsed.value],
     } as const
   }
   // Delete whole object
-  else if (diff.type === 'REMOVE' && schemeUid in securitySchemes) {
-    return { method: 'delete', args: [schemeUid] } as const
+  else if (diff.type === 'REMOVE') {
+    if (!scheme) return null
+    return { method: 'delete', args: [scheme.uid] } as const
   }
   // Add whole object
   else if (diff.type === 'CREATE')
