@@ -156,6 +156,11 @@ export const traverseZodSchema = (
     // Unwrap optional and default schemas
     currentSchema = unwrapSchema(currentSchema)
 
+    // If we encounter a ZodAny, return it for any nested path
+    if (currentSchema instanceof z.ZodAny) {
+      return currentSchema
+    }
+
     // Traverse an object
     if (
       currentSchema instanceof z.ZodObject &&
@@ -217,7 +222,6 @@ export const parseDiff = <T>(
   value: PathValue<T, Path<T>> | undefined
 } | null => {
   const parsedSchema = traverseZodSchema(schema, diff.path)
-
   if (!parsedSchema) return null
 
   const path = diff.path.join('.') as Path<T>
@@ -573,27 +577,18 @@ export const diffToSecuritySchemePayload = (
             _path: keys,
           }
 
-    // Scopes is another union so lets handle it separely
-    // TODO: handle all types of scopes
+    // Scopes is another union so lets handle it separately
     if (_path[0] === 'scopes' && scheme.type === 'oauth2') {
-      const scopes = { ...scheme.flow.scopes } as typeof scheme.flow.scopes
-      switch (diff.type) {
-        case 'CREATE':
-          return {
-            method: 'edit',
-            args: [schemeUid, _path, diff.value],
-          } as const
-        case 'REMOVE':
-          return {
-            method: 'edit',
-            args: [schemeUid, 'flow.scopes', scopes],
-          } as const
-        case 'CHANGE':
-          return {
-            method: 'edit',
-            args: [schemeUid, _path, diff.value],
-          } as const
-      }
+      const scopes = { ...scheme.flow.scopes } as Record<string, string>
+
+      if (diff.type === 'CREATE' || diff.type === 'CHANGE') {
+        scopes[_path[1]] = diff.value
+      } else delete scopes[_path[1]]
+
+      return {
+        method: 'edit',
+        args: [schemeUid, 'flow.scopes', scopes],
+      } as const
     }
 
     if (!schema) return null

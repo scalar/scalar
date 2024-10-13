@@ -67,6 +67,58 @@ const mockRequests: Record<`request${number}uid`, Request> = {
     method: 'post',
     path: '/planets',
     examples: [],
+    requestBody: {
+      description: 'Planet',
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            required: ['id', 'name'],
+            properties: {
+              id: {
+                'type': 'integer',
+                'format': 'int64',
+                'examples': [1],
+                'x-variable': 'planetId',
+              },
+              name: {
+                type: 'string',
+                examples: ['Mars'],
+              },
+              description: {
+                type: ['string', 'null'],
+                examples: ['The red planet'],
+              },
+              image: {
+                type: 'string',
+                nullable: true,
+                examples: ['https://cdn.scalar.com/photos/mars.jpg'],
+              },
+              creator: {
+                type: 'object',
+                required: ['id', 'name', 'email'],
+                properties: {
+                  id: {
+                    type: 'integer',
+                    format: 'int64',
+                    examples: [1],
+                  },
+                  name: {
+                    type: 'string',
+                    examples: ['Marc'],
+                  },
+                  email: {
+                    type: 'string',
+                    format: 'email',
+                    examples: ['marc@scalar.com'],
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     selectedSecuritySchemeUids: [],
     selectedServerUid: '',
     servers: [],
@@ -1064,7 +1116,15 @@ describe('diffToSecuritySchemePayload', () => {
     )
     expect(result).toEqual({
       method: 'edit',
-      args: ['oauth2', 'flows.implicit.scopes.write:users', 'write users'],
+      args: [
+        'oauth2',
+        'flow.scopes',
+        {
+          'read:api': 'read api',
+          'write:api': 'modify api',
+          'write:users': 'write users',
+        },
+      ],
     })
   })
 
@@ -1091,7 +1151,14 @@ describe('diffToSecuritySchemePayload', () => {
     )
     expect(result).toEqual({
       method: 'edit',
-      args: ['oauth2', 'flows.implicit.scopes.read:api', undefined],
+      args: [
+        'oauth2',
+        'flow.scopes',
+        {
+          'read:api': 'read api',
+          'write:api': 'write the api',
+        },
+      ],
     })
   })
 
@@ -1349,6 +1416,38 @@ describe('diffToRequestPayload', () => {
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([])
   })
+
+  it('handles updating a request formBody', () => {
+    const diff: Difference = {
+      path: [
+        'paths',
+        '/planets',
+        'post',
+        'requestBody',
+        'content',
+        'application/json',
+        'schema',
+        'properties',
+        'description',
+        'examples',
+        0,
+      ],
+      type: 'CHANGE',
+      value: 'The blue planet',
+      oldValue: 'The red planet',
+    }
+    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
+    expect(result).toEqual([
+      {
+        method: 'edit',
+        args: [
+          'request2uid',
+          'requestBody.content.application/json.schema.properties.description.examples.0',
+          'The blue planet',
+        ],
+      },
+    ])
+  })
 })
 
 describe('narrowUnionSchema', () => {
@@ -1384,6 +1483,7 @@ describe('traverseZodSchema', () => {
   const testSchema = z.object({
     name: z.string(),
     age: z.number().optional(),
+    formBody: z.any().optional(),
     small: z.array(smallSchema).optional().default([]),
     address: z
       .object({
@@ -1444,12 +1544,22 @@ describe('traverseZodSchema', () => {
     const result = traverseZodSchema(testSchema, ['address', 'nonexistent'])
     expect(result).toBeNull()
   })
+
+  it('returns any for anything nested inside an any', () => {
+    const result = traverseZodSchema(testSchema, ['formBody', 'nonexistent'])
+    expect(result).toBeInstanceOf(z.ZodAny)
+  })
+  it('returns any for anything nested inside an any', () => {
+    const result = traverseZodSchema(testSchema, ['formBody', 0, 'more', 0])
+    expect(result).toBeInstanceOf(z.ZodAny)
+  })
 })
 
 describe('parseDiff', () => {
   const testSchema = z.object({
     name: z.string(),
     age: z.number().optional(),
+    formBody: z.any().optional(),
     address: z
       .object({
         street: z.string(),
