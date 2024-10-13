@@ -20,6 +20,7 @@ import {
   diffToSecuritySchemePayload,
   diffToServerPayload,
   diffToTagPayload,
+  narrowUnionSchema,
   parseDiff,
   traverseZodSchema,
 } from './live-sync'
@@ -874,16 +875,19 @@ describe('diffToSecuritySchemePayload', () => {
       in: 'header',
     },
     oauth2: {
-      uid: 'oauth2',
-      type: 'oauth2',
-      // @ts-expect-error the spec is flows but we use flow
-      flows: {
-        implicit: {
-          authorizationUrl: 'https://example.com/oauth/authorize',
-          scopes: {
-            'write:api': 'modify api',
-            'read:api': 'read api',
-          },
+      'uid': 'oauth2',
+      'type': 'oauth2',
+      'nameKey': 'oauth2',
+      'x-scalar-client-id': 'random-1',
+      'flow': {
+        'type': 'implicit',
+        'authorizationUrl': 'https://example.com/oauth/authorize',
+        'refreshUrl': 'http://referesh.com',
+        'selectedScopes': [],
+        'x-scalar-redirect-uri': '',
+        'scopes': {
+          'write:api': 'modify api',
+          'read:api': 'read api',
         },
       },
     },
@@ -942,6 +946,36 @@ describe('diffToSecuritySchemePayload', () => {
     expect(result).toEqual({
       method: 'edit',
       args: ['apiKeyUid', 'name', 'new_api_key'],
+    })
+  })
+
+  it('generates an edit payload for updating an oauth2 flow property', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: [
+        'components',
+        'securitySchemes',
+        'oauth2',
+        'flows',
+        'implicit',
+        'authorizationUrl',
+      ],
+      oldValue: 'https://example.com/oauth/authorize',
+      value: 'https://example.com/oauth/authorize-admin',
+    }
+
+    const result = diffToSecuritySchemePayload(
+      diff,
+      mockCollection,
+      mockSecuritySchemes,
+    )
+    expect(result).toEqual({
+      method: 'edit',
+      args: [
+        'oauth2',
+        'flow.authorizationUrl',
+        'https://example.com/oauth/authorize-admin',
+      ],
     })
   })
 
@@ -1242,6 +1276,31 @@ describe('diffToRequestPayload', () => {
 
     const result = diffToRequestPayload(diff, mockCollection, mockRequests)
     expect(result).toEqual([])
+  })
+})
+
+describe('narrowUnionSchema', () => {
+  const schema1 = z.object({ type: z.literal('one'), value: z.string() })
+  const schema2 = z.object({ type: z.literal('two'), value: z.boolean() })
+  const unionSchema = z.union([schema1, schema2])
+  const discriminatedUnion = z
+    .discriminatedUnion('type', [schema1, schema2])
+    .optional()
+    .default({ type: 'two', value: true })
+
+  it('returns the correct schema from a union 1', () => {
+    const result = narrowUnionSchema(unionSchema, 'type', 'one')
+    expect(result).equal(schema1)
+  })
+
+  it('returns the correct schema from a union 2', () => {
+    const result = narrowUnionSchema(unionSchema, 'type', 'two')
+    expect(result).equal(schema2)
+  })
+
+  it('returns the correct schema from a discriminated union with optional default', () => {
+    const result = narrowUnionSchema(discriminatedUnion, 'type', 'two')
+    expect(result).equal(schema2)
   })
 })
 
