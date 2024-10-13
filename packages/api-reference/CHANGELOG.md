@@ -1,5 +1,7 @@
 # @scalar/api-reference
 
+## 1.25.36
+
 ## 1.25.35
 
 ### Patch Changes

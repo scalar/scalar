@@ -1,5 +1,11 @@
 # @scalar/api-reference-editor
 
+## 0.1.95
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.36
+
 ## 0.1.94
 
 ### Patch Changes
