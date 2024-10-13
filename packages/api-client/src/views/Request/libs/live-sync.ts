@@ -2,13 +2,13 @@ import { isHTTPMethod } from '@/components/HttpMethod/helpers'
 import {
   type Collection,
   type Request,
-  type RequestMethod,
   type RequestParameterPayload,
   type RequestPayload,
   type SecurityScheme,
   type Server,
   type Tag,
   collectionSchema,
+  oasOauthFlowSchema,
   requestSchema,
   securitySchemeSchema,
   serverSchema,
@@ -144,7 +144,7 @@ const unwrapSchema = (schema: ZodSchema): ZodSchema => {
 
 /**
  * Traverses a zod schema based on the path and returns the schema at the end of the path
- * or null if the path doesn't exist. Handles optional unwrapping
+ * or null if the path doesn't exist. Handles optional unwrapping, records, and arrays
  */
 export const traverseZodSchema = (
   schema: ZodSchema,
@@ -506,7 +506,37 @@ export const diffToTagPayload = (
   return null
 }
 
-/** Generates a payload for the security scheme mutator from the security scheme diff */
+/** Narrows down a zod union schema */
+export const narrowUnionSchema = (
+  schema: ZodSchema,
+  key: string,
+  value: string,
+): ZodSchema | null => {
+  const _schema = unwrapSchema(schema)
+
+  if (
+    _schema instanceof z.ZodUnion ||
+    _schema instanceof z.ZodDiscriminatedUnion
+  ) {
+    for (const option of _schema.options) {
+      if (
+        option instanceof z.ZodObject &&
+        key in option.shape &&
+        option.shape[key] instanceof z.ZodLiteral &&
+        option.shape[key].value === value
+      ) {
+        return option
+      }
+    }
+  }
+  return null
+}
+
+/**
+ * Generates a payload for the security scheme mutator from the security scheme diff
+ *
+ * Note: for edit we cannot use parseDiff here as it can't do unions, so we handle the unions first
+ */
 export const diffToSecuritySchemePayload = (
   diff: Difference,
   collection: Collection,
@@ -519,16 +549,42 @@ export const diffToSecuritySchemePayload = (
     ...string[],
   ]
 
-  // Edit: update properties
+  // Edit update properties
   if (keys?.length) {
     const scheme = securitySchemes[schemeUid]
-    const parsed = parseDiff(securitySchemeSchema, { ...diff, path: keys })
 
-    if (!scheme || !parsed) return null
+    // Narrows the schema and path based on oauth2 vs non oauth2
+    const { schema, _path } =
+      keys[0] === 'flows' && scheme.type === 'oauth2'
+        ? {
+            schema: narrowUnionSchema(
+              oasOauthFlowSchema,
+              'type',
+              scheme?.flow?.type,
+            ),
+            _path: keys.slice(2),
+          }
+        : {
+            schema: narrowUnionSchema(
+              securitySchemeSchema,
+              'type',
+              scheme?.type,
+            ),
+            _path: keys,
+          }
+
+    if (!schema) return null
+
+    const parsed = parseDiff(schema, { ...diff, path: _path })
+    if (!parsed) return null
+
+    // We prepend flow to the path for an oauth2 flow
+    const path =
+      keys[0] === 'flows' ? ['flow', ..._path].join('.') : parsed.path
 
     return {
       method: 'edit',
-      args: [schemeUid, parsed.path, parsed.value],
+      args: [schemeUid, path, parsed.value],
     } as const
   }
   // Delete whole object
