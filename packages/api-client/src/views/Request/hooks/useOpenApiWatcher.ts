@@ -47,7 +47,7 @@ export const useOpenApiWatcher = () => {
   /** Little toast helper */
   const toastError = (type: string) =>
     toast(
-      `[useOpenApiWatcher] Error: changes to the ${type} not applied`,
+      `[useOpenApiWatcher] changes to the ${type} were not applied`,
       'error',
     )
 
