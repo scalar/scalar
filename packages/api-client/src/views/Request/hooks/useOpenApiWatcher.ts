@@ -11,6 +11,7 @@ import {
 import { createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
+import { useToasts } from '@scalar/use-toasts'
 import { useTimeoutPoll } from '@vueuse/core'
 import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
@@ -26,6 +27,7 @@ const FIVE_SECONDS = 5 * 1000
  * - speed up the polling when there's a change then slowly slow it down
  */
 export const useOpenApiWatcher = () => {
+  const { toast } = useToasts()
   const {
     activeCollection,
     activeWorkspace,
@@ -42,6 +44,13 @@ export const useOpenApiWatcher = () => {
     tagMutators,
   } = useWorkspace()
 
+  /** Little toast helper */
+  const toastError = (type: string) =>
+    toast(
+      `[useOpenApiWatcher] Error: changes to the ${type} not applied`,
+      'error',
+    )
+
   // Transforms and applies the diff to our mutators
   const applyDiff = (d: Difference) => {
     if (!d.path.length || !activeCollection.value?.uid) return
@@ -49,7 +58,9 @@ export const useOpenApiWatcher = () => {
     // Info/Security
     if (d.path[0] === 'info' || d.path[0] === 'security') {
       const payload = diffToCollectionPayload(d, activeCollection.value)
+
       if (payload) collectionMutators.edit(...payload)
+      else toastError('collection')
     }
     // Components.securitySchemes
     else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
@@ -59,33 +70,42 @@ export const useOpenApiWatcher = () => {
         securitySchemes,
       )
 
-      if (payload?.method === 'add') securitySchemeMutators.add(...payload.args)
-      else if (payload?.method === 'edit')
+      if (!payload) toastError('securitySchemes')
+      else if (payload.method === 'add')
+        securitySchemeMutators.add(...payload.args)
+      else if (payload.method === 'edit')
         securitySchemeMutators.edit(...payload.args)
-      else if (payload?.method === 'delete')
+      else if (payload.method === 'delete')
         securitySchemeMutators.delete(...payload.args)
     }
     // Servers
     else if (d.path[0] === 'servers') {
       const payload = diffToServerPayload(d, activeCollection.value, servers)
-      if (payload?.method === 'edit') serverMutators.edit(...payload.args)
-      else if (payload?.method === 'add') serverMutators.add(...payload.args)
-      else if (payload?.method === 'delete')
+
+      if (!payload) toastError('servers')
+      else if (payload.method === 'edit') serverMutators.edit(...payload.args)
+      else if (payload.method === 'add') serverMutators.add(...payload.args)
+      else if (payload.method === 'delete')
         serverMutators.delete(...payload.args)
     }
     // Tags
     else if (d.path[0] === 'tags') {
       const payload = diffToTagPayload(d, tags, activeCollection.value)
-      if (payload?.method === 'edit') tagMutators.edit(...payload.args)
-      else if (payload) tagMutators[payload.method](...payload.args)
+
+      if (!payload) toastError('tags')
+      else if (payload.method === 'edit') tagMutators.edit(...payload.args)
+      else tagMutators[payload.method](...payload.args)
     }
-    // Paths
+    // Requests
     else if (d.path[0] === 'paths') {
       const requestPayloads = diffToRequestPayload(
         d,
         activeCollection.value,
         requests,
       )
+
+      if (!Array.isArray(requestPayloads) || requestPayloads.length === 0)
+        toastError('requests')
 
       requestPayloads.forEach((rp) => {
         const { method, args } = rp
