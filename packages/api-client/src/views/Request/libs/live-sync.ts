@@ -573,6 +573,29 @@ export const diffToSecuritySchemePayload = (
             _path: keys,
           }
 
+    // Scopes is another union so lets handle it separely
+    // TODO: handle all types of scopes
+    if (_path[0] === 'scopes' && scheme.type === 'oauth2') {
+      const scopes = { ...scheme.flow.scopes } as typeof scheme.flow.scopes
+      switch (diff.type) {
+        case 'CREATE':
+          return {
+            method: 'edit',
+            args: [schemeUid, _path, diff.value],
+          } as const
+        case 'REMOVE':
+          return {
+            method: 'edit',
+            args: [schemeUid, 'flow.scopes', scopes],
+          } as const
+        case 'CHANGE':
+          return {
+            method: 'edit',
+            args: [schemeUid, _path, diff.value],
+          } as const
+      }
+    }
+
     if (!schema) return null
 
     const parsed = parseDiff(schema, { ...diff, path: _path })
