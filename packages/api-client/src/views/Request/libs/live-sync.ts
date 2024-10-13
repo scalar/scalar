@@ -597,8 +597,9 @@ export const diffToSecuritySchemePayload = (
     if (!parsed) return null
 
     // We prepend flow to the path for an oauth2 flow
-    const path =
+    const path = (
       keys[0] === 'flows' ? ['flow', ..._path].join('.') : parsed.path
+    ) as Path<SecurityScheme>
 
     return {
       method: 'edit',
