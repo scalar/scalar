@@ -1575,9 +1575,6 @@ importers:
       vite:
         specifier: ^5.2.10
         version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
-      yaml:
-        specifier: ^2.4.5
-        version: 2.4.5
 
   packages/hono-api-reference:
     dependencies:
