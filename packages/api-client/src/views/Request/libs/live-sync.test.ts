@@ -1341,7 +1341,9 @@ describe('diffToRequestPayload', () => {
         args: [
           'request1uid',
           'parameters',
-          mockRequests.request1uid.parameters?.toSpliced(-1),
+          mockRequests.request1uid.parameters?.filter(
+            (_, i) => i !== mockRequests.request1uid.parameters!.length - 1,
+          ),
         ],
       },
     ])
