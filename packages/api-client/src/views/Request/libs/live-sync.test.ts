@@ -107,6 +107,32 @@ const mockCollection = Object.freeze(
     tags: ['tag1uid', 'tag2uid', 'tag3uid'],
   }),
 )
+const mockSecuritySchemes: Record<string, SecurityScheme> = {
+  apiKeyUid: {
+    uid: 'apiKeyUid',
+    nameKey: 'apiKeyHeader',
+    type: 'apiKey',
+    name: 'api_key',
+    in: 'header',
+  },
+  oauth2: {
+    'uid': 'oauth2',
+    'type': 'oauth2',
+    'nameKey': 'oauth2',
+    'x-scalar-client-id': 'random-1',
+    'flow': {
+      'type': 'implicit',
+      'authorizationUrl': 'https://example.com/oauth/authorize',
+      'refreshUrl': 'http://referesh.com',
+      'selectedScopes': [],
+      'x-scalar-redirect-uri': '',
+      'scopes': {
+        'write:api': 'modify api',
+        'read:api': 'read api',
+      },
+    },
+  },
+}
 
 const original = (await parseSchema(json)).schema
 
@@ -327,6 +353,25 @@ describe('combineRenameDiffs', () => {
         path: ['paths', '/planets', 'get', 'parameters', 0, 'name'],
         oldValue: 'limit',
         value: 'highroller',
+      },
+    ])
+  })
+
+  // This one just tests microdiff but we use the value in another test
+  it('creates a change diff for changing an oauth2 flow scope', () => {
+    const mutatedSecuritySchemes = JSON.parse(
+      JSON.stringify(mockSecuritySchemes),
+    )
+    mutatedSecuritySchemes.oauth2.flow.scopes = { 'write:api': 'modify api' }
+
+    const diff = microdiff(mockSecuritySchemes, mutatedSecuritySchemes)
+    const combinedDiff = combineRenameDiffs(diff)
+
+    expect(combinedDiff).toEqual([
+      {
+        type: 'REMOVE',
+        path: ['oauth2', 'flow', 'scopes', 'read:api'],
+        oldValue: 'read api',
       },
     ])
   })
@@ -866,33 +911,6 @@ describe('diffToTagPayload', () => {
 })
 
 describe('diffToSecuritySchemePayload', () => {
-  const mockSecuritySchemes: Record<string, SecurityScheme> = {
-    apiKeyUid: {
-      uid: 'apiKeyUid',
-      nameKey: 'apiKeyHeader',
-      type: 'apiKey',
-      name: 'api_key',
-      in: 'header',
-    },
-    oauth2: {
-      'uid': 'oauth2',
-      'type': 'oauth2',
-      'nameKey': 'oauth2',
-      'x-scalar-client-id': 'random-1',
-      'flow': {
-        'type': 'implicit',
-        'authorizationUrl': 'https://example.com/oauth/authorize',
-        'refreshUrl': 'http://referesh.com',
-        'selectedScopes': [],
-        'x-scalar-redirect-uri': '',
-        'scopes': {
-          'write:api': 'modify api',
-          'read:api': 'read api',
-        },
-      },
-    },
-  }
-
   it('generates an add payload for creating a new security scheme', () => {
     const newScheme: SecuritySchemePayload = {
       uid: 'bearerAuth',
@@ -997,9 +1015,62 @@ describe('diffToSecuritySchemePayload', () => {
     })
   })
 
-  it('generates an edit payload for removing a property from a security scheme', () => {
+  it('generates an edit payload for removing a scope from an oauth2 flow', () => {
     const diff: Difference = {
       type: 'REMOVE',
+      path: [
+        'components',
+        'securitySchemes',
+        'oauth2',
+        'flows',
+        'implicit',
+        'scopes',
+        'read:api',
+      ],
+      oldValue: 'read api',
+    }
+
+    const result = diffToSecuritySchemePayload(
+      diff,
+      mockCollection,
+      mockSecuritySchemes,
+    )
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['oauth2', 'flow.scopes', { 'write:api': 'modify api' }],
+    })
+  })
+
+  it('generates an edit payload for adding a scope to an oauth2 flow', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
+      path: [
+        'components',
+        'securitySchemes',
+        'oauth2',
+        'flows',
+        'implicit',
+        'scopes',
+        'write:users',
+      ],
+      oldValue: '',
+      value: 'write users',
+    }
+
+    const result = diffToSecuritySchemePayload(
+      diff,
+      mockCollection,
+      mockSecuritySchemes,
+    )
+    expect(result).toEqual({
+      method: 'edit',
+      args: ['oauth2', 'flows.implicit.scopes.write:users', 'write users'],
+    })
+  })
+
+  it('generates an edit payload for updating a scope from an oauth2 flow', () => {
+    const diff: Difference = {
+      type: 'CHANGE',
       path: [
         'components',
         'securitySchemes',
@@ -1010,6 +1081,7 @@ describe('diffToSecuritySchemePayload', () => {
         'write:api',
       ],
       oldValue: 'modify api',
+      value: 'write the api',
     }
 
     const result = diffToSecuritySchemePayload(
@@ -1019,7 +1091,7 @@ describe('diffToSecuritySchemePayload', () => {
     )
     expect(result).toEqual({
       method: 'edit',
-      args: ['oauth2', 'flows.implicit.scopes.write:api', undefined],
+      args: ['oauth2', 'flows.implicit.scopes.read:api', undefined],
     })
   })
 
@@ -1079,7 +1151,7 @@ describe('diffToSecuritySchemePayload', () => {
       method: 'edit',
       args: [
         'oauth2',
-        'flows.implicit.authorizationUrl',
+        'flow.authorizationUrl',
         'https://api.example.com/oauth2/authorize',
       ],
     })
