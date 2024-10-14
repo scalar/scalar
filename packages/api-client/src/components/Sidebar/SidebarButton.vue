@@ -4,6 +4,9 @@ import { ScalarButton } from '@scalar/components'
 
 const props = defineProps<{
   click: () => void
+  hotkey?: {
+    key: string
+  }
 }>()
 
 const handleClick = () => {
@@ -18,8 +21,8 @@ const handleClick = () => {
     @click="handleClick">
     <slot name="title" />
     <ScalarHotkey
+      v-if="hotkey"
       class="hidden md:block absolute right-2 group-hover:opacity-80 text-c-2 add-item-hotkey"
-      hotkey="K"
-      @hotkeyPressed="handleClick" />
+      :hotkey="hotkey" />
   </ScalarButton>
 </template>
