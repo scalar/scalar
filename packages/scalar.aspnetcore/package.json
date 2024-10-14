@@ -13,5 +13,11 @@
   "private": true,
   "engines": {
     "node": ">=18"
+  },
+  "scripts": {
+    "prepare": "cp ../api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js"
+  },
+  "dependencies": {
+    "@scalar/api-reference": "workspace:*"
   }
 }
