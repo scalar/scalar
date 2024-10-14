@@ -1,12 +1,12 @@
 import type { ZodSchema, ZodTypeDef } from 'zod'
 
-export type APIResponse<T> = {
+export type ApiResponse<T> = {
   status: number
   data: T
   error: false
 }
 
-export type APIError = {
+export type ApiError = {
   status: number
   message: string
   error: true

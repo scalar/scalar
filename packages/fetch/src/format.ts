@@ -1,7 +1,7 @@
-import type { APIError, APIResponse } from './types'
+import type { ApiError, ApiResponse } from './types'
 
 /** Create a standardized API return object */
-export function formatApiResponse<T>(data: T, status: number): APIResponse<T> {
+export function formatApiResponse<T>(data: T, status: number): ApiResponse<T> {
   return {
     status,
     data,
@@ -14,7 +14,7 @@ export function formatApiError(
   message: string,
   status: number,
   error: any = null,
-): APIError {
+): ApiError {
   return {
     status,
     message,
