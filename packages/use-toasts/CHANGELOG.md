@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.7
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+
 ## 0.7.6
 
 ### Patch Changes

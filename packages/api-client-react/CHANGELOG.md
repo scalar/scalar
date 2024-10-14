@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.0.60
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [b8f9a95]
+- Updated dependencies [0c34a18]
+  - @scalar/api-client@2.1.22
+
 ## 1.0.59
 
 ### Patch Changes

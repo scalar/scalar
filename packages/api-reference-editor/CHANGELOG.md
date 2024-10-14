@@ -1,5 +1,18 @@
 # @scalar/api-reference-editor
 
+## 0.1.96
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [b8f9a95]
+- Updated dependencies [0c34a18]
+  - @scalar/api-client@2.1.22
+  - @scalar/oas-utils@0.2.56
+  - @scalar/use-codemirror@0.11.21
+  - @scalar/api-reference@1.25.37
+  - @scalar/types@0.0.15
+
 ## 0.1.95
 
 ### Patch Changes

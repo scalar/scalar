@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.3
+
+### Patch Changes
+
+- 8759e7f: chore: use build tooling scripts
+
 ## 0.1.2
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # scalar-api-client
 
+## 0.1.61
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [b8f9a95]
+- Updated dependencies [0c34a18]
+  - @scalar/api-client@2.1.22
+  - @scalar/components@0.12.54
+  - @scalar/themes@0.9.37
+
 ## 0.1.60
 
 ### Patch Changes
