@@ -57,7 +57,7 @@
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@vueuse/core": "^10.10.0",
-    "vue": "^3.4.29"
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

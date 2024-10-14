@@ -43,13 +43,13 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "vue": "^3.4.29"
+    "vue": "^3.5.12"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.2.10",
     "vite-plugin-dts": "^3.6.3",
     "vite-svg-loader": "^5.1.0",
-    "vue": "^3.4.29"
+    "vue": "^3.5.12"
   }
 }
