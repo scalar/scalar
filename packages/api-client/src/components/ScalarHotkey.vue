@@ -4,18 +4,16 @@ import { isMacOS } from '@scalar/use-tooltip'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  hotkey: {
-    modifier?: HotKeyModifiers
-    key: string
-  }
+  hotkey: string
+  modifier?: HotKeyModifiers
 }>()
 
-const modifier = computed(() => props.hotkey.modifier || 'meta')
+const modifier = computed(() => props.modifier || 'meta')
 
 const displayHotkey = computed(() => {
   const modifierKey =
     modifier.value === 'meta' ? (isMacOS() ? '⌘' : '^') : modifier.value
-  return `${modifierKey} ${props.hotkey.key}`
+  return `${modifierKey} ${props.hotkey}`
 })
 </script>
 <template>

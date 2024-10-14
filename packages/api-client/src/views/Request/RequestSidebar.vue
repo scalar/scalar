@@ -224,7 +224,7 @@ const handleToggleWatchForChanges = (item?: SidebarItem) => {
         <SidebarButton
           v-if="!isReadonly"
           :click="events.commandPalette.emit"
-          :hotkey="{ key: 'K' }">
+          hotkey="K">
           <template #title>Add Item</template>
         </SidebarButton>
       </div>

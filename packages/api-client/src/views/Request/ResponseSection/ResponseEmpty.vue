@@ -48,7 +48,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="events.executeRequest.emit()">
         Send Request
-        <ScalarHotkey :hotkey="{ key: '↵' }" />
+        <ScalarHotkey hotkey="↵" />
       </button>
       <button
         v-if="!isReadOnly"
@@ -56,7 +56,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="openCommandPaletteRequest">
         New Request
-        <ScalarHotkey :hotkey="{ key: 'N' }" />
+        <ScalarHotkey hotkey="N" />
       </button>
     </div>
   </div>

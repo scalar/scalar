@@ -4,9 +4,8 @@ import { ScalarButton } from '@scalar/components'
 
 const props = defineProps<{
   click: () => void
-  hotkey?: {
-    key: string
-  }
+  hotkey?: string
+  isApp?: boolean
 }>()
 
 const handleClick = () => {
