@@ -395,6 +395,18 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: packages/scalar.aspnetcore
+        run: pnpm prepare
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
         working-directory: packages/scalar.aspnetcore/src/Scalar.AspNetCore
         run: dotnet restore
