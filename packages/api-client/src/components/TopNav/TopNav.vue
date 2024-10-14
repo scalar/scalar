@@ -176,7 +176,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     New Tab
                     <ScalarHotkey
                       class="bg-b-2 ml-auto"
-                      hotkey="T" />
+                      :hotkey="{ key: 'T' }" />
                   </ScalarDropdownItem>
                   <ScalarDropdownItem
                     class="flex items-center gap-1.5"

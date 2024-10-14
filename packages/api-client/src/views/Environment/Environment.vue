@@ -111,7 +111,10 @@ onMounted(setActiveEnvironment)
         </div>
       </template>
       <template #button>
-        <SidebarButton :click="addEnvironment">
+        <SidebarButton
+          :click="addEnvironment"
+          hotkey="N"
+          :isApp="isApp">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>

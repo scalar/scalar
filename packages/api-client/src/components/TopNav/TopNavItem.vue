@@ -63,7 +63,7 @@ defineEmits<{
         <template #content>
           <ScalarHotkey
             v-if="hotkey"
-            :hotkey="hotkey" />
+            :hotkey="{ key: hotkey }" />
         </template>
       </ScalarTooltip>
     </template>
@@ -82,7 +82,7 @@ defineEmits<{
             New Tab
             <ScalarHotkey
               class="bg-b-2 ml-auto"
-              hotkey="T" />
+              :hotkey="{ key: 'T' }" />
           </ScalarDropdownItem>
           <ScalarDropdownItem
             class="flex items-center gap-1.5"
@@ -104,7 +104,7 @@ defineEmits<{
             Close Tab
             <ScalarHotkey
               class="bg-b-2 ml-auto"
-              hotkey="W" />
+              :hotkey="{ key: 'W' }" />
           </ScalarDropdownItem>
           <ScalarDropdownItem
             class="flex items-center gap-1.5"
