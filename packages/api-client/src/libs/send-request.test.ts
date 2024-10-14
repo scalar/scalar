@@ -100,7 +100,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toContain(
+    expect(result?.response.data as string).toContain(
       'The `scalar_url` query parameter is required.',
     )
   })
@@ -141,7 +141,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/api/example',
       body: '',
@@ -160,7 +160,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/me',
       body: '',
@@ -179,7 +179,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/',
       body: '',
@@ -197,9 +197,11 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).not.toContain('ECONNREFUSED')
+    expect(JSON.parse(result?.response.data as string)).not.toContain(
+      'ECONNREFUSED',
+    )
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -218,7 +220,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/',
     })
@@ -255,16 +257,14 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/example',
     })
   })
 
   it('sends query parameters', async () => {
-    const [error, requestOperation] = createRequestOperation<{
-      query: { foo: 'bar' }
-    }>(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestExamplePayload: {
@@ -285,15 +285,13 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data.query).toMatchObject({
+    expect(JSON.parse(result?.response.data as string).query).toMatchObject({
       foo: 'bar',
     })
   })
 
   it('sends query parameters as arrays', async () => {
-    const [error, requestOperation] = createRequestOperation<{
-      query: { foo: ['foo', 'bar'] }
-    }>(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
         requestExamplePayload: {
@@ -319,15 +317,15 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data.query).toMatchObject({
-      foo: ['foo', 'bar'],
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      query: {
+        foo: ['foo', 'bar'],
+      },
     })
   })
 
   it('merges query parameters', async () => {
-    const [error, requestOperation] = createRequestOperation<{
-      query: { example: 'parameter'; foo: 'bar' }
-    }>(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: {
           url: `${VOID_URL}/api?orange=apple`,
@@ -353,17 +351,17 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data.query).toStrictEqual({
-      example: 'parameter',
-      foo: 'bar',
-      orange: 'apple',
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      query: {
+        example: 'parameter',
+        foo: 'bar',
+        orange: 'apple',
+      },
     })
   })
 
   it('doesnt have any query parameters', async () => {
-    const [error, requestOperation] = createRequestOperation<{
-      query: { example: 'parameter'; foo: 'bar' }
-    }>(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: {
           url: VOID_URL,
@@ -375,13 +373,13 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data.query).toStrictEqual({})
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      query: {},
+    })
   })
 
   it('should ignore query parameters with empty values', async () => {
-    const [error, requestOperation] = createRequestOperation<{
-      query: { example: 'parameter'; foo: 'bar' }
-    }>(
+    const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: {
           url: VOID_URL,
@@ -404,7 +402,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data.query).toStrictEqual({})
+    expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
   })
 
   it('works with no content', async () => {
@@ -432,7 +430,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/v1',
     })
@@ -449,7 +447,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'GET',
       path: '/v1/',
     })
@@ -482,7 +480,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
       path: '/',
       body: {
@@ -537,7 +535,7 @@ describe('sendRequest', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(result?.response.data).toMatchObject({
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
       path: '/',
       body: {

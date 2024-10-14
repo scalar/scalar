@@ -7,7 +7,7 @@ describe('decode-buffer', () => {
     const jsonData = JSON.stringify({ key: 'value' })
     const buffer = new TextEncoder().encode(jsonData)
     const result = decodeBuffer(buffer, 'application/json')
-    expect(result).toEqual({ key: 'value' })
+    expect(result).toEqual(JSON.stringify({ key: 'value' }))
   })
 
   it('decodes text content', () => {
