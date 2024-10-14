@@ -22,10 +22,7 @@ export const requestMethods = [
 export type RequestMethod = (typeof requestMethods)[number]
 
 /** A single set of populated values for a sent request */
-export type ResponseInstance<ResponseDataType = unknown> = Omit<
-  Response,
-  'headers'
-> & {
+export type ResponseInstance = Omit<Response, 'headers'> & {
   /** Store headers as an object to match what we had with axios */
   headers: Record<string, string>
   /** Keys of headers which set cookies */
@@ -33,7 +30,9 @@ export type ResponseInstance<ResponseDataType = unknown> = Omit<
   /** Time in ms the request took */
   duration: number
   /** The response data */
-  data: ResponseDataType
+  data: string | Blob
+  /** The response size in bytes */
+  size: number
   /** The response status */
   status: number
   /** The response method */

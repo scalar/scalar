@@ -7,7 +7,7 @@ describe('decode-buffer', () => {
     const jsonData = JSON.stringify({ key: 'value' })
     const buffer = new TextEncoder().encode(jsonData)
     const result = decodeBuffer(buffer, 'application/json')
-    expect(result).toEqual({ key: 'value' })
+    expect(result).toEqual(JSON.stringify({ key: 'value' }))
   })
 
   it('decodes text content', () => {
@@ -21,7 +21,7 @@ describe('decode-buffer', () => {
     const binaryData = new Uint8Array([1, 2, 3, 4])
     const result = decodeBuffer(binaryData.buffer, 'application/octet-stream')
     expect(result).toBeInstanceOf(Blob)
-    expect(result.type).toBe('application/octet-stream')
+    expect((result as Blob).type).toBe('application/octet-stream')
   })
 
   it('uses the charset parameter for text decoding', () => {
