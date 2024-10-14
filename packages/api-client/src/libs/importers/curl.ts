@@ -1,5 +1,29 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
-import type { RequestParameterPayload } from '@scalar/oas-utils/entities/spec'
+import type {
+  RequestMethod,
+  RequestParameterPayload,
+} from '@scalar/oas-utils/entities/spec'
+
+/** Define curlCommandResult type */
+type CurlCommandResult = {
+  method: RequestMethod
+  url: string
+  path: string
+  headers: Record<string, string>
+  servers?: Array<string>
+  requestBody?: {
+    content: {
+      [contentType: string]: {
+        schema: {
+          type: string
+          properties: Record<string, { type: string }>
+        }
+        example: Record<string, string>
+      }
+    }
+  }
+  parameters: RequestParameterPayload[]
+}
 
 /** Data parsing for request body */
 function parseData(data: string): Record<string, any> {
@@ -18,10 +42,10 @@ function parseData(data: string): Record<string, any> {
 }
 
 /** Make a usable object from a curl command to create a request */
-export function importCurlCommand(curlCommand: string): object {
+export function importCurlCommand(curlCommand: string): CurlCommandResult {
   const parsedCommand = parseCurlCommand(curlCommand)
   const {
-    method,
+    method = 'get',
     url,
     body = '',
     headers = {},

@@ -1,3 +1,4 @@
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { parse as shellParse } from 'shell-quote'
 
 /** Parse and normalize a curl command */
@@ -13,7 +14,7 @@ export function parseCurlCommand(curlCommand: string) {
 
   const result: {
     url: string
-    method?: string
+    method?: RequestMethod
     headers?: Record<string, string>
     body?: string
     queryParameters?: Record<string, string>
