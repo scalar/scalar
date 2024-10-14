@@ -32,11 +32,6 @@ export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
     const decoder = new TextDecoder(mimeType.parameters.get('charset'))
     const string = decoder.decode(buffer)
 
-    // JSON
-    if (mimeType.subtype === 'json') {
-      return JSON.parse(string)
-    }
-
     // Text
     return string
   }
@@ -218,9 +213,9 @@ export function createFetchBody(
 }
 
 /** Response from sendRequest hoisted so we can use it as the return type for createRequestOperation */
-type SendRequestResponse<ResponseDataType = unknown> = Promise<
+type SendRequestResponse = Promise<
   ErrorResponse<{
-    response: ResponseInstance<ResponseDataType>
+    response: ResponseInstance
     request: RequestExample
     timestamp: number
   }>
@@ -230,7 +225,7 @@ type SendRequestResponse<ResponseDataType = unknown> = Promise<
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
-export const createRequestOperation = <ResponseDataType = unknown>({
+export const createRequestOperation = ({
   request,
   auth,
   example,
@@ -252,7 +247,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
   globalCookies: Cookie[]
 }): ErrorResponse<{
   controller: AbortController
-  sendRequest: () => SendRequestResponse<ResponseDataType>
+  sendRequest: () => SendRequestResponse
 }> => {
   try {
     const env = environment ?? {}
@@ -335,7 +330,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
 
     const sendRequest = async (): Promise<
       ErrorResponse<{
-        response: ResponseInstance<ResponseDataType>
+        response: ResponseInstance
         request: RequestExample
         timestamp: number
       }>
@@ -393,10 +388,8 @@ export const createRequestOperation = <ResponseDataType = unknown>({
         const responseType =
           response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
 
-        const responseData = decodeBuffer(
-          await response.arrayBuffer(),
-          responseType,
-        )
+        const arrayBuffer = await response.arrayBuffer()
+        const responseData = decodeBuffer(arrayBuffer, responseType)
 
         // Safely check for cookie headers
         // TODO: polyfill
@@ -416,6 +409,7 @@ export const createRequestOperation = <ResponseDataType = unknown>({
               headers: responseHeaders,
               cookieHeaderKeys,
               data: responseData,
+              size: arrayBuffer.byteLength,
               duration: Date.now() - startTime,
               method: request.method,
               status: response.status,

@@ -58,12 +58,10 @@ const sections = ['All', 'Cookies', 'Headers', 'Body']
 type ActiveSections = (typeof sections)[number]
 const activeSection = ref<ActiveSections>('All')
 
-/** Threshold for virtualizing text responses in characters */
-const VIRTUALIZATION_THRESHOLD = 5_000_000
+/** Threshold for virtualizing response bodies in bytes */
+const VIRTUALIZATION_THRESHOLD = 20_000
 const shouldVirtualize = computed(
-  () =>
-    typeof props.response?.data === 'string' &&
-    props.response.data.length > VIRTUALIZATION_THRESHOLD,
+  () => (props.response?.size ?? 0) > VIRTUALIZATION_THRESHOLD,
 )
 </script>
 <template>
