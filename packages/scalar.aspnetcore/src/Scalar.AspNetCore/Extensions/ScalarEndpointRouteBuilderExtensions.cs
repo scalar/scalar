@@ -17,8 +17,8 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string DocumentName = "{documentName}";
 
     private const string StaticAssets = "ScalarStaticAssets";
-    
-    internal const string ApiReferenceFile = "api-reference.js";
+
+    internal const string ScalarJavaScriptFile = "scalar.js";
 
     /// <summary>
     /// Maps the Scalar API reference endpoint.
@@ -45,7 +45,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
         var useLocalAssets = string.IsNullOrEmpty(options.CdnUrl);
-        var standaloneResourceUrl = useLocalAssets ? options.EndpointPathPrefix.Replace(DocumentName, ApiReferenceFile) : options.CdnUrl;
+        var standaloneResourceUrl = useLocalAssets ? options.EndpointPathPrefix.Replace(DocumentName, ScalarJavaScriptFile) : options.CdnUrl;
 
         var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
         var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();

@@ -13,7 +13,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         var client = factory.CreateClient();
-        
+
         // Act
         var response = await client.GetAsync("/scalar/v1");
 
@@ -31,7 +31,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                      <script>
                                      document.getElementById('api-reference').dataset.configuration = JSON.stringify(*)
                                      </script>
-                                     <script src="/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}"></script>
+                                     <script src="/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}"></script>
                                  </body>
                                  </html>
                                  """;
@@ -45,17 +45,17 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         var client = factory.CreateClient();
-        
+
         // Act
-        var response = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}");
+        var response = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}");
 
         // Assert
-        const string expected = "/** DO NOT REMOVE ME **/";
+        const string expected = "* @scalar/api-reference";
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync();
         content.ReplaceLineEndings().Should().Contain(expected);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldReturnDefaultConfiguration_WhenNotSpecified()
     {
@@ -88,7 +88,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
         // Act
         var index = await client.GetAsync("/scalar/v1");
-        var standalone = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ApiReferenceFile}");
+        var standalone = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}");
 
         // Assert
         index.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -117,7 +117,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
-    
+
     [Fact]
     public void MapScalarApiReference_ShouldThrowException_WhenDocumentNameNotSpecified()
     {
@@ -132,7 +132,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
         // Act
         var act = () => tmpFactory.CreateClient(); // CreateClient starts the app
-        
+
         // Assert
         act.Should().Throw<ArgumentException>().WithMessage("'EndpointPathPrefix' must define '{documentName}'.");
     }
