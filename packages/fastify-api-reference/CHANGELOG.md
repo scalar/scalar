@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.25.36
+
+### Patch Changes
+
+- a9b71a5: feat: add cors headers to OpenAPI documents
+
 ## 1.25.35
 
 ## 1.25.34
