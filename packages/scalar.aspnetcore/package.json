@@ -15,7 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "prepare": "cp ../api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js"
+    "prepare": "mkdir -p ./src/Scalar.AspNetCore/StaticAssets/ && cp ../api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
