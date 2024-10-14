@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.56
+
+### Patch Changes
+
+- b8f9a95: feat: lower syntax highlighting response threshold
+- Updated dependencies [8759e7f]
+  - @scalar/openapi-types@0.1.3
+  - @scalar/types@0.0.15
+  - @scalar/themes@0.9.37
+
 ## 0.2.55
 
 ### Patch Changes

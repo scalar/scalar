@@ -1,5 +1,13 @@
 # @scalar/use-codemirror
 
+## 0.11.21
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [0c34a18]
+  - @scalar/components@0.12.54
+
 ## 0.11.20
 
 ### Patch Changes

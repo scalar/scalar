@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.13
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+
 ## 0.0.12
 
 ### Patch Changes

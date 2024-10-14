@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.6
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+
 ## 0.1.5
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/play-button
 
+## 0.2.113
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [b8f9a95]
+- Updated dependencies [0c34a18]
+  - @scalar/api-client@2.1.22
+  - @scalar/oas-utils@0.2.56
+  - @scalar/api-reference@1.25.37
+  - @scalar/openapi-parser@0.8.6
+  - @scalar/types@0.0.15
+  - @scalar/themes@0.9.37
+
 ## 0.2.112
 
 ### Patch Changes

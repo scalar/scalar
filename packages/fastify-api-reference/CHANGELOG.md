@@ -1,5 +1,12 @@
 # @scalar/fastify-api-reference
 
+## 1.25.37
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+  - @scalar/types@0.0.15
+
 ## 1.25.36
 
 ### Patch Changes

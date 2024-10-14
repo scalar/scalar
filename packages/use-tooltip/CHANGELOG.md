@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.3
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+
 ## 1.0.2
 
 ### Patch Changes

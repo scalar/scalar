@@ -1,5 +1,13 @@
 # @scalar/api-reference-react
 
+## 0.3.113
+
+### Patch Changes
+
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [0c34a18]
+  - @scalar/api-reference@1.25.37
+
 ## 0.3.112
 
 ### Patch Changes

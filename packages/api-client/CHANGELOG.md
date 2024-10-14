@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.1.22
+
+### Patch Changes
+
+- b8f9a95: feat: lower syntax highlighting response threshold
+- 0c34a18: chore: updated vue package to 3.5
+- Updated dependencies [b8f9a95]
+- Updated dependencies [8759e7f]
+- Updated dependencies [0c34a18]
+  - @scalar/oas-utils@0.2.56
+  - @scalar/openapi-types@0.1.3
+  - @scalar/use-codemirror@0.11.21
+  - @scalar/use-tooltip@1.0.3
+  - @scalar/components@0.12.54
+  - @scalar/use-toasts@0.7.7
+  - @scalar/draggable@0.1.6
+  - @scalar/icons@0.1.1
+  - @scalar/openapi-parser@0.8.6
+  - @scalar/types@0.0.15
+  - @scalar/themes@0.9.37
+
 ## 2.1.21
 
 ### Patch Changes
