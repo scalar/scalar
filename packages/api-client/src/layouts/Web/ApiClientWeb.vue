@@ -4,7 +4,7 @@ import { TheCommandPalette } from '@/components/CommandPalette'
 // import { ImportCollectionListener } from '@/components/ImportCollection'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import { useDarkModeState } from '@/hooks'
-import { handleHotKeyDown } from '@/libs'
+import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
@@ -25,9 +25,26 @@ onBeforeMount(() => addScalarClassesToHeadless())
 const handleKeyDown = (ev: KeyboardEvent) =>
   handleHotKeyDown(ev, events.hotKeys)
 
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (!event) return
+
+  // We prevent default on open command so we can use it on the web
+  if (event.openCommandPalette) {
+    event.openCommandPalette.preventDefault()
+    events.commandPalette.emit()
+  }
+}
+
 // Hotkey listeners
-onMounted(() => window.addEventListener('keydown', handleKeyDown))
-onBeforeUnmount(() => window.removeEventListener('keydown', handleKeyDown))
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+  events.hotKeys.on(handleHotKey)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+  events.hotKeys.off(handleHotKey)
+})
 
 const themeStyleTag = computed(
   () =>
