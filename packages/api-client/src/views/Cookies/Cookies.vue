@@ -6,11 +6,12 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
@@ -18,9 +19,10 @@ import CookieRaw from './CookieRaw.vue'
 defineProps<{
   isApp: boolean
 }>()
-const { cookies, cookieMutators } = useWorkspace()
+const { cookies, cookieMutators, events } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
+const route = useRoute()
 
 const addCookieHandler = () => {
   const cookieIndex = Object.keys(cookies).length
@@ -75,6 +77,12 @@ const showChildren = (key: string) => {
   return collapsedSidebarFolders[key]
 }
 
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (event?.createNew && route.name === 'cookies') {
+    addCookieHandler()
+  }
+}
+
 /** Initialize collapsedSidebarFolders to be open by default */
 onMounted(() => {
   const domains = Object.keys(groupedCookies.value)
@@ -87,7 +95,10 @@ onMounted(() => {
   allPaths.forEach((path) => {
     collapsedSidebarFolders[path] = true
   })
+  events.hotKeys.on(handleHotKey)
 })
+
+onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <ViewLayout>
