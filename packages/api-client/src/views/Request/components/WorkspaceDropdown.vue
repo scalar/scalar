@@ -83,7 +83,6 @@ const deleteWorkspace = async () => {
           variant="ghost">
           <div class="font-medium m-0 text-sm flex gap-1.5 items-center">
             <h2 class="line-clamp-1 text-left w-[calc(100%-10px)]">
-              Import to:
               {{ activeWorkspace.name }}
             </h2>
             <ScalarIcon
