@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TheCommandPalette } from '@/components/CommandPalette'
 // TODO: Disabled until we polished the UI.
-import { ImportCollectionListener } from '@/components/ImportCollection'
+// import { ImportCollectionListener } from '@/components/ImportCollection'
 import SideNav from '@/components/SideNav/SideNav.vue'
 import TopNav from '@/components/TopNav/TopNav.vue'
 import { useDarkModeState } from '@/hooks'
