@@ -1,30 +1,80 @@
 using APIWeaver;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using Scalar.AspNetCore.Playground;
+using Scalar.AspNetCore.Playground.Books;
 using Scalar.AspNetCore.Playground.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<BookStore>();
+
 builder.Services.AddOpenApi(options =>
 {
+    var tokenUrl = new Uri($"{AuthConstants.KeycloakUrl}/protocol/openid-connect/token");
+    var authorizationUrl = new Uri($"{AuthConstants.KeycloakUrl}/protocol/openid-connect/auth");
+    
+    // Adds Bearer security scheme to the api
+    options.AddSecurityScheme(AuthConstants.Bearer, scheme =>
+    {
+        scheme.Type = SecuritySchemeType.OAuth2;
+        scheme.In = ParameterLocation.Header;
+        scheme.Flows = new OpenApiOAuthFlows
+        {
+            AuthorizationCode = new OpenApiOAuthFlow
+            {
+                TokenUrl = tokenUrl,
+                AuthorizationUrl = authorizationUrl
+            },
+            Password = new OpenApiOAuthFlow
+            {
+                TokenUrl = tokenUrl
+            },
+            Implicit = new OpenApiOAuthFlow
+            {
+                AuthorizationUrl = authorizationUrl,
+                Scopes = new Dictionary<string, string>
+                {
+                    {"profile", "Access to the profile"}
+                }
+            },
+            ClientCredentials = new OpenApiOAuthFlow
+            {
+                TokenUrl = tokenUrl,
+                Scopes = new Dictionary<string, string>
+                {
+                    {"profile", "Access to the profile"}
+                }
+            }
+        };
+    });
+
     // Adds api key security scheme to the api
-    options.AddSecurityScheme("ApiKey", scheme =>
+    options.AddSecurityScheme(AuthConstants.ApiKey, scheme =>
     {
         scheme.Type = SecuritySchemeType.ApiKey;
         scheme.In = ParameterLocation.Header;
         scheme.Name = "X-Api-Key";
     });
+
     // Adds 401 and 403 responses to operations
     options.AddAuthResponse();
 });
 
 // Adds api key authentication to the api
-builder.Services.AddApiKeyAuthentication();
+builder.Services.AddAuthenticationSchemes();
 
 var app = builder.Build();
 
 app.UseStaticFiles();
 
 app.MapOpenApi();
+app.UseSwaggerUI(x =>
+{
+    x.SwaggerEndpoint("/openapi/v1.json", "My API V1");
+    x.OAuthConfigObject.Username = "user";
+    x.OAuthConfigObject.ClientId = "app";
+    x.OAuthConfigObject.ClientSecret = "9GVsUCX1EoCYHfzjBl0jomQNhCeFnyBs";
+});
 
 app.MapScalarApiReference(options =>
 {
@@ -35,36 +85,16 @@ app.MapScalarApiReference(options =>
         .WithFavicon("/favicon.png")
         .WithSearchHotKey("s")
         .WithDownloadButton(false)
-        .WithPreferredScheme("ApiKey")
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+        .WithPreferredScheme(AuthConstants.Bearer)
+        .WithOAuth2Authentication(x =>
+        {
+            x.ClientId = "app";
+        })
         .WithApiKeyAuthentication(x => x.Token = "my-api-key")
-        .AddServer("https://example.com")
-        .AddServer(new ScalarServer("https://example.org", "My other server"));
+        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast")
-    .RequireAuthorization();
+app.MapBookEndpoints();
 
 app.Run();
 
-internal sealed record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int) (TemperatureC / 0.5556);
-}
