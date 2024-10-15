@@ -16,6 +16,11 @@
       "persistent": true,
       "dependsOn": ["^build"]
     },
+    "playground:web": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
     "types:check": {}
   }
 }
