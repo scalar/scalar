@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarIconButton } from '../ScalarIconButton'
 import {
   Dialog,
   DialogDescription,
@@ -37,9 +38,9 @@ const modal = cva({
       xs: 'mt-20 max-w-screen-xs',
       sm: 'mt-20 max-w-screen-sm',
       md: 'mt-20 max-w-screen-md',
-      lg: 'mt-10 max-w-screen-lg',
-      xl: 'mt-2 max-w-screen-xl',
-      full: 'mt-0 overflow-hidden',
+      lg: 'm-auto max-w-screen-lg',
+      xl: 'm-auto max-w-screen-xl',
+      full: 'full-size-styles mt-0 overflow-hidden lg:w-full',
     },
     variant: {
       form: 'scalar-modal-form',
@@ -65,8 +66,8 @@ const body = cva({
       sm: 'max-h-[calc(100dvh-240px)]',
       md: 'max-h-[calc(100dvh-240px)]',
       lg: 'max-h-[calc(100dvh-180px)]',
-      xl: 'max-h-[calc(100dvh-120px)]',
-      full: 'max-h-dvh',
+      xl: 'm-0 max-h-[calc(100dvh-120px)] p-0',
+      full: 'max-h-dvh rounded-none bg-transparent',
     },
   },
 })
@@ -116,6 +117,15 @@ export const useModal = () =>
           <slot />
         </DialogDescription>
       </DialogPanel>
+      <div
+        v-if="size === 'full'"
+        class="close-button z-10 fixed right-2 top-2">
+        <ScalarIconButton
+          class="hover:bg-b-2 focus:outline-none"
+          icon="Close"
+          label="Clear Search"
+          @close="state.hide()" />
+      </div>
     </div>
   </Dialog>
 </template>
@@ -171,5 +181,18 @@ export const useModal = () =>
     opacity: 1;
     transform: translate3d(0, 0, 0);
   }
+}
+.full-size-styles {
+  transform: translate3d(0, 0, 0);
+  animation: fadein-layout ease-in-out 0.3s forwards;
+  max-height: 100% !important;
+  top: 0 !important;
+  width: 100% !important;
+  border-radius: 0 !important;
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    transparent 6%
+  ) !important;
 }
 </style>
