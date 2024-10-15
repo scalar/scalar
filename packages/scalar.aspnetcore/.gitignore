@@ -483,5 +483,5 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
-# JavaScript asset copied with `pnpm prepare`
+# JavaScript asset copied with `pnpm prepare:build`
 /src/Scalar.AspNetCore/StaticAssets/scalar.js

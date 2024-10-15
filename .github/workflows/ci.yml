@@ -353,7 +353,7 @@ jobs:
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: packages/scalar.aspnetcore
-        run: pnpm prepare
+        run: pnpm prepare:build
 
       - name: Restore dependencies
         working-directory: packages/scalar.aspnetcore
@@ -414,7 +414,7 @@ jobs:
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference
         working-directory: packages/scalar.aspnetcore
-        run: pnpm prepare
+        run: pnpm prepare:build
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
