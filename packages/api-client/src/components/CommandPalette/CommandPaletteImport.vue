@@ -144,7 +144,7 @@ async function importCollection() {
           <input
             v-model="watchForChanges"
             type="checkbox" />
-          Watch for changes
+          Watch for changes [beta]
         </label>
       </div>
     </template>
