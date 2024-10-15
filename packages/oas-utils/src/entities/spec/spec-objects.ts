@@ -57,7 +57,7 @@ export const oasInfoSchema = z.object({
    * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
    * Specification version or the API implementation version).
    */
-  version: z.string().default('0.0.1'),
+  version: z.string().optional().default('1.0'),
 })
 
 /**
