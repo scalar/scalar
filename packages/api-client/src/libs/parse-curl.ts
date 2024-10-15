@@ -30,7 +30,14 @@ export function parseCurlCommand(curlCommand: string) {
         // Extract query parameters
         const nextArg = iterator.next().value
         if (typeof nextArg === 'string') {
-          const queryParameters = parseQueryParameters(`?${nextArg}`)
+          const queryParametersArray = parseQueryParameters(`?${nextArg}`)
+          const queryParameters = queryParametersArray.reduce(
+            (acc, { key, value }) => {
+              acc[key] = value
+              return acc
+            },
+            {} as Record<string, string>,
+          )
           result.queryParameters = {
             ...result.queryParameters,
             ...queryParameters,
@@ -124,15 +131,16 @@ function parsePathVariables(iterator: Iterator<string>, result: any) {
 /** Get the ?query=parameters from a curl command */
 function parseQueryParameters(url: string) {
   const paramPosition = url.indexOf('?')
-  const queryParameters: Record<string, string> = {}
+  const queryParameters: Array<{ key: string; value: string }> = []
   if (paramPosition !== -1) {
     const paramsString = url.substring(paramPosition + 1)
     const params = paramsString.split('&')
     params.forEach((param) => {
       const [key, value] = param.split('=')
-      queryParameters[decodeURIComponent(key.trim())] = value
-        ? decodeURIComponent(value.trim())
-        : ''
+      const decodedKey = decodeURIComponent(key.trim())
+      const decodedValue = value ? decodeURIComponent(value.trim()) : ''
+
+      queryParameters.push({ key: decodedKey, value: decodedValue })
     })
   }
 

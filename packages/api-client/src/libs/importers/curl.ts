@@ -50,7 +50,7 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
     body = '',
     headers = {},
     servers,
-    queryParameters,
+    queryParameters = [],
   } = parsedCommand
   const path = new URL(url).pathname
   const contentType =
@@ -59,21 +59,21 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
       : headers['Content-Type'] || 'application/json'
   const requestBody = body ? parseData(body) : {}
 
-  // Create parameters using the requestExampleParametersSchema
+  // Create parameters following request schema
   const parameters = [
-    ...Object.entries(queryParameters || {}).map(
-      ([key, value]) => ({
-        name: key,
-        in: 'query',
-        schema: { type: typeof value, examples: [value] },
-      }),
-      ...Object.entries(headers || {}).map(([key, value]) => ({
-        name: key,
-        in: 'headers',
-        schema: { type: typeof value },
-        example: value,
-      })),
-    ),
+    ...(Array.isArray(queryParameters)
+      ? queryParameters.map(({ key, value }) => ({
+          name: key,
+          in: 'query',
+          schema: { type: typeof value, examples: [value] },
+        }))
+      : []),
+    ...Object.entries(headers || {}).map(([key, value]) => ({
+      name: key,
+      in: 'header',
+      schema: { type: typeof value },
+      example: value,
+    })),
   ] as RequestParameterPayload[]
 
   return {

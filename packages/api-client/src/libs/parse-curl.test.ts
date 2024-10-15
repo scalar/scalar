@@ -24,7 +24,9 @@ describe('parseCurlCommand', () => {
   it('parses query parameters correctly', () => {
     const curlCommand = 'curl http://example.com?name=example'
     const result = parseCurlCommand(curlCommand)
-    expect(result.queryParameters).toStrictEqual({ name: 'example' })
+    expect(result.queryParameters).toStrictEqual([
+      { key: 'name', value: 'example' },
+    ])
   })
 
   it('handles URL without --url flag', () => {
