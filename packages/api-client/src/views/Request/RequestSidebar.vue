@@ -82,12 +82,6 @@ const handleHotKey = (event?: HotKeyEvent) => {
 
   if (event.toggleSidebar) emit('update:showSidebar', props.showSidebar)
 
-  // We prevent default on open command so we can use it on the web
-  if (event.openCommandPalette) {
-    event.openCommandPalette.preventDefault()
-    events.commandPalette.emit()
-  }
-
   if (event.focusRequestSearch) {
     searchInputRef.value?.focus()
   }
