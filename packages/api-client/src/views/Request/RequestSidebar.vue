@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
         class="min-h-11 xl:min-h-header xl:py-2.5 py-1 px-2.5 border-b-1/2" />
     </template>
     <template #content>
-      <div class="search-button-fade sticky px-3 py-2.5 top-0 z-1">
+      <div class="search-button-fade sticky px-3 py-2.5 top-0 z-10">
         <ScalarSearchInput
           ref="searchInputRef"
           v-model="searchText"
@@ -174,10 +174,10 @@ onBeforeUnmount(() => {
                 v-if="collection.info?.title === 'Drafts'"
                 class="text-sidebar-c-2 group-hover:hidden"
                 icon="Scribble"
-                thickness="2.5" />
+                thickness="2.25" />
               <LibraryIcon
                 v-else
-                class="text-sidebar-c-2 size-3.5 stroke-[2.5] group-hover:hidden"
+                class="text-sidebar-c-2 size-3.5 stroke-[2.25] group-hover:hidden"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
                 " />
@@ -188,7 +188,8 @@ onBeforeUnmount(() => {
                 <ScalarIcon
                   class="text-c-3 hidden text-sm group-hover:block"
                   icon="ChevronRight"
-                  size="sm" />
+                  size="sm"
+                  thickness="2.5" />
               </div>
             </template>
           </RequestSidebarItem>

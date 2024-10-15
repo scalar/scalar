@@ -241,7 +241,7 @@ function openCommandPaletteRequest() {
     :class="[
       (isReadOnly && parentUids.length > 1) ||
       (!isReadOnly && parentUids.length)
-        ? 'before:bg-b-3 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 indent-border-line-offset'
+        ? 'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 indent-border-line-offset'
         : '',
     ]">
     <Draggable
