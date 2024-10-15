@@ -525,4 +525,12 @@ export const httpHeaders: HttpHeader[] = [
     name: 'Report-To',
     url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/report-to',
   },
-]
+  {
+    name: 'X-Cloud-Trace-Context',
+    url: 'https://cloud.google.com/trace/docs/trace-context#legacy-http-header',
+  },
+  {
+    name: 'Speculation-Rules',
+    url: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Speculation-Rules',
+  },
+] as const
