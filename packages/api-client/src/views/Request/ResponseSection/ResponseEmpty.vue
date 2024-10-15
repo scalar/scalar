@@ -5,15 +5,19 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { onBeforeUnmount, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const { isReadOnly, activeWorkspace, events } = useWorkspace()
+const route = useRoute()
 
 const openCommandPaletteRequest = () => {
   events.commandPalette.emit({ commandName: 'Create Request' })
 }
 
 const handleHotKey = (event?: HotKeyEvent) => {
-  if (event?.openCommandPaletteRequest) openCommandPaletteRequest()
+  if (event?.createNew && route.name === 'request') {
+    openCommandPaletteRequest()
+  }
 }
 
 const packageVersion = PACKAGE_VERSION
