@@ -140,7 +140,7 @@ async function importCollection() {
         <!-- Watch -->
         <label
           v-if="isUrl(inputContent)"
-          class="cursor-pointer">
+          class="cursor-pointer flex text-xs text-c-2 gap-1">
           <input
             v-model="watchForChanges"
             type="checkbox" />
