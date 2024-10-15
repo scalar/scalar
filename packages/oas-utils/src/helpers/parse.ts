@@ -1,5 +1,4 @@
 import type { UnknownObject } from '@scalar/types/utils'
-// @ts-ignore
 import { dump, load } from 'js-yaml'
 
 type PrimitiveOrObject = object | string | null | number | boolean | undefined

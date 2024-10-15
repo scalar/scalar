@@ -1,4 +1,3 @@
-// @ts-ignore
 import { dump } from 'js-yaml'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'

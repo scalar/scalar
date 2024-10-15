@@ -1,4 +1,3 @@
-// @ts-ignore
 import { dump } from 'js-yaml'
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'

@@ -68,6 +68,7 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^11.1.6",
     "@scalar/openapi-types": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.14.10",
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",

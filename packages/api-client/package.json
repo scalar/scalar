@@ -181,6 +181,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@types/content-type": "^1.1.8",
     "@types/js-cookie": "^3.0.6",
+    "@types/js-yaml": "^4.0.9",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "^5.0.4",

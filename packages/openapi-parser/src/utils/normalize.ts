@@ -1,4 +1,3 @@
-// @ts-ignore
 import { load } from 'js-yaml'
 
 import type { AnyObject, Filesystem } from '../types'

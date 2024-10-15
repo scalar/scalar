@@ -1,5 +1,4 @@
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
-// @ts-ignore
 import { load } from 'js-yaml'
 
 /**

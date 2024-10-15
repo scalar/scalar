@@ -1,4 +1,3 @@
-// @ts-ignore
 import { load } from 'js-yaml'
 
 export function isYaml(value: string) {

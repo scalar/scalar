@@ -1,4 +1,3 @@
-// @ts-ignore
 import { dump } from 'js-yaml'
 
 import type { AnyObject } from '../types'

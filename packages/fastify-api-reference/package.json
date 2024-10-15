@@ -51,6 +51,7 @@
     "@fastify/swagger": "^8.10.1",
     "@scalar/api-reference": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
+    "@types/js-yaml": "^4.0.9",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",
     "github-slugger": "^2.0.0",

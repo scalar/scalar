@@ -635,6 +635,9 @@ importers:
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/shell-quote':
         specifier: ^1.7.5
         version: 1.7.5
@@ -1530,6 +1533,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.1))
@@ -1844,6 +1850,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       rollup:
         specifier: ^4.16.4
         version: 4.18.0
@@ -1924,6 +1933,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@types/js-yaml':
+        specifier: ^4.0.9
+        version: 4.0.9
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
@@ -6852,6 +6864,9 @@ packages:
 
   '@types/js-cookie@3.0.6':
     resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
+
+  '@types/js-yaml@4.0.9':
+    resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
 
   '@types/jsdom@21.1.7':
     resolution: {integrity: sha512-yOriVnggzrnQ3a9OKOCxaVuSug3w3/SbOj5i7VwXWZEyUNl3bLF9V3MfxGbZKuwqJOQyRfqXyROBB1CoZLFWzA==}
@@ -24716,6 +24731,8 @@ snapshots:
       pretty-format: 29.7.0
 
   '@types/js-cookie@3.0.6': {}
+
+  '@types/js-yaml@4.0.9': {}
 
   '@types/jsdom@21.1.7':
     dependencies:
