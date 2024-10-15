@@ -4,8 +4,9 @@ import FastifyBasicAuth, {
 import fastifySwagger from '@fastify/swagger'
 import type { OpenAPI } from '@scalar/types/legacy'
 import Fastify from 'fastify'
+// @ts-ignore
+import { load } from 'js-yaml'
 import { beforeEach, describe, expect, it } from 'vitest'
-import YAML from 'yaml'
 
 import fastifyApiReference from './index'
 
@@ -215,7 +216,7 @@ describe('fastifyApiReference', () => {
               `${address}/reference${endpoints.yaml}`,
             )
             expect(response.status).toBe(200)
-            expect(YAML.parse(await response.text())).toEqual(spec)
+            expect(load(await response.text())).toEqual(spec)
           })
         })
       })

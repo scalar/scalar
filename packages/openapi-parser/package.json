@@ -56,9 +56,9 @@
     "ajv": "^8.17.1",
     "ajv-draft-04": "^1.0.0",
     "ajv-formats": "^3.0.1",
+    "js-yaml": "^4.1.0",
     "jsonpointer": "^5.0.1",
-    "leven": "^4.0.0",
-    "yaml": "^2.4.5"
+    "leven": "^4.0.0"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",

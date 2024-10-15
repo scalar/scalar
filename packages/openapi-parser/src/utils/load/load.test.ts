@@ -1,6 +1,7 @@
+// @ts-ignore
+import { dump } from 'js-yaml'
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { stringify } from 'yaml'
 
 import { getEntrypoint } from '../getEntrypoint'
 import { load } from './load'
@@ -67,7 +68,7 @@ describe('load', async () => {
 
   it('loads YAML string', async () => {
     const { filesystem } = await load(
-      stringify({
+      dump({
         openapi: '3.1.0',
         info: {
           title: 'Hello World',
@@ -147,7 +148,7 @@ describe('load', async () => {
     // @ts-expect-error
     fetch.mockResolvedValue({
       text: async () =>
-        stringify({
+        dump({
           openapi: '3.1.0',
           info: {
             title: 'Hello World',
@@ -264,7 +265,7 @@ describe('load', async () => {
         return Promise.resolve({
           text: () =>
             Promise.resolve(
-              stringify({
+              dump({
                 openapi: '3.1.0',
                 info: {
                   title: 'Hello World',
@@ -351,7 +352,7 @@ describe('load', async () => {
     })
 
     const { filesystem } = await load(
-      stringify({
+      dump({
         openapi: '3.1.0',
         info: {
           title: 'Hello World',

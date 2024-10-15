@@ -598,6 +598,9 @@ importers:
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
@@ -619,9 +622,6 @@ importers:
       whatwg-mimetype:
         specifier: ^4.0.0
         version: 4.0.0
-      yaml:
-        specifier: ^2.4.5
-        version: 2.4.5
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -1539,6 +1539,9 @@ importers:
       github-slugger:
         specifier: ^2.0.0
         version: 2.0.0
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       magic-string:
         specifier: ^0.30.8
         version: 0.30.10
@@ -1560,9 +1563,6 @@ importers:
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
-      yaml:
-        specifier: ^2.4.5
-        version: 2.4.5
 
   packages/galaxy:
     devDependencies:
@@ -1825,15 +1825,15 @@ importers:
       flatted:
         specifier: ^3.3.1
         version: 3.3.1
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       microdiff:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
-      yaml:
-        specifier: ^2.4.5
-        version: 2.4.5
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -1893,15 +1893,15 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.17.1)
+      js-yaml:
+        specifier: ^4.1.0
+        version: 4.1.0
       jsonpointer:
         specifier: ^5.0.1
         version: 5.0.1
       leven:
         specifier: ^4.0.0
         version: 4.0.0
-      yaml:
-        specifier: ^2.4.5
-        version: 2.4.5
     devDependencies:
       '@apidevtools/swagger-parser':
         specifier: ^10.1.0
@@ -25449,7 +25449,7 @@ snapshots:
       '@vue/shared': 3.4.29
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   '@vue/compiler-core@3.4.31':
     dependencies:
@@ -25457,7 +25457,7 @@ snapshots:
       '@vue/shared': 3.4.31
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   '@vue/compiler-core@3.5.12':
     dependencies:
@@ -25465,7 +25465,7 @@ snapshots:
       '@vue/shared': 3.5.12
       entities: 4.5.0
       estree-walker: 2.0.2
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   '@vue/compiler-dom@3.4.31':
     dependencies:
@@ -25487,7 +25487,7 @@ snapshots:
       estree-walker: 2.0.2
       magic-string: 0.30.10
       postcss: 8.4.39
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   '@vue/compiler-sfc@3.5.12':
     dependencies:
@@ -25499,7 +25499,7 @@ snapshots:
       estree-walker: 2.0.2
       magic-string: 0.30.12
       postcss: 8.4.47
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   '@vue/compiler-ssr@3.4.31':
     dependencies:
@@ -27306,12 +27306,12 @@ snapshots:
   css-tree@2.2.1:
     dependencies:
       mdn-data: 2.0.28
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   css-tree@2.3.1:
     dependencies:
       mdn-data: 2.0.30
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   css-what@6.1.0: {}
 
@@ -31658,7 +31658,7 @@ snapshots:
     dependencies:
       '@babel/parser': 7.24.8
       '@babel/types': 7.24.7
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   make-dir@2.1.0:
     dependencies:
@@ -33827,7 +33827,7 @@ snapshots:
     dependencies:
       nanoid: 3.3.7
       picocolors: 1.1.0
-      source-map-js: 1.2.0
+      source-map-js: 1.2.1
 
   postcss@8.4.38:
     dependencies:

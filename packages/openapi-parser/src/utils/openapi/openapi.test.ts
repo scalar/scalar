@@ -1,6 +1,7 @@
+// @ts-ignore
+import { dump } from 'js-yaml'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { stringify } from 'yaml'
 
 import { readFiles } from '../load/plugins/readFiles'
 import { openapi } from './openapi'
@@ -252,7 +253,7 @@ describe('pipeline', () => {
   it('toYaml', async () => {
     const result = await openapi().load(example).toYaml()
 
-    expect(result).toBe(stringify(example))
+    expect(result).toBe(dump(example))
   })
 
   it('dereference', async () => {

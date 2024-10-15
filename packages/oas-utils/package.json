@@ -118,9 +118,9 @@
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "flatted": "^3.3.1",
+    "js-yaml": "^4.1.0",
     "microdiff": "^1.4.0",
     "nanoid": "^5.0.7",
-    "yaml": "^2.4.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {

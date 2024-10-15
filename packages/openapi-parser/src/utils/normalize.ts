@@ -1,4 +1,5 @@
-import { parse } from 'yaml'
+// @ts-ignore
+import { load } from 'js-yaml'
 
 import type { AnyObject, Filesystem } from '../types'
 import { isFilesystem } from './isFilesystem'
@@ -18,8 +19,8 @@ export function normalize(
     try {
       return JSON.parse(specification)
     } catch (error) {
-      return parse(specification, {
-        maxAliasCount: 10000,
+      return load(specification, {
+        // maxAliasCount: 10000,
       })
     }
   }

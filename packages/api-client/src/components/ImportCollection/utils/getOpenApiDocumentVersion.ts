@@ -1,5 +1,6 @@
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
-import { parse } from 'yaml'
+// @ts-ignore
+import { load } from 'js-yaml'
 
 /**
  * Get the Swagger/OpenAPI version and format from the given string
@@ -26,7 +27,7 @@ export function getOpenApiDocumentVersion(input: string | null) {
   }
 
   try {
-    const result = parse(input ?? '')
+    const result = load(input ?? '')
 
     if (typeof result?.openapi === 'string') {
       return `OpenAPI ${result.openapi} YAML`

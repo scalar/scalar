@@ -1,4 +1,5 @@
-import { parse } from 'yaml'
+// @ts-ignore
+import { load } from 'js-yaml'
 
 export function isYaml(value: string) {
   // Line breaks
@@ -7,8 +8,8 @@ export function isYaml(value: string) {
   }
 
   try {
-    parse(value, {
-      maxAliasCount: 10000,
+    load(value, {
+      // maxAliasCount: 10000,
     })
 
     return true

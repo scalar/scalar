@@ -1,5 +1,6 @@
 import type { UnknownObject } from '@scalar/types/utils'
-import { parse, stringify } from 'yaml'
+// @ts-ignore
+import { dump, load } from 'js-yaml'
 
 type PrimitiveOrObject = object | string | null | number | boolean | undefined
 
@@ -7,7 +8,7 @@ type PrimitiveOrObject = object | string | null | number | boolean | undefined
 export const yaml = {
   /** Parse and throw if the return value is not an object */
   parse: (val: string) => {
-    const yamlObject = parse(val)
+    const yamlObject = load(val)
     if (typeof yamlObject !== 'object') throw Error('Invalid YAML object')
     return yamlObject as UnknownObject
   },
@@ -22,7 +23,7 @@ export const yaml = {
       return typeof fallback === 'function' ? fallback(err) : fallback
     }
   },
-  stringify,
+  dump,
 }
 
 /** JSON handling with optional safeparse */
