@@ -15,6 +15,9 @@ import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
+defineProps<{
+  isApp: boolean
+}>()
 const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
 

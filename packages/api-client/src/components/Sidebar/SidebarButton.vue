@@ -20,7 +20,7 @@ const handleClick = () => {
     @click="handleClick">
     <slot name="title" />
     <ScalarHotkey
-      v-if="hotkey"
+      v-if="hotkey && !isApp"
       class="hidden md:block absolute right-2 group-hover:opacity-80 text-c-2 add-item-hotkey"
       :hotkey="hotkey" />
   </ScalarButton>

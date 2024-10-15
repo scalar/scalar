@@ -15,6 +15,9 @@ import { useRouter } from 'vue-router'
 import CookieForm from './CookieForm.vue'
 import CookieRaw from './CookieRaw.vue'
 
+defineProps<{
+  isApp: boolean
+}>()
 const { cookies, cookieMutators } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
