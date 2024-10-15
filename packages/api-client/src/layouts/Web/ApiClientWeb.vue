@@ -70,7 +70,9 @@ const themeStyleTag = computed(
     <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
       <RouterView v-slot="{ Component }">
         <keep-alive>
-          <component :is="Component" />
+          <component
+            :is="Component"
+            isApp="false" />
         </keep-alive>
       </RouterView>
     </div>

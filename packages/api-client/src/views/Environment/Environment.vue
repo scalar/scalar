@@ -15,6 +15,9 @@ import { useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
+defineProps<{
+  isApp: boolean
+}>()
 const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
 
@@ -113,7 +116,8 @@ onMounted(setActiveEnvironment)
       <template #button>
         <SidebarButton
           :click="addEnvironment"
-          :hotkey="{ key: 'N' }">
+          :hotkey="{ key: 'N' }"
+          :isApp="isApp">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>
