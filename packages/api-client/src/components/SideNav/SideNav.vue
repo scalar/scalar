@@ -28,7 +28,7 @@ const { currentRoute } = useRouter()
         </SideNavLink>
       </li>
     </ul>
-    <ul class="mt-auto flex flex-col py-0.5">
+    <ul class="mt-auto flex flex-col gap-1.5 py-0.5">
       <li class="flex items-center no-drag-region">
         <SideNavLink
           :active="currentRoute.name === 'settings'"
