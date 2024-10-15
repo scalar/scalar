@@ -17,7 +17,7 @@ defineEmits<{
 </script>
 <template>
   <div
-    class="lg:min-h-header flex items-center w-full justify-center p-2 pt-1 lg:p-2 lg:p-1 flex-wrap t-app__top-container md:border-b-1/2">
+    class="lg:min-h-header flex items-center w-full justify-center p-2 pt-1 lg:p-1 flex-wrap t-app__top-container md:border-b-1/2">
     <div
       class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-0.5 lg:flex-1 w-6/12">
       <SidebarToggle
