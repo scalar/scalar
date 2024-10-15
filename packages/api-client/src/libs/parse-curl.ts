@@ -130,7 +130,9 @@ function parseQueryParameters(url: string) {
     const params = paramsString.split('&')
     params.forEach((param) => {
       const [key, value] = param.split('=')
-      queryParameters[key.trim()] = value ? value.trim() : ''
+      queryParameters[decodeURIComponent(key.trim())] = value
+        ? decodeURIComponent(value.trim())
+        : ''
     })
   }
 
