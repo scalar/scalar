@@ -499,6 +499,22 @@ importers:
         specifier: ^0.23.6
         version: 0.23.7(vite@5.3.3(@types/node@20.14.10)(terser@5.31.2))(vue-router@4.4.0(vue@3.5.12(typescript@5.6.2)))(vue@3.5.12(typescript@5.6.2))
 
+  examples/tsx:
+    dependencies:
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../../packages/openapi-parser
+      typescript:
+        specifier: ^5.6.2
+        version: 5.6.2
+    devDependencies:
+      '@tsconfig/recommended':
+        specifier: ^1.0.7
+        version: 1.0.7
+      tsx:
+        specifier: ^4.19.1
+        version: 4.19.1
+
   examples/web:
     dependencies:
       '@scalar/api-reference':
@@ -1426,7 +1442,7 @@ importers:
         version: 8.4.39
       postcss-cli:
         specifier: ^11.0.0
-        version: 11.0.0(jiti@1.21.6)(postcss@8.4.39)
+        version: 11.0.0(jiti@1.21.6)(postcss@8.4.39)(tsx@4.19.1)
       postcss-nesting:
         specifier: ^12.1.5
         version: 12.1.5(postcss@8.4.39)
@@ -1921,6 +1937,9 @@ importers:
       '@rollup/plugin-typescript':
         specifier: ^11.1.6
         version: 11.1.6(rollup@4.18.1)(tslib@2.6.3)(typescript@5.6.2)
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
@@ -6703,6 +6722,9 @@ packages:
   '@tsconfig/node18@18.2.4':
     resolution: {integrity: sha512-5xxU8vVs9/FNcvm3gE07fPbn9tl6tqGGWA9tSlwsUEkBxtRnTsNmwrV8gasZ9F/EobaSv9+nu8AxUKccw77JpQ==}
 
+  '@tsconfig/recommended@1.0.7':
+    resolution: {integrity: sha512-xiNMgCuoy4mCL4JTywk9XFs5xpRUcKxtWEcMR6FNMtsgewYTIgIR+nvlP4A4iRCAzRsHMnPhvTRrzp4AGcRTEA==}
+
   '@types/acorn@4.0.6':
     resolution: {integrity: sha512-veQTnWP+1D/xbxVrPC3zHnCZRjSrKfhbMUlEA43iMZLu7EsnTtkJklIuwrCPbOi8YkvDQAiW05VQQFvvz9oieQ==}
 
@@ -10353,9 +10375,6 @@ packages:
   get-symbol-description@1.0.2:
     resolution: {integrity: sha512-g0QYk1dZBxGwk+Ngc+ltRH2IBp2f7zBkBMBJZCDerh6EhlhSR6+9irMCuT/09zD6qkarHUSn529sK/yL4S27mg==}
     engines: {node: '>= 0.4'}
-
-  get-tsconfig@4.7.5:
-    resolution: {integrity: sha512-ZCuZCnlqNzjb4QprAzXKdpp/gh6KTxSJuw3IBsPnV/7fV4NxC9ckB+vPTt8w7fJA0TaSD7c55BR47JD6MEDyDw==}
 
   get-tsconfig@4.7.6:
     resolution: {integrity: sha512-ZAqrLlu18NbDdRaHq+AKXzAmqIUPswPWKUchfytdAjiRFnCe5ojG2bstg6mRiZabkKfCoL/e98pbBELIV/YCeA==}
@@ -15845,6 +15864,11 @@ packages:
     engines: {node: '>= 6'}
     peerDependencies:
       typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+
+  tsx@4.19.1:
+    resolution: {integrity: sha512-0flMz1lh74BR4wOvBjuh9olbnwqCPc35OOlfyzHba0Dc+QNUeWX/Gq2YTbnwcWPO3BMd8fkzRVrHcsR+a7z7rA==}
+    engines: {node: '>=18.0.0'}
+    hasBin: true
 
   turbo-darwin-64@2.1.2:
     resolution: {integrity: sha512-3TEBxHWh99h2yIzkuIigMEOXt/ItYQp0aPiJjPd1xN4oDcsKK5AxiFKPH9pdtfIBzYsY59kQhZiFj0ELnSP7Bw==}
@@ -24542,6 +24566,8 @@ snapshots:
 
   '@tsconfig/node18@18.2.4': {}
 
+  '@tsconfig/recommended@1.0.7': {}
+
   '@types/acorn@4.0.6':
     dependencies:
       '@types/estree': 1.0.5
@@ -28276,7 +28302,7 @@ snapshots:
       doctrine: 3.0.0
       eslint: 8.57.0
       eslint-import-resolver-node: 0.3.9
-      get-tsconfig: 4.7.5
+      get-tsconfig: 4.7.6
       is-glob: 4.0.3
       minimatch: 9.0.5
       semver: 7.6.3
@@ -29280,10 +29306,6 @@ snapshots:
       call-bind: 1.0.7
       es-errors: 1.3.0
       get-intrinsic: 1.2.4
-
-  get-tsconfig@4.7.5:
-    dependencies:
-      resolve-pkg-maps: 1.0.0
 
   get-tsconfig@4.7.6:
     dependencies:
@@ -33390,7 +33412,7 @@ snapshots:
       postcss-selector-parser: 6.1.1
       postcss-value-parser: 4.2.0
 
-  postcss-cli@11.0.0(jiti@1.21.6)(postcss@8.4.39):
+  postcss-cli@11.0.0(jiti@1.21.6)(postcss@8.4.39)(tsx@4.19.1):
     dependencies:
       chokidar: 3.6.0
       dependency-graph: 0.11.0
@@ -33399,7 +33421,7 @@ snapshots:
       globby: 14.0.2
       picocolors: 1.0.1
       postcss: 8.4.39
-      postcss-load-config: 5.1.0(jiti@1.21.6)(postcss@8.4.39)
+      postcss-load-config: 5.1.0(jiti@1.21.6)(postcss@8.4.39)(tsx@4.19.1)
       postcss-reporter: 7.1.0(postcss@8.4.39)
       pretty-hrtime: 1.0.3
       read-cache: 1.0.0
@@ -33503,13 +33525,14 @@ snapshots:
       postcss: 8.4.47
       ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)
 
-  postcss-load-config@5.1.0(jiti@1.21.6)(postcss@8.4.39):
+  postcss-load-config@5.1.0(jiti@1.21.6)(postcss@8.4.39)(tsx@4.19.1):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.4.5
     optionalDependencies:
       jiti: 1.21.6
       postcss: 8.4.39
+      tsx: 4.19.1
 
   postcss-loader@7.3.4(postcss@8.4.39)(typescript@5.6.2)(webpack@5.92.0(@swc/core@1.5.29)):
     dependencies:
@@ -36278,6 +36301,13 @@ snapshots:
     dependencies:
       tslib: 1.14.1
       typescript: 5.6.2
+
+  tsx@4.19.1:
+    dependencies:
+      esbuild: 0.23.0
+      get-tsconfig: 4.7.6
+    optionalDependencies:
+      fsevents: 2.3.3
 
   turbo-darwin-64@2.1.2:
     optional: true
