@@ -91,7 +91,7 @@ const result = await request({
 Successful requests will have the following shape and your data will have the type you defined in the schema
 
 ```ts
-export type APIResponse<T> = {
+export type ApiResponse<T> = {
   status: number
   data: T
   error: false
@@ -101,7 +101,7 @@ export type APIResponse<T> = {
 And errors will look like
 
 ```ts
-export type APIError = {
+export type ApiError = {
   status: number
   message: string
   error: true
