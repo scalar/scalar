@@ -29,6 +29,7 @@ app.MapOpenApi();
 app.MapScalarApiReference(options =>
 {
     options
+        .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
         .WithFavicon("/favicon.png")

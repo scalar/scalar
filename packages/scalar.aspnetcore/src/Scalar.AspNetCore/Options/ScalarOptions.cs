@@ -23,14 +23,16 @@ public sealed class ScalarOptions
     /// Path prefix to access the documentation.
     /// </summary>
     /// <value>The default value is <c>'/scalar/{documentName}'</c>.</value>
-    /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.</remarks>
+    /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.
+    /// Local assets are also served from this path.
+    /// </remarks>
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
 
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
     /// </summary>
-    /// <value>The default value is <see cref="Constants.DefaultOpenApiRoutePattern" />.</value>
-    public string OpenApiRoutePattern { get; set; } = Constants.DefaultOpenApiRoutePattern;
+    /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
+    public string OpenApiRoutePattern { get; set; } =  "/openapi/{documentName}.json";
 
     /// <summary>
     /// Proxy URL for the API requests.
@@ -103,7 +105,7 @@ public sealed class ScalarOptions
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
-    /// <remarks>If you use a different font or just don’t want to use Google Fonts, pass withDefaultFonts: false to the configuration.</remarks>
+    /// <remarks>If you use a different font or just don’t want to use Google Fonts, set this to <c>false</c>.</remarks>
     public bool DefaultFonts { get; set; } = true;
 
     /// <summary>
@@ -165,9 +167,9 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets the CDN URL for the API reference.
     /// </summary>
-    /// <value>The default value is <i>https://cdn.jsdelivr.net/npm/@scalar/api-reference</i></value>
+    /// <value>The default value is <c>null</c></value>
     /// <remarks>Use this option to load the API reference from a different CDN or local server.</remarks>
-    public string CdnUrl { get; set; } = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
+    public string? CdnUrl { get; set; }
 
     /// <summary>
     /// Gets or sets the list of servers for the Scalar API reference.

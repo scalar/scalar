@@ -345,6 +345,16 @@ jobs:
         with:
           dotnet-version: 9.x
 
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
+
+      - name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: packages/scalar.aspnetcore
+        run: pnpm prepare:build
+
       - name: Restore dependencies
         working-directory: packages/scalar.aspnetcore
         run: dotnet restore
@@ -393,6 +403,18 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Copy JavaScript asset from @scalar/api-reference
+        working-directory: packages/scalar.aspnetcore
+        run: pnpm prepare:build
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
