@@ -17,3 +17,21 @@ updates:
       interval: 'daily'
     # This will disable updates, but still create PRs for security updates.
     open-pull-requests-limit: 0
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    allow:
+      - dependency-name: '@todesktop/*'
+      - dependency-name: 'electron'
+    groups:
+      # Specify a name for the group, which will be used in pull request titles
+      # and branch names
+      todesktop-dependency-update:
+        applies-to: version-updates
+        patterns:
+          - '@todesktop/*'
+      electron-dependency-update:
+        applies-to: version-updates
+        patterns:
+          - 'electron'
