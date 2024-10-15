@@ -283,6 +283,6 @@ describe('useParser', () => {
     // Sleep for 10ms to wait for the parser to finish
     await new Promise((resolve) => setTimeout(resolve, 10))
 
-    expect(specErrors.value).toContain('YAMLParseError')
+    expect(specErrors.value).toContain('YAMLException')
   })
 })
