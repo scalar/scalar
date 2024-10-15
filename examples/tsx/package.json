@@ -16,7 +16,7 @@
   },
   "scripts": {
     "dev": "tsx watch --tsconfig tsconfig.json index.ts",
-    "test": "tsc"
+    "test": "tsc --noEmit"
   },
   "main": "index.js",
   "dependencies": {
