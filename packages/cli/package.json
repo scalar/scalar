@@ -59,7 +59,7 @@
     "commander": "^12.0.0",
     "github-slugger": "^2.0.0",
     "glob": "^10.3.10",
-    "hono": "^4.2.7",
+    "hono": "^4.6.5",
     "kleur": "^4.1.5",
     "prettyjson": "^1.2.5"
   },

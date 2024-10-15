@@ -1123,8 +1123,8 @@ importers:
         specifier: ^10.3.10
         version: 10.4.1
       hono:
-        specifier: ^4.2.7
-        version: 4.4.6
+        specifier: ^4.6.5
+        version: 4.6.5
       kleur:
         specifier: ^4.1.5
         version: 4.1.5
@@ -1596,13 +1596,13 @@ importers:
         version: 1.11.3
       '@hono/zod-openapi':
         specifier: ^0.8.6
-        version: 0.8.6(hono@4.4.6)(zod@3.23.8)
+        version: 0.8.6(hono@4.6.5)(zod@3.23.8)
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
       hono:
-        specifier: ^4.2.7
-        version: 4.4.6
+        specifier: ^4.6.5
+        version: 4.6.5
       tsup:
         specifier: ^7.2.0
         version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2))(typescript@5.6.2)
@@ -1647,8 +1647,8 @@ importers:
         specifier: workspace:*
         version: link:../openapi-types
       hono:
-        specifier: ^4.2.7
-        version: 4.4.6
+        specifier: ^4.6.5
+        version: 4.6.5
       object-to-xml:
         specifier: ^2.0.0
         version: 2.0.0
@@ -2249,8 +2249,8 @@ importers:
         specifier: ^1.11.0
         version: 1.11.3
       hono:
-        specifier: ^4.2.7
-        version: 4.4.6
+        specifier: ^4.6.5
+        version: 4.6.5
       object-to-xml:
         specifier: ^2.0.0
         version: 2.0.0
@@ -9744,6 +9744,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   esm-resolve@1.0.11:
@@ -10694,9 +10695,9 @@ packages:
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
 
-  hono@4.4.6:
-    resolution: {integrity: sha512-XGRnoH8WONv60+PPvP9Sn067A9r/8JdHDJ5bgon0DVEHeR1cJPkWjv2aT+DBfMH9/mEkYa1+VEVFp1DT1lIwjw==}
-    engines: {node: '>=16.0.0'}
+  hono@4.6.5:
+    resolution: {integrity: sha512-qsmN3V5fgtwdKARGLgwwHvcdLKursMd+YOt69eGpl1dUCJb8mCd7hZfyZnBYjxCegBG7qkJRQRUy2oO25yHcyQ==}
+    engines: {node: '>=16.9.0'}
 
   hookable@5.5.3:
     resolution: {integrity: sha512-Yc+BQe8SvoXH1643Qez1zqLRmbA5rCL+sSmk6TVos0LWVfNIB7PGncdlId77WzLGSIB5KaWgTaNTs2lNVEI6VQ==}
@@ -21395,16 +21396,16 @@ snapshots:
 
   '@hono/node-server@1.11.3': {}
 
-  '@hono/zod-openapi@0.8.6(hono@4.4.6)(zod@3.23.8)':
+  '@hono/zod-openapi@0.8.6(hono@4.6.5)(zod@3.23.8)':
     dependencies:
       '@asteasolutions/zod-to-openapi': 5.5.0(zod@3.23.8)
-      '@hono/zod-validator': 0.1.11(hono@4.4.6)(zod@3.23.8)
-      hono: 4.4.6
+      '@hono/zod-validator': 0.1.11(hono@4.6.5)(zod@3.23.8)
+      hono: 4.6.5
       zod: 3.23.8
 
-  '@hono/zod-validator@0.1.11(hono@4.4.6)(zod@3.23.8)':
+  '@hono/zod-validator@0.1.11(hono@4.6.5)(zod@3.23.8)':
     dependencies:
-      hono: 4.4.6
+      hono: 4.6.5
       zod: 3.23.8
 
   '@humanwhocodes/config-array@0.11.14':
@@ -29853,7 +29854,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.4.6: {}
+  hono@4.6.5: {}
 
   hookable@5.5.3: {}
 
