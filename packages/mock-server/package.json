@@ -48,7 +48,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "hono": "^4.2.7",
+    "hono": "^4.6.5",
     "object-to-xml": "^2.0.0"
   },
   "devDependencies": {
