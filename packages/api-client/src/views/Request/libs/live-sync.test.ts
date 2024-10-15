@@ -193,7 +193,7 @@ describe('combineRenameDiffs', () => {
 
   // Clone fresh schemas
   beforeEach(() => {
-    mutated = JSON.parse(JSON.stringify(original))
+    mutated = structuredClone(original)
   })
 
   it('creates a change migration for renaming a path with no other changes', () => {
