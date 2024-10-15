@@ -76,64 +76,86 @@ watch(
 
 <template>
   <ScalarModal
-    size="md"
+    size="full"
     :state="modalState">
-    <div class="flex gap-5 flex-col my-24">
-      <!-- Title -->
-      <div class="text-center text-xl font-medium">
-        {{ title ?? 'Import Collection' }}
-      </div>
-
-      <!-- Select the workspace -->
-      <div class="flex justify-center">
-        <div class="inline-block bg-b-2 py-1 px-4 rounded">
-          <WorkspaceDropdown />
-        </div>
-      </div>
-
-      <!-- Prefetch error -->
-      <template
-        v-if="prefetchResult.state !== 'loading' && prefetchResult.error">
+    <div class="flex flex-col h-screen justify-center overflow-hidden relative">
+      <div class="flex items-center flex-col m-auto">
+        <!-- Title -->
         <div
-          class="flex gap-2 items-center p-3 font-code text-sm border rounded break-words">
-          <ScalarIcon
-            class="text-red flex-shrink-0"
-            icon="Error"
-            size="sm" />
-          <div class="break-all">
-            {{ prefetchResult.error }}
+          class="text-center text-[50px] tracking-[-3px] leading-tight font-medium text-pretty">
+          {{ title ?? 'Import Collection' }}
+        </div>
+
+        <!-- Prefetch error -->
+        <template
+          v-if="prefetchResult.state !== 'loading' && prefetchResult.error">
+          <div
+            class="flex gap-2 items-center p-3 font-code text-sm border rounded break-words my-4">
+            <ScalarIcon
+              class="text-red flex-shrink-0"
+              icon="Error"
+              size="sm" />
+            <div class="break-all">
+              {{ prefetchResult.error }}
+            </div>
+          </div>
+        </template>
+        <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <template v-else-if="!version">
+          <div
+            class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+            <ScalarIcon
+              class="text-red"
+              icon="Error"
+              size="sm" />
+            <div>This doesn’t look like a valid OpenAPI/Swagger document.</div>
+          </div>
+
+          <div class="bg-b-2 h-48 border rounded custom-scroll">
+            <ScalarCodeBlock
+              :content="
+                prefetchResult.content?.trim() || props.source?.trim() || ''
+              "
+              :copy="false" />
+          </div>
+        </template>
+
+        <!-- Actions -->
+        <div
+          v-if="version"
+          class="inline-flex flex-col gap-2 items-center mt-2">
+          <!-- <OpenAppButton :source="source" /> -->
+          <ImportNowButton
+            :source="source"
+            variant="button"
+            @importFinished="() => $emit('importFinished')" />
+        </div>
+        <!-- Select the workspace -->
+        <div class="flex justify-center">
+          <div class="inline-block py-1 px-4">
+            <WorkspaceDropdown />
           </div>
         </div>
-      </template>
-      <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-      <template v-else-if="!version">
-        <div
-          class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-          <ScalarIcon
-            class="text-red"
-            icon="Error"
-            size="sm" />
-          <div>This doesn’t look like a valid OpenAPI/Swagger document.</div>
+      </div>
+      <div class="flex flex-col justify-center items-center pb-4">
+        <div class="text-center flex items-center flex-col">
+          <div
+            class="mb-2 w-10 h-10 border rounded-[10px] flex items-center justify-center">
+            <ScalarIcon
+              icon="Logo"
+              size="xl" />
+          </div>
+          <span class="text-c-2">
+            <a
+              class="hover:text-c-1"
+              href="https://scalar.com/download"
+              target="_blank">
+              Download Scalar App
+            </a>
+            <br />
+            Offline First - Open Source</span
+          >
         </div>
-
-        <div class="bg-b-2 h-48 border rounded custom-scroll">
-          <ScalarCodeBlock
-            :content="
-              prefetchResult.content?.trim() || props.source?.trim() || ''
-            "
-            :copy="false" />
-        </div>
-      </template>
-
-      <!-- Actions -->
-      <div
-        v-if="version"
-        class="inline-flex flex-col gap-2 items-center mt-2">
-        <!-- <OpenAppButton :source="source" /> -->
-        <ImportNowButton
-          :source="source"
-          variant="button"
-          @importFinished="() => $emit('importFinished')" />
       </div>
     </div>
   </ScalarModal>
