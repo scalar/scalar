@@ -38,7 +38,7 @@ onMounted(async () => {
 const configuration = reactive<ReferenceConfiguration>({
   proxy: 'https://proxy.scalar.com',
   spec: {
-    url,
+    url: url.value,
   },
 })
 
