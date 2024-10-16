@@ -86,7 +86,7 @@ app.use(
   apiReference({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest',
     spec: {
-      content: OpenApiSpecification,
+      url: '/openapi.json',
     },
   }),
 )

@@ -40,37 +40,11 @@ fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-With [@fastify/swagger](https://github.com/fastify/fastify-swagger) you can even generate your OpenAPI documents from the registered routes and directly pass it to the plugin:
+With [@fastify/swagger], we’re picking it up automatically, so this would be enough:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
   routePrefix: '/reference',
-  configuration: {
-    spec: {
-      content: () => fastify.swagger(),
-    },
-  },
-})
-```
-
-Actually, we’re picking it up automatically, so this would be enough:
-
-```ts
-await fastify.register(require('@scalar/fastify-api-reference'), {
-  routePrefix: '/reference',
-})
-```
-
-Or, if you just have a static OpenAPI spec, you can directly pass it, too:
-
-```ts
-await fastify.register(require('@scalar/fastify-api-reference'), {
-  routePrefix: '/reference',
-  configuration: {
-    spec: {
-      content: { … }
-    },
-  },
 })
 ```
 

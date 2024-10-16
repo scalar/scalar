@@ -15,27 +15,9 @@ npm install @scalar/express-api-reference
 
 ## Usage
 
-[Set up Express](https://expressjs.com/en/starter/hello-world.html) and pass an OpenAPI/Swagger spec to the `apiReference` middleware:
+[Set up Express](https://expressjs.com/en/starter/hello-world.html) and pass an URL to an OpenAPI/Swagger document to the `apiReference` middleware:
 
 > Wait, but how do we get the OpenApiSpecification? 🤔 There are multiple ways to generate an OpenAPI/Swagger file for Express. The most popular way is to use [`swagger-jsdoc`](https://github.com/Surnet/swagger-jsdoc).
-
-```ts
-import { apiReference } from '@scalar/express-api-reference'
-
-const OpenApiSpecification =
-  /* … */
-
-  app.use(
-    '/reference',
-    apiReference({
-      spec: {
-        content: OpenApiSpecification,
-      },
-    }),
-  )
-```
-
-If you’re serving an OpenAPI/Swagger file already, you can pass an URL, too:
 
 ```ts
 import { apiReference } from '@scalar/express-api-reference'
@@ -44,6 +26,7 @@ app.use(
   '/reference',
   apiReference({
     spec: {
+      // Put your OpenAPI url here:
       url: '/openapi.json',
     },
   }),
@@ -64,7 +47,7 @@ app.use(
   apiReference({
     theme: 'purple',
     spec: {
-      content: OpenApiSpecification,
+      url: '/openapi.json',
     },
   }),
 )
@@ -82,7 +65,7 @@ app.use(
   apiReference({
     cdn: 'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
     spec: {
-      content: OpenApiSpecification,
+      url: '/openapi.json',
     },
   }),
 )
