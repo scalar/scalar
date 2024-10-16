@@ -222,25 +222,25 @@ export type ReferenceConfiguration = {
   _integration?:
     | null
     | 'adonisjs'
-    | 'docusaurus'
-    | 'dotnet'
+    | 'docusaurus' // ✅
+    | 'dotnet' // ✅
     | 'elysiajs'
-    | 'express'
+    | 'express' // ✅
     | 'fastapi'
-    | 'fastify'
+    | 'fastify' // ✅
     | 'go'
-    | 'hono'
-    | 'html'
+    | 'hono' // ✅
+    | 'html' // ✅
     | 'laravel'
     | 'litestar'
-    | 'nestjs'
-    | 'nextjs'
+    | 'nestjs' // ✅
+    | 'nextjs' // ✅
     | 'nitro'
-    | 'nuxt'
+    | 'nuxt' // ✅
     | 'platformatic'
-    | 'react'
+    | 'react' // ✅
     | 'rust'
-    | 'vue'
+    | 'vue' // ✅
 }
 
 export type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
