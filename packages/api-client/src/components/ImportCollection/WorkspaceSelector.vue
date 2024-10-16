@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CommandPaletteWorkspace from '@/components/CommandPalette/CommandPaletteWorkspace.vue'
 import { useWorkspace } from '@/store'
 import {
   ScalarButton,
@@ -9,36 +10,16 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { useToasts } from '@scalar/use-toasts'
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, workspaces, workspaceMutators } = useWorkspace()
+const { activeWorkspace, workspaces } = useWorkspace()
 const { push } = useRouter()
 
 const modal = useModal()
-const { toast } = useToasts()
-const workspaceName = ref('')
 
 const updateSelected = (uid: string) => {
   if (uid === activeWorkspace.value.uid) return
   push(`/workspace/${uid}`)
-}
-
-const handleCreateWorkspace = () => {
-  if (!workspaceName.value.trim()) {
-    toast('Please enter a name before creating a workspace.', 'error')
-    return
-  }
-
-  const workspace = workspaceMutators.add({
-    name: workspaceName.value,
-  })
-  push(`/workspace/${workspace.uid}`)
-
-  toast(`Created new workspace '${workspaceName.value}'`)
-  workspaceName.value = ''
-  modal.hide()
 }
 </script>
 <template>
@@ -101,23 +82,11 @@ const handleCreateWorkspace = () => {
   </div>
   <ScalarModal
     bodyClass="!m-0 !p-1"
-    :size="'xxs'"
+    :size="'sm'"
     :state="modal"
     variant="form">
-    <form
-      class="flex gap-1 rounded"
-      @submit.prevent="handleCreateWorkspace">
-      <input
-        v-model="workspaceName"
-        class="border-none outline-none flex-1 w-full text-sm min-h-8 p-1.5"
-        placeholder="New Workspace"
-        type="text" />
-      <ScalarButton
-        class="max-h-8 text-xs p-0 px-3"
-        :disabled="!workspaceName.trim()"
-        type="submit">
-        Continue
-      </ScalarButton>
-    </form>
+    <CommandPaletteWorkspace
+      class="[&_textarea]:px-1.5"
+      @close="modal.hide()" />
   </ScalarModal>
 </template>
