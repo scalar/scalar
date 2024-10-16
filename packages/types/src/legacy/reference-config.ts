@@ -226,7 +226,7 @@ export type ReferenceConfiguration = {
     | 'dotnet' // ✅
     | 'elysiajs'
     | 'express' // ✅
-    | 'fastapi'
+    | 'fastapi' // ✅
     | 'fastify' // ✅
     | 'go'
     | 'hono' // ✅
