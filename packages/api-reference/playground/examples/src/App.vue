@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@scalar/api-reference/style.css'
 import { onMounted, reactive, ref } from 'vue'
 
 import { ApiReference, type ReferenceConfiguration } from '../../../src'
@@ -39,7 +38,7 @@ onMounted(async () => {
 const configuration = reactive<ReferenceConfiguration>({
   proxy: 'https://proxy.scalar.com',
   spec: {
-    url,
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },
 })
 
