@@ -215,12 +215,12 @@ export type ReferenceConfiguration = {
    *
    * Each supported integration has a unique identifier (e.g., 'express', 'nextjs', 'vue').
    *
-   * To explicitly disable this feature, you can pass `undefined`.
+   * To explicitly disable this feature, you can pass `null`.
    *
    * @private
-   * @type {string | undefined}
    */
   _integration?:
+    | null
     | 'adonisjs'
     | 'docusaurus'
     | 'dotnet'
