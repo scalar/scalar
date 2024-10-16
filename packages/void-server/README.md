@@ -7,6 +7,18 @@
 
 An Hono server that responds with the request data. Kind of a mirror for HTTP requests.
 
+It’s running on <https://void.scalar.com>, feel free to use it.
+
+## Examples
+
+- https://void.scalar.com/
+- https://void.scalar.com/404
+- https://void.scalar.com/foobar.html
+- https://void.scalar.com/foobar.json
+- https://void.scalar.com/foobar.xml
+- https://void.scalar.com/foobar.zip
+- https://void.scalar.com/?foo=bar&foo=rab
+
 ## Installation
 
 ```bash

@@ -1,6 +1,6 @@
-# Scalar Icon Library
+# Scalar Icons
 
-The Scalar Icon Library
+All the icons we’re using
 
 ## Installation
 
@@ -14,6 +14,7 @@ npm add @scalar/icons
 <script setup lang="ts">
 import { LibraryIcon } from '@scalar/icons'
 </script>
+
 <template>
   <LibraryIcon src="brand-adobe" />
 </template>

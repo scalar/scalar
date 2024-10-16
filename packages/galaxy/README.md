@@ -48,18 +48,18 @@ import galaxy from '@scalar/galaxy/latest.yaml?raw'
 import galaxy from '@scalar/galaxy/3.1.json'
 ```
 
-### Playground
+## Development
 
-Use the `@scalar/mock-server` to serve an OpenAPI spec
+Use the `@scalar/mock-server` to serve an OpenAPI document:
 
 ```bash
-    npm run dev
+npm run dev
 ```
 
-Explore the api spec by making requests to it using your favourite API exploration tools
+Explore the API by making requests to it using your favourite API exploration tools:
 
 ```bash
-    curl http://localhost:5052/planets
+curl http://localhost:5052/planets
 ```
 
 Response
@@ -91,5 +91,13 @@ Response
 ### Serve an OpenAPI specification yaml using the CLI
 
 ```bash
-   npm run dlx @scalar/cli serve ./src/specifications/3.1.yaml --watch
+npx @scalar/cli serve ./src/specifications/3.1.yaml --watch
 ```
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

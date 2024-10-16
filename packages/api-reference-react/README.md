@@ -51,3 +51,11 @@ ApiReference only takes one prop which is the configuration object.
 
 You can find the full configuration options under
 [packages/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference).
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

@@ -1,12 +1,21 @@
-# @scalar/build-tooling
+# Scalar Build Tooling
 
-Helpers for package management within the @scalar monorepo
+This package provides essential build and development tools for managing packages within the scalar/scalar repository. It includes:
 
-By default all dependencies are externalized and we don't bundle anything for internal modules.
+- Standardized build scripts for Rollup and Vite
+- Type checking and building utilities
+- Code formatting and linting tools
+- Configurations for various build scenarios
 
-For deployed web apps alternative build methods should be used to provide a client bundle.
+These tools streamline the development process, ensure consistency across packages, and optimize the build output for different project types within the monorepo.
 
-In all cases package.json files should have:
+## Usage
+
+By default, all dependencies are externalized, and we don’t bundle anything for internal modules.
+
+For deployed web applications, alternative build methods should be used to provide a complete client bundle. This ensures that all necessary dependencies are included for the end-user.
+
+To use these build tools effectively, all package.json files should include the following scripts:
 
 ```json
 "scripts": {
@@ -19,7 +28,7 @@ In all cases package.json files should have:
 }
 ```
 
-For Vue/Vite we need a different build command that leverages vite and vue-tsc:
+For Vite/Vue we need a different build command that uses Vite and `vue-tsc`:
 
 ```json
 "scripts": {
@@ -34,12 +43,11 @@ For Vue/Vite we need a different build command that leverages vite and vue-tsc:
 
 ## Rollup
 
-For non Vue projects we use Rollup for builds. Generally speaking rollup has better management of treeshaking.
+For non-Vue projects, we use Rollup for builds due to its superior tree-shaking capabilities. This approach optimizes our bundle size.
 
-Our rollup config support json, yaml, and css import by default.
-Static files can be copied over by supplying entries to the `copy` parameter
+Our Rollup configuration provides out-of-the-box support for importing JSON, YAML, and CSS files. Additionally, you can easily copy static files by specifying entries in the `copy` parameter.
 
-A basic `rollup.config.ts` file looks like:
+Here’s an example of a basic `rollup.config.ts` file:
 
 ```typescript
 import type { RollupOptions } from 'rollup'
@@ -47,23 +55,29 @@ import type { RollupOptions } from 'rollup'
 import { createRollupConfig } from './src/rollup-options'
 
 const options: RollupOptions = {
+  // Specify the entry point(s) for your build
   input: ['./src/index.ts'],
-  // OR for nested exports with ts support
+  // Alternative: Use findEntryPoints for multiple entry points with TypeScript and CSS support
   // input: await findEntryPoints({ allowCss: true }),
   ...createRollupConfig({
-    // Needed to enable explicit typescript (which Vite does not need)
+    // Enable TypeScript support
     typescript: true,
+
+    // Additional options can be added here to customize the build
   }),
 }
 
+// Export the Rollup configuration
 export default options
 ```
 
 ## Vite
 
-For Vue projects we use Vite to build production code. All the same rollup options can be passed through.
+For Vue projects, we use Vite to build production code. Vite offers superior performance and a more streamlined development experience compared to traditional build tools.
 
-A basic Vite implementation might look like:
+While Vite uses Rollup under the hood for production builds, it provides additional optimizations and features specifically tailored for Vue projects. Most Rollup options can still be passed through, allowing for fine-grained control over the build process.
+
+A basic Vite configuration for a Vue project might look like this:
 
 ```typescript
 import {

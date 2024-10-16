@@ -1,4 +1,4 @@
-# Scalar Fastify API Reference Plugin
+# Scalar for Fastify
 
 [![Version](https://img.shields.io/npm/v/%40scalar/fastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/fastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
@@ -90,3 +90,11 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
   },
 })
 ```
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

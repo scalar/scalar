@@ -145,3 +145,11 @@ import '@scalar/api-reference/style.css'
 ```
 
 You can [pass props to customize the API reference](https://github.com/scalar/scalar/tree/main/documentation/configuration.md).
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
