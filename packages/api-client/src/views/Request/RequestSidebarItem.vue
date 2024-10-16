@@ -51,6 +51,7 @@ defineSlots<{
 }>()
 
 const {
+  activeCollection,
   activeRequest,
   activeRouterParams,
   activeWorkspace,
@@ -381,7 +382,12 @@ function openCommandPaletteRequest() {
               :sideOffset="7">
               <template #trigger>
                 <ScalarIcon
-                  class="text-c-3 text-sm"
+                  class="text-sm"
+                  :class="
+                    activeCollection?.uid === item.entity.uid
+                      ? 'text-c-1'
+                      : 'text-c-3'
+                  "
                   icon="Watch"
                   size="sm"
                   thickness="2.5" />
@@ -390,10 +396,10 @@ function openCommandPaletteRequest() {
                 <div
                   class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
                   <div class="flex items-center text-c-2">
-                    <span class="text-pretty"
-                      >Your Open API document is being monitored for changes to
-                      ensure the collection remains up to date</span
-                    >
+                    <span class="text-pretty">
+                      Your Open API document is being monitored for changes to
+                      ensure the collection remains up to date
+                    </span>
                   </div>
                 </div>
               </template>
