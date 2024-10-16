@@ -364,11 +364,17 @@ export type RequestBody = {
   content?: RequestBodyMimeTypes
 }
 
-/** For providing a OAS spec object or url to be fetched */
+/** The OpenAPI Document we’ll render */
 export type SpecConfiguration = {
-  /** URL to a Swagger/OpenAPI file */
+  /**
+   * URL to an OpenAPI/Swagger document
+   */
   url?: string
-  /** Swagger/Open API spec */
+  /**
+   * Directly embed the OpenAPI document in the HTML.
+   *
+   * @deprecated It’s recommended to pass an `url` instead of `content`.
+   */
   content?: string | Record<string, any> | (() => Record<string, any>)
 }
 
