@@ -851,9 +851,6 @@ importers:
       '@scalar/use-tooltip':
         specifier: workspace:*
         version: link:../use-tooltip
-      '@unhead/schema':
-        specifier: ^1.9.5
-        version: 1.9.13
       '@unhead/vue':
         specifier: ^1.9.13
         version: 1.9.13(vue@3.5.12(typescript@5.6.2))
@@ -872,12 +869,6 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
-      unhead:
-        specifier: ^1.8.3
-        version: 1.9.13
-      unified:
-        specifier: ^11.0.4
-        version: 11.0.4
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
@@ -1603,9 +1594,6 @@ importers:
       hono:
         specifier: ^4.6.5
         version: 4.6.5
-      tsup:
-        specifier: ^7.2.0
-        version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2))(typescript@5.6.2)
       vite:
         specifier: ^5.2.10
         version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)

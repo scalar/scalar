@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import '@scalar/api-reference/style.css'
 import { onMounted, reactive, ref } from 'vue'
 
 import { ApiReference, type ReferenceConfiguration } from '../../../src'
