@@ -1,4 +1,29 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
+import type {
+  RequestMethod,
+  RequestParameterPayload,
+} from '@scalar/oas-utils/entities/spec'
+
+/** Define curlCommandResult type */
+type CurlCommandResult = {
+  method: RequestMethod
+  url: string
+  path: string
+  headers: Record<string, string>
+  servers?: Array<string>
+  requestBody?: {
+    content: {
+      [contentType: string]: {
+        schema: {
+          type: string
+          properties: Record<string, { type: string }>
+        }
+        example: Record<string, string>
+      }
+    }
+  }
+  parameters: RequestParameterPayload[]
+}
 
 /** Data parsing for request body */
 function parseData(data: string): Record<string, any> {
@@ -17,15 +42,15 @@ function parseData(data: string): Record<string, any> {
 }
 
 /** Make a usable object from a curl command to create a request */
-export function importCurlCommand(curlCommand: string): object {
+export function importCurlCommand(curlCommand: string): CurlCommandResult {
   const parsedCommand = parseCurlCommand(curlCommand)
   const {
-    method,
+    method = 'get',
     url,
     body = '',
     headers = {},
     servers,
-    queryParameters,
+    queryParameters = [],
   } = parsedCommand
   const path = new URL(url).pathname
   const contentType =
@@ -34,13 +59,29 @@ export function importCurlCommand(curlCommand: string): object {
       : headers['Content-Type'] || 'application/json'
   const requestBody = body ? parseData(body) : {}
 
+  // Create parameters following request schema
+  const parameters = [
+    ...(Array.isArray(queryParameters)
+      ? queryParameters.map(({ key, value }) => ({
+          name: key,
+          in: 'query',
+          schema: { type: typeof value, examples: [value] },
+        }))
+      : []),
+    ...Object.entries(headers || {}).map(([key, value]) => ({
+      name: key,
+      in: 'header',
+      schema: { type: typeof value },
+      example: value,
+    })),
+  ] as RequestParameterPayload[]
+
   return {
     method,
     url,
     path,
     headers,
     servers: servers,
-    queryParameters: queryParameters,
     ...(Object.keys(requestBody).length > 0 && {
       requestBody: {
         content: {
@@ -59,15 +100,6 @@ export function importCurlCommand(curlCommand: string): object {
         },
       },
     }),
-    ...(Object.keys(headers).length > 0 && {
-      parameters: Object.entries(headers).map(([key, value]) => ({
-        name: key,
-        in: 'header',
-        schema: {
-          type: 'string',
-        },
-        example: value,
-      })),
-    }),
+    parameters,
   }
 }

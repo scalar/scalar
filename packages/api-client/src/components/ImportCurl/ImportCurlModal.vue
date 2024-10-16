@@ -61,7 +61,8 @@ watch(
     <ScalarTextField
       v-model="requestName"
       autofocus
-      placeholder="Request Name" />
+      placeholder="Request Name"
+      @keyup.enter="handleImportClick" />
     <div
       class="border flex flex-row gap-2 h-10 items-center my-4 p-[3px] rounded text-sm">
       <div class="flex h-full">
