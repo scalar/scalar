@@ -7,6 +7,13 @@ export async function resolve(
 ): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
+    // Transform GitHub URLs to raw file URLs
+    const githubRawUrl = transformGitHubUrl(value)
+
+    if (githubRawUrl) {
+      return githubRawUrl
+    }
+
     // https://*.json
     if (value?.toLowerCase().endsWith('.json')) {
       return value
@@ -163,4 +170,20 @@ function decodeHtmlEntities(text: string): string {
     new RegExp(Object.keys(entities).join('|'), 'g'),
     (match) => entities[match as keyof typeof entities],
   )
+}
+
+/**
+ * Transform GitHub URLs to raw file URLs, preserving the branch information
+ */
+function transformGitHubUrl(url: string): string | undefined {
+  const githubRegex =
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
+  const match = url.match(githubRegex)
+
+  if (match) {
+    const [, owner, repo, branch, path] = match
+    return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}/${path}`
+  }
+
+  return undefined
 }

@@ -236,4 +236,14 @@ describe('resolve', () => {
       components: { schemas: {} },
     })
   })
+
+  it.only('transforms GitHub URLs to raw file URLs', async () => {
+    const result = await resolve(
+      'https://github.com/outline/openapi/blob/main/spec3.yml',
+    )
+
+    expect(result).toBe(
+      'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
+    )
+  })
 })
