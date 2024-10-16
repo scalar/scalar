@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { useRouter } from 'vue-router'

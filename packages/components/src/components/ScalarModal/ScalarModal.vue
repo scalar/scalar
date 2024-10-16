@@ -23,6 +23,7 @@ withDefaults(
     variant?: ModalVariants['variant']
   }>(),
   {
+    alignment: 'top',
     size: 'md',
   },
 )
@@ -30,7 +31,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 mt-20 w-[calc(100vw-16px)] rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 lg:w-[calc(100vw-32px)]',
+    'col relative mx-auto mb-0 w-[calc(100vw-16px)] rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
@@ -73,8 +74,9 @@ const body = cva({
 })
 </script>
 <script lang="ts">
-export const useModal = () =>
-  reactive({
+/** Hook for creating a reactive modal state */
+export function useModal() {
+  return reactive({
     open: false,
     show() {
       this.open = true
@@ -83,6 +85,7 @@ export const useModal = () =>
       this.open = false
     },
   })
+}
 </script>
 <template>
   <Dialog
