@@ -598,6 +598,9 @@ importers:
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
+      microdiff:
+        specifier: ^1.4.0
+        version: 1.4.0
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
