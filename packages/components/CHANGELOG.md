@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.55
+
+### Patch Changes
+
+- 971c04c: feat(api-client): create custom workspace selector
+  - @scalar/code-highlight@0.0.13
+
 ## 0.12.54
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.57
+
+### Patch Changes
+
+- 4738228: feat: make collection.info.version optional
+- Updated dependencies [dbbe38f]
+- Updated dependencies [4b8b611]
+  - @scalar/types@0.0.16
+  - @scalar/themes@0.9.38
+
 ## 0.2.56
 
 ### Patch Changes

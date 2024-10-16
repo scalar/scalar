@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.7
+
+### Patch Changes
+
+- 6394a5d: chore: switch to @scalar/build-tooling
+
 ## 0.8.6
 
 ### Patch Changes

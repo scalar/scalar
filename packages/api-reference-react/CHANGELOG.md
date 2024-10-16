@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.3.114
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+- Updated dependencies [59d3931]
+  - @scalar/api-reference@1.25.38
+
 ## 0.3.113
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/hono-api-reference
 
+## 0.5.155
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- 59d3931: chore: remove unused dependencies
+- Updated dependencies [dbbe38f]
+  - @scalar/types@0.0.16
+
 ## 0.5.154
 
 ### Patch Changes
