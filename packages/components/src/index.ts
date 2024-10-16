@@ -32,6 +32,7 @@ import {
   ScalarSearchResultList,
 } from './components/ScalarSearchResults'
 import { ScalarTextField } from './components/ScalarTextField'
+import { ScalarToggle } from './components/ScalarToggle'
 import { ScalarTooltip } from './components/ScalarTooltip'
 import { ScalarVirtualText } from './components/ScalarVirtualText'
 import './tailwind/tailwind.css'
@@ -59,6 +60,7 @@ export {
   ScalarSearchResultItem,
   ScalarSearchResultList,
   ScalarTextField,
+  ScalarToggle,
   ScalarTooltip,
   ScalarVirtualText,
   type Icon,
