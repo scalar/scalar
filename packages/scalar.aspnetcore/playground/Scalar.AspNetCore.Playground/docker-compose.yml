@@ -9,3 +9,7 @@ services:
     volumes:
       - ./playground-realm.json:/opt/keycloak/data/import/playground-realm.json
     command: start-dev --import-realm
+# Username: user
+# Password: user
+# Client-Id: app
+# Client-Secret: lwWnJCyLUdbwflOUu9FmMQrBQiG9ZqlO
