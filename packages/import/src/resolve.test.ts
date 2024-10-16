@@ -237,7 +237,7 @@ describe('resolve', () => {
     })
   })
 
-  it.only('transforms GitHub URLs to raw file URLs', async () => {
+  it('transforms GitHub URLs to raw file URLs', async () => {
     const result = await resolve(
       'https://github.com/outline/openapi/blob/main/spec3.yml',
     )
