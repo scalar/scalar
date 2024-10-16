@@ -15,7 +15,7 @@ npm install @scalar/import
 
 ## Usage
 
-### Find any OpenAPI/Swagger document URL
+Find any OpenAPI/Swagger document URL in any content:
 
 ```ts
 import { resolve } from '@scalar/import'
@@ -36,6 +36,19 @@ const result = await resolve('https://petstore.swagger.io/')
 - Works with different quote styles and data attribute formats
 - Robust error handling for various HTML structures
 - Handles Scalar Sandbox URLs
+
+### Examples
+
+| Input                                                                  | Output                                              | Description                                                          |
+| ---------------------------------------------------------------------- | --------------------------------------------------- | -------------------------------------------------------------------- |
+| https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json           | Same as input                                       | Returns JSON URLs as-is                                              |
+| https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml or \*.yml | Same as input                                       | Returns YAML URLs as-is                                              |
+| https://sandbox.scalar.com/p/dlw8v                                     | https://sandbox.scalar.com/files/dlw8v/openapi.yaml | Resolves sandbox URLs to specific file paths                         |
+| HTML with data-url attribute                                           | URL from data-url attribute                         | Extracts URL from HTML script tag with data-url attribute            |
+| HTML with relative URL `/openapi.yaml`                                 | https://example.com/openapi.yaml                    | Resolves relative URLs to absolute URLs                              |
+| HTML with JSON configuration                                           | URL from JSON configuration                         | Extracts URL from JSON configuration in data-configuration attribute |
+| Redoc HTML                                                             | URL from spec-url attribute                         | Extracts URL from Redoc’s spec-url attribute                         |
+| HTML with embedded OpenAPI                                             | Parsed OpenAPI object                               | Extracts and parses embedded OpenAPI JSON from HTML                  |
 
 ## Community
 

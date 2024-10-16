@@ -452,16 +452,27 @@ async function openAppLink(appLink?: string) {
   }
 
   // Find the exact OpenAPI document URL
-  const openApiDocumentUrl = await resolve(url)
+  const documentOrUrl = await resolve(url)
 
-  if (!openApiDocumentUrl) {
+  if (!documentOrUrl) {
     console.error('Could not find an OpenAPI document URL')
     return
   }
 
-  // Fetch OpenAPI document
-  console.log(`Fetching ${openApiDocumentUrl} …`)
-  const result = await fetch(openApiDocumentUrl)
+  // OpenAPI document
+  if (typeof documentOrUrl === 'object') {
+    // Get first browser window
+    const [mainWindow] = BrowserWindow.getAllWindows()
+
+    // Send to renderer process
+    mainWindow.webContents.send('importFile', documentOrUrl)
+
+    return
+  }
+
+  // Fetch OpenAPI document URL
+  console.log(`Fetching ${documentOrUrl} …`)
+  const result = await fetch(documentOrUrl)
 
   // Error handling
   if (!result.ok) {
