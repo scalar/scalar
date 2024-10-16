@@ -6,5 +6,5 @@ internal struct AuthConstants
 
     internal const string Bearer = "Bearer";
     
-    internal const string KeycloakUrl = "http://localhost:8080/realms/master";
+    internal const string KeycloakUrl = "http://localhost:8081/realms/playground";
 }

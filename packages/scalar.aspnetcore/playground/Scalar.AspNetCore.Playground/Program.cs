@@ -12,7 +12,10 @@ builder.Services.AddOpenApi(options =>
 {
     var tokenUrl = new Uri($"{AuthConstants.KeycloakUrl}/protocol/openid-connect/token");
     var authorizationUrl = new Uri($"{AuthConstants.KeycloakUrl}/protocol/openid-connect/auth");
-    
+    var scopes = new Dictionary<string, string>
+    {
+        { "profile", "Access to the profile" }
+    };
     // Adds Bearer security scheme to the api
     options.AddSecurityScheme(AuthConstants.Bearer, scheme =>
     {
@@ -23,27 +26,23 @@ builder.Services.AddOpenApi(options =>
             AuthorizationCode = new OpenApiOAuthFlow
             {
                 TokenUrl = tokenUrl,
-                AuthorizationUrl = authorizationUrl
+                AuthorizationUrl = authorizationUrl,
+                Scopes = scopes
             },
             Password = new OpenApiOAuthFlow
             {
-                TokenUrl = tokenUrl
+                TokenUrl = tokenUrl,
+                Scopes = scopes
             },
             Implicit = new OpenApiOAuthFlow
             {
                 AuthorizationUrl = authorizationUrl,
-                Scopes = new Dictionary<string, string>
-                {
-                    {"profile", "Access to the profile"}
-                }
+                Scopes = scopes
             },
             ClientCredentials = new OpenApiOAuthFlow
             {
                 TokenUrl = tokenUrl,
-                Scopes = new Dictionary<string, string>
-                {
-                    {"profile", "Access to the profile"}
-                }
+                Scopes = scopes
             }
         };
     });
@@ -71,9 +70,8 @@ app.MapOpenApi();
 app.UseSwaggerUI(x =>
 {
     x.SwaggerEndpoint("/openapi/v1.json", "My API V1");
-    x.OAuthConfigObject.Username = "user";
     x.OAuthConfigObject.ClientId = "app";
-    x.OAuthConfigObject.ClientSecret = "9GVsUCX1EoCYHfzjBl0jomQNhCeFnyBs";
+    x.OAuthConfigObject.ClientSecret = "lwWnJCyLUdbwflOUu9FmMQrBQiG9ZqlO";
 });
 
 app.MapScalarApiReference(options =>
@@ -83,8 +81,6 @@ app.MapScalarApiReference(options =>
         .WithTitle("My title")
         .WithTheme(ScalarTheme.Mars)
         .WithFavicon("/favicon.png")
-        .WithSearchHotKey("s")
-        .WithDownloadButton(false)
         .WithPreferredScheme(AuthConstants.Bearer)
         .WithOAuth2Authentication(x =>
         {
