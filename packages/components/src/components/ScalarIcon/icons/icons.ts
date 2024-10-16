@@ -79,6 +79,7 @@ export const ICONS = [
   'User',
   'Users',
   'Wallet',
+  'Watch',
   'Workspace',
   'programming-framework-angular',
   'programming-framework-astro',
