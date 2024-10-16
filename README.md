@@ -181,7 +181,7 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ### Contributions
 
-Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/scalar/blob/main/CONTRIBUTING) guide.
+Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
 
 **Top 10 Contributors (September 2024)**
 
