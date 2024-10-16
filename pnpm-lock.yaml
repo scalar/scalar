@@ -629,9 +629,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@types/content-type':
-        specifier: ^1.1.8
-        version: 1.1.8
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
@@ -6732,9 +6729,6 @@ packages:
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
-
-  '@types/content-type@1.1.8':
-    resolution: {integrity: sha512-1tBhmVUeso3+ahfyaKluXe38p+94lovUZdoVfQ3OnJo9uJC42JT7CBoN3k9HYhAae+GwiBYmHu+N9FZhOG+2Pg==}
 
   '@types/cookie-parser@1.4.7':
     resolution: {integrity: sha512-Fvuyi354Z+uayxzIGCwYTayFKocfV7TuDYZClCdIP9ckhvAu/ixDtCB6qx2TT0FKjPLf1f3P/J1rgf6lPs64mw==}
@@ -24589,8 +24583,6 @@ snapshots:
   '@types/connect@3.4.38':
     dependencies:
       '@types/node': 20.14.10
-
-  '@types/content-type@1.1.8': {}
 
   '@types/cookie-parser@1.4.7':
     dependencies:
