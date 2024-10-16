@@ -2,6 +2,8 @@
 
 Laravel Scribe is an amazing package to generate OpenAPI files from your existing code base. Clumsy annotations aren’t required, the package will just analyze your code.
 
+> Note: There’s also [Scalar for Laravel](https://github.com/scalar/laravel), which doesn’t come with OpenAPI generation, but renders existing OpenAPI documents.
+
 ## Create a new Laravel project (optional)
 
 If you’re starting fresh, download the Laravel installer with composer:
