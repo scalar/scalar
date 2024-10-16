@@ -33,10 +33,11 @@ useHead({
   },
 })
 
-// Add baseServerURL
+// Add baseServerURL and _integration
 const { origin } = useRequestURL()
 const config = {
   baseServerURL: origin,
+  _integration: 'nuxtjs',
   ...props.configuration,
 }
 </script>
