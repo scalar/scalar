@@ -223,7 +223,7 @@ export type ReferenceConfiguration = {
     | null
     | 'adonisjs'
     | 'docusaurus' // ✅
-    | 'dotnet' // ✅
+    | 'dotnet'
     | 'elysiajs'
     | 'express' // ✅
     | 'fastapi' // ✅
