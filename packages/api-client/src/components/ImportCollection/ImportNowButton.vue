@@ -28,6 +28,7 @@ async function importCollection() {
           props.source,
           undefined,
           undefined,
+          undefined,
           activeWorkspace.value.uid,
         )
         redirectToFirstRequestInCollection(collection)
