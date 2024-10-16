@@ -23,11 +23,14 @@ const getConfiguration = (): ReferenceConfiguration => {
       configurationScriptElement.getAttribute('data-configuration')
 
     if (configurationFromElement) {
-      return JSON.parse(configurationFromElement.split('&quot;').join('"'))
+      return {
+        _integration: 'html',
+        ...JSON.parse(configurationFromElement.split('&quot;').join('"')),
+      }
     }
   }
 
-  return {}
+  return { _integration: 'html' }
 }
 
 const getSpecUrl = () => {
@@ -116,6 +119,7 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
 
   Object.assign(props, {
     configuration: {
+      _integration: 'html',
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
       proxy: getProxyUrl(),
