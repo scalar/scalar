@@ -232,19 +232,19 @@ Contributions are welcome! Read the [`CONTRIBUTING`](https://github.com/scalar/s
                 </a>
             </td>
             <td align="center">
-                <a href="https://github.com/hwkr">
-                    <img src="https://avatars.githubusercontent.com/u/6374090?v=4" width="100;" alt="hwkr"/>
+                <a href="https://github.com/antlio">
+                    <img src="https://avatars.githubusercontent.com/u/14966155?v=4" width="100;" alt="antlio"/>
                     <br />
-                    <sub><b>hwkr</b></sub>
+                    <sub><b>antlio</b></sub>
                 </a>
             </td>
 		</tr>
 		<tr>
             <td align="center">
-                <a href="https://github.com/antlio">
-                    <img src="https://avatars.githubusercontent.com/u/14966155?v=4" width="100;" alt="antlio"/>
+                <a href="https://github.com/hwkr">
+                    <img src="https://avatars.githubusercontent.com/u/6374090?v=4" width="100;" alt="hwkr"/>
                     <br />
-                    <sub><b>antlio</b></sub>
+                    <sub><b>hwkr</b></sub>
                 </a>
             </td>
             <td align="center">
