@@ -2,4 +2,4 @@
 '@scalar/openapi-parser': patch
 ---
 
-chore: add fallback exports
+chore: switch to @scalar/build-tooling
