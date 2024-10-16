@@ -7,7 +7,7 @@ describe('createApiClientModal', () => {
     const element = document.createElement('div')
     expect(element).not.toBeNull()
 
-    expect(element.innerHTML).not.toContain('Search commands')
+    expect(element.innerHTML).not.toContain('scalar-app')
 
     await createApiClientModal(element, {
       proxyUrl: 'https://proxy.scalar.com',

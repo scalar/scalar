@@ -14,8 +14,8 @@ import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, watch } from 'vue'
 
-import { WorkspaceDropdown } from '../../views/Request/components'
 import ImportNowButton from './ImportNowButton.vue'
+import WorkspaceSelector from './WorkspaceSelector.vue'
 
 // import OpenAppButton from './OpenAppButton.vue'
 
@@ -133,7 +133,7 @@ watch(
         <!-- Select the workspace -->
         <div class="flex justify-center">
           <div class="inline-block py-1 px-4">
-            <WorkspaceDropdown />
+            <WorkspaceSelector />
           </div>
         </div>
       </div>
@@ -153,8 +153,8 @@ watch(
               Download Scalar App
             </a>
             <br />
-            Offline First - Open Source</span
-          >
+            Offline First - Open Source
+          </span>
         </div>
       </div>
     </div>

@@ -41,6 +41,7 @@ export type CommandPaletteEvent = {
 
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -219,98 +220,96 @@ onBeforeUnmount(() => {
 })
 </script>
 <template>
-  <div
-    v-show="modalState.open"
-    class="commandmenu-clickout z-overlay"
-    @click="closeHandler()"></div>
-
-  <div
-    v-show="modalState.open"
-    class="commandmenu z-overlay custom-scroll">
-    <!-- Default palette (command list) -->
-    <template v-if="!activeCommand">
-      <div
-        class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
-        <label for="commandmenu">
-          <ScalarIcon
-            class="text-c-2 mr-2.5"
-            icon="Search"
-            size="md"
-            thickness="1.5" />
-        </label>
-        <input
-          id="commandmenu"
-          ref="commandInputRef"
-          v-model="commandQuery"
-          autocomplete="off"
-          autofocus
-          class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
-          placeholder="Search commands..."
-          type="text"
-          @keydown.down.stop="handleArrowKey('down', $event)"
-          @keydown.enter.stop="handleSelect"
-          @keydown.up.stop="handleArrowKey('up', $event)" />
-      </div>
-      <template
-        v-for="group in availableCommands"
-        :key="group.label">
+  <Dialog
+    :open="modalState.open"
+    @close="closeHandler()">
+    <div class="commandmenu-overlay z-overlay" />
+    <DialogPanel class="commandmenu z-overlay custom-scroll">
+      <DialogTitle class="sr-only">API Client Command Menu</DialogTitle>
+      <!-- Default palette (command list) -->
+      <template v-if="!activeCommand">
         <div
-          v-show="
-            group.commands.filter((command) =>
-              command.name.toLowerCase().includes(commandQuery.toLowerCase()),
-            ).length > 0
-          "
-          class="text-c-3 font-medium text-xs px-2 mb-1 mt-2">
-          {{ group.label }}
+          class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
+          <label for="commandmenu">
+            <ScalarIcon
+              class="text-c-2 mr-2.5"
+              icon="Search"
+              size="md"
+              thickness="1.5" />
+          </label>
+          <input
+            id="commandmenu"
+            ref="commandInputRef"
+            v-model="commandQuery"
+            autocomplete="off"
+            autofocus
+            class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
+            placeholder="Search commands..."
+            type="text"
+            @keydown.down.stop="handleArrowKey('down', $event)"
+            @keydown.enter.stop="handleSelect"
+            @keydown.up.stop="handleArrowKey('up', $event)" />
         </div>
+        <template
+          v-for="group in availableCommands"
+          :key="group.label">
+          <div
+            v-show="
+              group.commands.filter((command) =>
+                command.name.toLowerCase().includes(commandQuery.toLowerCase()),
+              ).length > 0
+            "
+            class="text-c-3 font-medium text-xs px-2 mb-1 mt-2">
+            {{ group.label }}
+          </div>
+          <div
+            v-for="(command, index) in group.commands.filter((command) =>
+              command.name.toLowerCase().includes(commandQuery.toLowerCase()),
+            )"
+            :key="command.name"
+            :ref="
+              (el) => {
+                if (el) commandRefs[index] = el as HTMLElement
+              }
+            "
+            class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
+            :class="{
+              'bg-b-2': command.name === selectedCommand?.name,
+            }"
+            @click="executeCommand(command)">
+            <ScalarIcon
+              class="text-c-2 mr-2.5"
+              :icon="command.icon"
+              size="md"
+              thickness="1.5" />
+            {{ command.name }}
+          </div>
+        </template>
         <div
-          v-for="(command, index) in group.commands.filter((command) =>
-            command.name.toLowerCase().includes(commandQuery.toLowerCase()),
-          )"
-          :key="command.name"
-          :ref="
-            (el) => {
-              if (el) commandRefs[index] = el as HTMLElement
-            }
-          "
-          class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
-          :class="{
-            'bg-b-2': command.name === selectedCommand?.name,
-          }"
-          @click="executeCommand(command)">
-          <ScalarIcon
-            class="text-c-2 mr-2.5"
-            :icon="command.icon"
-            size="md"
-            thickness="1.5" />
-          {{ command.name }}
+          v-if="!searchResultsWithPlaceholderResults.length"
+          class="text-c-3 text-center text-sm p-2 pt-3">
+          No commands found
         </div>
       </template>
-      <div
-        v-if="!searchResultsWithPlaceholderResults.length"
-        class="text-c-3 text-center text-sm p-2 pt-3">
-        No commands found
-      </div>
-    </template>
-
-    <!-- Specific command palette -->
-    <template v-else>
-      <button
-        class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.25 z-1"
-        type="button"
-        @click="activeCommand = null">
-        <ScalarIcon
-          icon="ChevronLeft"
-          size="md"
-          thickness="1.5" />
-      </button>
-      <component
-        :is="PaletteComponents[activeCommand]"
-        v-bind="metaData ? { metaData: metaData } : {}"
-        @back="backHandler($event)"
-        @close="closeHandler" />
-    </template>
-  </div>
+      <!-- Specific command palette -->
+      <template v-else>
+        <button
+          class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.25 z-1"
+          type="button"
+          @click="activeCommand = null">
+          <ScalarIcon
+            icon="ChevronLeft"
+            size="md"
+            thickness="1.5" />
+        </button>
+        <component
+          :is="PaletteComponents[activeCommand]"
+          v-bind="metaData ? { metaData: metaData } : {}"
+          @back="backHandler($event)"
+          @close="closeHandler" />
+      </template>
+    </DialogPanel>
+  </Dialog>
 </template>
 <style scoped>
 /* command menu */
@@ -331,14 +330,11 @@ onBeforeUnmount(() => {
   animation: fadeincommandmenu ease-in-out 0.3s forwards;
   animation-delay: 0.1s;
 }
-.commandmenu-clickout {
+.commandmenu-overlay {
+  position: fixed;
+  inset: 0;
   background: rgba(0, 0, 0, 0.2);
   animation: fadeincommand ease-in-out 0.3s forwards;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
   cursor: pointer;
 }
 @keyframes fadeincommand {
