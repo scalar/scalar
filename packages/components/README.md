@@ -1,8 +1,8 @@
-# Scalar's Component Library
+# Scalar Components
 
-Scalars internal component library now open sourced and [almost] ready to use! it's besed used with our themeing library OR if you want you can simply set the css vars yourself. Refer to the variable legend below. This project is still very early!
+This library is designed to work seamlessly with our theming system, but it’s also flexible enough for standalone use by setting CSS variables manually. For a list of available variables, please refer to the variable legend below.
 
-## Install
+## Installation
 
 ```bash
 pnpm i @scalar/components
@@ -10,13 +10,13 @@ pnpm i @scalar/components
 
 ## Usage
 
-In your main setup file (main.ts etc)
+To get started, import the CSS styles in your main setup file (e.g., main.ts, index.ts, or App.vue):
 
 ```ts
 import '@scalar/components/style.css'
 ```
 
-Then to use the components
+Then, you can use the components in your Vue components. Here’s an example:
 
 ```vue
 <script setup lang="ts">
@@ -40,7 +40,7 @@ import { ScalarButton, ScalarTextField } from '@scalar/components'
 
 ## CSS Layers
 
-This package exports its' tailwind styles in the following CSS cascade layers to make them easy to overwrite.
+This package exports its Tailwind styles using CSS cascade layers to avoid any conflicts with existing CSS. The layers are organized as follows:
 
 - `scalar-base`: reset and normalize
 - `scalar-components`: complex component styles

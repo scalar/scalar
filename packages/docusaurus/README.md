@@ -103,3 +103,11 @@ Path at which the API Reference will be shown
 You can find the full configuration options under
 [packages/api-reference](https://github.com/scalar/scalar/tree/main/packages/api-reference)
 minus theme.
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
