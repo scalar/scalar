@@ -173,6 +173,12 @@ const fastifyApiReference = fp<
   async (fastify, options) => {
     let { configuration } = options
 
+    // Add _integration: 'fastify' to the configuration
+    configuration = {
+      _integration: 'fastify',
+      ...configuration,
+    }
+
     const specSource = (() => {
       const { content, url } = configuration?.spec ?? {}
       if (content)
@@ -319,6 +325,7 @@ const fastifyApiReference = fp<
          */
         if (specSource.type !== 'url') {
           configuration = {
+            _integration: 'fastify',
             ...configuration,
             spec: {
               // Use a relative URL in case we're proxied
@@ -330,6 +337,7 @@ const fastifyApiReference = fp<
         // Add the default CSS
         if (!configuration?.customCss && !configuration?.theme) {
           configuration = {
+            _integration: 'fastify',
             ...configuration,
             customCss: defaultCss,
           }
