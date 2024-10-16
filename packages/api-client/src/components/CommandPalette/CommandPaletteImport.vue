@@ -26,7 +26,7 @@ const { toast } = useToasts()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const watchForChanges = ref(false)
+const watchForChanges = ref(true)
 
 const documentDetails = computed(() =>
   getOpenApiDocumentDetails(inputContent.value),
