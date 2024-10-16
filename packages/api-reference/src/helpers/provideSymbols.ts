@@ -1,3 +1,4 @@
+import type { ReferenceConfiguration } from '@/types'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { InjectionKey } from 'vue'
 
@@ -21,4 +22,8 @@ export const HIDE_TEST_REQUEST_BUTTON_SYMBOL = Symbol() as InjectionKey<
 
 export const OPENAPI_DOCUMENT_URL_SYMBOL = Symbol() as InjectionKey<
   () => string | undefined
+>
+
+export const INTEGRATION_SYMBOL = Symbol() as InjectionKey<
+  () => ReferenceConfiguration['_integration']
 >

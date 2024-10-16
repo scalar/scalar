@@ -1,4 +1,5 @@
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { defaultConfig } from 'next/dist/server/config-shared'
 
 import { nextjsThemeCss } from './theme'
 
@@ -49,8 +50,16 @@ export const ApiReference = (config: ApiReferenceOptions) => {
     ? config.cdn
     : 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest'
 
+  // Add _integration: 'nextjs' to the configuration, but allow user to overwrite.
+  const defaultConfiguration = {
+    _integration: 'nextjs',
+  }
+
   // Convert the configuration to a string
-  const configString = JSON.stringify(config ?? {})
+  const configString = JSON.stringify({
+    ...defaultConfiguration,
+    ...(config ?? {}),
+  })
     .split('"')
     .join('&quot;')
 

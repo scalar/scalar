@@ -116,11 +116,18 @@ export const customThemeCSS = `
  * The HTML to load the @scalar/api-reference JavaScript package.
  */
 export const javascript = (configuration: ApiReferenceOptions) => {
+  const defaultConfiguration: Partial<ReferenceConfiguration> = {
+    _integration: 'hono',
+  }
+
   return html`
     <script
       id="api-reference"
       type="application/json"
-      data-configuration="${JSON.stringify(configuration)
+      data-configuration="${JSON.stringify({
+        ...defaultConfiguration,
+        ...configuration,
+      })
         .split('"')
         .join('&quot;')}">
       ${raw(

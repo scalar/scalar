@@ -206,6 +206,41 @@ export type ReferenceConfiguration = {
     | 'alpha'
     | 'method'
     | ((a: TransformedOperation, b: TransformedOperation) => number)
+  /**
+   * Specifies the integration being used. This is primarily for internal purposes and should not be manually set.
+   *
+   * It’s used to:
+   * 1. Display debug information in the console.
+   * 2. Show a custom logo when importing OpenAPI documents in the Scalar App.
+   *
+   * Each supported integration has a unique identifier (e.g., 'express', 'nextjs', 'vue').
+   *
+   * To explicitly disable this feature, you can pass `null`.
+   *
+   * @private
+   */
+  _integration?:
+    | null
+    | 'adonisjs'
+    | 'docusaurus' // ✅
+    | 'dotnet'
+    | 'elysiajs'
+    | 'express' // ✅
+    | 'fastapi' // ✅
+    | 'fastify' // ✅
+    | 'go'
+    | 'hono' // ✅
+    | 'html' // ✅
+    | 'laravel'
+    | 'litestar'
+    | 'nestjs' // ✅
+    | 'nextjs' // ✅
+    | 'nitro'
+    | 'nuxt' // ✅
+    | 'platformatic'
+    | 'react' // ✅
+    | 'rust'
+    | 'vue' // ✅
 }
 
 export type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject

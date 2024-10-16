@@ -272,6 +272,15 @@ def get_scalar_api_reference(
             """
         ),
     ] = False,
+    integration: Annotated[
+        str | None,
+        Doc(
+            """
+            The integration type. Default is 'fastapi'.
+            Set to None or a different value to override.
+            """
+        ),
+    ] = 'fastapi',
 ) -> HTMLResponse:
     html = f"""
     <!DOCTYPE html>
@@ -311,6 +320,7 @@ def get_scalar_api_reference(
         hiddenClients: {json.dumps(hidden_clients)},
         servers: {json.dumps(servers)},
         defaultOpenAllTags: {json.dumps(default_open_all_tags)},
+        _integration: {json.dumps(integration)},
       }}
 
       document.getElementById('api-reference').dataset.configuration =

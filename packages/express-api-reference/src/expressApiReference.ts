@@ -107,21 +107,28 @@ export const customThemeCSS = `
 /**
  * The HTML to load the @scalar/api-reference package.
  */
-export const ApiReference = (options: ApiReferenceOptions) => {
+export const ApiReference = (configuration: ApiReferenceOptions) => {
+  const defaultConfiguration: Partial<ReferenceConfiguration> = {
+    _integration: 'express',
+  }
+
   return `
     <script
       id="api-reference"
       type="application/json"
-      data-configuration="${JSON.stringify(options)
+      data-configuration="${JSON.stringify({
+        ...defaultConfiguration,
+        ...configuration,
+      })
         .split('"')
         .join('&quot;')}">${
-        options.spec?.content
-          ? typeof options.spec?.content === 'function'
-            ? JSON.stringify(options.spec?.content())
-            : JSON.stringify(options.spec?.content)
+        configuration.spec?.content
+          ? typeof configuration.spec?.content === 'function'
+            ? JSON.stringify(configuration.spec?.content())
+            : JSON.stringify(configuration.spec?.content)
           : ''
       }</script>
-      <script src="${options.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
+      <script src="${configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
   `
 }
 

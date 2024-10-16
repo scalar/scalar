@@ -27,6 +27,7 @@ import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
+  INTEGRATION_SYMBOL,
   OPENAPI_DOCUMENT_URL_SYMBOL,
   downloadSpecBus,
   downloadSpecFile,
@@ -249,6 +250,11 @@ provide(
   () => props.configuration.hideTestRequestButton,
 )
 provide(OPENAPI_DOCUMENT_URL_SYMBOL, () => props.configuration.spec?.url)
+provide(INTEGRATION_SYMBOL, () =>
+  props.configuration._integration !== null
+    ? props.configuration._integration
+    : 'vue',
+)
 
 hideModels.value = props.configuration.hideModels ?? false
 defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
