@@ -37,11 +37,11 @@ const envs = computed(() => [
   <div>
     <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-auto justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 text-c-2 w-fit"
+        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-3 w-fit"
         fullWidth
         variant="ghost">
         <h2
-          class="font-medium m-0 text-sm flex gap-1.5 items-center whitespace-nowrap">
+          class="font-medium m-0 text-xs flex gap-1.5 items-center whitespace-nowrap">
           {{ activeEnvironment?.name ?? 'No Environment' }}
           <ScalarIcon
             class="size-3"

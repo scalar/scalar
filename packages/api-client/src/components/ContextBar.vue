@@ -28,7 +28,7 @@ defineEmits<{
       </button>
       <div
         class="flex items-center group-hover:text-c-1 absolute -right-6 top-1/2 -translate-y-1/2">
-        <span class="mr-4 group-hover:hidden">{{ activeSection }}</span>
+        <span class="mr-1.5 group-hover:hidden">{{ activeSection }}</span>
         <ScalarIcon
           icon="FilterList"
           size="md"

@@ -221,11 +221,6 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </template>
 <style scoped>
 .t-app__top-nav {
-  background-color: color-mix(
-    in sRGB,
-    var(--scalar-background-1) 50%,
-    transparent
-  );
   padding-left: 52px;
   padding-right: 4px;
   position: relative;
