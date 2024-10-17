@@ -8,6 +8,7 @@ import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
+import OpenApiClientButton from '../OpenApiClientButton.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
@@ -63,10 +64,13 @@ watch(hash, (newHash, oldHash) => {
       </div>
     </template>
     <template #sidebar-end>
-      <DarkModeToggle
-        v-if="!!!props.configuration.hideDarkModeToggle"
-        :isDarkMode="isDark"
-        @toggleDarkMode="$emit('toggleDarkMode')" />
+      <div class="darklight-reference">
+        <OpenApiClientButton />
+        <DarkModeToggle
+          v-if="!!!props.configuration.hideDarkModeToggle"
+          :isDarkMode="isDark"
+          @toggleDarkMode="$emit('toggleDarkMode')" />
+      </div>
     </template>
   </ApiReferenceLayout>
 </template>
@@ -82,5 +86,12 @@ watch(hash, (newHash, oldHash) => {
   display: flex;
   flex-direction: column;
   padding: 12px 12px 6px 12px;
+}
+.darklight-reference {
+  width: 100%;
+  margin-top: auto;
+  border-top: var(--scalar-border-width) solid
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
+  padding: 12px;
 }
 </style>
