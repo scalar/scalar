@@ -5,15 +5,19 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { onBeforeUnmount, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 
 const { isReadOnly, activeWorkspace, events } = useWorkspace()
+const route = useRoute()
 
 const openCommandPaletteRequest = () => {
   events.commandPalette.emit({ commandName: 'Create Request' })
 }
 
 const handleHotKey = (event?: HotKeyEvent) => {
-  if (event?.openCommandPaletteRequest) openCommandPaletteRequest()
+  if (event?.triggerHandler && route.name === 'request') {
+    openCommandPaletteRequest()
+  }
 }
 
 const packageVersion = PACKAGE_VERSION
@@ -48,7 +52,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="events.executeRequest.emit()">
         Send Request
-        <ScalarHotkey hotkey="↵" />
+        <ScalarHotkey :hotkey="{ modifier: 'meta', key: '↵' }" />
       </button>
       <button
         v-if="!isReadOnly"
@@ -56,7 +60,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         type="button"
         @click="openCommandPaletteRequest">
         New Request
-        <ScalarHotkey hotkey="N" />
+        <ScalarHotkey :hotkey="{ modifier: 'meta', key: 'N' }" />
       </button>
     </div>
   </div>
