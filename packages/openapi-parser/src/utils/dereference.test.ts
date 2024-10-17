@@ -193,3 +193,89 @@ it('throws an error', async () => {
     'Can’t resolve reference: #/components/requestBodies/DoesNotExist',
   )
 })
+
+it('resolves external file references', async () => {
+  const filesystem = [
+    {
+      isEntrypoint: true,
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'File Reference',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            ExternalSchema: {
+              $ref: 'valid.yaml#/components/schemas/ExampleSchema',
+            },
+          },
+        },
+      },
+      filename: 'file-reference.yaml',
+      dir: './',
+      references: ['valid.yaml'],
+    },
+    {
+      isEntrypoint: false,
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+        components: {
+          schemas: {
+            ExampleSchema: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'integer',
+                  description: 'Unique identifier for the example',
+                },
+                name: {
+                  type: 'string',
+                  description: 'Name of the example',
+                },
+                description: {
+                  type: 'string',
+                  description: 'Detailed description of the example',
+                },
+              },
+              required: ['id', 'name'],
+            },
+          },
+        },
+      },
+      filename: 'valid.yaml',
+      dir: './',
+      references: [],
+    },
+  ]
+
+  const result = await dereference(filesystem)
+
+  expect(result.errors).toStrictEqual([])
+
+  // Check if the external reference was resolved
+  expect(result.schema.components.schemas.ExternalSchema).toEqual({
+    type: 'object',
+    properties: {
+      id: {
+        type: 'integer',
+        description: 'Unique identifier for the example',
+      },
+      name: {
+        type: 'string',
+        description: 'Name of the example',
+      },
+      description: {
+        type: 'string',
+        description: 'Detailed description of the example',
+      },
+    },
+    required: ['id', 'name'],
+  })
+})
