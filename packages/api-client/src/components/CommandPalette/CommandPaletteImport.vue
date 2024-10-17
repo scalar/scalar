@@ -159,22 +159,25 @@ async function importCollection() {
           :sideOffset="5">
           <template #trigger>
             <label
-              class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-1.5 select-none"
+              class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-2 select-none"
               :class="
                 !!inputContent && !isInputUrl
                   ? 'cursor-default'
                   : 'cursor-pointer'
               "
               for="watch-toggle">
-              <ScalarIcon
-                class="text-c-3"
-                icon="Watch"
-                size="md" />
-              Watch Mode
               <ScalarToggle
                 id="watch-toggle"
                 v-model="watchForChanges"
                 :disabled="!!inputContent && !isInputUrl" />
+              <span
+                class="text-c-1 flex gap-1 items-center font-medium text-xs"
+                :class="{ 'text-c-3': !watchForChanges }">
+                <ScalarIcon
+                  icon="Watch"
+                  size="sm" />
+                Watch Mode
+              </span>
             </label>
           </template>
           <template #content>
