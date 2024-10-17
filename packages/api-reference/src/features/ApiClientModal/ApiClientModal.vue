@@ -1,54 +1,43 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
-import type { ApiClient } from '@scalar/api-client/libs'
-import type { Spec, SpecConfiguration } from '@scalar/types/legacy'
+import { useApiClient } from '@/legacy/hooks/useApiClient'
+import type {
+  AuthenticationState,
+  Spec,
+  SpecConfiguration,
+} from '@scalar/types/legacy'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { apiClientBus, modalStateBus } from './api-client-bus'
 
 const props = defineProps<{
   proxyUrl?: string
-  preferredSecurityScheme?: string | null
+  authentication?: AuthenticationState
   spec?: SpecConfiguration
   servers?: Spec['servers']
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
-const client = ref<ApiClient | null>(null)
 
 const { server, setServer } = useServerStore()
+const { client, init } = useApiClient()
 
 onMounted(async () => {
   if (!el.value) return
 
-  const { createApiClientModal } = await import('@scalar/api-client')
-
-  const {
-    app,
-    open,
-    updateAuth,
-    modalState,
-    updateSpec,
-    updateServer,
-    onUpdateServer,
-  } = await createApiClientModal(el.value, {
+  // Initialize the new client hook
+  const _client = await init({
+    el: el.value,
     spec: props.spec ?? {},
-    preferredSecurityScheme: props.preferredSecurityScheme,
+    authentication: props.authentication,
     proxyUrl: props.proxyUrl,
     servers: props.servers,
   })
 
-  client.value = {
-    // @ts-expect-error not sure what the beef with app is, possible router related
-    app,
-    updateSpec,
-    updateServer,
-  }
-
-  modalStateBus.emit(modalState)
+  modalStateBus.emit(_client.modalState)
 
   // Update the references server when the client server changes
-  onUpdateServer((url) => {
+  _client.onUpdateServer((url) => {
     if (!server.servers) return
     const index = server.servers.findIndex((s) => s.url === url)
     if (index >= 0) setServer({ selectedServer: index })
@@ -56,9 +45,9 @@ onMounted(async () => {
 
   // Event bus to listen to apiClient events
   apiClientBus.on((event) => {
-    if (event.open) open(event.open)
-    if (event.updateSpec) updateSpec(event.updateSpec)
-    if (event.updateAuth) updateAuth(event.updateAuth)
+    if (event.open) _client.open(event.open)
+    if (event.updateSpec) _client.updateSpec(event.updateSpec)
+    if (event.updateAuth) _client.updateAuth(event.updateAuth)
   })
 })
 

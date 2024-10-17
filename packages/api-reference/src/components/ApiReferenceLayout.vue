@@ -23,6 +23,7 @@ import {
   watch,
 } from 'vue'
 
+import ApiClientModal from '../features/ApiClientModal/ApiClientModal.vue'
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
@@ -39,7 +40,6 @@ import type {
   ReferenceLayoutSlot,
   ReferenceSlotProps,
 } from '../types'
-import ApiClientModal from './ApiClientModal.vue'
 import { Content } from './Content'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
