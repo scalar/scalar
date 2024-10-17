@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.165
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+  - @scalar/types@0.0.16
+
 ## 0.3.164
 
 ### Patch Changes

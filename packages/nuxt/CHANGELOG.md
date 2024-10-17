@@ -1,5 +1,23 @@
 # @scalar/nuxt
 
+## 0.2.116
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [5cb5cdf]
+- Updated dependencies [971c04c]
+- Updated dependencies [75f84f8]
+- Updated dependencies [3800b54]
+- Updated dependencies [dbbe38f]
+- Updated dependencies [59d3931]
+- Updated dependencies [2173073]
+- Updated dependencies [c379e5a]
+- Updated dependencies [aebac4e]
+- Updated dependencies [4738228]
+  - @scalar/api-client@2.1.23
+  - @scalar/api-reference@1.25.38
+
 ## 0.2.115
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.11
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+
 ## 0.2.10
 
 ### Patch Changes

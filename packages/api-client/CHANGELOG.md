@@ -1,5 +1,30 @@
 # @scalar/api-client
 
+## 2.1.23
+
+### Patch Changes
+
+- 5cb5cdf: fix: removes duplicated utility class in request header
+- 971c04c: feat(api-client): create custom workspace selector
+- 75f84f8: fix: sidebar indent lines + icon stroke thickness
+- 3800b54: fix: import curl query parameters
+- 59d3931: chore: remove unused dependencies
+- 2173073: feat: add links to http headers
+- c379e5a: feat: adds api client web playground
+- aebac4e: style: updates sidenav gap and sidehelp hover
+- 4738228: feat: make collection.info.version optional
+- Updated dependencies [971c04c]
+- Updated dependencies [6394a5d]
+- Updated dependencies [dbbe38f]
+- Updated dependencies [4b8b611]
+- Updated dependencies [4738228]
+  - @scalar/components@0.12.55
+  - @scalar/openapi-parser@0.8.7
+  - @scalar/types@0.0.16
+  - @scalar/themes@0.9.38
+  - @scalar/oas-utils@0.2.57
+  - @scalar/use-codemirror@0.11.22
+
 ## 2.1.22
 
 ### Patch Changes

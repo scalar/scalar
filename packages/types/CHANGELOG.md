@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.16
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+
 ## 0.0.15
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.116
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+  - @scalar/api-reference-react@0.3.114
+
 ## 0.4.115
 
 ### Patch Changes

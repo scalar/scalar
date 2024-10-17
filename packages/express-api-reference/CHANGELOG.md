@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.4.164
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+  - @scalar/types@0.0.16
+
 ## 0.4.163
 
 ### Patch Changes

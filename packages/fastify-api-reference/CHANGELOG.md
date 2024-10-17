@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.38
+
+### Patch Changes
+
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+  - @scalar/types@0.0.16
+
 ## 1.25.37
 
 ### Patch Changes

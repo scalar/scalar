@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.38
+
+### Patch Changes
+
+- 4b8b611: fix: removes focus visible style from reset
+- Updated dependencies [dbbe38f]
+  - @scalar/types@0.0.16
+
 ## 0.9.37
 
 ### Patch Changes

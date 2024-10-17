@@ -1,5 +1,15 @@
 # @scalar/aspnetcore
 
+## 1.2.10
+
+### Patch Changes
+
+- ec9f654: feat: use a bundled js asset, remove external resource
+- dbbe38f: feat: add framework identifier for debugging purposes
+- Updated dependencies [dbbe38f]
+- Updated dependencies [59d3931]
+  - @scalar/api-reference@1.25.38
+
 ## 1.2.9
 
 ### Patch Changes
