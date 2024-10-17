@@ -54,6 +54,7 @@ export const ApiClientModalProvider = ({
   const state = useSyncExternalStore(
     clientStore.subscribe,
     clientStore.getSnapshot,
+    clientStore.getSnapshot,
   )
 
   // Lazyload the js to create the client, but we only wanna call this once
