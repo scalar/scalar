@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.1.24
+
+### Patch Changes
+
+- 8f4b4a2: fix: ui tweaks and fixes
+
 ## 2.1.23
 
 ### Patch Changes
