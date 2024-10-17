@@ -18,7 +18,8 @@ import { useRouter } from 'vue-router'
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
 
 const emit = defineEmits<{
-  closeMenu: []
+  (e: 'closeMenu'): []
+  (e: 'toggleWatchForChanges', item: SidebarMenuItem['item']): void
 }>()
 
 const { replace } = useRouter()
@@ -69,6 +70,10 @@ watch([() => props.menuItem.open, menuRef], async ([open]) => {
 const globalClickListener = () => props.menuItem.open && emit('closeMenu')
 onMounted(() => window.addEventListener('click', globalClickListener))
 onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
+
+const toggleWatchForChanges = () => {
+  emit('toggleWatchForChanges', props.menuItem.item)
+}
 </script>
 
 <template>
@@ -122,6 +127,26 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
         <span>Duplicate</span>
       </ScalarDropdownItem>
       <ScalarDropdownDivider /> -->
+
+      <!-- Watch -->
+      <ScalarDropdownItem
+        v-if="menuItem.item?.documentUrl"
+        ref="menuRef"
+        class="flex gap-2"
+        @click="toggleWatchForChanges">
+        <ScalarIcon
+          class="inline-flex"
+          :icon="menuItem.item?.watchForChanges ? 'Unwatch' : 'Watch'"
+          size="md"
+          thickness="1.5" />
+        <span>
+          {{
+            menuItem.item?.watchForChanges
+              ? 'Disable Watch Mode'
+              : 'Enable Watch Mode'
+          }}
+        </span>
+      </ScalarDropdownItem>
 
       <!-- Delete -->
       <ScalarDropdownItem

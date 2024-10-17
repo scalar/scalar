@@ -11,7 +11,7 @@ import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
-import type { SidebarMenuItem } from '@/views/Request/types'
+import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarIcon,
   ScalarSearchInput,
@@ -103,6 +103,12 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => {
   events.hotKeys.off(handleHotKey)
 })
+
+const handleToggleWatchForChanges = (item?: SidebarItem) => {
+  if (item && item.watchForChanges !== undefined) {
+    item.watchForChanges = !item.watchForChanges
+  }
+}
 </script>
 <template>
   <Sidebar
@@ -228,7 +234,8 @@ onBeforeUnmount(() => {
   <RequestSidebarItemMenu
     v-if="!isReadOnly && menuItem"
     :menuItem="menuItem"
-    @closeMenu="menuItem.open = false" />
+    @closeMenu="menuItem.open = false"
+    @toggleWatchForChanges="handleToggleWatchForChanges" />
 </template>
 <style scoped>
 .search-button-fade {
