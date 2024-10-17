@@ -18,7 +18,8 @@ const attrs = computed(() => {
 <template>
   <ul
     v-bind="attrs.rest"
-    :class="cx('flex flex-col', attrs.className)">
+    :class="cx('flex flex-col', attrs.className)"
+    role="listbox">
     <slot
       v-if="noResults"
       name="noResults">
