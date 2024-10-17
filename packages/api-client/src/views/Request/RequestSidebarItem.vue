@@ -83,6 +83,7 @@ const item = computed<SidebarItem>(() => {
       resourceTitle: 'Collection',
       children: collection.children,
       icon: collection['x-scalar-icon'],
+      documentUrl: collection.documentUrl,
       watchForChanges: collection.watchForChanges,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
@@ -378,8 +379,8 @@ function openCommandPaletteRequest() {
             </ScalarButton>
             <ScalarTooltip
               v-if="item.watchForChanges"
-              side="bottom"
-              :sideOffset="7">
+              side="right"
+              :sideOffset="12">
               <template #trigger>
                 <ScalarIcon
                   class="text-sm"
@@ -394,12 +395,11 @@ function openCommandPaletteRequest() {
               </template>
               <template #content>
                 <div
-                  class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                  class="grid gap-1.5 pointer-events-none max-w-10 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
                   <div class="flex items-center text-c-2">
-                    <span class="text-pretty">
-                      Your Open API document is being monitored for changes to
-                      ensure the collection remains up to date
-                    </span>
+                    <p class="text-pretty break-all">
+                      Watching: {{ item.documentUrl }}
+                    </p>
                   </div>
                 </div>
               </template>
