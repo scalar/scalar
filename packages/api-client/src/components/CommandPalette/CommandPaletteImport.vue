@@ -138,7 +138,7 @@ async function importCollection() {
         :lang="documentType" />
     </template>
     <template #options>
-      <div class="flex flex-row items-center justify-start gap-3">
+      <div class="flex flex-row items-center justify-between gap-3 w-full">
         <!-- Upload -->
         <ScalarButton
           class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
@@ -156,21 +156,25 @@ async function importCollection() {
           as="div"
           class="z-[10001]"
           side="bottom"
-          :sideOffset="7">
+          :sideOffset="5">
           <template #trigger>
             <label
-              class="flex items-center text-sm text-c-2 gap-1.5 select-none"
+              class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-1.5 select-none"
               :class="
                 !!inputContent && !isInputUrl
                   ? 'cursor-default'
                   : 'cursor-pointer'
               "
               for="watch-toggle">
+              <ScalarIcon
+                class="text-c-3"
+                icon="Watch"
+                size="md" />
+              Watch Mode
               <ScalarToggle
                 id="watch-toggle"
                 v-model="watchForChanges"
                 :disabled="!!inputContent && !isInputUrl" />
-              Watch Mode
             </label>
           </template>
           <template #content>
@@ -183,8 +187,8 @@ async function importCollection() {
                 <span
                   v-else
                   class="text-pretty"
-                  >Watch your OpenAPI URL for changes. When enable it will
-                  update the API client for you.</span
+                  >Watch your OpenAPI URL for changes. Enabled it will update
+                  the API client for you.</span
                 >
               </div>
             </div>
