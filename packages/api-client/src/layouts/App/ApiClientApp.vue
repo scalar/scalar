@@ -60,13 +60,13 @@ const themeStyleTag = computed(
   <!-- min-h-0 is to allow scrolling of individual flex children -->
   <main
     v-if="workspaceStore.activeWorkspace.value?.uid"
-    class="flex min-h-0 flex-1">
-    <SideNav />
+    class="flex flex-col sm:flex-row min-h-0 flex-1">
+    <SideNav class="order-last sm:order-none" />
 
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
 
-    <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
+    <div class="flex flex-1 flex-col min-w-0 min-h-0 border-l-1/2 border-t-1/2">
       <RouterView
         v-slot="{ Component }"
         @newTab="handleNewTab">
