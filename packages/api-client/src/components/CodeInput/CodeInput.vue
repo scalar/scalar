@@ -233,6 +233,9 @@ export default {
   padding: 0;
   background: transparent;
 }
+:deep(.cm-placeholder) {
+  color: var(--scalar-color-3);
+}
 :deep(.cm-content) {
   font-family: var(--scalar-font-code);
   font-size: var(--scalar-small);

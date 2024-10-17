@@ -52,7 +52,7 @@ const activeHistoryEntry = computed(() =>
 )
 
 /** Show / hide the sidebar when we resize the screen */
-const isNarrow = useMediaQuery('(max-width: 780px)')
+const isNarrow = useMediaQuery('(max-width: 800px)')
 watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
 
 /**
@@ -199,7 +199,7 @@ function handleCurlImport(curl: string) {
   );
   box-shadow: 0 0 0 1px var(--scalar-border-color);
 }
-@media screen and (max-width: 780px) {
+@media screen and (max-width: 800px) {
   .sidebar-active-hide-layout {
     display: none;
   }

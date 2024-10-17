@@ -87,7 +87,7 @@ const startDrag = (event: MouseEvent) => {
     </div>
     <div
       v-if="!isMobile"
-      class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 -translate-y-full w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
+      class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 sticky bottom-0 w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
       <slot name="button" />
     </div>
     <div
@@ -98,15 +98,15 @@ const startDrag = (event: MouseEvent) => {
 </template>
 <style scoped>
 .sidebar-height {
-  min-height: calc(100% - 50px);
+  min-height: 100%;
 }
 @screen md {
   .sidebar-mask {
     mask-image: linear-gradient(
       0,
       transparent 0,
-      transparent 40px,
-      var(--scalar-background-2) 60px
+      transparent 0,
+      var(--scalar-background-2) 30px
     );
   }
 }

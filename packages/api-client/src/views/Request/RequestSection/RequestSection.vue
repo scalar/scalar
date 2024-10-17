@@ -63,13 +63,7 @@ const updateRequestNameHandler = (event: Event) => {
 <template>
   <ViewLayoutSection>
     <template #title>
-      <ScalarIcon
-        class="text-c-3 mr-2 pointer-events-none"
-        icon="ExternalLink"
-        size="sm"
-        thickness="2.5" />
       <div class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none">
-        Request
         <label
           v-if="!isReadOnly"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
@@ -77,13 +71,13 @@ const updateRequestNameHandler = (event: Event) => {
         <input
           v-if="!isReadOnly"
           id="requestname"
-          class="outline-none border-0 text-c-2 rounded pointer-events-auto relative w-full"
+          class="outline-none border-0 text-c-1 rounded pointer-events-auto relative w-full"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
         <span
           v-else
-          class="text-c-2">
+          class="text-c-1">
           {{ activeRequest?.summary }}
         </span>
       </div>
