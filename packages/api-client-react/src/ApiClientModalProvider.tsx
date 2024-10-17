@@ -11,9 +11,10 @@ import React, {
   useContext,
   useEffect,
   useRef,
-  useState,
+  useSyncExternalStore,
 } from 'react'
 
+import { clientStore } from './client-store'
 import './style.css'
 
 const ApiClientModalContext = createContext<ReturnType<
@@ -27,68 +28,79 @@ type Props = PropsWithChildren<{
   configuration?: ClientConfiguration
 }>
 
-// These are required for the vue bundler version
-globalThis.__VUE_OPTIONS_API__ = true
-globalThis.__VUE_PROD_HYDRATION_MISMATCH_DETAILS__ = true
-globalThis.__VUE_PROD_DEVTOOLS__ = false
+/** Ensures we only load createClient once */
+let isLoading = false
+
+/** Hack: this is strictly to prevent creation of extra clients as the store lags a bit */
+const clientDict: Record<
+  string,
+  ReturnType<typeof CreateApiClientModalSync>
+> = {}
 
 /**
  * Api Client Modal React
  *
- * Provider which mounts the Scalar Api Client Modal vue app
+ * Provider which mounts the Scalar Api Client Modal vue app.
+ * Rebuilt to support multiple instances when using a unique spec.url
  */
 export const ApiClientModalProvider = ({
   children,
   initialRequest,
   configuration = {},
 }: Props) => {
+  const key = configuration.spec?.url || 'default'
   const el = useRef<HTMLDivElement | null>(null)
 
-  const [createClient, setCreateClient] = useState<
-    typeof CreateApiClientModalSync | null
-  >(null)
-  const [client, setClient] = useState<ReturnType<
-    typeof CreateApiClientModalSync
-  > | null>(null)
+  const state = useSyncExternalStore(
+    clientStore.subscribe,
+    clientStore.getSnapshot,
+    clientStore.getSnapshot,
+  )
 
-  // Lazyload the js to create the client
+  // Lazyload the js to create the client, but we only wanna call this once
   useEffect(() => {
     const loadApiClientJs = async () => {
+      isLoading = true
       const { createApiClientModalSync } = await import(
         '@scalar/api-client/layouts/Modal'
       )
-      setCreateClient(() => createApiClientModalSync)
+      clientStore.setCreateClient(createApiClientModalSync)
     }
-    loadApiClientJs()
+    if (!isLoading) loadApiClientJs()
   }, [])
 
   useEffect(() => {
-    if (!el?.current || !createClient) return
+    if (!el.current || !state.createClient || clientDict[key]) return () => null
 
-    // Create vue app
-    const _client = createClient(el.current, configuration)
-    setClient(_client)
+    // Check for cached client first
+    const _client = state.createClient(el.current, configuration)
 
     const updateSpec = async () => {
       await _client.updateSpec(configuration.spec!)
       if (initialRequest) _client.route(initialRequest)
     }
 
+    // Add the client to the store and dict
+    clientStore.addClient(key, _client)
+    clientDict[key] = _client
+
     // We update the config as we are using the sync version
     if (configuration.spec) updateSpec()
     else if (initialRequest) _client.route(initialRequest)
 
     // Ensure we unmount the vue app on unmount
-    // eslint-disable-next-line consistent-return
     return () => {
       _client.app.unmount()
-      setClient(null)
+      clientStore.removeClient(key)
     }
-  }, [el, createClient])
+  }, [el.current, state.createClient])
 
   return (
-    <ApiClientModalContext.Provider value={client}>
-      <div ref={el} />
+    <ApiClientModalContext.Provider value={state.clientDict[key]}>
+      <div
+        className="scalar-app"
+        ref={el}
+      />
       {children}
     </ApiClientModalContext.Provider>
   )
