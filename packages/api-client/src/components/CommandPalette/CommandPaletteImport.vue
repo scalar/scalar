@@ -63,16 +63,14 @@ const { open: openSpecFileDialog } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
+// Enable watch mode if the input is a URL
 watch(isInputUrl, (newVal) => {
-  if (!newVal) {
-    watchForChanges.value = false
-  }
+  if (!newVal) watchForChanges.value = false
 })
 
+// Disable watch mode if the input is not a URL
 watch(inputContent, (newVal) => {
-  if (!isUrl(newVal)) {
-    watchForChanges.value = false
-  }
+  if (!isUrl(newVal)) watchForChanges.value = false
 })
 
 async function importCollection() {

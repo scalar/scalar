@@ -63,8 +63,8 @@ export function extendedSecurityDataFactory({
 
   /** Delete a security scheme and remove the key from its corresponding parent */
   const deleteSecurityScheme = (schemeUid: string) => {
-    // Remove the scheme from any collections that reference it (should only be 1 collection)
     Object.values(collections).forEach((c) => {
+      // Remove the scheme from any collections that reference it (should only be 1 collection)
       if (c.securitySchemes.includes(schemeUid)) {
         collectionMutators.edit(
           c.uid,
@@ -72,10 +72,8 @@ export function extendedSecurityDataFactory({
           c.securitySchemes.filter((s) => s !== schemeUid),
         )
       }
-    })
 
-    // Remove the scheme from any collections that use it
-    Object.values(collections).forEach((c) => {
+      // Remove the scheme from any collections that use it
       if (schemeUid in c.auth) {
         const { [schemeUid]: toDelete, ...rest } = c.auth
         collectionMutators.edit(c.uid, 'auth', rest)
