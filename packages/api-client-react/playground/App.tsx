@@ -1,13 +1,20 @@
+import type {
+  ClientConfiguration,
+  OpenClientPayload,
+} from '@scalar/api-client/libs'
 import React from 'react'
 
 import { useApiClientModal } from '../src/ApiClientModalProvider'
 
-export const App = () => {
+export const App = ({
+  initialRequest,
+}: {
+  initialRequest?: OpenClientPayload
+}) => {
   const client = useApiClientModal()
 
   return (
-    <button
-      onClick={() => client?.open({ path: '/auth/token', method: 'get' })}>
+    <button onClick={() => client?.open(initialRequest)}>
       Click me to open the Api Client
     </button>
   )

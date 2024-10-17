@@ -20,7 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
       }}>
-      <App />
+      <App initialRequest={{ path: '/auth/token', method: 'post' }} />
     </ApiClientModalProvider>
     <ApiClientModalProvider
       configuration={{
@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
       }}>
-      <App />
+      <App initialRequest={{ path: '/planets', method: 'get' }} />
     </ApiClientModalProvider>
   </React.StrictMode>,
 )

@@ -97,7 +97,7 @@ export const ApiClientModalProvider = ({
   return (
     <ApiClientModalContext.Provider value={state.clientDict[key]}>
       <div
-        class="scalar-app"
+        className="scalar-app"
         ref={el}
       />
       {children}
