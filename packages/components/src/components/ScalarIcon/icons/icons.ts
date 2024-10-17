@@ -74,6 +74,7 @@ export const ICONS = [
   'ThumbsUp',
   'Trash',
   'Unlock',
+  'Unwatch',
   'Upload',
   'UploadSimple',
   'User',
