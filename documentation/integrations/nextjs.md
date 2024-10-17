@@ -50,7 +50,7 @@ import { ApiReference } from '@scalar/nextjs-api-reference'
 
 const config = {
   spec: {
-    content: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+    url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
   },
 }
 
