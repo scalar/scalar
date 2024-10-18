@@ -47,7 +47,25 @@ export function useUrlPrefetcher() {
         },
       )
 
+      // Failed!
       if (!result.ok) {
+        // Retry without proxy if the initial request failed
+        if (shouldUseProxy(proxy, value)) {
+          const retryResult = await fetch(value, {
+            cache: 'no-store',
+          })
+
+          if (retryResult.ok) {
+            const content = await retryResult.text()
+
+            return Object.assign(prefetchResult, {
+              state: 'idle',
+              content,
+              error: null,
+            })
+          }
+        }
+
         return Object.assign(prefetchResult, {
           state: 'idle',
           content: null,
