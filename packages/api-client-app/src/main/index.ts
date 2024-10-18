@@ -1,5 +1,4 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { resolve } from '@scalar/import'
 import todesktop from '@todesktop/runtime'
 import {
   BrowserWindow,
@@ -16,6 +15,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
+import { resolve } from './resolve'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
