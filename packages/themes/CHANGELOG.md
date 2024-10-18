@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.39
+
+### Patch Changes
+
+- 4722da1: fix(themes): remove vendor prefixes for input placeholder
+
 ## 0.9.38
 
 ### Patch Changes
