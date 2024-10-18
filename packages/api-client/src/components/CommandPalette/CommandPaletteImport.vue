@@ -102,7 +102,7 @@ async function importCollection() {
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         v-model="inputContent"
-        placeholder="Paste Swagger/OpenAPI File URL or content"
+        placeholder="OpenAPI/Swagger URL or document"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
