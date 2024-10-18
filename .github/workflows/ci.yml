@@ -24,13 +24,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - name: Update Turborepo cache
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
@@ -43,10 +43,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
@@ -64,7 +64,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -81,7 +81,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build packages
         uses: ./.github/actions/build
         with:
@@ -99,14 +99,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@v2
+        uses: relative-ci/agent-action@ba13968f2a0d09757685b0685441cde329806afa
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -136,7 +136,7 @@ jobs:
         run: git stash
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@c8bada60c408975afd1a20b3db81d6eee6789308
         with:
           # The pull request title.
           title: 'chore: release'
@@ -167,7 +167,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
         uses: ./.github/actions/build
         with:
@@ -179,7 +179,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the app
         id: changed-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
         with:
           files_yaml: |
             api_client_app:
@@ -213,7 +213,7 @@ jobs:
   #
   #   steps:
   #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+  #       uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
   #     - name: Build packages
   #       uses: ./.github/actions/build
   #       with:
@@ -265,10 +265,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Check which files were touched
         id: changed-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
         with:
           files_yaml: |
             api_client:
@@ -282,7 +282,7 @@ jobs:
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
-        uses: cloudflare/wrangler-action@v3
+        uses: cloudflare/wrangler-action@9681c2997648301493e78cacbfb790a9f19c833f
         with:
           command: pages deploy dist --project-name=client
           workingDirectory: projects/client-scalar-com
@@ -296,7 +296,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - if: github.ref != 'refs/heads/main' && steps.deploy-client.outputs.deployment-url
         name: Add Cloudflare Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         with:
           message: |
             **Cloudflare Preview for the API Client**
@@ -315,7 +315,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
@@ -335,7 +335,7 @@ jobs:
             --filter @scalar-examples/web \
             --alias=${{env.DEPLOY_ID}}
       - name: Add Netlify Preview URL to the PR
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         with:
           message: |
             **Preview Examples**
@@ -347,10 +347,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee
         with:
           dotnet-version: 9.x
 
@@ -383,7 +383,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
 
       - name: Git Status
         run: git status
@@ -394,7 +394,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new NuGet package version
         id: changed-files
-        uses: tj-actions/changed-files@v44
+        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
         with:
           files_yaml: |
             aspnetcore_package:
@@ -402,7 +402,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee
         with:
           dotnet-version: 9.x
 
