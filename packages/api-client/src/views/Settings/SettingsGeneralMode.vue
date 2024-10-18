@@ -33,14 +33,14 @@ const setDarkModePreference = () => {
 
 <template>
   <h3 class="font-bold mb-1 mt-8">Appearance</h3>
-  <p class="text-c-2 mb-4">Set light or dark mode for your workspace.</p>
+  <p class="text-c-2 mb-4 leading-[21px]">
+    Choose between light, dark, or system-based appearance for your workspace.
+  </p>
   <div class="flex flex-col gap-2">
     <ScalarButton
       :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2',
-        currentMode === 'System Preference'
-          ? 'bg-b-1 shadow-border-1/2 text-c-1'
-          : 'bg-b-2',
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
+        currentMode === 'System Preference' ? 'bg-b-1 text-c-1' : 'bg-b-2',
       ]"
       @click="setSystemDarkMode">
       <div
@@ -51,14 +51,12 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      System Preference
+      System Preference (default)
     </ScalarButton>
     <ScalarButton
       :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2',
-        currentMode === 'Light'
-          ? 'bg-b-1 shadow-border-1/2 text-c-1'
-          : 'bg-b-2',
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
+        currentMode === 'Light' ? 'bg-b-1 text-c-1' : 'bg-b-2',
       ]"
       @click="setLightMode">
       <div
@@ -69,12 +67,12 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      Light Mode
+      Light Mode Always
     </ScalarButton>
     <ScalarButton
       :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8',
-        currentMode === 'Dark' ? 'bg-b-1 shadow-border-1/2 text-c-1' : 'bg-b-2',
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8 border-1/2',
+        currentMode === 'Dark' ? 'bg-b-1 text-c-1' : 'bg-b-2',
       ]"
       @click="setDarkModePreference">
       <div
@@ -85,7 +83,7 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      Dark Mode
+      Dark Mode Always
     </ScalarButton>
   </div>
 </template>
