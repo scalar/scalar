@@ -1,13 +1,13 @@
 import { isHTTPMethod } from '@/components/HttpMethod/helpers'
+import type { WorkspaceStore } from '@/store'
 import {
-  type Collection,
   type Request,
   type RequestParameterPayload,
   type RequestPayload,
   type SecurityScheme,
   type Server,
-  type Tag,
   collectionSchema,
+  createExampleFromRequest,
   oasOauthFlowSchema,
   requestSchema,
   securitySchemeSchema,
@@ -246,11 +246,17 @@ export const parseDiff = <T>(
   }
 }
 
-/** Generates a payload for the collection mutator from the basic info/security diffs */
-export const diffToCollectionPayload = (
+/**
+ * Transforms the diff into a payload for the collection mutator then executes that mutation
+ *
+ * @returns true if it succeeds, and false for a failure
+ */
+export const mutateCollectionDiff = (
   diff: Difference,
-  collection: Collection,
-) => {
+  { activeCollection, collectionMutators }: WorkspaceStore,
+): boolean => {
+  if (!activeCollection.value) return false
+
   // We need to handle a special case for arrays, it only adds or removes the last element,
   // the rest are a series of changes
   if (
@@ -261,37 +267,69 @@ export const diffToCollectionPayload = (
       ...diff,
       path: diff.path,
     })
-    if (!parsed) return null
+    if (!parsed) return false
 
-    const oldValue = [...getNestedValue(collection, parsed.pathMinusOne)]
+    const oldValue = [
+      ...getNestedValue(activeCollection.value, parsed.pathMinusOne),
+    ]
     if (diff.type === 'CREATE') {
       oldValue.push(parsed.value)
     } else if (diff.type === 'REMOVE') {
       oldValue.pop()
     }
-    return [collection.uid, parsed.pathMinusOne, oldValue] as const
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      parsed.pathMinusOne,
+      oldValue,
+    )
   }
   // Non array + array change
   else {
     const parsed = parseDiff(collectionSchema, diff)
-    if (!parsed) return null
+    if (!parsed) return false
 
-    return [collection.uid, parsed.path, parsed.value] as const
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      parsed.path,
+      parsed.value,
+    )
   }
+
+  return true
 }
 
 /**
- * Generates an array of payloads for the request mutator from the request diff
+ * Currently we just generate new examples
  *
- * This one returns an array due to changing path triggering a series of changes
- * Also a CREATE OR REMOVE on an array will always be at the end so we can pop/push,
- * the rest of the array will be a CHANGE
+ * TODO: diff the changes in the examples and just update what we need to
  */
-export const diffToRequestPayload = (
+const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
+  const { requests, requestExamples, requestExampleMutators } = store
+  const request = requests[requestUid]
+
+  request?.examples.forEach((exampleUid) => {
+    const newExample = createExampleFromRequest(
+      request,
+      requestExamples[exampleUid].name,
+    )
+    if (newExample)
+      requestExampleMutators.set({
+        ...newExample,
+        uid: exampleUid,
+      })
+  })
+}
+
+/**
+ * Generates an array of payloads for the request mutator from the request diff, also executes the mutation
+ */
+export const mutateRequestDiff = (
   diff: Difference,
-  collection: Collection,
-  requests: Record<string, Request>,
-) => {
+  store: WorkspaceStore,
+): boolean => {
+  const { activeCollection, requests, requestMutators } = store
+  if (!activeCollection.value) return false
+
   const [, path, method, ...keys] = diff.path as [
     'paths',
     Request['path'],
@@ -301,35 +339,27 @@ export const diffToRequestPayload = (
 
   // Path has changed
   if (path === 'path' && diff.type === 'CHANGE') {
-    return collection.requests
-      .filter((uid) => requests[uid].path === diff.oldValue)
-      .map(
-        (uid) =>
-          ({
-            method: 'edit',
-            args: [uid, 'path', diff.value],
-          }) as const,
-      )
+    activeCollection.value.requests.forEach((uid) => {
+      if (requests[uid].path === diff.oldValue) {
+        requestMutators.edit(uid, 'path', diff.value)
+      }
+    })
   }
   // Method has changed
   else if (method === 'method' && diff.type === 'CHANGE') {
-    return collection.requests
-      .filter(
-        (uid) =>
-          requests[uid].method === diff.oldValue && requests[uid].path === path,
-      )
-      .map(
-        (uid) =>
-          ({
-            method: 'edit',
-            args: [uid, 'method', diff.value],
-          }) as const,
-      )
+    activeCollection.value.requests.forEach((uid) => {
+      if (
+        requests[uid].method === diff.oldValue &&
+        requests[uid].path === path
+      ) {
+        requestMutators.edit(uid, 'method', diff.value)
+      }
+    })
   }
   // Adding or removing to the end of an array - special case
   else if (diff.type !== 'CHANGE' && typeof keys.at(-1) === 'number') {
     const request = findResource<Request>(
-      collection.requests,
+      activeCollection.value.requests,
       requests,
       (r) => r.path === path && r.method === method,
     )
@@ -337,7 +367,7 @@ export const diffToRequestPayload = (
       ...diff,
       path: diff.path.slice(3),
     })
-    if (!request || !parsed) return []
+    if (!request || !parsed) return false
 
     // Chop off the path, method and array index
     const oldValue = [...getNestedValue(request, parsed.pathMinusOne)]
@@ -348,12 +378,11 @@ export const diffToRequestPayload = (
       oldValue.pop()
     }
 
-    return [
-      {
-        method: 'edit',
-        args: [request.uid, parsed.pathMinusOne, oldValue],
-      },
-    ] as const
+    requestMutators.edit(request.uid, parsed.pathMinusOne, oldValue)
+
+    // Generate new examples
+    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody')
+      updateRequestExamples(request.uid, store)
   }
 
   // Add
@@ -399,115 +428,119 @@ export const diffToRequestPayload = (
 
     // Save parse the request
     const request = schemaModel(requestPayload, requestSchema, false)
-    if (request)
-      return [{ method: 'add', args: [request, collection.uid] }] as const
+    if (!request) return false
+
+    requestMutators.add(request, activeCollection.value.uid)
   }
   // Delete
   else if (diff.type === 'REMOVE') {
     const request = findResource<Request>(
-      collection.requests,
+      activeCollection.value.requests,
       requests,
       (_request) => _request.path === path && _request.method === method,
     )
-    if (request)
-      return [{ method: 'delete', args: [request, collection.uid] }] as const
+    if (!request) return false
+
+    requestMutators.delete(request, activeCollection.value.uid)
   }
   // Edit
   else if (diff.type === 'CHANGE') {
     const request = findResource<Request>(
-      collection.requests,
+      activeCollection.value.requests,
       requests,
       (r) => r.path === path && r.method === method,
     )
 
     const parsed = parseDiff(requestSchema, { ...diff, path: keys })
-    if (!request || !parsed) return []
+    if (!request || !parsed) return false
 
-    return [
-      { method: 'edit', args: [request.uid, parsed.path, parsed.value] },
-    ] as const
+    requestMutators.edit(request.uid, parsed.path, parsed.value)
+
+    // Update the examples
+    if (diff.path[3] === 'parameters' || diff.path[3] === 'requestBody')
+      updateRequestExamples(request.uid, store)
   }
-  return []
+
+  return true
 }
 
 /** Generates a payload for the server mutator from the server diff including the mutator method */
-export const diffToServerPayload = (
+export const mutateServerDiff = (
   diff: Difference,
-  collection: Collection,
-  servers: Record<string, Server>,
-) => {
+  { activeCollection, servers, serverMutators }: WorkspaceStore,
+): boolean => {
+  if (!activeCollection.value) return false
+
   const [, index, ...keys] = diff.path as ['servers', number, keyof Server]
 
   // Edit: update properties
   if (keys?.length) {
-    const serverUid = collection.servers[index]
+    const serverUid = activeCollection.value.servers[index]
     const server = servers[serverUid]
     const parsed = parseDiff(serverSchema, { ...diff, path: keys })
 
-    if (!server || !parsed) return null
+    if (!server || !parsed) return false
 
     const removeVariables =
       diff.type === 'REMOVE' && keys[keys.length - 1] === 'variables'
     const value = removeVariables ? {} : parsed.value
 
-    return { method: 'edit', args: [serverUid, parsed.path, value] } as const
-  }
-  // Delete whole object
-  else if (diff.type === 'REMOVE' && collection.servers[index]) {
-    return {
-      method: 'delete',
-      args: [collection.servers[index], collection.uid],
-    } as const
-  }
-  // Add whole object
-  else if (diff.type === 'CREATE') {
-    const server = schemaModel(diff.value, serverSchema, false)
-    if (server)
-      return {
-        method: 'add',
-        args: [server, collection.uid],
-      } as const
-  }
-  return null
-}
-
-/** Generates a payload for the tag mutator from the tag diff */
-export const diffToTagPayload = (
-  diff: Difference,
-  tags: Record<string, Tag>,
-  collection: Collection,
-) => {
-  const [, index, ...keys] = diff.path as ['tags', number, ...string[]]
-
-  if (keys?.length) {
-    const tagUid = collection.tags[index]
-    const tag = tags[tagUid]
-    const parsed = parseDiff(tagSchema, { ...diff, path: keys })
-
-    if (!tag || !parsed) return null
-
-    return {
-      method: 'edit',
-      args: [tagUid, parsed.path, parsed.value],
-    } as const
+    serverMutators.edit(serverUid, parsed.path, value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
-    const tagUid = collection.tags[index]
+    if (!activeCollection.value.servers[index]) return false
+
+    serverMutators.delete(
+      activeCollection.value.servers[index],
+      activeCollection.value.uid,
+    )
+  }
+  // Add whole object
+  else if (diff.type === 'CREATE') {
+    const parsed = schemaModel(diff.value, serverSchema, false)
+    if (!parsed) return false
+
+    serverMutators.add(parsed, activeCollection.value.uid)
+  }
+  return true
+}
+
+/** Generates a payload for the tag mutator from the tag diff */
+export const mutateTagDiff = (
+  diff: Difference,
+  { activeCollection, tags, tagMutators }: WorkspaceStore,
+): boolean => {
+  if (!activeCollection.value) return false
+
+  const [, index, ...keys] = diff.path as ['tags', number, ...string[]]
+
+  if (keys?.length) {
+    const tagUid = activeCollection.value.tags[index]
     const tag = tags[tagUid]
-    if (tag) return { method: 'delete', args: [tag, collection.uid] } as const
+    const parsed = parseDiff(tagSchema, { ...diff, path: keys })
+
+    if (!tag || !parsed) return false
+
+    tagMutators.edit(tagUid, parsed.path, parsed.value)
+  }
+  // Delete whole object
+  else if (diff.type === 'REMOVE') {
+    const tagUid = activeCollection.value.tags[index]
+    const tag = tags[tagUid]
+    if (!tag) return false
+
+    tagMutators.delete(tag, activeCollection.value.uid)
   }
   // Add whole object
   else if (diff.type === 'CREATE') {
     const parsed = schemaModel(diff.value, tagSchema, false)
-    if (parsed)
-      return {
-        method: 'add',
-        args: [parsed, collection.uid],
-      } as const
+    if (!parsed) return false
+
+    tagMutators.add(parsed, activeCollection.value.uid)
   }
 
-  return null
+  return true
 }
 
 /** Narrows down a zod union schema */
@@ -537,15 +570,18 @@ export const narrowUnionSchema = (
 }
 
 /**
- * Generates a payload for the security scheme mutator from the security scheme diff
+ * Generates a payload for the security scheme mutator from the security scheme diff, then executes that mutation
  *
  * Note: for edit we cannot use parseDiff here as it can't do unions, so we handle the unions first
+ *
+ * @returns true if it succeeds, and false for a failure
  */
-export const diffToSecuritySchemePayload = (
+export const mutateSecuritySchemeDiff = (
   diff: Difference,
-  collection: Collection,
-  securitySchemes: Record<string, SecurityScheme>,
-) => {
+  { activeCollection, securitySchemes, securitySchemeMutators }: WorkspaceStore,
+): boolean => {
+  if (!activeCollection.value) return false
+
   const [, , schemeName, ...keys] = diff.path as [
     'components',
     'securitySchemes',
@@ -556,16 +592,14 @@ export const diffToSecuritySchemePayload = (
   const scheme =
     securitySchemes[schemeName] ??
     findResource<SecurityScheme>(
-      collection.securitySchemes,
+      activeCollection.value.securitySchemes,
       securitySchemes,
       (s) => s.nameKey === schemeName,
     )
 
-  console.log(scheme)
-
   // Edit update properties
   if (keys?.length) {
-    if (!scheme) return null
+    if (!scheme) return false
 
     // Narrows the schema and path based on oauth2 vs non oauth2
     const { schema, _path } =
@@ -595,38 +629,32 @@ export const diffToSecuritySchemePayload = (
         scopes[_path[1]] = diff.value
       } else delete scopes[_path[1]]
 
-      return {
-        method: 'edit',
-        args: [scheme.uid, 'flow.scopes', scopes],
-      } as const
+      securitySchemeMutators.edit(scheme.uid, 'flow.scopes', scopes)
     }
 
-    if (!schema) return null
+    if (!schema) return false
 
     const parsed = parseDiff(schema, { ...diff, path: _path })
-    if (!parsed) return null
+    if (!parsed) return false
 
     // We prepend flow to the path for an oauth2 flow
     const path = (
       keys[0] === 'flows' ? ['flow', ..._path].join('.') : parsed.path
     ) as Path<SecurityScheme>
 
-    return {
-      method: 'edit',
-      args: [scheme.uid, path, parsed.value],
-    } as const
+    securitySchemeMutators.edit(scheme.uid, path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
-    if (!scheme) return null
-    return { method: 'delete', args: [scheme.uid] } as const
+    if (!scheme) return false
+    securitySchemeMutators.delete(scheme.uid)
   }
   // Add whole object
   else if (diff.type === 'CREATE')
-    return {
-      method: 'add',
-      args: [securitySchemeSchema.parse(diff.value), collection.uid],
-    } as const
+    securitySchemeMutators.add(
+      securitySchemeSchema.parse(diff.value),
+      activeCollection.value.uid,
+    )
 
-  return null
+  return true
 }
