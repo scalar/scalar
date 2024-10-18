@@ -2,13 +2,12 @@ import { useWorkspace } from '@/store'
 import { specDictionary } from '@/store/import-spec'
 import {
   combineRenameDiffs,
-  diffToCollectionPayload,
-  diffToRequestPayload,
-  diffToSecuritySchemePayload,
-  diffToServerPayload,
-  diffToTagPayload,
+  mutateCollectionDiff,
+  mutateRequestDiff,
+  mutateSecuritySchemeDiff,
+  mutateServerDiff,
+  mutateTagDiff,
 } from '@/views/Request/libs/live-sync'
-import { createExampleFromRequest } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useToasts } from '@scalar/use-toasts'
@@ -28,21 +27,9 @@ const FIVE_SECONDS = 5 * 1000
  */
 export const useOpenApiWatcher = () => {
   const { toast } = useToasts()
-  const {
-    activeCollection,
-    activeWorkspace,
-    collectionMutators,
-    requests,
-    requestMutators,
-    requestExamples,
-    requestExampleMutators,
-    securitySchemes,
-    securitySchemeMutators,
-    servers,
-    serverMutators,
-    tags,
-    tagMutators,
-  } = useWorkspace()
+  const store = useWorkspace()
+
+  const { activeCollection, activeWorkspace } = store
 
   /** Little toast helper */
   const toastError = (type: string) =>
@@ -53,94 +40,30 @@ export const useOpenApiWatcher = () => {
 
   // Transforms and applies the diff to our mutators
   const applyDiff = (d: Difference) => {
-    if (!d.path.length || !activeCollection.value?.uid) return
-
     // Info/Security
     if (d.path[0] === 'info' || d.path[0] === 'security') {
-      const payload = diffToCollectionPayload(d, activeCollection.value)
-
-      if (payload) collectionMutators.edit(...payload)
-      else toastError('collection')
+      const success = mutateCollectionDiff(d, store)
+      if (!success) toastError('collection')
     }
     // Components.securitySchemes
     else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
-      const payload = diffToSecuritySchemePayload(
-        d,
-        activeCollection.value,
-        securitySchemes,
-      )
-
-      if (!payload) toastError('securitySchemes')
-      else if (payload.method === 'add')
-        securitySchemeMutators.add(...payload.args)
-      else if (payload.method === 'edit')
-        securitySchemeMutators.edit(...payload.args)
-      else if (payload.method === 'delete')
-        securitySchemeMutators.delete(...payload.args)
+      const success = mutateSecuritySchemeDiff(d, store)
+      if (!success) toastError('securitySchemes')
     }
     // Servers
     else if (d.path[0] === 'servers') {
-      const payload = diffToServerPayload(d, activeCollection.value, servers)
-
-      if (!payload) toastError('servers')
-      else if (payload.method === 'edit') serverMutators.edit(...payload.args)
-      else if (payload.method === 'add') serverMutators.add(...payload.args)
-      else if (payload.method === 'delete')
-        serverMutators.delete(...payload.args)
+      const success = mutateServerDiff(d, store)
+      if (!success) toastError('servers')
     }
     // Tags
     else if (d.path[0] === 'tags') {
-      const payload = diffToTagPayload(d, tags, activeCollection.value)
-
-      if (!payload) toastError('tags')
-      else if (payload.method === 'edit') tagMutators.edit(...payload.args)
-      else tagMutators[payload.method](...payload.args)
+      const success = mutateTagDiff(d, store)
+      if (!success) toastError('tags')
     }
     // Requests
     else if (d.path[0] === 'paths') {
-      const requestPayloads = diffToRequestPayload(
-        d,
-        activeCollection.value,
-        requests,
-      )
-
-      if (!Array.isArray(requestPayloads) || requestPayloads.length === 0)
-        toastError('requests')
-
-      requestPayloads.forEach((rp) => {
-        const { method, args } = rp
-
-        // Specially handle these cases for some reason
-        if (args[1] === 'method')
-          requestMutators.edit(args[0] as string, 'method', args[2])
-        else if (args[1] === 'path')
-          requestMutators.edit(args[0] as string, 'path', args[2])
-        else if (method === 'edit') requestMutators.edit(...args)
-        else requestMutators[method](...args)
-
-        if (
-          rp.method !== 'edit' ||
-          (d.path[3] !== 'parameters' && d.path[3] !== 'requestBody')
-        )
-          return
-
-        const requestUid = rp.args[0]
-        const request = requests[requestUid]
-
-        // V0 just generate a new example
-        // V1 We can do some better diffing
-        request?.examples.forEach((exampleUid) => {
-          const newExample = createExampleFromRequest(
-            request,
-            requestExamples[exampleUid].name,
-          )
-          if (newExample)
-            requestExampleMutators.set({
-              ...newExample,
-              uid: exampleUid,
-            })
-        })
-      })
+      const success = mutateRequestDiff(d, store)
+      if (!success) toastError('requests')
     }
   }
 
