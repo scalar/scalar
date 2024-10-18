@@ -1,5 +1,12 @@
 # @scalar/api-client-react
 
+## 1.0.63
+
+### Patch Changes
+
+- ab022bd: feat: allow for multiple api-client caching
+  - @scalar/api-client@2.1.25
+
 ## 1.0.62
 
 ### Patch Changes
