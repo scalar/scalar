@@ -49,6 +49,10 @@ internal sealed class ScalarConfiguration
     public required string? Theme { get; init; }
 
     public required string? Favicon { get; init; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+    [JsonPropertyName("_integration")]
+    public required string? Integration { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
