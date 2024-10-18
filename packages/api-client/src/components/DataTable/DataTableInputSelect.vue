@@ -98,9 +98,11 @@ watch(addingCustomValue, (newValue) => {
             :value="option"
             @click="updateSelected(option)">
             <div
-              class="flex items-center justify-center rounded-full p-[3px] w-4 h-4 group-hover/item:shadow-border"
+              class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
               :class="
-                isSelected(option) ? 'bg-blue text-b-1' : 'text-transparent'
+                isSelected(option)
+                  ? 'bg-c-accent text-b-1'
+                  : 'group-hover/item:shadow-border text-transparent'
               ">
               <ScalarIcon
                 class="size-2.5"
