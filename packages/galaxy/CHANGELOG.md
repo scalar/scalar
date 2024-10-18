@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.12
+
+### Patch Changes
+
+- 4e50d65: feat: added live updating spec
+
 ## 0.2.11
 
 ### Patch Changes

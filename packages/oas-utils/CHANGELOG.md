@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.59
+
+### Patch Changes
+
+- 4e50d65: feat: added openapi watcher to live update the api client
+- Updated dependencies [6bbb815]
+  - @scalar/themes@0.9.40
+
 ## 0.2.58
 
 ### Patch Changes

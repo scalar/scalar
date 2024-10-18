@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.40
+
+### Patch Changes
+
+- 6bbb815: fix(api-reference): search modal a11y improvements
+
 ## 0.9.39
 
 ### Patch Changes
