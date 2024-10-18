@@ -1,4 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { resolve } from '@scalar/import'
 import todesktop from '@todesktop/runtime'
 import {
   BrowserWindow,
@@ -15,7 +16,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
-import { findOpenApiDocumentUrl } from './utils/find-openapi-document-url'
 
 const MODIFIED_HEADERS_KEY = 'X-Scalar-Modified-Headers'
 
@@ -452,16 +452,27 @@ async function openAppLink(appLink?: string) {
   }
 
   // Find the exact OpenAPI document URL
-  const openApiDocumentUrl = await findOpenApiDocumentUrl(url)
+  const documentOrUrl = await resolve(url)
 
-  if (!openApiDocumentUrl) {
+  if (!documentOrUrl) {
     console.error('Could not find an OpenAPI document URL')
     return
   }
 
-  // Fetch OpenAPI document
-  console.log(`Fetching ${openApiDocumentUrl} …`)
-  const result = await fetch(openApiDocumentUrl)
+  // OpenAPI document
+  if (typeof documentOrUrl === 'object') {
+    // Get first browser window
+    const [mainWindow] = BrowserWindow.getAllWindows()
+
+    // Send to renderer process
+    mainWindow.webContents.send('importFile', documentOrUrl)
+
+    return
+  }
+
+  // Fetch OpenAPI document URL
+  console.log(`Fetching ${documentOrUrl} …`)
+  const result = await fetch(documentOrUrl)
 
   // Error handling
   if (!result.ok) {
