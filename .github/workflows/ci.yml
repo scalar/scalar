@@ -29,13 +29,11 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Cache build output
+      - name: Update Turborepo cache
         uses: actions/cache/save@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
-          path: |
-            packages
-            .turbo
-          key: build-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
+          path: .turbo
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
 
   format:
     runs-on: ubuntu-20.04
@@ -67,24 +65,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Restore cached build output
-        uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
-        with:
-          path: |
-            packages
-            .turbo
-          key: build-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
-      # - name: Build
-      #   uses: ./.github/actions/build
-      #   with:
-      #     node-version: ${{ matrix.node-version }}
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+      - name: Build
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dev dependencies
-        run: pnpm install --dev
       - name: Check types
         run: pnpm turbo types:check
 
