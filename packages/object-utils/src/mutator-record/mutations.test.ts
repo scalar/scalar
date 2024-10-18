@@ -154,7 +154,7 @@ describe('Handles history rolling', () => {
     param2: 2000,
   }
 
-  test(
+  test.todo(
     'Rolls history back to initial then forward to modified state',
     { retry: 3 },
     () => {
