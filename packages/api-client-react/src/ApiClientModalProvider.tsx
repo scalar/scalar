@@ -92,6 +92,7 @@ export const ApiClientModalProvider = ({
     return () => {
       _client.app.unmount()
       clientStore.removeClient(key)
+      delete clientDict[key]
     }
   }, [el.current, state.createClient])
 

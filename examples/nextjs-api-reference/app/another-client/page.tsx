@@ -1,13 +1,13 @@
 import Link from 'next/link'
 import React from 'react'
 
-import { Button, ClientWrapper } from './components'
+import { Button, ClientWrapper } from '../client/components'
 
 const Page = () => {
   return (
     <ClientWrapper>
       <Button />
-      <Link href="/another-client">Go to another client</Link>
+      <Link href="/client">Go to client</Link>
     </ClientWrapper>
   )
 }
