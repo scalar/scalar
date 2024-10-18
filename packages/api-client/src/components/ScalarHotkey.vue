@@ -1,42 +1,24 @@
 <script setup lang="ts">
-import { keyMap } from '@/hooks'
 import { isMacOS } from '@scalar/use-tooltip'
-import { useMagicKeys, whenever } from '@vueuse/core'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  hotkey: string
+  hotkey: {
+    modifier?: string
+    key: string
+  }
 }>()
 
-const emit = defineEmits<{ (event: 'hotkeyPressed', key: string): void }>()
-
-// Prepend hotkey based on the OS
-const modifierKey = computed(() => (isMacOS() ? '⌘' : '⌃'))
-
-// Map the key icon displayed in UI to actual keyboard key
-const resolvedHotkey = computed(() => keyMap().get(props.hotkey))
-
-const displayHotkey = computed(() => `${modifierKey.value} ${props.hotkey}`)
-
-const keys = useMagicKeys({
-  passive: false,
-  onEventFired(e) {
-    // Remove default behavior for keypress
-    if (!isMacOS() && e.ctrlKey && e.key === resolvedHotkey.value) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  },
-})
-
-whenever(keys[`${isMacOS() ? 'meta' : 'control'}_${props.hotkey}`], () => {
-  emit('hotkeyPressed', resolvedHotkey.value || '')
+const displayHotkey = computed(() => {
+  const modifierKey =
+    props.hotkey.modifier === 'meta' ? (isMacOS() ? '⌘' : '^') : ''
+  return `${modifierKey} ${props.hotkey.key}`
 })
 </script>
 <template>
   <div
     v-bind="$attrs"
-    class="bg-b-1 border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase">
+    class="border-b-3 inline-block overflow-hidden rounded border-1/2 text-xxs rounded-b px-1 font-medium uppercase">
     {{ displayHotkey }}
   </div>
 </template>
