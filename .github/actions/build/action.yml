@@ -25,7 +25,8 @@ runs:
     - name: Cache turbo build setup
       uses: actions/cache@v4
       with: 
-        path: .turbo
+        path: |
+          .turbo
         key: ${{ runner.os }}-${{ inputs.node-version }}-turbo-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-${{ inputs.node-version }}-turbo-
