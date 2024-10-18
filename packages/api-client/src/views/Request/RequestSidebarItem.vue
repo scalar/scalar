@@ -236,6 +236,15 @@ function openCommandPaletteRequest() {
     },
   })
 }
+
+const watchIconColor = computed(() => {
+  const { uid, watchForChangesStatus } = activeCollection.value || {}
+
+  if (uid !== item.value.entity.uid) return 'text-c-3'
+  if (watchForChangesStatus === 'WATCHING') return 'text-c-1'
+  if (watchForChangesStatus === 'ERROR') return 'text-red'
+  return 'text-c-3'
+})
 </script>
 
 <template>
@@ -384,11 +393,7 @@ function openCommandPaletteRequest() {
               <template #trigger>
                 <ScalarIcon
                   class="text-sm"
-                  :class="
-                    activeCollection?.uid === item.entity.uid
-                      ? 'text-c-1'
-                      : 'text-c-3'
-                  "
+                  :class="watchIconColor"
                   icon="Watch"
                   size="sm"
                   thickness="2.5" />

@@ -15,8 +15,11 @@ import { useTimeoutPoll } from '@vueuse/core'
 import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
 
-/** Live Sync polling timeout */
-const FIVE_SECONDS = 5 * 1000
+/** Live Sync polling timeout, every 5 seconds */
+const POLLING_INTERVAL = 5 * 1000
+
+/** Pause for 60 seconds after an error */
+const ERROR_TIMEOUT = 60 * 1000
 
 /**
  * Hook which handles polling the documentUrl for changes then attempts to merge what is new
@@ -29,12 +32,12 @@ export const useOpenApiWatcher = () => {
   const { toast } = useToasts()
   const store = useWorkspace()
 
-  const { activeCollection, activeWorkspace } = store
+  const { activeCollection, activeWorkspace, collectionMutators } = store
 
   /** Little toast helper */
   const toastError = (type: string) =>
     toast(
-      `[useOpenApiWatcher] changes to the ${type} were not applied`,
+      `[useOpenApiWatcher] Changes to the ${type} were not applied`,
       'error',
     )
 
@@ -73,46 +76,69 @@ export const useOpenApiWatcher = () => {
 
     const old = specDictionary[url]
 
-    // Grab the new spec
-    const spec = await fetchSpecFromUrl(
-      url,
-      activeWorkspace.value.proxyUrl,
-      false,
-    )
-    const hash = createHash(spec)
+    try {
+      // Grab the new spec
+      const spec = await fetchSpecFromUrl(
+        url,
+        activeWorkspace.value.proxyUrl,
+        false,
+      )
+      const hash = createHash(spec)
 
-    // If we have no previous copy then store this one
-    if (!old?.hash) {
-      const { schema } = await parseSchema(spec)
+      collectionMutators.edit(
+        activeCollection.value.uid,
+        'watchForChangesStatus',
+        'WATCHING',
+      )
 
-      if (schema)
-        specDictionary[url] = {
-          hash,
-          schema,
-        }
-    }
-    // If the hashes do not match, start diffin
-    else if (old.hash && old.hash !== hash) {
-      const { schema } = await parseSchema(spec)
-      const diff = microdiff(old.schema, schema)
+      // If we have no previous copy then store this one
+      if (!old?.hash) {
+        const { schema } = await parseSchema(spec)
 
-      // Combines add/remove diffs into single rename diffs
-      const combined = combineRenameDiffs(diff)
-
-      try {
-        // Transform and apply the diffs to our mutators
-        combined.forEach(applyDiff)
-
-        // Update the dict
-        specDictionary[url] = {
-          hash,
-          schema,
-        }
-      } catch (e) {
-        console.error('[useOpenApiWatcher] Error:', e)
+        if (schema)
+          specDictionary[url] = {
+            hash,
+            schema,
+          }
       }
-    } else console.log('[useOpenApiWatcher] No changes detected yet…')
-  }, FIVE_SECONDS)
+      // If the hashes do not match, start diffin
+      else if (old.hash && old.hash !== hash) {
+        const { schema } = await parseSchema(spec)
+        const diff = microdiff(old.schema, schema)
+
+        // Combines add/remove diffs into single rename diffs
+        const combined = combineRenameDiffs(diff)
+
+        try {
+          // Transform and apply the diffs to our mutators
+          combined.forEach(applyDiff)
+
+          // Update the dict
+          specDictionary[url] = {
+            hash,
+            schema,
+          }
+        } catch (e) {
+          console.error('[useOpenApiWatcher] Error:', e)
+        }
+      } else console.log('[useOpenApiWatcher] No changes detected yet…')
+    } catch (e) {
+      console.error('[useOpenApiWatcher] Error:', e)
+      console.info('[useOpenApiWatcher] Pausing watcher for 60 seconds')
+
+      pause()
+      collectionMutators.edit(
+        activeCollection.value.uid,
+        'watchForChangesStatus',
+        'ERROR',
+      )
+
+      setTimeout(() => {
+        console.info('[useOpenApiWatcher] Resuming watcher')
+        resume()
+      }, ERROR_TIMEOUT)
+    }
+  }, POLLING_INTERVAL)
 
   // Ensure we are only polling when we should watchForChanges
   watch(
@@ -124,7 +150,14 @@ export const useOpenApiWatcher = () => {
       if (documentUrl && watchForChanges) {
         console.info(`[useOpenApiWatcher] Watching ${documentUrl} …`)
         resume()
-      } else pause()
+      } else if (activeCollection.value) {
+        pause()
+        collectionMutators.edit(
+          activeCollection.value.uid,
+          'watchForChangesStatus',
+          'IDLE',
+        )
+      }
     },
     { immediate: true },
   )

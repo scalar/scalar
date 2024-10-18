@@ -151,6 +151,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
       'children': c.childUids || [],
       'x-scalar-icon': 'interface-content-folder',
       'watchForChanges': false,
+      'watchForChangesStatus': 'IDLE',
     } satisfies v_2_1_0.Collection
   })
 
