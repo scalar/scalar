@@ -28,9 +28,11 @@ const variants = cva({
 <template>
   <li :class="cx(variants({ active, selected }), 'group')">
     <div
-      class="flex size-4 items-center justify-center p-0.75 group-hover:shadow-border"
+      class="flex size-4 items-center justify-center p-0.75"
       :class="[
-        selected ? 'bg-blue text-b-1' : 'text-transparent',
+        selected
+          ? 'bg-c-accent text-b-1'
+          : 'text-transparent group-hover:shadow-border',
         style === 'checkbox' ? 'rounded' : 'rounded-full',
       ]">
       <!-- Icon needs help to be optically centered (╥﹏╥) -->
