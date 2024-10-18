@@ -78,12 +78,26 @@ async function importCollection() {
 
   loader.startLoading()
   try {
-    if (isInputUrl.value)
-      await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
-        proxy: activeWorkspace.value.proxyUrl,
-        watchForChanges: watchForChanges.value,
-      })
-    else if (isInputDocument.value)
+    if (isInputUrl.value) {
+      const [error] = await importSpecFromUrl(
+        inputContent.value,
+        activeWorkspace.value.uid,
+        {
+          proxy: activeWorkspace.value.proxyUrl,
+          watchForChanges: watchForChanges.value,
+        },
+      )
+
+      if (error) {
+        toast(
+          'There was a possible CORS error while importing your spec, please make sure this server is allowed in the CORS policy of your OpenAPI document.',
+          'error',
+          { timeout: 5_000 },
+        )
+        loader.invalidate(2000, true)
+        return
+      }
+    } else if (isInputDocument.value)
       await importSpecFile(
         String(inputContent.value),
         activeWorkspace.value.uid,

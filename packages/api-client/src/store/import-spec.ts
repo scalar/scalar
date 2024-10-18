@@ -1,4 +1,8 @@
-import type { ClientConfiguration } from '@/libs'
+import {
+  type ClientConfiguration,
+  type ErrorResponse,
+  normalizeError,
+} from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
@@ -94,6 +98,8 @@ export function importSpecFileFactory({
 
   /**
    * Function to fetch and import a spec from a URL
+   *
+   * returns true for success
    */
   async function importSpecFromUrl(
     url: string,
@@ -109,19 +115,22 @@ export function importSpecFileFactory({
       preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme']
       proxy?: string
     } = {},
-  ) {
+  ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
 
-      await importSpecFile(spec, workspaceUid, {
-        documentUrl: url,
-        overloadServers,
-        watchForChanges,
-        preferredSecurityScheme,
-      })
+      return [
+        null,
+        await importSpecFile(spec, workspaceUid, {
+          documentUrl: url,
+          overloadServers,
+          watchForChanges,
+          preferredSecurityScheme,
+        }),
+      ]
     } catch (error) {
       console.error('Failed to fetch spec from URL:', error)
-      return undefined
+      return [normalizeError(error), null]
     }
   }
 
