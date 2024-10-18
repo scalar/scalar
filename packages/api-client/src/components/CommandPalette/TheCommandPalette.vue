@@ -19,7 +19,7 @@ export default {
 }
 
 export const PaletteComponents = {
-  'Import Collection': CommandPaletteImport,
+  'Import from OpenAPI/Swagger': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Tag': CommandPaletteTag,
@@ -57,7 +57,7 @@ const availableCommands = [
         icon: 'ExternalLink',
       },
       {
-        name: 'Import Collection',
+        name: 'Import from OpenAPI/Swagger',
         icon: 'Import',
       },
       {
