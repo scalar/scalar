@@ -229,7 +229,7 @@ public static class ScalarOptionsExtensions
         options.TagSorter = tagSorter;
         return options;
     }
-    
+
     /// <summary>
     /// Sets the operation sorter for the <see cref="ScalarOptions" />.
     /// </summary>
@@ -332,6 +332,18 @@ public static class ScalarOptionsExtensions
     public static ScalarOptions WithCdnUrl(this ScalarOptions options, string url)
     {
         options.CdnUrl = url;
+        return options;
+    }
+
+
+    /// <summary>
+    /// Sets whether to expose 'dotnet' to the configuration
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="expose">Whether to expose 'dotnet'.</param>
+    public static ScalarOptions WithExposeFramework(this ScalarOptions options, bool expose)
+    {
+        options.ExposeFramework = expose;
         return options;
     }
 }
