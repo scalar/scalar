@@ -38,14 +38,21 @@ export function extendedWorkspaceDataFactory({
 }: StoreContext) {
   const addWorkspace = (payload: Partial<Workspace> = {}) => {
     // Create some example data
-    const example = requestExampleSchema.parse({ name: 'Example' })
     const request = requestSchema.parse({
       method: 'get',
       parameters: [],
       path: '',
       summary: 'My First Request',
-      examples: [example.uid],
+      examples: [],
     })
+
+    const example = requestExampleSchema.parse({
+      name: 'Example',
+      requestUid: request.uid,
+    })
+
+    request.examples.push(example.uid)
+
     const collection = collectionSchema.parse({
       info: {
         title: 'Drafts',
