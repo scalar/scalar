@@ -40,18 +40,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dev dependencies
-        run: pnpm install --dev
       - name: Check code style
         run: pnpm format:check
 
@@ -61,14 +50,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Check types
         run: pnpm turbo types:check
 
@@ -78,15 +60,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Build packages
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
       - name: Run tests
         run: pnpm test:ci
 
@@ -96,15 +70,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@ba13968f2a0d09757685b0685441cde329806afa
         with:
@@ -122,14 +88,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -164,14 +123,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -262,10 +214,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Check which files were touched
         id: changed-files
         uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
@@ -274,11 +223,6 @@ jobs:
             api_client:
               - projects/client-scalar-com/**
               - packages/api-client/**
-      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
@@ -314,16 +258,8 @@ jobs:
         node-version: [20]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-        env:
-          DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install Netlify CLI
         run: pnpm install -g netlify
       - name: Deploy to Netlify
@@ -353,12 +289,6 @@ jobs:
         uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee
         with:
           dotnet-version: 9.x
-
-      - name: Build @scalar/api-reference
-        uses: ./.github/actions/build
-        with:
-          node-version: 20
-          packages-only: 'api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: packages/scalar.aspnetcore
@@ -412,13 +342,6 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
-        name: Build @scalar/api-reference
-        uses: ./.github/actions/build
-        with:
-          node-version: 20
-          packages-only: 'api-reference'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference
