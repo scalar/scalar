@@ -7,6 +7,15 @@ on:
   pull_request:
 
 jobs:
+  harden_security:
+    name: Harden Security
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - name: Ensure SHA pinned actions
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@40ba2d51b6b6d8695f2b6bd74e785172d4f8d00f
+
   build:
     runs-on: ubuntu-20.04
     strategy:
