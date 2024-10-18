@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
 })
 
 const handleToggleWatchForChanges = (item?: SidebarItem) => {
-  if (item && item.watchForChanges !== undefined) {
+  if (item?.documentUrl) {
     item.watchForChanges = !item.watchForChanges
   }
 }
