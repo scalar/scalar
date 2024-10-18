@@ -15,11 +15,11 @@ npm install @scalar/api-client-react
 
 First we need to add the provider, you should add it in the highest place you have a unique spec.
 
-```tsx
+```ts
 import { ApiClientModalProvider } from '@scalar/api-client-react'
 import '@scalar/api-client-react/style.css'
 
-;<ApiClientModalProvider
+<ApiClientModalProvider
   configuration={{
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
