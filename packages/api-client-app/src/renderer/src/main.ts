@@ -57,7 +57,7 @@ window.electron.ipcRenderer?.on(
   'importFile',
   function (_: IpcRendererEvent, fileContent: string) {
     if (fileContent) {
-      client.store.importSpecFile(fileContent)
+      client.store.importSpecFile(fileContent, 'default')
     }
   },
 )
@@ -75,7 +75,7 @@ async function drop(e: DragEvent) {
     const url = e.dataTransfer.getData('text/uri-list')
 
     if (url) {
-      client.store.importSpecFromUrl(url)
+      client.store.importSpecFromUrl(url, 'default')
     }
 
     return
@@ -87,7 +87,7 @@ async function drop(e: DragEvent) {
     const fileContent = await window.api.readFile(f.path)
 
     if (fileContent) {
-      client.store.importSpecFile(fileContent)
+      client.store.importSpecFile(fileContent, 'default')
     }
   }
 }

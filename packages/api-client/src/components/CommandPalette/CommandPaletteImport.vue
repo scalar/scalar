@@ -6,10 +6,12 @@ import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarIcon,
+  ScalarToggle,
+  ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -22,7 +24,9 @@ const emits = defineEmits<{
 const { activeWorkspace, importSpecFile, importSpecFromUrl } = useWorkspace()
 const { toast } = useToasts()
 const loader = useLoadingState()
+
 const inputContent = ref('')
+const watchForChanges = ref(true)
 
 const documentDetails = computed(() =>
   getOpenApiDocumentDetails(inputContent.value),
@@ -59,18 +63,26 @@ const { open: openSpecFileDialog } = useFileDialog({
   accept: '.json,.yaml,.yml',
 })
 
+// Enable watch mode if the input is a URL
+watch(isInputUrl, (newVal) => {
+  if (!newVal) watchForChanges.value = false
+})
+
+// Disable watch mode if the input is not a URL
+watch(inputContent, (newVal) => {
+  if (!isUrl(newVal)) watchForChanges.value = false
+})
+
 async function importCollection() {
   if (!inputContent.value || loader.isLoading) return
 
   loader.startLoading()
   try {
     if (isInputUrl.value)
-      await importSpecFromUrl(
-        inputContent.value,
-        undefined,
-        undefined,
-        activeWorkspace.value.uid,
-      )
+      await importSpecFromUrl(inputContent.value, activeWorkspace.value.uid, {
+        proxy: activeWorkspace.value.proxyUrl,
+        watchForChanges: watchForChanges.value,
+      })
     else if (isInputDocument.value)
       await importSpecFile(
         String(inputContent.value),
@@ -102,10 +114,11 @@ async function importCollection() {
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         v-model="inputContent"
-        placeholder="Paste Swagger/OpenAPI File URL or content"
+        placeholder="Your OpenAPI/Swagger document or URL"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
+      <!-- OpenAPI document preview -->
       <div class="flex justify-between">
         <div class="pl-8 text-xs min-h-8 py-2 text-c-2">Preview</div>
         <ScalarButton
@@ -123,16 +136,66 @@ async function importCollection() {
         :lang="documentType" />
     </template>
     <template #options>
-      <ScalarButton
-        class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
-        variant="outlined"
-        @click="openSpecFileDialog">
-        JSON, or YAML File
-        <ScalarIcon
-          class="text-c-3"
-          icon="UploadSimple"
-          size="md" />
-      </ScalarButton>
+      <div class="flex flex-row items-center justify-between gap-3 w-full">
+        <!-- Upload -->
+        <ScalarButton
+          class="p-2 max-h-8 gap-1.5 text-xs hover:bg-b-2 relative"
+          variant="outlined"
+          @click="openSpecFileDialog">
+          JSON, or YAML File
+          <ScalarIcon
+            class="text-c-3"
+            icon="UploadSimple"
+            size="md" />
+        </ScalarButton>
+
+        <!-- Watch -->
+        <ScalarTooltip
+          as="div"
+          class="z-[10001]"
+          side="bottom"
+          :sideOffset="5">
+          <template #trigger>
+            <label
+              class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-2 select-none"
+              :class="
+                !!inputContent && !isInputUrl
+                  ? 'cursor-default'
+                  : 'cursor-pointer'
+              "
+              for="watch-toggle">
+              <ScalarToggle
+                id="watch-toggle"
+                v-model="watchForChanges"
+                :disabled="!!inputContent && !isInputUrl" />
+              <span
+                class="text-c-1 flex gap-1 items-center font-medium text-xs"
+                :class="{ 'text-c-3': !watchForChanges }">
+                <ScalarIcon
+                  icon="Watch"
+                  size="sm" />
+                Watch Mode
+              </span>
+            </label>
+          </template>
+          <template #content>
+            <div
+              class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+              <div class="flex items-center text-c-2">
+                <span v-if="!!inputContent && !isInputUrl"
+                  >Watch Mode is only supported with URL</span
+                >
+                <span
+                  v-else
+                  class="text-pretty"
+                  >Watch your OpenAPI URL for changes. Enabled it will update
+                  the API client for you.</span
+                >
+              </div>
+            </div>
+          </template>
+        </ScalarTooltip>
+      </div>
     </template>
     <template #submit>
       Import

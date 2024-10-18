@@ -5,7 +5,7 @@ import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
   Draggable,
   type DraggableProps,
@@ -51,6 +51,7 @@ defineSlots<{
 }>()
 
 const {
+  activeCollection,
   activeRequest,
   activeRouterParams,
   activeWorkspace,
@@ -82,6 +83,8 @@ const item = computed<SidebarItem>(() => {
       resourceTitle: 'Collection',
       children: collection.children,
       icon: collection['x-scalar-icon'],
+      documentUrl: collection.documentUrl,
+      watchForChanges: collection.watchForChanges,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
@@ -354,9 +357,10 @@ function openCommandPaletteRequest() {
               v-if="!isReadOnly && !isDraftCollection"
               class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
               :class="{
-                flex:
+                'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&
                   menuItem.open,
+                'right-5': item.watchForChanges,
               }"
               size="sm"
               variant="ghost"
@@ -373,6 +377,33 @@ function openCommandPaletteRequest() {
                 icon="Ellipses"
                 size="sm" />
             </ScalarButton>
+            <ScalarTooltip
+              v-if="item.watchForChanges"
+              side="right"
+              :sideOffset="12">
+              <template #trigger>
+                <ScalarIcon
+                  class="text-sm"
+                  :class="
+                    activeCollection?.uid === item.entity.uid
+                      ? 'text-c-1'
+                      : 'text-c-3'
+                  "
+                  icon="Watch"
+                  size="sm"
+                  thickness="2.5" />
+              </template>
+              <template #content>
+                <div
+                  class="grid gap-1.5 pointer-events-none max-w-10 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                  <div class="flex items-center text-c-2">
+                    <p class="text-pretty break-all">
+                      Watching: {{ item.documentUrl }}
+                    </p>
+                  </div>
+                </div>
+              </template>
+            </ScalarTooltip>
             <span>&hairsp;</span>
           </div>
         </div>

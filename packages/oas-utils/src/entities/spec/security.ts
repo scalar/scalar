@@ -208,7 +208,7 @@ const oauthCommon = z.object({
   selectedScopes: z.array(z.string()).optional().default([]),
 })
 
-const oasOauthFlowSchema = z
+export const oasOauthFlowSchema = z
   .discriminatedUnion('type', [
     /** Configuration for the OAuth Implicit flow */
     oauthCommon.extend({

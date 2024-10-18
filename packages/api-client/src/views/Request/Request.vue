@@ -9,6 +9,7 @@ import { useWorkspace } from '@/store'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
+import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useToasts } from '@scalar/use-toasts'
@@ -105,6 +106,8 @@ onMounted(() => {
   events.executeRequest.on(executeRequest)
   events.cancelRequest.on(cancelRequest)
 })
+
+useOpenApiWatcher()
 
 /**
  * Need to manually remove listener on unmount due to vueuse memory leak

@@ -110,8 +110,9 @@ export const createWorkspaceStore = (
     workspaces,
     workspaceMutators,
   }
+  const { addTag, deleteTag } = extendedTagDataFactory(storeContext)
   const { addRequest, deleteRequest, findRequestParents } =
-    extendedRequestDataFactory(storeContext)
+    extendedRequestDataFactory(storeContext, addTag)
   const { deleteEnvironment } = extendedEnvironmentDataFactory(storeContext)
   const { addServer, deleteServer } = extendedServerDataFactory(storeContext)
   const { addCollection, deleteCollection } =
@@ -122,7 +123,6 @@ export const createWorkspaceStore = (
     extendedWorkspaceDataFactory(storeContext)
   const { addSecurityScheme, deleteSecurityScheme } =
     extendedSecurityDataFactory(storeContext)
-  const { addTag, deleteTag } = extendedTagDataFactory(storeContext)
 
   // ---------------------------------------------------------------------------
   // Active entities based on the router
