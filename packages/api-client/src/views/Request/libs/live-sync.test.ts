@@ -1,3 +1,4 @@
+import { type WorkspaceStore, useWorkspace } from '@/store'
 import json from '@scalar/galaxy/3.1.json'
 import {
   type Collection,
@@ -10,16 +11,16 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import microdiff, { type Difference } from 'microdiff'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 
 import {
   combineRenameDiffs,
-  diffToCollectionPayload,
-  diffToRequestPayload,
-  diffToSecuritySchemePayload,
-  diffToServerPayload,
-  diffToTagPayload,
+  mutateCollectionDiff,
+  mutateRequestDiff,
+  mutateSecuritySchemeDiff,
+  mutateServerDiff,
+  mutateTagDiff,
   narrowUnionSchema,
   parseDiff,
   traverseZodSchema,
@@ -461,7 +462,14 @@ describe('combineRenameDiffs', () => {
   })
 })
 
-describe('diffToCollectionPayload', () => {
+describe('mutateCollectionDiff', () => {
+  const mockStore = {
+    activeCollection: { value: mockCollection },
+    collectionMutators: {
+      edit: vi.fn(),
+    },
+  } as unknown as WorkspaceStore
+
   it('generates a payload for updating the title', () => {
     const diff: Difference = {
       type: 'CHANGE',
@@ -470,8 +478,13 @@ describe('diffToCollectionPayload', () => {
       value: 'Updated Test API',
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual(['collection1', 'info.title', 'Updated Test API'])
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
+      'collection1',
+      'info.title',
+      'Updated Test API',
+    )
   })
 
   it('generates a payload for updating the version', () => {
@@ -482,8 +495,13 @@ describe('diffToCollectionPayload', () => {
       value: '2.0.0',
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual(['collection1', 'info.version', '2.0.0'])
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
+      'collection1',
+      'info.version',
+      '2.0.0',
+    )
   })
 
   it('generates a payload for updating the description', () => {
@@ -494,12 +512,13 @@ describe('diffToCollectionPayload', () => {
       value: 'An updated test API for unit testing',
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'info.description',
       'An updated test API for unit testing',
-    ])
+    )
   })
 
   it('generates a payload for adding a new property', () => {
@@ -508,32 +527,29 @@ describe('diffToCollectionPayload', () => {
       path: ['info', 'termsOfService'],
       value: 'https://example.com/terms',
     }
-
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'info.termsOfService',
       'https://example.com/terms',
-    ])
+    )
   })
 
   it('generates a payload for removing a property', () => {
-    const collectionWithExtra = {
-      ...mockCollection,
-      info: {
-        ...mockCollection.info,
-        termsOfService: 'https://example.com/terms',
-      },
-    } as Collection
-
     const diff: Difference = {
       type: 'REMOVE',
       path: ['info', 'termsOfService'],
       oldValue: 'https://example.com/terms',
     }
 
-    const result = diffToCollectionPayload(diff, collectionWithExtra)
-    expect(result).toEqual(['collection1', 'info.termsOfService', undefined])
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
+      'collection1',
+      'info.termsOfService',
+      undefined,
+    )
   })
 
   it('generates a payload for adding a new security requirement', () => {
@@ -543,12 +559,13 @@ describe('diffToCollectionPayload', () => {
       value: { oauth2: ['read:api', 'write:api'] },
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'security',
       [...mockCollection.security, { oauth2: ['read:api', 'write:api'] }],
-    ])
+    )
   })
 
   it('generates a payload for removing a security requirement', () => {
@@ -558,12 +575,13 @@ describe('diffToCollectionPayload', () => {
       oldValue: { apiKeyQuery: [] },
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'security',
       [mockCollection.security[0]],
-    ])
+    )
   })
 
   it('generates a payload for adding a security scope to oauth2', () => {
@@ -573,12 +591,13 @@ describe('diffToCollectionPayload', () => {
       value: 'write:events',
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'security.0.bearerAuth',
       ['read:users', 'read:events', 'write:events'],
-    ])
+    )
   })
 
   it('generates a payload for removing a security scope from oauth2', () => {
@@ -588,16 +607,17 @@ describe('diffToCollectionPayload', () => {
       oldValue: 'read:events',
     }
 
-    const result = diffToCollectionPayload(diff, mockCollection)
-    expect(result).toEqual([
+    const result = mutateCollectionDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
       'security.0.bearerAuth',
       ['read:users'],
-    ])
+    )
   })
 })
 
-describe('diffToServerPayload', () => {
+describe('mutateServerDiff', () => {
   const mockServers: Record<string, Server> = {
     server1: {
       uid: 'server1',
@@ -622,6 +642,15 @@ describe('diffToServerPayload', () => {
       },
     },
   }
+  const mockStore = {
+    activeCollection: { value: mockCollection },
+    servers: mockServers,
+    serverMutators: {
+      edit: vi.fn(),
+      delete: vi.fn(),
+      add: vi.fn(),
+    },
+  } as unknown as WorkspaceStore
 
   it('generates an edit payload for updating a server property', () => {
     const diff: Difference = {
@@ -631,11 +660,13 @@ describe('diffToServerPayload', () => {
       value: 'https://new-api.example.com',
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['server1', 'url', 'https://new-api.example.com'],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server1',
+      'url',
+      'https://new-api.example.com',
+    )
   })
 
   it('generates a delete payload for removing a server', () => {
@@ -645,11 +676,12 @@ describe('diffToServerPayload', () => {
       oldValue: mockServers.server2,
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'delete',
-      args: ['server2', 'collection1'],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.delete).toHaveBeenCalledWith(
+      'server2',
+      'collection1',
+    )
   })
 
   it('generates an add payload for creating a new server', () => {
@@ -664,11 +696,12 @@ describe('diffToServerPayload', () => {
       value: newServer,
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'add',
-      args: [newServer, 'collection1'],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.add).toHaveBeenCalledWith(
+      newServer,
+      'collection1',
+    )
   })
 
   it('generates an edit payload for adding a server variable', () => {
@@ -678,15 +711,13 @@ describe('diffToServerPayload', () => {
       value: { default: 'default', enum: ['default', 'other'] },
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'server1',
-        'variables.newVar',
-        { default: 'default', enum: ['default', 'other'] },
-      ],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server1',
+      'variables.newVar',
+      { default: 'default', enum: ['default', 'other'] },
+    )
   })
 
   it('generates an edit payload for updating a server variable', () => {
@@ -697,11 +728,13 @@ describe('diffToServerPayload', () => {
       value: 'v2',
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['server3', 'variables.version.default', 'v2'],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server3',
+      'variables.version.default',
+      'v2',
+    )
   })
 
   it('generates an edit payload for removing a server variable', () => {
@@ -711,11 +744,13 @@ describe('diffToServerPayload', () => {
       oldValue: { default: 'v1', enum: ['v1', 'v2'] },
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['server3', 'variables.version', undefined],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server3',
+      'variables.version',
+      undefined,
+    )
   })
 
   it('generates an edit payload for adding all variables to a server', () => {
@@ -728,18 +763,16 @@ describe('diffToServerPayload', () => {
       },
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'server2',
-        'variables',
-        {
-          version: { default: 'v1', enum: ['v1', 'v2'] },
-          environment: { default: 'staging', enum: ['production', 'staging'] },
-        },
-      ],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server2',
+      'variables',
+      {
+        version: { default: 'v1', enum: ['v1', 'v2'] },
+        environment: { default: 'staging', enum: ['production', 'staging'] },
+      },
+    )
   })
 
   it('generates an edit payload for removing all variables from a server', () => {
@@ -749,11 +782,13 @@ describe('diffToServerPayload', () => {
       oldValue: mockServers.server3.variables,
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['server3', 'variables', {}],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server3',
+      'variables',
+      {},
+    )
   })
 
   it('generates an edit payload for updating a server variable enum', () => {
@@ -764,14 +799,16 @@ describe('diffToServerPayload', () => {
       value: ['v1', 'v2', 'v3'],
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['server3', 'variables.version.enum', ['v1', 'v2', 'v3']],
-    })
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
+      'server3',
+      'variables.version.enum',
+      ['v1', 'v2', 'v3'],
+    )
   })
 
-  it('returns null when trying to edit a non-existent server', () => {
+  it('returns false when trying to edit a non-existent server', () => {
     const diff: Difference = {
       type: 'CHANGE',
       path: ['servers', 4, 'url'],
@@ -779,11 +816,11 @@ describe('diffToServerPayload', () => {
       value: 'https://new-nonexistent.example.com',
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toBeNull()
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
-  it('returns null for if a server is not found', () => {
+  it('returns false for if a server is not found', () => {
     const diff: Difference = {
       type: 'CHANGE',
       path: ['servers', 99, 'variables', 'port'],
@@ -791,24 +828,24 @@ describe('diffToServerPayload', () => {
       value: [99],
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toBeNull()
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
-  it('returns null for unhandled diff types', () => {
+  it('returns false for unhandled diff types', () => {
     const diff: Difference = {
       type: 'CHANGE',
-      path: ['servers'],
+      path: ['servers', 'what', 'no'],
       oldValue: [],
       value: [],
     }
 
-    const result = diffToServerPayload(diff, mockCollection, mockServers)
-    expect(result).toBeNull()
+    const result = mutateServerDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 })
 
-describe('diffToTagPayload', () => {
+describe('mutateTagDiff', () => {
   const mockTags: Record<string, Tag> = {
     tag1uid: {
       'type': 'tag',
@@ -836,6 +873,16 @@ describe('diffToTagPayload', () => {
     },
   }
 
+  const mockStore = {
+    activeCollection: { value: mockCollection },
+    tags: mockTags,
+    tagMutators: {
+      edit: vi.fn(),
+      delete: vi.fn(),
+      add: vi.fn(),
+    },
+  } as unknown as WorkspaceStore
+
   it('generates an add payload for creating a new tag', () => {
     const newTag: Tag = {
       'type': 'tag',
@@ -851,8 +898,12 @@ describe('diffToTagPayload', () => {
       value: newTag,
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({ method: 'add', args: [newTag, 'collection1'] })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.add).toHaveBeenCalledWith(
+      newTag,
+      'collection1',
+    )
   })
 
   it('generates a remove payload for deleting a tag', () => {
@@ -862,21 +913,19 @@ describe('diffToTagPayload', () => {
       oldValue: mockTags.tag2,
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({
-      method: 'delete',
-      args: [
-        {
-          'type': 'tag',
-          'uid': 'tag2uid',
-          'name': 'Tag 2',
-          'description': 'Second tag',
-          'children': [],
-          'x-scalar-children': [],
-        },
-        'collection1',
-      ],
-    })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.delete).toHaveBeenCalledWith(
+      {
+        'type': 'tag',
+        'uid': 'tag2uid',
+        'name': 'Tag 2',
+        'description': 'Second tag',
+        'children': [],
+        'x-scalar-children': [],
+      },
+      'collection1',
+    )
   })
 
   it('generates an edit payload for updating a tag name', () => {
@@ -887,11 +936,13 @@ describe('diffToTagPayload', () => {
       value: 'Updated Tag 1',
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['tag1uid', 'name', 'Updated Tag 1'],
-    })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
+      'tag1uid',
+      'name',
+      'Updated Tag 1',
+    )
   })
 
   it('generates an edit payload for updating a tag description', () => {
@@ -902,11 +953,13 @@ describe('diffToTagPayload', () => {
       value: 'Updated second tag',
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['tag2uid', 'description', 'Updated second tag'],
-    })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
+      'tag2uid',
+      'description',
+      'Updated second tag',
+    )
   })
 
   it('generates an edit payload for adding a new property to a tag', () => {
@@ -916,11 +969,13 @@ describe('diffToTagPayload', () => {
       value: { url: 'https://example.com/docs' },
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['tag3uid', 'externalDocs', { url: 'https://example.com/docs' }],
-    })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
+      'tag3uid',
+      'externalDocs',
+      { url: 'https://example.com/docs' },
+    )
   })
 
   it('generates an edit payload for removing a property from a tag', () => {
@@ -930,14 +985,16 @@ describe('diffToTagPayload', () => {
       oldValue: 'First tag',
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['tag1uid', 'description', undefined],
-    })
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
+      'tag1uid',
+      'description',
+      undefined,
+    )
   })
 
-  it('returns null when trying to edit a non-existent tag', () => {
+  it('returns false when trying to edit a non-existent tag', () => {
     const diff: Difference = {
       type: 'CHANGE',
       path: ['tags', 3, 'name'],
@@ -945,24 +1002,34 @@ describe('diffToTagPayload', () => {
       value: 'Updated Non-existent Tag',
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toBeNull()
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
-  it('returns null for invalid diff paths', () => {
+  it('returns false for invalid diff paths', () => {
     const diff: Difference = {
       type: 'CHANGE',
-      path: ['invalid', 'path'],
+      path: ['invalid', 'stuff', 'what'],
       oldValue: 'old',
       value: 'new',
     }
 
-    const result = diffToTagPayload(diff, mockTags, mockCollection)
-    expect(result).toBeNull()
+    const result = mutateTagDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 })
 
-describe('diffToSecuritySchemePayload', () => {
+describe('mutateSecuritySchemeDiff', () => {
+  const mockStore = {
+    activeCollection: { value: mockCollection },
+    securitySchemes: mockSecuritySchemes,
+    securitySchemeMutators: {
+      edit: vi.fn(),
+      delete: vi.fn(),
+      add: vi.fn(),
+    },
+  } as unknown as WorkspaceStore
+
   it('generates an add payload for creating a new security scheme', () => {
     const newScheme: SecuritySchemePayload = {
       uid: 'bearerAuth',
@@ -977,12 +1044,12 @@ describe('diffToSecuritySchemePayload', () => {
       value: newScheme,
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.add).toHaveBeenCalledWith(
+      newScheme,
+      'collection1',
     )
-    expect(result).toEqual({ method: 'add', args: [newScheme, 'collection1'] })
   })
 
   it('generates a remove payload for deleting a security scheme', () => {
@@ -992,12 +1059,11 @@ describe('diffToSecuritySchemePayload', () => {
       oldValue: mockSecuritySchemes.apiKey,
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.delete).toHaveBeenCalledWith(
+      'apiKeyUid',
     )
-    expect(result).toEqual({ method: 'delete', args: ['apiKeyUid'] })
   })
 
   it('generates an edit payload for updating a security scheme property', () => {
@@ -1008,15 +1074,13 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'new_api_key',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'apiKeyUid',
+      'name',
+      'new_api_key',
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['apiKeyUid', 'name', 'new_api_key'],
-    })
   })
 
   it('generates an edit payload for updating an oauth2 flow property', () => {
@@ -1034,19 +1098,13 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'https://example.com/oauth/authorize-admin',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2',
+      'flow.authorizationUrl',
+      'https://example.com/oauth/authorize-admin',
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'oauth2',
-        'flow.authorizationUrl',
-        'https://example.com/oauth/authorize-admin',
-      ],
-    })
   })
 
   it('generates an edit payload for adding a new property to a security scheme', () => {
@@ -1056,15 +1114,13 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'API Key for authentication',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'apiKeyUid',
+      'description',
+      'API Key for authentication',
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['apiKeyUid', 'description', 'API Key for authentication'],
-    })
   })
 
   it('generates an edit payload for removing a scope from an oauth2 flow', () => {
@@ -1082,15 +1138,13 @@ describe('diffToSecuritySchemePayload', () => {
       oldValue: 'read api',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2',
+      'flow.scopes',
+      { 'write:api': 'modify api' },
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: ['oauth2', 'flow.scopes', { 'write:api': 'modify api' }],
-    })
   })
 
   it('generates an edit payload for adding a scope to an oauth2 flow', () => {
@@ -1109,23 +1163,17 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'write users',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2',
+      'flow.scopes',
+      {
+        'read:api': 'read api',
+        'write:api': 'modify api',
+        'write:users': 'write users',
+      },
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'oauth2',
-        'flow.scopes',
-        {
-          'read:api': 'read api',
-          'write:api': 'modify api',
-          'write:users': 'write users',
-        },
-      ],
-    })
   })
 
   it('generates an edit payload for updating a scope from an oauth2 flow', () => {
@@ -1144,25 +1192,19 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'write the api',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2',
+      'flow.scopes',
+      {
+        'read:api': 'read api',
+        'write:api': 'write the api',
+      },
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'oauth2',
-        'flow.scopes',
-        {
-          'read:api': 'read api',
-          'write:api': 'write the api',
-        },
-      ],
-    })
   })
 
-  it('returns null when trying to edit a non-existent security scheme', () => {
+  it('returns false when trying to edit a non-existent security scheme', () => {
     const diff: Difference = {
       type: 'CHANGE',
       path: ['components', 'securitySchemes', 'nonExistent', 'type'],
@@ -1170,28 +1212,20 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'http',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
-    )
-    expect(result).toBeNull()
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
-  it('returns null for invalid diff paths', () => {
+  it('returns false for invalid diff paths', () => {
     const diff: Difference = {
       type: 'CHANGE',
-      path: ['invalid', 'path'],
+      path: ['invalid', 'path', 'what', 'no'],
       oldValue: 'old',
       value: 'new',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
-    )
-    expect(result).toBeNull()
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
   it('handles nested changes in oauth2 flows', () => {
@@ -1209,23 +1243,31 @@ describe('diffToSecuritySchemePayload', () => {
       value: 'https://api.example.com/oauth2/authorize',
     }
 
-    const result = diffToSecuritySchemePayload(
-      diff,
-      mockCollection,
-      mockSecuritySchemes,
+    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
+      'oauth2',
+      'flow.authorizationUrl',
+      'https://api.example.com/oauth2/authorize',
     )
-    expect(result).toEqual({
-      method: 'edit',
-      args: [
-        'oauth2',
-        'flow.authorizationUrl',
-        'https://api.example.com/oauth2/authorize',
-      ],
-    })
   })
 })
 
-describe('diffToRequestPayload', () => {
+describe('mutateRequestDiff', () => {
+  const mockStore = {
+    activeCollection: { value: mockCollection },
+    requests: mockRequests,
+    requestMutators: {
+      edit: vi.fn(),
+      delete: vi.fn(),
+      add: vi.fn(),
+    },
+    requestExamples: {},
+    requestExampleMutators: {
+      set: vi.fn(),
+    },
+  } as unknown as WorkspaceStore
+
   it('generates an add payload for creating a new request', () => {
     const newRequest: Request = {
       type: 'request',
@@ -1246,10 +1288,12 @@ describe('diffToRequestPayload', () => {
       value: newRequest,
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      { method: 'add', args: [newRequest, mockCollection.uid] },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.add).toHaveBeenCalledWith(
+      newRequest,
+      mockCollection.uid,
+    )
   })
 
   it('generates a delete payload for removing a request', () => {
@@ -1259,13 +1303,12 @@ describe('diffToRequestPayload', () => {
       oldValue: mockRequests.request2uid,
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'delete',
-        args: [mockRequests.request2uid, mockCollection.uid],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.delete).toHaveBeenCalledWith(
+      mockRequests.request2uid,
+      mockCollection.uid,
+    )
   })
 
   it('generates an edit payload for updating a request summary', () => {
@@ -1276,13 +1319,13 @@ describe('diffToRequestPayload', () => {
       value: 'Retrieve planet details',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'edit',
-        args: ['request3uid', 'summary', 'Retrieve planet details'],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request3uid',
+      'summary',
+      'Retrieve planet details',
+    )
   })
 
   it('generates an edit payload for adding a parameter to a request', () => {
@@ -1298,26 +1341,22 @@ describe('diffToRequestPayload', () => {
       },
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'edit',
-        args: [
-          'request1uid',
-          'parameters',
-          [
-            ...(mockRequests.request1uid.parameters ?? []),
-            {
-              name: 'highroller',
-              in: 'query',
-              required: false,
-              deprecated: false,
-              schema: { type: 'integer', format: 'int32' },
-            },
-          ],
-        ],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request1uid',
+      'parameters',
+      [
+        ...(mockRequests.request1uid.parameters ?? []),
+        {
+          name: 'highroller',
+          in: 'query',
+          required: false,
+          deprecated: false,
+          schema: { type: 'integer', format: 'int32' },
+        },
+      ],
+    )
   })
 
   it('generates an edit payload for removing a parameter from a request', () => {
@@ -1334,19 +1373,15 @@ describe('diffToRequestPayload', () => {
       },
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'edit',
-        args: [
-          'request1uid',
-          'parameters',
-          mockRequests.request1uid.parameters?.filter(
-            (_, i) => i !== mockRequests.request1uid.parameters!.length - 1,
-          ),
-        ],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request1uid',
+      'parameters',
+      mockRequests.request1uid.parameters?.filter(
+        (_, i) => i !== mockRequests.request1uid.parameters!.length - 1,
+      ),
+    )
   })
 
   it('generates an edit payload for updating a request description', () => {
@@ -1357,16 +1392,16 @@ describe('diffToRequestPayload', () => {
       value: 'Get the list of all planets',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'edit',
-        args: ['request1uid', 'description', 'Get the list of all planets'],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request1uid',
+      'description',
+      'Get the list of all planets',
+    )
   })
 
-  it('returns null when trying to edit a non-existent request', () => {
+  it('returns false when trying to edit a non-existent request', () => {
     const diff: Difference = {
       type: 'CHANGE',
       path: ['paths', '/unknown', 'get', 'summary'],
@@ -1374,8 +1409,8 @@ describe('diffToRequestPayload', () => {
       value: 'New Summary',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
   it('handles renaming a request path', () => {
@@ -1386,11 +1421,18 @@ describe('diffToRequestPayload', () => {
       value: '/planets/list',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      { method: 'edit', args: ['request1uid', 'path', '/planets/list'] },
-      { method: 'edit', args: ['request2uid', 'path', '/planets/list'] },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request1uid',
+      'path',
+      '/planets/list',
+    )
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request2uid',
+      'path',
+      '/planets/list',
+    )
   })
 
   it('handles changing the method of a request', () => {
@@ -1401,22 +1443,25 @@ describe('diffToRequestPayload', () => {
       value: 'post',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      { method: 'edit', args: ['request1uid', 'method', 'post'] },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request1uid',
+      'method',
+      'post',
+    )
   })
 
   it('handles invalid diff paths', () => {
     const diff: Difference = {
       type: 'CHANGE',
-      path: ['invalid', 'path'],
+      path: ['invalid', 'stuff', 'what'],
       oldValue: 'old',
       value: 'new',
     }
 
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(false)
   })
 
   it('handles updating a request formBody', () => {
@@ -1438,17 +1483,13 @@ describe('diffToRequestPayload', () => {
       value: 'The blue planet',
       oldValue: 'The red planet',
     }
-    const result = diffToRequestPayload(diff, mockCollection, mockRequests)
-    expect(result).toEqual([
-      {
-        method: 'edit',
-        args: [
-          'request2uid',
-          'requestBody.content.application/json.schema.properties.description.examples.0',
-          'The blue planet',
-        ],
-      },
-    ])
+    const result = mutateRequestDiff(diff, mockStore)
+    expect(result).toBe(true)
+    expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
+      'request2uid',
+      'requestBody.content.application/json.schema.properties.description.examples.0',
+      'The blue planet',
+    )
   })
 })
 

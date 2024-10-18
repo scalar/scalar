@@ -630,6 +630,7 @@ export const mutateSecuritySchemeDiff = (
       } else delete scopes[_path[1]]
 
       securitySchemeMutators.edit(scheme.uid, 'flow.scopes', scopes)
+      return true
     }
 
     if (!schema) return false
