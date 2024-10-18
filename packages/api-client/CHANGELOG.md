@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.1.27
+
+### Patch Changes
+
+- 4e50d65: feat: added openapi watcher to live update the api client
+- 4e50d65: feat: adds watch toggle in request sidebar item menu
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [6bbb815]
+  - @scalar/components@0.12.56
+  - @scalar/oas-utils@0.2.59
+  - @scalar/themes@0.9.40
+  - @scalar/use-codemirror@0.11.23
+
 ## 2.1.26
 
 ### Patch Changes

@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.25.42
+
+### Patch Changes
+
+- 6bbb815: fix(api-reference): search modal a11y improvements
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [6bbb815]
+- Updated dependencies [4e50d65]
+  - @scalar/components@0.12.56
+  - @scalar/api-client@2.1.27
+  - @scalar/oas-utils@0.2.59
+  - @scalar/themes@0.9.40
+  - @scalar/code-highlight@0.0.13
+
 ## 1.25.41
 
 ### Patch Changes

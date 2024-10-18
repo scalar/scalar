@@ -1,5 +1,14 @@
 # @scalar/api-client-react
 
+## 1.0.65
+
+### Patch Changes
+
+- e4caffd: fix: ensure react client app is torn down
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+  - @scalar/api-client@2.1.27
+
 ## 1.0.64
 
 ### Patch Changes

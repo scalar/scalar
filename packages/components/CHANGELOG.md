@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.12.56
+
+### Patch Changes
+
+- 4e50d65: feat: adds unwatch icon
+- 4e50d65: feat: adds scalar toggle component
+- 4e50d65: feat: adds watch icon
+- 4e50d65: feat: adds as prop to scalar tooltip
+- 6bbb815: fix(api-reference): search modal a11y improvements
+  - @scalar/code-highlight@0.0.13
+
 ## 0.12.55
 
 ### Patch Changes

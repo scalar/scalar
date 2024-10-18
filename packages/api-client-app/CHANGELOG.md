@@ -1,5 +1,23 @@
 # scalar-api-client
 
+## 0.1.66
+
+### Patch Changes
+
+- 8762395: fix: can’t import @scalar/import
+- 4e50d65: feat: added openapi watcher to live update the api client
+- f5c19bd: fix: check for updates doesn’t do anything
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [4e50d65]
+- Updated dependencies [6bbb815]
+- Updated dependencies [4e50d65]
+  - @scalar/components@0.12.56
+  - @scalar/api-client@2.1.27
+  - @scalar/themes@0.9.40
+
 ## 0.1.65
 
 ### Patch Changes
