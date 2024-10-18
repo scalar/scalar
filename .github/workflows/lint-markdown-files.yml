@@ -13,10 +13,11 @@ jobs:
         node-version: [20]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
+      - name: Checkout code
+        uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f
+      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
