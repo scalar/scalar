@@ -15,7 +15,7 @@ npm install @scalar/api-client-react
 
 First we need to add the provider, you should add it in the highest place you have a unique spec.
 
-```ts
+```tsx
 import { ApiClientModalProvider } from '@scalar/api-client-react'
 import '@scalar/api-client-react/style.css'
 
