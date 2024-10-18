@@ -292,12 +292,20 @@ jobs:
 
   aspnetcore-build-test:
     runs-on: ubuntu-latest
-    needs: [build]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
       - name: Setup .NET
         uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee
         with:
           dotnet-version: 9.x
+
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
         working-directory: packages/scalar.aspnetcore
@@ -321,6 +329,9 @@ jobs:
     needs: [aspnetcore-build-test]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
       - name: Git Status
         run: git status
 
@@ -348,6 +359,13 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
+        name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: 20
+          packages-only: 'api-reference'
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference
