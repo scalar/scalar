@@ -59,11 +59,13 @@ whenever(
       size="sm"
       thickness="2.5" />
     <div class="sidebar-search-input">
+      <span class="sr-only">Open </span>
       <span class="sidebar-search-placeholder">Search</span>
       <span class="sidebar-search-shortcut">
-        <span class="sidebar-search-key">
+        <span class="sr-only">(Keyboard Shortcut)</span>
+        <kbd class="sidebar-search-key">
           {{ isMacOS() ? '⌘' : '⌃' }}{{ searchHotKey }}
-        </span>
+        </kbd>
       </span>
     </div>
   </button>
@@ -85,7 +87,6 @@ whenever(
     var(--scalar-background-1)
   );
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
-  outline: none;
   border-radius: var(--scalar-radius);
   box-shadow: 0 0 0 0.5px
     var(--scalar-sidebar-search-border-color, var(--scalar-border-color));
@@ -108,10 +109,8 @@ whenever(
   justify-content: space-between;
   align-items: center;
 }
-.sidebar-search-shortcut {
-  text-transform: uppercase;
-}
 .sidebar-search-key {
+  text-transform: uppercase;
   background-color: var(--scalar-background-2);
   padding: 3px 5px;
   margin: 2px;
