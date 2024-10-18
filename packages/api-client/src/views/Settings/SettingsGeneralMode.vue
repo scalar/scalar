@@ -1,14 +1,7 @@
 <script setup lang="ts">
-import DataTableCell from '@/components/DataTable/DataTableCell.vue'
-import DataTableText from '@/components/DataTable/DataTableText.vue'
 import { useDarkModeState } from '@/hooks'
-import {
-  ScalarButton,
-  ScalarDropdown,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
-import { ref, watch } from 'vue'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ref } from 'vue'
 
 const { colorMode, setDarkMode } = useDarkModeState()
 const currentMode = ref<string>('System Preference')
@@ -37,33 +30,62 @@ const setDarkModePreference = () => {
   currentMode.value = 'Dark'
 }
 </script>
+
 <template>
-  <DataTableText text="Mode" />
-  <DataTableCell>
-    <ScalarDropdown>
-      <ScalarButton
-        class="font-normal h-full justify-start py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
-        fullWidth
-        variant="ghost">
-        <h2 class="font-medium m-0 text-sm flex gap-1.5 items-center">
-          {{ currentMode }}
-          <ScalarIcon
-            class="size-2.5"
-            icon="ChevronDown"
-            thickness="3.5" />
-        </h2>
-      </ScalarButton>
-      <template #items>
-        <ScalarDropdownItem @click.stop="setSystemDarkMode">
-          System Preference
-        </ScalarDropdownItem>
-        <ScalarDropdownItem @click.stop="setLightMode">
-          Light Mode
-        </ScalarDropdownItem>
-        <ScalarDropdownItem @click.stop="setDarkModePreference">
-          Dark Mode
-        </ScalarDropdownItem>
-      </template>
-    </ScalarDropdown>
-  </DataTableCell>
+  <h3 class="font-bold mb-1 mt-8">Appearance</h3>
+  <p class="text-c-2 mb-4">Set light or dark mode for your workspace.</p>
+  <div class="flex flex-col gap-2">
+    <ScalarButton
+      :class="[
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2',
+        currentMode === 'System Preference'
+          ? 'bg-b-1 shadow-border-1/2 text-c-1'
+          : 'bg-b-2',
+      ]"
+      @click="setSystemDarkMode">
+      <div
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        <ScalarIcon
+          v-if="currentMode === 'System Preference'"
+          icon="Checkmark"
+          size="xs"
+          thickness="3.5" />
+      </div>
+      System Preference
+    </ScalarButton>
+    <ScalarButton
+      :class="[
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2',
+        currentMode === 'Light'
+          ? 'bg-b-1 shadow-border-1/2 text-c-1'
+          : 'bg-b-2',
+      ]"
+      @click="setLightMode">
+      <div
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        <ScalarIcon
+          v-if="currentMode === 'Light'"
+          icon="Checkmark"
+          size="xs"
+          thickness="3.5" />
+      </div>
+      Light Mode
+    </ScalarButton>
+    <ScalarButton
+      :class="[
+        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8',
+        currentMode === 'Dark' ? 'bg-b-1 shadow-border-1/2 text-c-1' : 'bg-b-2',
+      ]"
+      @click="setDarkModePreference">
+      <div
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        <ScalarIcon
+          v-if="currentMode === 'Dark'"
+          icon="Checkmark"
+          size="xs"
+          thickness="3.5" />
+      </div>
+      Dark Mode
+    </ScalarButton>
+  </div>
 </template>

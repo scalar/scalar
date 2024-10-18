@@ -290,8 +290,14 @@ export const createWorkspaceStore = (
   // PROXY URL STATE
   const PROXY_URL = 'proxyUrl' as const
 
-  // Initialize proxyUrl with the value from localStorage
-  const proxyUrl = ref(localStorage.getItem(PROXY_URL) || '')
+  // Initialize proxyUrl with the value from localStorage or default to the proxy URL according to env
+  const proxyUrl = ref(
+    localStorage.getItem(PROXY_URL) !== null
+      ? localStorage.getItem(PROXY_URL) || ''
+      : import.meta.env.PROD
+        ? 'https://proxy.scalar.com'
+        : '',
+  )
 
   const setProxyUrl = (url: string) => {
     proxyUrl.value = url

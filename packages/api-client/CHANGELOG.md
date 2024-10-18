@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.1.26
+
+### Patch Changes
+
+- 8223e31: fix: updates proxy default setting
+- f8b81ee: fix: new settings page
+- 9e769df: fix: sets default request uid to request example
+- a80a931: fix: command palette modal overflow
+
 ## 2.1.25
 
 ### Patch Changes

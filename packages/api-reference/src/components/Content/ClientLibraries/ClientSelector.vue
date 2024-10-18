@@ -178,7 +178,6 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   background-color: var(--scalar-background-2);
   border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
   border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-bottom: none;
 }
 .client-libraries {
   display: flex;

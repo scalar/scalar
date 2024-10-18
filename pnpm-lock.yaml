@@ -692,6 +692,9 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1625,6 +1628,19 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
+
+  packages/import:
+    dependencies:
+      '@scalar/openapi-parser':
+        specifier: workspace:*
+        version: link:../openapi-parser
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      vite:
+        specifier: ^5.2.10
+        version: 5.3.3(@types/node@20.14.10)(terser@5.31.2)
 
   packages/mock-server:
     dependencies:

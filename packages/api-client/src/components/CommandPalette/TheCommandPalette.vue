@@ -19,7 +19,7 @@ export default {
 }
 
 export const PaletteComponents = {
-  'Import Collection': CommandPaletteImport,
+  'Import from OpenAPI/Swagger': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Tag': CommandPaletteTag,
@@ -57,7 +57,7 @@ const availableCommands = [
         icon: 'ExternalLink',
       },
       {
-        name: 'Import Collection',
+        name: 'Import from OpenAPI/Swagger',
         icon: 'Import',
       },
       {
@@ -224,7 +224,7 @@ onBeforeUnmount(() => {
     :open="modalState.open"
     @close="closeHandler()">
     <div class="commandmenu-overlay z-overlay" />
-    <DialogPanel class="commandmenu z-overlay custom-scroll">
+    <DialogPanel class="commandmenu z-overlay">
       <DialogTitle class="sr-only">API Client Command Menu</DialogTitle>
       <!-- Default palette (command list) -->
       <template v-if="!activeCommand">

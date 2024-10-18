@@ -2,9 +2,18 @@
  * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.
  */
-export async function findOpenApiDocumentUrl(value?: string) {
+export async function resolve(
+  value?: string,
+): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
+    // Transform GitHub URLs to raw file URLs
+    const githubRawUrl = transformGitHubUrl(value)
+
+    if (githubRawUrl) {
+      return githubRawUrl
+    }
+
     // https://*.json
     if (value?.toLowerCase().endsWith('.json')) {
       return value
@@ -32,16 +41,23 @@ export async function findOpenApiDocumentUrl(value?: string) {
       const result = await fetch(value)
 
       if (result.ok) {
-        const urlOrPath = parseHtml(await result.text())
+        const content = await result.text()
+        const urlOrPath = parseHtml(content)
 
         if (urlOrPath) {
           return makeRelativeUrlsAbsolute(value, urlOrPath)
         }
+
+        // New: Check for embedded OpenAPI document
+        const embeddedSpec = parseEmbeddedOpenApi(content)
+        if (embeddedSpec) {
+          return embeddedSpec
+        }
       } else {
-        console.warn(`[findOpenApiDocumentUrl] Failed to fetch ${value}`)
+        console.warn(`[@scalar/import] Failed to fetch ${value}`)
       }
     } catch (error) {
-      console.error(`[findOpenApiDocumentUrl] Failed to fetch ${value}`, error)
+      console.error(`[@scalar/import] Failed to fetch ${value}`, error)
     }
   }
 
@@ -110,4 +126,64 @@ function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
 
     return path
   }
+}
+
+/**
+ * Parse embedded OpenAPI document from HTML
+ */
+function parseEmbeddedOpenApi(html: string): object | undefined {
+  const match = html.match(
+    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/,
+  )
+
+  if (!match) return undefined
+
+  try {
+    const configString = decodeHtmlEntities(match[1])
+    const config = JSON.parse(configString)
+    if (config.spec?.content) {
+      return config.spec.content
+    }
+  } catch (error) {
+    console.error(
+      '[@scalar/import] Failed to parse embedded OpenAPI document:',
+      error,
+    )
+  }
+
+  return undefined
+}
+
+/**
+ * Decode HTML entities in a string
+ */
+function decodeHtmlEntities(text: string): string {
+  const entities = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#39;': "'",
+  } as const
+
+  return text.replace(
+    new RegExp(Object.keys(entities).join('|'), 'g'),
+    (match) => entities[match as keyof typeof entities],
+  )
+}
+
+/**
+ * Transform GitHub URLs to raw file URLs, preserving the branch information
+ */
+function transformGitHubUrl(url: string): string | undefined {
+  const githubRegex =
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
+  const match = url.match(githubRegex)
+
+  if (match) {
+    const [, owner, repo, branch, path] = match
+    return `https://raw.githubusercontent.com/${owner}/${repo}/refs/heads/${branch}/${path}`
+  }
+
+  return undefined
 }

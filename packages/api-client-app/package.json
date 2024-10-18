@@ -10,7 +10,7 @@
     "url": "https://github.com/scalar/scalar.git",
     "directory": "packages/api-client-app"
   },
-  "version": "0.1.64",
+  "version": "0.1.65",
   "private": true,
   "engines": {
     "node": ">=20"
@@ -37,6 +37,7 @@
     "@electron-toolkit/utils": "^3.0.0",
     "@scalar/api-client": "workspace:*",
     "@scalar/components": "workspace:*",
+    "@scalar/import": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@todesktop/runtime": "^1.6.3",
     "electron-window-state": "^5.0.3",
