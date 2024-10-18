@@ -12,12 +12,6 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Cache Build
-        id: cache-build
-        uses: actions/cache@v4
-        with:
-          path: packages
-          key: ${{ runner.os }}-${{ inputs.node-version }}-packages
     - name: Install pnpm
       uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
     - name: Use Node.js ${{ inputs.node-version }}
