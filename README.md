@@ -8,16 +8,16 @@
 	<p>
 		<a href="https://scalar.com/download" target="_blank">
 			<picture>
-				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/179223ab-5206-488e-89f2-ba286942381f">
-				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/a8181eb3-3c3c-4bf1-948e-c95fc09d2dca">
-				<img width="48.494%" height="200" src="https://github.com/user-attachments/assets/179223ab-5206-488e-89f2-ba286942381f#gh-light-mode-only" alt="Scalar API client">
+				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b">
+				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/579d0853-b2a5-4ea8-b2bd-a98753faeaf3">
+				<img width="48.494%" height="250" src="https://github.com/user-attachments/assets/b391b82f-d993-4e97-8a17-1c3c7ccbb19b#gh-light-mode-only" alt="Scalar API client">
 			</picture>
 		</a>
 		<a href="https://docs.scalar.com/swagger-editor" target="_blank">
 			<picture>
-				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/76868e6d-466c-4097-8d42-f426557752ba">
-				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/2029bec0-58e9-4fa1-ad80-0045e828978e">
-				<img width="48.494%" height="200" src="https://github.com/user-attachments/assets/76868e6d-466c-4097-8d42-f426557752ba#gh-light-mode-only" alt="Scalar API Reference">
+				<source media="(prefers-color-scheme: light)" srcset="https://github.com/user-attachments/assets/9b639f2d-0204-4b15-b918-158072a9afa5">
+				<source media="(prefers-color-scheme: dark)" srcset="https://github.com/user-attachments/assets/be723d07-ec9c-4edb-b657-05a8bc05c7d6">
+				<img width="48.494%" height="250" src="https://github.com/user-attachments/assets/9b639f2d-0204-4b15-b918-158072a9afa5#gh-light-mode-only" alt="Scalar API Reference">
 			</picture>
 	 	</a>
 	</p>
