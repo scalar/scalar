@@ -153,10 +153,17 @@ function createWindow(): void {
                 click: async () => {
                   console.log('Checking for updates…')
 
-                  const updateCheck =
-                    await todesktop.autoUpdater?.checkForUpdates()
+                  try {
+                    const result =
+                      await todesktop.autoUpdater?.checkForUpdates()
 
-                  console.log('Update:', updateCheck?.updateInfo)
+                    if (result?.updateInfo) {
+                      console.log('Update:', result.updateInfo.version)
+                      todesktop.autoUpdater?.restartAndInstall()
+                    }
+                  } catch (e) {
+                    console.log('Update check failed:', e)
+                  }
                 },
               },
               { type: 'separator' },
