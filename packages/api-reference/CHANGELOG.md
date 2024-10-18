@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.25.41
+
+### Patch Changes
+
+- a80a931: fix: command palette modal overflow
+- Updated dependencies [8223e31]
+- Updated dependencies [f8b81ee]
+- Updated dependencies [9e769df]
+- Updated dependencies [a80a931]
+  - @scalar/api-client@2.1.26
+
 ## 1.25.40
 
 ### Patch Changes

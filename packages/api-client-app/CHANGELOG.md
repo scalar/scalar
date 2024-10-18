@@ -1,5 +1,19 @@
 # scalar-api-client
 
+## 0.1.65
+
+### Patch Changes
+
+- e930134: feat: new @scalar/import package :)
+- 72fb3b5: fix: update app icon
+- Updated dependencies [8223e31]
+- Updated dependencies [f8b81ee]
+- Updated dependencies [9e769df]
+- Updated dependencies [e930134]
+- Updated dependencies [a80a931]
+  - @scalar/api-client@2.1.26
+  - @scalar/import@0.0.1
+
 ## 0.1.64
 
 ### Patch Changes
