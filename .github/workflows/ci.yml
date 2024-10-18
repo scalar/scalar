@@ -37,10 +37,10 @@ jobs:
 
   format:
     runs-on: ubuntu-20.04
-    needs: [build]
     strategy:
       matrix:
         node-version: [20]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
@@ -61,7 +61,14 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Check types
         run: pnpm turbo types:check
 
@@ -71,7 +78,15 @@ jobs:
     strategy:
       matrix:
         node-version: [18, 20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - name: Build packages
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: 'true'
       - name: Run tests
         run: pnpm test:ci
 
@@ -81,7 +96,15 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - name: Build @scalar/api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
         uses: relative-ci/agent-action@ba13968f2a0d09757685b0685441cde329806afa
         with:
@@ -99,7 +122,14 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -134,7 +164,14 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - name: Git Status
         run: git status
       - name: Stash changes
@@ -225,7 +262,10 @@ jobs:
     strategy:
       matrix:
         node-version: [20]
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Check which files were touched
         id: changed-files
         uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
@@ -234,6 +274,11 @@ jobs:
             api_client:
               - projects/client-scalar-com/**
               - packages/api-client/**
+      - if: steps.changed-files.outputs.api_client_any_changed == 'true'
+        name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
@@ -269,8 +314,16 @@ jobs:
         node-version: [20]
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
       - name: Install Netlify CLI
         run: pnpm install -g netlify
       - name: Deploy to Netlify
