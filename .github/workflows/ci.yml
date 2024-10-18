@@ -92,7 +92,7 @@ jobs:
 
   stats:
     runs-on: ubuntu-20.04
-    needs: build
+    needs: [build]
     strategy:
       matrix:
         node-version: [20]
@@ -345,6 +345,7 @@ jobs:
 
   aspnetcore-build-test:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
