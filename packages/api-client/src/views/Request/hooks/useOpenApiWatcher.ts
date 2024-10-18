@@ -132,6 +132,10 @@ export const useOpenApiWatcher = () => {
         'watchForChangesStatus',
         'ERROR',
       )
+      toast(
+        `[useOpenApiWatcher] Unable to fetch the spec file, paused the watcher for 60 seconds`,
+        'error',
+      )
 
       setTimeout(() => {
         console.info('[useOpenApiWatcher] Resuming watcher')
