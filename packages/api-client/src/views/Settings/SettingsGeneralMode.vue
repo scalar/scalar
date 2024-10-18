@@ -33,7 +33,9 @@ const setDarkModePreference = () => {
 
 <template>
   <h3 class="font-bold mb-1 mt-8">Appearance</h3>
-  <p class="text-c-2 mb-4">Set light or dark mode for your workspace.</p>
+  <p class="text-c-2 mb-4">
+    Choose between light, dark, or system-based appearance for your workspace.
+  </p>
   <div class="flex flex-col gap-2">
     <ScalarButton
       :class="[
@@ -51,7 +53,7 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      System Preference
+      System Preference (default)
     </ScalarButton>
     <ScalarButton
       :class="[
@@ -69,7 +71,7 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      Light Mode
+      Light Mode Always
     </ScalarButton>
     <ScalarButton
       :class="[
@@ -85,7 +87,7 @@ const setDarkModePreference = () => {
           size="xs"
           thickness="3.5" />
       </div>
-      Dark Mode
+      Dark Mode Always
     </ScalarButton>
   </div>
 </template>
