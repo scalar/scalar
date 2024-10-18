@@ -1,5 +1,5 @@
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
 type PrefetchResult = {
@@ -37,14 +37,35 @@ export function useUrlPrefetcher() {
     })
 
     // TODO: Remove wait
-    // await new Promise((resolve) => setTimeout(resolve, 1000))
+    // await new Promise((resolve) => setTimeout(resolve, 5000))
 
     try {
-      const result = await fetch(redirectToProxy(proxy, value), {
-        cache: 'no-store',
-      })
+      const result = await fetch(
+        shouldUseProxy(proxy, value) ? redirectToProxy(proxy, value) : value,
+        {
+          cache: 'no-store',
+        },
+      )
 
+      // Failed!
       if (!result.ok) {
+        // Retry without proxy if the initial request failed
+        if (shouldUseProxy(proxy, value)) {
+          const retryResult = await fetch(value, {
+            cache: 'no-store',
+          })
+
+          if (retryResult.ok) {
+            const content = await retryResult.text()
+
+            return Object.assign(prefetchResult, {
+              state: 'idle',
+              content,
+              error: null,
+            })
+          }
+        }
+
         return Object.assign(prefetchResult, {
           state: 'idle',
           content: null,
