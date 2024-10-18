@@ -24,13 +24,11 @@ async function importCollection() {
   try {
     if (props.source) {
       if (isUrl(props.source)) {
-        const collection = await importSpecFromUrl(
+        const [error, collection] = await importSpecFromUrl(
           props.source,
-          undefined,
-          undefined,
           activeWorkspace.value.uid,
         )
-        redirectToFirstRequestInCollection(collection)
+        if (!error) redirectToFirstRequestInCollection(collection)
       } else {
         const collection = await importSpecFile(
           props.source,

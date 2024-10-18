@@ -18,6 +18,7 @@ const props = withDefaults(
     class?: string
     triggerClass?: string
     resize?: boolean
+    as?: string
   }>(),
   {
     skipDelay: 1000,
@@ -37,6 +38,7 @@ defineEmits<{
     :skipDelayDuration="props.skipDelay">
     <TooltipRoot>
       <TooltipTrigger
+        :as="props.as || 'button'"
         class="flex items-center justify-center"
         :class="[props.resize ? 'w-full' : '', props.triggerClass]"
         @click="props.click">
