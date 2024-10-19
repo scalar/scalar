@@ -199,11 +199,11 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                   v-if="selectedAuth.length"
                   class="flex relative scroll-timeline-x w-full">
                   <div class="fade-left"></div>
-                  <div class="flex flex-1 gap-0.75 mr-1.5 items-center">
+                  <div class="flex flex-1 gap-0.25 mr-1.5 items-center">
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit">
+                      class="cm-pill flex items-center mx-0 h-fit pr-1">
                       {{ auth.label }}
                       <ScalarIcon
                         class="ml-1 cursor-pointer text-c-3 hover:text-c-1"

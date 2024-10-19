@@ -120,6 +120,29 @@ const handleDropdownMouseUp = () => {
 </template>
 
 <style scoped>
+:deep(.cm-editor) {
+  padding: 0;
+}
+:deep(.cm-content) {
+  align-items: center;
+  background-color: transparent;
+  display: flex;
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-mini);
+  padding: 6px 8px;
+}
+:deep(.cm-content):has(.cm-pill) {
+  padding: 4px 3px;
+}
+:deep(.cm-content .cm-pill:not(:last-of-type)) {
+  margin-right: 0.5px;
+}
+:deep(.cm-content .cm-pill:not(:first-of-type)) {
+  margin-left: 0.5px;
+}
+:deep(.cm-line) {
+  padding: 0;
+}
 .required::after {
   content: 'Required';
 }
