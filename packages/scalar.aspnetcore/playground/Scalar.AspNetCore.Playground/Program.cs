@@ -67,12 +67,6 @@ var app = builder.Build();
 app.UseStaticFiles();
 
 app.MapOpenApi();
-app.UseSwaggerUI(x =>
-{
-    x.SwaggerEndpoint("/openapi/v1.json", "My API V1");
-    x.OAuthConfigObject.ClientId = "app";
-    x.OAuthConfigObject.ClientSecret = "lwWnJCyLUdbwflOUu9FmMQrBQiG9ZqlO";
-});
 
 app.MapScalarApiReference(options =>
 {
