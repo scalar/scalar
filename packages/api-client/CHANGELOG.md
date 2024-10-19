@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.29
+
+### Patch Changes
+
+- c658a7a: fix: support server variables in request sending
+- d51d303: fix: add environment variables in auth request fields
+
 ## 2.1.28
 
 ### Patch Changes

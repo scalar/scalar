@@ -13,7 +13,7 @@
   "keywords": [
     ""
   ],
-  "version": "0.2.119",
+  "version": "0.2.120",
   "engines": {
     "node": ">=18"
   },
