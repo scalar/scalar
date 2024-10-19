@@ -22,11 +22,13 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install
-    - name: Turborepo cache
+    - name: Cache turbo build setup
       uses: actions/cache@v4
-      with:
+      with: 
         path: .turbo
-        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-build
+        key: ${{ runner.os }}-turbo-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-turbo-
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
