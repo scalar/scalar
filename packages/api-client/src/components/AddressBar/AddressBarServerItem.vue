@@ -46,11 +46,11 @@ const isSelectedServer = (serverId: string) =>
     :value="serverOption.id"
     @click="updateSelectedServer(serverOption.id)">
     <div
-      class="flex size-4 items-center justify-center rounded-full p-[3px] group-hover:shadow-border"
+      class="flex size-4 items-center justify-center rounded-full p-[3px]"
       :class="
         isSelectedServer(serverOption.id)
-          ? 'bg-blue text-b-1'
-          : 'text-transparent'
+          ? 'bg-c-accent text-b-1'
+          : 'group-hover:shadow-border text-transparent'
       ">
       <ScalarIcon
         class="relative top-[0.5px] size-2.5"
