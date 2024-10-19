@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
@@ -50,12 +51,6 @@ const inputType = computed(() =>
     : (props.type ?? 'text'),
 )
 
-const handleInput = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  query.value = input.value
-  emit('update:modelValue', input.value)
-}
-
 const handleSelect = (value: string) => {
   emit('update:modelValue', value)
 }
@@ -86,22 +81,22 @@ const handleDropdownMouseUp = () => {
           @update:modelValue="emit('update:modelValue', $event)" />
       </template>
       <template v-else>
-        <input
+        <CodeInput
           v-bind="$attrs"
           :id="id"
-          autocomplete="off"
-          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.5 outline-none"
-          data-1p-ignore
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer outline-none"
+          disableCloseBrackets
+          disableTabIndent
           :max="max"
           :min="min"
+          :modelValue="modelValue ?? ''"
           :readOnly="readOnly"
           :required="required"
           spellcheck="false"
           :type="inputType"
-          :value="modelValue"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
-          @input="handleInput" />
+          @update:modelValue="emit('update:modelValue', $event)" />
         <div
           v-if="required"
           class="absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-focus:opacity-0">
@@ -125,6 +120,29 @@ const handleDropdownMouseUp = () => {
 </template>
 
 <style scoped>
+:deep(.cm-editor) {
+  padding: 0;
+}
+:deep(.cm-content) {
+  align-items: center;
+  background-color: transparent;
+  display: flex;
+  font-family: var(--scalar-font);
+  font-size: var(--scalar-mini);
+  padding: 6px 8px;
+}
+:deep(.cm-content):has(.cm-pill) {
+  padding: 4px 3px;
+}
+:deep(.cm-content .cm-pill:not(:last-of-type)) {
+  margin-right: 0.5px;
+}
+:deep(.cm-content .cm-pill:not(:first-of-type)) {
+  margin-left: 0.5px;
+}
+:deep(.cm-line) {
+  padding: 0;
+}
 .required::after {
   content: 'Required';
 }
