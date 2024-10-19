@@ -33,7 +33,9 @@ export function replaceTemplateVariables(
     const key = m.startsWith(':') ? m.slice(1) : m.replace(/[{}]/g, '').trim()
 
     const value = getDotPathValue(key, context)
-    if (value) substitutedString = substitutedString.replaceAll(m, value)
+    // value can be an empty string but not null or undefined
+    if (value !== null && value !== undefined)
+      substitutedString = substitutedString.replaceAll(m, value)
   })
 
   return substitutedString
