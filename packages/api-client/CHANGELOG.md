@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.1.28
+
+### Patch Changes
+
+- dea4f88: chore: update wording on settings page
+
 ## 2.1.27
 
 ### Patch Changes
