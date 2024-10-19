@@ -275,6 +275,12 @@ export const createRequestOperation = ({
     // Handle empty url
     if (!url) throw ERRORS.URL_EMPTY
 
+    // lets set the server variables
+    // for now we only support default values
+    Object.entries(server?.variables ?? {}).forEach(([k, v]) => {
+      url = replaceTemplateVariables(url, { [k]: v.default })
+    })
+
     const urlParams = createFetchQueryParams(example, env)
     const headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
