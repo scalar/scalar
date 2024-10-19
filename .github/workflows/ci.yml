@@ -26,7 +26,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - name: Update Turborepo cache
@@ -66,7 +66,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - name: Check types
@@ -83,7 +83,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build packages
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'true'
@@ -101,7 +101,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'api-reference'
@@ -127,7 +127,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - name: Git Status
@@ -169,7 +169,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - name: Git Status
@@ -215,7 +215,7 @@ jobs:
   #     - name: Checkout repository
   #       uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
   #     - name: Build packages
-  #       uses: ./.github/actions/buildz
+  #       uses: ./.github/actions/build
   #       with:
   #         node-version: ${{ matrix.node-version }}
   #         packages-only: 'true'
@@ -276,7 +276,7 @@ jobs:
               - packages/api-client/**
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
@@ -319,7 +319,7 @@ jobs:
       - name: Generate new DEPLOY_ID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Build
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
         env:
@@ -356,7 +356,7 @@ jobs:
           dotnet-version: 9.x
 
       - name: Build @scalar/api-reference
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: 20
           packages-only: 'api-reference'
@@ -416,7 +416,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Build @scalar/api-reference
-        uses: ./.github/actions/buildz
+        uses: ./.github/actions/build
         with:
           node-version: 20
           packages-only: 'api-reference'
