@@ -26,7 +26,7 @@ runs:
       uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8
       with:
         path: .turbo
-        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-build
+        key: buildin-${{ inputs.node-version }}-turbos
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
