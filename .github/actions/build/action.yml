@@ -13,9 +13,9 @@ runs:
   using: 'composite'
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
+      uses: pnpm/action-setup@v4
     - name: Use Node.js ${{ inputs.node-version }}
-      uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
         cache: 'pnpm'
@@ -23,10 +23,10 @@ runs:
       shell: bash
       run: pnpm install
     - name: Turborepo cache
-      uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8
+      uses: actions/cache@v4
       with:
         path: .turbo
-        key: buildin-${{ inputs.node-version }}-turbos
+        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-build
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
