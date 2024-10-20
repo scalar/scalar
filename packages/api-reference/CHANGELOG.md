@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.25.46
+
+### Patch Changes
+
+- b4a93ab: fix: tag typography and intro type
+- Updated dependencies [b4a93ab]
+  - @scalar/code-highlight@0.0.14
+  - @scalar/components@0.12.58
+  - @scalar/api-client@2.1.31
+
 ## 1.25.45
 
 ### Patch Changes
