@@ -1,5 +1,12 @@
 # @scalar/components
 
+## 0.12.57
+
+### Patch Changes
+
+- 32ad241: fix: favors accent over blur color for active elment state
+  - @scalar/code-highlight@0.0.13
+
 ## 0.12.56
 
 ### Patch Changes

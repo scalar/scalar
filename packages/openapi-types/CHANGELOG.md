@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.4
+
+### Patch Changes
+
+- 2b540b9: Include `3.0.3` in allowed OpenApiV3 versions
+
 ## 0.1.3
 
 ### Patch Changes
