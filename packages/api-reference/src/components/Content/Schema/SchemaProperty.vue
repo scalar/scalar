@@ -231,7 +231,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 
 .property--compact.property--level-0 {
-  padding: 10px 0;
+  padding: 12px 0;
 }
 
 .property--deprecated {
@@ -254,7 +254,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   line-height: 1.4;
   font-size: var(--scalar-small);
 }
-
+.property-heading:empty + .property-description:last-of-type,
+.property-description:first-of-type:last-of-type {
+  margin-top: 0;
+}
 :deep(.property-description) * {
   color: var(--scalar-color-2) !important;
 }
@@ -310,7 +313,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   color: var(--scalar-color-2);
 }
 .property-enum-value::before {
-  content: '◼';
+  content: '⊢';
   margin-right: 6px;
   color: var(--scalar-color-3);
 }
@@ -332,5 +335,6 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 }
 .property-name {
   font-family: var(--scalar-font-code);
+  font-weight: var(--scalar-semibold);
 }
 </style>

@@ -68,6 +68,8 @@ watch(
   cursor: pointer;
   padding-top: 10px;
   font-size: var(--scalar-font-size-3);
+  z-index: 1;
+  position: relative;
 }
 .collapsible-section .collapsible-section-trigger:after {
   content: '';
@@ -76,8 +78,8 @@ watch(
   position: absolute;
   bottom: 0;
 }
-.collapsible-section .collapsible-section-trigger-open {
-  margin-bottom: 10px;
+.collapsible-section :deep(.schema-properties.schema-properties-open) {
+  margin-top: 10px;
 }
 .collapsible-section-trigger svg {
   color: var(--scalar-color-3);
