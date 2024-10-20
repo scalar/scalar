@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.14
+
+### Patch Changes
+
+- b4a93ab: fix: tag typography and intro type
+
 ## 0.0.13
 
 ### Patch Changes
