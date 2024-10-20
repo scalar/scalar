@@ -322,7 +322,7 @@ export namespace OpenAPIV3 {
      * Version of the OpenAPI specification
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
      */
-    openapi?: '3.0.0' | '3.0.1' | '3.0.2' | '3.0.2'
+    openapi?: '3.0.0' | '3.0.1' | '3.0.2' | '3.0.3'
     swagger?: undefined
     info?: InfoObject
     servers?: ServerObject[]
