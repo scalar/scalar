@@ -115,14 +115,15 @@ const transformHeading = (node: Record<string, any>) => {
 <style scoped>
 .introduction-description-heading {
   scroll-margin-top: 64px;
+  margin-top: 1em;
+  margin-bottom: 0.5em;
 }
-.introduction-description-heading + .markdown {
-  margin-top: -6px;
+.markdown + .markdown {
+  margin-top: 1em;
 }
 .introduction-description {
   display: flex;
   flex-direction: column;
-  gap: 18px;
 }
 .references-classic .introduction-description :deep(img) {
   max-width: 720px;

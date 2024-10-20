@@ -220,7 +220,7 @@ button.schema-card-title:hover {
   border-radius: 13.5px;
 }
 .schema-properties .schema-properties.schema-properties-open {
-  border-radius: 13.5px 13.5px var(--scalar-radius) var(--scalar-radius);
+  border-radius: 13.5px 13.5px 9px 9px;
 }
 .schema-properties-open {
   width: 100%;
@@ -234,7 +234,7 @@ button.schema-card-title:hover {
 }
 
 .schema-card-title--compact {
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-2);
   padding: 6px 10px;
   height: auto;
   border-bottom: none;

@@ -61,7 +61,7 @@ if (prop.requestBody?.content) {
 .request-body-title {
   display: flex;
   align-items: center;
-  font-size: var(--scalar-font-size-3);
+  font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
   line-height: 1.45;
@@ -72,15 +72,24 @@ if (prop.requestBody?.content) {
 }
 .request-body-title-select {
   position: relative;
-  padding-left: 9px;
   height: fit-content;
-  color: var(--scalar-color-2);
+  margin-left: auto;
   font-weight: var(--scalar-regular);
   display: flex;
   align-items: center;
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-2);
+  padding: 2px 6px;
+  border-radius: 12px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
+
 .request-body-title-no-select.request-body-title-select {
   pointer-events: none;
+}
+.request-body-title-no-select {
+  border: none;
 }
 .request-body-title-no-select.request-body-title-select:after {
   display: none;
@@ -95,15 +104,15 @@ if (prop.requestBody?.content) {
   height: 7px;
   transform: rotate(45deg) translate3d(-2px, -4px, 0);
   display: block;
-  margin-left: 7px;
+  margin-left: 5px;
   box-shadow: 1px 1px 0 currentColor;
+  margin-right: 5px;
 }
 .request-body-title-select select {
   border: none;
   outline: none;
   cursor: pointer;
   background: var(--scalar-background-3);
-  box-shadow: -2px 0 0 0 var(--scalar-background-3);
   position: absolute;
   top: 0;
   left: 0;

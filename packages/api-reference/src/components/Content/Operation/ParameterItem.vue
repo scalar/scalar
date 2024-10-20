@@ -57,14 +57,16 @@ const shouldCollapse = computed(() => {
       <span class="parameter-item-type">
         {{ parameter.description }}
       </span>
-      <ContentTypeSelect
-        v-if="shouldCollapse && props.parameter.content"
-        class="parameter-item-content-type"
-        :defaultValue="selectedContentType"
-        :requestBody="props.parameter"
-        @selectContentType="
-          ({ contentType }) => (selectedContentType = contentType)
-        " />
+      <div class="absolute right-0">
+        <ContentTypeSelect
+          v-if="shouldCollapse && props.parameter.content"
+          class="parameter-item-content-type"
+          :defaultValue="selectedContentType"
+          :requestBody="props.parameter"
+          @selectContentType="
+            ({ contentType }) => (selectedContentType = contentType)
+          " />
+      </div>
     </div>
     <div
       v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
@@ -103,17 +105,30 @@ const shouldCollapse = computed(() => {
 }
 
 .parameter-item-name {
-  font-weight: 500;
   margin-right: 6px;
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-font-size-3);
   font-family: var(--scalar-font-code);
-  font-size: var(--scalar-mini);
   color: var(--scalar-color-1);
 }
-
 .parameter-item-type {
-  font-size: var(--scalar-font-size-3);
+  font-size: var(--scalar-micro);
   color: var(--scalar-color-2);
   margin-right: 6px;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+  overflow: hidden;
+}
+.parameter-item-trigger-open .parameter-item-type {
+  white-space: normal;
+}
+/* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
+.parameter-item-trigger
+  + .parameter-item-container
+  :deep(.property--level-0 > .property-heading .property-detail-value) {
+  font-size: var(--scalar-font-size-3);
 }
 .parameter-item-required-optional {
   color: var(--scalar-color-2);
@@ -148,7 +163,7 @@ const shouldCollapse = computed(() => {
   margin-top: 3px;
 }
 .parameter-item-trigger {
-  padding: 10px 0;
+  padding: 12px 0;
   cursor: pointer;
   position: relative;
   align-items: baseline;
@@ -174,8 +189,14 @@ const shouldCollapse = computed(() => {
 .parameter-item-content-type {
   margin-left: auto;
   opacity: 0;
+  padding-left: 18px;
+  transition: opacity 0.1s ease-in-out;
+  color: var(--scalar-color-3);
+  font-size: var(--scalar-micro);
+  background: var(--scalar-background-2);
+  padding: 2px 6px;
+  border-radius: 12px;
 }
-.parameter-item-trigger-open .parameter-item-content-type,
 .parameter-item-trigger:hover .parameter-item-content-type {
   opacity: 1;
 }

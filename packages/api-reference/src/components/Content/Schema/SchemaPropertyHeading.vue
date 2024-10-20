@@ -148,6 +148,9 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 .property-name {
   font-family: var(--scalar-font-code);
+  font-weight: var(--scalar-semibold);
+  font-size: var(--scalar-font-size-3);
+  display: flex;
 }
 .property-additional {
   font-family: var(--scalar-font-code);
@@ -159,8 +162,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 .property-required {
-  text-transform: capitalize;
-  color: var(--scalar-color-orange);
+  font-size: var(--scalar-micro);
 }
 
 .property-read-only,
@@ -170,9 +172,8 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 }
 
 .property-details {
-  font-size: var(--scalar-font-size-3);
+  font-size: var(--scalar-micro);
   color: var(--scalar-color-2);
-
   display: flex;
   align-items: center;
 
