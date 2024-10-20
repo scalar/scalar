@@ -19,7 +19,7 @@
 </style>
 <template>
   <div
-    class="view-layout flex flex-col min-h-0 flex-1 xl:overflow-hidden md:flex-row leading-3">
+    class="flex flex-col min-h-0 flex-1 xl:overflow-hidden md:flex-row leading-3">
     <slot />
   </div>
 </template>
