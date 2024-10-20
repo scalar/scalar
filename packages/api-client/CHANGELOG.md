@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.1.30
+
+### Patch Changes
+
+- 6ecb7cc: fix: large response performance problems due to chrome bug, increase virtualization threshold
+- 32ad241: fix: favors accent over blur color for active elment state
+- Updated dependencies [2b540b9]
+- Updated dependencies [32ad241]
+  - @scalar/openapi-types@0.1.4
+  - @scalar/components@0.12.57
+  - @scalar/oas-utils@0.2.60
+  - @scalar/openapi-parser@0.8.7
+  - @scalar/types@0.0.17
+  - @scalar/use-codemirror@0.11.24
+  - @scalar/themes@0.9.41
+
 ## 2.1.29
 
 ### Patch Changes

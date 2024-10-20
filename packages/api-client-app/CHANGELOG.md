@@ -1,5 +1,15 @@
 # scalar-api-client
 
+## 0.1.69
+
+### Patch Changes
+
+- Updated dependencies [6ecb7cc]
+- Updated dependencies [32ad241]
+  - @scalar/api-client@2.1.30
+  - @scalar/components@0.12.57
+  - @scalar/themes@0.9.41
+
 ## 0.1.68
 
 ### Patch Changes
