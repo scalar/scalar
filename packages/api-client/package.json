@@ -155,6 +155,7 @@
     "@scalar/components": "workspace:*",
     "@scalar/draggable": "workspace:*",
     "@scalar/icons": "workspace:*",
+    "@scalar/import": "workspace:*",
     "@scalar/oas-utils": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",

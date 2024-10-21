@@ -1,4 +1,5 @@
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import { resolve } from '@scalar/import'
 import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
@@ -21,8 +22,16 @@ export function useUrlPrefetcher() {
   // TODO: This does not work with URLs to API references and such, we need @scalar/import to resolve those URLs
   // @see https://github.com/scalar/scalar/pull/3200
   async function prefetchUrl(value: string | null, proxy?: string) {
+    const urlOrDocument = await resolve(value)
+
+    console.log('@scalar/import', value, '⭢', urlOrDocument)
+
     // No URL
-    if (!value || !isUrl(value)) {
+    if (
+      !urlOrDocument ||
+      typeof urlOrDocument !== 'string' ||
+      !isUrl(urlOrDocument)
+    ) {
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
@@ -41,7 +50,9 @@ export function useUrlPrefetcher() {
 
     try {
       const result = await fetch(
-        shouldUseProxy(proxy, value) ? redirectToProxy(proxy, value) : value,
+        shouldUseProxy(proxy, urlOrDocument)
+          ? redirectToProxy(proxy, urlOrDocument)
+          : urlOrDocument,
         {
           cache: 'no-store',
         },
@@ -50,8 +61,8 @@ export function useUrlPrefetcher() {
       // Failed!
       if (!result.ok) {
         // Retry without proxy if the initial request failed
-        if (shouldUseProxy(proxy, value)) {
-          const retryResult = await fetch(value, {
+        if (shouldUseProxy(proxy, urlOrDocument)) {
+          const retryResult = await fetch(urlOrDocument, {
             cache: 'no-store',
           })
 
@@ -69,7 +80,7 @@ export function useUrlPrefetcher() {
         return Object.assign(prefetchResult, {
           state: 'idle',
           content: null,
-          error: `Couldn’t fetch ${value}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+          error: `Couldn’t fetch ${urlOrDocument}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
         })
       }
 
@@ -85,7 +96,7 @@ export function useUrlPrefetcher() {
 
       const message =
         error?.message === 'Failed to fetch'
-          ? `Couldn’t reach ${value} — is it publicly accessible?`
+          ? `Couldn’t reach ${urlOrDocument} — is it publicly accessible?`
           : error?.message
 
       return Object.assign(prefetchResult, {
