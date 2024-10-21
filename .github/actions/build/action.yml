@@ -26,7 +26,9 @@ runs:
       uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8
       with:
         path: .turbo
+        # We can’t restore from the key while writing to it. So let’s add a new key for every commit.
         key: ${{ runner.os }}-turbo-${{ github.sha }}
+        # We can just restore from any previous commit, though.
         restore-keys: |
           ${{ runner.os }}-turbo-
     - if: ${{ inputs.packages-only == 'false' }}
