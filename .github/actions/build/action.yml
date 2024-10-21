@@ -22,7 +22,7 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install
-    - name: Cache turbo build setup
+    - name: Cache turbo build
       uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8
       with:
         path: .turbo
