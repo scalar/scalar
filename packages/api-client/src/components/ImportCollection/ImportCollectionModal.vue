@@ -133,7 +133,7 @@ watch(
           class="inline-flex flex-col gap-2 items-center mt-2">
           <!-- <OpenAppButton :source="source" /> -->
           <ImportNowButton
-            :source="source"
+            :source="prefetchResult?.url ?? source"
             variant="button"
             @importFinished="() => $emit('importFinished')" />
         </div>
