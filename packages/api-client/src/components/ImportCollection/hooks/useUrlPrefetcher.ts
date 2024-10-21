@@ -1,6 +1,4 @@
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
-import { resolve } from '@scalar/import'
-import { redirectToProxy, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { fetchWithProxyFallback } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
 type PrefetchResult = {
@@ -11,7 +9,46 @@ type PrefetchResult = {
 }
 
 /**
- * Fetches an URL and checks whether it could be an OpenAPI document
+ * Core logic for fetching and processing a URL
+ */
+export function createUrlPrefetcher() {
+  async function prefetchUrl(value: string | null, proxy?: string) {
+    if (!value || typeof value !== 'string') {
+      return { state: 'idle', content: null, url: null, error: null }
+    }
+
+    try {
+      const result = await fetchWithProxyFallback(value, proxy)
+
+      if (!result.ok) {
+        return {
+          state: 'idle',
+          content: null,
+          url: null,
+          error: `Couldn't fetch ${value}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+        }
+      }
+
+      const content = await result.text()
+
+      return { state: 'idle', content, url: value, error: null }
+    } catch (error: any) {
+      console.error('[prefetchDocument]', error)
+
+      const message =
+        error?.message === 'Failed to fetch'
+          ? `Couldn't reach ${value} — is it publicly accessible?`
+          : error?.message
+
+      return { state: 'idle', content: null, url: null, error: message }
+    }
+  }
+
+  return { prefetchUrl }
+}
+
+/**
+ * Vue composable for URL prefetching
  */
 export function useUrlPrefetcher() {
   const prefetchResult = reactive<PrefetchResult>({
@@ -21,28 +58,12 @@ export function useUrlPrefetcher() {
     error: null,
   })
 
-  // TODO: This does not work with URLs to API references and such, we need @scalar/import to resolve those URLs
-  // @see https://github.com/scalar/scalar/pull/3200
-  async function prefetchUrl(value: string | null, proxy?: string) {
-    // @ts-expect-error doesn’t allow null (yet)
-    const urlOrDocument = await resolve(value)
+  const { prefetchUrl } = createUrlPrefetcher()
 
-    console.log('[@scalar/import]', value, '⭢', urlOrDocument)
-
-    // No URL
-    if (
-      !urlOrDocument ||
-      typeof urlOrDocument !== 'string' ||
-      !isUrl(urlOrDocument)
-    ) {
-      return Object.assign(prefetchResult, {
-        state: 'idle',
-        content: null,
-        url: null,
-        error: null,
-      })
-    }
-
+  async function prefetchUrlAndUpdateState(
+    value: string | null,
+    proxy?: string,
+  ) {
     Object.assign(prefetchResult, {
       state: 'loading',
       content: null,
@@ -50,74 +71,15 @@ export function useUrlPrefetcher() {
       error: null,
     })
 
-    // TODO: Remove wait
-    // await new Promise((r) => setTimeout(r, 5000))
+    const result = await prefetchUrl(value, proxy)
 
-    try {
-      const result = await fetch(
-        shouldUseProxy(proxy, urlOrDocument)
-          ? redirectToProxy(proxy, urlOrDocument)
-          : urlOrDocument,
-        {
-          cache: 'no-store',
-        },
-      )
+    Object.assign(prefetchResult, result)
 
-      // Failed!
-      if (!result.ok) {
-        // Retry without proxy if the initial request failed
-        if (shouldUseProxy(proxy, urlOrDocument)) {
-          const retryResult = await fetch(urlOrDocument, {
-            cache: 'no-store',
-          })
-
-          if (retryResult.ok) {
-            const content = await retryResult.text()
-
-            return Object.assign(prefetchResult, {
-              state: 'idle',
-              content,
-              url: urlOrDocument,
-              error: null,
-            })
-          }
-        }
-
-        return Object.assign(prefetchResult, {
-          state: 'idle',
-          content: null,
-          url: null,
-          error: `Couldn’t fetch ${urlOrDocument}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
-        })
-      }
-
-      const content = await result.text()
-
-      return Object.assign(prefetchResult, {
-        state: 'idle',
-        content,
-        url: urlOrDocument,
-        error: null,
-      })
-    } catch (error: any) {
-      console.error('[prefetchDocument]', error)
-
-      const message =
-        error?.message === 'Failed to fetch'
-          ? `Couldn’t reach ${urlOrDocument} — is it publicly accessible?`
-          : error?.message
-
-      return Object.assign(prefetchResult, {
-        state: 'idle',
-        content: null,
-        url: null,
-        error: message,
-      })
-    }
+    return result
   }
 
   return {
     prefetchResult,
-    prefetchUrl,
+    prefetchUrl: prefetchUrlAndUpdateState,
   }
 }
