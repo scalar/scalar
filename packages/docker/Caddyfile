@@ -1,0 +1,10 @@
+:80 {
+    root * /usr/share/caddy
+
+    file_server
+    templates
+
+    encode gzip
+
+    try_files {path} /index.html
+}
