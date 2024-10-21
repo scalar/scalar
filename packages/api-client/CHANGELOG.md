@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.32
+
+### Patch Changes
+
+- a12857f: style: environment variable tooltip fixtures
+- 294fde8: feat: adds keyboard navigation within environment variable dropdown
+
 ## 2.1.31
 
 ### Patch Changes

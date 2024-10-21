@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.25.47
+
+### Patch Changes
+
+- e04d6e8: fix: JSON endpoint does not have CORS headers
+
 ## 1.25.46
 
 ## 1.25.45
