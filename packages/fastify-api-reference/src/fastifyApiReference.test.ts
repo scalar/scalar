@@ -129,7 +129,7 @@ describe('fastifyApiReference', () => {
     expect(response.status).toBe(200)
   })
 
-  describe('the exposed spec', () => {
+  describe('OpenAPI document endpoints', () => {
     describe.each([
       { specProvidedVia: '@fastify/swagger' },
       { specProvidedVia: 'spec: { content: spec }' },
@@ -206,7 +206,21 @@ describe('fastifyApiReference', () => {
             expect(response.status).toBe(200)
             expect(await response.json()).toEqual(spec)
           })
+
+          it<LocalTestContext>('should have proper CORS headers', async (ctx) => {
+            const { address } = ctx
+            const response = await fetch(
+              `${address}/reference${endpoints.json}`,
+            )
+            expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+              '*',
+            )
+            expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
+              '*',
+            )
+          })
         })
+
         describe(`of "${endpoints.yaml}"`, () => {
           it<LocalTestContext>(`should be equivalent to the original spec`, async (ctx) => {
             const { spec, address } = ctx
@@ -216,6 +230,19 @@ describe('fastifyApiReference', () => {
             )
             expect(response.status).toBe(200)
             expect(YAML.parse(await response.text())).toEqual(spec)
+          })
+
+          it<LocalTestContext>('should have proper CORS headers', async (ctx) => {
+            const { address } = ctx
+            const response = await fetch(
+              `${address}/reference${endpoints.yaml}`,
+            )
+            expect(response.headers.get('Access-Control-Allow-Origin')).toBe(
+              '*',
+            )
+            expect(response.headers.get('Access-Control-Allow-Methods')).toBe(
+              '*',
+            )
           })
         })
       })
