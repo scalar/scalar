@@ -505,3 +505,8 @@ watch(
     </DataTable>
   </ViewLayoutCollapse>
 </template>
+<style scoped>
+:deep(.cm-content) {
+  font-size: var(--scalar-mini);
+}
+</style>

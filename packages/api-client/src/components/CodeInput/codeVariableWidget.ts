@@ -84,8 +84,8 @@ class PillWidget extends WidgetType {
         return h(
           ScalarTooltip,
           {
-            align: 'start',
-            class: 'bg-b-1 w-full',
+            align: 'center',
+            class: 'bg-b-2 w-full',
             delay: 0,
             side: 'bottom',
             sideOffset: 6,
@@ -97,7 +97,7 @@ class PillWidget extends WidgetType {
                 'div',
                 {
                   class:
-                    'w-content shadow-lg rounded bg-b-1 text-xxs leading-5 text-c-1',
+                    'w-content shadow-lg rounded bg-b-1 brightness-lifted text-xxs leading-5 text-c-1',
                 },
                 tooltipContent,
               ),
