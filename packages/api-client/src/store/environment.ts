@@ -22,7 +22,7 @@ export function createStoreEnvironments(useLocalStorage: boolean) {
     environmentSchema.parse({
       uid: 'default',
       name: 'Global Environment',
-      color: 'blue',
+      color: '#0082D0',
       value: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
       isDefault: true,
     }),
