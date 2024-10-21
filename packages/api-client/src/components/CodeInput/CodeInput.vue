@@ -60,6 +60,9 @@ const isFocused = ref(false)
 const showDropdown = ref(false)
 const dropdownQuery = ref('')
 const dropdownPosition = ref({ left: 0, top: 0 })
+const dropdownRef = ref<InstanceType<
+  typeof EnvironmentVariableDropdown
+> | null>(null)
 
 const { activeEnvVariables, isReadOnly, environments, router } = useWorkspace()
 
@@ -173,6 +176,21 @@ defineExpose({
     codeMirror.value?.focus()
   },
 })
+
+const handleKeyDown = (key: string, event: KeyboardEvent) => {
+  if (showDropdown.value) {
+    if (key === 'down') {
+      event.preventDefault()
+      dropdownRef.value?.handleArrowKey('down')
+    } else if (key === 'up') {
+      event.preventDefault()
+      dropdownRef.value?.handleArrowKey('up')
+    } else if (key === 'enter') {
+      event.preventDefault()
+      dropdownRef.value?.handleSelect()
+    }
+  }
+}
 </script>
 <script lang="ts">
 // use normal <script> to declare options
@@ -202,7 +220,10 @@ export default {
       class="peer font-code w-full whitespace-nowrap overflow-hidden text-xs leading-[1.44] relative"
       :class="{
         'flow-code-input--error': error,
-      }"></div>
+      }"
+      @keydown.down.stop="handleKeyDown('down', $event)"
+      @keydown.enter.stop="handleKeyDown('enter', $event)"
+      @keydown.up.stop="handleKeyDown('up', $event)"></div>
   </template>
   <div
     v-if="$slots.warning"
@@ -217,6 +238,7 @@ export default {
   </div>
   <EnvironmentVariableDropdown
     v-if="showDropdown && props.withVariables && !isReadOnly"
+    ref="dropdownRef"
     :activeEnvVariables="computed(() => activeEnvVariables)"
     :dropdownPosition="dropdownPosition"
     :query="dropdownQuery"
