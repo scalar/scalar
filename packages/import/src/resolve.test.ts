@@ -46,14 +46,14 @@ describe('resolve', () => {
   })
 
   it('finds URLs from sandbox URL', async () => {
-    const result = await resolve('https://sandbox.scalar.com/p/dlw8v')
+    const result = await resolve('https://sandbox.scalar.com/p/GcxDQ')
 
-    expect(result).toBe('https://sandbox.scalar.com/files/dlw8v/openapi.yaml')
+    expect(result).toBe('https://sandbox.scalar.com/files/GcxDQ/openapi.yaml')
 
-    const otherResult = await resolve('https://sandbox.scalar.com/e/dlw8v')
+    const otherResult = await resolve('https://sandbox.scalar.com/e/GcxDQ')
 
     expect(otherResult).toBe(
-      'https://sandbox.scalar.com/files/dlw8v/openapi.yaml',
+      'https://sandbox.scalar.com/files/GcxDQ/openapi.yaml',
     )
   })
 

@@ -20,10 +20,12 @@ Find any OpenAPI/Swagger document URL in any content:
 ```ts
 import { resolve } from '@scalar/import'
 
-// Get the Swagger 2.0 URL from Swagger UI
-const result = await resolve('https://petstore.swagger.io/')
+// Get the raw file URL from a GitHub link
+const result = await resolve(
+  'https://github.com/outline/openapi/blob/main/spec3.yml',
+)
 
-// https://petstore.swagger.io/v2/swagger.json
+// https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml
 ```
 
 ## Features

@@ -3,7 +3,7 @@
  * This is useful to open the OpenAPI document from basically any source.
  */
 export async function resolve(
-  value?: string,
+  value?: string | null,
 ): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
@@ -29,7 +29,7 @@ export async function resolve(
 
     // https://sandbox.scalar.com
     const sandboxUrl = value.match(
-      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-z0-9]+)/,
+      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-zA-Z0-9]+)/,
     )
 
     if (sandboxUrl?.[2]) {
