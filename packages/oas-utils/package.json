@@ -127,7 +127,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
-    "rollup": "^4.16.4",
+    "rollup": "^4.24.0",
     "type-fest": "^4.20.0",
     "vite": "^5.2.10",
     "vitest": "^1.6.0",

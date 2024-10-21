@@ -45,7 +45,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "^20.14.10",
-    "rollup": "^4.16.4",
+    "rollup": "^4.24.0",
     "vite": "^5.2.10",
     "vitest": "^1.6.0"
   }
