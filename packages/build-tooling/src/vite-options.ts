@@ -87,8 +87,8 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
               return
 
             setTimeout(() => {
-              if (getComputedStyle(document.body).getPropertyValue('${VARS_DICT[app].STYLE_LOADED_VAR}') === 'true') 
-                return 
+              if (getComputedStyle(document.body).getPropertyValue('${VARS_DICT[app].STYLE_LOADED_VAR}') === 'true')
+                return
 
               const elementStyle = document.createElement('style')
               elementStyle.setAttribute('id', '${VARS_DICT[app].STYLE_ID}')
