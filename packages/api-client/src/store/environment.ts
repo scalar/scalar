@@ -22,9 +22,8 @@ export function createStoreEnvironments(useLocalStorage: boolean) {
     environmentSchema.parse({
       uid: 'default',
       name: 'Global Environment',
-      color: 'blue',
-      raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
-      parsed: [],
+      color: '#0082D0',
+      value: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
       isDefault: true,
     }),
   )
