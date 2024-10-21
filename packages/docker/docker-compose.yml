@@ -17,3 +17,5 @@ services:
     environment:
       # URL for the OpenAPI document to be displayed in the API reference
       - OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json
+      # JSON string for configuration (optional)
+      - API_REFERENCE_CONFIG={"theme":"purple"}

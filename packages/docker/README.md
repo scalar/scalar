@@ -21,10 +21,13 @@ This Docker container provides a simple web server using Caddy, serving a custom
 2. Run the container:
 
    ```
-   docker run -p 1234:80 -e OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json scalar/api-reference:latest
+   docker run -p 1234:80 \
+     -e OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json \
+     -e API_REFERENCE_CONFIG='{"theme":"purple"}' \
+     scalar/api-reference:latest
    ```
 
-This will start the container, mapping port 1234 on your host to port 80 in the container, and setting the `OPENAPI_DOCUMENT_URL` environment variable.
+This will start the container, mapping port 1234 on your host to port 80 in the container, setting the `OPENAPI_DOCUMENT_URL` environment variable, and providing a configuration for the API reference.
 
 3. Access the server at `http://localhost:1234`
 
@@ -54,6 +57,7 @@ Choose a port that’s available on your system and adjust your browser URL acco
          - '1234:80'
        environment:
          - OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json
+         - API_REFERENCE_CONFIG={"theme":"purple"}
    ```
 
 3. Run the following command in the directory containing the `docker-compose.yml` file:
@@ -71,3 +75,13 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 ## License
 
 The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
+
+## Configuration
+
+You can customize the API reference by passing a JSON string as the `API_REFERENCE_CONFIG` environment variable. For example:
+
+```
+-e API_REFERENCE_CONFIG='{"theme":"purple","hideTryIt":true}'
+```
+
+This allows you to set various options for the API reference. Refer to the Scalar API Reference documentation for all available configuration options.
