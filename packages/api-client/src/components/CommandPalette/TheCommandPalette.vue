@@ -233,12 +233,14 @@ onBeforeUnmount(() => {
     :open="modalState.open"
     @close="closeHandler()">
     <div class="commandmenu-overlay z-overlay" />
-    <DialogPanel class="commandmenu z-overlay">
+    <DialogPanel class="commandmenu z-overlay flex flex-co">
       <DialogTitle class="sr-only">API Client Command Menu</DialogTitle>
       <!-- Default palette (command list) -->
-      <template v-if="!activeCommand">
+      <div
+        v-if="!activeCommand"
+        class="flex-1 min-h-0 p-1.5 custom-scroll rounded-lg">
         <div
-          class="bg-b-2 border border-transparent flex items-center rounded-md sticky top-0 mb-2.5 pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:bg-b-1 focus-within:border-b-3">
+          class="bg-b-2 border border-transparent flex items-center rounded-md sticky top-0 pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:bg-b-1 focus-within:border-b-3">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
@@ -299,9 +301,11 @@ onBeforeUnmount(() => {
           class="text-c-3 text-center text-sm p-2 pt-3">
           No commands found
         </div>
-      </template>
+      </div>
       <!-- Specific command palette -->
-      <template v-else>
+      <div
+        v-else
+        class="p-1.5">
         <button
           class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.25 z-1"
           type="button"
@@ -316,7 +320,7 @@ onBeforeUnmount(() => {
           v-bind="metaData ? { metaData: metaData } : {}"
           @back="backHandler($event)"
           @close="closeHandler" />
-      </template>
+      </div>
     </DialogPanel>
   </Dialog>
 </template>
@@ -329,7 +333,6 @@ onBeforeUnmount(() => {
   max-height: 50dvh;
   width: 100%;
   max-width: 580px;
-  padding: 6px;
   margin: 12px;
   position: fixed;
   left: 50%;
