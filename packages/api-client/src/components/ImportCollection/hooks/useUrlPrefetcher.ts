@@ -22,9 +22,10 @@ export function useUrlPrefetcher() {
   // TODO: This does not work with URLs to API references and such, we need @scalar/import to resolve those URLs
   // @see https://github.com/scalar/scalar/pull/3200
   async function prefetchUrl(value: string | null, proxy?: string) {
+    // @ts-expect-error doesn’t allow null (yet)
     const urlOrDocument = await resolve(value)
 
-    console.log('@scalar/import', value, '⭢', urlOrDocument)
+    console.log('[@scalar/import]', value, '⭢', urlOrDocument)
 
     // No URL
     if (
