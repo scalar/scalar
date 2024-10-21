@@ -13,7 +13,6 @@ internal static class ServiceCollectionExtensions
             {
                 x.Authority = AuthConstants.KeycloakUrl;
                 x.RequireHttpsMetadata = false;
-                x.TokenValidationParameters.ValidateIssuer = false;
                 x.TokenValidationParameters.ValidateAudience = false;
             })
             .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(AuthConstants.ApiKey, null);
