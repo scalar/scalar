@@ -44,6 +44,7 @@ import { ScalarIcon, useModal } from '@scalar/components'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { ROUTES } from '@/constants' // Import the ROUTES
 
 import type { HotKeyEvent } from '@/libs'
 
@@ -96,6 +97,14 @@ const availableCommands = [
         path: '/cookies',
       },
     ],
+  },
+  {
+    label: 'Pages',
+    commands: ROUTES.map((route) => ({
+      name: route.prettyName,
+      icon: route.icon,
+      path: `/${route.name}`,
+    })),
   },
 ] as const
 type Command = (typeof availableCommands)[number]['commands'][number]
@@ -229,7 +238,7 @@ onBeforeUnmount(() => {
       <!-- Default palette (command list) -->
       <template v-if="!activeCommand">
         <div
-          class="bg-b-2 flex items-center rounded-md mb-2.5 pl-2 focus-within:bg-b-1 focus-within:shadow-border">
+          class="bg-b-2 border border-transparent flex items-center rounded-md sticky top-0 mb-2.5 pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:bg-b-1 focus-within:border-b-3">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
@@ -317,7 +326,7 @@ onBeforeUnmount(() => {
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
-  max-height: 60dvh;
+  max-height: 50dvh;
   width: 100%;
   max-width: 580px;
   padding: 6px;
