@@ -7,8 +7,8 @@ services:
 
     # Just for development purposes:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: ./Dockerfile
 
     ports:
       # Map host port 1234 to container port 80
