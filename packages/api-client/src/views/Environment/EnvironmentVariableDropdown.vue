@@ -4,7 +4,7 @@ import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, ref } from 'vue'
+import { computed, defineExpose, onMounted, ref } from 'vue'
 import type { Router } from 'vue-router'
 
 const props = defineProps<{
@@ -21,6 +21,7 @@ const emit = defineEmits<{
 
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
+const selectedVariableIndex = ref(0)
 
 const redirectToEnvironment = () => {
   const workspaceId = currentRoute.value.params.workspace
@@ -63,6 +64,36 @@ const getEnvColor = () => {
   })
 }
 
+const handleArrowKey = (direction: 'up' | 'down') => {
+  const offset = direction === 'up' ? -1 : 1
+  const length = filteredVariables.value.length
+
+  if (length === 0) return
+
+  selectedVariableIndex.value =
+    (selectedVariableIndex.value + offset + length) % length
+}
+
+const handleSelect = () => {
+  if (selectedVariableIndex.value >= 0) {
+    const selectedVariable =
+      filteredVariables.value[selectedVariableIndex.value]
+    if (selectedVariable) {
+      selectVariable(selectedVariable.key)
+    }
+  }
+}
+
+defineExpose({
+  handleArrowKey,
+  handleSelect,
+})
+
+onMounted(() => {
+  // Reset selected index to the first item when dropdown opens
+  selectedVariableIndex.value = 0
+})
+
 onClickOutside(
   dropdownRef,
   () => {
@@ -85,10 +116,11 @@ onClickOutside(
     <template #items>
       <ul v-if="filteredVariables.length">
         <template
-          v-for="item in filteredVariables"
+          v-for="(item, index) in filteredVariables"
           :key="item.key">
           <li
             class="h-8 font-code text-xxs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
+            :class="{ 'bg-b-2': index === selectedVariableIndex }"
             @click="selectVariable(item.key)">
             <!-- @click.stop="selectVariable(variable)" -->
             <div class="flex items-center gap-1.5 whitespace-nowrap">
