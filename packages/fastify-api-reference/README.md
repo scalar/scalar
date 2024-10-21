@@ -40,7 +40,7 @@ fastify.register(require('@scalar/fastify-api-reference'), {
 })
 ```
 
-With [@fastify/swagger], we’re picking it up automatically, so this would be enough:
+With [@fastify/swagger] we automatically detect the specification, so all you need is:
 
 ```ts
 await fastify.register(require('@scalar/fastify-api-reference'), {
