@@ -6,6 +6,7 @@ import { reactive } from 'vue'
 type PrefetchResult = {
   state: 'idle' | 'loading'
   content: string | null
+  url: string | null
   error: string | null
 }
 
@@ -16,6 +17,7 @@ export function useUrlPrefetcher() {
   const prefetchResult = reactive<PrefetchResult>({
     state: 'idle',
     content: null,
+    url: null,
     error: null,
   })
 
@@ -36,6 +38,7 @@ export function useUrlPrefetcher() {
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
+        url: null,
         error: null,
       })
     }
@@ -43,11 +46,12 @@ export function useUrlPrefetcher() {
     Object.assign(prefetchResult, {
       state: 'loading',
       content: null,
+      url: null,
       error: null,
     })
 
     // TODO: Remove wait
-    // await new Promise((resolve) => setTimeout(resolve, 5000))
+    // await new Promise((r) => setTimeout(r, 5000))
 
     try {
       const result = await fetch(
@@ -73,6 +77,7 @@ export function useUrlPrefetcher() {
             return Object.assign(prefetchResult, {
               state: 'idle',
               content,
+              url: urlOrDocument,
               error: null,
             })
           }
@@ -81,6 +86,7 @@ export function useUrlPrefetcher() {
         return Object.assign(prefetchResult, {
           state: 'idle',
           content: null,
+          url: null,
           error: `Couldn’t fetch ${urlOrDocument}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
         })
       }
@@ -90,6 +96,7 @@ export function useUrlPrefetcher() {
       return Object.assign(prefetchResult, {
         state: 'idle',
         content,
+        url: urlOrDocument,
         error: null,
       })
     } catch (error: any) {
@@ -103,6 +110,7 @@ export function useUrlPrefetcher() {
       return Object.assign(prefetchResult, {
         state: 'idle',
         content: null,
+        url: null,
         error: message,
       })
     }
