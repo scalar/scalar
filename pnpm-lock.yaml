@@ -1524,6 +1524,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
