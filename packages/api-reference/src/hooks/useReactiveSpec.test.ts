@@ -87,6 +87,7 @@ describe('useReactiveSpec', () => {
   function createFetchResponse(data: string) {
     return {
       status: 200,
+      ok: true,
       text: () => new Promise((resolve) => resolve(data)),
     }
   }
@@ -101,7 +102,11 @@ describe('useReactiveSpec', () => {
       },
     })
 
-    expect(fetch).toHaveBeenCalledWith('https://example.com/openapi.json')
+    await nextTick()
+
+    expect(fetch).toHaveBeenCalledWith('https://example.com/openapi.json', {
+      cache: 'no-cache',
+    })
 
     await new Promise((resolve) => {
       watch(rawSpec, (value) => {
