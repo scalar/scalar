@@ -57,11 +57,17 @@ const themeStyleTag = computed(
 @import '@/assets/tailwind.css';
 @import '@/assets/variables.css';
 
+/** Add background for iOS and Safari scroll overflow */
+html,
+body {
+  background-color: var(--scalar-background-1);
+}
+
 #scalar-client {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100dvw;
   position: relative;
   background-color: var(--scalar-background-2);
 }

@@ -78,8 +78,8 @@ const themeStyleTag = computed(
 #scalar-client {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100dvw;
   position: relative;
   background-color: var(--scalar-background-2);
 }
