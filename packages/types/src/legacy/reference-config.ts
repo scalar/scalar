@@ -364,7 +364,7 @@ export type RequestBody = {
   content?: RequestBodyMimeTypes
 }
 
-/** The OpenAPI Document we’ll render */
+/** The OpenAPI Document to be rendered */
 export type SpecConfiguration = {
   /**
    * A URL to an OpenAPI/Swagger document
