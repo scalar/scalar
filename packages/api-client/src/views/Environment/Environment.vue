@@ -8,36 +8,46 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store'
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarTooltip,
+  useModal,
+} from '@scalar/components'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
 import { nextTick, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import EnvironmentColors from './EnvironmentColors.vue'
+import EnvironmentColorModal from './EnvironmentColorModal.vue'
+import EnvironmentModal from './EnvironmentModal.vue'
 import EnvironmentTable from './EnvironmentTable.vue'
 
 const router = useRouter()
 const { environments, environmentMutators } = useWorkspace()
+const colorModal = useModal()
+const environmentModal = useModal()
 
 const activeEnvironmentID = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const showTable = ref(false)
+const colorModalEnvironment = ref<string | null>(null)
+const selectedColor = ref('')
 
-function addEnvironment() {
-  const environment = environmentSchema.parse({
-    name: 'New Environment',
+function addEnvironment(environment: { name: string; color: string }) {
+  const newEnvironment = environmentSchema.parse({
+    name: environment.name,
     uid: nanoid(),
-    color: 'grey',
-    raw: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
-    parsed: [],
+    color: environment.color,
+    value: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
     isDefault: false,
   })
 
-  environmentMutators.add(environment)
-  activeEnvironmentID.value = environment.uid
+  environmentMutators.add(newEnvironment)
+  activeEnvironmentID.value = newEnvironment.uid
   router.push(activeEnvironmentID.value)
+  environmentModal.hide()
 }
 
 function handleEnvironmentUpdate(raw: string) {
@@ -78,9 +88,18 @@ const removeEnvironment = (uid: string) => {
   }
 }
 
-const handleColorSelect = (color: string) =>
-  activeEnvironmentID.value &&
-  environmentMutators.edit(activeEnvironmentID.value, 'color', color)
+const handleOpenColorModal = (uid: string) => {
+  colorModalEnvironment.value = uid
+  selectedColor.value = environments[uid].color || ''
+  colorModal.show()
+}
+
+const submitColorChange = (color: string) => {
+  if (colorModalEnvironment.value) {
+    environmentMutators.edit(colorModalEnvironment.value, 'color', color)
+    colorModal.hide()
+  }
+}
 
 /** set active environment based on the route */
 const setActiveEnvironment = () => {
@@ -226,6 +245,10 @@ function defaultRow() {
   }
 }
 
+const openEnvironmentModal = () => {
+  environmentModal.show()
+}
+
 onMounted(() => {
   setActiveEnvironment()
   defaultRow()
@@ -260,12 +283,13 @@ watch(
               }"
               :warningMessage="`Are you sure you want to delete this environment?`"
               @click="activeEnvironmentID = environment.uid"
+              @colorModal="handleOpenColorModal"
               @delete="removeEnvironment(environment.uid)" />
           </SidebarList>
         </div>
       </template>
       <template #button>
-        <SidebarButton :click="addEnvironment">
+        <SidebarButton :click="openEnvironmentModal">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>
@@ -290,12 +314,7 @@ watch(
             @blur="isEditingName = false"
             @input="updateEnvironmentName"
             @keyup.enter="isEditingName = false" />
-          <div class="colors ml-auto">
-            <EnvironmentColors
-              :activeColor="environments[activeEnvironmentID].color"
-              @select="handleColorSelect" />
-          </div>
-          <div>
+          <div class="ml-auto">
             <ScalarTooltip
               align="center"
               class="scalar-client"
@@ -371,5 +390,14 @@ watch(
           @updateRow="updateEnvironmentRow" />
       </ViewLayoutSection>
     </ViewLayoutContent>
+    <EnvironmentColorModal
+      :selectedColor="selectedColor"
+      :state="colorModal"
+      @cancel="colorModal.hide()"
+      @submit="submitColorChange" />
+    <EnvironmentModal
+      :state="environmentModal"
+      @cancel="environmentModal.hide()"
+      @submit="addEnvironment" />
   </ViewLayout>
 </template>
