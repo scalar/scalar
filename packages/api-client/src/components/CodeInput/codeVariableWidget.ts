@@ -15,30 +15,32 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
+type ActiveEnvironment = WorkspaceStore['activeEnvironment']
 type ActiveParsedEnvironments = WorkspaceStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
-const getEnvColor = (activeEnvVariables: ActiveParsedEnvironments) => {
-  const colorVariable = activeEnvVariables.value.find(
-    (variable) => variable.key === 'color',
-  )?.value
-  return colorVariable || 'grey'
+const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
+  if (activeEnvironment.value) {
+    return activeEnvironment.value.color
+  }
+
+  return '#8E8E8E'
 }
 class PillWidget extends WidgetType {
   private app: any
-  environments: Record<string, Environment>
+  activeEnvironment: ActiveEnvironment
   activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
-    environments: Record<string, Environment>,
+    activeEnvironment: ActiveEnvironment,
     activeEnvVariables: ActiveParsedEnvironments,
     isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
-    this.environments = environments
+    this.activeEnvironment = activeEnvironment
     this.activeEnvVariables = activeEnvVariables
     this.isReadOnly = isReadOnly
   }
@@ -55,7 +57,10 @@ class PillWidget extends WidgetType {
           (thing) => thing.key === this.variableName,
         )
         if (val) {
-          span.className += ` bg-${getEnvColor(this.activeEnvVariables)}`
+          span.style.setProperty(
+            '--tw-bg-base',
+            getEnvColor(this.activeEnvironment),
+          )
         }
         const tooltipContent = val
           ? h('div', { class: 'p-2' }, val.value as string)
@@ -130,7 +135,7 @@ class PillWidget extends WidgetType {
 }
 
 export const pillPlugin = (props: {
-  environments: Record<string, Environment>
+  activeEnvironment: WorkspaceStore['activeEnvironment']
   activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 }) =>
@@ -165,7 +170,7 @@ export const pillPlugin = (props: {
               Decoration.widget({
                 widget: new PillWidget(
                   variableName,
-                  props.environments,
+                  props.activeEnvironment,
                   props.activeEnvVariables,
                   props.isReadOnly,
                 ),
