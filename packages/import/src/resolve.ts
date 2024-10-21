@@ -29,7 +29,7 @@ export async function resolve(
 
     // https://sandbox.scalar.com
     const sandboxUrl = value.match(
-      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-z0-9]+)/,
+      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-zA-Z0-9]+)/,
     )
 
     if (sandboxUrl?.[2]) {
