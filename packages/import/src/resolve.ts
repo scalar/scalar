@@ -3,7 +3,7 @@
  * This is useful to open the OpenAPI document from basically any source.
  */
 export async function resolve(
-  value?: string,
+  value?: string | null,
 ): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
