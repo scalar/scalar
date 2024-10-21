@@ -113,6 +113,7 @@
   "module": "dist/index.js",
   "dependencies": {
     "@hyperjump/json-schema": "^1.9.6",
+    "@scalar/import": "workspace:*",
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/themes": "workspace:*",

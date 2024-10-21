@@ -559,9 +559,6 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../import
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1799,6 +1796,9 @@ importers:
       '@hyperjump/json-schema':
         specifier: ^1.9.6
         version: 1.9.8(@hyperjump/browser@1.1.6)
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
@@ -21640,7 +21640,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
