@@ -44,11 +44,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       <Badge>deprecated</Badge>
     </div>
     <div
-      v-if="required"
-      class="property-required">
-      required
-    </div>
-    <div
       v-if="value?.const || (value?.enum && value.enum.length === 1)"
       class="property-const">
       <SchemaPropertyDetail truncate>
@@ -136,6 +131,11 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       :key="rule">
       <Badge>{{ rule }}</Badge>
     </template>
+    <div
+      v-if="required"
+      class="property-required">
+      required
+    </div>
   </div>
 </template>
 <style scoped>
@@ -163,6 +163,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 .property-required {
   font-size: var(--scalar-micro);
+  color: var(--scalar-color-orange);
 }
 
 .property-read-only,
