@@ -16,6 +16,7 @@ const {
   activeExample,
   requestMutators,
   requestExampleMutators,
+  activeServer,
 } = useWorkspace()
 
 const params = computed(() => {
@@ -96,14 +97,17 @@ const setPathVariable = (url: string) => {
   )
 }
 
-watch(
-  () => activeRequest.value?.path,
-  (newURL) => {
-    if (newURL) {
-      setPathVariable(newURL)
-    }
-  },
-)
+const fullURL = computed(() => {
+  const serverURL = activeServer.value?.url || ''
+  const requestPath = activeRequest.value?.path || ''
+  return serverURL + requestPath
+})
+
+watch(fullURL, (newURL) => {
+  if (newURL) {
+    setPathVariable(newURL)
+  }
+})
 </script>
 <template>
   <ViewLayoutCollapse :itemCount="params.length">
