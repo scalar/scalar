@@ -367,7 +367,7 @@ export type RequestBody = {
 /** The OpenAPI Document we’ll render */
 export type SpecConfiguration = {
   /**
-   * URL to an OpenAPI/Swagger document
+   * A URL to an OpenAPI/Swagger document
    */
   url?: string
   /**
