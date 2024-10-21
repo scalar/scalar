@@ -179,7 +179,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the app
         id: changed-files
-        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
+        uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c
         with:
           files_yaml: |
             api_client_app:
@@ -268,7 +268,7 @@ jobs:
         uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       - name: Check which files were touched
         id: changed-files
-        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
+        uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c
         with:
           files_yaml: |
             api_client:
@@ -394,7 +394,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new NuGet package version
         id: changed-files
-        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
+        uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c
         with:
           files_yaml: |
             aspnetcore_package:
