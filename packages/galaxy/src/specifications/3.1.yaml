@@ -403,8 +403,9 @@ components:
         password:
           tokenUrl: /oauth/token
           scopes:
-            read:planets: read your planets
+            read:account: read your account information
             write:planets: modify planets in your account
+            read:planets: read your planets
   parameters:
     planetId:
       name: planetId
