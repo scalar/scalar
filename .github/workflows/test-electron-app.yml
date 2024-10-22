@@ -46,4 +46,4 @@ jobs:
       - name: Install Playwright dependencies
         run: npx playwright install-deps
       - name: Run e2e tests
-        run: CI=1 pnpm -r --parallel test:e2e:electron
+        run: CI=1 pnpm test:e2e:electron
