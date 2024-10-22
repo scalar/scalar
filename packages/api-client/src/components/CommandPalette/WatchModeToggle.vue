@@ -5,6 +5,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   modelValue: boolean
   disabled?: boolean
+  disableToolTip?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -21,6 +22,7 @@ const modelValue = computed({
   <ScalarTooltip
     as="div"
     class="z-[10001]"
+    :disabled="disableToolTip"
     side="bottom"
     :sideOffset="5">
     <template #trigger>

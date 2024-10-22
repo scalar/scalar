@@ -150,9 +150,11 @@ watch(
           </div>
         </template>
         <!-- Watch Mode -->
-
         <template v-if="prefetchResult?.url">
-          <WatchModeToggle v-model="watchMode" />
+          <WatchModeToggle
+            v-model="watchMode"
+            :disableToolTip="true" />
+          <div>hi hello</div>
         </template>
       </div>
       <!-- Download Link -->
@@ -173,7 +175,7 @@ watch(
               class="hover:text-c-1 underline-offset-2"
               href="https://scalar.com/download"
               target="_blank">
-              Download the Scalar App
+              Download Scalar Desktop App
             </a>
             <br />
             free · open-source · offline first
