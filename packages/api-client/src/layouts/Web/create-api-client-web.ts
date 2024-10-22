@@ -1,5 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { router as _router, saveWorkspace } from '@/router'
+import { createWebHistoryRouter, saveWorkspace } from '@/router'
 
 import ApiClientWeb from './ApiClientWeb.vue'
 
@@ -16,9 +16,8 @@ export const createApiClientWeb = async (
    * For SSR this may need to be blocked and done client side
    */
   mountOnInitialize = true,
-  /** Vue router to use */
-  router = _router,
 ) => {
+  const router = createWebHistoryRouter()
   const client = createApiClient({
     el,
     appComponent: ApiClientWeb,

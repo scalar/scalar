@@ -54,7 +54,8 @@ type CreateApiClientParams = {
 /**
  * ApiClient type
  *
- * For some reason we couldn't propogate the types correctly so we pick whatever we need for references
+ * We need to do this due to some typescript type propogation errors
+ * This is pretty much add properties as they are needed
  */
 export type ApiClient = Omit<
   Awaited<ReturnType<typeof createApiClient>>,
@@ -63,18 +64,10 @@ export type ApiClient = Omit<
   /** Add properties as they are needed, see above */
   app: { unmount: () => void }
   /**
-   * The main workspace store from the client
-   * These refs don't wanna play nice with typescript, if we need them we can de-reference them
+   * The mutators will be incorrect, and we are missing quite a few other properties
+   * Add properties as they are needed, see above
    */
-  store: Omit<
-    WorkspaceStore,
-    | 'isReadOnly'
-    | 'router'
-    | 'events'
-    | 'sidebarWidth'
-    | 'proxyUrl'
-    | 'requestHistory'
-  >
+  store: Pick<WorkspaceStore, 'workspaceMutators'>
 }
 
 /**
