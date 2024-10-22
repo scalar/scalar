@@ -55,15 +55,36 @@ declare global {
   }
 }
 
+type CreateWorkspaceStoreOptions = {
+  /**
+   * When true, changes made to the store will be saved in the browser’s localStorage.
+   *
+   * @default true
+   */
+  useLocalStorage: boolean
+}
+
 /**
- * Factory for creating the entire store for the api-client
- * This should be injected once per app instance
+ /**
+ * Factory function for creating the centralized store for the API client.
+ *
+ * This store manages all data and state for the application.
+ * It should be instantiated once and injected into the app’s root component.
  */
 export const createWorkspaceStore = (
   router: Router,
   /** If true data will be persisted to localstorage when changes are made */
-  useLocalStorage = true,
+  options: Partial<CreateWorkspaceStoreOptions> = {},
 ) => {
+  const defaultOptions: CreateWorkspaceStoreOptions = {
+    useLocalStorage: true,
+  }
+
+  const { useLocalStorage } = {
+    ...defaultOptions,
+    ...options,
+  }
+
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
 
@@ -298,6 +319,8 @@ export const createWorkspaceStore = (
         ? 'https://proxy.scalar.com'
         : '',
   )
+
+  console.log('FOO', proxyUrl)
 
   const setProxyUrl = (url: string) => {
     proxyUrl.value = url

@@ -66,7 +66,9 @@ export const createApiClient = ({
   mountOnInitialize = true,
   router,
 }: CreateApiClientParams) => {
-  const store = createWorkspaceStore(router, persistData)
+  const store = createWorkspaceStore(router, {
+    useLocalStorage: persistData,
+  })
 
   // Load from localStorage if available
   // Check if we have localStorage data
