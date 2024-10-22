@@ -103,8 +103,12 @@ defineOptions({
   /* Remove default outline */
   box-shadow: none;
 }
+.card-form-input:not(:only-child) {
+  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
+}
 .card-form-input + .card-form-input {
   border-left: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 0 var(--scalar-radius) var(--scalar-radius) 0;
 }
 .card-form-input-text:not(:placeholder-shown) + label {
   color: var(--scalar-color-2);
