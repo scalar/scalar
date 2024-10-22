@@ -5,6 +5,11 @@
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
   "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/postman-to-openapi"
+  },
   "keywords": [
     ""
   ],
@@ -46,16 +51,11 @@
     "CHANGELOG.md"
   ],
   "module": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/scalar/scalar.git",
-    "directory": "packages/postman-to-openapi"
+  "dependencies": {
+    "@scalar/openapi-types": "workspace:*"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "^5.1.1"
-  },
-  "dependencies": {
-    "@scalar/openapi-types": "^0.1.1"
+    "vite": "^5.2.10"
   }
 }
