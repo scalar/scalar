@@ -23,7 +23,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Turborepo cache
+      - name: Restore Turborepo cache
         uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
           path: .turbo
