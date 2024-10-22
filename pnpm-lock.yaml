@@ -1047,6 +1047,8 @@ importers:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
 
+  packages/api-reference/docker: {}
+
   packages/build-tooling:
     dependencies:
       '@rollup/plugin-alias':
