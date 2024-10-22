@@ -2010,6 +2010,9 @@ importers:
 
   packages/postman-to-openapi:
     dependencies:
+      '@scalar/oas-utils':
+        specifier: workspace:*
+        version: link:../oas-utils
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
