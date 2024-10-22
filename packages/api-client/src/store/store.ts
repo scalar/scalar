@@ -73,18 +73,8 @@ type CreateWorkspaceStoreOptions = {
  */
 export const createWorkspaceStore = (
   router: Router,
-  /** If true data will be persisted to localstorage when changes are made */
-  options: Partial<CreateWorkspaceStoreOptions> = {},
+  { useLocalStorage = true }: CreateWorkspaceStoreOptions,
 ) => {
-  const defaultOptions: CreateWorkspaceStoreOptions = {
-    useLocalStorage: true,
-  }
-
-  const { useLocalStorage } = {
-    ...defaultOptions,
-    ...options,
-  }
-
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
 
