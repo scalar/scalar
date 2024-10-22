@@ -19,7 +19,7 @@ A powerful Node.js server that generates and returns realistic mock data based o
 
 ## Quickstart
 
-It’s part of [our Scalar CLI](https://github.com/scalar/scalar/tree/main/packages/cli), sou can boot it literllay in seconds:
+It’s part of [our Scalar CLI](https://github.com/scalar/scalar/tree/main/packages/cli), sou yan boot it literllay in seconds:
 
 ```bash
 npx @scalar/cli mock openapi.json --watch
