@@ -1,7 +1,6 @@
 import { serve } from '@hono/node-server'
 import { apiReference } from '@scalar/hono-api-reference'
 import fs from 'fs/promises'
-import { logger } from 'hono/logger'
 
 import { createMockServer } from '../src/createMockServer'
 
@@ -15,8 +14,9 @@ const specification = await fs
   .readFile('../galaxy/src/specifications/3.1.yaml', 'utf8')
   .catch(() => {
     console.error(
-      'MISSING GALAXY SPEC FOR PLAYGROUND. PLEASE BUILD @scalar/galaxy',
+      '[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.',
     )
+
     return ''
   })
 
