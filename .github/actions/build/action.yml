@@ -27,9 +27,9 @@ runs:
       with:
         path: .turbo
         key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
-        restore-keys:
-          - turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
-          - turbo-${{ runner.os }}-node-
+        restore-keys: |
+          turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
+          turbo-${{ runner.os }}-node-
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
