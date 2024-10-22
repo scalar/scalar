@@ -7,13 +7,16 @@ import type {
 } from '@scalar/types/legacy'
 import { ref } from 'vue'
 
+/** API Client instance */
+const client = ref<ApiClient | null>(null)
+
 /**
  * Hook to control and access the API Client
  */
-export const useApiClient = () => {
-  /** API Client instance */
-  const client = ref<ApiClient | null>(null)
-
+export const useApiClient = (): {
+  client: typeof client
+  init: (args: any) => Promise<ApiClient>
+} => {
   /** Iniitialize the API Client, must be called only once or we will reset the state */
   const init = async ({
     el,
@@ -37,7 +40,7 @@ export const useApiClient = () => {
 
     // @ts-expect-error theres some type issue with a vue app in a ref, possible router related
     client.value = _client
-    return _client
+    return _client as ApiClient
   }
 
   return {

@@ -1,4 +1,4 @@
-import { useApiClientStore, useOpenApiStore } from '#legacy'
+import { useOpenApiStore } from '#legacy'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
@@ -11,7 +11,6 @@ import {
   getModels,
   hasModels,
   hasWebhooks,
-  openClientFor,
   scrollToId,
 } from '../helpers'
 import { useNavState } from './useNavState'
@@ -130,7 +129,6 @@ function updateHeadings(description: string) {
 // Create the list of sidebar items from the given spec
 const items = computed(() => {
   // Check whether the API client is visible
-  const { state } = useApiClientStore()
   const titlesById: Record<string, string> = {}
   const {
     openApi: { globalSecurity },
@@ -146,7 +144,7 @@ const items = computed(() => {
       currentHeading = {
         id: getHeadingId(heading),
         title: heading.value,
-        show: !state.showApiClient,
+        show: true,
         children: [],
       }
 
@@ -157,7 +155,7 @@ const items = computed(() => {
       currentHeading.children?.push({
         id: getHeadingId(heading),
         title: heading.value,
-        show: !state.showApiClient,
+        show: true,
       })
     }
   })
@@ -194,11 +192,7 @@ const items = computed(() => {
                     httpVerb: operation.httpVerb,
                     deprecated: operation.information?.deprecated ?? false,
                     show: true,
-                    select: () => {
-                      if (state.showApiClient) {
-                        openClientFor(operation, globalSecurity)
-                      }
-                    },
+                    select: () => {},
                   }
                 },
               ),
@@ -215,11 +209,7 @@ const items = computed(() => {
             httpVerb: operation.httpVerb,
             deprecated: operation.information?.deprecated ?? false,
             show: true,
-            select: () => {
-              if (state.showApiClient) {
-                openClientFor(operation, globalSecurity)
-              }
-            },
+            select: () => {},
           }
         })
 
@@ -230,7 +220,7 @@ const items = computed(() => {
           {
             id: getModelId(),
             title: 'Models',
-            show: !state.showApiClient,
+            show: true,
             children: Object.keys(getModels(parsedSpec.value) ?? {}).map(
               (name) => {
                 const id = getModelId(name)
@@ -240,7 +230,7 @@ const items = computed(() => {
                   id,
                   title:
                     (getModels(parsedSpec.value)?.[name] as any).title ?? name,
-                  show: !state.showApiClient,
+                  show: true,
                 }
               },
             ),
@@ -254,7 +244,7 @@ const items = computed(() => {
         {
           id: getWebhookId(),
           title: 'Webhooks',
-          show: !state.showApiClient,
+          show: true,
           children: Object.keys(parsedSpec.value?.webhooks ?? {})
             .map((name) => {
               const id = getWebhookId(name)
@@ -269,7 +259,7 @@ const items = computed(() => {
                   id: getWebhookId(name, httpVerb),
                   title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
                   httpVerb: httpVerb as string,
-                  show: !state.showApiClient,
+                  show: true,
                 }
               })
             })

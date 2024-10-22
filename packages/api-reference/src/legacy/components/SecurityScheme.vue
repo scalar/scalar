@@ -7,7 +7,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { useToasts } from '@scalar/use-toasts'
 import { computed } from 'vue'
 
-import { apiClientBus } from '../../components/api-client-bus'
+import { useApiClient } from '../../features/ApiClientModal'
 import { getUrlFromServerState } from '../helpers'
 import { useAuthenticationStore, useServerStore } from '../stores'
 import CardForm from './CardForm.vue'
@@ -26,9 +26,8 @@ defineProps<{
 }>()
 
 const { toast } = useToasts()
-
+const { client } = useApiClient()
 const { server } = useServerStore()
-
 const { authentication, setAuthentication } = useAuthenticationStore()
 
 const handleApiKeyTokenInput = (event: Event) => {
@@ -43,12 +42,10 @@ const handleApiKeyTokenInput = (event: Event) => {
 
   // Update the client as well
   if (authentication.preferredSecurityScheme)
-    apiClientBus.emit({
-      updateAuth: {
-        nameKey: authentication.preferredSecurityScheme,
-        propertyKey: 'value',
-        value,
-      },
+    client.value?.updateAuth({
+      nameKey: authentication.preferredSecurityScheme,
+      propertyKey: 'value',
+      value,
     })
 }
 
@@ -66,12 +63,10 @@ const handleHttpBasicUsernameInput = (event: Event) => {
   })
 
   if (authentication.preferredSecurityScheme)
-    apiClientBus.emit({
-      updateAuth: {
-        nameKey: authentication.preferredSecurityScheme,
-        propertyKey: 'username',
-        value,
-      },
+    client.value?.updateAuth({
+      nameKey: authentication.preferredSecurityScheme,
+      propertyKey: 'username',
+      value,
     })
 }
 
@@ -89,12 +84,10 @@ const handleHttpBasicPasswordInput = (event: Event) => {
   })
 
   if (authentication.preferredSecurityScheme)
-    apiClientBus.emit({
-      updateAuth: {
-        nameKey: authentication.preferredSecurityScheme,
-        propertyKey: 'password',
-        value,
-      },
+    client.value?.updateAuth({
+      nameKey: authentication.preferredSecurityScheme,
+      propertyKey: 'password',
+      value,
     })
 }
 
@@ -112,12 +105,10 @@ const handleHttpBearerTokenInput = (event: Event) => {
   })
 
   if (authentication.preferredSecurityScheme)
-    apiClientBus.emit({
-      updateAuth: {
-        nameKey: authentication.preferredSecurityScheme,
-        propertyKey: 'token',
-        value,
-      },
+    client.value?.updateAuth({
+      nameKey: authentication.preferredSecurityScheme,
+      propertyKey: 'token',
+      value,
     })
 }
 

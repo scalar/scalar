@@ -23,7 +23,7 @@ import {
   watch,
 } from 'vue'
 
-import ApiClientModal from '../features/ApiClientModal/ApiClientModal.vue'
+import { ApiClientModal } from '../features/ApiClientModal'
 import {
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,

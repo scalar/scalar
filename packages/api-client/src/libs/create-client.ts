@@ -1,5 +1,6 @@
 import { loadAllResources } from '@/libs/local-storage'
 import { createWorkspaceStore } from '@/store'
+import type { StoreContext } from '@/store/store-context'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
@@ -50,7 +51,24 @@ type CreateApiClientParams = {
   router: Router
 }
 
-export type ApiClient = ReturnType<typeof createApiClient>
+/**
+ * ApiClient type
+ *
+ * We need to do this due to some typescript type propogation errors
+ * This is pretty much add properties as they are needed
+ */
+export type ApiClient = Omit<
+  Awaited<ReturnType<typeof createApiClient>>,
+  'app' | 'store'
+> & {
+  /** Add properties as they are needed, see above */
+  app: { unmount: () => void }
+  /**
+   * The mutators will be incorrect, and we are missing quite a few other properties
+   * Add properties as they are needed, see above
+   */
+  store: any
+}
 
 /**
  * Sync method to create the api client vue app and store

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
-import { useApiClient } from '@/legacy/hooks/useApiClient'
 import type {
   AuthenticationState,
   Spec,
@@ -8,7 +7,7 @@ import type {
 } from '@scalar/types/legacy'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import { apiClientBus, modalStateBus } from './api-client-bus'
+import { useApiClient } from './useApiClient'
 
 const props = defineProps<{
   proxyUrl?: string
@@ -34,20 +33,11 @@ onMounted(async () => {
     servers: props.servers,
   })
 
-  modalStateBus.emit(_client.modalState)
-
   // Update the references server when the client server changes
   _client.onUpdateServer((url) => {
     if (!server.servers) return
     const index = server.servers.findIndex((s) => s.url === url)
     if (index >= 0) setServer({ selectedServer: index })
-  })
-
-  // Event bus to listen to apiClient events
-  apiClientBus.on((event) => {
-    if (event.open) _client.open(event.open)
-    if (event.updateSpec) _client.updateSpec(event.updateSpec)
-    if (event.updateAuth) _client.updateAuth(event.updateAuth)
   })
 })
 

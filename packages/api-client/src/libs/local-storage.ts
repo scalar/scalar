@@ -1,4 +1,4 @@
-import type { useWorkspace } from '@/store'
+import type { WorkspaceStore } from '@/store'
 import { cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import {
@@ -38,7 +38,7 @@ const loadResources = <T extends (object & { uid: string })[]>(
  *
  * Currently not working for workspace
  */
-export const loadAllResources = (mutators: ReturnType<typeof useWorkspace>) => {
+export const loadAllResources = (mutators: WorkspaceStore) => {
   const {
     collectionMutators,
     cookieMutators,
