@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 const props = defineProps<{
   source?: string | null
   variant?: 'button' | 'link'
+  watchMode?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +28,9 @@ async function importCollection() {
         const [error, collection] = await importSpecFromUrl(
           props.source,
           activeWorkspace.value.uid,
+          {
+            watchForChanges: props.watchMode,
+          },
         )
         if (!error) redirectToFirstRequestInCollection(collection)
       } else {

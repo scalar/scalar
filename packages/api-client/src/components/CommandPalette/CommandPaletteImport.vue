@@ -6,8 +6,6 @@ import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarIcon,
-  ScalarToggle,
-  ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
@@ -15,6 +13,7 @@ import { computed, ref, watch } from 'vue'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
+import WatchModeToggle from './WatchModeToggle.vue'
 
 const emits = defineEmits<{
   (event: 'close'): void
@@ -26,7 +25,7 @@ const { toast } = useToasts()
 const loader = useLoadingState()
 
 const inputContent = ref('')
-const watchForChanges = ref(true)
+const watchMode = ref(true)
 
 const documentDetails = computed(() =>
   getOpenApiDocumentDetails(inputContent.value),
@@ -65,12 +64,12 @@ const { open: openSpecFileDialog } = useFileDialog({
 
 // Enable watch mode if the input is a URL
 watch(isInputUrl, (newVal) => {
-  if (!newVal) watchForChanges.value = false
+  if (!newVal) watchMode.value = false
 })
 
 // Disable watch mode if the input is not a URL
 watch(inputContent, (newVal) => {
-  if (!isUrl(newVal)) watchForChanges.value = false
+  if (!isUrl(newVal)) watchMode.value = false
 })
 
 async function importCollection() {
@@ -84,7 +83,7 @@ async function importCollection() {
         activeWorkspace.value.uid,
         {
           proxy: activeWorkspace.value.proxyUrl,
-          watchForChanges: watchForChanges.value,
+          watchForChanges: watchMode.value,
         },
       )
 
@@ -164,51 +163,9 @@ async function importCollection() {
         </ScalarButton>
 
         <!-- Watch -->
-        <ScalarTooltip
-          as="div"
-          class="z-[10001]"
-          side="bottom"
-          :sideOffset="5">
-          <template #trigger>
-            <label
-              class="p-3 py-1.5 rounded flex items-center text-sm text-c-2 gap-2 select-none"
-              :class="
-                !!inputContent && !isInputUrl
-                  ? 'cursor-default'
-                  : 'cursor-pointer'
-              "
-              for="watch-toggle">
-              <span
-                class="text-c-1 flex gap-1 items-center font-medium text-xs"
-                :class="{ 'text-c-3': !watchForChanges }">
-                <ScalarIcon
-                  icon="Watch"
-                  size="sm" />
-                Watch Mode
-              </span>
-              <ScalarToggle
-                id="watch-toggle"
-                v-model="watchForChanges"
-                :disabled="!!inputContent && !isInputUrl" />
-            </label>
-          </template>
-          <template #content>
-            <div
-              class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-              <div class="flex items-center text-c-2">
-                <span v-if="!!inputContent && !isInputUrl"
-                  >Watch Mode is only supported with URL</span
-                >
-                <span
-                  v-else
-                  class="text-pretty"
-                  >Watch your OpenAPI URL for changes. Enabled it will update
-                  the API client for you.</span
-                >
-              </div>
-            </div>
-          </template>
-        </ScalarTooltip>
+        <WatchModeToggle
+          v-model="watchMode"
+          :disabled="!isInputUrl" />
       </div>
     </template>
     <template #submit>

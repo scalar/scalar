@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
 import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
 import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
@@ -12,7 +13,7 @@ import {
 } from '@scalar/components'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import ImportNowButton from './ImportNowButton.vue'
 import WorkspaceSelector from './WorkspaceSelector.vue'
@@ -32,6 +33,8 @@ const { activeWorkspace, events } = useWorkspace()
 const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
+
+const watchMode = ref<boolean>(true)
 
 /** Close modal when a keyboard shortcut is pressed */
 events.hotKeys.on(() => modalState.hide())
@@ -135,6 +138,7 @@ watch(
           <ImportNowButton
             :source="prefetchResult?.url ?? source"
             variant="button"
+            :watchMode="watchMode"
             @importFinished="() => $emit('importFinished')" />
         </div>
         <!-- Select the workspace -->
@@ -144,6 +148,11 @@ watch(
               Import to: <WorkspaceSelector />
             </div>
           </div>
+        </template>
+        <!-- Watch Mode -->
+
+        <template v-if="prefetchResult?.url">
+          <WatchModeToggle v-model="watchMode" />
         </template>
       </div>
       <!-- Download Link -->
