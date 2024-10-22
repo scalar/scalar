@@ -10,6 +10,7 @@ import objectToXML from 'object-to-xml'
 
 import type { HttpMethod } from './types'
 import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+import { anyOpenAuthCodeFlowAuthentication } from './utils/anyOpenAuthCodeFlowAuthentication'
 import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
 import { findPreferredResponseKey } from './utils/findPreferredResponseKey'
 import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
@@ -17,6 +18,7 @@ import { getOperations } from './utils/getOperations'
 import { honoRouteFromPath } from './utils/honoRouteFromPath'
 import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
 import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
+import { isOpenAuthCodeFlowRequired } from './utils/isOpenAuthCodeFlowRequired'
 import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
@@ -82,6 +84,47 @@ export async function createMockServer(options?: {
         },
       )
     })
+
+    // Add authorization endpoint for OAuth 2.0 Authorization Code flow
+    app.get('/oauth/authorize', async (c) => {
+      const redirectUri = c.req.query('redirect_uri')
+      const state = c.req.query('state')
+      const code = 'super-secret-token'
+
+      if (!redirectUri) {
+        return c.text('Missing redirect_uri', 400)
+      }
+
+      const redirectUrl = new URL(redirectUri)
+      redirectUrl.searchParams.set('code', code)
+      if (state) {
+        redirectUrl.searchParams.set('state', state)
+      }
+
+      const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth 2.0 Authorization</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
+        .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OAuth 2.0 Authorization</h1>
+        <p>Click the button below to authorize the application:</p>
+        <a href="${redirectUrl.toString()}" class="button">Authorize</a>
+    </div>
+</body>
+</html>
+      `
+      return c.html(htmlContent)
+    })
   }
 
   /** Paths specified in the OpenAPI document */
@@ -119,6 +162,17 @@ export async function createMockServer(options?: {
       // Add HTTP basic authentication
       if (requiresAuthentication && requiresOpenAuthPasswordGrant) {
         app[method](route, anyOpenAuthPasswordGrantAuthentication())
+      }
+
+      // Check whether we need OAuth 2.0 Authorization Code flow authentication
+      const requiresOpenAuthCodeFlow = isOpenAuthCodeFlowRequired(
+        operation,
+        schema,
+      )
+
+      // Add OAuth 2.0 Authorization Code flow authentication
+      if (requiresAuthentication && requiresOpenAuthCodeFlow) {
+        app[method](route, anyOpenAuthCodeFlowAuthentication())
       }
 
       // Route
