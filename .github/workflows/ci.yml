@@ -60,7 +60,7 @@ jobs:
             your-docker-image:${{ steps.package-version.outputs.VERSION }}
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check whether there’s a new version of the app
+        name: Check whether there’s a new version of the Docker image
         id: changed-files
         uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
         with:
@@ -70,9 +70,11 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Log in to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
         with:
+          # Username of your Docker account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # https://app.docker.com/settings/personal-access-tokens
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
