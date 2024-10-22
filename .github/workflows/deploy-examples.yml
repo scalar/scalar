@@ -29,7 +29,7 @@ jobs:
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Install dependencies
         run: pnpm --filter web install
-      - name: Turborepo cache
+      - name: Restore Turborepo cache
         uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
           path: .turbo
