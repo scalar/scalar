@@ -49,6 +49,8 @@ type CreateApiClientParams = {
   mountOnInitialize?: boolean
   /** Instance of a vue router */
   router: Router
+  /** In case the store has been instantiated beforehand */
+  store?: WorkspaceStore
 }
 
 /**
@@ -80,14 +82,18 @@ export const createApiClient = ({
   appComponent,
   configuration = {},
   isReadOnly = false,
+  store: _store,
   persistData = true,
   mountOnInitialize = true,
   router,
 }: CreateApiClientParams) => {
-  const store = createWorkspaceStore(router, {
-    useLocalStorage: persistData,
-    defaultProxyUrl: configuration.proxyUrl,
-  })
+  // Create the store if it wasn't passed in
+  const store =
+    _store ||
+    createWorkspaceStore(router, {
+      useLocalStorage: persistData,
+      defaultProxyUrl: configuration.proxyUrl,
+    })
 
   // Load from localStorage if available
   // Check if we have localStorage data
