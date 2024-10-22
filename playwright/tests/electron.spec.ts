@@ -1,6 +1,9 @@
 import { _electron as electron, test } from '@playwright/test'
 
-test('launch app', async () => {
+test('launch app', async ({ browserName, isMobile }) => {
+  if (browserName !== 'chromium' || isMobile) {
+    test.skip()
+  }
   // Launch Electron app.
   const electronApp = await electron.launch({
     args: ['../packages/api-client-app/out/main/index.js'],
@@ -18,11 +21,12 @@ test('launch app', async () => {
   const window = await electronApp.firstWindow()
   // Print the title.
   console.log(await window.title())
-  // Capture a screenshot.
-  //   await window.screenshot({ path: 'intro.png' })
   // Direct Electron console to Node terminal.
   window.on('console', console.log)
+  // Capture a screenshot.
+  await window.screenshot({ path: 'homepage.png' })
   // Click button.
-  await window.click('text=Click me')
+  await window.click('text=Workspace')
   // Exit app.
+  await electronApp.close()
 })
