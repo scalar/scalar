@@ -13,7 +13,7 @@
     },
     "jsonSchemaDialect": {
       "type": "string",
-      "format": "uri",
+      "format": "uri-reference",
       "default": "https://spec.openapis.org/oas/3.1/dialect/base"
     },
     "servers": {
@@ -85,7 +85,7 @@
         },
         "termsOfService": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         },
         "contact": {
           "$ref": "#/$defs/contact"
@@ -110,7 +110,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         },
         "email": {
           "type": "string",
@@ -132,7 +132,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         }
       },
       "required": ["name"],
@@ -407,7 +407,7 @@
         },
         "url": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         }
       },
       "required": ["url"],
@@ -846,7 +846,7 @@
         "value": true,
         "externalValue": {
           "type": "string",
-          "format": "uri"
+          "format": "uri-reference"
         }
       },
       "not": {
@@ -1139,7 +1139,7 @@
             "properties": {
               "openIdConnectUrl": {
                 "type": "string",
-                "format": "uri"
+                "format": "uri-reference"
               }
             },
             "required": ["openIdConnectUrl"]
@@ -1183,11 +1183,11 @@
           "properties": {
             "authorizationUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "refreshUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "scopes": {
               "$ref": "#/$defs/map-of-strings"
@@ -1202,11 +1202,11 @@
           "properties": {
             "tokenUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "refreshUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "scopes": {
               "$ref": "#/$defs/map-of-strings"
@@ -1221,11 +1221,11 @@
           "properties": {
             "tokenUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "refreshUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "scopes": {
               "$ref": "#/$defs/map-of-strings"
@@ -1240,15 +1240,15 @@
           "properties": {
             "authorizationUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "tokenUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "refreshUrl": {
               "type": "string",
-              "format": "uri"
+              "format": "uri-reference"
             },
             "scopes": {
               "$ref": "#/$defs/map-of-strings"
