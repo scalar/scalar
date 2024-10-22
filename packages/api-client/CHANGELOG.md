@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.1.32
+
+### Patch Changes
+
+- 4ccbb6b: feat: adds settings command to command palette
+- 85a1815: fix: increases address bar loading background index
+- a12857f: style: environment variable tooltip fixtures
+- b500de2: fix: data table cell overflow issue
+- 294fde8: feat: adds keyboard navigation within environment variable dropdown
+- 0706bc4: fix(api-client): move sidenav to bottom on mobile
+- 86a3a82: fix: API client always uses proxy.scalar.com
+- 48afb7c: fix: removes stopped propagation on enter key in code input
+
 ## 2.1.31
 
 ### Patch Changes

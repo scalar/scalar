@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.25.47
+
+### Patch Changes
+
+- 70846c1: style(api-reference): required stringe orange color
+- 3e2b1e1: style: updates authentication form radiuses
+- Updated dependencies [4ccbb6b]
+- Updated dependencies [85a1815]
+- Updated dependencies [a12857f]
+- Updated dependencies [b500de2]
+- Updated dependencies [294fde8]
+- Updated dependencies [0706bc4]
+- Updated dependencies [86a3a82]
+- Updated dependencies [48afb7c]
+  - @scalar/api-client@2.1.32
+
 ## 1.25.46
 
 ### Patch Changes
