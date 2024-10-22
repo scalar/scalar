@@ -13,7 +13,7 @@ import {
 } from '@scalar/components'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import ImportNowButton from './ImportNowButton.vue'
 import WorkspaceSelector from './WorkspaceSelector.vue'
@@ -75,6 +75,32 @@ watch(
     }
   },
 )
+
+const hasUrl = computed(() => !!props.source && isUrl(props.source))
+
+// Function to add/remove class from body
+const toggleBodyClass = (add: boolean) => {
+  if (add && hasUrl.value && modalState.open) {
+    document.body.classList.add('has-import-url')
+  } else {
+    document.body.classList.remove('has-import-url')
+  }
+}
+
+// Watch for changes in the URL or modal state
+watch([hasUrl, () => modalState.open], ([newHasUrl, newIsVisible]) => {
+  toggleBodyClass(!!newHasUrl && newIsVisible)
+})
+
+// Add class on mount if URL exists and modal is visible
+onMounted(() => {
+  toggleBodyClass(true)
+})
+
+// Remove class on unmount
+onUnmounted(() => {
+  toggleBodyClass(false)
+})
 </script>
 
 <template>
