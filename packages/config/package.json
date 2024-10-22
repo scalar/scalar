@@ -45,7 +45,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/node": "^20.14.10",
-    "vite": "^5.2.10",
+    "vite": "^5.4.9",
     "vitest": "^1.6.0"
   }
 }
