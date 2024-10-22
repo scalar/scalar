@@ -1,6 +1,6 @@
 # Scalar Icons
 
-All the icons we’re using
+The icon library that we use to provide user selectable icons.
 
 ## Installation
 
