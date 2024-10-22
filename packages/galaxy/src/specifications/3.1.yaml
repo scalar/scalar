@@ -65,7 +65,7 @@ security:
   - apiKeyQuery: []
   - apiKeyHeader: []
   - apiKeyCookie: []
-  - oauth2: []
+  - oAuth2: []
 tags:
   - name: Authentication
     description:
@@ -327,8 +327,11 @@ paths:
       operationId: getMe
       security:
         - basicAuth: []
-        - oauth2:
+        - oAuth2:
             - read:account
+        - bearerAuth: []
+        - apiKeyHeader: []
+        - apiKeyQuery: []
       responses:
         '200':
           description: OK
@@ -384,18 +387,18 @@ components:
       type: apiKey
       in: cookie
       name: api_key
-    oauth2:
+    oAuth2:
       type: oauth2
       flows:
-        implicit:
+        authorizationCode:
           authorizationUrl: /oauth/authorize
+          tokenUrl: http://localhost:5052/oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
-        authorizationCode:
+        implicit:
           authorizationUrl: /oauth/authorize
-          tokenUrl: /oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
