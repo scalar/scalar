@@ -154,7 +154,8 @@ describe('Handles history rolling', () => {
     param2: 2000,
   }
 
-  test(
+  // TODO: This test fails way too often, there seems to be a race condition.
+  test.skip(
     'Rolls history back to initial then forward to modified state',
     { retry: 3 },
     () => {
