@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { TheCommandPalette } from '@/components/CommandPalette'
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
-import SideNav from '@/components/SideNav/SideNav.vue'
 import { useDarkModeState } from '@/hooks'
+import MainLayout from '@/layouts/App/MainLayout.vue'
 import { handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
@@ -41,23 +40,13 @@ const themeStyleTag = computed(
   <div v-html="themeStyleTag"></div>
 
   <!-- Ensure we have the workspace loaded from localStorage above -->
-  <!-- min-h-0 is to allow scrolling of individual flex children -->
-  <main
-    v-if="workspaceStore.activeWorkspace.value?.uid"
-    class="flex min-h-0 flex-1 z-0">
-    <SideNav />
-
-    <!-- Popup command palette to add resources from anywhere -->
-    <TheCommandPalette />
-
-    <div class="flex flex-1 flex-col min-w-0 border-l-1/2 border-t-1/2">
-      <RouterView v-slot="{ Component }">
-        <keep-alive>
-          <component :is="Component" />
-        </keep-alive>
-      </RouterView>
-    </div>
-  </main>
+  <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
+    <RouterView v-slot="{ Component }">
+      <keep-alive>
+        <component :is="Component" />
+      </keep-alive>
+    </RouterView>
+  </MainLayout>
 
   <ScalarToasts />
   <!-- </ImportCollectionListener> -->
@@ -68,11 +57,17 @@ const themeStyleTag = computed(
 @import '@/assets/tailwind.css';
 @import '@/assets/variables.css';
 
+/** Add background for iOS and Safari scroll overflow */
+html,
+body {
+  background-color: var(--scalar-background-1);
+}
+
 #scalar-client {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100vw;
+  height: 100dvh;
+  width: 100dvw;
   position: relative;
   background-color: var(--scalar-background-2);
 }
