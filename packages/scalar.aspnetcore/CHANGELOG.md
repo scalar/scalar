@@ -1,5 +1,11 @@
 # @scalar/aspnetcore
 
+## 1.2.20
+
+### Patch Changes
+
+- a8a051d: feat: Add DotNetFlag configuration property
+
 ## 1.2.19
 
 ### Patch Changes
