@@ -48,7 +48,7 @@ serve(
   },
   (info) => {
     console.log()
-    console.log(`🚧 Mock Server listening on http://0.0.0.0:${info.port}`)
+    console.log(`🚧 Mock Server listening on http://localhost:${info.port}`)
     console.log()
   },
 )
