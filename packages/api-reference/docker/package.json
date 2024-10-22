@@ -1,10 +1,11 @@
 {
   "name": "@scalarapi/api-reference",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Official Docker image for @scalar/api-reference",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "docker build -t scalarapi/api-reference:latest ./src",
+    "dev": "docker-compose up"
   },
   "keywords": [],
   "author": "",
