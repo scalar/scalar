@@ -1,6 +1,6 @@
 # Scalar Docker Container
 
-![Docker Pulls](https://img.shields.io/docker/pulls/scalar/api-reference)
+![Docker Pulls](https://img.shields.io/docker/pulls/scalarapi/api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 This Docker container provides a simple web server using Caddy, serving a customizable HTML page. It’s designed to be easily configurable and deployable.
@@ -15,7 +15,7 @@ This Docker container provides a simple web server using Caddy, serving a custom
 1. Pull the Docker image from Docker Hub:
 
    ```
-   docker pull scalar/api-reference:latest
+   docker pull scalarapi/api-reference:latest
    ```
 
 2. Run the container:
@@ -24,7 +24,7 @@ This Docker container provides a simple web server using Caddy, serving a custom
    docker run -p 1234:80 \
      -e OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json \
      -e API_REFERENCE_CONFIG='{"theme":"purple"}' \
-     scalar/api-reference:latest
+     scalarapi/api-reference:latest
    ```
 
 This will start the container, mapping port 1234 on your host to port 80 in the container, setting the `OPENAPI_DOCUMENT_URL` environment variable, and providing a configuration for the API reference.
@@ -52,7 +52,7 @@ Choose a port that’s available on your system and adjust your browser URL acco
 
    services:
      web:
-       image: scalar/api-reference:latest
+       image: scalarapi/api-reference:latest
        ports:
          - '1234:80'
        environment:
