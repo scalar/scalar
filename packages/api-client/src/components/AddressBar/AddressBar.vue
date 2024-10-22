@@ -154,7 +154,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           <div
             class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
             <div
-              class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full"
+              class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full z-context"
               :class="getBackgroundColor()"
               :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
           </div>
