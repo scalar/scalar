@@ -337,13 +337,13 @@ public static class ScalarOptionsExtensions
 
 
     /// <summary>
-    /// Sets whether to expose 'dotnet' to the configuration
+    /// Sets whether to expose 'dotnet' to the configuration.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="expose">Whether to expose 'dotnet'.</param>
-    public static ScalarOptions WithExposeFramework(this ScalarOptions options, bool expose)
+    public static ScalarOptions WithDotNetFlag(this ScalarOptions options, bool expose)
     {
-        options.ExposeFramework = expose;
+        options.DotNetFlag = expose;
         return options;
     }
 }

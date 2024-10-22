@@ -69,7 +69,7 @@ public class ScalarOptionsMapperTests
             DefaultOpenAllTags = true,
             TagSorter = TagSorter.Alpha,
             OperationSorter = OperationSorter.Method,
-            ExposeFramework = false
+            DotNetFlag = false
         };
 
         // Act

@@ -181,6 +181,6 @@ public sealed class ScalarOptions
     /// <summary>
     /// Gets or sets whether to expose 'dotnet' to the configuration.
     /// </summary>
-    /// <value>A boolean that indicates if 'dotnet' should be exposed. The default value is <c>false</c>.</value>
-    public bool ExposeFramework { get; set; } = true;
+    /// <value>A boolean that indicates if 'dotnet' should be exposed to the configuration. The default value is <c>true</c>.</value>
+    public bool DotNetFlag { get; set; } = true;
 }
