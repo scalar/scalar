@@ -52,7 +52,8 @@ internal static class ScalarOptionsMapper
             {
                 ClientKey = options.DefaultHttpClient.Value.ToStringFast(),
                 TargetKey = options.DefaultHttpClient.Key.ToStringFast()
-            }
+            },
+            Integration = options.DotNetFlag ? "dotnet" : null
         };
     }
 

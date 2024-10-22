@@ -177,4 +177,10 @@ public sealed class ScalarOptions
     /// <value>A list of <see cref="ScalarServer" /> representing the servers. The default value is <c>null</c>.</value>
     /// <remarks>This list will override the servers defined in the OpenAPI document.</remarks>
     public IList<ScalarServer>? Servers { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to expose 'dotnet' to the configuration.
+    /// </summary>
+    /// <value>A boolean that indicates if 'dotnet' should be exposed to the configuration. The default value is <c>true</c>.</value>
+    public bool DotNetFlag { get; set; } = true;
 }

@@ -33,6 +33,7 @@ public class ScalarOptionsMapperTests
         configuration.TagSorter.Should().BeNull();
         configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().Be(ScalarTheme.Purple.ToStringFast());
+        configuration.Integration.Should().Be("dotnet");
     }
 
     [Fact]
@@ -67,7 +68,8 @@ public class ScalarOptionsMapperTests
             DefaultFonts = false,
             DefaultOpenAllTags = true,
             TagSorter = TagSorter.Alpha,
-            OperationSorter = OperationSorter.Method
+            OperationSorter = OperationSorter.Method,
+            DotNetFlag = false
         };
 
         // Act
@@ -98,6 +100,7 @@ public class ScalarOptionsMapperTests
         configuration.TagSorter.Should().Be(TagSorter.Alpha.ToStringFast());
         configuration.OperationsSorter.Should().Be(OperationSorter.Method.ToStringFast());
         configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
+        configuration.Integration.Should().BeNull();
     }
 
     [Fact]
