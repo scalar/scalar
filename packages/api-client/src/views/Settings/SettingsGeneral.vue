@@ -8,14 +8,6 @@ import SettingsGeneralMode from './SettingsGeneralMode.vue'
 const { activeWorkspace, workspaceMutators, proxyUrl, setProxyUrl } =
   useWorkspace()
 
-const toggleScalarProxy = () => {
-  if (proxyUrl.value) {
-    setProxyUrl('')
-  } else {
-    setProxyUrl('https://proxy.scalar.com')
-  }
-}
-
 const themeIds: ThemeId[] = [
   'default',
   'alternate',
