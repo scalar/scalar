@@ -5,16 +5,13 @@ import { type ThemeId, themeLabels } from '@scalar/themes'
 
 import SettingsGeneralMode from './SettingsGeneralMode.vue'
 
-const { activeWorkspace, workspaceMutators, proxyUrl, setProxyUrl } =
-  useWorkspace()
-
-const toggleScalarProxy = () => {
-  if (proxyUrl.value) {
-    setProxyUrl('')
-  } else {
-    setProxyUrl('https://proxy.scalar.com')
-  }
-}
+const {
+  activeWorkspace,
+  workspaceMutators,
+  proxyUrl,
+  setProxyUrl,
+  defaultProxyUrl,
+} = useWorkspace()
 
 const themeIds: ThemeId[] = [
   'default',
@@ -87,6 +84,7 @@ const changeTheme = (themeId: ThemeId) => {
             >.
           </p>
           <div class="gap-2 mt-4 mb-8 flex flex-col">
+            <!-- Default proxy -->
             <ScalarButton
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-2 border-1/2"
               :class="{ 'bg-b-1 text-c-1': proxyUrl }"
@@ -95,13 +93,35 @@ const changeTheme = (themeId: ThemeId) => {
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                 <ScalarIcon
-                  v-if="proxyUrl"
+                  v-if="proxyUrl === 'https://proxy.scalar.com'"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
               </div>
               Use proxy.scalar.com (default)
             </ScalarButton>
+
+            <!-- Custom proxy (only if configured) -->
+            <ScalarButton
+              v-if="
+                defaultProxyUrl &&
+                defaultProxyUrl !== 'https://proxy.scalar.com'
+              "
+              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
+              variant="primary"
+              @click="setProxyUrl(defaultProxyUrl)">
+              <div
+                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+                <ScalarIcon
+                  v-if="proxyUrl === defaultProxyUrl"
+                  icon="Checkmark"
+                  size="xs"
+                  thickness="3.5" />
+              </div>
+              Use custom proxy ({{ defaultProxyUrl }})
+            </ScalarButton>
+
+            <!-- No proxy -->
             <ScalarButton
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-2 border-1/2"
               :class="{ 'bg-b-1 text-c-1': !proxyUrl }"

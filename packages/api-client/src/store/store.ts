@@ -55,14 +55,29 @@ declare global {
   }
 }
 
+type CreateWorkspaceStoreOptions = {
+  /**
+   * When true, changes made to the store will be saved in the browser’s localStorage.
+   *
+   * @default true
+   */
+  useLocalStorage: boolean
+  defaultProxyUrl: string | undefined
+}
+
 /**
- * Factory for creating the entire store for the api-client
- * This should be injected once per app instance
+ /**
+ * Factory function for creating the centralized store for the API client.
+ *
+ * This store manages all data and state for the application.
+ * It should be instantiated once and injected into the app’s root component.
  */
 export const createWorkspaceStore = (
   router: Router,
-  /** If true data will be persisted to localstorage when changes are made */
-  useLocalStorage = true,
+  {
+    useLocalStorage = true,
+    defaultProxyUrl = undefined,
+  }: CreateWorkspaceStoreOptions,
 ) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
@@ -288,20 +303,20 @@ export const createWorkspaceStore = (
 
   // ---------------------------------------------------------------------------
   // PROXY URL STATE
-  const PROXY_URL = 'proxyUrl' as const
+  const PROXY_URL = 'globalProxyUrl' as const
 
-  // Initialize proxyUrl with the value from localStorage or default to the proxy URL according to env
+  // Initialize proxyUrl with the value from localStorage, defaultProxyUrl, or https://proxy.scalar.com
   const proxyUrl = ref(
-    localStorage.getItem(PROXY_URL) !== null
-      ? localStorage.getItem(PROXY_URL) || ''
-      : import.meta.env.PROD
-        ? 'https://proxy.scalar.com'
-        : '',
+    localStorage.getItem(PROXY_URL) === null
+      ? defaultProxyUrl
+      : (localStorage.getItem(PROXY_URL) as string),
   )
 
   const setProxyUrl = (url: string) => {
     proxyUrl.value = url
+
     localStorage.setItem(PROXY_URL, url)
+
     workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', url)
   }
 
@@ -341,6 +356,7 @@ export const createWorkspaceStore = (
     setSidebarWidth,
     proxyUrl,
     setProxyUrl,
+    defaultProxyUrl,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,
