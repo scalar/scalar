@@ -1,0 +1,92 @@
+import { getExampleFromSchema } from '@scalar/oas-utils/spec-getters'
+import type { OpenAPI } from '@scalar/openapi-types'
+import type { Context } from 'hono'
+import { accepts } from 'hono/accepts'
+import type { StatusCode } from 'hono/utils/http-status'
+// @ts-expect-error Doesn’t come with types
+import objectToXML from 'object-to-xml'
+
+import type { MockServerOptions } from '../types'
+import { findPreferredResponseKey } from '../utils'
+
+/**
+ * Mock any response
+ */
+export function mockAnyResponse(
+  c: Context,
+  operation: OpenAPI.Operation,
+  options: MockServerOptions,
+) {
+  // Call onRequest callback
+  if (options?.onRequest) {
+    options.onRequest({
+      context: c,
+      operation,
+    })
+  }
+
+  // Response
+  // default, 200, 201 …
+  const preferredResponseKey = findPreferredResponseKey(
+    Object.keys(operation.responses ?? {}),
+  )
+  const preferredResponse = preferredResponseKey
+    ? operation.responses?.[preferredResponseKey]
+    : null
+  const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
+
+  // Headers
+  const headers = preferredResponse?.headers ?? {}
+  Object.keys(headers).forEach((header) => {
+    c.header(
+      header,
+      headers[header].schema
+        ? getExampleFromSchema(headers[header].schema)
+        : null,
+    )
+  })
+
+  // Content-Type
+  const acceptedContentType = accepts(c, {
+    header: 'Accept',
+    supports: supportedContentTypes,
+    default: supportedContentTypes.includes('application/json')
+      ? 'application/json'
+      : supportedContentTypes[0],
+  })
+
+  c.header('Content-Type', acceptedContentType)
+
+  const acceptedResponse = preferredResponse?.content?.[acceptedContentType]
+
+  // Body
+  const body = acceptedResponse?.example
+    ? acceptedResponse.example
+    : acceptedResponse?.schema
+      ? getExampleFromSchema(acceptedResponse.schema, {
+          emptyString: '…',
+          variables: c.req.param(),
+        })
+      : null
+
+  // Status code
+  const statusCode = parseInt(
+    preferredResponseKey === 'default'
+      ? '200'
+      : (preferredResponseKey ?? '200'),
+    10,
+  ) as StatusCode
+
+  c.status(statusCode)
+
+  return c.body(
+    typeof body === 'object'
+      ? // XML
+        acceptedContentType?.includes('xml')
+        ? `<?xml version="1.0" encoding="UTF-8"?>${objectToXML(body)}`
+        : // JSON
+          JSON.stringify(body, null, 2)
+      : // String
+        body,
+  )
+}
