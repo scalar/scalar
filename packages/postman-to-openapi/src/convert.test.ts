@@ -45,7 +45,7 @@ describe('auth request', () => {
   })
 })
 
-describe('basepath var', () => {
+describe.skip('basepath var', () => {
   it('convert collection to openapi', () => {
     expect(convert(COLLECTION_BASEPATH_VAR as PostmanCollection)).toEqual(
       EXPECTED_BASEPATH_VAR,

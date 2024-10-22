@@ -31,7 +31,3 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 ## Thank you!
 
 This package is based on the existing [`postman-to-openapi`](https://github.com/joolfe/postman-to-openapi) by [@joolfe](https://github.com/joolfe). We just tried to update the code and adapt it to our use cases.
-
-## License
-
-The source code in this repository is licensed under [MIT](https://github.com/scalar/postman-to-openapi/blob/main/LICENSE).
