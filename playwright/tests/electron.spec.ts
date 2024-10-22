@@ -1,4 +1,4 @@
-import { _electron as electron, test } from '@playwright/test'
+import { _electron as electron, expect, test } from '@playwright/test'
 
 test('launch app', async ({ browserName, isMobile }) => {
   if (browserName !== 'chromium' || isMobile) {
@@ -24,7 +24,7 @@ test('launch app', async ({ browserName, isMobile }) => {
   // Direct Electron console to Node terminal.
   window.on('console', console.log)
   // Capture a screenshot.
-  await window.screenshot({ path: 'homepage.png' })
+  expect(await window.screenshot({ path: 'homepage.png' })).not.toThrowError()
   // Click button.
   await window.click('text=Workspace')
   // Exit app.
