@@ -1,5 +1,5 @@
 import { loadAllResources } from '@/libs/local-storage'
-import { createWorkspaceStore } from '@/store'
+import { type WorkspaceStore, createWorkspaceStore } from '@/store'
 import type { StoreContext } from '@/store/store-context'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
@@ -67,7 +67,7 @@ export type ApiClient = Omit<
    * The mutators will be incorrect, and we are missing quite a few other properties
    * Add properties as they are needed, see above
    */
-  store: any
+  store: Pick<WorkspaceStore, 'workspaceMutators'>
 }
 
 /**
