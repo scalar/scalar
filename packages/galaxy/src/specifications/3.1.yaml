@@ -49,7 +49,7 @@ info:
     url: https://scalar.com
     email: marc@scalar.com
 servers:
-  - url:
+  - url: https://galaxy.scalar.com
   - url: '{protocol}://void.scalar.com/{path}'
     description: Responds with your request data
     variables:
