@@ -35,10 +35,9 @@ export function createUrlPrefetcher() {
     } catch (error: any) {
       console.error('[prefetchDocument]', error)
 
-      const message =
-        error?.message === 'Failed to fetch'
-          ? `Couldn't reach ${value} — is it publicly accessible?`
-          : error?.message
+      const message = error?.message?.includes('Can’t fetch')
+        ? `Couldn't reach ${value} — is it publicly accessible?`
+        : error?.message
 
       return { state: 'idle', content: null, url: null, error: message }
     }
