@@ -222,7 +222,7 @@ export default {
         'flow-code-input--error': error,
       }"
       @keydown.down.stop="handleKeyDown('down', $event)"
-      @keydown.enter.stop="handleKeyDown('enter', $event)"
+      @keydown.enter="handleKeyDown('enter', $event)"
       @keydown.up.stop="handleKeyDown('up', $event)"></div>
   </template>
   <div
