@@ -1,0 +1,77 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Simple Post",
+    "description": "Just a simple collection for test",
+    "version": "2.3.0",
+    "x-logo": {
+      "url": "https://github.com/joolfe/logoBanner.png",
+      "backgroundColor": "#FFFFFF",
+      "altText": "Example logo",
+      "href": "https://github.com/joolfe/here.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/raw": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Post empty raw",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": ""
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

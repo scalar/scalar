@@ -1,0 +1,320 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Folder Collection",
+    "description": "Just a simple collection for test",
+    "version": "2.3.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Operations at User level"
+    },
+    {
+      "name": "Users > Admin",
+      "description": "Admin operations at User level"
+    },
+    {
+      "name": "Posts",
+      "description": "Operations for Post items"
+    },
+    {
+      "name": "Posts > Admin",
+      "description": "Admin operations for Post items"
+    },
+    {
+      "name": "Folder 1",
+      "description": "Folder 1 description"
+    },
+    {
+      "name": "Folder 1 > Folder 2",
+      "description": "Folder 2 description"
+    },
+    {
+      "name": "Folder 1 > Folder 2 > Folder 3",
+      "description": "Folder 3 description"
+    },
+    {
+      "name": "Folder 1 > Folder 2 > Folder 3 > Folder 4",
+      "description": "Folder 4 description"
+    },
+    {
+      "name": "Folder 1 > Folder 2 > Folder 3 > Folder 4 > Folder 5",
+      "description": "Folder 5 description"
+    },
+    {
+      "name": "Empty Folder"
+    },
+    {
+      "name": "Empty Folder 2"
+    }
+  ],
+  "paths": {
+    "/users/admin/roles": {
+      "get": {
+        "tags": ["Users > Admin"],
+        "summary": "Get user roles",
+        "description": "This is a get request in a nested folder",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a user",
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/customer": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a customer",
+        "description": "This is a post request with json body for create a customer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/posts/admin/settings": {
+      "get": {
+        "tags": ["Posts > Admin"],
+        "summary": "Get posts settings",
+        "description": "This is a get request in a nested folder",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/posts": {
+      "post": {
+        "tags": ["Posts"],
+        "summary": "Create a post",
+        "requestBody": {
+          "content": {
+            "text/plain": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/req4": {
+      "post": {
+        "tags": ["Folder 1 > Folder 2 > Folder 3 > Folder 4 > Folder 5"],
+        "summary": "Request 4",
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/req3": {
+      "post": {
+        "tags": ["Folder 1 > Folder 2 > Folder 3"],
+        "summary": "Request 3",
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/req2": {
+      "post": {
+        "tags": ["Folder 1 > Folder 2"],
+        "summary": "Request 2",
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/req1": {
+      "post": {
+        "tags": ["Folder 1"],
+        "summary": "Request 1",
+        "description": "This is a post request with json body",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/info": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create a info",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "test": "here"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

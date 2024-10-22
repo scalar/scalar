@@ -1,0 +1,157 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Variables",
+    "description": "Mi super test collection from postman",
+    "version": "1.1.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "service": "s23434"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": ["default"],
+        "summary": "Get a list of user",
+        "description": "Get a list of users",
+        "parameters": [
+          {
+            "name": "size",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "size of the list",
+            "example": "10"
+          },
+          {
+            "name": "company",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "company for filter users",
+            "example": "ServicesLTD"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/test/path/here/post": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create Post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "company": {
+                    "type": "string",
+                    "example": "ServicesLTD"
+                  },
+                  "text": {
+                    "type": "string",
+                    "example": "This is an example text"
+                  },
+                  "auditor": {
+                    "type": "string",
+                    "example": "IHA"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Consult User data",
+        "description": "Get one user instance data",
+        "parameters": [
+          {
+            "name": "X-Company",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ServicesLTD"
+          },
+          {
+            "name": "company",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "example": "ServicesLTD"
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

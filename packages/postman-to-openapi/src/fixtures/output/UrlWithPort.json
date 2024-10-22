@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Url with Port",
+    "description": "Just a simple collection for test",
+    "version": "2.3.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io:453"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

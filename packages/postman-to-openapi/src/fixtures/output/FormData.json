@@ -1,0 +1,60 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Form Data",
+    "description": "Just a collection with a form data post for test",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/register": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Register New User",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["name", "email"],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "full name of the user (accepts spaces)",
+                    "example": "New User"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "email of the user (for notifications and login)",
+                    "example": "newuser@example.com"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "pasword123"
+                  },
+                  "profileImage": {
+                    "type": "string",
+                    "description": "User avatar",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

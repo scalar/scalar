@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Postman to OpenAPI",
+    "description": "Mi super test collection from postman",
+    "version": "1.1.0"
+  },
+  "externalDocs": {
+    "url": "https://docs2.example.com"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/posts": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create a post",
+        "requestBody": {
+          "content": {
+            "text/plain": {}
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/note": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create a note",
+        "description": "Just an example of text raw body",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "example": "This is an example Note"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

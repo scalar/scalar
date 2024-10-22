@@ -1,0 +1,105 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "DisabledParams",
+    "description": "Test API for disabled parameters feature",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/{section}/users": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get list of users",
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "name": "X-My-Header",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Custom header",
+            "example": "hudjilksns78jsijns090"
+          },
+          {
+            "name": "X-Other",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Another header",
+            "example": "other"
+          },
+          {
+            "name": "No-description",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "header without description"
+          },
+          {
+            "name": "No-value",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "description": "header without value"
+          },
+          {
+            "name": "age",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Disabled param",
+            "example": "45"
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by name",
+            "example": "Jhon"
+          },
+          {
+            "name": "review",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "description": "Indicate if should be reviewed or not",
+            "example": "true"
+          },
+          {
+            "name": "section",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "A path parameter",
+            "example": "spain"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
