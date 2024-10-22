@@ -3,19 +3,21 @@ import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
 import { cors } from 'hono/cors'
 
+import { respondWithAuthorizePage } from './respondWithAuthorizePage'
 import { mockAnyResponse } from './routes/mockAnyResponse'
 import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 import type { HttpMethod, MockServerOptions } from './types'
-import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
-import { anyOpenAuthCodeFlowAuthentication } from './utils/anyOpenAuthCodeFlowAuthentication'
-import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
-import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
+// import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
+// import { anyOpenAuthCodeFlowAuthentication } from './utils/anyOpenAuthCodeFlowAuthentication'
+// import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
+// import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
 import { getOperations } from './utils/getOperations'
 import { honoRouteFromPath } from './utils/honoRouteFromPath'
 import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
-import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
-import { isOpenAuthCodeFlowRequired } from './utils/isOpenAuthCodeFlowRequired'
-import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
+
+// import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
+// import { isOpenAuthCodeFlowRequired } from './utils/isOpenAuthCodeFlowRequired'
+// import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
  * Create a mock server instance
@@ -66,50 +68,6 @@ export async function createMockServer(options: MockServerOptions) {
   //       )
   //     })
 
-  //     // Add authorization endpoint for OAuth 2.0 Authorization Code flow
-  //     app.get('/oauth/authorize', async (c) => {
-  //       const redirectUri = c.req.query('redirect_uri')
-  //       const state = c.req.query('state')
-  //       const code = 'super-secret-token'
-
-  //       if (!redirectUri) {
-  //         return c.text('Missing redirect_uri', 400)
-  //       }
-
-  //       const redirectUrl = new URL(redirectUri)
-
-  //       redirectUrl.searchParams.set('code', code)
-
-  //       if (state) {
-  //         redirectUrl.searchParams.set('state', state)
-  //       }
-
-  //       const htmlContent = `
-  // <!DOCTYPE html>
-  // <html lang="en">
-  // <head>
-  //     <meta charset="UTF-8">
-  //     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //     <title>OAuth 2.0 Authorization</title>
-  //     <style>
-  //         body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-  //         .container { text-align: center; padding: 20px; border: 1px solid #ccc; border-radius: 5px; }
-  //         .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: white; text-decoration: none; border-radius: 5px; }
-  //     </style>
-  // </head>
-  // <body>
-  //     <div class="container">
-  //         <h1>OAuth 2.0 Authorization</h1>
-  //         <p>Click the button below to authorize the application:</p>
-  //         <a href="${redirectUrl.toString()}" class="button">Authorize</a>
-  //     </div>
-  // </body>
-  // </html>
-  //       `
-  //       return c.html(htmlContent)
-  //     })
-  //   }
-
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
 
@@ -118,21 +76,22 @@ export async function createMockServer(options: MockServerOptions) {
     schema?.components?.securitySchemes || {}
 
   console.log('Security Schemes:')
+  console.log()
 
   Object.entries(securitySchemes).forEach(([_, scheme]) => {
     switch (scheme.type) {
       case 'apiKey':
         // TODO: Set up API Key authentication
         if (scheme.in === 'header') {
-          console.log(`⚠️ API Key Authentication (Header: ${scheme.name})`)
+          console.log(`✅ API Key Authentication (Header: ${scheme.name})`)
           // TODO: Implement header-based API key validation
         } else if (scheme.in === 'query') {
           console.log(
-            `⚠️ API Key Authentication (Query Parameter: ${scheme.name})`,
+            `✅ API Key Authentication (Query Parameter: ${scheme.name})`,
           )
           // TODO: Implement query parameter-based API key validation
         } else if (scheme.in === 'cookie') {
-          console.log(`⚠️ API Key Authentication (Cookie: ${scheme.name})`)
+          console.log(`✅ API Key Authentication (Cookie: ${scheme.name})`)
           // TODO: Implement cookie-based API key validation
         } else {
           console.error(`❌ Unsupported API Key Location: ${scheme.in}`)
@@ -141,10 +100,16 @@ export async function createMockServer(options: MockServerOptions) {
       case 'http':
         if (scheme.scheme === 'basic') {
           // TODO: Set up HTTP Basic authentication
-          console.log('⚠️ HTTP Basic Authentication')
+          console.log('✅ HTTP Basic Authentication')
+          console.log('   Use any credentials')
+          console.log()
         } else if (scheme.scheme === 'bearer') {
           // TODO: Set up Bearer token authentication
-          console.log('⚠️ Bearer Token Authentication')
+          console.log('✅ Bearer Token Authentication')
+          console.log('   Use any bearer token header')
+          console.log()
+          console.log('   Authorization: Bearer YOUR_TOKEN_HERE')
+          console.log()
         } else {
           console.error('❌ Unknown Security Scheme:', scheme)
         }
@@ -167,8 +132,27 @@ export async function createMockServer(options: MockServerOptions) {
                 console.log('⚠️ OAuth 2.0 Client Credentials Flow')
                 break
               case 'authorizationCode':
-                // TODO: Set up OAuth 2.0 Authorization Code flow
-                console.log('⚠️ OAuth 2.0 Authorization Code Flow')
+                // eslint-disable-next-line no-case-declarations
+                const authorizeRoute =
+                  scheme?.flows?.authorizationCode?.authorizationUrl ??
+                  '/oauth/authorize'
+
+                console.log('✅ OAuth 2.0 Authorization Code Flow')
+                console.log(
+                  '   GET',
+                  `${authorizeRoute}?redirect_uri=https://YOUR_REDIRECT_URI_HERE`,
+                )
+                console.log()
+
+                if (
+                  !app.routes.find(
+                    (route) =>
+                      route.path === authorizeRoute && route.method === 'GET',
+                  )
+                ) {
+                  app.get(authorizeRoute, respondWithAuthorizePage)
+                }
+
                 break
               default:
                 console.warn(`Unsupported OAuth 2.0 flow: ${flow}`)
