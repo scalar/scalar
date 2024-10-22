@@ -7,6 +7,14 @@ import type {
 } from '@scalar/types/legacy'
 import { ref } from 'vue'
 
+type InitArgs = {
+  el: HTMLElement
+  spec?: SpecConfiguration
+  authentication?: AuthenticationState
+  proxyUrl?: string
+  servers?: Spec['servers']
+}
+
 /** API Client instance */
 const client = ref<ApiClient | null>(null)
 
@@ -15,7 +23,7 @@ const client = ref<ApiClient | null>(null)
  */
 export const useApiClient = (): {
   client: typeof client
-  init: (args: any) => Promise<ApiClient>
+  init: (args: InitArgs) => Promise<ApiClient>
 } => {
   /** Iniitialize the API Client, must be called only once or we will reset the state */
   const init = async ({
@@ -24,23 +32,16 @@ export const useApiClient = (): {
     authentication,
     proxyUrl,
     servers,
-  }: {
-    el: HTMLElement
-    authentication?: AuthenticationState
-    proxyUrl?: string
-    servers?: Spec['servers']
-    spec: SpecConfiguration
-  }) => {
-    const _client = await createApiClientModal(el, {
+  }: InitArgs) => {
+    const _client = (await createApiClientModal(el, {
       preferredSecurityScheme: authentication?.preferredSecurityScheme,
       spec,
       proxyUrl,
       servers,
-    })
+    })) as ApiClient
 
-    // @ts-expect-error theres some type issue with a vue app in a ref, possible router related
     client.value = _client
-    return _client as ApiClient
+    return _client
   }
 
   return {

@@ -38,7 +38,6 @@ import type {
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import type { SimplifyDeep } from 'type-fest/source/simplify-deep'
 import { computed, inject, reactive, ref, toRaw } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -411,7 +410,7 @@ export const createWorkspaceStore = (
       add: addWorkspace,
       delete: deleteWorkspace,
     },
-  } as const
+  }
 }
 
 export type WorkspaceStore = ReturnType<typeof createWorkspaceStore>
