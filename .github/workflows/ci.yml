@@ -33,7 +33,7 @@ jobs:
         uses: actions/cache/save@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
           path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
+          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
 
   format:
     runs-on: ubuntu-20.04
