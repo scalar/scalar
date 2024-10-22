@@ -62,6 +62,7 @@ type CreateWorkspaceStoreOptions = {
    * @default true
    */
   useLocalStorage: boolean
+  defaultProxyUrl: string | undefined
 }
 
 /**
@@ -73,7 +74,10 @@ type CreateWorkspaceStoreOptions = {
  */
 export const createWorkspaceStore = (
   router: Router,
-  { useLocalStorage = true }: CreateWorkspaceStoreOptions,
+  {
+    useLocalStorage = true,
+    defaultProxyUrl = undefined,
+  }: CreateWorkspaceStoreOptions,
 ) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
@@ -299,22 +303,21 @@ export const createWorkspaceStore = (
 
   // ---------------------------------------------------------------------------
   // PROXY URL STATE
-  const PROXY_URL = 'proxyUrl' as const
+  const PROXY_URL = 'globalProxyUrl' as const
 
-  // Initialize proxyUrl with the value from localStorage or default to the proxy URL according to env
+  // Initialize proxyUrl with the value from localStorage, defaultProxyUrl, or https://proxy.scalar.com
   const proxyUrl = ref(
-    localStorage.getItem(PROXY_URL) !== null
-      ? localStorage.getItem(PROXY_URL) || ''
-      : import.meta.env.PROD
-        ? 'https://proxy.scalar.com'
-        : '',
+    // Something custom
+    localStorage.getItem(PROXY_URL) ||
+      // The configured default
+      defaultProxyUrl,
   )
-
-  console.log('FOO', proxyUrl)
 
   const setProxyUrl = (url: string) => {
     proxyUrl.value = url
+
     localStorage.setItem(PROXY_URL, url)
+
     workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', url)
   }
 
@@ -354,6 +357,7 @@ export const createWorkspaceStore = (
     setSidebarWidth,
     proxyUrl,
     setProxyUrl,
+    defaultProxyUrl,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

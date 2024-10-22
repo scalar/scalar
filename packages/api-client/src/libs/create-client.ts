@@ -68,6 +68,7 @@ export const createApiClient = ({
 }: CreateApiClientParams) => {
   const store = createWorkspaceStore(router, {
     useLocalStorage: persistData,
+    defaultProxyUrl: configuration.proxyUrl,
   })
 
   // Load from localStorage if available
