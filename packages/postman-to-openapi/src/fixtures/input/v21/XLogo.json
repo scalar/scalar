@@ -1,0 +1,96 @@
+{
+  "info": {
+    "_postman_id": "e223ab3f-2683-4759-9e41-8167a7caaf99",
+    "name": "Simple Post",
+    "description": "Just a simple collection for test",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create new User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api.io/users",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["users"]
+        },
+        "description": "Create a new user into your amazing API"
+      },
+      "response": []
+    },
+    {
+      "name": "Post empty raw",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://api.io/raw",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["raw"]
+        },
+        "description": "Create a new user into your amazing API"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "version",
+      "value": "2.3.0"
+    },
+    {
+      "key": "x-logo.urlVar",
+      "value": "https://github.com/joolfe/mylogo.png"
+    },
+    {
+      "key": "x-logo.backgroundColorVar",
+      "value": "#000FFF"
+    },
+    {
+      "key": "x-logo.altTextVar",
+      "value": "Othert text for logo"
+    },
+    {
+      "key": "x-logo.hrefVar",
+      "value": "https://github.com/joolfe/here.html"
+    }
+  ]
+}

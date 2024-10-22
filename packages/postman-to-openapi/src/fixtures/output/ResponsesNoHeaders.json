@@ -1,0 +1,117 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Responses",
+    "description": "Postman collection with saved responses",
+    "version": "1.2.0"
+  },
+  "servers": [
+    {
+      "url": "https://60bb37ab42e1d000176206c3.mockapi.io"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "id": "100",
+                  "createdAt": "2021-06-04T15:50:38.568Z",
+                  "name": "Carol",
+                  "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "example-0": {
+                    "summary": "Create new User example",
+                    "value": {
+                      "id": "51",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "name": "Carol",
+                      "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                    }
+                  },
+                  "example-1": {
+                    "summary": "Create new User automatic id",
+                    "value": {
+                      "id": "54",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "name": "Carol",
+                      "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get User data",
+        "description": "Retrieve the user data",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true,
+            "description": "This is just a user identifier",
+            "example": "54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "id": "50",
+                  "createdAt": "2021-06-04T23:41:02.287Z",
+                  "name": "Leanne",
+                  "avatar": "https://cdn.fakercloud.com/avatars/bartjo_128.jpg"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "\"Not found\""
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

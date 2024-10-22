@@ -1,0 +1,91 @@
+{
+  "info": {
+    "_postman_id": "284c15b0-304f-4875-9f36-7a3cf96fca64",
+    "name": "Get Methods",
+    "description": "API to manage GET methods",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get list of users",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56&required=my value&number1=0.4565876&number2=123.45&fake-number=1.23.45&date=2022-06-23T10:00:00.000+01:00",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["users"],
+          "query": [
+            {
+              "key": "age",
+              "value": "45",
+              "description": "Filter by age [required]"
+            },
+            {
+              "key": "name",
+              "value": "Jhon",
+              "description": "Filter by name [REQUIRED]"
+            },
+            {
+              "key": "review",
+              "value": "true",
+              "description": "Indicate if should be reviewed or not"
+            },
+            {
+              "key": "number",
+              "value": "23.56",
+              "description": "This is a number"
+            },
+            {
+              "key": "required",
+              "value": "my value",
+              "description": "[required] mandatory paraemeter"
+            },
+            {
+              "key": "number1",
+              "value": "0.4565876",
+              "description": "Should be parsed as number"
+            },
+            {
+              "key": "number2",
+              "value": "123.45",
+              "description": "Should be parsed as number"
+            },
+            {
+              "key": "fake-number",
+              "value": "1.23.45",
+              "description": "Should be parsed as string"
+            },
+            {
+              "key": "date",
+              "value": "2022-06-23T10:00:00.000+01:00",
+              "description": "Should be parsed as string"
+            }
+          ]
+        },
+        "description": "Obtain a list of users that fullfill the conditions of the filters"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "48a08854-1364-4bf5-8c52-2987ae771f81",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "9414d1c7-923e-4370-8b43-adb8415092c7",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "protocolProfileBehavior": {}
+}

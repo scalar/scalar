@@ -1,0 +1,107 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Information soci\u00e9taire",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://{{url}}"
+    },
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentification"
+    }
+  ],
+  "paths": {
+    "/{webApp}/token": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "R\u00e9cup\u00e9ration token",
+        "description": "M\u00e9thode d'authentification \nRetourne un token en cas de succ\u00e8s",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "type": "string",
+                "example": "\"{\\r\\n \\\"contenu\\\":\\r\\n {\\r\\n \\\"compte\\\": \\\"{{compte}}\\\",\\r\\n \\\"motDePasse\\\": \\\"{{motDePasse}}\\\",\\r\\n \\\"identifiant\\\": \\\"{{identifiant}}\\\"\\r\\n }\\r\\n}\""
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "Content-Type",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            },
+            "example": "application/json"
+          },
+          {
+            "name": "webApp",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "erreur": null,
+                  "codeErreur": 0,
+                  "contenu": {
+                    "token": "ct54q7uoidffg2z661afigu98ix476s8"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/userHeader": {
+      "post": {
+        "tags": ["Authentification"],
+        "summary": "Missing headers field",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "example": "field",
+                  "other": {
+                    "data1": "yes",
+                    "data2": "no"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
