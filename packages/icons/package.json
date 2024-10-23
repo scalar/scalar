@@ -42,7 +42,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "svglint": "^2.7.1",
-    "vite": "^5.2.10",
+    "vite": "^5.4.9",
     "vite-svg-loader": "^5.1.0"
   }
 }
