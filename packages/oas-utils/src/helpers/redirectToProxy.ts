@@ -36,6 +36,12 @@ export function shouldUseProxy(proxy?: string, url?: string): boolean {
 /** Detect requests to localhost */
 export function isRequestToLocalhost(url: string) {
   const { hostname } = new URL(url)
-  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0']
-  return listOfLocalUrls.includes(hostname)
+/** List of URLs that are considered local */
+export const LOCAL_URLS = ['localhost', '127.0.0.1', '[::1]', '0.0.0.0'] as const;
+
+/** Detect requests to localhost */
+export function isRequestToLocalhost(url: string) {
+  const { hostname } = new URL(url)
+  return LOCAL_URLS.includes(hostname)
+}
 }
