@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { nextTick, ref } from 'vue'
+import { nextTick, onMounted, ref } from 'vue'
 
 import DropEventListener from './DropEventListener.vue'
 import ImportCollectionModal from './ImportCollectionModal.vue'
@@ -8,6 +8,8 @@ import UrlQueryParameterChecker from './UrlQueryParameterChecker.vue'
 
 /** Source to import from */
 const source = ref<string | null>(null)
+
+const integration = ref<string | null>(null)
 
 /** Reset the data when the modal was closed */
 async function resetData() {
@@ -22,11 +24,19 @@ async function handleInput(newSource: string) {
 
   source.value = newSource
 }
+
+onMounted(() => {
+  const integrationQueryParameter = new URLSearchParams(
+    window.location.search,
+  ).get('integration')
+  integration.value = integrationQueryParameter
+})
 </script>
 
 <template>
   <!-- Modal -->
   <ImportCollectionModal
+    :integration="integration"
     :source="source"
     @importFinished="resetData" />
 
