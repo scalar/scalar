@@ -4,7 +4,7 @@ import { createMockServer } from '../src/createMockServer'
 
 describe('onRequest', () => {
   it('call custom onRequest hook', async () => {
-    return new Promise(async (resolve) => {
+    return new Promise((resolve) => {
       const specification = {
         openapi: '3.1.0',
         info: {
@@ -20,7 +20,7 @@ describe('onRequest', () => {
         },
       }
 
-      const server = await createMockServer({
+      createMockServer({
         specification,
         onRequest({ context, operation }) {
           expect(context.req.method).toBe('GET')
@@ -30,9 +30,9 @@ describe('onRequest', () => {
 
           resolve(null)
         },
+      }).then((server) => {
+        return server.request('/foobar')
       })
-
-      await server.request('/foobar')
     })
   })
 })

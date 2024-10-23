@@ -403,6 +403,12 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
+        clientCredentials:
+          tokenUrl: /oauth/token
+          scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
         password:
           tokenUrl: /oauth/token
           scopes:

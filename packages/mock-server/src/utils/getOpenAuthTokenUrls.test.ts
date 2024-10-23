@@ -1,21 +1,7 @@
-import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expect, it } from 'vitest'
 
+import { createOpenAPIDocument } from './createOpenAPIDocument'
 import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls'
-
-/** Helper function create an OpenAPI document with security schemss */
-function createOpenAPIDocument(
-  securitySchemes: Record<
-    string,
-    OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
-  >,
-): OpenAPIV3.Document {
-  return {
-    openapi: '3.0.0',
-    info: { title: 'Test API', version: '1.0.0' },
-    components: { securitySchemes },
-  }
-}
 
 describe('getOpenAuthTokenUrls', () => {
   it('returns an empty array for schema without securitySchemes', () => {

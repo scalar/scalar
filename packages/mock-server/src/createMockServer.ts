@@ -1,16 +1,17 @@
 import { openapi } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
+import { getCookie } from 'hono/cookie'
 import { cors } from 'hono/cors'
 
 import { mockAnyResponse } from './routes/mockAnyResponse'
-import { respondWithAuthorizePage } from './routes/respondWithAuthorizePage'
 import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 import type { HttpMethod, MockServerOptions } from './types'
-// import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
 import { getOperations } from './utils/getOperations'
 import { honoRouteFromPath } from './utils/honoRouteFromPath'
 import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
+import { logAuthenticationInstructions } from './utils/logAuthenticationInstructions'
+import { setupAuthenticationRoutes } from './utils/setupAuthenticationRoutes'
 
 /**
  * Create a mock server instance
@@ -37,30 +38,6 @@ export async function createMockServer(options: MockServerOptions) {
     respondWithOpenApiDocument(c, options?.specification, 'yaml'),
   )
 
-  //   // OpenAuth2 token endpoint
-  //   const tokenUrl = getOpenAuthTokenUrl(schema)
-
-  //   if (typeof tokenUrl === 'string') {
-  //     app.post(tokenUrl, async (c) => {
-  //       return c.json(
-  //         {
-  //           access_token: 'super-secret-token',
-  //           token_type: 'Bearer',
-  //           expires_in: 3600,
-  //           refresh_token: 'secret-refresh-token',
-  //         },
-  //         200,
-  //         /**
-  //          * When responding with an access token, the server must also include the additional Cache-Control: no-store
-  //          * HTTP header to ensure clients do not cache this request.
-  //          * @see https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/
-  //          */
-  //         {
-  //           'Cache-Control': 'no-store',
-  //         },
-  //       )
-  //     })
-
   /** Paths specified in the OpenAPI document */
   const paths = schema?.paths ?? {}
 
@@ -68,101 +45,8 @@ export async function createMockServer(options: MockServerOptions) {
   const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> =
     schema?.components?.securitySchemes || {}
 
-  console.log('Security Schemes:')
-  console.log()
-
-  Object.entries(securitySchemes).forEach(([_, scheme]) => {
-    switch (scheme.type) {
-      case 'apiKey':
-        // TODO: Set up API Key authentication
-        if (scheme.in === 'header') {
-          console.log(`✅ API Key Authentication (Header: ${scheme.name})`)
-          // TODO: Implement header-based API key validation
-        } else if (scheme.in === 'query') {
-          console.log(
-            `✅ API Key Authentication (Query Parameter: ${scheme.name})`,
-          )
-          // TODO: Implement query parameter-based API key validation
-        } else if (scheme.in === 'cookie') {
-          console.log(`✅ API Key Authentication (Cookie: ${scheme.name})`)
-          // TODO: Implement cookie-based API key validation
-        } else {
-          console.error(`❌ Unsupported API Key Location: ${scheme.in}`)
-        }
-        break
-      case 'http':
-        if (scheme.scheme === 'basic') {
-          // TODO: Set up HTTP Basic authentication
-          console.log('✅ HTTP Basic Authentication')
-          console.log('   Use any credentials')
-          console.log()
-        } else if (scheme.scheme === 'bearer') {
-          // TODO: Set up Bearer token authentication
-          console.log('✅ Bearer Token Authentication')
-          console.log('   Use any bearer token header')
-          console.log()
-          console.log('   Authorization: Bearer YOUR_TOKEN_HERE')
-          console.log()
-        } else {
-          console.error('❌ Unknown Security Scheme:', scheme)
-        }
-
-        break
-      case 'oauth2':
-        if (scheme.flows) {
-          Object.keys(scheme.flows).forEach((flow) => {
-            switch (flow) {
-              case 'implicit':
-                // TODO: Set up OAuth 2.0 Implicit flow
-                console.log('⚠️ OAuth 2.0 Implicit Flow')
-                break
-              case 'password':
-                // TODO: Set up OAuth 2.0 Password flow
-                console.log('⚠️ OAuth 2.0 Password Flow')
-                break
-              case 'clientCredentials':
-                // TODO: Set up OAuth 2.0 Client Credentials flow
-                console.log('⚠️ OAuth 2.0 Client Credentials Flow')
-                break
-              case 'authorizationCode':
-                // eslint-disable-next-line no-case-declarations
-                const authorizeRoute =
-                  scheme?.flows?.authorizationCode?.authorizationUrl ??
-                  '/oauth/authorize'
-
-                console.log('✅ OAuth 2.0 Authorization Code Flow')
-                console.log(
-                  '   GET',
-                  `${authorizeRoute}?redirect_uri=https://YOUR_REDIRECT_URI_HERE`,
-                )
-                console.log()
-
-                if (
-                  !app.routes.find(
-                    (route) =>
-                      route.path === authorizeRoute && route.method === 'GET',
-                  )
-                ) {
-                  app.get(authorizeRoute, respondWithAuthorizePage)
-                }
-
-                break
-              default:
-                console.warn(`Unsupported OAuth 2.0 flow: ${flow}`)
-            }
-          })
-        }
-        break
-      case 'openIdConnect':
-        // TODO: Set up OpenID Connect authentication
-        console.log('⚠️ OpenID Connect Authentication')
-        break
-      default:
-        console.warn(`Unsupported security scheme type: ${scheme.type}`)
-    }
-  })
-
-  console.log()
+  setupAuthenticationRoutes(app, schema)
+  logAuthenticationInstructions(securitySchemes)
 
   Object.keys(paths).forEach((path) => {
     const methods = Object.keys(getOperations(paths[path])) as HttpMethod[]
@@ -177,10 +61,6 @@ export async function createMockServer(options: MockServerOptions) {
       const requiresAuthentication = isAuthenticationRequired(
         operation.security,
       )
-
-      if (requiresAuthentication) {
-        console.log(`🔒 ${method.toUpperCase()} ${path}`)
-      }
 
       // Check if authentication is required for this operation
       if (requiresAuthentication) {
@@ -225,24 +105,21 @@ export async function createMockServer(options: MockServerOptions) {
                           isAuthenticated = true
                         }
                       } else if (scheme.in === 'cookie') {
-                        const cookies = c.req
-                          .header('Cookie')
-                          ?.split(';')
-                          .reduce(
-                            (acc, cookie) => {
-                              const [key, value] = cookie.trim().split('=')
-                              acc[key] = value
-                              return acc
-                            },
-                            {} as Record<string, string>,
-                          )
-
-                        const apiKey = cookies?.[scheme.name]
+                        const apiKey = getCookie(scheme.name)
 
                         if (apiKey) {
                           isAuthenticated = true
                         }
                       }
+                      break
+                    case 'oauth2':
+                      // Handle OAuth 2.0 flows, including password grant
+                      if (
+                        c.req.header('Authorization')?.startsWith('Bearer ')
+                      ) {
+                        isAuthenticated = true
+                      }
+
                       break
                   }
                 }

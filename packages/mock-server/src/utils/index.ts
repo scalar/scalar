@@ -1,5 +1,5 @@
 export * from './findPreferredResponseKey'
-export * from './getOpenAuthTokenUrl'
+export * from './getOpenAuthTokenUrls'
 export * from './getOperations'
 export * from './honoRouteFromPath'
 export * from './isAuthenticationRequired'
