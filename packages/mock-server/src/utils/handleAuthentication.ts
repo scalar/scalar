@@ -49,7 +49,7 @@ export function handleAuthentication(
                     isAuthenticated = true
                   }
                 } else if (scheme.in === 'cookie') {
-                  const apiKey = getCookie(scheme.name)
+                  const apiKey = getCookie(c, scheme.name)
 
                   if (apiKey) {
                     isAuthenticated = true
