@@ -25,13 +25,13 @@ export function handleAuthentication(
                 if (scheme.scheme === 'basic') {
                   const authHeader = c.req.header('Authorization')
 
-                  if (authHeader && authHeader.startsWith('Basic ')) {
+                  if (authHeader?.startsWith('Basic ')) {
                     isAuthenticated = true
                   }
                 } else if (scheme.scheme === 'bearer') {
                   const authHeader = c.req.header('Authorization')
 
-                  if (authHeader && authHeader.startsWith('Bearer ')) {
+                  if (authHeader?.startsWith('Bearer ')) {
                     isAuthenticated = true
                   }
                 }
