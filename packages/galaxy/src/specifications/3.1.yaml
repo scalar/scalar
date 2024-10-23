@@ -391,28 +391,28 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: /oauth/authorize
-          tokenUrl: /oauth/token
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
         clientCredentials:
-          tokenUrl: /oauth/token
+          tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
         # Legacy
         implicit:
-          authorizationUrl: /oauth/authorize
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
         # Legacy
         password:
-          tokenUrl: /oauth/token
+          tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
