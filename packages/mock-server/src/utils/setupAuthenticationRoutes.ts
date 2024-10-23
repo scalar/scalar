@@ -42,48 +42,49 @@ export function setupAuthenticationRoutes(
   })
 
   // Set up routes for different OAuth 2.0 flows
-  const authorizeUrls = new Set<string>();
-  const tokenUrls = new Set<string>();
+  const authorizeUrls = new Set<string>()
+  const tokenUrls = new Set<string>()
 
   Object.entries(securitySchemes).forEach(([_, scheme]) => {
     if (scheme.type === 'oauth2') {
       if (scheme.flows?.authorizationCode) {
         const authorizeRoute =
-          scheme.flows.authorizationCode.authorizationUrl ?? '/oauth/authorize';
+          scheme.flows.authorizationCode.authorizationUrl ?? '/oauth/authorize'
         const tokenRoute =
-          scheme.flows.authorizationCode.tokenUrl ?? '/oauth/token';
+          scheme.flows.authorizationCode.tokenUrl ?? '/oauth/token'
 
-        authorizeUrls.add(authorizeRoute);
-        tokenUrls.add(tokenRoute);
+        authorizeUrls.add(authorizeRoute)
+        tokenUrls.add(tokenRoute)
       }
 
       if (scheme.flows?.implicit) {
         const authorizeRoute =
-          scheme.flows.implicit.authorizationUrl ?? '/oauth/authorize';
-        authorizeUrls.add(authorizeRoute);
+          scheme.flows.implicit.authorizationUrl ?? '/oauth/authorize'
+        authorizeUrls.add(authorizeRoute)
       }
 
       if (scheme.flows?.password) {
-        const tokenRoute = scheme.flows.password.tokenUrl ?? '/oauth/token';
-        tokenUrls.add(tokenRoute);
+        const tokenRoute = scheme.flows.password.tokenUrl ?? '/oauth/token'
+        tokenUrls.add(tokenRoute)
       }
 
       if (scheme.flows?.clientCredentials) {
-        const tokenRoute = scheme.flows.clientCredentials.tokenUrl ?? '/oauth/token';
-        tokenUrls.add(tokenRoute);
+        const tokenRoute =
+          scheme.flows.clientCredentials.tokenUrl ?? '/oauth/token'
+        tokenUrls.add(tokenRoute)
       }
     }
-  });
+  })
 
   // Set up unique authorization routes
   authorizeUrls.forEach((authorizeUrl) => {
     app.get(authorizeUrl, (c) =>
       respondWithAuthorizePage(c, schema?.info?.title),
-    );
-  });
+    )
+  })
 
   // Set up unique token routes
   tokenUrls.forEach((tokenUrl) => {
-    app.post(tokenUrl, respondWithToken);
-  });
+    app.post(tokenUrl, respondWithToken)
+  })
 }

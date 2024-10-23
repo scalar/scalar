@@ -6,7 +6,7 @@ import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 export function getPathFromUrl(url: string): string {
   try {
     // Handle relative URLs by prepending a base
-    const urlObject = url.startsWith('http') 
+    const urlObject = url.startsWith('http')
       ? new URL(url)
       : new URL(url, 'http://example.com')
 
@@ -24,7 +24,7 @@ export function getPathFromUrl(url: string): string {
  */
 // Type guard for OAuth2 security scheme
 function isOAuth2Scheme(
-  scheme: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
+  scheme: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject,
 ): scheme is OpenAPIV3.OAuth2SecurityScheme | OpenAPIV3_1.OAuth2SecurityScheme {
   return scheme.type === 'oauth2'
 }
@@ -51,7 +51,7 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
   for (const scheme of Object.values(securitySchemes)) {
     if (!isOAuth2Scheme(scheme)) continue
 
-    const flows = scheme.flows  // Type assertion no longer needed
+    const flows = scheme.flows // Type assertion no longer needed
 
     // Helper to safely add valid token URLs
     const addTokenUrl = (url?: string) => {
