@@ -19,7 +19,7 @@ export type MockServerOptions = {
    * The OpenAPI specification to use for mocking.
    * Can be a string (URL or file path) or an object.
    */
-  specification: Record<string, any>
+  specification: string | Record<string, any>
 
   /**
    * Callback function to be called before each request is processed.
