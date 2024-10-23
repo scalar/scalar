@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: pnpm --filter web install
       - name: Restore Turborepo cache
-        uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
+        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
