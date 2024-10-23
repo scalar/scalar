@@ -1,5 +1,6 @@
 import { loadAllResources } from '@/libs/local-storage'
-import { createWorkspaceStore } from '@/store'
+import { type WorkspaceStore, createWorkspaceStore } from '@/store'
+import type { StoreContext } from '@/store/store-context'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
@@ -48,9 +49,36 @@ type CreateApiClientParams = {
   mountOnInitialize?: boolean
   /** Instance of a vue router */
   router: Router
+  /** In case the store has been instantiated beforehand */
+  store?: WorkspaceStore
 }
 
-export type ApiClient = ReturnType<typeof createApiClient>
+/**
+ * ApiClient type
+ *
+ * We need to do this due to some typescript type propogation errors
+ * This is pretty much add properties as they are needed
+ */
+export type ApiClient = Omit<
+  Awaited<ReturnType<typeof createApiClient>>,
+  'app' | 'store'
+> & {
+  /** Add properties as they are needed, see above */
+  app: { unmount: () => void }
+  /**
+   * The main workspace store from the client
+   * These refs don't wanna play nice with typescript, if we need them we can de-reference them
+   */
+  store: Omit<
+    WorkspaceStore,
+    | 'isReadOnly'
+    | 'router'
+    | 'events'
+    | 'sidebarWidth'
+    | 'proxyUrl'
+    | 'requestHistory'
+  >
+}
 
 /**
  * Sync method to create the api client vue app and store
@@ -62,14 +90,18 @@ export const createApiClient = ({
   appComponent,
   configuration = {},
   isReadOnly = false,
+  store: _store,
   persistData = true,
   mountOnInitialize = true,
   router,
 }: CreateApiClientParams) => {
-  const store = createWorkspaceStore(router, {
-    useLocalStorage: persistData,
-    defaultProxyUrl: configuration.proxyUrl,
-  })
+  // Create the store if it wasn't passed in
+  const store =
+    _store ||
+    createWorkspaceStore(router, {
+      useLocalStorage: persistData,
+      defaultProxyUrl: configuration.proxyUrl,
+    })
 
   // Load from localStorage if available
   // Check if we have localStorage data

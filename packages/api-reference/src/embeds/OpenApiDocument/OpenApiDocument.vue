@@ -10,8 +10,8 @@ import {
   useHttpClientStore,
   useReactiveSpec,
 } from '../../../src'
-import ApiClientModal from '../../../src/components/ApiClientModal.vue'
 import { GLOBAL_SECURITY_SYMBOL } from '../../../src/helpers'
+import { ApiClientModal } from '../../features/ApiClientModal'
 import type { OpenApiDocumentConfiguration } from './types'
 
 const props = defineProps<{

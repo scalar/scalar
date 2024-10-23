@@ -1,6 +1,7 @@
 import {
   type RouteLocationNormalized,
   type RouteRecordRaw,
+  type Router,
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
@@ -140,10 +141,11 @@ const routes = [
 ] satisfies RouteRecordRaw[]
 
 /** Router for the API client app */
-export const router = createRouter({
-  history: createWebHistory(),
-  routes,
-})
+export const createWebHistoryRouter = () =>
+  createRouter({
+    history: createWebHistory(),
+    routes,
+  })
 
 /** Router factory for the API client app (but using hash history) */
 export const createWebHashRouter = () =>
@@ -176,6 +178,7 @@ export function redirectToDefaultWorkspace() {
 
 /** If we try to navigate to a entity UID that does not exist then we fallback to the default */
 export function fallbackMissingParams(
+  router: Router,
   key: PathId,
   item: Record<string, any> | undefined,
 ) {

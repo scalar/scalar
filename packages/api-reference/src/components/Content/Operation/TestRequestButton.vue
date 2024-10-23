@@ -3,14 +3,15 @@ import { ScalarIcon } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { inject } from 'vue'
 
+import { useApiClient } from '../../../features/ApiClientModal'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
-import { apiClientBus } from '../../api-client-bus'
 
 defineProps<{
   operation: TransformedOperation
 }>()
 
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
+const { client } = useApiClient()
 </script>
 <template>
   <button
@@ -19,11 +20,9 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
     :method="operation.httpVerb"
     type="button"
     @click.stop="
-      apiClientBus.emit({
-        open: {
-          path: operation.path,
-          method: operation.httpVerb,
-        },
+      client?.open({
+        path: operation.path,
+        method: operation.httpVerb,
       })
     ">
     <ScalarIcon

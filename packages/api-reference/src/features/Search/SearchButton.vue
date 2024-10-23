@@ -3,9 +3,8 @@ import { ScalarIcon, useModal } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
 
-import { modalStateBus } from '../../components/api-client-bus'
+import { useApiClient } from '../ApiClientModal'
 import SearchModal from './SearchModal.vue'
 
 const props = withDefaults(
@@ -19,7 +18,7 @@ const props = withDefaults(
 )
 
 const modalState = useModal()
-const apiClientModalState = ref<{ open: boolean } | null>(null)
+const { client } = useApiClient()
 
 const keys = useMagicKeys({
   passive: false,
@@ -32,16 +31,10 @@ const keys = useMagicKeys({
   },
 })
 
-onMounted(() => {
-  modalStateBus.on((state) => {
-    apiClientModalState.value = state
-  })
-})
-
 whenever(
   keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`],
   () => {
-    if (!apiClientModalState.value?.open) {
+    if (!client.value?.modalState.open) {
       modalState.open ? modalState.hide() : modalState.show()
     }
   },

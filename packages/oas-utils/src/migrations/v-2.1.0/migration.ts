@@ -143,6 +143,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
       'externalDocs': c.spec?.externalDocs,
       'uid': c.uid,
       securitySchemes,
+      'selectedSecuritySchemeUids': [],
       'selectedServerUid': c.selectedServerUid || c.spec?.serverUids?.[0] || '',
       'servers': c.spec?.serverUids || [],
       'requests': [...requestUids],

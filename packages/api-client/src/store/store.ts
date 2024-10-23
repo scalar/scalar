@@ -199,7 +199,7 @@ export const createWorkspaceStore = (
 
     const request = requests[key] || requests[collection?.requests[0]]
 
-    fallbackMissingParams(PathId.Request, request)
+    fallbackMissingParams(router, PathId.Request, request)
 
     return request
   })
