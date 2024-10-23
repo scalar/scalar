@@ -38,12 +38,12 @@ export function mockAnyResponse(
   // Headers
   const headers = preferredResponse?.headers ?? {}
   Object.keys(headers).forEach((header) => {
-    c.header(
-      header,
-      headers[header].schema
-        ? getExampleFromSchema(headers[header].schema)
-        : null,
-    )
+    const value = headers[header].schema
+      ? getExampleFromSchema(headers[header].schema)
+      : null
+    if (value !== null) {
+      c.header(header, value)
+    }
   })
 
   // Content-Type
