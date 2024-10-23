@@ -13,10 +13,16 @@ export async function respondWithOpenApiDocument(
     return c.text('Not found', 404)
   }
 
-  const { specification: parsedSpec } = await openapi()
-    .load(specification)
-    .get()
-
+  try {
+    const { specification: parsedSpec } = await openapi()
+      .load(specification)
+      .get()
+  } catch (error) {
+    return c.json({
+      error: 'Failed to parse OpenAPI specification',
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+    }, 400)
+  }
   // JSON
   if (format === 'json') {
     c.header('Content-Type', 'application/json')
