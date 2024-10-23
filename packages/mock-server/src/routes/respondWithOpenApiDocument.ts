@@ -19,11 +19,19 @@ export async function respondWithOpenApiDocument(
 
   // JSON
   if (format === 'json') {
+    c.header('Content-Type', 'application/json')
     return c.json(parsedSpec)
   }
 
   // YAML
-  const yamlSpecification = await openapi().load(specification).toYaml()
-
-  return c.text(yamlSpecification)
+  try {
+    const yamlSpecification = await openapi().load(specification).toYaml()
+    c.header('Content-Type', 'text/yaml')
+    return c.text(yamlSpecification)
+  } catch (error) {
+    return c.json({
+      error: 'Failed to convert specification to YAML',
+      message: error instanceof Error ? error.message : 'Unknown error occurred',
+    }, 500)
+  }
 }
