@@ -23,7 +23,7 @@ import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { AuthenticationState } from '@scalar/types/legacy'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -79,9 +79,9 @@ export async function importSpecToWorkspace(
   {
     documentUrl,
     watchForChanges,
-    preferredSecurityScheme,
+    authentication,
   }: Pick<CollectionPayload, 'documentUrl' | 'watchForChanges'> &
-    Pick<Partial<AuthenticationState>, 'preferredSecurityScheme'> = {},
+    Pick<ReferenceConfiguration, 'authentication'> = {},
 ): Promise<
   | {
       error: false
@@ -205,9 +205,11 @@ export async function importSpecToWorkspace(
         // Set the initially selected security scheme
         if (securityRequirements.length) {
           const name =
-            preferredSecurityScheme &&
-            securityRequirements.includes(preferredSecurityScheme ?? '')
-              ? preferredSecurityScheme
+            authentication?.preferredSecurityScheme &&
+            securityRequirements.includes(
+              authentication?.preferredSecurityScheme ?? '',
+            )
+              ? authentication?.preferredSecurityScheme
               : securityRequirements[0]
           const uid = securitySchemeMap[name]
           selectedSecuritySchemeUids = [uid]

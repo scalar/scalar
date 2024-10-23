@@ -7,7 +7,7 @@ import type { StoreContext } from '@/store/store-context'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
+import type { ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import { toRaw } from 'vue'
 
 /** Maps the specs by URL */
@@ -34,7 +34,7 @@ export function importSpecFileFactory({
       documentUrl,
       watchForChanges = false,
       overloadServers,
-      preferredSecurityScheme,
+      authentication,
     }: {
       /** To store the documentUrl, used for watchForChanges */
       documentUrl?: string
@@ -45,7 +45,7 @@ export function importSpecFileFactory({
        * attach those as needed to entities below
        */
       overloadServers?: Spec['servers']
-      preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme']
+      authentication?: ReferenceConfiguration['authentication']
     } = {},
   ) => {
     const spec = toRaw(_spec)
@@ -56,7 +56,7 @@ export function importSpecFileFactory({
 
     const workspaceEntities = await importSpecToWorkspace(spec, {
       documentUrl,
-      preferredSecurityScheme,
+      authentication,
       watchForChanges,
     })
 
@@ -108,11 +108,11 @@ export function importSpecFileFactory({
       proxy,
       overloadServers,
       watchForChanges = false,
-      preferredSecurityScheme,
+      authentication,
     }: {
       watchForChanges?: boolean
       overloadServers?: Spec['servers']
-      preferredSecurityScheme?: ClientConfiguration['preferredSecurityScheme']
+      authentication?: ReferenceConfiguration['authentication']
       proxy?: string
     } = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
@@ -125,7 +125,7 @@ export function importSpecFileFactory({
           documentUrl: url,
           overloadServers,
           watchForChanges,
-          preferredSecurityScheme,
+          authentication,
         }),
       ]
     } catch (error) {

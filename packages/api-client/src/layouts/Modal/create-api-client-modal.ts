@@ -36,12 +36,12 @@ export const createApiClientModal = async (
     await importSpecFromUrl(configuration.spec.url, 'default', {
       proxy: configuration.proxyUrl,
       overloadServers: configuration?.servers,
-      preferredSecurityScheme: configuration.preferredSecurityScheme,
+      authentication: configuration.authentication,
     })
   else if (configuration.spec?.content)
     await importSpecFile(configuration.spec?.content, 'default', {
       overloadServers: configuration?.servers,
-      preferredSecurityScheme: configuration.preferredSecurityScheme,
+      authentication: configuration.authentication,
     })
 
   return client

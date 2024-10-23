@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
 import type {
-  AuthenticationState,
+  ReferenceConfiguration,
   Spec,
   SpecConfiguration,
 } from '@scalar/types/legacy'
@@ -11,7 +11,7 @@ import { useApiClient } from './useApiClient'
 
 const props = defineProps<{
   proxyUrl?: string
-  authentication?: AuthenticationState
+  authentication?: ReferenceConfiguration['authentication']
   spec?: SpecConfiguration
   servers?: Spec['servers']
 }>()
