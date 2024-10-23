@@ -32,4 +32,20 @@ describe('honoRouteFromPath', () => {
       '/v1/products/:productId',
     )
   })
+
+  it.skip('handles invalid parameter syntax gracefully', () => {
+    expect(() => honoRouteFromPath('/{invalid{}param}')).toThrow()
+  })
+
+  it('handles multiple consecutive parameters', () => {
+    expect(honoRouteFromPath('/users/{userId}{postId}')).toBe(
+      '/users/:userId:postId',
+    )
+  })
+
+  it('handles parameters with special naming patterns', () => {
+    expect(honoRouteFromPath('/api/{api.version}/{user_id}')).toBe(
+      '/api/:api.version/:user_id',
+    )
+  })
 })
