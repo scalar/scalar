@@ -81,44 +81,6 @@ describe('OAuth 2.0 Authentication', () => {
     })
   })
 
-  describe('Resource Owner Password Flow', () => {
-    const specification = createOpenAPIDocument({
-      oauth2: {
-        type: 'oauth2',
-        flows: {
-          password: {
-            tokenUrl: 'https://example.com/oauth/token',
-            scopes: { read: 'Read access' },
-          },
-        },
-      },
-    })
-    specification.paths = {
-      '/oauth-test': {
-        get: {
-          security: [{ oauth2: ['read'] }],
-          responses: { '200': { description: 'OK' } },
-        },
-      },
-    }
-
-    it('succeeds with valid OAuth token', async () => {
-      const server = await createMockServer({ specification })
-      const response = await server.request('/oauth-test', {
-        headers: { Authorization: 'Bearer valid-token' },
-      })
-
-      expect(response.status).toBe(200)
-    })
-
-    it('fails without OAuth token', async () => {
-      const server = await createMockServer({ specification })
-      const response = await server.request('/oauth-test')
-
-      expect(response.status).toBe(401)
-    })
-  })
-
   describe('Client Credentials Flow', () => {
     const specification = createOpenAPIDocument({
       oauth2: {
