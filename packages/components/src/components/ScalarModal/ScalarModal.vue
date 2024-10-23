@@ -203,6 +203,7 @@ export function useModal() {
   border-radius: 0 !important;
   background-color: var(--scalar-background-1) !important;
   box-shadow: none !important;
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 @screen md {
   .full-size-styles {

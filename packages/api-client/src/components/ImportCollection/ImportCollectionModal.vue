@@ -142,12 +142,20 @@ const handleExpandError = (message: string) => {
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
         <!-- Wait until the URL is fetched -->
         <template v-if="prefetchResult.state === 'idle'">
+          <!-- logo -->
+          <div class="flex justify-center items-center mb-4 p-1">
+            <div class="rounded-xl">
+              <!-- <ScalarIcon
+                class="size-10 rounded-lg"
+                icon="Elysia" /> -->
+            </div>
+          </div>
           <!-- Title -->
           <div class="text-center text-md font-bold mb-2">
             {{ title ?? 'Untitled Collection' }}
           </div>
           <div
-            class="text-c-1 text-sm font-medium mb-4 text-center text-balance">
+            class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
             Import {{ title ?? 'Untitled Collection' }} to start sending API
             requests, no signup required.
           </div>
@@ -192,7 +200,7 @@ const handleExpandError = (message: string) => {
             <!-- Watch Mode -->
             <template v-if="prefetchResult?.url">
               <div
-                class="text-c-2 text-sm bg-b-2 rounded-lg overflow-hidden mt-4 p-4 pt-2">
+                class="text-c-2 text-sm bg-b-2 rounded-lg overflow-hidden mt-6 p-4 pt-2">
                 <div class="flex items-center justify-center">
                   <WatchModeToggle
                     v-model="watchMode"
@@ -273,34 +281,44 @@ const handleExpandError = (message: string) => {
 @screen md {
   .has-no-import-url {
     opacity: 1;
-    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    background: var(--scalar-background-1);
+    transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
     animation: transform-restore-layout ease-in-out 0.3s forwards;
   }
-
   .has-import-url .scalar-client > main {
     opacity: 0;
-    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
     animation: transform-fade-layout ease-in-out 0.3s forwards;
+    border: var(--scalar-border-width) solid var(--scalar-border-color);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .has-no-import-url .scalar-app,
+  .has-import-url .scalar-app {
+    background: var(--scalar-background-1) !important;
   }
 }
 @keyframes transform-fade-layout {
   0% {
     opacity: 0;
-    transform: scale(0.85) translate3d(calc(50dvw + 120px), 10px, 0);
+    transform: scale(0.85) translate3d(calc(50dvw + 80px), 10px, 0);
   }
   100% {
     opacity: 1;
-    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
   }
 }
 @keyframes transform-restore-layout {
   0% {
     opacity: 1;
-    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
   }
   100% {
     opacity: 1;
     transform: scale(1) translate3d(0, 0, 0);
   }
+}
+.openapi-color {
+  color: var(--scalar-color-green);
 }
 </style>
