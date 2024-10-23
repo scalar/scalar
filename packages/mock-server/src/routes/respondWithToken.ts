@@ -19,6 +19,34 @@ export function respondWithToken(c: Context) {
     )
   }
 
+  // Validate supported grant types
+  const supportedGrantTypes = [
+    'authorization_code',
+    'client_credentials',
+    'refresh_token',
+  ]
+
+  if (!supportedGrantTypes.includes(grantType)) {
+    return c.json(
+      {
+        error: 'unsupported_grant_type',
+        error_description: `Grant type must be one of: ${supportedGrantTypes.join(', ')}`,
+      },
+      400,
+    )
+  }
+
+  // Validate required parameters for each grant type
+  if (grantType === 'authorization_code' && !c.req.query('code')) {
+    return c.json(
+      {
+        error: 'invalid_request',
+        error_description: 'Missing code parameter',
+      },
+      400,
+    )
+  }
+
   // Simulate token generation
   const tokenResponse = {
     access_token: EXAMPLE_ACCESS_TOKEN,
