@@ -36,6 +36,7 @@ app.get(
     spec: {
       url: '/openapi.yaml',
     },
+    baseServerURL: `http://localhost:${port}`,
   }),
 )
 
