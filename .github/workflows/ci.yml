@@ -305,8 +305,8 @@ jobs:
           comment_tag: 'cloudflare-preview'
 
   deploy-examples:
-    # Only run this job for PRs from the same repository, not for pushes to main
-    if: github.ref != 'refs/heads/main' && github.event.pull_request.head.repo.full_name == github.repository
+    # Skip for forks and bot PRs
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: ubuntu-20.04
     strategy:
