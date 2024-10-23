@@ -53,7 +53,12 @@ export function respondWithToken(c: Context) {
     token_type: 'Bearer',
     expires_in: 3600,
     refresh_token: 'example-refresh-token',
+    scope: c.req.query('scope') ?? 'read write',
   }
+
+  // Security headers
+  c.header('Cache-Control', 'no-store')
+  c.header('Pragma', 'no-cache')
 
   return c.json(tokenResponse)
 }

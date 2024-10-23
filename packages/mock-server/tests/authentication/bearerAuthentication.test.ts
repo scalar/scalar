@@ -23,6 +23,7 @@ describe('Bearer Token Authentication', () => {
     })
 
     expect(response.status).toBe(200)
+    expect(response.headers.get('www-authenticate')).toBeNull()
   })
 
   it('fails without bearer token', async () => {
