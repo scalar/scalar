@@ -101,6 +101,8 @@ export function handleAuthentication(
           case 'ApiKey':
             wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
             break
+          default:
+            wwwAuthenticateValue = 'Bearer realm="Scalar Mock Server"'
         }
 
         c.header('WWW-Authenticate', wwwAuthenticateValue)
