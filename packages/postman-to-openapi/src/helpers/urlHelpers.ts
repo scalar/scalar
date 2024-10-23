@@ -1,21 +1,14 @@
-export type ParsedUrl = {
-  protocol: string
-  hostname: string
-  port: string
-}
+import type { ParsedUrl } from '../types'
 
 /**
  * Parses a URL string into its component parts.
  */
-function parseUrl(urlString: string): any {
+function parseUrl(urlString: string): ParsedUrl {
   const url = new URL(urlString)
   return {
     protocol: url.protocol,
     hostname: url.hostname,
     port: url.port,
-    pathname: url.pathname,
-    search: url.search,
-    hash: url.hash,
   }
 }
 

@@ -3,7 +3,7 @@ import type { OpenAPIV3 } from '@scalar/openapi-types'
 import { processAuth } from './helpers/authHelpers'
 import { processItem } from './helpers/itemHelpers'
 import { parseServers } from './helpers/serverHelpers'
-import type { PostmanCollection } from './postman'
+import type { PostmanCollection } from './types'
 
 /**
  * Converts a Postman Collection to an OpenAPI 3.0.0 document.
@@ -13,61 +13,99 @@ import type { PostmanCollection } from './postman'
 export function convert(
   postmanCollection: PostmanCollection,
 ): OpenAPIV3.Document {
+  // Extract title from collection info, fallback to 'API' if not provided
+  const title = postmanCollection.info.name || 'API'
+
+  // Look for version in collection variables, default to '1.0.0'
+  const version =
+    (postmanCollection.variable?.find((v) => v.key === 'version')
+      ?.value as string) || '1.0.0'
+
+  // Handle different description formats in Postman
+  const description =
+    typeof postmanCollection.info.description === 'string'
+      ? postmanCollection.info.description
+      : postmanCollection.info.description?.content || ''
+
+  // Initialize the OpenAPI document with required fields
   const openapi: OpenAPIV3.Document = {
     openapi: '3.0.0',
     info: {
-      title: postmanCollection.info.name || 'API',
-      version:
-        (postmanCollection.variable?.find((v) => v.key === 'version')
-          ?.value as string) || '1.0.0',
-      description:
-        typeof postmanCollection.info.description === 'string'
-          ? postmanCollection.info.description
-          : postmanCollection.info.description?.content || '',
+      title,
+      version,
+      description,
     },
     servers: parseServers(postmanCollection),
     paths: {},
+    components: {},
   }
 
+  // Process authentication if present in the collection
   if (postmanCollection.auth) {
-    processAuth(postmanCollection.auth, openapi)
+    const { securitySchemes, security } = processAuth(postmanCollection.auth)
+    openapi.components = openapi.components || {}
+    openapi.components.securitySchemes = {
+      ...openapi.components.securitySchemes,
+      ...securitySchemes,
+    }
+    openapi.security = security
   }
 
-  if (postmanCollection.item && Array.isArray(postmanCollection.item)) {
+  // Process each item in the collection and merge into OpenAPI spec
+  if (postmanCollection.item) {
     postmanCollection.item.forEach((item) => {
-      processItem(item, openapi, [], '')
+      const { paths: itemPaths, components: itemComponents } = processItem(item)
+
+      // Merge paths from the current item
+      openapi.paths = openapi.paths || {}
+      for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+        if (!openapi.paths[pathKey]) {
+          openapi.paths[pathKey] = pathItem
+        } else {
+          openapi.paths[pathKey] = {
+            ...openapi.paths[pathKey],
+            ...pathItem,
+          }
+        }
+      }
+
+      // Merge security schemes from the current item
+      if (itemComponents?.securitySchemes) {
+        openapi.components = openapi.components || {}
+        openapi.components.securitySchemes = {
+          ...openapi.components.securitySchemes,
+          ...itemComponents.securitySchemes,
+        }
+      }
     })
   }
 
-  // Remove empty components
-  if (openapi.components && Object.keys(openapi.components).length === 0) {
-    delete openapi.components
-  }
-
-  // Remove empty parameters arrays and handle empty request bodies
+  // Clean up the generated paths
   if (openapi.paths) {
     Object.values(openapi.paths).forEach((path) => {
       if (path) {
         Object.values(path).forEach((method) => {
           if (method && 'parameters' in method) {
-            if (method.parameters && method.parameters.length === 0) {
+            // Remove empty parameters array to keep spec clean
+            if (method.parameters?.length === 0) {
               delete method.parameters
             }
-            if (method.requestBody && 'content' in method.requestBody) {
+
+            // Remove empty request bodies or those with only text/plain and no schema
+            if (method.requestBody?.content) {
               const content = method.requestBody.content
               if (
                 Object.keys(content).length === 0 ||
                 (Object.keys(content).length === 1 &&
                   'text/plain' in content &&
-                  (!content['text/plain'].schema ||
-                    Object.keys(content['text/plain'].schema).length === 0))
+                  !content['text/plain'].schema)
               ) {
                 delete method.requestBody
               }
             }
-            if (!method.description) {
-              method.description = ''
-            }
+
+            // Ensure all methods have a description
+            method.description = method.description || ''
           }
         })
       }

@@ -1,10 +1,6 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
-import type {
-  FormParameter,
-  RequestBody,
-  UrlEncodedParameter,
-} from '../postman'
+import type { FormParameter, RequestBody, UrlEncodedParameter } from '../types'
 
 /**
  * Extracts and converts the request body from a Postman request to an OpenAPI RequestBodyObject.
@@ -17,63 +13,93 @@ export function extractRequestBody(
     content: {},
   }
 
-  if (body.mode === 'raw') {
-    try {
-      const jsonBody = JSON.parse(body.raw || '')
-      requestBody.content = {
-        'application/json': {
-          schema: {
-            type: 'object',
-            example: jsonBody,
-          },
-        },
+  switch (body.mode) {
+    case 'raw':
+      handleRawBody(body, requestBody)
+      break
+    case 'formdata':
+      if (body.formdata) {
+        handleFormDataBody(body.formdata, requestBody)
       }
-    } catch (error) {
-      requestBody.content = {
-        'text/plain': {
-          schema: {
-            type: 'string',
-            example: body.raw,
-          },
-        },
+      break
+    case 'urlencoded':
+      if (body.urlencoded) {
+        handleUrlEncodedBody(body.urlencoded, requestBody)
       }
-    }
-  } else if (body.mode === 'formdata' && body.formdata) {
-    const schema: OpenAPIV3.SchemaObject = {
-      type: 'object',
-      properties: {},
-    }
-    body.formdata.forEach((item: FormParameter) => {
-      if (schema.properties) {
-        schema.properties[item.key] = {
-          type: 'string',
-          example: item.type === 'file' ? 'file content' : item.value,
-        }
-      }
-    })
+      break
+  }
+
+  return requestBody
+}
+
+function handleRawBody(
+  body: RequestBody,
+  requestBody: OpenAPIV3.RequestBodyObject,
+) {
+  try {
+    const jsonBody = JSON.parse(body.raw || '')
     requestBody.content = {
-      'multipart/form-data': {
-        schema,
+      'application/json': {
+        schema: {
+          type: 'object',
+          example: jsonBody,
+        },
       },
     }
-  } else if (body.mode === 'urlencoded' && body.urlencoded) {
-    const schema: OpenAPIV3.SchemaObject = {
-      type: 'object',
-      properties: {},
-    }
-    body.urlencoded.forEach((item: UrlEncodedParameter) => {
-      if (schema.properties) {
-        schema.properties[item.key] = {
-          type: 'string',
-          example: item.value,
-        }
-      }
-    })
+  } catch (error) {
     requestBody.content = {
-      'application/x-www-form-urlencoded': {
-        schema,
+      'text/plain': {
+        schema: {
+          type: 'string',
+          example: body.raw,
+        },
       },
     }
   }
-  return requestBody
+}
+
+function handleFormDataBody(
+  formdata: FormParameter[],
+  requestBody: OpenAPIV3.RequestBodyObject,
+) {
+  const schema: OpenAPIV3.SchemaObject = {
+    type: 'object',
+    properties: {},
+  }
+  formdata.forEach((item: FormParameter) => {
+    if (schema.properties) {
+      schema.properties[item.key] = {
+        type: 'string',
+        example: item.type === 'file' ? 'file content' : item.value,
+      }
+    }
+  })
+  requestBody.content = {
+    'multipart/form-data': {
+      schema,
+    },
+  }
+}
+
+function handleUrlEncodedBody(
+  urlencoded: UrlEncodedParameter[],
+  requestBody: OpenAPIV3.RequestBodyObject,
+) {
+  const schema: OpenAPIV3.SchemaObject = {
+    type: 'object',
+    properties: {},
+  }
+  urlencoded.forEach((item: UrlEncodedParameter) => {
+    if (schema.properties) {
+      schema.properties[item.key] = {
+        type: 'string',
+        example: item.value,
+      }
+    }
+  })
+  requestBody.content = {
+    'application/x-www-form-urlencoded': {
+      schema,
+    },
+  }
 }
