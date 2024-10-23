@@ -61,6 +61,7 @@ const themeStyleTag = computed(
 html,
 body {
   background-color: var(--scalar-background-1);
+  overscroll-behavior: none;
 }
 
 #scalar-client {
