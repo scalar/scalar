@@ -1,0 +1,165 @@
+{
+  "info": {
+    "_postman_id": "747abd37-e913-4bf8-a7e7-01730737b973",
+    "name": "Variables",
+    "description": "Mi super test collection from postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create new User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"service\": \"{{service}}\"\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "{{server}}/users",
+        "description": "Create a new user into your amazing API"
+      },
+      "response": []
+    },
+    {
+      "name": "Create Post",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "company",
+              "value": "{{company}}",
+              "type": "text"
+            },
+            {
+              "key": "text",
+              "value": "This is an example text",
+              "type": "text"
+            },
+            {
+              "key": "auditor",
+              "value": "{{auditor}}",
+              "type": "text"
+            }
+          ],
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "https://api.io/{{dinamic_path}}/post"
+      },
+      "response": []
+    },
+    {
+      "name": "Consult User data",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Company",
+            "value": "{{company}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{server}}/users/{{user_id}}?company={{company}}",
+          "host": ["{{server}}"],
+          "path": ["users", "{{user_id}}"],
+          "query": [
+            {
+              "key": "company",
+              "value": "{{company}}"
+            }
+          ]
+        },
+        "description": "Get one user instance data"
+      },
+      "response": []
+    },
+    {
+      "name": "Get a list of user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{server}}/users?size={{page-size}}&company={{company}}",
+          "host": ["{{server}}"],
+          "path": ["users"],
+          "query": [
+            {
+              "key": "size",
+              "value": "{{page-size}}",
+              "description": "{{desc-size}}"
+            },
+            {
+              "key": "company",
+              "value": "{{company}}",
+              "description": "company for filter users"
+            }
+          ]
+        },
+        "description": "Get a list of users"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "version",
+      "value": "1.1.0"
+    },
+    {
+      "key": "server",
+      "value": "https://api.io"
+    },
+    {
+      "key": "page-size",
+      "value": "10"
+    },
+    {
+      "key": "company",
+      "value": "ServicesLTD"
+    },
+    {
+      "key": "auditor",
+      "value": "IHA"
+    },
+    {
+      "key": "service",
+      "value": "s23434"
+    },
+    {
+      "key": "desc-size",
+      "value": "size of the list"
+    },
+    {
+      "key": "dinamic_path",
+      "value": "test/path/here"
+    }
+  ]
+}

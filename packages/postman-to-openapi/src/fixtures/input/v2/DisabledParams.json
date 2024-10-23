@@ -1,0 +1,111 @@
+{
+  "info": {
+    "_postman_id": "43c37e23-7cc8-4e6b-acf1-46396b4f4bfd",
+    "name": "DisabledParams",
+    "description": "Test API for disabled parameters feature",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+    "_exporter_id": "64956"
+  },
+  "item": [
+    {
+      "name": "Get list of users",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-My-Header",
+            "value": "hudjilksns78jsijns090",
+            "description": "Custom header [required]",
+            "type": "text"
+          },
+          {
+            "key": "X-My-Header",
+            "value": "1234567890",
+            "description": "Custom header disabled [required]",
+            "type": "text",
+            "disabled": true
+          },
+          {
+            "key": "X-Other",
+            "value": "other",
+            "description": "Another header [REQUIRED]",
+            "type": "text"
+          },
+          {
+            "key": "No-description",
+            "value": "header without description",
+            "type": "text"
+          },
+          {
+            "key": "No-value",
+            "value": "",
+            "description": "header without value",
+            "type": "text"
+          },
+          {
+            "key": "X-Disabled-Header",
+            "value": "QWERTY",
+            "description": "Disabled parameter",
+            "type": "text",
+            "disabled": true
+          }
+        ],
+        "url": {
+          "raw": "https://api.io/:section/users?name=Jhon&review=true",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": [":section", "users"],
+          "query": [
+            {
+              "key": "age",
+              "value": "45",
+              "description": "Disabled param",
+              "disabled": true
+            },
+            {
+              "key": "name",
+              "value": "Jhon",
+              "description": "Filter by name"
+            },
+            {
+              "key": "review",
+              "value": "true",
+              "description": "Indicate if should be reviewed or not"
+            },
+            {
+              "key": "name",
+              "value": "Mark",
+              "description": "Disabled param duplicated",
+              "disabled": true
+            }
+          ],
+          "variable": [
+            {
+              "key": "section",
+              "value": "spain",
+              "description": "A path parameter"
+            }
+          ]
+        },
+        "description": "Obtain a list of users that fullfill the conditions of the filters"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Raw Body",
+    "description": "Mi super test collection from postman",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Test Raw Body",
+        "description": "Test Raw Body",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "example": "testesttestest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}

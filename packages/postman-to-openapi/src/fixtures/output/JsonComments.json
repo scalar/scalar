@@ -1,0 +1,333 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "JsonComments",
+    "description": "Postman collection with saved responses",
+    "version": "1.2.0"
+  },
+  "servers": [
+    {
+      "url": "https://60bb37ab42e1d000176206c3.mockapi.io"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": ["default"],
+        "summary": "Create new User",
+        "description": "Create a new user into your amazing API",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "id": "100",
+                  "createdAt": "2021-06-04T15:50:38.568Z",
+                  "name": "Carol",
+                  "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "headers": {
+              "Server": {
+                "schema": {
+                  "type": "string",
+                  "example": "Cowboy"
+                }
+              },
+              "Connection": {
+                "schema": {
+                  "type": "string",
+                  "example": "keep-alive"
+                }
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "type": "string",
+                  "example": "Express"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string",
+                  "example": "GET,PUT,POST,DELETE,OPTIONS"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string",
+                  "example": "X-Requested-With,Content-Type,Cache-Control,access_token"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "example": "131"
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string",
+                  "example": "Accept-Encoding"
+                }
+              },
+              "Date": {
+                "schema": {
+                  "type": "string",
+                  "example": "Sat, 05 Jun 2021 08:42:32 GMT"
+                }
+              },
+              "Via": {
+                "schema": {
+                  "type": "string",
+                  "example": "1.1 vegur"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "examples": {
+                  "example-0": {
+                    "summary": "Create new User example",
+                    "value": {
+                      "id": "100",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "name": "Carol",
+                      "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                    }
+                  },
+                  "example-1": {
+                    "summary": "Create new User automatic id",
+                    "value": {
+                      "id": "54",
+                      "createdAt": "2021-06-04T15:50:38.568Z",
+                      "name": "Carol",
+                      "avatar": "https://cdn.fakercloud.com/avatars/nelsonjoyce_128.jpg"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user_id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get User data",
+        "description": "Retrieve the user data",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true,
+            "description": "This is just a user identifier",
+            "example": "54"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Server": {
+                "schema": {
+                  "type": "string",
+                  "example": "Cowboy"
+                }
+              },
+              "Connection": {
+                "schema": {
+                  "type": "string",
+                  "example": "keep-alive"
+                }
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "type": "string",
+                  "example": "Express"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string",
+                  "example": "GET,PUT,POST,DELETE,OPTIONS"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string",
+                  "example": "X-Requested-With,Content-Type,Cache-Control,access_token"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "example": "127"
+                }
+              },
+              "Etag": {
+                "schema": {
+                  "type": "string",
+                  "example": "\"1711725458\""
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string",
+                  "example": "Accept-Encoding"
+                }
+              },
+              "Date": {
+                "schema": {
+                  "type": "string",
+                  "example": "Sat, 05 Jun 2021 08:48:00 GMT"
+                }
+              },
+              "Via": {
+                "schema": {
+                  "type": "string",
+                  "example": "1.1 vegur"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "id": "50",
+                  "createdAt": "2021-06-04T23:41:02.287Z",
+                  "name": "Leanne",
+                  "avatar": "https://cdn.fakercloud.com/avatars/bartjo_128.jpg"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "headers": {
+              "Server": {
+                "schema": {
+                  "type": "string",
+                  "example": "Cowboy"
+                }
+              },
+              "Connection": {
+                "schema": {
+                  "type": "string",
+                  "example": "keep-alive"
+                }
+              },
+              "X-Powered-By": {
+                "schema": {
+                  "type": "string",
+                  "example": "Express"
+                }
+              },
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string",
+                  "example": "GET,PUT,POST,DELETE,OPTIONS"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string",
+                  "example": "X-Requested-With,Content-Type,Cache-Control,access_token"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "example": "11"
+                }
+              },
+              "Etag": {
+                "schema": {
+                  "type": "string",
+                  "example": "\"1592724850\""
+                }
+              },
+              "Vary": {
+                "schema": {
+                  "type": "string",
+                  "example": "Accept-Encoding"
+                }
+              },
+              "Date": {
+                "schema": {
+                  "type": "string",
+                  "example": "Sat, 05 Jun 2021 08:48:30 GMT"
+                }
+              },
+              "Via": {
+                "schema": {
+                  "type": "string",
+                  "example": "1.1 vegur"
+                }
+              }
+            },
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "\"Not found\""
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

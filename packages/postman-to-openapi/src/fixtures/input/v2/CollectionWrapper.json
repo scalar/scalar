@@ -1,0 +1,94 @@
+{
+  "collection": {
+    "info": {
+      "_postman_id": "0f93eca8-921e-4b0d-9ac0-15f96a56eae8",
+      "name": "AuthBasic",
+      "description": "Collection to test authorization global",
+      "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Create new User Copy",
+        "request": {
+          "method": "POST",
+          "header": [],
+          "body": {
+            "mode": "raw",
+            "raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+            "options": {
+              "raw": {
+                "language": "json"
+              }
+            }
+          },
+          "url": "https://api.io/users",
+          "description": "Create a new user into your amazing API"
+        },
+        "response": []
+      },
+      {
+        "name": "Get list of users",
+        "request": {
+          "method": "GET",
+          "header": [],
+          "url": {
+            "raw": "https://api.io/users?age=45&name=Jhon&review=true&number=23.56",
+            "protocol": "https",
+            "host": ["api", "io"],
+            "path": ["users"],
+            "query": [
+              {
+                "key": "age",
+                "value": "45",
+                "description": "Filter by age"
+              },
+              {
+                "key": "name",
+                "value": "Jhon",
+                "description": "Filter by name"
+              },
+              {
+                "key": "review",
+                "value": "true",
+                "description": "Indicate if should be reviewed or not"
+              },
+              {
+                "key": "number",
+                "value": "23.56",
+                "description": "This is a number"
+              }
+            ]
+          },
+          "description": "Obtain a list of users that fullfill the conditions of the filters"
+        },
+        "response": []
+      }
+    ],
+    "auth": {
+      "type": "basic",
+      "basic": {
+        "password": "ssss",
+        "username": "sss"
+      }
+    },
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "id": "7b3e1a28-e253-4cd9-ac26-2d9d52092d80",
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "id": "b50e4ce3-8104-4eb7-bc20-50e6f3f5edab",
+          "type": "text/javascript",
+          "exec": [""]
+        }
+      }
+    ],
+    "protocolProfileBehavior": {}
+  }
+}

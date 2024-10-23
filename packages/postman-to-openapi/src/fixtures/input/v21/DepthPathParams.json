@@ -1,0 +1,74 @@
+{
+  "info": {
+    "_postman_id": "c2a620d9-979e-4f39-b6bc-22282ce4b21a",
+    "name": "Large Path Params",
+    "description": "Collection to test path parameters",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get one users info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/dev/users/{{user_id}}",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["dev", "users", "{{user_id}}"]
+        },
+        "description": "Obtain a list of users that fullfill the conditions of the filters"
+      },
+      "response": []
+    },
+    {
+      "name": "Get descriptions of a user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/dev/user/{{user_id}}/desc/",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["dev", "user", "{{user_id}}", "desc", ""]
+        },
+        "description": "Obtain a list of users descriptions\n\n# postman-to-openapi\n\n| object | name     | description                    | required | type   | example   |\n|--------|----------|--------------------------------|----------|--------|-----------|\n| path   | user_id  | This is just a user identifier | true     | number | 476587598 |"
+      },
+      "response": []
+    },
+    {
+      "name": "Get a description from an user",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/dev/user/{{user_id}}/desc/{{desc_id}}",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["dev", "user", "{{user_id}}", "desc", "{{desc_id}}"]
+        },
+        "description": "Obtain a list of users descriptions\n\n# postman-to-openapi\n\n| object | name     | description                    | required | type   | example   |\n|--------|----------|--------------------------------|----------|--------|-----------|\n| path   | user_id  | This is just a user identifier | true     | number | 476587598 |\n| path   | desc_id  | Description id                 | true     | string | ALMT      |"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "3d4c9432-87d0-46d1-8e0a-7bf78b95838f",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "bfa95668-f3ba-423f-93d3-152fbba765af",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "protocolProfileBehavior": {}
+}

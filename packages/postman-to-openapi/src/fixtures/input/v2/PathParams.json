@@ -1,0 +1,113 @@
+{
+  "info": {
+    "_postman_id": "996877f6-c686-4f69-a939-f93b08089232",
+    "name": "Path Params",
+    "description": "Collection to test path parameters",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get one users info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "https://api.io/users/{{user_id}}",
+        "description": "Obtain a list of users that fullfill the conditions of the filters"
+      },
+      "response": []
+    },
+    {
+      "name": "Get one customer",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "https://api.io/customer/{{customer-id}}",
+        "description": "Obtain one customer info"
+      },
+      "response": []
+    },
+    {
+      "name": "Get one users with description",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "https://api.io/desc/{{user_id}}",
+        "description": "Obtain a list of users descriptions\n\n# postman-to-openapi\n\n| object | name     | description                    | required | type   | example   |\n|--------|----------|--------------------------------|----------|--------|-----------|\n| path   | user_id  | This is just a user identifier | true     | number | 476587598 |\n| path   | group_id | Group of the user              | true     | string | RETAIL    |"
+      },
+      "response": []
+    },
+    {
+      "name": "Get one users with path params with type",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/desc/:user_id/:type",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["desc", ":user_id", ":type"],
+          "variable": [
+            {
+              "key": "user_id",
+              "value": "476587598",
+              "description": "This is just a user identifier"
+            },
+            {
+              "key": "type",
+              "value": "user",
+              "description": "This is just a user type"
+            }
+          ]
+        },
+        "description": "Obtain a list of users descriptions"
+      },
+      "response": []
+    },
+    {
+      "name": "Get all users with description and params with type",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://api.io/desc/:user_id/:type/all",
+          "protocol": "https",
+          "host": ["api", "io"],
+          "path": ["desc", ":user_id", ":type", "all"],
+          "variable": [
+            {
+              "key": "user_id",
+              "value": "{{user_id}}",
+              "description": "This description will be replaced"
+            },
+            {
+              "key": "type",
+              "value": "user",
+              "description": "This is just a user type"
+            }
+          ]
+        },
+        "description": "Obtain a list of users descriptions\n\n# postman-to-openapi\n\n| object | name     | description                    | required | type   | example   |\n|--------|----------|--------------------------------|----------|--------|-----------|\n| path   | user_id  | This is just a user identifier | true     | number | 476587598 |\n| path   | group_id | Group of the user              | true     | string | RETAIL    |"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "id": "ae27466c-2adf-427d-820c-a9f517387fec",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "id": "3a6974eb-ea7f-4bf7-b7ee-1457db0d6be9",
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "protocolProfileBehavior": {}
+}

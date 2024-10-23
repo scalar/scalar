@@ -1,0 +1,84 @@
+{
+  "info": {
+    "_postman_id": "030b673d-ddb2-4217-914c-46890cf112cc",
+    "name": "OperationIds",
+    "description": "Mi super test collection from postman",
+    "schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+    "_exporter_id": "64956"
+  },
+  "item": [
+    {
+      "name": "Create new User",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"example\": \"field\",\n    \"other\": {\n        \"data1\": \"yes\",\n        \"data2\": \"no\"\n    }\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": "https://api.io/users",
+        "description": "Create a new user into your amazing API"
+      },
+      "response": []
+    },
+    {
+      "name": "Create a post [createPost]",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "file",
+          "file": {}
+        },
+        "url": "https://api.io/posts"
+      },
+      "response": []
+    },
+    {
+      "name": "Create a note [createNote]",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "This is an example Note",
+          "options": {
+            "raw": {
+              "language": "text"
+            }
+          }
+        },
+        "url": "https://api.io/note",
+        "description": "Just an example of text raw body"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "version",
+      "value": "1.1.0"
+    }
+  ]
+}

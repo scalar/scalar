@@ -1,0 +1,166 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Path Params",
+    "description": "Collection to test path parameters",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.io"
+    }
+  ],
+  "paths": {
+    "/users/{user_id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get one users info",
+        "description": "Obtain a list of users that fullfill the conditions of the filters",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/customer/{customer-id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get one customer",
+        "description": "Obtain one customer info",
+        "parameters": [
+          {
+            "name": "customer-id",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/desc/{user_id}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get one users with description",
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true,
+            "description": "This is just a user identifier",
+            "example": "476587598"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/desc/{user_id}/{type}": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get one users with path params with type",
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "integer"
+            },
+            "required": true,
+            "description": "This is just a user identifier",
+            "example": "476587598"
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "This is just a user type",
+            "example": "user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/desc/{user_id}/{type}/all": {
+      "get": {
+        "tags": ["default"],
+        "summary": "Get all users with description and params with type",
+        "description": "Obtain a list of users descriptions",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "schema": {
+              "type": "number"
+            },
+            "required": true,
+            "description": "This is just a user identifier",
+            "example": "476587598"
+          },
+          {
+            "name": "type",
+            "in": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "This is just a user type",
+            "example": "user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
