@@ -64,7 +64,8 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
-const { activeEnvVariables, isReadOnly, environments, router } = useWorkspace()
+const { activeEnvVariables, isReadOnly, activeEnvironment, router } =
+  useWorkspace()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -114,7 +115,7 @@ const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 extensions.push(
   pillPlugin({
-    environments,
+    activeEnvironment,
     activeEnvVariables,
     isReadOnly,
   }),
@@ -240,6 +241,7 @@ export default {
     v-if="showDropdown && props.withVariables && !isReadOnly"
     ref="dropdownRef"
     :activeEnvVariables="computed(() => activeEnvVariables)"
+    :activeEnvironment="computed(() => activeEnvironment)"
     :dropdownPosition="dropdownPosition"
     :query="dropdownQuery"
     :router="router"
