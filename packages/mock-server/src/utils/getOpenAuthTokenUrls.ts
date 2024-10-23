@@ -5,9 +5,14 @@ import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
  */
 export function getPathFromUrl(url: string): string {
   try {
-    const urlObject = new URL(url)
+    // Handle relative URLs by prepending a base
+    const urlObject = url.startsWith('http') 
+      ? new URL(url)
+      : new URL(url, 'http://example.com')
 
-    return urlObject.pathname
+    // Normalize: remove trailing slash except for root path
+    const path = urlObject.pathname
+    return path === '/' ? path : path.replace(/\/$/, '')
   } catch (error) {
     // If URL is invalid, return the original string
     return url
