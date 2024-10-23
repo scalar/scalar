@@ -392,13 +392,7 @@ components:
       flows:
         authorizationCode:
           authorizationUrl: /oauth/authorize
-          tokenUrl: http://localhost:5052/oauth/token
-          scopes:
-            read:account: read your account information
-            write:planets: modify planets in your account
-            read:planets: read your planets
-        implicit:
-          authorizationUrl: /oauth/authorize
+          tokenUrl: /oauth/token
           scopes:
             read:account: read your account information
             write:planets: modify planets in your account
@@ -409,6 +403,14 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
+        # Legacy
+        implicit:
+          authorizationUrl: /oauth/authorize
+          scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
+        # Legacy
         password:
           tokenUrl: /oauth/token
           scopes:
