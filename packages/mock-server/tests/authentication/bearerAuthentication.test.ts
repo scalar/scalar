@@ -29,6 +29,7 @@ describe('Bearer Token Authentication', () => {
     const specification = createOpenAPIDocument({
       bearerAuth: { type: 'http', scheme: 'bearer' },
     })
+
     specification.paths = {
       '/bearer-test': {
         get: {
@@ -42,5 +43,12 @@ describe('Bearer Token Authentication', () => {
     const response = await server.request('/bearer-test')
 
     expect(response.status).toBe(401)
+    expect(response.headers.get('www-authenticate')).toBe(
+      'Bearer realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"',
+    )
+
+    const body = await response.json()
+
+    expect(body).toEqual({ error: 'Unauthorized' })
   })
 })

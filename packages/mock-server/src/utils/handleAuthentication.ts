@@ -14,6 +14,7 @@ export function handleAuthentication(
 
     if (operationSecuritySchemes && operationSecuritySchemes.length > 0) {
       let isAuthenticated = false
+      let authScheme = ''
 
       for (const securityRequirement of operationSecuritySchemes) {
         for (const [schemeName] of Object.entries(securityRequirement)) {
@@ -23,12 +24,14 @@ export function handleAuthentication(
             switch (scheme.type) {
               case 'http':
                 if (scheme.scheme === 'basic') {
+                  authScheme = 'Basic'
                   const authHeader = c.req.header('Authorization')
 
                   if (authHeader?.startsWith('Basic ')) {
                     isAuthenticated = true
                   }
                 } else if (scheme.scheme === 'bearer') {
+                  authScheme = 'Bearer'
                   const authHeader = c.req.header('Authorization')
 
                   if (authHeader?.startsWith('Bearer ')) {
@@ -37,6 +40,8 @@ export function handleAuthentication(
                 }
                 break
               case 'apiKey':
+                authScheme = `ApiKey ${scheme.name}`
+
                 if (scheme.in === 'header') {
                   const apiKey = c.req.header(scheme.name)
                   if (apiKey) {
@@ -57,6 +62,7 @@ export function handleAuthentication(
                 }
                 break
               case 'oauth2':
+                authScheme = 'Bearer'
                 // Handle OAuth 2.0 flows, including password grant
                 if (c.req.header('Authorization')?.startsWith('Bearer ')) {
                   isAuthenticated = true
@@ -72,6 +78,23 @@ export function handleAuthentication(
       }
 
       if (!isAuthenticated) {
+        let wwwAuthenticateValue = authScheme
+
+        switch (authScheme) {
+          case 'Basic':
+            wwwAuthenticateValue +=
+              ' realm="Scalar Mock Server", charset="UTF-8"'
+            break
+          case 'Bearer':
+            wwwAuthenticateValue +=
+              ' realm="Scalar Mock Server", error="invalid_token", error_description="The access token is invalid or has expired"'
+            break
+          case 'ApiKey':
+            wwwAuthenticateValue += ` realm="Scalar Mock Server", error="invalid_token", error_description="Invalid or missing API key"`
+            break
+        }
+
+        c.header('WWW-Authenticate', wwwAuthenticateValue)
         return c.json({ error: 'Unauthorized' }, 401)
       }
     }
