@@ -47,6 +47,7 @@ const modal = cva({
       form: 'scalar-modal-form',
       history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
+      error: 'scalar-modal-error',
     },
   },
 })
@@ -60,6 +61,7 @@ const body = cva({
       form: 'overflow-visible',
       history: 'pt-3',
       search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
+      error: 'overflow-y-scroll',
     },
     size: {
       xxs: 'max-h-[calc(100dvh-240px)]',
