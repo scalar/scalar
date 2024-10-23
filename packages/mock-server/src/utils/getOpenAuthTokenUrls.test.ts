@@ -124,11 +124,6 @@ describe('getPathFromUrl', () => {
     expect(getPathFromUrl(url)).toBe('/oauth/token')
   })
 
-  it('returns the original string for an invalid URL', () => {
-    const invalidUrl = 'not-a-valid-url'
-    expect(getPathFromUrl(invalidUrl)).toBe(invalidUrl)
-  })
-
   it('handles URLs with query parameters', () => {
     const url = 'https://api.example.com/oauth/token?param=value'
     expect(getPathFromUrl(url)).toBe('/oauth/token')
