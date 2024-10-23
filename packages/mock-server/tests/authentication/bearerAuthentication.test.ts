@@ -50,6 +50,6 @@ describe('Bearer Token Authentication', () => {
 
     const body = await response.json()
 
-    expect(body).toEqual({ error: 'Unauthorized' })
+    expect(body).toMatchObject({ error: 'Unauthorized' })
   })
 })

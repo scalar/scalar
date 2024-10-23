@@ -95,7 +95,13 @@ export function handleAuthentication(
         }
 
         c.header('WWW-Authenticate', wwwAuthenticateValue)
-        return c.json({ error: 'Unauthorized' }, 401)
+        return c.json(
+          {
+            error: 'Unauthorized',
+            message: 'Authentication is required to access this resource.',
+          },
+          401,
+        )
       }
     }
 
