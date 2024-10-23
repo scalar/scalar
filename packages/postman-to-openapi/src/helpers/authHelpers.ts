@@ -1,26 +1,19 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
-import type { Auth } from '../postman'
+import type { Auth } from '../types'
 
 /**
  * Processes authentication information from a Postman collection and updates
  * the OpenAPI document with the corresponding security schemes and requirements.
  * Supports API key, basic auth, bearer token, and OAuth2 authentication types.
  */
-export function processAuth(
-  auth: Auth,
-  openapi: OpenAPIV3.Document,
-  security?: OpenAPIV3.SecurityRequirementObject[],
-): void {
-  // Initialize components and securitySchemes if they are undefined
-  if (!openapi.components) {
-    openapi.components = {}
-  }
-  if (!openapi.components.securitySchemes) {
-    openapi.components.securitySchemes = {}
-  }
-
-  const securitySchemes = openapi.components.securitySchemes
+export function processAuth(auth: Auth): {
+  securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject>
+  security: OpenAPIV3.SecurityRequirementObject[]
+} {
+  // Initialize containers for security configurations
+  const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject> = {}
+  const security: OpenAPIV3.SecurityRequirementObject[] = []
 
   const authTypes: Record<string, () => void> = {
     apikey: () => {
@@ -29,37 +22,25 @@ export function processAuth(
         name: 'api_key',
         in: 'header',
       }
-      const requirement = { apikeyAuth: [] }
-      if (security) {
-        security.push(requirement)
-      } else {
-        openapi.security = [requirement]
-      }
+      security.push({ apikeyAuth: [] })
     },
+
     basic: () => {
       securitySchemes['basicAuth'] = {
         type: 'http',
         scheme: 'basic',
       }
-      const requirement = { basicAuth: [] }
-      if (security) {
-        security.push(requirement)
-      } else {
-        openapi.security = [requirement]
-      }
+      security.push({ basicAuth: [] })
     },
+
     bearer: () => {
       securitySchemes['bearerAuth'] = {
         type: 'http',
         scheme: 'bearer',
       }
-      const requirement = { bearerAuth: [] }
-      if (security) {
-        security.push(requirement)
-      } else {
-        openapi.security = [requirement]
-      }
+      security.push({ bearerAuth: [] })
     },
+
     oauth2: () => {
       securitySchemes['oauth2Auth'] = {
         type: 'oauth2',
@@ -71,17 +52,15 @@ export function processAuth(
           },
         },
       }
-      const requirement = { oauth2Auth: [] }
-      if (security) {
-        security.push(requirement)
-      } else {
-        openapi.security = [requirement]
-      }
+      security.push({ oauth2Auth: [] })
     },
   }
 
+  // Execute the appropriate authentication handler if available
   const processAuthType = authTypes[auth.type]
   if (processAuthType) {
     processAuthType()
   }
+
+  return { securitySchemes, security }
 }

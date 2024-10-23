@@ -11,7 +11,7 @@ import EXPECTED_AUTH_BEARER from './fixtures/output/AuthBearer.json'
 import EXPECTED_AUTH_MULTIPLE from './fixtures/output/AuthMultiple.json'
 import EXPECTED_AUTH_REQUEST from './fixtures/output/AuthRequest.json'
 import EXPECTED_BASEPATH_VAR from './fixtures/output/BasepathVar.json'
-import type { PostmanCollection } from './postman'
+import type { PostmanCollection } from './types'
 
 describe('basic Auth', () => {
   it('convert collection to openapi', () => {

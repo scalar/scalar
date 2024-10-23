@@ -1,6 +1,6 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
-import type { PostmanCollection } from '../postman'
+import type { PostmanCollection } from '../types'
 import { getDomainFromUrl } from './urlHelpers'
 
 /**
@@ -11,6 +11,7 @@ import { getDomainFromUrl } from './urlHelpers'
 export function parseServers(
   postmanCollection: PostmanCollection,
 ): OpenAPIV3.ServerObject[] {
+  // Set to store unique domains
   const domains = new Set<string>()
 
   if (postmanCollection.item && Array.isArray(postmanCollection.item)) {
@@ -26,14 +27,12 @@ export function parseServers(
             const domain = getDomainFromUrl(url)
             domains.add(domain)
           } catch (error) {
-            // Error handling can be added here if needed
+            // Silently handle errors in domain extraction
           }
         }
       }
     })
   }
 
-  const servers = Array.from(domains).map((domain) => ({ url: domain }))
-
-  return servers
+  return Array.from(domains).map((domain) => ({ url: domain }))
 }

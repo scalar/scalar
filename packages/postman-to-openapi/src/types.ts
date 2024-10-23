@@ -231,6 +231,12 @@ export type Cookie = {
   }>
 }
 
+export type ParsedUrl = {
+  protocol: string
+  hostname: string
+  port: string
+}
+
 export type ProtocolProfileBehavior = {
   // This is left as an empty object as per the schema
 }

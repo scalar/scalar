@@ -1,6 +1,6 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
-import type { Header, Request } from '../postman'
+import type { Header, Request } from '../types'
 
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
@@ -42,6 +42,9 @@ export function extractParameters(
   return parameters
 }
 
+/**
+ * Creates an OpenAPI parameter object from a Postman parameter.
+ */
 function createParameterObject(
   param: any,
   paramIn: 'query' | 'path' | 'header',
@@ -52,7 +55,7 @@ function createParameterObject(
     description: param.description,
   }
 
-  // Only add the required field for path parameters
+  // Path parameters are always required in OpenAPI
   if (paramIn === 'path') {
     parameter.required = true
   }
@@ -67,6 +70,9 @@ function createParameterObject(
   return parameter
 }
 
+/**
+ * Infers the OpenAPI schema type based on the parameter value.
+ */
 function inferSchemaType(value: any): OpenAPIV3.SchemaObject {
   if (typeof value === 'number') {
     return { type: Number.isInteger(value) ? 'integer' : 'number' }
