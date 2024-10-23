@@ -40,7 +40,7 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        currentMode === 'System Preference' ? 'bg-b-1 text-c-1' : 'bg-b-2',
+        currentMode === 'System Preference' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
       @click="setSystemDarkMode">
       <div
@@ -56,7 +56,7 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        currentMode === 'Light' ? 'bg-b-1 text-c-1' : 'bg-b-2',
+        currentMode === 'Light' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
       @click="setLightMode">
       <div
@@ -72,7 +72,7 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8 border-1/2',
-        currentMode === 'Dark' ? 'bg-b-1 text-c-1' : 'bg-b-2',
+        currentMode === 'Dark' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
       @click="setDarkModePreference">
       <div

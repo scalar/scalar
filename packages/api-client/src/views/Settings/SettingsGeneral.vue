@@ -86,8 +86,8 @@ const changeTheme = (themeId: ThemeId) => {
           <div class="gap-2 mt-4 mb-8 flex flex-col">
             <!-- Default proxy -->
             <ScalarButton
-              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-2 border-1/2"
-              :class="{ 'bg-b-1 text-c-1': proxyUrl }"
+              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
+              :class="{ 'bg-b-2 text-c-1': proxyUrl }"
               :variant="proxyUrl ? 'primary' : 'secondary'"
               @click="setProxyUrl('https://proxy.scalar.com')">
               <div
@@ -123,8 +123,8 @@ const changeTheme = (themeId: ThemeId) => {
 
             <!-- No proxy -->
             <ScalarButton
-              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-2 border-1/2"
-              :class="{ 'bg-b-1 text-c-1': !proxyUrl }"
+              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
+              :class="{ 'bg-b-2 text-c-1': !proxyUrl }"
               :variant="!proxyUrl ? 'primary' : 'secondary'"
               @click="setProxyUrl('')">
               <div
@@ -152,7 +152,7 @@ const changeTheme = (themeId: ThemeId) => {
                 class="px-2"
                 :class="[
                   'flex items-center justify-between gap-2 text-c-1 border-1/2',
-                  activeWorkspace.themeId === themeId ? 'bg-b-1' : 'bg-b-2',
+                  activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
                 ]"
                 variant="ghost"
                 @click="changeTheme(themeId)">
