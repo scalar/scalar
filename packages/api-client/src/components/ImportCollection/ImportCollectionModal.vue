@@ -87,19 +87,41 @@ const toggleBodyClass = (add: boolean) => {
   }
 }
 
-// Watch for changes in the URL or modal state
-watch([hasUrl, () => modalState.open], ([newHasUrl, newIsVisible]) => {
-  toggleBodyClass(!!newHasUrl && newIsVisible)
-})
+// Add this new function
+const handleModalClose = () => {
+  document.body.classList.remove('has-import-url')
+  document.body.classList.add('has-no-import-url')
+}
+
+// Watch for changes in the modal state
+watch(
+  () => modalState.open,
+  (isOpen) => {
+    if (isOpen) {
+      toggleBodyClass(true)
+    } else {
+      handleModalClose()
+    }
+  },
+)
+
+// Watch for changes in the source prop
+watch(
+  () => props.source,
+  () => {
+    toggleBodyClass(true)
+  },
+)
 
 // Add class on mount if URL exists and modal is visible
 onMounted(() => {
   toggleBodyClass(true)
 })
 
-// Remove class on unmount
+// Remove classes on unmount
 onUnmounted(() => {
-  toggleBodyClass(false)
+  document.body.classList.remove('has-import-url')
+  document.body.classList.remove('has-no-import-url')
 })
 </script>
 
@@ -108,15 +130,19 @@ onUnmounted(() => {
     size="full"
     :state="modalState">
     <div class="flex flex-col h-screen justify-center overflow-hidden relative">
-      <div class="flex items-center flex-col m-auto">
+      <div
+        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
         <!-- Wait until the URL is fetched -->
         <template v-if="prefetchResult.state === 'idle'">
           <!-- Title -->
-          <div
-            class="text-center text-[50px] tracking-[-3px] leading-tight font-medium text-pretty">
+          <div class="text-center text-md font-bold mb-2">
             {{ title ?? 'Untitled Collection' }}
           </div>
-
+          <div
+            class="text-c-1 text-sm font-medium mb-4 text-center text-balance">
+            Import {{ title ?? 'Untitled Collection' }} to start sending API
+            requests, no signup required.
+          </div>
           <!-- Prefetch error -->
           <template v-if="prefetchResult.error">
             <div
@@ -155,11 +181,10 @@ onUnmounted(() => {
             </div>
           </template>
         </template>
-
         <!-- Actions -->
         <div
           v-if="version"
-          class="inline-flex flex-col gap-2 items-center mt-2">
+          class="inline-flex flex-col gap-2 items-center z-10 w-full">
           <!-- <OpenAppButton :source="source" /> -->
           <ImportNowButton
             :source="prefetchResult?.url ?? source"
@@ -170,17 +195,26 @@ onUnmounted(() => {
         <!-- Select the workspace -->
         <template v-if="version">
           <div class="flex justify-center">
-            <div class="inline-flex py-1 px-4 items-center text-sm">
+            <div
+              class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-2">
               Import to: <WorkspaceSelector />
             </div>
           </div>
         </template>
         <!-- Watch Mode -->
         <template v-if="prefetchResult?.url">
-          <WatchModeToggle
-            v-model="watchMode"
-            :disableToolTip="true" />
-          <div>hi hello</div>
+          <div
+            class="text-c-2 text-sm bg-b-2 rounded-lg overflow-hidden mt-4 p-4 pt-2">
+            <div class="flex items-center justify-center">
+              <WatchModeToggle
+                v-model="watchMode"
+                :disableToolTip="true" />
+            </div>
+            <div class="pt-0 text-center text-balance font-medium text-xs">
+              Watch your OpenAPI URL for changes and automatically update your
+              API client.
+            </div>
+          </div>
         </template>
       </div>
       <!-- Download Link -->
@@ -196,12 +230,12 @@ onUnmounted(() => {
                 size="xl" />
             </a>
           </div>
-          <span class="text-c-2 leading-snug">
+          <span class="text-c-2 leading-snug text-sm font-medium">
             <a
-              class="hover:text-c-1 underline-offset-2"
+              class="hover:text-c-1 underline-offset-2 mb-1 inline-block"
               href="https://scalar.com/download"
               target="_blank">
-              Download Scalar Desktop App
+              Download Desktop App
             </a>
             <br />
             free · open-source · offline first
@@ -211,3 +245,35 @@ onUnmounted(() => {
     </div>
   </ScalarModal>
 </template>
+<style>
+.has-import-url .scalar-client > main {
+  opacity: 0;
+  transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+  animation: transform-fade-layout ease-in-out 0.3s forwards;
+}
+@keyframes transform-fade-layout {
+  0% {
+    opacity: 0;
+    transform: scale(0.85) translate3d(calc(50dvw + 120px), 10px, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+  }
+}
+.has-no-import-url {
+  opacity: 1;
+  transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+  animation: transform-restore-layout ease-in-out 0.3s forwards;
+}
+@keyframes transform-restore-layout {
+  0% {
+    opacity: 1;
+    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+</style>

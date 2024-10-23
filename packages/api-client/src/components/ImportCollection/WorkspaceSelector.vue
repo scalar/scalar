@@ -45,15 +45,16 @@ const handleCreateWorkspace = () => {
   <div class="flex items-center text-sm w-[inherit]">
     <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
+        class="font-normal h-full justify-start line-clamp-1 py-1 mt-0.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
         fullWidth
         variant="ghost">
-        <div class="font-medium m-0 text-sm flex gap-1.5 items-center">
-          <h2 class="line-clamp-1 text-left w-[calc(100%-10px)]">
+        <div class="font-medium m-0 text-sm flex gap-1 items-center">
+          <h2
+            class="line-clamp-1 text-left w-[calc(100%-10px)] text-xs text-c-2">
             {{ activeWorkspace.name }}
           </h2>
           <ScalarIcon
-            class="size-3"
+            class="size-3 text-c-2"
             icon="ChevronDown"
             thickness="3" />
         </div>

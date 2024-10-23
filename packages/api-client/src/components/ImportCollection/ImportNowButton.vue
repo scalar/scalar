@@ -72,7 +72,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <!-- Button -->
     <ScalarButton
       v-if="variant === 'button'"
-      class="text-[21px] py-2.5 px-6 rounded-lg font-bold h-fit mt-3 mb-1.5"
+      class="py-2.5 px-6 rounded-lg font-bold h-fit mt-3 w-full"
       size="md"
       type="button"
       @click="importCollection">
