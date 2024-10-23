@@ -7,16 +7,21 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
-import { nextTick, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColors from './EnvironmentColors.vue'
 
+defineProps<{
+  isApp: boolean
+}>()
 const router = useRouter()
-const { environments, environmentMutators } = useWorkspace()
+const route = useRoute()
+const { environments, environmentMutators, events } = useWorkspace()
 
 const activeEnvironmentID = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
@@ -86,7 +91,17 @@ const updateEnvironmentName = (event: Event) => {
   }
 }
 
-onMounted(setActiveEnvironment)
+const handleHotKey = (event?: HotKeyEvent) => {
+  if (event?.createNew && route.name === 'environment') {
+    addEnvironment()
+  }
+}
+
+onMounted(() => {
+  setActiveEnvironment
+  events.hotKeys.on(handleHotKey)
+})
+onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <ViewLayout>
@@ -111,7 +126,10 @@ onMounted(setActiveEnvironment)
         </div>
       </template>
       <template #button>
-        <SidebarButton :click="addEnvironment">
+        <SidebarButton
+          :click="addEnvironment"
+          hotkey="N"
+          :isApp="isApp">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>
