@@ -1,5 +1,13 @@
 # scalar-api-client
 
+## 0.1.72
+
+### Patch Changes
+
+- Updated dependencies [7700c50]
+  - @scalar/components@0.12.59
+  - @scalar/api-client@2.1.33
+
 ## 0.1.71
 
 ### Patch Changes

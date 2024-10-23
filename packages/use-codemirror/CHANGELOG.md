@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.11.26
+
+### Patch Changes
+
+- Updated dependencies [7700c50]
+  - @scalar/components@0.12.59
+
 ## 0.11.25
 
 ### Patch Changes

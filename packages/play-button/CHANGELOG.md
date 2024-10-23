@@ -1,5 +1,12 @@
 # @scalar/play-button
 
+## 0.2.124
+
+### Patch Changes
+
+- @scalar/api-client@2.1.33
+- @scalar/api-reference@1.25.48
+
 ## 0.2.123
 
 ### Patch Changes

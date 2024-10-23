@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.59
+
+### Patch Changes
+
+- 7700c50: Add missing dependencies to package.json
+
 ## 0.12.58
 
 ### Patch Changes

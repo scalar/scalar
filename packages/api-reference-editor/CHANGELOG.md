@@ -1,5 +1,13 @@
 # @scalar/api-reference-editor
 
+## 0.1.107
+
+### Patch Changes
+
+- @scalar/api-client@2.1.33
+- @scalar/api-reference@1.25.48
+- @scalar/use-codemirror@0.11.26
+
 ## 0.1.106
 
 ### Patch Changes
