@@ -17,6 +17,8 @@ export function handleAuthentication(
       let authScheme = ''
 
       for (const securityRequirement of operationSecuritySchemes) {
+        let securitySchemeAuthenticated = true
+
         for (const [schemeName] of Object.entries(securityRequirement)) {
           const scheme = schema?.components?.securitySchemes?.[schemeName]
 
@@ -72,9 +74,16 @@ export function handleAuthentication(
             }
           }
 
-          if (isAuthenticated) break
+          if (!isAuthenticated) {
+            securitySchemeAuthenticated = false
+            break
+          }
         }
-        if (isAuthenticated) break
+
+        if (securitySchemeAuthenticated) {
+          isAuthenticated = true
+          break
+        }
       }
 
       if (!isAuthenticated) {
