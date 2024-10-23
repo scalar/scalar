@@ -17,6 +17,18 @@ export function getPathFromUrl(url: string): string {
 /**
  * Returns all token URLs mentioned in the securitySchemes, without the domain
  */
+// Type guard for OAuth2 security scheme
+function isOAuth2Scheme(
+  scheme: OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
+): scheme is OpenAPIV3.OAuth2SecurityScheme | OpenAPIV3_1.OAuth2SecurityScheme {
+  return scheme.type === 'oauth2'
+}
+
+// Validate token URL
+function isValidTokenUrl(url: string): boolean {
+  return url.trim().length > 0
+}
+
 export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
   if (!schema?.components?.securitySchemes) {
     return []
@@ -27,39 +39,26 @@ export function getOpenAuthTokenUrls(schema?: OpenAPI.Document): string[] {
     OpenAPIV3.SecuritySchemeObject | OpenAPIV3_1.SecuritySchemeObject
   > = schema.components.securitySchemes
 
-  // Array to store all found token URLs
-  const tokenUrls: string[] = []
+  // Use Set from the start for better memory efficiency
+  const tokenUrls = new Set<string>()
 
   // Iterate through all security schemes
   for (const scheme of Object.values(securitySchemes)) {
-    // Check if the scheme is OAuth2
-    if (scheme.type !== 'oauth2') continue
+    if (!isOAuth2Scheme(scheme)) continue
 
-    // Extract token URLs from different OAuth2 flows
-    const flows = (
-      scheme as
-        | OpenAPIV3.OAuth2SecurityScheme
-        | OpenAPIV3_1.OAuth2SecurityScheme
-    ).flows
+    const flows = scheme.flows  // Type assertion no longer needed
 
-    // Check and add tokenUrl from password flow
-    if (flows?.password?.tokenUrl) {
-      tokenUrls.push(getPathFromUrl(flows.password.tokenUrl))
+    // Helper to safely add valid token URLs
+    const addTokenUrl = (url?: string) => {
+      if (url && isValidTokenUrl(url)) {
+        tokenUrls.add(getPathFromUrl(url))
+      }
     }
 
-    // Check and add tokenUrl from clientCredentials flow
-    if (flows?.clientCredentials?.tokenUrl) {
-      tokenUrls.push(getPathFromUrl(flows.clientCredentials.tokenUrl))
-    }
-
-    // Check and add tokenUrl from authorizationCode flow
-    if (flows?.authorizationCode?.tokenUrl) {
-      tokenUrls.push(getPathFromUrl(flows.authorizationCode.tokenUrl))
-    }
-
-    // Note: Implicit flow doesn't have a tokenUrl
+    addTokenUrl(flows?.password?.tokenUrl)
+    addTokenUrl(flows?.clientCredentials?.tokenUrl)
+    addTokenUrl(flows?.authorizationCode?.tokenUrl)
   }
 
-  // Remove duplicates and return the array of token URLs
-  return [...new Set(tokenUrls)]
+  return Array.from(tokenUrls)
 }
