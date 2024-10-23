@@ -2,10 +2,11 @@
 import { ScalarIcon } from '@scalar/components'
 import { computed, inject } from 'vue'
 
-import { OPENAPI_DOCUMENT_URL_SYMBOL } from '../helpers'
+import { INTEGRATION_SYMBOL, OPENAPI_DOCUMENT_URL_SYMBOL } from '../helpers'
 
 /** Retrieve the OpenAPI document URL from the configuration */
 const getOpenApiDocumentUrlSymbol = inject(OPENAPI_DOCUMENT_URL_SYMBOL)
+const getIntegrationSymbol = inject(INTEGRATION_SYMBOL)
 
 /** Link to import an OpenAPI document */
 const href = computed(() => {
@@ -19,6 +20,11 @@ const href = computed(() => {
 
   if (url?.length) {
     link.searchParams.set('url', url)
+  }
+
+  const integration = getIntegrationSymbol?.()
+  if (integration) {
+    link.searchParams.set('integration', integration)
   }
 
   return link.toString()

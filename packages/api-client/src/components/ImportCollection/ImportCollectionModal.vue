@@ -6,6 +6,7 @@ import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
 import {
+  type Icon,
   ScalarCodeBlock,
   ScalarIcon,
   ScalarModal,
@@ -22,11 +23,33 @@ import WorkspaceSelector from './WorkspaceSelector.vue'
 
 const props = defineProps<{
   source: string | null
+  integration: string | null
 }>()
 
 defineEmits<{
   (e: 'importFinished'): void
 }>()
+
+const integrationKeys = [
+  'Dotnet',
+  'Elysia',
+  'Express',
+  'Fastapi',
+  'Fastify',
+  'Go',
+  'Hono',
+  'Laravel',
+  'Litestar',
+  'Nestjs',
+  'Nextjs',
+  'Nitro',
+  'Nuxt',
+  'Openapi',
+  'Platformatic',
+  'Rust',
+] as const
+
+type IntegrationIcons = (typeof integrationKeys)[number]
 
 const { activeWorkspace, events } = useWorkspace()
 
@@ -80,6 +103,18 @@ watch(
 
 const hasUrl = computed(() => !!props.source && isUrl(props.source))
 const hasContent = computed(() => !!props.source && isDocument(props.source))
+const integrationKey = computed(() => {
+  if (!props.integration) return null
+  return props.integration.charAt(0).toUpperCase() + props.integration.slice(1)
+})
+const hasIntegrationIcon = computed(() => {
+  if (!integrationKey.value) return false
+  return integrationKeys.includes(integrationKey.value as IntegrationIcons)
+})
+
+const getIntegrationIcon = (key: string): Icon => {
+  return key as Icon
+}
 // Function to add/remove class from body
 const toggleBodyClass = (add: boolean) => {
   if (add && (hasUrl.value || hasContent.value) && modalState.open) {
@@ -143,11 +178,13 @@ const handleExpandError = (message: string) => {
         <!-- Wait until the URL is fetched -->
         <template v-if="prefetchResult.state === 'idle'">
           <!-- logo -->
-          <div class="flex justify-center items-center mb-4 p-1">
+          <div
+            v-if="integrationKey && hasIntegrationIcon"
+            class="flex justify-center items-center mb-4 p-1">
             <div class="rounded-xl">
-              <!-- <ScalarIcon
+              <ScalarIcon
                 class="size-10 rounded-lg"
-                icon="Elysia" /> -->
+                :icon="getIntegrationIcon(integrationKey)" />
             </div>
           </div>
           <!-- Title -->
