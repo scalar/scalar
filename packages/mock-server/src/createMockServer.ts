@@ -7,17 +7,10 @@ import { mockAnyResponse } from './routes/mockAnyResponse'
 import { respondWithAuthorizePage } from './routes/respondWithAuthorizePage'
 import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
 import type { HttpMethod, MockServerOptions } from './types'
-// import { anyBasicAuthentication } from './utils/anyBasicAuthentication'
-// import { anyOpenAuthCodeFlowAuthentication } from './utils/anyOpenAuthCodeFlowAuthentication'
-// import { anyOpenAuthPasswordGrantAuthentication } from './utils/anyOpenAuthPasswordGrantAuthentication'
 // import { getOpenAuthTokenUrl } from './utils/getOpenAuthTokenUrl'
 import { getOperations } from './utils/getOperations'
 import { honoRouteFromPath } from './utils/honoRouteFromPath'
 import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
-
-// import { isBasicAuthenticationRequired } from './utils/isBasicAuthenticationRequired'
-// import { isOpenAuthCodeFlowRequired } from './utils/isOpenAuthCodeFlowRequired'
-// import { isOpenAuthPasswordGrantRequired } from './utils/isOpenAuthPasswordGrantRequired'
 
 /**
  * Create a mock server instance

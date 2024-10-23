@@ -1,12 +1,14 @@
 import type { Context } from 'hono'
 
+/** Always responds with this code */
+const EXAMPLE_AUTHORIZATION_CODE = 'super-secret-token'
+
 /**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
 export function respondWithAuthorizePage(c: Context) {
   const redirectUri = c.req.query('redirect_uri')
   const state = c.req.query('state')
-  const code = 'super-secret-token'
 
   if (!redirectUri) {
     return c.text('Missing redirect_uri', 400)
@@ -14,15 +16,17 @@ export function respondWithAuthorizePage(c: Context) {
 
   const redirectUrl = new URL(redirectUri)
 
-  redirectUrl.searchParams.set('code', code)
+  redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
 
   if (state) {
     redirectUrl.searchParams.set('state', state)
   }
 
   const htmlContent = generateAuthorizationHtml(redirectUrl.toString())
+
   return c.html(htmlContent)
 }
+
 function generateAuthorizationHtml(redirectUrl: string) {
   return `
 <!DOCTYPE html>

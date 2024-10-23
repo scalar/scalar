@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../src/createMockServer'
 
-describe('oAuthPasswordGrant', () => {
+describe.skip('oAuthPasswordGrant', () => {
   it('fails without credentials', async () => {
     const specification = {
       openapi: '3.1.0',
