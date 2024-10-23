@@ -67,33 +67,38 @@ function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
     <div class="flex flex-col">
       <div class="mb-5 flex justify-center items-center gap-2">
         <img src="https://scalar.com/logo-dark.svg" class="w-6 inline-block" />
-        <div class="font-semibold truncate max-w-[26ch] text-lg">
+        <div class="font-medium truncate max-w-[26ch] text-lg">
           ${title}
         </div>
       </div>
-      <div class="bg-white rounded-lg w-[28rem] shadow border-gray-200">
-        <h1 class="text font-semibold text-gray-800 p-4 flex gap-3 bg-gray-50 rounded-t-lg">
-          <span>
-            OAuth 2.0 Authorization
-          </span>
-        </h1>
-        <div class="text-gray-600 text-base p-4 flex flex-col gap-3">
-          <p>
-            This application is requesting access to your account. By granting authorization, you allow the application to perform certain actions on your behalf.
-          </p>
-          <p>
-            If you’re comfortable with the access being requested, click the button below to grant authorization:
-          </p>
-        </div>
-        <div class="p-4 flex justify-between">
-          <a href="javascript:history.back()" class="inline-block px-8 py-2 text-gray-500 rounded border">
-            Cancel
-          </a>
-          <a href="${redirectUrl}" class="inline-block px-8 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800">
-            Authorize
-          </a>
+      <div class="bg-gray-50 rounded-lg p-1 rounded-lg w-[28rem] shadow">
+        <div class="">
+          <h1 class="text font-medium text-gray-800 px-6 pt-2 pb-3 flex gap-3 rounded-t-lg">
+            <span>
+              OAuth 2.0 Authorization
+            </span>
+          </h1>
+          <div class="bg-white rounded">
+            <div class="text-gray-600 text-base px-6 py-5 flex flex-col gap-3">
+              <p>
+                This application is requesting access to your account. By granting authorization, you allow the application to perform certain actions on your behalf.
+              </p>
+              <p>
+                If you’re comfortable with the access being requested, click the button below to grant authorization:
+              </p>
+            </div>
+            <div class="px-6 py-4 pt-0 flex justify-between">
+              <a href="javascript:history.back()" class="inline-block px-6 py-2 text-gray-600 rounded border">
+                Cancel
+              </a>
+              <a href="${redirectUrl}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800">
+                Authorize
+              </a>
+            </div>
+          </div>
         </div>
       </div>
+
       <p class="text-xs text-gray-400 mt-5 text-center">
         This authorization page is provided by @scalar/mock-server
       </p>
