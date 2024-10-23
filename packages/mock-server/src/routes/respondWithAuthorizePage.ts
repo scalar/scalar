@@ -11,45 +11,37 @@ export function respondWithAuthorizePage(c: Context, title: string = '') {
   const state = c.req.query('state')
 
   if (!redirectUri) {
-    const errorMessage = `
-      <html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>OAuth 2.0 Authorization</title>
-          <script src="https://cdn.tailwindcss.com"></script>
-        </head>
-        <body>
-          <div class="p-4 m-8 flex flex-col gap-4 text-lg">
-            <h1 class="font-bold">
-              Error: Missing redirect_uri parameter
-            </h1>
-            <p>
-              This parameter is required for the OAuth 2.0 authorization flow to function correctly.
-              Please provide a valid redirect URI in your request.
-            </p>
-            <p>
-              Example: <code class="bg-gray-100 py-1 px-2 rounded text-base"><a href="?redirect_uri=https://example.com/callback">?redirect_uri=https://example.com/callback</a></code>
-            </p>
-          </div>
-        </body>
-      </html>
-    `
-    return c.html(errorMessage, 400)
+    return c.html(
+      generateErrorHtml(
+        'Missing redirect_uri parameter',
+        'This parameter is required for the OAuth 2.0 authorization flow to function correctly. Please provide a valid redirect URI in your request.',
+      ),
+      400,
+    )
   }
 
-  const redirectUrl = new URL(redirectUri)
+  try {
+    // Validate redirect URI against allowed domains
+    const redirectUrl = new URL(redirectUri)
 
-  redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
+    redirectUrl.searchParams.set('code', EXAMPLE_AUTHORIZATION_CODE)
 
-  if (state) {
-    redirectUrl.searchParams.set('state', state)
+    if (state) {
+      redirectUrl.searchParams.set('state', state)
+    }
+
+    const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), title)
+
+    return c.html(htmlContent)
+  } catch (error) {
+    return c.html(
+      generateErrorHtml(
+        'Invalid redirect_uri format',
+        'Please provide a valid URL. The redirect_uri parameter must be a properly formatted URL that includes the protocol (e.g., https://) and a valid domain. This is essential for the OAuth 2.0 flow to securely redirect after authorization.',
+      ),
+      400,
+    )
   }
-
-  const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), title)
-
-  return c.html(htmlContent)
 }
 
 function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
@@ -105,4 +97,29 @@ function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
   </body>
 </html>
   `
+}
+
+function generateErrorHtml(title: string, message: string) {
+  return `<html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth 2.0 Authorization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <div class="p-4 m-8 flex flex-col gap-4 text-lg">
+      <h1 class="font-bold">
+        Error: ${title}
+      </h1>
+      <p>
+        ${message}
+      </p>
+      <p>
+        Example: <code class="bg-gray-100 py-1 px-2 rounded text-base"><a href="?redirect_uri=https://example.com/callback">?redirect_uri=https://example.com/callback</a></code>
+      </p>
+    </div>
+  </body>
+</html>`
 }
