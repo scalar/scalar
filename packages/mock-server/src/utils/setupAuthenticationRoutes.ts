@@ -3,7 +3,7 @@ import type { Hono } from 'hono'
 
 import { respondWithAuthorizePage } from '../routes/respondWithAuthorizePage'
 import { respondWithToken } from '../routes/respondWithToken'
-import { getOpenAuthTokenUrls } from './getOpenAuthTokenUrls'
+import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls'
 
 /**
  * Helper function to set up authentication routes for OAuth 2.0 flows
@@ -53,14 +53,14 @@ export function setupAuthenticationRoutes(
         const tokenRoute =
           scheme.flows.authorizationCode.tokenUrl ?? '/oauth/token'
 
-        authorizeUrls.add(authorizeRoute)
+        authorizeUrls.add(getPathFromUrl(authorizeRoute))
         tokenUrls.add(tokenRoute)
       }
 
       if (scheme.flows?.implicit) {
         const authorizeRoute =
           scheme.flows.implicit.authorizationUrl ?? '/oauth/authorize'
-        authorizeUrls.add(authorizeRoute)
+        authorizeUrls.add(getPathFromUrl(authorizeRoute))
       }
 
       if (scheme.flows?.password) {
