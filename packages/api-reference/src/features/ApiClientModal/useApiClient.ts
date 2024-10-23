@@ -32,7 +32,7 @@ export const useApiClient = (): {
     authentication,
     proxyUrl,
     servers,
-  }: InitArgs) => {
+  }: InitArgs): Promise<ApiClient> => {
     const _client = (await createApiClientModal(el, {
       preferredSecurityScheme: authentication?.preferredSecurityScheme,
       spec,

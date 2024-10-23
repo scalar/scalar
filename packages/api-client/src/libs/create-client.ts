@@ -66,10 +66,18 @@ export type ApiClient = Omit<
   /** Add properties as they are needed, see above */
   app: { unmount: () => void }
   /**
-   * The mutators will be incorrect, and we are missing quite a few other properties
-   * Add properties as they are needed, see above
+   * The main workspace store from the client
+   * These refs don't wanna play nice with typescript, if we need them we can de-reference them
    */
-  store: Pick<WorkspaceStore, 'workspaceMutators'>
+  store: Omit<
+    WorkspaceStore,
+    | 'isReadOnly'
+    | 'router'
+    | 'events'
+    | 'sidebarWidth'
+    | 'proxyUrl'
+    | 'requestHistory'
+  >
 }
 
 /**
