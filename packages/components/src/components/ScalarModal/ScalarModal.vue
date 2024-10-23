@@ -31,7 +31,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 w-[calc(100vw-16px)] rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 lg:w-[calc(100vw-32px)]',
+    'col relative mx-auto mb-0 rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
@@ -197,11 +197,15 @@ export function useModal() {
   top: 0 !important;
   left: 0;
   position: absolute !important;
-  width: 50dvw !important;
   margin: initial;
   border-radius: 0 !important;
   background-color: var(--scalar-background-1) !important;
   box-shadow: none !important;
+}
+@screen md {
+  .full-size-styles {
+    width: 50dvw !important;
+  }
 }
 .full-size-styles:after {
   content: '';

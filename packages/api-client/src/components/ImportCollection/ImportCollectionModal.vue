@@ -129,7 +129,8 @@ onUnmounted(() => {
   <ScalarModal
     size="full"
     :state="modalState">
-    <div class="flex flex-col h-screen justify-center overflow-hidden relative">
+    <div
+      class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
         <!-- Wait until the URL is fetched -->
@@ -246,10 +247,18 @@ onUnmounted(() => {
   </ScalarModal>
 </template>
 <style>
-.has-import-url .scalar-client > main {
-  opacity: 0;
-  transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
-  animation: transform-fade-layout ease-in-out 0.3s forwards;
+@screen md {
+  .has-no-import-url {
+    opacity: 1;
+    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    animation: transform-restore-layout ease-in-out 0.3s forwards;
+  }
+
+  .has-import-url .scalar-client > main {
+    opacity: 0;
+    transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
+    animation: transform-fade-layout ease-in-out 0.3s forwards;
+  }
 }
 @keyframes transform-fade-layout {
   0% {
@@ -260,11 +269,6 @@ onUnmounted(() => {
     opacity: 1;
     transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
   }
-}
-.has-no-import-url {
-  opacity: 1;
-  transform: scale(0.85) translate3d(calc(50dvw + 120px), 0, 0);
-  animation: transform-restore-layout ease-in-out 0.3s forwards;
 }
 @keyframes transform-restore-layout {
   0% {
