@@ -173,6 +173,15 @@ const onAnchorClick = async (ev: Event) => {
   color: var(--scalar-sidebar-item-hover-color);
 }
 
+.sidebar-heading-link:focus-visible {
+  outline: none;
+}
+
+.sidebar-heading:has(> .sidebar-heading-link:focus-visible) {
+  z-index: 1;
+  outline: 1px solid var(--scalar-color-accent);
+}
+
 .active_page.sidebar-heading:hover,
 .active_page.sidebar-heading {
   color: var(--scalar-sidebar-color-active, var(--scalar-color-accent));
