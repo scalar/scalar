@@ -33,6 +33,13 @@ export function mockAnyResponse(
   const preferredResponse = preferredResponseKey
     ? operation.responses?.[preferredResponseKey]
     : null
+
+  if (!preferredResponse) {
+    c.status(500)
+
+    return c.json({ error: 'No response defined for this operation.' })
+  }
+
   const supportedContentTypes = Object.keys(preferredResponse?.content ?? {})
 
   // Headers
