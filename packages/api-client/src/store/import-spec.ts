@@ -1,8 +1,4 @@
-import {
-  type ClientConfiguration,
-  type ErrorResponse,
-  normalizeError,
-} from '@/libs'
+import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
