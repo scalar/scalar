@@ -71,8 +71,9 @@ onMounted(() => {
 <template>
   <div class="sidebar">
     <slot name="sidebar-start" />
-    <div
+    <nav
       ref="scrollerEl"
+      :aria-label="`Contents of ${parsedSpec.info?.title}`"
       class="sidebar-pages custom-scroll custom-scroll-self-contain-overflow">
       <SidebarGroup :level="0">
         <template
@@ -174,7 +175,7 @@ onMounted(() => {
           </template>
         </template>
       </SidebarGroup>
-    </div>
+    </nav>
     <slot name="sidebar-end" />
   </div>
 </template>

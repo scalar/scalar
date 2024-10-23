@@ -294,9 +294,8 @@ const themeStyleTag = computed(
         name="header" />
     </div>
     <!-- Navigation (sidebar) wrapper -->
-    <nav
+    <aside
       v-if="configuration.showSidebar"
-      :aria-label="`Contents of ${parsedSpec.info?.title}`"
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
@@ -316,7 +315,7 @@ const themeStyleTag = computed(
           </template>
         </Sidebar>
       </div>
-    </nav>
+    </aside>
     <!-- Swagger file editing -->
     <div
       v-show="configuration.isEditable"
