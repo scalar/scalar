@@ -74,9 +74,7 @@ function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
       <div class="bg-gray-50 rounded-lg p-1 rounded-lg w-[28rem] shadow">
         <div class="">
           <h1 class="text font-medium text-gray-800 px-6 pt-2 pb-3 flex gap-3 rounded-t-lg">
-            <span>
-              OAuth 2.0 Authorization
-            </span>
+            OAuth 2.0 Authorization
           </h1>
           <div class="bg-white rounded">
             <div class="text-gray-600 text-base px-6 py-5 flex flex-col gap-3">
@@ -88,10 +86,10 @@ function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
               </p>
             </div>
             <div class="px-6 py-4 pt-0 flex justify-between">
-              <a href="javascript:history.back()" class="inline-block px-6 py-2 text-gray-600 rounded border">
+              <a href="javascript:history.back()" class="inline-block px-6 py-2 text-gray-600 rounded border" aria-label="Cancel authorization">
                 Cancel
               </a>
-              <a href="${redirectUrl}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800">
+              <a href="${redirectUrl}" class="inline-block px-6 py-2 bg-black text-white rounded transition-colors duration-300 hover:bg-gray-800" aria-label="Authorize application">
                 Authorize
               </a>
             </div>
