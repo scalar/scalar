@@ -50,14 +50,18 @@ export function setupAuthenticationRoutes(
         const tokenRoute =
           scheme.flows.authorizationCode.tokenUrl ?? '/oauth/token'
 
-        app.get(authorizeRoute, respondWithAuthorizePage)
+        app.get(authorizeRoute, (c) =>
+          respondWithAuthorizePage(c, schema?.info?.title),
+        )
         app.post(tokenRoute, respondWithToken)
       }
 
       if (scheme.flows?.implicit) {
         const authorizeRoute =
           scheme.flows.implicit.authorizationUrl ?? '/oauth/authorize'
-        app.get(authorizeRoute, respondWithAuthorizePage)
+        app.get(authorizeRoute, (c) =>
+          respondWithAuthorizePage(c, schema?.info?.title),
+        )
       }
 
       if (scheme.flows?.password || scheme.flows?.clientCredentials) {
