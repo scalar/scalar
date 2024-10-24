@@ -16,12 +16,12 @@ defineEmits<{
       Powered by Scalar
     </a>
     <button
+      aria-label="Toggle dark mode"
+      :aria-pressed="isDarkMode"
       class="darklight"
       :class="{ darklight_dark: isDarkMode }"
       type="button"
-      @click="$emit('toggleDarkMode')"
-      :aria-pressed="isDarkMode"
-      aria-label="Toggle dark mode">
+      @click="$emit('toggleDarkMode')">
       <div class="darklight-slider">
         <div class="toggleicon">
           <i class="toggleicon-sunray"></i>
@@ -62,6 +62,14 @@ defineEmits<{
   border: none;
   padding: 0;
   outline: none;
+}
+.darklight:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
+}
+.darklight:focus-visible .darklight-slider {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 .toggleicon {
   display: flex;
