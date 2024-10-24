@@ -14,6 +14,7 @@ import {
 } from '@scalar/components'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import ImportNowButton from './ImportNowButton.vue'
@@ -23,33 +24,12 @@ import WorkspaceSelector from './WorkspaceSelector.vue'
 
 const props = defineProps<{
   source: string | null
-  integration: string | null
+  integration: ReferenceConfiguration['_integration']
 }>()
 
 defineEmits<{
   (e: 'importFinished'): void
 }>()
-
-const integrationKeys = [
-  'Dotnet',
-  'Elysia',
-  'Express',
-  'Fastapi',
-  'Fastify',
-  'Go',
-  'Hono',
-  'Laravel',
-  'Litestar',
-  'Nestjs',
-  'Nextjs',
-  'Nitro',
-  'Nuxt',
-  'Openapi',
-  'Platformatic',
-  'Rust',
-] as const
-
-type IntegrationIcons = (typeof integrationKeys)[number]
 
 const { activeWorkspace, events } = useWorkspace()
 
@@ -103,13 +83,41 @@ watch(
 
 const hasUrl = computed(() => !!props.source && isUrl(props.source))
 const hasContent = computed(() => !!props.source && isDocument(props.source))
-const integrationKey = computed(() => {
-  if (!props.integration) return null
-  return props.integration.charAt(0).toUpperCase() + props.integration.slice(1)
-})
-const hasIntegrationIcon = computed(() => {
-  if (!integrationKey.value) return false
-  return integrationKeys.includes(integrationKey.value as IntegrationIcons)
+
+/** All available framework logos */
+const availableIntegrationIcons: Exclude<
+  ReferenceConfiguration['_integration'],
+  null
+>[] = [
+  'dotnet',
+  'elysiajs',
+  'express',
+  'fastapi',
+  'fastify',
+  'go',
+  'hono',
+  'laravel',
+  'litestar',
+  'nestjs',
+  'nextjs',
+  'nitro',
+  'nuxt',
+  'platformatic',
+  'rust',
+]
+
+/** Icon for the @scalar/api-reference integration the user is coming from */
+const integrationIcon = computed(() => {
+  const defaultIcon = 'Openapi'
+
+  if (!props.integration) return defaultIcon
+
+  const capitalized =
+    props.integration.charAt(0).toUpperCase() + props.integration.slice(1)
+
+  return availableIntegrationIcons.includes(capitalized as any)
+    ? capitalized
+    : defaultIcon
 })
 
 const getIntegrationIcon = (key: string): Icon => {
@@ -177,14 +185,12 @@ const handleExpandError = (message: string) => {
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
         <!-- Wait until the URL is fetched -->
         <template v-if="prefetchResult.state === 'idle'">
-          <!-- logo -->
-          <div
-            v-if="integrationKey && hasIntegrationIcon"
-            class="flex justify-center items-center mb-4 p-1">
+          <!-- Logo -->
+          <div class="flex justify-center items-center mb-4 p-1">
             <div class="rounded-xl">
               <ScalarIcon
                 class="size-10 rounded-lg"
-                :icon="getIntegrationIcon(integrationKey)" />
+                :icon="getIntegrationIcon(integrationIcon)" />
             </div>
           </div>
           <!-- Title -->
