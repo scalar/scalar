@@ -124,8 +124,8 @@ const toggleBodyClass = (add: boolean) => {
   }
 }
 
-// Add this new function
-const handleModalClose = () => {
+/** Toggles the 'has-import-url' class on the body element */
+const closeModal = () => {
   document.body.classList.remove('has-import-url')
   document.body.classList.add('has-no-import-url')
 }
@@ -137,7 +137,7 @@ watch(
     if (isOpen) {
       toggleBodyClass(true)
     } else {
-      handleModalClose()
+      closeModal()
     }
   },
 )
@@ -244,8 +244,8 @@ const handleExpandError = (message: string) => {
                     :disableToolTip="true" />
                 </div>
                 <div class="pt-0 text-center text-balance font-medium text-xs">
-                  Watch your OpenAPI URL for changes and automatically update
-                  your API client.
+                  Automatically update your API client when the OpenAPI document
+                  content changes.
                 </div>
               </div>
             </template>
