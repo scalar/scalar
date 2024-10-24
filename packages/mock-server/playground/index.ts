@@ -14,8 +14,9 @@ const specification = await fs
   .readFile('../galaxy/src/specifications/3.1.yaml', 'utf8')
   .catch(() => {
     console.error(
-      'MISSING GALAXY SPEC FOR PLAYGROUND. PLEASE BUILD @scalar/galaxy',
+      '[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.',
     )
+
     return ''
   })
 
@@ -27,14 +28,15 @@ const app = await createMockServer({
   },
 })
 
-// Load the middleware
+// Render the API reference
 app.get(
   '/',
   apiReference({
+    pageTitle: 'Scalar Galaxy',
     spec: {
-      content: specification,
+      url: '/openapi.yaml',
     },
-    pageTitle: 'Scalar Galaxy Spec',
+    baseServerURL: `http://localhost:${port}`,
   }),
 )
 
@@ -47,7 +49,7 @@ serve(
   },
   (info) => {
     console.log()
-    console.log(`🚧 Mock Server listening on http://0.0.0.0:${info.port}`)
+    console.log(`🚧 Mock Server listening on http://localhost:${info.port}`)
     console.log()
   },
 )

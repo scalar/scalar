@@ -65,7 +65,7 @@ security:
   - apiKeyQuery: []
   - apiKeyHeader: []
   - apiKeyCookie: []
-  - oauth2: []
+  - oAuth2: []
 tags:
   - name: Authentication
     description:
@@ -325,6 +325,13 @@ paths:
       summary: Get authenticated user
       description: Find yourself they say. That’s what you can do here.
       operationId: getMe
+      security:
+        - basicAuth: []
+        - oAuth2:
+            - read:account
+        - bearerAuth: []
+        - apiKeyHeader: []
+        - apiKeyQuery: []
       responses:
         '200':
           description: OK
@@ -332,6 +339,12 @@ paths:
             application/json:
               schema:
                 '$ref': '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/responses/Unauthorized'
         '403':
           description: Forbidden
           content:
@@ -374,18 +387,34 @@ components:
       type: apiKey
       in: cookie
       name: api_key
-    oauth2:
+    oAuth2:
       type: oauth2
       flows:
-        implicit:
-          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
-          scopes:
-            write:planets: modify planets in your account
-            read:planets: read your planets
         authorizationCode:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
           tokenUrl: https://galaxy.scalar.com/oauth/token
           scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
+        clientCredentials:
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
+        # Legacy
+        implicit:
+          authorizationUrl: https://galaxy.scalar.com/oauth/authorize
+          scopes:
+            read:account: read your account information
+            write:planets: modify planets in your account
+            read:planets: read your planets
+        # Legacy
+        password:
+          tokenUrl: https://galaxy.scalar.com/oauth/token
+          scopes:
+            read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
   parameters:
@@ -433,6 +462,12 @@ components:
             '$ref': '#/components/schemas/Error'
     NotFound:
       description: NotFound
+      content:
+        application/json:
+          schema:
+            '$ref': '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
       content:
         application/json:
           schema:
