@@ -1,7 +1,10 @@
 :80 {
     root * /usr/share/caddy
 
-    file_server
+    file_server {
+        hide .git
+        hide .env*
+    }
     templates
 
     encode gzip
