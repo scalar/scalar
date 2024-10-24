@@ -1,4 +1,8 @@
 :80 {
+    handle /health {
+        respond "OK" 200
+    }
+
     root * /usr/share/caddy
 
     file_server {
