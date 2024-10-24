@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { OpenApiClientButton } from '@scalar/api-client/components'
 import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
@@ -8,7 +9,6 @@ import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
 import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
-import OpenApiClientButton from '../OpenApiClientButton.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
 defineEmits<{
@@ -20,6 +20,7 @@ const slots = defineSlots<ReferenceLayoutSlots>()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 const { isSidebarOpen } = useSidebar()
+const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(isMobile, (n, o) => {
   // Close the drawer when we go from desktop to mobile
@@ -65,7 +66,10 @@ watch(hash, (newHash, oldHash) => {
     </template>
     <template #sidebar-end>
       <div class="darklight-reference">
-        <OpenApiClientButton />
+        <OpenApiClientButton
+          :integration="configuration._integration ?? 'vue'"
+          :isDevelopment="isDevelopment"
+          :url="configuration.spec?.url" />
         <DarkModeToggle
           v-if="!!!props.configuration.hideDarkModeToggle"
           :isDarkMode="isDark"

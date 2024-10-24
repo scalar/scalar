@@ -1,35 +1,25 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
-import { computed, inject } from 'vue'
+import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
-import {
-  INTEGRATION_SYMBOL,
-  OPENAPI_DOCUMENT_URL_SYMBOL,
-  makeUrlAbsolute,
-} from '../helpers'
-
-/** Retrieve the OpenAPI document URL from the configuration */
-const getOpenApiDocumentUrlSymbol = inject(OPENAPI_DOCUMENT_URL_SYMBOL)
-const getIntegrationSymbol = inject(INTEGRATION_SYMBOL)
+const { integration, isDevelopment, url } = defineProps<{
+  isDevelopment?: boolean
+  integration?: ReferenceConfiguration['_integration'] | undefined
+  url?: string | undefined
+}>()
 
 /** Link to import an OpenAPI document */
 const href = computed(() => {
-  const isDevelopment = import.meta.env.MODE === 'development'
-
   const link = new URL(
     isDevelopment ? 'http://localhost:5065' : 'https://client.scalar.com',
   )
 
-  const url = makeUrlAbsolute(getOpenApiDocumentUrlSymbol?.())
+  const absoluteUrl = makeUrlAbsolute(url)
 
-  if (url?.length) {
-    link.searchParams.set('url', url)
-  }
-
-  const integration = getIntegrationSymbol?.()
-  if (integration) {
-    link.searchParams.set('integration', integration)
-  }
+  if (absoluteUrl?.length) link.searchParams.set('url', absoluteUrl)
+  if (integration) link.searchParams.set('integration', integration)
 
   return link.toString()
 })
@@ -37,7 +27,7 @@ const href = computed(() => {
 
 <template>
   <a
-    v-if="getOpenApiDocumentUrlSymbol?.()"
+    v-if="url"
     class="open-api-client-button"
     :href="href"
     target="_blank">
