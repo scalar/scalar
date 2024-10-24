@@ -10,7 +10,7 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="App Navigation"
-    class="text-c-2 sm:w-13 flex sm:flex-col justify-center items-center px-2 py-2 scalar-sidenav relative drag-region bg-b-1 border-t-1/2"
+    class="text-c-2 sm:w-13 flex sm:flex-col justify-center items-center px-2 py-2 scalar-sidenav relative drag-region bg-b-1"
     role="navigation">
     <ul class="flex sm:flex-col gap-1.5">
       <li
