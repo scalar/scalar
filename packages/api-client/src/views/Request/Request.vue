@@ -33,6 +33,7 @@ const {
   activeWorkspace,
   activeServer,
   cookies,
+  isReadOnly,
   modalState,
   requestHistory,
   securitySchemes,
@@ -57,6 +58,21 @@ const isNarrow = useMediaQuery('(max-width: 800px)')
 watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
 
 /**
+ * Selected scheme UIDs
+ *
+ * In the modal we use collection.selectedSecuritySchemes and in the
+ * standalone client we use request.selectedSecuritySchemeUids
+ *
+ * These are centralized here so they can be drilled down AND used in send-request
+ */
+const selectedSecuritySchemeUids = computed(
+  () =>
+    (isReadOnly.value
+      ? activeCollection.value?.selectedSecuritySchemeUids
+      : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
+)
+
+/**
  * Execute the request
  * called from the send button as well as keyboard shortcuts
  */
@@ -76,6 +92,7 @@ const executeRequest = async () => {
     auth: activeCollection.value.auth,
     request: activeRequest.value,
     example: activeExample.value,
+    selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
     environment,
     globalCookies,
@@ -181,7 +198,8 @@ function handleCurlImport(curl: string) {
         v-if="activeExample"
         class="flex-1"
         :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
-        <RequestSection />
+        <RequestSection
+          :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
         <ResponseSection :response="activeHistoryEntry?.response" />
       </ViewLayoutContent>
     </ViewLayout>

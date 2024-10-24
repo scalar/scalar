@@ -27,7 +27,8 @@ import { computed, ref } from 'vue'
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
-defineProps<{
+const { selectedSecuritySchemeUids } = defineProps<{
+  selectedSecuritySchemeUids: string[]
   title: string
 }>()
 
@@ -58,22 +59,23 @@ const teleportId = `combobox-${nanoid()}`
  * Currently we just filter out empty object for optional but when we add required security we shall handle it!
  */
 const availableSchemes = computed(() => {
+  // TODO: these are commented out for now until we decide how to handle request level requirements
   /** With optional ({}) filtered out */
-  const requestSecurity = activeRequest.value?.security?.filter(
-    (s) => Object.keys(s).length,
-  )
+  // const requestSecurity = activeRequest.value?.security?.filter(
+  //   (s) => Object.keys(s).length,
+  // )
+  // const base =
+  //   isReadOnly.value && requestSecurity?.length
+  //     ? requestSecurity.map((s) => {
+  //         const nameKey = Object.keys(s)[0]
+  //         return (
+  //           Object.values(securitySchemes).find((ss) => ss.nameKey === nameKey)
+  //             ?.uid ?? ''
+  //         )
+  //       })
+  //     : activeCollection.value?.securitySchemes
 
-  const base =
-    isReadOnly.value && requestSecurity?.length
-      ? requestSecurity.map((s) => {
-          const nameKey = Object.keys(s)[0]
-          return (
-            Object.values(securitySchemes).find((ss) => ss.nameKey === nameKey)
-              ?.uid ?? ''
-          )
-        })
-      : activeCollection.value?.securitySchemes
-
+  const base = activeCollection.value?.securitySchemes
   return (base ?? []).map((s) => securitySchemes[s]).filter((s) => s)
 })
 
@@ -97,17 +99,39 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   },
 )
 
+/** Ensure to update the correct mutator with the selected scheme UIDs */
+const editSelectedSchemeUids = (uids: string[]) => {
+  if (!activeCollection.value || !activeRequest.value) return
+
+  // Set as selected on the collection for the modal
+  if (isReadOnly.value) {
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
+  }
+  // Set as selected on request
+  else {
+    requestMutators.edit(
+      activeRequest.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
+  }
+}
+
 /** Currently selected auth schemes on the collection */
-const selectedAuth = computed(
-  () =>
-    activeRequest.value?.selectedSecuritySchemeUids.map((uid) =>
-      displaySchemeFormatter(securitySchemes[uid]),
-    ) ?? [],
+const selectedAuth = computed(() =>
+  selectedSecuritySchemeUids.map((uid) =>
+    displaySchemeFormatter(securitySchemes[uid]),
+  ),
 )
 
 /** Update the selected auth types */
 function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
+
   const addNewOption = entries.find((e) => e.payload)
   const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
 
@@ -135,23 +159,13 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
     }, activeCollection.value.auth),
   )
 
-  // Set as selected on request
-  requestMutators.edit(
-    activeRequest.value.uid,
-    'selectedSecuritySchemeUids',
-    _entries,
-  )
+  editSelectedSchemeUids(_entries)
 }
 
 /** Remove a single auth type from an example */
 const unselectAuth = (unSelectUid: string) =>
-  activeRequest.value &&
-  requestMutators.edit(
-    activeRequest.value.uid,
-    'selectedSecuritySchemeUids',
-    activeRequest.value.selectedSecuritySchemeUids.filter(
-      (uid) => uid !== unSelectUid,
-    ),
+  editSelectedSchemeUids(
+    selectedSecuritySchemeUids.filter((uid) => uid !== unSelectUid),
   )
 
 function handleDeleteScheme(option: { id: string; label: string }) {
@@ -179,7 +193,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               ref="comboboxRef"
               class="text-xs w-full"
               fullWidth
-              isDeletable
+              :isDeletable="!isReadOnly"
               :modelValue="selectedAuth"
               multiple
               :options="schemeOptions"
@@ -227,7 +241,8 @@ function handleDeleteScheme(option: { id: string; label: string }) {
             </ScalarComboboxMultiselect>
           </DataTableHeader>
         </DataTableRow>
-        <RequestExampleAuth />
+        <RequestExampleAuth
+          :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
       </DataTable>
       <DeleteRequestAuthModal
         :scheme="selectedScheme"

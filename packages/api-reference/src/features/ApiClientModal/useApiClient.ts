@@ -1,7 +1,7 @@
 import { createApiClientModal } from '@scalar/api-client/layouts/Modal'
 import type { ApiClient } from '@scalar/api-client/libs'
 import type {
-  AuthenticationState,
+  ReferenceConfiguration,
   Spec,
   SpecConfiguration,
 } from '@scalar/types/legacy'
@@ -10,7 +10,7 @@ import { ref } from 'vue'
 type InitArgs = {
   el: HTMLElement
   spec?: SpecConfiguration
-  authentication?: AuthenticationState
+  authentication?: ReferenceConfiguration['authentication']
   proxyUrl?: string
   servers?: Spec['servers']
 }
@@ -34,7 +34,7 @@ export const useApiClient = (): {
     servers,
   }: InitArgs): Promise<ApiClient> => {
     const _client = (await createApiClientModal(el, {
-      preferredSecurityScheme: authentication?.preferredSecurityScheme,
+      authentication,
       spec,
       proxyUrl,
       servers,

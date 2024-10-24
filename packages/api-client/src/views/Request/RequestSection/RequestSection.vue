@@ -5,11 +5,14 @@ import { useWorkspace } from '@/store'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
-import { ScalarIcon } from '@scalar/components'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
+
+defineProps<{
+  selectedSecuritySchemeUids: string[]
+}>()
 
 const { activeRequest, activeExample, isReadOnly, requestMutators } =
   useWorkspace()
@@ -92,6 +95,7 @@ const updateRequestNameHandler = (event: Event) => {
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
+        :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
         title="Authentication" />
       <RequestPathParams
         v-show="

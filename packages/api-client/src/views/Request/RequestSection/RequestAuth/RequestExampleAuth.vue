@@ -11,13 +11,17 @@ import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
 
+const { selectedSecuritySchemeUids } = defineProps<{
+  selectedSecuritySchemeUids: string[]
+}>()
+
 const { activeCollection, activeRequest, collectionMutators, securitySchemes } =
   useWorkspace()
 
 const security = computed(() => {
   if (!activeCollection.value || !activeRequest.value) return []
 
-  return activeRequest.value.selectedSecuritySchemeUids.map((uid) => ({
+  return selectedSecuritySchemeUids.map((uid) => ({
     example: activeCollection.value!.auth[uid],
     scheme: securitySchemes[uid],
   }))

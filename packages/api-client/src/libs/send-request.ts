@@ -231,6 +231,7 @@ export const createRequestOperation = ({
   example,
   server,
   securitySchemes,
+  selectedSecuritySchemeUids = [],
   proxy,
   status,
   environment,
@@ -239,6 +240,7 @@ export const createRequestOperation = ({
   auth: Collection['auth']
   request: Request
   example: RequestExample
+  selectedSecuritySchemeUids?: string[]
   proxy?: string
   status?: EventBus<RequestStatus>
   environment: object | undefined
@@ -293,7 +295,7 @@ export const createRequestOperation = ({
     })
 
     // Populate all forms of auth to the request segments
-    request.selectedSecuritySchemeUids.forEach((uid) => {
+    selectedSecuritySchemeUids?.forEach((uid) => {
       const exampleAuth = auth[uid]
       const scheme = securitySchemes[uid]
       if (!exampleAuth || !scheme) return

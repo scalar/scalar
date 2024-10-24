@@ -1,13 +1,11 @@
 import { loadAllResources } from '@/libs/local-storage'
 import { type WorkspaceStore, createWorkspaceStore } from '@/store'
-import type { StoreContext } from '@/store/store-context'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type {
-  AuthenticationState,
   ReferenceConfiguration,
   SpecConfiguration,
 } from '@scalar/types/legacy'
@@ -19,10 +17,9 @@ import type { Router } from 'vue-router'
 export type ClientConfiguration = {
   proxyUrl?: ReferenceConfiguration['proxy']
   themeId?: ReferenceConfiguration['theme']
-  preferredSecurityScheme?: AuthenticationState['preferredSecurityScheme']
 } & Pick<
   ReferenceConfiguration,
-  'spec' | 'showSidebar' | 'servers' | 'searchHotKey'
+  'spec' | 'showSidebar' | 'servers' | 'searchHotKey' | 'authentication'
 >
 
 export type OpenClientPayload = {

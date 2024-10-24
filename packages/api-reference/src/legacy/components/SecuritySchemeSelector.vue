@@ -8,6 +8,7 @@ import {
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed, onMounted, onServerPrefetch } from 'vue'
 
+import { useApiClient } from '../../features/ApiClientModal/useApiClient'
 import { useAuthenticationStore } from '../stores'
 
 const props = defineProps<{
@@ -23,6 +24,7 @@ const emits = defineEmits<{
 }>()
 
 const { authentication, setAuthentication } = useAuthenticationStore()
+const { client } = useApiClient()
 
 // Update credentials in state
 const handleAuthenticationTypeInput = (event: Event) => {
@@ -45,6 +47,23 @@ const setSecuritySchemeKey = (key: string) => {
   setAuthentication({
     preferredSecurityScheme: key,
   })
+
+  // Set it in the client as well
+  if (client.value?.store) {
+    const { collections, collectionMutators, securitySchemes } =
+      client.value.store
+
+    const collectionUid = Object.keys(collections)[0]
+    const securityScheme = Object.values(securitySchemes).find(
+      ({ nameKey }) => nameKey === key,
+    )
+
+    if (securityScheme && collectionUid) {
+      collectionMutators.edit(collectionUid, 'selectedSecuritySchemeUids', [
+        securityScheme.uid,
+      ])
+    }
+  }
 
   emits('input', key)
 }

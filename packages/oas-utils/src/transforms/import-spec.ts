@@ -16,6 +16,8 @@ import {
 } from '@/entities/spec'
 import {
   type SecurityScheme,
+  type SecuritySchemeExampleValue,
+  type SecuritySchemePayload,
   authExampleFromSchema,
   securitySchemeSchema,
 } from '@/entities/spec/security'
@@ -23,7 +25,7 @@ import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { AuthenticationState } from '@scalar/types/legacy'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
@@ -34,20 +36,31 @@ import type { Entries } from 'type-fest'
 const convertOauth2Flows = (
   security: OpenAPIV3_1.OAuth2SecurityScheme,
   nameKey: string,
+  auth?: ReferenceConfiguration['authentication'],
 ) => {
   if (security.type === 'oauth2') {
     const entries = Object.entries(security.flows ?? {})
     if (entries.length) {
       const [[type, flow]] = entries
 
-      return {
+      const payload = {
         ...security,
         nameKey,
         flow: {
           ...flow,
           type,
         },
+      } as Extract<SecuritySchemePayload, { type: 'oauth2' }>
+
+      if (auth?.oAuth2 && payload.flow) {
+        // Set client id
+        if (auth.oAuth2.clientId)
+          payload['x-scalar-client-id'] = auth.oAuth2.clientId
+        // Set selected scopes
+        if (auth.oAuth2.scopes) payload.flow.selectedScopes = auth.oAuth2.scopes
       }
+
+      return payload
     }
   }
 
@@ -55,6 +68,44 @@ const convertOauth2Flows = (
     ...security,
     nameKey,
   }
+}
+
+/** Pre-fill baseValues if we have authentication config */
+const getBaseValues = (
+  scheme: SecurityScheme,
+  auth?: ReferenceConfiguration['authentication'],
+): Record<string, never> | Partial<SecuritySchemeExampleValue> => {
+  if (!auth) return {}
+
+  // ApiKey
+  if (scheme.type === 'apiKey') return { value: auth.apiKey?.token ?? '' }
+  // HTTP
+  else if (scheme.type === 'http') {
+    if (scheme.scheme === 'basic')
+      return {
+        username: auth.http?.basic?.username ?? '',
+        password: auth.http?.basic?.password ?? '',
+      }
+    else if (scheme.scheme === 'bearer')
+      return { token: auth.http?.bearer?.token ?? '' }
+  }
+  // oauth2 implicit only for now, when we support multi flow can expand this
+  else if (scheme.type === 'oauth2') {
+    if (scheme.flow?.type === 'implicit')
+      return {
+        type: 'oauth-implicit',
+        token: auth.oAuth2?.accessToken ?? '',
+      }
+    else if (scheme.flow?.type === 'password')
+      return {
+        type: 'oauth-password',
+        token: auth.oAuth2?.accessToken ?? '',
+        username: auth.oAuth2?.username ?? '',
+        password: auth.oAuth2?.password ?? '',
+      }
+  }
+
+  return {}
 }
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
@@ -65,6 +116,15 @@ export const parseSchema = async (spec: string | UnknownObject) => {
 
   return { schema: schema as OpenAPIV3.Document | OpenAPIV3_1.Document, errors }
 }
+
+export type ImportSpecToWorkspaceArgs = Pick<
+  CollectionPayload,
+  'documentUrl' | 'watchForChanges'
+> &
+  Pick<ReferenceConfiguration, 'authentication'> & {
+    /** Sets the preferred security scheme on the collection instead of the requests */
+    setCollectionSecurity?: boolean
+  }
 
 /**
  * Import an OpenAPI spec file and convert it to workspace entities
@@ -77,11 +137,11 @@ export const parseSchema = async (spec: string | UnknownObject) => {
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
   {
+    authentication,
     documentUrl,
-    watchForChanges,
-    preferredSecurityScheme,
-  }: Pick<CollectionPayload, 'documentUrl' | 'watchForChanges'> &
-    Pick<Partial<AuthenticationState>, 'preferredSecurityScheme'> = {},
+    setCollectionSecurity = false,
+    watchForChanges = false,
+  }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
       error: false
@@ -137,6 +197,7 @@ export async function importSpecToWorkspace(
           ? convertOauth2Flows(
               s as OpenAPIV3_1.OAuth2SecurityScheme,
               nameKey as string,
+              authentication,
             )
           : {
               ...s,
@@ -203,11 +264,13 @@ export async function importSpecToWorkspace(
         let selectedSecuritySchemeUids: string[] = []
 
         // Set the initially selected security scheme
-        if (securityRequirements.length) {
+        if (securityRequirements.length && !setCollectionSecurity) {
           const name =
-            preferredSecurityScheme &&
-            securityRequirements.includes(preferredSecurityScheme ?? '')
-              ? preferredSecurityScheme
+            authentication?.preferredSecurityScheme &&
+            securityRequirements.includes(
+              authentication.preferredSecurityScheme ?? '',
+            )
+              ? authentication.preferredSecurityScheme
               : securityRequirements[0]
           const uid = securitySchemeMap[name]
           selectedSecuritySchemeUids = [uid]
@@ -315,10 +378,19 @@ export async function importSpecToWorkspace(
   // Generate Collection
   // Create the auth examples
   const auth = securitySchemes?.reduce<Collection['auth']>((prev, s) => {
-    const example = authExampleFromSchema(s)
+    const baseValues = getBaseValues(s, authentication)
+    const example = authExampleFromSchema(s, baseValues)
+
     if (example) prev[s.uid] = example
     return prev
   }, {})
+
+  /** Selected security scheme UIDs for the collection */
+  let selectedSecuritySchemeUids: string[] = []
+  if (setCollectionSecurity && authentication?.preferredSecurityScheme) {
+    const uid = securitySchemeMap[authentication.preferredSecurityScheme]
+    selectedSecuritySchemeUids = [uid]
+  }
 
   const collection = collectionSchema.parse({
     ...schema,
@@ -331,6 +403,7 @@ export async function importSpecToWorkspace(
     children: [...collectionChildren],
     security: schema.security ?? [{}],
     selectedServerUid: servers?.[0]?.uid,
+    selectedSecuritySchemeUids,
     components: {
       ...schema.components,
     },
