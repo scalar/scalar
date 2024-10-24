@@ -27,7 +27,8 @@ import { computed, ref } from 'vue'
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
-defineProps<{
+const { selectedSecuritySchemeUids } = defineProps<{
+  selectedSecuritySchemeUids: string[]
   title: string
 }>()
 
@@ -98,19 +99,6 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   },
 )
 
-/**
- * Selected scheme UIDs
- *
- * In the modal we use collection.selectedSecuritySchemes and in the
- * standalone client we use request.selectedSecuritySchemeUids
- */
-const selectedSecuritySchemeUids = computed(
-  () =>
-    (isReadOnly.value
-      ? activeCollection.value?.selectedSecuritySchemeUids
-      : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
-)
-
 /** Ensure to update the correct mutator with the selected scheme UIDs */
 const editSelectedSchemeUids = (uids: string[]) => {
   if (!activeCollection.value || !activeRequest.value) return
@@ -135,7 +123,7 @@ const editSelectedSchemeUids = (uids: string[]) => {
 
 /** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids.value.map((uid) =>
+  selectedSecuritySchemeUids.map((uid) =>
     displaySchemeFormatter(securitySchemes[uid]),
   ),
 )
@@ -177,7 +165,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 /** Remove a single auth type from an example */
 const unselectAuth = (unSelectUid: string) =>
   editSelectedSchemeUids(
-    selectedSecuritySchemeUids.value.filter((uid) => uid !== unSelectUid),
+    selectedSecuritySchemeUids.filter((uid) => uid !== unSelectUid),
   )
 
 function handleDeleteScheme(option: { id: string; label: string }) {

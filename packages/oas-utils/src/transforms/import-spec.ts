@@ -137,10 +137,10 @@ export type ImportSpecToWorkspaceArgs = Pick<
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
   {
-    documentUrl,
-    watchForChanges,
     authentication,
+    documentUrl,
     setCollectionSecurity = false,
+    watchForChanges = false,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {

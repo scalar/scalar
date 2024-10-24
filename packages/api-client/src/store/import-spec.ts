@@ -38,13 +38,7 @@ export function importSpecFileFactory({
   const importSpecFile = async (
     _spec: string | Record<string, any>,
     workspaceUid: string,
-    {
-      documentUrl,
-      watchForChanges = false,
-      overloadServers,
-      authentication,
-      setCollectionSecurity = false,
-    }: ImportSpecFileArgs = {},
+    { overloadServers, ...options }: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
 
@@ -52,12 +46,7 @@ export function importSpecFileFactory({
     if (overloadServers?.length && typeof spec === 'object')
       spec.servers = overloadServers
 
-    const workspaceEntities = await importSpecToWorkspace(spec, {
-      documentUrl,
-      authentication,
-      watchForChanges,
-      setCollectionSecurity,
-    })
+    const workspaceEntities = await importSpecToWorkspace(spec, options)
 
     if (workspaceEntities.error) {
       console.group('IMPORT ERRORS')
@@ -68,8 +57,8 @@ export function importSpecFileFactory({
     }
 
     // Store the schema for live updates
-    if (documentUrl && typeof spec === 'string') {
-      specDictionary[documentUrl] = {
+    if (options.documentUrl && typeof spec === 'string') {
+      specDictionary[options.documentUrl] = {
         hash: createHash(spec),
         schema: workspaceEntities.schema,
       }
@@ -105,10 +94,7 @@ export function importSpecFileFactory({
     workspaceUid: string,
     {
       proxy,
-      overloadServers,
-      watchForChanges = false,
-      authentication,
-      setCollectionSecurity = false,
+      ...options
     }: Omit<ImportSpecFileArgs, 'documentUrl'> &
       Pick<ReferenceConfiguration, 'proxy'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
@@ -119,10 +105,7 @@ export function importSpecFileFactory({
         null,
         await importSpecFile(spec, workspaceUid, {
           documentUrl: url,
-          overloadServers,
-          watchForChanges,
-          authentication,
-          setCollectionSecurity,
+          ...options,
         }),
       ]
     } catch (error) {
