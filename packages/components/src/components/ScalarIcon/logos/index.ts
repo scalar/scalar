@@ -1,4 +1,4 @@
-export const LOGOS = [
+export const ICONS = [
   'Adonisjs',
   'Dotnet',
   'Elysiajs',
@@ -13,8 +13,7 @@ export const LOGOS = [
   'Nextjs',
   'Nitro',
   'Nuxt',
+  'Openapi',
   'Platformatic',
   'Rust',
-  'Vue',
-  'Openapi',
 ] as const

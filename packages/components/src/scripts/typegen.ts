@@ -1,25 +1,31 @@
-import { readdirSync, writeFile } from 'fs'
+import { readdirSync, writeFile } from 'node:fs'
+import { join } from 'node:path'
 
 /**
  * Generate type from the icon file names
  * We are actually generating an array as well for easier consumption in storybook
  */
-const iconFolder = './src/components/ScalarIcon/icons/'
-const iconsFile = './src/components/ScalarIcon/icons/icons.ts'
-const svgRegex = /\.svg$/
-const fileNames = readdirSync(iconFolder).filter((fileName) =>
-  svgRegex.test(fileName),
-)
+function generateTypes(folder: string) {
+  const indexFile = join(folder, 'index.ts')
 
-// Write icons to a typescript file for exporting
-let writeStr = 'export const ICONS = [\n'
-fileNames.forEach((fileName) => {
-  const icon = fileName.replace(svgRegex, '')
-  writeStr += `  '${icon}',\n`
-})
-writeStr += '] as const\n'
+  const svgRegex = /\.svg$/
+  const fileNames = readdirSync(folder).filter((fileName) =>
+    svgRegex.test(fileName),
+  )
 
-writeFile(iconsFile, writeStr, (err) => {
-  if (err) console.error(err)
-  else console.log(`Success! Check for the icon names in ${iconsFile}`)
-})
+  // Write icons to a typescript file for exporting
+  let writeStr = 'export const ICONS = [\n'
+  fileNames.forEach((fileName) => {
+    const icon = fileName.replace(svgRegex, '')
+    writeStr += `  '${icon}',\n`
+  })
+  writeStr += '] as const\n'
+
+  writeFile(indexFile, writeStr, (err) => {
+    if (err) console.error(err)
+    else console.log(`Success! Check for the icon names in ${indexFile}`)
+  })
+}
+
+generateTypes('./src/components/ScalarIcon/icons/')
+generateTypes('./src/components/ScalarIcon/logos/')
