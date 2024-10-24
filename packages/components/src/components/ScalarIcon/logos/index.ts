@@ -1,5 +1,6 @@
-export const ICONS = [
+export const LOGOS = [
   'Adonisjs',
+  'Docusaurus',
   'Dotnet',
   'Elysiajs',
   'Express',
@@ -15,5 +16,7 @@ export const ICONS = [
   'Nuxt',
   'Openapi',
   'Platformatic',
+  'React',
   'Rust',
+  'Vue',
 ] as const

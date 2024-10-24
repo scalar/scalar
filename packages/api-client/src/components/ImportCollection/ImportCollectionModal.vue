@@ -6,7 +6,6 @@ import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
 import {
-  type Icon,
   ScalarCodeBlock,
   ScalarIcon,
   ScalarModal,
@@ -104,6 +103,7 @@ const availableIntegrationIcons: Exclude<
   'nitro',
   'nuxt',
   'platformatic',
+  'react',
   'rust',
 ]
 
