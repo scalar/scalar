@@ -19,29 +19,10 @@
     <!-- Optional: You can set a full configuration object like this: -->
     <script>
       var configuration = {
-        authentication: {
-          // The OpenAPI file has keys for all security schemes:
-          // Which one should be used by default?
-          preferredSecurityScheme: 'apiKeyHeader',
-          // The `my_custom_security_scheme` security scheme is of type `apiKey`, so prefill the token:
-          http: {
-            basic: {
-              username: 'johndoe',
-              password: 'secretpass123',
-            },
-            bearer: {
-              token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-            },
-          },
-          apiKey: {
-            token: 'api_key_12345abcde',
-          },
-          oAuth2: {
-            clientId: 'client_12345',
-            scopes: ['write:planets', 'read:planets'],
-            accessToken: 'access_token_67890fghij',
-          },
-        },
+        // defaultHttpClient: {
+        //   targetKey: 'node',
+        //   clientKey: 'undici',
+        // },
       }
 
       document.getElementById('api-reference').dataset.configuration =
