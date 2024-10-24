@@ -117,6 +117,15 @@ export const parseSchema = async (spec: string | UnknownObject) => {
   return { schema: schema as OpenAPIV3.Document | OpenAPIV3_1.Document, errors }
 }
 
+export type ImportSpecToWorkspaceArgs = Pick<
+  CollectionPayload,
+  'documentUrl' | 'watchForChanges'
+> &
+  Pick<ReferenceConfiguration, 'authentication'> & {
+    /** Sets the preferred security scheme on the collection instead of the requests */
+    setCollectionSecurity?: boolean
+  }
+
 /**
  * Import an OpenAPI spec file and convert it to workspace entities
  *
@@ -131,8 +140,8 @@ export async function importSpecToWorkspace(
     documentUrl,
     watchForChanges,
     authentication,
-  }: Pick<CollectionPayload, 'documentUrl' | 'watchForChanges'> &
-    Pick<ReferenceConfiguration, 'authentication'> = {},
+    setCollectionSecurity = false,
+  }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
       error: false
@@ -255,7 +264,7 @@ export async function importSpecToWorkspace(
         let selectedSecuritySchemeUids: string[] = []
 
         // Set the initially selected security scheme
-        if (securityRequirements.length) {
+        if (securityRequirements.length && !setCollectionSecurity) {
           const name =
             authentication?.preferredSecurityScheme &&
             securityRequirements.includes(
@@ -376,6 +385,13 @@ export async function importSpecToWorkspace(
     return prev
   }, {})
 
+  /** Selected security scheme UIDs for the collection */
+  let selectedSecuritySchemeUids: string[] = []
+  if (setCollectionSecurity && authentication?.preferredSecurityScheme) {
+    const uid = securitySchemeMap[authentication.preferredSecurityScheme]
+    selectedSecuritySchemeUids = [uid]
+  }
+
   const collection = collectionSchema.parse({
     ...schema,
     watchForChanges,
@@ -387,6 +403,7 @@ export async function importSpecToWorkspace(
     children: [...collectionChildren],
     security: schema.security ?? [{}],
     selectedServerUid: servers?.[0]?.uid,
+    selectedSecuritySchemeUids,
     components: {
       ...schema.components,
     },

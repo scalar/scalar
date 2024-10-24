@@ -1,7 +1,10 @@
 import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
-import { importSpecToWorkspace } from '@scalar/oas-utils/transforms'
+import {
+  type ImportSpecToWorkspaceArgs,
+  importSpecToWorkspace,
+} from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration, Spec } from '@scalar/types/legacy'
 import { toRaw } from 'vue'
@@ -11,6 +14,15 @@ export const specDictionary: Record<
   string,
   { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }
 > = {}
+
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & {
+  /**
+   * TODO: What do these look like?
+   * Ideally we reference some existing UIDs in the store and
+   * attach those as needed to entities below
+   */
+  overloadServers?: Spec['servers']
+}
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -31,18 +43,8 @@ export function importSpecFileFactory({
       watchForChanges = false,
       overloadServers,
       authentication,
-    }: {
-      /** To store the documentUrl, used for watchForChanges */
-      documentUrl?: string
-      watchForChanges?: boolean
-      /**
-       * TODO: What do these look like?
-       * Ideally we reference some existing UIDs in the store and
-       * attach those as needed to entities below
-       */
-      overloadServers?: Spec['servers']
-      authentication?: ReferenceConfiguration['authentication']
-    } = {},
+      setCollectionSecurity = false,
+    }: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
 
@@ -54,6 +56,7 @@ export function importSpecFileFactory({
       documentUrl,
       authentication,
       watchForChanges,
+      setCollectionSecurity,
     })
 
     if (workspaceEntities.error) {
@@ -105,12 +108,9 @@ export function importSpecFileFactory({
       overloadServers,
       watchForChanges = false,
       authentication,
-    }: {
-      watchForChanges?: boolean
-      overloadServers?: Spec['servers']
-      authentication?: ReferenceConfiguration['authentication']
-      proxy?: string
-    } = {},
+      setCollectionSecurity = false,
+    }: Omit<ImportSpecFileArgs, 'documentUrl'> &
+      Pick<ReferenceConfiguration, 'proxy'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
       const spec = await fetchSpecFromUrl(url, proxy)
@@ -122,6 +122,7 @@ export function importSpecFileFactory({
           overloadServers,
           watchForChanges,
           authentication,
+          setCollectionSecurity,
         }),
       ]
     } catch (error) {
