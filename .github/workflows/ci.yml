@@ -47,7 +47,7 @@ jobs:
 
       - name: Get version from package.json
         id: package-version
-        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> $GITHUB_OUTPUT
+        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Build and tag Docker image
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
@@ -55,10 +55,10 @@ jobs:
           context: packages/api-reference/docker/src
           file: packages/api-reference/docker/src/Dockerfile
           push: false
+          platforms: linux/amd64,linux/arm64
           tags: |
-            your-docker-image:latest
-            your-docker-image:${{ steps.package-version.outputs.VERSION }}
-
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the Docker image
         id: changed-files
