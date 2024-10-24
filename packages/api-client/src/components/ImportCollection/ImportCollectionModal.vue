@@ -188,13 +188,13 @@ const handleExpandError = (message: string) => {
             </div>
           </div>
           <!-- Title -->
-          <div class="text-center text-md font-bold mb-2">
+          <div class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title ?? 'Untitled Collection' }}
           </div>
           <div
             class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
-            Import {{ title ?? 'Untitled Collection' }} to start sending API
-            requests, no signup required.
+            Import the OpenAPI document to instantly send API requests. No
+            signup required.
           </div>
           <!-- Prefetch error -->
           <template v-if="prefetchResult.error">
