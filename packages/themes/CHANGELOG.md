@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.42
+
+### Patch Changes
+
+- 2456afa: fix: remove theme selection as it was breaking on external sites
+
 ## 0.9.41
 
 ### Patch Changes

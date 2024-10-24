@@ -1,5 +1,16 @@
 # @scalar/mock-server
 
+## 0.2.65
+
+### Patch Changes
+
+- 4cf8c52: feat: mock the OAuth code flow
+- Updated dependencies [7323370]
+- Updated dependencies [d7a6c55]
+- Updated dependencies [69bda25]
+  - @scalar/openapi-parser@0.8.8
+  - @scalar/oas-utils@0.2.61
+
 ## 0.2.64
 
 ### Patch Changes

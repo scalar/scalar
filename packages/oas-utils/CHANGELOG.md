@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.61
+
+### Patch Changes
+
+- d7a6c55: feat: updates n hotkey event name
+- 69bda25: feat: synced up client auth with references
+- Updated dependencies [2456afa]
+  - @scalar/themes@0.9.42
+
 ## 0.2.60
 
 ### Patch Changes
