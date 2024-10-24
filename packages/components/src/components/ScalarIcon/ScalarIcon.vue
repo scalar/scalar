@@ -11,23 +11,13 @@ import { type Icon, type Logo, getIcon, getLogo } from './utils'
 
 type IconVariants = VariantProps<typeof iconProps>
 
-type GenericProps = {
+const props = defineProps<{
+  icon?: Icon
+  logo?: Logo
   size?: IconVariants['size']
   thickness?: string
   label?: string
-}
-
-type IconProps = {
-  icon: Icon
-  logo?: never
-} & GenericProps
-
-type LogoProps = {
-  icon?: never
-  logo: Logo
-} & GenericProps
-
-const props = defineProps<IconProps | LogoProps>()
+}>()
 
 const iconProps = cva({
   variants: {

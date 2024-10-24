@@ -86,7 +86,7 @@ const hasContent = computed(() => !!props.source && isDocument(props.source))
 /** All available framework logos */
 const availableIntegrationIcons: Exclude<
   ReferenceConfiguration['_integration'],
-  null | undefined
+  null | undefined | 'html'
 >[] = [
   'adonisjs',
   'dotnet',
