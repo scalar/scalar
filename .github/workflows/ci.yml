@@ -35,6 +35,71 @@ jobs:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
 
+  docker:
+    name: Build and Tag Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20
+
+      - name: Get version from package.json
+        id: package-version
+        run: echo "VERSION=$(node -p "require('./packages/api-reference/docker/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Build and tag Docker image
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
+        with:
+          context: packages/api-reference/docker/src
+          file: packages/api-reference/docker/src/Dockerfile
+          push: false
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+        name: Check whether there's a new version of the Docker image
+        id: changed-files
+        uses: tj-actions/changed-files@c65cd883420fd2eb864698a825fc4162dd94482c
+        with:
+          files_yaml: |
+            api_reference_docker:
+              - packages/api-reference/docker/package.json
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Log in to DockerHub
+        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
+        with:
+          # Username of your Docker account
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          # https://app.docker.com/settings/personal-access-tokens
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
+        with:
+          image-ref: scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
+        name: Push Docker image
+        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
+        with:
+          context: packages/api-reference/docker/src
+          file: packages/api-reference/docker/src/Dockerfile
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: |
+            scalarapi/api-reference:latest
+            scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
   format:
     runs-on: ubuntu-20.04
     strategy:

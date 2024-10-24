@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  web:
+    # Use the official Docker Hub image for this service:
+    # image: scalarorg/api-reference:latest
+
+    # Just for development purposes:
+    build:
+      context: ./src
+      dockerfile: ./Dockerfile
+
+    ports:
+      # Map host port 1234 to container port 80
+      - '1234:80'
+
+    environment:
+      # URL for the OpenAPI document to be displayed in the API reference
+      - OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json
+      # JSON string for configuration (optional)
+      - API_REFERENCE_CONFIG={"theme":"purple"}

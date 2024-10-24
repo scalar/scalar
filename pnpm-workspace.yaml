@@ -1,6 +1,7 @@
 packages:
-  - 'packages/*'
-  - 'packages/snippetz/playground'
   - 'examples/*'
-  - 'projects/*'
+  - 'packages/*'
+  - 'packages/api-reference/docker'
+  - 'packages/snippetz/playground'
   - 'playwright'
+  - 'projects/*'
