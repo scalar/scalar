@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
+import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 
 import { WorkspaceDropdown } from './components'
@@ -16,6 +18,8 @@ defineEmits<{
   (e: 'hideModal'): void
   (e: 'importCurl', value: string): void
 }>()
+
+const { activeCollection } = useWorkspace()
 </script>
 <template>
   <div
@@ -33,6 +37,11 @@ defineEmits<{
         target="_blank">
         Powered by Scalar.com
       </a>
+      <!-- TODO: choose when to display it -->
+      <OpenApiClientButton
+        v-if="isReadonly"
+        :integration="activeCollection?.integration"
+        :url="activeCollection?.documentUrl" />
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div

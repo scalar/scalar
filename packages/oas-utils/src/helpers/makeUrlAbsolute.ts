@@ -1,14 +1,14 @@
 /**
  * Pass an URL or a relative URL and get an absolute URL
  */
-export function makeUrlAbsolute(url?: string) {
-  if (!url) {
+export const makeUrlAbsolute = (url?: string) => {
+  if (
+    !url ||
+    url.startsWith('http://') ||
+    url.startsWith('https://') ||
+    typeof window === 'undefined'
+  )
     return url
-  }
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url
-  }
 
   const baseUrl = window.location.href
 
