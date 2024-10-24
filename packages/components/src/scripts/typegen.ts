@@ -5,7 +5,7 @@ import { join } from 'node:path'
  * Generate type from the icon file names
  * We are actually generating an array as well for easier consumption in storybook
  */
-function generateTypes(folder: string) {
+function generateTypes(folder: string, name: 'LOGOS' | 'ICONS') {
   const indexFile = join(folder, 'index.ts')
 
   const svgRegex = /\.svg$/
@@ -14,7 +14,7 @@ function generateTypes(folder: string) {
   )
 
   // Write icons to a typescript file for exporting
-  let writeStr = 'export const ICONS = [\n'
+  let writeStr = `export const ${name} = [\n`
   fileNames.forEach((fileName) => {
     const icon = fileName.replace(svgRegex, '')
     writeStr += `  '${icon}',\n`
@@ -27,5 +27,5 @@ function generateTypes(folder: string) {
   })
 }
 
-generateTypes('./src/components/ScalarIcon/icons/')
-generateTypes('./src/components/ScalarIcon/logos/')
+generateTypes('./src/components/ScalarIcon/icons/', 'ICONS')
+generateTypes('./src/components/ScalarIcon/logos/', 'LOGOS')
