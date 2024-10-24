@@ -31,7 +31,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 w-[calc(100vw-16px)] rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 lg:w-[calc(100vw-32px)]',
+    'col relative mx-auto mb-0 rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
@@ -41,12 +41,13 @@ const modal = cva({
       md: 'mt-20 max-w-screen-md',
       lg: 'm-auto max-w-screen-lg',
       xl: 'm-auto max-w-screen-xl',
-      full: 'full-size-styles mt-0 overflow-hidden lg:w-full',
+      full: 'full-size-styles mt-0 lg:w-full',
     },
     variant: {
       form: 'scalar-modal-form',
       history: 'scalar-modal-history bg-b-1',
       search: 'scalar-modal-search',
+      error: 'scalar-modal-error',
     },
   },
 })
@@ -60,6 +61,7 @@ const body = cva({
       form: 'overflow-visible',
       history: 'pt-3',
       search: 'col !m-0 max-h-[440px] overflow-hidden p-0',
+      error: 'overflow-y-scroll',
     },
     size: {
       xxs: 'max-h-[calc(100dvh-240px)]',
@@ -68,7 +70,7 @@ const body = cva({
       md: 'max-h-[calc(100dvh-240px)]',
       lg: 'max-h-[calc(100dvh-180px)]',
       xl: 'm-0 max-h-[calc(100dvh-120px)] p-0',
-      full: 'max-h-dvh rounded-none bg-transparent',
+      full: 'max-h-dvh rounded-none',
     },
   },
 })
@@ -94,7 +96,8 @@ export function useModal() {
     <div
       :class="
         cx(
-          'scalar-modal-layout fixed left-0 top-0 flex items-start justify-center',
+          size === 'full' ? 'scalar-modal-layout-full' : 'scalar-modal-layout',
+          'fixed left-0 top-0 flex items-start justify-center',
           'z-[1001] h-[100dvh] w-[100dvw]',
           'bg-backdrop opacity-0 dark:bg-backdropdark',
           size === 'full' && 'flex',
@@ -124,7 +127,7 @@ export function useModal() {
         v-if="size === 'full'"
         class="close-button z-10 fixed right-2 top-2">
         <ScalarIconButton
-          class="hover:bg-b-2 focus:outline-none"
+          class="hover:bg-b-3 focus:outline-none"
           icon="Close"
           label="Clear Search"
           @close="state.hide()" />
@@ -145,6 +148,10 @@ export function useModal() {
   right: 0;
   box-shadow: var(--scalar-shadow-2);
   transform: translate3d(0, 10px, 0);
+}
+.scalar-modal-layout-full {
+  opacity: 1 !important;
+  background: transparent !important;
 }
 .dark-mode .scalar-modal {
   background-color: color-mix(in srgb, var(--scalar-background-1), black);
@@ -190,12 +197,25 @@ export function useModal() {
   animation: fadein-layout ease-in-out 0.3s forwards;
   max-height: 100% !important;
   top: 0 !important;
-  width: 100% !important;
+  left: 0;
+  position: absolute !important;
+  margin: initial;
   border-radius: 0 !important;
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    transparent 6%
-  ) !important;
+  background-color: var(--scalar-background-1) !important;
+  box-shadow: none !important;
+  border-right: var(--scalar-border-width) solid var(--scalar-border-color);
+}
+@screen md {
+  .full-size-styles {
+    width: 50dvw !important;
+  }
+}
+.full-size-styles:after {
+  content: '';
+  width: 50dvw;
+  height: 100dvh;
+  position: absolute;
+  right: -50dvw;
+  top: 0;
 }
 </style>

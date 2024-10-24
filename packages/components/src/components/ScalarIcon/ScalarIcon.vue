@@ -3,15 +3,17 @@ import type { VariantProps } from 'cva'
 import { computed } from 'vue'
 
 import { cva, cx } from '../../cva'
-import { type Icon, getIcon } from './icons/'
+import { type Icon, type Logo, getIcon, getLogo } from './utils'
+
+/**
+ * Icon wrapper for all icons and logos
+ */
 
 type IconVariants = VariantProps<typeof iconProps>
 
-/**
- * Icon wrapper for all scalar icons
- */
 const props = defineProps<{
-  icon: Icon
+  icon?: Icon
+  logo?: Logo
   size?: IconVariants['size']
   thickness?: string
   label?: string
@@ -45,10 +47,17 @@ const accessibilityAttrs = computed(() =>
         role: 'presentation',
       },
 )
+
+const svg = computed(() => {
+  if (props.icon) return getIcon(props.icon)
+  if (props.logo) return getLogo(props.logo)
+
+  return undefined
+})
 </script>
 <template>
   <component
-    :is="getIcon(icon)"
+    :is="svg"
     :class="cx('scalar-icon', iconProps({ size }))"
     v-bind="accessibilityAttrs" />
 </template>

@@ -37,7 +37,7 @@ const envs = computed(() => [
   <div>
     <ScalarDropdown>
       <ScalarButton
-        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-3 w-fit"
+        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-1 w-fit"
         fullWidth
         variant="ghost">
         <h2

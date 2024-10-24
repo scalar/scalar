@@ -111,6 +111,7 @@ const onAnchorClick = async (ev: Event) => {
       <a
         class="sidebar-heading-link"
         :href="generateLink()"
+        :tabindex="hasChildren ? -1 : 0"
         @click="onAnchorClick">
         <ScalarIcon
           v-if="item?.icon?.src"
@@ -260,6 +261,15 @@ const onAnchorClick = async (ev: Event) => {
 /* awkward pixel value to deal with hairspace alignment across browser*/
 .sidebar-heading-chevron {
   margin: 5px -5.5px 5px -9px;
+}
+.sidebar-heading-chevron .toggle-nested-icon:focus-visible {
+  outline: none;
+}
+.sidebar-heading:has(
+    .sidebar-heading-chevron .toggle-nested-icon:focus-visible
+  ) {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
 }
 .toggle-nested-icon {
   border: none;

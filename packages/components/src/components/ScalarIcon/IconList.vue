@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 
 import { ScalarIconButton } from '../ScalarIconButton'
-import { ICONS } from './icons/icons'
+import { ICONS } from './icons'
 
 defineProps<{
   thickness?: string
