@@ -11,7 +11,7 @@
     }
   ],
   "paths": {
-    "/users/{user_id}": {
+    "/dev/users/{user_id}": {
       "get": {
         "tags": ["default"],
         "summary": "Get one users info",
@@ -36,7 +36,7 @@
         }
       }
     },
-    "/user/{user_id}/desc/": {
+    "/dev/user/{user_id}/desc/": {
       "get": {
         "tags": ["default"],
         "summary": "Get descriptions of a user",
@@ -63,7 +63,7 @@
         }
       }
     },
-    "/user/{user_id}/desc/{desc_id}": {
+    "/dev/user/{user_id}/desc/{desc_id}": {
       "get": {
         "tags": ["default"],
         "summary": "Get a description from an user",

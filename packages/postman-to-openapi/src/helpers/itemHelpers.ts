@@ -77,9 +77,14 @@ export function processItem(
         : (request.url?.raw ?? ''),
   )
 
+  // Extract operation ID if present
+  const operationIdMatch = name?.match(/\[([^\]]+)\]$/)
+  const operationId = operationIdMatch ? operationIdMatch[1] : undefined
+  const summary = operationIdMatch ? name?.replace(/\s*\[[^\]]+\]$/, '') : name
+
   const operationObject: OpenAPIV3.OperationObject = {
     tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
-    summary: name || '',
+    summary,
     description:
       typeof request === 'string'
         ? ''
@@ -88,6 +93,11 @@ export function processItem(
           : (request.description?.content ?? ''),
     responses: extractResponses(response || []),
     parameters: [],
+  }
+
+  // Only add operationId if it was explicitly provided
+  if (operationId) {
+    operationObject.operationId = operationId
   }
 
   try {

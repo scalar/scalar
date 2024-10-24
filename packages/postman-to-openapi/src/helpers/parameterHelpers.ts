@@ -58,6 +58,21 @@ function createParameterObject(
   // Path parameters are always required in OpenAPI
   if (paramIn === 'path') {
     parameter.required = true
+  } else if (paramIn === 'query') {
+    // Check if the parameter is required based on description or name
+    const isRequired =
+      param.description?.toLowerCase().includes('[required]') ||
+      (param.key && param.key.toLowerCase() === 'required')
+
+    if (isRequired) {
+      parameter.required = true
+      // Remove '[required]' from the description
+      if (parameter.description) {
+        parameter.description = parameter.description
+          .replace(/\[required\]/gi, '')
+          .trim()
+      }
+    }
   }
 
   if (param.value !== undefined) {
