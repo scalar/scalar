@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.25.49
+
+### Patch Changes
+
+- 5995f57: feat: prepare references for the client auth
+- a265153: fix(api-reference): sidebar a11y improvements
+- 69bda25: feat: synced up client auth with references
+- Updated dependencies [5995f57]
+- Updated dependencies [7323370]
+- Updated dependencies [4c1536d]
+- Updated dependencies [d7a6c55]
+- Updated dependencies [d7a6c55]
+- Updated dependencies [d7a6c55]
+- Updated dependencies [2456afa]
+- Updated dependencies [69bda25]
+  - @scalar/api-client@2.1.34
+  - @scalar/openapi-parser@0.8.8
+  - @scalar/oas-utils@0.2.61
+  - @scalar/themes@0.9.42
+  - @scalar/code-highlight@0.0.14
+  - @scalar/components@0.12.60
+
 ## 1.25.48
 
 ### Patch Changes

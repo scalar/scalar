@@ -1,5 +1,25 @@
 # @scalar/api-client
 
+## 2.1.34
+
+### Patch Changes
+
+- 5995f57: feat: prepare references for the client auth
+- 4c1536d: style: updates active setting option ui state
+- d7a6c55: fix: updates scalar hotkey component
+- d7a6c55: fix: contrains event action to route
+- 2456afa: fix: remove theme selection as it was breaking on external sites
+- 69bda25: feat: synced up client auth with references
+- Updated dependencies [7323370]
+- Updated dependencies [d7a6c55]
+- Updated dependencies [2456afa]
+- Updated dependencies [69bda25]
+  - @scalar/openapi-parser@0.8.8
+  - @scalar/oas-utils@0.2.61
+  - @scalar/themes@0.9.42
+  - @scalar/components@0.12.60
+  - @scalar/use-codemirror@0.11.27
+
 ## 2.1.33
 
 ### Patch Changes

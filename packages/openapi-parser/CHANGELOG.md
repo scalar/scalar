@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.8
+
+### Patch Changes
+
+- 7323370: Allow relative URLs in v3.1 documents
+
 ## 0.8.7
 
 ### Patch Changes

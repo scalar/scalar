@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.13
+
+### Patch Changes
+
+- 4cf8c52: feat: add OAuth code flow
+
 ## 0.2.12
 
 ### Patch Changes
