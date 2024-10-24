@@ -179,12 +179,12 @@ const handleExpandError = (message: string) => {
     :state="modalState">
     <div
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
+      <!-- Wait until the URL is fetched -->
       <div
-        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
-        <!-- Wait until the URL is fetched -->
+        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full pt-5">
         <template v-if="prefetchResult.state === 'idle'">
           <!-- Logo -->
-          <div class="flex justify-center items-center mb-4 p-1">
+          <div class="flex justify-center items-center mb-2 p-1">
             <div class="rounded-xl">
               <ScalarIcon
                 class="size-10 rounded-lg"
@@ -234,20 +234,20 @@ const handleExpandError = (message: string) => {
             <!-- Select the workspace -->
             <div class="flex justify-center">
               <div
-                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-2">
+                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
                 Import to: <WorkspaceSelector />
               </div>
             </div>
             <!-- Watch Mode -->
             <template v-if="prefetchResult?.url">
-              <div
-                class="text-c-2 text-sm bg-b-2 rounded-lg overflow-hidden mt-6 p-4 pt-2">
+              <div class="text-sm overflow-hidden mt-6 pt-4 border-t-1/2">
                 <div class="flex items-center justify-center">
                   <WatchModeToggle
                     v-model="watchMode"
                     :disableToolTip="true" />
                 </div>
-                <div class="pt-0 text-center text-balance font-medium text-xs">
+                <div
+                  class="pt-0 text-center text-balance font-medium text-xs text-c-3">
                   Automatically update your API client when the OpenAPI document
                   content changes.
                 </div>
