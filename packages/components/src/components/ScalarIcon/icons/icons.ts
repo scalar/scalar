@@ -71,6 +71,7 @@ export const ICONS = [
   'Nextjs',
   'Nitro',
   'Nuxt',
+  'Openapi',
   'Page',
   'PaperAirplane',
   'Pencil',
