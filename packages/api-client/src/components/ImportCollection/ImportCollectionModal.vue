@@ -89,6 +89,7 @@ const availableIntegrationIcons: Exclude<
   ReferenceConfiguration['_integration'],
   null | undefined
 >[] = [
+  'adonisjs',
   'dotnet',
   'elysiajs',
   'express',
@@ -108,21 +109,18 @@ const availableIntegrationIcons: Exclude<
 
 /** Icon for the @scalar/api-reference integration the user is coming from */
 const integrationIcon = computed(() => {
-  const defaultIcon = 'Openapi'
+  const defaultIcon = 'Openapi' as const
+  const integration = props.integration?.toLocaleLowerCase()
 
-  if (!props.integration) return defaultIcon
+  if (!integration) return defaultIcon
 
-  const capitalized =
-    props.integration.charAt(0).toUpperCase() + props.integration.slice(1)
+  const capitalized = integration.charAt(0).toUpperCase() + integration.slice(1)
 
-  return availableIntegrationIcons.includes(capitalized as any)
-    ? capitalized
+  return availableIntegrationIcons.includes(integration as any)
+    ? (capitalized as Capitalize<(typeof availableIntegrationIcons)[number]>)
     : defaultIcon
 })
 
-const getIntegrationIcon = (key: string): Icon => {
-  return key as Icon
-}
 // Function to add/remove class from body
 const toggleBodyClass = (add: boolean) => {
   if (add && (hasUrl.value || hasContent.value) && modalState.open) {
@@ -190,7 +188,7 @@ const handleExpandError = (message: string) => {
             <div class="rounded-xl">
               <ScalarIcon
                 class="size-10 rounded-lg"
-                :icon="getIntegrationIcon(integrationIcon)" />
+                :logo="integrationIcon" />
             </div>
           </div>
           <!-- Title -->
