@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
-import { ICONS } from '../ScalarIcon/icons/icons'
+import { ICONS } from '../ScalarIcon/icons'
 import ScalarIconButton from './ScalarIconButton.vue'
 
 const meta = {
