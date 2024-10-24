@@ -100,9 +100,10 @@ const onAnchorClick = async (ev: Event) => {
         v-if="hasChildren"
         class="sidebar-heading-chevron">
         <ScalarIconButton
+          :aria-expanded="open"
           class="toggle-nested-icon"
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
-          label="Toggle group"
+          :label="`${open ? 'Collapse' : 'Expand'} ${item.title}`"
           size="xs"
           @click.stop="handleClick" />
         &hairsp;
@@ -122,6 +123,7 @@ const onAnchorClick = async (ev: Event) => {
           v-if="item.httpVerb && !hasChildren"
           class="sidebar-heading-link-method">
           &hairsp;
+          <span class="sr-only">HTTP Method:&nbsp;</span>
           <SidebarHttpBadge
             :active="isActive"
             :method="item.httpVerb" />
@@ -171,6 +173,15 @@ const onAnchorClick = async (ev: Event) => {
 }
 .sidebar-heading:hover .sidebar-heading-link-title {
   color: var(--scalar-sidebar-item-hover-color);
+}
+
+.sidebar-heading-link:focus-visible {
+  outline: none;
+}
+
+.sidebar-heading:has(> .sidebar-heading-link:focus-visible) {
+  z-index: 1;
+  outline: 1px solid var(--scalar-color-accent);
 }
 
 .active_page.sidebar-heading:hover,

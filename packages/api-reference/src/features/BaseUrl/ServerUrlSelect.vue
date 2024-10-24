@@ -44,8 +44,10 @@ const selected = computed<ScalarListboxOption | undefined>({
       :class="{ 'pointer-events-none': options.length <= 1 }"
       fullWidth
       variant="ghost">
-      <span class="custom-scroll">
-        <slot></slot>
+      <span
+        class="custom-scroll"
+        tabindex="-1">
+        <slot />
       </span>
       <ScalarIcon
         v-if="options.length > 1"

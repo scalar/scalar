@@ -18,6 +18,7 @@ defineEmits<{
       <ScalarIcon
         icon="LightDarkModeToggle"
         size="md" />
+      <div class="sr-only">Set to</div>
       <template v-if="isDarkMode">
         <span>Light Mode</span>
       </template>
