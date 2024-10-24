@@ -6,6 +6,7 @@ import {
   ScalarButton,
   ScalarCodeBlock,
   ScalarIcon,
+  ScalarTooltip,
   useLoadingState,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
@@ -163,9 +164,36 @@ async function importCollection() {
         </ScalarButton>
 
         <!-- Watch -->
-        <WatchModeToggle
-          v-model="watchMode"
-          :disabled="!isInputUrl" />
+        <ScalarTooltip
+          as="div"
+          class="z-[10001]"
+          side="bottom"
+          :sideOffset="5">
+          <template #trigger>
+            <WatchModeToggle
+              v-model="watchMode"
+              :disabled="!isInputUrl" />
+          </template>
+          <template #content>
+            <div
+              class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+              <div class="flex items-center text-c-2">
+                <span
+                  v-if="isInputUrl"
+                  class="text-pretty">
+                  Automatically updates the API client when the OpenAPI URL
+                  content changes, ensuring your client remains up-to-date.
+                </span>
+                <span
+                  v-else
+                  class="text-pretty">
+                  Watch Mode is only available for URL imports. It automatically
+                  updates the API client when the OpenAPI URL content changes.
+                </span>
+              </div>
+            </div>
+          </template>
+        </ScalarTooltip>
       </div>
     </template>
     <template #submit>

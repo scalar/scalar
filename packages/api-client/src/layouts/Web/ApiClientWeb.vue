@@ -59,9 +59,7 @@ const themeStyleTag = computed(
     <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
       <RouterView v-slot="{ Component }">
         <keep-alive>
-          <component
-            :is="Component"
-            isApp="false" />
+          <component :is="Component" />
         </keep-alive>
       </RouterView>
     </MainLayout>
