@@ -107,7 +107,7 @@
   }
 }
 /* High contrast custom selection */
-*::selection {
+/* *::selection {
   background: var(--scalar-selection-background);
   color: var(--scalar-selection-color);
-}
+} */
