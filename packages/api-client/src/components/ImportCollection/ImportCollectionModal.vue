@@ -83,6 +83,15 @@ watch(
 const hasUrl = computed(() => !!props.source && isUrl(props.source))
 const hasContent = computed(() => !!props.source && isDocument(props.source))
 
+const isLocalHostIntegration = computed(() => {
+  const url = props.source
+  return (
+    hasUrl.value &&
+    url &&
+    (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1'))
+  )
+})
+
 /** All available framework logos */
 const availableIntegrationIcons: Exclude<
   ReferenceConfiguration['_integration'],
@@ -184,7 +193,9 @@ const handleExpandError = (message: string) => {
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full pt-5">
         <template v-if="prefetchResult.state === 'idle'">
           <!-- Logo -->
-          <div class="flex justify-center items-center mb-2 p-1">
+          <div
+            v-show="isLocalHostIntegration"
+            class="flex justify-center items-center mb-2 p-1">
             <div class="rounded-xl">
               <ScalarIcon
                 class="size-10 rounded-lg"
