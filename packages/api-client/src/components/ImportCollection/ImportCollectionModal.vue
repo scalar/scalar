@@ -24,7 +24,7 @@ import WorkspaceSelector from './WorkspaceSelector.vue'
 
 const props = defineProps<{
   source: string | null
-  integration: ReferenceConfiguration['_integration']
+  integration: string | null
 }>()
 
 defineEmits<{
@@ -87,7 +87,7 @@ const hasContent = computed(() => !!props.source && isDocument(props.source))
 /** All available framework logos */
 const availableIntegrationIcons: Exclude<
   ReferenceConfiguration['_integration'],
-  null
+  null | undefined
 >[] = [
   'dotnet',
   'elysiajs',
