@@ -26,11 +26,20 @@ onBeforeUnmount(() => {
   document.removeEventListener('drop', handleDrop)
 })
 
+function isFromApp(event: DragEvent): boolean {
+  return event.dataTransfer?.types.includes('text/html') ?? false
+}
+
 // Drop
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
   isDragging.value = false
   dragCounter = 0
+
+  // Prevent emitting for text/html dragged items
+  if (isFromApp(event)) {
+    return
+  }
 
   if (event.dataTransfer) {
     // Text
@@ -70,6 +79,11 @@ function handleDragLeave(event: DragEvent) {
 function handleDragEnter(event: DragEvent) {
   event.preventDefault()
   dragCounter++
+
+  // Prevent displaying the draggable UI for text/html dragged items
+  if (isFromApp(event)) {
+    return
+  }
 
   if (event.dataTransfer) {
     const items = event.dataTransfer.items
