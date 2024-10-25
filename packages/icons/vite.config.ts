@@ -8,6 +8,7 @@ export default defineConfig({
   plugins: [
     vue(),
     // Ensure the viewBox is preserved
+    // @ts-expect-error TODO types are outdated it seems
     svgLoader({
       svgoConfig: {
         multipass: true,

@@ -38,6 +38,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "msw": "^2.4.11"
+    "msw": "^2.4.12"
   }
 }
