@@ -47,16 +47,15 @@ defineEmits<{
         <slot name="trigger" />
       </TooltipTrigger>
       <TooltipPortal to=".scalar-client">
-        <template v-if="!props.disabled">
-          <TooltipContent
-            :align="props.align"
-            class="scalar-app"
-            :class="props.class"
-            :side="props.side"
-            :sideOffset="props.sideOffset">
-            <slot name="content" />
-          </TooltipContent>
-        </template>
+        <TooltipContent
+          v-if="!props.disabled"
+          :align="props.align"
+          class="scalar-app"
+          :class="props.class"
+          :side="props.side"
+          :sideOffset="props.sideOffset">
+          <slot name="content" />
+        </TooltipContent>
       </TooltipPortal>
     </TooltipRoot>
   </TooltipProvider>
