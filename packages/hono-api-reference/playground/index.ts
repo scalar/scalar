@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server'
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
+import { cors } from 'hono/cors'
 
 import { apiReference } from '../src/index'
 
@@ -162,15 +163,16 @@ app.openapi(
   },
 )
 
-// Create a Swagger file
+// Create an OpenAPI endpoint
+app.use('/openapi.json', cors())
 app.doc('/openapi.json', {
+  openapi: '3.1.0',
   info: {
     title: 'Example',
     description:
       'The `@scalar/hono-api-reference` middleware renders a beautiful API reference based on your OpenAPI specification.',
     version: 'v1',
   },
-  openapi: '3.1.0',
 })
 
 // Load the middleware
