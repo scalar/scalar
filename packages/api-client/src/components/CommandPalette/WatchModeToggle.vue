@@ -2,10 +2,15 @@
 import { ScalarIcon, ScalarToggle } from '@scalar/components'
 import { computed } from 'vue'
 
-const props = defineProps<{
-  modelValue: boolean
-  disabled?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: boolean
+    disabled?: boolean
+  }>(),
+  {
+    disabled: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
