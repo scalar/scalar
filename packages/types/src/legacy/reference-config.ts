@@ -373,7 +373,7 @@ export type SpecConfiguration = {
   /**
    * Directly embed the OpenAPI document in the HTML.
    *
-   * @deprecated It’s recommended to pass an `url` instead of `content`.
+   * @remark It’s recommended to pass an `url` instead of `content`.
    */
   content?: string | Record<string, any> | (() => Record<string, any>)
 }
