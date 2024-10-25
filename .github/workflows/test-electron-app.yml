@@ -30,6 +30,8 @@ jobs:
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build packages
         run: pnpm build:packages
+      - name: Build electron app
+        run: pnpm --filter scalar-api-client build
       - name: Get Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
