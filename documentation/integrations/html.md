@@ -58,6 +58,47 @@ If you want to fine-tune your API reference and pass a custom configuration, you
 </html>
 ```
 
+## JSON
+
+> Note: While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
+
+You can also just directly pass JSON content:
+
+```html
+<script
+  id="api-reference"
+  type="application/json">
+  {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Hello World",
+      "version": "1.0.0"
+    },
+    "paths": {}
+  }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+```
+
+## YAML
+
+> Note: While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
+
+And if you prefer YAML, you just need to set the `type` attribute to `application/yaml`:
+
+```html
+<script
+  id="api-reference"
+  type="application/yaml">
+  openapi: 3.1.0
+  info:
+    title: Hello World
+    version: 1.0.0
+  paths: {}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+```
+
 ## Version
 
 It’s recommended to use the latest version from jsdelivr. You’ll get continuous updates, fixes and other improvements and that’s also the one we’re testing and monitoring continuously:
