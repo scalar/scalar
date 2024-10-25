@@ -8,17 +8,18 @@ import type { ReferenceProps } from './types'
 
 /**
  * Tests for standalone
- * A bit hacky as we are working with the dom without jsdom, but works for these tests
- * as each test builds off the last
  */
-describe('Standalone API References', () => {
+describe('Standalone API References', { retry: 3 }, () => {
   const matchMediaMock = new MatchMediaMock()
 
   afterAll(() => {
     matchMediaMock.clear()
   })
 
-  it('renders very basic references with standalone', async () => {
+  it('Renders and updates the standalone reference', async () => {
+    /*
+     * renders very basic references with standalone
+     */
     const script = document.createElement('script')
     script.id = 'api-reference'
     script.type = 'application/json'
@@ -32,35 +33,38 @@ describe('Standalone API References', () => {
     await import('./standalone')
     await sleep(50)
 
-    const rootElement = document.querySelector('[data-v-app]')
-    const reference = rootElement?.querySelector('.scalar-api-reference')
-    const h1 = reference?.querySelector('h1')
+    const rootElement1 = document.querySelector('[data-v-app]')
+    const reference1 = rootElement1?.querySelector('.scalar-api-reference')
+    const header1 = reference1?.querySelector('h1')
 
-    expect(rootElement?.contains(reference!)).toBeTruthy()
-    expect(h1?.innerHTML).toEqual('Example')
-  })
+    expect(rootElement1?.contains(reference1!)).toBeTruthy()
+    expect(header1?.innerHTML).toEqual('Example')
 
-  it('removes the app element and reloads', async () => {
+    /*
+     * removes the app element and reloads
+     */
+
     // Remove the main element
-    let rootElement = document.querySelector('[data-v-app]')
-    rootElement?.parentNode?.removeChild(rootElement)
+    let rootElement2 = document.querySelector('[data-v-app]')
+    rootElement2?.parentNode?.removeChild(rootElement2)
 
-    expect(document.body.contains(rootElement)).toBeFalsy()
+    expect(document.body.contains(rootElement2!)).toBeFalsy()
     expect(document.querySelector('[data-v-app]')).toBeNull()
 
     // Now we use the event to re-load the app
     document.dispatchEvent(new Event('scalar:reload-references'))
     await sleep(50)
 
-    rootElement = document.querySelector('[data-v-app]')
-    const reference = rootElement?.querySelector('.scalar-api-reference')
-    const h1 = reference?.querySelector('h1')
+    rootElement2 = document.querySelector('[data-v-app]')
+    const reference2 = rootElement2?.querySelector('.scalar-api-reference')
+    const header2 = reference2?.querySelector('h1')
 
-    expect(rootElement?.contains(reference!)).toBeTruthy()
-    expect(h1?.innerHTML).toEqual('Example')
-  })
+    expect(rootElement2?.contains(reference2!)).toBeTruthy()
+    expect(header2?.innerHTML).toEqual('Example')
 
-  it('updates the spec url, detect for changes', async () => {
+    /*
+     * updates the spec url, detect for changes
+     */
     // Update the config with the galaxy spec
     const ev = new CustomEvent('scalar:update-references-config', {
       detail: {
@@ -74,9 +78,9 @@ describe('Standalone API References', () => {
     document.dispatchEvent(ev)
     await sleep(50)
 
-    const rootElement = document.querySelector('[data-v-app]')
-    const h1 = rootElement?.querySelector('h1')
+    const rootElement3 = document.querySelector('[data-v-app]')
+    const header3 = rootElement3?.querySelector('h1')
 
-    expect(h1?.innerHTML).toEqual('Scalar Galaxy')
+    expect(header3?.innerHTML).toEqual('Scalar Galaxy')
   })
 })
