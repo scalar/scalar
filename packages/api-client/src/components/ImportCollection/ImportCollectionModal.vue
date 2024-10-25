@@ -14,13 +14,11 @@ import {
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import ImportNowButton from './ImportNowButton.vue'
+import IntegrationLogo from './IntegrationLogo.vue'
 import WorkspaceSelector from './WorkspaceSelector.vue'
-
-// import OpenAppButton from './OpenAppButton.vue'
 
 const props = defineProps<{
   source: string | null
@@ -86,44 +84,6 @@ watch(
 const hasUrl = computed(() => !!props.source && isUrl(props.source))
 const hasContent = computed(() => !!props.source && isDocument(props.source))
 
-/** All available framework logos */
-const availableIntegrationIcons: Exclude<
-  ReferenceConfiguration['_integration'],
-  null | undefined | 'html'
->[] = [
-  'adonisjs',
-  'dotnet',
-  'elysiajs',
-  'express',
-  'fastapi',
-  'fastify',
-  'go',
-  'hono',
-  'laravel',
-  'litestar',
-  'nestjs',
-  'nextjs',
-  'nitro',
-  'nuxt',
-  'platformatic',
-  'react',
-  'rust',
-]
-
-/** Icon for the @scalar/api-reference integration the user is coming from */
-const integrationIcon = computed(() => {
-  const defaultIcon = 'Openapi' as const
-  const integration = props.integration?.toLocaleLowerCase()
-
-  if (!integration) return defaultIcon
-
-  const capitalized = integration.charAt(0).toUpperCase() + integration.slice(1)
-
-  return availableIntegrationIcons.includes(integration as any)
-    ? (capitalized as Capitalize<(typeof availableIntegrationIcons)[number]>)
-    : defaultIcon
-})
-
 /** Show the integration icon only for local URLs */
 const shouldShowIntegrationIcon = computed(() => {
   return prefetchResult.url && isLocalUrl(prefetchResult.url)
@@ -174,11 +134,6 @@ onUnmounted(() => {
   document.body.classList.remove('has-import-url')
   document.body.classList.remove('has-no-import-url')
 })
-
-const handleExpandError = (message: string) => {
-  errorMessage.value = message
-  errorModalState.show()
-}
 </script>
 
 <template>
@@ -192,15 +147,9 @@ const handleExpandError = (message: string) => {
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
         <!-- Logo -->
-        <div
+        <IntegrationLogo
           v-if="shouldShowIntegrationIcon"
-          class="flex justify-center items-center mb-2 p-1">
-          <div class="rounded-xl">
-            <ScalarIcon
-              class="size-10 rounded-lg"
-              :logo="integrationIcon" />
-          </div>
-        </div>
+          :integration="integration" />
         <!-- Title -->
         <div class="text-center text-md font-bold mb-2 line-clamp-1">
           {{ title ?? 'Untitled Collection' }}
@@ -210,26 +159,9 @@ const handleExpandError = (message: string) => {
           required.
         </div>
         <!-- Prefetch error -->
-        <template v-if="prefetchResult.error">
-          <div
-            class="flex gap-2 justify-between items-center pt-2 pl-2 pr-1.5 pb-1.5 font-code text-sm border rounded break-words mt-4 w-full">
-            <div class="flex flex-1 gap-2">
-              <ScalarIcon
-                class="text-red flex-shrink-0"
-                icon="Error"
-                size="sm" />
-              <div class="break-all line-clamp-4 w-full">
-                {{ prefetchResult.error.slice(0, 100) }}...
-              </div>
-            </div>
-            <span
-              class="bg-b-2 cursor-pointer inline-block self-end px-1.5 py-1 rounded text-xs"
-              @click="handleExpandError(prefetchResult.error)">
-              Expand
-            </span>
-          </div>
-        </template>
-
+        <PrefetchError
+          v-if="prefetchResult.error"
+          :result="prefetchResult" />
         <!-- Actions -->
         <template v-else-if="version">
           <div class="inline-flex flex-col gap-2 items-center z-10 w-full">

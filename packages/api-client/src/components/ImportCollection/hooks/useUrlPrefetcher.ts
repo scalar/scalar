@@ -1,7 +1,7 @@
 import { fetchWithProxyFallback } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
-type PrefetchResult = {
+export type PrefetchResult = {
   state: 'idle' | 'loading'
   content: string | null
   url: string | null
