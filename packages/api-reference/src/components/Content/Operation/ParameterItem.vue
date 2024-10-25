@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { ContentType, Parameters } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
+import ScreenReader from '../../ScreenReader.vue'
 import { SchemaProperty } from '../Schema'
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'
@@ -18,7 +20,6 @@ const props = withDefaults(
     collapsableItems: false,
   },
 )
-const showCollapsedItems = ref(false)
 
 const contentTypes = computed(() => {
   if (props.parameter.content) {
@@ -35,62 +36,68 @@ if (props.parameter.content) {
   }
 }
 
-const shouldCollapse = computed(() => {
-  return props.collapsableItems && props.parameter.content
+const shouldCollapse = computed<boolean>(() => {
+  return !!(props.collapsableItems && props.parameter.content)
 })
 </script>
 <template>
   <li class="parameter-item">
-    <div
-      v-if="shouldCollapse"
-      class="flex parameter-item-trigger"
-      :class="{ 'parameter-item-trigger-open': showCollapsedItems }"
-      @click="showCollapsedItems = !showCollapsedItems">
-      <ScalarIcon
-        class="parameter-item-icon"
-        :icon="showCollapsedItems ? 'ChevronDown' : 'ChevronRight'"
-        size="md"
-        thickness="1.75" />
-      <span class="parameter-item-name">
-        {{ parameter.name }}
-      </span>
-      <span class="parameter-item-type">
-        {{ parameter.description }}
-      </span>
-      <div class="absolute right-0">
-        <ContentTypeSelect
-          v-if="shouldCollapse && props.parameter.content"
-          class="parameter-item-content-type"
-          :defaultValue="selectedContentType"
-          :requestBody="props.parameter"
-          @selectContentType="
-            ({ contentType }) => (selectedContentType = contentType)
+    <Disclosure v-slot="{ open }">
+      <DisclosureButton
+        v-if="shouldCollapse"
+        class="flex parameter-item-trigger"
+        :class="{ 'parameter-item-trigger-open': open }">
+        <ScalarIcon
+          class="parameter-item-icon"
+          :icon="open ? 'ChevronDown' : 'ChevronRight'"
+          size="md"
+          thickness="1.75" />
+        <ScreenReader>
+          {{ open ? 'Collapse' : 'Expand' }}
+        </ScreenReader>
+        <span class="parameter-item-name">
+          {{ parameter.name }}
+        </span>
+        <span class="parameter-item-type">
+          {{ parameter.description }}
+        </span>
+        <div class="absolute right-0">
+          <ContentTypeSelect
+            v-if="shouldCollapse && props.parameter.content"
+            class="parameter-item-content-type"
+            :defaultValue="selectedContentType"
+            :requestBody="props.parameter"
+            @selectContentType="
+              ({ contentType }) => (selectedContentType = contentType)
+            " />
+        </div>
+      </DisclosureButton>
+      <DisclosurePanel
+        class="parameter-item-container parameter-item-container-markdown"
+        :static="!shouldCollapse">
+        <ParameterHeaders
+          v-if="parameter.headers"
+          :headers="parameter.headers" />
+        <SchemaProperty
+          compact
+          :description="shouldCollapse ? '' : parameter.description"
+          :name="shouldCollapse ? '' : parameter.name"
+          :noncollapsible="showChildren"
+          :required="parameter.required"
+          :value="
+            parameter.content
+              ? parameter.content?.[selectedContentType]?.schema
+              : parameter.schema
           " />
-      </div>
-    </div>
-    <div
-      v-if="(shouldCollapse && showCollapsedItems) || !shouldCollapse"
-      class="parameter-item-container parameter-item-container-markdown">
-      <ParameterHeaders
-        v-if="parameter.headers"
-        :headers="parameter.headers" />
-      <SchemaProperty
-        compact
-        :description="shouldCollapse ? '' : parameter.description"
-        :name="shouldCollapse ? '' : parameter.name"
-        :noncollapsible="showChildren"
-        :required="parameter.required"
-        :value="
-          parameter.content
-            ? parameter.content?.[selectedContentType]?.schema
-            : parameter.schema
-        " />
-    </div>
+      </DisclosurePanel>
+    </Disclosure>
   </li>
 </template>
 
 <style scoped>
 .parameter-item {
+  display: flex;
+  flex-direction: column;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .parameter-item:last-of-type .parameter-schema {
@@ -165,9 +172,12 @@ const shouldCollapse = computed(() => {
 .parameter-item-trigger {
   padding: 12px 0;
   cursor: pointer;
+  outline: none;
+  text-align: left;
   position: relative;
   align-items: baseline;
 }
+
 .parameter-item-trigger-open {
   padding-bottom: 0;
 }
@@ -183,8 +193,14 @@ const shouldCollapse = computed(() => {
   position: absolute;
   left: -18px;
 }
-.parameter-item-trigger:hover .parameter-item-icon {
+.parameter-item-trigger:hover .parameter-item-icon,
+.parameter-item-trigger:focus-visible .parameter-item-icon {
   color: var(--scalar-color-1);
+}
+.parameter-item-trigger:focus-visible .parameter-item-icon {
+  outline: 1px solid var(--scalar-color-accent);
+  outline-offset: 2px;
+  border-radius: var(--scalar-radius);
 }
 .parameter-item-content-type {
   margin-left: auto;

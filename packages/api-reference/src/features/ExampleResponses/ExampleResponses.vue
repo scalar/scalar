@@ -2,7 +2,7 @@
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
 
 import {
   Card,
@@ -20,6 +20,8 @@ import ExampleResponse from './ExampleResponse.vue'
  */
 
 const props = defineProps<{ operation: TransformedOperation }>()
+
+const id = useId()
 
 const { copyToClipboard } = useClipboard()
 
@@ -97,7 +99,8 @@ const showSchema = ref(false)
       @change="changeTab">
       <CardTab
         v-for="statusCode in orderedStatusCodes"
-        :key="statusCode">
+        :key="statusCode"
+        :aria-controls="id">
         {{ statusCode }}
       </CardTab>
 
@@ -118,6 +121,7 @@ const showSchema = ref(false)
           Show Schema
           <input
             v-model="showSchema"
+            :aria-controls="id"
             class="scalar-card-checkbox-input"
             type="checkbox" />
           <span class="scalar-card-checkbox-checkmark"></span>
@@ -129,15 +133,18 @@ const showSchema = ref(false)
         <template v-if="currentJsonResponse?.schema">
           <ScalarCodeBlock
             v-if="showSchema && currentResponseWithExample"
+            :id="id"
             :content="currentResponseWithExample"
             lang="json" />
           <ExampleResponse
             v-else
+            :id="id"
             :response="currentResponseWithExample" />
         </template>
         <!-- Without Schema: Don’t show tabs -->
         <ExampleResponse
           v-else
+          :id="id"
           :response="currentResponseWithExample" />
       </CardContent>
     </div>
@@ -250,6 +257,10 @@ const showSchema = ref(false)
   white-space: nowrap;
   margin-right: 9px;
   gap: 6px;
+}
+.scalar-card-checkbox:has(.scalar-card-checkbox-input:focus-visible)
+  .scalar-card-checkbox-checkmark {
+  outline: 1px solid var(--scalar-color-accent);
 }
 .scalar-card-checkbox:hover {
   color: var(--scalar-color--1);

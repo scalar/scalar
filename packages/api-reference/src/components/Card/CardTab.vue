@@ -6,7 +6,8 @@ import { Tab } from '@headlessui/vue'
     v-slot="{ selected }"
     as="template">
     <button
-      :class="{ 'tab': true, 'tab-selected': selected }"
+      class="tab"
+      :class="{ 'tab-selected': selected }"
       type="button">
       <span>
         <slot />
@@ -43,8 +44,12 @@ import { Tab } from '@headlessui/vue'
   background: var(--scalar-background-3);
   opacity: 0;
 }
-.tab:hover:before {
+.tab:hover:before,
+.tab:focus-visible:before {
   opacity: 1;
+}
+.tab:focus-visible:before {
+  outline: 1px solid var(--scalar-color-accent);
 }
 .tab span {
   z-index: 1;

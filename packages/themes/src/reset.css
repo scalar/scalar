@@ -99,6 +99,7 @@
   /** Add outline for focus visible */
   :focus-visible {
     outline-style: solid;
+    border-radius: var(--scalar-radius);
   }
 
   /** Set the default cursor for buttons. */
