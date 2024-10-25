@@ -11,6 +11,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
@@ -83,15 +84,6 @@ watch(
 const hasUrl = computed(() => !!props.source && isUrl(props.source))
 const hasContent = computed(() => !!props.source && isDocument(props.source))
 
-const isLocalHostIntegration = computed(() => {
-  const url = props.source
-  return (
-    hasUrl.value &&
-    url &&
-    (url.startsWith('http://localhost') || url.startsWith('http://127.0.0.1'))
-  )
-})
-
 /** All available framework logos */
 const availableIntegrationIcons: Exclude<
   ReferenceConfiguration['_integration'],
@@ -128,6 +120,11 @@ const integrationIcon = computed(() => {
   return availableIntegrationIcons.includes(integration as any)
     ? (capitalized as Capitalize<(typeof availableIntegrationIcons)[number]>)
     : defaultIcon
+})
+
+/** Show the integration icon only for local URLs */
+const shouldShowIntegrationIcon = computed(() => {
+  return prefetchResult.url && isLocalUrl(prefetchResult.url)
 })
 
 // Function to add/remove class from body
@@ -194,7 +191,7 @@ const handleExpandError = (message: string) => {
         <template v-if="prefetchResult.state === 'idle'">
           <!-- Logo -->
           <div
-            v-show="isLocalHostIntegration"
+            v-if="shouldShowIntegrationIcon"
             class="flex justify-center items-center mb-2 p-1">
             <div class="rounded-xl">
               <ScalarIcon
