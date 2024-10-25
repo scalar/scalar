@@ -57,8 +57,10 @@ export default {
         2: 'var(--scalar-background-2)',
         3: 'var(--scalar-background-3)',
         4: 'var(--scalar-background-3)',
-        accent: 'var(--scalar-background-accent)',
-        btn: 'var(--scalar-button-1)',
+        '1/2':
+          'color-mix(in srgb, var(--scalar-background-1), var(--scalar-background-2))',
+        'accent': 'var(--scalar-background-accent)',
+        'btn': 'var(--scalar-button-1)',
       },
 
       // Foreground / Text Colors

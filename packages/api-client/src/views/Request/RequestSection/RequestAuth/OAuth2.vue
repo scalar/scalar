@@ -88,7 +88,7 @@ const handleAuthorize = async () => {
         :modelValue="scheme.flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="(v) => updateScheme('flow.authorizationUrl', v)">
-        Authorization Url
+        Auth Url
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput

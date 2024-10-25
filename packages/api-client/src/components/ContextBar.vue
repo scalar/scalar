@@ -11,13 +11,14 @@ defineEmits<{
 }>()
 </script>
 <template>
-  <div class="hidden lg:flex ml-auto filter-hover group lg:w-[120px]">
+  <div
+    class="hidden lg:flex ml-auto filter-hover context-bar-group lg:w-[120px]">
     <div
       class="request-section-content request-section-content-filter fade-request-section-content text-c-3 hidden xl:flex justify-end rounded text-xs gap-[1.5px] pointer-events-auto relative w-full py-2">
       <button
         v-for="section in sections"
         :key="section"
-        class="hover:bg-b-2 rounded p-1 px-2 text-center font-medium w-fit"
+        class="hover:bg-b-2 rounded p-1 px-2 text-center font-medium w-fit whitespace-nowrap"
         :class="[
           activeSection === section ? 'text-c-1  pointer-events-none' : '',
         ]"
@@ -27,8 +28,10 @@ defineEmits<{
         {{ section }}
       </button>
       <div
-        class="flex items-center group-hover:text-c-1 absolute -right-6 top-1/2 -translate-y-1/2">
-        <span class="mr-1.5 group-hover:hidden">{{ activeSection }}</span>
+        class="flex items-center context-bar-group-hover:text-c-1 absolute -right-6 top-1/2 -translate-y-1/2">
+        <span class="mr-1.5 context-bar-group-hover:hidden">{{
+          activeSection
+        }}</span>
         <ScalarIcon
           icon="FilterList"
           size="md"
@@ -111,5 +114,13 @@ defineEmits<{
 .filter-hover:hover:before {
   opacity: 0.9;
   backdrop-filter: blur(10px);
+}
+.context-bar-group:hover .context-bar-group-hover\:text-c-1 {
+  --tw-text-opacity: 1;
+  color: rgb(var(--scalar-color-1) / var(--tw-text-opacity));
+}
+
+.context-bar-group:hover .context-bar-group-hover\:hidden {
+  display: none;
 }
 </style>

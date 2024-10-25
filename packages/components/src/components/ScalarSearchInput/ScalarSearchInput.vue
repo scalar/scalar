@@ -32,7 +32,7 @@ const attrs = computed(() => {
 })
 
 const variants = cva({
-  base: 'flex items-center rounded border bg-b-1 text-sm font-medium has-[:focus-visible]:outline',
+  base: 'flex items-center rounded border bg-b-1/2 text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline',
   variants: {
     sidebar: {
       true: 'h-8 gap-1.5 px-1.5',

@@ -66,7 +66,8 @@ const updateRequestNameHandler = (event: Event) => {
 <template>
   <ViewLayoutSection>
     <template #title>
-      <div class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none">
+      <div
+        class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none h-full">
         <label
           v-if="!isReadOnly"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
@@ -74,7 +75,7 @@ const updateRequestNameHandler = (event: Event) => {
         <input
           v-if="!isReadOnly"
           id="requestname"
-          class="outline-none border-0 text-c-1 rounded pointer-events-auto relative w-full"
+          class="text-c-1 rounded pointer-events-auto relative w-full pl-3 -ml-3 has-[:focus-visible]:outline h-8 group-hover-input has-[:focus-visible]:outline"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
@@ -126,7 +127,7 @@ const updateRequestNameHandler = (event: Event) => {
     </div>
   </ViewLayoutSection>
 </template>
-<style>
+<style scoped>
 .request-section-content {
   --scalar-border-width: 0.5px;
 }
@@ -135,5 +136,21 @@ const updateRequestNameHandler = (event: Event) => {
 }
 .request-item:focus-within .request-meta-buttons {
   opacity: 1;
+}
+.group-hover-input {
+  border-width: var(--scalar-border-width);
+  border-color: transparent;
+}
+.group:hover .group-hover-input {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+  border-color: var(--scalar-border-color);
+}
+.group-hover-input:focus {
+  background: transparent !important;
+  border-color: var(--scalar-border-color) !important;
 }
 </style>
