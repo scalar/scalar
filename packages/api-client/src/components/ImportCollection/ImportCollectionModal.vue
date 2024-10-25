@@ -220,7 +220,7 @@ const handleExpandError = (message: string) => {
                   class="text-red flex-shrink-0"
                   icon="Error"
                   size="sm" />
-                <div class="line-clamp-4 w-full">
+                <div class="break-all line-clamp-4 w-full">
                   {{ prefetchResult.error.slice(0, 100) }}...
                 </div>
               </div>
@@ -322,7 +322,7 @@ const handleExpandError = (message: string) => {
         :state="errorModalState"
         title="Error Details"
         variant="error">
-        <div>
+        <div class="text-sm">
           {{ errorMessage }}
         </div>
       </ScalarModal>
