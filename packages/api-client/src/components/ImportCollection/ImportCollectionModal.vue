@@ -190,7 +190,7 @@ const handleExpandError = (message: string) => {
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
       <!-- Wait until the URL is fetched -->
       <div
-        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full pt-5">
+        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
         <template v-if="prefetchResult.state === 'idle'">
           <!-- Logo -->
           <div
@@ -251,7 +251,7 @@ const handleExpandError = (message: string) => {
             </div>
             <!-- Watch Mode -->
             <template v-if="prefetchResult?.url">
-              <div class="text-sm overflow-hidden mt-6 pt-4 border-t-1/2">
+              <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
                 <div class="flex items-center justify-center">
                   <WatchModeToggle
                     v-model="watchMode"
