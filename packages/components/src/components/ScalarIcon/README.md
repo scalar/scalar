@@ -13,7 +13,7 @@ When adding a new icon, the icon...
 
 Additionally, when adding a _line icon_, the line icon **should** be scaled to `24px` by `24px` (e.g. `viewbox="0 0 24 24"`) and the stroke thickness **should not** be set. Line icons **should** also have `stroke-linecap="round"` and `stroke-linejoin="round"` set if applicable.
 
-After adding the new icons run `pnpm typegen:icons` to add the icons to the list in [`icon.ts`](./icons/icons.ts).
+After adding the new icons run `pnpm typegen:icons` to add the icons to the list in [`icons/index.ts`](./icons/index.ts) and the logos to the list in [`logos/index.ts`](./logos/index.ts).
 
 ### ✅ Good Examples
 
