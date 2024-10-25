@@ -304,17 +304,25 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   }
 }
 .codemirror-bg-switcher {
-  --scalar-background-1: var(--scalar-background-2);
+  --scalar-background-1: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
 }
 .addressbar-bg-states:focus-within .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-1);
 }
 .addressbar-bg-states {
-  background: var(--scalar-background-2);
-  border-color: transparent;
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
 }
 .addressbar-bg-states:focus-within {
   background: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
+  outline: 1px solid var(--scalar-color-accent);
 }
 </style>

@@ -206,7 +206,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                 fullWidth
                 variant="ghost">
                 <div
-                  class="text-c-2 h-8 flex min-w-[120px] items-center border-r-1/2 pr-0 pl-2">
+                  class="text-c-1 h-8 flex min-w-[94px] items-center pr-0 pl-2">
                   Auth Type
                 </div>
                 <div
@@ -217,7 +217,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit pr-1">
+                      class="cm-pill flex items-center mx-0 h-fit pr-1 !bg-b-2 text-c-1">
                       {{ auth.label }}
                       <ScalarIcon
                         class="ml-1 cursor-pointer text-c-3 hover:text-c-1"

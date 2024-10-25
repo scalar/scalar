@@ -41,17 +41,22 @@ function setScope(id: string, checked: boolean) {
 
 <template>
   <DataTableCell class="items-center min-h-8 h-auto">
-    <div class="flex h-full w-full">
-      <div class="text-c-2 min-w-[120px] items-center pl-2 h-full border-r-1/2">
+    <div class="flex h-fit w-full">
+      <div class="text-c-1 min-w-[94px] items-center pl-2 h-full">
         <span class="h-8 flex items-center"> Scopes </span>
       </div>
       <Disclosure
         as="div"
-        class="flex flex-col w-full">
+        class="flex flex-col w-full bl">
         <DisclosureButton
           v-slot="{ open }"
-          class="group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-2 hover:bg-b-2 pr-2.5 cursor-pointer">
-          <div class="flex-1 text-c-3">
+          :class="[
+            'group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-2 hover:text-c-1 pr-2.5 cursor-pointer',
+            (activeFlow?.selectedScopes?.length || 0) > 0
+              ? 'text-c-1'
+              : 'text-c-3',
+          ]">
+          <div class="flex-1">
             Selected
             {{ activeFlow?.selectedScopes?.length || 0 }} /
             {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}
@@ -71,7 +76,7 @@ function setScope(id: string, checked: boolean) {
               class="text-c-2"
               @click="setScope(id, !selectedScopes.includes(id))">
               <DataTableCell
-                class="w-full px-2 py-1.5 hover:bg-b-2 cursor-pointer">
+                class="w-full px-2 py-1.5 hover:text-c-1 cursor-pointer">
                 <span>
                   <span class="font-code text-xs">{{ label }}</span>
                   <span>&nbsp;&ndash; {{ description }}</span>
