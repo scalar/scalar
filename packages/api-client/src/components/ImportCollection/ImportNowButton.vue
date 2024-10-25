@@ -29,7 +29,7 @@ async function importCollection() {
           props.source,
           activeWorkspace.value.uid,
           {
-            watchForChanges: props.watchMode,
+            watchMode: props.watchMode,
           },
         )
         if (!error) redirectToFirstRequestInCollection(collection)

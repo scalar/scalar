@@ -84,7 +84,7 @@ async function importCollection() {
         activeWorkspace.value.uid,
         {
           proxy: activeWorkspace.value.proxyUrl,
-          watchForChanges: watchMode.value,
+          watchMode: watchMode.value,
         },
       )
 

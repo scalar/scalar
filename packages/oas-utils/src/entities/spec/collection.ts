@@ -71,13 +71,13 @@ export const extendedCollectionSchema = z.object({
    *
    * @remarks Only effective when `documentUrl` is set
    */
-  watchForChanges: z.boolean().optional().default(false),
+  watchMode: z.boolean().optional().default(false),
   /**
    * Status of the watcher from above
    *
    * @defaults to idle for all collections, doesn't mean that it can watch for changes
    */
-  watchForChangesStatus: z
+  watchModeStatus: z
     .enum(['IDLE', 'WATCHING', 'ERROR'])
     .optional()
     .default('IDLE'),

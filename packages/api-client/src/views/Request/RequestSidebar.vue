@@ -98,9 +98,9 @@ onBeforeUnmount(() => {
   events.hotKeys.off(handleHotKey)
 })
 
-const handleToggleWatchForChanges = (item?: SidebarItem) => {
+const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
-    item.watchForChanges = !item.watchForChanges
+    item.watchMode = !item.watchMode
   }
 }
 </script>
@@ -230,7 +230,7 @@ const handleToggleWatchForChanges = (item?: SidebarItem) => {
     v-if="!isReadOnly && menuItem"
     :menuItem="menuItem"
     @closeMenu="menuItem.open = false"
-    @toggleWatchForChanges="handleToggleWatchForChanges" />
+    @toggleWatchMode="handleToggleWatchMode" />
 </template>
 <style scoped>
 .search-button-fade {

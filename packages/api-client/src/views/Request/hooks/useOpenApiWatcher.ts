@@ -87,7 +87,7 @@ export const useOpenApiWatcher = () => {
 
       collectionMutators.edit(
         activeCollection.value.uid,
-        'watchForChangesStatus',
+        'watchModeStatus',
         'WATCHING',
       )
 
@@ -129,7 +129,7 @@ export const useOpenApiWatcher = () => {
       pause()
       collectionMutators.edit(
         activeCollection.value.uid,
-        'watchForChangesStatus',
+        'watchModeStatus',
         'ERROR',
       )
       toast(
@@ -144,21 +144,21 @@ export const useOpenApiWatcher = () => {
     }
   }, POLLING_INTERVAL)
 
-  // Ensure we are only polling when we should watchForChanges
+  // Ensure we are only polling when we should watchMode
   watch(
     [
       () => activeCollection.value?.documentUrl,
-      () => activeCollection.value?.watchForChanges,
+      () => activeCollection.value?.watchMode,
     ],
-    ([documentUrl, watchForChanges]) => {
-      if (documentUrl && watchForChanges) {
+    ([documentUrl, watchMode]) => {
+      if (documentUrl && watchMode) {
         console.info(`[useOpenApiWatcher] Watching ${documentUrl} …`)
         resume()
       } else if (activeCollection.value) {
         pause()
         collectionMutators.edit(
           activeCollection.value.uid,
-          'watchForChangesStatus',
+          'watchModeStatus',
           'IDLE',
         )
       }
