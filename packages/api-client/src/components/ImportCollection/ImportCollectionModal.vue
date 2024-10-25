@@ -67,7 +67,9 @@ const version = computed(() =>
 watch(
   () => props.source,
   (value) => {
-    prefetchUrl(value, activeWorkspace.value.proxyUrl)
+    if (isUrl(value)) {
+      prefetchUrl(value, activeWorkspace.value.proxyUrl)
+    }
 
     if (!value) {
       modalState.hide()
@@ -187,105 +189,103 @@ const handleExpandError = (message: string) => {
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
       <!-- Wait until the URL is fetched -->
       <div
-        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full">
-        <template v-if="prefetchResult.state === 'idle'">
-          <!-- Logo -->
+        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
+        :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
+        <!-- Logo -->
+        <div
+          v-if="shouldShowIntegrationIcon"
+          class="flex justify-center items-center mb-2 p-1">
+          <div class="rounded-xl">
+            <ScalarIcon
+              class="size-10 rounded-lg"
+              :logo="integrationIcon" />
+          </div>
+        </div>
+        <!-- Title -->
+        <div class="text-center text-md font-bold mb-2 line-clamp-1">
+          {{ title ?? 'Untitled Collection' }}
+        </div>
+        <div class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
+          Import the OpenAPI document to instantly send API requests. No signup
+          required.
+        </div>
+        <!-- Prefetch error -->
+        <template v-if="prefetchResult.error">
           <div
-            v-if="shouldShowIntegrationIcon"
-            class="flex justify-center items-center mb-2 p-1">
-            <div class="rounded-xl">
+            class="flex gap-2 justify-between items-center pt-2 pl-2 pr-1.5 pb-1.5 font-code text-sm border rounded break-words mt-4 w-full">
+            <div class="flex flex-1 gap-2">
               <ScalarIcon
-                class="size-10 rounded-lg"
-                :logo="integrationIcon" />
+                class="text-red flex-shrink-0"
+                icon="Error"
+                size="sm" />
+              <div class="break-all line-clamp-4 w-full">
+                {{ prefetchResult.error.slice(0, 100) }}...
+              </div>
             </div>
+            <span
+              class="bg-b-2 cursor-pointer inline-block self-end px-1.5 py-1 rounded text-xs"
+              @click="handleExpandError(prefetchResult.error)">
+              Expand
+            </span>
           </div>
-          <!-- Title -->
-          <div class="text-center text-md font-bold mb-2 line-clamp-1">
-            {{ title ?? 'Untitled Collection' }}
+        </template>
+
+        <!-- Actions -->
+        <template v-else-if="version">
+          <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
+            <!-- <OpenAppButton :source="source" /> -->
+            <ImportNowButton
+              :source="prefetchResult?.url ?? source"
+              variant="button"
+              :watchMode="watchMode"
+              @importFinished="() => $emit('importFinished')" />
           </div>
-          <div
-            class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
-            Import the OpenAPI document to instantly send API requests. No
-            signup required.
-          </div>
-          <!-- Prefetch error -->
-          <template v-if="prefetchResult.error">
+          <!-- Select the workspace -->
+          <div class="flex justify-center">
             <div
-              class="flex gap-2 justify-between items-center pt-2 pl-2 pr-1.5 pb-1.5 font-code text-sm border rounded break-words mt-4 w-full">
-              <div class="flex flex-1 gap-2">
-                <ScalarIcon
-                  class="text-red flex-shrink-0"
-                  icon="Error"
-                  size="sm" />
-                <div class="break-all line-clamp-4 w-full">
-                  {{ prefetchResult.error.slice(0, 100) }}...
-                </div>
+              class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
+              Import to: <WorkspaceSelector />
+            </div>
+          </div>
+          <!-- Watch Mode -->
+          <template v-if="prefetchResult?.url">
+            <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
+              <div class="flex items-center justify-center">
+                <WatchModeToggle
+                  v-model="watchMode"
+                  :disableToolTip="true" />
               </div>
-              <span
-                class="bg-b-2 cursor-pointer inline-block self-end px-1.5 py-1 rounded text-xs"
-                @click="handleExpandError(prefetchResult.error)">
-                Expand
-              </span>
-            </div>
-          </template>
-
-          <!-- Actions -->
-          <template v-else-if="version">
-            <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
-              <!-- <OpenAppButton :source="source" /> -->
-              <ImportNowButton
-                :source="prefetchResult?.url ?? source"
-                variant="button"
-                :watchMode="watchMode"
-                @importFinished="() => $emit('importFinished')" />
-            </div>
-            <!-- Select the workspace -->
-            <div class="flex justify-center">
               <div
-                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
-                Import to: <WorkspaceSelector />
-              </div>
-            </div>
-            <!-- Watch Mode -->
-            <template v-if="prefetchResult?.url">
-              <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
-                <div class="flex items-center justify-center">
-                  <WatchModeToggle
-                    v-model="watchMode"
-                    :disableToolTip="true" />
-                </div>
-                <div
-                  class="pt-0 text-center text-balance font-medium text-xs text-c-3">
-                  Automatically update your API client when the OpenAPI document
-                  content changes.
-                </div>
-              </div>
-            </template>
-          </template>
-
-          <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-          <template v-else-if="!version">
-            <div class="flex flex-col gap-2">
-              <div
-                class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-                <ScalarIcon
-                  class="text-red"
-                  icon="Error"
-                  size="sm" />
-                <div>
-                  This doesn’t look like a valid OpenAPI/Swagger document.
-                </div>
-              </div>
-
-              <div class="bg-b-2 h-48 border rounded custom-scroll">
-                <ScalarCodeBlock
-                  :content="
-                    prefetchResult.content?.trim() || props.source?.trim() || ''
-                  "
-                  :copy="false" />
+                class="pt-0 text-center text-balance font-medium text-xs text-c-3">
+                Automatically update your API client when the OpenAPI document
+                content changes.
               </div>
             </div>
           </template>
+        </template>
+
+        <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <template v-else-if="!version">
+          <div class="flex flex-col gap-2">
+            <div
+              class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+              <ScalarIcon
+                class="text-red"
+                icon="Error"
+                size="sm" />
+              <div>
+                This doesn’t look like a valid OpenAPI/Swagger document.
+              </div>
+            </div>
+
+            <div class="bg-b-2 h-48 border rounded custom-scroll">
+              <ScalarCodeBlock
+                :content="
+                  prefetchResult.content?.trim() || props.source?.trim() || ''
+                "
+                :copy="false" />
+            </div>
+          </div>
         </template>
       </div>
       <!-- Download Link -->
