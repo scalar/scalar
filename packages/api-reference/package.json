@@ -103,7 +103,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
-    "express": "^4.19.2",
+    "express": "^4.21.1",
     "postcss": "^8.4.38",
     "rollup-plugin-webpack-stats": "^0.2.5",
     "storybook": "^8.0.8",
