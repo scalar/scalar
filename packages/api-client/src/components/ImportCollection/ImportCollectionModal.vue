@@ -260,6 +260,12 @@ onUnmounted(() => {
 </template>
 <style>
 @screen md {
+  .has-no-import-url,
+  .has-import-url {
+    max-width: 100dvw;
+    overflow-x: hidden;
+    contain: paint;
+  }
   .has-no-import-url {
     opacity: 1;
     background: var(--scalar-background-1);
