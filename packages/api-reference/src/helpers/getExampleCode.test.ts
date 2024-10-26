@@ -82,4 +82,18 @@ describe('getExampleCode', () => {
 
     expect(result).toBe('')
   })
+
+  it('returns an empty string if passed undefined target', async () => {
+    const result = await getExampleCode(
+      createRequest({
+        method: 'POST',
+        url: 'https://example.com',
+      }),
+      // @ts-expect-error TODO
+      undefined,
+      'blue',
+    )
+
+    expect(result).toBe('')
+  })
 })
