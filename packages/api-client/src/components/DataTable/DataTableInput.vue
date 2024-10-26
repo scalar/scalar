@@ -81,7 +81,25 @@ const handleDropdownMouseUp = () => {
           @update:modelValue="emit('update:modelValue', $event)" />
       </template>
       <template v-else>
+        <input
+          v-if="mask && type === 'password'"
+          v-bind="$attrs"
+          :id="id"
+          autocomplete="off"
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.25 outline-none"
+          data-1p-ignore
+          :readOnly="readOnly"
+          spellcheck="false"
+          :type="inputType"
+          :value="modelValue"
+          @input="
+            emit(
+              'update:modelValue',
+              ($event.target as HTMLInputElement).value ?? '',
+            )
+          " />
         <CodeInput
+          v-else
           v-bind="$attrs"
           :id="id"
           class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer outline-none"
