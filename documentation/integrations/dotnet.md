@@ -4,7 +4,7 @@ The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar AP
 
 ## Basic Setup
 
-To set up Scalar, use the `MapScalarApiReference` method in your `Program.cs`. See the [README](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md) for general setup steps.
+To set up Scalar, use the `MapScalarApiReference` method in your `Program.cs`. See the [README](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md#usage) for general setup steps.
 
 ## Configuration Options
 
@@ -75,9 +75,9 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-### OpenAPI document
+### OpenAPI Document
 
-By default, Scalar uses the OpenAPI document located at `/openapi/{documentName}.json`, which aligns with the default route of Microsoft's built-in OpenAPI generator. If your OpenAPI document is located at a different path, such as with Swashbuckle or NSwag, you can specify the path using the `OpenApiRoutePattern` property:
+Scalar expects the OpenAPI document to be located at `/openapi/{documentName}.json`, matching the route of the built-in .NET OpenAPI generator. If the document is located elsewhere (e.g., when using Swashbuckle or NSwag), specify the path using the `OpenApiRoutePattern` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -88,9 +88,9 @@ app.MapScalarApiReference(options =>
 });
 ```
 
-### API reference Route
+### API Reference Route
 
-The Scalar API reference is initially accessible at `/scalar/{documentName}`, but you can customize this route using the `EndpointPathPrefix` property:
+The Scalar API reference is initially accessible at `/scalar/{documentName}`. Customize this route using the `EndpointPathPrefix` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -116,7 +116,7 @@ app.MapScalarApiReference(options =>
 
 ### Assets
 
-By default, Scalar uses local assets to render the UI. If you prefer to load assets from a CDN, you can set the `CdnUrl` property to specify the CDN path.
+Scalar uses local assets by default to render the UI. To load assets from a CDN or a different location, specify the `CdnUrl` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -128,7 +128,7 @@ app.MapScalarApiReference(options =>
 ```
 
 > [!NOTE]
-> Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to false.
+> Fonts are loaded from a CDN by default. To disable this, set `DefaultFonts` to `false`.
 
 ### Dependency Injection
 
