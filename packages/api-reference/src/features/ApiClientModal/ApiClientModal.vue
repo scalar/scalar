@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
+import { getBaseAuthValues } from '@scalar/oas-utils/transforms'
 import type {
   ReferenceConfiguration,
   Spec,
@@ -46,6 +47,52 @@ watch(server, (newServer) => {
   const serverUrl = getUrlFromServerState(newServer)
   if (serverUrl && client.value) client.value.updateServer(serverUrl)
 })
+
+// Update the authentication on change
+watch(
+  () => props.authentication,
+  (newAuth) => {
+    if (!newAuth?.preferredSecurityScheme || !client.value) return
+
+    console.log(newAuth.preferredSecurityScheme)
+
+    const firstCollection = Object.values(client.value.store.collections)[0]
+    if (!firstCollection) return
+
+    console.log(firstCollection)
+
+    // Select auth
+    const schemeUid = firstCollection.securitySchemes.find((uid) => {
+      client.value!.store.securitySchemes[uid].nameKey ===
+        newAuth.preferredSecurityScheme
+    })
+    if (!schemeUid) return
+
+    console.log(schemeUid)
+
+    client.value.store.collectionMutators.edit(
+      firstCollection.uid,
+      'selectedSecuritySchemeUids',
+      [schemeUid],
+    )
+
+    const scheme = Object.values(client.value.store.securitySchemes).find(
+      ({ nameKey }) => nameKey === newAuth.preferredSecurityScheme,
+    )
+    if (!scheme) return
+
+    console.log(scheme)
+
+    const baseValues = getBaseAuthValues(scheme, newAuth)
+    console.log(baseValues)
+    // // Update auth properties
+    // client.value.updateAuth({
+    //   nameKey: newAuth.preferredSecurityScheme,
+    //   propertyKey: 'username',
+    //   value: newAuth.username,
+    // })
+  },
+)
 
 // Update the spec on change
 watch(
