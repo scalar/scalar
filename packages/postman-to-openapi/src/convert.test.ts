@@ -106,7 +106,7 @@ describe('convert', () => {
     )
   })
 
-  // working on this (EASY)
+  // working on this
   it.skip('should parse status codes from test', async function () {
     expect(convert(COLLECTION_PARSE_STATUS_CODE as PostmanCollection)).toEqual(
       EXPECTED_PARSE_STATUS_CODE,
@@ -180,8 +180,7 @@ describe('convert', () => {
     )
   })
 
-  // working on this
-  it.skip('should parse POST methods with www form urlencoded', async function () {
+  it('should parse POST methods with www form urlencoded', async function () {
     expect(convert(COLLECTION_FORM_URLENCODED as PostmanCollection)).toEqual(
       EXPECTED_FORM_URLENCODED,
     )
@@ -193,14 +192,14 @@ describe('convert', () => {
     )
   })
 
-  // working on this
+  // working on this (idk man)
   it.skip('should not parse `disabled` parameters', async function () {
     expect(convert(COLLECTION_DISABLED as PostmanCollection)).toEqual(
       EXPECTED_DISABLED_PARAMS_DEFAULT,
     )
   })
 
-  // working on this
+  // working on this (I don't think this test makes sense for us we always add operationId)
   it.skip('should not add `operationId` by default', async function () {
     expect(convert(COLLECTION_OPERATION_IDS as PostmanCollection)).toEqual(
       EXPECTED_OPERATIONS_IDS,

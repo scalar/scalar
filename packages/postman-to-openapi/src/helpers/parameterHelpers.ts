@@ -93,7 +93,7 @@ function extractPathVariablesFromPathArray(
 /**
  * Creates an OpenAPI parameter object from a Postman parameter.
  */
-function createParameterObject(
+export function createParameterObject(
   param: any,
   paramIn: 'query' | 'path' | 'header',
 ): OpenAPIV3.ParameterObject {
