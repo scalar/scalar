@@ -1,6 +1,6 @@
 namespace Scalar.AspNetCore.Playground.Books;
 
-public sealed class Book
+internal sealed class Book
 {
     public Guid BookId { get; set; }
 

@@ -56,4 +56,3 @@ app.MapScalarApiReference(options =>
 app.MapBookEndpoints();
 
 app.Run();
-
