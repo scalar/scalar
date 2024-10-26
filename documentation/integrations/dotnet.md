@@ -1,4 +1,4 @@
-# Scalar.AspNetCore Integration
+# .NET Integration
 
 The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar API reference into your .NET 8+ application.
 
