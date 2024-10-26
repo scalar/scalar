@@ -1,6 +1,7 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { FormParameter, RequestBody, UrlEncodedParameter } from '../types'
+import { createParameterObject } from './parameterHelpers'
 
 /**
  * Extracts and converts the request body from a Postman request to an OpenAPI RequestBodyObject.
@@ -88,12 +89,18 @@ function handleUrlEncodedBody(
   const schema: OpenAPIV3.SchemaObject = {
     type: 'object',
     properties: {},
+    required: [],
   }
   urlencoded.forEach((item: UrlEncodedParameter) => {
     if (schema.properties) {
+      const paramObject = createParameterObject(item, 'query')
       schema.properties[item.key] = {
         type: 'string',
         example: item.value,
+        description: paramObject.description,
+      }
+      if (paramObject.required) {
+        schema.required?.push(item.key)
       }
     }
   })
