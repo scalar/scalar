@@ -149,8 +149,8 @@ The `MapScalarApiReference` method is implemented as a minimal API endpoint and 
 
 ```csharp
 app
-    .MapScalarApiReference()
-    .RequireAuthorization();
+  .MapScalarApiReference()
+  .RequireAuthorization();
 ```
 
 For all available configuration properties and their default values, check out the [ScalarOptions](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) and the [`ScalarOptionsExtensions`](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Extensions/ScalarOptionsExtensions.cs).
