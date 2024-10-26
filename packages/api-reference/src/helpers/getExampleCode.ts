@@ -34,7 +34,7 @@ export async function getExampleCode(
 
   // httpsnippet-lite
   try {
-    const httpSnippetLiteTargetKey = target.replace(
+    const httpSnippetLiteTargetKey = target?.replace(
       'js',
       'javascript',
     ) as HttpSnippetLiteTargetId
