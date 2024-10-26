@@ -8,7 +8,7 @@ internal static class BookEndpoints
     {
         var books = builder.MapGroup("/books")
             .WithTags("bookstore")
-            .RequireAuthorization(AuthConstants.ApiKey, AuthConstants.Bearer);
+            .RequireAuthorization();
 
         books
             .MapGet("/", ([FromServices] BookStore bookStore) => bookStore.GetAll())
