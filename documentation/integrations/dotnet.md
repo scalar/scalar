@@ -26,10 +26,10 @@ app.MapScalarApiReference(options =>
 
 ### Authentication
 
-Scalar supports different authentication schemes, such as OAuth and API Key, by allowing you to provide authentication information.
+Scalar supports various authentication schemes, including OAuth and API Key, by allowing you to pre-fill certain authentication details.
 
 > [!NOTE]
-> Security schemes and flows are derived from the OpenAPI document, not defined by Scalar.
+> The available security schemes and flows are defined in the OpenAPI document your app provides, not within Scalar itself.
 
 #### API Key
 
@@ -40,7 +40,7 @@ app.MapScalarApiReference(options =>
 {
     // Fluent API
     options
-        .WithPreferredScheme("ApiKey") // Name of the security scheme in the OpenAPI document
+        .WithPreferredScheme("ApiKey") // Security scheme name from the OpenAPI document
         .WithApiKeyAuthentication(apiKey =>
         {
             apiKey.Token = "your-api-key";
@@ -49,7 +49,7 @@ app.MapScalarApiReference(options =>
     // Object initializer
     options.Authentication = new ScalarAuthenticationOptions
     {
-        PreferredSecurityScheme = "ApiKey", // Name of the security scheme in the OpenAPI document
+        PreferredSecurityScheme = "ApiKey", // Security scheme name from the OpenAPI document
         ApiKey = new ApiKeyOptions
         {
             Token = "your-api-key"
@@ -60,13 +60,13 @@ app.MapScalarApiReference(options =>
 
 #### OAuth
 
-Similarly, OAuth fields like the client ID and scopes can be pre-filled.
+Similarly, you can pre-fill OAuth fields like the client ID and scopes:
 
 ```csharp
 app.MapScalarApiReference(options =>
 {
     options
-        .WithPreferredScheme("OAuth2") // Name of the security scheme in the OpenAPI document
+        .WithPreferredScheme("OAuth2") // Security scheme name from the OpenAPI document
         .WithOAuth2Authentication(oauth =>
         {
             oauth.ClientId = "your-client-id";
