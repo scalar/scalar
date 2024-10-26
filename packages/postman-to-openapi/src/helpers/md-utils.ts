@@ -7,7 +7,18 @@ const supHeaders = [
   'required',
 ]
 
-export function parseMdTable(md: string) {
+type TableCell = {
+  [key: string]: string
+}
+
+type TableObject = {
+  [key: string]: TableCell
+}
+
+/**
+ * Parses a Markdown table and returns an object representation.
+ */
+export function parseMdTable(md: string): TableObject {
   const lines = md.split('\n').filter((line) => line.trim() !== '')
   if (lines.length < 3) return {}
 
@@ -26,14 +37,19 @@ export function parseMdTable(md: string) {
       .filter(Boolean),
   )
 
-  const tableObj = rows.reduce((accTable, cell) => {
-    const cellObj = cell.reduce((accCell, field, index) => {
-      if (headers[index]) {
-        accCell[headers[index]] = field
-      }
-      return accCell
-    }, {})
-    accTable[cellObj.name] = cellObj
+  const tableObj: TableObject = rows.reduce((accTable: TableObject, cell) => {
+    const cellObj: TableCell = cell.reduce(
+      (accCell: TableCell, field, index) => {
+        if (headers[index] && typeof headers[index] === 'string') {
+          accCell[headers[index] as string] = field
+        }
+        return accCell
+      },
+      {},
+    )
+    if (cellObj.name) {
+      accTable[cellObj.name] = cellObj
+    }
     return accTable
   }, {})
 

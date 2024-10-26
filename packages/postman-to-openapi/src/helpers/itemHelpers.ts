@@ -2,6 +2,7 @@ import type { OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { Item, ItemGroup } from '../types'
 import { processAuth } from './authHelpers'
+import { parseMdTable } from './md-utils'
 import { extractParameters } from './parameterHelpers'
 import { extractRequestBody } from './requestBodyHelpers'
 import { extractResponses } from './responseHelpers'
@@ -62,7 +63,9 @@ export function processItem(
     return { paths, components }
   }
 
-  if (!('request' in item)) return { paths, components }
+  if (!('request' in item)) {
+    return { paths, components }
+  }
 
   const { request, name, response } = item
   const method = (
@@ -82,15 +85,17 @@ export function processItem(
   const operationId = operationIdMatch ? operationIdMatch[1] : undefined
   const summary = operationIdMatch ? name?.replace(/\s*\[[^\]]+\]$/, '') : name
 
+  const description =
+    typeof request === 'string'
+      ? ''
+      : typeof request.description === 'string'
+        ? request.description
+        : (request.description?.content ?? '')
+
   const operationObject: OpenAPIV3.OperationObject = {
     tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
     summary,
-    description:
-      typeof request === 'string'
-        ? ''
-        : typeof request.description === 'string'
-          ? request.description
-          : (request.description?.content ?? ''),
+    description,
     responses: extractResponses(response || []),
     parameters: [],
   }
@@ -100,11 +105,26 @@ export function processItem(
     operationObject.operationId = operationId
   }
 
-  try {
-    operationObject.parameters = extractParameters(request)
-  } catch (error) {
-    // Silently handle parameter extraction errors
-    operationObject.parameters = []
+  // Parse parameters from the description's Markdown table
+  if (operationObject.description) {
+    const { descriptionWithoutTable, parametersFromTable } =
+      parseParametersFromDescription(operationObject.description)
+    operationObject.description = descriptionWithoutTable.trim()
+
+    // Extract parameters from the request (query, path, header)
+    const extractedParameters = extractParameters(request)
+
+    // Merge parameters, giving priority to those from the Markdown table
+    const mergedParameters = new Map<string, OpenAPIV3.ParameterObject>()
+
+    extractedParameters.forEach((param) => {
+      if (param.name) mergedParameters.set(param.name, param)
+    })
+    parametersFromTable.forEach((param) => {
+      if (param.name) mergedParameters.set(param.name, param)
+    })
+
+    operationObject.parameters = Array.from(mergedParameters.values())
   }
 
   if (typeof request !== 'string' && request.auth) {
@@ -136,6 +156,7 @@ export function processItem(
   const pathItem = paths[path] as OpenAPIV3.PathItemObject
   pathItem[method] = operationObject
 
+  // Handle responses
   if (item.response && item.response.length > 0) {
     const firstResponse = item.response[0]
     const statusCode = firstResponse.code || 200
@@ -163,4 +184,71 @@ export function processItem(
   }
 
   return { paths, components }
+}
+
+// Helper function to parse parameters from the description if it is markdown
+function parseParametersFromDescription(description: string): {
+  descriptionWithoutTable: string
+  parametersFromTable: OpenAPIV3.ParameterObject[]
+} {
+  const lines = description.split('\n')
+  let inTable = false
+  const tableLines: string[] = []
+  const descriptionLines: string[] = []
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Detect the start of the table
+    if (line.trim().startsWith('|')) {
+      // Remove any preceding headers or empty lines before the table
+      while (
+        descriptionLines.length > 0 &&
+        (descriptionLines[descriptionLines.length - 1].trim() === '' ||
+          descriptionLines[descriptionLines.length - 1].trim().startsWith('#'))
+      ) {
+        descriptionLines.pop()
+      }
+
+      // Start collecting table lines
+      inTable = true
+    }
+
+    if (inTable) {
+      tableLines.push(line)
+      // Detect the end of the table (any line that doesn't start with '|', excluding the alignment line)
+      if (!line.trim().startsWith('|') && !line.trim().match(/^-+$/)) {
+        inTable = false
+      }
+    } else {
+      descriptionLines.push(line)
+    }
+  }
+
+  const tableMarkdown = tableLines.join('\n')
+  const parsedTable = parseMdTable(tableMarkdown)
+  const parametersFromTable = Object.values(parsedTable).map(
+    (paramData: any) => {
+      const paramIn = paramData.object as 'query' | 'header' | 'path'
+
+      const param: OpenAPIV3.ParameterObject = {
+        name: paramData.name,
+        in: paramIn,
+        description: paramData.description,
+        required: paramData.required === 'true',
+        schema: {
+          type: paramData.type,
+        },
+      }
+
+      if (paramData.example) {
+        param.example = paramData.example
+      }
+
+      return param
+    },
+  )
+
+  const descriptionWithoutTable = descriptionLines.join('\n')
+  return { descriptionWithoutTable, parametersFromTable }
 }
