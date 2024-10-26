@@ -8,6 +8,17 @@ using Scalar.AspNetCore.Playground.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<BookStore>();
 
+builder.Services.AddApiWeaver(options =>
+{
+    options.AddExample(new Book
+    {
+        BookId = Guid.NewGuid(),
+        Title = "Scalar - The Next Generation",
+        Description = "A book about Scalar",
+        Pages = 69
+    });
+});
+
 builder.Services.AddOpenApi(options =>
 {
     // Adds api key security scheme to the api
