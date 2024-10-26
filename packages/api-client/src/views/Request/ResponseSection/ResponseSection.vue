@@ -67,10 +67,17 @@ const shouldVirtualize = computed(
 <template>
   <ViewLayoutSection>
     <template #title>
-      <div class="flex items-center flex-1">
-        Response
+      <div
+        class="flex items-center flex-1"
+        :class="{
+          'animate-response-heading': response,
+        }">
+        <span class="response-heading absolute pointer-events-none"
+          >Response</span
+        >
         <ResponseMetaInformation
           v-if="response"
+          class="animate-response-children"
           :response="response" />
         <ContextBar
           :activeSection="activeSection"
@@ -109,3 +116,34 @@ const shouldVirtualize = computed(
     </div>
   </ViewLayoutSection>
 </template>
+<style scoped>
+.animate-response-heading .response-heading {
+  animation: push-response 0.2s ease-in-out forwards;
+  opacity: 1;
+}
+@keyframes push-response {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.animate-response-heading .animate-response-children {
+  animation: response-spans 0.2s ease-in-out forwards 0.05s;
+  opacity: 0;
+}
+
+@keyframes response-spans {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>

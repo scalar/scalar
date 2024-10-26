@@ -46,7 +46,7 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
 })
 </script>
 <template>
-  <div class="flex gap-1.5 text-c-3 pl-1">
+  <div class="flex gap-1.5 text-c-1">
     <span v-if="interval && stopwatch">{{
       prettyMilliseconds(stopwatch)
     }}</span>
