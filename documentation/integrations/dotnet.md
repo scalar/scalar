@@ -1,6 +1,6 @@
 # Scalar.AspNetCore Integration
 
-The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar API reference into your .NET 8+ application. This documentation covers configuration options for `Scalar.AspNetCore`, such as OAuth use cases, CDN configuration, and other settings available through the [`ScalarOptions`](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) class.
+The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar API reference into your .NET 8+ application.
 
 ## Basic Setup
 
@@ -75,6 +75,32 @@ app.MapScalarApiReference(options =>
 });
 ```
 
+### OpenAPI document
+
+By default, Scalar uses the OpenAPI document located at `/openapi/{documentName}.json`, which aligns with the default route of Microsoft's built-in OpenAPI generator. If your OpenAPI document is located at a different path, such as with Swashbuckle or NSwag, you can specify the path using the `OpenApiRoutePattern` property:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
+    // or
+    options.OpenApiRoutePattern = "/swagger/{documentName}.json";
+});
+```
+
+### API reference Route
+
+The Scalar API reference is initially accessible at `/scalar/{documentName}`, but you can customize this route using the `EndpointPathPrefix` property:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    options.WithEndpointPrefix("/api-reference/{documentName}");
+    // or
+    options.EndpointPathPrefix = "/api-reference/{documentName}";
+});
+```
+
 ### Custom HTTP Client
 
 Scalar allows you to set a default HTTP client for code samples. The [`ScalarTarget`](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Enums/ScalarTarget.cs) enum specifies the language, and the [`ScalarClient`](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Enums/ScalarClient.cs) enum specifies the client type.
@@ -82,11 +108,8 @@ Scalar allows you to set a default HTTP client for code samples. The [`ScalarTar
 ```csharp
 app.MapScalarApiReference(options =>
 {
-    // Fluent API
-    options
-        .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-
-    // Object initializer
+    options.WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+    // or
     options.DefaultHttpClient = new(ScalarTarget.CSharp, ScalarClient.HttpClient);
 });
 ```
@@ -98,6 +121,8 @@ By default, Scalar uses local assets to render the UI. If you prefer to load ass
 ```csharp
 app.MapScalarApiReference(options =>
 {
+    options.WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference");
+    // or
     options.CdnUrl = "https://cdn.jsdelivr.net/npm/@scalar/api-reference";
 });
 ```
@@ -110,14 +135,22 @@ app.MapScalarApiReference(options =>
 Configuration options can also be set via dependency injection:
 
 ```csharp
-builder.Services.Configure<ScalarOptions>(options => options.Title = "My custom API");
-
+builder.Services.Configure<ScalarOptions>(options => options.Title = "My API");
 // or
-
 builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 ```
 
 > [!NOTE]
-> Options set via the `MapScalarApiReference` method take precedence over options set via dependency injection.
+> Options set via the `MapScalarApiReference` method override those set through dependency injection.
+
+### Additional information
+
+The `MapScalarApiReference` method is implemented as a minimal API endpoint and returns an `IEndpointConventionBuilder`, allowing you to use minimal API features such as authorization:
+
+```csharp
+app
+    .MapScalarApiReference()
+    .RequireAuthorization();
+```
 
 For all available configuration properties and their default values, check out the [ScalarOptions](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Options/ScalarOptions.cs) and the [`ScalarOptionsExtensions`](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/src/Scalar.AspNetCore/Extensions/ScalarOptionsExtensions.cs).
