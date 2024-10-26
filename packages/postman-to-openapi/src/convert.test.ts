@@ -61,62 +61,62 @@ import EXPECTED_VARIABLES from './fixtures/output/Variables.json'
 import EXPECTED_X_LOGO from './fixtures/output/XLogoVar.json'
 import type { PostmanCollection } from './types'
 
-// describe('basic Auth', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_AUTH_BASIC as PostmanCollection)).toEqual(
-//       EXPECTED_AUTH_BASIC,
-//     )
-//   })
-// })
+describe('basic Auth', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_AUTH_BASIC as PostmanCollection)).toEqual(
+      EXPECTED_AUTH_BASIC,
+    )
+  })
+})
 
-// describe('bearer Auth', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_AUTH_BEARER as PostmanCollection)).toEqual(
-//       EXPECTED_AUTH_BEARER,
-//     )
-//   })
-// })
+describe('bearer Auth', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_AUTH_BEARER as PostmanCollection)).toEqual(
+      EXPECTED_AUTH_BEARER,
+    )
+  })
+})
 
-// describe('multiple Auth', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_AUTH_MULTIPLE as PostmanCollection)).toEqual(
-//       EXPECTED_AUTH_MULTIPLE,
-//     )
-//   })
-// })
+describe('multiple Auth', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_AUTH_MULTIPLE as PostmanCollection)).toEqual(
+      EXPECTED_AUTH_MULTIPLE,
+    )
+  })
+})
 
-// describe('auth request', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_AUTH_REQUEST as PostmanCollection)).toEqual(
-//       EXPECTED_AUTH_REQUEST,
-//     )
-//   })
-// })
+describe('auth request', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_AUTH_REQUEST as PostmanCollection)).toEqual(
+      EXPECTED_AUTH_REQUEST,
+    )
+  })
+})
 
-// // we don't support basepath vars yet like [this](https://github.com/joolfe/postman-to-openapi/blob/476c8e114614f963e14a296c1c87a23c6c78d8dc/test/index.spec.js#L464C1-L476C9)
-// describe.skip('basepath var', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_BASEPATH_VAR as PostmanCollection)).toEqual(
-//       EXPECTED_BASEPATH_VAR,
-//     )
-//   })
-// })
+// we don't support basepath vars yet like [this](https://github.com/joolfe/postman-to-openapi/blob/476c8e114614f963e14a296c1c87a23c6c78d8dc/test/index.spec.js#L464C1-L476C9)
+describe.skip('basepath var', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_BASEPATH_VAR as PostmanCollection)).toEqual(
+      EXPECTED_BASEPATH_VAR,
+    )
+  })
+})
 
-// describe('multiple servers', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_MULTIPLE_SERVERS as PostmanCollection)).toEqual(
-//       EXPECTED_MULTIPLE_SERVERS,
-//     )
-//   })
-// })
+describe('multiple servers', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_MULTIPLE_SERVERS as PostmanCollection)).toEqual(
+      EXPECTED_MULTIPLE_SERVERS,
+    )
+  })
+})
 
-// describe('delete operation', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_DELETE_OPERATION as PostmanCollection)).toEqual(
-//       EXPECTED_DELETE_OPERATION,
-//     )
-//   })
-// })
+describe('delete operation', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_DELETE_OPERATION as PostmanCollection)).toEqual(
+      EXPECTED_DELETE_OPERATION,
+    )
+  })
+})
 
 //still working on this
 describe('depth path params', () => {
@@ -127,146 +127,146 @@ describe('depth path params', () => {
   })
 })
 
-// describe('empty url', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_EMPTY_URL as PostmanCollection)).toEqual(
-//       EXPECTED_EMPTY_URL,
-//     )
-//   })
-// })
+describe('empty url', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_EMPTY_URL as PostmanCollection)).toEqual(
+      EXPECTED_EMPTY_URL,
+    )
+  })
+})
 
-// describe('external docs', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_EXTERNAL_DOCS as PostmanCollection)).toEqual(
-//       EXPECTED_EXTERNAL_DOCS,
-//     )
-//   })
-// })
+describe('external docs', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_EXTERNAL_DOCS as PostmanCollection)).toEqual(
+      EXPECTED_EXTERNAL_DOCS,
+    )
+  })
+})
 
-// //still working on this
-// describe.skip('form data', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_FORM_DATA as PostmanCollection)).toEqual(
-//       EXPECTED_FORM_DATA,
-//     )
-//   })
-// })
+//still working on this
+describe.skip('form data', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_FORM_DATA as PostmanCollection)).toEqual(
+      EXPECTED_FORM_DATA,
+    )
+  })
+})
 
-// describe('get methods', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_GET_METHODS as PostmanCollection)).toEqual(
-//       EXPECTED_GET_METHODS,
-//     )
-//   })
-// })
+describe('get methods', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_GET_METHODS as PostmanCollection)).toEqual(
+      EXPECTED_GET_METHODS,
+    )
+  })
+})
 
-// //still working on this
-// describe.skip('headers', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_HEADERS as PostmanCollection)).toEqual(
-//       EXPECTED_HEADERS,
-//     )
-//   })
-// })
+//still working on this
+describe.skip('headers', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_HEADERS as PostmanCollection)).toEqual(
+      EXPECTED_HEADERS,
+    )
+  })
+})
 
-// //still working on this
-// describe.skip('json comments', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_JSON_COMMENTS as PostmanCollection)).toEqual(
-//       EXPECTED_JSON_COMMENTS,
-//     )
-//   })
-// })
+//still working on this
+describe.skip('json comments', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_JSON_COMMENTS as PostmanCollection)).toEqual(
+      EXPECTED_JSON_COMMENTS,
+    )
+  })
+})
 
-// describe('license contact', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_LICENSE_CONTACT as PostmanCollection)).toEqual(
-//       EXPECTED_LICENSE_CONTACT,
-//     )
-//   })
-// })
+describe('license contact', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_LICENSE_CONTACT as PostmanCollection)).toEqual(
+      EXPECTED_LICENSE_CONTACT,
+    )
+  })
+})
 
-// describe('no path', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_NO_PATH as PostmanCollection)).toEqual(
-//       EXPECTED_NO_PATH,
-//     )
-//   })
-// })
+describe('no path', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_NO_PATH as PostmanCollection)).toEqual(
+      EXPECTED_NO_PATH,
+    )
+  })
+})
 
-// // I fixed it but I don't really agree with no operation id, that's just me tho so this test is still failing
-// describe.skip('operation ids', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_OPERATION_IDS as PostmanCollection)).toEqual(
-//       EXPECTED_OPERATION_IDS,
-//     )
-//   })
-// })
+// I fixed it but I don't really agree with no operation id, that's just me tho so this test is still failing
+describe.skip('operation ids', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_OPERATION_IDS as PostmanCollection)).toEqual(
+      EXPECTED_OPERATION_IDS,
+    )
+  })
+})
 
-// // still working on this
-// describe.skip('path params', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_PATH_PARAMS as PostmanCollection)).toEqual(
-//       EXPECTED_PATH_PARAMS,
-//     )
-//   })
-// })
+// still working on this
+describe.skip('path params', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_PATH_PARAMS as PostmanCollection)).toEqual(
+      EXPECTED_PATH_PARAMS,
+    )
+  })
+})
 
-// describe('raw body', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_RAW_BODY as PostmanCollection)).toEqual(
-//       EXPECTED_RAW_BODY,
-//     )
-//   })
-// })
+describe('raw body', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_RAW_BODY as PostmanCollection)).toEqual(
+      EXPECTED_RAW_BODY,
+    )
+  })
+})
 
-// // still working on this
-// describe.skip('responses', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_RESPONSES as PostmanCollection)).toEqual(
-//       EXPECTED_RESPONSES,
-//     )
-//   })
-// })
+// still working on this
+describe.skip('responses', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_RESPONSES as PostmanCollection)).toEqual(
+      EXPECTED_RESPONSES,
+    )
+  })
+})
 
-// // still working on this
-// describe.skip('response empty', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_RESPONSE_EMPTY as PostmanCollection)).toEqual(
-//       EXPECTED_RESPONSE_EMPTY,
-//     )
-//   })
-// })
+// still working on this
+describe.skip('response empty', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_RESPONSE_EMPTY as PostmanCollection)).toEqual(
+      EXPECTED_RESPONSE_EMPTY,
+    )
+  })
+})
 
-// // still working on this
-// describe.skip('response multilang', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_RESPONSE_MULTILANG as PostmanCollection)).toEqual(
-//       EXPECTED_RESPONSE_MULTILANG,
-//     )
-//   })
-// })
+// still working on this
+describe.skip('response multilang', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_RESPONSE_MULTILANG as PostmanCollection)).toEqual(
+      EXPECTED_RESPONSE_MULTILANG,
+    )
+  })
+})
 
-// describe('url with port', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_URL_WITH_PORT as PostmanCollection)).toEqual(
-//       EXPECTED_URL_WITH_PORT,
-//     )
-//   })
-// })
+describe('url with port', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_URL_WITH_PORT as PostmanCollection)).toEqual(
+      EXPECTED_URL_WITH_PORT,
+    )
+  })
+})
 
-// describe.skip('variables', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_VARIABLES as PostmanCollection)).toEqual(
-//       EXPECTED_VARIABLES,
-//     )
-//   })
-// })
+describe.skip('variables', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_VARIABLES as PostmanCollection)).toEqual(
+      EXPECTED_VARIABLES,
+    )
+  })
+})
 
-// describe('x logo', () => {
-//   it('convert collection to openapi', () => {
-//     expect(convert(COLLECTION_X_LOGO as PostmanCollection)).toEqual(
-//       EXPECTED_X_LOGO,
-//     )
-//   })
-// })
+describe('x logo', () => {
+  it('convert collection to openapi', () => {
+    expect(convert(COLLECTION_X_LOGO as PostmanCollection)).toEqual(
+      EXPECTED_X_LOGO,
+    )
+  })
+})
