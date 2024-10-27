@@ -67,7 +67,7 @@ const updateRequestNameHandler = (event: Event) => {
   <ViewLayoutSection>
     <template #title>
       <div
-        class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none h-full">
+        class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
           v-if="!isReadOnly"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"

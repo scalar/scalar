@@ -68,7 +68,7 @@ const shouldVirtualize = computed(
   <ViewLayoutSection>
     <template #title>
       <div
-        class="flex items-center flex-1"
+        class="flex items-center flex-1 h-8"
         :class="{
           'animate-response-heading': response,
         }">
