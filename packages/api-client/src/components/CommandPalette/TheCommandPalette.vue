@@ -233,12 +233,12 @@ onBeforeUnmount(() => {
     :open="modalState.open"
     @close="closeHandler()">
     <div class="commandmenu-overlay z-overlay" />
-    <DialogPanel class="commandmenu z-overlay flex flex-co">
+    <DialogPanel class="commandmenu z-overlay flex flex-col">
       <DialogTitle class="sr-only">API Client Command Menu</DialogTitle>
       <!-- Default palette (command list) -->
       <div
         v-if="!activeCommand"
-        class="flex-1 min-h-0 p-1.5 custom-scroll rounded-lg">
+        class="flex-1 min-h-0 max-h-[50dvh] p-1.5 custom-scroll rounded-lg">
         <div
           class="bg-b-2 border border-transparent flex items-center rounded-md sticky top-0 pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:bg-b-1 focus-within:border-b-3">
           <label for="commandmenu">
@@ -330,7 +330,7 @@ onBeforeUnmount(() => {
   box-shadow: var(--scalar-shadow-2);
   border-radius: var(--scalar-radius-lg);
   background-color: var(--scalar-background-1);
-  max-height: 50dvh;
+  max-height: 60dvh;
   width: 100%;
   max-width: 580px;
   margin: 12px;
