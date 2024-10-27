@@ -97,5 +97,8 @@ watch(hash, (newHash, oldHash) => {
   border-top: var(--scalar-border-width) solid
     var(--scalar-sidebar-border-color, var(--scalar-border-color));
   padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

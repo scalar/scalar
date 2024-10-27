@@ -55,7 +55,6 @@ const href = computed(() => {
   text-decoration: none;
   border-radius: var(--scalar-radius);
   box-shadow: 0 0 0 0.5px var(--scalar-border-color);
-  margin-bottom: 12px;
   gap: 6px;
   color: var(--scalar-sidebar-color-1);
 }
