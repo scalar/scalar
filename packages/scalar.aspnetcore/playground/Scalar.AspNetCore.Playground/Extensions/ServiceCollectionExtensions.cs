@@ -4,11 +4,10 @@ namespace Scalar.AspNetCore.Playground.Extensions;
 
 internal static class ServiceCollectionExtensions
 {
-    internal static IServiceCollection AddApiKeyAuthentication(this IServiceCollection services)
+    internal static void AddAuthenticationScheme(this IServiceCollection services)
     {
-        services.AddAuthentication("ApiKey")
-            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>("ApiKey", null);
+        services.AddAuthentication(AuthConstants.ApiKey)
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationSchemeHandler>(AuthConstants.ApiKey, null);
         services.AddAuthorization();
-        return services;
     }
 }
