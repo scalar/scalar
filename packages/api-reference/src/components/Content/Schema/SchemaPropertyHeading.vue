@@ -168,7 +168,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 
 .property-read-only,
 .property-write-only {
-  font-size: var(--scalar-font-size-3);
+  font-size: var(--scalar-micro);
   color: var(--scalar-color-blue);
 }
 
