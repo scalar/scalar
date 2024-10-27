@@ -8,7 +8,7 @@ This .NET package `Scalar.AspNetCore` provides an easy way to render beautiful A
 
 Made possible by the wonderful work of [@captainsafia](https://github.com/captainsafia) on [building the integration and docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents?view=aspnetcore-9.0#use-scalar-for-interactive-api-documentation) for the Scalar & .NET integration. Thanks to [@xC0dex](https://github.com/xC0dex) for making it awesome.
 
-![dotnet](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/dotnet.jpg)
+![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/packages/scalar.aspnetcore/dotnet.jpg)
 
 ## Usage
 
@@ -29,7 +29,9 @@ using Scalar.AspNetCore;
 
 3. **Configure your application**
 
-Add the following lines to your `Program.cs` for .NET 9:
+Add the following to `Program.cs` based on your OpenAPI generator:
+
+For .NET 9 using `Microsoft.AspNetCore.OpenApi`:
 
 ```csharp
 builder.Services.AddOpenApi();
@@ -41,7 +43,7 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-or for .NET 8 with Swashbuckle:
+For .NET 8 using `Swashbuckle`:
 
 ```csharp
 builder.Services.AddEndpointsApiExplorer();
@@ -51,13 +53,29 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger(options =>
     {
-        options.RouteTemplate = "openapi/{documentName}.json";
+        options.RouteTemplate = "/openapi/{documentName}.json";
     });
     app.MapScalarApiReference();
 }
 ```
 
-That's it! 🎉 Now you will see the Scalar UI when using the defaults by navigating to `/scalar/v1` in your browser.
+For .NET 8 using `NSwag`:
+
+```csharp
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseOpenApi(options =>
+    {
+        options.Path = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
+That’s it! 🎉 With the default settings, you can now access the Scalar API reference at `/scalar/v1` in your browser, where `v1` is the default document name.
 
 ## Configuration
 

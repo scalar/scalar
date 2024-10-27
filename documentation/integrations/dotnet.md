@@ -4,7 +4,70 @@ The `Scalar.AspNetCore` package provides a simple way to integrate the Scalar AP
 
 ## Basic Setup
 
-To set up Scalar, use the `MapScalarApiReference` method in your `Program.cs`. See the [README](https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/README.md#usage) for general setup steps.
+1. **Install the package**
+
+```shell
+dotnet add package Scalar.AspNetCore --version 1.2.*
+```
+
+> [!NOTE]
+> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `1.2.*`.
+
+2. **Add the using directive**
+
+```csharp
+using Scalar.AspNetCore;
+```
+
+3. **Configure your application**
+
+Add the following to `Program.cs` based on your OpenAPI generator:
+
+For .NET 9 using `Microsoft.AspNetCore.OpenApi`:
+
+```csharp
+builder.Services.AddOpenApi();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference();
+}
+```
+
+For .NET 8 using `Swashbuckle`:
+
+```csharp
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
+For .NET 8 using `NSwag`:
+
+```csharp
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddOpenApiDocument();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseOpenApi(options =>
+    {
+        options.Path = "/openapi/{documentName}.json";
+    });
+    app.MapScalarApiReference();
+}
+```
+
+That’s it! 🎉 With the default settings, you can now access the Scalar API reference at `/scalar/v1` in your browser, where `v1` is the default document name.
 
 ## Configuration Options
 
@@ -27,6 +90,9 @@ app.MapScalarApiReference(options =>
 ### Authentication
 
 Scalar supports various authentication schemes, including OAuth and API Key, by allowing you to pre-fill certain authentication details.
+
+> [!WARNING]
+> Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
 
 > [!NOTE]
 > The available security schemes and flows are defined in the OpenAPI document your app provides, not within Scalar itself.
@@ -77,7 +143,7 @@ app.MapScalarApiReference(options =>
 
 ### OpenAPI Document
 
-Scalar expects the OpenAPI document to be located at `/openapi/{documentName}.json`, matching the route of the built-in .NET OpenAPI generator. If the document is located elsewhere (e.g., when using Swashbuckle or NSwag), specify the path using the `OpenApiRoutePattern` property:
+Scalar expects the OpenAPI document to be located at `/openapi/{documentName}.json`, matching the route of the built-in .NET OpenAPI generator in the `Microsoft.AspNetCore.OpenApi` package. If the document is located elsewhere (e.g., when using `Swashbuckle` or `NSwag`), specify the path using the `OpenApiRoutePattern` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -143,7 +209,7 @@ builder.Services.AddOptions<ScalarOptions>().BindConfiguration("Scalar");
 > [!NOTE]
 > Options set via the `MapScalarApiReference` method override those set through dependency injection.
 
-### Additional information
+## Additional information
 
 The `MapScalarApiReference` method is implemented as a minimal API endpoint and returns an `IEndpointConventionBuilder`, allowing you to use minimal API features such as authorization:
 
