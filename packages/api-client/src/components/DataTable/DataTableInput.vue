@@ -72,7 +72,7 @@ const handleDropdownMouseUp = () => {
       class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
       <slot />
     </div>
-    <div class="row-1">
+    <div class="row-1 overflow-x-auto">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
           :canAddCustomValue="canAddCustomEnumValue"
