@@ -141,19 +141,27 @@ export function createExampleFromRequest(
   // ---------------------------------------------------------------------------
   // Populate all parameters with an example value
   const parameters: Record<
-    'path' | 'cookie' | 'header' | 'query',
+    'path' | 'cookie' | 'header' | 'query' | 'headers',
     RequestExampleParameter[]
   > = {
     path: [],
     query: [],
     cookie: [],
+    // deprecated TODO: add zod transform to remove
     header: [],
+    headers: [],
   }
 
   // Populated the separated params
   request.parameters?.forEach((p) =>
     parameters[p.in].push(createParamInstance(p)),
   )
+
+  // TODO: add zod transform to remove header and only support headers
+  if (parameters.header.length > 0) {
+    parameters.headers = parameters.header
+    parameters.header = []
+  }
 
   // ---------------------------------------------------------------------------
   // Handle request body defaulting for various content type encodings
