@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.62
+
+### Patch Changes
+
+- 097ab40: fix: add mapping of header to headers for api client ingress
+- Updated dependencies [197e3ae]
+  - @scalar/themes@0.9.43
+
 ## 0.2.61
 
 ### Patch Changes

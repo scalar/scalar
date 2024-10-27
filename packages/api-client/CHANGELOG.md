@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.1.35
+
+### Patch Changes
+
+- 9f9c5b7: (style)api-client: response flip animation
+- 15b6082: fix: favors input on data table password type when masked
+- 9affbe3: fix: add an overflow to the dataTableInput to prevent it from overflowing
+- 277f95c: style: removes top border and sets overscroll property
+- 197e3ae: (style)api-client: make input styles more consistent
+- Updated dependencies [097ab40]
+- Updated dependencies [197e3ae]
+  - @scalar/oas-utils@0.2.62
+  - @scalar/components@0.12.61
+  - @scalar/themes@0.9.43
+  - @scalar/use-codemirror@0.11.28
+
 ## 2.1.34
 
 ### Patch Changes

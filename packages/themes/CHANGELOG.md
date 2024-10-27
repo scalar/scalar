@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.43
+
+### Patch Changes
+
+- 197e3ae: (style)api-client: make input styles more consistent
+
 ## 0.9.42
 
 ### Patch Changes
