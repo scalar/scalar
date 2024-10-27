@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.25.50
+
+### Patch Changes
+
+- 77256f4: fix: add optional chaining to target replacement in httpSnippetLiteTargetKey
+- Updated dependencies [9f9c5b7]
+- Updated dependencies [15b6082]
+- Updated dependencies [097ab40]
+- Updated dependencies [9affbe3]
+- Updated dependencies [277f95c]
+- Updated dependencies [197e3ae]
+  - @scalar/api-client@2.1.35
+  - @scalar/oas-utils@0.2.62
+  - @scalar/components@0.12.61
+  - @scalar/themes@0.9.43
+  - @scalar/code-highlight@0.0.14
+
 ## 1.25.49
 
 ### Patch Changes

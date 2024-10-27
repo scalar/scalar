@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.12.61
+
+### Patch Changes
+
+- 197e3ae: (style)api-client: make input styles more consistent
+- Updated dependencies [197e3ae]
+  - @scalar/themes@0.9.43
+  - @scalar/code-highlight@0.0.14
+
 ## 0.12.60
 
 ### Patch Changes
