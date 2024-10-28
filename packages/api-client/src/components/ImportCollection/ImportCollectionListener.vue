@@ -9,24 +9,33 @@ import UrlQueryParameterChecker from './UrlQueryParameterChecker.vue'
 /** Source to import from */
 const source = ref<string | null>(null)
 
+const integration = ref<string | null>(null)
+
 /** Reset the data when the modal was closed */
 async function resetData() {
   source.value = null
+  integration.value = null
+
   await nextTick()
 }
 
 /** Receive data from the paste event listener */
-async function handleInput(newSource: string) {
+async function handleInput(
+  newSource: string,
+  newIntegration: string | null = null,
+) {
   // Reset, to trigger the modal to reopen
   await resetData()
 
   source.value = newSource
+  integration.value = newIntegration
 }
 </script>
 
 <template>
   <!-- Modal -->
   <ImportCollectionModal
+    :integration="integration"
     :source="source"
     @importFinished="resetData" />
 

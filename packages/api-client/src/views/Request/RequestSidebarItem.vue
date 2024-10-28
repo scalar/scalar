@@ -84,7 +84,7 @@ const item = computed<SidebarItem>(() => {
       children: collection.children,
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
-      watchForChanges: collection.watchForChanges,
+      watchMode: collection.watchMode,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
@@ -238,11 +238,11 @@ function openCommandPaletteRequest() {
 }
 
 const watchIconColor = computed(() => {
-  const { uid, watchForChangesStatus } = activeCollection.value || {}
+  const { uid, watchModeStatus } = activeCollection.value || {}
 
   if (uid !== item.value.entity.uid) return 'text-c-3'
-  if (watchForChangesStatus === 'WATCHING') return 'text-c-1'
-  if (watchForChangesStatus === 'ERROR') return 'text-red'
+  if (watchModeStatus === 'WATCHING') return 'text-c-1'
+  if (watchModeStatus === 'ERROR') return 'text-red'
   return 'text-c-3'
 })
 </script>
@@ -369,7 +369,7 @@ const watchIconColor = computed(() => {
                 'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&
                   menuItem.open,
-                'right-5': item.watchForChanges,
+                'right-5': item.watchMode,
               }"
               size="sm"
               variant="ghost"
@@ -387,7 +387,7 @@ const watchIconColor = computed(() => {
                 size="sm" />
             </ScalarButton>
             <ScalarTooltip
-              v-if="item.watchForChanges"
+              v-if="item.watchMode"
               side="right"
               :sideOffset="12">
               <template #trigger>

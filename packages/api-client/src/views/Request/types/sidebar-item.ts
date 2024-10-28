@@ -18,7 +18,7 @@ export type SidebarItem = {
   edit: (name: string, icon?: string) => void
   delete: () => void
   documentUrl?: string
-  watchForChanges?: boolean
+  watchMode?: boolean
 }
 
 export type SidebarMenuItem = {

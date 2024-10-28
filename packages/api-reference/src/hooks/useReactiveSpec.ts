@@ -27,6 +27,8 @@ const getSpecContent = async (
     const start = performance.now()
 
     try {
+      // TODO: Use the resolve URL, not the given URL for the download link
+
       // If the url is not valid, we can assume its a path and
       // if it’s a path we can skip the proxy.
       const result = !isValidUrl(url)

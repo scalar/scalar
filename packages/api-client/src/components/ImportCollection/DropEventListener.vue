@@ -26,11 +26,20 @@ onBeforeUnmount(() => {
   document.removeEventListener('drop', handleDrop)
 })
 
+function isFromApp(event: DragEvent): boolean {
+  return event.dataTransfer?.types.includes('text/html') ?? false
+}
+
 // Drop
 async function handleDrop(event: DragEvent) {
   event.preventDefault()
   isDragging.value = false
   dragCounter = 0
+
+  // Prevent emitting for text/html dragged items
+  if (isFromApp(event)) {
+    return
+  }
 
   if (event.dataTransfer) {
     // Text
@@ -71,6 +80,11 @@ function handleDragEnter(event: DragEvent) {
   event.preventDefault()
   dragCounter++
 
+  // Prevent displaying the draggable UI for text/html dragged items
+  if (isFromApp(event)) {
+    return
+  }
+
   if (event.dataTransfer) {
     const items = event.dataTransfer.items
     for (let i = 0; i < items.length; i++) {
@@ -99,7 +113,7 @@ function handleDragEnter(event: DragEvent) {
     leaveToClass="opacity-0">
     <div
       v-if="isDragging"
-      class="fixed bottom-10 right-10 w-64 h-64 bg-b-2 z-50 rounded-xl border transition-opacity duration-200">
+      class="fixed translate-x-1/2 translate-y-1/2 md:translate-x-0 md:translate-y-0 right-1/2 bottom-1/2 md:bottom-10 md:right-10 w-64 h-64 bg-b-2 z-50 rounded-xl border transition-opacity duration-200">
       <div class="flex flex-col items-center justify-center h-full">
         <div>
           <ScalarIcon

@@ -19,7 +19,7 @@ const props = defineProps<{ menuItem: SidebarMenuItem }>()
 
 const emit = defineEmits<{
   (e: 'closeMenu'): []
-  (e: 'toggleWatchForChanges', item: SidebarMenuItem['item']): void
+  (e: 'toggleWatchMode', item: SidebarMenuItem['item']): void
 }>()
 
 const { replace } = useRouter()
@@ -71,8 +71,8 @@ const globalClickListener = () => props.menuItem.open && emit('closeMenu')
 onMounted(() => window.addEventListener('click', globalClickListener))
 onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 
-const toggleWatchForChanges = () => {
-  emit('toggleWatchForChanges', props.menuItem.item)
+const toggleWatchMode = () => {
+  emit('toggleWatchMode', props.menuItem.item)
 }
 </script>
 
@@ -133,15 +133,15 @@ const toggleWatchForChanges = () => {
         v-if="menuItem.item?.documentUrl"
         ref="menuRef"
         class="flex gap-2"
-        @click="toggleWatchForChanges">
+        @click="toggleWatchMode">
         <ScalarIcon
           class="inline-flex"
-          :icon="menuItem.item?.watchForChanges ? 'Unwatch' : 'Watch'"
+          :icon="menuItem.item?.watchMode ? 'Unwatch' : 'Watch'"
           size="md"
           thickness="1.5" />
         <span>
           {{
-            menuItem.item?.watchForChanges
+            menuItem.item?.watchMode
               ? 'Disable Watch Mode'
               : 'Enable Watch Mode'
           }}

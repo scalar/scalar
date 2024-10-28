@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { OpenApiClientButton } from '@scalar/api-client/components'
 import { useMediaQuery } from '@vueuse/core'
 import { watch } from 'vue'
 
@@ -19,6 +20,7 @@ const slots = defineSlots<ReferenceLayoutSlots>()
 
 const isMobile = useMediaQuery('(max-width: 1000px)')
 const { isSidebarOpen } = useSidebar()
+const isDevelopment = import.meta.env.MODE === 'development'
 
 watch(isMobile, (n, o) => {
   // Close the drawer when we go from desktop to mobile
@@ -63,10 +65,17 @@ watch(hash, (newHash, oldHash) => {
       </div>
     </template>
     <template #sidebar-end>
-      <DarkModeToggle
-        v-if="!!!props.configuration.hideDarkModeToggle"
-        :isDarkMode="isDark"
-        @toggleDarkMode="$emit('toggleDarkMode')" />
+      <div class="darklight-reference">
+        <OpenApiClientButton
+          buttonSource="sidebar"
+          :integration="configuration._integration"
+          :isDevelopment="isDevelopment"
+          :url="configuration.spec?.url" />
+        <DarkModeToggle
+          v-if="!!!props.configuration.hideDarkModeToggle"
+          :isDarkMode="isDark"
+          @toggleDarkMode="$emit('toggleDarkMode')" />
+      </div>
     </template>
   </ApiReferenceLayout>
 </template>
@@ -82,5 +91,15 @@ watch(hash, (newHash, oldHash) => {
   display: flex;
   flex-direction: column;
   padding: 12px 12px 6px 12px;
+}
+.darklight-reference {
+  width: 100%;
+  margin-top: auto;
+  border-top: var(--scalar-border-width) solid
+    var(--scalar-sidebar-border-color, var(--scalar-border-color));
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 </style>

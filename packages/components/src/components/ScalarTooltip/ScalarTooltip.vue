@@ -19,11 +19,13 @@ const props = withDefaults(
     triggerClass?: string
     resize?: boolean
     as?: string
+    disabled?: boolean
   }>(),
   {
     skipDelay: 1000,
     side: 'top',
     align: 'center',
+    disabled: false,
   },
 )
 
@@ -46,6 +48,7 @@ defineEmits<{
       </TooltipTrigger>
       <TooltipPortal to=".scalar-client">
         <TooltipContent
+          v-if="!props.disabled"
           :align="props.align"
           class="scalar-app"
           :class="props.class"

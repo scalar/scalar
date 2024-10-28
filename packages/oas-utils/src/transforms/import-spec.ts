@@ -119,7 +119,7 @@ export const parseSchema = async (spec: string | UnknownObject) => {
 
 export type ImportSpecToWorkspaceArgs = Pick<
   CollectionPayload,
-  'documentUrl' | 'watchForChanges'
+  'documentUrl' | 'watchMode'
 > &
   Pick<ReferenceConfiguration, 'authentication'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
@@ -140,7 +140,7 @@ export async function importSpecToWorkspace(
     authentication,
     documentUrl,
     setCollectionSecurity = false,
-    watchForChanges = false,
+    watchMode = false,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
@@ -394,7 +394,7 @@ export async function importSpecToWorkspace(
 
   const collection = collectionSchema.parse({
     ...schema,
-    watchForChanges,
+    watchMode,
     documentUrl,
     auth,
     requests: requests.map((r) => r.uid),

@@ -9,6 +9,7 @@ import { useRouter } from 'vue-router'
 const props = defineProps<{
   source?: string | null
   variant?: 'button' | 'link'
+  watchMode?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -27,6 +28,9 @@ async function importCollection() {
         const [error, collection] = await importSpecFromUrl(
           props.source,
           activeWorkspace.value.uid,
+          {
+            watchMode: props.watchMode,
+          },
         )
         if (!error) redirectToFirstRequestInCollection(collection)
       } else {
@@ -68,7 +72,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
     <!-- Button -->
     <ScalarButton
       v-if="variant === 'button'"
-      class="text-[21px] py-2.5 px-6 rounded-lg font-bold h-fit mt-3 mb-1.5"
+      class="py-2.5 px-6 rounded-lg font-bold h-fit mt-3 w-full"
       size="md"
       type="button"
       @click="importCollection">

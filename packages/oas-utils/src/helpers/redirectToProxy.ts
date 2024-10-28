@@ -1,3 +1,5 @@
+import { isLocalUrl } from './isLocalUrl'
+
 /** Redirects the request to a proxy server with a given URL. */
 export function redirectToProxy(proxy?: string, url?: string): string {
   if (!shouldUseProxy(proxy, url)) {
@@ -28,14 +30,7 @@ export function shouldUseProxy(proxy?: string, url?: string): boolean {
   if (isRelativePath(url)) return false
 
   // Requests to localhost
-  if (isRequestToLocalhost(url)) return false
+  if (isLocalUrl(url)) return false
 
   return true
-}
-
-/** Detect requests to localhost */
-export function isRequestToLocalhost(url: string) {
-  const { hostname } = new URL(url)
-  const listOfLocalUrls = ['localhost', '127.0.0.1', '[::1]']
-  return listOfLocalUrls.includes(hostname)
 }

@@ -78,7 +78,7 @@ const deleteWorkspace = async () => {
     <div class="flex items-center text-sm w-[inherit]">
       <ScalarDropdown>
         <ScalarButton
-          class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-3 hover:bg-b-2 w-fit"
+          class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
           fullWidth
           variant="ghost">
           <div class="font-medium m-0 text-xs flex gap-1.5 items-center">

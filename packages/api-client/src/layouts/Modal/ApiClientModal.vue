@@ -77,6 +77,7 @@ onBeforeUnmount(() => {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 @keyframes scalarapiclientfadein {
   from {
