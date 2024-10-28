@@ -44,7 +44,7 @@ defineProps<{
 }
 
 .property-detail-prefix {
-  color: var(--scalar-color-3);
+  color: var(--scalar-color-2);
 }
 
 code.property-detail-value {
@@ -52,7 +52,8 @@ code.property-detail-value {
   font-size: var(--scalar-font-size-3);
   color: var(--scalar-color-2);
   background: var(--scalar-background-3);
-  padding: 1px 3px;
+  padding: 0 4px;
+  border: 0.5px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius);
 }
 </style>
