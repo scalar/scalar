@@ -137,7 +137,7 @@ const selected = computed<ScalarListboxOption | undefined>({
   <!-- Single security scheme -->
   <template v-if="keys.length === 1">
     <!-- Use <div> to avoid unnecessary styles added by `CollapsibleSection` -->
-    <div class="security-scheme-label">
+    <div class="security-scheme-label text-sm text-c-3">
       {{ getLabelForScheme(value?.[keys[0]], keys[0]) }}
     </div>
   </template>
