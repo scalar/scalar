@@ -373,7 +373,6 @@ describe('getExampleFromSchema', () => {
   it('uses all examples in object allOf', () => {
     expect(
       getExampleFromSchema({
-        type: 'object',
         allOf: [
           {
             type: 'object',
@@ -390,6 +389,31 @@ describe('getExampleFromSchema', () => {
         ],
       }),
     ).toMatchObject({ foo: 1, bar: '' })
+  })
+
+  it('uses first example in oneOf array items', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                foobar: { type: 'string' },
+                foo: { type: 'number' },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                bar: { type: 'string' },
+              },
+            },
+          ],
+        },
+      }),
+    ).toMatchObject([{ foobar: '', foo: 1, bar: '' }])
   })
 
   it('uses the first example in array anyOf', () => {
