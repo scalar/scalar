@@ -42,9 +42,9 @@ const { activeCollection } = useWorkspace()
     <div
       class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-2 lg:flex-1 justify-end w-6/12">
       <EnvironmentSelector v-if="!isReadonly" />
-      <!-- TODO: choose when to display it -->
+
       <OpenApiClientButton
-        v-if="isReadonly"
+        v-if="isReadonly && activeCollection?.documentUrl"
         class="gitbook-hidden !w-fit lg:-mr-1"
         :integration="activeCollection?.integration"
         :url="activeCollection?.documentUrl" />

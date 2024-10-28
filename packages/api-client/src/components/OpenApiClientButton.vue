@@ -1,12 +1,11 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 const { integration, isDevelopment, url } = defineProps<{
   isDevelopment?: boolean
-  integration?: ReferenceConfiguration['_integration'] | undefined
+  integration?: string | null | undefined
   url?: string | undefined
 }>()
 
@@ -27,7 +26,7 @@ const href = computed(() => {
 
 <template>
   <a
-    v-if="url"
+    v-if="href"
     class="open-api-client-button"
     :href="href"
     target="_blank">

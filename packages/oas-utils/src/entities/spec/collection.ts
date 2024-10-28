@@ -41,34 +41,6 @@ const oasCollectionSchema = z.object({
   // security
 })
 
-/**
- * All possible integrations
- *
- * This is duplicated in @scalar/types/legacy/reference-config.ts so keep that up to date until we centralize
- */
-const integrations = z.enum([
-  'adonisjs',
-  'docusaurus',
-  'dotnet',
-  'elysiajs',
-  'express',
-  'fastapi',
-  'fastify',
-  'go',
-  'hono',
-  'html',
-  'laravel',
-  'litestar',
-  'nestjs',
-  'nextjs',
-  'nitro',
-  'nuxt',
-  'platformatic',
-  'react',
-  'rust',
-  'vue',
-])
-
 export const extendedCollectionSchema = z.object({
   uid: nanoidSchema,
   /** A list of security schemes UIDs associated with the collection */
@@ -100,9 +72,8 @@ export const extendedCollectionSchema = z.object({
    * @remarks Only effective when `documentUrl` is set
    */
   watchMode: z.boolean().optional().default(false),
-  watchForChanges: z.boolean().optional().default(false),
   /** Keeps track of which integration is associated with the specific collection */
-  integration: integrations.nullable().optional(),
+  integration: z.string().nullable().optional(),
   /**
    * Status of the watcher from above
    *
