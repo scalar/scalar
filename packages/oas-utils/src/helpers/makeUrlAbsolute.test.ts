@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest'
 
 import { makeUrlAbsolute } from './makeUrlAbsolute'
 
+/**
+ * @vitest-environment jsdom
+ */
 describe('makeUrlAbsolute', () => {
   it('should return undefined for undefined input', () => {
     expect(makeUrlAbsolute(undefined)).toBeUndefined()
