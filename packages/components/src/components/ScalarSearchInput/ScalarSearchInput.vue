@@ -32,7 +32,7 @@ const attrs = computed(() => {
 })
 
 const variants = cva({
-  base: 'flex items-center rounded border bg-b-1/2 text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline',
+  base: 'search-background flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline',
   variants: {
     sidebar: {
       true: 'h-8 gap-1.5 px-1.5',
@@ -85,3 +85,15 @@ defineExpose({
       @click="emit('update:modelValue', '')" />
   </label>
 </template>
+<style scoped>
+.search-background {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.search-background:focus-within {
+  background: transparent;
+}
+</style>
