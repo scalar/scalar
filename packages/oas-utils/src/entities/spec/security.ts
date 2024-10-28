@@ -1,3 +1,4 @@
+import { schemaModel } from '@/helpers/schema-model'
 import { z } from 'zod'
 
 import { nanoidSchema } from '../shared'
@@ -74,22 +75,45 @@ export type SecuritySchemeOauth2ExampleValue = Extract<
 export function authExampleFromSchema(
   scheme: SecurityScheme,
   baseValues: any = {},
-) {
-  if (scheme.type === 'apiKey')
-    return apiKeyExampleSchema.parse({ name: scheme.name, ...baseValues })
-  if (scheme.type === 'http') return httpExampleSchema.parse(baseValues)
-  if (scheme.type === 'oauth2') {
-    if (scheme.flow.type === 'authorizationCode')
-      return oauthAuthorizationCodeExampleSchema.parse(baseValues)
-    if (scheme.flow.type === 'clientCredentials')
-      return oauthClientCredentialsExampleSchema.parse(baseValues)
-    if (scheme.flow.type === 'implicit')
-      return oauthImplicitExampleSchema.parse(baseValues)
-    if (scheme.flow.type === 'password')
-      return oauthPasswordExampleSchema.parse(baseValues)
+): SecuritySchemeExampleValue | null {
+  try {
+    if (scheme.type === 'apiKey') {
+      return schemaModel(
+        { name: scheme.name, ...baseValues },
+        apiKeyExampleSchema,
+        false,
+      )
+    }
+    if (scheme.type === 'http') {
+      return schemaModel(baseValues, httpExampleSchema, false)
+    }
+    if (scheme.type === 'oauth2') {
+      if (scheme.flow.type === 'authorizationCode')
+        return schemaModel(
+          baseValues,
+          oauthAuthorizationCodeExampleSchema,
+          false,
+        )
+      if (scheme.flow.type === 'clientCredentials')
+        return schemaModel(
+          baseValues,
+          oauthClientCredentialsExampleSchema,
+          false,
+        )
+      if (scheme.flow.type === 'implicit')
+        return schemaModel(baseValues, oauthImplicitExampleSchema, false)
+      if (scheme.flow.type === 'password')
+        return schemaModel(baseValues, oauthPasswordExampleSchema, false)
+    }
+  } catch (e) {
+    console.error(e)
   }
+  console.warn(
+    '[@scalar/oas-utils:security] Invalid schema for oauth example',
+    baseValues,
+  )
 
-  throw Error('INVALID SCHEMA FOR OAUTH EXAMPLE')
+  return null
 }
 
 // ---------------------------------------------------------------------------
