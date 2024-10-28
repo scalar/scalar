@@ -45,6 +45,7 @@ const { activeCollection } = useWorkspace()
 
       <OpenApiClientButton
         v-if="isReadonly && activeCollection?.documentUrl"
+        buttonSource="modal"
         class="gitbook-hidden !w-fit lg:-mr-1"
         :integration="activeCollection?.integration"
         :url="activeCollection?.documentUrl" />

@@ -3,7 +3,8 @@ import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-const { integration, isDevelopment, url } = defineProps<{
+const { integration, isDevelopment, url, buttonSource } = defineProps<{
+  buttonSource: 'sidebar' | 'modal'
   isDevelopment?: boolean
   integration?: string | null | undefined
   url?: string | undefined
@@ -21,6 +22,10 @@ const href = computed(() => {
   // Default integration to vue if not explicitly null
   if (integration !== null)
     link.searchParams.set('integration', integration ?? 'vue')
+
+  link.searchParams.set('utm_source', 'api-reference')
+  link.searchParams.set('utm_medium', 'button')
+  link.searchParams.set('utm_campaign', buttonSource)
 
   return link.toString()
 })

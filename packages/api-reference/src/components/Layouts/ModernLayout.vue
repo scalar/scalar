@@ -67,6 +67,7 @@ watch(hash, (newHash, oldHash) => {
     <template #sidebar-end>
       <div class="darklight-reference">
         <OpenApiClientButton
+          buttonSource="sidebar"
           :integration="configuration._integration"
           :isDevelopment="isDevelopment"
           :url="configuration.spec?.url" />
