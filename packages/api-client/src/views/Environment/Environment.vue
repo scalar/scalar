@@ -98,7 +98,7 @@ const handleHotKey = (event?: HotKeyEvent) => {
 }
 
 onMounted(() => {
-  setActiveEnvironment
+  setActiveEnvironment()
   events.hotKeys.on(handleHotKey)
 })
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
