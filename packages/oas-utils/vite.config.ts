@@ -1,4 +1,5 @@
 import { alias } from '@scalar/build-tooling'
+import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
@@ -12,5 +13,6 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
+    root: fileURLToPath(new URL('./', import.meta.url)),
   },
 })
