@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.62
+
+### Patch Changes
+
+- ad12c56: (style)api-client: fix client border bottom colors
+- ada8545: feat: add the sidebar button
+- Updated dependencies [ad12c56]
+  - @scalar/themes@0.9.44
+  - @scalar/code-highlight@0.0.14
+
 ## 0.12.61
 
 ### Patch Changes

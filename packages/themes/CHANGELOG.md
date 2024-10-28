@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.44
+
+### Patch Changes
+
+- ad12c56: (style)api-client: fix client border bottom colors
+
 ## 0.9.43
 
 ### Patch Changes

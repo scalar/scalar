@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.63
+
+### Patch Changes
+
+- ada8545: feat: add the sidebar button
+- Updated dependencies [ad12c56]
+  - @scalar/themes@0.9.44
+
 ## 0.2.62
 
 ### Patch Changes
