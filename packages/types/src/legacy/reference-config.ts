@@ -217,9 +217,6 @@ export type ReferenceConfiguration = {
    *
    * To explicitly disable this feature, you can pass `null`.
    *
-   * This list is duplicated in @scalar/oas-utils/src/entities/spec/collection.ts
-   * so keep that up to date until we centralize
-   *
    * @private
    */
   _integration?:

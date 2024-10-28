@@ -16,9 +16,11 @@ const href = computed(() => {
   )
 
   const absoluteUrl = makeUrlAbsolute(url)
-
   if (absoluteUrl?.length) link.searchParams.set('url', absoluteUrl)
-  if (integration) link.searchParams.set('integration', integration)
+
+  // Default integration to vue if not explicitly null
+  if (integration !== null)
+    link.searchParams.set('integration', integration ?? 'vue')
 
   return link.toString()
 })

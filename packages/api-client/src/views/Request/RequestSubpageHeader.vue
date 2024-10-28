@@ -59,7 +59,7 @@ const { activeCollection } = useWorkspace()
           size="lg"
           thickness="2" />
       </button>
-      <!-- TEMP duplicate button and keep in not fixed position for gitbook  -->
+      <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
       <button
         v-if="isReadonly"
         class="text-c-1 hover:bg-b-2 active:text-c-1 p-2 rounded -mr-1.5 gitbook-show"

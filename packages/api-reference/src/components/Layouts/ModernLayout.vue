@@ -67,7 +67,7 @@ watch(hash, (newHash, oldHash) => {
     <template #sidebar-end>
       <div class="darklight-reference">
         <OpenApiClientButton
-          :integration="configuration._integration ?? 'vue'"
+          :integration="configuration._integration"
           :isDevelopment="isDevelopment"
           :url="configuration.spec?.url" />
         <DarkModeToggle
