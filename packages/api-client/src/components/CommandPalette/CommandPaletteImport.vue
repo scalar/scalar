@@ -196,15 +196,15 @@ async function importCollection() {
             <div
               class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
               <div class="flex items-center text-c-2">
-                <span v-if="!!inputContent && !isInputUrl"
-                  >Watch Mode is only supported with URL</span
-                >
+                <span v-if="!!inputContent && !isInputUrl">
+                  Watch Mode is only supported with URL
+                </span>
                 <span
                   v-else
-                  class="text-pretty"
-                  >Watch your OpenAPI URL for changes. Enabled it will update
-                  the API client for you.</span
-                >
+                  class="text-pretty">
+                  Watch your OpenAPI URL for changes. Enabled it will update the
+                  API client for you.
+                </span>
               </div>
             </div>
           </template>
