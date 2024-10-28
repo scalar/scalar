@@ -391,7 +391,7 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject({ foo: 1, bar: '' })
   })
 
-  it('uses first example in oneOf array items', () => {
+  it('merges allOf items in arrays', () => {
     expect(
       getExampleFromSchema({
         type: 'array',
@@ -414,6 +414,35 @@ describe('getExampleFromSchema', () => {
         },
       }),
     ).toMatchObject([{ foobar: '', foo: 1, bar: '' }])
+  })
+
+  it('handles array items with allOf containing objects', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        items: {
+          allOf: [
+            {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+              },
+            },
+            {
+              type: 'object',
+              properties: {
+                name: { type: 'string', example: 'test' },
+              },
+            },
+          ],
+        },
+      }),
+    ).toMatchObject([
+      {
+        id: 1,
+        name: 'test',
+      },
+    ])
   })
 
   it('uses the first example in array anyOf', () => {
