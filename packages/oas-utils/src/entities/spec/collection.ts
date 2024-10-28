@@ -72,6 +72,8 @@ export const extendedCollectionSchema = z.object({
    * @remarks Only effective when `documentUrl` is set
    */
   watchMode: z.boolean().optional().default(false),
+  /** Keeps track of which integration is associated with the specific collection */
+  integration: z.string().nullable().optional(),
   /**
    * Status of the watcher from above
    *
