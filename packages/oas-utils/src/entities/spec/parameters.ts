@@ -30,6 +30,16 @@ export const oasParameterSchema = z.object({
   content: z.unknown().optional(),
   /** Defaulted according to @url https://spec.openapis.org/oas/v3.1.0#parameter-object */
   style: parameterStyleSchema.optional(),
+  example: z.unknown().optional(),
+  examples: z
+    .record(
+      z.string(),
+      z.object({
+        value: z.unknown(),
+        summary: z.string().optional(),
+      }),
+    )
+    .optional(),
 }) satisfies ZodSchema<OpenAPI.Parameter>
 
 export type RequestParameter = z.infer<typeof oasParameterSchema>

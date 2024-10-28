@@ -107,7 +107,12 @@ export function createParamInstance(param: RequestParameter) {
    * - Need to handle unions/array values for schema
    */
   const value = String(
-    schema?.default ?? schema?.examples?.[0] ?? schema?.example ?? '',
+    schema?.default ??
+      schema?.examples?.[0] ??
+      schema?.example ??
+      param.examples?.[Object.keys(param.examples)[0]]?.value ??
+      param.example ??
+      '',
   )
 
   // safe parse the example
