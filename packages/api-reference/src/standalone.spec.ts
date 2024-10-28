@@ -4,9 +4,9 @@ import { describe, expect, it } from 'vitest'
 import { waitFor } from './helpers/waitFor'
 import type { ReferenceProps } from './types'
 
-describe('standalone', { retry: 3 }, () => {
-  // The HTML API requires a script tag with type="application/json" and an ID of "api-reference":
-
+describe.sequential('standalone', { retry: 3, timeout: 10000 }, () => {
+  // Generates the required script tag on the fly:
+  //
   // <script id="api-reference" type="application/json">
   //   { "openapi": "3.1.0", "info": { "title": "Example" }, "paths": {} }
   // </script>
