@@ -4,11 +4,12 @@ import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { inject, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const { isReadOnly, activeWorkspace, events } = useWorkspace()
 const route = useRoute()
+const layout = inject<'modal' | 'web' | 'desktop'>('layout')
 
 const openCommandPaletteRequest = () => {
   events.commandPalette.emit({ commandName: 'Create Request' })
@@ -55,7 +56,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <ScalarHotkey hotkey="↵" />
       </button>
       <button
-        v-if="!isReadOnly"
+        v-if="!isReadOnly && layout === 'desktop'"
         class="flex items-center gap-1.5"
         type="button"
         @click="openCommandPaletteRequest">

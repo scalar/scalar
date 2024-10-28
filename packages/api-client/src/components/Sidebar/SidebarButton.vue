@@ -2,11 +2,16 @@
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ScalarButton } from '@scalar/components'
 
-const props = defineProps<{
-  click: () => void
-  hotkey?: string
-  isApp?: boolean
-}>()
+const props = withDefaults(
+  defineProps<{
+    click: () => void
+    hotkey?: string
+    layout?: 'modal' | 'web' | 'desktop'
+  }>(),
+  {
+    layout: 'desktop',
+  },
+)
 
 const handleClick = () => {
   props.click()
@@ -20,7 +25,7 @@ const handleClick = () => {
     @click="handleClick">
     <slot name="title" />
     <ScalarHotkey
-      v-if="hotkey && !isApp"
+      v-if="hotkey && layout === 'desktop'"
       class="hidden md:block absolute right-2 group-hover:opacity-80 text-c-2 add-item-hotkey"
       :hotkey="hotkey" />
   </ScalarButton>

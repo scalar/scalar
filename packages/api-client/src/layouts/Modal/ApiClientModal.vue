@@ -2,10 +2,13 @@
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { onBeforeMount, onBeforeUnmount, onMounted, watch } from 'vue'
+import { onBeforeMount, onBeforeUnmount, onMounted, provide, watch } from 'vue'
 import { RouterView } from 'vue-router'
 
 const { activeWorkspace, modalState, events } = useWorkspace()
+
+// Provide the layout value
+provide('layout', 'modal')
 
 /** Handles the hotkey events as well as custom config */
 const handleKeyDown = (ev: KeyboardEvent) =>
