@@ -47,6 +47,7 @@ const href = computed(() => {
 
 <style scoped>
 .open-api-client-button {
+  cursor: pointer;
   width: 100%;
   padding: 9px 12px;
   height: 31px;
