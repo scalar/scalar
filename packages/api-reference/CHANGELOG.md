@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.25.51
+
+### Patch Changes
+
+- 369c2c2: style(api-reference): auth font size and color
+- ada8545: feat: add the sidebar button
+- 56a48d1: style(api-reference): fix font sizes of read only and property detail values
+- ada8545: feat: add the sidebar button
+- Updated dependencies [84bd664]
+- Updated dependencies [ad12c56]
+- Updated dependencies [ada8545]
+- Updated dependencies [86104fd]
+  - @scalar/api-client@2.1.36
+  - @scalar/components@0.12.62
+  - @scalar/themes@0.9.44
+  - @scalar/oas-utils@0.2.63
+  - @scalar/code-highlight@0.0.14
+
 ## 1.25.50
 
 ### Patch Changes

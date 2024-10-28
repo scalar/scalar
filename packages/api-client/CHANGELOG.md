@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.1.36
+
+### Patch Changes
+
+- 84bd664: style: updates request section ui
+- ada8545: feat: add the sidebar button
+- 86104fd: fix(api-client): prevent spec import overflowing
+- Updated dependencies [ad12c56]
+- Updated dependencies [ada8545]
+  - @scalar/components@0.12.62
+  - @scalar/themes@0.9.44
+  - @scalar/oas-utils@0.2.63
+  - @scalar/use-codemirror@0.11.29
+
 ## 2.1.35
 
 ### Patch Changes

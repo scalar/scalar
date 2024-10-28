@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.5.157
+
+### Patch Changes
+
+- ada8545: feat: add the sidebar button
+
 ## 0.5.156
 
 ### Patch Changes
