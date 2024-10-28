@@ -5,7 +5,6 @@ import ResponseBody from '@/views/Request/ResponseSection/ResponseBody.vue'
 import ResponseEmpty from '@/views/Request/ResponseSection/ResponseEmpty.vue'
 import ResponseLoadingOverlay from '@/views/Request/ResponseSection/ResponseLoadingOverlay.vue'
 import ResponseMetaInformation from '@/views/Request/ResponseSection/ResponseMetaInformation.vue'
-import { ScalarIcon } from '@scalar/components'
 import type { ResponseInstance } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 
@@ -68,7 +67,7 @@ const shouldVirtualize = computed(
   <ViewLayoutSection>
     <template #title>
       <div
-        class="flex items-center flex-1"
+        class="flex items-center flex-1 h-8"
         :class="{
           'animate-response-heading': response,
         }">
