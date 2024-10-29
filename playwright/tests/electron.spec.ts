@@ -12,7 +12,9 @@ test.describe('Electron', () => {
   test('launch app', async () => {
     // Launch the Electron app
     const app = await _electron.launch({
-      args: ['../packages/api-client-app/out/main/index.js'],
+      args: [
+        require.resolve('../../packages/api-client-app/out/main/index.js'),
+      ],
     })
 
     // Wait for the main window to be created
