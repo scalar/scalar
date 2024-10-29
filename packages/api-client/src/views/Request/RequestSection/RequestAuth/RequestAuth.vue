@@ -143,7 +143,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
       activeCollection.value.uid,
     )
 
-    _entries.push(scheme.uid)
+    if (scheme) _entries.push(scheme.uid)
   }
 
   // Here we grab the keys for auth that doesn't yet exist

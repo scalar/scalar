@@ -52,6 +52,7 @@ export function extendedSecurityDataFactory({
     // Add to the collection as auth
     // This is NOT written to spec and just allows collections to use securitySchemes ad-hoc
     const defaultValue = authExampleFromSchema(scheme)
+    if (!defaultValue) return null
 
     collectionMutators.edit(collectionUid, 'auth', {
       ...collections[collectionUid].auth,
