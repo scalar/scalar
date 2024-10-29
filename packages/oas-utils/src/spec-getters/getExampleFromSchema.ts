@@ -258,22 +258,48 @@ export const getExampleFromSchema = (
 
     // Check whether the array has a anyOf, oneOf, or allOf rule
     if (schema.items) {
-      // Check for all those rules
-      const rules = ['anyOf', 'oneOf', 'allOf']
+      // First handle allOf separately since it needs special handling
+      if (schema.items.allOf) {
+        // If the first item is an object type, merge all schemas
+        if (schema.items.allOf[0].type === 'object') {
+          const mergedExample = getExampleFromSchema(
+            { type: 'object', allOf: schema.items.allOf },
+            options,
+            level + 1,
+            schema,
+          )
 
+          return cache(
+            schema,
+            wrapItems
+              ? [{ [itemsXmlTagName]: mergedExample }]
+              : [mergedExample],
+          )
+        } else {
+          // For non-objects (like strings), collect all examples
+          const examples = schema.items.allOf
+            .map((item: Record<string, any>) =>
+              getExampleFromSchema(item, options, level + 1, schema),
+            )
+            .filter((item: any) => item !== undefined)
+
+          return cache(
+            schema,
+            wrapItems
+              ? examples.map((example: any) => ({ [itemsXmlTagName]: example }))
+              : examples,
+          )
+        }
+      }
+
+      // Handle other rules (anyOf, oneOf)
+      const rules = ['anyOf', 'oneOf']
       for (const rule of rules) {
-        // Skip early if the rule is not defined
         if (!schema.items[rule]) {
           continue
         }
 
-        // Otherwise generate examples for the rule
-        const schemas = ['anyOf', 'oneOf'].includes(rule)
-          ? // Use the first item only
-            schema.items[rule].slice(0, 1)
-          : // Use all items
-            schema.items[rule]
-
+        const schemas = schema.items[rule].slice(0, 1)
         const exampleFromRule = schemas
           .map((item: Record<string, any>) =>
             getExampleFromSchema(item, options, level + 1, schema),
