@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.64
+
+### Patch Changes
+
+- 931106f: fix: rollback changes to fetchSpecFromUrl
+
 ## 0.2.63
 
 ### Patch Changes
