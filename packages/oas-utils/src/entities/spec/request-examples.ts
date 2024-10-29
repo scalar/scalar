@@ -108,6 +108,9 @@ export function createParamInstance(param: RequestParameter) {
    */
   const value = String(schema?.default ?? schema?.examples?.[0] ?? '')
 
+  const parseEnum =
+    schema?.type === 'number' ? schema?.enum?.map(String) : schema?.enum
+
   // safe parse the example
   const example = schemaModel(
     {
@@ -118,6 +121,7 @@ export function createParamInstance(param: RequestParameter) {
       required: param.required,
       /** Initialized all required properties to enabled */
       enabled: !!param.required,
+      enum: parseEnum,
     },
     requestExampleParametersSchema,
     false,
