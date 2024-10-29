@@ -1,40 +1,41 @@
-import { _electron as electron, expect, test } from '@playwright/test'
+import { _electron, expect, test } from '@playwright/test'
 
-test('launch app', async ({ page, browserName, isMobile }) => {
-  if (browserName !== 'chromium' || isMobile) {
-    test.skip()
-  }
+import { waitFor } from './utils/waitFor'
 
-  // Launch Electron app.
-  const electronApp = await electron.launch({
-    args: ['../packages/api-client-app/out/main/index.js'],
-  })
-
-  // Wait for the main window to be created
-  await page.waitForTimeout(500)
-
-  const windows = electronApp.windows()
-  const window = windows.find((win) => win.url().includes('index.html'))
-  if (!window) {
-    throw new Error('Window not found')
-  }
-
-  // console.log('Window title:', await window.title()) // this app has no titile right now
-  // console.log('Window URL:', window.url())
-  expect(window.url()).toContain(
-    'packages/api-client-app/out/renderer/index.html#/workspace/default/request/default',
+test.describe('Electron', () => {
+  // Chromium-only, ignore mobile
+  test.skip(
+    ({ browserName, isMobile }) => browserName !== 'chromium' || isMobile,
+    'Electron tests require Chromium and cannot run on mobile',
   )
 
-  // TODO: Click an element
-  // await window.click('button:text("Workspace")')
-  // Or click by CSS selector
-  // await mainWindow.click('#some-button-id');
-  // Or click by XPath
-  // await window.click('//button[contains(text(), "Workspace")]')
+  test('launch app', async () => {
+    // Launch the Electron app
+    const app = await _electron.launch({
+      args: ['../packages/api-client-app/out/main/index.js'],
+    })
 
-  // Capture a screenshot.
-  // await window.screenshot({ path: 'electron.png' })
+    // Wait for the main window to be created
+    await waitFor(() => {
+      const mainWindow = app
+        .windows()
+        .find((win) => win.url().includes('index.html'))
 
-  // Exit app.
-  await electronApp.close()
+      if (mainWindow === undefined) {
+        return false
+      }
+
+      if (!mainWindow) {
+        throw new Error('Couldn’t find the main window (index.html).')
+      }
+
+      expect(mainWindow.url()).toContain(
+        'packages/api-client-app/out/renderer/index.html',
+      )
+
+      return true
+    })
+
+    await app.close()
+  })
 })
