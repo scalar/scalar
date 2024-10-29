@@ -13,7 +13,7 @@ npm install @scalar/fetch
 ## Usage
 
 ```bash
-import { request } from '@scalar.fetch'
+import { request } from '@scalar/fetch'
 ```
 
 ### Validate your return data
