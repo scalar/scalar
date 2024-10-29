@@ -237,6 +237,29 @@ describe('resolve', () => {
     })
   })
 
+  it('finds embedded OpenAPI document URLs', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script
+      id="api-reference"
+      type="application/json"
+      data-configuration="{&quot;spec&quot;:{&quot;url&quot;:&quot;/openapi.json&quot;}}">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toBe('https://example.com/openapi.json')
+  })
+
   it('transforms GitHub URLs to raw file URLs', async () => {
     const result = await resolve(
       'https://github.com/outline/openapi/blob/main/spec3.yml',
