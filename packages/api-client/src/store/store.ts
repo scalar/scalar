@@ -265,6 +265,19 @@ export const createWorkspaceStore = (
 
   // ---------------------------------------------------------------------------
   // OTHER HELPER DATA
+
+  /** Reset the store */
+  const resetStore = () => {
+    collectionMutators.clear()
+    requestMutators.clear()
+    requestExampleMutators.clear()
+    securitySchemeMutators.clear()
+    serverMutators.clear()
+    tagMutators.clear()
+
+    workspaceMutators.edit(activeWorkspace.value.uid, 'collections', [])
+  }
+
   /** Running request history list */
   const requestHistory = reactive<RequestEvent[]>([])
 
@@ -410,6 +423,7 @@ export const createWorkspaceStore = (
       add: addWorkspace,
       delete: deleteWorkspace,
     },
+    resetStore,
   }
 }
 

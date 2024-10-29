@@ -33,8 +33,7 @@ type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for API client */
-  configuration?: Partial<Pick<ClientConfiguration, 'spec'>> &
-    ClientConfiguration
+  configuration?: ClientConfiguration
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -197,16 +196,24 @@ export const createApiClient = ({
   }
 
   /**
-   * This currently just duplicates all data
-   * TODO: Uses a diff to update the spec
+   * Update the spec
+   *
+   * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
    */
   const updateSpec = async (spec: SpecConfiguration) => {
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
         proxy: configuration?.proxyUrl,
+        overloadServers: configuration?.servers,
+        authentication: configuration.authentication,
+        setCollectionSecurity: true,
       })
     } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value.uid)
+      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
+        overloadServers: configuration?.servers,
+        authentication: configuration.authentication,
+        setCollectionSecurity: true,
+      })
     } else {
       console.error(
         `[@scalar/api-client-modal] Could not create the API client.`,
@@ -220,15 +227,22 @@ export const createApiClient = ({
     /** The vue app instance for the modal, be careful with this */
     app,
     updateSpec,
-    /** Update the API client config */
+    /**
+     * Update the API client config
+     *
+     * Deletes the current store before importing again for now, in the future will Diff
+     */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
         Object.assign(configuration ?? {}, newConfig)
       } else {
         objectMerge(configuration ?? {}, newConfig)
       }
-      // Update the spec
-      if (newConfig.spec) updateSpec(newConfig.spec)
+      // Update the spec, reset the store first
+      if (newConfig.spec) {
+        store.resetStore()
+        updateSpec(newConfig.spec)
+      }
     },
     /** Update the currently selected server via URL */
     updateServer: (serverUrl: string) => {

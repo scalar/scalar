@@ -1,21 +1,12 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
-import { getBaseAuthValues } from '@scalar/oas-utils/transforms'
-import type { Path } from '@scalar/object-utils/nested'
-import type {
-  ReferenceConfiguration,
-  Spec,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from './useApiClient'
 
-const props = defineProps<{
-  proxyUrl?: string
-  authentication?: ReferenceConfiguration['authentication']
-  spec?: SpecConfiguration
-  servers?: Spec['servers']
+const { configuration } = defineProps<{
+  configuration: ClientConfiguration
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
@@ -29,10 +20,7 @@ onMounted(async () => {
   // Initialize the new client hook
   const _client = await init({
     el: el.value,
-    spec: props.spec ?? {},
-    authentication: props.authentication,
-    proxyUrl: props.proxyUrl,
-    servers: props.servers,
+    ...configuration,
   })
 
   // Update the references server when the client server changes
@@ -49,53 +37,10 @@ watch(server, (newServer) => {
   if (serverUrl && client.value) client.value.updateServer(serverUrl)
 })
 
-// Update the authentication on change
+// Update the config on change
 watch(
-  () => props.authentication,
-  (newAuth) => {
-    if (!newAuth?.preferredSecurityScheme || !client.value) return
-
-    const collection =
-      client.value.store.activeCollection ??
-      Object.values(client.value.store.collections)[0]
-    if (!collection) return
-
-    // Select auth
-    const schemeUid = collection.securitySchemes.find(
-      (uid) =>
-        client.value!.store.securitySchemes[uid].nameKey ===
-        newAuth.preferredSecurityScheme,
-    )
-    if (!schemeUid) return
-
-    client.value.store.collectionMutators.edit(
-      collection.uid,
-      'selectedSecuritySchemeUids',
-      [schemeUid],
-    )
-
-    // Lets update the currently selected auth for now
-    // TODO: we can diff this later to update everything that changes
-    const baseValues = getBaseAuthValues(
-      client.value.store.securitySchemes[schemeUid],
-      newAuth,
-    )
-
-    // Update auth properties
-    Object.entries(baseValues).forEach(([propertyKey, value]) =>
-      client.value?.updateAuth({
-        nameKey: newAuth.preferredSecurityScheme!,
-        propertyKey: propertyKey as Path<typeof baseValues>,
-        value,
-      }),
-    )
-  },
-)
-
-// Update the spec on change
-watch(
-  () => props.spec,
-  (newSpec) => newSpec && client.value?.updateSpec(newSpec),
+  () => configuration,
+  (_config) => _config && client.value?.updateConfig(_config),
   { deep: true },
 )
 

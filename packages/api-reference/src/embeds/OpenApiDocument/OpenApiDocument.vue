@@ -117,7 +117,6 @@ loadDocument()
     }"></slot>
 
   <ApiClientModal
-    :proxyUrl="configuration?.proxy"
-    :servers="configuration?.servers"
-    :spec="spec" />
+    v-if="configuration"
+    :configuration="configuration" />
 </template>
