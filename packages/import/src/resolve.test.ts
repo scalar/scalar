@@ -269,4 +269,32 @@ describe('resolve', () => {
       'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
     )
   })
+
+  it('finds embedded OpenAPI document in script tag', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script
+        id="api-reference"
+        type="application/json">
+    {"openapi":"3.1.0","info":{"title":"Hello World","version":"1.0"}}
+    </script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toEqual({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0',
+      },
+    })
+  })
 })

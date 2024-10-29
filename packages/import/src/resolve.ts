@@ -50,10 +50,16 @@ export async function resolve(
 
       if (result.ok) {
         const content = await result.text()
-        const urlOrPath = parseHtml(content)
+        const urlOrPathOrDocument = parseHtml(content)
 
-        if (urlOrPath) {
-          return makeRelativeUrlsAbsolute(value, urlOrPath)
+        // Document
+        if (typeof urlOrPathOrDocument === 'object') {
+          return urlOrPathOrDocument
+        }
+
+        // Relative or absolute URL
+        if (urlOrPathOrDocument) {
+          return makeRelativeUrlsAbsolute(value, urlOrPathOrDocument)
         }
 
         // New: Check for embedded OpenAPI document
@@ -79,6 +85,12 @@ function parseHtml(html?: string) {
   // Check whether it could be HTML
   if (!html?.includes('<')) {
     return undefined
+  }
+
+  // Try to find embedded OpenAPI document in script tag first
+  const scriptContent = parseScriptContent(html)
+  if (scriptContent) {
+    return scriptContent
   }
 
   // data-url="*"
@@ -118,6 +130,28 @@ function parseHtml(html?: string) {
 
   if (encodedConfigurationUrl?.[1]) {
     return encodedConfigurationUrl[1]
+  }
+
+  return undefined
+}
+
+/**
+ * Parse OpenAPI document directly from script tag content
+ */
+function parseScriptContent(html: string): Record<string, any> | undefined {
+  const match = html.match(
+    /<script[^>]*id="api-reference"[^>]*type="application\/json"[^>]*>([\s\S]*?)<\/script>/,
+  )
+
+  if (!match?.[1]) return undefined
+
+  try {
+    const content = match[1].trim()
+    if (content) {
+      return JSON.parse(content)
+    }
+  } catch (error) {
+    console.error('[@scalar/import] Failed to parse script content:', error)
   }
 
   return undefined
