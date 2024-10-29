@@ -55,7 +55,6 @@ watch(
 </template>
 <style scoped>
 .collapsible-section {
-  padding: 0 0 10px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   position: relative;
 }
@@ -66,7 +65,7 @@ watch(
   display: flex;
   align-items: center;
   cursor: pointer;
-  padding-top: 10px;
+  padding: 10px 0;
   font-size: var(--scalar-font-size-3);
   z-index: 1;
   position: relative;
@@ -77,9 +76,6 @@ watch(
   width: 100%;
   position: absolute;
   bottom: 0;
-}
-.collapsible-section :deep(.schema-properties.schema-properties-open) {
-  margin-top: 10px;
 }
 .collapsible-section-trigger svg {
   color: var(--scalar-color-3);

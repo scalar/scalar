@@ -272,4 +272,7 @@ button.schema-card-title:hover {
 .children .schema-card-description:first-of-type {
   padding-top: 0;
 }
+.models-list-item .schema-properties {
+  margin-bottom: 10px;
+}
 </style>
