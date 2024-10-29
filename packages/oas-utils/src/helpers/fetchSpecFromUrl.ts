@@ -1,4 +1,5 @@
-import { fetchWithProxyFallback } from './fetchWithProxyFallback'
+import { redirectToProxy } from '@/helpers/redirectToProxy'
+
 import { formatJsonOrYamlString } from './parse'
 
 // Doesn’t work
@@ -23,7 +24,8 @@ export async function fetchSpecFromUrl(
   }
 
   try {
-    const response = await fetchWithProxyFallback(url, proxy)
+    // To use a proxy or not to use a proxy
+    const response = await fetch(proxy ? redirectToProxy(proxy, url) : url)
 
     if (!response.ok) {
       throw new Error(
