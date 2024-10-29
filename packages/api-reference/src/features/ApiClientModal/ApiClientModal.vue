@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
 import { getBaseAuthValues } from '@scalar/oas-utils/transforms'
+import type { Path } from '@scalar/object-utils/nested'
 import type {
   ReferenceConfiguration,
   Spec,
@@ -79,13 +80,15 @@ watch(
       client.value.store.securitySchemes[schemeUid],
       newAuth,
     )
-    console.log(baseValues)
+
     // Update auth properties
-    // client.value.updateAuth({
-    //   nameKey: newAuth.preferredSecurityScheme,
-    //   propertyKey: 'username',
-    //   value: newAuth.username,
-    // })
+    Object.entries(baseValues).forEach(([propertyKey, value]) =>
+      client.value?.updateAuth({
+        nameKey: newAuth.preferredSecurityScheme!,
+        propertyKey: propertyKey as Path<typeof baseValues>,
+        value,
+      }),
+    )
   },
 )
 

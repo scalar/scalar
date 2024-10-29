@@ -836,6 +836,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/object-utils':
+        specifier: workspace:*
+        version: link:../object-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser

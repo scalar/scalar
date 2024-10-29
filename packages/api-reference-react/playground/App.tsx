@@ -25,7 +25,13 @@ function App() {
   //   return () => clearInterval(changeInt)
   // }, []) // Empty dependency array ensures the effect runs only once
 
-  const apiKeys = ['apiKeyHeader', 'apiKeyQuery', 'apiKeyCookie']
+  const apiKeys = [
+    'apiKeyHeader',
+    'apiKeyQuery',
+    'apiKeyCookie',
+    'basicAuth',
+    'bearerAuth',
+  ]
 
   useEffect(() => {
     // Update the spec periodically to test reactivity
@@ -33,8 +39,17 @@ function App() {
       setAuth({
         preferredSecurityScheme:
           apiKeys[Math.floor(Math.random() * apiKeys.length)],
+        http: {
+          basic: {
+            username: (generate(2) as string[]).join('_'),
+            password: (generate(2) as string[]).join('_'),
+          },
+          bearer: {
+            token: (generate(2) as string[]).join('_'),
+          },
+        },
         apiKey: {
-          token: 'api_key_12345abcde',
+          token: (generate(2) as string[]).join('_'),
         },
       })
     }, 10000)
