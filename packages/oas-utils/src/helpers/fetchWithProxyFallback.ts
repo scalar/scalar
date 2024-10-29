@@ -3,15 +3,9 @@ import { redirectToProxy, shouldUseProxy } from './redirectToProxy'
 export type FetchWithProxyFallbackOptions = {
   proxy?: string
   /**
-   * The browser looks for a matching request in its HTTP cache. If there is a match, fresh or stale, the browser will
-   * make a conditional request to the remote server:
-   *
-   * - If the server indicates that the resource has not changed, it will be returned from the cache.
-   *   Otherwise the resource will be downloaded from the server and the cache will be updated.
-   * - If there is no match, the browser will make a normal request, and will update the cache
-   *   with the downloaded resource.
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
    */
-  noCache?: boolean
+  cache?: RequestInit['cache']
 }
 
 /**
@@ -24,9 +18,11 @@ export type FetchWithProxyFallbackOptions = {
  */
 export async function fetchWithProxyFallback(
   url: string,
-  { proxy, noCache }: FetchWithProxyFallbackOptions,
+  { proxy, cache }: FetchWithProxyFallbackOptions,
 ) {
-  const fetchOptions = noCache === true ? ({ cache: 'no-cache' } as const) : {}
+  const fetchOptions = {
+    cache: cache || 'default',
+  }
   const shouldTryProxy = shouldUseProxy(proxy, url)
   const initialUrl = shouldTryProxy ? redirectToProxy(proxy, url) : url
 
