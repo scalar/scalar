@@ -54,38 +54,33 @@ watch(
   (newAuth) => {
     if (!newAuth?.preferredSecurityScheme || !client.value) return
 
-    console.log(newAuth.preferredSecurityScheme)
-
-    const firstCollection = Object.values(client.value.store.collections)[0]
-    if (!firstCollection) return
-
-    console.log(firstCollection)
+    const collection =
+      client.value.store.activeCollection ??
+      Object.values(client.value.store.collections)[0]
+    if (!collection) return
 
     // Select auth
-    const schemeUid = firstCollection.securitySchemes.find((uid) => {
-      client.value!.store.securitySchemes[uid].nameKey ===
-        newAuth.preferredSecurityScheme
-    })
+    const schemeUid = collection.securitySchemes.find(
+      (uid) =>
+        client.value!.store.securitySchemes[uid].nameKey ===
+        newAuth.preferredSecurityScheme,
+    )
     if (!schemeUid) return
 
-    console.log(schemeUid)
-
     client.value.store.collectionMutators.edit(
-      firstCollection.uid,
+      collection.uid,
       'selectedSecuritySchemeUids',
       [schemeUid],
     )
 
-    const scheme = Object.values(client.value.store.securitySchemes).find(
-      ({ nameKey }) => nameKey === newAuth.preferredSecurityScheme,
+    // Lets update the currently selected auth for now
+    // TODO: we can diff this later to update everything that changes
+    const baseValues = getBaseAuthValues(
+      client.value.store.securitySchemes[schemeUid],
+      newAuth,
     )
-    if (!scheme) return
-
-    console.log(scheme)
-
-    const baseValues = getBaseAuthValues(scheme, newAuth)
     console.log(baseValues)
-    // // Update auth properties
+    // Update auth properties
     // client.value.updateAuth({
     //   nameKey: newAuth.preferredSecurityScheme,
     //   propertyKey: 'username',

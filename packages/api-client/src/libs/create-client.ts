@@ -196,9 +196,27 @@ export const createApiClient = ({
     }
   }
 
+  /** Uses a diff to update the spec */
+  const updateSpec = async (spec: SpecConfiguration) => {
+    if (spec?.url) {
+      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+        proxy: configuration?.proxyUrl,
+      })
+    } else if (spec?.content) {
+      await importSpecFile(spec?.content, activeWorkspace.value.uid)
+    } else {
+      console.error(
+        `[@scalar/api-client-modal] Could not create the API client.`,
+        `Please provide an OpenAPI document: { spec: { url: '…' } }`,
+        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+      )
+    }
+  }
+
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
+    updateSpec,
     /** Update the API client config */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
@@ -206,9 +224,8 @@ export const createApiClient = ({
       } else {
         objectMerge(configuration ?? {}, newConfig)
       }
-      if (newConfig.spec) {
-        importSpecFile(newConfig.spec, activeWorkspace.value.uid)
-      }
+      // Update the spec
+      if (newConfig.spec) updateSpec(newConfig.spec)
     },
     /** Update the currently selected server via URL */
     updateServer: (serverUrl: string) => {
@@ -253,22 +270,6 @@ export const createApiClient = ({
           // @ts-expect-error why typescript why
           value,
         )
-    },
-    /** Update the spec file, this will re-parse it and clear your store */
-    updateSpec: async (spec: SpecConfiguration) => {
-      if (spec?.url) {
-        await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
-          proxy: configuration?.proxyUrl,
-        })
-      } else if (spec?.content) {
-        await importSpecFile(spec?.content, activeWorkspace.value.uid)
-      } else {
-        console.error(
-          `[@scalar/api-client-modal] Could not create the API client.`,
-          `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-          `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
-        )
-      }
     },
     /** Route to a method + path */
     route: (

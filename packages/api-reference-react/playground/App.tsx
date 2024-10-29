@@ -37,7 +37,7 @@ function App() {
           token: 'api_key_12345abcde',
         },
       })
-    }, 2000)
+    }, 10000)
 
     return () => clearInterval(changeInt)
   }, [])
