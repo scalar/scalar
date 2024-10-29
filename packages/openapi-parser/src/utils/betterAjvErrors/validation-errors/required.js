@@ -1,4 +1,4 @@
-import BaseValidationError from './base'
+import BaseValidationError from './base.js'
 
 export default class RequiredValidationError extends BaseValidationError {
   constructor(...args) {

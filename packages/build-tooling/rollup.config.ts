@@ -1,4 +1,4 @@
-import { addPackageFileExports, createRollupConfig } from './src'
+import { addPackageFileExports, createRollupConfig } from './src/index.js'
 
 const entries = ['./src/index.ts']
 

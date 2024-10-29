@@ -1,7 +1,7 @@
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 
-import type { AnyObject } from '../types'
-import { traverse } from './traverse'
+import type { AnyObject } from '../types/index.js'
+import { traverse } from './traverse.js'
 
 /**
  * Upgrade Swagger 2.0 to OpenAPI 3.0

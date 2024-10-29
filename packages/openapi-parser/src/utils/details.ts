@@ -1,5 +1,5 @@
-import { type OpenApiVersion, OpenApiVersions } from '../configuration'
-import type { AnyObject, DetailsResult } from '../types'
+import { type OpenApiVersion, OpenApiVersions } from '../configuration/index.js'
+import type { AnyObject, DetailsResult } from '../types/index.js'
 
 /**
  * Get versions of the OpenAPI specification.

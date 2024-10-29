@@ -1,1 +1,0 @@
-export { syntaxHighlight } from './highlight'

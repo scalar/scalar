@@ -1,4 +1,0 @@
-[*]
-dotnet_diagnostic.vsthrd200.severity = none
-resharper_class_can_be_sealed_global_highlighting = none
-resharper_class_can_be_sealed_local_highlighting = none

@@ -1,7 +1,7 @@
 import { parse } from 'yaml'
 
-import type { AnyObject, Filesystem } from '../types'
-import { isFilesystem } from './isFilesystem'
+import type { AnyObject, Filesystem } from '../types/index.js'
+import { isFilesystem } from './isFilesystem.js'
 
 /**
  * Normalize the OpenAPI specification to a JavaScript object.

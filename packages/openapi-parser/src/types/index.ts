@@ -1,6 +1,6 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import type { ERRORS, OpenApiVersion } from '../configuration'
+import type { ERRORS, OpenApiVersion } from '../configuration/index.js'
 
 /**
  * Merge types with each other

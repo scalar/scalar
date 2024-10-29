@@ -4,11 +4,11 @@ import type {
   DereferenceResult,
   Filesystem,
   ThrowOnErrorOption,
-} from '../types'
-import { details } from './details'
-import { getEntrypoint } from './getEntrypoint'
-import { makeFilesystem } from './makeFilesystem'
-import { resolveReferences } from './resolveReferences'
+} from '../types/index.js'
+import { details } from './details.js'
+import { getEntrypoint } from './getEntrypoint.js'
+import { makeFilesystem } from './makeFilesystem.js'
+import { resolveReferences } from './resolveReferences.js'
 
 export type DereferenceOptions = ThrowOnErrorOption
 

@@ -1,4 +1,4 @@
-import { getPointers } from './utils'
+import { getPointers } from './utils.js'
 
 export default function getMetaFromPath(
   jsonAst,

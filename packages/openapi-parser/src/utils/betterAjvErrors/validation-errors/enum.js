@@ -1,7 +1,7 @@
 import pointer from 'jsonpointer'
 import leven from 'leven'
 
-import BaseValidationError from './base'
+import BaseValidationError from './base.js'
 
 export default class EnumValidationError extends BaseValidationError {
   constructor(...args) {

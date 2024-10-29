@@ -1,5 +1,5 @@
-import type { AnyObject } from '../types'
-import { traverse } from './traverse'
+import type { AnyObject } from '../types/index.js'
+import { traverse } from './traverse.js'
 
 /**
  * Upgrade from OpenAPI 3.0.x to 3.1.0

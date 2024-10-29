@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.js'
 import pathitemProperty from './pathitem-property.yaml?raw'
 
 describe('pathitem-property', () => {

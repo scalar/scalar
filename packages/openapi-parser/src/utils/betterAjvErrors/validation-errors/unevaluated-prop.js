@@ -1,4 +1,4 @@
-import BaseValidationError from './base'
+import BaseValidationError from './base.js'
 
 export default class UnevaluatedPropValidationError extends BaseValidationError {
   constructor(...args) {

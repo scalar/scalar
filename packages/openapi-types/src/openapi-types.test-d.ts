@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from './index'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from './index.js'
 
 describe('OpenAPI', () => {
   it('has a generic type', () => {
