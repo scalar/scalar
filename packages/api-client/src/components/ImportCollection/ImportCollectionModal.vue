@@ -34,7 +34,6 @@ const { activeWorkspace, events } = useWorkspace()
 const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
-const errorModalState = useModal()
 
 const errorMessage = ref('')
 const watchMode = ref<boolean>(true)
@@ -247,16 +246,6 @@ onUnmounted(() => {
           </span>
         </div>
       </div>
-      <!-- Error Modal -->
-      <ScalarModal
-        size="md"
-        :state="errorModalState"
-        title="Error Details"
-        variant="error">
-        <div class="text-sm">
-          {{ errorMessage }}
-        </div>
-      </ScalarModal>
     </div>
   </ScalarModal>
 </template>

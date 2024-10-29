@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PrefetchResult } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
-import { ScalarIcon, useModal } from '@scalar/components'
+import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { ref } from 'vue'
 
 defineProps<{
@@ -36,5 +36,16 @@ const handleExpandError = (message: string) => {
         Expand
       </span>
     </div>
+
+    <!-- Error Modal -->
+    <ScalarModal
+      size="md"
+      :state="errorModalState"
+      title="Error Details"
+      variant="error">
+      <div class="text-sm">
+        {{ errorMessage }}
+      </div>
+    </ScalarModal>
   </template>
 </template>
