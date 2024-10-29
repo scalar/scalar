@@ -270,7 +270,7 @@ describe('resolve', () => {
     )
   })
 
-  it('finds embedded OpenAPI document in script tag', async () => {
+  it('finds embedded OpenAPI document in script tag (JSON)', async () => {
     const html = `<!DOCTYPE html>
 <html>
   <head />
@@ -289,7 +289,38 @@ describe('resolve', () => {
 
     const result = await resolve('https://example.com/reference')
 
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0',
+      },
+    })
+  })
+
+  it('finds embedded OpenAPI document in script tag (YAML)', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script
+        id="api-reference"
+        type="application/yaml">
+openapi: 3.1.0
+info:
+  title: Hello World
+  version: '1.0'
+    </script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toStrictEqual({
       openapi: '3.1.0',
       info: {
         title: 'Hello World',

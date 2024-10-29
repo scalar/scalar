@@ -1644,6 +1644,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
+      yaml:
+        specifier: ^2.4.5
+        version: 2.4.5
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

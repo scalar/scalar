@@ -24,7 +24,9 @@ export function createUrlPrefetcher() {
     try {
       // If we try hard enough, we might find the actual OpenAPI document URL even if the input isn’t one directly.
       const urlOrDocument = await resolve(value, {
-        fetch: (url) => fetch(proxy ? redirectToProxy(proxy, url) : url),
+        fetch: (url) => {
+          return fetch(proxy ? redirectToProxy(proxy, url) : url)
+        },
       })
 
       // If the value is an object, we’re done

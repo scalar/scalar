@@ -1,3 +1,5 @@
+import { parse } from 'yaml'
+
 /**
  * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.
@@ -44,9 +46,12 @@ export async function resolve(
 
     // Fetch URL
     try {
-      const result = await (options?.fetch
-        ? options.fetch(value)
-        : fetch(value))
+      let result = await (options?.fetch ? options.fetch(value) : fetch(value))
+
+      // If the custom fetch failed, try again with regular fetch
+      if (!result.ok && options?.fetch) {
+        result = await fetch(value)
+      }
 
       if (result.ok) {
         const content = await result.text()
@@ -140,15 +145,20 @@ function parseHtml(html?: string) {
  */
 function parseScriptContent(html: string): Record<string, any> | undefined {
   const match = html.match(
-    /<script[^>]*id="api-reference"[^>]*type="application\/json"[^>]*>([\s\S]*?)<\/script>/,
+    /<script[^>]*id="api-reference"[^>]*>([\s\S]*?)<\/script>/,
   )
 
   if (!match?.[1]) return undefined
 
   try {
     const content = match[1].trim()
+
     if (content) {
-      return JSON.parse(content)
+      try {
+        return JSON.parse(content)
+      } catch {
+        return parse(content)
+      }
     }
   } catch (error) {
     console.error('[@scalar/import] Failed to parse script content:', error)

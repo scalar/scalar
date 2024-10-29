@@ -153,7 +153,7 @@ onUnmounted(() => {
           :integration="integration" />
         <!-- Title -->
         <div class="text-center text-md font-bold mb-2 line-clamp-1">
-          {{ title ?? 'Untitled Collection' }}
+          {{ title || 'Untitled Collection' }}
         </div>
         <div class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
           Import the OpenAPI document to instantly send API requests. No signup
@@ -167,6 +167,7 @@ onUnmounted(() => {
         <template v-else-if="version">
           <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
             <!-- <OpenAppButton :source="source" /> -->
+            {{ prefetchResult?.url ?? source }}
             <ImportNowButton
               :source="prefetchResult?.url ?? source"
               variant="button"
