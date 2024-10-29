@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { ScalarMarkdown } from '@scalar/components'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
@@ -156,11 +157,31 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <template v-else>
         <ul class="property-enum-values">
           <li
-            v-for="enumValue in getEnumFromValue(value)"
+            v-for="enumValue in getEnumFromValue(value).slice(0, 4)"
             :key="enumValue"
             class="property-enum-value">
             {{ enumValue }}
           </li>
+          <Disclosure
+            v-if="getEnumFromValue(value).length > 4"
+            v-slot="{ open }">
+            <DisclosurePanel>
+              <li
+                v-for="enumValue in getEnumFromValue(value).slice(4)"
+                :key="enumValue"
+                class="property-enum-value">
+                {{ enumValue }}
+              </li>
+            </DisclosurePanel>
+            <DisclosureButton class="enum-toggle-button">
+              <ScalarIcon
+                class="enum-toggle-button-icon h-2.5"
+                :class="{ 'enum-toggle-button-icon--open': open }"
+                icon="Add"
+                thickness="3" />
+              {{ open ? 'Hide values' : 'Show all values' }}
+            </DisclosureButton>
+          </Disclosure>
         </ul>
       </template>
     </div>
@@ -336,5 +357,25 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-name {
   font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
+}
+.enum-toggle-button {
+  align-items: center;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: 13.5px;
+  cursor: pointer;
+  color: var(--scalar-color-2);
+  display: flex;
+  font-weight: var(--scalar-semibold);
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  user-select: none;
+  white-space: nowrap;
+}
+.enum-toggle-button:hover {
+  color: var(--scalar-color-1);
+}
+.enum-toggle-button-icon--open {
+  transform: rotate(45deg);
 }
 </style>
