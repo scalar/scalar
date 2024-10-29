@@ -167,7 +167,6 @@ onUnmounted(() => {
         <template v-else-if="version">
           <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
             <!-- <OpenAppButton :source="source" /> -->
-            {{ prefetchResult?.url ?? source }}
             <ImportNowButton
               :source="prefetchResult?.url ?? source"
               variant="button"
