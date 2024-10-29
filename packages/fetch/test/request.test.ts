@@ -10,8 +10,7 @@ describe('Executes requests and handles errors', () => {
   test('Basic request without auth token', async () => {
     const result = await request({
       disableAuth: true,
-      baseUrl: BASE_URL,
-      url: '/posts',
+      url: `${BASE_URL}/posts`,
       method: 'get',
       schema: z.array(
         z.object({
@@ -30,9 +29,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Basic request with string return', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })
@@ -44,9 +42,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Basic request with JSON return', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch/1',
+      url: `${BASE_URL}/object-fetch/1`,
       method: 'get',
       schema: z.object({
         userId: z.number(),
@@ -68,9 +65,8 @@ describe('Executes requests and handles errors', () => {
 
   test('authenticated post request with data', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch',
+      url: `${BASE_URL}/object-fetch`,
       method: 'post',
       data: {
         title: 'first post title',
@@ -97,9 +93,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Throws for invalid request body', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch',
+      url: `${BASE_URL}/object-fetch`,
       method: 'post',
       data: {
         email: 'dave@example.com',
@@ -115,9 +110,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Throws for unexpected response', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch',
+      url: `${BASE_URL}/object-fetch`,
       method: 'post',
       data: {
         title: 'first post title',
@@ -139,9 +133,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Handles incorrect http method', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch/1',
+      url: `${BASE_URL}/object-fetch/1`,
       method: 'post',
       schema: z.object({
         userId: z.number(),
@@ -166,9 +159,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Handles empty access token', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: '',
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })
@@ -179,9 +171,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Handles string access token', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: accessToken,
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })
@@ -193,9 +184,8 @@ describe('Executes requests and handles errors', () => {
 
   test('Handles function access token', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: () => accessToken,
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })
@@ -206,9 +196,8 @@ describe('Executes requests and handles errors', () => {
   })
   test('Handles empty function access token', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       accessToken: () => '',
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })
@@ -219,9 +208,8 @@ describe('Executes requests and handles errors', () => {
 
   test.todo('Handles Promise<string> access token', async () => {
     const result = await request({
-      baseUrl: BASE_URL,
       // accessToken: Promise.resolve(accessToken),
-      url: '/object-fetch?id=1',
+      url: `${BASE_URL}/object-fetch?id=1`,
       method: 'get',
       schema: z.string(),
     })

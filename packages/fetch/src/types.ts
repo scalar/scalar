@@ -13,9 +13,7 @@ export type ApiError = {
   originalError: any
 }
 
-export type RequestConfig<T> = Omit<RequestInit, 'body'> & {
-  // why do we omit the body param?
-  baseUrl?: string
+export type RequestConfig<T> = RequestInit & {
   url: string
   accessToken?: string | (() => string) // TODO: | Promise<string>
   schema: ZodSchema<T, ZodTypeDef, any>
