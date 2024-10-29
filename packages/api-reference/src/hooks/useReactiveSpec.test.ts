@@ -104,7 +104,9 @@ describe('useReactiveSpec', () => {
 
     await nextTick()
 
-    expect(fetch).toHaveBeenCalledWith('https://example.com/openapi.json')
+    expect(fetch).toHaveBeenCalledWith('https://example.com/openapi.json', {
+      cache: 'no-cache',
+    })
 
     await new Promise((resolve) => {
       watch(rawSpec, (value) => {
