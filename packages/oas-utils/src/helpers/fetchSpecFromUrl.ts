@@ -1,4 +1,5 @@
-import { fetchWithProxyFallback } from './fetchWithProxyFallback'
+import { redirectToProxy } from '@/helpers/redirectToProxy'
+
 import { formatJsonOrYamlString } from './parse'
 
 // Doesn’t work
@@ -7,7 +8,7 @@ const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
 
 /**
- * Fetches an OpenAPI/Swagger document from a given URL.
+ * Fetches an OpenAPI/Swagger specification from a given URL.
  *
  * @throws an error if the fetch fails
  */
@@ -22,31 +23,27 @@ export async function fetchSpecFromUrl(
     proxy = NEW_PROXY_URL
   }
 
-  try {
-    const response = await fetchWithProxyFallback(url, proxy)
+  // To use a proxy or not to use a proxy
+  const response = await fetch(proxy ? redirectToProxy(proxy, url) : url)
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to fetch the OpenAPI document: ${url} (Status: ${response.status})`,
-      )
-    }
-
-    const text = await response.text()
-
-    // If it's JSON, make it pretty
-    return beautify ? formatJsonOrYamlString(text) : text
-  } catch (error) {
+  // Looks like the request failed
+  if (response.status !== 200) {
     console.error(
-      `[fetchSpecFromUrl] Failed to fetch the OpenAPI document at ${url}`,
-      error,
+      `[fetchSpecFromUrl] Failed to fetch the specification at ${url} (Status: ${response.status})`,
     )
 
     if (!proxy) {
       console.warn(
-        `[fetchSpecFromUrl] Tried to fetch the OpenAPI document (${url}) without a proxy. Are the CORS headers configured to allow cross-domain requests? https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`,
+        `[fetchSpecFromUrl] Tried to fetch the specification (url: ${url}) without a proxy. Are the CORS headers configured to allow cross-domain requests? https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS`,
       )
     }
 
-    throw error
+    throw new Error(
+      `Failed to fetch the specification (Status: ${response.status})`,
+    )
   }
+
+  // If it’s JSON, make it pretty
+  if (beautify) return formatJsonOrYamlString(await response.text())
+  else return await response.text()
 }
