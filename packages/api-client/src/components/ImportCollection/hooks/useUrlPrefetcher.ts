@@ -20,7 +20,7 @@ export function createUrlPrefetcher() {
     try {
       const result = await fetchWithProxyFallback(value, {
         proxy,
-        noCache: true,
+        cache: 'no-cache',
       })
 
       if (!result.ok) {
