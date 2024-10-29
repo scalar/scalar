@@ -4,7 +4,7 @@ import { ScalarIcon, useModal } from '@scalar/components'
 import { ref } from 'vue'
 
 defineProps<{
-  prefetchResult: PrefetchResult
+  result: PrefetchResult
 }>()
 
 const errorModalState = useModal()
@@ -18,7 +18,7 @@ const handleExpandError = (message: string) => {
 </script>
 
 <template>
-  <template v-if="prefetchResult.error">
+  <template v-if="result.error">
     <div
       class="flex gap-2 justify-between items-center pt-2 pl-2 pr-1.5 pb-1.5 font-code text-sm border rounded break-words mt-4 w-full">
       <div class="flex flex-1 gap-2">
@@ -27,12 +27,12 @@ const handleExpandError = (message: string) => {
           icon="Error"
           size="sm" />
         <div class="break-all line-clamp-4 w-full">
-          {{ prefetchResult.error.slice(0, 100) }}...
+          {{ result.error.slice(0, 100) }}...
         </div>
       </div>
       <span
         class="bg-b-2 cursor-pointer inline-block self-end px-1.5 py-1 rounded text-xs"
-        @click="handleExpandError(prefetchResult.error)">
+        @click="handleExpandError(result.error)">
         Expand
       </span>
     </div>

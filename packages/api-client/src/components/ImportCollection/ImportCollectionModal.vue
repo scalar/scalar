@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
+import ImportNowButton from '@/components/ImportCollection/ImportNowButton.vue'
+import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
+import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
+import WorkspaceSelector from '@/components/ImportCollection/WorkspaceSelector.vue'
 import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
 import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
@@ -15,10 +19,6 @@ import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import ImportNowButton from './ImportNowButton.vue'
-import IntegrationLogo from './IntegrationLogo.vue'
-import WorkspaceSelector from './WorkspaceSelector.vue'
 
 const props = defineProps<{
   source: string | null

@@ -1,3 +1,4 @@
+import { resolve } from '@scalar/import'
 import { fetchWithProxyFallback } from '@scalar/oas-utils/helpers'
 import { reactive } from 'vue'
 
@@ -18,7 +19,31 @@ export function createUrlPrefetcher() {
     }
 
     try {
-      const result = await fetchWithProxyFallback(value, {
+      // If we try hard enough, we might find the actual OpenAPI document URL even if the input isn’t one directly.
+      // TODO: Proxy support
+      const urlOrDocument = await resolve(value)
+
+      // If the value is an object, we’re done
+      if (typeof urlOrDocument === 'object' && urlOrDocument !== null) {
+        const json = JSON.stringify(urlOrDocument, null, 2)
+
+        return { state: 'idle', content: json, url: value, error: null }
+      }
+
+      // Nothing was found.
+      if (urlOrDocument === undefined) {
+        return {
+          state: 'idle',
+          content: null,
+          url: null,
+          error: `Couldn’t find an OpenAPI document in ${value}`,
+        }
+      }
+
+      const url = urlOrDocument
+
+      // Okay, we’ve got an URL. Let’s fetch it:
+      const result = await fetchWithProxyFallback(url, {
         proxy,
         cache: 'no-cache',
       })
@@ -28,21 +53,32 @@ export function createUrlPrefetcher() {
           state: 'idle',
           content: null,
           url: null,
-          error: `Couldn't fetch ${value}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+          error: `Couldn’t fetch ${url}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
         }
       }
 
       const content = await result.text()
 
-      return { state: 'idle', content, url: value, error: null }
+      return {
+        state: 'idle',
+        content,
+        // This is the resolved URL, doesn’t have to be the given URL.
+        url,
+        error: null,
+      }
     } catch (error: any) {
       console.error('[prefetchDocument]', error)
 
       const message = error?.message?.includes('Can’t fetch')
-        ? `Couldn't reach ${value} — is it publicly accessible?`
+        ? `Couldn’t reach the URL (${value}). Is it publicly accessible?`
         : error?.message
 
-      return { state: 'idle', content: null, url: null, error: message }
+      return {
+        state: 'idle',
+        content: null,
+        url: null,
+        error: message,
+      }
     }
   }
 
