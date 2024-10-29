@@ -10,20 +10,20 @@ function App() {
     Required<ReferenceProps>['configuration']['authentication']
   >({})
 
-  // useEffect(() => {
-  //   // Update the spec periodically to test reactivity
-  //   const changeInt = setInterval(() => {
-  //     setSpec({
-  //       ...galaxySpec,
-  //       info: {
-  //         ...galaxySpec.info,
-  //         title: (generate(2) as string[]).join(' '),
-  //       },
-  //     })
-  //   }, 2000)
+  useEffect(() => {
+    // Update the spec periodically to test reactivity
+    const changeInt = setInterval(() => {
+      setSpec({
+        ...galaxySpec,
+        info: {
+          ...galaxySpec.info,
+          title: (generate(2) as string[]).join(' '),
+        },
+      })
+    }, 2000)
 
-  //   return () => clearInterval(changeInt)
-  // }, []) // Empty dependency array ensures the effect runs only once
+    return () => clearInterval(changeInt)
+  }, []) // Empty dependency array ensures the effect runs only once
 
   const apiKeys = [
     'apiKeyHeader',

@@ -196,7 +196,10 @@ export const createApiClient = ({
     }
   }
 
-  /** Uses a diff to update the spec */
+  /**
+   * This currently just duplicates all data
+   * TODO: Uses a diff to update the spec
+   */
   const updateSpec = async (spec: SpecConfiguration) => {
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
