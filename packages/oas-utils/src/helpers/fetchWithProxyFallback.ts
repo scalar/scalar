@@ -13,8 +13,6 @@ export type FetchWithProxyFallbackOptions = {
  *
  * If a proxy is provided and the URL requires it, it will first attempt to fetch using the proxy.
  * If the proxy fetch fails or is not used, it will fall back to a direct fetch.
- *
- * Also handles cases where the input is a JSON object instead of a URL.
  */
 export async function fetchWithProxyFallback(
   url: string,
