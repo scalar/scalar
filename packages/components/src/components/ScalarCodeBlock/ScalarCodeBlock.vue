@@ -90,7 +90,7 @@ const isContentValid = computed(() => {
 /* Copy Button */
 .scalar-code-copy {
   display: flex;
-  align-items: start;
+  align-items: flex-start;
   justify-content: flex-end;
 
   position: sticky;
