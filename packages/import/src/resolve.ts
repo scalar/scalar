@@ -4,6 +4,12 @@
  */
 export async function resolve(
   value?: string | null,
+  options?: {
+    /**
+     * Fetch function to use instead of the global fetch. Use this to intercept requests.
+     */
+    fetch?: (url: string) => Promise<Response>
+  },
 ): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
@@ -38,7 +44,9 @@ export async function resolve(
 
     // Fetch URL
     try {
-      const result = await fetch(value)
+      const result = await (options?.fetch
+        ? options.fetch(value)
+        : fetch(value))
 
       if (result.ok) {
         const content = await result.text()
@@ -95,12 +103,21 @@ function parseHtml(html?: string) {
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
-  const configurationUrl = html.match(
+  const doubleEncodedConfigurationUrl = html.match(
     /&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/,
   )
 
-  if (configurationUrl?.[1]) {
-    return configurationUrl[1]
+  if (doubleEncodedConfigurationUrl?.[1]) {
+    return doubleEncodedConfigurationUrl[1]
+  }
+
+  // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
+  const encodedConfigurationUrl = html.match(
+    /&quot;url&quot;:&quot;([^;]+)&quot;/,
+  )
+
+  if (encodedConfigurationUrl?.[1]) {
+    return encodedConfigurationUrl[1]
   }
 
   return undefined
