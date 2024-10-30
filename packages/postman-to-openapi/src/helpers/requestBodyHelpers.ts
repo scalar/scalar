@@ -1,6 +1,7 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { FormParameter, RequestBody, UrlEncodedParameter } from '../types'
+import { processFormDataSchema } from './formDataHelpers'
 import { createParameterObject } from './parameterHelpers'
 
 /**
@@ -14,20 +15,19 @@ export function extractRequestBody(
     content: {},
   }
 
-  switch (body.mode) {
-    case 'raw':
-      handleRawBody(body, requestBody)
-      break
-    case 'formdata':
-      if (body.formdata) {
-        handleFormDataBody(body.formdata, requestBody)
-      }
-      break
-    case 'urlencoded':
-      if (body.urlencoded) {
-        handleUrlEncodedBody(body.urlencoded, requestBody)
-      }
-      break
+  if (body.mode === 'raw') {
+    handleRawBody(body, requestBody)
+    return requestBody
+  }
+
+  if (body.mode === 'formdata' && body.formdata) {
+    handleFormDataBody(body.formdata, requestBody)
+    return requestBody
+  }
+
+  if (body.mode === 'urlencoded' && body.urlencoded) {
+    handleUrlEncodedBody(body.urlencoded, requestBody)
+    return requestBody
   }
 
   return requestBody
@@ -63,21 +63,9 @@ function handleFormDataBody(
   formdata: FormParameter[],
   requestBody: OpenAPIV3.RequestBodyObject,
 ) {
-  const schema: OpenAPIV3.SchemaObject = {
-    type: 'object',
-    properties: {},
-  }
-  formdata.forEach((item: FormParameter) => {
-    if (schema.properties) {
-      schema.properties[item.key] = {
-        type: 'string',
-        example: item.type === 'file' ? 'file content' : item.value,
-      }
-    }
-  })
   requestBody.content = {
     'multipart/form-data': {
-      schema,
+      schema: processFormDataSchema(formdata),
     },
   }
 }

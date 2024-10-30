@@ -208,8 +208,7 @@ describe('convert', () => {
     ).toEqual(JSON.parse(expected.AuthRequest))
   })
 
-  // working on this
-  it.skip('should parse POST methods with form data', () => {
+  it('should parse POST methods with form data', () => {
     expect(
       convert(JSON.parse(collections.FormData) as PostmanCollection),
     ).toEqual(JSON.parse(expected.FormData))
