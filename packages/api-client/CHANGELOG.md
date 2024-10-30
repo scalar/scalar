@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.39
+
+### Patch Changes
+
+- bd8e253: fix: import collection animation
+- b9b42f6: fix(api-client): api client button is always visible
+
 ## 2.1.38
 
 ### Patch Changes
