@@ -106,7 +106,14 @@ export function createParamInstance(param: RequestParameter) {
    * - Need to handle non-string parameters much better
    * - Need to handle unions/array values for schema
    */
-  const value = String(schema?.default ?? schema?.examples?.[0] ?? '')
+  const value = String(
+    schema?.default ??
+      schema?.examples?.[0] ??
+      schema?.example ??
+      param.examples?.[Object.keys(param.examples)[0]]?.value ??
+      param.example ??
+      '',
+  )
 
   const parseEnum =
     schema?.type === 'number' ? schema?.enum?.map(String) : schema?.enum
