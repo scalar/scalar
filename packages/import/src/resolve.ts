@@ -119,7 +119,9 @@ function parseHtml(html?: string) {
   }
 
   // data-url="*"
-  const dataUrlMatch = html.match(/data-url=["']([^"']+)["']/)
+  const dataUrlMatch = html.match(
+    /data-url=["']([^"']+)["'](?:[^>]*id=["']api-reference["']|[^>]*id=["']api-reference["'][^>]*data-url)/,
+  )
 
   if (dataUrlMatch?.[1]) {
     return dataUrlMatch[1]
@@ -127,7 +129,6 @@ function parseHtml(html?: string) {
 
   // spec-url="*"
   const specUrlMatch = html.match(/spec-url=["']([^"']+)["']/)
-
   if (specUrlMatch?.[1]) {
     return specUrlMatch[1]
   }
@@ -152,7 +153,6 @@ function parseHtml(html?: string) {
   const encodedConfigurationUrl = html.match(
     /&quot;url&quot;:&quot;([^;]+)&quot;/,
   )
-
   if (encodedConfigurationUrl?.[1]) {
     return encodedConfigurationUrl[1]
   }
@@ -161,6 +161,13 @@ function parseHtml(html?: string) {
   const scriptContent = parseScriptContent(html)
   if (scriptContent) {
     return scriptContent
+  }
+
+  // Check for configuration in script tag
+  const scriptConfigMatch = html.match(/url:\s*["']([^"']+)["']/i)
+
+  if (scriptConfigMatch?.[1]) {
+    return scriptConfigMatch?.[1]
   }
 
   // Check for OpenAPI URLs in the HTML

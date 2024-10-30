@@ -372,4 +372,33 @@ info:
 
     expect(result).toBe('https://example.com/v1/openapi.yml')
   })
+
+  it('finds URL in script configuration', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script>
+      var configuration = {
+        isEditable: false,
+        layout: "classic",
+        darkMode: false,
+        searchHotKey: "nope",
+        spec: { url: "/docs/files/openapi.json" },
+      }
+      var apiReference = document.getElementById('api-reference')
+      apiReference.dataset.configuration = JSON.stringify(configuration)
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.20"></script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toBe('https://example.com/docs/files/openapi.json')
+  })
 })
