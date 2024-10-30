@@ -91,6 +91,8 @@ const shouldShowIntegrationIcon = computed(() => {
 
 // Function to add/remove class from body
 const toggleBodyClass = (add: boolean) => {
+  document.body.classList.remove('has-no-import-url')
+
   if (add && (hasUrl.value || hasContent.value) && modalState.open) {
     document.body.classList.add('has-import-url')
   } else {
@@ -269,7 +271,6 @@ onUnmounted(() => {
   .has-no-import-url {
     opacity: 1;
     background: var(--scalar-background-1);
-    transform: scale(0.85) translate3d(calc(50dvw + 80px), 0, 0);
     animation: transform-restore-layout ease-in-out 0.3s forwards;
   }
   .has-import-url .scalar-client > main {
