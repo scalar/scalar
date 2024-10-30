@@ -27,6 +27,7 @@
     "build-only": "vite build",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
+    "playground": "vite ./playground -c ./vite.config.ts",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
@@ -45,12 +46,15 @@
     "@scalar/api-reference": "workspace:*"
   },
   "devDependencies": {
+    "@scalar/galaxy": "workspace:*",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "character-entities": "^2.0.2",
     "decode-named-character-reference": "^1.0.2",
     "path": "^0.12.7",
+    "random-words": "^2.0.1",
+    "react-dom": "^18.3.1",
     "vite": "^5.4.9",
     "vite-plugin-dts": "^3.6.3",
     "vue": "^3.5.12"

@@ -71,7 +71,7 @@ const convertOauth2Flows = (
 }
 
 /** Pre-fill baseValues if we have authentication config */
-const getBaseValues = (
+export const getBaseAuthValues = (
   scheme: SecurityScheme,
   auth?: ReferenceConfiguration['authentication'],
 ): Record<string, never> | Partial<SecuritySchemeExampleValue> => {
@@ -378,7 +378,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
   // Create the auth examples
   const auth = securitySchemes?.reduce<Collection['auth']>((prev, s) => {
-    const baseValues = getBaseValues(s, authentication)
+    const baseValues = getBaseAuthValues(s, authentication)
     const example = authExampleFromSchema(s, baseValues)
 
     if (example) prev[s.uid] = example

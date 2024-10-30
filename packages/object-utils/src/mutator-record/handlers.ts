@@ -85,6 +85,14 @@ export function mutationFactory<
       mutator?.redo()
       onChange()
     },
+    /** Destructive, clears the record */
+    reset: () => {
+      Object.keys(entityMap).forEach((uid) => {
+        delete entityMap[uid]
+        delete mutationMap[uid]
+      })
+      onChange()
+    },
   }
 }
 

@@ -369,11 +369,7 @@ const themeStyleTag = computed(
     </template>
     <!-- REST API Client Overlay -->
     <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
-    <ApiClientModal
-      :authentication="configuration.authentication"
-      :proxyUrl="configuration.proxy"
-      :servers="configuration.servers"
-      :spec="configuration.spec" />
+    <ApiClientModal :configuration="configuration" />
   </div>
   <ScalarToasts />
 </template>

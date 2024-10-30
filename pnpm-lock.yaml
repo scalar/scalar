@@ -836,6 +836,9 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
+      '@scalar/object-utils':
+        specifier: workspace:*
+        version: link:../object-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -1001,6 +1004,9 @@ importers:
         specifier: ^18.0.0
         version: 18.3.1
     devDependencies:
+      '@scalar/galaxy':
+        specifier: workspace:*
+        version: link:../galaxy
       '@types/react':
         specifier: ^18.2.60
         version: 18.3.3
@@ -1019,6 +1025,12 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
+      random-words:
+        specifier: ^2.0.1
+        version: 2.0.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
       vite:
         specifier: ^5.4.9
         version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)

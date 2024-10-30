@@ -33,8 +33,7 @@ type CreateApiClientParams = {
   /** Main vue app component to create the vue app */
   appComponent: Component
   /** Configuration object for API client */
-  configuration?: Partial<Pick<ClientConfiguration, 'spec'>> &
-    ClientConfiguration
+  configuration?: ClientConfiguration
   /** Read only version of the client app */
   isReadOnly?: boolean
   /** Persist the workspace to localStoragfe */
@@ -196,18 +195,61 @@ export const createApiClient = ({
     }
   }
 
+  /**
+   * Update the spec
+   *
+   * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
+   */
+  const updateSpec = async (spec: SpecConfiguration) => {
+    if (spec?.url) {
+      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+        proxy: configuration?.proxyUrl,
+        overloadServers: configuration?.servers,
+        authentication: configuration.authentication,
+        setCollectionSecurity: true,
+      })
+    } else if (spec?.content) {
+      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
+        overloadServers: configuration?.servers,
+        authentication: configuration.authentication,
+        setCollectionSecurity: true,
+      })
+    } else {
+      console.error(
+        `[@scalar/api-client-modal] Could not create the API client.`,
+        `Please provide an OpenAPI document: { spec: { url: '…' } }`,
+        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+      )
+    }
+  }
+
   return {
     /** The vue app instance for the modal, be careful with this */
     app,
-    /** Update the API client config */
+    updateSpec,
+    /**
+     * Update the API client config
+     *
+     * Deletes the current store before importing again for now, in the future will Diff
+     */
     updateConfig(newConfig: ClientConfiguration, mergeConfigs = true) {
       if (mergeConfigs) {
         Object.assign(configuration ?? {}, newConfig)
       } else {
         objectMerge(configuration ?? {}, newConfig)
       }
+      // Update the spec, reset the store first
       if (newConfig.spec) {
-        importSpecFile(newConfig.spec, activeWorkspace.value.uid)
+        store.collectionMutators.reset()
+        store.requestMutators.reset()
+        store.requestExampleMutators.reset()
+        store.securitySchemeMutators.reset()
+        store.serverMutators.reset()
+        store.tagMutators.reset()
+
+        workspaceMutators.edit(activeWorkspace.value.uid, 'collections', [])
+
+        updateSpec(newConfig.spec)
       }
     },
     /** Update the currently selected server via URL */
@@ -253,22 +295,6 @@ export const createApiClient = ({
           // @ts-expect-error why typescript why
           value,
         )
-    },
-    /** Update the spec file, this will re-parse it and clear your store */
-    updateSpec: async (spec: SpecConfiguration) => {
-      if (spec?.url) {
-        await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
-          proxy: configuration?.proxyUrl,
-        })
-      } else if (spec?.content) {
-        await importSpecFile(spec?.content, activeWorkspace.value.uid)
-      } else {
-        console.error(
-          `[@scalar/api-client-modal] Could not create the API client.`,
-          `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-          `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
-        )
-      }
     },
     /** Route to a method + path */
     route: (

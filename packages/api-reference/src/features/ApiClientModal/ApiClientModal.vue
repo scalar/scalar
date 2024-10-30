@@ -1,19 +1,12 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useServerStore } from '#legacy'
-import type {
-  ReferenceConfiguration,
-  Spec,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from './useApiClient'
 
-const props = defineProps<{
-  proxyUrl?: string
-  authentication?: ReferenceConfiguration['authentication']
-  spec?: SpecConfiguration
-  servers?: Spec['servers']
+const { configuration } = defineProps<{
+  configuration: ClientConfiguration
 }>()
 
 const el = ref<HTMLDivElement | null>(null)
@@ -27,10 +20,7 @@ onMounted(async () => {
   // Initialize the new client hook
   const _client = await init({
     el: el.value,
-    spec: props.spec ?? {},
-    authentication: props.authentication,
-    proxyUrl: props.proxyUrl,
-    servers: props.servers,
+    ...configuration,
   })
 
   // Update the references server when the client server changes
@@ -47,10 +37,10 @@ watch(server, (newServer) => {
   if (serverUrl && client.value) client.value.updateServer(serverUrl)
 })
 
-// Update the spec on change
+// Update the config on change
 watch(
-  () => props.spec,
-  (newSpec) => newSpec && client.value?.updateSpec(newSpec),
+  () => configuration,
+  (_config) => _config && client.value?.updateConfig(_config),
   { deep: true },
 )
 
