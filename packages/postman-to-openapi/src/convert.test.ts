@@ -141,8 +141,7 @@ describe('convert', () => {
     ).toEqual(JSON.parse(expected.DepthPathParams))
   })
 
-  // working on this
-  it.skip('should parse status codes from test', () => {
+  it('should parse status codes from test', () => {
     expect(
       convert(JSON.parse(collections.ParseStatusCode) as PostmanCollection),
     ).toEqual(JSON.parse(expected.ParseStatus))
