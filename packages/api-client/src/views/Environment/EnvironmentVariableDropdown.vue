@@ -9,6 +9,7 @@ import type { Router } from 'vue-router'
 
 const props = defineProps<{
   query: string
+  activeEnvironment: WorkspaceStore['activeEnvironment']
   activeEnvVariables: WorkspaceStore['activeEnvVariables']
   router: Router
   // withServers?: boolean
@@ -19,6 +20,7 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
+type ActiveEnvironment = WorkspaceStore['activeEnvironment']
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
@@ -40,13 +42,17 @@ const filteredVariables = computed(() => {
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return parseEnvVariables(props.activeEnvVariables.value).slice(-4)
+    return parseEnvVariables(props.activeEnvVariables.value)
+      .slice(-4)
+      .filter(({ key, value }) => key !== '' || value !== '')
   }
 
   /** filter environment variables by name */
   const result = fuse.search(searchQuery)
   if (result.length > 0) {
-    return result.map((res) => res.item)
+    return result
+      .map((res) => res.item)
+      .filter(({ key, value }) => key !== '' || value !== '')
   }
 
   return []
@@ -56,12 +62,12 @@ const selectVariable = (variableKey: string) => {
   emit('select', variableKey)
 }
 
-const getEnvColor = () => {
-  return props.activeEnvVariables.value.map((variable) => {
-    if (variable.key === 'color') {
-      return `bg-${variable.value}`
-    }
-  })
+const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
+  if (activeEnvironment.value) {
+    return activeEnvironment.value.color
+  }
+
+  return '#8E8E8E'
 }
 
 const handleArrowKey = (direction: 'up' | 'down') => {
@@ -126,7 +132,9 @@ onClickOutside(
             <div class="flex items-center gap-1.5 whitespace-nowrap">
               <span
                 class="h-2.5 w-2.5 min-w-2.5 rounded-full"
-                :class="getEnvColor()"></span>
+                :style="{
+                  backgroundColor: getEnvColor(activeEnvironment),
+                }"></span>
               {{ item.key }}
             </div>
             <span

@@ -5,7 +5,7 @@ import { nanoidSchema } from '../shared'
 export const environmentSchema = z.object({
   uid: nanoidSchema,
   name: z.string().optional().default('Default Environment'),
-  color: z.string().optional().default('blue'),
+  color: z.string().optional().default('#0082D0'),
   value: z.string().default(''),
   isDefault: z.boolean().optional(),
 })
