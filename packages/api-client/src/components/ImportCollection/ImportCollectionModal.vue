@@ -150,7 +150,7 @@ onUnmounted(() => {
         <template v-if="prefetchResult.error">
           <!-- Heading -->
           <div class="text-center text-md font-bold mb-2 line-clamp-1">
-            Missing OpenAPI document
+            No OpenAPI document found
           </div>
           <!-- Prefetch error -->
           <PrefetchError :result="prefetchResult" />
@@ -209,7 +209,7 @@ onUnmounted(() => {
           <template v-else-if="!version">
             <div class="flex flex-col gap-2">
               <div
-                class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+                class="flex gap-2 items-center p-3 mt-4 font-code text-sm border rounded">
                 <ScalarIcon
                   class="text-red"
                   icon="Error"
@@ -219,8 +219,10 @@ onUnmounted(() => {
                 </div>
               </div>
 
-              <div class="bg-b-2 h-48 border rounded custom-scroll">
+              <div
+                class="bg-b-2 h-48 border rounded custom-scroll max-w-[340px]">
                 <ScalarCodeBlock
+                  class="w-auto"
                   :content="
                     prefetchResult.content?.trim() || props.source?.trim() || ''
                   "
