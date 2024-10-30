@@ -6,8 +6,8 @@ import { computed } from 'vue'
 const { integration, isDevelopment, url, buttonSource } = defineProps<{
   buttonSource: 'sidebar' | 'modal'
   isDevelopment?: boolean
-  integration?: string | null | undefined
-  url?: string | undefined
+  integration?: string | null
+  url?: string
 }>()
 
 /** Link to import an OpenAPI document */
@@ -33,7 +33,7 @@ const href = computed(() => {
 
 <template>
   <a
-    v-if="href"
+    v-if="url"
     class="open-api-client-button"
     :href="href"
     target="_blank">
