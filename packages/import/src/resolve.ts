@@ -208,15 +208,23 @@ function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
   const match = html.match(
-    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/,
+    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/s,
   )
 
   if (!match) return undefined
 
   try {
     const configString = decodeHtmlEntities(match[1])
+
     const config = JSON.parse(configString)
+
+    // Handle both direct JSON content and YAML content
     if (config.spec?.content) {
+      // If content is a string, assume it's YAML
+      if (typeof config.spec.content === 'string') {
+        return parse(config.spec.content)
+      }
+      // If content is an object, return it directly
       return config.spec.content
     }
   } catch (error) {
@@ -241,10 +249,20 @@ function decodeHtmlEntities(text: string): string {
     '&#39;': "'",
   } as const
 
-  return text.replace(
-    new RegExp(Object.keys(entities).join('|'), 'g'),
-    (match) => entities[match as keyof typeof entities],
-  )
+  const updatedText = text
+    .replace(
+      new RegExp(Object.keys(entities).join('|'), 'g'),
+      (match) => entities[match as keyof typeof entities],
+    )
+    .replace(/\n/g, '\\n')
+    .trim()
+
+  if (updatedText.startsWith('{&quot;')) {
+    // console.log('ok', updatedText)
+    return decodeHtmlEntities(updatedText)
+  }
+
+  return updatedText
 }
 
 /**
