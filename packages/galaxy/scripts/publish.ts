@@ -22,4 +22,4 @@ packageFile.exports = {
   './latest.json': './dist/latest.json',
 }
 
-fs.writeFileSync('./package.json', JSON.stringify(packageFile, null, 2))
+fs.writeFileSync('./package.json', JSON.stringify(packageFile, null, 2) + '\n')
