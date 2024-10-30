@@ -6,23 +6,32 @@ import { computed } from 'vue'
 const { integration, isDevelopment, url, buttonSource } = defineProps<{
   buttonSource: 'sidebar' | 'modal'
   isDevelopment?: boolean
-  integration?: string | null | undefined
-  url?: string | undefined
+  integration?: string | null
+  url?: string
 }>()
 
 /** Link to import an OpenAPI document */
-const href = computed(() => {
+const href = computed((): string | undefined => {
+  const absoluteUrl = makeUrlAbsolute(url)
+
+  if (!absoluteUrl?.length) {
+    return undefined
+  }
+
+  // Base URL
   const link = new URL(
     isDevelopment ? 'http://localhost:5065' : 'https://client.scalar.com',
   )
 
-  const absoluteUrl = makeUrlAbsolute(url)
-  if (absoluteUrl?.length) link.searchParams.set('url', absoluteUrl)
+  // URL that we’d like to import
+  link.searchParams.set('url', absoluteUrl)
 
-  // Default integration to vue if not explicitly null
-  if (integration !== null)
+  // Integration identifier
+  if (integration !== null) {
     link.searchParams.set('integration', integration ?? 'vue')
+  }
 
+  // UTM Source
   link.searchParams.set('utm_source', 'api-reference')
   link.searchParams.set('utm_medium', 'button')
   link.searchParams.set('utm_campaign', buttonSource)
