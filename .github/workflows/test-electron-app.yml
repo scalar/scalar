@@ -51,6 +51,7 @@ jobs:
         run: CI=1 pnpm test:e2e:electron
       - if: failure()
         name: Show stack traces
+        working-directory: playwright
         run: |
           for trace_file in test-results/*/trace.zip; do
             if [ -f "$trace_file" ]; then
