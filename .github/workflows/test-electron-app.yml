@@ -49,3 +49,12 @@ jobs:
         run: npx playwright install-deps
       - name: Run e2e tests
         run: CI=1 pnpm test:e2e:electron
+      - if: failure()
+        name: Show stack traces
+        run: |
+          for trace_file in test-results/*/trace.zip; do
+            if [ -f "$trace_file" ]; then
+              echo -e "\n$trace_file\n"
+              pnpm exec playwright show-trace "$trace_file"
+            fi
+          done
