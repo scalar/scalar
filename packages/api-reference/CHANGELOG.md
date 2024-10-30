@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.25.53
+
+### Patch Changes
+
+- fb798c8: chore: make OpenAPI document URLs the default, deprecated `content`
+- cf4e9c4: fix(components): resize and scroll scalar listbox and dropdown
+- 6108625: feat: adds disclosure button on enum values
+- cfe9b85: fix: added safe parsing for oauth examples
+- 6599473: fix: arrays with allOf items render invalid examples
+- bb3dc9d: fix(api-reference): improve endpoint and tag accessibility
+- 0e19781: feat: fix reactivitiy of references + client
+- ac0f8f1: fix: fixtures schema properties margin
+- Updated dependencies [fb798c8]
+- Updated dependencies [cf4e9c4]
+- Updated dependencies [3bec045]
+- Updated dependencies [743474e]
+- Updated dependencies [743474e]
+- Updated dependencies [cfe9b85]
+- Updated dependencies [0fb3a41]
+- Updated dependencies [417e0c7]
+- Updated dependencies [4d45f7b]
+- Updated dependencies [6599473]
+- Updated dependencies [bb3dc9d]
+- Updated dependencies [0e19781]
+  - @scalar/types@0.0.18
+  - @scalar/api-client@2.1.38
+  - @scalar/components@0.12.63
+  - @scalar/oas-utils@0.2.65
+  - @scalar/themes@0.9.45
+  - @scalar/object-utils@1.1.11
+  - @scalar/code-highlight@0.0.14
+
 ## 1.25.52
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/express-api-reference
 
+## 0.4.166
+
+### Patch Changes
+
+- fb798c8: chore: make OpenAPI document URLs the default, deprecated `content`
+- Updated dependencies [fb798c8]
+  - @scalar/types@0.0.18
+
 ## 0.4.165
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # scalar-api-client
 
+## 0.1.77
+
+### Patch Changes
+
+- 417e0c7: feat(api-client): add download button to scalar web
+- Updated dependencies [cf4e9c4]
+- Updated dependencies [743474e]
+- Updated dependencies [cfe9b85]
+- Updated dependencies [0fb3a41]
+- Updated dependencies [417e0c7]
+- Updated dependencies [bb3dc9d]
+- Updated dependencies [0e19781]
+  - @scalar/api-client@2.1.38
+  - @scalar/components@0.12.63
+  - @scalar/themes@0.9.45
+
 ## 0.1.76
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.18
+
+### Patch Changes
+
+- fb798c8: chore: make OpenAPI document URLs the default, deprecated `content`
+
 ## 0.0.17
 
 ### Patch Changes

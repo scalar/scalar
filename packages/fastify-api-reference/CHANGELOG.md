@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.53
+
+### Patch Changes
+
+- fb798c8: chore: make OpenAPI document URLs the default, deprecated `content`
+- Updated dependencies [fb798c8]
+  - @scalar/types@0.0.18
+
 ## 1.25.52
 
 ## 1.25.51
