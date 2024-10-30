@@ -1,62 +1,13 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_run:
+    workflows: ['Build']
+    types:
+      - completed
 
 jobs:
-  harden_security:
-    name: Check used GitHub Actions
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Ensure all Actions are pinned to a Commit SHA
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@ed00f72a3ca5b6eff8ad4d3ffdcacedb67a21db1
-
-  build:
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        node-version: [18, 20]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Build
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Save Turborepo cache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
-
-  format:
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        node-version: [20]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dev dependencies
-        run: pnpm install --dev
-      - name: Check code style
-        run: pnpm format:check
-
   types:
-    needs: [build]
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -73,7 +24,6 @@ jobs:
         run: pnpm turbo types:check
 
   test:
-    needs: [build]
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -91,7 +41,6 @@ jobs:
         run: pnpm test:ci
 
   stats:
-    needs: [build]
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -118,7 +67,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, test]
+    needs: [test]
     strategy:
       matrix:
         node-version: [20]
@@ -160,7 +109,7 @@ jobs:
   todesktop-release:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-20.04
-    needs: [build, test]
+    needs: [test]
     strategy:
       matrix:
         node-version: [20]
@@ -206,7 +155,6 @@ jobs:
   # stackblitz:
   #   if: github.head_ref == 'changeset-release/main'
   #   runs-on: ubuntu-20.04
-  #   needs: [build]
   #   strategy:
   #     matrix:
   #       node-version: [20]
@@ -255,9 +203,9 @@ jobs:
   #         ./packages/void-server
   #
   deploy-api-client:
+    # TODO:
     # Only run this job for PRs from the same repository
-    if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
-    needs: [build]
+    # if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -305,9 +253,9 @@ jobs:
           comment_tag: 'cloudflare-preview'
 
   deploy-examples:
+    # TODO:
     # Skip for forks and bot PRs
-    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
-    needs: [build]
+    # if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -345,7 +293,6 @@ jobs:
 
   aspnetcore-build-test:
     runs-on: ubuntu-latest
-    needs: [build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -392,7 +339,7 @@ jobs:
       - name: Stash changes
         run: git stash
 
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+      - if: contains(github.event.workflow_run.head_commit.message, 'RELEASING:')
         name: Check for new NuGet package version
         id: changed-files
         uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c
