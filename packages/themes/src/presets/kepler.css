@@ -1,5 +1,6 @@
-/* basic theme */
-.light-mode {
+/* Global Theme Settings */
+:root:has(body.light-mode) {
+  /* basic theme */
   --scalar-color-1: #2a2f45;
   --scalar-color-2: #757575;
   --scalar-color-3: #8e8e8e;
@@ -13,8 +14,21 @@
   --scalar-border-color: rgba(0, 0, 0, 0.1);
 
   --scalar-code-language-color-supersede: var(--scalar-color-3);
+
+  /* advanced theme */
+  --scalar-color-green: #069061;
+  --scalar-color-red: #ef0006;
+  --scalar-color-yellow: #edbe20;
+  --scalar-color-blue: #0082d0;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #5203d1;
+
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
-.dark-mode {
+:root:has(body.dark-mode) {
+  /* basic theme */
   --scalar-color-1: #f7f8f8;
   --scalar-color-2: rgb(180, 188, 208);
   --scalar-color-3: #b4bcd099;
@@ -27,6 +41,18 @@
 
   --scalar-border-color: #313245;
   --scalar-code-language-color-supersede: var(--scalar-color-3);
+
+  /* advanced theme */
+  --scalar-color-green: #00b648;
+  --scalar-color-red: #dc1b19;
+  --scalar-color-yellow: #ffc90d;
+  --scalar-color-blue: #4eb3ec;
+  --scalar-color-orange: #ff8d4d;
+  --scalar-color-purple: #b191f9;
+
+  --scalar-button-1: rgba(255, 255, 255, 1);
+  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: black;
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar {
@@ -55,31 +81,6 @@
   --scalar-sidebar-search-background: rgba(255, 255, 255, 0.1);
   --scalar-sidebar-search-border-color: 1px solid rgba(255, 255, 255, 0.05);
   --scalar-sidebar-search-color: var(--scalar-color-3);
-}
-/* advanced */
-.light-mode {
-  --scalar-color-green: #069061;
-  --scalar-color-red: #ef0006;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0082d0;
-  --scalar-color-orange: #fb892c;
-  --scalar-color-purple: #5203d1;
-
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
-}
-.dark-mode {
-  --scalar-color-green: #00b648;
-  --scalar-color-red: #dc1b19;
-  --scalar-color-yellow: #ffc90d;
-  --scalar-color-blue: #4eb3ec;
-  --scalar-color-orange: #ff8d4d;
-  --scalar-color-purple: #b191f9;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
 }
 /* Custom Theme */
 .dark-mode h2.t-editor__heading,
