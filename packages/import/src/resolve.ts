@@ -49,13 +49,14 @@ export async function resolve(
       let result = await (options?.fetch
         ? options.fetch(value)
         : fetch(value, {
-            mode: 'no-cors',
             cache: 'no-cache',
           }))
 
       // If the custom fetch failed, try again with regular fetch
       if (!result.ok && options?.fetch) {
-        result = await fetch(value)
+        result = await fetch(value, {
+          cache: 'no-cache',
+        })
       }
 
       if (result.ok) {
@@ -140,6 +141,14 @@ function parseHtml(html?: string) {
 
   if (encodedConfigurationUrl?.[1]) {
     return encodedConfigurationUrl[1]
+  }
+
+  // Check for OpenAPI URLs in the HTML
+  const linkMatch = html.match(
+    /<a[^>]*href=["']([^"']+\.(?:yaml|yml|json))["'][^>]*>/i,
+  )
+  if (linkMatch?.[1]) {
+    return linkMatch[1]
   }
 
   return undefined

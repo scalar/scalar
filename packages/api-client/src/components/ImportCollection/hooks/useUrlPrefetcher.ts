@@ -34,7 +34,6 @@ export function createUrlPrefetcher() {
       const urlOrDocument = await resolve(input, {
         fetch: (url) => {
           return fetch(proxy ? redirectToProxy(proxy, url) : url, {
-            mode: 'no-cors',
             cache: 'no-cache',
           })
         },

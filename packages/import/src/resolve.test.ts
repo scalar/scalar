@@ -328,4 +328,21 @@ info:
       },
     })
   })
+
+  it('finds OpenAPI URL in HTML link text', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <body>
+    <p>Fetching spec from <a href="https://example.com/v1/openapi.yml" rel="nofollow" target="_blank">https://example.com/v1/openapi.yml</a></p>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toBe('https://example.com/v1/openapi.yml')
+  })
 })
