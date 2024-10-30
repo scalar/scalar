@@ -63,7 +63,27 @@ export async function resolve(
         const content = await result.text()
         const urlOrPathOrDocument = parseHtml(content)
 
-        // Document
+        // Document (string)
+        if (typeof urlOrPathOrDocument === 'string') {
+          try {
+            // JSON?
+            return JSON.parse(urlOrPathOrDocument)
+          } catch {
+            // No JSON
+            try {
+              // YAML?
+              const yaml = parse(urlOrPathOrDocument)
+
+              if (typeof yaml === 'object') {
+                return yaml
+              }
+            } catch {
+              // Not YAML
+            }
+          }
+        }
+
+        // Document (object)
         if (typeof urlOrPathOrDocument === 'object') {
           return urlOrPathOrDocument
         }
@@ -96,12 +116,6 @@ function parseHtml(html?: string) {
   // Check whether it could be HTML
   if (!html?.includes('<')) {
     return undefined
-  }
-
-  // Try to find embedded OpenAPI document in script tag first
-  const scriptContent = parseScriptContent(html)
-  if (scriptContent) {
-    return scriptContent
   }
 
   // data-url="*"
@@ -141,6 +155,12 @@ function parseHtml(html?: string) {
 
   if (encodedConfigurationUrl?.[1]) {
     return encodedConfigurationUrl[1]
+  }
+
+  // Try to find embedded OpenAPI document in script tag first
+  const scriptContent = parseScriptContent(html)
+  if (scriptContent) {
+    return scriptContent
   }
 
   // Check for OpenAPI URLs in the HTML
