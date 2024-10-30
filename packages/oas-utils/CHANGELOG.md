@@ -1,5 +1,22 @@
 # @scalar/oas-utils
 
+## 0.2.65
+
+### Patch Changes
+
+- 3bec045: fix: adds example and examples to parameter schema
+- 743474e: feat: favors hexa for environment color
+- cfe9b85: fix: added safe parsing for oauth examples
+- 4d45f7b: fix: improve parameter instance creation by handling enum values for number types
+- 6599473: fix: arrays with allOf items render invalid examples
+- 0e19781: feat: fix reactivitiy of references + client
+- Updated dependencies [fb798c8]
+- Updated dependencies [bb3dc9d]
+- Updated dependencies [0e19781]
+  - @scalar/types@0.0.18
+  - @scalar/themes@0.9.45
+  - @scalar/object-utils@1.1.11
+
 ## 0.2.64
 
 ### Patch Changes

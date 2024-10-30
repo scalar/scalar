@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.45
+
+### Patch Changes
+
+- bb3dc9d: fix(api-reference): improve endpoint and tag accessibility
+- Updated dependencies [fb798c8]
+  - @scalar/types@0.0.18
+
 ## 0.9.44
 
 ### Patch Changes

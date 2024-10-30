@@ -1,5 +1,20 @@
 # @scalar/api-reference-react
 
+## 0.3.129
+
+### Patch Changes
+
+- 0e19781: feat: fix reactivitiy of references + client
+- Updated dependencies [fb798c8]
+- Updated dependencies [cf4e9c4]
+- Updated dependencies [6108625]
+- Updated dependencies [cfe9b85]
+- Updated dependencies [6599473]
+- Updated dependencies [bb3dc9d]
+- Updated dependencies [0e19781]
+- Updated dependencies [ac0f8f1]
+  - @scalar/api-reference@1.25.53
+
 ## 0.3.128
 
 ### Patch Changes

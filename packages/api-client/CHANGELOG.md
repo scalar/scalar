@@ -1,5 +1,31 @@
 # @scalar/api-client
 
+## 2.1.38
+
+### Patch Changes
+
+- cf4e9c4: fix(components): resize and scroll scalar listbox and dropdown
+- 743474e: feat: adds environment custom colors
+- cfe9b85: fix: added safe parsing for oauth examples
+- 0fb3a41: fix: sets default environment variable value
+- 417e0c7: feat(api-client): add download button to scalar web
+- 0e19781: feat: fix reactivitiy of references + client
+- Updated dependencies [fb798c8]
+- Updated dependencies [cf4e9c4]
+- Updated dependencies [3bec045]
+- Updated dependencies [743474e]
+- Updated dependencies [cfe9b85]
+- Updated dependencies [4d45f7b]
+- Updated dependencies [6599473]
+- Updated dependencies [bb3dc9d]
+- Updated dependencies [0e19781]
+  - @scalar/types@0.0.18
+  - @scalar/components@0.12.63
+  - @scalar/oas-utils@0.2.65
+  - @scalar/themes@0.9.45
+  - @scalar/object-utils@1.1.11
+  - @scalar/use-codemirror@0.11.30
+
 ## 2.1.37
 
 ### Patch Changes

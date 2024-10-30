@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.63
+
+### Patch Changes
+
+- cf4e9c4: fix(components): resize and scroll scalar listbox and dropdown
+- bb3dc9d: fix(api-reference): improve endpoint and tag accessibility
+- Updated dependencies [bb3dc9d]
+  - @scalar/themes@0.9.45
+  - @scalar/code-highlight@0.0.14
+
 ## 0.12.62
 
 ### Patch Changes

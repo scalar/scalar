@@ -1,5 +1,13 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.167
+
+### Patch Changes
+
+- fb798c8: chore: make OpenAPI document URLs the default, deprecated `content`
+- Updated dependencies [fb798c8]
+  - @scalar/types@0.0.18
+
 ## 0.3.166
 
 ### Patch Changes
