@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 
+import ScreenReader from '../../components/ScreenReader.vue'
 import TextSelect from './TextSelect.vue'
 
 const props = defineProps<{
@@ -62,6 +63,7 @@ function getLabel(key: string | null) {
         value,
       }))
     ">
+    <ScreenReader>Selected Example Values:</ScreenReader>
     {{ getLabel(selectedExampleKey) }}
   </TextSelect>
 </template>

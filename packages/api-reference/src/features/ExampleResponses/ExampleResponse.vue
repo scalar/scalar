@@ -9,24 +9,24 @@ defineProps<{
 </script>
 <template>
   <!-- Example -->
-  <template v-if="response?.example">
-    <ScalarCodeBlock
-      class="bg-b-2"
-      :content="response?.example"
-      lang="json" />
-  </template>
+  <ScalarCodeBlock
+    v-if="response?.example"
+    class="bg-b-2"
+    :content="response?.example"
+    lang="json" />
+
   <!-- Schema -->
-  <template v-else-if="response?.schema">
-    <ScalarCodeBlock
-      class="bg-b-2"
-      :content="
-        getExampleFromSchema(response?.schema, {
-          emptyString: '…',
-          mode: 'read',
-        })
-      "
-      lang="json" />
-  </template>
+  <ScalarCodeBlock
+    v-else-if="response?.schema"
+    class="bg-b-2"
+    :content="
+      getExampleFromSchema(response?.schema, {
+        emptyString: '…',
+        mode: 'read',
+      })
+    "
+    lang="json" />
+
   <div
     v-else
     class="empty-state">

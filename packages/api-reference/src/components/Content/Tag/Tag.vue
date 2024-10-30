@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Spec, Tag } from '@scalar/types/legacy'
-import { computed, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { SectionContainer } from '../../Section'
@@ -13,7 +13,8 @@ const props = defineProps<{
   spec: Spec
 }>()
 
-const sectionContainerRef = ref<HTMLElement | null>(null)
+const sectionContainerRef = ref<HTMLElement>()
+const contentsRef = ref<HTMLElement>()
 
 const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
@@ -24,6 +25,11 @@ const moreThanOneDefaultTag = computed(
     props.tag?.name !== 'default' ||
     props.tag?.description !== '',
 )
+
+async function focusContents() {
+  await nextTick()
+  contentsRef.value?.querySelector('button')?.focus()
+}
 </script>
 <template>
   <SectionContainer
@@ -36,10 +42,15 @@ const moreThanOneDefaultTag = computed(
       :tag="tag" />
     <ShowMoreButton
       v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
-      :id="id ?? ''" />
-    <template v-else>
+      :id="id ?? ''"
+      :aria-label="`Show all ${tag['x-displayName'] ?? tag.name} endpoints`"
+      @click="focusContents" />
+    <div
+      v-else
+      ref="contentsRef"
+      class="contents">
       <slot />
-    </template>
+    </div>
   </SectionContainer>
 </template>
 <style scoped>

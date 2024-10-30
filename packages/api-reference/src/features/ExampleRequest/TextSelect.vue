@@ -9,6 +9,7 @@ defineProps<{
       label: string
     }[]
   }[]
+  controls?: string
 }>()
 
 defineEmits<{
@@ -17,13 +18,15 @@ defineEmits<{
 </script>
 
 <template>
-  <div
+  <label
     class="text-select"
     :class="options.length === 1 ? 'text-select--single-option' : ''">
-    <span>
+    <span class="text-select-label">
       <slot />
     </span>
     <select
+      :aria-controls="controls"
+      :tabindex="options.length === 1 ? -1 : 0"
       :value="modelValue"
       @input="
         (event) =>
@@ -51,13 +54,18 @@ defineEmits<{
         </template>
       </template>
     </select>
-  </div>
+  </label>
 </template>
 
 <style>
 .text-select {
   position: relative;
   height: fit-content;
+}
+.text-select:has(:focus-visible) .text-select-label {
+  outline: 1px solid var(--scalar-color-accent);
+  outline-offset: 4px;
+  border-radius: calc(var(--scalar-radius) / 2);
 }
 .text-select--single-option {
   pointer-events: none;

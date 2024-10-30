@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
 import type { Tag, TransformedOperation } from '@scalar/types/legacy'
+import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { Anchor } from '../../Anchor'
 import { Card, CardContent, CardHeader } from '../../Card'
 import { HttpMethod } from '../../HttpMethod'
+import ScreenReader from '../../ScreenReader.vue'
 import {
   Section,
   SectionColumn,
@@ -18,6 +20,8 @@ const props = defineProps<{ id?: string; tag: Tag; isCollapsed?: boolean }>()
 
 const { getOperationId, getTagId } = useNavState()
 const { scrollToOperation } = useSidebar()
+
+const tagName = computed(() => props.tag['x-displayName'] ?? props.tag.name)
 
 // TODO in V2 we need to do the same loading trick as the initial load
 const scrollHandler = async (operation: TransformedOperation) => {
@@ -33,9 +37,7 @@ const scrollHandler = async (operation: TransformedOperation) => {
       <SectionColumns>
         <SectionColumn>
           <SectionHeader :level="2">
-            <Anchor :id="getTagId(tag)">
-              {{ tag['x-displayName'] ?? tag.name }}
-            </Anchor>
+            <Anchor :id="getTagId(tag)">{{ tagName }}</Anchor>
           </SectionHeader>
           <ScalarMarkdown
             :clamp="isCollapsed ? '7' : false"
@@ -45,25 +47,35 @@ const scrollHandler = async (operation: TransformedOperation) => {
         <SectionColumn>
           <template v-if="tag.operations?.length > 0">
             <Card class="scalar-card-sticky">
-              <CardHeader muted>Endpoints</CardHeader>
+              <CardHeader muted>
+                <ScreenReader>{{ tagName }}</ScreenReader>
+                Endpoints
+              </CardHeader>
               <CardContent
                 class="custom-scroll"
                 muted>
-                <div class="endpoints">
-                  <a
+                <ul
+                  :aria-label="`${tagName} endpoints`"
+                  class="endpoints">
+                  <li
                     v-for="operation in tag.operations"
                     :key="getOperationId(operation, tag)"
-                    class="endpoint"
-                    @click="scrollHandler(operation)">
-                    <HttpMethod :method="operation.httpVerb" />
-                    <span
-                      :class="{
-                        deprecated: operation.information?.deprecated,
-                      }">
-                      {{ operation.path }}
-                    </span>
-                  </a>
-                </div>
+                    class="contents">
+                    <a
+                      class="endpoint"
+                      :href="`#${getOperationId(operation, tag)}`"
+                      @click.prevent="scrollHandler(operation)">
+                      <HttpMethod :method="operation.httpVerb" />
+                      <span
+                        class="endpoint-path"
+                        :class="{
+                          deprecated: operation.information?.deprecated,
+                        }">
+                        {{ operation.path }}
+                      </span>
+                    </a>
+                  </li>
+                </ul>
               </CardContent>
             </Card>
           </template>
@@ -93,6 +105,11 @@ const scrollHandler = async (operation: TransformedOperation) => {
   display: flex;
   white-space: nowrap;
   cursor: pointer;
+  text-decoration: none;
+}
+.endpoint:hover .endpoint-path,
+.endpoint:focus-visible .endpoint-path {
+  text-decoration: underline;
 }
 .endpoint span:first-of-type {
   text-transform: uppercase;

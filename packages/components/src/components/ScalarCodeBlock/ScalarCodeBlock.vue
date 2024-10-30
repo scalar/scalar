@@ -75,9 +75,9 @@ const isContentValid = computed(() => {
   overflow: auto;
   padding: 0.5rem 0.5rem 0.5rem 0.75rem;
 }
-.scalar-code-block:hover .copy-button {
+.scalar-code-block:hover .copy-button,
+.copy-button:focus-visible {
   opacity: 100;
-  visibility: visible;
 }
 /* Code blocks */
 .scalar-codeblock-pre {
@@ -116,19 +116,11 @@ const isContentValid = computed(() => {
   transition:
     opacity 0.15s ease-in-out,
     color 0.15s ease-in-out;
-  visibility: hidden;
 }
 .scalar-code-copy,
 .copy-button {
   /* Pass down the background color */
   background: inherit;
-}
-.copy-button:after {
-  content: '.';
-  color: transparent;
-  font-size: var(--scalar-mini);
-  line-height: 1.35;
-  width: 0px;
 }
 .copy-button:hover {
   color: var(--scalar-color-1);

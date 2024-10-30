@@ -20,6 +20,7 @@ import {
   inject,
   onServerPrefetch,
   ref,
+  useId,
   useSSRContext,
   watch,
 } from 'vue'
@@ -31,6 +32,7 @@ import {
   CardHeader,
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
+import ScreenReader from '../../components/ScreenReader.vue'
 import {
   GLOBAL_SECURITY_SYMBOL,
   getExampleCode,
@@ -64,6 +66,8 @@ const {
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
+
+const id = useId()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
@@ -249,7 +253,9 @@ function updateHttpClient(value: string) {
     v-if="availableTargets.length || customRequestExamples.length"
     class="dark-mode">
     <CardHeader muted>
-      <div class="request-header">
+      <div
+        :id="`${id}-header`"
+        class="request-header">
         <HttpMethod
           as="span"
           class="request-method"
@@ -259,16 +265,19 @@ function updateHttpClient(value: string) {
       <template #actions>
         <TextSelect
           class="request-client-picker"
+          :controls="`${id}-example`"
           :modelValue="JSON.stringify(localHttpClient)"
           :options="options"
           @update:modelValue="updateHttpClient">
           <template v-if="localHttpClient.targetKey === 'customExamples'">
+            <ScreenReader>Selected Example:</ScreenReader>
             {{
               customRequestExamples[localHttpClient.clientKey].label ??
               'Example'
             }}
           </template>
           <template v-else>
+            <ScreenReader>Selected HTTP client:</ScreenReader>
             {{ httpTargetTitle }}
             {{ httpClientTitle }}
           </template>
@@ -280,7 +289,9 @@ function updateHttpClient(value: string) {
       class="request-editor-section custom-scroll"
       frameless>
       <!-- Multiple examples -->
-      <div class="code-snippet">
+      <div
+        :id="`${id}-example`"
+        class="code-snippet">
         <ScalarCodeBlock
           class="bg-b-2"
           :content="generatedCode"

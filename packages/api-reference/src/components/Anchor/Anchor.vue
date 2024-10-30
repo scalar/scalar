@@ -26,7 +26,7 @@ const getUrlWithId = (id: string) => {
         class="anchor-copy"
         type="button"
         @click.stop="copyToClipboard(getUrlWithId(id))">
-        #
+        <span aria-hidden="true">#</span>
         <ScreenReader>Copy link to "<slot />"</ScreenReader>
       </button>
     </span>
@@ -63,7 +63,8 @@ const getUrlWithId = (id: string) => {
   color: var(--scalar-color-2);
 }
 
-.label:hover .anchor {
+.label:hover .anchor,
+.label:has(:focus-visible) .anchor {
   opacity: 1;
 }
 </style>
