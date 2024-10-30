@@ -220,9 +220,8 @@ onUnmounted(() => {
               </div>
 
               <div
-                class="bg-b-2 h-48 border rounded custom-scroll max-w-[340px]">
+                class="bg-b-2 border custom-scroll max-h-48 mt-6 rounded w-full">
                 <ScalarCodeBlock
-                  class="w-auto"
                   :content="
                     prefetchResult.content?.trim() || props.source?.trim() || ''
                   "
