@@ -211,7 +211,7 @@ onMounted(() => {
     top: calc(var(--refs-header-height) - 1px);
   }
 }
-.references-loading-hidden-tag .section-container .section:first-child {
+.references-loading-hidden-tag .section-container > .section:first-child {
   display: none;
 }
 </style>
