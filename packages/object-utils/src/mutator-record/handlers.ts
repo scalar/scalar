@@ -51,14 +51,6 @@ export function mutationFactory<
       delete mutationMap[uid]
       onChange()
     },
-    /** Destructive, clears the record */
-    clear: () => {
-      Object.keys(entityMap).forEach((uid) => {
-        delete entityMap[uid]
-        delete mutationMap[uid]
-      })
-      onChange()
-    },
     /** Destructive, overwrites a record to a new item and creates a new mutation tracking instance */
     set: (item: T) => {
       entityMap[item.uid] = item
@@ -91,6 +83,14 @@ export function mutationFactory<
     redo: (uid: string) => {
       const mutator = getMutator(uid)
       mutator?.redo()
+      onChange()
+    },
+    /** Destructive, clears the record */
+    reset: () => {
+      Object.keys(entityMap).forEach((uid) => {
+        delete entityMap[uid]
+        delete mutationMap[uid]
+      })
       onChange()
     },
   }

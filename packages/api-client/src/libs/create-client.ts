@@ -240,7 +240,13 @@ export const createApiClient = ({
       }
       // Update the spec, reset the store first
       if (newConfig.spec) {
-        store.resetStore()
+        store.collectionMutators.reset()
+        store.requestMutators.reset()
+        store.requestExampleMutators.reset()
+        store.securitySchemeMutators.reset()
+        store.serverMutators.reset()
+        store.tagMutators.reset()
+
         updateSpec(newConfig.spec)
       }
     },
