@@ -4,7 +4,7 @@ import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, defineExpose, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { Router } from 'vue-router'
 
 const props = defineProps<{
