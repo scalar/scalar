@@ -1,3 +1,4 @@
+import { isUrl } from '@/libs'
 import { resolve } from '@scalar/import'
 import {
   fetchWithProxyFallback,
@@ -8,6 +9,7 @@ import { reactive } from 'vue'
 export type PrefetchResult = {
   state: 'idle' | 'loading'
   content: string | null
+  input: string | null
   url: string | null
   error: string | null
 }
@@ -16,24 +18,33 @@ export type PrefetchResult = {
  * Core logic for fetching and processing a URL
  */
 export function createUrlPrefetcher() {
-  async function prefetchUrl(value: string | null, proxy?: string) {
-    if (!value || typeof value !== 'string') {
-      return { state: 'idle', content: null, url: null, error: null }
+  async function prefetchUrl(input: string | null, proxy?: string) {
+    if (!input || typeof input !== 'string') {
+      return {
+        state: 'idle',
+        content: null,
+        url: null,
+        input,
+        error: null,
+      }
     }
 
     try {
       // If we try hard enough, we might find the actual OpenAPI document URL even if the input isn’t one directly.
-      const urlOrDocument = await resolve(value, {
+      const urlOrDocument = await resolve(input, {
         fetch: (url) => {
-          return fetch(proxy ? redirectToProxy(proxy, url) : url)
+          return fetch(proxy ? redirectToProxy(proxy, url) : url, {
+            mode: 'no-cors',
+            cache: 'no-cache',
+          })
         },
       })
 
-      // If the value is an object, we’re done
+      // If the input is an object, we’re done
       if (typeof urlOrDocument === 'object' && urlOrDocument !== null) {
         const json = JSON.stringify(urlOrDocument, null, 2)
 
-        return { state: 'idle', content: json, url: value, error: null }
+        return { state: 'idle', content: json, url: input, error: null }
       }
 
       // Nothing was found.
@@ -42,7 +53,18 @@ export function createUrlPrefetcher() {
           state: 'idle',
           content: null,
           url: null,
-          error: `Couldn’t find an OpenAPI document in ${value}`,
+          input,
+          error: `Could not find an OpenAPI document in ${input}`,
+        }
+      }
+
+      if (!isUrl(urlOrDocument)) {
+        return {
+          state: 'idle',
+          content: null,
+          url: null,
+          input,
+          error: `Oops, we got invalid content for the given URL.`,
         }
       }
 
@@ -59,6 +81,7 @@ export function createUrlPrefetcher() {
           state: 'idle',
           content: null,
           url: null,
+          input,
           error: `Couldn’t fetch ${url}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
         }
       }
@@ -76,13 +99,14 @@ export function createUrlPrefetcher() {
       console.error('[prefetchDocument]', error)
 
       const message = error?.message?.includes('Can’t fetch')
-        ? `Couldn’t reach the URL (${value}). Is it publicly accessible?`
+        ? `Couldn’t reach the URL (${input}). Is it publicly accessible?`
         : error?.message
 
       return {
         state: 'idle',
         content: null,
         url: null,
+        input,
         error: message,
       }
     }
@@ -99,23 +123,25 @@ export function useUrlPrefetcher() {
     state: 'idle',
     content: null,
     url: null,
+    input: null,
     error: null,
   })
 
   const { prefetchUrl } = createUrlPrefetcher()
 
   async function prefetchUrlAndUpdateState(
-    value: string | null,
+    input: string | null,
     proxy?: string,
   ) {
     Object.assign(prefetchResult, {
       state: 'loading',
       content: null,
       url: null,
+      input,
       error: null,
     })
 
-    const result = await prefetchUrl(value, proxy)
+    const result = await prefetchUrl(input, proxy)
 
     Object.assign(prefetchResult, result)
 

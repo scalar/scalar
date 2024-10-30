@@ -147,78 +147,87 @@ onUnmounted(() => {
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
-        <!-- Logo -->
-        <IntegrationLogo
-          v-if="shouldShowIntegrationIcon"
-          :integration="integration" />
-        <!-- Title -->
-        <div class="text-center text-md font-bold mb-2 line-clamp-1">
-          {{ title || 'Untitled Collection' }}
-        </div>
-        <div class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
-          Import the OpenAPI document to instantly send API requests. No signup
-          required.
-        </div>
-        <!-- Prefetch error -->
-        <PrefetchError
-          v-if="prefetchResult.error"
-          :result="prefetchResult" />
-        <!-- Actions -->
-        <template v-else-if="version">
-          <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
-            <!-- <OpenAppButton :source="source" /> -->
-            <ImportNowButton
-              :source="prefetchResult?.url ?? source"
-              variant="button"
-              :watchMode="watchMode"
-              @importFinished="() => $emit('importFinished')" />
+        <template v-if="prefetchResult.error">
+          <!-- Heading -->
+          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+            Missing OpenAPI document
           </div>
-          <!-- Select the workspace -->
-          <div class="flex justify-center">
-            <div
-              class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
-              Import to: <WorkspaceSelector />
+          <!-- Prefetch error -->
+          <PrefetchError :result="prefetchResult" />
+        </template>
+        <!-- Sucess -->
+        <template v-else>
+          <!-- Logo -->
+          <IntegrationLogo
+            v-if="shouldShowIntegrationIcon"
+            :integration="integration" />
+
+          <!-- Title -->
+          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+            {{ title || 'Untitled Collection' }}
+          </div>
+          <div class="text-c-1 text-sm font-medium text-center text-balance">
+            Import the OpenAPI document to instantly send API requests. No
+            signup required.
+          </div>
+
+          <!-- Actions -->
+          <template v-if="version">
+            <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
+              <!-- <OpenAppButton :source="source" /> -->
+              <ImportNowButton
+                :source="prefetchResult?.url ?? source"
+                variant="button"
+                :watchMode="watchMode"
+                @importFinished="() => $emit('importFinished')" />
             </div>
-          </div>
-          <!-- Watch Mode -->
-          <template v-if="prefetchResult?.url">
-            <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
-              <div class="flex items-center justify-center">
-                <WatchModeToggle
-                  v-model="watchMode"
-                  :disableToolTip="true" />
-              </div>
+            <!-- Select the workspace -->
+            <div class="flex justify-center">
               <div
-                class="pt-0 text-center text-balance font-medium text-xs text-c-3">
-                Automatically update your API client when the OpenAPI document
-                content changes.
+                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
+                Import to: <WorkspaceSelector />
+              </div>
+            </div>
+            <!-- Watch Mode -->
+            <template v-if="prefetchResult?.url">
+              <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
+                <div class="flex items-center justify-center">
+                  <WatchModeToggle
+                    v-model="watchMode"
+                    :disableToolTip="true" />
+                </div>
+                <div
+                  class="pt-0 text-center text-balance font-medium text-xs text-c-3">
+                  Automatically update your API client when the OpenAPI document
+                  content changes.
+                </div>
+              </div>
+            </template>
+          </template>
+
+          <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+          <template v-else-if="!version">
+            <div class="flex flex-col gap-2">
+              <div
+                class="flex gap-2 items-center p-3 font-code text-sm border rounded">
+                <ScalarIcon
+                  class="text-red"
+                  icon="Error"
+                  size="sm" />
+                <div>
+                  This doesn’t look like a valid OpenAPI/Swagger document.
+                </div>
+              </div>
+
+              <div class="bg-b-2 h-48 border rounded custom-scroll">
+                <ScalarCodeBlock
+                  :content="
+                    prefetchResult.content?.trim() || props.source?.trim() || ''
+                  "
+                  :copy="false" />
               </div>
             </div>
           </template>
-        </template>
-
-        <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-        <template v-else-if="!version">
-          <div class="flex flex-col gap-2">
-            <div
-              class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-              <ScalarIcon
-                class="text-red"
-                icon="Error"
-                size="sm" />
-              <div>
-                This doesn’t look like a valid OpenAPI/Swagger document.
-              </div>
-            </div>
-
-            <div class="bg-b-2 h-48 border rounded custom-scroll">
-              <ScalarCodeBlock
-                :content="
-                  prefetchResult.content?.trim() || props.source?.trim() || ''
-                "
-                :copy="false" />
-            </div>
-          </div>
         </template>
       </div>
       <!-- Download Link -->

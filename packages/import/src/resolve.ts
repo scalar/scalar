@@ -46,7 +46,12 @@ export async function resolve(
 
     // Fetch URL
     try {
-      let result = await (options?.fetch ? options.fetch(value) : fetch(value))
+      let result = await (options?.fetch
+        ? options.fetch(value)
+        : fetch(value, {
+            mode: 'no-cors',
+            cache: 'no-cache',
+          }))
 
       // If the custom fetch failed, try again with regular fetch
       if (!result.ok && options?.fetch) {
@@ -67,7 +72,7 @@ export async function resolve(
           return makeRelativeUrlsAbsolute(value, urlOrPathOrDocument)
         }
 
-        // New: Check for embedded OpenAPI document
+        // Check for embedded OpenAPI document
         const embeddedSpec = parseEmbeddedOpenApi(content)
         if (embeddedSpec) {
           return embeddedSpec
