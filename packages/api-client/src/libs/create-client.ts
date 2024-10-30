@@ -200,18 +200,21 @@ export const createApiClient = ({
    *
    * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
    */
-  const updateSpec = async (spec: SpecConfiguration) => {
+  const updateSpec = async (
+    spec: SpecConfiguration,
+    config: ClientConfiguration = configuration,
+  ) => {
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
-        proxy: configuration?.proxyUrl,
-        overloadServers: configuration?.servers,
-        authentication: configuration.authentication,
+        proxy: config?.proxyUrl,
+        overloadServers: config?.servers,
+        authentication: config.authentication,
         setCollectionSecurity: true,
       })
     } else if (spec?.content) {
       await importSpecFile(spec?.content, activeWorkspace.value.uid, {
-        overloadServers: configuration?.servers,
-        authentication: configuration.authentication,
+        overloadServers: config?.servers,
+        authentication: config.authentication,
         setCollectionSecurity: true,
       })
     } else {
@@ -241,7 +244,7 @@ export const createApiClient = ({
       // Update the spec, reset the store first
       if (newConfig.spec) {
         store.resetStore()
-        updateSpec(newConfig.spec)
+        updateSpec(newConfig.spec, newConfig)
       }
     },
     /** Update the currently selected server via URL */
