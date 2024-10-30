@@ -35,9 +35,11 @@ const selected = computed<ScalarListboxOption | undefined>({
 <template>
   <ScalarListbox
     v-model="selected"
+    class="text-sm"
     fullWidth
     :options="options"
-    resize>
+    resize
+    teleport>
     <ScalarButton
       :aria-describedby="describedBy"
       class="url-select"
