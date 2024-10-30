@@ -60,6 +60,8 @@ If you want to fine-tune your API reference and pass a custom configuration, you
 
 ## JSON
 
+> Note: While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
+
 You can also just directly pass JSON content:
 
 ```html
@@ -79,6 +81,8 @@ You can also just directly pass JSON content:
 ```
 
 ## YAML
+
+> Note: While this approach is convenient for quick setup, it may impact performance for large documents. For optimal performance with extensive OpenAPI specifications, consider using a URL to an external OpenAPI document instead.
 
 And if you prefer YAML, you just need to set the `type` attribute to `application/yaml`:
 
