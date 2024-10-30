@@ -29,15 +29,25 @@ defineOptions({ inheritAttrs: false })
         <slot />
       </MenuButton>
       <template #floating="{ width }">
-        <MenuItems
-          class="relative flex w-56 flex-col p-0.75"
+        <!-- Background container -->
+        <div
           v-bind="$attrs"
-          :static="static"
+          class="relative flex max-h-[inherit] w-56 rounded border"
           :style="{ width }">
-          <slot name="items" />
-          <div
-            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
-        </MenuItems>
+          <!-- Scroll container -->
+          <div class="custom-scroll min-h-0 flex-1">
+            <!-- Menu items -->
+            <MenuItems
+              class="flex flex-col p-0.75"
+              v-bind="$attrs"
+              :static="static"
+              :style="{ width }">
+              <slot name="items" />
+            </MenuItems>
+            <div
+              class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
+          </div>
+        </div>
       </template>
     </ScalarFloating>
   </Menu>

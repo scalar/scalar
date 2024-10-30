@@ -6,6 +6,7 @@ import {
   flip,
   offset,
   shift,
+  size,
   useFloating,
 } from '@floating-ui/vue'
 import { type Ref, computed, ref } from 'vue'
@@ -64,6 +65,16 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     offset(5),
     flip(),
     shift(),
+    size({
+      apply({ availableWidth, availableHeight, elements }) {
+        // Assign the max width and height to the floating element
+        // @see https://floating-ui.com/docs/size
+        Object.assign(elements.floating.style, {
+          maxWidth: `${Math.max(0, availableWidth) - 25}px`,
+          maxHeight: `${Math.max(0, availableHeight) - 25}px`,
+        })
+      },
+    }),
     ...(props.middleware ?? []),
   ]),
 })
