@@ -32,9 +32,6 @@ export function inferSchemaFromExample(example: any): OpenAPIV3.SchemaObject {
  * This function determines the OpenAPI schema type of a value
  * by checking its JavaScript type and attempting to parse it
  * as a number or boolean if it's a string.
- *
- * @param value - The value to infer the schema type from.
- * @returns The inferred OpenAPI schema object.
  */
 export function inferSchemaType(value: any): OpenAPIV3.SchemaObject {
   if (typeof value === 'number') {
