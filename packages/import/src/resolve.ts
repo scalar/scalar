@@ -118,13 +118,16 @@ function parseHtml(html?: string) {
     return undefined
   }
 
-  // data-url="*"
-  const dataUrlMatch = html.match(
-    /data-url=["']([^"']+)["'](?:[^>]*id=["']api-reference["']|[^>]*id=["']api-reference["'][^>]*data-url)/,
-  )
+  // id="api-reference" data-url="*"
+  const dataUrlMatch = html
+    .match(
+      /(?:data-url=["']([^"']+)["'][\s\S]*?id=["']api-reference["']|id=["']api-reference["'][\s\S]*?data-url=["']([^"']+)["'])/,
+    )
+    ?.slice(1)
+    .find(Boolean)
 
-  if (dataUrlMatch?.[1]) {
-    return dataUrlMatch[1]
+  if (dataUrlMatch) {
+    return dataUrlMatch
   }
 
   // spec-url="*"
