@@ -179,6 +179,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <CodeInput
           v-if="activeEnvironmentID"
           class="pl-px pr-2 md:px-2 py-2.5"
+          isCopyable
           language="json"
           lineNumbers
           :modelValue="environments[activeEnvironmentID].value"
