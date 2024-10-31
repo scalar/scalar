@@ -237,6 +237,14 @@ export type ParsedUrl = {
   port: string
 }
 
+export type TableCell = {
+  [key: string]: string
+}
+
+export type TableObject = {
+  [key: string]: TableCell
+}
+
 export type ProtocolProfileBehavior = {
   // This is left as an empty object as per the schema
 }
