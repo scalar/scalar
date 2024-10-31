@@ -9,12 +9,7 @@ import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/g
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
-import {
-  ScalarCodeBlock,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
+import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
@@ -35,7 +30,6 @@ const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
 
-const errorMessage = ref('')
 const watchMode = ref<boolean>(true)
 
 /** Close modal when a keyboard shortcut is pressed */
@@ -147,13 +141,17 @@ onUnmounted(() => {
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
-        <template v-if="prefetchResult.error">
+        <!-- Prefetch error -->
+        <!-- Or: Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <template
+          v-if="
+            prefetchResult.error && prefetchResult.state === 'idle' && !version
+          ">
           <!-- Heading -->
           <div class="text-center text-md font-bold mb-2 line-clamp-1">
             No OpenAPI document found
           </div>
-          <!-- Prefetch error -->
-          <PrefetchError :result="prefetchResult" />
+          <PrefetchError :url="prefetchResult?.input || props.source" />
         </template>
         <!-- Sucess -->
         <template v-else>
@@ -174,7 +172,6 @@ onUnmounted(() => {
           <!-- Actions -->
           <template v-if="version">
             <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
-              <!-- <OpenAppButton :source="source" /> -->
               <ImportNowButton
                 :source="prefetchResult?.url ?? source"
                 variant="button"
@@ -203,31 +200,6 @@ onUnmounted(() => {
                 </div>
               </div>
             </template>
-          </template>
-
-          <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-          <template v-else-if="!version">
-            <div class="flex flex-col gap-2">
-              <div
-                class="flex gap-2 items-center p-3 mt-4 font-code text-sm border rounded">
-                <ScalarIcon
-                  class="text-red"
-                  icon="Error"
-                  size="sm" />
-                <div>
-                  This doesn’t look like a valid OpenAPI/Swagger document.
-                </div>
-              </div>
-
-              <div
-                class="bg-b-2 border custom-scroll max-h-48 mt-6 rounded w-full">
-                <ScalarCodeBlock
-                  :content="
-                    prefetchResult.content?.trim() || props.source?.trim() || ''
-                  "
-                  :copy="false" />
-              </div>
-            </div>
           </template>
         </template>
       </div>
