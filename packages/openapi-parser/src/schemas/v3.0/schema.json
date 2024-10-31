@@ -1097,7 +1097,8 @@
               "default": "simple"
             },
             "required": {
-              "enum": [true]
+              "type": "boolean",
+              "default": false
             }
           }
         },

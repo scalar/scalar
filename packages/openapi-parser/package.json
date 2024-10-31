@@ -17,7 +17,7 @@
     "parser",
     "typescript"
   ],
-  "version": "0.0.2",
+  "version": "0.0.3",
   "engines": {
     "node": ">=18"
   },
@@ -71,7 +71,7 @@
     "@babel/code-frame": "^7.24.7",
     "@google-cloud/storage": "^7.12.1",
     "@mintlify/build-tooling": "workspace:*",
-    "@mintlify/openapi-types": "0.0.0",
+    "@mintlify/openapi-types": "workspace:*",
     "@types/node": "^20.14.10",
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
