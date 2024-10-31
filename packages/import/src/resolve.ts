@@ -120,9 +120,7 @@ function parseHtml(html?: string) {
 
   // id="api-reference" data-url="*"
   const dataUrlMatch = html
-    .match(
-      /(?:data-url=["']([^"']+)["'][\s\S]*?id=["']api-reference["']|id=["']api-reference["'][\s\S]*?data-url=["']([^"']+)["'])/,
-    )
+    .match(/id=["']api-reference["'][\s\S]*?data-url=["']([^"']+)["']/)
     ?.slice(1)
     .find(Boolean)
 

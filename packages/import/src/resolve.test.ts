@@ -124,6 +124,7 @@ describe('resolve', () => {
       content="width=device-width, initial-scale=1" />
   </head>
   <body>
+    <div data-url="/not-what-we-are-looking-for" id="foobar" />
     <script
       id="api-reference"
       data-url="/openapi.yaml"></script>
