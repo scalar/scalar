@@ -33,13 +33,11 @@ const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
 
-function parseEnvironmentValue(value: string): Record<string, string> {
-  return JSON.parse(value)
-}
+const parseEnvironmentValue = (value: string): Record<string, string> =>
+  JSON.parse(value)
 
-function stringifyEnvironmentValue(value: Record<string, string>): string {
-  return JSON.stringify(value, null, 2)
-}
+const stringifyEnvironmentValue = (value: Record<string, string>): string =>
+  JSON.stringify(value, null, 2)
 
 function addEnvironment(environment: { name: string; color: string }) {
   const existingEnvironment = environments[Object.keys(environments)[0]]
@@ -100,6 +98,7 @@ function synchronizeKeyRemoval(removedKey: string) {
 function handleEnvironmentUpdate(raw: string) {
   if (activeEnvironmentID.value) {
     const updatedValue = parseEnvironmentValue(raw)
+
     const currentValue = parseEnvironmentValue(
       environments[activeEnvironmentID.value].value,
     )
@@ -122,13 +121,17 @@ function handleEnvironmentUpdate(raw: string) {
 
 const removeEnvironment = (uid: string) => {
   environmentMutators.delete(uid)
+
   if (activeEnvironmentID.value === uid) {
     const remainingEnvironments = Object.values(environments)
+
     if (remainingEnvironments.length > 0) {
       // Redirect to the last environment
       const lastEnvironment =
         remainingEnvironments[remainingEnvironments.length - 1]
+
       activeEnvironmentID.value = lastEnvironment.uid
+
       router.push({
         name: 'environment',
         params: { environment: lastEnvironment.uid },
@@ -136,6 +139,7 @@ const removeEnvironment = (uid: string) => {
     } else {
       // Redirect to the default environment
       activeEnvironmentID.value = environments.default.uid
+
       router.push({ name: 'environment', params: { environment: 'default' } })
     }
   }
@@ -201,13 +205,9 @@ const openEnvironmentModal = () => {
 
 watch(
   () => route.params.environment,
-  (newEnvironmentId) => {
-    if (newEnvironmentId) {
-      activeEnvironmentID.value = newEnvironmentId as string
-    } else {
-      activeEnvironmentID.value = environments.default.uid
-    }
-  },
+  (newEnvironmentId) =>
+    (activeEnvironmentID.value =
+      (newEnvironmentId as string) || environments.default.uid),
 )
 
 onMounted(() => {
