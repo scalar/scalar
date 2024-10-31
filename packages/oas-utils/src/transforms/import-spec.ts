@@ -385,11 +385,12 @@ export async function importSpecToWorkspace(
     return prev
   }, {})
 
-  /** Selected security scheme UIDs for the collection, defaults to the first key */
+  const securityKeys = Object.keys(security)
   let selectedSecuritySchemeUids: string[] = []
-  if (setCollectionSecurity) {
-    const preferred =
-      authentication?.preferredSecurityScheme || Object.keys(security)[0]
+
+  /** Selected security scheme UIDs for the collection, defaults to the first key */
+  if (setCollectionSecurity && securityKeys.length) {
+    const preferred = authentication?.preferredSecurityScheme || securityKeys[0]
     const uid = securitySchemeMap[preferred]
 
     selectedSecuritySchemeUids = [uid]
