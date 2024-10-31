@@ -12,7 +12,7 @@ import { useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
@@ -142,8 +142,11 @@ const submitColorChange = (color: string) => {
 
 /** set active environment based on the route */
 const setActiveEnvironment = () => {
-  const routeEnvironmentId = router.currentRoute.value.params.environment
-  if (routeEnvironmentId === 'default') {
+  const routeEnvironmentId = router.currentRoute.value.params
+    .environment as string
+  if (routeEnvironmentId) {
+    activeEnvironmentID.value = routeEnvironmentId
+  } else if (routeEnvironmentId === 'default') {
     activeEnvironmentID.value = environments.default.uid
   }
 }
@@ -181,6 +184,17 @@ const handleHotKey = (event?: HotKeyEvent) => {
 const openEnvironmentModal = () => {
   environmentModal.show()
 }
+
+watch(
+  () => route.params.environment,
+  (newEnvironmentId) => {
+    if (newEnvironmentId) {
+      activeEnvironmentID.value = newEnvironmentId as string
+    } else {
+      activeEnvironmentID.value = environments.default.uid
+    }
+  },
+)
 
 onMounted(() => {
   setActiveEnvironment()
