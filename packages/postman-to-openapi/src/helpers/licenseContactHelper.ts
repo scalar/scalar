@@ -1,63 +1,98 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
-import type { PostmanCollection } from '../types'
+import type { PostmanCollection, Variable } from '../types'
+
+// Constants for variable keys
+const VARIABLE_KEYS = {
+  LICENSE: {
+    NAME: 'license.name',
+    URL: 'license.url',
+  },
+  CONTACT: {
+    NAME: 'contact.name',
+    URL: 'contact.url',
+    EMAIL: 'contact.email',
+  },
+} as const
+
+type InfoResult = {
+  license?: OpenAPIV3.LicenseObject
+  contact?: OpenAPIV3.ContactObject
+}
+
+/**
+ * Finds a specific variable in the collection by its key
+ */
+function findVariable(
+  collection: PostmanCollection,
+  key: string,
+): Variable | undefined {
+  return collection.variable?.find((v) => v.key === key)
+}
+
+/**
+ * Processes license information from collection variables
+ */
+function processLicense(
+  collection: PostmanCollection,
+): OpenAPIV3.LicenseObject | undefined {
+  const nameVar = findVariable(collection, VARIABLE_KEYS.LICENSE.NAME)
+  if (!nameVar?.value || typeof nameVar.value !== 'string') return undefined
+
+  const urlVar = findVariable(collection, VARIABLE_KEYS.LICENSE.URL)
+  return {
+    name: nameVar.value,
+    ...(urlVar?.value &&
+      typeof urlVar.value === 'string' && { url: urlVar.value }),
+  }
+}
+
+/**
+ * Processes contact information from collection variables
+ */
+function processContact(
+  collection: PostmanCollection,
+): OpenAPIV3.ContactObject | undefined {
+  const nameVar = findVariable(collection, VARIABLE_KEYS.CONTACT.NAME)
+  const urlVar = findVariable(collection, VARIABLE_KEYS.CONTACT.URL)
+  const emailVar = findVariable(collection, VARIABLE_KEYS.CONTACT.EMAIL)
+
+  if (!nameVar?.value && !urlVar?.value && !emailVar?.value) return undefined
+
+  return {
+    ...(nameVar?.value &&
+      typeof nameVar.value === 'string' && { name: nameVar.value }),
+    ...(urlVar?.value &&
+      typeof urlVar.value === 'string' && { url: urlVar.value }),
+    ...(emailVar?.value &&
+      typeof emailVar.value === 'string' && { email: emailVar.value }),
+  }
+}
 
 /**
  * Processes the license and contact information from a Postman Collection.
  * This function checks for license and contact related variables in the collection
  * and creates corresponding OpenAPI License and Contact Objects if the information is present.
- *
- * @param {PostmanCollection} collection - The Postman Collection to process
- * @returns {{ license?: OpenAPIV3.LicenseObject, contact?: OpenAPIV3.ContactObject }}
- *          An object containing the License and Contact Objects if the information is found, otherwise undefined
  */
-export function processLicenseAndContact(collection: PostmanCollection): {
-  license?: OpenAPIV3.LicenseObject
-  contact?: OpenAPIV3.ContactObject
-} {
-  const result: {
-    license?: OpenAPIV3.LicenseObject
-    contact?: OpenAPIV3.ContactObject
-  } = {}
+export function processLicenseAndContact(
+  collection: PostmanCollection,
+): InfoResult {
+  try {
+    const result: InfoResult = {}
 
-  if (collection.variable) {
-    const licenseNameVar = collection.variable.find(
-      (v) => v.key === 'license.name',
-    )
-    const licenseUrlVar = collection.variable.find(
-      (v) => v.key === 'license.url',
-    )
-    const contactNameVar = collection.variable.find(
-      (v) => v.key === 'contact.name',
-    )
-    const contactUrlVar = collection.variable.find(
-      (v) => v.key === 'contact.url',
-    )
-    const contactEmailVar = collection.variable.find(
-      (v) => v.key === 'contact.email',
-    )
-
-    if (licenseNameVar?.value) {
-      result.license = {
-        name: licenseNameVar.value as string,
-        ...(licenseUrlVar?.value && { url: licenseUrlVar.value as string }),
-      }
+    const license = processLicense(collection)
+    if (license) {
+      result.license = license
     }
 
-    if (
-      contactNameVar?.value ||
-      contactUrlVar?.value ||
-      contactEmailVar?.value
-    ) {
-      result.contact = {
-        ...(contactNameVar?.value && { name: contactNameVar.value as string }),
-        ...(contactUrlVar?.value && { url: contactUrlVar.value as string }),
-        ...(contactEmailVar?.value && {
-          email: contactEmailVar.value as string,
-        }),
-      }
+    const contact = processContact(collection)
+    if (contact) {
+      result.contact = contact
     }
+
+    return result
+  } catch (error) {
+    console.error('Error processing license and contact information:', error)
+    throw error
   }
-
-  return result
 }
