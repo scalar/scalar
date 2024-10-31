@@ -1,3 +1,5 @@
+import type { TableCell, TableObject } from '../types'
+
 const supHeaders = [
   'object',
   'name',
@@ -6,14 +8,6 @@ const supHeaders = [
   'type',
   'required',
 ]
-
-type TableCell = {
-  [key: string]: string
-}
-
-type TableObject = {
-  [key: string]: TableCell
-}
 
 /**
  * Parses a Markdown table and returns an object representation.
