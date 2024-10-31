@@ -70,19 +70,12 @@ const { authentication: authenticationState } = useAuthenticationStore()
 const id = useId()
 
 const customRequestExamples = computed(() => {
-  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples']
+  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (
-      props.operation.information?.[
-        key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
-      ]
-    ) {
-      return (
-        props.operation.information[
-          key as 'x-custom-examples' | 'x-codeSamples' | 'x-code-samples'
-        ] ?? []
-      )
+    if (props.operation.information?.[key]) {
+      const examples = [...props.operation.information[key]]
+      return examples
     }
   }
 
@@ -194,14 +187,12 @@ const language = computed(() => {
   return key
 })
 
+type TextSelectOptions = InstanceType<typeof TextSelect>['$props']['options']
+
 /** All options for the dropdown */
-const options = computed(() => {
+const options = computed<TextSelectOptions>(() => {
   // Add available the client libraries
-  const entries: {
-    value: string
-    label: string
-    options: { value: string; label: string }[]
-  }[] = availableTargets.value.map((target) => {
+  const entries: TextSelectOptions = availableTargets.value.map((target) => {
     return {
       value: target.key,
       label: target.title,
@@ -217,22 +208,19 @@ const options = computed(() => {
     }
   })
 
-  // Add entries for all available custom examples
-  if (customRequestExamples.value.length) {
+  // Add entries for custom examples if any are available
+  if (customRequestExamples.value.length)
     entries.unshift({
       value: 'customExamples',
       label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => {
-        return {
-          value: JSON.stringify({
-            targetKey: 'customExamples',
-            clientKey: index,
-          }),
-          label: example.label ?? example.lang ?? `Example #${index + 1}`,
-        }
-      }),
+      options: customRequestExamples.value.map((example, index) => ({
+        value: JSON.stringify({
+          targetKey: 'customExamples',
+          clientKey: index,
+        }),
+        label: example.label ?? example.lang ?? `Example #${index + 1}`,
+      })),
     })
-  }
 
   return entries
 })
