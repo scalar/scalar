@@ -123,7 +123,21 @@ function handleEnvironmentUpdate(raw: string) {
 const removeEnvironment = (uid: string) => {
   environmentMutators.delete(uid)
   if (activeEnvironmentID.value === uid) {
-    activeEnvironmentID.value = null
+    const remainingEnvironments = Object.values(environments)
+    if (remainingEnvironments.length > 0) {
+      // Redirect to the last environment
+      const lastEnvironment =
+        remainingEnvironments[remainingEnvironments.length - 1]
+      activeEnvironmentID.value = lastEnvironment.uid
+      router.push({
+        name: 'environment',
+        params: { environment: lastEnvironment.uid },
+      })
+    } else {
+      // Redirect to the default environment
+      activeEnvironmentID.value = environments.default.uid
+      router.push({ name: 'environment', params: { environment: 'default' } })
+    }
   }
 }
 
