@@ -29,7 +29,7 @@ app.get(
   '/',
   apiReference({
     spec: {
-      content: specification,
+      url: '/_fresh/openapi.yaml',
     },
     pageTitle: 'Scalar Galaxy Spec',
   }),
