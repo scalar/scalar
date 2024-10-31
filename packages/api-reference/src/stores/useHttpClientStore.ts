@@ -71,8 +71,9 @@ export function filterHiddenClients(
         // @ts-expect-error Typescript, chill. It’s all good. It has to be an array.
         (client) => !exclude.value.includes(client.key),
       )
-
-      return [target]
+      // Remove targets that don’t have any clients left
+      if (!target.clients.length) return []
+      else return [target]
     }
 
     // Determine if the whole target (language) is to be excluded
