@@ -86,6 +86,8 @@ export const authorizeOauth2 = (
           let accessToken: string | null = null
           let code: string | null = null
 
+          console.log(authWindow.location.href)
+
           try {
             const urlParams = new URL(authWindow.location.href).searchParams
             accessToken = urlParams.get('access_token')
@@ -108,6 +110,7 @@ export const authorizeOauth2 = (
 
             // Implicit Flow
             if (accessToken) {
+              console.log(state)
               // State is a hash fragment and cannot be found through search params
               const _state =
                 authWindow.location.href.match(/state=([^&]*)/)?.[1]
@@ -188,6 +191,8 @@ export const authorizeServers = async (
     // Add client id + secret to headers
     if (scheme['x-scalar-client-id'] && example.clientSecret)
       headers.Authorization = `Basic ${btoa(`${scheme['x-scalar-client-id']}:${example.clientSecret}`)}`
+
+    console.log(formData.toString())
 
     // Make the call
     const resp = await fetch(scheme.flow.tokenUrl, {
