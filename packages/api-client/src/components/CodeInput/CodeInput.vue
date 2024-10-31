@@ -12,6 +12,9 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
 import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { useWorkspace } from '@/store'
+import { useClipboard } from '@/hooks/useClipboard'
+import { ScalarIcon } from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 
 const props = withDefaults(
   defineProps<{
@@ -34,6 +37,7 @@ const props = withDefaults(
     nullable?: boolean
     withVariables?: boolean
     importCurl?: boolean
+    isCopyable?: boolean
   }>(),
   {
     disableCloseBrackets: false,
@@ -43,6 +47,7 @@ const props = withDefaults(
     colorPicker: false,
     nullable: false,
     withVariables: true,
+    isCopyable: false,
   },
 )
 const emit = defineEmits<{
@@ -66,6 +71,8 @@ const dropdownRef = ref<InstanceType<
 
 const { activeEnvVariables, isReadOnly, activeEnvironment, router } =
   useWorkspace()
+
+const { copyToClipboard } = useClipboard()
 
 // ---------------------------------------------------------------------------
 // Event mapping from codemirror to standard input interfaces
@@ -224,7 +231,21 @@ export default {
       }"
       @keydown.down.stop="handleKeyDown('down', $event)"
       @keydown.enter="handleKeyDown('enter', $event)"
-      @keydown.up.stop="handleKeyDown('up', $event)"></div>
+      @keydown.up.stop="handleKeyDown('up', $event)">
+      <div
+        v-if="isCopyable"
+        class="scalar-code-copy z-context">
+        <button
+          class="copy-button"
+          type="button"
+          @click="copyToClipboard(prettyPrintJson(props.modelValue))">
+          <span class="sr-only">Copy content</span>
+          <ScalarIcon
+            icon="Clipboard"
+            size="md" />
+        </button>
+      </div>
+    </div>
   </template>
   <div
     v-if="$slots.warning"
@@ -334,6 +355,48 @@ export default {
 }
 :deep(.cm-scroller) {
   overflow: auto;
+}
+/* Copy Button */
+.peer:hover .copy-button,
+.copy-button:focus-visible {
+  opacity: 100;
+}
+.scalar-code-copy {
+  align-items: flex-start;
+  display: flex;
+  inset: 0;
+  justify-content: flex-end;
+  position: sticky;
+}
+.copy-button {
+  align-items: center;
+  display: flex;
+  position: relative;
+  background-color: var(--scalar-background-2);
+  border: 1px solid var(--scalar-border-color);
+  border-radius: 3px;
+  color: var(--scalar-color-3);
+  cursor: pointer;
+  height: 30px;
+  margin-bottom: -30px;
+  opacity: 0;
+  padding: 6px;
+  transition:
+    opacity 0.15s ease-in-out,
+    color 0.15s ease-in-out;
+  top: 0px;
+  right: 0px;
+}
+.scalar-code-copy,
+.copy-button {
+  /* Pass down the background color */
+  background: inherit;
+}
+.copy-button:hover {
+  color: var(--scalar-color-1);
+}
+.copy-button svg {
+  stroke-width: 1.5;
 }
 </style>
 <style>

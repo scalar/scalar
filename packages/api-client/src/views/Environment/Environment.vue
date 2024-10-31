@@ -132,6 +132,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               v-for="environment in environments"
               :key="environment.uid"
               class="text-xs"
+              :isCopyable="false"
               :variable="{
                 name: environment.name,
                 uid: environment.uid,
@@ -177,9 +178,11 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         </template>
         <CodeInput
           v-if="activeEnvironmentID"
-          class="pl-px pr-2 md:px-2 py-2.5"
+          class="pl-px pr-2 md:px-4 py-2"
+          isCopyable
           language="json"
           lineNumbers
+          lint
           :modelValue="environments[activeEnvironmentID].value"
           @update:modelValue="handleEnvironmentUpdate" />
       </ViewLayoutSection>
