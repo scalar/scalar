@@ -49,7 +49,7 @@ type PackageExports = Record<
  * For a series of imports we add package.json exports to enable nested typescript definitions
  * and path nested imports
  *
- * ex. import { foo } from '@scalar/some-package/foo-domain'
+ * ex. import { foo } from '@mintlify/some-package/foo-domain'
  */
 export async function addPackageFileExports({
   allowCss,

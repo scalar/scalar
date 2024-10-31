@@ -193,10 +193,10 @@ importers:
       '@google-cloud/storage':
         specifier: ^7.12.1
         version: 7.12.1(encoding@0.1.13)
-      '@scalar/build-tooling':
+      '@mintlify/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/openapi-types':
+      '@mintlify/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
       '@types/node':
@@ -217,7 +217,7 @@ importers:
 
   packages/openapi-types:
     devDependencies:
-      '@scalar/build-tooling':
+      '@mintlify/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
 

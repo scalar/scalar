@@ -1,4 +1,4 @@
-# @scalar/openapi-parser
+# @mintlify/openapi-parser
 
 ## 0.8.8
 
@@ -10,7 +10,7 @@
 
 ### Patch Changes
 
-- 6394a5d: chore: switch to @scalar/build-tooling
+- 6394a5d: chore: switch to @mintlify/build-tooling
 
 ## 0.8.6
 
@@ -54,7 +54,7 @@
 
 ### Minor Changes
 
-- b4f9f97: feat: new @scalar/openapi-types package
+- b4f9f97: feat: new @mintlify/openapi-types package
 
 ### Patch Changes
 

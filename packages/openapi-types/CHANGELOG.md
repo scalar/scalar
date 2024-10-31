@@ -1,4 +1,4 @@
-# @scalar/openapi-types
+# @mintlify/openapi-types
 
 ## 0.1.4
 
@@ -28,7 +28,7 @@
 
 ### Minor Changes
 
-- b4f9f97: feat: new @scalar/openapi-types package
+- b4f9f97: feat: new @mintlify/openapi-types package
 
 ## 0.0.1
 

@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@mintlify/openapi-types'
 import { describe, expectTypeOf, it } from 'vitest'
 
 import { upgrade } from './index.js'

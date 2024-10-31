@@ -18,7 +18,7 @@ describe('no reference', () => {
     await resolveOld(specification)
   })
 
-  bench('@scalar/openapi-parser', async () => {
+  bench('@mintlify/openapi-parser', async () => {
     // Action!
     await resolveNew(specification)
   })

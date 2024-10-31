@@ -84,7 +84,7 @@ import {
   alias,
   createViteBuildOptions,
   findEntryPoints,
-} from '@scalar/build-tooling'
+} from '@mintlify/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 

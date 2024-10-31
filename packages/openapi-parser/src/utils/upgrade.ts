@@ -1,4 +1,4 @@
-import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@mintlify/openapi-types'
 
 import type { AnyObject, Filesystem, UpgradeResult } from '../types/index.js'
 import { getEntrypoint } from './getEntrypoint.js'

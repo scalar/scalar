@@ -10,13 +10,13 @@ Modern OpenAPI parser written in TypeScript, with support for Swagger 2.0, OpenA
 ## Installation
 
 ```bash
-npm add @scalar/openapi-types
+npm add @mintlify/openapi-types
 ```
 
 ## Usage
 
 ```ts
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI } from '@mintlify/openapi-types'
 
 const file: OpenAPI.Document = {
   openapi: '3.1.0',

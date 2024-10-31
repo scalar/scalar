@@ -1,8 +1,8 @@
 # Scalar OpenAPI Parser
 
-[![Version](https://img.shields.io/npm/v/%40scalar/openapi-parser)](https://www.npmjs.com/package/@scalar/openapi-parser)
-[![Downloads](https://img.shields.io/npm/dm/%40scalar/openapi-parser)](https://www.npmjs.com/package/@scalar/openapi-parser)
-[![License](https://img.shields.io/npm/l/%40scalar%2Fopenapi-parser)](https://www.npmjs.com/package/@scalar/openapi-parser)
+[![Version](https://img.shields.io/npm/v/%40scalar/openapi-parser)](https://www.npmjs.com/package/@mintlify/openapi-parser)
+[![Downloads](https://img.shields.io/npm/dm/%40scalar/openapi-parser)](https://www.npmjs.com/package/@mintlify/openapi-parser)
+[![License](https://img.shields.io/npm/l/%40scalar%2Fopenapi-parser)](https://www.npmjs.com/package/@mintlify/openapi-parser)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.1, OpenAPI 3.0 and Swagger 2.0.
@@ -18,7 +18,7 @@ Modern OpenAPI parser written in TypeScript with support for OpenAPI 3.1, OpenAP
 ## Installation
 
 ```bash
-npm add @scalar/openapi-parser
+npm add @mintlify/openapi-parser
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ npm add @scalar/openapi-parser
 ### Validate
 
 ```ts
-import { validate } from '@scalar/openapi-parser'
+import { validate } from '@mintlify/openapi-parser'
 
 const file = `{
   "openapi": "3.1.0",
@@ -49,7 +49,7 @@ if (!valid) {
 ### Resolve references
 
 ```ts
-import { dereference } from '@scalar/openapi-parser'
+import { dereference } from '@mintlify/openapi-parser'
 
 const specification = `{
   "openapi": "3.1.0",
@@ -66,7 +66,7 @@ const { schema, errors } = await dereference(specification)
 ### Modify an OpenAPI specification
 
 ```ts
-import { filter } from '@scalar/openapi-parser'
+import { filter } from '@mintlify/openapi-parser'
 
 const specification = `{
   "openapi": "3.1.0",
@@ -87,7 +87,7 @@ There’s an `upgrade` command to upgrade all your OpenAPI specifications to the
 > ⚠️ The upgrade from Swagger 2.0 is still experimental and probably lacks features.
 
 ```ts
-import { upgrade } from '@scalar/openapi-parser'
+import { upgrade } from '@mintlify/openapi-parser'
 
 const { specification } = upgrade({
   swagger: '2.0',
@@ -105,7 +105,7 @@ console.log(specification.openapi)
 ### Pipeline syntax
 
 ```ts
-import { openapi } from '@scalar/openapi-parser'
+import { openapi } from '@mintlify/openapi-parser'
 
 const specification = …
 
@@ -126,7 +126,7 @@ const result = openapi()
 If you’re more the then/catch type of guy, that’s fine:
 
 ```ts
-import { validate } from '@scalar/openapi-parser'
+import { validate } from '@mintlify/openapi-parser'
 
 const specification = …
 
@@ -146,13 +146,13 @@ validate(specification, {
 If you just look for our types, you can install the package separately:
 
 ```bash
-npm add @scalar/openapi-types
+npm add @mintlify/openapi-types
 ```
 
 And use it like this:
 
 ```ts
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI } from '@mintlify/openapi-types'
 
 const file: OpenAPI.Document = {
   openapi: '3.1.0',
@@ -169,9 +169,9 @@ const file: OpenAPI.Document = {
 You can reference other files, too. To do that, the parser needs to know what files are available.
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import { readFiles } from '@scalar/openapi-parser/plugins/read-files'
+import { dereference, load } from '@mintlify/openapi-parser'
+import { fetchUrls } from '@mintlify/openapi-parser/plugins/fetch-urls'
+import { readFiles } from '@mintlify/openapi-parser/plugins/read-files'
 
 // Load a file and all referenced files
 const { filesystem } = await load('./openapi.yaml', {
@@ -194,12 +194,12 @@ As you see, `load()` supports plugins. You can write your own plugin, if you’d
 Once the `fetchUrls` plugin is loaded, you can also just pass an URL:
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { dereference, load } from '@mintlify/openapi-parser'
+import { fetchUrls } from '@mintlify/openapi-parser/plugins/fetch-urls'
 
 // Load a file and all referenced files
 const { filesystem } = await load(
-  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  'https://cdn.jsdelivr.net/npm/@mintlify/galaxy/dist/latest.yaml',
   {
     plugins: [fetchUrls()],
   },
@@ -211,17 +211,17 @@ const { filesystem } = await load(
 If you’re using the package in a browser environment, you may run into CORS issues when fetching from URLs. You can intercept the requests, for example to use a proxy, though:
 
 ```ts
-import { dereference, load } from '@scalar/openapi-parser'
-import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
+import { dereference, load } from '@mintlify/openapi-parser'
+import { fetchUrls } from '@mintlify/openapi-parser/plugins/fetch-urls'
 
 // Load a file and all referenced files
 const { filesystem } = await load(
-  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+  'https://cdn.jsdelivr.net/npm/@mintlify/galaxy/dist/latest.yaml',
   {
     plugins: [
       fetchUrls({
         fetch: (url) => fetch(url.replace('BANANA.net', 'jsdelivr.net')),
-      }).get('https://cdn.BANANA.net/npm/@scalar/galaxy/dist/latest.yaml'),
+      }).get('https://cdn.BANANA.net/npm/@mintlify/galaxy/dist/latest.yaml'),
     ],
   },
 )

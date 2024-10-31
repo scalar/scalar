@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/build-tooling",
+  "name": "@mintlify/build-tooling",
   "description": "Build tooling and helpers",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",

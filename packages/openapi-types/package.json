@@ -1,5 +1,5 @@
 {
-  "name": "@scalar/openapi-types",
+  "name": "@mintlify/openapi-types",
   "description": "Modern OpenAPI types",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
@@ -45,6 +45,6 @@
   ],
   "sideEffects": false,
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@mintlify/build-tooling": "workspace:*"
   }
 }

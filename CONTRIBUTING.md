@@ -24,14 +24,14 @@ These scripts use [`turbo`](https://turbo.build/) to build all the dependencies 
 | `pnpm dev:client:app`     | Runs the API Client desktop app in a browser dev environment (with HMR\*) |
 | `pnpm dev:client:modal`   | Runs the API Client modal layout (with HMR\*)                             |
 | `pnpm dev:client:web`     | Runs the API Client client web app (with HMR\*)                           |
-| `pnpm dev:components`     | Runs storybook for `@scalar/components`                                   |
+| `pnpm dev:components`     | Runs storybook for `@mintlify/components`                                   |
 | `pnpm dev:nuxt`           | Runs the [Nuxt](https://nuxt.com/) package                                |
 | `pnpm dev:proxy-server`   | Runs the Scalar proxy server locally                                      |
 | `pnpm dev:reference`      | Runs the API References dev environment (with HMR\*)                      |
 | `pnpm dev:void-server`    | Runs the Scalar void server locally                                       |
 | `pnpm dev:web`            | Runs the web examples in `examples/web`                                   |
 
-\* Hot module replacement and file watching only works for the main package being worked on, e.g. changes to `@scalar/api-client` if you're running `pnpm dev:client:app` or `@scalar/api-reference` if you're running `pnpm dev:reference`
+\* Hot module replacement and file watching only works for the main package being worked on, e.g. changes to `@mintlify/api-client` if you're running `pnpm dev:client:app` or `@mintlify/api-reference` if you're running `pnpm dev:reference`
 
 ## Tests
 
@@ -41,7 +41,7 @@ It’s worth to check the tests locally before sending contributions: `$ pnpm te
 
 If you want to add a test and only run your test file, you can filter the test suite like this: `$ pnpm test your-test`
 
-Some tests require an instance of `@scalar/proxy-server` and `@scalar/void-server`. Start them like so:
+Some tests require an instance of `@mintlify/proxy-server` and `@mintlify/void-server`. Start them like so:
 
 ```bash
 pnpm dev:void-server
@@ -53,7 +53,7 @@ pnpm dev:proxy-server
 If you want to run the tests for the CLI, you’ll need to package first. The tests don’t use the source files, but the dist files.
 
 To just run the CLI from the source files, you can use the following alias:
-`$ pnpm @scalar/cli --version`
+`$ pnpm @mintlify/cli --version`
 
 ## PRs
 

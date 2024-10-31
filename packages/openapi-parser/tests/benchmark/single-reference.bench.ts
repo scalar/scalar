@@ -48,7 +48,7 @@ describe('single reference', () => {
     ).toBe('Hello World!')
   })
 
-  bench('@scalar/openapi-parser', async () => {
+  bench('@mintlify/openapi-parser', async () => {
     // Action!
     const { schema } = await resolveNew(specification)
 

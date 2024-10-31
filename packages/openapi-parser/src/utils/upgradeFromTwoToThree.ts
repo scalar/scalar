@@ -1,4 +1,4 @@
-import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV2, OpenAPIV3 } from '@mintlify/openapi-types'
 
 import type { AnyObject } from '../types/index.js'
 import { traverse } from './traverse.js'

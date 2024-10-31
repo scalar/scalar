@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI } from '@mintlify/openapi-types'
 
 import { Validator } from '../lib/Validator/index.js'
 import type {

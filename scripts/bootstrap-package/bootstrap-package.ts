@@ -15,7 +15,7 @@ const readline = createInterface({
 })
 
 // Prompting the user for package details
-const name = await readline.question(`Package name: @scalar/`)
+const name = await readline.question(`Package name: @mintlify/`)
 const description = await readline.question(`Package description: `)
 const keywords = await readline.question(`Package keywords (comma separated): `)
 const useVue = (await readline.question(`Add Vue as a dependency (y/n): `))
@@ -26,7 +26,7 @@ const useVue = (await readline.question(`Add Vue as a dependency (y/n): `))
 // Create the new package file with appropriate commands
 const newPackageFile: Record<string, any> = {
   ...pkg,
-  name: `@scalar/${name}`,
+  name: `@mintlify/${name}`,
   description,
   keywords: keywords.split(',').map((k) => k.trim()),
   repository: {

@@ -1,4 +1,4 @@
-import { createRollupConfig, findEntryPoints } from '@scalar/build-tooling'
+import { createRollupConfig, findEntryPoints } from '@mintlify/build-tooling'
 
 export default createRollupConfig({
   typescript: true,

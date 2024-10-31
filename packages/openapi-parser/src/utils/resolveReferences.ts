@@ -1,4 +1,4 @@
-import type { OpenAPI } from '@scalar/openapi-types'
+import type { OpenAPI } from '@mintlify/openapi-types'
 
 import { ERRORS } from '../configuration/index.js'
 import type {

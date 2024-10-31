@@ -1,7 +1,7 @@
 import {
   addPackageFileExports,
   createRollupConfig,
-} from '@scalar/build-tooling'
+} from '@mintlify/build-tooling'
 
 const entries = [
   './src/index.ts',

@@ -21,7 +21,7 @@ type PackageType = 'examples' | 'packages'
 /** While we strive to make everything ESM, we just accept that some packages aren’t ESM. */
 const NO_MODULE_PACKAGES = [
   'scalar-api-client',
-  '@scalar/docusaurus',
+  '@mintlify/docusaurus',
   '@scalar-examples/docusaurus',
   '@scalar-examples/nestjs-api-reference-express',
   '@scalar-examples/nestjs-api-reference-fastify',
@@ -88,12 +88,12 @@ async function formatPackage(filepath: string) {
     )
   }
   if (
-    !data.name.startsWith('@scalar/') &&
+    !data.name.startsWith('@mintlify/') &&
     !data.name.startsWith('@scalar-examples/')
   ) {
     printColor(
       'yellow',
-      `Package ${data.name} is not in the @scalar/* or @scalar-examples/* scope.`,
+      `Package ${data.name} is not in the @mintlify/* or @scalar-examples/* scope.`,
     )
   }
 

@@ -100,8 +100,8 @@ You’re just one HTML file away from having an awesome API reference:
     <!-- Need a Custom Header? Check out this example https://codepen.io/scalarorg/pen/VwOXqam -->
     <script
       id="api-reference"
-      data-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+      data-url="https://cdn.jsdelivr.net/npm/@mintlify/galaxy/dist/latest.yaml"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mintlify/api-reference"></script>
   </body>
 </html>
 ```

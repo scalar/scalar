@@ -1,4 +1,4 @@
-# @scalar/build-tooling
+# @mintlify/build-tooling
 
 ## 0.1.11
 
@@ -73,7 +73,7 @@
 
 ### Minor Changes
 
-- 7fb8273: Migrate to @scalar/openapi-parser
+- 7fb8273: Migrate to @mintlify/openapi-parser
 
 ## 0.0.4
 

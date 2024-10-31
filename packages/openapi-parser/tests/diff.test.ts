@@ -129,7 +129,7 @@ describe('diff', async () => {
             console.log('* PATH:', path.join('/'))
             console.log()
             console.log('[@apidevtools/swagger-parser]', get(oldSchema, path))
-            console.log('[@scalar/openapi-parser]', get(newSchema, path))
+            console.log('[@mintlify/openapi-parser]', get(newSchema, path))
             console.log()
           })
         }
