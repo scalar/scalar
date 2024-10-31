@@ -205,8 +205,33 @@ describe('useHttpClientStore', () => {
             clients: [],
           },
         ],
-        // No Node.js
-        ref({}),
+        ref([]),
+      ),
+    ).toMatchObject([])
+  })
+
+  it('filters targets that have all clients hidden', () => {
+    expect(
+      filterHiddenClients(
+        [
+          {
+            title: 'Node.js',
+            key: 'node',
+            extname: '.js',
+            default: 'foobar',
+            clients: [
+              {
+                title: 'Fetch',
+                key: 'fetch',
+                description:
+                  'The Fetch API provides an interface for fetching resources',
+                link: 'https://example.com',
+              },
+            ],
+          },
+        ],
+        // No fetch
+        ref(['fetch']),
       ),
     ).toMatchObject([])
   })
