@@ -1,6 +1,7 @@
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 
 import type { Header, Request } from '../types'
+import { inferSchemaType } from './schemaHelpers'
 
 /**
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
@@ -131,27 +132,4 @@ export function createParameterObject(
   }
 
   return parameter
-}
-
-/**
- * Infers the schema type from the parameter value.
- */
-function inferSchemaType(value: any): OpenAPIV3.SchemaObject {
-  if (typeof value === 'number') {
-    return { type: Number.isInteger(value) ? 'integer' : 'number' }
-  } else if (typeof value === 'boolean') {
-    return { type: 'boolean' }
-  } else if (typeof value === 'string') {
-    // Try to parse as number
-    const num = Number(value)
-    if (!isNaN(num)) {
-      return { type: Number.isInteger(num) ? 'integer' : 'number' }
-    }
-    // Try to parse as boolean
-    if (value.toLowerCase() === 'true' || value.toLowerCase() === 'false') {
-      return { type: 'boolean' }
-    }
-  }
-
-  return { type: 'string' }
 }

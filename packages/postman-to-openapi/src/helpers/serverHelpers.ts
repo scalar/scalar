@@ -27,7 +27,7 @@ export function parseServers(
             const domain = getDomainFromUrl(url)
             domains.add(domain)
           } catch (error) {
-            // Silently handle errors in domain extraction
+            console.error(`Error extracting domain from URL "${url}":`, error)
           }
         }
       }
