@@ -29,7 +29,8 @@ app.get(
   '/',
   apiReference({
     spec: {
-      url: '/_fresh/openapi.yaml',
+      // Served by createMockServer
+      url: '/openapi.yaml',
     },
     pageTitle: 'Scalar Galaxy Spec',
   }),
