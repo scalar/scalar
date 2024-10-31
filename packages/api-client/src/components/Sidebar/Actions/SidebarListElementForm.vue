@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ScalarButton } from '@scalar/components'
-import { cva, cx } from 'cva'
 
 defineProps<{
   danger?: boolean
@@ -11,16 +10,6 @@ const emit = defineEmits<{
   (e: 'cancel'): void
   (e: 'submit'): void
 }>()
-
-const variants = cva({
-  base: 'gap-1.5 font-medium px-2.5 h-8 shadow-none focus:outline-none',
-  variants: {
-    danger: {
-      true: 'delete-warning-button',
-      false: '',
-    },
-  },
-})
 </script>
 <template>
   <form
@@ -36,21 +25,21 @@ const variants = cva({
         Cancel
       </ScalarButton>
       <ScalarButton
-        class="custom-scroll whitespace-nowrap"
-        :class="cx(variants({ danger }))"
-        type="submit">
+        class="gap-1.5 font-medium px-2.5 h-8 shadow-none focus:outline-none custom-scroll whitespace-nowrap"
+        type="submit"
+        :variant="danger ? 'danger' : 'solid'">
         {{ label ?? 'Save' }}
       </ScalarButton>
     </div>
   </form>
 </template>
 <style scoped>
-.delete-warning-button {
+.scalar-button-danger {
   background: color-mix(in srgb, var(--scalar-color-red), transparent 95%);
   color: var(--scalar-color-red);
 }
-.delete-warning-button:hover,
-.delete-warning-button:focus {
+.scalar-button-danger:hover,
+.scalar-button-danger:focus {
   background: color-mix(in srgb, var(--scalar-color-red), transparent 90%);
 }
 </style>
