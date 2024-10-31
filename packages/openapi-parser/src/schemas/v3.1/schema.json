@@ -517,9 +517,6 @@
                   "style": {
                     "default": "simple",
                     "enum": ["matrix", "label", "simple"]
-                  },
-                  "required": {
-                    "const": true
                   }
                 },
                 "required": ["required"]
