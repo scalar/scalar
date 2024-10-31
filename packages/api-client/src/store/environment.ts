@@ -21,7 +21,7 @@ export function createStoreEnvironments(useLocalStorage: boolean) {
   environmentMutators.add(
     environmentSchema.parse({
       uid: 'default',
-      name: 'Global Environment',
+      name: 'Default Environment',
       color: '#0082D0',
       value: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
       isDefault: true,
