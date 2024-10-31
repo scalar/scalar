@@ -1,5 +1,7 @@
 <script lang="ts" setup>
-defineProps<{
+import { computed } from 'vue'
+
+const props = defineProps<{
   modelValue: any
   options: {
     value: string
@@ -15,12 +17,15 @@ defineProps<{
 defineEmits<{
   (event: 'update:modelValue', value: any): void
 }>()
-</script>
 
+const count = computed(
+  () => props.options.flatMap((o) => o.options ?? o).length,
+)
+</script>
 <template>
   <label
     class="text-select"
-    :class="options.length === 1 ? 'text-select--single-option' : ''">
+    :class="count === 1 ? 'text-select--single-option' : ''">
     <span class="text-select-label">
       <slot />
     </span>
