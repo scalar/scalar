@@ -132,6 +132,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               v-for="environment in environments"
               :key="environment.uid"
               class="text-xs"
+              :isCopyable="false"
               :variable="{
                 name: environment.name,
                 uid: environment.uid,
