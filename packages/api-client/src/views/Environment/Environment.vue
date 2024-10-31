@@ -182,6 +182,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           isCopyable
           language="json"
           lineNumbers
+          lint
           :modelValue="environments[activeEnvironmentID].value"
           @update:modelValue="handleEnvironmentUpdate" />
       </ViewLayoutSection>
