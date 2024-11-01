@@ -17,6 +17,52 @@ export const isOauth2Example = (
   example.type.startsWith('oauth')
 
 /**
+ * Generates a random string of specified length using crypto API
+ * Length must be between 43 and 128 characters as per RFC 7636
+ */
+const generateCodeVerifier = (length = 64): string => {
+  const array = new Uint8Array(length)
+  crypto.getRandomValues(array)
+
+  return Array.from(array)
+    .map(
+      (x) =>
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[
+          x % 66
+        ],
+    )
+    .join('')
+}
+
+/**
+ * Creates a code challenge from the code verifier using SHA-256
+ */
+const generateCodeChallenge = async (verifier: string): Promise<string> => {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(verifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '')
+}
+
+/**
+ * Generates both PKCE code verifier and challenge
+ */
+export const generatePKCE = async () => {
+  const verifier = generateCodeVerifier()
+  const challenge = await generateCodeChallenge(verifier)
+
+  return {
+    codeVerifier: verifier,
+    codeChallenge: challenge,
+    codeChallengeMethod: 'S256' as const,
+  }
+}
+
+/**
  * Authorize oauth2 flow
  *
  * @returns the accessToken

@@ -263,6 +263,12 @@ export const oasOauthFlowSchema = z
     oauthCommon.extend({
       'type': z.literal('authorizationCode'),
       authorizationUrl,
+      /**
+       * Whether to use PKCE for the authorization code flow.
+       *
+       * TODO: add docs
+       */
+      'x-usePkce': z.boolean().optional().default(false),
       'x-scalar-redirect-uri': z
         .string()
         .optional()

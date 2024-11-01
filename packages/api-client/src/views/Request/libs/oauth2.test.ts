@@ -147,6 +147,48 @@ describe('oauth2', () => {
       })
     })
 
+    // PKCE
+    // it('should generate valid PKCE code verifier and challenge', async () => {
+    //   const _scheme = {
+    //     ...scheme,
+    //     flow: {
+    //       ...scheme.flow,
+    //       'x-usePkce': true,
+    //     },
+    //   }
+
+    //   const mockCodeVerifier = 'mock_code_verifier_random_string'
+    //   const mockCodeChallenge = 'mock_code_challenge_base64url'
+
+    //   vi.spyOn(crypto, 'getRandomValues').mockImplementation(
+    //     () => new Uint8Array([1, 2, 3]),
+    //   )
+    //   vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
+    //     new Uint8Array([4, 5, 6]).buffer,
+    //   )
+
+    //   mockWindow.location.href = `https://callback.example.com?code=pkce_auth_code_123&state=mock_state`
+
+    //   global.fetch = vi.fn().mockResolvedValueOnce({
+    //     json: () => Promise.resolve({ access_token: 'pkce_access_token_123' }),
+    //   })
+
+    //   const result = await authorizeOauth2(_scheme, example, mockServer)
+
+    //   expect(result).toBe('pkce_access_token_123')
+    //   expect(window.open).toHaveBeenCalledWith(
+    //     expect.stringContaining('code_challenge_method=S256'),
+    //     'openAuth2Window',
+    //     expect.any(String),
+    //   )
+    //   expect(global.fetch).toHaveBeenCalledWith(
+    //     'https://auth.example.com/token',
+    //     expect.objectContaining({
+    //       body: expect.stringContaining('code_verifier='),
+    //     }),
+    //   )
+    // })
+
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
       const promise = authorizeOauth2(scheme, example, mockServer)
@@ -365,42 +407,6 @@ describe('oauth2', () => {
   //     type: 'oauth-pkce',
   //     clientId: 'client123',
   //   }
-
-  //   it('should generate valid PKCE code verifier and challenge', async () => {
-  //     const mockCodeVerifier = 'mock_code_verifier_random_string'
-  //     const mockCodeChallenge = 'mock_code_challenge_base64url'
-
-  //     vi.spyOn(crypto, 'getRandomValues').mockImplementation(
-  //       () => new Uint8Array([1, 2, 3]),
-  //     )
-  //     vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
-  //       new Uint8Array([4, 5, 6]).buffer,
-  //     )
-
-  //     setTimeout(() => {
-  //       mockWindow.location.href = `https://callback.example.com?code=pkce_auth_code_123&state=mock_state`
-  //     }, 100)
-
-  //     global.fetch = vi.fn().mockResolvedValueOnce({
-  //       json: () => Promise.resolve({ access_token: 'pkce_access_token_123' }),
-  //     })
-
-  //     const result = await authorizeOauth2(scheme, example, mockServer)
-
-  //     expect(result).toBe('pkce_access_token_123')
-  //     expect(window.open).toHaveBeenCalledWith(
-  //       expect.stringContaining('code_challenge_method=S256'),
-  //       'openAuth2Window',
-  //       expect.any(String),
-  //     )
-  //     expect(global.fetch).toHaveBeenCalledWith(
-  //       'https://auth.example.com/token',
-  //       expect.objectContaining({
-  //         body: expect.stringContaining('code_verifier='),
-  //       }),
-  //     )
-  //   })
-  // })
 
   // Device code is coming in openapi spec 3.2.0
   // If anyone needs it before we can add it
