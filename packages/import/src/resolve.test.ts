@@ -402,4 +402,22 @@ info:
 
     expect(result).toBe('https://example.com/docs/files/openapi.json')
   })
+
+  it('returns URL if it directly returns an OpenAPI document', async () => {
+    const openApiDoc = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
+    }
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(JSON.stringify(openApiDoc)))
+
+    const result = await resolve('https://example.com/swagger/json')
+
+    expect(result).toBe('https://example.com/swagger/json')
+  })
 })

@@ -61,6 +61,26 @@ export async function resolve(
 
       if (result.ok) {
         const content = await result.text()
+
+        // Check if content is directly JSON/YAML
+        try {
+          // Try parsing as JSON
+          const jsonContent = JSON.parse(content)
+          if (jsonContent.openapi || jsonContent.swagger) {
+            return value
+          }
+        } catch {
+          // Try parsing as YAML
+          try {
+            const yamlContent = parse(content)
+            if (yamlContent?.openapi || yamlContent?.swagger) {
+              return value
+            }
+          } catch {
+            // Not YAML
+          }
+        }
+
         const urlOrPathOrDocument = parseHtml(content)
 
         // Document (string)
