@@ -1,7 +1,32 @@
 import { _electron, expect, test } from '@playwright/test'
-import { readdirSync } from 'node:fs'
+import { statSync } from 'node:fs'
+import { join } from 'node:path'
 
 import { waitFor } from './utils/waitFor'
+
+// Helper function to find the frontend build
+const findFolder = () => {
+  const possiblePaths = [
+    '../../packages/api-client-app',
+    '../packages/api-client-app',
+    './packages/api-client-app',
+    join(process.cwd(), 'packages/api-client-app'),
+  ]
+
+  for (const path of possiblePaths) {
+    try {
+      const absolutePath = join(process.cwd(), path)
+
+      if (statSync(absolutePath).isDirectory()) {
+        return absolutePath
+      }
+    } catch {
+      // Ignore resolution errors
+    }
+  }
+
+  throw new Error('Could not find Electron app entry point')
+}
 
 test.describe('Electron', () => {
   // Chromium-only, ignore mobile
@@ -11,44 +36,17 @@ test.describe('Electron', () => {
   )
 
   test('launch app', async () => {
+    // Check whether the build was found
+    const cwd = findFolder()
+
+    console.log()
+    console.log('CWD', cwd)
+    expect(cwd).toBeDefined()
+
     // Launch the Electron app
-    // Log debug info about paths
-    console.log('Current working directory:', process.cwd())
-
-    const paths = [
-      './packages/api-client-app',
-      '../packages/api-client-app',
-      '../../packages/api-client-app',
-    ]
-
-    for (const path of paths) {
-      try {
-        console.log(`Contents of ${path}:`, readdirSync(path))
-      } catch (e) {
-        console.log(`Error reading ${path}:`, e.message)
-      }
-    }
-
-    const resolvedPath =
-      process.env.ELECTRON_APP_PATH ||
-      '../../packages/api-client-app/out/main/index.js'
-
-    console.log('Trying to resolve path:', resolvedPath)
-
-    try {
-      const fullPath = require.resolve(resolvedPath)
-      console.log('Resolved path:', fullPath)
-    } catch (e) {
-      console.log('Error resolving path:', e.message)
-    }
-
     const app = await _electron.launch({
-      args: [
-        require.resolve(
-          process.env.ELECTRON_APP_PATH ||
-            '../../packages/api-client-app/out/main/index.js',
-        ),
-      ],
+      args: ['./out/main/index.js'],
+      cwd,
     })
 
     // Wait for the main window to be created
