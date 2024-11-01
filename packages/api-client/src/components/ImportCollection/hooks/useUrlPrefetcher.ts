@@ -15,9 +15,17 @@ export type PrefetchResult = {
 }
 
 /**
- * Core logic for fetching and processing a URL
+ * Vue composable for URL prefetching
  */
-export function createUrlPrefetcher() {
+export function useUrlPrefetcher() {
+  const prefetchResult = reactive<PrefetchResult>({
+    state: 'idle',
+    content: null,
+    url: null,
+    input: null,
+    error: null,
+  })
+
   async function prefetchUrl(input: string | null, proxy?: string) {
     if (!input || typeof input !== 'string') {
       return {
@@ -30,7 +38,7 @@ export function createUrlPrefetcher() {
     }
 
     try {
-      // If we try hard enough, we might find the actual OpenAPI document URL even if the input isn’t one directly.
+      // If we try hard enough, we might find the actual OpenAPI document URL even if the input isn't one directly.
       const urlOrDocument = await resolve(input, {
         fetch: (url) => {
           return fetch(proxy ? redirectToProxy(proxy, url) : url, {
@@ -39,10 +47,9 @@ export function createUrlPrefetcher() {
         },
       })
 
-      // If the input is an object, we’re done
+      // If the input is an object, we're done
       if (typeof urlOrDocument === 'object' && urlOrDocument !== null) {
         const json = JSON.stringify(urlOrDocument, null, 2)
-
         return { state: 'idle', content: json, url: input, error: null }
       }
 
@@ -69,7 +76,7 @@ export function createUrlPrefetcher() {
 
       const url = urlOrDocument
 
-      // Okay, we’ve got an URL. Let’s fetch it:
+      // Okay, we've got an URL. Let's fetch it:
       const result = await fetchWithProxyFallback(url, {
         proxy,
         cache: 'no-cache',
@@ -81,7 +88,7 @@ export function createUrlPrefetcher() {
           content: null,
           url: null,
           input,
-          error: `Couldn’t fetch ${url}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
+          error: `Couldn't fetch ${url}, got error ${[result.status, result.statusText].join(' ').trim()}.`,
         }
       }
 
@@ -90,43 +97,21 @@ export function createUrlPrefetcher() {
       return {
         state: 'idle',
         content,
-        // This is the resolved URL, doesn’t have to be the given URL.
         url,
         error: null,
       }
     } catch (error: any) {
       console.error('[prefetchDocument]', error)
 
-      const message = error?.message?.includes('Can’t fetch')
-        ? `Couldn’t reach the URL (${input}). Is it publicly accessible?`
-        : error?.message
-
       return {
         state: 'idle',
         content: null,
         url: null,
         input,
-        error: message,
+        error: error.message,
       }
     }
   }
-
-  return { prefetchUrl }
-}
-
-/**
- * Vue composable for URL prefetching
- */
-export function useUrlPrefetcher() {
-  const prefetchResult = reactive<PrefetchResult>({
-    state: 'idle',
-    content: null,
-    url: null,
-    input: null,
-    error: null,
-  })
-
-  const { prefetchUrl } = createUrlPrefetcher()
 
   async function prefetchUrlAndUpdateState(
     input: string | null,
@@ -141,9 +126,7 @@ export function useUrlPrefetcher() {
     })
 
     const result = await prefetchUrl(input, proxy)
-
     Object.assign(prefetchResult, result)
-
     return result
   }
 
