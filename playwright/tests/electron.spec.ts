@@ -39,13 +39,23 @@ test.describe('Electron', () => {
     // Check whether the build was found
     const cwd = findFolder()
 
-    console.log()
-    console.log('CWD', cwd)
-    expect(cwd).toBeDefined()
+    console.log('Build paths:')
+    console.log('CWD:', process.cwd())
+    console.log('App folder:', cwd)
+    console.log('Entry point:', join(cwd, 'out/main/index.js'))
 
-    // Launch the Electron app
+    // Verify the entry point file exists
+    try {
+      const entryPoint = join(cwd, 'out/main/index.js')
+      statSync(entryPoint)
+      console.log('Entry point exists!')
+    } catch (error) {
+      console.error('Entry point not found:', error)
+    }
+
+    // Launch the Electron app with absolute path
     const app = await _electron.launch({
-      args: ['./out/main/index.js'],
+      args: [join(cwd, 'out/main/index.js')],
       cwd,
     })
 
