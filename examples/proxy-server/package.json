@@ -24,7 +24,7 @@
     "lint:check": "go fmt ./main.go",
     "lint:fix": "go fmt ./main.go",
     "preview": "pnpm dev",
-    "test": "go test",
+    "test": "go test -v",
     "types:build": "pnpm build",
     "types:check": "pnpm build"
   },
