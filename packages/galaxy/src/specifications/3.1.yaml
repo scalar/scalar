@@ -372,23 +372,29 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+      description: JWT Bearer token authentication
     basicAuth:
       type: http
       scheme: basic
+      description: Basic HTTP authentication
     apiKeyHeader:
       type: apiKey
       in: header
       name: X-API-Key
+      description: API key request header
     apiKeyQuery:
       type: apiKey
       in: query
       name: api_key
+      description: API key query parameter
     apiKeyCookie:
       type: apiKey
       in: cookie
       name: api_key
+      description: API key browser cookie
     oAuth2:
       type: oauth2
+      description: OAuth 2.0 authentication
       flows:
         authorizationCode:
           authorizationUrl: https://galaxy.scalar.com/oauth/authorize
