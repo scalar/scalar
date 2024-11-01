@@ -423,6 +423,10 @@ components:
             read:account: read your account information
             write:planets: modify planets in your account
             read:planets: read your planets
+    openIdConnect:
+      type: openIdConnect
+      openIdConnectUrl: https://galaxy.scalar.com/.well-known/openid-configuration
+      description: OpenID Connect Authentication
   parameters:
     planetId:
       name: planetId
