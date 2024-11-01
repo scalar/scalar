@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.66
+
+### Patch Changes
+
+- c929284: fix: add default redirectURI and prefix relative redirectURIs with activeServer
+- 2275977: feat: import from way more sources, leverage the proxy more
+- 3a0c367: fix: improve handling of non-string enums in parameter schema
+- 89a2cc7: fix: preselect auth in the modal
+
 ## 0.2.65
 
 ### Patch Changes

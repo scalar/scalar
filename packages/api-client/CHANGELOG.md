@@ -1,5 +1,23 @@
 # @scalar/api-client
 
+## 2.1.40
+
+### Patch Changes
+
+- db4a4b7: fix: favors provide for web layout hotkey display
+- c63ab07: fix: sidebar list action button danger
+- c929284: fix: add default redirectURI and prefix relative redirectURIs with activeServer
+- 2275977: feat: import from way more sources, leverage the proxy more
+- e044d78: feat: adds copy capability to environment code input
+- e461e5b: feat: adds environment variables synchronization
+- Updated dependencies [c929284]
+- Updated dependencies [2275977]
+- Updated dependencies [3a0c367]
+- Updated dependencies [89a2cc7]
+- Updated dependencies [f2361b3]
+  - @scalar/oas-utils@0.2.66
+  - @scalar/import@0.0.4
+
 ## 2.1.39
 
 ### Patch Changes

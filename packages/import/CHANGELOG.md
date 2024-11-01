@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.0.4
+
+### Patch Changes
+
+- 2275977: feat: import from way more sources, leverage the proxy more
+- f2361b3: fix: resolve JSON/YAML URLs
+
 ## 0.0.3
 
 ### Patch Changes

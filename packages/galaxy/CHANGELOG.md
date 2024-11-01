@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.14
+
+### Patch Changes
+
+- ca8c8d0: feat(galaxy): load the spec from a URL rather than as content
+
 ## 0.2.13
 
 ### Patch Changes

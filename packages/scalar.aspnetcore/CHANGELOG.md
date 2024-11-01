@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 1.2.28
+
+### Patch Changes
+
+- 764b1c3: feat: Add StringSyntax attribute to urls
+- Updated dependencies [5d8c90b]
+- Updated dependencies [f764640]
+  - @scalar/api-reference@1.25.55
+
 ## 1.2.27
 
 ### Patch Changes
