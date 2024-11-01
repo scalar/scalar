@@ -90,6 +90,14 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		res.Header.Del("Access-Control-Allow-Methods")
 		res.Header.Del("Access-Control-Expose-Headers")
 
+		// Handle relative URLs in Location header
+		if location := res.Header.Get("Location"); location != "" {
+			if location[0] == '/' {
+				// If location starts with '/', it's a relative URL
+				res.Header.Set("Location", remote.Scheme+"://"+remote.Host+location)
+			}
+		}
+
 		return nil
 	}
 
