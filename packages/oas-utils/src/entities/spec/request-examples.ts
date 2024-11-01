@@ -115,8 +115,11 @@ export function createParamInstance(param: RequestParameter) {
       '',
   )
 
+  // Handle non-string enums
   const parseEnum =
-    schema?.type === 'number' ? schema?.enum?.map(String) : schema?.enum
+    schema?.enum && schema?.type !== 'string'
+      ? schema.enum?.map(String)
+      : schema?.enum
 
   // safe parse the example
   const example = schemaModel(
