@@ -12,15 +12,12 @@ import { useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
 import EnvironmentModal from './EnvironmentModal.vue'
 
-defineProps<{
-  isApp: boolean
-}>()
 const router = useRouter()
 const route = useRoute()
 const { environments, environmentMutators, events } = useWorkspace()
@@ -32,6 +29,7 @@ const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
+const layout = inject<'modal' | 'web' | 'desktop'>('layout')
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
@@ -244,7 +242,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <SidebarButton
           :click="openEnvironmentModal"
           hotkey="N"
-          :isApp="isApp">
+          :layout="layout">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>
