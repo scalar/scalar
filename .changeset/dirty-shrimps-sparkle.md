@@ -3,4 +3,4 @@
 '@scalar/oas-utils': patch
 ---
 
-fix: add default redirectURI and prefix relative redirectURIs with activeServer
+fix: add tests for oauth2 flows, ensure we reject on state mismatch
