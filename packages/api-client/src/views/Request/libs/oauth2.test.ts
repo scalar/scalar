@@ -3,6 +3,7 @@ import type {
   SecuritySchemeOauth2ExampleValue,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authorizeOauth2, authorizeServers } from './oauth2'
@@ -150,46 +151,85 @@ describe('oauth2', () => {
     })
 
     // PKCE
-    // it('should generate valid PKCE code verifier and challenge', async () => {
-    //   const _scheme = {
-    //     ...scheme,
-    //     flow: {
-    //       ...scheme.flow,
-    //       'x-usePkce': true,
-    //     },
-    //   }
+    it.only('should generate valid PKCE code verifier and challenge', async () => {
+      const _scheme = {
+        ...scheme,
+        flow: {
+          ...scheme.flow,
+          'x-usePkce': true,
+        },
+      }
+      const accessToken = 'pkce_access_token_123'
+      const codeChallenge = 'AQIDBAUGCAkK'
+      const code = 'pkce_auth_code_123'
 
-    //   const mockCodeVerifier = 'mock_code_verifier_random_string'
-    //   const mockCodeChallenge = 'mock_code_challenge_base64url'
+      // Mock crypto.getRandomValues
+      vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
+        if (arr instanceof Uint8Array) {
+          for (let i = 0; i < arr.length; i++) {
+            arr[i] = i
+          }
+        }
+        return arr
+      })
 
-    //   vi.spyOn(crypto, 'getRandomValues').mockImplementation(
-    //     () => new Uint8Array([1, 2, 3]),
-    //   )
-    //   vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
-    //     new Uint8Array([4, 5, 6]).buffer,
-    //   )
+      // Mock crypto.subtle.digest
+      vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
+        new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer,
+      )
 
-    //   mockWindow.location.href = `https://callback.example.com?code=pkce_auth_code_123&state=mock_state`
+      const promise = authorizeOauth2(_scheme, example, mockServer)
+      await flushPromises()
 
-    //   global.fetch = vi.fn().mockResolvedValueOnce({
-    //     json: () => Promise.resolve({ access_token: 'pkce_access_token_123' }),
-    //   })
+      // Test the window.open call
+      expect(window.open).toHaveBeenCalledWith(
+        new URL(
+          `${scheme.flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'code',
+            code_challenge: codeChallenge,
+            code_challenge_method: 'S256',
+            redirect_uri: scheme.flow['x-scalar-redirect-uri'],
+            client_id: scheme['x-scalar-client-id'],
+            scope: scope.join(' '),
+            state: state,
+          }).toString()}`,
+        ),
+        windowTarget,
+        windowFeatures,
+      )
+      mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
 
-    //   const result = await authorizeOauth2(_scheme, example, mockServer)
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
 
-    //   expect(result).toBe('pkce_access_token_123')
-    //   expect(window.open).toHaveBeenCalledWith(
-    //     expect.stringContaining('code_challenge_method=S256'),
-    //     'openAuth2Window',
-    //     expect.any(String),
-    //   )
-    //   expect(global.fetch).toHaveBeenCalledWith(
-    //     'https://auth.example.com/token',
-    //     expect.objectContaining({
-    //       body: expect.stringContaining('code_verifier='),
-    //     }),
-    //   )
-    // })
+      // Run setInterval
+      vi.advanceTimersByTime(200)
+
+      // Resolve
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe(accessToken)
+
+      // Check fetch parameters
+      expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${secretAuth}`,
+        },
+        body: new URLSearchParams({
+          client_id: scheme['x-scalar-client-id'],
+          scope: scope.join(' '),
+          client_secret: example.clientSecret,
+          redirect_uri: scheme.flow['x-scalar-redirect-uri'],
+          code,
+          grant_type: 'authorization_code',
+          code_verifier:
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.',
+        }),
+      })
+    })
 
     // Test user closing the window
     it('should handle window closure before authorization', async () => {

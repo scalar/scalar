@@ -17,6 +17,12 @@ export const isOauth2Example = (
 ): example is SecuritySchemeOauth2ExampleValue =>
   example.type.startsWith('oauth')
 
+type PKCEState = {
+  codeVerifier: string
+  codeChallenge: string
+  codeChallengeMethod: string
+}
+
 /**
  * Generates a random string of specified length using crypto API
  * Length must be between 43 and 128 characters as per RFC 7636
@@ -50,20 +56,6 @@ const generateCodeChallenge = async (verifier: string): Promise<string> => {
 }
 
 /**
- * Generates both PKCE code verifier and challenge
- */
-export const generatePKCE = async () => {
-  const verifier = generateCodeVerifier()
-  const challenge = await generateCodeChallenge(verifier)
-
-  return {
-    codeVerifier: verifier,
-    codeChallenge: challenge,
-    codeChallengeMethod: 'S256' as const,
-  }
-}
-
-/**
  * Authorize oauth2 flow
  *
  * @returns the accessToken
@@ -94,11 +86,38 @@ export const authorizeOauth2 = async (
       const state = (Math.random() + 1).toString(36).substring(7)
       const url = new URL(scheme.flow.authorizationUrl)
 
+      /** Special PKCE state */
+      let pkce: PKCEState | null = null
+
       // Params unique to the flows
-      if (scheme.flow.type === 'implicit')
+      if (scheme.flow.type === 'implicit') {
         url.searchParams.set('response_type', 'token')
-      else if (scheme.flow.type === 'authorizationCode')
+      }
+
+      // Authorization Code Flow
+      else if (scheme.flow.type === 'authorizationCode') {
         url.searchParams.set('response_type', 'code')
+
+        // PKCE
+        if (scheme.flow['x-usePkce']) {
+          const codeVerifier = generateCodeVerifier()
+          const codeChallenge = await generateCodeChallenge(codeVerifier)
+
+          // Set state for later verification
+          pkce = {
+            codeVerifier,
+            codeChallenge,
+            codeChallengeMethod: 'S256',
+          }
+
+          // Set the code challenge and method on the url
+          url.searchParams.set('code_challenge', codeChallenge)
+          url.searchParams.set(
+            'code_challenge_method',
+            pkce.codeChallengeMethod,
+          )
+        }
+      }
 
       // Handle relative redirect uris
       if (scheme.flow['x-scalar-redirect-uri'].startsWith('/')) {
@@ -178,6 +197,7 @@ export const authorizeOauth2 = async (
                     example,
                     scopes,
                     code,
+                    pkce,
                   ).then(resolve)
                 } else {
                   resolve([new Error('State mismatch'), null])
@@ -210,6 +230,7 @@ export const authorizeServers = async (
   example: SecuritySchemeOauth2ExampleValue,
   scopes: string,
   code?: string,
+  pkce?: PKCEState | null,
 ): Promise<ErrorResponse<string>> => {
   if (!('clientSecret' in example))
     return [
@@ -232,6 +253,11 @@ export const authorizeServers = async (
   if (code) {
     formData.set('code', code)
     formData.set('grant_type', 'authorization_code')
+
+    // PKCE
+    if (pkce) {
+      formData.set('code_verifier', pkce.codeVerifier)
+    }
   }
   // Password
   else if (example.type === 'oauth-password') {
