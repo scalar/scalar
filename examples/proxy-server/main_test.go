@@ -91,3 +91,28 @@ func TestCORSPreflightRequest(t *testing.T) {
 		t.Errorf("Expected status code %d for OPTIONS request, got %d", http.StatusOK, w.Code)
 	}
 }
+
+func TestLocationHeaderRewrite(t *testing.T) {
+	// Create a test handler that returns a Location header with relative URL
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Location", "/foobar")
+		w.WriteHeader(http.StatusFound)
+	})
+
+	// Create test server
+	ts := httptest.NewServer(testHandler)
+	defer ts.Close()
+
+	// Create request with scalar_url parameter pointing to test server
+	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+ts.URL, nil)
+	w := httptest.NewRecorder()
+
+	// Call the main handler
+	handleRequest(w, req)
+
+	// Check that Location header was rewritten to include full URL
+	location := w.Header().Get("Location")
+	if location != ts.URL+"/foobar" {
+		t.Errorf("Expected Location header to be '%s/foobar', got '%s'", ts.URL, location)
+	}
+}
