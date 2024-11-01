@@ -151,7 +151,7 @@ describe('oauth2', () => {
     })
 
     // PKCE
-    it.only('should generate valid PKCE code verifier and challenge', async () => {
+    it('should generate valid PKCE code verifier and challenge', async () => {
       const _scheme = {
         ...scheme,
         flow: {
