@@ -201,7 +201,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="url">The URL of the server to add.</param>
-    public static ScalarOptions AddServer(this ScalarOptions options, string url)
+    public static ScalarOptions AddServer(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url)
     {
         return options.AddServer(new ScalarServer(url));
     }
@@ -329,7 +329,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="url">The CDN URL to set.</param>
-    public static ScalarOptions WithCdnUrl(this ScalarOptions options, string url)
+    public static ScalarOptions WithCdnUrl(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url)
     {
         options.CdnUrl = url;
         return options;
