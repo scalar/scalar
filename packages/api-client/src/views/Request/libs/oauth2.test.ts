@@ -36,6 +36,9 @@ const redirectUri = 'https://callback.example.com'
 const clientSecret = 'secret123'
 const secretAuth = btoa(`${baseScheme['x-scalar-client-id']}:${clientSecret}`)
 
+const windowTarget = 'openAuth2Window'
+const windowFeatures = 'left=100,top=100,width=800,height=600'
+
 /** This state corresponds to Math.random() === 0.123456 */
 const state = '82mvz'
 const randomVal = 0.123456
@@ -107,8 +110,8 @@ describe('oauth2', () => {
             state: state,
           }).toString()}`,
         ),
-        'openAuth2Window',
-        'left=100,top=100,width=800,height=600',
+        windowTarget,
+        windowFeatures,
       )
 
       // Mock redirect back from login
@@ -144,12 +147,40 @@ describe('oauth2', () => {
       })
     })
 
+    // Test user closing the window
     it('should handle window closure before authorization', async () => {
       const promise = authorizeOauth2(scheme, example, mockServer)
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
       await expect(promise).rejects.toThrow(
         'Window was closed without granting authorization',
+      )
+    })
+
+    // Test relative redirect URIs
+    it('should handle relative redirect URIs', async () => {
+      const _scheme = {
+        ...scheme,
+        flow: {
+          ...scheme.flow,
+          'x-scalar-redirect-uri': '/callback',
+        },
+      }
+      authorizeOauth2(_scheme, example, mockServer)
+
+      // Test the window.open call for full redirect
+      expect(window.open).toHaveBeenCalledWith(
+        new URL(
+          `${scheme.flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'code',
+            redirect_uri: `${mockServer.url}/callback`,
+            client_id: scheme['x-scalar-client-id'],
+            scope: scope.join(' '),
+            state: state,
+          }).toString()}`,
+        ),
+        windowTarget,
+        windowFeatures,
       )
     })
   })
@@ -303,50 +334,6 @@ describe('oauth2', () => {
       })
     })
   })
-
-  // Tests for relative redirect URIs
-  // describe('Relative Redirect URIs', () => {
-  //   const scheme: SecuritySchemeOauth2 = {
-  //     'type': 'oauth2',
-  //     'flow': {
-  //       'type': 'authorizationCode',
-  //       'authorizationUrl': 'https://auth.example.com/authorize',
-  //       'tokenUrl': 'https://auth.example.com/token',
-  //       'x-scalar-redirect-uri': '/callback',
-  //       'selectedScopes': ['read'],
-  //     },
-  //     'x-scalar-client-id': 'client123',
-  //   }
-
-  //   const example = {
-  //     type: 'oauth-authorization-code',
-  //     clientSecret: 'secret123',
-  //   }
-
-  //   it('should handle relative redirect URIs', async () => {
-  //     const mockServer: Server = {
-  //       url: 'https://myapp.example.com',
-  //     }
-
-  //     setTimeout(() => {
-  //       mockWindow.closed = true
-  //     }, 100)
-
-  //     try {
-  //       await authorizeOauth2(scheme, example, mockServer)
-  //     } catch (e) {
-  //       // We expect an error since we're closing the window
-  //     }
-
-  //     expect(window.open).toHaveBeenCalledWith(
-  //       expect.stringContaining(
-  //         'redirect_uri=https%3A%2F%2Fmyapp.example.com%2Fcallback',
-  //       ),
-  //       expect.any(String),
-  //       expect.any(String),
-  //     )
-  //   })
-  // })
 
   // describe('PKCE Flow', () => {
   //   const scheme: SecuritySchemeOauth2 = {
