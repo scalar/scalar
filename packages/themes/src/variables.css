@@ -46,6 +46,9 @@
 
   --scalar-font-medium: 500;
   --scalar-font-bold: 700;
+
+  --scalar-text-decoration: none;
+  --scalar-text-decoration-hover: underline;
 }
 .dark-mode {
   color-scheme: dark;
