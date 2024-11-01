@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.1.41
+
+### Patch Changes
+
+- 823c14d: fix: add tests for oauth2 flows, ensure we reject on state mismatch
+- Updated dependencies [823c14d]
+- Updated dependencies [997cd35]
+  - @scalar/oas-utils@0.2.67
+
 ## 2.1.40
 
 ### Patch Changes
