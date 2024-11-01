@@ -48,7 +48,7 @@ jobs:
       - name: Run e2e tests
         run: CI=1 DEBUG=pw:browser* pnpm test:e2e:electron
         env:
-          ELECTRON_APP_PATH: './packages/api-client-app/out/main/index.js'
+          ELECTRON_APP_PATH: '../packages/api-client-app/out/main/index.js'
       - if: failure()
         name: Show stack traces and debug info
         working-directory: playwright
