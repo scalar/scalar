@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.25.55
+
+### Patch Changes
+
+- 5d8c90b: fix: api references jumping in next.js
+- f764640: fix(api-reference): reflect hidden http clients and custom examples
+- Updated dependencies [db4a4b7]
+- Updated dependencies [c63ab07]
+- Updated dependencies [c929284]
+- Updated dependencies [2275977]
+- Updated dependencies [e044d78]
+- Updated dependencies [3a0c367]
+- Updated dependencies [89a2cc7]
+- Updated dependencies [e461e5b]
+  - @scalar/api-client@2.1.40
+  - @scalar/oas-utils@0.2.66
+
 ## 1.25.54
 
 ### Patch Changes
