@@ -258,7 +258,7 @@
         "^(schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$": {
           "$comment": "Enumerating all of the property names in the regex above is necessary for unevaluatedProperties to work as expected",
           "propertyNames": {
-            "pattern": "^[a-zA-Z0-9._-]+$"
+            "pattern": "^[a-zA-Z0-9._ -]+$"
           }
         }
       },
@@ -767,7 +767,6 @@
           "$ref": "#/$defs/response-or-reference"
         }
       },
-      "minProperties": 1,
       "$ref": "#/$defs/specification-extensions",
       "unevaluatedProperties": false
     },
@@ -957,7 +956,7 @@
         }
       },
       "$ref": "#/$defs/specification-extensions",
-      "unevaluatedProperties": false
+      "unevaluatedProperties": true
     },
     "header-or-reference": {
       "if": {
@@ -1004,7 +1003,7 @@
           "type": "string"
         }
       },
-      "unevaluatedProperties": false
+      "unevaluatedProperties": true
     },
     "schema": {
       "$comment": "https://spec.openapis.org/oas/v3.1.0#schema-object",
