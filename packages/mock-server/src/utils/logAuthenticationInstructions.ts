@@ -15,6 +15,8 @@ export function logAuthenticationInstructions(
   console.log('Authentication:')
   console.log()
 
+  console.log(securitySchemes)
+
   Object.entries(securitySchemes).forEach(([_, scheme]) => {
     switch (scheme.type) {
       case 'apiKey':
@@ -132,7 +134,13 @@ export function logAuthenticationInstructions(
         }
         break
       case 'openIdConnect':
-        console.log('⚠️ OpenID Connect Authentication')
+        console.log('✅ OpenID Connect Authentication')
+        console.log('   Use the following OpenID Connect discovery URL:')
+        console.log()
+        console.log(
+          `   ${getPathFromUrl(scheme.openIdConnectUrl || '/.well-known/openid-configuration')}`,
+        )
+        console.log()
         break
       default:
         console.warn(`Unsupported security scheme type: ${scheme.type}`)
