@@ -27,7 +27,7 @@ export function useUrlPrefetcher() {
   })
 
   async function prefetchUrl(input: string | null, proxy?: string) {
-    if (!input || typeof input !== 'string') {
+    if (!input) {
       return {
         state: 'idle',
         content: null,
