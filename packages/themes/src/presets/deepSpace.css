@@ -1,9 +1,12 @@
-/* basic theme */
+/* Global Theme Settings */
 :root {
+  /* text decoration */
   --scalar-text-decoration: underline;
   --scalar-text-decoration-hover: underline;
 }
-.light-mode {
+:root:has(body.light-mode),
+.dark-mode .light-mode {
+  /* basic theme */
   --scalar-color-1: rgb(9, 9, 11);
   --scalar-color-2: rgb(113, 113, 122);
   --scalar-color-3: rgba(25, 25, 28, 0.5);
@@ -16,8 +19,22 @@
 
   --scalar-border-color: rgb(228, 228, 231);
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  /* advanced theme */
+  --scalar-color-green: #069061;
+  --scalar-color-red: #ef0006;
+  --scalar-color-yellow: #edbe20;
+  --scalar-color-blue: #0082d0;
+  --scalar-color-orange: #fb892c;
+  --scalar-color-purple: #5203d1;
+
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
-.dark-mode {
+:root:has(body.dark-mode),
+.light-mode .dark-mode {
+  /* basic theme */
   --scalar-color-1: #fafafa;
   --scalar-color-2: rgb(161, 161, 170);
   --scalar-color-3: rgba(255, 255, 255, 0.533);
@@ -30,6 +47,18 @@
 
   --scalar-border-color: rgba(255, 255, 255, 0.16);
   --scalar-code-language-color-supersede: var(--scalar-color-1);
+
+  /* advanced theme */
+  --scalar-color-green: rgba(69, 255, 165, 0.823);
+  --scalar-color-red: #ff8589;
+  --scalar-color-yellow: #ffcc4d;
+  --scalar-color-blue: #6bc1fe;
+  --scalar-color-orange: #f98943;
+  --scalar-color-purple: #b191f9;
+
+  --scalar-button-1: rgba(255, 255, 255, 1);
+  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: black;
 }
 
 /* Document Sidebar */
@@ -52,31 +81,6 @@
 }
 .light-mode .t-doc__sidebar {
   --scalar-sidebar-item-active-background: var(--scalar-background-2);
-}
-/* advanced */
-.light-mode {
-  --scalar-color-green: #069061;
-  --scalar-color-red: #ef0006;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #0082d0;
-  --scalar-color-orange: #fb892c;
-  --scalar-color-purple: #5203d1;
-
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
-}
-.dark-mode {
-  --scalar-color-green: rgba(69, 255, 165, 0.823);
-  --scalar-color-red: #ff8589;
-  --scalar-color-yellow: #ffcc4d;
-  --scalar-color-blue: #6bc1fe;
-  --scalar-color-orange: #f98943;
-  --scalar-color-purple: #b191f9;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
 }
 /* Custom theme */
 .dark-mode h2.t-editor__heading,
