@@ -150,8 +150,10 @@ describe('oauth2', () => {
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
       const promise = authorizeOauth2(scheme, example, mockServer)
+
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
+
       await expect(promise).rejects.toThrow(
         'Window was closed without granting authorization',
       )
@@ -182,6 +184,17 @@ describe('oauth2', () => {
         windowTarget,
         windowFeatures,
       )
+    })
+
+    // State mismatch
+    it('blow up on state mismatch', async () => {
+      const promise = authorizeOauth2(scheme, example, mockServer)
+
+      // Mock redirect with bad state
+      mockWindow.location.href = `${scheme.flow['x-scalar-redirect-uri']}?code=auth_code_123&state=bad_state`
+
+      vi.advanceTimersByTime(200)
+      await expect(promise).rejects.toThrow('State mismatch')
     })
   })
 
