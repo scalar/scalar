@@ -13,7 +13,10 @@ test.describe('Electron', () => {
     // Launch the Electron app
     const app = await _electron.launch({
       args: [
-        require.resolve('../../packages/api-client-app/out/main/index.js'),
+        require.resolve(
+          process.env.ELECTRON_APP_PATH ||
+            '../../packages/api-client-app/out/main/index.js',
+        ),
       ],
     })
 
