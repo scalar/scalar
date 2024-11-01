@@ -12,7 +12,7 @@ import { useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
-import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
@@ -33,12 +33,31 @@ const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
 
+const parseEnvironmentValue = (value: string): Record<string, string> =>
+  JSON.parse(value)
+
+const stringifyEnvironmentValue = (value: Record<string, string>): string =>
+  JSON.stringify(value, null, 2)
+
 function addEnvironment(environment: { name: string; color: string }) {
+  const existingEnvironment = environments[Object.keys(environments)[0]]
+  const defaultKeys = existingEnvironment
+    ? Object.keys(parseEnvironmentValue(existingEnvironment.value))
+    : []
+
+  const newEnvironmentValue = defaultKeys.reduce(
+    (acc, key) => {
+      acc[key] = ''
+      return acc
+    },
+    {} as Record<string, string>,
+  )
+
   const newEnvironment = environmentSchema.parse({
     name: environment.name,
     uid: nanoid(),
     color: environment.color,
-    value: JSON.stringify({ exampleKey: 'exampleValue' }, null, 2),
+    value: stringifyEnvironmentValue(newEnvironmentValue),
     isDefault: false,
   })
 
@@ -48,16 +67,81 @@ function addEnvironment(environment: { name: string; color: string }) {
   environmentModal.hide()
 }
 
+function synchronizeKeys(newKey: string) {
+  Object.values(environments).forEach((env) => {
+    const envValue = parseEnvironmentValue(env.value)
+    if (!(newKey in envValue)) {
+      envValue[newKey] = ''
+      environmentMutators.edit(
+        env.uid,
+        'value',
+        stringifyEnvironmentValue(envValue),
+      )
+    }
+  })
+}
+
+function synchronizeKeyRemoval(removedKey: string) {
+  Object.values(environments).forEach((env) => {
+    const envValue = parseEnvironmentValue(env.value)
+    if (removedKey in envValue) {
+      delete envValue[removedKey]
+      environmentMutators.edit(
+        env.uid,
+        'value',
+        stringifyEnvironmentValue(envValue),
+      )
+    }
+  })
+}
+
 function handleEnvironmentUpdate(raw: string) {
   if (activeEnvironmentID.value) {
+    const updatedValue = parseEnvironmentValue(raw)
+
+    const currentValue = parseEnvironmentValue(
+      environments[activeEnvironmentID.value].value,
+    )
+
+    Object.keys(updatedValue).forEach((key) => {
+      if (!(key in currentValue)) {
+        synchronizeKeys(key)
+      }
+    })
+
+    Object.keys(currentValue).forEach((key) => {
+      if (!(key in updatedValue)) {
+        synchronizeKeyRemoval(key)
+      }
+    })
+
     environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
   }
 }
 
 const removeEnvironment = (uid: string) => {
   environmentMutators.delete(uid)
+
   if (activeEnvironmentID.value === uid) {
-    activeEnvironmentID.value = null
+    const remainingEnvironments = Object.values(environments)
+
+    if (remainingEnvironments.length > 0) {
+      // Redirect to the last environment
+      const lastEnvironment =
+        remainingEnvironments[remainingEnvironments.length - 1]
+
+      activeEnvironmentID.value = lastEnvironment.uid
+
+      router.push({
+        name: 'environment',
+        params: { environment: lastEnvironment.uid },
+      })
+    } else {
+      // Redirect to the default environment
+      activeEnvironmentID.value = environments.default.uid
+
+      router.push({ name: 'environment', params: { environment: 'default' } })
+    }
   }
 }
 
@@ -76,8 +160,11 @@ const submitColorChange = (color: string) => {
 
 /** set active environment based on the route */
 const setActiveEnvironment = () => {
-  const routeEnvironmentId = router.currentRoute.value.params.environment
-  if (routeEnvironmentId === 'default') {
+  const routeEnvironmentId = router.currentRoute.value.params
+    .environment as string
+  if (routeEnvironmentId) {
+    activeEnvironmentID.value = routeEnvironmentId
+  } else if (routeEnvironmentId === 'default') {
     activeEnvironmentID.value = environments.default.uid
   }
 }
@@ -115,6 +202,13 @@ const handleHotKey = (event?: HotKeyEvent) => {
 const openEnvironmentModal = () => {
   environmentModal.show()
 }
+
+watch(
+  () => route.params.environment,
+  (newEnvironmentId) =>
+    (activeEnvironmentID.value =
+      (newEnvironmentId as string) || environments.default.uid),
+)
 
 onMounted(() => {
   setActiveEnvironment()

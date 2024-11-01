@@ -2,7 +2,6 @@
 import { parseEnvVariables } from '@/libs'
 import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { variableRegex } from '@scalar/oas-utils/helpers'
 import {
   Decoration,
@@ -26,6 +25,10 @@ const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
 
   return '#8E8E8E'
 }
+
+/**
+ * Displays the value of a variable of the active environment in a pill
+ */
 class PillWidget extends WidgetType {
   private app: any
   activeEnvironment: ActiveEnvironment
@@ -56,16 +59,22 @@ class PillWidget extends WidgetType {
         const val = parseEnvVariables(this.activeEnvVariables.value).find(
           (thing) => thing.key === this.variableName,
         )
-        if (val) {
-          span.style.setProperty(
-            '--tw-bg-base',
-            getEnvColor(this.activeEnvironment),
-          )
-        }
-        const tooltipContent = val
-          ? h('div', { class: 'p-2' }, val.value as string)
+
+        // Set the pill color based on the environment or fallback to grey
+        const pillColor =
+          val && this.activeEnvironment.value
+            ? getEnvColor(this.activeEnvironment)
+            : '#8E8E8E'
+
+        span.style.setProperty('--tw-bg-base', pillColor)
+
+        // Set opacity based on the existence of a value
+        span.style.opacity = val?.value ? '1' : '0.5'
+
+        const tooltipContent = val?.value
+          ? h('div', { class: 'p-2' }, val.value)
           : h('div', { class: 'divide-y divide-1/2 grid' }, [
-              h('span', { class: 'p-2' }, 'Variable not found'),
+              h('span', { class: 'p-2 opacity-25' }, 'No value'),
               !this.isReadOnly &&
                 h('div', { class: 'p-1' }, [
                   h(
@@ -79,7 +88,11 @@ class PillWidget extends WidgetType {
                       },
                     },
                     [
-                      h(ScalarIcon, { class: 'w-2', icon: 'Add', size: 'xs' }),
+                      h(ScalarIcon, {
+                        class: 'w-2',
+                        icon: 'Add',
+                        size: 'xs',
+                      }),
                       'Add variable',
                     ],
                   ),
@@ -90,7 +103,7 @@ class PillWidget extends WidgetType {
           ScalarTooltip,
           {
             align: 'center',
-            class: 'bg-b-2 w-full',
+            class: 'w-full',
             delay: 0,
             side: 'bottom',
             sideOffset: 6,
@@ -101,8 +114,10 @@ class PillWidget extends WidgetType {
               h(
                 'div',
                 {
-                  class:
-                    'w-content shadow-lg rounded bg-b-1 brightness-lifted text-xxs leading-5 text-c-1',
+                  class: [
+                    'border w-content rounded  bg-b-1 brightness-lifted text-xxs leading-5 text-c-1',
+                    val?.value ? 'border-solid' : 'border-dashed',
+                  ],
                 },
                 tooltipContent,
               ),
@@ -134,6 +149,9 @@ class PillWidget extends WidgetType {
   }
 }
 
+/**
+ * Styles the active environment variable pill
+ */
 export const pillPlugin = (props: {
   activeEnvironment: WorkspaceStore['activeEnvironment']
   activeEnvVariables: ActiveParsedEnvironments

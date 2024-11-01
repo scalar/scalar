@@ -111,7 +111,6 @@ onClickOutside(
 <template>
   <ScalarDropdown
     ref="dropdownRef"
-    class="mt-2 min-w-60 rounded border bg-b-1 p-1 w-fit"
     static
     :staticOpen="isOpen"
     :style="{
