@@ -66,6 +66,7 @@ security:
   - apiKeyHeader: []
   - apiKeyCookie: []
   - oAuth2: []
+x-scalar-icon: interface-favorite-stars-sparkles
 tags:
   - name: Authentication
     description:
