@@ -1,24 +1,19 @@
 <script setup lang="ts">
 import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
+import ImportNowButton from '@/components/ImportCollection/ImportNowButton.vue'
+import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
+import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
+import WorkspaceSelector from '@/components/ImportCollection/WorkspaceSelector.vue'
 import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
 import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
-import {
-  ScalarCodeBlock,
-  ScalarIcon,
-  ScalarModal,
-  useModal,
-} from '@scalar/components'
+import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-
-import ImportNowButton from './ImportNowButton.vue'
-import IntegrationLogo from './IntegrationLogo.vue'
-import WorkspaceSelector from './WorkspaceSelector.vue'
 
 const props = defineProps<{
   source: string | null
@@ -34,9 +29,7 @@ const { activeWorkspace, events } = useWorkspace()
 const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
 
 const modalState = useModal()
-const errorModalState = useModal()
 
-const errorMessage = ref('')
 const watchMode = ref<boolean>(true)
 
 /** Close modal when a keyboard shortcut is pressed */
@@ -148,78 +141,66 @@ onUnmounted(() => {
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
-        <!-- Logo -->
-        <IntegrationLogo
-          v-if="shouldShowIntegrationIcon"
-          :integration="integration" />
-        <!-- Title -->
-        <div class="text-center text-md font-bold mb-2 line-clamp-1">
-          {{ title ?? 'Untitled Collection' }}
-        </div>
-        <div class="text-c-1 text-sm font-medium mb-2 text-center text-balance">
-          Import the OpenAPI document to instantly send API requests. No signup
-          required.
-        </div>
         <!-- Prefetch error -->
-        <PrefetchError
-          v-if="prefetchResult.error"
-          :result="prefetchResult" />
-        <!-- Actions -->
-        <template v-else-if="version">
-          <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
-            <!-- <OpenAppButton :source="source" /> -->
-            <ImportNowButton
-              :source="prefetchResult?.url ?? source"
-              variant="button"
-              :watchMode="watchMode"
-              @importFinished="() => $emit('importFinished')" />
+        <!-- Or: Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
+        <template
+          v-if="
+            prefetchResult.error && prefetchResult.state === 'idle' && !version
+          ">
+          <!-- Heading -->
+          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+            No OpenAPI document found
           </div>
-          <!-- Select the workspace -->
-          <div class="flex justify-center">
-            <div
-              class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
-              Import to: <WorkspaceSelector />
-            </div>
-          </div>
-          <!-- Watch Mode -->
-          <template v-if="prefetchResult?.url">
-            <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
-              <div class="flex items-center justify-center">
-                <WatchModeToggle
-                  v-model="watchMode"
-                  :disableToolTip="true" />
-              </div>
-              <div
-                class="pt-0 text-center text-balance font-medium text-xs text-c-3">
-                Automatically update your API client when the OpenAPI document
-                content changes.
-              </div>
-            </div>
-          </template>
+          <PrefetchError :url="prefetchResult?.input || props.source" />
         </template>
+        <!-- Sucess -->
+        <template v-else>
+          <!-- Logo -->
+          <IntegrationLogo
+            v-if="shouldShowIntegrationIcon"
+            :integration="integration" />
 
-        <!-- Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
-        <template v-else-if="!version">
-          <div class="flex flex-col gap-2">
-            <div
-              class="flex gap-2 items-center p-3 font-code text-sm border rounded">
-              <ScalarIcon
-                class="text-red"
-                icon="Error"
-                size="sm" />
-              <div>
-                This doesn’t look like a valid OpenAPI/Swagger document.
+          <!-- Title -->
+          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+            {{ title || 'Untitled Collection' }}
+          </div>
+          <div class="text-c-1 text-sm font-medium text-center text-balance">
+            Import the OpenAPI document to instantly send API requests. No
+            signup required.
+          </div>
+
+          <!-- Actions -->
+          <template v-if="version">
+            <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
+              <ImportNowButton
+                :source="prefetchResult?.url ?? source"
+                variant="button"
+                :watchMode="watchMode"
+                @importFinished="() => $emit('importFinished')" />
+            </div>
+            <!-- Select the workspace -->
+            <div class="flex justify-center">
+              <div
+                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
+                Import to: <WorkspaceSelector />
               </div>
             </div>
-
-            <div class="bg-b-2 h-48 border rounded custom-scroll">
-              <ScalarCodeBlock
-                :content="
-                  prefetchResult.content?.trim() || props.source?.trim() || ''
-                "
-                :copy="false" />
-            </div>
-          </div>
+            <!-- Watch Mode -->
+            <template v-if="prefetchResult?.url">
+              <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
+                <div class="flex items-center justify-center">
+                  <WatchModeToggle
+                    v-model="watchMode"
+                    :disableToolTip="true" />
+                </div>
+                <div
+                  class="pt-0 text-center text-balance font-medium text-xs text-c-3">
+                  Automatically update your API client when the OpenAPI document
+                  content changes.
+                </div>
+              </div>
+            </template>
+          </template>
         </template>
       </div>
       <!-- Download Link -->
@@ -247,16 +228,6 @@ onUnmounted(() => {
           </span>
         </div>
       </div>
-      <!-- Error Modal -->
-      <ScalarModal
-        size="md"
-        :state="errorModalState"
-        title="Error Details"
-        variant="error">
-        <div class="text-sm">
-          {{ errorMessage }}
-        </div>
-      </ScalarModal>
     </div>
   </ScalarModal>
 </template>

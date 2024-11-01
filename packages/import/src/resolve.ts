@@ -1,9 +1,17 @@
+import { parse } from 'yaml'
+
 /**
  * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.
  */
 export async function resolve(
   value?: string | null,
+  options?: {
+    /**
+     * Fetch function to use instead of the global fetch. Use this to intercept requests.
+     */
+    fetch?: (url: string) => Promise<Response>
+  },
 ): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
@@ -38,17 +46,54 @@ export async function resolve(
 
     // Fetch URL
     try {
-      const result = await fetch(value)
+      let result = await (options?.fetch
+        ? options.fetch(value)
+        : fetch(value, {
+            cache: 'no-cache',
+          }))
+
+      // If the custom fetch failed, try again with regular fetch
+      if (!result.ok && options?.fetch) {
+        result = await fetch(value, {
+          cache: 'no-cache',
+        })
+      }
 
       if (result.ok) {
         const content = await result.text()
-        const urlOrPath = parseHtml(content)
+        const urlOrPathOrDocument = parseHtml(content)
 
-        if (urlOrPath) {
-          return makeRelativeUrlsAbsolute(value, urlOrPath)
+        // Document (string)
+        if (typeof urlOrPathOrDocument === 'string') {
+          try {
+            // JSON?
+            return JSON.parse(urlOrPathOrDocument)
+          } catch {
+            // No JSON
+            try {
+              // YAML?
+              const yaml = parse(urlOrPathOrDocument)
+
+              if (typeof yaml === 'object') {
+                return yaml
+              }
+            } catch {
+              // Not YAML
+            }
+          }
         }
 
-        // New: Check for embedded OpenAPI document
+        // Document (object)
+        if (typeof urlOrPathOrDocument === 'object') {
+          return urlOrPathOrDocument
+        }
+
+        // Relative or absolute URL
+        if (urlOrPathOrDocument) {
+          return makeRelativeUrlsAbsolute(value, urlOrPathOrDocument)
+        }
+
+        // Check for embedded OpenAPI document
         const embeddedSpec = parseEmbeddedOpenApi(content)
         if (embeddedSpec) {
           return embeddedSpec
@@ -73,16 +118,18 @@ function parseHtml(html?: string) {
     return undefined
   }
 
-  // data-url="*"
-  const dataUrlMatch = html.match(/data-url=["']([^"']+)["']/)
+  // id="api-reference" data-url="*"
+  const dataUrlMatch = html
+    .match(/id=["']api-reference["'][\s\S]*?data-url=["']([^"']+)["']/)
+    ?.slice(1)
+    .find(Boolean)
 
-  if (dataUrlMatch?.[1]) {
-    return dataUrlMatch[1]
+  if (dataUrlMatch) {
+    return dataUrlMatch
   }
 
   // spec-url="*"
   const specUrlMatch = html.match(/spec-url=["']([^"']+)["']/)
-
   if (specUrlMatch?.[1]) {
     return specUrlMatch[1]
   }
@@ -95,12 +142,68 @@ function parseHtml(html?: string) {
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
-  const configurationUrl = html.match(
+  const doubleEncodedConfigurationUrl = html.match(
     /&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/,
   )
 
-  if (configurationUrl?.[1]) {
-    return configurationUrl[1]
+  if (doubleEncodedConfigurationUrl?.[1]) {
+    return doubleEncodedConfigurationUrl[1]
+  }
+
+  // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
+  const encodedConfigurationUrl = html.match(
+    /&quot;url&quot;:&quot;([^;]+)&quot;/,
+  )
+  if (encodedConfigurationUrl?.[1]) {
+    return encodedConfigurationUrl[1]
+  }
+
+  // Try to find embedded OpenAPI document in script tag first
+  const scriptContent = parseScriptContent(html)
+  if (scriptContent) {
+    return scriptContent
+  }
+
+  // Check for configuration in script tag
+  const scriptConfigMatch = html.match(/url:\s*["']([^"']+)["']/i)
+
+  if (scriptConfigMatch?.[1]) {
+    return scriptConfigMatch?.[1]
+  }
+
+  // Check for OpenAPI URLs in the HTML
+  const linkMatch = html.match(
+    /<a[^>]*href=["']([^"']+\.(?:yaml|yml|json))["'][^>]*>/i,
+  )
+  if (linkMatch?.[1]) {
+    return linkMatch[1]
+  }
+
+  return undefined
+}
+
+/**
+ * Parse OpenAPI document directly from script tag content
+ */
+function parseScriptContent(html: string): Record<string, any> | undefined {
+  const match = html.match(
+    /<script[^>]*id="api-reference"[^>]*>([\s\S]*?)<\/script>/,
+  )
+
+  if (!match?.[1]) return undefined
+
+  try {
+    const content = match[1].trim()
+
+    if (content) {
+      try {
+        return JSON.parse(content)
+      } catch {
+        return parse(content)
+      }
+    }
+  } catch (error) {
+    console.error('[@scalar/import] Failed to parse script content:', error)
   }
 
   return undefined
@@ -133,15 +236,23 @@ function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
   const match = html.match(
-    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/,
+    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/s,
   )
 
   if (!match) return undefined
 
   try {
     const configString = decodeHtmlEntities(match[1])
+
     const config = JSON.parse(configString)
+
+    // Handle both direct JSON content and YAML content
     if (config.spec?.content) {
+      // If content is a string, assume it's YAML
+      if (typeof config.spec.content === 'string') {
+        return parse(config.spec.content)
+      }
+      // If content is an object, return it directly
       return config.spec.content
     }
   } catch (error) {
@@ -166,10 +277,20 @@ function decodeHtmlEntities(text: string): string {
     '&#39;': "'",
   } as const
 
-  return text.replace(
-    new RegExp(Object.keys(entities).join('|'), 'g'),
-    (match) => entities[match as keyof typeof entities],
-  )
+  const updatedText = text
+    .replace(
+      new RegExp(Object.keys(entities).join('|'), 'g'),
+      (match) => entities[match as keyof typeof entities],
+    )
+    .replace(/\n/g, '\\n')
+    .trim()
+
+  if (updatedText.startsWith('{&quot;')) {
+    // console.log('ok', updatedText)
+    return decodeHtmlEntities(updatedText)
+  }
+
+  return updatedText
 }
 
 /**

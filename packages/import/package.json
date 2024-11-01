@@ -44,7 +44,8 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
-    "@scalar/openapi-parser": "workspace:*"
+    "@scalar/openapi-parser": "workspace:*",
+    "yaml": "^2.4.5"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",

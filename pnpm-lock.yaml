@@ -562,6 +562,9 @@ importers:
       '@scalar/icons':
         specifier: workspace:*
         version: link:../icons
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
@@ -1641,6 +1644,9 @@ importers:
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
+      yaml:
+        specifier: ^2.4.5
+        version: 2.4.5
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -1824,9 +1830,6 @@ importers:
       '@hyperjump/json-schema':
         specifier: ^1.9.6
         version: 1.9.8(@hyperjump/browser@1.1.6)
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../import
       '@scalar/object-utils':
         specifier: workspace:*
         version: link:../object-utils
