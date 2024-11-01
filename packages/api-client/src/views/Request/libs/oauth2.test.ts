@@ -14,7 +14,7 @@ const baseScheme: Pick<
   'uid': 'test-scheme',
   'nameKey': 'test-name-key',
   'type': 'oauth2',
-  'x-scalar-client-id': 'client123',
+  'x-scalar-client-id': 'xxxxx',
 }
 
 const baseFlow: Pick<
@@ -33,7 +33,7 @@ const scope = Object.keys(baseFlow.scopes)
 const authorizationUrl = 'https://auth.example.com/authorize'
 const tokenUrl = 'https://auth.example.com/token'
 const redirectUri = 'https://callback.example.com'
-const clientSecret = 'secret123'
+const clientSecret = 'yyyyy'
 const secretAuth = btoa(`${baseScheme['x-scalar-client-id']}:${clientSecret}`)
 
 const windowTarget = 'openAuth2Window'
@@ -389,6 +389,8 @@ describe('oauth2', () => {
   //   })
   // })
 
+  // Device code is coming in openapi spec 3.2.0
+  // If anyone needs it before we can add it
   // describe('Device Code Flow', () => {
   //   const scheme: SecuritySchemeOauth2 = {
   //     'type': 'oauth2',
