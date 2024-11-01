@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.2.66",
+  "version": "0.2.67",
   "engines": {
     "node": ">=18"
   },

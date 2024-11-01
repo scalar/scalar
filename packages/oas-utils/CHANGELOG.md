@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.67
+
+### Patch Changes
+
+- 823c14d: fix: add tests for oauth2 flows, ensure we reject on state mismatch
+- 997cd35: fix: relative URLs are created wrong
+
 ## 0.2.66
 
 ### Patch Changes
