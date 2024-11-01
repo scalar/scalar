@@ -80,6 +80,7 @@ describe('oauth2', () => {
       type: 'oauth2',
       flow: {
         ...baseFlow,
+        'x-usePkce': false,
         'type': 'authorizationCode',
         authorizationUrl,
         tokenUrl,
@@ -126,7 +127,8 @@ describe('oauth2', () => {
       vi.advanceTimersByTime(200)
 
       // Resolve
-      const result = await promise
+      const [error, result] = await promise
+      expect(error).toBe(null)
       expect(result).toBe(accessToken)
 
       // Test the server call
@@ -196,7 +198,10 @@ describe('oauth2', () => {
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
 
-      await expect(promise).rejects.toThrow(
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe(
         'Window was closed without granting authorization',
       )
     })
@@ -234,9 +239,12 @@ describe('oauth2', () => {
 
       // Mock redirect with bad state
       mockWindow.location.href = `${scheme.flow['x-scalar-redirect-uri']}?code=auth_code_123&state=bad_state`
-
       vi.advanceTimersByTime(200)
-      await expect(promise).rejects.toThrow('State mismatch')
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
     })
   })
 
@@ -263,7 +271,8 @@ describe('oauth2', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const result = await authorizeOauth2(scheme, example, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -283,8 +292,11 @@ describe('oauth2', () => {
 
     it('should handle token request failure', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
-      expect(authorizeOauth2(scheme, example, mockServer)).rejects.toThrow(
-        'Failed to get an access token',
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe(
+        'Failed to get an access token. Please check your credentials.',
       )
     })
   })
@@ -330,7 +342,8 @@ describe('oauth2', () => {
       await vi.runAllTicks()
 
       // Resolve
-      const result = await promise
+      const [error, result] = await promise
+      expect(error).toBe(null)
       expect(result).toBe('implicit_token_123')
     })
   })
@@ -368,7 +381,8 @@ describe('oauth2', () => {
           }),
       })
 
-      const result = await authorizeOauth2(scheme, example, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
       // Check the server call
@@ -389,24 +403,6 @@ describe('oauth2', () => {
       })
     })
   })
-
-  // describe('PKCE Flow', () => {
-  //   const scheme: SecuritySchemeOauth2 = {
-  //     'type': 'oauth2',
-  //     'flow': {
-  //       'type': 'authorizationCodeWithPKCE',
-  //       'authorizationUrl': 'https://auth.example.com/authorize',
-  //       'tokenUrl': 'https://auth.example.com/token',
-  //       'x-scalar-redirect-uri': 'https://callback.example.com',
-  //       'selectedScopes': ['read', 'write'],
-  //     },
-  //     'x-scalar-client-id': 'client123',
-  //   }
-
-  //   const example = {
-  //     type: 'oauth-pkce',
-  //     clientId: 'client123',
-  //   }
 
   // Device code is coming in openapi spec 3.2.0
   // If anyone needs it before we can add it

@@ -1,3 +1,4 @@
+import type { ErrorResponse } from '@/libs'
 import type {
   SecuritySchemeExampleValue,
   SecuritySchemeOauth2,
@@ -67,13 +68,13 @@ export const generatePKCE = async () => {
  *
  * @returns the accessToken
  */
-export const authorizeOauth2 = (
+export const authorizeOauth2 = async (
   scheme: SecuritySchemeOauth2,
   example: SecuritySchemeOauth2ExampleValue,
   /** We use the active server to set a base for relative redirect uris */
   activeServer: Server,
-) =>
-  new Promise<string>((resolve, reject) => {
+): Promise<ErrorResponse<string>> => {
+  try {
     const scopes = scheme.flow.selectedScopes.join(' ')
 
     // Client Credentials or Password Flow
@@ -81,13 +82,11 @@ export const authorizeOauth2 = (
       scheme.flow.type === 'clientCredentials' ||
       scheme.flow.type === 'password'
     ) {
-      authorizeServers(
+      return authorizeServers(
         scheme as SecuritySchemeOauth2NonImplicit,
         example,
         scopes,
       )
-        .then(resolve)
-        .catch(reject)
     }
 
     // OAuth2 flows with a login popup
@@ -128,74 +127,79 @@ export const authorizeOauth2 = (
 
       // Open up a window and poll until closed or we have the data we want
       if (authWindow) {
-        const checkWindowClosed = setInterval(function () {
-          let accessToken: string | null = null
-          let code: string | null = null
+        // We need to return a promise here due to the setInterval
+        return new Promise<ErrorResponse<string>>((resolve) => {
+          const checkWindowClosed = setInterval(() => {
+            let accessToken: string | null = null
+            let code: string | null = null
 
-          try {
-            const urlParams = new URL(authWindow.location.href).searchParams
-            accessToken = urlParams.get('access_token')
-            code = urlParams.get('code')
+            try {
+              const urlParams = new URL(authWindow.location.href).searchParams
+              accessToken = urlParams.get('access_token')
+              code = urlParams.get('code')
 
-            // We may get the properties in a hash
-            const hashParams = new URLSearchParams(
-              authWindow.location.href.split('#')[1],
-            )
-            accessToken ||= hashParams.get('access_token')
-            code ||= hashParams.get('code')
-          } catch (e) {
-            // Ignore CORS error from popup
-          }
-
-          // The window has closed OR we have what we are looking for so we stop polling
-          if (authWindow.closed || accessToken || code) {
-            clearInterval(checkWindowClosed)
-            authWindow.close()
-
-            // Implicit Flow
-            if (accessToken) {
-              // State is a hash fragment and cannot be found through search params
-              const _state =
-                authWindow.location.href.match(/state=([^&]*)/)?.[1]
-
-              if (_state === state) {
-                resolve(accessToken)
-              } else {
-                reject(new Error('State mismatch'))
-              }
-            }
-
-            // Authorization Code Server Flow
-            else if (code) {
-              const _state = new URL(authWindow.location.href).searchParams.get(
-                'state',
+              // We may get the properties in a hash
+              const hashParams = new URLSearchParams(
+                authWindow.location.href.split('#')[1],
               )
-
-              if (_state === state) {
-                authorizeServers(
-                  scheme as SecuritySchemeOauth2NonImplicit,
-                  example,
-                  scopes,
-                  code,
-                )
-                  .then(resolve)
-                  .catch(reject)
-              } else {
-                reject(new Error('State mismatch'))
-              }
+              accessToken ||= hashParams.get('access_token')
+              code ||= hashParams.get('code')
+            } catch (e) {
+              // Ignore CORS error from popup
             }
-            // User closed window without authorizing
-            else {
+
+            // The window has closed OR we have what we are looking for so we stop polling
+            if (authWindow.closed || accessToken || code) {
               clearInterval(checkWindowClosed)
-              reject(
-                new Error('Window was closed without granting authorization'),
-              )
+              authWindow.close()
+
+              // Implicit Flow
+              if (accessToken) {
+                // State is a hash fragment and cannot be found through search params
+                const _state =
+                  authWindow.location.href.match(/state=([^&]*)/)?.[1]
+
+                if (_state === state) {
+                  resolve([null, accessToken])
+                } else {
+                  resolve([new Error('State mismatch'), null])
+                }
+              }
+
+              // Authorization Code Server Flow
+              else if (code) {
+                const _state = new URL(
+                  authWindow.location.href,
+                ).searchParams.get('state')
+
+                if (_state === state) {
+                  authorizeServers(
+                    scheme as SecuritySchemeOauth2NonImplicit,
+                    example,
+                    scopes,
+                    code,
+                  ).then(resolve)
+                } else {
+                  resolve([new Error('State mismatch'), null])
+                }
+              }
+              // User closed window without authorizing
+              else {
+                clearInterval(checkWindowClosed)
+                resolve([
+                  new Error('Window was closed without granting authorization'),
+                  null,
+                ])
+              }
             }
-          }
-        }, 200)
-      }
+          }, 200)
+        })
+      } else return [new Error('Failed to open auth window'), null]
     }
-  })
+  } catch (e) {
+    return [new Error('Failed to authorize oauth2 flow'), null]
+  }
+}
 
 /**
  * Makes the BE authorization call to grab the token server to server
@@ -206,12 +210,15 @@ export const authorizeServers = async (
   example: SecuritySchemeOauth2ExampleValue,
   scopes: string,
   code?: string,
-): Promise<string> => {
+): Promise<ErrorResponse<string>> => {
   if (!('clientSecret' in example))
-    throw new Error(
-      'Authorize Servers only works for Password, Client Credentials or Authorization Code flow',
-    )
-  if (!scheme.flow) throw new Error('OAuth2 flow was not defined')
+    return [
+      new Error(
+        'Authorize Servers only works for Password, Client Credentials or Authorization Code flow',
+      ),
+      null,
+    ]
+  if (!scheme.flow) return [new Error('OAuth2 flow was not defined'), null]
 
   const formData = new URLSearchParams()
   formData.set('client_id', scheme['x-scalar-client-id'])
@@ -253,10 +260,13 @@ export const authorizeServers = async (
       body: formData,
     })
     const { access_token } = await resp.json()
-    return access_token
+    return [null, access_token]
   } catch {
-    throw new Error(
-      'Failed to get an access token. Please check your credentials.',
-    )
+    return [
+      new Error(
+        'Failed to get an access token. Please check your credentials.',
+      ),
+      null,
+    ]
   }
 }

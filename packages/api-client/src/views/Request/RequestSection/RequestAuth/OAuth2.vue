@@ -8,6 +8,7 @@ import type {
   SecuritySchemeOauth2,
   SecuritySchemeOauth2ExampleValue,
 } from '@scalar/oas-utils/entities/spec'
+import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 
@@ -17,6 +18,8 @@ const props = defineProps<{
 }>()
 
 const loadingState = useLoadingState()
+const { toast } = useToasts()
+
 const {
   activeCollection,
   activeServer,
@@ -41,13 +44,17 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading || !activeCollection.value?.uid) return
   loadingState.startLoading()
 
-  const accessToken = await authorizeOauth2(
+  const [error, accessToken] = await authorizeOauth2(
     props.scheme,
     props.example,
     activeServer.value,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateAuth(`auth.${props.scheme.uid}.token`, accessToken)
+  else {
+    console.error(error)
+    toast(error?.message ?? 'Failed to authorize', 'error')
+  }
 }
 </script>
 
