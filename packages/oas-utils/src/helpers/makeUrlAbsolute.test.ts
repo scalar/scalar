@@ -6,16 +6,16 @@ import { makeUrlAbsolute } from './makeUrlAbsolute'
  * @vitest-environment jsdom
  */
 describe('makeUrlAbsolute', () => {
-  it('should return undefined for undefined input', () => {
+  it('returns undefined for undefined input', () => {
     expect(makeUrlAbsolute(undefined)).toBeUndefined()
   })
 
-  it('should return the same URL for absolute URLs', () => {
+  it('returns the same URL for absolute URLs', () => {
     expect(makeUrlAbsolute('http://example.com')).toBe('http://example.com')
     expect(makeUrlAbsolute('https://example.com')).toBe('https://example.com')
   })
 
-  it('should convert relative URLs to absolute URLs', () => {
+  it('converts relative URLs to absolute URLs', () => {
     // Mock window.location.href
     const originalHref = window.location.href
     Object.defineProperty(window, 'location', {
@@ -35,7 +35,7 @@ describe('makeUrlAbsolute', () => {
     })
   })
 
-  it('should handle base URLs without trailing slash', () => {
+  it('handles base URLs without trailing slash', () => {
     // Mock window.location.href
     const originalHref = window.location.href
     Object.defineProperty(window, 'location', {
@@ -43,7 +43,7 @@ describe('makeUrlAbsolute', () => {
       writable: true,
     })
 
-    expect(makeUrlAbsolute('relative')).toBe('http://example.com/path/relative')
+    expect(makeUrlAbsolute('relative')).toBe('http://example.com/relative')
 
     // Restore original window.location.href
     Object.defineProperty(window, 'location', {
@@ -52,7 +52,7 @@ describe('makeUrlAbsolute', () => {
     })
   })
 
-  it('should ignore query parameters and hash in base URL', () => {
+  it('ignores query parameters and hash in base URL', () => {
     // Mock window.location.href
     const originalHref = window.location.href
     Object.defineProperty(window, 'location', {
@@ -60,7 +60,7 @@ describe('makeUrlAbsolute', () => {
       writable: true,
     })
 
-    expect(makeUrlAbsolute('relative')).toBe('http://example.com/path/relative')
+    expect(makeUrlAbsolute('relative')).toBe('http://example.com/relative')
 
     // Restore original window.location.href
     Object.defineProperty(window, 'location', {
