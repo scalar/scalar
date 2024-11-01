@@ -111,21 +111,32 @@ export const authorizeOauth2 = (
               // State is a hash fragment and cannot be found through search params
               const _state =
                 authWindow.location.href.match(/state=([^&]*)/)?.[1]
-              if (accessToken && _state === state) {
+
+              if (_state === state) {
                 resolve(accessToken)
+              } else {
+                reject(new Error('State mismatch'))
               }
             }
 
             // Authorization Code Server Flow
             else if (code) {
-              authorizeServers(
-                scheme as SecuritySchemeOauth2NonImplicit,
-                example,
-                scopes,
-                code,
+              const _state = new URL(authWindow.location.href).searchParams.get(
+                'state',
               )
-                .then(resolve)
-                .catch(reject)
+
+              if (_state === state) {
+                authorizeServers(
+                  scheme as SecuritySchemeOauth2NonImplicit,
+                  example,
+                  scopes,
+                  code,
+                )
+                  .then(resolve)
+                  .catch(reject)
+              } else {
+                reject(new Error('State mismatch'))
+              }
             }
             // User closed window without authorizing
             else {
@@ -152,7 +163,7 @@ export const authorizeServers = async (
 ): Promise<string> => {
   if (!('clientSecret' in example))
     throw new Error(
-      'Authorize Servers only works for Client Credentials or Authorization Code flow',
+      'Authorize Servers only works for Password, Client Credentials or Authorization Code flow',
     )
   if (!scheme.flow) throw new Error('OAuth2 flow was not defined')
 

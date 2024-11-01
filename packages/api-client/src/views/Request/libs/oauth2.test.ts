@@ -28,6 +28,11 @@ const baseFlow: Pick<
   },
   selectedScopes: ['read', 'write'],
 }
+const scope = Object.keys(baseFlow.scopes)
+
+/** This state corresponds to Math.random() === 0.123456 */
+const state = '82mvz'
+const randomVal = 0.123456
 
 describe('oauth2', () => {
   // Mock window.open
@@ -42,7 +47,10 @@ describe('oauth2', () => {
       },
     }
     vi.spyOn(window, 'open').mockImplementation(() => mockWindow)
+    // To skip timers
     vi.useFakeTimers()
+    // For predictable state
+    vi.spyOn(Math, 'random').mockReturnValue(randomVal)
   })
 
   afterEach(() => {
@@ -55,73 +63,84 @@ describe('oauth2', () => {
     url: 'https://api.example.com',
   }
 
-  // describe('Authorization Code Grant', () => {
-  //   const scheme: SecuritySchemeOauth2 = {
-  //     'uid': 'test-scheme',
-  //     'nameKey': 'test-name-key',
-  //     'type': 'oauth2',
-  //     'flow': {
-  //       'refreshUrl': 'https://auth.example.com/refresh',
-  //       'type': 'authorizationCode',
-  //       'authorizationUrl': 'https://auth.example.com/authorize',
-  //       'tokenUrl': 'https://auth.example.com/token',
-  //       'scopes': {
-  //         read: 'Read access',
-  //         write: 'Write access',
-  //       },
-  //       'x-scalar-redirect-uri': 'https://callback.example.com',
-  //       'selectedScopes': ['read', 'write'],
-  //     },
-  //     'x-scalar-client-id': 'client123',
-  //   }
+  describe('Authorization Code Grant', () => {
+    const scheme: SecuritySchemeOauth2 & {
+      flow: { type: 'authorizationCode' }
+    } = {
+      ...baseScheme,
+      type: 'oauth2',
+      flow: {
+        ...baseFlow,
+        'type': 'authorizationCode',
+        'authorizationUrl': 'https://auth.example.com/authorize',
+        'tokenUrl': 'https://auth.example.com/token',
+        'x-scalar-redirect-uri': 'https://callback.example.com',
+      },
+    }
 
-  //   const example = {
-  //     type: 'oauth-authorization-code',
-  //     clientSecret: 'secret123',
-  //   }
+    const example: SecuritySchemeOauth2ExampleValue & {
+      type: 'oauth-authorizationCode'
+    } = {
+      type: 'oauth-authorizationCode',
+      clientSecret: 'secret123',
+      token: '',
+    }
 
-  //   it('should handle successful authorization code flow', async () => {
-  //     // Mock the auth window interaction
-  //     setTimeout(() => {
-  //       mockWindow.location.href =
-  //         'https://callback.example.com?code=auth_code_123&state=mock_state'
-  //     }, 100)
+    it('should handle successful authorization code flow', async () => {
+      // Mock the token exchange
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: 'access_token_123' }),
+      })
+      const promise = authorizeOauth2(scheme, example, mockServer)
 
-  //     // Mock the token exchange
-  //     global.fetch = vi.fn().mockResolvedValueOnce({
-  //       json: () => Promise.resolve({ access_token: 'access_token_123' }),
-  //     })
+      // Test the window.open call
+      expect(window.open).toHaveBeenCalledWith(
+        new URL(
+          `${scheme.flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'code',
+            redirect_uri: scheme.flow['x-scalar-redirect-uri'],
+            client_id: scheme['x-scalar-client-id'],
+            scope: scope.join(' '),
+            state: state,
+          }).toString()}`,
+        ),
+        'openAuth2Window',
+        'left=100,top=100,width=800,height=600',
+      )
 
-  //     const result = await authorizeOauth2(scheme, example, mockServer)
+      // Mock redirect back from login
+      mockWindow.location.href = `${scheme.flow['x-scalar-redirect-uri']}?code=auth_code_123&state=${state}`
 
-  //     expect(result).toBe('access_token_123')
-  //     expect(window.open).toHaveBeenCalledWith(
-  //       expect.stringContaining('https://auth.example.com/authorize'),
-  //       'openAuth2Window',
-  //       expect.any(String),
-  //     )
-  //     expect(global.fetch).toHaveBeenCalledWith(
-  //       'https://auth.example.com/token',
-  //       expect.objectContaining({
-  //         method: 'POST',
-  //         headers: expect.objectContaining({
-  //           'Content-Type': 'application/x-www-form-urlencoded',
-  //           'Authorization': expect.any(String),
-  //         }),
-  //       }),
-  //     )
-  //   })
+      // Run setInterval
+      vi.advanceTimersByTime(200)
 
-  //   it('should handle window closure before authorization', async () => {
-  //     setTimeout(() => {
-  //       mockWindow.closed = true
-  //     }, 100)
+      // Resolve
+      const result = await promise
+      expect(result).toBe('access_token_123')
 
-  //     await expect(
-  //       authorizeOauth2(scheme, example, mockServer),
-  //     ).rejects.toThrow('Window was closed without granting authorization')
-  //   })
-  // })
+      // Test the server call
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://auth.example.com/token',
+        expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': expect.any(String),
+          }),
+        }),
+      )
+    })
+
+    it('should handle window closure before authorization', async () => {
+      const promise = authorizeOauth2(scheme, example, mockServer)
+      mockWindow.closed = true
+      vi.advanceTimersByTime(200)
+
+      await expect(promise).rejects.toThrow(
+        'Window was closed without granting authorization',
+      )
+    })
+  })
 
   // describe('Client Credentials Grant', () => {
   //   const scheme: SecuritySchemeOauth2 = {
@@ -182,8 +201,6 @@ describe('oauth2', () => {
     }
 
     it('should handle successful implicit flow', async () => {
-      const state = '82mvz'
-      vi.spyOn(Math, 'random').mockReturnValue(0.123456) // For predictable state
       const promise = authorizeOauth2(scheme, example, mockServer)
 
       // Redirect
@@ -198,7 +215,13 @@ describe('oauth2', () => {
 
       expect(window.open).toHaveBeenCalledWith(
         new URL(
-          `${scheme.flow.authorizationUrl}?response_type=token&redirect_uri=https%3A%2F%2Fcallback.example.com&client_id=client123&scope=read+write&state=${state}`,
+          `${scheme.flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'token',
+            redirect_uri: 'https://callback.example.com',
+            client_id: 'client123',
+            scope: scope.join(' '),
+            state: state,
+          })}`,
         ),
         'openAuth2Window',
         'left=100,top=100,width=800,height=600',
@@ -236,7 +259,7 @@ describe('oauth2', () => {
             token_type: 'Bearer',
             expires_in: 3600,
             refresh_token: 'refresh_token_123',
-            scope: 'read write',
+            scope: scope.join(' '),
           }),
       })
 
@@ -250,7 +273,7 @@ describe('oauth2', () => {
           method: 'POST',
           body: new URLSearchParams({
             client_id: scheme['x-scalar-client-id'],
-            scope: 'read write',
+            scope: scope.join(' '),
             client_secret: example.clientSecret,
             grant_type: 'password',
             username: example.username,
