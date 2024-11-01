@@ -2,6 +2,7 @@ import type {
   SecuritySchemeExampleValue,
   SecuritySchemeOauth2,
   SecuritySchemeOauth2ExampleValue,
+  Server,
 } from '@scalar/oas-utils/entities/spec'
 
 /** Oauth2 security schemes which are not implicit */
@@ -23,6 +24,8 @@ export const isOauth2Example = (
 export const authorizeOauth2 = (
   scheme: SecuritySchemeOauth2,
   example: SecuritySchemeOauth2ExampleValue,
+  /** We use the active server to set a base for relative redirect uris */
+  activeServer: Server,
 ) =>
   new Promise<string>((resolve, reject) => {
     const scopes = scheme.flow.selectedScopes.join(' ')
@@ -52,9 +55,25 @@ export const authorizeOauth2 = (
       else if (scheme.flow.type === 'authorizationCode')
         url.searchParams.set('response_type', 'code')
 
+      // Handle relative redirect uris
+      if (scheme.flow['x-scalar-redirect-uri'].startsWith('/')) {
+        const baseUrl =
+          activeServer.url || window.location.origin + window.location.pathname
+        const redirectUri = new URL(
+          scheme.flow['x-scalar-redirect-uri'],
+          baseUrl,
+        ).toString()
+
+        url.searchParams.set('redirect_uri', redirectUri)
+      } else {
+        url.searchParams.set(
+          'redirect_uri',
+          scheme.flow['x-scalar-redirect-uri'],
+        )
+      }
+
       // Common to all flows
       url.searchParams.set('client_id', scheme['x-scalar-client-id'])
-      url.searchParams.set('redirect_uri', scheme.flow['x-scalar-redirect-uri'])
       url.searchParams.set('scope', scopes)
       url.searchParams.set('state', state)
 

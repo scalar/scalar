@@ -232,13 +232,22 @@ const oauthCommon = z.object({
   selectedScopes: z.array(z.string()).optional().default([]),
 })
 
+/** Setup a default redirect uri if we can */
+const defaultRedirectUri =
+  typeof window !== 'undefined'
+    ? window.location.origin + window.location.pathname
+    : ''
+
 export const oasOauthFlowSchema = z
   .discriminatedUnion('type', [
     /** Configuration for the OAuth Implicit flow */
     oauthCommon.extend({
       'type': z.literal('implicit'),
       authorizationUrl,
-      'x-scalar-redirect-uri': z.string().optional().default(''),
+      'x-scalar-redirect-uri': z
+        .string()
+        .optional()
+        .default(defaultRedirectUri),
     }),
     /** Configuration for the OAuth Resource Owner Password flow */
     oauthCommon.extend({
@@ -254,7 +263,10 @@ export const oasOauthFlowSchema = z
     oauthCommon.extend({
       'type': z.literal('authorizationCode'),
       authorizationUrl,
-      'x-scalar-redirect-uri': z.string().optional().default(''),
+      'x-scalar-redirect-uri': z
+        .string()
+        .optional()
+        .default(defaultRedirectUri),
       tokenUrl,
     }),
   ])

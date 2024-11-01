@@ -19,6 +19,7 @@ const props = defineProps<{
 const loadingState = useLoadingState()
 const {
   activeCollection,
+  activeServer,
   collectionMutators,
   isReadOnly,
   securitySchemeMutators,
@@ -43,6 +44,7 @@ const handleAuthorize = async () => {
   const accessToken = await authorizeOauth2(
     props.scheme,
     props.example,
+    activeServer.value,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateAuth(`auth.${props.scheme.uid}.token`, accessToken)
