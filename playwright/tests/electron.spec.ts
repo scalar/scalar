@@ -1,4 +1,5 @@
 import { _electron, expect, test } from '@playwright/test'
+import { readdirSync } from 'node:fs'
 
 import { waitFor } from './utils/waitFor'
 
@@ -11,6 +12,36 @@ test.describe('Electron', () => {
 
   test('launch app', async () => {
     // Launch the Electron app
+    // Log debug info about paths
+    console.log('Current working directory:', process.cwd())
+
+    const paths = [
+      './packages/api-client-app',
+      '../packages/api-client-app',
+      '../../packages/api-client-app',
+    ]
+
+    for (const path of paths) {
+      try {
+        console.log(`Contents of ${path}:`, readdirSync(path))
+      } catch (e) {
+        console.log(`Error reading ${path}:`, e.message)
+      }
+    }
+
+    const resolvedPath =
+      process.env.ELECTRON_APP_PATH ||
+      '../../packages/api-client-app/out/main/index.js'
+
+    console.log('Trying to resolve path:', resolvedPath)
+
+    try {
+      const fullPath = require.resolve(resolvedPath)
+      console.log('Resolved path:', fullPath)
+    } catch (e) {
+      console.log('Error resolving path:', e.message)
+    }
+
     const app = await _electron.launch({
       args: [
         require.resolve(
