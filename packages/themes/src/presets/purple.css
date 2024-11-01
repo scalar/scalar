@@ -1,7 +1,5 @@
-/* Global Theme Settings */
-:root:has(body.light-mode),
-.dark-mode .light-mode {
-  /* basic theme */
+/* basic theme */
+.light-mode {
   --scalar-background-1: #fff;
   --scalar-background-2: #f5f6f8;
   --scalar-background-3: #eceef1;
@@ -14,22 +12,8 @@
   --scalar-background-accent: #5469d41f;
 
   --scalar-border-color: rgba(215, 215, 206, 0.68);
-
-  /* advanced theme */
-  --scalar-color-green: #17803d;
-  --scalar-color-red: #e10909;
-  --scalar-color-yellow: #edbe20;
-  --scalar-color-blue: #1763a6;
-  --scalar-color-orange: #e25b09;
-  --scalar-color-purple: #5c3993;
-
-  --scalar-button-1: rgba(0, 0, 0, 1);
-  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
-  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
-:root:has(body.dark-mode),
-.light-mode .dark-mode {
-  /* basic theme */
+.dark-mode {
   --scalar-background-1: #15171c;
   --scalar-background-2: #1c1e24;
   --scalar-background-3: #22252b;
@@ -42,18 +26,6 @@
   --scalar-background-accent: #5469d41f;
 
   --scalar-border-color: #3f4145;
-
-  /* advanced theme */
-  --scalar-color-green: #30a159;
-  --scalar-color-red: #dc1b19;
-  --scalar-color-yellow: #eec644;
-  --scalar-color-blue: #2b7abf;
-  --scalar-color-orange: #f07528;
-  --scalar-color-purple: #7a59b1;
-
-  --scalar-button-1: rgba(255, 255, 255, 1);
-  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
-  --scalar-button-1-color: black;
 }
 /* Document Sidebar */
 .light-mode .t-doc__sidebar,
@@ -72,4 +44,30 @@
   --scalar-sidebar-search-background: var(--scalar-background-1);
   --scalar-sidebar-search-color: var(--scalar-color-3);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
+}
+
+/* advanced */
+.light-mode {
+  --scalar-color-green: #17803d;
+  --scalar-color-red: #e10909;
+  --scalar-color-yellow: #edbe20;
+  --scalar-color-blue: #1763a6;
+  --scalar-color-orange: #e25b09;
+  --scalar-color-purple: #5c3993;
+
+  --scalar-button-1: rgba(0, 0, 0, 1);
+  --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
+  --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+}
+.dark-mode {
+  --scalar-color-green: #30a159;
+  --scalar-color-red: #dc1b19;
+  --scalar-color-yellow: #eec644;
+  --scalar-color-blue: #2b7abf;
+  --scalar-color-orange: #f07528;
+  --scalar-color-purple: #7a59b1;
+
+  --scalar-button-1: rgba(255, 255, 255, 1);
+  --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
+  --scalar-button-1-color: black;
 }

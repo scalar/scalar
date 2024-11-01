@@ -1,9 +1,5 @@
-/* Global Theme Settings */
-:root:has(body.light-mode),
-.dark-mode .light-mode {
+.light-mode {
   color-scheme: light;
-
-  /* basic theme */
   --scalar-color-1: #584c27;
   --scalar-color-2: #616161;
   --scalar-color-3: #a89f84;
@@ -23,7 +19,6 @@
   --scalar-shadow-2: rgba(0, 0, 0, 0.08) 0px 13px 20px 0px,
     rgba(0, 0, 0, 0.08) 0px 3px 8px 0px, #eeeeed 0px 0 0 1px;
 
-  /* advanced theme */
   --scalar-button-1: rgb(49 53 56);
   --scalar-button-1-color: #fff;
   --scalar-button-1-hover: rgb(28 31 33);
@@ -35,11 +30,9 @@
   --scalar-color-orange: #c2410c;
   --scalar-color-purple: #6d28d9;
 }
-:root:has(body.dark-mode),
-.light-mode .dark-mode {
-  color-scheme: dark;
 
-  /* basic theme */
+.dark-mode {
+  color-scheme: dark;
   --scalar-color-1: #fff;
   --scalar-color-2: #cccccc;
   --scalar-color-3: #6d8890;
@@ -59,7 +52,6 @@
   --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
     rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px rgba(255, 255, 255, 0.1);
 
-  /* advanced theme */
   --scalar-button-1: #f6f6f6;
   --scalar-button-1-color: #000;
   --scalar-button-1-hover: #e7e7e7;
@@ -72,8 +64,8 @@
   --scalar-color-purple: #b191f9;
 }
 
-/* Document Sidebar */
-.light-mode .t-doc__sidebar .dark-mode .t-doc__sidebar {
+/* Sidebar */
+.light-mode .t-doc__sidebar {
   --scalar-sidebar-background-1: var(--scalar-background-1);
   --scalar-sidebar-item-hover-color: currentColor;
   --scalar-sidebar-item-hover-background: var(--scalar-background-2);
@@ -81,13 +73,22 @@
   --scalar-sidebar-border-color: var(--scalar-border-color);
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
+  --scalar-sidebar-color-active: var(--scalar-color-accent);
   --scalar-sidebar-search-background: var(--scalar-background-2);
   --scalar-sidebar-search-border-color: var(--scalar-sidebar-search-background);
   --scalar-sidebar-search--color: var(--scalar-color-3);
 }
-.light-mode .t-doc__sidebar {
-  --scalar-sidebar-color-active: var(--scalar-color-accent);
-}
-.dark-mode .t-doc__sidebar {
+
+.dark-mode .sidebar {
+  --scalar-sidebar-background-1: var(--scalar-background-1);
+  --scalar-sidebar-item-hover-color: currentColor;
+  --scalar-sidebar-item-hover-background: var(--scalar-background-2);
+  --scalar-sidebar-item-active-background: var(--scalar-background-accent);
+  --scalar-sidebar-border-color: var(--scalar-border-color);
+  --scalar-sidebar-color-1: var(--scalar-color-1);
+  --scalar-sidebar-color-2: var(--scalar-color-2);
   --scalar-sidebar-color-active: var(--scalar-sidebar-color-1);
+  --scalar-sidebar-search-background: var(--scalar-background-2);
+  --scalar-sidebar-search-border-color: var(--scalar-sidebar-search-background);
+  --scalar-sidebar-search--color: var(--scalar-color-3);
 }

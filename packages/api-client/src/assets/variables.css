@@ -3,3 +3,6 @@
   --scalar-sidebar-width: 280px;
   --scalar-toc-width: 280px;
 }
+html:has(.dark-mode) {
+  --scalar-background-1: #0f0f0f;
+}
