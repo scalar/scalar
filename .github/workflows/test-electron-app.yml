@@ -21,18 +21,28 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Install dependencies
         run: pnpm install
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Turborepo cache
         uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Build packages
         run: pnpm build:packages
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Get Playwright version
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Playwright binary cache
         uses: actions/cache@3624ceb22c1c5a301c8db4169662070a689d9ea8
         id: playwright-cache
@@ -40,11 +50,17 @@ jobs:
           path: |
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.PLAYWRIGHT_VERSION }}
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Install chromium browser
         run: npx playwright install chromium
         if: steps.playwright-cache.outputs.cache-hit != 'true'
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Install Playwright dependencies
         run: npx playwright install-deps
+      - name: Debug
+        run: ls -alh ./packages/api-client-app/out || true
       - name: Run e2e tests
         run: CI=1 DEBUG=pw:browser* pnpm test:e2e:electron
         env:
