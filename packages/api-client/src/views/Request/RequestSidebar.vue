@@ -22,7 +22,6 @@ import { LibraryIcon } from '@scalar/icons'
 import { onBeforeUnmount, onMounted, reactive, watch } from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
-import { WorkspaceDropdown } from './components'
 
 const props = defineProps<{
   showSidebar: boolean
@@ -126,7 +125,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
           @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
-        class="custom-scroll flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
+        class="flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
         :class="{
           'pb-14': !isReadonly,
         }"
@@ -134,7 +133,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
         @dragover.prevent>
         <template v-if="searchText">
           <ScalarSearchResultList
-            class="gap-px custom-scroll"
+            class="gap-px"
             :noResults="!searchResultsWithPlaceholderResults.length">
             <ScalarSearchResultItem
               v-for="(entry, index) in searchResultsWithPlaceholderResults"
@@ -143,7 +142,8 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
               :ref="(el) => (searchResultRefs[index] = el as HTMLElement)"
               :active="selectedSearchResult === index"
               class="px-2"
-              @click="onSearchResultClick(entry)"
+              :href="entry.item.link"
+              @click.prevent="onSearchResultClick(entry)"
               @focus="selectedSearchResult = index">
               {{ entry.item.title }}
               <template #addon>

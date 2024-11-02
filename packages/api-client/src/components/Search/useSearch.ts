@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const { activeWorkspaceRequests, requests } = useWorkspace()
+  const { activeWorkspace, activeWorkspaceRequests, requests } = useWorkspace()
 
   type FuseData = {
     title: string
@@ -18,6 +18,7 @@ export function useSearch() {
     httpVerb: string
     id: string
     path: string
+    link: string
   }
 
   const fuseDataArray = ref<FuseData[]>([])
@@ -40,13 +41,14 @@ export function useSearch() {
     }
   }
 
-  const populateFuseDataArray = (requests: Request[]) => {
-    fuseDataArray.value = requests.map((request: Request) => ({
+  const populateFuseDataArray = (items: Request[]) => {
+    fuseDataArray.value = items.map((request: Request) => ({
       id: request.uid,
       title: request.summary ?? request.method,
       description: request.description ?? '',
       httpVerb: request.method,
       path: request.path,
+      link: `/workspace/${activeWorkspace.value.uid}/request/${request.uid}`,
     }))
     fuse.setCollection(fuseDataArray.value)
   }

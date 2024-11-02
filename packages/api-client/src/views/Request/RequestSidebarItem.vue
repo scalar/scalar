@@ -270,20 +270,19 @@ const watchIconColor = computed(() => {
       <RouterLink
         v-if="item.link"
         v-slot="{ isExactActive }"
-        class="no-underline"
+        class="group no-underline"
         :to="item.link"
         @click.prevent="
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
         <div
-          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
+          class="relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
-          ]"
-          tabindex="0">
+          ]">
           <span
             class="line-clamp-3 font-medium w-full pl-2 word-break-break-word"
             :class="{
@@ -296,7 +295,7 @@ const watchIconColor = computed(() => {
             <div class="relative">
               <ScalarButton
                 v-if="!isReadOnly"
-                class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+                class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
                 :class="{
                   flex:
                     menuItem?.item?.entity.uid === item.entity.uid &&
@@ -333,7 +332,7 @@ const watchIconColor = computed(() => {
       <!-- Collection/Folder -->
       <button
         v-else-if="!isReadOnly || parentUids.length"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
@@ -364,7 +363,7 @@ const watchIconColor = computed(() => {
           <div class="relative flex h-fit">
             <ScalarButton
               v-if="!isReadOnly && !isDraftCollection"
-              class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+              class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
               :class="{
                 'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&
