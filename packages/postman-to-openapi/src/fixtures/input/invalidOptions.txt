@@ -1,8 +1,0 @@
-{
-    info": {
-      "title": "Options title",
-      "version: "6.0.7-beta",
-      "description": "Description from options",
-      "termsOfService": "http://tos.myweb.com"
-    }
-}
