@@ -19,6 +19,7 @@ import {
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
+  ScalarIconButton,
   useModal,
 } from '@scalar/components'
 import { nanoid } from 'nanoid'
@@ -202,7 +203,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               @delete="handleDeleteScheme"
               @update:modelValue="updateSelectedAuth">
               <ScalarButton
-                class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start"
+                class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start -outline-offset-2"
                 fullWidth
                 variant="ghost">
                 <div
@@ -217,11 +218,12 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit pr-1 !bg-b-2 text-c-1">
+                      class="cm-pill flex items-center mx-0 h-fit pr-0.5 !bg-b-2 text-c-1 has-[:focus-visible]:outline">
                       {{ auth.label }}
-                      <ScalarIcon
-                        class="ml-1 cursor-pointer text-c-3 hover:text-c-1"
+                      <ScalarIconButton
+                        class="cursor-pointer -ml-0.5 text-c-3 hover:text-c-1 outline-none"
                         icon="Close"
+                        :label="`Remove ${auth.label}`"
                         size="xs"
                         @click.stop="unselectAuth(auth.id)" />
                     </span>

@@ -155,7 +155,7 @@ watch(
     <template #title>{{ title }}</template>
     <template #actions>
       <div
-        class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 request-meta-buttons">
+        class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100 request-meta-buttons">
         <ScalarButton
           class="px-1 transition-none"
           size="sm"

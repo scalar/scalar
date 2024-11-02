@@ -176,6 +176,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             <!-- Path + URL + env vars -->
             <CodeInput
               ref="addressBarRef"
+              class="outline-none"
               disableCloseBrackets
               :disabled="isReadOnly"
               disableEnter
@@ -310,7 +311,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     var(--scalar-background-2)
   );
 }
-.addressbar-bg-states:focus-within .codemirror-bg-switcher {
+.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-1);
 }
 .addressbar-bg-states {
@@ -320,7 +321,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     var(--scalar-background-2)
   );
 }
-.addressbar-bg-states:focus-within {
+.addressbar-bg-states:has(.cm-focused) {
   background: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
   outline: 1px solid var(--scalar-color-accent);
