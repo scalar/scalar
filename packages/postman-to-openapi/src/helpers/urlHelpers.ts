@@ -36,3 +36,32 @@ export function extractPathFromUrl(url: string | undefined): string {
 
   return finalPath
 }
+
+/**
+ * Normalizes a path by converting colon-style parameters to curly brace style
+ * e.g., '/users/:id' becomes '/users/{id}'
+ */
+export function normalizePath(path: string): string {
+  return path.replace(/:(\w+)/g, '{$1}')
+}
+
+/**
+ * Extracts parameter names from a path string.
+ * Handles both curly brace format '{param}' and colon format ':param'.
+ */
+export function extractPathParameterNames(path: string): string[] {
+  const params = []
+  const curlyBraceRegex = /{([^}]+)}/g
+  const colonRegex = /:(\w+)/g
+  let match
+
+  // Extract parameters in {param} format
+  while ((match = curlyBraceRegex.exec(path)) !== null) {
+    params.push(match[1])
+  }
+  // Extract parameters in :param format
+  while ((match = colonRegex.exec(path)) !== null) {
+    params.push(match[1])
+  }
+  return params
+}
