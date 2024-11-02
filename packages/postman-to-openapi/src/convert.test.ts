@@ -116,8 +116,7 @@ describe('convert', () => {
     ).toEqual(JSON.parse(expected.Headers))
   })
 
-  // working on this
-  it.skip('should parse path params', () => {
+  it('should parse path params', () => {
     expect(
       convert(JSON.parse(collections.PathParams) as PostmanCollection),
     ).toEqual(JSON.parse(expected.PathParams))
@@ -233,7 +232,7 @@ describe('convert', () => {
   })
 
   // working on this (I don't think this test makes sense for us we always add operationId)
-  it.skip('should not add `operationId` by default', () => {
+  it('should not add `operationId` by default', () => {
     expect(
       convert(JSON.parse(collections.OperationIds) as PostmanCollection),
     ).toEqual(JSON.parse(expected.OperationIds))
