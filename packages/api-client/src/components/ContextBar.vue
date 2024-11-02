@@ -57,7 +57,8 @@ defineEmits<{
   transition: width 0s ease-in-out 0.2s;
   overflow: hidden;
 }
-.filter-hover:hover {
+.filter-hover:hover,
+.filter-hover:has(:focus-visible) {
   width: 100%;
 }
 .filter-hover:before {
@@ -78,49 +79,53 @@ defineEmits<{
 .filter-hover button:not(:last-of-type) {
   transform: translate3d(0, 3px, 0);
 }
-.filter-hover:hover button {
+.filter-hover button {
   transition:
     opacity 0.2s ease-in-out,
     transform 0.2s ease-in-out;
 }
-.filter-hover:hover button:nth-last-of-type(1) {
+.filter-hover button:nth-last-of-type(1) {
   transition-delay: 0.05s;
 }
-.filter-hover:hover button:nth-last-of-type(2) {
+.filter-hover button:nth-last-of-type(2) {
   transition-delay: 0.1s;
 }
-.filter-hover:hover button:nth-last-of-type(3) {
+.filter-hover button:nth-last-of-type(3) {
   transition-delay: 0.15s;
 }
-.filter-hover:hover button:nth-last-of-type(4) {
+.filter-hover button:nth-last-of-type(4) {
   transition-delay: 0.2s;
 }
-.filter-hover:hover button:nth-last-of-type(5) {
+.filter-hover button:nth-last-of-type(5) {
   transition-delay: 0.25s;
 }
-.filter-hover:hover button:nth-last-of-type(6) {
+.filter-hover button:nth-last-of-type(6) {
   transition-delay: 0.3s;
 }
-.filter-hover:hover button:nth-last-of-type(7) {
+.filter-hover button:nth-last-of-type(7) {
   transition-delay: 0.35s;
 }
-.filter-hover:hover button:nth-last-of-type(7) {
+.filter-hover button:nth-last-of-type(7) {
   transition-delay: 0.4s;
 }
-.filter-hover:hover button {
+.filter-hover:hover button,
+.filter-hover:has(:focus-visible) button {
   opacity: 1;
   transform: translate3d(0, 0, 0);
 }
-.filter-hover:hover:before {
+.filter-hover:hover:before,
+.filter-hover:has(:focus-visible):before {
   opacity: 0.9;
   backdrop-filter: blur(10px);
 }
-.context-bar-group:hover .context-bar-group-hover\:text-c-1 {
+.context-bar-group:hover .context-bar-group-hover\:text-c-1,
+.context-bar-group:has(:focus-visible) .context-bar-group-hover\:text-c-1 {
   --tw-text-opacity: 1;
   color: rgb(var(--scalar-color-1) / var(--tw-text-opacity));
 }
 
-.context-bar-group:hover .context-bar-group-hover\:hidden {
+.context-bar-group:hover .context-bar-group-hover\:hidden,
+.context-bar-group:has(:focus-visible) .context-bar-group-hover\:hidden {
   display: none;
 }
 </style>
