@@ -111,18 +111,20 @@ watch(addingCustomValue, (newValue) => {
             </div>
             {{ option }}
           </ScalarDropdownItem>
-          <ScalarDropdownDivider />
-          <ScalarDropdownItem
-            v-if="canAddCustomValue"
-            class="flex items-center gap-1.5"
-            @click="addingCustomValue = true">
-            <div class="flex items-center justify-center h-4 w-4">
-              <ScalarIcon
-                class="h-2.5"
-                icon="Add" />
-            </div>
-            <span>Add value</span>
-          </ScalarDropdownItem>
+
+          <template v-if="canAddCustomValue">
+            <ScalarDropdownDivider />
+            <ScalarDropdownItem
+              class="flex items-center gap-1.5"
+              @click="addingCustomValue = true">
+              <div class="flex items-center justify-center h-4 w-4">
+                <ScalarIcon
+                  class="h-2.5"
+                  icon="Add" />
+              </div>
+              <span>Add value</span>
+            </ScalarDropdownItem>
+          </template>
         </template>
       </ScalarDropdown>
     </template>

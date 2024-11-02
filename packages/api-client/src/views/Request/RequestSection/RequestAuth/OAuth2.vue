@@ -176,6 +176,18 @@ const handleAuthorize = async () => {
       </RequestAuthDataTableInput>
     </DataTableRow>
 
+    <!-- PKCE -->
+    <DataTableRow v-if="'x-usePkce' in scheme.flow">
+      <RequestAuthDataTableInput
+        :id="`oauth2-use-pkce-${scheme.uid}`"
+        :enum="['yes', 'no']"
+        :modelValue="scheme.flow['x-usePkce'] ? 'yes' : 'no'"
+        readOnly
+        @update:modelValue="(v) => updateScheme('flow.x-usePkce', v === 'yes')">
+        Use PKCE
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
     <!-- Scopes -->
     <DataTableRow v-if="scheme.flow.scopes">
       <OAuthScopesInput
