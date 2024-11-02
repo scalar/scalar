@@ -7,7 +7,11 @@ import { extractParameters } from './parameterHelpers'
 import { extractRequestBody } from './requestBodyHelpers'
 import { extractResponses } from './responseHelpers'
 import { extractStatusCodesFromTests } from './statusCodeHelpers'
-import { extractPathFromUrl } from './urlHelpers'
+import {
+  extractPathFromUrl,
+  extractPathParameterNames,
+  normalizePath,
+} from './urlHelpers'
 
 type HttpMethods =
   | 'get'
@@ -81,6 +85,12 @@ export function processItem(
         : (request.url?.raw ?? ''),
   )
 
+  // Normalize path parameters from ':param' to '{param}'
+  const normalizedPath = normalizePath(path)
+
+  // Extract path parameter names
+  const pathParameterNames = extractPathParameterNames(normalizedPath)
+
   // Extract operation ID if present
   const operationIdMatch = name?.match(/\[([^\]]+)\]$/)
   const operationId = operationIdMatch ? operationIdMatch[1] : undefined
@@ -118,11 +128,24 @@ export function processItem(
     // Merge parameters, giving priority to those from the Markdown table
     const mergedParameters = new Map<string, OpenAPIV3.ParameterObject>()
 
+    // Add extracted parameters, filtering out path parameters not in the path
     extractedParameters.forEach((param) => {
-      if (param.name) mergedParameters.set(param.name, param)
+      if (param.name) {
+        if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
+          return
+        }
+        mergedParameters.set(param.name, param)
+      }
     })
+
+    // Add parameters from table, filtering out path parameters not in the path
     parametersFromTable.forEach((param) => {
-      if (param.name) mergedParameters.set(param.name, param)
+      if (param.name) {
+        if (param.in === 'path' && !pathParameterNames.includes(param.name)) {
+          return
+        }
+        mergedParameters.set(param.name, param)
+      }
     })
 
     operationObject.parameters = Array.from(mergedParameters.values())

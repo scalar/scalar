@@ -6,6 +6,7 @@ import { processItem } from './helpers/itemHelpers'
 import { processLicenseAndContact } from './helpers/licenseContactHelper'
 import { processLogo } from './helpers/logoHelper'
 import { parseServers } from './helpers/serverHelpers'
+import { normalizePath } from './helpers/urlHelpers'
 import type { PostmanCollection } from './types'
 
 /**
@@ -76,13 +77,16 @@ export function convert(
       // Merge paths from the current item
       openapi.paths = openapi.paths || {}
       for (const [pathKey, pathItem] of Object.entries(itemPaths)) {
+        // Convert colon-style params to curly brace style
+        const normalizedPathKey = normalizePath(pathKey)
+
         /**
          * this is a bit of a hack to skip empty paths only if they have no parameters
          * because there is a test where if I remove the empty path it breaks the test
          * but there is another test where if I leave the empty path it breaks the test
          * so I added this check to only remove the empty path if all the methods on it have no parameters
          */
-        if (pathKey === '/') {
+        if (normalizedPathKey === '/') {
           const allMethodsHaveEmptyParams = Object.values(pathItem || {}).every(
             (method) => !method.parameters || method.parameters.length === 0,
           )
@@ -91,17 +95,17 @@ export function convert(
           }
         }
 
-        if (!openapi.paths[pathKey]) {
-          openapi.paths[pathKey] = pathItem
+        if (!openapi.paths[normalizedPathKey]) {
+          openapi.paths[normalizedPathKey] = pathItem
         } else {
-          openapi.paths[pathKey] = {
-            ...openapi.paths[pathKey],
+          openapi.paths[normalizedPathKey] = {
+            ...openapi.paths[normalizedPathKey],
             ...pathItem,
           }
         }
 
         // Handle the /raw endpoint specifically
-        if (pathKey === '/raw' && pathItem?.post) {
+        if (normalizedPathKey === '/raw' && pathItem?.post) {
           if (pathItem.post.requestBody?.content['text/plain']) {
             pathItem.post.requestBody.content['application/json'] = {
               schema: {
