@@ -31,13 +31,14 @@ let router: ApiRouter = ApiRouter::new()
 ```
 
 If you want to use Scalar with Actix or any other web framework, you can do that too with the crate [scalar-doc](https://crates.io/crates/scalar-doc).
-To get started with Actix, first install the crate and activate `actix` feature : 
-  
+To get started with Actix, first install the crate and activate `actix` feature :
+
 ```bash
 cargo add scalar-doc -F actix
 ```
 
 You can use the following code
+
 ```rust
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
 use scalar_doc::scalar_actix::ActixDocumentation;
