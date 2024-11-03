@@ -577,6 +577,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/postman-to-openapi':
+        specifier: workspace:*
+        version: link:../postman-to-openapi
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

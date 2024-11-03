@@ -4,6 +4,7 @@ import { useWorkspace } from '@/store'
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
 import CommandPaletteImport from './CommandPaletteImport.vue'
+import CommandPalettePostman from './CommandPalettePostman.vue'
 import CommandPaletteRequest from './CommandPaletteRequest.vue'
 import CommandPaletteServer from './CommandPaletteServer.vue'
 import CommandPaletteTag from './CommandPaletteTag.vue'
@@ -21,6 +22,7 @@ export default {
 export const PaletteComponents = {
   'Import from OpenAPI/Swagger': CommandPaletteImport,
   'Create Request': CommandPaletteRequest,
+  'Import Postman Collection': CommandPalettePostman,
   'Create Workspace': CommandPaletteWorkspace,
   'Add Tag': CommandPaletteTag,
   'Add Server': CommandPaletteServer,
@@ -60,6 +62,10 @@ const availableCommands = [
       {
         name: 'Import from OpenAPI/Swagger',
         icon: 'Import',
+      },
+      {
+        name: 'Import Postman Collection',
+        icon: 'Postman',
       },
       {
         name: 'Add Tag',
