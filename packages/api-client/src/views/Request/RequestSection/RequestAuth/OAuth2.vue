@@ -184,7 +184,10 @@ const handleAuthorize = async () => {
         :enum="pkceOptions"
         :modelValue="scheme.flow['x-usePkce']"
         readOnly
-        @update:modelValue="(v) => updateScheme('flow.x-usePkce', v)">
+        @update:modelValue="
+          (v) =>
+            updateScheme('flow.x-usePkce', v as (typeof pkceOptions)[number])
+        ">
         Use PKCE
       </RequestAuthDataTableInput>
     </DataTableRow>
