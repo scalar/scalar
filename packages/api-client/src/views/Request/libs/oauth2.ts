@@ -120,8 +120,6 @@ export const authorizeOauth2 = async (
               scheme.flow['x-usePkce'] === 'SHA-256' ? 'S256' : 'plain',
           }
 
-          console.log('pkce', pkce)
-
           // Set the code challenge and method on the url
           url.searchParams.set('code_challenge', codeChallenge)
           url.searchParams.set(

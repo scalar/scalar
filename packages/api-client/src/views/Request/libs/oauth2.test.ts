@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import type {
   SecuritySchemeOauth2,
   SecuritySchemeOauth2ExampleValue,
