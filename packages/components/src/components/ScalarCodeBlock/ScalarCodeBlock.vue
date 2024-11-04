@@ -47,7 +47,7 @@ const isContentValid = computed(() => {
 })
 </script>
 <template>
-  <div class="scalar-code-block custom-scroll">
+  <div class="scalar-code-block custom-scroll min-h-12">
     <div
       v-if="copy"
       class="scalar-code-copy">
@@ -73,7 +73,7 @@ const isContentValid = computed(() => {
   background: inherit;
   position: relative;
   overflow: auto;
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  padding: 0.75rem;
 }
 .scalar-code-block:hover .copy-button,
 .copy-button:focus-visible {
@@ -86,6 +86,7 @@ const isContentValid = computed(() => {
   text-wrap: nowrap;
   white-space-collapse: preserve;
   border-radius: 0;
+  width: fit-content;
 }
 /* Copy Button */
 .scalar-code-copy {
