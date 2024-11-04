@@ -193,7 +193,7 @@ const handleAuthorize = async () => {
     </DataTableRow>
 
     <!-- Scopes -->
-    <DataTableRow v-if="scheme.flow.scopes">
+    <DataTableRow v-if="Object.keys(scheme.flow.scopes ?? {}).length">
       <OAuthScopesInput
         :activeFlow="scheme.flow"
         :updateScheme="updateScheme" />

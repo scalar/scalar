@@ -148,8 +148,8 @@ export const authorizeOauth2 = async (
 
       // Common to all flows
       url.searchParams.set('client_id', scheme['x-scalar-client-id'])
-      url.searchParams.set('scope', scopes)
       url.searchParams.set('state', state)
+      if (scopes) url.searchParams.set('scope', scopes)
 
       const windowFeatures = 'left=100,top=100,width=800,height=600'
       const authWindow = window.open(url, 'openAuth2Window', windowFeatures)
@@ -253,7 +253,7 @@ export const authorizeServers = async (
 
   const formData = new URLSearchParams()
   formData.set('client_id', scheme['x-scalar-client-id'])
-  formData.set('scope', scopes)
+  if (scopes) formData.set('scope', scopes)
 
   if (example.clientSecret) formData.set('client_secret', example.clientSecret)
   if ('x-scalar-redirect-uri' in scheme.flow)
