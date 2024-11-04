@@ -49,12 +49,16 @@ const generateCodeChallenge = async (
 ): Promise<string> => {
   if (encoding === 'plain') return verifier
 
+  // ASCII encoding is just taking the lower 8 bits of each character
   const encoder = new TextEncoder()
   const data = encoder.encode(verifier)
   const digest = await crypto.subtle.digest('SHA-256', data)
-  const str = String.fromCharCode(...new Uint8Array(digest))
 
-  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  // Base64URL encode the bytes
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '')
 }
 
 /**

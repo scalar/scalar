@@ -226,8 +226,7 @@ describe('oauth2', () => {
           redirect_uri: scheme.flow['x-scalar-redirect-uri'],
           code,
           grant_type: 'authorization_code',
-          code_verifier:
-            'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-.',
+          code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
         }),
       })
     })
