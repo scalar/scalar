@@ -24,21 +24,19 @@ type PKCEState = {
 }
 
 /**
- * Generates a random string of specified length using crypto API
- * Length must be between 43 and 128 characters as per RFC 7636
+ * Generates a random string for PKCE code verifier
+ * Compliant with RFC 7636 section 4.1
  */
-const generateCodeVerifier = (length = 64): string => {
-  const array = new Uint8Array(length)
-  crypto.getRandomValues(array)
+const generateCodeVerifier = (): string => {
+  // Generate 32 random bytes
+  const buffer = new Uint8Array(32)
+  crypto.getRandomValues(buffer)
 
-  return Array.from(array)
-    .map(
-      (x) =>
-        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~'[
-          x % 66
-        ],
-    )
-    .join('')
+  // Base64URL encode the bytes
+  return btoa(String.fromCharCode(...buffer))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
 }
 
 /**
@@ -116,6 +114,8 @@ export const authorizeOauth2 = async (
             codeChallengeMethod:
               scheme.flow['x-usePkce'] === 'SHA-256' ? 'S256' : 'plain',
           }
+
+          console.log('pkce', pkce)
 
           // Set the code challenge and method on the url
           url.searchParams.set('code_challenge', codeChallenge)
