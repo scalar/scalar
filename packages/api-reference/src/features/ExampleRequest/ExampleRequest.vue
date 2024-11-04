@@ -4,6 +4,7 @@ import {
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
   useAuthenticationStore,
+  useExampleStore,
   useServerStore,
 } from '#legacy'
 import { ScalarCodeBlock } from '@scalar/components'
@@ -54,7 +55,7 @@ const ssrHash = createHash(
 const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
 
-const selectedExampleKey = ref<string>()
+const { selectedExampleKey, operationId } = useExampleStore()
 
 const {
   httpClient,
@@ -303,7 +304,12 @@ function updateHttpClient(value: string) {
             operation.information?.requestBody?.content?.['application/json']
               ?.examples ?? []
           "
-          @update:modelValue="(value) => (selectedExampleKey = value)" />
+          @update:modelValue="
+            (value) => (
+              (selectedExampleKey = value),
+              (operationId = operation.operationId)
+            )
+          " />
       </div>
       <slot name="footer" />
     </CardFooter>
