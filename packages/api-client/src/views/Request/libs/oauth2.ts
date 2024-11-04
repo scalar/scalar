@@ -43,7 +43,7 @@ const generateCodeVerifier = (): string => {
 /**
  * Creates a code challenge from the code verifier
  */
-const generateCodeChallenge = async (
+export const generateCodeChallenge = async (
   verifier: string,
   encoding: 'SHA-256' | 'plain',
 ): Promise<string> => {
