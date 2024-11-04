@@ -4,9 +4,10 @@ import { type UpdateScheme, useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type {
-  SecuritySchemeOauth2,
-  SecuritySchemeOauth2ExampleValue,
+import {
+  type SecuritySchemeOauth2,
+  type SecuritySchemeOauth2ExampleValue,
+  pkceOptions,
 } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 
@@ -180,10 +181,10 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="'x-usePkce' in scheme.flow">
       <RequestAuthDataTableInput
         :id="`oauth2-use-pkce-${scheme.uid}`"
-        :enum="['yes', 'no']"
-        :modelValue="scheme.flow['x-usePkce'] ? 'yes' : 'no'"
+        :enum="pkceOptions"
+        :modelValue="scheme.flow['x-usePkce']"
         readOnly
-        @update:modelValue="(v) => updateScheme('flow.x-usePkce', v === 'yes')">
+        @update:modelValue="(v) => updateScheme('flow.x-usePkce', v)">
         Use PKCE
       </RequestAuthDataTableInput>
     </DataTableRow>

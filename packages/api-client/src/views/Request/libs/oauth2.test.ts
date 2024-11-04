@@ -81,7 +81,7 @@ describe('oauth2', () => {
       type: 'oauth2',
       flow: {
         ...baseFlow,
-        'x-usePkce': false,
+        'x-usePkce': 'no',
         'type': 'authorizationCode',
         authorizationUrl,
         tokenUrl,
@@ -151,14 +151,15 @@ describe('oauth2', () => {
     })
 
     // PKCE
-    it('should generate valid PKCE code verifier and challenge', async () => {
+    it('should generate valid PKCE code verifier and challenge using SHA-256 encryption', async () => {
       const _scheme = {
         ...scheme,
         flow: {
           ...scheme.flow,
-          'x-usePkce': true,
+          'x-usePkce': 'SHA-256',
         },
-      }
+      } as const
+
       const accessToken = 'pkce_access_token_123'
       const codeChallenge = 'AQIDBAUGCAkK'
       const code = 'pkce_auth_code_123'

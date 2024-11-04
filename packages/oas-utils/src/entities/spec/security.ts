@@ -238,6 +238,9 @@ const defaultRedirectUri =
     ? window.location.origin + window.location.pathname
     : ''
 
+/** Options for the x-usePkce extension */
+export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
+
 export const oasOauthFlowSchema = z
   .discriminatedUnion('type', [
     /** Configuration for the OAuth Implicit flow */
@@ -268,7 +271,7 @@ export const oasOauthFlowSchema = z
        *
        * TODO: add docs
        */
-      'x-usePkce': z.boolean().optional().default(false),
+      'x-usePkce': z.enum(pkceOptions).optional().default('no'),
       'x-scalar-redirect-uri': z
         .string()
         .optional()
