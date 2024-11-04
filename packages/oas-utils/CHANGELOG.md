@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.68
+
+### Patch Changes
+
+- dab543e: fix: remove url validation from collection info
+
 ## 0.2.67
 
 ### Patch Changes
