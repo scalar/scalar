@@ -20,34 +20,39 @@ const findHeaderInfo = (name: string) => {
 </script>
 <template>
   <ViewLayoutCollapse
+    class="overflow-scroll"
     :defaultOpen="false"
     :itemCount="headers.length">
     <template #title>Headers</template>
-    <DataTable
+    <div
       v-if="headers.length"
-      :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
-      scroll>
-      <DataTableRow
-        v-for="(item, idx) in headers"
-        :key="idx"
-        class="text-c-1">
-        <DataTableText class="sticky left-0 z-1 bg-b-1 max-w-48">
-          <template v-if="typeof findHeaderInfo(item.name)?.url === 'string'">
-            <HelpfulLink
-              class="decoration-c-3"
-              :href="findHeaderInfo(item.name)!.url">
+      class="border max-h-[calc(100%-32px)] overflow-y-auto rounded md:mx-1">
+      <DataTable
+        class="!border-0 !mx-0"
+        :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
+        scroll>
+        <DataTableRow
+          v-for="(item, idx) in headers"
+          :key="idx"
+          class="text-c-1">
+          <DataTableText class="sticky left-0 z-1 bg-b-1 max-w-48">
+            <template v-if="typeof findHeaderInfo(item.name)?.url === 'string'">
+              <HelpfulLink
+                class="decoration-c-3"
+                :href="findHeaderInfo(item.name)!.url">
+                {{ item.name }}
+              </HelpfulLink>
+            </template>
+            <template v-else>
               {{ item.name }}
-            </HelpfulLink>
-          </template>
-          <template v-else>
-            {{ item.name }}
-          </template>
-        </DataTableText>
-        <DataTableText
-          class="z-0"
-          :text="item.value" />
-      </DataTableRow>
-    </DataTable>
+            </template>
+          </DataTableText>
+          <DataTableText
+            class="z-0"
+            :text="item.value" />
+        </DataTableRow>
+      </DataTable>
+    </div>
     <!-- Empty state -->
     <div
       v-else
