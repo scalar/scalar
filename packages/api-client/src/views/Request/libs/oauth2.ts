@@ -25,7 +25,8 @@ type PKCEState = {
 
 /**
  * Generates a random string for PKCE code verifier
- * Compliant with RFC 7636 section 4.1
+ *
+ * @see https://www.rfc-editor.org/rfc/rfc7636#page-8
  */
 const generateCodeVerifier = (): string => {
   // Generate 32 random bytes
