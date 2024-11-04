@@ -9,7 +9,7 @@ import type {
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2, authorizeServers } from './oauth2'
+import { authorizeOauth2 } from './oauth2'
 
 const baseScheme: Pick<
   SecuritySchemeOauth2,
