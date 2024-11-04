@@ -2,7 +2,11 @@ import { loadAllResources } from '@/libs/local-storage'
 import { type WorkspaceStore, createWorkspaceStore } from '@/store'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
-import { LS_KEYS, objectMerge } from '@scalar/oas-utils/helpers'
+import {
+  LS_KEYS,
+  objectMerge,
+  prettyPrintJson,
+} from '@scalar/oas-utils/helpers'
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type {
@@ -158,6 +162,7 @@ export const createApiClient = ({
     securitySchemes,
     servers,
     workspaceMutators,
+    requestExampleMutators,
   } = store
 
   // Mount the vue app
@@ -333,5 +338,27 @@ export const createApiClient = ({
     modalState,
     /* The workspace store */
     store,
+    /** Update the currently selected example */
+    updateExample: (exampleKey: string, operationId: string) => {
+      if (!exampleKey || !operationId) return
+
+      const request = Object.values(requests).find(
+        ({ operationId: reqOperationId, path }) =>
+          reqOperationId === operationId || path === operationId,
+      )
+      if (!request) return
+
+      const contentType =
+        Object.keys(request.requestBody?.content || {})[0] || 'application/json'
+      const example =
+        request.requestBody?.content?.[contentType]?.examples[exampleKey]
+      if (!example) return
+
+      requestExampleMutators.edit(
+        request.examples[0],
+        'body.raw.value',
+        prettyPrintJson(example.value),
+      )
+    },
   }
 }
