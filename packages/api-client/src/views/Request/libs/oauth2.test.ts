@@ -1,5 +1,5 @@
 /**
- * @vitest-environment node
+ * @vitest-environment jsdom
  */
 import type {
   SecuritySchemeOauth2,
@@ -178,6 +178,8 @@ describe('oauth2', () => {
       })
 
       // Mock crypto.subtle.digest
+      // @ts-expect-error we mock in subtle
+      vi.spyOn(crypto, 'subtle').mockImplementation(() => ({}))
       vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
         new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer,
       )
