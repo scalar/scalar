@@ -41,23 +41,19 @@ const generateCodeVerifier = (length = 64): string => {
     .join('')
 }
 
-/** SHA-256 encodes a string */
-const encodeChallenge = async (challenge: string): Promise<string> => {
-  const encoder = new TextEncoder()
-  const data = encoder.encode(challenge)
-  const digest = await crypto.subtle.digest('SHA-256', data)
-  return String.fromCharCode(...new Uint8Array(digest))
-}
-
 /**
  * Creates a code challenge from the code verifier
  */
 const generateCodeChallenge = async (
   verifier: string,
-  encoding: 'SHA-256' | 'plain' | 'no',
+  encoding: 'SHA-256' | 'plain',
 ): Promise<string> => {
-  const str =
-    encoding === 'SHA-256' ? await encodeChallenge(verifier) : verifier
+  if (encoding === 'plain') return verifier
+
+  const encoder = new TextEncoder()
+  const data = encoder.encode(verifier)
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  const str = String.fromCharCode(...new Uint8Array(digest))
 
   return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
@@ -106,7 +102,7 @@ export const authorizeOauth2 = async (
         url.searchParams.set('response_type', 'code')
 
         // PKCE
-        if (scheme.flow['x-usePkce']) {
+        if (scheme.flow['x-usePkce'] !== 'no') {
           const codeVerifier = generateCodeVerifier()
           const codeChallenge = await generateCodeChallenge(
             codeVerifier,
@@ -117,7 +113,8 @@ export const authorizeOauth2 = async (
           pkce = {
             codeVerifier,
             codeChallenge,
-            codeChallengeMethod: 'S256',
+            codeChallengeMethod:
+              scheme.flow['x-usePkce'] === 'SHA-256' ? 'S256' : 'plain',
           }
 
           // Set the code challenge and method on the url
