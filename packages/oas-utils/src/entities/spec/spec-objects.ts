@@ -15,7 +15,7 @@ export const oasLicenseSchema = z.object({
    * A URL to the license used for the API. This MUST be in the form of a URL. The url field
    * is mutually exclusive of the identifier field.
    */
-  url: z.string().url().optional(),
+  url: z.string().optional(),
 })
 
 /**
@@ -28,7 +28,7 @@ export const oasContactSchema = z.object({
   /** The identifying name of the contact person/organization. */
   name: z.string().optional(),
   /** The URL pointing to the contact information. This MUST be in the form of a URL. */
-  url: z.string().url().optional(),
+  url: z.string().optional(),
   /** The email address of the contact person/organization. This MUST be in the form of an email address. */
   email: z.string().email().optional(),
 })
