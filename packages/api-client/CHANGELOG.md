@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.1.42
+
+### Patch Changes
+
+- Updated dependencies [dab543e]
+  - @scalar/oas-utils@0.2.68
+
 ## 2.1.41
 
 ### Patch Changes
