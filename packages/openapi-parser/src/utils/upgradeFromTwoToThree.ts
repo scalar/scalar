@@ -11,7 +11,7 @@ import { traverse } from './traverse'
 export function upgradeFromTwoToThree(specification: AnyObject) {
   // Version
   if (specification.swagger?.startsWith('2.0')) {
-    specification.openapi = '3.0.3'
+    specification.openapi = '3.0.4'
     delete specification.swagger
   } else {
     // Skip if it’s something else than 3.0.x

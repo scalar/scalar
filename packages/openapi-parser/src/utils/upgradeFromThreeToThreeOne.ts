@@ -11,7 +11,7 @@ export function upgradeFromThreeToThreeOne(originalSpecification: AnyObject) {
 
   // Version
   if (specification.openapi?.startsWith('3.0')) {
-    specification.openapi = '3.1.0'
+    specification.openapi = '3.1.1'
   } else {
     // Skip if it’s something else than 3.0.x
     return specification

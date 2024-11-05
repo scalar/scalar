@@ -19,7 +19,7 @@ describe('OpenAPI', () => {
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV2.Document>()
   })
 
-  it('narrows it down to OpenAPI 3.0', () => {
+  it('narrows it down to OpenAPI 3.0.0', () => {
     const specification: OpenAPI.Document = {
       openapi: '3.0.0',
     }
@@ -27,9 +27,25 @@ describe('OpenAPI', () => {
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV3.Document>()
   })
 
-  it('narrows it down to OpenAPI 3.1', () => {
+  it('narrows it down to OpenAPI 3.0.4', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.0.4',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3.Document>()
+  })
+
+  it('narrows it down to OpenAPI 3.1.0', () => {
     const specification: OpenAPI.Document = {
       openapi: '3.1.0',
+    }
+
+    expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
+  })
+
+  it('narrows it down to OpenAPI 3.1.1', () => {
+    const specification: OpenAPI.Document = {
+      openapi: '3.1.1',
     }
 
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
