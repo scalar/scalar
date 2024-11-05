@@ -16,18 +16,17 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "npm run types:check && electron-vite build",
+    "build": "electron-vite build",
     "dev": "electron-vite dev",
     "dev:update": "electron-vite dev -- --runtime-simulate-updates=update-available",
     "preview": "electron-vite preview",
     "test": "vitest",
-    "todesktop:build": "npm run build && todesktop build",
-    "todesktop:build:ci": "todesktop build",
+    "todesktop:build": "todesktop build",
     "todesktop:release": "todesktop release",
     "todesktop:release:ci": "todesktop release --latest --force",
     "todesktop:test": "todesktop smoke-test",
     "todesktop:test:ci": "todesktop smoke-test",
-    "types:check": "npm run types:check:node && npm run types:check:web",
+    "types:check": "pnpm types:check:node && pnpm types:check:web",
     "types:check:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "types:check:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
