@@ -30,7 +30,7 @@ const handleSubmit = () => {
   push({
     name: 'workspace',
     params: {
-      uid: workspace.uid,
+      workspace: workspace.uid,
     },
   })
 
