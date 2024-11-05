@@ -4,10 +4,12 @@ import { type UpdateScheme, useWorkspace } from '@/store'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
-import type {
-  SecuritySchemeOauth2,
-  SecuritySchemeOauth2ExampleValue,
+import {
+  type SecuritySchemeOauth2,
+  type SecuritySchemeOauth2ExampleValue,
+  pkceOptions,
 } from '@scalar/oas-utils/entities/spec'
+import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 
@@ -17,6 +19,8 @@ const props = defineProps<{
 }>()
 
 const loadingState = useLoadingState()
+const { toast } = useToasts()
+
 const {
   activeCollection,
   activeServer,
@@ -41,13 +45,17 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading || !activeCollection.value?.uid) return
   loadingState.startLoading()
 
-  const accessToken = await authorizeOauth2(
+  const [error, accessToken] = await authorizeOauth2(
     props.scheme,
     props.example,
     activeServer.value,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateAuth(`auth.${props.scheme.uid}.token`, accessToken)
+  else {
+    console.error(error)
+    toast(error?.message ?? 'Failed to authorize', 'error')
+  }
 }
 </script>
 
@@ -166,6 +174,21 @@ const handleAuthorize = async () => {
           (v) => updateAuth(`auth.${scheme.uid}.clientSecret`, v)
         ">
         Client Secret
+      </RequestAuthDataTableInput>
+    </DataTableRow>
+
+    <!-- PKCE -->
+    <DataTableRow v-if="'x-usePkce' in scheme.flow">
+      <RequestAuthDataTableInput
+        :id="`oauth2-use-pkce-${scheme.uid}`"
+        :enum="pkceOptions"
+        :modelValue="scheme.flow['x-usePkce']"
+        readOnly
+        @update:modelValue="
+          (v) =>
+            updateScheme('flow.x-usePkce', v as (typeof pkceOptions)[number])
+        ">
+        Use PKCE
       </RequestAuthDataTableInput>
     </DataTableRow>
 

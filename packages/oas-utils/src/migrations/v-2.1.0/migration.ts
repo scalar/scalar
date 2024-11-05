@@ -239,9 +239,11 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
         ...base,
         tokenUrl: flow.tokenUrl || '',
       }
+
     return {
       ...flow,
       ...base,
+      'x-usePkce': 'no',
       'x-scalar-redirect-uri':
         ('redirectUri' in flow ? flow.redirectUri : '') || '',
       'authorizationUrl': flow.authorizationUrl || '',

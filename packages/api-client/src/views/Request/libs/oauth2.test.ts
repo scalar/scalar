@@ -1,11 +1,15 @@
+/**
+ * @vitest-environment jsdom
+ */
 import type {
   SecuritySchemeOauth2,
   SecuritySchemeOauth2ExampleValue,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { authorizeOauth2, authorizeServers } from './oauth2'
+import { authorizeOauth2 } from './oauth2'
 
 const baseScheme: Pick<
   SecuritySchemeOauth2,
@@ -80,6 +84,7 @@ describe('oauth2', () => {
       type: 'oauth2',
       flow: {
         ...baseFlow,
+        'x-usePkce': 'no',
         'type': 'authorizationCode',
         authorizationUrl,
         tokenUrl,
@@ -126,7 +131,8 @@ describe('oauth2', () => {
       vi.advanceTimersByTime(200)
 
       // Resolve
-      const result = await promise
+      const [error, result] = await promise
+      expect(error).toBe(null)
       expect(result).toBe(accessToken)
 
       // Test the server call
@@ -147,6 +153,91 @@ describe('oauth2', () => {
       })
     })
 
+    // PKCE
+    // Could not get this test to work on node 18
+    it.skipIf(process.version.startsWith('v18'))(
+      'should generate valid PKCE code verifier and challenge using SHA-256 encryption',
+      async () => {
+        const _scheme = {
+          ...scheme,
+          flow: {
+            ...scheme.flow,
+            'x-usePkce': 'SHA-256',
+          },
+        } as const
+
+        const accessToken = 'pkce_access_token_123'
+        const codeChallenge = 'AQIDBAUGCAkK'
+        const code = 'pkce_auth_code_123'
+
+        // Mock crypto.getRandomValues
+        vi.spyOn(crypto, 'getRandomValues').mockImplementation((arr) => {
+          if (arr instanceof Uint8Array) {
+            for (let i = 0; i < arr.length; i++) {
+              arr[i] = i
+            }
+          }
+          return arr
+        })
+
+        // Mock crypto.subtle.digest
+        vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
+          new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer,
+        )
+
+        const promise = authorizeOauth2(_scheme, example, mockServer)
+        await flushPromises()
+
+        // Test the window.open call
+        expect(window.open).toHaveBeenCalledWith(
+          new URL(
+            `${scheme.flow.authorizationUrl}?${new URLSearchParams({
+              response_type: 'code',
+              code_challenge: codeChallenge,
+              code_challenge_method: 'S256',
+              redirect_uri: scheme.flow['x-scalar-redirect-uri'],
+              client_id: scheme['x-scalar-client-id'],
+              scope: scope.join(' '),
+              state: state,
+            }).toString()}`,
+          ),
+          windowTarget,
+          windowFeatures,
+        )
+        mockWindow.location.href = `https://callback.example.com?code=${code}&state=${state}`
+
+        global.fetch = vi.fn().mockResolvedValueOnce({
+          json: () => Promise.resolve({ access_token: accessToken }),
+        })
+
+        // Run setInterval
+        vi.advanceTimersByTime(200)
+
+        // Resolve
+        const [error, result] = await promise
+        expect(error).toBe(null)
+        expect(result).toBe(accessToken)
+
+        // Check fetch parameters
+        expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${secretAuth}`,
+          },
+          body: new URLSearchParams({
+            client_id: scheme['x-scalar-client-id'],
+            scope: scope.join(' '),
+            client_secret: example.clientSecret,
+            redirect_uri: scheme.flow['x-scalar-redirect-uri'],
+            code,
+            grant_type: 'authorization_code',
+            code_verifier: 'AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8',
+          }),
+        })
+      },
+    )
+
     // Test user closing the window
     it('should handle window closure before authorization', async () => {
       const promise = authorizeOauth2(scheme, example, mockServer)
@@ -154,7 +245,10 @@ describe('oauth2', () => {
       mockWindow.closed = true
       vi.advanceTimersByTime(200)
 
-      await expect(promise).rejects.toThrow(
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe(
         'Window was closed without granting authorization',
       )
     })
@@ -192,9 +286,12 @@ describe('oauth2', () => {
 
       // Mock redirect with bad state
       mockWindow.location.href = `${scheme.flow['x-scalar-redirect-uri']}?code=auth_code_123&state=bad_state`
-
       vi.advanceTimersByTime(200)
-      await expect(promise).rejects.toThrow('State mismatch')
+
+      const [error, result] = await promise
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe('State mismatch')
     })
   })
 
@@ -221,7 +318,8 @@ describe('oauth2', () => {
         json: () => Promise.resolve({ access_token: 'access_token_123' }),
       })
 
-      const result = await authorizeOauth2(scheme, example, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
       expect(global.fetch).toHaveBeenCalledWith(tokenUrl, {
@@ -241,8 +339,11 @@ describe('oauth2', () => {
 
     it('should handle token request failure', async () => {
       global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'))
-      expect(authorizeOauth2(scheme, example, mockServer)).rejects.toThrow(
-        'Failed to get an access token',
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(result).toBe(null)
+      expect(error).toBeInstanceOf(Error)
+      expect(error!.message).toBe(
+        'Failed to get an access token. Please check your credentials.',
       )
     })
   })
@@ -288,7 +389,8 @@ describe('oauth2', () => {
       await vi.runAllTicks()
 
       // Resolve
-      const result = await promise
+      const [error, result] = await promise
+      expect(error).toBe(null)
       expect(result).toBe('implicit_token_123')
     })
   })
@@ -326,7 +428,8 @@ describe('oauth2', () => {
           }),
       })
 
-      const result = await authorizeOauth2(scheme, example, mockServer)
+      const [error, result] = await authorizeOauth2(scheme, example, mockServer)
+      expect(error).toBe(null)
       expect(result).toBe('access_token_123')
 
       // Check the server call
@@ -347,60 +450,6 @@ describe('oauth2', () => {
       })
     })
   })
-
-  // describe('PKCE Flow', () => {
-  //   const scheme: SecuritySchemeOauth2 = {
-  //     'type': 'oauth2',
-  //     'flow': {
-  //       'type': 'authorizationCodeWithPKCE',
-  //       'authorizationUrl': 'https://auth.example.com/authorize',
-  //       'tokenUrl': 'https://auth.example.com/token',
-  //       'x-scalar-redirect-uri': 'https://callback.example.com',
-  //       'selectedScopes': ['read', 'write'],
-  //     },
-  //     'x-scalar-client-id': 'client123',
-  //   }
-
-  //   const example = {
-  //     type: 'oauth-pkce',
-  //     clientId: 'client123',
-  //   }
-
-  //   it('should generate valid PKCE code verifier and challenge', async () => {
-  //     const mockCodeVerifier = 'mock_code_verifier_random_string'
-  //     const mockCodeChallenge = 'mock_code_challenge_base64url'
-
-  //     vi.spyOn(crypto, 'getRandomValues').mockImplementation(
-  //       () => new Uint8Array([1, 2, 3]),
-  //     )
-  //     vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
-  //       new Uint8Array([4, 5, 6]).buffer,
-  //     )
-
-  //     setTimeout(() => {
-  //       mockWindow.location.href = `https://callback.example.com?code=pkce_auth_code_123&state=mock_state`
-  //     }, 100)
-
-  //     global.fetch = vi.fn().mockResolvedValueOnce({
-  //       json: () => Promise.resolve({ access_token: 'pkce_access_token_123' }),
-  //     })
-
-  //     const result = await authorizeOauth2(scheme, example, mockServer)
-
-  //     expect(result).toBe('pkce_access_token_123')
-  //     expect(window.open).toHaveBeenCalledWith(
-  //       expect.stringContaining('code_challenge_method=S256'),
-  //       'openAuth2Window',
-  //       expect.any(String),
-  //     )
-  //     expect(global.fetch).toHaveBeenCalledWith(
-  //       'https://auth.example.com/token',
-  //       expect.objectContaining({
-  //         body: expect.stringContaining('code_verifier='),
-  //       }),
-  //     )
-  //   })
-  // })
 
   // Device code is coming in openapi spec 3.2.0
   // If anyone needs it before we can add it

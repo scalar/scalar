@@ -23,6 +23,7 @@ const emit = defineEmits<{
 <template>
   <DataTableInput
     :id="props.id"
+    :canAddCustomEnumValue="!props.readOnly"
     :containerClass="props.containerClass"
     :modelValue="props.modelValue"
     :readOnly="props.readOnly"
