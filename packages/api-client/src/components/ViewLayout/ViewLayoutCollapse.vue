@@ -19,9 +19,9 @@ withDefaults(
     as="div"
     class="focus-within:bg-b-2 ui-not-open:hover:bg-b-2 focus-within:text-c-1 text-c-2 rounded request-item ui-not-open:bg-transparent ui-open:pb-1 ui-open:mb-3 ui-not-open:mb-0 ui-not-open:pb-0"
     :defaultOpen="defaultOpen">
-    <div class="group flex items-center">
+    <div class="flex items-center">
       <DisclosureButton
-        class="hover:text-c-1 flex flex-1 items-center gap-2.5 overflow-hidden py-1.5 text-sm font-medium px-1.5 outline-none">
+        class="group hover:text-c-1 flex flex-1 items-center gap-2.5 overflow-hidden py-1.5 text-sm font-medium px-1.5 outline-none">
         <ScalarIcon
           class="text-c-3 group-hover:text-c-1 group-focus-visible:outline ui-open:rotate-90 ui-not-open:rotate-0 rounded-[1px] outline-offset-2"
           icon="ChevronRight"
