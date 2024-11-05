@@ -61,10 +61,8 @@ const emit = defineEmits<{
 }>()
 
 // The latest parentId in the arr should be the current parent
-const parentId = computed(() =>
-  (props.parentIds.length ?? 0) > 0
-    ? props.parentIds[props.parentIds.length - 1]
-    : null,
+const parentId = computed(
+  () => props.parentIds[props.parentIds.length - 1] ?? null,
 )
 
 // Start draggin, we want to store the uid + parentUid

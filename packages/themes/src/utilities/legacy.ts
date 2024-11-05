@@ -2,7 +2,7 @@
 export const PREFIX_MIGRATIONS = [
   ['--theme-', '--scalar-'],
   ['--sidebar-', '--scalar-sidebar-'],
-]
+] as const
 
 export const LEGACY_PREFIXES = PREFIX_MIGRATIONS.map(([legacy]) => legacy)
 

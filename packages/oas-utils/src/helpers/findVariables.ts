@@ -7,5 +7,5 @@ export const findVariables = (value: string) => {
   // Works with lowercase, uppercase, numbers, dashes, underscores
   const regex = /(?:\{+)\s*(\w+)\s*(?:\}+)/g
 
-  return [...value.matchAll(regex)].map((match) => match[1].trim()) || []
+  return [...value.matchAll(regex)].map((match) => match[1]?.trim()) || []
 }

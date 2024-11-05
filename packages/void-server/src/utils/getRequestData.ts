@@ -16,13 +16,14 @@ export async function getRequestData(c: Context) {
     if (authorizationHeader.startsWith('Basic ')) {
       const token = authorizationHeader.split(' ')[1]
 
-      authentication = {
-        authentication: {
-          type: 'http.basic',
-          token,
-          value: atob(token),
-        },
-      }
+      if (token)
+        authentication = {
+          authentication: {
+            type: 'http.basic',
+            token,
+            value: atob(token),
+          },
+        }
     }
 
     if (authorizationHeader.startsWith('Bearer ')) {

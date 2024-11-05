@@ -33,11 +33,13 @@ const sidebar = reactive({
 })
 
 const onDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
+  const parent = draggingItem.parentId
+    ? sidebar.items[draggingItem.parentId]
+    : null
+
   // Remove from old position
-  if (draggingItem.parentId && sidebar.items[draggingItem.parentId]?.children) {
-    sidebar.items[draggingItem.parentId].children = sidebar.items[
-      draggingItem.parentId
-    ]?.children?.filter((id) => id !== draggingItem.id)
+  if (parent?.children) {
+    parent.children = parent.children.filter((id) => id !== draggingItem.id)
   } else {
     sidebar.children = sidebar.children.filter((id) => id !== draggingItem.id)
   }

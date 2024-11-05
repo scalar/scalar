@@ -99,6 +99,8 @@ export type RequestExamplePayload = z.input<typeof requestExampleSchema>
 /** Create new instance parameter from a request parameter */
 export function createParamInstance(param: RequestParameter) {
   const schema = param.schema as any
+  const keys = Object.keys(param?.examples ?? {})
+  const firstExample = keys.length ? param.examples?.[keys[0]!] : null
 
   /**
    * TODO:
@@ -110,7 +112,7 @@ export function createParamInstance(param: RequestParameter) {
     schema?.default ??
       schema?.examples?.[0] ??
       schema?.example ??
-      param.examples?.[Object.keys(param.examples)[0]]?.value ??
+      firstExample?.value ??
       param.example ??
       '',
   )

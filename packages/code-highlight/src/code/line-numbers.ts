@@ -42,12 +42,13 @@ export function codeBlockLinesPlugin() {
           // Adds a line break to the end of each line
           node.children.forEach((child: ElementContent) => {
             if (child.type === 'element' && child.tagName === 'span') {
-              const lastChild: ElementContent =
+              const lastChild: ElementContent | undefined =
                 child.children[child.children.length - 1]
 
               if (
-                !isText(lastChild) ||
-                (isText(lastChild) && !hasLineBreak(lastChild))
+                lastChild &&
+                (!isText(lastChild) ||
+                  (isText(lastChild) && !hasLineBreak(lastChild)))
               ) {
                 child.children.push(lineBreak())
                 numLines++
