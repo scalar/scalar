@@ -112,7 +112,13 @@ const handleSubmit = () => {
   )
 
   if (newRequest)
-    push(`/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`)
+    push({
+      name: 'request',
+      params: {
+        workspace: activeWorkspace.value.uid,
+        request: newRequest.uid,
+      },
+    })
 
   emits('close')
 }

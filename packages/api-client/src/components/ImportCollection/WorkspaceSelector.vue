@@ -22,7 +22,13 @@ const workspaceName = ref('')
 
 const updateSelected = (uid: string) => {
   if (uid === activeWorkspace.value.uid) return
-  push(`/workspace/${uid}`)
+
+  push({
+    name: 'workspace',
+    params: {
+      workspace: uid,
+    },
+  })
 }
 
 const handleCreateWorkspace = () => {
@@ -31,12 +37,19 @@ const handleCreateWorkspace = () => {
     return
   }
 
-  const workspace = workspaceMutators.add({
+  const newWorkspace = workspaceMutators.add({
     name: workspaceName.value,
   })
-  push(`/workspace/${workspace.uid}`)
 
-  toast(`Created new workspace '${workspaceName.value}'`)
+  toast(`Created new workspace '${newWorkspace.name}'`)
+
+  push({
+    name: 'workspace',
+    params: {
+      workspace: newWorkspace.uid,
+    },
+  })
+
   workspaceName.value = ''
   modal.hide()
 }

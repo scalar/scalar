@@ -1,6 +1,5 @@
-import { type PathId, modalRoutes, routes } from '@/routes'
+import { modalRoutes, routes } from '@/routes'
 import {
-  type Router,
   createMemoryHistory,
   createRouter,
   createWebHashHistory,

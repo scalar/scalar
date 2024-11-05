@@ -21,7 +21,13 @@ const { push } = useRouter()
 
 const updateSelected = (uid: string) => {
   if (uid === activeWorkspace.value.uid) return
-  push(`/workspace/${uid}`)
+
+  push({
+    name: 'workspace',
+    params: {
+      workspace: uid,
+    },
+  })
 }
 
 const isLastWorkspace = computed(() => Object.keys(workspaces).length === 1)
@@ -57,18 +63,25 @@ const openDeleteModal = (uid: string) => {
 
 const deleteWorkspace = async () => {
   if (!isLastWorkspace.value) {
-    const isActiveWorkspace = activeWorkspace.value.uid === tempUid.value
+    const deletedActiveWorkspace = activeWorkspace.value.uid === tempUid.value
     const currentWorkspaces = { ...workspaces }
     delete currentWorkspaces[tempUid.value]
 
     workspaceMutators.delete(tempUid.value)
 
-    if (isActiveWorkspace) {
-      // Switch to another workspace if the active one is deleted
+    // Switch to another workspace if the active one is deleted
+    if (deletedActiveWorkspace) {
       const newWorkspaceUid = Object.keys(currentWorkspaces)[0]
-      await push(`/workspace/${newWorkspaceUid}/`)
+
+      await push({
+        name: 'workspace',
+        params: {
+          workspace: newWorkspaceUid,
+        },
+      })
     }
   }
+
   deleteModal.hide()
 }
 </script>

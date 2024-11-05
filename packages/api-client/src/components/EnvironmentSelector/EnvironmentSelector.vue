@@ -25,7 +25,12 @@ const updateSelected = (uid: string) => {
 }
 
 const createNewEnvironment = () =>
-  router.push(`/workspace/${activeWorkspace.value.uid}/environment`)
+  router.push({
+    name: 'environment',
+    params: {
+      environment: activeWorkspace.value.uid,
+    },
+  })
 
 const envs = computed(() => [
   // Always add the default environment

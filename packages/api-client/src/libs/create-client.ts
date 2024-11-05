@@ -320,7 +320,14 @@ export const createApiClient = ({
           path === params.path &&
           method.toUpperCase() === params.method.toUpperCase(),
       )
-      if (request) router.push(`/workspace/default/request/${request.uid}`)
+      if (request)
+        router.push({
+          name: 'request',
+          params: {
+            workspace: 'default',
+            request: request.uid,
+          },
+        })
     },
 
     /** Open the API client modal and optionally route to a request */
@@ -335,7 +342,14 @@ export const createApiClient = ({
             : // Or the first request
               true,
         )
-        if (_request) router.push(`/workspace/default/request/${_request.uid}`)
+        if (_request)
+          router.push({
+            name: 'request',
+            params: {
+              workspace: 'default',
+              request: _request.uid,
+            },
+          })
       }
 
       modalState.open = true

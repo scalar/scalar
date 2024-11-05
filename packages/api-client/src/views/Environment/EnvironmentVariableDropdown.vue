@@ -27,7 +27,14 @@ const selectedVariableIndex = ref(0)
 
 const redirectToEnvironment = () => {
   const workspaceId = currentRoute.value.params.workspace
-  push(`/workspace/${workspaceId}/environment/default`)
+
+  push({
+    name: 'environment.default',
+    params: {
+      workspace: workspaceId,
+    },
+  })
+
   isOpen.value = false
 }
 
