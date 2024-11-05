@@ -172,8 +172,8 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  describe('use examples not example in schemas', () => {
-    it('migrates example to examples', async () => {
+  describe('migrates example to examples', () => {
+    it('uses arrays in schemas', async () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -207,6 +207,49 @@ describe('upgradeFromThreeToThreeOne', () => {
       ).toEqual({
         type: 'integer',
         examples: [1],
+      })
+    })
+
+    it('uses example objects everywhere else', async () => {
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/test': {
+            get: {
+              parameters: [
+                {
+                  name: 'limit',
+                  in: 'query',
+                  schema: {
+                    type: 'integer',
+                    example: 10,
+                  },
+                  example: 10,
+                },
+              ],
+            },
+          },
+        },
+      })
+
+      expect(result.paths['/test'].get.parameters[0]).toEqual({
+        name: 'limit',
+        in: 'query',
+        schema: {
+          type: 'integer',
+          // array, because it’s in a schema
+          examples: [10],
+        },
+        // object, because it’s not in a schema
+        examples: {
+          default: {
+            value: 10,
+          },
+        },
       })
     })
   })
