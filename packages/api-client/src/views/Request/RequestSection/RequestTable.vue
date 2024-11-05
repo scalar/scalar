@@ -102,6 +102,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           :class="{
             'pr-6': showTooltip(item),
           }"
+          :default="item.default"
           disableCloseBrackets
           disableEnter
           disableTabIndent

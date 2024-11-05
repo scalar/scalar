@@ -12,6 +12,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: string | number
     value?: string[]
+    default?: string | number
     canAddCustomValue?: boolean
   }>(),
   { canAddCustomValue: true },
@@ -22,8 +23,6 @@ const emit = defineEmits<{
 }>()
 
 const options = computed(() => props.value ?? [])
-
-const selected = ref<string>(props.modelValue.toString())
 const addingCustomValue = ref(false)
 const customValue = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
@@ -33,7 +32,6 @@ watch(customValue, (newValue) => {
 })
 
 const updateSelected = (value: string) => {
-  selected.value = value
   emit('update:modelValue', value)
   addingCustomValue.value = false
 }
@@ -47,13 +45,13 @@ const addCustomValue = () => {
 
 const handleBlur = () => {
   if (!customValue.value.trim()) {
-    selected.value = ''
+    emit('update:modelValue', '')
     addingCustomValue.value = false
   }
 }
 
 const isSelected = (value: string) => {
-  return selected.value === value
+  return props.modelValue.toString() === value
 }
 
 watch(addingCustomValue, (newValue) => {
@@ -62,6 +60,10 @@ watch(addingCustomValue, (newValue) => {
       inputRef.value?.focus()
     })
   }
+})
+
+const initialValue = computed(() => {
+  return props.modelValue !== undefined ? props.modelValue : props.default
 })
 </script>
 
@@ -80,12 +82,12 @@ watch(addingCustomValue, (newValue) => {
     <template v-else>
       <ScalarDropdown
         resize
-        :value="selected">
+        :value="initialValue">
         <ScalarButton
           class="gap-1.5 font-normal h-full justify-start px-2 py-1.5"
           fullWidth
           variant="ghost">
-          <span class="text-c-1">{{ selected || 'Select a value' }}</span>
+          <span class="text-c-1">{{ initialValue || 'Select a value' }}</span>
           <ScalarIcon
             icon="ChevronDown"
             size="xs" />
