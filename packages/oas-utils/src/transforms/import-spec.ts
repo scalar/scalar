@@ -48,6 +48,11 @@ const convertOauth2Flows = (
         nameKey,
         flow: {
           ...flow,
+          scopes:
+            // Ensure we convert array scope to an object
+            Array.isArray(flow.scopes) && typeof flow.scopes[0] === 'string'
+              ? flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
+              : flow.scopes,
           type,
         },
       } as Extract<SecuritySchemePayload, { type: 'oauth2' }>

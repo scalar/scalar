@@ -79,7 +79,9 @@ function setScope(id: string, checked: boolean) {
                 class="w-full px-2 py-1.5 hover:text-c-1 cursor-pointer">
                 <span>
                   <span class="font-code text-xs">{{ label }}</span>
-                  <span>&nbsp;&ndash; {{ description }}</span>
+                  <span v-if="description">
+                    &nbsp;&ndash; {{ description }}
+                  </span>
                 </span>
               </DataTableCell>
               <DataTableCheckbox
