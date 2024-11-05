@@ -80,12 +80,7 @@ export const modalRoutes = [
   {
     name: 'root',
     path: '/',
-    redirect: {
-      name: 'workspace',
-      params: {
-        workspace: 'default',
-      },
-    },
+    redirect: redirectToActiveWorkspace,
   },
   {
     name: 'workspace.default',
