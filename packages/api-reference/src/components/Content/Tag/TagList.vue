@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Lazy } from '@/components/Content/Lazy'
+import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Operation } from '@/features/Operation'
 import { useNavState, useSidebar } from '@/hooks'
 import type { Spec, Tag as tagType } from '@scalar/types/legacy'
@@ -39,11 +40,13 @@ const isLazy = props.layout !== 'classic' && !hash.value.startsWith('model')
         :id="getOperationId(operation, tag)"
         :key="`${operation.httpVerb}-${operation.operationId}`"
         :isLazy="operationIndex > 0">
-        <Operation
-          :id="getOperationId(operation, tag)"
-          :layout="layout"
-          :operation="operation"
-          :tag="tag" />
+        <ErrorBoundary>
+          <Operation
+            :id="getOperationId(operation, tag)"
+            :layout="layout"
+            :operation="operation"
+            :tag="tag" />
+        </ErrorBoundary>
       </Lazy>
     </Component>
   </Lazy>

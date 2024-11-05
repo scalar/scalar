@@ -15,6 +15,7 @@ import { TestRequestButton } from '@/features/TestRequestButton'
 import { ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
+import ErrorBoundary from '../../ErrorBoundary.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
@@ -48,22 +49,26 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest
-              fallback
-              :operation="operation">
-              <template #header>
-                <OperationPath
-                  class="example-path"
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TestRequestButton :operation="operation" />
-              </template>
-            </ExampleRequest>
-            <ExampleResponses
-              :operation="operation"
-              style="margin-top: 12px" />
+            <ErrorBoundary>
+              <ExampleRequest
+                fallback
+                :operation="operation">
+                <template #header>
+                  <OperationPath
+                    class="example-path"
+                    :deprecated="operation.information?.deprecated"
+                    :path="operation.path" />
+                </template>
+                <template #footer>
+                  <TestRequestButton :operation="operation" />
+                </template>
+              </ExampleRequest>
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <ExampleResponses
+                :operation="operation"
+                style="margin-top: 12px" />
+            </ErrorBoundary>
           </div>
         </SectionColumn>
       </SectionColumns>

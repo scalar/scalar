@@ -3,6 +3,7 @@ import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
+import ErrorBoundary from '../../ErrorBoundary.vue'
 import {
   CompactSection,
   Section,
@@ -70,10 +71,12 @@ const models = computed(() => {
                 :name="name"
                 :value="(schemas as any)[name]" />
             </template>
-            <Schema
-              :hideHeading="true"
-              noncollapsible
-              :value="(schemas as any)[name]" />
+            <ErrorBoundary>
+              <Schema
+                :hideHeading="true"
+                noncollapsible
+                :value="(schemas as any)[name]" />
+            </ErrorBoundary>
           </CompactSection>
         </Lazy>
       </div>

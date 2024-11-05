@@ -41,6 +41,7 @@ import type {
   ReferenceSlotProps,
 } from '../types'
 import { Content } from './Content'
+import ErrorBoundary from './ErrorBoundary.vue'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 
@@ -299,21 +300,23 @@ const themeStyleTag = computed(
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
-        <Sidebar
-          :operationsSorter="configuration.operationsSorter"
-          :parsedSpec="parsedSpec"
-          :tagsSorter="configuration.tagsSorter">
-          <template #sidebar-start>
-            <slot
-              v-bind="referenceSlotProps"
-              name="sidebar-start" />
-          </template>
-          <template #sidebar-end>
-            <slot
-              v-bind="referenceSlotProps"
-              name="sidebar-end" />
-          </template>
-        </Sidebar>
+        <ErrorBoundary>
+          <Sidebar
+            :operationsSorter="configuration.operationsSorter"
+            :parsedSpec="parsedSpec"
+            :tagsSorter="configuration.tagsSorter">
+            <template #sidebar-start>
+              <slot
+                v-bind="referenceSlotProps"
+                name="sidebar-start" />
+            </template>
+            <template #sidebar-end>
+              <slot
+                v-bind="referenceSlotProps"
+                name="sidebar-end" />
+            </template>
+          </Sidebar>
+        </ErrorBoundary>
       </div>
     </aside>
     <!-- Swagger file editing -->
