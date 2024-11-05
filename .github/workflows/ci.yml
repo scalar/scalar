@@ -256,6 +256,9 @@ jobs:
             api_client_app:
               - packages/api-client-app/package.json
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+        name: Check whether appFiles are there
+        run: ls -R ./packages/api-client-app/out
+      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build in the toDesktop cloud
         run: pnpm --filter scalar-api-client todesktop:build:ci
         env:
