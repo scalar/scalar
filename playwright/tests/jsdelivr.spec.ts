@@ -1,4 +1,4 @@
-import { test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 import { testApiReference, testHelloWorld } from './testApiReference'
 import { testPlayButton } from './testPlayButton'
@@ -9,17 +9,16 @@ test('@scalar/api-reference jsdelivr build', async ({ page, isMobile }) => {
   await page.goto(`http://${HOST}:3173/api-reference-jsdelivr.html`)
   await testApiReference(page, isMobile)
 
-  // TODO: fix the dev workflow
   /**
    * Visual Regression Testing
    * use Playwright built in screenshot functionality https://playwright.dev/docs/screenshots
    * Playwright uses pixelmatch to compare screenshots
    * update screenshots with npx playwright test --update-snapshots
    */
-  // await expect(page).toHaveScreenshot('cdn-snapshot.png', {
-  //   fullPage: true,
-  //   maxDiffPixelRatio: 0.02,
-  // })
+  await expect(page).toHaveScreenshot('cdn-snapshot.png', {
+    fullPage: true,
+    maxDiffPixelRatio: 0.02,
+  })
 
   /**
    * Capture into buffer
