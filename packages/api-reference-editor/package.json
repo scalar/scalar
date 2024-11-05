@@ -13,7 +13,7 @@
   "keywords": [
     "editor openapi swagger api-reference"
   ],
-  "version": "0.1.116",
+  "version": "0.1.117",
   "engines": {
     "node": ">=18"
   },

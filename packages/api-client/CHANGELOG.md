@@ -1,5 +1,16 @@
 # @scalar/api-client
 
+## 2.1.43
+
+### Patch Changes
+
+- a0421dd: fix: request / response section height
+- 8c5d767: feat: add support for PKCE auth code flow
+- 6a2ec39: fix: only add scopes if we have scopes
+- Updated dependencies [8c5d767]
+- Updated dependencies [359ee2d]
+  - @scalar/oas-utils@0.2.69
+
 ## 2.1.42
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.2.73
+
+### Patch Changes
+
+- b28c70f: feat: add openIdConnect support
+- Updated dependencies [8c5d767]
+- Updated dependencies [359ee2d]
+  - @scalar/oas-utils@0.2.69
+
 ## 0.2.72
 
 ### Patch Changes
