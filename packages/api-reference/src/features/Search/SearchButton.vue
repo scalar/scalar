@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
-import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
 
+import { isMacOs } from '../../helpers'
 import { useApiClient } from '../ApiClientModal'
 import SearchModal from './SearchModal.vue'
 
@@ -24,7 +24,7 @@ const keys = useMagicKeys({
   passive: false,
   onEventFired(e) {
     // Remove default behaviour for keypress
-    if (!isMacOS() && e.ctrlKey && e.key === props.searchHotKey) {
+    if (!isMacOs() && e.ctrlKey && e.key === props.searchHotKey) {
       e.preventDefault()
       e.stopPropagation()
     }
@@ -32,7 +32,7 @@ const keys = useMagicKeys({
 })
 
 whenever(
-  keys[`${isMacOS() ? 'meta' : 'control'}_${props.searchHotKey}`],
+  keys[`${isMacOs() ? 'meta' : 'control'}_${props.searchHotKey}`],
   () => {
     if (!client.value?.modalState.open) {
       modalState.open ? modalState.hide() : modalState.show()
@@ -57,7 +57,7 @@ whenever(
       <span class="sidebar-search-shortcut">
         <span class="sr-only">(Keyboard Shortcut)</span>
         <kbd class="sidebar-search-key">
-          {{ isMacOS() ? '⌘' : '⌃' }}{{ searchHotKey }}
+          {{ isMacOs() ? '⌘' : '⌃' }}{{ searchHotKey }}
         </kbd>
       </span>
     </div>

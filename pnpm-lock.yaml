@@ -842,9 +842,6 @@ importers:
       '@scalar/oas-utils':
         specifier: workspace:*
         version: link:../oas-utils
-      '@scalar/object-utils':
-        specifier: workspace:*
-        version: link:../object-utils
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -863,9 +860,6 @@ importers:
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
-      '@scalar/use-tooltip':
-        specifier: workspace:*
-        version: link:../use-tooltip
       '@unhead/vue':
         specifier: ^1.9.13
         version: 1.9.13(vue@3.5.12(typescript@5.6.2))
@@ -891,15 +885,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
-      '@vitest/coverage-v8':
-        specifier: ^1.6.0
-        version: 1.6.0(vitest@1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2))
       '@vue/test-utils':
         specifier: ^2.4.1
         version: 2.4.6
@@ -915,9 +903,6 @@ importers:
       tailwindcss:
         specifier: ^3.4.4
         version: 3.4.4(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2))
-      type-fest:
-        specifier: ^4.20.0
-        version: 4.20.0
       vite:
         specifier: ^5.4.9
         version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
@@ -930,9 +915,6 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
-      vitest-matchmedia-mock:
-        specifier: ^1.0.5
-        version: 1.0.5(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
 
   packages/api-reference-editor:
     dependencies:
@@ -16425,9 +16407,6 @@ packages:
 
   vitest-environment-nuxt@1.0.0:
     resolution: {integrity: sha512-AWMO9h4HdbaFdPWZw34gALFI8gbBiOpvfbyeZwHIPfh4kWg/TwElYHvYMQ61WPUlCGaS5LebfHkaI0WPyb//Iw==}
-
-  vitest-matchmedia-mock@1.0.5:
-    resolution: {integrity: sha512-EqllUk4M7PckMIYZ9kMUygFJxwgPdONeden9UxHpM0Sum+ZZogx3G1pElw0/3FG6a+QOTk1gdGxEcbqV1mflIw==}
 
   vitest@1.6.0:
     resolution: {integrity: sha512-H5r/dN06swuFnzNFhq/dnz37bPXnq8xB2xB5JOVk8K09rUtoeNN+LHWkoQ0A/i3hvbUKKcCei9KpbxqHMLhLLA==}
@@ -36902,25 +36881,6 @@ snapshots:
       - vitest
       - vue
       - vue-router
-
-  vitest-matchmedia-mock@1.0.5(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2):
-    dependencies:
-      vitest: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
-    transitivePeerDependencies:
-      - '@edge-runtime/vm'
-      - '@types/node'
-      - '@vitest/browser'
-      - '@vitest/ui'
-      - happy-dom
-      - jsdom
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
 
   vitest@1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2):
     dependencies:
