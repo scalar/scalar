@@ -76,7 +76,9 @@ export function setupAuthenticationRoutes(
     } else if (scheme.type === 'openIdConnect') {
       // Handle OpenID Connect configuration
       if (scheme.openIdConnectUrl) {
-        const configPath = getPathFromUrl(scheme.openIdConnectUrl)
+        const configPath = getPathFromUrl(
+          scheme.openIdConnectUrl ?? '/.well-known/openid-configuration',
+        )
 
         // Add route for OpenID Connect configuration
         app.get(configPath, (c) => {
