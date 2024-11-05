@@ -14,7 +14,7 @@ describe('workThroughQueue', () => {
         paths: {},
       },
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
@@ -68,7 +68,7 @@ describe('workThroughQueue', () => {
         paths: {},
       },
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
@@ -106,7 +106,7 @@ describe('workThroughQueue', () => {
         },
       ],
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
@@ -135,7 +135,7 @@ describe('workThroughQueue', () => {
         paths: {},
       },
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
@@ -174,7 +174,7 @@ describe('workThroughQueue', () => {
         },
       ],
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
@@ -224,7 +224,7 @@ describe('workThroughQueue', () => {
       errors: [],
       version: '3.1',
       specification: {
-        openapi: '3.1.0',
+        openapi: '3.1.1',
         info: {
           title: 'Hello World',
           version: '1.0.0',
