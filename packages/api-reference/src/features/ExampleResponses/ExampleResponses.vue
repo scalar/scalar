@@ -112,8 +112,7 @@ const showSchema = ref(false)
           @click="() => copyToClipboard(currentJsonResponse?.example)">
           <ScalarIcon
             icon="Clipboard"
-            width="12px"
-            x="asd" />
+            width="12px" />
         </button>
         <label
           v-if="currentJsonResponse?.schema"
