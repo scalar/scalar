@@ -1,5 +1,5 @@
 import { type ClientConfiguration, createApiClient } from '@/libs'
-import { createWebHistoryRouter, saveWorkspace } from '@/router'
+import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
 
 import ApiClientWeb from './ApiClientWeb.vue'
 
@@ -28,7 +28,7 @@ export const createApiClientWeb = async (
   })
 
   const { importSpecFile, importSpecFromUrl } = client.store
-  router.afterEach(saveWorkspace)
+  router.afterEach(saveActiveWorkspace)
 
   // Import the spec if needed
   if (configuration.spec?.url) {

@@ -1,5 +1,4 @@
-import { redirectToDefaultWorkspace } from '@/router'
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 
 export enum PathId {
   Request = 'request',
@@ -11,6 +10,34 @@ export enum PathId {
   Servers = 'servers',
   Workspace = 'workspace',
   Settings = 'settings',
+}
+
+/** Tracks the active workspace in localStorage for when the client reloads */
+const ACTIVE_WORKSPACE_KEY = 'activeWorkspace' as const
+
+/** Save the active workspace in localStorage for when the client reloads */
+export function saveActiveWorkspace(to: RouteLocationNormalized) {
+  const workspace = to.params[PathId.Workspace]
+
+  if (workspace) {
+    localStorage.setItem(ACTIVE_WORKSPACE_KEY, `${workspace}`)
+  }
+}
+
+/** Redirect to the saved workspace or the default workspace */
+export function redirectToActiveWorkspace() {
+  const activeWorkspace = localStorage.getItem(ACTIVE_WORKSPACE_KEY)
+
+  return activeWorkspace
+    ? {
+        name: 'request.default',
+        params: {
+          workspace: activeWorkspace,
+        },
+      }
+    : {
+        name: 'workspace.default',
+      }
 }
 
 /** Shared request routes between modal and app */
@@ -67,12 +94,12 @@ export const routes = [
   {
     name: 'root',
     path: '/',
-    redirect: redirectToDefaultWorkspace,
+    redirect: redirectToActiveWorkspace,
   },
   {
     name: 'workspace.default',
     path: '/workspace',
-    redirect: redirectToDefaultWorkspace,
+    redirect: redirectToActiveWorkspace,
   },
   {
     name: 'workspace',
