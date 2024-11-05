@@ -169,6 +169,61 @@ it('dereferences a simple reference', async () => {
   })
 })
 
+it("doesn't attempt to dereference properties named $ref", async () => {
+  const openapi = {
+    openapi: '3.1.0',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+    paths: {
+      '/test': {
+        get: {
+          responses: {
+            '200': {
+              // TODO: This is valid in @apidevtools/swagger, but not with our implementation
+              description: 'foobar',
+              content: {
+                'application/json': {
+                  schema: {
+                    properties: {
+                      $ref: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  }
+
+  const result = await dereference(openapi)
+
+  expect(result.errors).toStrictEqual([])
+
+  // Original
+  expect(
+    result.specification.paths['/test'].get.responses['200'].content[
+      'application/json'
+    ].schema.properties,
+  ).toEqual({
+    $ref: { type: 'string' },
+  })
+
+  // Resolved references
+  expect(
+    result.schema.paths['/test'].get.responses['200'].content[
+      'application/json'
+    ].schema.properties,
+  ).toEqual({
+    $ref: { type: 'string' },
+  })
+})
+
 it('throws an error', async () => {
   expect(async () => {
     await dereference(

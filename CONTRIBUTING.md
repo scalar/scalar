@@ -24,7 +24,7 @@ These scripts use [`turbo`](https://turbo.build/) to build all the dependencies 
 | `pnpm dev:client:app`     | Runs the API Client desktop app in a browser dev environment (with HMR\*) |
 | `pnpm dev:client:modal`   | Runs the API Client modal layout (with HMR\*)                             |
 | `pnpm dev:client:web`     | Runs the API Client client web app (with HMR\*)                           |
-| `pnpm dev:components`     | Runs storybook for `@mintlify/components`                                   |
+| `pnpm dev:components`     | Runs storybook for `@mintlify/components`                                 |
 | `pnpm dev:nuxt`           | Runs the [Nuxt](https://nuxt.com/) package                                |
 | `pnpm dev:proxy-server`   | Runs the Scalar proxy server locally                                      |
 | `pnpm dev:reference`      | Runs the API References dev environment (with HMR\*)                      |

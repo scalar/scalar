@@ -99,13 +99,14 @@ export function resolveReferences(
     schema: AnyObject,
     resolveFilesystem: Filesystem,
     resolveFile: FilesystemEntry,
+    isDynamicProperty?: boolean,
   ): DereferenceResult {
     let result: DereferenceResult | undefined
 
     // Iterate over the whole objecct
-    Object.entries(schema ?? {}).forEach(([_, value]) => {
+    Object.entries(schema ?? {}).forEach(([key, value]) => {
       // Ignore parts without a reference
-      if (schema.$ref !== undefined) {
+      if (schema.$ref !== undefined && !isDynamicProperty) {
         // Find the referenced content
         const target = resolveUri(
           schema.$ref,
@@ -123,16 +124,21 @@ export function resolveReferences(
         delete schema.$ref
 
         if (typeof target === 'object') {
-          Object.keys(target).forEach((key) => {
-            if (schema[key] === undefined) {
-              schema[key] = target[key]
+          Object.keys(target).forEach((targetKey) => {
+            if (schema[targetKey] === undefined) {
+              schema[targetKey] = target[targetKey]
             }
           })
         }
       }
 
       if (typeof value === 'object' && !isCircular(value)) {
-        result = resolve(value, resolveFilesystem, resolveFile)
+        result = resolve(
+          value,
+          resolveFilesystem,
+          resolveFile,
+          key === 'properties' && !isDynamicProperty,
+        )
       }
     })
 
