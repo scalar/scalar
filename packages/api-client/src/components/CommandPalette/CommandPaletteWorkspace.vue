@@ -26,7 +26,14 @@ const handleSubmit = () => {
   const workspace = workspaceMutators.add({
     name: workspaceName.value,
   })
-  push(`/workspace/${workspace.uid}`)
+
+  push({
+    name: 'workspace',
+    params: {
+      uid: workspace.uid,
+    },
+  })
+
   emits('close')
 }
 </script>

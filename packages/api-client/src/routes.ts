@@ -26,18 +26,23 @@ export function saveActiveWorkspace(to: RouteLocationNormalized) {
 
 /** Redirect to the saved workspace or the default workspace */
 export function redirectToActiveWorkspace() {
+  // Access localStorage
   const activeWorkspace = localStorage.getItem(ACTIVE_WORKSPACE_KEY)
 
-  return activeWorkspace
-    ? {
-        name: 'request.default',
-        params: {
-          workspace: activeWorkspace,
-        },
-      }
-    : {
-        name: 'workspace.default',
-      }
+  // Fallback
+  if (!activeWorkspace) {
+    return {
+      name: 'workspace.default',
+    }
+  }
+
+  // Redirect to active workspace
+  return {
+    name: 'request.default',
+    params: {
+      workspace: activeWorkspace,
+    },
+  }
 }
 
 /** Shared request routes between modal and app */
@@ -75,16 +80,29 @@ export const modalRoutes = [
   {
     name: 'root',
     path: '/',
-    redirect: '/workspace/default/request/default',
+    redirect: {
+      name: 'workspace',
+      params: {
+        workspace: 'default',
+      },
+    },
   },
   {
     name: 'workspace.default',
     path: '/workspace',
-    redirect: '/workspace/default/request/default',
+    redirect: {
+      name: 'workspace',
+      params: {
+        workspace: 'default',
+      },
+    },
   },
   {
     name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
+    redirect: {
+      name: 'request.default',
+    },
     children: requestRoutes,
   },
 ] satisfies RouteRecordRaw[]
@@ -104,6 +122,9 @@ export const routes = [
   {
     name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
+    redirect: {
+      name: 'request.default',
+    },
     children: [
       ...requestRoutes,
       // {
