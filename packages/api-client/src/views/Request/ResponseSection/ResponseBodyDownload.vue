@@ -23,6 +23,9 @@ const filenameExtension = computed(() => {
     <ScalarIcon
       icon="Download"
       size="xs" />
-    <span>Download</span>
+    <span>
+      <span>Download</span>
+      <span class="sr-only">Response Body</span>
+    </span>
   </a>
 </template>

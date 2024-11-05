@@ -23,7 +23,7 @@ import {
   useModal,
 } from '@scalar/components'
 import { nanoid } from 'nanoid'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
@@ -43,7 +43,8 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
-const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
+const comboboxRef = useTemplateRef('comboboxRef')
+const comboboxButtonRef = useTemplateRef('comboboxButtonRef')
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
@@ -164,10 +165,12 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 }
 
 /** Remove a single auth type from an example */
-const unselectAuth = (unSelectUid: string) =>
+const unselectAuth = (unSelectUid: string) => {
   editSelectedSchemeUids(
     selectedSecuritySchemeUids.filter((uid) => uid !== unSelectUid),
   )
+  comboboxButtonRef.value?.$el.focus()
+}
 
 function handleDeleteScheme(option: { id: string; label: string }) {
   selectedScheme.value = option
@@ -203,6 +206,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               @delete="handleDeleteScheme"
               @update:modelValue="updateSelectedAuth">
               <ScalarButton
+                ref="comboboxButtonRef"
                 class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start -outline-offset-2"
                 fullWidth
                 variant="ghost">
@@ -218,14 +222,15 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit pr-0.5 !bg-b-2 text-c-1 has-[:focus-visible]:outline">
+                      class="cm-pill flex items-center mx-0 h-fit pr-0.5 !bg-b-2 text-c-1">
                       {{ auth.label }}
                       <ScalarIconButton
-                        class="cursor-pointer -ml-0.5 text-c-3 hover:text-c-1 outline-none"
+                        class="cursor-pointer -ml-0.5 text-c-3 hover:text-c-1 rounded-full"
                         icon="Close"
                         :label="`Remove ${auth.label}`"
                         size="xs"
-                        @click.stop="unselectAuth(auth.id)" />
+                        @click.stop="unselectAuth(auth.id)"
+                        @keydown.enter.stop="unselectAuth(auth.id)" />
                     </span>
                   </div>
                   <div class="fade-right"></div>

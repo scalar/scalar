@@ -77,10 +77,13 @@ const flattenValue = (item: RequestExampleParameter) => {
     <DataTableRow
       v-for="(item, idx) in items"
       :key="idx">
-      <DataTableCheckbox
-        v-if="!isEnabledHidden"
-        :modelValue="item.enabled"
-        @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+      <label class="contents">
+        <span class="sr-only">Row Enabled</span>
+        <DataTableCheckbox
+          v-if="!isEnabledHidden"
+          :modelValue="item.enabled"
+          @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+      </label>
       <DataTableCell>
         <CodeInput
           disableCloseBrackets

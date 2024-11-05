@@ -19,7 +19,14 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
-import { onBeforeUnmount, onMounted, reactive, watch } from 'vue'
+import {
+  computed,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  useId,
+  watch,
+} from 'vue'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
@@ -45,6 +52,8 @@ const {
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+
+const searchResultsId = useId()
 
 /** The currently selected sidebarMenuItem for the context menu */
 const menuItem = reactive<SidebarMenuItem>({ open: false })
@@ -102,6 +111,13 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
     item.watchMode = !item.watchMode
   }
 }
+
+const selectedResultId = computed(() => {
+  if (selectedSearchResult.value === -1) return undefined
+  const result =
+    searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+  return result ? `#search-input-${result.item.id}` : undefined
+})
 </script>
 <template>
   <Sidebar
@@ -114,10 +130,14 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
       #header>
     </template>
     <template #content>
-      <div class="search-button-fade sticky px-3 py-2.5 top-0 z-10">
+      <div
+        class="search-button-fade sticky px-3 py-2.5 top-0 z-10"
+        role="search">
         <ScalarSearchInput
           ref="searchInputRef"
           v-model="searchText"
+          :aria-activedescendant="selectedResultId"
+          :aria-controls="searchResultsId"
           sidebar
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
@@ -133,6 +153,8 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
         @dragover.prevent>
         <template v-if="searchText">
           <ScalarSearchResultList
+            :id="searchResultsId"
+            aria-label="Search Results"
             class="gap-px"
             :noResults="!searchResultsWithPlaceholderResults.length">
             <ScalarSearchResultItem
@@ -147,6 +169,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
               @focus="selectedSearchResult = index">
               {{ entry.item.title }}
               <template #addon>
+                <span class="sr-only">HTTP Method:</span>
                 <HttpMethod
                   class="font-bold"
                   :method="entry.item.httpVerb ?? 'get'" />
@@ -154,7 +177,9 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
             </ScalarSearchResultItem>
           </ScalarSearchResultList>
         </template>
-        <template v-else>
+        <nav
+          v-else
+          class="contents">
           <!-- Collections -->
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
@@ -191,7 +216,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
               </div>
             </template>
           </RequestSidebarItem>
-        </template>
+        </nav>
       </div>
     </template>
     <template #button>

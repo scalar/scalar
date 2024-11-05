@@ -51,11 +51,16 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
       prettyMilliseconds(stopwatch)
     }}</span>
     <template v-else>
-      <span>{{ prettyMilliseconds(response.duration) }}</span>
-      <span v-if="getContentLength(response)">{{
-        getContentLength(response)
-      }}</span>
+      <span>
+        <span class="sr-only">Response Information, Duration:</span>
+        {{ prettyMilliseconds(response.duration) }}
+      </span>
+      <span v-if="getContentLength(response)">
+        <span class="sr-only">, Size:</span>
+        {{ getContentLength(response) }}
+      </span>
       <template v-if="statusCodeInformation">
+        <span class="sr-only">, Status:</span>
         <HelpfulLink
           v-if="statusCodeInformation.url"
           :href="statusCodeInformation.url">

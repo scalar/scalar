@@ -248,7 +248,7 @@ const watchIconColor = computed(() => {
 </script>
 
 <template>
-  <div
+  <li
     class="relative flex flex-row"
     :class="[
       (isReadOnly && parentUids.length > 1) ||
@@ -320,6 +320,7 @@ const watchIconColor = computed(() => {
             </div>
             <span class="flex items-start">
               &hairsp;
+              <span class="sr-only">HTTP Method:</span>
               <HttpMethod
                 v-if="item.method"
                 class="font-bold"
@@ -332,6 +333,7 @@ const watchIconColor = computed(() => {
       <!-- Collection/Folder -->
       <button
         v-else-if="!isReadOnly || parentUids.length"
+        :aria-expanded="collapsedSidebarFolders[item.entity.uid]"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
         :class="highlightClasses"
         type="button"
@@ -414,7 +416,7 @@ const watchIconColor = computed(() => {
       </button>
 
       <!-- Children -->
-      <div v-if="showChildren">
+      <ul v-if="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
           v-for="childUid in item.children"
@@ -439,9 +441,9 @@ const watchIconColor = computed(() => {
             thickness="3" />
           <span>Add Request</span>
         </ScalarButton>
-      </div>
+      </ul>
     </Draggable>
-  </div>
+  </li>
 </template>
 <style>
 @import '@scalar/draggable/style.css';

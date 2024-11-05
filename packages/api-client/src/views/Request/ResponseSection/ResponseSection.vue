@@ -64,20 +64,21 @@ const shouldVirtualize = computed(
 )
 </script>
 <template>
-  <ViewLayoutSection>
+  <ViewLayoutSection aria-label="Response">
     <template #title>
-      <div
-        class="flex items-center flex-1 h-8"
-        :class="{
-          'animate-response-heading': response,
-        }">
-        <span class="response-heading absolute pointer-events-none"
-          >Response</span
-        >
-        <ResponseMetaInformation
-          v-if="response"
-          class="animate-response-children"
-          :response="response" />
+      <div class="flex items-center flex-1 h-8">
+        <div
+          aria-live="polite"
+          class="flex items-center"
+          :class="{ 'animate-response-heading': response }">
+          <span class="response-heading absolute pointer-events-none">
+            Response
+          </span>
+          <ResponseMetaInformation
+            v-if="response"
+            class="animate-response-children"
+            :response="response" />
+        </div>
         <ContextBar
           :activeSection="activeSection"
           :sections="sections"

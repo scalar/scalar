@@ -59,6 +59,7 @@ const { activeCollection } = useWorkspace()
           icon="Close"
           size="lg"
           thickness="2" />
+        <span class="sr-only">Close Client</span>
       </button>
       <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
       <button
@@ -70,6 +71,7 @@ const { activeCollection } = useWorkspace()
           icon="Close"
           size="md"
           thickness="1.75" />
+        <span class="sr-only">Close Client</span>
       </button>
     </div>
   </div>
