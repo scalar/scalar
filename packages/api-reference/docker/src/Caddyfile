@@ -1,0 +1,20 @@
+:80 {
+    handle /health {
+        respond "OK" 200
+    }
+
+    root * /usr/share/caddy
+
+    file_server {
+        hide .git
+        hide .env*
+    }
+    templates
+
+    encode gzip
+
+    try_files {path} /index.html
+
+    header Content-Security-Policy "default-src 'self'; connect-src *; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src * data:; media-src 'self' data: blob:; object-src 'self' blob:; frame-src 'self' blob:; font-src https://fonts.scalar.com"
+}
+
