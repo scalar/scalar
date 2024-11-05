@@ -69,7 +69,13 @@ export function handleAuthentication(
                 if (c.req.header('Authorization')?.startsWith('Bearer ')) {
                   isAuthenticated = true
                 }
-
+                break
+              case 'openIdConnect':
+                authScheme = 'Bearer'
+                // Handle OpenID Connect similar to OAuth2
+                if (c.req.header('Authorization')?.startsWith('Bearer ')) {
+                  isAuthenticated = true
+                }
                 break
             }
           }

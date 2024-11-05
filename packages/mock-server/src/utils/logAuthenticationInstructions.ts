@@ -132,7 +132,13 @@ export function logAuthenticationInstructions(
         }
         break
       case 'openIdConnect':
-        console.log('⚠️ OpenID Connect Authentication')
+        console.log('✅ OpenID Connect Authentication')
+        console.log('   Use the following OpenID Connect discovery URL:')
+        console.log()
+        console.log(
+          `   ${getPathFromUrl(scheme.openIdConnectUrl || '/.well-known/openid-configuration')}`,
+        )
+        console.log()
         break
       default:
         console.warn(`Unsupported security scheme type: ${scheme.type}`)

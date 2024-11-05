@@ -73,6 +73,32 @@ export function setupAuthenticationRoutes(
           scheme.flows.clientCredentials.tokenUrl ?? '/oauth/token'
         tokenUrls.add(tokenRoute)
       }
+    } else if (scheme.type === 'openIdConnect') {
+      // Handle OpenID Connect configuration
+      if (scheme.openIdConnectUrl) {
+        const configPath = getPathFromUrl(
+          scheme.openIdConnectUrl ?? '/.well-known/openid-configuration',
+        )
+
+        // Add route for OpenID Connect configuration
+        app.get(configPath, (c) => {
+          return c.json({
+            issuer: 'https://example.com',
+            authorization_endpoint: '/oauth/authorize',
+            token_endpoint: '/oauth/token',
+            response_types_supported: ['code', 'token', 'id_token'],
+            subject_types_supported: ['public'],
+            id_token_signing_alg_values_supported: ['RS256'],
+          })
+        })
+
+        // Add standard endpoints
+        const authorizeRoute = '/oauth/authorize'
+        const tokenRoute = '/oauth/token'
+
+        authorizeUrls.add(getPathFromUrl(authorizeRoute))
+        tokenUrls.add(tokenRoute)
+      }
     }
   })
 
