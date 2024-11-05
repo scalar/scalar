@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { ErrorBoundary } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   type ThemeId,
@@ -41,7 +42,6 @@ import type {
   ReferenceSlotProps,
 } from '../types'
 import { Content } from './Content'
-import ErrorBoundary from './ErrorBoundary.vue'
 import GettingStarted from './GettingStarted.vue'
 import { Sidebar } from './Sidebar'
 

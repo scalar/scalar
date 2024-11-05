@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { Lazy } from '@/components/Content/Lazy'
-import { ErrorBoundary } from '@/components/ErrorBoundary'
 import { Operation } from '@/features/Operation'
 import { useNavState, useSidebar } from '@/hooks'
+import { ErrorBoundary } from '@scalar/components'
 import type { Spec, Tag as tagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 

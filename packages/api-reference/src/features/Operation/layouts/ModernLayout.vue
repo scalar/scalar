@@ -12,10 +12,9 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import ErrorBoundary from '../../ErrorBoundary.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 

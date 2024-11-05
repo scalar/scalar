@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { ErrorBoundary } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
-import ErrorBoundary from '../../ErrorBoundary.vue'
 import {
   CompactSection,
   Section,

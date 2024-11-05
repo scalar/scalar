@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { ErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import ErrorBoundary from '../ErrorBoundary.vue'
 import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
