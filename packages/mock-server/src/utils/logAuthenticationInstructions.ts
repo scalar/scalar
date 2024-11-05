@@ -15,8 +15,6 @@ export function logAuthenticationInstructions(
   console.log('Authentication:')
   console.log()
 
-  console.log(securitySchemes)
-
   Object.entries(securitySchemes).forEach(([_, scheme]) => {
     switch (scheme.type) {
       case 'apiKey':
