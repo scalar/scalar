@@ -2,10 +2,24 @@
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { onBeforeMount, onBeforeUnmount, onMounted, provide, watch } from 'vue'
+import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
+import {
+  onBeforeMount,
+  onBeforeUnmount,
+  onMounted,
+  provide,
+  useTemplateRef,
+  watch,
+} from 'vue'
 import { RouterView } from 'vue-router'
 
 const { activeWorkspace, modalState, events } = useWorkspace()
+const client = useTemplateRef('client')
+const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
+  useFocusTrap(client, {
+    allowOutsideClick: true,
+    initialFocus: () => client.value,
+  })
 
 // Provide the layout value
 provide('layout', 'modal')
@@ -14,16 +28,23 @@ provide('layout', 'modal')
 const handleKeyDown = (ev: KeyboardEvent) =>
   handleHotKeyDown(ev, events.hotKeys, activeWorkspace.value.hotKeyConfig)
 
-// Disable scrolling while the modal is open, also our global hotkey listeners
 watch(
   () => modalState.open,
   (open) => {
     if (open) {
+      // Add the global hotkey listener
       window.addEventListener('keydown', handleKeyDown)
+      // Disable scrolling
       document.documentElement.style.overflow = 'hidden'
+      // Wait for the animation to finish then focus trap the client
+      setTimeout(() => activateFocusTrap(), 400)
     } else {
+      // Remove the global hotkey listener
       window.removeEventListener('keydown', handleKeyDown)
+      // Restore scrolling
       document.documentElement.style.removeProperty('overflow')
+      // Remove the focus trap
+      deactivateFocusTrap()
     }
   },
 )
@@ -46,14 +67,20 @@ onBeforeUnmount(() => {
 <template>
   <div
     v-show="modalState.open"
-    class="scalar">
-    <div className="scalar-container z-overlay">
-      <div className="scalar-app scalar-client scalar-app-layout">
+    class="scalar scalar-app">
+    <div class="scalar-container z-overlay">
+      <div
+        ref="client"
+        aria-label="API Client"
+        aria-modal="true"
+        class="scalar-app-layout scalar-client"
+        role="dialog"
+        tabindex="0">
         <RouterView key="$route.fullPath" />
       </div>
       <div
         class="scalar-app-exit -z-1"
-        @click="modalState.hide()"></div>
+        @click="modalState.hide()" />
     </div>
   </div>
 </template>
