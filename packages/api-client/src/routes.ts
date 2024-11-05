@@ -117,7 +117,12 @@ export const routes = [
   {
     name: 'workspace.default',
     path: '/workspace',
-    redirect: redirectToActiveWorkspace,
+    redirect: {
+      name: 'request.default',
+      params: {
+        workspace: 'default',
+      },
+    },
   },
   {
     name: 'workspace',
