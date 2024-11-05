@@ -23,20 +23,28 @@ export enum PathId {
 /** Shared request routes between modal and app */
 const requestRoutes = [
   {
+    name: 'request.root',
     path: '',
-    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/request/default`,
+    redirect: (to) => ({
+      name: 'request',
+      params: { ...to.params, request: 'default' },
+    }),
   },
   {
+    name: 'request.default',
     path: 'request',
-    redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+    redirect: (to) => ({
+      name: 'request',
+      params: { ...to.params, request: 'default' },
+    }),
   },
   {
-    name: PathId.Request,
+    name: 'request',
     path: `request/:${PathId.Request}`,
     component: () => import('@/views/Request/Request.vue'),
   },
   {
-    name: PathId.Examples,
+    name: 'request.examples',
     path: `request/:${PathId.Request}/examples/:${PathId.Examples}`,
     component: () => import('@/views/Request/Request.vue'),
   },
@@ -45,14 +53,17 @@ const requestRoutes = [
 /** Routes required by the API client modal */
 export const modalRoutes = [
   {
+    name: 'root',
     path: '/',
     redirect: '/workspace/default/request/default',
   },
   {
+    name: 'workspace.default',
     path: '/workspace',
     redirect: '/workspace/default/request/default',
   },
   {
+    name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
     children: requestRoutes,
   },
@@ -61,14 +72,17 @@ export const modalRoutes = [
 /** Routes for the API client app */
 const routes = [
   {
+    name: 'root',
     path: '/',
     redirect: redirectToDefaultWorkspace,
   },
   {
+    name: 'workspace.default',
     path: '/workspace',
     redirect: redirectToDefaultWorkspace,
   },
   {
+    name: 'workspace',
     path: `/workspace/:${PathId.Workspace}`,
     children: [
       ...requestRoutes,
@@ -101,38 +115,54 @@ const routes = [
       //   ],
       // },
       {
+        name: 'environment.default',
         path: 'environment',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+        redirect: (to) => ({
+          name: 'environment',
+          params: { ...to.params, environment: 'default' },
+        }),
       },
       {
-        name: PathId.Environment,
+        name: 'environment',
         path: `environment/:${PathId.Environment}`,
         component: () => import('@/views/Environment/Environment.vue'),
       },
       {
+        name: 'cookies.default',
         path: 'cookies',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+        redirect: (to) => ({
+          name: 'cookies',
+          params: { ...to.params, cookies: 'default' },
+        }),
       },
       {
-        name: PathId.Cookies,
+        name: 'cookies',
         path: `cookies/:${PathId.Cookies}`,
         component: () => import('@/views/Cookies/Cookies.vue'),
       },
       {
+        name: 'servers.default',
         path: 'servers',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/default`,
+        redirect: (to) => ({
+          name: 'servers',
+          params: { ...to.params, servers: 'default' },
+        }),
       },
       {
-        name: PathId.Servers,
+        name: 'servers',
         path: `servers/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
       },
       {
+        name: 'settings.default',
         path: 'settings',
-        redirect: (to) => `${to.fullPath.replace(/\/$/, '')}/general`,
+        redirect: (to) => ({
+          name: 'settings',
+          params: { ...to.params, settings: 'general' },
+        }),
       },
       {
-        name: PathId.Settings,
+        name: 'settings',
         path: `settings/:${PathId.Settings}`,
         component: () => import('@/views/Settings/Settings.vue'),
       },
