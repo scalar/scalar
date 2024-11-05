@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
-import { ErrorBoundary } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   type ThemeId,
@@ -300,7 +300,7 @@ const themeStyleTag = computed(
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
-        <ErrorBoundary>
+        <ScalarErrorBoundary>
           <Sidebar
             :operationsSorter="configuration.operationsSorter"
             :parsedSpec="parsedSpec"
@@ -316,7 +316,7 @@ const themeStyleTag = computed(
                 name="sidebar-end" />
             </template>
           </Sidebar>
-        </ErrorBoundary>
+        </ScalarErrorBoundary>
       </div>
     </aside>
     <!-- Swagger file editing -->

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ErrorBoundary } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 

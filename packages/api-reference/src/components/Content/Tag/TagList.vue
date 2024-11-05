@@ -2,7 +2,7 @@
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
 import { useNavState, useSidebar } from '@/hooks'
-import { ErrorBoundary } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec, Tag as tagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -40,13 +40,13 @@ const isLazy = props.layout !== 'classic' && !hash.value.startsWith('model')
         :id="getOperationId(operation, tag)"
         :key="`${operation.httpVerb}-${operation.operationId}`"
         :isLazy="operationIndex > 0">
-        <ErrorBoundary>
+        <ScalarErrorBoundary>
           <Operation
             :id="getOperationId(operation, tag)"
             :layout="layout"
             :operation="operation"
             :tag="tag" />
-        </ErrorBoundary>
+        </ScalarErrorBoundary>
       </Lazy>
     </Component>
   </Lazy>

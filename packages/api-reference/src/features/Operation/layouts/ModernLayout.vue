@@ -48,7 +48,7 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ErrorBoundary>
+            <ScalarErrorBoundary>
               <ExampleRequest
                 fallback
                 :operation="operation">
@@ -62,12 +62,12 @@ defineProps<{
                   <TestRequestButton :operation="operation" />
                 </template>
               </ExampleRequest>
-            </ErrorBoundary>
-            <ErrorBoundary>
+            </ScalarErrorBoundary>
+            <ScalarErrorBoundary>
               <ExampleResponses
                 :operation="operation"
                 style="margin-top: 12px" />
-            </ErrorBoundary>
+            </ScalarErrorBoundary>
           </div>
         </SectionColumn>
       </SectionColumns>
