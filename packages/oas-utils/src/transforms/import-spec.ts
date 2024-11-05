@@ -126,7 +126,7 @@ export type ImportSpecToWorkspaceArgs = Pick<
   CollectionPayload,
   'documentUrl' | 'watchMode'
 > &
-  Pick<ReferenceConfiguration, 'authentication'> & {
+  Pick<ReferenceConfiguration, 'authentication' | 'baseServerURL'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
   }
@@ -143,6 +143,7 @@ export async function importSpecToWorkspace(
   spec: string | UnknownObject,
   {
     authentication,
+    baseServerURL,
     documentUrl,
     setCollectionSecurity = false,
     watchMode = false,
@@ -167,19 +168,34 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const requests: Request[] = []
+  const _baseServerUrl =
+    (baseServerURL ?? typeof window !== 'undefined')
+      ? window.location.origin
+      : 'http://localhost'
+
+  // Add the base server url to any relative servers
   const servers: Server[] = serverSchema.array().parse(
-    schema.servers?.map(
-      (s) =>
-        s ?? [
-          {
-            url:
-              typeof window !== 'undefined'
-                ? window.location.origin
-                : 'http://localhost',
-            description: 'Replace with your API server',
-          },
-        ],
-    ) ?? [],
+    schema.servers?.map((s) => {
+      // Prepend base server url if relative
+      if (s?.url?.startsWith('/'))
+        return {
+          ...s,
+          // Ensure we only have one slash between
+          url: [
+            _baseServerUrl.replace(/\/$/, ''),
+            s.url.replace(/^\//, ''),
+          ].join('/'),
+        }
+
+      // Just return a regular server
+      if (s) return s
+      // Not sure what this is for, doesn't seem to be doing anything
+      else
+        return {
+          url: _baseServerUrl,
+          description: 'Replace with your API server',
+        }
+    }) ?? [],
   )
 
   /**

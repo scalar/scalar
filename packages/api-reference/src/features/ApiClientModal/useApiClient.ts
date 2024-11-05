@@ -1,18 +1,10 @@
 import { createApiClientModal } from '@scalar/api-client/layouts/Modal'
-import type { ApiClient } from '@scalar/api-client/libs'
-import type {
-  ReferenceConfiguration,
-  Spec,
-  SpecConfiguration,
-} from '@scalar/types/legacy'
+import type { ApiClient, ClientConfiguration } from '@scalar/api-client/libs'
 import { ref } from 'vue'
 
 type InitArgs = {
   el: HTMLElement
-  spec?: SpecConfiguration
-  authentication?: ReferenceConfiguration['authentication']
-  proxyUrl?: string
-  servers?: Spec['servers']
+  configuration: ClientConfiguration
 }
 
 /** API Client instance */
@@ -26,19 +18,8 @@ export const useApiClient = (): {
   init: (args: InitArgs) => Promise<ApiClient>
 } => {
   /** Iniitialize the API Client, must be called only once or we will reset the state */
-  const init = async ({
-    el,
-    spec = {},
-    authentication,
-    proxyUrl,
-    servers,
-  }: InitArgs): Promise<ApiClient> => {
-    const _client = (await createApiClientModal(el, {
-      authentication,
-      spec,
-      proxyUrl,
-      servers,
-    })) as ApiClient
+  const init = async ({ el, configuration }: InitArgs): Promise<ApiClient> => {
+    const _client = (await createApiClientModal(el, configuration)) as ApiClient
 
     client.value = _client
     return _client
