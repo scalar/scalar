@@ -82,6 +82,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",
