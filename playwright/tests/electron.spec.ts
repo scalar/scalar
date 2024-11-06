@@ -42,11 +42,11 @@ test.describe('Electron', () => {
     console.log('Build paths:')
     console.log('CWD:', process.cwd())
     console.log('App folder:', cwd)
-    console.log('Entry point:', join(cwd, 'out/main/index.js'))
+    console.log('Entry point:', join(cwd, 'dist/main/index.js'))
 
     // Verify the entry point file exists
     try {
-      const entryPoint = join(cwd, 'out/main/index.js')
+      const entryPoint = join(cwd, 'dist/main/index.js')
       statSync(entryPoint)
       console.log('Entry point exists!')
     } catch (error) {
@@ -55,7 +55,7 @@ test.describe('Electron', () => {
 
     // Launch the Electron app with absolute path
     const app = await _electron.launch({
-      args: [join(cwd, 'out/main/index.js')],
+      args: [join(cwd, 'dist/main/index.js')],
       cwd,
     })
 
