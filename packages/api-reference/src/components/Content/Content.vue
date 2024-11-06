@@ -5,6 +5,13 @@ import { computed } from 'vue'
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
+import {
+  Section,
+  SectionColumn,
+  SectionColumns,
+  SectionContainer,
+  SectionContent,
+} from '../Section'
 import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
@@ -66,9 +73,40 @@ const introCardsSlot = computed(() =>
         </div>
       </template>
     </Introduction>
+
+    <!-- Show servers/clients even if we have no intro -->
+    <SectionContainer v-else-if="servers || baseServerURL">
+      <Section class="introduction-section">
+        <SectionContent>
+          <SectionColumns>
+            <SectionColumn>
+              <div
+                class="introduction-card"
+                :class="{ 'introduction-card-row': layout === 'accordion' }">
+                <BaseUrl
+                  class="introduction-card-item"
+                  :defaultServerUrl="baseServerURL"
+                  :servers="props.servers"
+                  :specification="parsedSpec" />
+                <Authentication
+                  class="introduction-card-item"
+                  :parsedSpec="parsedSpec"
+                  :proxy="proxy" />
+                <ClientLibraries class="introduction-card-item" />
+              </div>
+            </SectionColumn>
+          </SectionColumns>
+        </SectionContent>
+        <slot name="after" />
+      </Section>
+    </SectionContainer>
+
+    <!-- Empty state -->
     <slot
       v-else
       name="empty-state" />
+
+    <!-- Tags/Content -->
     <template v-if="parsedSpec.tags">
       <template v-if="parsedSpec['x-tagGroups']">
         <TagList

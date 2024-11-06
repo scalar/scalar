@@ -90,7 +90,7 @@ watch(
 
       tags.value.push({
         ...tag,
-        lazyOperations: tag.operations.slice(
+        lazyOperations: tag.operations?.slice(
           operationIndex,
           operationIndex + 2,
         ),
