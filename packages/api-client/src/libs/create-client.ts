@@ -209,17 +209,13 @@ export const createApiClient = ({
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
         proxy: configuration?.proxyUrl,
-        overloadServers: configuration?.servers,
-        baseServerURL: configuration?.baseServerURL,
-        authentication: configuration.authentication,
         setCollectionSecurity: true,
+        ...configuration,
       })
     } else if (spec?.content) {
       await importSpecFile(spec?.content, activeWorkspace.value.uid, {
-        overloadServers: configuration?.servers,
-        baseServerURL: configuration?.baseServerURL,
-        authentication: configuration.authentication,
         setCollectionSecurity: true,
+        ...configuration,
       })
     } else {
       console.error(

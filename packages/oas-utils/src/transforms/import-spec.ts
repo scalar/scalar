@@ -126,7 +126,10 @@ export type ImportSpecToWorkspaceArgs = Pick<
   CollectionPayload,
   'documentUrl' | 'watchMode'
 > &
-  Pick<ReferenceConfiguration, 'authentication' | 'baseServerURL'> & {
+  Pick<
+    ReferenceConfiguration,
+    'authentication' | 'baseServerURL' | 'servers'
+  > & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
   }
@@ -145,6 +148,7 @@ export async function importSpecToWorkspace(
     authentication,
     baseServerURL,
     documentUrl,
+    servers: overloadServers,
     setCollectionSecurity = false,
     watchMode = false,
   }: ImportSpecToWorkspaceArgs = {},
@@ -176,7 +180,7 @@ export async function importSpecToWorkspace(
 
   // Add the base server url to any relative servers
   const servers: Server[] = serverSchema.array().parse(
-    schema.servers?.map((s) => {
+    (overloadServers ?? schema.servers)?.map((s) => {
       // Prepend base server url if relative
       if (s?.url?.startsWith('/'))
         return {
