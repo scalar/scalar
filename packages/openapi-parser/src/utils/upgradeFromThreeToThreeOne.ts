@@ -56,7 +56,9 @@ export function upgradeFromThreeToThreeOne(originalSpecification: AnyObject) {
       // Objects everywhere else
       else {
         schema.examples = {
-          default: schema.example,
+          default: {
+            value: schema.example,
+          },
         }
       }
       delete schema.example
