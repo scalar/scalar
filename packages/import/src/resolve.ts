@@ -195,8 +195,18 @@ function parseHtml(html?: string) {
   const linkMatch = html.match(
     /<a[^>]*href=["']([^"']+\.(?:yaml|yml|json))["'][^>]*>/i,
   )
+
   if (linkMatch?.[1]) {
     return linkMatch[1]
+  }
+
+  // Check for URLs in escaped JS objects
+  const escapedJsonMatch = html.match(
+    /\\"spec\\":\{.*?\\"url\\":\\"([^"\\]+)\\"/,
+  )
+
+  if (escapedJsonMatch?.[1]) {
+    return escapedJsonMatch[1]
   }
 
   return undefined

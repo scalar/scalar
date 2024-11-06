@@ -420,4 +420,19 @@ info:
 
     expect(result).toBe('https://example.com/swagger/json')
   })
+
+  it('finds the URL in an escaped JS object', async () => {
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(
+      createFetchResponse(
+        `<html>\\"$L8e\\",null,{\\"configuration\\":{\\"spec\\":{\\"url\\":\\"https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json\\"}},\\"initialRequest`,
+      ),
+    )
+
+    const result = await resolve('https://example.com/foo')
+
+    expect(result).toBe(
+      'https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json',
+    )
+  })
 })
