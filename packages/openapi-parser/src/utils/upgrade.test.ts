@@ -16,7 +16,7 @@ describe('upgrade', () => {
     })
 
     expect(specification.swagger).toBeUndefined()
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
   })
 
   it('changes the version to from 3.0.0 to 3.1.0', async () => {
@@ -29,7 +29,7 @@ describe('upgrade', () => {
       paths: {},
     })
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
   })
 
   it('changes the version to 3.0.3 to 3.1.0', async () => {
@@ -42,7 +42,7 @@ describe('upgrade', () => {
       paths: {},
     })
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
   })
 
   it('works with a filesystem', async () => {
@@ -57,6 +57,6 @@ describe('upgrade', () => {
       }),
     )
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
   })
 })

@@ -64,7 +64,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.swagger).toBe('2.0')
     })
 
-    it('changes the version to from 3.0.0 to 3.1.0', async () => {
+    it('changes the version to from 3.0.0 to 3.1.1', async () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -74,10 +74,10 @@ describe('upgradeFromThreeToThreeOne', () => {
         paths: {},
       })
 
-      expect(result.openapi).toBe('3.1.0')
+      expect(result.openapi).toBe('3.1.1')
     })
 
-    it('changes the version to 3.0.3 to 3.1.0', async () => {
+    it('changes the version to 3.0.3 to 3.1.1', async () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.3',
         info: {
@@ -87,7 +87,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         paths: {},
       })
 
-      expect(result.openapi).toBe('3.1.0')
+      expect(result.openapi).toBe('3.1.1')
     })
   })
 

@@ -88,7 +88,7 @@ describe('pipeline', () => {
       .upgrade()
       .get()
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
   })
 
   it('details', async () => {
@@ -229,7 +229,7 @@ describe('pipeline', () => {
       .filter((schema) => !schema?.tags?.includes('Beta'))
       .get()
 
-    expect(specification.openapi).toBe('3.1.0')
+    expect(specification.openapi).toBe('3.1.1')
     expect(specification.paths['/'].get).toBeUndefined()
     expect(specification.paths['/foobar'].get).not.toBeUndefined()
   })

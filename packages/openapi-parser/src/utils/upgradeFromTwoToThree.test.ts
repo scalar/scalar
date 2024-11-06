@@ -13,7 +13,7 @@ describe('upgradeFromTwoToThree', () => {
       paths: {},
     })
 
-    expect(result.openapi).toBe('3.0.3')
+    expect(result.openapi).toBe('3.0.4')
     expect(result.swagger).toBeUndefined()
   })
 

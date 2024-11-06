@@ -90,7 +90,7 @@ export namespace OpenAPIV3_1 {
        * Version of the OpenAPI specification
        * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
        */
-      openapi?: '3.1.0'
+      openapi?: '3.1.0' | '3.1.1'
       swagger?: undefined
       info?: InfoObject
       jsonSchemaDialect?: string
@@ -322,7 +322,7 @@ export namespace OpenAPIV3 {
      * Version of the OpenAPI specification
      * @see https://github.com/OAI/OpenAPI-Specification/tree/main/versions
      */
-    openapi?: '3.0.0' | '3.0.1' | '3.0.2' | '3.0.3'
+    openapi?: '3.0.0' | '3.0.1' | '3.0.2' | '3.0.3' | '3.0.4'
     swagger?: undefined
     info?: InfoObject
     servers?: ServerObject[]
