@@ -3,6 +3,7 @@
  */
 export const waitFor = async (
   checkFn: () => boolean,
+  failedFn?: () => void,
   timeout = 4000,
   interval = 50,
 ): Promise<void> => {
@@ -13,7 +14,11 @@ export const waitFor = async (
       if (checkFn()) {
         resolve()
       } else if (Date.now() - startTime >= timeout) {
-        reject(new Error('Condition not met within timeout period'))
+        if (failedFn) {
+          failedFn()
+        }
+
+        reject(new Error('Condition not met within timeout period.'))
       } else {
         setTimeout(check, interval)
       }

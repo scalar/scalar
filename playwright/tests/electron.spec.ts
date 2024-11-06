@@ -6,7 +6,11 @@ import { waitFor } from './utils/waitFor'
 
 // Helper function to find the frontend build
 const findFolder = () => {
-  const possiblePaths = ['../packages/api-client-app']
+  const possiblePaths = [
+    '../../packages/api-client-app',
+    '../packages/api-client-app',
+    './packages/api-client-app',
+  ]
 
   for (const path of possiblePaths) {
     try {
@@ -34,6 +38,7 @@ test.describe('Electron', () => {
     // Check whether the build was found
     const cwd = findFolder()
 
+    console.log()
     console.log('=== DEBUG ===')
     console.log()
     console.log('CWD:        ', process.cwd())
@@ -57,25 +62,34 @@ test.describe('Electron', () => {
     })
 
     // Wait for the main window to be created
-    await waitFor(() => {
-      const mainWindow = app
-        .windows()
-        .find((win) => win.url().includes('index.html'))
+    await waitFor(
+      () => {
+        const mainWindow = app
+          .windows()
+          .find((win) => win.url().includes('index.html'))
 
-      if (mainWindow === undefined) {
-        return false
-      }
+        if (!mainWindow) {
+          return false
+        }
 
-      if (!mainWindow) {
-        throw new Error('Couldn’t find the main window (index.html).')
-      }
+        expect(mainWindow.url()).toContain(
+          'packages/api-client-app/dist/renderer/index.html',
+        )
 
-      expect(mainWindow.url()).toContain(
-        'packages/api-client-app/dist/renderer/index.html',
-      )
-
-      return true
-    })
+        return true
+      },
+      () => {
+        console.log()
+        console.log('=== App Windows ===')
+        console.log()
+        console.log(
+          app
+            .windows()
+            .map((w) => w.url())
+            .join('\n\n'),
+        )
+      },
+    )
 
     await app.close()
   })
