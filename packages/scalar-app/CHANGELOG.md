@@ -758,7 +758,7 @@
 
 ### Patch Changes
 
-- 1ca503f: fix(api-client-app): allow blob: as source in Content-Security-Policy
+- 1ca503f: fix(scalar-app): allow blob: as source in Content-Security-Policy
 - 09d07d1: fix: api client help and darkmode button, sidebar bugs, backgrounds, etc
 - Updated dependencies [09d07d1]
   - @scalar/api-client@2.0.41

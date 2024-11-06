@@ -7,9 +7,9 @@ import { waitFor } from './utils/waitFor'
 // Helper function to find the frontend build
 const findFolder = () => {
   const possiblePaths = [
-    '../../packages/api-client-app',
-    '../packages/api-client-app',
-    './packages/api-client-app',
+    '../../packages/scalar-app',
+    '../packages/scalar-app',
+    './packages/scalar-app',
   ]
 
   for (const path of possiblePaths) {
@@ -73,7 +73,7 @@ test.describe('Electron', () => {
         }
 
         expect(mainWindow.url()).toContain(
-          'packages/api-client-app/dist/renderer/index.html',
+          'packages/scalar-app/dist/renderer/index.html',
         )
 
         return true

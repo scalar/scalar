@@ -18,7 +18,7 @@ updates:
     # This will disable updates, but still create PRs for security updates.
     open-pull-requests-limit: 0
   - package-ecosystem: npm
-    directory: /packages/api-client-app
+    directory: /packages/scalar-app
     schedule:
       interval: weekly
     allow:
