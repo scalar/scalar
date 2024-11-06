@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Item, ItemGroup } from '../types'
 import { processAuth } from './authHelpers'
@@ -33,9 +33,9 @@ export function processItem(
   item: Item | ItemGroup,
   parentTags: string[] = [],
   parentPath: string = '',
-): { paths: OpenAPIV3.PathsObject; components: OpenAPIV3.ComponentsObject } {
-  const paths: OpenAPIV3.PathsObject = {}
-  const components: OpenAPIV3.ComponentsObject = {}
+): { paths: OpenAPIV3_1.PathsObject; components: OpenAPIV3_1.ComponentsObject } {
+  const paths: OpenAPIV3_1.PathsObject = {}
+  const components: OpenAPIV3_1.ComponentsObject = {}
 
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
@@ -103,7 +103,7 @@ export function processItem(
         ? request.description
         : (request.description?.content ?? '')
 
-  const operationObject: OpenAPIV3.OperationObject = {
+  const operationObject: OpenAPIV3_1.OperationObject = {
     tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
     summary,
     description,
@@ -126,7 +126,7 @@ export function processItem(
     const extractedParameters = extractParameters(request)
 
     // Merge parameters, giving priority to those from the Markdown table
-    const mergedParameters = new Map<string, OpenAPIV3.ParameterObject>()
+    const mergedParameters = new Map<string, OpenAPIV3_1.ParameterObject>()
 
     // Add extracted parameters, filtering out path parameters not in the path
     extractedParameters.forEach((param) => {
@@ -177,7 +177,7 @@ export function processItem(
   }
 
   if (!paths[path]) paths[path] = {}
-  const pathItem = paths[path] as OpenAPIV3.PathItemObject
+  const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
 
   // Extract status codes from tests
@@ -185,7 +185,7 @@ export function processItem(
 
   // Handle responses
   if (statusCodes.length > 0) {
-    const responses: OpenAPIV3.ResponsesObject = {}
+    const responses: OpenAPIV3_1.ResponsesObject = {}
     statusCodes.forEach((code) => {
       responses[code.toString()] = {
         description: 'Successful response',
@@ -229,7 +229,7 @@ export function processItem(
 // Helper function to parse parameters from the description if it is markdown
 function parseParametersFromDescription(description: string): {
   descriptionWithoutTable: string
-  parametersFromTable: OpenAPIV3.ParameterObject[]
+  parametersFromTable: OpenAPIV3_1.ParameterObject[]
 } {
   const lines = description.split('\n')
   let inTable = false
@@ -271,7 +271,7 @@ function parseParametersFromDescription(description: string): {
     (paramData: any) => {
       const paramIn = paramData.object as 'query' | 'header' | 'path'
 
-      const param: OpenAPIV3.ParameterObject = {
+      const param: OpenAPIV3_1.ParameterObject = {
         name: paramData.name,
         in: paramIn,
         description: paramData.description,

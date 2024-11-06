@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { FormParameter } from '../types'
 
@@ -8,8 +8,8 @@ import type { FormParameter } from '../types'
  */
 export function processFormDataSchema(
   formdata: FormParameter[],
-): OpenAPIV3.SchemaObject {
-  const schema: OpenAPIV3.SchemaObject = {
+): OpenAPIV3_1.SchemaObject {
+  const schema: OpenAPIV3_1.SchemaObject = {
     type: 'object',
     properties: {},
     required: [],
@@ -18,7 +18,7 @@ export function processFormDataSchema(
   formdata.forEach((item: FormParameter) => {
     if (!schema.properties) return
 
-    const property: OpenAPIV3.SchemaObject = {
+    const property: OpenAPIV3_1.SchemaObject = {
       type: 'string',
     }
 

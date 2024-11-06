@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { HeaderList, Response } from '../types'
 import { inferSchemaFromExample } from './schemaHelpers'
@@ -10,7 +10,7 @@ import { inferSchemaFromExample } from './schemaHelpers'
  */
 export function extractResponses(
   responses: Response[],
-): OpenAPIV3.ResponsesObject {
+): OpenAPIV3_1.ResponsesObject {
   if (!responses || !Array.isArray(responses) || responses.length === 0) {
     return { '200': { description: 'OK' } }
   }
@@ -29,16 +29,16 @@ export function extractResponses(
       },
     }
     return openapiResponses
-  }, {} as OpenAPIV3.ResponsesObject)
+  }, {} as OpenAPIV3_1.ResponsesObject)
 }
 
 function extractHeaders(
   headers: HeaderList | string | null | undefined,
-): { [key: string]: OpenAPIV3.HeaderObject } | undefined {
+): { [key: string]: OpenAPIV3_1.HeaderObject } | undefined {
   if (!headers || typeof headers === 'string') {
     return undefined
   }
-  const openapiHeaders: { [key: string]: OpenAPIV3.HeaderObject } = {}
+  const openapiHeaders: { [key: string]: OpenAPIV3_1.HeaderObject } = {}
   if (Array.isArray(headers)) {
     headers.forEach((header) => {
       openapiHeaders[header.key] = {

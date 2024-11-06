@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import { processAuth } from './helpers/authHelpers'
 import { processExternalDocs } from './helpers/externalDocsHelper'
@@ -10,36 +10,41 @@ import { normalizePath } from './helpers/urlHelpers'
 import type { PostmanCollection } from './types'
 
 /**
- * Converts a Postman Collection to an OpenAPI 3.0.0 document.
+ * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
  */
 export function convert(
-  postmanCollection: PostmanCollection,
-): OpenAPIV3.Document {
+  postmanCollection: PostmanCollection | string,
+): OpenAPIV3_1.Document {
+  // Parse string input if provided
+  const collection: PostmanCollection = typeof postmanCollection === 'string' 
+    ? JSON.parse(postmanCollection) 
+    : postmanCollection
+
   // Extract title from collection info, fallback to 'API' if not provided
-  const title = postmanCollection.info.name || 'API'
+  const title = collection.info.name || 'API'
 
   // Look for version in collection variables, default to '1.0.0'
   const version =
-    (postmanCollection.variable?.find((v) => v.key === 'version')
+    (collection.variable?.find((v) => v.key === 'version')
       ?.value as string) || '1.0.0'
 
   // Handle different description formats in Postman
   const description =
-    typeof postmanCollection.info.description === 'string'
-      ? postmanCollection.info.description
-      : postmanCollection.info.description?.content || ''
+    typeof collection.info.description === 'string'
+      ? collection.info.description
+      : collection.info.description?.content || ''
 
   // Process license and contact information
-  const { license, contact } = processLicenseAndContact(postmanCollection)
+  const { license, contact } = processLicenseAndContact(collection)
 
   // Process logo information
-  const logo = processLogo(postmanCollection)
+  const logo = processLogo(collection)
 
   // Initialize the OpenAPI document with required fields
-  const openapi: OpenAPIV3.Document = {
-    openapi: '3.0.0',
+  const openapi: OpenAPIV3_1.Document = {
+    openapi: '3.1.0',
     info: {
       title,
       version,
@@ -48,19 +53,19 @@ export function convert(
       ...(contact && { contact }),
       ...(logo && { 'x-logo': logo }),
     },
-    servers: parseServers(postmanCollection),
+    servers: parseServers(collection),
     paths: {},
   }
 
   // Process external docs
-  const externalDocs = processExternalDocs(postmanCollection)
+  const externalDocs = processExternalDocs(collection)
   if (externalDocs) {
     openapi.externalDocs = externalDocs
   }
 
   // Process authentication if present in the collection
-  if (postmanCollection.auth) {
-    const { securitySchemes, security } = processAuth(postmanCollection.auth)
+  if (collection.auth) {
+    const { securitySchemes, security } = processAuth(collection.auth)
     openapi.components = openapi.components || {}
     openapi.components.securitySchemes = {
       ...openapi.components.securitySchemes,
@@ -70,8 +75,8 @@ export function convert(
   }
 
   // Process each item in the collection and merge into OpenAPI spec
-  if (postmanCollection.item) {
-    postmanCollection.item.forEach((item) => {
+  if (collection.item) {
+    collection.item.forEach((item) => {
       const { paths: itemPaths, components: itemComponents } = processItem(item)
 
       // Merge paths from the current item
@@ -110,7 +115,7 @@ export function convert(
             pathItem.post.requestBody.content['application/json'] = {
               schema: {
                 type: 'object',
-                example: '',
+                examples: [],
               },
             }
             delete pathItem.post.requestBody.content['text/plain']

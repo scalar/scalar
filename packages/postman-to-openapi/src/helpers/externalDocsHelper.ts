@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { PostmanCollection, Variable } from '../types'
 
@@ -26,7 +26,7 @@ function findVariable(
  */
 export function processExternalDocs(
   collection: PostmanCollection,
-): OpenAPIV3.ExternalDocumentationObject | undefined {
+): OpenAPIV3_1.ExternalDocumentationObject | undefined {
   try {
     const urlVariable = findVariable(collection, VARIABLE_KEYS.URL)
     const descriptionVariable = findVariable(

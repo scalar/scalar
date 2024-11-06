@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Auth } from '../types'
 
@@ -16,8 +16,8 @@ const OAUTH2_DEFAULTS = {
 } as const
 
 type SecurityConfig = {
-  scheme: OpenAPIV3.SecuritySchemeObject
-  requirement: OpenAPIV3.SecurityRequirementObject
+  scheme: OpenAPIV3_1.SecuritySchemeObject
+  requirement: OpenAPIV3_1.SecurityRequirementObject
 }
 
 /**
@@ -95,11 +95,11 @@ const AUTH_TYPE_HANDLERS: Record<string, () => SecurityConfig> = {
  * Supports API key, basic auth, bearer token, and OAuth2 authentication types.
  */
 export function processAuth(auth: Auth): {
-  securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject>
-  security: OpenAPIV3.SecurityRequirementObject[]
+  securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>
+  security: OpenAPIV3_1.SecurityRequirementObject[]
 } {
-  const securitySchemes: Record<string, OpenAPIV3.SecuritySchemeObject> = {}
-  const security: OpenAPIV3.SecurityRequirementObject[] = []
+  const securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject> = {}
+  const security: OpenAPIV3_1.SecurityRequirementObject[] = []
 
   try {
     const handler = AUTH_TYPE_HANDLERS[auth.type]

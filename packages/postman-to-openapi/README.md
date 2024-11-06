@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Fpostman-to-openapi)](https://www.npmjs.com/package/@scalar/postman-to-openapi)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-A package to convert Postman collections to [the open standard OpenAPI](https://github.com/OAI/OpenAPI-Specification).
+Convert Postman collections to [the open standard OpenAPI](https://github.com/OAI/OpenAPI-Specification). Free the postman!
 
 ## Installation
 
@@ -18,7 +18,7 @@ npm install @scalar/postman-to-openapi
 ```ts
 import { convert } from '@scalar/postman-to-openapi'
 
-// Time to free the postman
+// Free the postman!
 const result = await convert(myPostmanCollection)
 
 console.log(result)
@@ -30,4 +30,4 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## Thank you!
 
-This package is based on the existing [`postman-to-openapi`](https://github.com/joolfe/postman-to-openapi) by [@joolfe](https://github.com/joolfe). We just tried to update the code and adapt it to our use cases.
+This package is based on the existing [`postman-to-openapi`](https://github.com/joolfe/postman-to-openapi) by [@joolfe](https://github.com/joolfe). We update the code and adapted it to our use case. You might consider our package the modern successor.

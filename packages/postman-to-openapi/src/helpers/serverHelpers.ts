@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { PostmanCollection } from '../types'
 import { getDomainFromUrl } from './urlHelpers'
@@ -10,7 +10,7 @@ import { getDomainFromUrl } from './urlHelpers'
  */
 export function parseServers(
   postmanCollection: PostmanCollection,
-): OpenAPIV3.ServerObject[] {
+): OpenAPIV3_1.ServerObject[] {
   // Set to store unique domains
   const domains = new Set<string>()
 

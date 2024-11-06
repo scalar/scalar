@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { FormParameter, RequestBody, UrlEncodedParameter } from '../types'
 import { processFormDataSchema } from './formDataHelpers'
@@ -10,8 +10,8 @@ import { createParameterObject } from './parameterHelpers'
  */
 export function extractRequestBody(
   body: RequestBody,
-): OpenAPIV3.RequestBodyObject {
-  const requestBody: OpenAPIV3.RequestBodyObject = {
+): OpenAPIV3_1.RequestBodyObject {
+  const requestBody: OpenAPIV3_1.RequestBodyObject = {
     content: {},
   }
 
@@ -35,7 +35,7 @@ export function extractRequestBody(
 
 function handleRawBody(
   body: RequestBody,
-  requestBody: OpenAPIV3.RequestBodyObject,
+  requestBody: OpenAPIV3_1.RequestBodyObject,
 ) {
   try {
     const jsonBody = JSON.parse(body.raw || '')
@@ -61,7 +61,7 @@ function handleRawBody(
 
 function handleFormDataBody(
   formdata: FormParameter[],
-  requestBody: OpenAPIV3.RequestBodyObject,
+  requestBody: OpenAPIV3_1.RequestBodyObject,
 ) {
   requestBody.content = {
     'multipart/form-data': {
@@ -72,9 +72,9 @@ function handleFormDataBody(
 
 function handleUrlEncodedBody(
   urlencoded: UrlEncodedParameter[],
-  requestBody: OpenAPIV3.RequestBodyObject,
+  requestBody: OpenAPIV3_1.RequestBodyObject,
 ) {
-  const schema: OpenAPIV3.SchemaObject = {
+  const schema: OpenAPIV3_1.SchemaObject = {
     type: 'object',
     properties: {},
     required: [],
