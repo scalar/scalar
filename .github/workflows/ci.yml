@@ -66,7 +66,8 @@ jobs:
         uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
         with:
           scan-type: 'fs'
-          scan-ref: 'packages/api-reference/docker/src'
+          scan-ref: '.'
+          scan-path: 'packages/api-reference/docker/src'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
