@@ -1,4 +1,8 @@
-# Scalar Django Ninja API Reference Plugin
+# Scalar API Reference for Django Ninja
+
+[![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
+
+The easiest way to render a modern and beautiful API reference based on your Django Ninja OpenAPI document.
 
 ![django-ninja](ninja.png)
 
@@ -10,7 +14,8 @@ pip install git+https://github.com/scalar/scalar.git#subdirectory=packages/scala
 
 ## Usage
 
-Integrating Scalar with Django Ninja is simple. Just pass the `ScalarViewer` instance to the `docs` parameter of the NinjaAPI instance.
+Integrating Scalar with Django Ninja is simple.
+Just pass the `ScalarViewer` instance to the `docs` parameter of the NinjaAPI instance.
 
 ```python
 from ninja import NinjaAPI
@@ -36,6 +41,12 @@ urlpatterns = [
 
 ```
 
-This render a beautiful API reference at `/api/docs` based your API.
+This renders a beautiful API reference at `/api/docs` based on your API.
 
-![Django Ninja API reference](https://github.com/user-attachments/assets/10a1778a-efa0-4903-b0cb-974ea4135982)
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).

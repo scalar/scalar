@@ -116,6 +116,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [HTML](documentation/integrations/html.md)
 - [.NET](packages/scalar.aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
+- [Django Ninja](packages/scalar_django_ninja/README.md)
 - [Docusaurus](packages/docusaurus/README.md)
 - [ElysiaJS](documentation/integrations/elysiajs.md)
 - [Express](packages/express-api-reference/README.md)
