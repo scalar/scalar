@@ -6,12 +6,7 @@ import { waitFor } from './utils/waitFor'
 
 // Helper function to find the frontend build
 const findFolder = () => {
-  const possiblePaths = [
-    '../../packages/api-client-app',
-    '../packages/api-client-app',
-    './packages/api-client-app',
-    join(process.cwd(), 'packages/api-client-app'),
-  ]
+  const possiblePaths = ['../packages/api-client-app']
 
   for (const path of possiblePaths) {
     try {
@@ -39,18 +34,20 @@ test.describe('Electron', () => {
     // Check whether the build was found
     const cwd = findFolder()
 
-    console.log('Build paths:')
-    console.log('CWD:', process.cwd())
-    console.log('App folder:', cwd)
+    console.log('=== DEBUG ===')
+    console.log()
+    console.log('CWD:        ', process.cwd())
+    console.log('App folder: ', cwd)
     console.log('Entry point:', join(cwd, 'dist/main/index.js'))
+    console.log()
 
     // Verify the entry point file exists
     try {
       const entryPoint = join(cwd, 'dist/main/index.js')
       statSync(entryPoint)
-      console.log('Entry point exists!')
+      console.log('✅ Entry point exists.')
     } catch (error) {
-      console.error('Entry point not found:', error)
+      console.error('❌ Entry point not found:', error)
     }
 
     // Launch the Electron app with absolute path
