@@ -30,7 +30,7 @@
     "types:check:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "types:check:web": "vue-tsc --noEmit -p tsconfig.web.json --composite false"
   },
-  "main": "./out/main/index.js",
+  "main": "./dist/main/index.js",
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.0",
     "@electron-toolkit/utils": "^3.0.0",

@@ -5,9 +5,15 @@ import { resolve } from 'path'
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      outDir: 'dist/main',
+    },
   },
   preload: {
     plugins: [externalizeDepsPlugin()],
+    build: {
+      outDir: 'dist/preload',
+    },
   },
   renderer: {
     resolve: {
@@ -16,5 +22,8 @@ export default defineConfig({
       },
     },
     plugins: [vue()],
+    build: {
+      outDir: 'dist/renderer',
+    },
   },
 })
