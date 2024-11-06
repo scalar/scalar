@@ -40,11 +40,7 @@ useHead({
 // Add baseServerURL and _integration
 const { origin } = useRequestURL()
 
-const config: Partial<
-  Omit<ReferenceConfiguration, 'theme'> & {
-    theme?: ReferenceConfiguration['theme'] | 'nuxt'
-  }
-> = {
+const config: Partial<ReferenceConfiguration> = {
   baseServerURL: origin,
   _integration: 'nuxt',
   ...props.configuration,
@@ -54,7 +50,7 @@ const config: Partial<
 <template>
   <ModernLayout
     :configuration="config"
-    :isDark="isDark"
+    :isDark="!!isDark"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @toggleDarkMode="isDark = !isDark" />

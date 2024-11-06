@@ -13,9 +13,9 @@ export type Configuration = Omit<
   /**
    * The theme to use for the reference
    *
-   * @default 'nuxt'
+   * @default undefined (nuxt theme)
    */
-  theme?: ReferenceConfiguration['theme'] | 'nuxt'
+  theme?: ReferenceConfiguration['theme']
 }
 
 export type Meta = {
