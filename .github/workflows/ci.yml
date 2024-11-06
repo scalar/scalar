@@ -62,10 +62,11 @@ jobs:
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
-      - name: Scan Docker image for vulnerabilities
+      - name: Scan Dockerfile for vulnerabilities
         uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
         with:
-          image-ref: scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+          scan-type: 'fs'
+          scan-ref: 'packages/api-reference/docker/src'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
