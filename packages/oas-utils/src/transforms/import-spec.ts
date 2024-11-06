@@ -182,10 +182,7 @@ export async function importSpecToWorkspace(
         return {
           ...s,
           // Ensure we only have one slash between
-          url: [
-            _baseServerUrl.replace(/\/$/, ''),
-            s.url.replace(/^\//, ''),
-          ].join('/'),
+          url: (_baseServerUrl + s.url).replace(/\/+/g, '/'),
         }
 
       // Just return a regular server
