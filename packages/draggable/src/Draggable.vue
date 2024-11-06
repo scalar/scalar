@@ -61,9 +61,7 @@ const emit = defineEmits<{
 }>()
 
 // The latest parentId in the arr should be the current parent
-const parentId = computed(
-  () => props.parentIds[props.parentIds.length - 1] ?? null,
-)
+const parentId = computed(() => props.parentIds.at(-1) ?? null)
 
 // Start draggin, we want to store the uid + parentUid
 const onDragStart = (ev: DragEvent) => {
