@@ -43,7 +43,7 @@ function handleRawBody(
       'application/json': {
         schema: {
           type: 'object',
-          example: jsonBody,
+          examples: { default: jsonBody },
         },
       },
     }
@@ -52,7 +52,7 @@ function handleRawBody(
       'text/plain': {
         schema: {
           type: 'string',
-          example: body.raw,
+          example: [body.raw],
         },
       },
     }
@@ -84,7 +84,7 @@ function handleUrlEncodedBody(
       const paramObject = createParameterObject(item, 'query')
       schema.properties[item.key] = {
         type: 'string',
-        example: item.value,
+        example: [item.value],
         description: paramObject.description,
       }
       if (paramObject.required) {

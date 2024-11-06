@@ -24,7 +24,9 @@ export function extractResponses(
       content: {
         'application/json': {
           schema: inferSchemaFromExample(response.body || ''),
-          example: tryParseJson(response.body || ''),
+          examples: {
+            default: tryParseJson(response.body || ''),
+          },
         },
       },
     }
@@ -44,7 +46,7 @@ function extractHeaders(
       openapiHeaders[header.key] = {
         schema: {
           type: 'string',
-          example: header.value,
+          examples: [header.value],
         },
       }
     })
