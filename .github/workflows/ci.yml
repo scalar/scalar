@@ -89,20 +89,6 @@ jobs:
           retry-count: 3
           retry-delay: 30s
 
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Scan image contents for vulnerabilities
-        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
-        with:
-          scan-type: 'fs'
-          scan-ref: 'packages/api-reference/docker/src'
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-          retry-count: 3
-          retry-delay: 30s
-
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
         uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
