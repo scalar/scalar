@@ -74,7 +74,7 @@ test.describe('Electron', () => {
       }
 
       expect(mainWindow.url()).toContain(
-        'packages/api-client-app/out/renderer/index.html',
+        'packages/api-client-app/dist/renderer/index.html',
       )
 
       return true
