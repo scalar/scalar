@@ -1,0 +1,29 @@
+{
+  "siteMeta": {
+    "title": "Scalar Blog",
+    "description": "Blog for Scalar."
+  },
+  "publishOnMerge": true,
+  "subdomain": "blog",
+  "customDomain": "blog.scalar.com",
+  "theme": "default",
+  "guides": [
+    {
+      "name": "Scalar",
+      "sidebar": [
+        {
+          "path": "hello-world.md",
+          "type": "page"
+        }
+      ]
+    }
+  ],
+  "references": [],
+  "siteConfig": {
+    "logo": {
+      "darkMode": "https://scalar.com/logo-light.svg",
+      "lightMode": "https://scalar.com/logo-dark.svg"
+    },
+    "footer": ""
+  }
+}
