@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { PostmanCollection, Variable } from '../types'
 
@@ -16,8 +16,8 @@ const VARIABLE_KEYS = {
 } as const
 
 type InfoResult = {
-  license?: OpenAPIV3.LicenseObject
-  contact?: OpenAPIV3.ContactObject
+  license?: OpenAPIV3_1.LicenseObject
+  contact?: OpenAPIV3_1.ContactObject
 }
 
 /**
@@ -35,7 +35,7 @@ function findVariable(
  */
 function processLicense(
   collection: PostmanCollection,
-): OpenAPIV3.LicenseObject | undefined {
+): OpenAPIV3_1.LicenseObject | undefined {
   const nameVar = findVariable(collection, VARIABLE_KEYS.LICENSE.NAME)
   if (!nameVar?.value || typeof nameVar.value !== 'string') return undefined
 
@@ -52,7 +52,7 @@ function processLicense(
  */
 function processContact(
   collection: PostmanCollection,
-): OpenAPIV3.ContactObject | undefined {
+): OpenAPIV3_1.ContactObject | undefined {
   const nameVar = findVariable(collection, VARIABLE_KEYS.CONTACT.NAME)
   const urlVar = findVariable(collection, VARIABLE_KEYS.CONTACT.URL)
   const emailVar = findVariable(collection, VARIABLE_KEYS.CONTACT.EMAIL)

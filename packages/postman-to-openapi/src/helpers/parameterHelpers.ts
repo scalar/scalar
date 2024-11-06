@@ -1,4 +1,4 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 import type { Header, Request } from '../types'
 import { inferSchemaType } from './schemaHelpers'
@@ -9,9 +9,9 @@ import { inferSchemaType } from './schemaHelpers'
  */
 export function extractParameters(
   request: Request,
-): OpenAPIV3.ParameterObject[] {
-  const parameters: OpenAPIV3.ParameterObject[] = []
-  const parameterMap: Map<string, OpenAPIV3.ParameterObject> = new Map()
+): OpenAPIV3_1.ParameterObject[] {
+  const parameters: OpenAPIV3_1.ParameterObject[] = []
+  const parameterMap: Map<string, OpenAPIV3_1.ParameterObject> = new Map()
 
   if (typeof request === 'string' || !request.url) {
     return parameters
@@ -97,8 +97,8 @@ function extractPathVariablesFromPathArray(
 export function createParameterObject(
   param: any,
   paramIn: 'query' | 'path' | 'header',
-): OpenAPIV3.ParameterObject {
-  const parameter: OpenAPIV3.ParameterObject = {
+): OpenAPIV3_1.ParameterObject {
+  const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
     description: param.description,

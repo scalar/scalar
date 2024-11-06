@@ -1,18 +1,18 @@
-import type { OpenAPIV3 } from '@scalar/openapi-types'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
 /**
  * Infers the schema of an OpenAPI object based on an example value.
  * This function recursively analyzes the structure of the example value
  * and returns a corresponding OpenAPI schema object.
  */
-export function inferSchemaFromExample(example: any): OpenAPIV3.SchemaObject {
+export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
   if (Array.isArray(example)) {
     return {
       type: 'array',
       items: example.length > 0 ? inferSchemaFromExample(example[0]) : {},
     }
   } else if (typeof example === 'object' && example !== null) {
-    const properties: { [key: string]: OpenAPIV3.SchemaObject } = {}
+    const properties: { [key: string]: OpenAPIV3_1.SchemaObject } = {}
     for (const [key, value] of Object.entries(example)) {
       properties[key] = inferSchemaFromExample(value)
     }
@@ -22,7 +22,7 @@ export function inferSchemaFromExample(example: any): OpenAPIV3.SchemaObject {
     }
   } else {
     return {
-      type: typeof example as OpenAPIV3.NonArraySchemaObjectType,
+      type: typeof example as OpenAPIV3_1.NonArraySchemaObjectType,
     }
   }
 }
@@ -33,7 +33,7 @@ export function inferSchemaFromExample(example: any): OpenAPIV3.SchemaObject {
  * by checking its JavaScript type and attempting to parse it
  * as a number or boolean if it's a string.
  */
-export function inferSchemaType(value: any): OpenAPIV3.SchemaObject {
+export function inferSchemaType(value: any): OpenAPIV3_1.SchemaObject {
   if (typeof value === 'number') {
     return { type: Number.isInteger(value) ? 'integer' : 'number' }
   } else if (typeof value === 'boolean') {
