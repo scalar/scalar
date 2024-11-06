@@ -275,19 +275,19 @@ jobs:
         run: ls -R ./packages/scalar-app/dist
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Build in the toDesktop cloud
-        run: pnpm --filter scalar-api-client todesktop:build
+        run: pnpm --filter scalar-app todesktop:build
         env:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
       # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
       #   name: Run smoke tests
-      #   run: pnpm --filter scalar-api-client todesktop:test:ci
+      #   run: pnpm --filter scalar-app todesktop:test:ci
       #   env:
       #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
       #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
       - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
         name: Release the app
-        run: pnpm --filter scalar-api-client todesktop:release:ci
+        run: pnpm --filter scalar-app todesktop:release:ci
         env:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
