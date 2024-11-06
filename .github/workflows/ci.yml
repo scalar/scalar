@@ -71,6 +71,8 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+          retry-count: 3
+          retry-delay: 30s
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there's a new version of the Docker image
