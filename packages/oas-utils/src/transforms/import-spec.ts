@@ -168,10 +168,11 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const requests: Request[] = []
-  const _baseServerUrl =
-    (baseServerURL ?? typeof window !== 'undefined')
-      ? window.location.origin
-      : 'http://localhost'
+
+  // Grab the base server URL for relative servers
+  const backupBaseServerUrl =
+    typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+  const _baseServerUrl = baseServerURL ?? backupBaseServerUrl
 
   // Add the base server url to any relative servers
   const servers: Server[] = serverSchema.array().parse(
