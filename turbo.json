@@ -3,7 +3,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**"],
+      "outputs": ["dist/**", "out/**"],
       "dependsOn": ["^build"]
     },
     "dev": {
