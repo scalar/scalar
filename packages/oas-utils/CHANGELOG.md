@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.69
+
+### Patch Changes
+
+- 8c5d767: feat: add support for PKCE auth code flow
+- 359ee2d: fix: updates path regex
+
 ## 0.2.68
 
 ### Patch Changes

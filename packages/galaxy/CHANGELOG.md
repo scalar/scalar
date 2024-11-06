@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.15
+
+### Patch Changes
+
+- b28c70f: feat: add an openIdConnect security scheme
+
 ## 0.2.14
 
 ### Patch Changes

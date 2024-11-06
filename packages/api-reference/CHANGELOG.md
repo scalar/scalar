@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.25.58
+
+### Patch Changes
+
+- 132997b: chore: remove unnecessary svg attribute
+- Updated dependencies [a0421dd]
+- Updated dependencies [8c5d767]
+- Updated dependencies [359ee2d]
+- Updated dependencies [6a2ec39]
+  - @scalar/api-client@2.1.43
+  - @scalar/oas-utils@0.2.69
+
 ## 1.25.57
 
 ### Patch Changes
