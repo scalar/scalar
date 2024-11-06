@@ -14,7 +14,7 @@ COPY Caddyfile /etc/caddy/Caddyfile
 EXPOSE 80
 
 # Use an environment variable for the OpenAPI document URL, with a default value
-ENV OPENAPI_DOCUMENT_URL=https://example.com/openapi.json
+ENV OPENAPI_DOCUMENT_URL=https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json
 
 # Start Caddy
 CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
