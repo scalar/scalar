@@ -5,12 +5,12 @@
 ## Installation
 
 ```bash
-pip install #####
+pip install git+https://github.com/scalar/scalar.git#subdirectory=packages/scalar_django_ninja
 ```
 
 ## Usage
 
-Integrating Scalar with Django Ninja is simple. Just pass the ScalarViewer instance to the `docs` parameter of the NinjaAPI instance.
+Integrating Scalar with Django Ninja is simple. Just pass the `ScalarViewer` instance to the `docs` parameter of the NinjaAPI instance.
 
 ```python
 from ninja import NinjaAPI
@@ -35,3 +35,7 @@ urlpatterns = [
 ]
 
 ```
+
+This render a beautiful API reference at `/api/docs` based your API.
+
+![Django Ninja API reference](https://github.com/user-attachments/assets/10a1778a-efa0-4903-b0cb-974ea4135982)
