@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createApiClientApp } from './create-scalar-app'
+import { createApiClientApp } from './create-api-client-app'
 
 describe('createApiClientApp', () => {
   it('renders something', async () => {
