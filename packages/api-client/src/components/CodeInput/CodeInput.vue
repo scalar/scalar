@@ -38,6 +38,7 @@ const props = withDefaults(
     withVariables?: boolean
     importCurl?: boolean
     isCopyable?: boolean
+    default?: string | number
   }>(),
   {
     disableCloseBrackets: false,
@@ -209,6 +210,7 @@ export default {
 <template>
   <template v-if="props.enum && props.enum.length">
     <DataTableInputSelect
+      :default="props.default"
       :modelValue="props.modelValue"
       :value="props.enum"
       @update:modelValue="emit('update:modelValue', $event)" />
@@ -216,6 +218,7 @@ export default {
   <template
     v-else-if="props.type === 'boolean' || props.type?.includes('boolean')">
     <DataTableInputSelect
+      :default="props.default"
       :modelValue="props.modelValue"
       :value="booleanOptions"
       @update:modelValue="emit('update:modelValue', $event)" />
