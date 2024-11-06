@@ -38,6 +38,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:showSidebar', v: boolean): void
   (e: 'newTab', { name, uid }: { name: string; uid: string }): void
+  (e: 'clearDrafts'): void
 }>()
 
 const workspaceContext = useWorkspace()
@@ -48,6 +49,8 @@ const {
   findRequestParents,
   isReadOnly,
   events,
+  requestMutators,
+  requests,
 } = workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
@@ -117,6 +120,17 @@ const selectedResultId = computed(() => {
     searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
   return result?.item?.id ? `#search-input-${result.item.id}` : undefined
 })
+
+const handleClearDrafts = () => {
+  const draftCollection = activeWorkspaceCollections.value.find(
+    (collection) => collection.info?.title === 'Drafts',
+  )
+  if (draftCollection) {
+    draftCollection.requests.forEach((requestUid) => {
+      requestMutators.delete(requests[requestUid], draftCollection.uid)
+    })
+  }
+}
 </script>
 <template>
   <Sidebar
@@ -253,6 +267,7 @@ const selectedResultId = computed(() => {
   <RequestSidebarItemMenu
     v-if="!isReadOnly && menuItem"
     :menuItem="menuItem"
+    @clearDrafts="handleClearDrafts"
     @closeMenu="menuItem.open = false"
     @toggleWatchMode="handleToggleWatchMode" />
 </template>

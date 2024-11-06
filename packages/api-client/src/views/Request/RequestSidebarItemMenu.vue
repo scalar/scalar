@@ -12,7 +12,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
@@ -20,6 +20,7 @@ const props = defineProps<{ menuItem: SidebarMenuItem }>()
 const emit = defineEmits<{
   (e: 'closeMenu'): []
   (e: 'toggleWatchMode', item: SidebarMenuItem['item']): void
+  (e: 'clearDrafts'): void
 }>()
 
 const { replace } = useRouter()
@@ -27,6 +28,7 @@ const { activeWorkspace, activeRouterParams, events } = useWorkspace()
 
 const editModal = useModal()
 const deleteModal = useModal()
+const clearDraftsModal = useModal()
 
 /** Add example */
 const handleAddExample = () =>
@@ -74,6 +76,15 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 const toggleWatchMode = () => {
   emit('toggleWatchMode', props.menuItem.item)
 }
+
+const handleClearDrafts = () => {
+  emit('clearDrafts')
+  clearDraftsModal.hide()
+}
+
+const isDraftsMenuItem = computed(() => {
+  return props.menuItem.item?.title === 'Drafts'
+})
 </script>
 
 <template>
@@ -99,6 +110,7 @@ const toggleWatchMode = () => {
 
       <!-- Rename -->
       <ScalarDropdownItem
+        v-if="!isDraftsMenuItem"
         ref="menuRef"
         class="flex gap-2"
         @click="editModal.show()">
@@ -150,6 +162,7 @@ const toggleWatchMode = () => {
 
       <!-- Delete -->
       <ScalarDropdownItem
+        v-if="!isDraftsMenuItem"
         class="flex gap-2"
         @click="deleteModal.show()">
         <ScalarIcon
@@ -158,6 +171,19 @@ const toggleWatchMode = () => {
           size="md"
           thickness="1.5" />
         <span>Delete</span>
+      </ScalarDropdownItem>
+
+      <!-- Clear Drafts -->
+      <ScalarDropdownItem
+        v-if="isDraftsMenuItem"
+        class="flex gap-2"
+        @click="clearDraftsModal.show()">
+        <ScalarIcon
+          class="inline-flex"
+          icon="Delete"
+          size="md"
+          thickness="1.5" />
+        <span>Clear Drafts</span>
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
@@ -188,6 +214,16 @@ const toggleWatchMode = () => {
       :name="menuItem.item?.title ?? ''"
       @close="editModal.hide()"
       @edit="handleEdit" />
+  </ScalarModal>
+  <ScalarModal
+    :size="'xxs'"
+    :state="clearDraftsModal"
+    :title="'Clear Drafts'">
+    <DeleteSidebarListElement
+      :variableName="'All Drafts'"
+      :warningMessage="'This action will clear all drafts. This cannot be undone.'"
+      @close="clearDraftsModal.hide()"
+      @delete="handleClearDrafts" />
   </ScalarModal>
 </template>
 <style scoped>
