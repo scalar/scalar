@@ -55,10 +55,23 @@ jobs:
           context: packages/api-reference/docker/src
           file: packages/api-reference/docker/src/Dockerfile
           push: false
-          platforms: linux/amd64,linux/arm64
+          load: true
+          # Linux-only at first
+          platforms: linux/amd64
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
+        with:
+          image-ref: scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there's a new version of the Docker image
         id: changed-files
@@ -78,17 +91,6 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
-        name: Scan Docker image for vulnerabilities
-        uses: aquasecurity/trivy-action@915b19bbe73b92a6cf82a1bc12b087c9a19a5fe2
-        with:
-          image-ref: scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
-          format: 'table'
-          exit-code: '1'
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-
-      - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Push Docker image
         uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0
         with:
@@ -97,9 +99,12 @@ jobs:
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # With ARM
+          platforms: linux/amd64,linux/arm64
           tags: |
             scalarapi/api-reference:latest
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
+
   format:
     runs-on: ubuntu-20.04
     strategy:
