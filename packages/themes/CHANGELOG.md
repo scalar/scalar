@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.46
+
+### Patch Changes
+
+- @scalar/types@0.0.19
+
 ## 0.9.45
 
 ### Patch Changes

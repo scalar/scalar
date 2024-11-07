@@ -1,5 +1,18 @@
 # @scalar/api-reference-editor
 
+## 0.1.118
+
+### Patch Changes
+
+- Updated dependencies [c3e76d9]
+- Updated dependencies [f9808d3]
+- Updated dependencies [79d33da]
+  - @scalar/api-client@2.1.44
+  - @scalar/oas-utils@0.2.70
+  - @scalar/api-reference@1.25.59
+  - @scalar/types@0.0.19
+  - @scalar/use-codemirror@0.11.31
+
 ## 0.1.117
 
 ### Patch Changes

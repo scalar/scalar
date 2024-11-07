@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.5
+
+### Patch Changes
+
+- a607115: feat: add openapi 3.0.4 and openapi 3.1.1
+
 ## 0.1.4
 
 ### Patch Changes

@@ -1,5 +1,18 @@
 # scalar-api-client
 
+## 0.1.83
+
+### Patch Changes
+
+- bc85063: fix: app build can’t be restored from the cache in CI
+- Updated dependencies [779cf35]
+- Updated dependencies [c3e76d9]
+- Updated dependencies [79d33da]
+  - @scalar/import@0.0.5
+  - @scalar/api-client@2.1.44
+  - @scalar/themes@0.9.46
+  - @scalar/components@0.12.64
+
 ## 0.1.82
 
 ### Patch Changes

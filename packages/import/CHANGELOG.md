@@ -1,5 +1,14 @@
 # @scalar/import
 
+## 0.0.5
+
+### Patch Changes
+
+- 779cf35: feat: import from escaped JS object
+- Updated dependencies [757fade]
+- Updated dependencies [a607115]
+  - @scalar/openapi-parser@0.8.9
+
 ## 0.0.4
 
 ### Patch Changes
