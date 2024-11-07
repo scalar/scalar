@@ -1818,9 +1818,6 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@scalar/galaxy':
-        specifier: workspace:*
-        version: link:../galaxy
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
