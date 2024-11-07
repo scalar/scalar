@@ -5,7 +5,7 @@ import { importSpecToWorkspace } from '@/transforms/import-spec'
 import galaxy from '@scalar/galaxy/latest.json'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import petstoreMod from '@test/fixtures/petstore-tls.json'
-import { describe, expect, it, test, vi } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 
 describe('Import OAS Specs', () => {
   test('Handles circular', async () => {
