@@ -10,7 +10,7 @@ import SideNav from '@/components/SideNav/SideNav.vue'
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
 
-    <div class="flex flex-1 flex-col min-w-0 min-h-0">
+    <div class="flex flex-1 flex-col min-w-0 min-h-0 app-layout">
       <slot />
     </div>
   </main>
