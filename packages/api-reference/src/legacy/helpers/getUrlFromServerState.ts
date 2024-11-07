@@ -18,5 +18,13 @@ export function getUrlFromServerState(state: ServerState) {
       ? replaceVariables(server?.url, state.variables)
       : server?.url
 
-  return url
+  // {id} -> __ID__
+  const urlVariables = url?.match(/{(.*?)}/g)
+
+  const modifiedUrl = urlVariables?.reduce((acc, variable) => {
+    const variableName = variable.replace(/{|}/g, '')
+    return acc?.replace(variable, `__${variableName.toUpperCase()}__`)
+  }, url)
+
+  return modifiedUrl
 }
