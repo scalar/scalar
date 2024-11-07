@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest'
 import { type AnyObject, normalize, openapi } from '../src'
 import { downloadFileToMemory } from './utils/downloadFileGcp'
 
-const bucketName = 'test-specifications'
+const bucketName = 'scalar-test-fixtures/oas'
 
 const expectedErrors = {
   'files/opensuseorgobs.yaml': [
@@ -49,9 +49,9 @@ const ignoreFiles = [
   'files/amazonawscomdynamodb.yaml',
 ]
 
-// get the list of files from the storage bucket test-specifications
+// get the list of files from the storage bucket scalar-test-fixtures/oas
 const files = await fetch(
-  'https://storage.googleapis.com/storage/v1/b/test-specifications/o',
+  'https://storage.googleapis.com/storage/v1/b/scalar-test-fixtures/oas/o',
 )
   .then((response) => response.json())
   .then((data) => data.items)
