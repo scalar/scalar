@@ -36,9 +36,13 @@ const selected = computed<ScalarListboxOption | undefined>({
       class="variable-select"
       fullWidth
       variant="ghost">
-      <span>
-        <span class="sr-only">Selected:</span>
-        {{ value }}
+      <span :class="{ 'text-c-1': value }">
+        <span
+          v-if="value"
+          class="sr-only"
+          >Selected:</span
+        >
+        {{ value || 'Select value' }}
       </span>
       <ScalarIcon
         icon="ChevronDown"
