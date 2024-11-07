@@ -92,9 +92,9 @@ export function processItem(
   const pathParameterNames = extractPathParameterNames(normalizedPath)
 
   // Extract operation ID if present
-  const operationIdMatch = name?.match(/\[([^\]]+)\]$/)
+  const operationIdMatch = name?.match(/\[([^[\]]{0,1000})\]$/)
   const operationId = operationIdMatch ? operationIdMatch[1] : undefined
-  const summary = operationIdMatch ? name?.replace(/\s*\[[^\]]+\]$/, '') : name
+  const summary = operationIdMatch ? name?.replace(/\s*\[[^[\]]{0,1000}\]$/, '') : name
 
   const description =
     typeof request === 'string'

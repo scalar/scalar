@@ -31,7 +31,7 @@ export function extractPathFromUrl(url: string | undefined): string {
 
   // Replace Postman variables and ensure single leading slash
   const finalPath = (
-    '/' + path.replace(/\{\{([^}]+)\}\}/g, '{$1}').replace(/^\/+/, '')
+    '/' + path.replace(/\{\{([^{}]{0,1000})\}\}/g, '{$1}').replace(/^\/+/, '')
   ).replace(/\/\/+/g, '/')
 
   return finalPath
