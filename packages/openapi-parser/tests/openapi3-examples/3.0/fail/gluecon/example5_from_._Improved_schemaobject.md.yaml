@@ -1,8 +1,0 @@
-Record:
-  type: object
-  properties:
-    id:
-      type: integer
-    color:
-      type: string
-      nullable: true
