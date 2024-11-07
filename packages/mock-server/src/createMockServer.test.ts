@@ -568,4 +568,42 @@ describe('createMockServer', () => {
     expect(response.status).toBe(200)
     expect(response.headers.get('X-Custom')).toBe('foobar')
   })
+
+  it('handles redirect headers', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/redirect': {
+          get: {
+            responses: {
+              '301': {
+                description: 'Moved Permanently',
+                headers: {
+                  Location: {
+                    schema: {
+                      type: 'string',
+                      example: '/new-location',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/redirect')
+
+    expect(response.status).toBe(301)
+    expect(response.headers.get('Location')).toBe('/new-location')
+  })
 })
