@@ -26,7 +26,7 @@ defineOptions({ inheritAttrs: false })
       <MenuButton
         v-if="!static"
         as="template">
-        <slot />
+        <slot :open="open" />
       </MenuButton>
       <template #floating="{ width }">
         <!-- Background container -->

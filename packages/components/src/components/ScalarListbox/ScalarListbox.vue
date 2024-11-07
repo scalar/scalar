@@ -77,7 +77,7 @@ const variants = cva({
         :id="id"
         as="template"
         class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent">
-        <slot />
+        <slot :open="open" />
       </ListboxButton>
       <template #floating="{ width }">
         <!-- Background container -->
