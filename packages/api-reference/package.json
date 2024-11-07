@@ -35,6 +35,7 @@
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground:embed": "vite ./playground/embed -c ./vite.config.ts",
+    "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "playground:examples": "vite ./playground/examples -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
@@ -58,6 +59,9 @@
     "#legacy": "./src/legacy/index.ts"
   },
   "browser": "./dist/browser/standalone.js",
+  "esm.sh": {
+    "bundle": true
+  },
   "module": "./dist/index.js",
   "dependencies": {
     "@floating-ui/vue": "^1.0.2",
