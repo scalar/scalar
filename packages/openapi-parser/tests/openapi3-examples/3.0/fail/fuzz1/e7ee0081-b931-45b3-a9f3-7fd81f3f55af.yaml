@@ -1,7 +1,0 @@
-openapi: 3.0.2-OF*Lu4j9l
-info:
-  title: consequat ea
-  version: 86.21
-  description: ipsum
-paths: {}
-x-testcase: "nested object test: should not work with 'version' of type 'number'"

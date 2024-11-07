@@ -1,9 +1,0 @@
-openapi: 3.0.4
-info:
-  title: elit consequat ipsum dolor
-  version: Excepteur nul
-  license:
-    name: enim aliquip qui pariatur
-    url: 64.64
-paths: {}
-x-testcase: "nested object test: nested object test: should not work with 'url' of type 'number'"
