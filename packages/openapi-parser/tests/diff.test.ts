@@ -66,7 +66,7 @@ describe('diff', async () => {
   test.each(files.slice(0, 100))('diff $name', async (file) => {
     console.log(file.name)
     // Fetch the file from cloud storage
-    const content = await downloadFileToMemory(bucketName, `oas/${file.name}`)
+    const content = await downloadFileToMemory(bucketName, file.name)
 
     const specification = normalize(content)
 
