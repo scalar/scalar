@@ -113,10 +113,9 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
 }
 
 const selectedResultId = computed(() => {
-  if (selectedSearchResult.value === -1) return undefined
   const result =
     searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
-  return result ? `#search-input-${result.item.id}` : undefined
+  return result?.item?.id ? `#search-input-${result.item.id}` : undefined
 })
 </script>
 <template>
