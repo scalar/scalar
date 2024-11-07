@@ -11,9 +11,9 @@ const { currentRoute } = useRouter()
 <template>
   <nav
     aria-label="App Navigation"
-    class="text-c-2 sm:w-13 flex sm:flex-col justify-center items-center px-2 py-2 scalar-sidenav relative drag-region bg-b-1 group-sidenav"
+    class="text-c-2 sm:w-13 flex sm:flex-col justify-center items-center px-2 py-2 scalar-sidenav relative drag-region group-sidenav"
     role="navigation">
-    <ul class="flex sm:flex-col gap-1.5">
+    <ul class="flex sm:flex-col gap-1.5 scalar-web-header-nav">
       <li
         v-for="({ icon, name, prettyName }, i) in ROUTES.filter(
           (route) => route.name !== 'settings',
@@ -29,7 +29,7 @@ const { currentRoute } = useRouter()
         </SideNavLink>
       </li>
     </ul>
-    <ul class="mt-auto flex sm:flex-col gap-1.5 py-0.5">
+    <ul class="mt-auto flex sm:flex-col gap-1.5 py-0.5 scalar-web-header-nav">
       <li class="flex items-center no-drag-region">
         <SideNavLink
           :active="currentRoute.name === 'settings'"
@@ -44,12 +44,13 @@ const { currentRoute } = useRouter()
       </li>
       <li class="hide-in-scalar-app">
         <a
-          class="min-w-[37px] max-w-[37px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[8px] text-c-3 focus:text-c-1 scalar-app-nav-padding group-hover/sidenav:border-1/2 group-sidenav-hover cursor-pointer"
+          class="min-w-[37px] max-w-[37px] hover:bg-b-3 flex items-center justify-center rounded-lg p-[8px] text-c-3 focus:text-c-1 scalar-web-header-nav group-hover/sidenav:border-1/2 download-app-button !cursor-pointer"
           href="https://scalar.com/download"
           target="_blank">
           <ScalarIcon
             icon="Download"
-            thickness="1.5" />
+            thickness="2" />
+          <span class="sr-only scalar-web-header-nav-item">Download App</span>
         </a>
       </li>
     </ul>
@@ -66,17 +67,32 @@ const { currentRoute } = useRouter()
   -webkit-app-region: no-drag;
 }
 
-.group-sidenav:hover .group-sidenav-hover {
-  box-shadow: 0 0 0 0.5px var(--scalar-border-color);
-  background: linear-gradient(rgba(255, 255, 255, 0.75), rgba(0, 0, 0, 0.035));
+.download-app-button {
+  box-shadow: 0 0 0 0.5px var(--scalar-border-color) !important;
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.75),
+    rgba(0, 0, 0, 0.035)
+  ) !important;
 }
-.dark-mode .group-sidenav:hover .group-sidenav-hover {
-  background: linear-gradient(rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.15));
+.download-app-button {
+  margin-left: 9px !important;
 }
-.group-sidenav .group-sidenav-hover:hover {
-  background: linear-gradient(rgba(0, 0, 0, 0.035), rgba(255, 255, 255, 0.75));
+.dark-mode .download-app-button {
+  background: linear-gradient(
+    rgba(255, 255, 255, 0.1),
+    rgba(0, 0, 0, 0.15)
+  ) !important;
 }
-.dark-mode .group-sidenav .group-sidenav-hover:hover {
-  background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.035));
+.download-app-button:hover {
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.035),
+    rgba(255, 255, 255, 0.75)
+  ) !important;
+}
+.dark-mode .download-app-button:hover {
+  background: linear-gradient(
+    rgba(0, 0, 0, 0.15),
+    rgba(255, 255, 255, 0.1)
+  ) !important;
 }
 </style>

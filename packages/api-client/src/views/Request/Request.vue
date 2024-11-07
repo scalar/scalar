@@ -178,7 +178,7 @@ function handleCurlImport(curl: string) {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden"
+    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden app-layout"
     :class="{
       '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
     }">

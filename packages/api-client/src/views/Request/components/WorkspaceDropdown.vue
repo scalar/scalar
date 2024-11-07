@@ -81,7 +81,7 @@ const deleteWorkspace = async () => {
           class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
           fullWidth
           variant="ghost">
-          <div class="font-medium m-0 text-xs flex gap-1.5 items-center">
+          <div class="font-medium m-0 flex gap-1.5 items-center">
             <h2 class="line-clamp-1 text-left w-[calc(100%-10px)]">
               {{ activeWorkspace.name }}
             </h2>

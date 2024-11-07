@@ -10,11 +10,13 @@ import {
     class="max-w-[150px]"
     :placement="'top-end'">
     <button
-      class="min-w-[37px] max-w-[37px] hover:bg-b-2 flex items-center justify-center rounded-lg p-[8px] text-c-3 focus:text-c-1 scalar-app-nav-padding"
+      class="min-w-[37px] max-w-[37px] hover:bg-b-3 flex items-center justify-center rounded-lg p-[8px] text-c-3 focus:text-c-1 scalar-web-header-nav"
       type="button">
       <ScalarIcon
+        class="scalar-web-header-nav-svg"
         icon="Help"
         thickness="1.5" />
+      <span class="sr-only scalar-web-header-nav-item">About</span>
     </button>
 
     <!-- Workspace list -->
