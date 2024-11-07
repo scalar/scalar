@@ -92,9 +92,7 @@ export function processItem(
   const pathParameterNames = extractPathParameterNames(normalizedPath)
 
   // Extract operation ID if present
-  const operationIdMatch = name?.match(/\[([^[\]]{0,1000})\]$/)
-  const operationId = operationIdMatch ? operationIdMatch[1] : undefined
-  const summary = operationIdMatch ? name?.replace(/\s*\[[^[\]]{0,1000}\]$/, '') : name
+  const { operationId, summary } = extractOperationInfo(name)
 
   const description =
     typeof request === 'string'
@@ -291,4 +289,22 @@ function parseParametersFromDescription(description: string): {
 
   const descriptionWithoutTable = descriptionLines.join('\n')
   return { descriptionWithoutTable, parametersFromTable }
+}
+
+// Instead of using regex with \s*, let's split this into two steps
+function extractOperationInfo(name: string | undefined) {
+  if (!name) return { operationId: undefined, summary: undefined }
+  
+  // First check if the string ends with something in brackets
+  const match = name.match(/\[([^[\]]{0,1000})\]$/)
+  if (!match) return { operationId: undefined, summary: name }
+  
+  // Get the operation ID from inside brackets
+  const operationId = match[1]
+  
+  // Trim the brackets part from the end using string operations instead of regex
+  const lastBracketIndex = name.lastIndexOf('[')
+  const summary = name.substring(0, lastBracketIndex).trim()
+  
+  return { operationId, summary }
 }
