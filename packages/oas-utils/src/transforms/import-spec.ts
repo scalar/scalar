@@ -189,8 +189,8 @@ export async function importSpecToWorkspace(
         }
 
       // Just return a regular server
-      if (s) return s
-      // Not sure what this is for, doesn't seem to be doing anything
+      if (s.url) return s
+      // Failsafe for no URL, use the base
       else
         return {
           url: _baseServerUrl,

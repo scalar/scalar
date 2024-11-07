@@ -125,6 +125,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
+    "@scalar/galaxy": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "type-fest": "^4.20.0",
