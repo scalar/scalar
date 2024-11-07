@@ -75,7 +75,8 @@ const introCardsSlot = computed(() =>
     </Introduction>
 
     <!-- Show servers/clients even if we have no intro -->
-    <SectionContainer v-else-if="servers || baseServerURL">
+    <SectionContainer
+      v-else-if="servers || baseServerURL || parsedSpec.servers?.length">
       <Section class="introduction-section">
         <SectionContent>
           <SectionColumns>
@@ -95,6 +96,7 @@ const introCardsSlot = computed(() =>
                 <ClientLibraries class="introduction-card-item" />
               </div>
             </SectionColumn>
+            <SectionColumn></SectionColumn>
           </SectionColumns>
         </SectionContent>
         <slot name="after" />
