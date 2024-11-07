@@ -1,5 +1,12 @@
 # @scalar/nextjs-openapi
 
+## 0.0.17
+
+### Patch Changes
+
+- @scalar/types@0.0.19
+- @scalar/nextjs-api-reference@0.4.99
+
 ## 0.0.16
 
 ### Patch Changes

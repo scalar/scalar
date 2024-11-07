@@ -1,5 +1,11 @@
 # @scalarapi/api-reference
 
+## 0.1.1
+
+### Patch Changes
+
+- aae3f72: chore: execute command as a non-root user
+
 ## 0.1.0
 
 ### Minor Changes

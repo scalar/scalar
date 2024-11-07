@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.70
+
+### Patch Changes
+
+- c3e76d9: fix: handle scopes as an array
+- Updated dependencies [a607115]
+  - @scalar/openapi-types@0.1.5
+  - @scalar/types@0.0.19
+  - @scalar/themes@0.9.46
+
 ## 0.2.69
 
 ### Patch Changes

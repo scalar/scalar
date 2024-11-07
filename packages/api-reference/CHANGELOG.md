@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.25.59
+
+### Patch Changes
+
+- f9808d3: chore: remove unused dependencies
+- Updated dependencies [c3e76d9]
+- Updated dependencies [757fade]
+- Updated dependencies [a607115]
+- Updated dependencies [79d33da]
+  - @scalar/api-client@2.1.44
+  - @scalar/oas-utils@0.2.70
+  - @scalar/openapi-parser@0.8.9
+  - @scalar/openapi-types@0.1.5
+  - @scalar/types@0.0.19
+  - @scalar/themes@0.9.46
+  - @scalar/code-highlight@0.0.14
+  - @scalar/components@0.12.64
+
 ## 1.25.58
 
 ### Patch Changes

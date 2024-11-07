@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.1.44
+
+### Patch Changes
+
+- c3e76d9: fix: handle scopes as an array
+- 79d33da: fix: adds default value for params select
+- Updated dependencies [779cf35]
+- Updated dependencies [c3e76d9]
+- Updated dependencies [757fade]
+- Updated dependencies [a607115]
+  - @scalar/import@0.0.5
+  - @scalar/oas-utils@0.2.70
+  - @scalar/openapi-parser@0.8.9
+  - @scalar/openapi-types@0.1.5
+  - @scalar/types@0.0.19
+  - @scalar/themes@0.9.46
+  - @scalar/components@0.12.64
+  - @scalar/use-codemirror@0.11.31
+
 ## 2.1.43
 
 ### Patch Changes

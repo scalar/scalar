@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.16
+
+### Patch Changes
+
+- a607115: feat: add openapi 3.0.4 and openapi 3.1.1
+
 ## 0.2.15
 
 ### Patch Changes

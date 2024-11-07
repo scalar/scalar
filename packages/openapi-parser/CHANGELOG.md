@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.8.9
+
+### Patch Changes
+
+- 757fade: fix: when migrating example to example objects, the example should be inside the value attribute
+- a607115: feat: add openapi 3.0.4 and openapi 3.1.1
+
 ## 0.8.8
 
 ### Patch Changes
