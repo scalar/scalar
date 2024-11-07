@@ -4,7 +4,7 @@ import { downloadFileToMemory } from '../../openapi-parser/tests/utils/downloadF
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
-const bucketName = 'test-specifications'
+const bucketName = 'scalar-test-fixtures'
 
 describe('convert', () => {
   // Define all file content variables
@@ -45,8 +45,8 @@ describe('convert', () => {
         ].map(async (name) => {
           const path =
             name === 'NullHeaders'
-              ? `postman-to-openapi/fixtures/input/${name}.json`
-              : `postman-to-openapi/fixtures/input/v21/${name}.json`
+              ? `oas/postman-to-openapi/fixtures/input/${name}.json`
+              : `oas/postman-to-openapi/fixtures/input/v21/${name}.json`
           collections[name] = await downloadFileToMemory(bucketName, path)
         }),
         // Expected outputs
@@ -79,7 +79,7 @@ describe('convert', () => {
         ].map(async (name) => {
           expected[name] = await downloadFileToMemory(
             bucketName,
-            `postman-to-openapi/fixtures/output/${name}.json`,
+            `oas/postman-to-openapi/fixtures/output/${name}.json`,
           )
         }),
       ]
