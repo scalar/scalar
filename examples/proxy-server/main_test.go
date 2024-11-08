@@ -1,9 +1,9 @@
 package main
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
-	"net/url"
 	"testing"
 )
 
@@ -93,28 +93,75 @@ func TestCORSPreflightRequest(t *testing.T) {
 	}
 }
 
-func TestLocationHeaderRewrite(t *testing.T) {
-	// Create a test handler that returns a Location header with relative URL
+func TestXForwardedHostHeader(t *testing.T) {
+	// Create a test handler that checks the X-Forwarded-Host header
 	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Location", "/foobar")
-		w.WriteHeader(http.StatusFound)
+		forwardedHost := r.Header.Get("X-Forwarded-Host")
+		if forwardedHost != "example.com" {
+			t.Errorf("Expected X-Forwarded-Host header to be 'example.com', got '%s'", forwardedHost)
+		}
+		w.Write([]byte("test response"))
 	})
 
-	// Create test server
-	ts := httptest.NewServer(testHandler)
-	defer ts.Close()
-
-	// Create request with scalar_url parameter pointing to test server
-	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+ts.URL, nil)
+	// Create a request with X-Forwarded-Host header
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("X-Forwarded-Host", "example.com")
 	w := httptest.NewRecorder()
 
-	// Call the main handler
-	handleRequest(w, req)
+	// Call the handler directly
+	testHandler.ServeHTTP(w, req)
 
-	// Check that Location header was rewritten correctly
-	location := w.Header().Get("Location")
-	expectedLocation := "/?scalar_url=" + url.QueryEscape(ts.URL+"/foobar")
-	if location != expectedLocation {
-		t.Errorf("Expected Location header to be '%s', got '%s'", expectedLocation, location)
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+}
+
+func TestProxyFollowsRedirects(t *testing.T) {
+	// Create a test server that will redirect
+	redirectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/initial" {
+			http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+			return
+		}
+		if r.URL.Path == "/final" {
+			w.Write([]byte("final destination"))
+		}
+	}))
+	defer redirectServer.Close()
+
+	// Create a test handler that proxies to our redirect server
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		proxyURL := redirectServer.URL + "/initial"
+		resp, err := http.Get(proxyURL)
+		if err != nil {
+			t.Fatalf("Failed to make proxy request: %v", err)
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			t.Fatalf("Failed to read response body: %v", err)
+		}
+
+		w.Write(body)
+	})
+
+	// Create a request
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	w := httptest.NewRecorder()
+
+	// Call the handler
+	testHandler.ServeHTTP(w, req)
+
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	responseBody := w.Body.String()
+	expectedBody := "final destination"
+	if responseBody != expectedBody {
+		t.Errorf("Expected body '%s', got '%s'", expectedBody, responseBody)
 	}
 }
