@@ -5,7 +5,7 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { useLayout, useSidebar } from '@/hooks'
+import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
@@ -20,7 +20,6 @@ const { cookies, cookieMutators, events } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 const route = useRoute()
-const { layout } = useLayout()
 
 const addCookieHandler = () => {
   const cookieIndex = Object.keys(cookies).length
@@ -161,8 +160,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <template #button>
         <SidebarButton
           :click="addCookieHandler"
-          hotkey="N"
-          :layout="layout">
+          hotkey="N">
           <template #title>Add Cookie</template>
         </SidebarButton>
       </template>

@@ -7,7 +7,6 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
-import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
@@ -30,7 +29,6 @@ const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
-const { layout } = useLayout()
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
@@ -242,8 +240,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <template #button>
         <SidebarButton
           :click="openEnvironmentModal"
-          hotkey="N"
-          :layout="layout">
+          hotkey="N">
           <template #title>Add Environment</template>
         </SidebarButton>
       </template>
