@@ -102,7 +102,7 @@ export function keyboardShortcutTooltip(keys: string, title?: string) {
     min-width: 20px;
     text-align: center;
   `
-  const item = (val: string) => html`<span style="${itemStyle}">${val}</span>`
+  const item = (val = '') => html`<span style="${itemStyle}">${val}</span>`
   const titleElement = title
     ? html`<span style="margin: 0 6px 0 3px">${title}</span>`
     : ''

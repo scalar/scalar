@@ -2,7 +2,7 @@ import { galaxySpec } from '@scalar/galaxy'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
-import { ApiReferenceReact, ReferenceProps } from '../src'
+import { ApiReferenceReact, type ReferenceProps } from '../src'
 
 function App() {
   const [auth, setAuth] = useState<

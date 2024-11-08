@@ -269,7 +269,7 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
     /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/s,
   )
 
-  if (!match) return undefined
+  if (!match?.[1]) return undefined
 
   try {
     const configString = decodeHtmlEntities(match[1])

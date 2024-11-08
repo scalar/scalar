@@ -26,7 +26,7 @@ export async function createVoidServer() {
     console.info(`${c.req.method} ${c.req.path}`)
 
     const { status: originalStatusCode } = c.req.param()
-    const status = parseInt(originalStatusCode, 10) as StatusCode
+    const status = parseInt(originalStatusCode ?? '0', 10) as StatusCode
 
     c.status(status)
 
@@ -48,13 +48,9 @@ export async function createVoidServer() {
 
     const { filename } = c.req.param()
 
-    if (filename.endsWith('.html')) {
-      return createHtmlResponse(c, requestData)
-    } else if (filename.endsWith('.xml')) {
-      return createXmlResponse(c, requestData)
-    } else if (filename.endsWith('.zip')) {
-      return createZipFileResponse(c)
-    }
+    if (filename?.endsWith('.html')) return createHtmlResponse(c, requestData)
+    if (filename?.endsWith('.xml')) return createXmlResponse(c, requestData)
+    if (filename?.endsWith('.zip')) return createZipFileResponse(c)
 
     return createJsonResponse(c, requestData)
   })

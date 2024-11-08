@@ -1,6 +1,6 @@
-import { Cookie as Ck } from '@/entities/cookie'
-import { Environment as E } from '@/entities/environment'
-import {
+import type { Cookie as Ck } from '@/entities/cookie'
+import type { Environment as E } from '@/entities/environment'
+import type {
   Collection as Co,
   Request as R,
   RequestExample as RE,
@@ -8,7 +8,7 @@ import {
   SecurityScheme as SS,
   Tag as T,
 } from '@/entities/spec'
-import { Workspace as W } from '@/entities/workspace'
+import type { Workspace as W } from '@/entities/workspace'
 
 /**
  * TODO: These types are no longer generated, this was manually grabbed but we must generate them before the next

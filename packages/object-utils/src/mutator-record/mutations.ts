@@ -148,7 +148,7 @@ export class Mutation<DataType> {
 
     const record = this.records[this.idx]
     this.idx -= 1
-    this._unsavedMutate(record.path, record.prev)
+    if (record) this._unsavedMutate(record.path, record.prev)
 
     return true
   }
@@ -161,7 +161,7 @@ export class Mutation<DataType> {
 
     const record = this.records[this.idx + 1]
     this.idx += 1
-    this._unsavedMutate(record.path, record.value)
+    if (record) this._unsavedMutate(record.path, record.value)
 
     return true
   }

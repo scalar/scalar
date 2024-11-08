@@ -24,7 +24,8 @@ export async function request<T>({
 
   // eslint-disable-next-line guard-for-in
   for (const headerKey in config.headers) {
-    headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
+    if (config.headers[headerKey])
+      headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
   }
 
   // Default to JSON content if not specified

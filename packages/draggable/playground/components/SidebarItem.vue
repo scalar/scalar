@@ -24,10 +24,10 @@ defineEmits<{
       <div
         class="sidebar-item"
         :style="{ 'padding-left': parentIds.length * 8 + 'px' }">
-        {{ items[id].name }}
+        {{ items[id]?.name }}
       </div>
       <SidebarItem
-        v-for="childId in items[id].children"
+        v-for="childId in items[id]?.children"
         :id="childId"
         :key="childId"
         :items="items"

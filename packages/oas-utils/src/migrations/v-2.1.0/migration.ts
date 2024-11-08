@@ -129,7 +129,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     const auth = securitySchemes.reduce(
       (prev, uid) => {
         const scheme = oldData.securitySchemes[uid]
-        if (scheme.uid) prev[uid] = migrateAuth(scheme)
+        if (scheme?.uid) prev[uid] = migrateAuth(scheme)
         return prev
       },
       {} as v_2_1_0.Collection['auth'],
@@ -183,7 +183,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     // Ensure this request can access these schemes
     const selectedSecuritySchemeUids = (
       r.selectedSecuritySchemeUids || []
-    ).filter((s) => requestSecurityDict[r.uid].includes(s))
+    ).filter((s) => requestSecurityDict[r.uid]?.includes(s))
 
     return {
       ...r,

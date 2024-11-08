@@ -32,13 +32,13 @@ describe('Assign mutation records', () => {
 
     expect(mutation.records.length).toEqual(1)
     expect(mutation.idx).toEqual(0)
-    expect(state.storage[0].name).toEqual(newName)
+    expect(state.storage[0]?.name).toEqual(newName)
 
     const newTime = Date.now()
     mutation.mutate('storage.2.time', newTime)
     expect(mutation.records.length).toEqual(2)
     expect(mutation.idx).toEqual(1)
-    expect(state.storage[2].time).toEqual(newTime)
+    expect(state.storage[2]?.time).toEqual(newTime)
 
     intermediateState = clone(state)
   })
