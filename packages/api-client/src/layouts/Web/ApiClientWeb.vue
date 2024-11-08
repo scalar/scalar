@@ -91,44 +91,4 @@ body {
 .dark-mode #scalar-client {
   background-color: color-mix(in srgb, var(--scalar-background-1) 30%, black);
 }
-@media (min-width: 600px) {
-  .scalar-client-web .web-layout {
-    flex-direction: column;
-  }
-  .scalar-client-web .web-layout-sidebar {
-    all: unset;
-    display: flex;
-    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    height: 50px;
-    padding: 0;
-  }
-  .scalar-client-web .scalar-web-header-nav {
-    all: unset;
-    display: flex;
-    flex-direction: row;
-    list-style: none;
-    align-items: center;
-    gap: 1px;
-    padding: 6px 9px;
-    border-radius: var(--scalar-radius);
-    font-size: var(--scalar-font-size-4);
-    font-weight: var(--scalar-semibold);
-    text-transform: capitalize;
-  }
-  .scalar-client-web .scalar-web-header-nav svg {
-    width: 14px;
-    height: 14px;
-    margin-right: 6px;
-  }
-  .scalar-client-web .scalar-web-header-nav .scalar-web-header-nav-svg {
-    display: none;
-  }
-  .scalar-client-web .scalar-web-header-nav .scalar-web-header-nav-item {
-    all: unset;
-    color: var(--scalar-color-1);
-  }
-}
 </style>

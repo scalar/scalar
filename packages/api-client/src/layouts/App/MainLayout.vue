@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { TheCommandPalette } from '@/components/CommandPalette'
 import SideNav from '@/components/SideNav/SideNav.vue'
+import { useLayout } from '@/hooks'
+
+const { layout } = useLayout()
 </script>
 <template>
   <!-- min-h-0 is to allow scrolling of individual flex children -->
-  <main class="flex flex-col sm:flex-row min-h-0 flex-1 web-layout">
-    <SideNav class="order-last sm:order-none web-layout-sidebar" />
+  <main
+    class="flex flex-col sm:flex-row min-h-0 flex-1"
+    :class="layout === 'web' ? 'sm:flex-col' : 'sm:flex-row'">
+    <SideNav class="order-last sm:order-none" />
 
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />

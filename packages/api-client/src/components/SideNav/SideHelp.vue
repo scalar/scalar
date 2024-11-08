@@ -4,22 +4,21 @@ import {
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
+
+import SideNavLink from './SideNavLink.vue'
 </script>
 <template>
   <ScalarDropdown
     class="max-w-[150px]"
     :placement="'top-end'">
-    <button
-      class="min-w-[37px] max-w-[37px] hover:bg-b-3 flex items-center justify-center rounded-lg p-[8px] text-c-3 focus:text-c-1 scalar-web-header-nav"
+    <SideNavLink
+      is="button"
+      icon="Help"
       type="button">
-      <ScalarIcon
-        class="scalar-web-header-nav-svg"
-        icon="Help"
-        thickness="1.5" />
-      <span class="sr-only scalar-web-header-nav-item">About</span>
-    </button>
+      About
+    </SideNavLink>
 
-    <!-- Workspace list -->
+    <!-- Help Menu -->
     <template #items>
       <span class="px-2.5 py-1.5 text-xs text-c-2 font-medium">Support</span>
       <a
