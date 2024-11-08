@@ -49,6 +49,6 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "vite": "^5.4.9"
+    "vite": "^5.4.10"
   }
 }

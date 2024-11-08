@@ -29,6 +29,6 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
-    "vite": "^5.4.9"
+    "vite": "^5.4.10"
   }
 }

@@ -57,7 +57,7 @@
   ],
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
-    "@unhead/schema": "^1.9.5"
+    "@unhead/schema": "^1.11.11"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*"
