@@ -16,6 +16,7 @@ import {
   displaySchemeFormatter,
 } from '@/views/Request/libs'
 import {
+  type Icon,
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
@@ -164,6 +165,29 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   editSelectedSchemeUids(_entries)
 }
 
+/** Indicates if auth is required */
+const authIndicator = computed(() => {
+  const security =
+    activeRequest.value?.security ?? activeCollection.value?.security
+  if (!security?.length) return null
+
+  /** Filter out empty objects */
+  const filteredSecurity = security.filter((s) => Object.keys(s).length)
+  /** Security is optional if one empty object exists in the array */
+  const isOptional = filteredSecurity.length < security.length
+  const icon: Icon = isOptional ? 'Unlock' : 'Lock'
+
+  /** Dynamic text to indicate auth requirements */
+  const requiredText = isOptional ? 'Optional' : 'Required'
+  const nameKey =
+    filteredSecurity.length === 1
+      ? Object.keys(filteredSecurity[0])[0]
+      : 'Authentication'
+  const text = `${nameKey} ${requiredText}`
+
+  return { icon, text }
+})
+
 /** Remove a single auth type from an example */
 const unselectAuth = (unSelectUid: string) => {
   editSelectedSchemeUids(
@@ -182,8 +206,19 @@ function handleDeleteScheme(option: { id: string; label: string }) {
     class="group/params"
     :itemCount="selectedAuth.length">
     <template #title>
-      <div class="flex gap-1">
+      <div class="flex flex-1 gap-1 items-center justify-between">
         {{ title }}
+
+        <!-- Authentication indicator -->
+        <div
+          v-if="authIndicator"
+          class="flex items-center gap-1 text-c-3">
+          {{ authIndicator.text }}
+          <ScalarIcon
+            class="text-c-3"
+            :icon="authIndicator.icon"
+            size="xs" />
+        </div>
       </div>
     </template>
     <form>

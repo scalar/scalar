@@ -12,7 +12,7 @@ defineProps<
     modelValue?: Option[]
     placeholder?: string
     isDeletable?: boolean
-  } & Omit<FloatingOptions, 'middleware'>
+  } & Omit<FloatingOptions, 'middleware' | 'targetRef'>
 >()
 
 defineEmits<{

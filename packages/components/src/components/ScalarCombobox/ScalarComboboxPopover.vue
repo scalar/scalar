@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
-defineProps<Omit<FloatingOptions, 'middleware'>>()
+defineProps<Omit<FloatingOptions, 'middleware' | 'targetRef'>>()
 
 defineOptions({ inheritAttrs: false })
 
