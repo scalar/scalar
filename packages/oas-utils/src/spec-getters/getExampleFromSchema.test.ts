@@ -521,15 +521,14 @@ describe('getExampleFromSchema', () => {
       }),
     ).toMatchObject(1)
   })
-
   it('works with numbers that are bigger than a 32bit signed integer', () => {
     expect(
       getExampleFromSchema({
         type: 'integer',
         format: 'int64',
-        example: '60503861139345408',
+        example: 60503861139345408n,
       }),
-    ).toBe('60503861139345408')
+    ).toBe(60503861139345408n)
   })
 
   it('uses min as the default for a number', () => {
@@ -626,16 +625,16 @@ describe('getExampleFromSchema', () => {
     }
 
     expect(getExampleFromSchema(schema)).toMatchObject({
-      id: 10,
+      id: 10n,
       name: 'doggie',
       category: {
-        id: 1,
+        id: 1n,
         name: 'Dogs',
       },
       photoUrls: [''],
       tags: [
         {
-          id: 1,
+          id: 1n,
           name: '',
         },
       ],

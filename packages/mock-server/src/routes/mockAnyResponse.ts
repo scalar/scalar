@@ -92,7 +92,12 @@ export function mockAnyResponse(
         acceptedContentType?.includes('xml')
         ? `<?xml version="1.0" encoding="UTF-8"?>${objectToXML(body)}`
         : // JSON
-          JSON.stringify(body, null, 2)
+          JSON.stringify(
+            body,
+            (key, value) =>
+              typeof value === 'bigint' ? value.toString() : value,
+            2,
+          )
       : // String
         body,
   )

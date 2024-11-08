@@ -138,6 +138,10 @@ export const getExampleFromSchema = (
 
   // Use an example, if there’s one
   if (schema.example !== undefined) {
+    // Special handling for int64 format to preserve precision using BigInt
+    if (schema.format === 'int64' && schema.type === 'integer') {
+      return cache(schema, BigInt(schema.example))
+    }
     return cache(schema, schema.example)
   }
 
@@ -336,7 +340,10 @@ export const getExampleFromSchema = (
       ? guessFromFormat(schema, options?.emptyString)
       : '',
     boolean: true,
-    integer: schema.min ?? 1,
+    integer:
+      schema.format === 'int64'
+        ? BigInt(1) // Return BigInt for int64
+        : (schema.min ?? 1),
     number: schema.min ?? 1,
     array: [],
   }
