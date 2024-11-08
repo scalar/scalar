@@ -65,6 +65,13 @@ const convertOauth2Flows = (
         if (auth.oAuth2.scopes) payload.flow.selectedScopes = auth.oAuth2.scopes
       }
 
+      // Handle x-defaultClientId
+      if (
+        'x-defaultClientId' in flow &&
+        typeof flow['x-defaultClientId'] === 'string'
+      )
+        payload['x-scalar-client-id'] = flow['x-defaultClientId']
+
       return payload
     }
   }
