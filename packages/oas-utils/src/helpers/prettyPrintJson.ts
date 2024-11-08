@@ -1,5 +1,7 @@
 import { isJsonString } from '@/helpers/parse'
 
+// TODO: There two functions, this one and one in oas-utils.ts, clean this up.
+
 /**
  * Takes JSON and formats it.
  */

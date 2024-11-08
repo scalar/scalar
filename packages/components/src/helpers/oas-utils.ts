@@ -9,6 +9,9 @@
 type AnyObject = Record<string, any>
 type PrimitiveOrObject = object | string | null | number | boolean | undefined
 
+const convertBigIntToString = (key: string, value: unknown) =>
+  typeof value === 'bigint' ? value.toString() : value
+
 /**
  * Check if value is a valid JSON string
  */
@@ -37,7 +40,7 @@ const json = {
       return typeof fallback === 'function' ? fallback(err) : fallback
     }
   },
-  stringify: (val: object) => JSON.stringify(val),
+  stringify: (val: object) => JSON.stringify(val, convertBigIntToString),
 }
 
 /**
@@ -49,7 +52,7 @@ export const prettyPrintJson = (
   if (typeof value === 'string') {
     // JSON string
     if (isJsonString(value)) {
-      return JSON.stringify(JSON.parse(value), null, 2)
+      return JSON.stringify(JSON.parse(value), convertBigIntToString, 2)
     }
 
     // Regular string
@@ -59,7 +62,7 @@ export const prettyPrintJson = (
   // Object
   if (typeof value === 'object') {
     try {
-      return JSON.stringify(value, null, 2)
+      return JSON.stringify(value, convertBigIntToString, 2)
     } catch {
       return replaceCircularDependencies(value)
     }
@@ -76,7 +79,7 @@ function replaceCircularDependencies(content: any) {
 
   return JSON.stringify(
     content,
-    (_, value) => {
+    (key, value) => {
       if (typeof value === 'object' && value !== null) {
         if (cache.has(value)) {
           return '[Circular]'
@@ -84,7 +87,8 @@ function replaceCircularDependencies(content: any) {
 
         cache.add(value)
       }
-      return value
+
+      return convertBigIntToString(key, value)
     },
     2,
   )
