@@ -86,7 +86,7 @@ const handleDropdownMouseUp = () => {
           v-bind="$attrs"
           :id="id"
           autocomplete="off"
-          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.25 outline-none"
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.25 -outline-offset-2"
           data-1p-ignore
           :readOnly="readOnly"
           spellcheck="false"
@@ -102,7 +102,7 @@ const handleDropdownMouseUp = () => {
           v-else
           v-bind="$attrs"
           :id="id"
-          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer outline-none"
+          class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer"
           disableCloseBrackets
           disableTabIndent
           :max="max"
@@ -117,7 +117,7 @@ const handleDropdownMouseUp = () => {
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
           v-if="required"
-          class="absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-focus:opacity-0">
+          class="absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
           Required
         </div>
       </template>

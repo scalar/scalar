@@ -20,7 +20,7 @@ defineEmits<{
 }>()
 
 const variants = cva({
-  base: 'w-8 h-8 flex items-center justify-center text-border peer-checked:text-c-2 pointer-events-none absolute before:absolute before:opacity-0 group-hover/cell:before:opacity-100 before:border before:rounded before:w-9/12 before:aspect-square before:top-1/2 before:left-1/2 before:transform before:-translate-x-1/2 before:-translate-y-1/2 before:border-[1px]',
+  base: 'w-8 h-8 flex items-center justify-center text-border peer-checked:text-c-2 pointer-events-none absolute',
   variants: {
     align: {
       left: 'left-0',
@@ -35,10 +35,11 @@ const variants = cva({
       :checked="modelValue"
       class="peer absolute inset-0 opacity-0 cursor-pointer"
       :disabled="disabled"
-      tabindex="-1"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
     <div :class="variants({ align })">
+      <div
+        class="absolute opacity-0 group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100 group-has-[:focus-visible]/cell:border-c-accent border-[1px] rounded size-3/4 m-auto" />
       <ScalarIcon
         icon="Checkmark"
         size="xs"

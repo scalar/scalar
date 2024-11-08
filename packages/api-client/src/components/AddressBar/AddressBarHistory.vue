@@ -79,7 +79,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
       <ListboxOption
         v-for="(entry, index) in history"
         :key="index"
-        class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:hover:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
+        class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
         :value="index"
         @click="handleHistoryClick(entry)">
         <HttpMethod

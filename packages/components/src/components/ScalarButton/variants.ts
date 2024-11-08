@@ -5,7 +5,7 @@ import { cva } from '../../cva'
 export const styles: Record<string, Record<string, any>> = {
   solid: [
     'scalar-button-solid',
-    'bg-b-btn text-c-btn shadow-sm active:bg-b-btn active:shadow-none hocus:bg-h-btn',
+    'bg-b-btn text-c-btn shadow-sm focus-visible:border-c-btn active:bg-b-btn active:shadow-none hover:bg-h-btn outline-offset-1',
   ],
   outlined: [
     'scalar-button-outlined',

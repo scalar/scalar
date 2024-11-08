@@ -64,14 +64,14 @@ const updateRequestNameHandler = (event: Event) => {
 }
 </script>
 <template>
-  <ViewLayoutSection>
+  <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
     <template #title>
       <div
         class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
           v-if="!isReadOnly"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
-          for="requestname"></label>
+          for="requestname" />
         <input
           v-if="!isReadOnly"
           id="requestname"
@@ -81,7 +81,7 @@ const updateRequestNameHandler = (event: Event) => {
           @input="updateRequestNameHandler" />
         <span
           v-else
-          class="text-c-1">
+          class="flex items-center text-c-1 h-8">
           {{ activeRequest?.summary }}
         </span>
       </div>

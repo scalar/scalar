@@ -176,6 +176,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             <!-- Path + URL + env vars -->
             <CodeInput
               ref="addressBarRef"
+              aria-label="Path"
+              class="outline-none"
               disableCloseBrackets
               :disabled="isReadOnly"
               disableEnter
@@ -193,14 +195,19 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 
           <AddressBarHistory :open="open" />
           <ScalarButton
-            class="relative h-auto shrink-0 gap-1 overflow-hidden pl-2 pr-2.5 py-1 font-bold"
+            class="relative h-auto shrink-0 overflow-hidden pl-2 pr-2.5 py-1 font-bold"
             :disabled="isRequesting"
             @click="handleExecuteRequest">
-            <ScalarIcon
-              class="relative shrink-0 fill-current"
-              icon="Play"
-              size="xs" />
-            <span class="text-xxs relative lg:flex hidden">Send</span>
+            <span
+              aria-hidden="true"
+              class="inline-flex gap-1 items-center">
+              <ScalarIcon
+                class="relative shrink-0 fill-current"
+                icon="Play"
+                size="xs" />
+              <span class="text-xxs lg:flex hidden">Send</span>
+            </span>
+            <span class="sr-only"> Send Request </span>
           </ScalarButton>
         </div>
       </Listbox>
@@ -310,7 +317,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     var(--scalar-background-2)
   );
 }
-.addressbar-bg-states:focus-within .codemirror-bg-switcher {
+.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
   --scalar-background-1: var(--scalar-background-1);
 }
 .addressbar-bg-states {
@@ -320,7 +327,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     var(--scalar-background-2)
   );
 }
-.addressbar-bg-states:focus-within {
+.addressbar-bg-states:has(.cm-focused) {
   background: var(--scalar-background-1);
   border-color: var(--scalar-border-color);
   outline: 1px solid var(--scalar-color-accent);

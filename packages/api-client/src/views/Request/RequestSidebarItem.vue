@@ -248,7 +248,7 @@ const watchIconColor = computed(() => {
 </script>
 
 <template>
-  <div
+  <li
     class="relative flex flex-row"
     :class="[
       (isReadOnly && parentUids.length > 1) ||
@@ -270,20 +270,19 @@ const watchIconColor = computed(() => {
       <RouterLink
         v-if="item.link"
         v-slot="{ isExactActive }"
-        class="no-underline"
+        class="group no-underline"
         :to="item.link"
         @click.prevent="
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
         <div
-          class="group relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
+          class="relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
-          ]"
-          tabindex="0">
+          ]">
           <span
             class="line-clamp-3 font-medium w-full pl-2 word-break-break-word"
             :class="{
@@ -296,7 +295,7 @@ const watchIconColor = computed(() => {
             <div class="relative">
               <ScalarButton
                 v-if="!isReadOnly"
-                class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+                class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
                 :class="{
                   flex:
                     menuItem?.item?.entity.uid === item.entity.uid &&
@@ -321,6 +320,7 @@ const watchIconColor = computed(() => {
             </div>
             <span class="flex items-start">
               &hairsp;
+              <span class="sr-only">HTTP Method:</span>
               <HttpMethod
                 v-if="item.method"
                 class="font-bold"
@@ -333,7 +333,8 @@ const watchIconColor = computed(() => {
       <!-- Collection/Folder -->
       <button
         v-else-if="!isReadOnly || parentUids.length"
-        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5"
+        :aria-expanded="collapsedSidebarFolders[item.entity.uid]"
+        class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
         :class="highlightClasses"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
@@ -364,7 +365,7 @@ const watchIconColor = computed(() => {
           <div class="relative flex h-fit">
             <ScalarButton
               v-if="!isReadOnly && !isDraftCollection"
-              class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+              class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
               :class="{
                 'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&
@@ -415,7 +416,7 @@ const watchIconColor = computed(() => {
       </button>
 
       <!-- Children -->
-      <div v-if="showChildren">
+      <ul v-if="showChildren">
         <!-- We never want to show the first example -->
         <RequestSidebarItem
           v-for="childUid in item.children"
@@ -440,9 +441,9 @@ const watchIconColor = computed(() => {
             thickness="3" />
           <span>Add Request</span>
         </ScalarButton>
-      </div>
+      </ul>
     </Draggable>
-  </div>
+  </li>
 </template>
 <style>
 @import '@scalar/draggable/style.css';
