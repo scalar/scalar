@@ -185,7 +185,16 @@ const authIndicator = computed(() => {
       : 'Authentication'
   const text = `${nameKey} ${requiredText}`
 
-  return { icon, text }
+  /** Dictionary of all required auth */
+  const requiredDictionary = filteredSecurity.reduce(
+    (prev, curr) => {
+      prev[Object.keys(curr)[0]] = true
+      return prev
+    },
+    {} as Record<string, boolean>,
+  )
+
+  return { icon, text, requiredDictionary }
 })
 
 /** Remove a single auth type from an example */
@@ -240,6 +249,18 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               :teleport="`#${teleportId}`"
               @delete="handleDeleteScheme"
               @update:modelValue="updateSelectedAuth">
+              <!-- Label slot -->
+              <template #label="{ option }">
+                <span class="flex items-center gap-1">
+                  <ScalarIcon
+                    v-if="authIndicator?.requiredDictionary[option.label]"
+                    icon="Lock"
+                    size="xs" />
+                  {{ option.label }}
+                </span>
+              </template>
+
+              <!-- Trigger button with chips -->
               <ScalarButton
                 ref="comboboxButtonRef"
                 class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start -outline-offset-2"
