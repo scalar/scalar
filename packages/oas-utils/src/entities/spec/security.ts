@@ -110,6 +110,7 @@ export function authExampleFromSchema(
   }
   console.warn(
     '[@scalar/oas-utils:security] Invalid schema for oauth example',
+    scheme,
     baseValues,
   )
 

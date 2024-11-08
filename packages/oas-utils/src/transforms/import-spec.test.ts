@@ -86,5 +86,15 @@ describe('Import OAS Specs', () => {
         'https://scalar.com',
       ])
     })
+
+    it('handles overloading servers with the servers property', async () => {
+      const res = await importSpecToWorkspace(relativeGalaxy, {
+        servers: [{ url: 'https://scalar.com' }],
+      })
+      if (res.error) throw res.error
+
+      // Test URLS only
+      expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
+    })
   })
 })

@@ -15,14 +15,8 @@ export const specDictionary: Record<
   { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }
 > = {}
 
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & {
-  /**
-   * TODO: What do these look like?
-   * Ideally we reference some existing UIDs in the store and
-   * attach those as needed to entities below
-   */
-  overloadServers?: Spec['servers']
-}
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
+  Pick<ReferenceConfiguration, 'servers'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -38,14 +32,9 @@ export function importSpecFileFactory({
   const importSpecFile = async (
     _spec: string | Record<string, any>,
     workspaceUid: string,
-    { overloadServers, ...options }: ImportSpecFileArgs = {},
+    options: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
-
-    // Overload the servers
-    if (overloadServers?.length && typeof spec === 'object')
-      spec.servers = overloadServers
-
     const workspaceEntities = await importSpecToWorkspace(spec, options)
 
     if (workspaceEntities.error) {
