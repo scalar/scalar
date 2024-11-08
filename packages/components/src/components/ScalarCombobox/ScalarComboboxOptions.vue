@@ -131,6 +131,7 @@ function moveActive(dir: 1 | -1) {
       <template
         v-for="option in filtered"
         :key="option.id">
+        <!-- Options -->
         <ComboboxOption
           v-if="group.options.some((o) => o.id === option.id)"
           :active="active?.id === option.id"
@@ -141,7 +142,12 @@ function moveActive(dir: 1 | -1) {
           @delete="$emit('delete', option)"
           @mousedown.prevent
           @mouseenter="active = option">
-          {{ option.label }}
+          <!-- Label slot, defaults to text label-->
+          <slot
+            name="label"
+            :option="option">
+            {{ option.label }}
+          </slot>
         </ComboboxOption>
       </template>
     </template>

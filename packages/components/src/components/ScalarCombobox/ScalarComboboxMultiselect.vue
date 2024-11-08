@@ -44,7 +44,16 @@ defineExpose({ comboboxPopoverRef })
           :options="options"
           :placeholder="placeholder"
           @delete="(option: Option) => $emit('delete', option)"
-          @update:modelValue="(v) => $emit('update:modelValue', v)" />
+          @update:modelValue="(v) => $emit('update:modelValue', v)">
+          <!-- Label slot -->
+          <template #label="{ option }">
+            <slot
+              name="label"
+              :option="option">
+              {{ option.label }}
+            </slot>
+          </template>
+        </ComboboxOptions>
         <div
           v-if="$slots.actions"
           class="p-0.75">
