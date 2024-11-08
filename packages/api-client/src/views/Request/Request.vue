@@ -2,6 +2,7 @@
 import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import { useLayout } from '@/hooks'
 import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
@@ -48,6 +49,7 @@ const requestAbortController = ref<AbortController>()
 const parsedCurl = ref<RequestPayload>()
 const selectedServerUid = ref('')
 const router = useRouter()
+const { layout } = useLayout()
 
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
@@ -178,7 +180,7 @@ function handleCurlImport(curl: string) {
 </script>
 <template>
   <div
-    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden app-layout"
+    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden"
     :class="{
       '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
     }">

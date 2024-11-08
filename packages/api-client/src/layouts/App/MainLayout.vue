@@ -15,7 +15,12 @@ const { layout } = useLayout()
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
 
-    <div class="flex flex-1 flex-col min-w-0 min-h-0 app-layout">
+    <div
+      class="flex flex-1 flex-col min-w-0 min-h-0"
+      :class="{
+        'border sm:mr-1.5 sm:mb-1.5 sm:rounded-lg sm:*:rounded-lg':
+          layout === 'desktop',
+      }">
       <slot />
     </div>
   </main>

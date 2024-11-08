@@ -14,8 +14,8 @@ const { layout } = useLayout()
 <template>
   <nav
     aria-label="App Navigation"
-    class="flex items-center justify-center sm:justify-between border gap-1.5"
-    :class="layout === 'web' ? 'h-12' : 'sm:w-13 sm:flex-col px-2 py-2'"
+    class="flex items-center justify-center sm:justify-between gap-1.5"
+    :class="layout === 'web' ? 'border h-12' : 'sm:flex-col px-2 py-2'"
     role="navigation">
     <SideNavGroup class="flex gap-1.5">
       <li
