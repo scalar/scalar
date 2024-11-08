@@ -90,12 +90,15 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		res.Header.Del("Access-Control-Allow-Methods")
 		res.Header.Del("Access-Control-Expose-Headers")
 
-		// Handle relative URLs in Location header
+		// Handle Location header to ensure redirects go through the proxy
 		if location := res.Header.Get("Location"); location != "" {
+			// If location starts with '/', make it absolute using the remote host
 			if location[0] == '/' {
-				// If location starts with '/', it's a relative URL
-				res.Header.Set("Location", remote.Scheme+"://"+remote.Host+location)
+				location = remote.Scheme + "://" + remote.Host + location
 			}
+			// URL encode the location and prefix with scalar_url parameter
+			encodedLocation := url.QueryEscape(location)
+			res.Header.Set("Location", "/?scalar_url=" + encodedLocation)
 		}
 
 		return nil
