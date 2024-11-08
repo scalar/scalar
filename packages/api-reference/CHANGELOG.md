@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.25.60
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+- b89da58: fix: ingest base server URL and use it in the api client
+- Updated dependencies [a40999d]
+- Updated dependencies [b89da58]
+- Updated dependencies [3300d5b]
+  - @scalar/code-highlight@0.0.15
+  - @scalar/oas-utils@0.2.71
+  - @scalar/themes@0.9.47
+  - @scalar/api-client@2.1.45
+  - @scalar/components@0.12.65
+  - @scalar/openapi-parser@0.8.9
+  - @scalar/openapi-types@0.1.5
+  - @scalar/snippetz@0.2.4
+  - @scalar/types@0.0.19
+  - @scalar/use-toasts@0.7.7
+
 ## 1.25.59
 
 ### Patch Changes

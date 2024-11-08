@@ -1,5 +1,14 @@
 # @scalar/api-reference-react
 
+## 0.3.136
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+- Updated dependencies [a40999d]
+- Updated dependencies [b89da58]
+  - @scalar/api-reference@1.25.60
+
 ## 0.3.135
 
 ### Patch Changes

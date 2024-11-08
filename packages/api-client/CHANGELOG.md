@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.1.45
+
+### Patch Changes
+
+- b89da58: fix: ingest base server URL and use it in the api client
+- Updated dependencies [a40999d]
+- Updated dependencies [b89da58]
+- Updated dependencies [3300d5b]
+  - @scalar/object-utils@1.1.12
+  - @scalar/use-tooltip@1.0.4
+  - @scalar/draggable@0.1.7
+  - @scalar/oas-utils@0.2.71
+  - @scalar/import@0.0.6
+  - @scalar/themes@0.9.47
+  - @scalar/components@0.12.65
+  - @scalar/icons@0.1.1
+  - @scalar/openapi-parser@0.8.9
+  - @scalar/openapi-types@0.1.5
+  - @scalar/types@0.0.19
+  - @scalar/use-codemirror@0.11.32
+  - @scalar/use-toasts@0.7.7
+
 ## 2.1.44
 
 ### Patch Changes

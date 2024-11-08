@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.4
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+
 ## 1.0.3
 
 ### Patch Changes

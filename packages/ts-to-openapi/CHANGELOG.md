@@ -1,5 +1,11 @@
 # @scalar/ts-to-openapi
 
+## 0.0.4
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+
 ## 0.0.3
 
 ### Patch Changes

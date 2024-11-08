@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.13
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+
 ## 2.0.12
 
 ### Patch Changes

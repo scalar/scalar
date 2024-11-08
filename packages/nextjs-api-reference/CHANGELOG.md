@@ -1,5 +1,12 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.100
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+  - @scalar/types@0.0.19
+
 ## 0.4.99
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.15
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+
 ## 0.0.14
 
 ### Patch Changes
