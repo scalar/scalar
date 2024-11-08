@@ -188,3 +188,16 @@ export function findRequestParentsFactory({
 
   return findRequestParentss
 }
+
+/** First draft request" */
+export function createInitialRequest() {
+  const request = requestSchema.parse({
+    method: 'get',
+    parameters: [],
+    path: '',
+    summary: 'My First Request',
+    examples: [],
+  })
+
+  return { request }
+}

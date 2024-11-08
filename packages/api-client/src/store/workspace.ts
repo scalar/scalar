@@ -2,7 +2,6 @@ import type { StoreContext } from '@/store/store-context'
 import {
   collectionSchema,
   requestExampleSchema,
-  requestSchema,
 } from '@scalar/oas-utils/entities/spec'
 import {
   type Workspace,
@@ -11,6 +10,8 @@ import {
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
+
+import { createInitialRequest } from './requests'
 
 /** Create storage for workspace entities */
 export function createStoreWorkspaces(useLocalStorage: boolean) {
@@ -38,13 +39,7 @@ export function extendedWorkspaceDataFactory({
 }: StoreContext) {
   const addWorkspace = (payload: Partial<Workspace> = {}) => {
     // Create some example data
-    const request = requestSchema.parse({
-      method: 'get',
-      parameters: [],
-      path: '',
-      summary: 'My First Request',
-      examples: [],
-    })
+    const { request } = createInitialRequest()
 
     const example = requestExampleSchema.parse({
       name: 'Example',

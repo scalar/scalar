@@ -9,6 +9,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { createInitialRequest } from '@/store/requests'
 import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
@@ -27,6 +28,7 @@ import {
   useId,
   watch,
 } from 'vue'
+import { useRouter } from 'vue-router'
 
 import RequestSidebarItem from './RequestSidebarItem.vue'
 
@@ -46,6 +48,7 @@ const {
   activeWorkspaceCollections,
   activeRequest,
   activeWorkspaceRequests,
+  activeWorkspace,
   findRequestParents,
   isReadOnly,
   events,
@@ -55,6 +58,7 @@ const {
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
+const { replace } = useRouter()
 
 const searchResultsId = useId()
 
@@ -125,10 +129,29 @@ const handleClearDrafts = () => {
   const draftCollection = activeWorkspaceCollections.value.find(
     (collection) => collection.info?.title === 'Drafts',
   )
+
   if (draftCollection) {
     draftCollection.requests.forEach((requestUid) => {
       requestMutators.delete(requests[requestUid], draftCollection.uid)
     })
+  }
+
+  const hasRequests = activeWorkspaceRequests.value.length
+
+  if (!hasRequests) {
+    const { request } = createInitialRequest()
+
+    if (draftCollection) {
+      requestMutators.add(request, draftCollection.uid)
+      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+    }
+  } else {
+    const firstCollection = activeWorkspaceCollections.value[0]
+    const firstRequest = firstCollection?.requests[0]
+
+    if (firstRequest) {
+      replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+    }
   }
 }
 </script>

@@ -4,6 +4,7 @@ import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarL
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
+import { createInitialRequest } from '@/store/requests'
 import type { SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarDropdown,
@@ -24,7 +25,14 @@ const emit = defineEmits<{
 }>()
 
 const { replace } = useRouter()
-const { activeWorkspace, activeRouterParams, events } = useWorkspace()
+const {
+  activeWorkspace,
+  activeRouterParams,
+  events,
+  requestMutators,
+  activeWorkspaceCollections,
+  activeWorkspaceRequests,
+} = useWorkspace()
 
 const editModal = useModal()
 const deleteModal = useModal()
@@ -48,6 +56,18 @@ const handleEdit = (newName: string, newIcon?: string) => {
 const handleItemDelete = () => {
   props.menuItem.item?.delete()
 
+  if (!activeWorkspaceRequests.value.length) {
+    const { request } = createInitialRequest()
+    const draftCollection = activeWorkspaceCollections.value.find(
+      (collection) => collection.info?.title === 'Drafts',
+    )
+
+    if (draftCollection) {
+      requestMutators.add(request, draftCollection.uid)
+      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+    }
+  }
+
   if (
     activeRouterParams.value[PathId.Request] === props.menuItem.item?.entity.uid
   )
@@ -58,6 +78,11 @@ const handleItemDelete = () => {
     props.menuItem.item?.entity.uid
   )
     replace(`/workspace/${activeWorkspace.value}/request/default`)
+
+  if (activeWorkspaceCollections.value[0]) {
+    const firstRequest = activeWorkspaceCollections.value[0].requests[0]
+    replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+  }
 
   deleteModal.hide()
 }
