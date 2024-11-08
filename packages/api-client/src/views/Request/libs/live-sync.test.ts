@@ -1,7 +1,6 @@
-import { type WorkspaceStore, useWorkspace } from '@/store'
+import type { WorkspaceStore } from '@/store'
 import json from '@scalar/galaxy/3.1.json'
 import {
-  type Collection,
   type Request,
   type SecurityScheme,
   type SecuritySchemePayload,
