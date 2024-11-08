@@ -8,6 +8,7 @@ import {
   onBeforeUnmount,
   onMounted,
   provide,
+  useId,
   useTemplateRef,
   watch,
 } from 'vue'
@@ -15,10 +16,13 @@ import { RouterView } from 'vue-router'
 
 const { activeWorkspace, modalState, events } = useWorkspace()
 const client = useTemplateRef('client')
+const id = useId()
+
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
   useFocusTrap(client, {
     allowOutsideClick: true,
     initialFocus: () => client.value,
+    fallbackFocus: `#${id}`,
   })
 
 // Provide the layout value
@@ -36,8 +40,8 @@ watch(
       window.addEventListener('keydown', handleKeyDown)
       // Disable scrolling
       document.documentElement.style.overflow = 'hidden'
-      // Wait for the animation to finish then focus trap the client
-      setTimeout(() => activateFocusTrap(), 400)
+      // Focus trap the modal
+      activateFocusTrap()
     } else {
       // Remove the global hotkey listener
       window.removeEventListener('keydown', handleKeyDown)
@@ -70,6 +74,7 @@ onBeforeUnmount(() => {
     class="scalar scalar-app">
     <div class="scalar-container z-overlay">
       <div
+        :id="id"
         ref="client"
         aria-label="API Client"
         aria-modal="true"
