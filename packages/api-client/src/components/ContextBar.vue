@@ -87,33 +87,33 @@ const model = computed<string>({
 .filter-hover-item:not(:last-of-type) {
   transform: translate3d(0, 3px, 0);
 }
-.filter-hover-item {
+.filter-hover:hover .filter-hover-item {
   transition:
     opacity 0.2s ease-in-out,
     transform 0.2s ease-in-out;
 }
-.filter-hover-item:nth-last-of-type(1) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(1) {
   transition-delay: 0.05s;
 }
-.filter-hover-item:nth-last-of-type(2) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(2) {
   transition-delay: 0.1s;
 }
-.filter-hover-item:nth-last-of-type(3) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(3) {
   transition-delay: 0.15s;
 }
-.filter-hover-item:nth-last-of-type(4) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(4) {
   transition-delay: 0.2s;
 }
-.filter-hover-item:nth-last-of-type(5) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(5) {
   transition-delay: 0.25s;
 }
-.filter-hover-item:nth-last-of-type(6) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(6) {
   transition-delay: 0.3s;
 }
-.filter-hover-item:nth-last-of-type(7) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
   transition-delay: 0.35s;
 }
-.filter-hover-item:nth-last-of-type(7) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
   transition-delay: 0.4s;
 }
 .filter-hover:hover .filter-hover-item,
