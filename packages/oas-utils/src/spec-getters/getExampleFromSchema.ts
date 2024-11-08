@@ -30,6 +30,7 @@ const genericExampleValues: Record<string, string> = {
   'uri-template': 'https://example.com/{id}',
   'uri': 'https://example.com',
   'uuid': '123e4567-e89b-12d3-a456-426614174000',
+  'object-id': '6592008029c8c3e4dc76256c',
 }
 
 /**
