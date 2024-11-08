@@ -2,7 +2,7 @@
 import { parseEnvVariables } from '@/libs'
 import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
-import { variableRegex } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/oas-utils/helpers'
 import {
   Decoration,
   type DecorationSet,
@@ -178,7 +178,7 @@ export const pillPlugin = (props: {
           const text = view.state.doc.sliceString(from, to)
           let match
 
-          while ((match = variableRegex.exec(text)) !== null) {
+          while ((match = REGEX.VARIABLES.exec(text)) !== null) {
             const start = from + match.index
             const end = start + match[0].length
             const variableName = match[1]

@@ -1,5 +1,5 @@
 import type { ServerState } from '#legacy'
-import { replaceVariables } from '@scalar/oas-utils/helpers'
+import { REGEX, replaceVariables } from '@scalar/oas-utils/helpers'
 
 /**
  * Get the URL from the server state.
@@ -19,7 +19,7 @@ export function getUrlFromServerState(state: ServerState) {
       : server?.url
 
   // {id} -> __ID__
-  const urlVariables = url?.match(/{[^{}]*}/g)
+  const urlVariables = url?.match(REGEX.PATH)
 
   const modifiedUrl =
     urlVariables?.reduce((acc, variable) => {

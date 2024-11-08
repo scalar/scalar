@@ -1,2 +1,4 @@
-export const variableRegex = /{{((?:[^{}]|{[^{}]*})*)}}/g
-export const pathRegex = /(?:{)([^{}]+)}(?!})/g
+export const REGEX = {
+  VARIABLES: /{{((?:[^{}]|{[^{}]*})*)}}/g,
+  PATH: /(?:{)([^{}]+)}(?!})/g,
+} as const
