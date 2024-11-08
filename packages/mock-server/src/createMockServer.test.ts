@@ -606,4 +606,51 @@ describe('createMockServer', () => {
     expect(response.status).toBe(301)
     expect(response.headers.get('Location')).toBe('/new-location')
   })
+
+  it('handles bigint values', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/bigint': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'integer',
+                          format: 'int64',
+                          example: 60503861139345408n,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/bigint')
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({
+      id: '60503861139345408',
+    })
+  })
 })
