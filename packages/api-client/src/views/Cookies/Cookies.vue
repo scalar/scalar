@@ -5,12 +5,12 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { useSidebar } from '@/hooks'
+import { useLayout, useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
@@ -20,7 +20,7 @@ const { cookies, cookieMutators, events } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 const route = useRoute()
-const layout = inject<'modal' | 'web' | 'desktop'>('layout')
+const { layout } = useLayout()
 
 const addCookieHandler = () => {
   const cookieIndex = Object.keys(cookies).length

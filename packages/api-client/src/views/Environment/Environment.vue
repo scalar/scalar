@@ -7,12 +7,13 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
-import { inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
@@ -29,7 +30,7 @@ const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
-const layout = inject<'modal' | 'web' | 'desktop'>('layout')
+const { layout } = useLayout()
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)

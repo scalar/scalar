@@ -7,7 +7,6 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
-  provide,
   useId,
   useTemplateRef,
   watch,
@@ -24,9 +23,6 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
     initialFocus: () => client.value,
     fallbackFocus: `#${id}`,
   })
-
-// Provide the layout value
-provide('layout', 'modal')
 
 /** Handles the hotkey events as well as custom config */
 const handleKeyDown = (ev: KeyboardEvent) =>

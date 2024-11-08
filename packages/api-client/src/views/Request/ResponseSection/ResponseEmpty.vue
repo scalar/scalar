@@ -2,14 +2,15 @@
 import Computer from '@/assets/computer.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
+import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { inject, onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const { isReadOnly, activeWorkspace, events } = useWorkspace()
 const route = useRoute()
-const layout = inject<'modal' | 'web' | 'desktop'>('layout')
+const { layout } = useLayout()
 
 const openCommandPaletteRequest = () => {
   events.commandPalette.emit({ commandName: 'Create Request' })

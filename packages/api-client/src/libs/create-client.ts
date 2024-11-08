@@ -13,6 +13,11 @@ import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
+/**
+ * The layout of the client
+ */
+export type ClientLayout = 'modal' | 'web' | 'desktop'
+
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
   proxyUrl?: ReferenceConfiguration['proxy']
@@ -52,6 +57,8 @@ type CreateApiClientParams = {
   router: Router
   /** In case the store has been instantiated beforehand */
   store?: WorkspaceStore
+  /** The layout of the client */
+  layout?: ClientLayout
 }
 
 /**
@@ -94,6 +101,7 @@ export const createApiClient = ({
   store: _store,
   persistData = true,
   mountOnInitialize = true,
+  layout = 'desktop',
   router,
 }: CreateApiClientParams) => {
   // Create the store if it wasn't passed in
@@ -150,7 +158,10 @@ export const createApiClient = ({
 
   const app = createApp(appComponent)
   app.use(router)
+  // Provide the workspace store for the useWorkspace hook
   app.provide('workspace', store)
+  // Provide the layout for the useLayout hook
+  app.provide('layout', layout)
 
   const {
     activeCollection,

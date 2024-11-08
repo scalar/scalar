@@ -24,6 +24,7 @@ export const createApiClientWeb = async (
     configuration: configuration,
     mountOnInitialize,
     router,
+    layout: 'web',
   })
 
   const { importSpecFile, importSpecFromUrl } = client.store

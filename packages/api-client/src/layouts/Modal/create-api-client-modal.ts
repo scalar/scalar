@@ -27,6 +27,7 @@ export const createApiClientModal = async (
     isReadOnly: true,
     mountOnInitialize,
     router: createModalRouter(),
+    layout: 'modal',
   })
 
   const { importSpecFile, importSpecFromUrl } = client.store

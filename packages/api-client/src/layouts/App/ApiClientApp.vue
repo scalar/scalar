@@ -9,14 +9,7 @@ import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { ScalarToasts } from '@scalar/use-toasts'
-import {
-  computed,
-  onBeforeMount,
-  onBeforeUnmount,
-  onMounted,
-  provide,
-  ref,
-} from 'vue'
+import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { APP_HOTKEYS } from './hotkeys'
@@ -38,9 +31,6 @@ useDarkModeState()
 
 const workspaceStore = useWorkspace()
 const { events } = workspaceStore
-
-// Provide the layout value
-provide('layout', 'desktop')
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())

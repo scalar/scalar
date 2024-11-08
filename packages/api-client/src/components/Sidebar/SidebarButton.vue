@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
+import type { ClientLayout } from '@/libs'
 import { ScalarButton } from '@scalar/components'
 
 const props = withDefaults(
   defineProps<{
     click: () => void
     hotkey?: string
-    layout?: 'modal' | 'web' | 'desktop'
+    layout?: ClientLayout
   }>(),
   {
     layout: 'desktop',
