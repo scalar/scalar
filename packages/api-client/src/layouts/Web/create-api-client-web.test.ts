@@ -7,12 +7,12 @@ describe('createApiClientWeb', () => {
     const element = document.createElement('div')
     expect(element).not.toBeNull()
 
-    expect(element.innerHTML).not.toContain('scalar-app')
+    expect(element.innerHTML).not.toContain('App Navigation')
 
     createApiClientWeb(element, {
       proxyUrl: 'https://proxy.scalar.com',
     })
 
-    expect(element.innerHTML).toContain('scalar-app')
+    expect(element.innerHTML).toContain('App Navigation')
   })
 })
