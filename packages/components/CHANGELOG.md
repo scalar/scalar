@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.12.65
+
+### Patch Changes
+
+- Updated dependencies [a40999d]
+  - @scalar/code-highlight@0.0.15
+  - @scalar/themes@0.9.47
+  - @scalar/use-toasts@0.7.7
+
 ## 0.12.64
 
 ### Patch Changes

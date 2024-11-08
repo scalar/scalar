@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.0.6
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+  - @scalar/openapi-parser@0.8.9
+
 ## 0.0.5
 
 ### Patch Changes

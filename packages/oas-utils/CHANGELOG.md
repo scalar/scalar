@@ -1,5 +1,18 @@
 # @scalar/oas-utils
 
+## 0.2.71
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+- b89da58: fix: ingest base server URL and use it in the api client
+- 3300d5b: fix: make the api-client respect the server overload
+- Updated dependencies [a40999d]
+  - @scalar/object-utils@1.1.12
+  - @scalar/themes@0.9.47
+  - @scalar/openapi-types@0.1.5
+  - @scalar/types@0.0.19
+
 ## 0.2.70
 
 ### Patch Changes

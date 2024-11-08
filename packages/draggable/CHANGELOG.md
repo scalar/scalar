@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.7
+
+### Patch Changes
+
+- a40999d: chore: added type safety rule noUncheckedIndexedAccess
+
 ## 0.1.6
 
 ### Patch Changes
