@@ -4,6 +4,18 @@
 
 The Scalar Proxy redirects requests to another server to avoid CORS issues. It’s made to work well with the Scalar API Client.
 
+## Features
+
+- Full CORS support with customizable origins
+- Handles HTTP redirects while preserving headers
+- Supports HTTPS with TLS
+- Request logging with method and target URL
+- Health check endpoint at `/ping`
+- Configurable port via environment variable
+- Preserves original request headers and body
+- Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH)
+- Zero external dependencies - uses only Go standard library
+
 ## Usage
 
 ### Requirements
@@ -55,9 +67,9 @@ curl --request GET \
 }
 ```
 
-> Yo, there’s no mod file.
+## Community
 
-You’re so right! We’re using the standard libraries. Isn’t that why we all love Go? Anyway, we just don’t need a mod file. :)
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## License
 
