@@ -146,6 +146,9 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Add the final URL as a header
+	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
+
 	// Copy the status code
 	w.WriteHeader(resp.StatusCode)
 
