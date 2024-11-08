@@ -522,6 +522,16 @@ describe('getExampleFromSchema', () => {
     ).toMatchObject(1)
   })
 
+  it('works with numbers that are bigger than a 32bit signed integer', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'integer',
+        format: 'int64',
+        example: '60503861139345408',
+      }),
+    ).toBe('60503861139345408')
+  })
+
   it('uses min as the default for a number', () => {
     expect(
       getExampleFromSchema({
