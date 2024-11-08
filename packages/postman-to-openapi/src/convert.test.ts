@@ -1,10 +1,10 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { downloadFileToMemory } from '../../openapi-parser/tests/utils/downloadFileGcp'
 import { convert } from './convert'
 import type { PostmanCollection } from './types'
 
 const bucketName = 'scalar-test-fixtures'
+const BASE_URL = `https://storage.googleapis.com/${bucketName}`
 
 describe('convert', () => {
   // Define all file content variables
@@ -47,7 +47,8 @@ describe('convert', () => {
             name === 'NullHeaders'
               ? `oas/postman-to-openapi/fixtures/input/${name}.json`
               : `oas/postman-to-openapi/fixtures/input/v21/${name}.json`
-          collections[name] = await downloadFileToMemory(bucketName, path)
+          const response = await fetch(`${BASE_URL}/${path}`)
+          collections[name] = await response.text()
         }),
         // Expected outputs
         ...[
@@ -77,10 +78,10 @@ describe('convert', () => {
           'UrlWithPort',
           'XLogoVar',
         ].map(async (name) => {
-          expected[name] = await downloadFileToMemory(
-            bucketName,
-            `oas/postman-to-openapi/fixtures/output/${name}.json`,
+          const response = await fetch(
+            `${BASE_URL}/oas/postman-to-openapi/fixtures/output/${name}.json`
           )
+          expected[name] = await response.text()
         }),
       ]
 
