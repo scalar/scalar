@@ -16,6 +16,7 @@ import {
   displaySchemeFormatter,
 } from '@/views/Request/libs'
 import {
+  type Icon,
   ScalarButton,
   ScalarComboboxMultiselect,
   ScalarIcon,
@@ -51,6 +52,17 @@ const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 /** A local div to teleport the combobox to (rather than `body` which we don't control) */
 const teleportId = `combobox-${nanoid()}`
 
+/** Security requirements for the request */
+const securityRequirements = computed(() => {
+  const requirements =
+    activeRequest.value?.security ?? activeCollection.value?.security ?? []
+
+  /** Filter out empty objects */
+  const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
+
+  return { filteredRequirements, requirements }
+})
+
 /**
  * Available schemes that can be selected by a requestExample
  *
@@ -84,22 +96,64 @@ const availableSchemes = computed(() => {
 /** Display formatted options for a user to select from */
 const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
   () => {
-    const availableFormatted = availableSchemes.value.map((s) =>
+    const _availableSchemes = [...availableSchemes.value]
+    const requiredSchemes = [] as typeof _availableSchemes
+
+    // Move some availableSchemes into requiredSchemes
+    securityRequirements.value.filteredRequirements.forEach((r) => {
+      const i = _availableSchemes.findIndex(
+        (s) => s.nameKey === Object.keys(r)[0],
+      )
+      if (i > -1) {
+        requiredSchemes.push(_availableSchemes[i])
+        _availableSchemes.splice(i, 1)
+      }
+    })
+
+    const availableFormatted = _availableSchemes.map((s) =>
+      displaySchemeFormatter(s),
+    )
+    const requiredFormatted = requiredSchemes.map((s) =>
       displaySchemeFormatter(s),
     )
 
-    // Read only mode we don't want to add new auth
-    if (isReadOnly.value) return availableFormatted
-
-    return [
-      { label: 'Select auth', options: availableFormatted },
-      {
-        label: 'Add new auth',
-        options: ADD_AUTH_OPTIONS,
-      },
+    const options = [
+      { label: 'Required authentication', options: requiredFormatted },
+      { label: 'Available authentication', options: availableFormatted },
     ]
+
+    // Read only mode we don't want to add new auth
+    if (isReadOnly.value)
+      return requiredFormatted.length ? options : availableFormatted
+
+    options.push({
+      label: 'Add new authentication',
+      options: ADD_AUTH_OPTIONS,
+    })
+
+    return options
   },
 )
+
+/** Indicates if auth is required */
+const authIndicator = computed(() => {
+  const { filteredRequirements, requirements } = securityRequirements.value
+  if (!requirements.length) return null
+
+  /** Security is optional if one empty object exists in the array */
+  const isOptional = filteredRequirements.length < requirements.length
+  const icon: Icon = isOptional ? 'Unlock' : 'Lock'
+
+  /** Dynamic text to indicate auth requirements */
+  const requiredText = isOptional ? 'Optional' : 'Required'
+  const nameKey =
+    filteredRequirements.length === 1
+      ? Object.keys(filteredRequirements[0])[0]
+      : 'Authentication'
+  const text = `${nameKey} ${requiredText}`
+
+  return { icon, text }
+})
 
 /** Ensure to update the correct mutator with the selected scheme UIDs */
 const editSelectedSchemeUids = (uids: string[]) => {
@@ -182,8 +236,19 @@ function handleDeleteScheme(option: { id: string; label: string }) {
     class="group/params"
     :itemCount="selectedAuth.length">
     <template #title>
-      <div class="flex gap-1">
+      <div class="flex flex-1 gap-1 items-center justify-between">
         {{ title }}
+
+        <!-- Authentication indicator -->
+        <div
+          v-if="authIndicator"
+          class="flex items-center gap-1 text-c-3">
+          {{ authIndicator.text }}
+          <ScalarIcon
+            class="text-c-3"
+            :icon="authIndicator.icon"
+            size="xs" />
+        </div>
       </div>
     </template>
     <form>
