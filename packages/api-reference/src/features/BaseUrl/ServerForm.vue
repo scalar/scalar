@@ -43,7 +43,7 @@ function updateVariable(name: string, value: string) {
 
 <template>
   <div v-if="servers?.length">
-    <label class="server-form-title">Base URL</label>
+    <label class="server-form-title">Server</label>
     <div class="server-form">
       <div class="server-form-container">
         <!-- Dropdown -->

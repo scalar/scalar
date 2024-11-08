@@ -20,7 +20,7 @@ onMounted(async () => {
   // Initialize the new client hook
   const _client = await init({
     el: el.value,
-    ...configuration,
+    configuration,
   })
 
   // Update the references server when the client server changes
