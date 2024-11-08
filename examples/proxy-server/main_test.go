@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 )
 
@@ -110,9 +111,10 @@ func TestLocationHeaderRewrite(t *testing.T) {
 	// Call the main handler
 	handleRequest(w, req)
 
-	// Check that Location header was rewritten to include full URL
+	// Check that Location header was rewritten correctly
 	location := w.Header().Get("Location")
-	if location != ts.URL+"/foobar" {
-		t.Errorf("Expected Location header to be '%s/foobar', got '%s'", ts.URL, location)
+	expectedLocation := "/?scalar_url=" + url.QueryEscape(ts.URL+"/foobar")
+	if location != expectedLocation {
+		t.Errorf("Expected Location header to be '%s', got '%s'", expectedLocation, location)
 	}
 }
