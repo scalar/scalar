@@ -45,7 +45,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         }
 
         var useLocalAssets = string.IsNullOrEmpty(options.CdnUrl);
-        var standaloneResourceUrl = useLocalAssets ? options.EndpointPathPrefix.Replace(DocumentName, ScalarJavaScriptFile) : options.CdnUrl;
+        var standaloneResourceUrl = useLocalAssets ? ScalarJavaScriptFile : options.CdnUrl;
 
         var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
         var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
