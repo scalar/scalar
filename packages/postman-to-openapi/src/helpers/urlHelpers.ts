@@ -1,4 +1,5 @@
 import type { ParsedUrl } from '../types'
+import { templateVariableRegex } from '@scalar/oas-utils/helpers'
 
 /**
  * Parses a URL string into its component parts.
@@ -45,21 +46,18 @@ export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '
 
 /**
  * Extracts parameter names from a path string.
- * Handles both curly brace format '{param}' and colon format ':param'.
+ * Handles double curly braces {{param}}, single curly braces {param}, and colon format :param.
  */
 export function extractPathParameterNames(path: string): string[] {
   const params = []
-  const curlyBraceRegex = /{([^}]+)}/g
-  const colonRegex = /:(\w+)/g
   let match
 
-  // Extract parameters in {param} format
-  while ((match = curlyBraceRegex.exec(path)) !== null) {
-    params.push(match[1])
+  while ((match = templateVariableRegex.exec(path)) !== null) {
+    // match[1] is for double curly braces, match[2] is for single curly braces
+    // if neither exists, it's a colon parameter
+    const param = match[1] || match[2] || match[0].slice(1)
+    params.push(param.trim())
   }
-  // Extract parameters in :param format
-  while ((match = colonRegex.exec(path)) !== null) {
-    params.push(match[1])
-  }
-  return params
+
+  return [...new Set(params)] // Deduplicate parameters
 }
