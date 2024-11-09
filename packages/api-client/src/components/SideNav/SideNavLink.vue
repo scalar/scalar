@@ -1,36 +1,34 @@
 <script setup lang="ts">
-import type { ROUTES } from '@/constants'
-import { useWorkspace } from '@/store'
-import { ScalarIcon } from '@scalar/components'
-
-type IconProps = InstanceType<typeof ScalarIcon>['$props']
+import { useLayout } from '@/hooks'
+import { type Icon, ScalarIcon } from '@scalar/components'
+import type { Component } from 'vue'
 
 defineProps<{
-  icon: IconProps['icon']
-  name: (typeof ROUTES)[number]['name'] | 'settings'
+  is?: Component | string
   active?: boolean
+  icon: Icon
 }>()
 
-const { activeWorkspace } = useWorkspace()
+const { layout } = useLayout()
 </script>
 <template>
-  <router-link
-    activeClass="active-link"
-    class="flex flex-col items-center gap-1 group no-underline"
-    :to="`/workspace/${activeWorkspace.uid}/${name}`">
-    <div
-      class="min-w-[37px] max-w-[37px] group-hover:bg-b-2 active:text-c-1 flex items-center justify-center rounded-lg p-[8px] scalar-app-nav-padding text-c-3"
-      :class="{
-        'bg-b-2 transition-none group-hover:cursor-auto !text-c-1': active,
-      }">
+  <component
+    :is="is ?? 'a'"
+    class="hover:bg-b-3 no-underline min-w-[37px] max-w-[37px] flex items-center justify-center rounded-lg p-2"
+    :class="{
+      'bg-b-3 transition-none hover:cursor-auto text-c-1': active,
+      'sm:min-w-max sm:max-w-max sm:rounded': layout === 'web',
+    }">
+    <slot name="icon">
       <ScalarIcon
+        :class="layout === 'web' ? 'sm:hidden' : ''"
         :icon="icon"
         thickness="1.5" />
-    </div>
-    <!-- <div
-      class="no-underline font-medium text-[11px] hidden scalar-app-show capitalize">
-      {{ prettyName }}
-    </div> -->
-    <span class="sr-only"><slot /></span>
-  </router-link>
+    </slot>
+    <span
+      class="text-sm font-medium sr-only"
+      :class="{ 'sm:not-sr-only': layout === 'web' }">
+      <slot />
+    </span>
+  </component>
 </template>

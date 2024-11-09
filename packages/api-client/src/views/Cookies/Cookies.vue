@@ -10,7 +10,7 @@ import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
@@ -20,7 +20,6 @@ const { cookies, cookieMutators, events } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const router = useRouter()
 const route = useRoute()
-const layout = inject<'modal' | 'web' | 'desktop'>('layout')
 
 const addCookieHandler = () => {
   const cookieIndex = Object.keys(cookies).length
@@ -161,8 +160,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <template #button>
         <SidebarButton
           :click="addCookieHandler"
-          hotkey="N"
-          :layout="layout">
+          hotkey="N">
           <template #title>Add Cookie</template>
         </SidebarButton>
       </template>

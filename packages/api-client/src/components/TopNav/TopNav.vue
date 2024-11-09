@@ -146,10 +146,10 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
-  <nav class="border-b-1/2 flex h-10 t-app__top-nav">
+  <nav class="flex h-10 t-app__top-nav">
     <div class="t-app__top-nav-draggable"></div>
     <div
-      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-1 relative overflow-hidden">
+      class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-2.5 relative overflow-hidden">
       <template v-if="topNavItems.length === 1">
         <div class="h-full w-full overflow-hidden">
           <ScalarContextMenu

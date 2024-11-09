@@ -1,3 +1,4 @@
+import type { ClientLayout } from '@/hooks'
 import { loadAllResources } from '@/libs/local-storage'
 import { type WorkspaceStore, createWorkspaceStore } from '@/store'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
@@ -52,6 +53,11 @@ type CreateApiClientParams = {
   router: Router
   /** In case the store has been instantiated beforehand */
   store?: WorkspaceStore
+  /**
+   * The layout of the client
+   * @see {@link ClientLayout}
+   */
+  layout?: ClientLayout
 }
 
 /**
@@ -94,6 +100,7 @@ export const createApiClient = ({
   store: _store,
   persistData = true,
   mountOnInitialize = true,
+  layout = 'desktop',
   router,
 }: CreateApiClientParams) => {
   // Create the store if it wasn't passed in
@@ -150,7 +157,10 @@ export const createApiClient = ({
 
   const app = createApp(appComponent)
   app.use(router)
+  // Provide the workspace store for the useWorkspace hook
   app.provide('workspace', store)
+  // Provide the layout for the useLayout hook
+  app.provide('layout', layout)
 
   const {
     activeCollection,
