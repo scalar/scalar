@@ -31,7 +31,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                      <script>
                                      document.getElementById('api-reference').dataset.configuration = JSON.stringify(*)
                                      </script>
-                                     <script src="/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}"></script>
+                                     <script src="{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}"></script>
                                  </body>
                                  </html>
                                  """;
@@ -57,6 +57,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         content.ReplaceLineEndings().Should().Contain(expected);
     }
 #endif
+
 
     [Fact]
     public async Task MapScalarApiReference_ShouldReturnDefaultConfiguration_WhenNotSpecified()
