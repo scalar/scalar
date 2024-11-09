@@ -68,6 +68,7 @@ const model = computed<string>({
 .filter-hover:hover,
 .filter-hover:has(:focus-visible) {
   width: 100%;
+  z-index: 10;
 }
 .filter-hover:before {
   content: '';

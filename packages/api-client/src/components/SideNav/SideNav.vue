@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ROUTES } from '@/constants'
 import { useLayout } from '@/hooks'
+import { ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
 import DownloadAppButton from './DownloadAppButton.vue'
@@ -18,6 +19,17 @@ const { layout } = useLayout()
     :class="layout === 'web' ? 'border h-12' : 'sm:flex-col px-2 py-2'"
     role="navigation">
     <SideNavGroup class="app-no-drag-region">
+      <a
+        class="hidden items-center mr-3 ml-1"
+        :class="{
+          'sm:flex': layout === 'web',
+        }"
+        href="https://www.scalar.com"
+        target="_blank">
+        <ScalarIcon
+          icon="Logo"
+          size="xl" />
+      </a>
       <li
         v-for="({ icon, name, prettyName }, i) in ROUTES.filter(
           (route) => route.name !== 'settings',
@@ -45,7 +57,7 @@ const { layout } = useLayout()
       </li>
       <li
         v-if="layout !== 'desktop'"
-        class="hidden sm:block sm:ml-2">
+        class="hidden sm:ml-2 sm:flex items-center justify-center">
         <DownloadAppButton />
       </li>
     </SideNavGroup>
