@@ -15,6 +15,7 @@ import {
   tagSchema,
 } from '@/entities/spec'
 import {
+  type OauthFlowSchemaPayload,
   type SecurityScheme,
   type SecuritySchemePayload,
   securitySchemeSchema,
@@ -25,43 +26,7 @@ import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { Entries, Merge } from 'type-fest'
-
-/** Pre-fill baseValues if we have authentication config */
-export const getBaseAuthValues = (
-  scheme: SecurityScheme,
-  auth?: ReferenceConfiguration['authentication'],
-): Record<string, never> | Partial<SecuritySchemeExampleValue> => {
-  if (!auth) return {}
-
-  // ApiKey
-  if (scheme.type === 'apiKey') return { value: auth.apiKey?.token ?? '' }
-  // HTTP
-  else if (scheme.type === 'http') {
-    if (scheme.scheme === 'basic')
-      return {
-        username: auth.http?.basic?.username ?? '',
-        password: auth.http?.basic?.password ?? '',
-      }
-    else if (scheme.scheme === 'bearer')
-      return { token: auth.http?.bearer?.token ?? '' }
-  }
-  // oauth2 implicit only for now, when we support multi flow can expand this
-  else if (scheme.type === 'oauth2') {
-    if (scheme.flow?.type === 'implicit')
-      return {
-        type: 'oauth-implicit',
-      }
-    else if (scheme.flow?.type === 'password')
-      return {
-        type: 'oauth-password',
-        username: auth.oAuth2?.username ?? '',
-        password: auth.oAuth2?.password ?? '',
-      }
-  }
-
-  return {}
-}
+import type { Entries } from 'type-fest'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
 export const parseSchema = async (spec: string | UnknownObject) => {
@@ -170,63 +135,74 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
+  const security =
+    schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
+
   const securitySchemes = (
-    Object.entries(schema.components?.securitySchemes ?? {}) as Entries<
+    Object.entries(security) as Entries<
       Record<string, OpenAPIV3_1.SecuritySchemeObject>
     >
   )
-    .map?.(([nameKey, s]) => {
-      // getBaseAuthValues
-
-      // scopes:
-      // scopes:
-      // // Ensure we convert array scope to an object
-      // Array.isArray(flow.scopes) && typeof flow.scopes[0] === 'string'
-      //   ? flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
-      //   : flow.scopes,
-
-      // if (auth?.oAuth2 && payload.flow) {
-      //   // Set client id
-      //   if (auth.oAuth2.clientId)
-      //     payload['x-scalar-client-id'] = auth.oAuth2.clientId
-      //   // Set selected scopes
-      //   if (auth.oAuth2.scopes) payload.flow.selectedScopes = auth.oAuth2.scopes
-      // }
-
+    .map?.(([nameKey, _scheme]) => {
       // Apply any transforms we need before parsing
       const payload = {
-        ...s,
+        ..._scheme,
         nameKey,
-      }
+      } as SecuritySchemePayload
 
-      // For oauth2 we need to add the type to the flows
+      // For oauth2 we need to add the type to the flows + prefill from authentication
       if (payload.type === 'oauth2' && payload.flows) {
-        ;(
-          Object.keys(payload.flows) as Array<keyof typeof payload.flows>
-        ).forEach((key) => {
-          if (!payload.flows?.[key]) return
+        const flowKeys = Object.keys(payload.flows) as Array<
+          keyof typeof payload.flows
+        >
 
-          // Some type safety shennanigans so we can add properties from outside the type
-          // Use the type from payload and augment
-          const flow = payload.flows[key] as Merge<
-            (typeof payload.flows)[typeof key],
-            { type: typeof key } & Record<`x-${string}`, string>
-          >
+        flowKeys.forEach((key) => {
+          if (!payload.flows?.[key]) return
+          const flow = payload.flows[key] as OauthFlowSchemaPayload
 
           // Set the type
           flow.type = key
 
-          // Add in values from authorization config
-          if (authentication?.oAuth2?.accessToken)
-            payload.flows[key].token = authentication.oAuth2.accessToken
-          // if (authentication?.oAuth2?.)
+          // Prefill values from authorization config
+          if (authentication?.oAuth2) {
+            if (authentication.oAuth2.accessToken)
+              flow.token = authentication.oAuth2.accessToken
+
+            if (flow.type === 'password') {
+              flow.username = authentication.oAuth2.username
+              flow.password = authentication.oAuth2.password
+            }
+            if (authentication.oAuth2.scopes) {
+              flow.selectedScopes = authentication.oAuth2.scopes
+              flow['x-scalar-client-id'] = authentication.oAuth2.clientId
+            }
+          }
+
+          // Convert scopes to an object
+          if (Array.isArray(flow.scopes))
+            flow.scopes = flow.scopes.reduce(
+              (prev, s) => ({ ...prev, [s]: '' }),
+              {},
+            )
 
           // Handle x-defaultClientId
-          if (payload.flows[key]['x-defaultClientId']) {
-            payload.flows[key]['x-scalar-client-id'] =
-              payload.flows[key]['x-defaultClientId']
-          }
+          if (flow['x-defaultClientId'])
+            flow['x-scalar-client-id'] = flow['x-defaultClientId']
         })
+      }
+      // Otherwise we just prefill
+      else if (authentication) {
+        // ApiKey
+        if (payload.type === 'apiKey' && authentication.apiKey?.token)
+          payload.value = authentication.apiKey.token
+        // HTTP
+        else if (payload.type === 'http') {
+          if (payload.scheme === 'basic' && authentication.http?.basic) {
+            payload.username = authentication.http.basic.username ?? ''
+            payload.password = authentication.http.basic.password ?? ''
+          } else if (payload.scheme === 'bearer' && authentication.http?.bearer)
+            payload.token = authentication.http.bearer.token ?? ''
+        }
       }
 
       const scheme = schemaModel(payload, securitySchemeSchema, false)

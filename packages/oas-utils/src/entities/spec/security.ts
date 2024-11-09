@@ -196,6 +196,10 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
   ),
 })
 
+/** Flow payload with extensions */
+export type OauthFlowSchemaPayload = z.input<typeof oasOauthFlowSchema> &
+  Record<`x-${string}`, string>
+
 export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
   extendedSecuritySchema,
 )
