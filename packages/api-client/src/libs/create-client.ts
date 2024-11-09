@@ -1,3 +1,4 @@
+import type { ClientLayout } from '@/hooks'
 import { loadAllResources } from '@/libs/local-storage'
 import { type WorkspaceStore, createWorkspaceStore } from '@/store'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
@@ -12,11 +13,6 @@ import type {
 import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
-
-/**
- * The layout of the client
- */
-export type ClientLayout = 'modal' | 'web' | 'desktop'
 
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
@@ -57,7 +53,10 @@ type CreateApiClientParams = {
   router: Router
   /** In case the store has been instantiated beforehand */
   store?: WorkspaceStore
-  /** The layout of the client */
+  /**
+   * The layout of the client
+   * @see {@link ClientLayout}
+   */
   layout?: ClientLayout
 }
 
