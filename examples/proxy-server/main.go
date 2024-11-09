@@ -2,6 +2,7 @@ package main
 
 import (
 	"crypto/tls"
+	"io"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -90,24 +91,70 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		res.Header.Del("Access-Control-Allow-Methods")
 		res.Header.Del("Access-Control-Expose-Headers")
 
-		// Handle relative URLs in Location header
-		if location := res.Header.Get("Location"); location != "" {
-			if location[0] == '/' {
-				// If location starts with '/', it's a relative URL
-				res.Header.Set("Location", remote.Scheme+"://"+remote.Host+location)
-			}
-		}
-
 		return nil
 	}
 
 	// Deal with network errors
 	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-		// Original behavior
+		if urlError, ok := e.(*url.Error); ok {
+			if urlError.Err == http.ErrUseLastResponse {
+				// This error occurs when we receive a redirect
+				return
+			}
+		}
+		// Original error handling for other errors
 		http.Error(w, e.Error(), http.StatusServiceUnavailable)
-
-		// Output the error to the console
 		log.Printf("[ERROR] %v\n", e)
+	}
+
+	// Create a custom client to handle redirects
+	client := &http.Client{
+		Transport: proxy.Transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// Copy original headers to redirected request
+			for key, values := range via[0].Header {
+				req.Header[key] = values
+			}
+			return nil
+		},
+	}
+
+	// Create a new request instead of reusing the original one
+	outreq, err := http.NewRequest(r.Method, target+r.URL.Path, r.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		log.Printf("[ERROR] %v\n", err)
+		return
+	}
+
+	// Copy the headers
+	outreq.Header = r.Header
+
+	// Make the request and follow redirects
+	resp, err := client.Do(outreq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		log.Printf("[ERROR] %v\n", err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Copy headers from final response
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+
+	// Add the final URL as a header
+	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
+
+	// Copy the status code
+	w.WriteHeader(resp.StatusCode)
+
+	// Copy the body
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		log.Printf("[ERROR] Failed to copy response body: %v\n", err)
 	}
 
 	// Modify the request to indicate it is proxied
@@ -119,8 +166,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
 
 	r.Host = remote.Host
-
-	proxy.ServeHTTP(w, r)
 }
 
 func main() {
