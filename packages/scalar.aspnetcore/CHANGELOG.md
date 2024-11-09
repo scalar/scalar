@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 1.2.34
+
+### Patch Changes
+
+- baaafe8: fix: Use relative path for assets
+  - @scalar/api-reference@1.25.61
+
 ## 1.2.33
 
 ### Patch Changes
