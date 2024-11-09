@@ -16,9 +16,7 @@ import {
 } from '@/entities/spec'
 import {
   type SecurityScheme,
-  type SecuritySchemeExampleValue,
   type SecuritySchemePayload,
-  authExampleFromSchema,
   securitySchemeSchema,
 } from '@/entities/spec/security'
 import { schemaModel } from '@/helpers/schema-model'
@@ -27,60 +25,7 @@ import { dereference, load, upgrade } from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
-import type { Entries } from 'type-fest'
-
-/**
- * We need to convert from openapi spec flows to our singular flow object here
- * If we ever go spec compliant (flows), we will no longer need this conversion
- */
-const convertOauth2Flows = (
-  security: OpenAPIV3_1.OAuth2SecurityScheme,
-  nameKey: string,
-  auth?: ReferenceConfiguration['authentication'],
-) => {
-  if (security.type === 'oauth2') {
-    const entries = Object.entries(security.flows ?? {})
-    if (entries.length) {
-      const [[type, flow]] = entries
-
-      const payload = {
-        ...security,
-        nameKey,
-        flow: {
-          ...flow,
-          scopes:
-            // Ensure we convert array scope to an object
-            Array.isArray(flow.scopes) && typeof flow.scopes[0] === 'string'
-              ? flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
-              : flow.scopes,
-          type,
-        },
-      } as Extract<SecuritySchemePayload, { type: 'oauth2' }>
-
-      if (auth?.oAuth2 && payload.flow) {
-        // Set client id
-        if (auth.oAuth2.clientId)
-          payload['x-scalar-client-id'] = auth.oAuth2.clientId
-        // Set selected scopes
-        if (auth.oAuth2.scopes) payload.flow.selectedScopes = auth.oAuth2.scopes
-      }
-
-      // Handle x-defaultClientId
-      if (
-        'x-defaultClientId' in flow &&
-        typeof flow['x-defaultClientId'] === 'string'
-      )
-        payload['x-scalar-client-id'] = flow['x-defaultClientId']
-
-      return payload
-    }
-  }
-
-  return {
-    ...security,
-    nameKey,
-  }
-}
+import type { Entries, Merge } from 'type-fest'
 
 /** Pre-fill baseValues if we have authentication config */
 export const getBaseAuthValues = (
@@ -106,12 +51,10 @@ export const getBaseAuthValues = (
     if (scheme.flow?.type === 'implicit')
       return {
         type: 'oauth-implicit',
-        token: auth.oAuth2?.accessToken ?? '',
       }
     else if (scheme.flow?.type === 'password')
       return {
         type: 'oauth-password',
-        token: auth.oAuth2?.accessToken ?? '',
         username: auth.oAuth2?.username ?? '',
         password: auth.oAuth2?.password ?? '',
       }
@@ -227,27 +170,66 @@ export async function importSpecToWorkspace(
   // ---------------------------------------------------------------------------
   // SECURITY HANDLING
 
-  const security =
-    schema.components?.securitySchemes ?? schema?.securityDefinitions ?? {}
-
-  const securitySchemes = (Object.entries(security) as Entries<typeof security>)
+  const securitySchemes = (
+    Object.entries(schema.components?.securitySchemes ?? {}) as Entries<
+      Record<string, OpenAPIV3_1.SecuritySchemeObject>
+    >
+  )
     .map?.(([nameKey, s]) => {
-      const scheme = schemaModel(
-        // We must convert flows to a singular object, technically not spec compliant so we grab the first
-        s.type === 'oauth2'
-          ? convertOauth2Flows(
-              s as OpenAPIV3_1.OAuth2SecurityScheme,
-              nameKey as string,
-              authentication,
-            )
-          : {
-              ...s,
-              nameKey,
-            },
-        securitySchemeSchema,
-        false,
-      )
+      // getBaseAuthValues
 
+      // scopes:
+      // scopes:
+      // // Ensure we convert array scope to an object
+      // Array.isArray(flow.scopes) && typeof flow.scopes[0] === 'string'
+      //   ? flow.scopes.reduce((prev, s) => ({ ...prev, [s]: '' }), {})
+      //   : flow.scopes,
+
+      // if (auth?.oAuth2 && payload.flow) {
+      //   // Set client id
+      //   if (auth.oAuth2.clientId)
+      //     payload['x-scalar-client-id'] = auth.oAuth2.clientId
+      //   // Set selected scopes
+      //   if (auth.oAuth2.scopes) payload.flow.selectedScopes = auth.oAuth2.scopes
+      // }
+
+      // Apply any transforms we need before parsing
+      const payload = {
+        ...s,
+        nameKey,
+      }
+
+      // For oauth2 we need to add the type to the flows
+      if (payload.type === 'oauth2' && payload.flows) {
+        ;(
+          Object.keys(payload.flows) as Array<keyof typeof payload.flows>
+        ).forEach((key) => {
+          if (!payload.flows?.[key]) return
+
+          // Some type safety shennanigans so we can add properties from outside the type
+          // Use the type from payload and augment
+          const flow = payload.flows[key] as Merge<
+            (typeof payload.flows)[typeof key],
+            { type: typeof key } & Record<`x-${string}`, string>
+          >
+
+          // Set the type
+          flow.type = key
+
+          // Add in values from authorization config
+          if (authentication?.oAuth2?.accessToken)
+            payload.flows[key].token = authentication.oAuth2.accessToken
+          // if (authentication?.oAuth2?.)
+
+          // Handle x-defaultClientId
+          if (payload.flows[key]['x-defaultClientId']) {
+            payload.flows[key]['x-scalar-client-id'] =
+              payload.flows[key]['x-defaultClientId']
+          }
+        })
+      }
+
+      const scheme = schemaModel(payload, securitySchemeSchema, false)
       if (!scheme) importWarnings.push(`Security scheme ${nameKey} is invalid.`)
 
       return scheme
@@ -425,14 +407,6 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
-  // Create the auth examples
-  const auth = securitySchemes?.reduce<Collection['auth']>((prev, s) => {
-    const baseValues = getBaseAuthValues(s, authentication)
-    const example = authExampleFromSchema(s, baseValues)
-
-    if (example) prev[s.uid] = example
-    return prev
-  }, {})
 
   const securityKeys = Object.keys(security)
   let selectedSecuritySchemeUids: string[] = []
@@ -449,7 +423,6 @@ export async function importSpecToWorkspace(
     ...schema,
     watchMode,
     documentUrl,
-    auth,
     requests: requests.map((r) => r.uid),
     servers: servers.map((s) => s.uid),
     tags: tags.map((t) => t.uid),

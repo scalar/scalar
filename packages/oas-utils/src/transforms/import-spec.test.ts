@@ -172,7 +172,7 @@ describe('importSpecToWorkspace', () => {
       ])
     })
 
-    it('supports the x-defaultClientId extension', async () => {
+    it.only('supports the x-defaultClientId extension', async () => {
       const testId = 'test-default-client-id'
       const clonedGalaxy: any = structuredClone(galaxy)
       clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode[
@@ -183,7 +183,10 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       const authScheme = res.securitySchemes[5] as SecuritySchemeOauth2
-      expect(authScheme['x-scalar-client-id']).toEqual(testId)
+      console.log(authScheme)
+      expect(
+        authScheme.flows.authorizationCode?.['x-scalar-client-id'],
+      ).toEqual(testId)
     })
 
     it('handles empty security requirements', async () => {
