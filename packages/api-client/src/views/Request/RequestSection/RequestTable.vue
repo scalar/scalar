@@ -81,6 +81,7 @@ const flattenValue = (item: RequestExampleParameter) => {
         <span class="sr-only">Row Enabled</span>
         <DataTableCheckbox
           v-if="!isEnabledHidden"
+          class="!border-r-1/2"
           :modelValue="item.enabled"
           @update:modelValue="(v) => emit('toggleRow', idx, v)" />
       </label>

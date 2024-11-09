@@ -7,14 +7,14 @@ const { layout } = useLayout()
 </script>
 <template>
   <SideNavLink
-    class="download-app-button sm:px-3"
-    href="https://scalar.com/download"
+    class="download-app-button sm:px-3 gap-2 !px-3 !py-1.5"
+    href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
     icon="Download"
     target="_blank">
     <template #icon>
       <ScalarIcon
-        class="sm:size-4 sm:mr-2"
         icon="Download"
+        size="sm"
         thickness="2" />
     </template>
     <span

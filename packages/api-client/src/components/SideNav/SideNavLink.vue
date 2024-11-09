@@ -17,7 +17,7 @@ const { layout } = useLayout()
     class="hover:bg-b-3 no-underline min-w-[37px] max-w-[37px] flex items-center justify-center rounded-lg p-2"
     :class="{
       'bg-b-3 transition-none hover:cursor-auto text-c-1': active,
-      'sm:min-w-max sm:max-w-max sm:rounded': layout === 'web',
+      'sm:min-w-max sm:max-w-max sm:rounded sm:py-1.5': layout === 'web',
     }">
     <slot name="icon">
       <ScalarIcon
