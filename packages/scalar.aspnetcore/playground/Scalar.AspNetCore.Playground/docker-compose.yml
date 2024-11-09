@@ -1,0 +1,15 @@
+services:
+  caddy:
+    image: caddy:latest
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://+:5001
+    expose:
+      - '5001'
