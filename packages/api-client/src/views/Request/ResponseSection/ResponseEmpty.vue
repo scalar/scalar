@@ -33,8 +33,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <div
         v-if="!activeWorkspace.isReadOnly"
         class="scalar-version-number">
-        Scalar V{{ packageVersion }} <b>Beta</b> Release
-        <div class="mt-1">
+        Scalar App V{{ packageVersion }} Beta
+        <div class="mt-2">
           <a
             href="https://github.com/scalar/scalar/issues/2669"
             target="_blank">
@@ -68,17 +68,31 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </template>
 <style scoped>
 .scalar-version-number {
-  transform: skew(0deg, 16deg);
-  width: 66px;
-  height: 66px;
+  transform: skew(0deg, 13deg);
+  width: 76px;
+  height: 76px;
   position: absolute;
-  margin-left: -33px;
+  margin-left: -36px;
   font-size: 8px;
   font-family: var(--scalar-font-code);
   line-height: 11px;
-  margin-top: -110px;
+  margin-top: -113px;
+  background: linear-gradient(var(--scalar-background-2), transparent);
+  border-radius: 9px 9px 16px 12px;
+  box-shadow: inset 2px 0px 0 2px var(--scalar-background-3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
-.scalar-version-number b {
+.scalar-version-number a {
   font-weight: bold;
+  font-weight: bold;
+  background: var(--scalar-background-3);
+  padding: 2px 4px;
+  border-radius: 3px;
+  text-decoration: none;
+  border: 0.5px solid var(--scalar-border-color);
 }
 </style>
