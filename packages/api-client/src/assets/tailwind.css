@@ -8,6 +8,23 @@
   line-height: 1.5;
   color: var(--scalar-color-1);
 
+  @layer utilities {
+    /** 
+     * App Drag Region Utility Classes
+     * @see https://www.electronjs.org/docs/latest/tutorial/window-customization#set-custom-draggable-region
+     */
+    /** Enable dragging for a region (e.g. for the window title bar) */
+    .app-drag-region {
+      -webkit-app-region: drag;
+    }
+    /**
+     * Disable dragging for a region (e.g. for clickable elements)
+     */
+    .app-no-drag-region {
+      -webkit-app-region: no-drag;
+    }
+  }
+
   /**
    * Custom utilities to make life easier
    * For some reason it was bugging on apply so I just used css for now

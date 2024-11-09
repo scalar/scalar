@@ -14,10 +14,10 @@ const { layout } = useLayout()
 <template>
   <nav
     aria-label="App Navigation"
-    class="flex items-center justify-center sm:justify-between gap-1.5"
+    class="flex items-center justify-center sm:justify-between gap-1.5 app-drag-region"
     :class="layout === 'web' ? 'border h-12' : 'sm:flex-col px-2 py-2'"
     role="navigation">
-    <SideNavGroup class="flex gap-1.5">
+    <SideNavGroup class="app-no-drag-region">
       <li
         v-for="({ icon, name, prettyName }, i) in ROUTES.filter(
           (route) => route.name !== 'settings',
@@ -31,7 +31,7 @@ const { layout } = useLayout()
         </SideNavRouterLink>
       </li>
     </SideNavGroup>
-    <SideNavGroup>
+    <SideNavGroup class="app-no-drag-region">
       <li class="flex items-center">
         <SideNavRouterLink
           :active="currentRoute.name === 'settings'"
