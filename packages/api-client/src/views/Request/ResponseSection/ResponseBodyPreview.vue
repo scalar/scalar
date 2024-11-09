@@ -33,7 +33,6 @@ watch(
       v-else-if="mode === 'video'"
       autoplay
       controls
-      loop
       width="100%"
       @error="error = true">
       <source
@@ -44,7 +43,6 @@ watch(
       v-else-if="mode === 'audio'"
       class="my-12"
       controls
-      loop
       @error="error = true">
       <source
         :src="src"
