@@ -1,9 +1,0 @@
-:8080 {
-    handle_path /api/* {
-        reverse_proxy api:5001
-    }
-
-    handle {
-        respond "Access denied" 403
-    }
-}
