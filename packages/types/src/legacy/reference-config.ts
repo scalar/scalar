@@ -57,6 +57,8 @@ export type ThemeId =
   | 'deepSpace'
   | 'saturn'
   | 'kepler'
+  | 'elysiajs'
+  | 'fastify'
   | 'mars'
   | 'none'
 

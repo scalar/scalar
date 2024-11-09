@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { type ThemeId, themeLabels } from '@scalar/themes'
+import {
+  type IntegrationThemeId,
+  type ThemeId,
+  themeLabels,
+} from '@scalar/themes'
 
 import SettingsGeneralMode from './SettingsGeneralMode.vue'
 
@@ -11,7 +16,7 @@ const { proxyUrl, workspaceMutators } = useWorkspace()
 
 const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
-const themeIds: ThemeId[] = [
+const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   'default',
   'alternate',
   'moon',
@@ -24,11 +29,13 @@ const themeIds: ThemeId[] = [
   'deepSpace',
 ]
 
+const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']
+
 const getThemeColors = (
-  themeId: ThemeId,
+  themeId: Exclude<ThemeId, IntegrationThemeId>,
 ): { light: string; dark: string; accent: string } => {
   const colors: Record<
-    ThemeId,
+    Exclude<ThemeId, IntegrationThemeId>,
     { light: string; dark: string; accent: string }
   > = {
     default: { light: '#fff', dark: '#0f0f0f', accent: '#0099ff' },
@@ -210,6 +217,43 @@ const changeTheme = (themeId: ThemeId) => {
                       backgroundColor: getThemeColors(themeId).accent,
                     }">
                   </span>
+                </div>
+              </ScalarButton>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <h3 class="font-bold mb-1">Integration Theme</h3>
+              <p class="text-c-2 mb-4 leading-[21px]">
+                We've got integration themes for ya:
+              </p>
+              <ScalarButton
+                v-for="themeId in integrationThemeIds"
+                :key="themeId"
+                class="px-2"
+                :class="[
+                  'flex items-center justify-between gap-2 text-c-1 border-1/2',
+                  activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
+                ]"
+                variant="ghost"
+                @click="changeTheme(themeId)">
+                <div class="flex items-center gap-2">
+                  <div
+                    class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-c-3"
+                    :class="{
+                      'bg-primary': activeWorkspace.themeId === themeId,
+                    }">
+                    <div
+                      class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+                      <ScalarIcon
+                        v-if="activeWorkspace.themeId === themeId"
+                        icon="Checkmark"
+                        size="xs"
+                        thickness="3.5" />
+                    </div>
+                  </div>
+                  {{ themeLabels[themeId] }}
+                </div>
+                <div class="flex items-center gap-1">
+                  <IntegrationLogo :integration="themeId" />
                 </div>
               </ScalarButton>
             </div>

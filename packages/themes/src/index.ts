@@ -5,6 +5,8 @@ import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
 import deepSpaceTheme from './presets/deepSpace.css?inline'
 import defaultTheme from './presets/default.css?inline'
+import elysiajsTheme from './presets/elysiajs.css?inline'
+import fastifyTheme from './presets/fastify.css?inline'
 import keplerTheme from './presets/kepler.css?inline'
 import marsTheme from './presets/mars.css?inline'
 import moonTheme from './presets/moon.css?inline'
@@ -25,9 +27,13 @@ export const themeIds = [
   'deepSpace',
   'saturn',
   'kepler',
+  'elysiajs',
+  'fastify',
   'mars',
   'none',
 ] as const
+
+export type IntegrationThemeId = 'elysiajs' | 'fastify'
 
 /**
  * Available theme IDs as a type.
@@ -43,6 +49,8 @@ export const themeLabels: Record<ThemeId, string> = {
   moon: 'Moon',
   purple: 'Purple',
   solarized: 'Solarized',
+  elysiajs: 'Elysia.js',
+  fastify: 'Fastify',
   bluePlanet: 'Blue Planet',
   saturn: 'Saturn',
   kepler: 'Kepler-11e',
@@ -58,6 +66,8 @@ export const presets: Record<Exclude<ThemeId, 'none'>, string> = {
   alternate: alternateTheme,
   default: defaultTheme,
   moon: moonTheme,
+  elysiajs: elysiajsTheme,
+  fastify: fastifyTheme,
   purple: purpleTheme,
   solarized: solarizedTheme,
   bluePlanet: bluePlanetTheme,
