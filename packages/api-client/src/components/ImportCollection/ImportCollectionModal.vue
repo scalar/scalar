@@ -14,6 +14,7 @@ import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
+import { type IntegrationThemeId, getThemeStyles } from '@scalar/themes'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
@@ -22,12 +23,12 @@ const props = defineProps<{
   eventType: 'drop' | 'paste' | 'query' | null
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'importFinished'): void
 }>()
 
 const { activeWorkspace } = useActiveEntities()
-const { events } = useWorkspace()
+const { workspaceMutators, events } = useWorkspace()
 
 const { prefetchResult, prefetchUrl, resetPrefetchResult } = useUrlPrefetcher()
 
@@ -157,12 +158,33 @@ onUnmounted(() => {
   document.body.classList.remove('has-import-url')
   document.body.classList.remove('has-no-import-url')
 })
+const themeStyleTag = computed(
+  () =>
+    activeWorkspace.value &&
+    shouldShowIntegrationIcon.value &&
+    props.integration &&
+    `<style>${getThemeStyles(props.integration as IntegrationThemeId)}</style>`,
+)
+
+function handleImportFinished() {
+  if (shouldShowIntegrationIcon.value && props.integration) {
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'themeId',
+      props.integration as IntegrationThemeId,
+    )
+  }
+  emits('importFinished')
+}
 </script>
 
 <template>
   <ScalarModal
     size="full"
     :state="modalState">
+    <div
+      v-if="themeStyleTag"
+      v-html="themeStyleTag"></div>
     <div
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
       <!-- Wait until the URL is fetched -->
@@ -204,7 +226,7 @@ onUnmounted(() => {
                 :source="prefetchResult?.url ?? source"
                 variant="button"
                 :watchMode="watchMode"
-                @importFinished="() => $emit('importFinished')" />
+                @importFinished="handleImportFinished" />
             </div>
             <!-- Select the workspace -->
             <div class="flex justify-center">
