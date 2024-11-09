@@ -59,9 +59,29 @@ const activeSection = ref<ActiveSections>('All')
 
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
-const shouldVirtualize = computed(
-  () => (props.response?.size ?? 0) > VIRTUALIZATION_THRESHOLD,
-)
+const shouldVirtualize = computed(() => {
+  if (!props.response) return false
+
+  // Get content type from headers
+  const contentType =
+    props.response.headers?.['content-type'] ||
+    props.response.headers?.['Content-Type']
+
+  // If no content type or response size is small, don't virtualize
+  if (!contentType || (props.response.size ?? 0) <= VIRTUALIZATION_THRESHOLD) {
+    return false
+  }
+
+  // Check if content type is text-based
+  const isTextBased =
+    contentType.includes('text/') ||
+    contentType.includes('application/json') ||
+    contentType.includes('application/xml') ||
+    contentType.includes('application/yaml') ||
+    contentType.includes('application/javascript')
+
+  return isTextBased && (props.response.size ?? 0) > VIRTUALIZATION_THRESHOLD
+})
 </script>
 <template>
   <ViewLayoutSection aria-label="Response">
