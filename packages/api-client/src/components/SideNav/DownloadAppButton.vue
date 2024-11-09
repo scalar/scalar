@@ -8,7 +8,7 @@ const { layout } = useLayout()
 <template>
   <SideNavLink
     class="download-app-button sm:px-3 gap-2 !px-3 !py-1.5"
-    href="https://scalar.com/download"
+    href="https://scalar.com/download?utm_source=web_client&utm_medium=download_button&utm_campaign=topnav"
     icon="Download"
     target="_blank">
     <template #icon>
