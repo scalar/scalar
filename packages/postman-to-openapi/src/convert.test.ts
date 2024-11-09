@@ -90,7 +90,7 @@ describe('convert', () => {
       console.error('Failed to download test files:', error)
       throw error
     }
-  }, 60000)
+  }, 5000)
 
   it('should work with a basic transform', () => {
     expect(
