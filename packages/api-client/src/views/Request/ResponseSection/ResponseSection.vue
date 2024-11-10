@@ -72,13 +72,38 @@ const shouldVirtualize = computed(() => {
     return false
   }
 
-  // Check if content type is text-based
-  const isTextBased =
-    contentType.includes('text/') ||
-    contentType.includes('application/json') ||
-    contentType.includes('application/xml') ||
-    contentType.includes('application/yaml') ||
-    contentType.includes('application/javascript')
+  // Common text-based content types
+  const textBasedTypes = [
+    // Text types
+    'text/',
+    // JSON types
+    'application/json',
+    'application/ld+json',
+    'application/problem+json',
+    'application/vnd.api+json',
+    // XML types
+    'application/xml',
+    'application/atom+xml',
+    'application/rss+xml',
+    'application/problem+xml',
+    // Other structured text
+    'application/javascript',
+    'application/ecmascript',
+    'application/x-yaml',
+    'application/yaml',
+    // Source code
+    'application/x-httpd-php',
+    'application/x-sh',
+    'application/x-perl',
+    'application/x-python',
+    'application/x-ruby',
+    'application/x-java-source',
+    // Form data
+    'application/x-www-form-urlencoded',
+  ]
+
+  // Check if content type matches any text-based type
+  const isTextBased = textBasedTypes.some((type) => contentType.includes(type))
 
   return isTextBased && (props.response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
