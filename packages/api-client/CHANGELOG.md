@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.1.46
+
+### Patch Changes
+
+- ecdf18d: style(api-client: link to scalar on client + fix some visual bugs
+- caa45c9: feat(api-client): change sidenav to header only for web api client view
+- 9eb6650: feat: add support for the x-defaultClientId extension
+- 4a3c873: fix: adds missing hover in context bar
+- 15a47e6: feat: indicate which auth is required
+- 576e94a: fix: remove loop from media response
+- 09a6fba: fix: add missing proxy on import modal
+- be50225: fix: improve API client modal accessibility
+- 0a0ca71: style(api-client): make roadmap button slightly more prominent
+- Updated dependencies [4bcaa75]
+- Updated dependencies [9eb6650]
+- Updated dependencies [c98a99c]
+- Updated dependencies [c98a99c]
+- Updated dependencies [be50225]
+  - @scalar/oas-utils@0.2.72
+  - @scalar/import@0.1.0
+  - @scalar/components@0.12.66
+  - @scalar/use-codemirror@0.11.33
+
 ## 2.1.45
 
 ### Patch Changes

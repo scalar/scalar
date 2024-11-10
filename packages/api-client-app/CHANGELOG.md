@@ -1,5 +1,24 @@
 # scalar-api-client
 
+## 0.1.85
+
+### Patch Changes
+
+- caa45c9: feat(api-client): change sidenav to header only for web api client view
+- Updated dependencies [ecdf18d]
+- Updated dependencies [caa45c9]
+- Updated dependencies [9eb6650]
+- Updated dependencies [c98a99c]
+- Updated dependencies [4a3c873]
+- Updated dependencies [15a47e6]
+- Updated dependencies [576e94a]
+- Updated dependencies [09a6fba]
+- Updated dependencies [be50225]
+- Updated dependencies [0a0ca71]
+  - @scalar/api-client@2.1.46
+  - @scalar/import@0.1.0
+  - @scalar/components@0.12.66
+
 ## 0.1.84
 
 ### Patch Changes

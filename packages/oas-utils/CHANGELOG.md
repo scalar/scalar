@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.72
+
+### Patch Changes
+
+- 4bcaa75: feat: support `format: object-id` in getExampleFromSchema
+- 9eb6650: feat: add support for the x-defaultClientId extension
+- c98a99c: feat: allow to pass a base URL to makeUrlAbsolute
+
 ## 0.2.71
 
 ### Patch Changes

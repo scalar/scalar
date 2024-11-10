@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.66
+
+### Patch Changes
+
+- be50225: fix: improve API client modal accessibility
+
 ## 0.12.65
 
 ### Patch Changes
