@@ -59,9 +59,54 @@ const activeSection = ref<ActiveSections>('All')
 
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
-const shouldVirtualize = computed(
-  () => (props.response?.size ?? 0) > VIRTUALIZATION_THRESHOLD,
-)
+const shouldVirtualize = computed(() => {
+  if (!props.response) return false
+
+  // Get content type from headers
+  const contentType =
+    props.response.headers?.['content-type'] ||
+    props.response.headers?.['Content-Type']
+
+  // If no content type or response size is small, don't virtualize
+  if (!contentType || (props.response.size ?? 0) <= VIRTUALIZATION_THRESHOLD) {
+    return false
+  }
+
+  // Common text-based content types
+  const textBasedTypes = [
+    // Text types
+    'text/',
+    // JSON types
+    'application/json',
+    'application/ld+json',
+    'application/problem+json',
+    'application/vnd.api+json',
+    // XML types
+    'application/xml',
+    'application/atom+xml',
+    'application/rss+xml',
+    'application/problem+xml',
+    // Other structured text
+    'application/javascript',
+    'application/ecmascript',
+    'application/x-yaml',
+    'application/yaml',
+    // Source code
+    'application/x-httpd-php',
+    'application/x-sh',
+    'application/x-perl',
+    'application/x-python',
+    'application/x-ruby',
+    'application/x-java-source',
+    // Form data
+    'application/x-www-form-urlencoded',
+  ]
+
+  // Check if content type matches any text-based type
+  const isTextBased = textBasedTypes.some((type) => contentType.includes(type))
+
+  return isTextBased && (props.response.size ?? 0) > VIRTUALIZATION_THRESHOLD
+})
 </script>
 <template>
   <ViewLayoutSection aria-label="Response">
