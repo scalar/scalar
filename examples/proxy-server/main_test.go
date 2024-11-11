@@ -165,3 +165,108 @@ func TestProxyFollowsRedirects(t *testing.T) {
 		t.Errorf("Expected body '%s', got '%s'", expectedBody, responseBody)
 	}
 }
+
+func TestProxyPreservesCORSHeaders(t *testing.T) {
+	// Create a test server that sends CORS headers
+	targetServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		w.Write([]byte("response with CORS"))
+	}))
+	defer targetServer.Close()
+
+	// Create a request with scalar_url pointing to our test server
+	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.URL, nil)
+	req.Header.Set("Origin", "http://example.com")
+	w := httptest.NewRecorder()
+
+	// Call the handler
+	handleRequest(w, req)
+
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// Verify that our proxy's CORS headers override the target's headers
+	headers := w.Header()
+
+	if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
+		t.Errorf("Expected Access-Control-Allow-Origin header to be 'http://example.com', got '%s'",
+			headers.Get("Access-Control-Allow-Origin"))
+	}
+
+	if headers.Get("Access-Control-Allow-Headers") != "*" {
+		t.Errorf("Expected Access-Control-Allow-Headers header to be '*', got '%s'",
+			headers.Get("Access-Control-Allow-Headers"))
+	}
+
+	if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH" {
+		t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH', got '%s'",
+			headers.Get("Access-Control-Allow-Methods"))
+	}
+
+	if headers.Get("Access-Control-Allow-Credentials") != "true" {
+		t.Errorf("Expected Access-Control-Allow-Credentials header to be 'true', got '%s'",
+			headers.Get("Access-Control-Allow-Credentials"))
+	}
+
+	if headers.Get("Access-Control-Expose-Headers") != "*" {
+		t.Errorf("Expected Access-Control-Expose-Headers header to be '*', got '%s'",
+			headers.Get("Access-Control-Expose-Headers"))
+	}
+}
+
+func TestProxyPreservesCORSHeadersOnRedirect(t *testing.T) {
+	// Create a test server that will redirect and include CORS headers
+	redirectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/initial" {
+			w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+			return
+		}
+
+		if r.URL.Path == "/final" {
+			w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+			w.Write([]byte("final destination"))
+		}
+	}))
+	defer redirectServer.Close()
+
+	// Create a request with scalar_url pointing to our test server's initial path
+	// Ensure the URL ends with exactly /initial (no trailing slash)
+	targetURL := redirectServer.URL + "/initial"
+	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetURL, nil)
+	w := httptest.NewRecorder()
+
+	// Call the handler
+	handleRequest(w, req)
+
+	// Check response
+	if w.Code != http.StatusOK {
+		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+	}
+
+	// Verify that CORS headers are overwritten after redirect
+	headers := w.Header()
+	expectedOrigin := "*"
+	if headers.Get("Access-Control-Allow-Origin") != expectedOrigin {
+		t.Errorf("Expected Access-Control-Allow-Origin header to be '%s', got '%s'",
+			expectedOrigin, headers.Get("Access-Control-Allow-Origin"))
+	}
+
+	expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH"
+	if headers.Get("Access-Control-Allow-Methods") != expectedMethods {
+		t.Errorf("Expected Access-Control-Allow-Methods header to be '%s', got '%s'",
+			expectedMethods, headers.Get("Access-Control-Allow-Methods"))
+	}
+
+	// Verify we got the final response body
+	expectedBody := "final destination"
+	if w.Body.String() != expectedBody {
+		t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
+	}
+}

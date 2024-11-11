@@ -8,6 +8,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 )
 
 // corsMiddleware adds CORS headers to the response and handles pre-flight requests.
@@ -86,11 +87,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Modify the response to remove original CORS headers
 	proxy.ModifyResponse = func(res *http.Response) error {
+		// Remove all CORS headers from the target response
 		res.Header.Del("Access-Control-Allow-Headers")
 		res.Header.Del("Access-Control-Allow-Origin")
 		res.Header.Del("Access-Control-Allow-Methods")
+		res.Header.Del("Access-Control-Allow-Credentials")
 		res.Header.Del("Access-Control-Expose-Headers")
-
 		return nil
 	}
 
@@ -119,8 +121,8 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	// Create a new request instead of reusing the original one
-	outreq, err := http.NewRequest(r.Method, target+r.URL.Path, r.Body)
+	// Create the outbound request
+	outreq, err := http.NewRequest(r.Method, target, r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		log.Printf("[ERROR] %v\n", err)
@@ -130,7 +132,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Copy the headers
 	outreq.Header = r.Header
 
-	// Make the request and follow redirects
+	// Make the request
 	resp, err := client.Do(outreq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
@@ -139,12 +141,30 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// Copy headers from final response
+	// Copy headers from final response, but skip CORS headers
 	for key, values := range resp.Header {
-		for _, value := range values {
-			w.Header().Add(key, value)
+		// Check if header is a CORS header
+		isCORSHeader := func(header string) bool {
+			return strings.HasPrefix(strings.ToLower(header), "access-control-")
+		}
+
+		if !isCORSHeader(key) {
+			for _, value := range values {
+				w.Header().Add(key, value)
+			}
 		}
 	}
+
+	// Add CORS headers here, after the response headers are copied
+	allowOrigin := "*"
+	if r.Header.Get("Origin") != "" {
+		allowOrigin = r.Header.Get("Origin")
+	}
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
+	w.Header().Set("Access-Control-Expose-Headers", "*")
 
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
