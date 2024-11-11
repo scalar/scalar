@@ -3,7 +3,12 @@
 import { onMounted } from 'vue'
 
 const emit = defineEmits<{
-  (e: 'input', url: string, integration: string | null): void
+  (
+    e: 'input',
+    url: string,
+    integration: string | null,
+    eventType: 'query',
+  ): void
 }>()
 
 // Check URL query parameters for 'url' and 'integration' values
@@ -13,7 +18,12 @@ onMounted(() => {
   const urlQueryParameter = queryParameters.get('url')
 
   if (urlQueryParameter) {
-    emit('input', urlQueryParameter, queryParameters.get('integration'))
+    emit(
+      'input',
+      urlQueryParameter,
+      queryParameters.get('integration'),
+      'query',
+    )
   }
 })
 </script>

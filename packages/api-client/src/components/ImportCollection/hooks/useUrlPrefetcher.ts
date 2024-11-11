@@ -26,6 +26,16 @@ export function useUrlPrefetcher() {
     error: null,
   })
 
+  async function resetPrefetchResult() {
+    Object.assign(prefetchResult, {
+      state: 'idle',
+      content: null,
+      url: null,
+      input: null,
+      error: null,
+    })
+  }
+
   async function prefetchUrl(input: string | null, proxy?: string) {
     if (!input) {
       return {
@@ -133,5 +143,6 @@ export function useUrlPrefetcher() {
   return {
     prefetchResult,
     prefetchUrl: prefetchUrlAndUpdateState,
+    resetPrefetchResult,
   }
 }

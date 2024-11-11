@@ -18,6 +18,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 const props = defineProps<{
   source: string | null
   integration: string | null
+  eventType: 'drop' | 'paste' | 'query' | null
 }>()
 
 defineEmits<{
@@ -26,7 +27,7 @@ defineEmits<{
 
 const { activeWorkspace, events } = useWorkspace()
 
-const { prefetchResult, prefetchUrl } = useUrlPrefetcher()
+const { prefetchResult, prefetchUrl, resetPrefetchResult } = useUrlPrefetcher()
 
 const modalState = useModal()
 
@@ -57,15 +58,40 @@ const version = computed(() =>
 /** Open/close modal on events  */
 watch(
   () => props.source,
-  (value) => {
+  async (value) => {
+    resetPrefetchResult()
+
     if (isUrl(value)) {
+      // For drop & paste events only:
+      const isDropOrPasteEvent =
+        props.eventType && ['paste', 'drop'].includes(props.eventType)
+
+      if (isDropOrPasteEvent) {
+        // Check whether the URL is pointing to an OpenAPI document
+        const { error } = await prefetchUrl(
+          value,
+          activeWorkspace.value.proxyUrl,
+        )
+
+        if (error) {
+          modalState.hide()
+        } else {
+          modalState.show()
+        }
+
+        return
+      }
+
+      // Query parameters:
       prefetchUrl(value, activeWorkspace.value.proxyUrl)
+
+      modalState.show()
+
+      return
     }
 
     if (!value) {
       modalState.hide()
-    } else if (isUrl(value)) {
-      modalState.show()
     } else if (isDocument(value) && getOpenApiDocumentVersion(value)) {
       modalState.show()
     } else {

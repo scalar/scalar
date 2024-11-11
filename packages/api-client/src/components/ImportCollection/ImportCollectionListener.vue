@@ -11,10 +11,13 @@ const source = ref<string | null>(null)
 
 const integration = ref<string | null>(null)
 
+const eventType = ref<'paste' | 'drop' | 'query' | null>(null)
+
 /** Reset the data when the modal was closed */
 async function resetData() {
   source.value = null
   integration.value = null
+  eventType.value = null
 
   await nextTick()
 }
@@ -23,18 +26,21 @@ async function resetData() {
 async function handleInput(
   newSource: string,
   newIntegration: string | null = null,
+  newEventType: 'paste' | 'drop' | 'query',
 ) {
   // Reset, to trigger the modal to reopen
   await resetData()
 
   source.value = newSource
   integration.value = newIntegration
+  eventType.value = newEventType
 }
 </script>
 
 <template>
   <!-- Modal -->
   <ImportCollectionModal
+    :eventType="eventType"
     :integration="integration"
     :source="source"
     @importFinished="resetData" />
