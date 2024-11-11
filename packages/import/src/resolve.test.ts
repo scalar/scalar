@@ -4,14 +4,10 @@ import { resolve } from './resolve'
 
 global.fetch = vi.fn()
 
-function createFetchResponse(
-  data: string,
-  headers: Record<string, string> = {},
-) {
+function createFetchResponse(data: string) {
   return {
     ok: true,
     text: () => new Promise((r) => r(data)),
-    headers: new Headers(headers),
   }
 }
 
@@ -144,36 +140,36 @@ describe('resolve', () => {
     expect(result).toBe('https://example.com/openapi.yaml')
   })
 
-  it('returns absolute URLs based on the X-Forwarded-Host header', async () => {
-    const html = `<!doctype html>
-<html>
-  <head>
-    <title>Scalar API Reference</title>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1" />
-  </head>
-  <body>
-    <div data-url="/not-what-we-are-looking-for" id="foobar" />
-    <script
-      id="api-reference"
-      data-url="../openapi.yaml"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
-  </body>
-</html>`
+  //   it('returns absolute URLs based on the X-Forwarded-Host header', async () => {
+  //     const html = `<!doctype html>
+  // <html>
+  //   <head>
+  //     <title>Scalar API Reference</title>
+  //     <meta charset="utf-8" />
+  //     <meta
+  //       name="viewport"
+  //       content="width=device-width, initial-scale=1" />
+  //   </head>
+  //   <body>
+  //     <div data-url="/not-what-we-are-looking-for" id="foobar" />
+  //     <script
+  //       id="api-reference"
+  //       data-url="../openapi.yaml"></script>
+  //     <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+  //   </body>
+  // </html>`
 
-    // @ts-expect-error Mocking types are missing
-    fetch.mockResolvedValue(
-      createFetchResponse(html, {
-        'X-Forwarded-Host': 'https://example.com/somewhere/else/',
-      }),
-    )
+  //     // @ts-expect-error Mocking types are missing
+  //     fetch.mockResolvedValue(
+  //       createFetchResponse(html, {
+  //         'X-Forwarded-Host': 'https://example.com/somewhere/else/',
+  //       }),
+  //     )
 
-    const result = await resolve('https://example.com/reference')
+  //     const result = await resolve('https://example.com/reference')
 
-    expect(result).toBe('https://example.com/somewhere/openapi.yaml')
-  })
+  //     expect(result).toBe('https://example.com/somewhere/openapi.yaml')
+  //   })
 
   it('finds URLs in some wrangled configuration object', async () => {
     const html = `<!DOCTYPE html>

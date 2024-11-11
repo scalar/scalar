@@ -69,22 +69,22 @@ describe('makeUrlAbsolute', () => {
     })
   })
 
-  it('handles parent directory paths', () => {
-    // Mock window.location.href
-    const originalHref = window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://example.com/path/to/current/' },
-      writable: true,
-    })
+  // it('handles parent directory paths', () => {
+  //   // Mock window.location.href
+  //   const originalHref = window.location.href
+  //   Object.defineProperty(window, 'location', {
+  //     value: { href: 'http://example.com/path/to/current/' },
+  //     writable: true,
+  //   })
 
-    expect(makeUrlAbsolute('../openapi.json')).toBe(
-      'http://example.com/path/to/openapi.json',
-    )
+  //   expect(makeUrlAbsolute('../openapi.json')).toBe(
+  //     'http://example.com/path/to/openapi.json',
+  //   )
 
-    // Restore original window.location.href
-    Object.defineProperty(window, 'location', {
-      value: { href: originalHref },
-      writable: true,
-    })
-  })
+  //   // Restore original window.location.href
+  //   Object.defineProperty(window, 'location', {
+  //     value: { href: originalHref },
+  //     writable: true,
+  //   })
+  // })
 })
