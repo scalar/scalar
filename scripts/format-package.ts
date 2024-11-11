@@ -20,7 +20,7 @@ type PackageType = 'examples' | 'packages'
 
 /** While we strive to make everything ESM, we just accept that some packages aren’t ESM. */
 const NO_MODULE_PACKAGES = [
-  'scalar-api-client',
+  'scalar-app',
   '@scalar/docusaurus',
   '@scalar-examples/docusaurus',
   '@scalar-examples/nestjs-api-reference-express',
