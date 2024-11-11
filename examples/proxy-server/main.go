@@ -70,7 +70,8 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	// Create and execute the proxy request
 	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		// Only log the error, don't override the response
+		// The status code should already be set by executeProxyRequest
 		log.Printf("[ERROR] %v\n", err)
 	}
 }
@@ -89,9 +90,9 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Create the outbound request
 	outreq, err := http.NewRequest(r.Method, target, r.Body)
+
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		log.Printf("[ERROR] %v\n", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return err
 	}
 
@@ -100,11 +101,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Make the request
 	resp, err := client.Do(outreq)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		log.Printf("[ERROR] %v\n", err)
 		return err
 	}
+
 	defer resp.Body.Close()
 
 	// Copy headers from final response, but skip CORS headers
@@ -137,12 +139,11 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 	// Add the final URL as a header
 	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
 
-	// Copy the status code
+	// Copy the status code from the proxied response
 	w.WriteHeader(resp.StatusCode)
 
 	// Copy the body
 	if _, err := io.Copy(w, resp.Body); err != nil {
-		log.Printf("[ERROR] Failed to copy response body: %v\n", err)
 		return err
 	}
 
