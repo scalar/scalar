@@ -187,6 +187,16 @@ function handleImportFinished() {
       v-html="themeStyleTag"></div>
     <div
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
+      <div class="section-flare">
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+      </div>
       <!-- Wait until the URL is fetched -->
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
@@ -206,10 +216,13 @@ function handleImportFinished() {
         <!-- Sucess -->
         <template v-else>
           <!-- Logo -->
-          <IntegrationLogo
-            v-if="shouldShowIntegrationIcon"
-            :integration="integration" />
-
+          <div class="flex justify-center items-center mb-2 p-1">
+            <div class="rounded-xl size-10">
+              <IntegrationLogo
+                v-if="shouldShowIntegrationIcon"
+                :integration="integration" />
+            </div>
+          </div>
           <!-- Title -->
           <div class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title || 'Untitled Collection' }}
@@ -301,6 +314,10 @@ function handleImportFinished() {
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: 12px;
     overflow: hidden;
+    z-index: 10000;
+  }
+  .has-import-url .scalar-client .sidenav {
+    display: none;
   }
   .has-no-import-url .scalar-app,
   .has-import-url .scalar-app {
@@ -329,5 +346,10 @@ function handleImportFinished() {
 }
 .openapi-color {
   color: var(--scalar-color-green);
+}
+.section-flare {
+  position: fixed;
+  top: 0;
+  right: -50dvw;
 }
 </style>

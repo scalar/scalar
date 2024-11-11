@@ -192,7 +192,6 @@ const introCardsSlot = computed(() =>
   margin-top: 0;
 }
 .section-flare {
-  position: absolute;
   top: 0;
   right: 0;
   pointer-events: none;

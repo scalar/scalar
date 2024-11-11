@@ -19,14 +19,14 @@ const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 const themeIds: Exclude<ThemeId, IntegrationThemeId>[] = [
   'default',
   'alternate',
-  'moon',
+  // 'moon',
   'purple',
   'solarized',
-  'bluePlanet',
+  // 'bluePlanet',
   'saturn',
   'kepler',
-  'mars',
-  'deepSpace',
+  // 'mars',
+  // 'deepSpace',
 ]
 
 const integrationThemeIds: IntegrationThemeId[] = ['elysiajs', 'fastify']
@@ -40,14 +40,14 @@ const getThemeColors = (
   > = {
     default: { light: '#fff', dark: '#0f0f0f', accent: '#0099ff' },
     alternate: { light: '#f9f9f9', dark: '#131313', accent: '#e7e7e7' },
-    moon: { light: '#ccc9b3', dark: '#313332', accent: '#645b0f' },
+    // moon: { light: '#ccc9b3', dark: '#313332', accent: '#645b0f' },
     purple: { light: '#f5f6f8', dark: '#22252b', accent: '#5469d4' },
     solarized: { light: '#fdf6e3', dark: '#00212b', accent: '#007acc' },
-    bluePlanet: { light: '#f0f2f5', dark: '#000e23', accent: '#e0e2e6' },
+    // bluePlanet: { light: '#f0f2f5', dark: '#000e23', accent: '#e0e2e6' },
     saturn: { light: '#e4e4df', dark: '#2c2c30', accent: '#1763a6' },
     kepler: { light: '#f6f6f6', dark: '#0d0f1e', accent: '#7070ff' },
-    mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
-    deepSpace: { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
+    // mars: { light: '#f2efe8', dark: '#321116', accent: '#c75549' },
+    // deepSpace: { light: '#f4f4f5', dark: '#09090b', accent: '#8ab4f8' },
     none: { light: '#ffffff', dark: '#000000', accent: '#3b82f6' },
   }
   return (
@@ -220,11 +220,10 @@ const changeTheme = (themeId: ThemeId) => {
                 </div>
               </ScalarButton>
             </div>
+            <div class="mt-4 mb-2">
+              <p class="text-c-1 font-bold leading-[21px">Integration Themes</p>
+            </div>
             <div class="grid grid-cols-2 gap-2">
-              <h3 class="font-bold mb-1">Integration Theme</h3>
-              <p class="text-c-2 mb-4 leading-[21px]">
-                We've got integration themes for ya:
-              </p>
               <ScalarButton
                 v-for="themeId in integrationThemeIds"
                 :key="themeId"
@@ -253,7 +252,9 @@ const changeTheme = (themeId: ThemeId) => {
                   {{ themeLabels[themeId] }}
                 </div>
                 <div class="flex items-center gap-1">
-                  <IntegrationLogo :integration="themeId" />
+                  <div class="rounded-xl size-7">
+                    <IntegrationLogo :integration="themeId" />
+                  </div>
                 </div>
               </ScalarButton>
             </div>
