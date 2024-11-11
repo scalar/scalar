@@ -18,7 +18,6 @@ export async function respondWithOpenApiDocument(
 
     // JSON
     if (format === 'json') {
-      c.header('Content-Type', 'application/json')
       return c.json(specification)
     }
 
@@ -26,7 +25,9 @@ export async function respondWithOpenApiDocument(
     try {
       const yamlSpecification = await openapi().load(input).toYaml()
       c.header('Content-Type', 'text/yaml')
-      return c.text(yamlSpecification)
+      return c.text(yamlSpecification, 200, {
+        'Content-Type': 'application/yaml; charset=UTF-8',
+      })
     } catch (error) {
       return c.json(
         {

@@ -64,7 +64,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject(specification)
-    expect(response.headers.get('Content-Type')).toContain('application/yaml')
+    expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
   it('GET /openapi.yaml (object)', async () => {
