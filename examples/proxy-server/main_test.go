@@ -22,13 +22,15 @@ func setupTestServer(handler http.HandlerFunc) *proxyTestServer {
 }
 
 func TestBasicEndpoints(t *testing.T) {
+	proxyServer := NewProxyServer()
+
 	t.Run("Ping returns pong", func(t *testing.T) {
 		// Create a new request
 		req := httptest.NewRequest(http.MethodGet, "/ping", nil)
 		w := httptest.NewRecorder()
 
 		// Call the handler directly
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		// Check the response
 		if w.Code != http.StatusOK {
@@ -46,7 +48,7 @@ func TestBasicEndpoints(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		// Call the handler directly
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		// Check the response
 		if w.Code != http.StatusBadRequest {
@@ -61,6 +63,8 @@ func TestBasicEndpoints(t *testing.T) {
 }
 
 func TestCORSHandling(t *testing.T) {
+	proxyServer := NewProxyServer()
+
 	t.Run("Adds CORS headers to normal requests", func(t *testing.T) {
 		// Create a test handler
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +130,7 @@ func TestCORSHandling(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		// Call the handler
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		// Check response
 		if w.Code != http.StatusOK {
@@ -164,6 +168,8 @@ func TestCORSHandling(t *testing.T) {
 }
 
 func TestProxyBehavior(t *testing.T) {
+	proxyServer := NewProxyServer()
+
 	t.Run("Forwards X-Forwarded-Host header", func(t *testing.T) {
 		// Create a test handler that checks the X-Forwarded-Host header
 		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -260,7 +266,7 @@ func TestProxyBehavior(t *testing.T) {
 		w := httptest.NewRecorder()
 
 		// Call the handler
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		// Check response
 		if w.Code != http.StatusOK {
@@ -293,7 +299,7 @@ func TestProxyBehavior(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=http://invalid.localhost:99999", nil)
 		w := httptest.NewRecorder()
 
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		if w.Code != http.StatusServiceUnavailable {
 			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
@@ -311,7 +317,7 @@ func TestProxyBehavior(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+server.url, nil)
 		w := httptest.NewRecorder()
 
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		if w.Header().Get("X-Custom-Header") != "custom-value" {
 			t.Errorf("Expected X-Custom-Header to be 'custom-value', got '%s'",
@@ -327,7 +333,7 @@ func TestProxyBehavior(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=:", nil)
 		w := httptest.NewRecorder()
 
-		handleRequest(w, req)
+		proxyServer.handleRequest(w, req)
 
 		if w.Code != http.StatusServiceUnavailable {
 			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)

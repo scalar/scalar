@@ -37,45 +37,24 @@ func corsMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// Handler that forwards requests to the target and writes the response back to the original client
-func handleRequest(w http.ResponseWriter, r *http.Request) {
-	// Parse query parameters
-	queryValues := r.URL.Query()
-	target := queryValues.Get("scalar_url")
+// ProxyServer encapsulates the proxy server configuration and handlers
+type ProxyServer struct {
+	transport *http.Transport
+}
 
-	remote, _ := url.Parse(target)
-
-	// If the requested path is /ping, return a simple response.
-	if r.URL.Path == "/ping" {
-		log.Println("/ping")
-
-		w.Write([]byte("pong"))
-		return
+// NewProxyServer creates a new proxy server instance
+func NewProxyServer() *ProxyServer {
+	return &ProxyServer{
+		transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
 	}
+}
 
-	// The URL parameter is required. Return a helpful error message if it’s not provided.
-	if target == "" {
-		http.Error(
-			w,
-			"The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest,
-		)
-
-		return
-	}
-
-	// we can eventually do a check on the type of request
-	// i.e. websocket vs mqtt vs grpc
-	// but let's handle just http for now :)
-
-	// Log the request
-	// Format: [HTTP Method] [Target URL]
-	log.Println(r.Method, target)
-
+// createReverseProxy creates a configured reverse proxy for the given target
+func (ps *ProxyServer) createReverseProxy(remote *url.URL, r *http.Request) *httputil.ReverseProxy {
 	proxy := httputil.NewSingleHostReverseProxy(remote)
-
-	proxy.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
+	proxy.Transport = ps.transport
 
 	proxy.Director = func(req *http.Request) {
 		req.Header = r.Header
@@ -109,11 +88,45 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		log.Printf("[ERROR] %v\n", e)
 	}
 
-	// Create a custom client to handle redirects
+	return proxy
+}
+
+// handleRequest remains as the main handler but uses ProxyServer methods
+func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
+	// Handle ping request
+	if r.URL.Path == "/ping" {
+		log.Println("/ping")
+		w.Write([]byte("pong"))
+		return
+	}
+
+	// Get and validate target URL
+	target := r.URL.Query().Get("scalar_url")
+	if target == "" {
+		http.Error(w, "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest)
+		return
+	}
+
+	remote, err := url.Parse(target)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		return
+	}
+
+	log.Println(r.Method, target)
+
+	// Create and execute the proxy request
+	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		log.Printf("[ERROR] %v\n", err)
+	}
+}
+
+// executeProxyRequest handles the actual proxying logic
+func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
 	client := &http.Client{
-		Transport: proxy.Transport,
+		Transport: ps.transport,
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			// Copy original headers to redirected request
 			for key, values := range via[0].Header {
 				req.Header[key] = values
 			}
@@ -126,7 +139,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		log.Printf("[ERROR] %v\n", err)
-		return
+		return err
 	}
 
 	// Copy the headers
@@ -137,7 +150,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		log.Printf("[ERROR] %v\n", err)
-		return
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -175,6 +188,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	// Copy the body
 	if _, err := io.Copy(w, resp.Body); err != nil {
 		log.Printf("[ERROR] Failed to copy response body: %v\n", err)
+		return err
 	}
 
 	// Modify the request to indicate it is proxied
@@ -186,27 +200,24 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
 
 	r.Host = remote.Host
+
+	return nil
 }
 
 func main() {
 	port := ":1337"
-
 	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + os.Getenv("PORT")
+		port = ":" + p
 	}
 
+	proxyServer := NewProxyServer()
 	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", handleRequest)
+	mux.HandleFunc("/", proxyServer.handleRequest)
 
 	handler := corsMiddleware(mux)
 
-	// Console output
 	log.Println("🥤 Proxy Server listening on http://localhost" + port)
-
-	err := http.ListenAndServe(port, handler)
-
-	if err != nil {
+	if err := http.ListenAndServe(port, handler); err != nil {
 		log.Fatal("Error starting proxy server: ", err)
 	}
 }
