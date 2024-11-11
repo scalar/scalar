@@ -7,266 +7,284 @@ import (
 	"testing"
 )
 
-func TestPingEndpoint(t *testing.T) {
-	// Create a new request
-	req := httptest.NewRequest(http.MethodGet, "/ping", nil)
-	w := httptest.NewRecorder()
+// Common test setup
+type proxyTestServer struct {
+	server *httptest.Server
+	url    string
+}
 
-	// Call the handler directly
-	handleRequest(w, req)
-
-	// Check the response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-	}
-
-	if w.Body.String() != "pong" {
-		t.Errorf("Expected body 'pong', got '%s'", w.Body.String())
+func setupTestServer(handler http.HandlerFunc) *proxyTestServer {
+	server := httptest.NewServer(handler)
+	return &proxyTestServer{
+		server: server,
+		url:    server.URL,
 	}
 }
 
-func TestMissingScalarURL(t *testing.T) {
-	// Create a new request without scalar_url parameter
-	req := httptest.NewRequest(http.MethodGet, "/some/path", nil)
-	w := httptest.NewRecorder()
+func TestBasicEndpoints(t *testing.T) {
+	t.Run("Ping returns pong", func(t *testing.T) {
+		// Create a new request
+		req := httptest.NewRequest(http.MethodGet, "/ping", nil)
+		w := httptest.NewRecorder()
 
-	// Call the handler directly
-	handleRequest(w, req)
+		// Call the handler directly
+		handleRequest(w, req)
 
-	// Check the response
-	if w.Code != http.StatusBadRequest {
-		t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
-	}
+		// Check the response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
 
-	expectedError := "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL."
-	if w.Body.String() != expectedError+"\n" {
-		t.Errorf("Expected error message about missing scalar_url parameter")
-	}
-}
-
-func TestCORSMiddleware(t *testing.T) {
-	// Create a test handler
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("test response"))
+		if w.Body.String() != "pong" {
+			t.Errorf("Expected body 'pong', got '%s'", w.Body.String())
+		}
 	})
 
-	// Wrap it with CORS middleware
-	handler := corsMiddleware(testHandler)
+	t.Run("Returns error when scalar_url is missing", func(t *testing.T) {
+		// Create a new request without scalar_url parameter
+		req := httptest.NewRequest(http.MethodGet, "/some/path", nil)
+		w := httptest.NewRecorder()
 
-	// Create a request with Origin header
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("Origin", "http://example.com")
-	w := httptest.NewRecorder()
+		// Call the handler directly
+		handleRequest(w, req)
 
-	// Call the handler
-	handler.ServeHTTP(w, req)
+		// Check the response
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+		}
 
-	// Check CORS headers
-	headers := w.Header()
-	if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
-		t.Errorf("Expected Allow-Origin header to be 'http://example.com'")
-	}
-	if headers.Get("Access-Control-Allow-Credentials") != "true" {
-		t.Errorf("Expected Allow-Credentials header to be 'true'")
-	}
+		expectedError := "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL."
+		if w.Body.String() != expectedError+"\n" {
+			t.Errorf("Expected error message about missing scalar_url parameter")
+		}
+	})
 }
 
-func TestCORSPreflightRequest(t *testing.T) {
-	// Create a test handler
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t.Error("Handler should not be called for OPTIONS request")
+func TestCORSHandling(t *testing.T) {
+	t.Run("Adds CORS headers to normal requests", func(t *testing.T) {
+		// Create a test handler
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Write([]byte("test response"))
+		})
+
+		// Wrap it with CORS middleware
+		handler := corsMiddleware(testHandler)
+
+		// Create a request with Origin header
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set("Origin", "http://example.com")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		handler.ServeHTTP(w, req)
+
+		// Check CORS headers
+		headers := w.Header()
+		if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
+			t.Errorf("Expected Allow-Origin header to be 'http://example.com'")
+		}
+		if headers.Get("Access-Control-Allow-Credentials") != "true" {
+			t.Errorf("Expected Allow-Credentials header to be 'true'")
+		}
 	})
 
-	// Wrap it with CORS middleware
-	handler := corsMiddleware(testHandler)
+	t.Run("Handles preflight OPTIONS requests", func(t *testing.T) {
+		// Create a test handler
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			t.Error("Handler should not be called for OPTIONS request")
+		})
 
-	// Create an OPTIONS request
-	req := httptest.NewRequest(http.MethodOptions, "/", nil)
-	w := httptest.NewRecorder()
+		// Wrap it with CORS middleware
+		handler := corsMiddleware(testHandler)
 
-	// Call the handler
-	handler.ServeHTTP(w, req)
+		// Create an OPTIONS request
+		req := httptest.NewRequest(http.MethodOptions, "/", nil)
+		w := httptest.NewRecorder()
 
-	// Check response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d for OPTIONS request, got %d", http.StatusOK, w.Code)
-	}
-}
+		// Call the handler
+		handler.ServeHTTP(w, req)
 
-func TestXForwardedHostHeader(t *testing.T) {
-	// Create a test handler that checks the X-Forwarded-Host header
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		forwardedHost := r.Header.Get("X-Forwarded-Host")
-		if forwardedHost != "example.com" {
-			t.Errorf("Expected X-Forwarded-Host header to be 'example.com', got '%s'", forwardedHost)
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d for OPTIONS request, got %d", http.StatusOK, w.Code)
 		}
-		w.Write([]byte("test response"))
 	})
 
-	// Create a request with X-Forwarded-Host header
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	req.Header.Set("X-Forwarded-Host", "example.com")
-	w := httptest.NewRecorder()
-
-	// Call the handler directly
-	testHandler.ServeHTTP(w, req)
-
-	// Check response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-	}
-}
-
-func TestProxyFollowsRedirects(t *testing.T) {
-	// Create a test server that will redirect
-	redirectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/initial" {
-			http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
-			return
-		}
-		if r.URL.Path == "/final" {
-			w.Write([]byte("final destination"))
-		}
-	}))
-	defer redirectServer.Close()
-
-	// Create a test handler that proxies to our redirect server
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		proxyURL := redirectServer.URL + "/initial"
-		resp, err := http.Get(proxyURL)
-		if err != nil {
-			t.Fatalf("Failed to make proxy request: %v", err)
-		}
-		defer resp.Body.Close()
-
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			t.Fatalf("Failed to read response body: %v", err)
-		}
-
-		w.Write(body)
-	})
-
-	// Create a request
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	w := httptest.NewRecorder()
-
-	// Call the handler
-	testHandler.ServeHTTP(w, req)
-
-	// Check response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-	}
-
-	responseBody := w.Body.String()
-	expectedBody := "final destination"
-	if responseBody != expectedBody {
-		t.Errorf("Expected body '%s', got '%s'", expectedBody, responseBody)
-	}
-}
-
-func TestProxyPreservesCORSHeaders(t *testing.T) {
-	// Create a test server that sends CORS headers
-	targetServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-		w.Write([]byte("response with CORS"))
-	}))
-	defer targetServer.Close()
-
-	// Create a request with scalar_url pointing to our test server
-	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.URL, nil)
-	req.Header.Set("Origin", "http://example.com")
-	w := httptest.NewRecorder()
-
-	// Call the handler
-	handleRequest(w, req)
-
-	// Check response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-	}
-
-	// Verify that our proxy's CORS headers override the target's headers
-	headers := w.Header()
-
-	if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
-		t.Errorf("Expected Access-Control-Allow-Origin header to be 'http://example.com', got '%s'",
-			headers.Get("Access-Control-Allow-Origin"))
-	}
-
-	if headers.Get("Access-Control-Allow-Headers") != "*" {
-		t.Errorf("Expected Access-Control-Allow-Headers header to be '*', got '%s'",
-			headers.Get("Access-Control-Allow-Headers"))
-	}
-
-	if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH" {
-		t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH', got '%s'",
-			headers.Get("Access-Control-Allow-Methods"))
-	}
-
-	if headers.Get("Access-Control-Allow-Credentials") != "true" {
-		t.Errorf("Expected Access-Control-Allow-Credentials header to be 'true', got '%s'",
-			headers.Get("Access-Control-Allow-Credentials"))
-	}
-
-	if headers.Get("Access-Control-Expose-Headers") != "*" {
-		t.Errorf("Expected Access-Control-Expose-Headers header to be '*', got '%s'",
-			headers.Get("Access-Control-Expose-Headers"))
-	}
-}
-
-func TestProxyPreservesCORSHeadersOnRedirect(t *testing.T) {
-	// Create a test server that will redirect and include CORS headers
-	redirectServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/initial" {
+	t.Run("Preserves CORS headers from origin", func(t *testing.T) {
+		// Create a test server that sends CORS headers
+		targetServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
-			return
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+			w.Write([]byte("response with CORS"))
+		}))
+		defer targetServer.Close()
+
+		// Create a request with scalar_url pointing to our test server
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.URL, nil)
+		req.Header.Set("Origin", "http://example.com")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 
-		if r.URL.Path == "/final" {
-			w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-			w.Write([]byte("final destination"))
+		// Verify that our proxy's CORS headers override the target's headers
+		headers := w.Header()
+
+		if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
+			t.Errorf("Expected Access-Control-Allow-Origin header to be 'http://example.com', got '%s'",
+				headers.Get("Access-Control-Allow-Origin"))
 		}
-	}))
-	defer redirectServer.Close()
 
-	// Create a request with scalar_url pointing to our test server's initial path
-	// Ensure the URL ends with exactly /initial (no trailing slash)
-	targetURL := redirectServer.URL + "/initial"
-	req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetURL, nil)
-	w := httptest.NewRecorder()
+		if headers.Get("Access-Control-Allow-Headers") != "*" {
+			t.Errorf("Expected Access-Control-Allow-Headers header to be '*', got '%s'",
+				headers.Get("Access-Control-Allow-Headers"))
+		}
 
-	// Call the handler
-	handleRequest(w, req)
+		if headers.Get("Access-Control-Allow-Methods") != "POST, GET, OPTIONS, PUT, DELETE, PATCH" {
+			t.Errorf("Expected Access-Control-Allow-Methods header to be 'POST, GET, OPTIONS, PUT, DELETE, PATCH', got '%s'",
+				headers.Get("Access-Control-Allow-Methods"))
+		}
 
-	// Check response
-	if w.Code != http.StatusOK {
-		t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-	}
+		if headers.Get("Access-Control-Allow-Credentials") != "true" {
+			t.Errorf("Expected Access-Control-Allow-Credentials header to be 'true', got '%s'",
+				headers.Get("Access-Control-Allow-Credentials"))
+		}
 
-	// Verify that CORS headers are overwritten after redirect
-	headers := w.Header()
-	expectedOrigin := "*"
-	if headers.Get("Access-Control-Allow-Origin") != expectedOrigin {
-		t.Errorf("Expected Access-Control-Allow-Origin header to be '%s', got '%s'",
-			expectedOrigin, headers.Get("Access-Control-Allow-Origin"))
-	}
+		if headers.Get("Access-Control-Expose-Headers") != "*" {
+			t.Errorf("Expected Access-Control-Expose-Headers header to be '*', got '%s'",
+				headers.Get("Access-Control-Expose-Headers"))
+		}
+	})
+}
 
-	expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH"
-	if headers.Get("Access-Control-Allow-Methods") != expectedMethods {
-		t.Errorf("Expected Access-Control-Allow-Methods header to be '%s', got '%s'",
-			expectedMethods, headers.Get("Access-Control-Allow-Methods"))
-	}
+func TestProxyBehavior(t *testing.T) {
+	t.Run("Forwards X-Forwarded-Host header", func(t *testing.T) {
+		// Create a test handler that checks the X-Forwarded-Host header
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			forwardedHost := r.Header.Get("X-Forwarded-Host")
+			if forwardedHost != "example.com" {
+				t.Errorf("Expected X-Forwarded-Host header to be 'example.com', got '%s'", forwardedHost)
+			}
+			w.Write([]byte("test response"))
+		})
 
-	// Verify we got the final response body
-	expectedBody := "final destination"
-	if w.Body.String() != expectedBody {
-		t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
-	}
+		// Create a request with X-Forwarded-Host header
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.Header.Set("X-Forwarded-Host", "example.com")
+		w := httptest.NewRecorder()
+
+		// Call the handler directly
+		testHandler.ServeHTTP(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
+
+	t.Run("Follows redirects correctly", func(t *testing.T) {
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/initial" {
+				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+				return
+			}
+			if r.URL.Path == "/final" {
+				w.Write([]byte("final destination"))
+			}
+		})
+		defer server.server.Close()
+
+		// Create a test handler that proxies to our redirect server
+		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			proxyURL := server.url + "/initial"
+			resp, err := http.Get(proxyURL)
+			if err != nil {
+				t.Fatalf("Failed to make proxy request: %v", err)
+			}
+			defer resp.Body.Close()
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatalf("Failed to read response body: %v", err)
+			}
+
+			w.Write(body)
+		})
+
+		// Create a request
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		testHandler.ServeHTTP(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		responseBody := w.Body.String()
+		expectedBody := "final destination"
+		if responseBody != expectedBody {
+			t.Errorf("Expected body '%s', got '%s'", expectedBody, responseBody)
+		}
+	})
+
+	t.Run("Maintains CORS headers through redirects", func(t *testing.T) {
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/initial" {
+				w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+				return
+			}
+
+			if r.URL.Path == "/final" {
+				w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+				w.Write([]byte("final destination"))
+			}
+		})
+		defer server.server.Close()
+
+		// Create a request with scalar_url pointing to our test server's initial path
+		// Ensure the URL ends with exactly /initial (no trailing slash)
+		targetURL := server.url + "/initial"
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetURL, nil)
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		// Verify that CORS headers are overwritten after redirect
+		headers := w.Header()
+		expectedOrigin := "*"
+		if headers.Get("Access-Control-Allow-Origin") != expectedOrigin {
+			t.Errorf("Expected Access-Control-Allow-Origin header to be '%s', got '%s'",
+				expectedOrigin, headers.Get("Access-Control-Allow-Origin"))
+		}
+
+		expectedMethods := "POST, GET, OPTIONS, PUT, DELETE, PATCH"
+		if headers.Get("Access-Control-Allow-Methods") != expectedMethods {
+			t.Errorf("Expected Access-Control-Allow-Methods header to be '%s', got '%s'",
+				expectedMethods, headers.Get("Access-Control-Allow-Methods"))
+		}
+
+		// Verify we got the final response body
+		expectedBody := "final destination"
+		if w.Body.String() != expectedBody {
+			t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
+		}
+	})
 }
