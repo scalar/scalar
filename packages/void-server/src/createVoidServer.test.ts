@@ -328,6 +328,7 @@ describe('createVoidServer', () => {
     const response = await server.request('/foobar.json')
 
     expect(await response.text()).toContain('{"method":"GET"')
+    expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
   it('returns XML', async () => {
@@ -340,14 +341,16 @@ describe('createVoidServer', () => {
     })
 
     expect(await response.text()).toContain('<method>GET</method>')
+    expect(response.headers.get('Content-Type')).toContain('application/xml')
   })
 
-  it('returns XML for a path ending with .zip', async () => {
+  it('returns XML for a path ending with .xml', async () => {
     const server = await createVoidServer()
 
     const response = await server.request('/foobar.xml')
 
     expect(await response.text()).toContain('<method>GET</method>')
+    expect(response.headers.get('Content-Type')).toContain('application/xml')
   })
 
   it('returns HTML', async () => {
@@ -360,6 +363,7 @@ describe('createVoidServer', () => {
     })
 
     expect(await response.text()).toContain('<strong>method:</strong> GET</li>')
+    expect(response.headers.get('Content-Type')).toContain('text/html')
   })
 
   it('returns HTML for path ending with .html', async () => {
@@ -368,5 +372,6 @@ describe('createVoidServer', () => {
     const response = await server.request('/foobar.html')
 
     expect(await response.text()).toContain('<strong>method:</strong> GET</li>')
+    expect(response.headers.get('Content-Type')).toContain('text/html')
   })
 })
