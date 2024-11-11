@@ -13,5 +13,7 @@ export function createXmlResponse(c: Context, data: Record<string, any>) {
     ...data,
   }
 
-  return c.text(objectToXML(obj))
+  return c.text(objectToXML(obj), 200, {
+    'Content-Type': 'application/xml; charset=UTF-8',
+  })
 }
