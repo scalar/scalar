@@ -254,7 +254,7 @@ func TestProxyBehavior(t *testing.T) {
 		defer server.server.Close()
 
 		// Create a request with scalar_url pointing to our test server's initial path
-		// Ensure the URL ends with exactly /initial (no trailing slash)
+		// Ensure the URL ends with exactly /initial
 		targetURL := server.url + "/initial"
 		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetURL, nil)
 		w := httptest.NewRecorder()
