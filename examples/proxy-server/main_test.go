@@ -170,30 +170,6 @@ func TestCORSHandling(t *testing.T) {
 func TestProxyBehavior(t *testing.T) {
 	proxyServer := NewProxyServer()
 
-	t.Run("Forwards X-Forwarded-Host header", func(t *testing.T) {
-		// Create a test handler that checks the X-Forwarded-Host header
-		testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			forwardedHost := r.Header.Get("X-Forwarded-Host")
-			if forwardedHost != "example.com" {
-				t.Errorf("Expected X-Forwarded-Host header to be 'example.com', got '%s'", forwardedHost)
-			}
-			w.Write([]byte("test response"))
-		})
-
-		// Create a request with X-Forwarded-Host header
-		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		req.Header.Set("X-Forwarded-Host", "example.com")
-		w := httptest.NewRecorder()
-
-		// Call the handler directly
-		testHandler.ServeHTTP(w, req)
-
-		// Check response
-		if w.Code != http.StatusOK {
-			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
-		}
-	})
-
 	t.Run("Follows redirects correctly", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/initial" {
@@ -337,6 +313,45 @@ func TestProxyBehavior(t *testing.T) {
 
 		if w.Code != http.StatusServiceUnavailable {
 			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+	})
+
+	t.Run("Sends the correct X-Forwarded-Host header when following redirects", func(t *testing.T) {
+		// Create a test server that redirects and returns a response
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.Path == "/initial" {
+				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
+				return
+			}
+			if r.URL.Path == "/final" {
+				w.Write([]byte("final destination"))
+			}
+		})
+		defer targetServer.server.Close()
+
+		// Create a request to the proxy with scalar_url pointing to initial path
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url+"/initial", nil)
+		req.Host = "proxy-host.com"  // Set the original host
+		w := httptest.NewRecorder()
+
+		// Call the proxy handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		if w.Body.String() != "final destination" {
+			t.Errorf("Expected X-Forwarded-Host header to be 'final destination', got '%s'", w.Body.String())
+		}
+
+
+		// Check if X-Forwarded-Host header contains the final URL
+		expectedFinalURL := targetServer.url + "/final"
+		actualForwardedHost := w.Header().Get("X-Forwarded-Host")
+		if actualForwardedHost != expectedFinalURL {
+			t.Errorf("Expected X-Forwarded-Host header to be '%s', got '%s'", expectedFinalURL, actualForwardedHost)
 		}
 	})
 }

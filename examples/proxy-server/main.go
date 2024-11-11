@@ -5,36 +5,30 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
 	"strings"
 )
 
-// corsMiddleware adds CORS headers to the response and handles pre-flight requests.
-func corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Headers", "*")
+func main() {
+	// Default port
+	port := ":1337"
 
-		allowOrigin := "*"
-		if r.Header.Get("Origin") != "" {
-			allowOrigin = r.Header.Get("Origin")
-		}
-		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+	if p := os.Getenv("PORT"); p != "" {
+		port = ":" + p
+	}
 
-		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
-		w.Header().Set("Access-Control-Expose-Headers", "*")
+	proxyServer := NewProxyServer()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", proxyServer.handleRequest)
 
-		// Handle pre-flight requests
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
+	handler := corsMiddleware(mux)
 
-		// Pass down the request to the next middleware (or final handler)
-		next.ServeHTTP(w, r)
-	})
+	log.Println("🥤 Proxy Server listening on http://localhost" + port)
+
+	if err := http.ListenAndServe(port, handler); err != nil {
+		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
+	}
 }
 
 // ProxyServer encapsulates the proxy server configuration and handlers
@@ -51,51 +45,10 @@ func NewProxyServer() *ProxyServer {
 	}
 }
 
-// createReverseProxy creates a configured reverse proxy for the given target
-func (ps *ProxyServer) createReverseProxy(remote *url.URL, r *http.Request) *httputil.ReverseProxy {
-	proxy := httputil.NewSingleHostReverseProxy(remote)
-	proxy.Transport = ps.transport
-
-	proxy.Director = func(req *http.Request) {
-		req.Header = r.Header
-		req.Host = remote.Host
-		req.URL.Scheme = remote.Scheme
-		req.URL.Host = remote.Host
-		req.URL.Path = r.URL.Path
-	}
-
-	// Modify the response to remove original CORS headers
-	proxy.ModifyResponse = func(res *http.Response) error {
-		// Remove all CORS headers from the target response
-		res.Header.Del("Access-Control-Allow-Headers")
-		res.Header.Del("Access-Control-Allow-Origin")
-		res.Header.Del("Access-Control-Allow-Methods")
-		res.Header.Del("Access-Control-Allow-Credentials")
-		res.Header.Del("Access-Control-Expose-Headers")
-		return nil
-	}
-
-	// Deal with network errors
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-		if urlError, ok := e.(*url.Error); ok {
-			if urlError.Err == http.ErrUseLastResponse {
-				// This error occurs when we receive a redirect
-				return
-			}
-		}
-		// Original error handling for other errors
-		http.Error(w, e.Error(), http.StatusServiceUnavailable)
-		log.Printf("[ERROR] %v\n", e)
-	}
-
-	return proxy
-}
-
-// handleRequest remains as the main handler but uses ProxyServer methods
+// Handle all incoming requests
 func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
-	// Handle ping request
+	// Health check
 	if r.URL.Path == "/ping" {
-		log.Println("/ping")
 		w.Write([]byte("pong"))
 		return
 	}
@@ -122,7 +75,7 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// executeProxyRequest handles the actual proxying logic
+// The actual proxying logic
 func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
 	client := &http.Client{
 		Transport: ps.transport,
@@ -170,9 +123,11 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Add CORS headers here, after the response headers are copied
 	allowOrigin := "*"
+
 	if r.Header.Get("Origin") != "" {
 		allowOrigin = r.Header.Get("Origin")
 	}
+
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 	w.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -191,33 +146,31 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		return err
 	}
 
-	// Modify the request to indicate it is proxied
-	r.URL.Host = remote.Host
-	r.URL = remote
-	r.URL.Scheme = remote.Scheme
-	r.URL.Path = remote.Path
-
-	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-
-	r.Host = remote.Host
-
 	return nil
 }
 
-func main() {
-	port := ":1337"
-	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + p
-	}
+// Adds CORS headers to the response and handle pre-flight requests
+func corsMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Headers", "*")
 
-	proxyServer := NewProxyServer()
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", proxyServer.handleRequest)
+		allowOrigin := "*"
+		if r.Header.Get("Origin") != "" {
+			allowOrigin = r.Header.Get("Origin")
+		}
+		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 
-	handler := corsMiddleware(mux)
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
+		w.Header().Set("Access-Control-Expose-Headers", "*")
 
-	log.Println("🥤 Proxy Server listening on http://localhost" + port)
-	if err := http.ListenAndServe(port, handler); err != nil {
-		log.Fatal("Error starting proxy server: ", err)
-	}
+		// Handle pre-flight requests
+		if r.Method == "OPTIONS" {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Pass down the request to the next middleware (or final handler)
+		next.ServeHTTP(w, r)
+	})
 }
