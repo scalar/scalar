@@ -427,7 +427,7 @@ const startAuthentication = (url: string) => {
                         | OpenAPIV3_1.OAuth2SecurityScheme
                     ).flows?.password?.tokenUrl,
                     {
-                      baseUrl: getUrlFromServerState(server),
+                      baseUrl: getUrlFromServerState(server).modifiedUrl,
                       proxy,
                     },
                   )

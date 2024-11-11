@@ -4,8 +4,8 @@ import { createEmptyServerState } from '../stores'
 import { getUrlFromServerState } from './getUrlFromServerState'
 
 describe('getUrlFromServerState', () => {
-  it('gets an URL', () => {
-    const request = getUrlFromServerState({
+  it('returns both original and modified URLs without variables', () => {
+    const { originalUrl, modifiedUrl } = getUrlFromServerState({
       ...createEmptyServerState(),
       servers: [
         {
@@ -15,11 +15,12 @@ describe('getUrlFromServerState', () => {
       selectedServer: 0,
     })
 
-    expect(request).toMatchObject('https://example.com')
+    expect(originalUrl).toBe('https://example.com')
+    expect(modifiedUrl).toBe('https://example.com')
   })
 
-  it('replaces variables', () => {
-    const request = getUrlFromServerState({
+  it('replaces variables in the modified URL', () => {
+    const { originalUrl, modifiedUrl } = getUrlFromServerState({
       ...createEmptyServerState(),
       selectedServer: 0,
       servers: [
@@ -32,11 +33,12 @@ describe('getUrlFromServerState', () => {
       },
     })
 
-    expect(request).toMatchObject('https://unicorn.fantasy')
+    expect(originalUrl).toBe('https://{example_variable}.fantasy')
+    expect(modifiedUrl).toBe('https://unicorn.fantasy')
   })
 
-  it('replaces variables first, and then checks whether a prefix is necessary', () => {
-    const request = getUrlFromServerState({
+  it('replaces variables and maintains original URL', () => {
+    const { originalUrl, modifiedUrl } = getUrlFromServerState({
       ...createEmptyServerState(),
       variables: {
         protocol: 'https',
@@ -64,6 +66,7 @@ describe('getUrlFromServerState', () => {
       ],
     })
 
-    expect(request).toMatchObject('https://localhost:8083/management/v2')
+    expect(originalUrl).toBe('{protocol}://{managementAPIHost}/management/v2')
+    expect(modifiedUrl).toBe('https://localhost:8083/management/v2')
   })
 })

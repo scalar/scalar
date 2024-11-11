@@ -12,6 +12,9 @@ export function getUrlFromServerState(state: ServerState) {
     server.url = server.url.slice(0, -1)
   }
 
+  // Store the original URL before any modifications
+  const originalUrl = server?.url
+
   // Replace variables: {protocol}://{host}:{port}/{basePath}
   const url =
     typeof server?.url === 'string'
@@ -31,5 +34,6 @@ export function getUrlFromServerState(state: ServerState) {
       )
     }, url) ?? url
 
-  return modifiedUrl
+  // Return original and modified URLs to handle reference and client updates
+  return { originalUrl, modifiedUrl }
 }
