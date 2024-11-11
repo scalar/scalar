@@ -1,4 +1,3 @@
-import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { parse } from 'yaml'
 
 /**
@@ -62,9 +61,6 @@ export async function resolve(
 
       if (result.ok) {
         const content = await result.text()
-        const forwardedHost = result.headers.get('X-Forwarded-Host')
-
-        console.log('ASAS', forwardedHost)
 
         // Check if content is directly JSON/YAML
         try {
@@ -114,8 +110,7 @@ export async function resolve(
 
         // Relative or absolute URL
         if (urlOrPathOrDocument) {
-          console.log('make absolute', forwardedHost, urlOrPathOrDocument)
-          return makeUrlAbsolute(urlOrPathOrDocument, forwardedHost || value)
+          return makeRelativeUrlsAbsolute(value, urlOrPathOrDocument)
         }
 
         // Check for embedded OpenAPI document
@@ -242,6 +237,28 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
   }
 
   return undefined
+}
+
+/**
+ * URLs can be relative, but we need absolute URLs eventually.
+ */
+function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
+  // Check whether the path is already absolute
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path
+  }
+
+  // Combine the URL and the relative path
+  try {
+    const { href } = new URL(path, baseUrl)
+
+    return href
+  } catch (error) {
+    // Return original path if URL creation fails
+    console.error('[makeRelativeUrlsAbsolute] Error combining URLs:', error)
+
+    return path
+  }
 }
 
 /**
