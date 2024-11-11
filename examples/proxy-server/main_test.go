@@ -236,7 +236,7 @@ func TestProxyBehavior(t *testing.T) {
 		}
 	})
 
-	t.Run("Maintains CORS headers through redirects", func(t *testing.T) {
+	t.Run("Overwrites CORS headers after redirects", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/initial" {
 				w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
@@ -285,6 +285,52 @@ func TestProxyBehavior(t *testing.T) {
 		expectedBody := "final destination"
 		if w.Body.String() != expectedBody {
 			t.Errorf("Expected body '%s', got '%s'", expectedBody, w.Body.String())
+		}
+	})
+
+	t.Run("Handles network errors gracefully", func(t *testing.T) {
+		// Test with an invalid URL to trigger network error
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=http://invalid.localhost:99999", nil)
+		w := httptest.NewRecorder()
+
+		handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
+		}
+	})
+
+	t.Run("Copies non-CORS headers from response", func(t *testing.T) {
+		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("X-Custom-Header", "custom-value")
+			w.Header().Set("Access-Control-Allow-Origin", "https://should-be-removed.com")
+			w.Write([]byte("response"))
+		})
+		defer server.server.Close()
+
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+server.url, nil)
+		w := httptest.NewRecorder()
+
+		handleRequest(w, req)
+
+		if w.Header().Get("X-Custom-Header") != "custom-value" {
+			t.Errorf("Expected X-Custom-Header to be 'custom-value', got '%s'",
+				w.Header().Get("X-Custom-Header"))
+		}
+		if w.Header().Get("Access-Control-Allow-Origin") == "https://should-be-removed.com" {
+			t.Error("Original CORS header should have been removed")
+		}
+	})
+
+	t.Run("Handles invalid request creation", func(t *testing.T) {
+		// Test with an invalid URL to trigger NewRequest error
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url=:", nil)
+		w := httptest.NewRecorder()
+
+		handleRequest(w, req)
+
+		if w.Code != http.StatusServiceUnavailable {
+			t.Errorf("Expected status code %d, got %d", http.StatusServiceUnavailable, w.Code)
 		}
 	})
 }
