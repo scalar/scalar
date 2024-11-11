@@ -91,7 +91,7 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Log in to DockerHub
-        uses: docker/login-action@465a07811f14bebb1938fbed4728c6a1ff8901fc
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
         with:
           # Username of your Docker account
           username: ${{ secrets.DOCKERHUB_USERNAME }}
