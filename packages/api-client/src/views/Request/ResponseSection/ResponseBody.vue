@@ -63,7 +63,7 @@ const dataUrl = computed<string>(() => {
 })
 </script>
 <template>
-  <ViewLayoutCollapse>
+  <ViewLayoutCollapse class="max-h-content overflow-x-auto">
     <template #title>{{ title }}</template>
     <template
       v-if="data && dataUrl"
@@ -75,7 +75,7 @@ const dataUrl = computed<string>(() => {
     </template>
     <div
       v-if="data"
-      class="mx-1 border-1/2 flex flex-col rounded bg-b-1">
+      class="max-h-[calc(100%-32px)] mx-1 border-1/2 flex flex-col rounded bg-b-1 overflow-hidden">
       <div class="flex justify-between items-center border-b-1/2 px-3 py-1.5">
         <span class="text-xxs leading-3 font-code">
           {{ mimeType.essence }}

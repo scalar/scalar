@@ -131,7 +131,10 @@ const shouldVirtualize = computed(() => {
       </div>
     </template>
     <div
-      class="custom-scroll relative flex flex-1 flex-col px-2 xl:px-4 py-2.5">
+      class="custom-scroll h-full relative grid gap-[.5px] px-2 xl:px-4 py-2.5"
+      :class="{
+        'content-start': response,
+      }">
       <template v-if="!response">
         <ResponseEmpty />
       </template>
