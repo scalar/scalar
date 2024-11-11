@@ -3,7 +3,7 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 
 const emit = defineEmits<{
-  (e: 'input', value: string): void
+  (e: 'input', value: string, integration: null, eventType: 'paste'): void
 }>()
 
 // Register event listener
@@ -35,7 +35,7 @@ async function handlePaste(event: ClipboardEvent) {
     const pastedText = event.clipboardData.getData('text')
 
     if (pastedText) {
-      emit('input', pastedText)
+      emit('input', pastedText, null, 'paste')
     }
   }
 }

@@ -3,7 +3,7 @@ import { ScalarIcon } from '@scalar/components'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
 const emit = defineEmits<{
-  (e: 'input', value: string): void
+  (e: 'input', value: string, integration: null, eventType: 'drop'): void
 }>()
 
 const isDragging = ref<boolean>(false)
@@ -46,7 +46,7 @@ async function handleDrop(event: DragEvent) {
     const droppedText = event.dataTransfer.getData('text').replace(/^blob:/, '')
 
     if (droppedText) {
-      emit('input', droppedText)
+      emit('input', droppedText, null, 'drop')
     }
     // Files
     else if (event.dataTransfer.files.length > 0) {
@@ -55,7 +55,7 @@ async function handleDrop(event: DragEvent) {
 
       reader.onload = async (e) => {
         if (e.target && typeof e.target.result === 'string') {
-          emit('input', e.target.result)
+          emit('input', e.target.result, null, 'drop')
         }
       }
       reader.readAsText(file)
