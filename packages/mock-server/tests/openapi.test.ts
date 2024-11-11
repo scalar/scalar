@@ -22,6 +22,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
   it('GET /openapi.json (from JSON string)', async () => {
@@ -42,6 +43,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
   it('GET /openapi.json (YAML string)', async () => {
@@ -62,6 +64,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(await response.json()).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/json')
   })
 
   it('GET /openapi.yaml (object)', async () => {
@@ -82,6 +85,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(normalize(await response.text())).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/yaml')
   })
 
   it('GET /openapi.yaml (YAML string)', async () => {
@@ -102,6 +106,7 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(normalize(await response.text())).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/yaml')
   })
 
   it('GET /openapi.yaml (JSON string)', async () => {
@@ -122,5 +127,6 @@ describe('openapi.{json|yaml}', () => {
 
     expect(response.status).toBe(200)
     expect(normalize(await response.text())).toMatchObject(specification)
+    expect(response.headers.get('Content-Type')).toContain('application/yaml')
   })
 })
