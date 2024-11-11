@@ -216,11 +216,11 @@ function handleImportFinished() {
         <!-- Sucess -->
         <template v-else>
           <!-- Logo -->
-          <div class="flex justify-center items-center mb-2 p-1">
+          <div
+            v-if="shouldShowIntegrationIcon"
+            class="flex justify-center items-center mb-2 p-1">
             <div class="rounded-xl size-10">
-              <IntegrationLogo
-                v-if="shouldShowIntegrationIcon"
-                :integration="integration" />
+              <IntegrationLogo :integration="integration" />
             </div>
           </div>
           <!-- Title -->
