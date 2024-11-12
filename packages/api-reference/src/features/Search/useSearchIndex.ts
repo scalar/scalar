@@ -80,8 +80,6 @@ export function useSearchIndex({
   watch(
     specification.value,
     async () => {
-      const start = performance.now()
-
       fuseDataArray.value = []
 
       // Likely an incomplete/invalid spec
@@ -204,9 +202,6 @@ export function useSearchIndex({
       }
 
       fuse.setCollection(fuseDataArray.value)
-
-      const end = performance.now()
-      console.log(`create-search-index: ${Math.round(end - start)} ms`)
     },
     { immediate: true },
   )
