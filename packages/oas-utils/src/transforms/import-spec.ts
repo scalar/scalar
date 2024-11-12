@@ -144,12 +144,17 @@ export type ImportSpecToWorkspaceArgs = Pick<
   }
 
 /**
- * Import an OpenAPI spec file and convert it to workspace entities
+ * Imports an OpenAPI document and converts it to workspace entities (Collection, Request, Server, etc.)
  *
- * We will aim to keep the entities as close to the specification as possible
- * to leverage bi-directional translation. Where entities are able to be
- * created and used at various levels we will index via the uids to create
- * the relationships
+ * The imported entities maintain a close mapping to the original OpenAPI specification to enable:
+ * - Bi-directional translation between spec and workspace entities
+ * - Preservation of specification details and structure
+ * - Accurate representation of relationships between components
+ *
+ * Relationships between entities are maintained through unique identifiers (UIDs) which allow:
+ * - Flexible organization at different levels (workspace, collection, request)
+ * - Proper linking between related components
+ * - Easy lookup and reference of dependent entities
  */
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
