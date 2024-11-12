@@ -1,5 +1,11 @@
 # @scalar/void-server
 
+## 2.0.14
+
+### Patch Changes
+
+- ad75a55: fix: doesn’t reply with xml header
+
 ## 2.0.13
 
 ### Patch Changes
