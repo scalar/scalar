@@ -3,12 +3,17 @@ import fs from 'node:fs/promises'
 /**
  * Generate the appropriate cloudbuild.json file
  * https://cloud.google.com/build/docs/build-config-file-schema#json
+ * @param {string} inputPath - The path to the serviceEnv.json file
+ * @param {string} outputPath - The path to the output cloudbuild.json file
  */
-export default async function generateCloudBuild(inputPath, outputPath) {
-  console.log('Generating Cloud Build')
+export default async function generateCloudBuild(
+  inputPath = './serviceEnv.json',
+  outputPath = '../../cloudbuild.json',
+) {
+  console.log('Generating Cloud Build file')
 
   console.log(`Reading from ${inputPath}`)
-  console.log(`Writing to ${outputPath}`)
+
   const serviceEnv = await fs
     .readFile(`./${inputPath}`, 'utf-8')
     .then((data) => JSON.parse(data))
@@ -97,7 +102,8 @@ export default async function generateCloudBuild(inputPath, outputPath) {
     steps: cloudbuildSteps,
     options: options,
   }
-  console.log(JSON.stringify(cloudbuild, null, 2))
+
+  console.log(`Writing to ${outputPath}`)
 
   await fs.writeFile(
     `./${outputPath}`,
