@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.2.77
+
+### Patch Changes
+
+- 8eddb5b: fix: openapi endpoints don’t have a YAML content type header
+- Updated dependencies [82f7c35]
+- Updated dependencies [3421489]
+  - @scalar/oas-utils@0.2.73
+
 ## 0.2.76
 
 ### Patch Changes

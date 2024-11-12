@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.1.47
+
+### Patch Changes
+
+- b717102: style: enhances response section childs spacing
+- 8610c74: refactor: use route objects instead of strings
+- af47a3e: fix: only virtualize text based contents
+- 766a1fd: fix: import modal shows for any URL
+- Updated dependencies [82f7c35]
+- Updated dependencies [b717102]
+- Updated dependencies [3421489]
+  - @scalar/oas-utils@0.2.73
+  - @scalar/import@0.1.1
+  - @scalar/components@0.12.67
+  - @scalar/use-codemirror@0.11.34
+
 ## 2.1.46
 
 ### Patch Changes

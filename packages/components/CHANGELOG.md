@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.67
+
+### Patch Changes
+
+- b717102: fix: adds scalar code block max height
+
 ## 0.12.66
 
 ### Patch Changes

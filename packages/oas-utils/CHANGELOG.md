@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.73
+
+### Patch Changes
+
+- 82f7c35: fix: rollback proxy
+- 3421489: fix: remove examples from request payload before parsing
+
 ## 0.2.72
 
 ### Patch Changes

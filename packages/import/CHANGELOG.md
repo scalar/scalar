@@ -1,5 +1,11 @@
 # @scalar/import
 
+## 0.1.1
+
+### Patch Changes
+
+- 82f7c35: fix: rollback proxy
+
 ## 0.1.0
 
 ### Minor Changes

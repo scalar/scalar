@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.25.62
+
+### Patch Changes
+
+- ca05270: style: updates introduction card server description
+- Updated dependencies [b717102]
+- Updated dependencies [82f7c35]
+- Updated dependencies [b717102]
+- Updated dependencies [8610c74]
+- Updated dependencies [af47a3e]
+- Updated dependencies [3421489]
+- Updated dependencies [766a1fd]
+  - @scalar/api-client@2.1.47
+  - @scalar/oas-utils@0.2.73
+  - @scalar/components@0.12.67
+
 ## 1.25.61
 
 ### Patch Changes
