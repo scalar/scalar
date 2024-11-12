@@ -132,11 +132,12 @@ const introCardsSlot = computed(() =>
   flex-direction: column;
   justify-content: center;
 }
+.introduction-card-item:has(.description) :deep(.server-form-container) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
 .introduction-card-item:last-of-type {
   border-bottom: none;
-}
-.introduction-card :deep(.description) {
-  padding: 0;
 }
 .introduction-card-title {
   font-weight: var(--scalar-semibold);
