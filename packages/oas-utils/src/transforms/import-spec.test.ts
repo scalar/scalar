@@ -1,16 +1,14 @@
-/**
- * @vitest-environment jsdom
- */
+/** @vitest-environment jsdom */
 import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
 import { importSpecToWorkspace } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
-import petstoreMod from '@test/fixtures/petstore-tls.json'
-import { describe, expect, it, test } from 'vitest'
+import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
+import { describe, expect, it } from 'vitest'
 
 import galaxy from '../../../galaxy/dist/latest.json'
 
-describe('Import OAS Specs', () => {
-  test('Handles circular', async () => {
+describe('import-spec', () => {
+  it('handles circular references', async () => {
     const res = await importSpecToWorkspace(circular)
 
     // console.log(JSON.stringify(res, null, 2))
@@ -23,20 +21,18 @@ describe('Import OAS Specs', () => {
     ).toEqual(true)
   })
 
-  test('Handles weird petstore', async () => {
-    const res = await importSpecToWorkspace(petstoreMod)
+  it('handles a weird Petstore example', async () => {
+    const res = await importSpecToWorkspace(modifiedPetStoreExample)
 
     expect(res.error).toBe(false)
   })
 
-  // Causes cyclic dependency
-  test('Loads galaxy spec', async () => {
+  it('loads the Scalar Galaxy example (with cyclic dependencies)', async () => {
     const res = await importSpecToWorkspace(galaxy)
 
     expect(res.error).toEqual(false)
   })
 
-  // Security
   describe('security', () => {
     it('handles vanilla security schemes', async () => {
       const res = await importSpecToWorkspace(galaxy)
@@ -151,7 +147,7 @@ describe('Import OAS Specs', () => {
       const res = await importSpecToWorkspace(relativeGalaxy)
       if (res.error) throw res.error
 
-      // Test URLS only
+      // Test URLs only
       expect(res.servers.map(({ url }) => url)).toEqual([
         'https://galaxy.scalar.com',
         '{protocol}://void.scalar.com/{path}',
