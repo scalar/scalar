@@ -6,7 +6,7 @@ import {
   importSpecToWorkspace,
 } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { ReferenceConfiguration, Spec } from '@scalar/types/legacy'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { toRaw } from 'vue'
 
 /** Maps the specs by URL */
