@@ -185,6 +185,7 @@ export async function importSpecToWorkspace(
   if (!schema) return { importWarnings, error: true }
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
+  const start = performance.now()
   const requests: Request[] = []
 
   // Grab the base server URL for relative servers
@@ -453,6 +454,9 @@ export async function importSpecToWorkspace(
     },
     securitySchemes: securitySchemes.map((s) => s.uid),
   })
+
+  const end = performance.now()
+  console.log(`workspace: ${Math.round(end - start)} ms`)
 
   /**
    * Servers and requests will be saved in top level maps and indexed via UID to
