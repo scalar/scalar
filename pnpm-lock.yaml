@@ -573,6 +573,9 @@ importers:
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -676,73 +679,6 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2)
-
-  packages/scalar-app:
-    dependencies:
-      '@electron-toolkit/preload':
-        specifier: ^3.0.0
-        version: 3.0.1(electron@33.0.0)
-      '@electron-toolkit/utils':
-        specifier: ^3.0.0
-        version: 3.0.0(electron@33.0.0)
-      '@scalar/api-client':
-        specifier: workspace:*
-        version: link:../api-client
-      '@scalar/components':
-        specifier: workspace:*
-        version: link:../components
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../import
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../themes
-      '@todesktop/runtime':
-        specifier: ^2.0.0
-        version: 2.0.0
-      electron-window-state:
-        specifier: ^5.0.3
-        version: 5.0.3
-      fathom-client:
-        specifier: ^3.7.2
-        version: 3.7.2
-    devDependencies:
-      '@electron-toolkit/tsconfig':
-        specifier: ^1.0.1
-        version: 1.0.1(@types/node@20.14.10)
-      '@rushstack/eslint-patch':
-        specifier: ^1.10.3
-        version: 1.10.3
-      '@todesktop/cli':
-        specifier: ^1.10.2
-        version: 1.10.2(@types/react@18.3.3)
-      '@types/node':
-        specifier: ^20.14.10
-        version: 20.14.10
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
-      '@vue/eslint-config-prettier':
-        specifier: ^9.0.0
-        version: 9.0.0(@types/eslint@8.56.10)(eslint@8.57.0)(prettier@3.3.3)
-      '@vue/eslint-config-typescript':
-        specifier: ^12.0.0
-        version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
-      electron:
-        specifier: ^33.0.0
-        version: 33.0.0
-      electron-vite:
-        specifier: ^2.3.0
-        version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))
-      vite:
-        specifier: ^5.4.9
-        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
-      vue:
-        specifier: ^3.5.12
-        version: 3.5.12(typescript@5.6.2)
-      vue-tsc:
-        specifier: ^2.1.10
-        version: 2.1.10(typescript@5.6.2)
 
   packages/api-client-proxy:
     dependencies:
@@ -1956,6 +1892,73 @@ importers:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
 
+  packages/scalar-app:
+    dependencies:
+      '@electron-toolkit/preload':
+        specifier: ^3.0.0
+        version: 3.0.1(electron@33.0.0)
+      '@electron-toolkit/utils':
+        specifier: ^3.0.0
+        version: 3.0.0(electron@33.0.0)
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      '@todesktop/runtime':
+        specifier: ^2.0.0
+        version: 2.0.0
+      electron-window-state:
+        specifier: ^5.0.3
+        version: 5.0.3
+      fathom-client:
+        specifier: ^3.7.2
+        version: 3.7.2
+    devDependencies:
+      '@electron-toolkit/tsconfig':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/node@20.14.10)
+      '@rushstack/eslint-patch':
+        specifier: ^1.10.3
+        version: 1.10.3
+      '@todesktop/cli':
+        specifier: ^1.10.2
+        version: 1.10.2(@types/react@18.3.3)
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.14.10
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      '@vue/eslint-config-prettier':
+        specifier: ^9.0.0
+        version: 9.0.0(@types/eslint@8.56.10)(eslint@8.57.0)(prettier@3.3.3)
+      '@vue/eslint-config-typescript':
+        specifier: ^12.0.0
+        version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
+      electron:
+        specifier: ^33.0.0
+        version: 33.0.0
+      electron-vite:
+        specifier: ^2.3.0
+        version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))
+      vite:
+        specifier: ^5.4.9
+        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
+      vue:
+        specifier: ^3.5.12
+        version: 3.5.12(typescript@5.6.2)
+      vue-tsc:
+        specifier: ^2.1.10
+        version: 2.1.10(typescript@5.6.2)
+
   packages/scalar.aspnetcore:
     dependencies:
       '@scalar/api-reference':
@@ -2141,6 +2144,22 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@24.1.0)(terser@5.31.2)
+
+  packages/use-hooks:
+    dependencies:
+      vue:
+        specifier: ^3.5.12
+        version: 3.5.12(typescript@5.6.2)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      vite:
+        specifier: ^5.4.9
+        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
 
   packages/use-toasts:
     dependencies:
@@ -13282,9 +13301,6 @@ packages:
     resolution: {integrity: sha512-Ie9z/WINcxxLp27BKOCHGde4ITq9UklYKDzVo1nhk5sqGEXU3FpkwP5GM2voTGJkGd9B3Otl+Q4uwSOeSUtOBA==}
     engines: {node: '>=14.16'}
 
-  pkg-types@1.1.1:
-    resolution: {integrity: sha512-ko14TjmDuQJ14zsotODv7dBlwxKhUKQEhuhmbqo1uCi9BB0Z2alo/wAXg6q1dTR5TyuqYyWhjtfe/Tsh+X28jQ==}
-
   pkg-types@1.1.3:
     resolution: {integrity: sha512-+JrgthZG6m3ckicaOB74TwQ+tBWsFl3qVQg7mN8ulwSOElJ7gBhKzj2VkCPnZ4NlF6kEquYU+RIYNVAvzd54UA==}
 
@@ -20458,7 +20474,7 @@ snapshots:
   '@es-joy/jsdoccomment@0.43.1':
     dependencies:
       '@types/eslint': 8.56.10
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@typescript-eslint/types': 7.13.0
       comment-parser: 1.4.1
       esquery: 1.5.0
@@ -22261,7 +22277,7 @@ snapshots:
       get-port-please: 3.1.2
       h3: 1.12.0
       knitwork: 1.1.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       ohash: 1.1.3
       pathe: 1.1.2
@@ -22888,7 +22904,7 @@ snapshots:
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
-      magic-string: 0.30.10
+      magic-string: 0.30.12
     optionalDependencies:
       rollup: 3.29.4
 
@@ -22899,7 +22915,7 @@ snapshots:
       estree-walker: 2.0.2
       glob: 8.1.0
       is-reference: 1.2.1
-      magic-string: 0.30.10
+      magic-string: 0.30.12
     optionalDependencies:
       rollup: 4.24.0
 
@@ -22907,7 +22923,7 @@ snapshots:
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.24.0)
       estree-walker: 2.0.2
-      magic-string: 0.30.10
+      magic-string: 0.30.12
     optionalDependencies:
       rollup: 4.24.0
 
@@ -22948,14 +22964,14 @@ snapshots:
   '@rollup/plugin-replace@5.0.7(rollup@3.29.4)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
-      magic-string: 0.30.10
+      magic-string: 0.30.12
     optionalDependencies:
       rollup: 3.29.4
 
   '@rollup/plugin-replace@5.0.7(rollup@4.24.0)':
     dependencies:
       '@rollup/pluginutils': 5.1.0(rollup@4.24.0)
-      magic-string: 0.30.10
+      magic-string: 0.30.12
     optionalDependencies:
       rollup: 4.24.0
 
@@ -23396,7 +23412,7 @@ snapshots:
       express: 4.21.1
       find-cache-dir: 3.3.2
       fs-extra: 11.2.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       ts-dedent: 2.2.0
       vite: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
     optionalDependencies:
@@ -24171,7 +24187,7 @@ snapshots:
 
   '@types/acorn@4.0.6':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   '@types/argparse@1.0.38': {}
 
@@ -24266,16 +24282,16 @@ snapshots:
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 8.56.10
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   '@types/eslint@8.56.10':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/json-schema': 7.0.15
 
   '@types/estree-jsx@1.0.5':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   '@types/estree@1.0.5': {}
 
@@ -24961,7 +24977,7 @@ snapshots:
 
   '@vitest/snapshot@1.6.0':
     dependencies:
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       pretty-format: 29.7.0
 
@@ -25137,7 +25153,7 @@ snapshots:
       '@vue/compiler-ssr': 3.4.31
       '@vue/shared': 3.4.31
       estree-walker: 2.0.2
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       postcss: 8.4.47
       source-map-js: 1.2.1
 
@@ -28311,7 +28327,7 @@ snapshots:
 
   estree-util-attach-comments@3.0.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   estree-util-build-jsx@3.0.1:
     dependencies:
@@ -28330,7 +28346,7 @@ snapshots:
 
   estree-util-value-to-estree@3.1.1:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       is-plain-obj: 4.1.0
 
   estree-util-visit@2.0.0:
@@ -28344,7 +28360,7 @@ snapshots:
 
   estree-walker@3.0.3:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   esutils@2.0.3: {}
 
@@ -29558,7 +29574,7 @@ snapshots:
 
   hast-util-to-estree@3.1.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/estree-jsx': 1.0.5
       '@types/hast': 3.0.4
       comma-separated-tokens: 2.0.3
@@ -29594,7 +29610,7 @@ snapshots:
 
   hast-util-to-jsx-runtime@2.3.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/hast': 3.0.4
       '@types/unist': 3.0.2
       comma-separated-tokens: 2.0.3
@@ -30272,11 +30288,11 @@ snapshots:
 
   is-reference@1.2.1:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   is-reference@3.0.2:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   is-regex@1.1.4:
     dependencies:
@@ -31424,7 +31440,7 @@ snapshots:
   magic-regexp@0.8.0:
     dependencies:
       estree-walker: 3.0.3
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       regexp-tree: 0.1.27
       type-level-regexp: 0.1.17
@@ -31433,7 +31449,7 @@ snapshots:
 
   magic-string-ast@0.6.2:
     dependencies:
-      magic-string: 0.30.10
+      magic-string: 0.30.12
 
   magic-string@0.25.9:
     dependencies:
@@ -31449,7 +31465,7 @@ snapshots:
 
   magic-string@0.30.5:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   magicast@0.3.4:
     dependencies:
@@ -31841,7 +31857,7 @@ snapshots:
 
   micromark-extension-mdx-expression@3.0.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       devlop: 1.1.0
       micromark-factory-mdx-expression: 2.0.1
       micromark-factory-space: 2.0.0
@@ -31853,7 +31869,7 @@ snapshots:
   micromark-extension-mdx-jsx@3.0.0:
     dependencies:
       '@types/acorn': 4.0.6
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       devlop: 1.1.0
       estree-util-is-identifier-name: 3.0.0
       micromark-factory-mdx-expression: 2.0.1
@@ -31869,7 +31885,7 @@ snapshots:
 
   micromark-extension-mdxjs-esm@3.0.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       devlop: 1.1.0
       micromark-core-commonmark: 2.0.1
       micromark-util-character: 2.1.0
@@ -31905,7 +31921,7 @@ snapshots:
 
   micromark-factory-mdx-expression@2.0.1:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       devlop: 1.1.0
       micromark-util-character: 2.1.0
       micromark-util-events-to-acorn: 2.0.2
@@ -31979,7 +31995,7 @@ snapshots:
   micromark-util-events-to-acorn@2.0.2:
     dependencies:
       '@types/acorn': 4.0.6
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/unist': 3.0.2
       devlop: 1.1.0
       estree-util-visit: 2.0.0
@@ -32198,7 +32214,7 @@ snapshots:
     dependencies:
       acorn: 8.12.1
       pathe: 1.1.2
-      pkg-types: 1.1.1
+      pkg-types: 1.1.3
       ufo: 1.5.4
 
   mnemonist@0.39.6:
@@ -32372,7 +32388,7 @@ snapshots:
       klona: 2.0.6
       knitwork: 1.1.0
       listhen: 1.7.2
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mime: 4.0.4
       mlly: 1.7.1
       mri: 1.2.0
@@ -33099,7 +33115,7 @@ snapshots:
 
   periscopic@3.1.0:
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       estree-walker: 3.0.3
       is-reference: 3.0.2
 
@@ -33167,12 +33183,6 @@ snapshots:
   pkg-dir@7.0.0:
     dependencies:
       find-up: 6.3.0
-
-  pkg-types@1.1.1:
-    dependencies:
-      confbox: 0.1.7
-      mlly: 1.7.1
-      pathe: 1.1.2
 
   pkg-types@1.1.3:
     dependencies:
@@ -36438,7 +36448,7 @@ snapshots:
       globby: 13.2.2
       hookable: 5.5.3
       jiti: 1.21.6
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mkdist: 1.5.3(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
       mlly: 1.7.1
       pathe: 1.1.2
@@ -36461,7 +36471,7 @@ snapshots:
     dependencies:
       acorn: 8.12.1
       estree-walker: 3.0.3
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       unplugin: 1.11.0
 
   undefsafe@2.0.5: {}
@@ -36580,7 +36590,7 @@ snapshots:
       estree-walker: 3.0.3
       fast-glob: 3.3.2
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       pathe: 1.1.2
       pkg-types: 1.1.3
@@ -36731,7 +36741,7 @@ snapshots:
   unwasm@0.3.9:
     dependencies:
       knitwork: 1.1.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       pathe: 1.1.2
       pkg-types: 1.1.3
@@ -37040,7 +37050,7 @@ snapshots:
       '@vue/babel-plugin-jsx': 1.2.2(@babel/core@7.24.8)
       '@vue/compiler-dom': 3.4.31
       kolorist: 1.8.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       vite: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
     transitivePeerDependencies:
       - supports-color
@@ -37126,7 +37136,7 @@ snapshots:
       debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -37161,7 +37171,7 @@ snapshots:
       debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -37196,7 +37206,7 @@ snapshots:
       debug: 4.3.7
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0

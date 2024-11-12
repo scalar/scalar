@@ -6,12 +6,18 @@ import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
+import { useGoodbye } from '@scalar/use-hooks/useGoodbye'
+import { useHello } from '@scalar/use-hooks/useHello'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
 // Initialize dark mode state globally
 useDarkModeState()
+
+// Test the useHello and useGoodbye hooks
+useHello()
+useGoodbye()
 
 const workspaceStore = useWorkspace()
 const { events } = workspaceStore

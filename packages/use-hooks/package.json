@@ -1,0 +1,52 @@
+{
+  "name": "@scalar/use-hooks",
+  "description": "Utility hooks for Scalar",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/use-hooks"
+  },
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./useHello": {
+      "import": "./dist/useHello/index.js",
+      "types": "./dist/useHello/index.d.ts",
+      "default": "./dist/useHello/index.js"
+    },
+    "./useGoodbye": {
+      "import": "./dist/useGoodbye/index.js",
+      "types": "./dist/useGoodbye/index.d.ts",
+      "default": "./dist/useGoodbye/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "dependencies": {
+    "vue": "^3.5.12"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.4.9"
+  }
+}
