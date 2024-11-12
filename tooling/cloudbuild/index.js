@@ -1,14 +1,18 @@
-import { stringify } from 'yaml'
-
-// TODO: types
-// convert to json?
-// https://cloud.google.com/build/docs/build-config-file-schema#json
+import fs from 'node:fs/promises'
 
 /**
- * Generate the appropriate cloudbuild.yaml file
+ * Generate the appropriate cloudbuild.json file
+ * https://cloud.google.com/build/docs/build-config-file-schema#json
  */
-export default async function generateCloudBuild(serviceMap: any) {
+export default async function generateCloudBuild(inputPath, outputPath) {
   console.log('Generating Cloud Build')
+
+  console.log(`Reading from ${inputPath}`)
+  console.log(`Writing to ${outputPath}`)
+  const serviceEnv = await fs
+    .readFile(`./${inputPath}`, 'utf-8')
+    .then((data) => JSON.parse(data))
+
   const containerImage = {
     name: 'gcr.io/cloud-builders/docker',
     id: 'build-base',
@@ -30,7 +34,7 @@ export default async function generateCloudBuild(serviceMap: any) {
 
   const cloudbuildSteps = [containerImage, pushContainerImage]
 
-  serviceMap.forEach((service) => {
+  serviceEnv.forEach((service) => {
     const buildStep = {
       name: 'gcr.io/cloud-builders/docker',
       id: `build-${service.name}`,
@@ -41,7 +45,7 @@ export default async function generateCloudBuild(serviceMap: any) {
         '--build-arg',
         'BASE_IMAGE=gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}',
         '-t',
-        'gcr.io/${_PROJECT_ID}/' + `${service.cloudBuildName}`,
+        'gcr.io/${_PROJECT_ID}/' + '${' + `${service.cloudBuildName}` + '}',
         '-f',
         service.dockerPath,
         '.',
@@ -53,7 +57,10 @@ export default async function generateCloudBuild(serviceMap: any) {
       name: 'gcr.io/cloud-builders/docker',
       id: `push-${service.name}`,
       waitFor: [`build-${service.name}`],
-      args: ['push', 'gcr.io/${_PROJECT_ID}/' + `${service.cloudBuildName}`],
+      args: [
+        'push',
+        'gcr.io/${_PROJECT_ID}/' + '${' + `${service.cloudBuildName}` + '}',
+      ],
     }
     cloudbuildSteps.push(pushStep)
 
@@ -64,8 +71,11 @@ export default async function generateCloudBuild(serviceMap: any) {
       args: [
         'run',
         'deploy',
-        `${service.cloudBuildName}`,
-        '--image=gcr.io/${_PROJECT_ID}/' + `${service.cloudBuildName}`,
+        '$' + `${service.cloudBuildName}`,
+        '--image=gcr.io/${_PROJECT_ID}/' +
+          '${' +
+          `${service.cloudBuildName}` +
+          '}',
         '--region=$_REGION',
         '--platform=managed',
         '--allow-unauthenticated',
@@ -87,12 +97,11 @@ export default async function generateCloudBuild(serviceMap: any) {
     steps: cloudbuildSteps,
     options: options,
   }
+  console.log(JSON.stringify(cloudbuild, null, 2))
 
-  const containerYaml = stringify(cloudbuild)
-  console.log(containerYaml)
-
-  return containerYaml
-
-  // TODO: write to a file
-  // TODO: overwrite the old file
+  await fs.writeFile(
+    `./${outputPath}`,
+    JSON.stringify(cloudbuild, null, 2),
+    'utf-8',
+  )
 }
