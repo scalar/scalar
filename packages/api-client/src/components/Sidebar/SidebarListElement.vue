@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
+import { type Icon, ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
 withDefaults(
@@ -8,6 +9,7 @@ withDefaults(
       uid: string
       name: string
       color?: string
+      icon?: Icon
       isDefault?: boolean
     }
     warningMessage?: string
@@ -46,7 +48,7 @@ const handleColorClick = (uid: string) => {
 <template>
   <li>
     <router-link
-      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1 rounded py-1 pr-2 font-medium no-underline"
+      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-2 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
       :to="`${variable.uid}`"
@@ -60,7 +62,11 @@ const handleColorClick = (uid: string) => {
           class="h-2.5 w-2.5 rounded-xl"
           :style="{ backgroundColor: variable.color }"></div>
       </button>
-      <span class="empty-variable-name">{{ variable.name }}</span>
+      <ScalarIcon
+        v-if="variable.icon"
+        class="text-sidebar-c-2 size-3.5 stroke-[2.25]"
+        :icon="variable.icon" />
+      <span class="empty-variable-name text-sm">{{ variable.name }}</span>
       <SidebarListElementActions
         :isCopyable="isCopyable"
         :isDeletable="isDeletable"
