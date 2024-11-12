@@ -3,10 +3,11 @@ import {
   parseLocalStorage,
 } from '@/migrations/local-storage'
 import { semverLessThan } from '@/migrations/semver'
-import { migrate_v_2_1_0, type v_2_1_0 } from '@/migrations/v-2.1.0'
+import { migrate_v_2_1_0 } from '@/migrations/v-2.1.0'
+import { migrate_v_2_2_0, type v_2_2_0 } from '@/migrations/v-2.2.0'
 
 /** Handles all data migrations per entity */
-export const migrator = (): v_2_1_0.DataArray => {
+export const migrator = (): v_2_2_0.DataArray => {
   const dataVersion = getLocalStorageVersion()
   console.info('Data version: ' + dataVersion)
 
@@ -25,6 +26,8 @@ export const migrator = (): v_2_1_0.DataArray => {
 
   // 0.0.0 -> 2.1.0 migration
   if (semverLessThan(dataVersion, '2.1.0')) data = migrate_v_2_1_0(data)
+  // 2.1.0 -> 2.2.0 migration
+  if (semverLessThan(dataVersion, '2.2.0')) data = migrate_v_2_2_0(data)
   // If no migration, just grab values
   else
     data = {
@@ -37,7 +40,7 @@ export const migrator = (): v_2_1_0.DataArray => {
       servers: Object.values(data.servers),
       tags: Object.values(data.tags),
       workspaces: Object.values(data.workspaces),
-    } satisfies v_2_1_0.DataArray
+    } satisfies v_2_2_0.DataArray
 
   return data
 }

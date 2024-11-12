@@ -22,8 +22,6 @@ cdn
 .vite-ssg-temp
 .next
 
-*.generated.ts
-
 examples/docusaurus/**/*.mdx
 packages/nuxt/src/runtime/plugins/hydrateClient.d.mts
 packages/openapi-parser/tests/**/*.yaml

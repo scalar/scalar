@@ -51,7 +51,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
   /** Migrate values from old securitySchemes to the new auth */
   const migrateAuth = (
     scheme: v_0_0_0.SecurityScheme,
-  ): v_2_1_0.Collection['auth'][string] => {
+  ): NonNullable<v_2_1_0.Collection['auth']>[string] => {
     if (scheme.type === 'apiKey')
       // ApiKey
       return { type: 'apiKey', name: scheme.name, value: scheme.value ?? '' }
@@ -129,7 +129,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     const auth = securitySchemes.reduce(
       (prev, uid) => {
         const scheme = oldData.securitySchemes[uid]
-        if (scheme?.uid) prev[uid] = migrateAuth(scheme)
+        if (scheme?.uid && prev) prev[uid] = migrateAuth(scheme)
         return prev
       },
       {} as v_2_1_0.Collection['auth'],
