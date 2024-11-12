@@ -36,6 +36,28 @@ describe('importSpecToWorkspace', () => {
 
       expect(res.error).toEqual(false)
     })
+
+    it('merges path and operation parameters', async () => {
+      const specWithParams = {
+        ...galaxy,
+        paths: {
+          '/test/{id}': {
+            parameters: [{ name: 'id', in: 'path', required: true }],
+            get: {
+              parameters: [{ name: 'filter', in: 'query' }],
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithParams)
+      if (res.error) throw res.error
+
+      const request = res.requests[0]
+      expect(request.parameters).toHaveLength(2)
+      expect(request.parameters?.map((p) => p.name)).toContain('id')
+      expect(request.parameters?.map((p) => p.name)).toContain('filter')
+    })
   })
 
   describe('tags', () => {
