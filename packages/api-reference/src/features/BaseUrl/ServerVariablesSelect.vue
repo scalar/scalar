@@ -54,7 +54,7 @@ const selected = computed<ScalarListboxOption | undefined>({
   align-items: center;
   border-color: transparent;
   border-radius: 0;
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: 0.5px solid var(--scalar-border-color);
   display: flex;
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-regular);

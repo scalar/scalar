@@ -72,7 +72,7 @@ const getVariable = (name: string) => {
 .variable-label {
   padding: 9px 0 9px 9px;
   color: var(--scalar-color-2);
-  border-top: 1px solid var(--scalar-border-color);
+  border-top: 0.5px solid var(--scalar-border-color);
   font-size: var(--scalar-micro);
 }
 .variable-label:after {

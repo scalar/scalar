@@ -97,7 +97,11 @@ function updateVariable(name: string, value: string) {
   border: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .description {
-  padding: 6px 12px;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-top: 0;
+  border-bottom-left-radius: var(--scalar-radius);
+  border-bottom-right-radius: var(--scalar-radius);
+  padding: 3px 9px;
   font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-3);
