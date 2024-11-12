@@ -46,7 +46,7 @@
   "dependencies": {
     "@scalar/oas-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
-    "yaml": "^2.4.5"
+    "yaml": "^2.6.0"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
