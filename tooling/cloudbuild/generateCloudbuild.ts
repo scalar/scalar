@@ -7,8 +7,8 @@ import fs from 'node:fs/promises'
  * @param {string} outputPath - The path to the output cloudbuild.json file
  */
 export default async function generateCloudBuild(
-  inputPath = './cloudbuildEnv.json',
-  outputPath = '../../cloudbuild.json',
+  inputPath = './tooling/cloudbuild/cloudbuildEnv.json',
+  outputPath = './cloudbuild.json',
 ) {
   console.log('Generating Cloud Build file')
 
