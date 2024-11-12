@@ -122,6 +122,8 @@ export const getBaseAuthValues = (
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
 export const parseSchema = async (spec: string | UnknownObject) => {
+  // TODO: Plugins for URLs and files with the proxy is missing here.
+  // @see packages/api-reference/src/helpers/parse.ts
   const { filesystem } = await load(spec)
   const { specification } = upgrade(filesystem)
   const { schema, errors = [] } = await dereference(specification)
