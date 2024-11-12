@@ -403,6 +403,7 @@ describe('getBaseAuthValues', () => {
     const passwordScheme = {
       ...res.securitySchemes[5],
       flow: {
+        // @ts-expect-error
         ...res.securitySchemes[5].flow,
         type: 'password',
       },
