@@ -441,8 +441,4 @@ export default {
   border-radius: var(--scalar-radius);
   color: var(--scalar-color-1);
 }
-/* .cm-focused .cm-content ::selection {
-  background: var(--scalar-selection-background) !important;
-  color: var(--scalar-selection-color);
-} */
 </style>

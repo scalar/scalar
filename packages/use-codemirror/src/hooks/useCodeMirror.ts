@@ -318,10 +318,6 @@ function getCodeMirrorExtensions({
         border: 'none',
         fontFamily: 'var(--scalar-font)',
       },
-      '.cm-line::selection': {
-        background: 'var(--scalar-selection-background) !important',
-        color: 'var(--scalar-selection-color)',
-      },
     }),
     // Listen to updates
     EditorView.updateListener.of((v) => {

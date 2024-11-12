@@ -101,3 +101,17 @@
   --scalar-color-orange: var(--scalar-color-1);
   --scalar-color-purple: var(--scalar-color-1);
 }
+.light-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    transparent 70%
+  );
+}
+.dark-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    transparent 50%
+  );
+}

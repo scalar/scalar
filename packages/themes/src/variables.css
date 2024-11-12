@@ -49,7 +49,6 @@
 
   --scalar-text-decoration: none;
   --scalar-text-decoration-hover: underline;
-  --scalar-selection-background: rgb(177, 212, 252);
 }
 .dark-mode {
   color-scheme: dark;

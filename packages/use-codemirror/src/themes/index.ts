@@ -8,7 +8,6 @@ export const customTheme = createTheme({
     foreground: 'var(--scalar-color-1)',
     caret: 'var(--scalar-color-1)',
     // Selection likely needs a hardcoded color due to it not accepting variables
-    selection: 'var(--scalar-selection-background)',
     selectionMatch: '#e3dcce',
     gutterBackground: 'var(--scalar-background-2)',
     gutterForeground: 'var(--scalar-color-3)',

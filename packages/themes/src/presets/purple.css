@@ -71,3 +71,17 @@
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
 }
+.light-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-accent),
+    transparent 70%
+  );
+}
+.dark-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-accent),
+    transparent 50%
+  );
+}
