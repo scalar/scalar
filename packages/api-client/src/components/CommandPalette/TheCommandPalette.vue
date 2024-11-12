@@ -89,12 +89,12 @@ const availableCommands = [
       {
         name: 'Add Environment',
         icon: 'Brackets',
-        path: '/environment',
+        path: 'environment',
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        path: '/cookies',
+        path: 'cookies',
       },
     ],
   },
@@ -103,7 +103,7 @@ const availableCommands = [
     commands: ROUTES.map((route) => ({
       name: route.prettyName,
       icon: route.icon,
-      path: `/${route.name}`,
+      path: `${route.name}.default`,
     })),
   },
 ] as const
@@ -153,9 +153,15 @@ const executeCommand = (
 ) => {
   // Route to the page
   if ('path' in command) {
-    push(`/workspace/${activeWorkspace.value.uid}${command.path}`)
+    push({
+      name: command.path,
+      params: {
+        workspace: activeWorkspace.value.uid,
+      },
+    })
     closeHandler()
   }
+
   // Open respective command palette
   else activeCommand.value = command.name
 }

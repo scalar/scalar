@@ -1,5 +1,5 @@
 import { flattenEnvVars } from '@/libs/string-template'
-import { PathId, fallbackMissingParams } from '@/router'
+import { PathId } from '@/router'
 import {
   createStoreCollections,
   extendedCollectionDataFactory,
@@ -197,11 +197,7 @@ export const createWorkspaceStore = (
       collections[activeRouterParams.value.collection] ||
       collections[activeWorkspace.value.collections[0]]
 
-    const request = requests[key] || requests[collection?.requests[0]]
-
-    fallbackMissingParams(router, PathId.Request, request)
-
-    return request
+    return requests[key] || requests[collection?.requests[0]]
   })
 
   /** Grabs the currently active example using the path param */

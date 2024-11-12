@@ -110,7 +110,13 @@ const item = computed<SidebarItem>(() => {
   if (request)
     return {
       title: request.summary ?? [request.method, request.path].join(' - '),
-      link: `/workspace/${activeWorkspace.value.uid}/request/${request.uid}`,
+      link: {
+        name: 'request',
+        params: {
+          workspace: activeWorkspace.value.uid,
+          request: request.uid,
+        },
+      },
       method: request.method,
       entity: request,
       resourceTitle: 'Request',
@@ -123,7 +129,14 @@ const item = computed<SidebarItem>(() => {
 
   return {
     title: requestExample.name,
-    link: `/workspace/${activeWorkspace.value.uid}/request/${requestExample.requestUid}/examples/${requestExample.uid}`,
+    link: {
+      name: 'request.examples',
+      params: {
+        workspace: activeWorkspace.value.uid,
+        request: requestExample.requestUid,
+        examples: requestExample.uid,
+      },
+    },
     method: requests[requestExample.requestUid]?.method,
     entity: requestExample,
     resourceTitle: 'Example',

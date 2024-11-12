@@ -20,7 +20,12 @@ const addServerHandler = () => {
   const newServer = serverSchema.parse({ url: 'http://localhost' })
   serverMutators.add(newServer, activeCollection.value.uid)
 
-  push(`/servers/${newServer.uid}`)
+  push({
+    name: 'servers',
+    params: {
+      server: newServer.uid,
+    },
+  })
 }
 </script>
 <template>

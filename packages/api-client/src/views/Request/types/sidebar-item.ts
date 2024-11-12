@@ -5,6 +5,7 @@ import type {
   RequestMethod,
   Tag,
 } from '@scalar/oas-utils/entities/spec'
+import type { RouteLocationRaw } from 'vue-router'
 
 export type SidebarItem = {
   title: string
@@ -12,7 +13,7 @@ export type SidebarItem = {
   resourceTitle: string
   children: string[]
   method?: RequestMethod
-  link?: string
+  link?: RouteLocationRaw
   warning?: string
   icon?: string
   edit: (name: string, icon?: string) => void
