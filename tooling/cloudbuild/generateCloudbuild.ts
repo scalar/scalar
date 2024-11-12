@@ -7,7 +7,7 @@ import fs from 'node:fs/promises'
  * @param {string} outputPath - The path to the output cloudbuild.json file
  */
 export default async function generateCloudBuild(
-  inputPath = './serviceEnv.json',
+  inputPath = './cloudbuildEnv.json',
   outputPath = '../../cloudbuild.json',
 ) {
   console.log('Generating Cloud Build file')
@@ -39,7 +39,9 @@ export default async function generateCloudBuild(
 
   const cloudbuildSteps = [containerImage, pushContainerImage]
 
-  serviceEnv.forEach((service) => {
+  type Service = Record<string, string>
+
+  serviceEnv.forEach((service: Service) => {
     const buildStep = {
       name: 'gcr.io/cloud-builders/docker',
       id: `build-${service.name}`,
@@ -71,6 +73,7 @@ export default async function generateCloudBuild(
 
     const deployStep = {
       name: 'gcr.io/google.com/cloudsdktool/cloud-sdk',
+      id: `deploy-${service.name}`,
       entrypoint: 'gcloud',
       waitFor: [`push-${service.name}`],
       args: [
@@ -111,3 +114,5 @@ export default async function generateCloudBuild(
     'utf-8',
   )
 }
+
+generateCloudBuild()
