@@ -322,6 +322,14 @@ export async function importSpecToWorkspace(
           servers: [...pathServers, ...operationServers].map((s) => s.uid),
         }
 
+        // Remove any examples from the request payload as they conflict with our examples property and are not valid
+        if (requestPayload.examples) {
+          console.warn(
+            '[@scalar/api-client] operation.examples is not a valid openapi property',
+          )
+          delete requestPayload.examples
+        }
+
         // Add list of UIDs to associate security schemes
         // As per the spec if there is operation level security we ignore the top level requirements
         if (operationSecurity?.length)
