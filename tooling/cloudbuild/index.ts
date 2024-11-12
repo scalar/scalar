@@ -1,6 +1,8 @@
 import { stringify } from 'yaml'
 
 // TODO: types
+// convert to json?
+// https://cloud.google.com/build/docs/build-config-file-schema#json
 
 /**
  * Generate the appropriate cloudbuild.yaml file
