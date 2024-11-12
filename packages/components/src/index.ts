@@ -21,6 +21,15 @@ import {
 import { ScalarLoading, useLoadingState } from './components/ScalarLoading'
 import { ScalarMarkdown } from './components/ScalarMarkdown'
 import {
+  ScalarMenu,
+  ScalarMenuLink,
+  ScalarMenuProduct,
+  ScalarMenuProducts,
+  ScalarMenuProfile,
+  ScalarMenuResources,
+  ScalarMenuSection,
+} from './components/ScalarMenu'
+import {
   type ModalState,
   ScalarModal,
   useModal,
@@ -54,6 +63,13 @@ export {
   ScalarListbox,
   ScalarLoading,
   ScalarContextMenu,
+  ScalarMenu,
+  ScalarMenuLink,
+  ScalarMenuProduct,
+  ScalarMenuProducts,
+  ScalarMenuProfile,
+  ScalarMenuResources,
+  ScalarMenuSection,
   ScalarModal,
   ScalarPopover,
   ScalarSearchInput,
