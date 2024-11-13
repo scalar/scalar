@@ -62,7 +62,7 @@ async function importCollection(text?: string) {
   const value = urlData || text || inputContent.value
   if (!value) return
   console.log('marc', value)
-  const result = convert.convert(JSON.parse(value))
+  const result = convert(JSON.parse(value))
   console.log('result', result)
   await importSpecFile(result, activeWorkspace.value.uid)
 

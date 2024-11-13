@@ -65,7 +65,7 @@ const availableCommands = [
       },
       {
         name: 'Import Postman Collection',
-        icon: 'Postman',
+        icon: 'Import',
       },
       {
         name: 'Add Tag',
