@@ -31,7 +31,7 @@ withDefaults(
 const modal = cva({
   base: [
     'scalar-modal',
-    'col relative mx-auto mb-0 rounded-lg bg-b-2 p-0 text-left leading-snug text-c-1 opacity-0 md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
+    'col relative mx-auto mb-0 rounded-lg bg-b-1 p-0 text-left leading-snug text-c-1 opacity-0 md:w-[calc(100vw-16px)] lg:w-[calc(100vw-32px)]',
   ].join(' '),
   variants: {
     size: {
@@ -54,7 +54,7 @@ const modal = cva({
 const body = cva({
   base: [
     'scalar-modal-body',
-    'relative m-1 max-h-[calc(100dvh-240px)] rounded-lg bg-b-1 p-3',
+    'relative max-h-[calc(100dvh-240px)] rounded-lg rounded-t-none border-t-1/2 bg-b-1 p-3',
   ].join(' '),
   variants: {
     variant: {

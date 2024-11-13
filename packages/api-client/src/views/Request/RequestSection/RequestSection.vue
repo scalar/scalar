@@ -91,7 +91,7 @@ const updateRequestNameHandler = (event: Event) => {
         @setActiveSection="activeSection = $event" />
     </template>
     <div
-      class="request-section-content custom-scroll flex flex-1 flex-col px-2 xl:px-4 py-2.5">
+      class="request-section-content custom-scroll flex flex-1 flex-col px-3 xl:px-4 py-2.5">
       <RequestAuth
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')

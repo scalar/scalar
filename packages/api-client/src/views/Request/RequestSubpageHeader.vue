@@ -3,6 +3,7 @@ import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 
@@ -20,6 +21,7 @@ defineEmits<{
 }>()
 
 const { activeCollection } = useWorkspace()
+const { layout } = useLayout()
 </script>
 <template>
   <div
@@ -27,7 +29,11 @@ const { activeCollection } = useWorkspace()
     <div
       class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 lg:mb-0 mb-2 lg:flex-1 w-6/12">
       <SidebarToggle
-        class="gitbook-hidden"
+        :class="[
+          'gitbook-hidden xl:hidden',
+          { 'xl:!flex': !modelValue },
+          { '!flex': layout === 'modal' },
+        ]"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)" />
       <WorkspaceDropdown v-if="!isReadonly" />
