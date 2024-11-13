@@ -427,8 +427,6 @@ jobs:
 
       - name: Setup .NET
         uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25
-        with:
-          dotnet-version: 9.x
 
       - name: Build @scalar/api-reference
         uses: ./.github/actions/build
@@ -479,8 +477,6 @@ jobs:
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
         uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25
-        with:
-          dotnet-version: 9.x
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Extract version from package.json
