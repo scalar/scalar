@@ -1,14 +1,20 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { z } from 'zod'
 
 import type { ColorMode, UseColorModeOptions } from './types'
 
 const colorMode = ref<ColorMode>('dark')
 
+const colorModeSchema = z
+  .enum(['dark', 'light', 'system'])
+  .optional()
+  .catch(undefined)
+
 /**
  * A composable hook that provides color mode (dark/light) functionality.
  */
 export function useColorMode(opts: UseColorModeOptions = {}) {
-  const { localstorageKey = 'colorMode' } = opts
+  const { initialColorMode = 'dark', overrideColorMode } = opts
 
   /** Toggles the color mode between light and dark. */
   function toggleColorMode() {
@@ -17,14 +23,14 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
     // Store in local storage
     if (typeof window === 'undefined') return
-    window?.localStorage?.setItem(localstorageKey, colorMode.value)
+    window?.localStorage?.setItem('colorMode', colorMode.value)
   }
 
   /** Sets the color mode to the specified value. */
   function setColorMode(value: ColorMode) {
     colorMode.value = value
     if (typeof window === 'undefined') return
-    window?.localStorage?.setItem(localstorageKey, colorMode.value)
+    window?.localStorage?.setItem('colorMode', colorMode.value)
   }
 
   /** Gets the system mode preference. */
@@ -37,10 +43,12 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   }
 
   /** Applies the appropriate color mode class to the body. */
-  function applyColorModeClass(mode: ColorMode): void {
+  function applyColorMode(mode: ColorMode): void {
     if (typeof document === 'undefined') return
 
-    const classMode = mode === 'system' ? getSystemModePreference() : mode
+    const classMode =
+      overrideColorMode ??
+      (mode === 'system' ? getSystemModePreference() : mode)
 
     if (classMode === 'dark') {
       document.body.classList.add('dark-mode')
@@ -51,21 +59,21 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
     }
   }
 
-  // Priority of initial values is: LocalStorage/App Config/Fallback
-  colorMode.value =
-    typeof window === 'undefined'
-      ? 'dark'
-      : (localStorage.getItem(localstorageKey) as ColorMode) || 'dark'
+  // Priority of initial values is: LocalStorage -> App Config -> initial / Fallback
+  const savedColorMode = colorModeSchema.parse(
+    window?.localStorage?.getItem('colorMode'),
+  )
+  colorMode.value = savedColorMode ?? initialColorMode
 
   // Watch for colorMode changes and update the body class
-  watch(colorMode, applyColorModeClass, { immediate: true })
+  watch(colorMode, applyColorMode, { immediate: true })
 
   // Listen to system preference changes
   onMounted(() => {
     if (typeof window?.matchMedia === 'function') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const handleChange = () =>
-        colorMode.value === 'system' && applyColorModeClass('system')
+        colorMode.value === 'system' && applyColorMode('system')
 
       mediaQuery.addEventListener('change', handleChange)
 

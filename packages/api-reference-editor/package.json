@@ -54,6 +54,7 @@
     "@scalar/oas-utils": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "unhead": "^1.8.3",
     "vue": "^3.5.12"
   },

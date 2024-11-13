@@ -3,13 +3,13 @@ import {
   Layouts,
   type ReferenceConfiguration,
   useAuthenticationStore,
-  useDarkModeState,
   useHttpClientStore,
   useReactiveSpec,
 } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
 import { fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/legacy'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { createHead, useSeoMeta } from 'unhead'
 import { computed, ref, toRef, watch, watchEffect } from 'vue'
 
@@ -27,9 +27,9 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const { toggleDarkMode, isDark } = useDarkModeState(
-  props.configuration?.darkMode,
-)
+const { toggleColorMode, colorMode } = useColorMode({
+  initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
+})
 
 const editorContent = ref('')
 
@@ -141,10 +141,10 @@ const { parsedSpec, rawSpec } = useReactiveSpec({
   </component>
   <Layouts
     :configuration="configuration"
-    :isDark="isDark"
+    :isDark="colorMode === 'dark'"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
-    @toggleDarkMode="() => toggleDarkMode()"
+    @toggleDarkMode="() => toggleColorMode()"
     @updateContent="handleContentChange">
     <template #editor>
       <!--  -->

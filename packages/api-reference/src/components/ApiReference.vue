@@ -2,11 +2,12 @@
 import { useAuthenticationStore } from '#legacy'
 import { migrateThemeVariables } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
-import { useDarkModeState, useReactiveSpec } from '../hooks'
+import { useReactiveSpec } from '../hooks'
 import { useHttpClientStore } from '../stores'
 import type { ReferenceProps } from '../types'
 import { Layouts } from './Layouts'
@@ -18,17 +19,15 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const { toggleDarkMode, isDark } = useDarkModeState(
-  props.configuration?.darkMode,
-  props.configuration?.forceDarkModeState,
-)
+const { setColorMode, toggleColorMode, colorMode } = useColorMode({
+  initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
+  overrideColorMode: props.configuration?.forceDarkModeState,
+})
 
 /** Update the dark mode state when props change */
 watch(
   () => props.configuration?.darkMode,
-  (_isDark) => {
-    if (_isDark !== isDark.value) toggleDarkMode()
-  },
+  (isDark) => setColorMode(isDark ? 'dark' : 'light'),
 )
 
 const customCss = computed(() => {
@@ -100,10 +99,10 @@ useFavicon(favicon)
   </component>
   <Layouts
     :configuration="configuration"
-    :isDark="isDark"
+    :isDark="colorMode === 'dark'"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
-    @toggleDarkMode="() => toggleDarkMode()"
+    @toggleDarkMode="() => toggleColorMode()"
     @updateContent="$emit('updateContent', $event)">
     <template #footer><slot name="footer" /></template>
     <!-- Expose the content end slot as a slot for the footer -->

@@ -786,6 +786,9 @@ importers:
       '@scalar/types':
         specifier: workspace:*
         version: link:../types
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
@@ -865,6 +868,9 @@ importers:
       '@scalar/use-codemirror':
         specifier: workspace:*
         version: link:../use-codemirror
+      '@scalar/use-hooks':
+        specifier: workspace:*
+        version: link:../use-hooks
       unhead:
         specifier: ^1.8.3
         version: 1.9.13
@@ -2150,6 +2156,9 @@ importers:
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
+      zod:
+        specifier: ^3.23.8
+        version: 3.23.8
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2160,6 +2169,9 @@ importers:
       vite:
         specifier: ^5.4.9
         version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
+      zod-to-ts:
+        specifier: ^1.2.0
+        version: 1.2.0(typescript@5.6.2)(zod@3.23.8)
 
   packages/use-toasts:
     dependencies:

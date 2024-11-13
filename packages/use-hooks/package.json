@@ -42,11 +42,13 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
-    "vue": "^3.5.12"
+    "vue": "^3.5.12",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
-    "vite": "^5.4.9"
+    "vite": "^5.4.9",
+    "zod-to-ts": "^1.2.0"
   }
 }
