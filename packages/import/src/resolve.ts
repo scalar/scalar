@@ -64,8 +64,6 @@ export async function resolve(
         const content = await result.text()
         const forwardedHost = result.headers.get('X-Forwarded-Host')
 
-        console.log('ASAS', forwardedHost)
-
         // Check if content is directly JSON/YAML
         try {
           // Try parsing as JSON
