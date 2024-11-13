@@ -102,6 +102,41 @@ console.log(specification.openapi)
 // Output: 3.1.0
 ```
 
+### Make it an OpenAPI-compliant document
+
+The `transform()` utility helps ensure your OpenAPI document is valid and complete.
+It automatically adds any missing required properties like the OpenAPI version and info object, collects operation tags
+and adds them to the global tags array and normalizes security scheme types.
+
+This makes your document as OpenAPI-compliant as possible with minimal effort, handling many common specification
+requirements automatically.
+
+> ⚠️ This doesn’t support Swagger 2.0 documents.
+
+```ts
+import { transform } from '@scalar/openapi-parser'
+
+const result = transform({
+  info: {
+    title: 'Hello World',
+  },
+})
+
+console.log(result)
+```
+
+The output would be:
+
+```diff
+{
++  openapi: '3.1.1',
+  info: {
+    title: 'Hello World',
++    version: '1.0',
+  },
+}
+```
+
 ### Pipeline syntax
 
 ```ts
