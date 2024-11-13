@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Computer from '@/assets/computer.ascii?raw'
+import Keycap from '@/assets/keycap.ascii?raw'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
@@ -8,7 +9,8 @@ import { useWorkspace } from '@/store'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { isReadOnly, activeWorkspace, events } = useWorkspace()
+const { isReadOnly, activeWorkspace, events, activeWorkspaceRequests } =
+  useWorkspace()
 const route = useRoute()
 const { layout } = useLayout()
 
@@ -30,7 +32,11 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 <template>
   <div class="relative col-1 flex-center gap-6 p-2 capitalize">
     <div
-      class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center">
+      class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
+      :class="{
+        'hidden opacity-0':
+          activeWorkspaceRequests.length <= 1 && layout !== 'modal',
+      }">
       <div
         v-if="!activeWorkspace.isReadOnly"
         class="scalar-version-number">
@@ -48,7 +54,38 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         class="text-c-3" />
     </div>
     <div
+      v-if="layout !== 'modal'"
+      class="h-[calc(100%_-_50px)] items-center justify-center hidden pb-5"
+      :class="{
+        '!flex opacity-100': activeWorkspaceRequests.length == 1,
+      }">
+      <div class="scale-75 flex">
+        <div class="relative">
+          <ScalarHotkey
+            class="keycap-hotkey"
+            hotkey="" />
+          <ScalarAsciiArt
+            :art="Keycap"
+            class="!leading-[6px] text-c-3" />
+        </div>
+        <div class="relative -ml-12">
+          <div class="keycap-hotkey !right-[60px]">K</div>
+          <ScalarAsciiArt
+            :art="Keycap"
+            class="!leading-[6px] keycap-n" />
+        </div>
+      </div>
+    </div>
+    <div
       class="text-c-3 right-4 mt-auto flex w-full flex-col items-end gap-2 text-sm">
+      <button
+        v-if="layout !== 'modal'"
+        class="flex items-center gap-1.5"
+        type="button"
+        @click="events.commandPalette.emit()">
+        Get Started
+        <ScalarHotkey hotkey="k" />
+      </button>
       <button
         class="flex items-center gap-1.5"
         type="button"
@@ -57,7 +94,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <ScalarHotkey hotkey="↵" />
       </button>
       <button
-        v-if="!isReadOnly && layout === 'desktop'"
+        v-if="layout !== 'modal'"
         class="flex items-center gap-1.5"
         type="button"
         @click="openCommandPaletteRequest">
@@ -94,5 +131,28 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   border-radius: 3px;
   text-decoration: none;
   border: 0.5px solid var(--scalar-border-color);
+}
+.keycap-n {
+  background: -webkit-linear-gradient(
+    5deg,
+    transparent 30%,
+    var(--scalar-color-3) 50%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.keycap-hotkey {
+  color: var(--scalar-color-1);
+  font-size: 26px;
+  position: absolute;
+  top: 32px;
+  right: 54px;
+  font-weight: 200;
+  height: 26px;
+  line-height: 26px;
+  border: none;
+  font-weight: 400;
+  font-family: var(--scalar-font);
 }
 </style>
