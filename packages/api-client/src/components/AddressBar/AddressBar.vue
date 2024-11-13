@@ -148,7 +148,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         v-model="selectedRequest">
         <div
           :class="[
-            'addressbar-bg-states text-xxs relative flex w-full lg:min-w-[720px] lg:max-w-[720px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg border-1/2 p-[3px]',
+            'addressbar-bg-states text-xxs relative flex w-full xl:min-w-[720px] xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg border-1/2 p-[3px]',
             { 'border-transparent overflow-visible rounded-b-none': open },
           ]">
           <div

@@ -75,7 +75,7 @@ const dataUrl = computed<string>(() => {
     </template>
     <div
       v-if="data"
-      class="max-h-[calc(100%-32px)] mx-1 border-1/2 flex flex-col rounded bg-b-1 overflow-hidden">
+      class="max-h-[calc(100%-32px)] border-1/2 flex flex-col rounded bg-b-1 overflow-hidden">
       <div class="flex justify-between items-center border-b-1/2 px-3 py-1.5">
         <span class="text-xxs leading-3 font-code">
           {{ mimeType.essence }}
@@ -102,3 +102,8 @@ const dataUrl = computed<string>(() => {
     </div>
   </ViewLayoutCollapse>
 </template>
+<style scoped>
+.scalar-code-block:deep(.hljs *) {
+  font-size: var(--scalar-mini);
+}
+</style>

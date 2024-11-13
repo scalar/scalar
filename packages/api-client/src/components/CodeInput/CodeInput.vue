@@ -339,12 +339,22 @@ export default {
 }
 /* Number gutter */
 :deep(.cm-gutters) {
-  background-color: var(--scalar-background-1);
+  background-color: transparent;
   border-right: none;
   color: var(--scalar-color-3);
   font-size: var(--scalar-small);
   line-height: 1.44;
   border-radius: 0 0 0 3px;
+}
+:deep(.cm-gutters:before) {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(100% - 2px);
+  height: calc(100% - 4px);
+  border-radius: var(--scalar-radius) 0 0 var(--scalar-radius);
+  background-color: var(--scalar-background-1);
 }
 :deep(.cm-gutterElement) {
   font-family: var(--scalar-font-code) !important;
@@ -352,6 +362,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  position: relative;
 }
 :deep(.cm-gutter + .cm-gutter :not(.cm-foldGutter) .cm-gutterElement) {
   padding-left: 0 !important;

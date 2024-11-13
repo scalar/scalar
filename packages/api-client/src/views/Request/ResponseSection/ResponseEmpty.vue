@@ -78,9 +78,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   font-family: var(--scalar-font-code);
   line-height: 11px;
   margin-top: -113px;
-  background: linear-gradient(var(--scalar-background-2), transparent);
   border-radius: 9px 9px 16px 12px;
-  box-shadow: inset 2px 0px 0 2px var(--scalar-background-3);
+  box-shadow: inset 2px 0px 0 2px var(--scalar-background-2);
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -90,7 +89,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 .scalar-version-number a {
   font-weight: bold;
   font-weight: bold;
-  background: var(--scalar-background-3);
+  background: var(--scalar-background-2);
   padding: 2px 4px;
   border-radius: 3px;
   text-decoration: none;
