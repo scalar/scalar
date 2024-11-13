@@ -1,1 +1,0 @@
-# @scalar/use-hooks
