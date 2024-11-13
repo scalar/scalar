@@ -50,6 +50,7 @@
     "@headlessui/vue": "^1.7.20",
     "@scalar/code-highlight": "workspace:*",
     "@scalar/themes": "workspace:*",
+    "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.1",

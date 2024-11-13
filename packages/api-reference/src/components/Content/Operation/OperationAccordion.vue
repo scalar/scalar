@@ -5,12 +5,12 @@ import {
   ScalarMarkdown,
 } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
 
 import { ExampleRequest } from '../../../features/ExampleRequest'
 import { ExampleResponses } from '../../../features/ExampleResponses'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
-import { useClipboard } from '../../../hooks'
 import { Anchor } from '../../Anchor'
 import { HttpMethod } from '../../HttpMethod'
 import { SectionAccordion } from '../../Section'

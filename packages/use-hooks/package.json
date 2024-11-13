@@ -26,15 +26,15 @@
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    "./useHello": {
-      "import": "./dist/useHello/index.js",
-      "types": "./dist/useHello/index.d.ts",
-      "default": "./dist/useHello/index.js"
-    },
     "./useColorMode": {
       "import": "./dist/useColorMode/index.js",
       "types": "./dist/useColorMode/index.d.ts",
       "default": "./dist/useColorMode/index.js"
+    },
+    "./useClipboard": {
+      "import": "./dist/useClipboard/index.js",
+      "types": "./dist/useClipboard/index.d.ts",
+      "default": "./dist/useClipboard/index.js"
     }
   },
   "files": [
@@ -42,6 +42,7 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "@scalar/use-toasts": "workspace:*",
     "vue": "^3.5.12",
     "zod": "^3.23.8"
   },

@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import { standardLanguages, syntaxHighlight } from '@scalar/code-highlight'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed } from 'vue'
 
 import { prettyPrintJson } from '../../helpers/oas-utils'
 import { ScalarIcon } from '../ScalarIcon'
-import { useClipboard } from './useClipboard'
 
 /**
  * Uses highlight.js for syntax highlighting
