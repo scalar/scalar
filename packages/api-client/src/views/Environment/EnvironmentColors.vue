@@ -2,17 +2,24 @@
 import { ScalarIcon } from '@scalar/components'
 import { computed, nextTick, ref, watch } from 'vue'
 
-const props = defineProps<{
-  activeColor: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    activeColor: string
+    selector?: boolean
+  }>(),
+  {
+    selector: false,
+  },
+)
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'select', color: string): void
 }>()
 
-const showCustomInput = ref(false)
 const customColor = ref('')
 const customColorInputRef = ref<HTMLInputElement | null>(null)
+const showCustomInput = ref(false)
+const showSelector = ref(false)
 
 const colorOptions = [
   { color: '#8E8E8E' },
@@ -35,6 +42,9 @@ const backgroundStyle = computed(() => {
 
 const handleClick = () => {
   showCustomInput.value = !showCustomInput.value
+  if (props.selector) {
+    showSelector.value = false
+  }
   nextTick(() => {
     if (customColorInputRef.value) {
       customColorInputRef.value.focus()
@@ -48,47 +58,83 @@ watch(customColor, (newColor) => {
   }
   showCustomInput.value = true
 })
+
+const handleSelectorClick = () => {
+  if (props.selector) {
+    showSelector.value = !showSelector.value
+  }
+}
+
+const selectColor = (color: string) => {
+  emit('select', color)
+  if (props.selector) {
+    showSelector.value = false
+  }
+}
 </script>
 <template>
-  <div
-    class="flex flex-row gap-1.5 items-center justify-between space-x-1 min-h-10 min-w-[296px] py-1"
-    :class="showCustomInput ? 'pl-2 pr-1.5' : 'px-2'">
+  <div>
     <template v-if="!showCustomInput">
       <div
-        v-for="option in colorOptions"
-        :key="option.color"
-        class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full"
-        :style="{ backgroundColor: option.color }"
-        @click="$emit('select', option.color)">
+        v-if="props.selector && !showSelector"
+        class="flex cursor-pointer items-center justify-center rounded-full"
+        :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
+        :style="{ backgroundColor: activeColor }"
+        @click="handleSelectorClick">
         <ScalarIcon
-          v-if="activeColor === option.color && !customColor"
+          v-if="activeColor"
           class="text-c-btn"
+          :class="props.selector && 'p-0.5'"
           icon="Checkmark"
           size="xs" />
       </div>
-      <hr class="w-0.5 h-5 border-ghost border-l" />
-      <label
-        class="cursor-pointer flex flex-row justify-center h-5 w-5 gap-2 items-center rounded-full z-10"
-        :style="backgroundStyle"
-        @click="handleClick">
-        <ScalarIcon
-          v-if="
-            !showCustomInput &&
-            (activeColor === customColor ||
-              (activeColor &&
-                !colorOptions.some((option) => option.color === activeColor)))
-          "
-          class="text-c-btn"
-          icon="Checkmark"
-          size="xs" />
-      </label>
+      <div
+        v-if="showSelector || !props.selector"
+        class="color-selector flex flex-row gap-1.5 items-center justify-between space-x-1"
+        :class="props.selector ? 'h-4' : 'min-h-10 min-w-[296px]'">
+        <div
+          v-for="option in colorOptions"
+          :key="option.color"
+          class="flex cursor-pointer items-center justify-center rounded-full"
+          :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
+          :style="{ backgroundColor: option.color }"
+          @click="selectColor(option.color)">
+          <ScalarIcon
+            v-if="activeColor === option.color && !customColor"
+            class="text-c-btn"
+            :class="props.selector && 'p-0.5'"
+            icon="Checkmark"
+            size="xs" />
+        </div>
+        <hr class="w-0.5 h-5 border-ghost border-l" />
+        <label
+          class="cursor-pointer flex flex-row justify-center gap-2 items-center rounded-full z-10"
+          :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
+          :style="backgroundStyle"
+          @click="handleClick">
+          <ScalarIcon
+            v-if="
+              !showCustomInput &&
+              (activeColor === customColor ||
+                (activeColor &&
+                  !colorOptions.some((option) => option.color === activeColor)))
+            "
+            class="text-c-btn"
+            icon="Checkmark"
+            size="xs" />
+        </label>
+      </div>
     </template>
     <div
       v-if="showCustomInput"
-      class="!py-0 flex flex-1 gap-2 items-center rounded">
-      <span class="absolute border border-dashed h-5 w-5 rounded-full"> </span>
+      class="color-selector flex flex-1 gap-2 items-center rounded"
+      :class="props.selector ? 'h-4' : 'min-h-10'">
       <span
-        class="h-5 w-5 rounded-full z-[1]"
+        class="absolute border border-dashed rounded-full"
+        :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'" />
+      <span
+        class="rounded-full z-[1]"
+        :class="props.selector ? 'h-4 w-4' : 'h-5 w-5'"
         :style="backgroundStyle">
       </span>
       <input
@@ -97,7 +143,7 @@ watch(customColor, (newColor) => {
         class="border-transparent flex-1 outline-none w-full text-sm"
         :placeholder="activeColor || '#000000'"
         type="text"
-        @input="$emit('select', customColor)" />
+        @input="selectColor(customColor)" />
       <button
         class="text-c-3 hover:bg-b-2 p-1.5 rounded-lg"
         type="button"
