@@ -180,3 +180,11 @@
   --scalar-background-2: #fff;
   --scalar-background-3: #fff;
 }
+
+*::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-blue),
+    transparent 60%
+  );
+}

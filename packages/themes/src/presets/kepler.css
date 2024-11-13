@@ -148,3 +148,17 @@
   );
   height: 100vh;
 }
+.light-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-accent),
+    transparent 70%
+  );
+}
+.dark-mode *::selection {
+  background-color: color-mix(
+    in srgb,
+    var(--scalar-color-accent),
+    transparent 50%
+  );
+}
