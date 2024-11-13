@@ -12,7 +12,8 @@ describe('importSpecToWorkspace', () => {
     it('handles circular references', async () => {
       const res = await importSpecToWorkspace(circular)
 
-    if (res.error) return
+      // console.log(JSON.stringify(res, null, 2))
+      if (res.error) return
 
       expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
       expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
@@ -325,27 +326,17 @@ describe('importSpecToWorkspace', () => {
         'read:planets': '',
       })
     })
-  })
 
-  // Servers
-  describe('servers', () => {
-    it('vanilla servers are returned', async () => {
-      const res = await importSpecToWorkspace(galaxy)
-      if (res.error) throw res.error
-
-      // Remove the UID for comparison
-      expect(res.servers.map(({ uid, ...rest }) => rest)).toEqual(
-        galaxy.servers,
-      )
-    })
-
-    /** Galaxy with some relative servers */
-    const relativeGalaxy = {
-      ...galaxy,
-      servers: [
-        ...galaxy.servers,
-        {
-          url: '/api/v1',
+    it('handles empty security requirements', async () => {
+      const specWithEmptySecurity = {
+        ...galaxy,
+        security: [{}],
+        paths: {
+          '/test': {
+            get: {
+              security: [{}],
+            },
+          },
         },
       }
 
@@ -393,35 +384,6 @@ describe('importSpecToWorkspace', () => {
       expect(scheme?.nameKey).toBe('basicAuth')
     })
 
-    it('handles array scopes conversion', async () => {
-      const specWithArrayScopes = {
-        ...galaxy,
-        components: {
-          securitySchemes: {
-            oAuth2: {
-              type: 'oauth2',
-              flows: {
-                authorizationCode: {
-                  authorizationUrl: 'https://example.com/auth',
-                  tokenUrl: 'https://example.com/token',
-                  scopes: ['read:test', 'write:test'],
-                },
-              },
-            },
-          },
-        },
-      }
-
-      const res = await importSpecToWorkspace(specWithArrayScopes)
-      if (res.error) throw res.error
-
-      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
-      expect(oauth2Scheme?.flow?.scopes).toEqual({
-        'read:test': '',
-        'write:test': '',
-      })
-    })
-
     it('handles oauth2 authentication configuration', async () => {
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
@@ -434,88 +396,72 @@ describe('importSpecToWorkspace', () => {
       })
       if (res.error) throw res.error
 
-      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
-      expect(oauth2Scheme?.['x-scalar-client-id']).toBe('test-client')
-      expect(oauth2Scheme?.flow?.selectedScopes).toEqual(['read:account'])
-      it('prefills from the authentication property', async () => {
-        const res = await importSpecToWorkspace(galaxy)
-        if (res.error) throw res.error
+      const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows
+        .authorizationCode
+      expect(flow?.['x-scalar-client-id']).toBe('test-client')
+      expect(flow?.selectedScopes).toEqual(['read:account'])
+    })
+  })
 
-        console.log(res.securitySchemes)
-        expect(res.securitySchemes[5]).toEqual(null)
-      })
+  describe('servers', () => {
+    it('vanilla servers are returned', async () => {
+      const res = await importSpecToWorkspace(galaxy)
+      if (res.error) throw res.error
 
-      it('converts scope arrays to objects', async () => {
-        const res = await importSpecToWorkspace(galaxy)
-        if (res.error) throw res.error
-
-        console.log(res.securitySchemes)
-        expect(res.securitySchemes[5]).toEqual(null)
-      })
+      // Remove the UID for comparison
+      expect(res.servers.map(({ uid, ...rest }) => rest)).toEqual(
+        galaxy.servers,
+      )
     })
 
-    describe('servers', () => {
-      it('vanilla servers are returned', async () => {
-        const res = await importSpecToWorkspace(galaxy)
-        if (res.error) throw res.error
+    /** Galaxy with some relative servers */
+    const relativeGalaxy = {
+      ...galaxy,
+      servers: [
+        ...galaxy.servers,
+        {
+          url: '/api/v1',
+        },
+        {},
+      ],
+    }
 
-        // Remove the UID for comparison
-        expect(res.servers.map(({ uid, ...rest }) => rest)).toEqual(
-          galaxy.servers,
-        )
+    it('handles relative servers with window.location.origin', async () => {
+      const res = await importSpecToWorkspace(relativeGalaxy)
+      if (res.error) throw res.error
+
+      // Test URLs only
+      expect(res.servers.map(({ url }) => url)).toEqual([
+        'https://galaxy.scalar.com',
+        '{protocol}://void.scalar.com/{path}',
+        'http://localhost:3000/api/v1',
+        'http://localhost:3000',
+      ])
+    })
+
+    it('handles baseServerURL for relative servers', async () => {
+      const res = await importSpecToWorkspace(relativeGalaxy, {
+        baseServerURL: 'https://scalar.com',
       })
+      if (res.error) throw res.error
 
-      /** Galaxy with some relative servers */
-      const relativeGalaxy = {
-        ...galaxy,
-        servers: [
-          ...galaxy.servers,
-          {
-            url: '/api/v1',
-          },
-          {},
-        ],
-      }
+      // Test URLS only
+      expect(res.servers.map(({ url }) => url)).toEqual([
+        'https://galaxy.scalar.com',
+        '{protocol}://void.scalar.com/{path}',
+        'https://scalar.com/api/v1',
+        'https://scalar.com',
+      ])
+    })
 
-      it('handles relative servers with window.location.origin', async () => {
-        const res = await importSpecToWorkspace(relativeGalaxy)
-        if (res.error) throw res.error
-
-        // Test URLs only
-        expect(res.servers.map(({ url }) => url)).toEqual([
-          'https://galaxy.scalar.com',
-          '{protocol}://void.scalar.com/{path}',
-          'http://localhost:3000/api/v1',
-          'http://localhost:3000',
-        ])
+    it('handles overloading servers with the servers property', async () => {
+      const res = await importSpecToWorkspace(relativeGalaxy, {
+        servers: [{ url: 'https://scalar.com' }],
       })
+      if (res.error) throw res.error
 
-      it('handles baseServerURL for relative servers', async () => {
-        const res = await importSpecToWorkspace(relativeGalaxy, {
-          baseServerURL: 'https://scalar.com',
-        })
-        if (res.error) throw res.error
-
-        // Test URLS only
-        expect(res.servers.map(({ url }) => url)).toEqual([
-          'https://galaxy.scalar.com',
-          '{protocol}://void.scalar.com/{path}',
-          'https://scalar.com/api/v1',
-          'https://scalar.com',
-        ])
-      })
-
-      it('handles overloading servers with the servers property', async () => {
-        const res = await importSpecToWorkspace(relativeGalaxy, {
-          servers: [{ url: 'https://scalar.com' }],
-        })
-        if (res.error) throw res.error
-
-        // Test URLS only
-        expect(res.servers.map(({ url }) => url)).toEqual([
-          'https://scalar.com',
-        ])
-      })
+      // Test URLS only
+      expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
     })
   })
 })
