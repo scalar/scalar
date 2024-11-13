@@ -21,9 +21,26 @@ export const createEmptyServerState = (): ServerState => ({
 const serverStore = reactive<ServerState>(createEmptyServerState())
 
 const setServer = (newState: Partial<ServerState>) => {
+  const currentServer =
+    serverStore.servers?.[
+      newState.selectedServer ?? serverStore.selectedServer ?? 0
+    ]
+  const defaultVariables = currentServer?.variables
+    ? Object.fromEntries(
+        Object.entries(currentServer.variables).map(([key, variable]) => [
+          key,
+          variable.default ?? '',
+        ]),
+      )
+    : {}
+
   Object.assign(serverStore, {
     ...serverStore,
     ...newState,
+    variables: {
+      ...defaultVariables,
+      ...newState.variables,
+    },
   })
 }
 

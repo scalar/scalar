@@ -6,6 +6,7 @@ import type {
   TransformedOperation,
 } from '@scalar/types/legacy'
 
+import { REGEX } from '../helpers'
 import { getParametersFromOperation } from './getParametersFromOperation'
 import { getRequestBodyFromOperation } from './getRequestBodyFromOperation'
 
@@ -28,7 +29,7 @@ export const getRequestFromOperation = (
   const pathParameters = getParametersFromOperation(operation, 'path', false)
 
   if (pathParameters.length) {
-    const pathVariables = path.match(/{(.*?)}/g)
+    const pathVariables = path.match(REGEX.PATH)
 
     if (pathVariables) {
       pathVariables.forEach((variable) => {
@@ -49,7 +50,7 @@ export const getRequestFromOperation = (
 
   // {id} -> __ID__
   if (options?.replaceVariables === true) {
-    const pathVariables = path.match(/{(.*?)}/g)
+    const pathVariables = path.match(REGEX.PATH)
 
     if (pathVariables) {
       pathVariables.forEach((variable) => {

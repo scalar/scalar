@@ -1,5 +1,5 @@
 import type { ServerState } from '#legacy'
-import { replaceVariables } from '@scalar/oas-utils/helpers'
+import { REGEX, replaceVariables } from '@scalar/oas-utils/helpers'
 
 /**
  * Get the URL from the server state.
@@ -12,11 +12,28 @@ export function getUrlFromServerState(state: ServerState) {
     server.url = server.url.slice(0, -1)
   }
 
+  // Store the original URL before any modifications
+  const originalUrl = server?.url
+
   // Replace variables: {protocol}://{host}:{port}/{basePath}
   const url =
     typeof server?.url === 'string'
       ? replaceVariables(server?.url, state.variables)
       : server?.url
 
-  return url
+  // {id} -> __ID__
+  const urlVariables = url?.match(REGEX.PATH)
+
+  const modifiedUrl =
+    urlVariables?.reduce((acc, variable) => {
+      const variableName = variable.replace(/{|}/g, '')
+      const variableValue = state.variables?.[variableName]
+      return acc?.replace(
+        variable,
+        variableValue ? variableValue : `__${variableName.toUpperCase()}__`,
+      )
+    }, url) ?? url
+
+  // Return original and modified URLs to handle reference and client updates
+  return { originalUrl, modifiedUrl }
 }

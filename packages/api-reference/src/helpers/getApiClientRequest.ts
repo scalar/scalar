@@ -32,7 +32,7 @@ export function getApiClientRequest({
 }): ClientRequestConfig {
   const request = getHarRequest(
     {
-      url: getUrlFromServerState(serverState),
+      url: getUrlFromServerState(serverState).modifiedUrl,
     },
     getRequestFromOperation(operation, { requiredOnly: false }),
     // Only generate authentication parameters if an authentication state is passed.
@@ -61,7 +61,7 @@ export function getApiClientRequest({
       return { ...queryString, enabled: query.required ?? true }
     }),
     headers: enable(request.headers),
-    url: getUrlFromServerState(serverState) ?? '',
+    url: getUrlFromServerState(serverState).modifiedUrl ?? '',
     body: request.postData?.text,
   }
 }

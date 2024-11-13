@@ -32,6 +32,11 @@ export async function getExampleCode(
     )
   }
 
+  // Prevent snippet generation if starting by a variable
+  if (request.url.startsWith('__')) {
+    return request.url
+  }
+
   // httpsnippet-lite
   try {
     const httpSnippetLiteTargetKey = target?.replace(

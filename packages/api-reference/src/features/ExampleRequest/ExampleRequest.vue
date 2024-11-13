@@ -132,7 +132,7 @@ async function generateSnippet() {
   // Generate a request object
   const harRequest = getHarRequest(
     {
-      url: getUrlFromServerState(serverState),
+      url: getUrlFromServerState(serverState).modifiedUrl,
     },
     getRequestFromOperation(
       props.operation,
