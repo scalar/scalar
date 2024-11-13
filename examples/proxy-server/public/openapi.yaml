@@ -1,0 +1,95 @@
+openapi: 3.1.1
+info:
+  title: Scalar Proxy
+  description: A proxy server that forwards requests to specified URLs, allowing cross-origin requests by handling CORS headers.
+  version: 1.0.0
+
+servers:
+  - url: https://proxy.scalar.com
+    description: Production
+
+paths:
+  /:
+    parameters:
+      - name: scalar_url
+        in: query
+        required: true
+        description: The target URL to proxy the request to (e.g. https://galaxy.scalar.com/planets). Must be URL encoded.
+        schema:
+          type: string
+          format: uri
+          examples: ['https://void.scalar.com/foobar']
+    get:
+      summary: Proxy requests
+      description: |
+        Proxies any HTTP request to the target URL specified in the scalar_url parameter.
+        While this operation is shown as GET, the endpoint accepts any HTTP method (OPTIONS, GET, POST, PUT, DELETE, PATCH, etc).
+        The request will be forwarded with all headers, body, and query parameters intact.
+      responses:
+        '200':
+          description: Successful response from target server
+          headers:
+            Access-Control-Allow-Headers:
+              $ref: '#/components/headers/AccessControlAllowHeaders'
+            Access-Control-Allow-Origin:
+              $ref: '#/components/headers/AccessControlAllowOrigin'
+            Access-Control-Allow-Credentials:
+              $ref: '#/components/headers/AccessControlAllowCredentials'
+            Access-Control-Allow-Methods:
+              $ref: '#/components/headers/AccessControlAllowMethods'
+            Access-Control-Expose-Headers:
+              $ref: '#/components/headers/AccessControlExposeHeaders'
+            X-Forwarded-Host:
+              $ref: '#/components/headers/XForwardedHost'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+
+components:
+  responses:
+    BadRequest:
+      description: Missing scalar_url parameter
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.
+    ServiceUnavailable:
+      description: Error connecting to target server
+      content:
+        text/plain:
+          schema:
+            type: string
+          example: 'dial tcp: lookup doesnotexist on 0.0.0.0: no such host'
+  headers:
+    AccessControlAllowHeaders:
+      description: Allows all headers in CORS requests
+      schema:
+        type: string
+        example: '*'
+    AccessControlAllowOrigin:
+      description: Reflects the Origin header from the request, or "*" if no Origin is present
+      schema:
+        type: string
+        example: 'https://example.com'
+    AccessControlAllowCredentials:
+      description: Allows credentials in CORS requests
+      schema:
+        type: string
+        example: 'true'
+    AccessControlAllowMethods:
+      description: Allowed HTTP methods for CORS requests
+      schema:
+        type: string
+        example: 'POST, GET, OPTIONS, PUT, DELETE, PATCH'
+    AccessControlExposeHeaders:
+      description: Exposes all response headers to the client
+      schema:
+        type: string
+        example: '*'
+    XForwardedHost:
+      description: Original host of the request before proxying
+      schema:
+        type: string
+        example: 'original-host.com'
