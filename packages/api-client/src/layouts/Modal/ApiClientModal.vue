@@ -7,14 +7,14 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   onMounted,
+  ref,
   useId,
-  useTemplateRef,
   watch,
 } from 'vue'
 import { RouterView } from 'vue-router'
 
 const { activeWorkspace, modalState, events } = useWorkspace()
-const client = useTemplateRef('client')
+const client = ref<HTMLElement | null>(null)
 const id = useId()
 
 const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =

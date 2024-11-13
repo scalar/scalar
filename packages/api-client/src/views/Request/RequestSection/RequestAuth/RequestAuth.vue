@@ -24,7 +24,7 @@ import {
   useModal,
 } from '@scalar/components'
 import { nanoid } from 'nanoid'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
@@ -44,8 +44,8 @@ const {
   securitySchemeMutators,
 } = useWorkspace()
 
-const comboboxRef = useTemplateRef('comboboxRef')
-const comboboxButtonRef = useTemplateRef('comboboxButtonRef')
+const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
+const comboboxButtonRef = ref<typeof ScalarButton | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
