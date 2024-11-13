@@ -31,10 +31,10 @@
       "types": "./dist/useHello/index.d.ts",
       "default": "./dist/useHello/index.js"
     },
-    "./useGoodbye": {
-      "import": "./dist/useGoodbye/index.js",
-      "types": "./dist/useGoodbye/index.d.ts",
-      "default": "./dist/useGoodbye/index.js"
+    "./useColorMode": {
+      "import": "./dist/useColorMode/index.js",
+      "types": "./dist/useColorMode/index.d.ts",
+      "default": "./dist/useColorMode/index.js"
     }
   },
   "files": [

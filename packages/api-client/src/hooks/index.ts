@@ -1,4 +1,3 @@
-export * from './useDarkModeState'
 export * from './useClipboard'
 export * from './useKeyMap'
 export * from './useFileDialog'
