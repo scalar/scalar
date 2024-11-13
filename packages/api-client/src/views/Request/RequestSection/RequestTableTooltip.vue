@@ -20,7 +20,7 @@ const hasItemProperties = computed(
     class="w-full"
     :delay="0"
     side="left"
-    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-[2px] before:w-3 absolute h-full right-0">
+    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0">
     <template #trigger>
       <div class="pl-1 pr-1.5 py-[9px]">
         <ScalarIcon

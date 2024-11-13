@@ -29,8 +29,9 @@ const { layout } = useLayout()
     <div
       class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 lg:mb-0 mb-2 lg:flex-1 w-6/12">
       <SidebarToggle
+        class="gitbook-hidden"
         :class="[
-          'gitbook-hidden xl:hidden',
+          'xl:hidden',
           { 'xl:!flex': !modelValue },
           { '!flex': layout === 'modal' },
         ]"
