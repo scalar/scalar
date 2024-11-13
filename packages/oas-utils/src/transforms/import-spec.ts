@@ -122,6 +122,8 @@ export const getBaseAuthValues = (
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
 export const parseSchema = async (spec: string | UnknownObject) => {
+  // TODO: Plugins for URLs and files with the proxy is missing here.
+  // @see packages/api-reference/src/helpers/parse.ts
   const { filesystem } = await load(spec)
   const { specification } = upgrade(filesystem)
   const { schema, errors = [] } = await dereference(specification)
@@ -142,12 +144,17 @@ export type ImportSpecToWorkspaceArgs = Pick<
   }
 
 /**
- * Import an OpenAPI spec file and convert it to workspace entities
+ * Imports an OpenAPI document and converts it to workspace entities (Collection, Request, Server, etc.)
  *
- * We will aim to keep the entities as close to the specification as possible
- * to leverage bi-directional translation. Where entities are able to be
- * created and used at various levels we will index via the uids to create
- * the relationships
+ * The imported entities maintain a close mapping to the original OpenAPI specification to enable:
+ * - Bi-directional translation between spec and workspace entities
+ * - Preservation of specification details and structure
+ * - Accurate representation of relationships between components
+ *
+ * Relationships between entities are maintained through unique identifiers (UIDs) which allow:
+ * - Flexible organization at different levels (workspace, collection, request)
+ * - Proper linking between related components
+ * - Easy lookup and reference of dependent entities
  */
 export async function importSpecToWorkspace(
   spec: string | UnknownObject,
@@ -178,6 +185,7 @@ export async function importSpecToWorkspace(
   if (!schema) return { importWarnings, error: true }
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
+  const start = performance.now()
   const requests: Request[] = []
 
   // Grab the base server URL for relative servers
@@ -454,6 +462,9 @@ export async function importSpecToWorkspace(
     },
     securitySchemes: securitySchemes.map((s) => s.uid),
   })
+
+  const end = performance.now()
+  console.log(`workspace: ${Math.round(end - start)} ms`)
 
   /**
    * Servers and requests will be saved in top level maps and indexed via UID to

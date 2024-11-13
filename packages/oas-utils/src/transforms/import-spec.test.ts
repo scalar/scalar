@@ -1,42 +1,106 @@
-/**
- * @vitest-environment jsdom
- */
+/** @vitest-environment jsdom */
 import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
-import { importSpecToWorkspace } from '@/transforms/import-spec'
+import {
+  getBaseAuthValues,
+  importSpecToWorkspace,
+} from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
-import petstoreMod from '@test/fixtures/petstore-tls.json'
-import { describe, expect, it, test } from 'vitest'
+import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
+import { describe, expect, it } from 'vitest'
 
 import galaxy from '../../../galaxy/dist/latest.json'
 
-describe('Import OAS Specs', () => {
-  test('Handles circular', async () => {
-    const res = await importSpecToWorkspace(circular)
+describe('importSpecToWorkspace', () => {
+  describe('basics', () => {
+    it('handles circular references', async () => {
+      const res = await importSpecToWorkspace(circular)
 
-    // console.log(JSON.stringify(res, null, 2))
-    if (res.error) return
+      // console.log(JSON.stringify(res, null, 2))
+      if (res.error) return
 
-    expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
-    expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
-    expect(
-      res.tags[0].children.includes(Object.values(res.requests)[0].uid),
-    ).toEqual(true)
+      expect(res.requests[0].path).toEqual('/api/v1/updateEmployee')
+      expect(res.tags[0].children.includes(res.tags[1].uid)).toEqual(true)
+      expect(
+        res.tags[0].children.includes(Object.values(res.requests)[0].uid),
+      ).toEqual(true)
+    })
+
+    it('handles a weird Petstore example', async () => {
+      const res = await importSpecToWorkspace(modifiedPetStoreExample)
+
+      expect(res.error).toBe(false)
+    })
+
+    it('loads the Scalar Galaxy example (with cyclic dependencies)', async () => {
+      const res = await importSpecToWorkspace(galaxy)
+
+      expect(res.error).toEqual(false)
+    })
+
+    it('merges path and operation parameters', async () => {
+      const specWithParams = {
+        ...galaxy,
+        paths: {
+          '/test/{id}': {
+            parameters: [{ name: 'id', in: 'path', required: true }],
+            get: {
+              parameters: [{ name: 'filter', in: 'query' }],
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithParams)
+      if (res.error) throw res.error
+
+      const request = res.requests[0]
+      expect(request.parameters).toHaveLength(2)
+      expect(request.parameters?.map((p) => p.name)).toContain('id')
+      expect(request.parameters?.map((p) => p.name)).toContain('filter')
+    })
   })
 
-  test('Handles weird petstore', async () => {
-    const res = await importSpecToWorkspace(petstoreMod)
+  describe('tags', () => {
+    it('creates missing tag definitions', async () => {
+      const specWithUndefinedTags = {
+        ...galaxy,
+        tags: [],
+        paths: {
+          '/test': {
+            get: {
+              tags: ['undefined-tag'],
+            },
+          },
+        },
+      }
 
-    expect(res.error).toBe(false)
+      const res = await importSpecToWorkspace(specWithUndefinedTags)
+      if (res.error) throw res.error
+
+      expect(res.tags.some((t) => t.name === 'undefined-tag')).toBe(true)
+    })
+
+    it('handles requests without tags', async () => {
+      const specWithUntaggedRequest = {
+        ...galaxy,
+        paths: {
+          '/test': {
+            get: {
+              // No tags specified
+              operationId: 'untaggedRequest',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithUntaggedRequest)
+      if (res.error) throw res.error
+
+      // The untagged request should be in the collection's root children
+      expect(res.collection.children).toContain(res.requests[0].uid)
+    })
   })
 
-  // Causes cyclic dependency
-  test('Loads galaxy spec', async () => {
-    const res = await importSpecToWorkspace(galaxy)
-
-    expect(res.error).toEqual(false)
-  })
-
-  // Security
   describe('security', () => {
     it('handles vanilla security schemes', async () => {
       const res = await importSpecToWorkspace(galaxy)
@@ -121,9 +185,111 @@ describe('Import OAS Specs', () => {
       const authScheme = res.securitySchemes[5] as SecuritySchemeOauth2
       expect(authScheme['x-scalar-client-id']).toEqual(testId)
     })
+
+    it('handles empty security requirements', async () => {
+      const specWithEmptySecurity = {
+        ...galaxy,
+        security: [{}],
+        paths: {
+          '/test': {
+            get: {
+              security: [{}],
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithEmptySecurity)
+      if (res.error) throw res.error
+
+      expect(res.requests[0].security).toEqual([{}])
+    })
+
+    it('prefers operation level security over global security', async () => {
+      const specWithGlobalAndOperationSecurity = {
+        ...galaxy,
+        security: [{ bearerAuth: [] }],
+        paths: {
+          '/test': {
+            get: {
+              security: [{ basicAuth: [] }],
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(
+        specWithGlobalAndOperationSecurity,
+      )
+      if (res.error) throw res.error
+
+      // Operation level security should override global security
+      expect(res.requests[0].security).toEqual([{ basicAuth: [] }])
+    })
+
+    it('sets collection level security when specified', async () => {
+      const res = await importSpecToWorkspace(galaxy, {
+        setCollectionSecurity: true,
+        authentication: {
+          preferredSecurityScheme: 'basicAuth',
+        },
+      })
+      if (res.error) throw res.error
+
+      expect(res.collection.selectedSecuritySchemeUids).toHaveLength(1)
+      const scheme = res.securitySchemes.find(
+        (s) => s.uid === res.collection.selectedSecuritySchemeUids[0],
+      )
+      expect(scheme?.nameKey).toBe('basicAuth')
+    })
+
+    it('handles array scopes conversion', async () => {
+      const specWithArrayScopes = {
+        ...galaxy,
+        components: {
+          securitySchemes: {
+            oAuth2: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/auth',
+                  tokenUrl: 'https://example.com/token',
+                  scopes: ['read:test', 'write:test'],
+                },
+              },
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithArrayScopes)
+      if (res.error) throw res.error
+
+      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
+      expect(oauth2Scheme?.flow?.scopes).toEqual({
+        'read:test': '',
+        'write:test': '',
+      })
+    })
+
+    it('handles oauth2 authentication configuration', async () => {
+      const res = await importSpecToWorkspace(galaxy, {
+        authentication: {
+          // @ts-expect-error
+          oAuth2: {
+            clientId: 'test-client',
+            scopes: ['read:account'],
+          },
+        },
+      })
+      if (res.error) throw res.error
+
+      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
+      expect(oauth2Scheme?.['x-scalar-client-id']).toBe('test-client')
+      expect(oauth2Scheme?.flow?.selectedScopes).toEqual(['read:account'])
+    })
   })
 
-  // Servers
   describe('servers', () => {
     it('vanilla servers are returned', async () => {
       const res = await importSpecToWorkspace(galaxy)
@@ -151,7 +317,7 @@ describe('Import OAS Specs', () => {
       const res = await importSpecToWorkspace(relativeGalaxy)
       if (res.error) throw res.error
 
-      // Test URLS only
+      // Test URLs only
       expect(res.servers.map(({ url }) => url)).toEqual([
         'https://galaxy.scalar.com',
         '{protocol}://void.scalar.com/{path}',
@@ -183,6 +349,104 @@ describe('Import OAS Specs', () => {
 
       // Test URLS only
       expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
+    })
+  })
+})
+
+describe('getBaseAuthValues', () => {
+  it('handles implicit oauth2 flow', async () => {
+    const res = await importSpecToWorkspace(galaxy, {
+      authentication: {
+        // @ts-expect-error
+        oAuth2: {
+          accessToken: 'test-token',
+        },
+      },
+    })
+    if (res.error) throw res.error
+
+    // Modify one scheme to be implicit flow
+    const implicitScheme = {
+      ...res.securitySchemes[5],
+      flow: {
+        // @ts-expect-error
+        ...res.securitySchemes[5].flow,
+        type: 'implicit',
+      },
+    }
+
+    const baseValues = getBaseAuthValues(implicitScheme, {
+      // @ts-expect-error
+      oAuth2: { accessToken: 'test-token' },
+    })
+
+    expect(baseValues).toEqual({
+      type: 'oauth-implicit',
+      token: 'test-token',
+    })
+  })
+
+  it('handles password oauth2 flow', async () => {
+    const res = await importSpecToWorkspace(galaxy, {
+      authentication: {
+        // @ts-expect-error
+        oAuth2: {
+          accessToken: 'test-token',
+          username: 'test-user',
+          password: 'test-pass',
+        },
+      },
+    })
+    if (res.error) throw res.error
+
+    // Modify one scheme to be password flow
+    const passwordScheme = {
+      ...res.securitySchemes[5],
+      flow: {
+        // @ts-expect-error
+        ...res.securitySchemes[5].flow,
+        type: 'password',
+      },
+    }
+
+    const baseValues = getBaseAuthValues(passwordScheme, {
+      // @ts-expect-error
+      oAuth2: {
+        accessToken: 'test-token',
+        username: 'test-user',
+        password: 'test-pass',
+      },
+    })
+
+    expect(baseValues).toEqual({
+      type: 'oauth-password',
+      token: 'test-token',
+      username: 'test-user',
+      password: 'test-pass',
+    })
+  })
+
+  it('handles basic http auth', async () => {
+    const baseValues = getBaseAuthValues(
+      // @ts-expect-error
+      {
+        type: 'http',
+        scheme: 'basic',
+        nameKey: 'basicAuth',
+      },
+      {
+        http: {
+          basic: {
+            username: 'test-user',
+            password: 'test-pass',
+          },
+        },
+      },
+    )
+
+    expect(baseValues).toEqual({
+      username: 'test-user',
+      password: 'test-pass',
     })
   })
 })

@@ -677,73 +677,6 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@22.1.0)(terser@5.31.2)
 
-  packages/scalar-app:
-    dependencies:
-      '@electron-toolkit/preload':
-        specifier: ^3.0.0
-        version: 3.0.1(electron@33.0.0)
-      '@electron-toolkit/utils':
-        specifier: ^3.0.0
-        version: 3.0.0(electron@33.0.0)
-      '@scalar/api-client':
-        specifier: workspace:*
-        version: link:../api-client
-      '@scalar/components':
-        specifier: workspace:*
-        version: link:../components
-      '@scalar/import':
-        specifier: workspace:*
-        version: link:../import
-      '@scalar/themes':
-        specifier: workspace:*
-        version: link:../themes
-      '@todesktop/runtime':
-        specifier: ^2.0.0
-        version: 2.0.0
-      electron-window-state:
-        specifier: ^5.0.3
-        version: 5.0.3
-      fathom-client:
-        specifier: ^3.7.2
-        version: 3.7.2
-    devDependencies:
-      '@electron-toolkit/tsconfig':
-        specifier: ^1.0.1
-        version: 1.0.1(@types/node@20.14.10)
-      '@rushstack/eslint-patch':
-        specifier: ^1.10.3
-        version: 1.10.3
-      '@todesktop/cli':
-        specifier: ^1.10.2
-        version: 1.10.2(@types/react@18.3.3)
-      '@types/node':
-        specifier: ^20.14.10
-        version: 20.14.10
-      '@vitejs/plugin-vue':
-        specifier: ^5.0.4
-        version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
-      '@vue/eslint-config-prettier':
-        specifier: ^9.0.0
-        version: 9.0.0(@types/eslint@8.56.10)(eslint@8.57.0)(prettier@3.3.3)
-      '@vue/eslint-config-typescript':
-        specifier: ^12.0.0
-        version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
-      electron:
-        specifier: ^33.0.0
-        version: 33.0.0
-      electron-vite:
-        specifier: ^2.3.0
-        version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))
-      vite:
-        specifier: ^5.4.9
-        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
-      vue:
-        specifier: ^3.5.12
-        version: 3.5.12(typescript@5.6.2)
-      vue-tsc:
-        specifier: ^2.1.10
-        version: 2.1.10(typescript@5.6.2)
-
   packages/api-client-proxy:
     dependencies:
       cors:
@@ -1955,6 +1888,73 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
+
+  packages/scalar-app:
+    dependencies:
+      '@electron-toolkit/preload':
+        specifier: ^3.0.0
+        version: 3.0.1(electron@33.0.0)
+      '@electron-toolkit/utils':
+        specifier: ^3.0.0
+        version: 3.0.0(electron@33.0.0)
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../api-client
+      '@scalar/components':
+        specifier: workspace:*
+        version: link:../components
+      '@scalar/import':
+        specifier: workspace:*
+        version: link:../import
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
+      '@todesktop/runtime':
+        specifier: ^2.0.0
+        version: 2.0.0
+      electron-window-state:
+        specifier: ^5.0.3
+        version: 5.0.3
+      fathom-client:
+        specifier: ^3.7.2
+        version: 3.7.2
+    devDependencies:
+      '@electron-toolkit/tsconfig':
+        specifier: ^1.0.1
+        version: 1.0.1(@types/node@20.14.10)
+      '@rushstack/eslint-patch':
+        specifier: ^1.10.3
+        version: 1.10.3
+      '@todesktop/cli':
+        specifier: ^1.10.2
+        version: 1.10.2(@types/react@18.3.3)
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.14.10
+      '@vitejs/plugin-vue':
+        specifier: ^5.0.4
+        version: 5.0.5(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
+      '@vue/eslint-config-prettier':
+        specifier: ^9.0.0
+        version: 9.0.0(@types/eslint@8.56.10)(eslint@8.57.0)(prettier@3.3.3)
+      '@vue/eslint-config-typescript':
+        specifier: ^12.0.0
+        version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
+      electron:
+        specifier: ^33.0.0
+        version: 33.0.0
+      electron-vite:
+        specifier: ^2.3.0
+        version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))
+      vite:
+        specifier: ^5.4.9
+        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
+      vue:
+        specifier: ^3.5.12
+        version: 3.5.12(typescript@5.6.2)
+      vue-tsc:
+        specifier: ^2.1.10
+        version: 2.1.10(typescript@5.6.2)
 
   packages/scalar.aspnetcore:
     dependencies:
