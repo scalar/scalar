@@ -10,4 +10,5 @@ npm add @scalar/use-hooks
 
 ## Available Hooks
 
-<!-- TODO: Add list of hooks -->
+- [useClipboard](./src/useClipboard/README.md)
+- [useColorMode](./src/useColorMode/README.md)
