@@ -45,6 +45,29 @@ describe('transform', () => {
     })
   })
 
+  describe('tags', () => {
+    it('adds missing tags', () => {
+      const result = transform({
+        paths: {
+          '/pets': {
+            get: {
+              tags: ['pets'],
+              responses: {},
+            },
+          },
+          '/stores': {
+            get: {
+              tags: ['stores'],
+              responses: {},
+            },
+          },
+        },
+      })
+
+      expect(result.tags).toStrictEqual([{ name: 'pets' }, { name: 'stores' }])
+    })
+  })
+
   describe('components.securitySchemes', () => {
     it('normalizes security scheme types to lowercase', () => {
       const result = transform({

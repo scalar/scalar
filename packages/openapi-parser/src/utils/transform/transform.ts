@@ -3,6 +3,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 import type { AnyObject } from '../../types'
 import { addInfoObject } from './utils/addInfoObject'
 import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion'
+import { addMissingTags } from './utils/addMissingTags'
 import { normalizeSecuritySchemes } from './utils/normalizeSecuritySchemes'
 import { rejectSwaggerDocuments } from './utils/rejectSwaggerDocuments'
 
@@ -17,6 +18,7 @@ export function transform(definition: AnyObject): OpenAPI.Document {
     rejectSwaggerDocuments,
     addLatestOpenApiVersion,
     addInfoObject,
+    addMissingTags,
     normalizeSecuritySchemes,
   ]
 
