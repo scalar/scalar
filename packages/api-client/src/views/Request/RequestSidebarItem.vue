@@ -258,6 +258,14 @@ const watchIconColor = computed(() => {
   if (watchModeStatus === 'ERROR') return 'text-red'
   return 'text-c-3'
 })
+
+const hasDraftRequests = computed(() => {
+  return (
+    item.value.title == 'Drafts' &&
+    !isReadOnly.value &&
+    item.value.children.length > 0
+  )
+})
 </script>
 
 <template>
@@ -379,6 +387,30 @@ const watchIconColor = computed(() => {
             <ScalarButton
               v-if="!isReadOnly && !isDraftCollection"
               class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+              :class="{
+                'flex':
+                  menuItem.item?.entity.uid === item.entity.uid &&
+                  menuItem.open,
+                'right-5': item.watchMode,
+              }"
+              size="sm"
+              variant="ghost"
+              @click.stop.prevent="
+                (ev) =>
+                  $emit('openMenu', {
+                    item,
+                    parentUids,
+                    targetRef: ev.currentTarget.parentNode,
+                    open: true,
+                  })
+              ">
+              <ScalarIcon
+                icon="Ellipses"
+                size="sm" />
+            </ScalarButton>
+            <ScalarButton
+              v-if="isDraftCollection && hasDraftRequests"
+              class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
               :class="{
                 'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&

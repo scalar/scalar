@@ -4,6 +4,7 @@ import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarL
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
+import { createInitialRequest } from '@/store/requests'
 import type { SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarDropdown,
@@ -12,7 +13,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{ menuItem: SidebarMenuItem }>()
@@ -20,13 +21,22 @@ const props = defineProps<{ menuItem: SidebarMenuItem }>()
 const emit = defineEmits<{
   (e: 'closeMenu'): []
   (e: 'toggleWatchMode', item: SidebarMenuItem['item']): void
+  (e: 'clearDrafts'): void
 }>()
 
 const { replace } = useRouter()
-const { activeWorkspace, activeRouterParams, events } = useWorkspace()
+const {
+  activeWorkspace,
+  activeRouterParams,
+  events,
+  requestMutators,
+  activeWorkspaceCollections,
+  activeWorkspaceRequests,
+} = useWorkspace()
 
 const editModal = useModal()
 const deleteModal = useModal()
+const clearDraftsModal = useModal()
 
 /** Add example */
 const handleAddExample = () =>
@@ -46,6 +56,18 @@ const handleEdit = (newName: string, newIcon?: string) => {
 const handleItemDelete = () => {
   props.menuItem.item?.delete()
 
+  if (!activeWorkspaceRequests.value.length) {
+    const { request } = createInitialRequest()
+    const draftCollection = activeWorkspaceCollections.value.find(
+      (collection) => collection.info?.title === 'Drafts',
+    )
+
+    if (draftCollection) {
+      requestMutators.add(request, draftCollection.uid)
+      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+    }
+  }
+
   if (
     activeRouterParams.value[PathId.Request] === props.menuItem.item?.entity.uid
   )
@@ -56,6 +78,11 @@ const handleItemDelete = () => {
     props.menuItem.item?.entity.uid
   )
     replace(`/workspace/${activeWorkspace.value}/request/default`)
+
+  if (activeWorkspaceCollections.value[0]) {
+    const firstRequest = activeWorkspaceCollections.value[0].requests[0]
+    replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+  }
 
   deleteModal.hide()
 }
@@ -74,6 +101,15 @@ onBeforeUnmount(() => window.removeEventListener('click', globalClickListener))
 const toggleWatchMode = () => {
   emit('toggleWatchMode', props.menuItem.item)
 }
+
+const handleClearDrafts = () => {
+  emit('clearDrafts')
+  clearDraftsModal.hide()
+}
+
+const isDraftsMenuItem = computed(() => {
+  return props.menuItem.item?.title === 'Drafts'
+})
 </script>
 
 <template>
@@ -99,6 +135,7 @@ const toggleWatchMode = () => {
 
       <!-- Rename -->
       <ScalarDropdownItem
+        v-if="!isDraftsMenuItem"
         ref="menuRef"
         class="flex gap-2"
         @click="editModal.show()">
@@ -150,6 +187,7 @@ const toggleWatchMode = () => {
 
       <!-- Delete -->
       <ScalarDropdownItem
+        v-if="!isDraftsMenuItem"
         class="flex gap-2"
         @click="deleteModal.show()">
         <ScalarIcon
@@ -158,6 +196,19 @@ const toggleWatchMode = () => {
           size="md"
           thickness="1.5" />
         <span>Delete</span>
+      </ScalarDropdownItem>
+
+      <!-- Clear Drafts -->
+      <ScalarDropdownItem
+        v-if="isDraftsMenuItem"
+        class="flex gap-2"
+        @click="clearDraftsModal.show()">
+        <ScalarIcon
+          class="inline-flex"
+          icon="Delete"
+          size="md"
+          thickness="1.5" />
+        <span>Clear Drafts</span>
       </ScalarDropdownItem>
     </template>
   </ScalarDropdown>
@@ -188,6 +239,16 @@ const toggleWatchMode = () => {
       :name="menuItem.item?.title ?? ''"
       @close="editModal.hide()"
       @edit="handleEdit" />
+  </ScalarModal>
+  <ScalarModal
+    :size="'xxs'"
+    :state="clearDraftsModal"
+    :title="'Clear Drafts'">
+    <DeleteSidebarListElement
+      :variableName="'All Drafts'"
+      :warningMessage="'This action will clear all drafts. This cannot be undone.'"
+      @close="clearDraftsModal.hide()"
+      @delete="handleClearDrafts" />
   </ScalarModal>
 </template>
 <style scoped>
