@@ -1,6 +1,5 @@
 import type {
   AnyApiDefinitionFormat,
-  AnyObject,
   DereferenceResult,
   Filesystem,
   ThrowOnErrorOption,
@@ -13,7 +12,7 @@ import { resolveReferences } from './resolveReferences'
 export type DereferenceOptions = ThrowOnErrorOption
 
 /**
- * Validates an OpenAPI schema and resolves all references.
+ * Resolves all references in an OpenAPI document
  */
 export async function dereference(
   value: AnyApiDefinitionFormat | Filesystem,

@@ -4,8 +4,9 @@ import type { AnyObject, Filesystem } from '../types'
 import { isFilesystem } from './isFilesystem'
 
 /**
- * Normalize the OpenAPI specification to a JavaScript object.
- * Don’t touch the object if it’s a `Filesystem` (multiple files).
+ * Normalize the OpenAPI document (YAML, JSON, object) to a JavaScript object.
+ *
+ * Doesn’t modify the object if it’s a `Filesystem` (multiple files) already.
  */
 export function normalize(
   specification: string | AnyObject | Filesystem,

@@ -63,7 +63,7 @@ const specification = `{
 const { schema, errors } = await dereference(specification)
 ```
 
-### Modify an OpenAPI specification
+### Modify an OpenAPI document
 
 ```ts
 import { filter } from '@scalar/openapi-parser'
@@ -80,9 +80,9 @@ const specification = `{
 const { specification } = filter(specification, (schema) => !schema?.['x-internal'])
 ```
 
-### Upgrade your OpenAPI specification
+### Upgrade your OpenAPI document
 
-There’s an `upgrade` command to upgrade all your OpenAPI specifications to the latest OpenAPI version.
+There’s an `upgrade` command to upgrade all your OpenAPI documents to the latest OpenAPI version.
 
 > ⚠️ The upgrade from Swagger 2.0 is still experimental and probably lacks features.
 
