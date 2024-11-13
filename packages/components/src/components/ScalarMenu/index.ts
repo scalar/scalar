@@ -1,0 +1,7 @@
+export { default as ScalarMenu } from './ScalarMenu.vue'
+export { default as ScalarMenuSection } from './ScalarMenuSection.vue'
+export { default as ScalarMenuLink } from './ScalarMenuLink.vue'
+export { default as ScalarMenuProduct } from './ScalarMenuProduct.vue'
+export { default as ScalarMenuProducts } from './ScalarMenuProducts.vue'
+export { default as ScalarMenuProfile } from './ScalarMenuProfile.vue'
+export { default as ScalarMenuResources } from './ScalarMenuResources.vue'

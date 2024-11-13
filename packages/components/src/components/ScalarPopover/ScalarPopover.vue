@@ -17,7 +17,7 @@ defineOptions({ inheritAttrs: false })
       :isOpen="open ?? isOpen"
       :teleport="teleport">
       <PopoverButton as="template">
-        <slot />
+        <slot :open="open" />
       </PopoverButton>
       <template #floating="{ width, height }">
         <PopoverPanel
