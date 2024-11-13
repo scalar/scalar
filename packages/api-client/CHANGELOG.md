@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.1.48
+
+### Patch Changes
+
+- b5c1982: style(api-client): fix a handful of z-index and flex breakpoint issues
+- ac55d0f: chore: add time logging for the workspace store
+- 0c07766: fix: sets selection style properly"
+- bdb48b0: fix: remove useTemplateRef
+- Updated dependencies [b5c1982]
+- Updated dependencies [ac55d0f]
+- Updated dependencies [0c07766]
+- Updated dependencies [7f1bd17]
+  - @scalar/components@0.12.68
+  - @scalar/oas-utils@0.2.74
+  - @scalar/use-codemirror@0.11.35
+  - @scalar/themes@0.9.48
+
 ## 2.1.47
 
 ### Patch Changes

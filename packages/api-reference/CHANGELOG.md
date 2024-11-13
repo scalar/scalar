@@ -1,5 +1,21 @@
 # @scalar/api-reference
 
+## 1.25.63
+
+### Patch Changes
+
+- ac55d0f: chore: remove time logging for the search index
+- Updated dependencies [b5c1982]
+- Updated dependencies [ac55d0f]
+- Updated dependencies [0c07766]
+- Updated dependencies [bdb48b0]
+- Updated dependencies [7f1bd17]
+  - @scalar/api-client@2.1.48
+  - @scalar/components@0.12.68
+  - @scalar/oas-utils@0.2.74
+  - @scalar/themes@0.9.48
+  - @scalar/code-highlight@0.0.15
+
 ## 1.25.62
 
 ### Patch Changes

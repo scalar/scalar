@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.48
+
+### Patch Changes
+
+- 0c07766: fix: sets selection style properly"
+
 ## 0.9.47
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.74
+
+### Patch Changes
+
+- ac55d0f: chore: add time logging for the workspace store
+- Updated dependencies [0c07766]
+  - @scalar/themes@0.9.48
+
 ## 0.2.73
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.68
+
+### Patch Changes
+
+- b5c1982: style(api-client): fix a handful of z-index and flex breakpoint issues
+- 7f1bd17: feat(components): create ScalarMenu component
+- Updated dependencies [0c07766]
+  - @scalar/themes@0.9.48
+  - @scalar/code-highlight@0.0.15
+
 ## 0.12.67
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.11.35
+
+### Patch Changes
+
+- 0c07766: fix: sets selection style properly"
+- Updated dependencies [b5c1982]
+- Updated dependencies [7f1bd17]
+  - @scalar/components@0.12.68
+
 ## 0.11.34
 
 ### Patch Changes
