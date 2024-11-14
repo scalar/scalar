@@ -1,6 +1,21 @@
+import type {
+  Request,
+  RequestExample,
+  SecurityScheme,
+  Tag,
+} from '@/entities/spec'
+import { yaml } from '@/helpers'
 import { exportSpecFromWorkspace } from '@/transforms/export-spec'
 import { importSpecToWorkspace } from '@/transforms/import-spec'
 import { describe, expect, test } from 'vitest'
+
+/** Convert an array of objects into a map of objects by UID */
+function arrayToUidMap<T extends { uid: string }>(array: T[]) {
+  return array.reduce<Record<string, T>>((map, item) => {
+    map[item.uid] = item
+    return map
+  }, {})
+}
 
 const testSpec = {
   'openapi': '3.1.0',
@@ -54,22 +69,20 @@ const testSpec = {
   },
 }
 
+console.log(yaml.stringify(testSpec))
 describe('Converts a collection into a spec', () => {
   test('Handles basic spec', async () => {
     const workspace = await importSpecToWorkspace(testSpec)
     if (workspace.error) throw Error('Bad workspace')
 
-    console.log(
-      exportSpecFromWorkspace({
-        collection: workspace.collection,
-        requests: workspace.requests.reduce(
-          (tot, curr) => ({
-            ...tot,
-            [curr.uid]: curr,
-          }),
-          {},
-        ),
-      }),
-    )
+    const exported = exportSpecFromWorkspace({
+      requests: arrayToUidMap<Request>(workspace.requests),
+      collection: workspace.collection,
+      requestExamples: arrayToUidMap<RequestExample>(workspace.examples),
+      securitySchemes: arrayToUidMap<SecurityScheme>(workspace.securitySchemes),
+      tags: arrayToUidMap<Tag>(workspace.tags),
+    })
+
+    console.log(yaml.stringify(exported))
   })
 })

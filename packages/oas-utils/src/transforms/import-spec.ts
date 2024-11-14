@@ -190,7 +190,7 @@ export async function importSpecToWorkspace(
 
   // Grab the base server URL for relative servers
   const backupBaseServerUrl =
-    typeof window !== 'undefined' ? window.location.origin : 'http://localhost'
+    typeof window === 'undefined' ? 'http://localhost' : window.location.origin
   const _baseServerUrl = baseServerURL ?? backupBaseServerUrl
 
   // Add the base server url to any relative servers

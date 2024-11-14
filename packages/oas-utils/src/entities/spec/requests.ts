@@ -3,7 +3,7 @@ import { type ZodSchema, z } from 'zod'
 
 import { nanoidSchema } from '../shared'
 import { oasParameterSchema } from './parameters'
-import type { RequestExample } from './request-examples'
+import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema } from './spec-objects'
 
@@ -60,17 +60,17 @@ export const oasRequestSchema = z.object({
    *
    * These tags are the openapi spec tag names, not uids
    */
-  tags: z.string().array().optional(),
+  'tags': z.string().array().optional(),
   /** A short summary of what the operation does. */
-  summary: z.string().optional(),
+  'summary': z.string().optional(),
   /** A verbose explanation of the operation behavior. CommonMark syntax MAY be used for rich text representation. */
-  description: z.string().optional(),
+  'description': z.string().optional(),
   /**
    * Unique string used to identify the operation. The id MUST be unique among all operations described in the API.
    * The operationId value is case-sensitive. Tools and libraries MAY use the operationId to uniquely identify an
    * operation, therefore, it is RECOMMENDED to follow bin common programming naming conventions./
    */
-  operationId: z.string().optional(),
+  'operationId': z.string().optional(),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
@@ -78,25 +78,27 @@ export const oasRequestSchema = z.object({
    * Individual operations can override this definition. To make security optional, an empty
    * security requirement ({}) can be included in the array.
    */
-  security: z.array(oasSecurityRequirementSchema).optional(),
+  'security': z.array(oasSecurityRequirementSchema).optional(),
   /**
    * The request body applicable for this operation. The requestBody is fully supported in HTTP methods where the
    * HTTP 1.1 specification [RFC7231] has explicitly defined semantics for request bodies. In other cases where the
    * HTTP spec is vague (such as GET, HEAD and DELETE), requestBody is permitted but does not have well-defined
    * semantics and SHOULD be avoided if possible.
    */
-  requestBody: requestBodySchema.optional(),
+  'requestBody': requestBodySchema.optional(),
   /**
    * Request parameters
    */
-  parameters: oasParameterSchema.array().optional(),
+  'parameters': oasParameterSchema.array().optional(),
   /**
    * External documentation object
    */
-  externalDocs: oasExternalDocumentationSchema.optional(),
-  deprecated: z.boolean().optional(),
+  'externalDocs': oasExternalDocumentationSchema.optional(),
+  'deprecated': z.boolean().optional(),
   /** Response formats */
-  responses: z.record(z.string(), z.any()).optional(),
+  'responses': z.record(z.string(), z.any()).optional(),
+  /** xScalar examples */
+  'x-scalar-examples': z.record(z.string(), xScalarExampleSchema).optional(),
 }) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
 
 /**
