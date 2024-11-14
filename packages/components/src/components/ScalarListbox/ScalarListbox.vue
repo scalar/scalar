@@ -23,7 +23,6 @@ withDefaults(
       multiple?: boolean
       options: Option[]
       modelValue?: Option | Option[]
-      fullWidth?: boolean
       id?: string
       label?: string
     } & Omit<FloatingOptions, 'middleware' | 'offset' | 'targetRef'>
@@ -74,8 +73,7 @@ const variants = cva({
       <ListboxButton
         :id="id"
         as="template"
-        class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent"
-        :class="[{ 'w-full': fullWidth }]">
+        class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent">
         <slot :open="open" />
       </ListboxButton>
       <template #floating="{ width }">
