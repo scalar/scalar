@@ -262,13 +262,16 @@ const removeCollectionEnvironment = (envName: string) => {
   })
 }
 
-const setActiveEnvironment = () => {
-  const routeEnvironmentId = router.currentRoute.value.params
-    .environment as string
-  if (routeEnvironmentId) {
-    activeEnvironmentID.value = routeEnvironmentId
-  } else if (routeEnvironmentId === 'default') {
-    activeEnvironmentID.value = environments.default.uid
+function setActiveEnvironment() {
+  const { collectionId, environment, environmentId } =
+    router.currentRoute.value.params
+  if (collectionId) {
+    // Collection environment
+    activeEnvironmentID.value = environmentId as string
+  } else {
+    // Global environment
+    activeEnvironmentID.value =
+      (environment as string) || environments.default.uid
   }
 }
 
@@ -321,16 +324,31 @@ const getEnvironmentValue = (environmentId: string) => {
 }
 
 watch(
-  () => route.params.environment,
-  (newEnvironmentId) =>
-    (activeEnvironmentID.value =
-      (newEnvironmentId as string) || environments.default.uid),
+  () => [
+    route.params.collectionId,
+    route.params.environment,
+    route.params.environmentId,
+  ],
+  ([newCollectionId, newEnvironment, newEnvironmentId]) => {
+    if (newCollectionId) {
+      // Collection environment
+      activeEnvironmentID.value = newEnvironmentId as string
+    } else {
+      // Global environment
+      activeEnvironmentID.value =
+        (newEnvironment as string) || environments.default.uid
+    }
+  },
 )
 
 onMounted(() => {
   setActiveEnvironment()
   events.hotKeys.on(handleHotKey)
   collapsedSidebarFolders.global = true
+  const { collectionId } = router.currentRoute.value.params
+  if (collectionId) {
+    toggleSidebarFolder(collectionId as string)
+  }
 })
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
@@ -408,6 +426,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                   v-for="(env, envName) in collection['x-scalar-environments']"
                   :key="envName"
                   class="text-xs [&>a]:pl-5"
+                  :collectionId="collection.uid"
                   :isCopyable="false"
                   :variable="{
                     name: envName,

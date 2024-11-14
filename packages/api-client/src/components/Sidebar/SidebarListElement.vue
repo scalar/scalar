@@ -12,6 +12,7 @@ withDefaults(
       icon?: Icon
       isDefault?: boolean
     }
+    collectionId?: string
     warningMessage?: string
     isDeletable?: boolean
     isCopyable?: boolean
@@ -29,11 +30,18 @@ const emit = defineEmits<{
 
 const router = useRouter()
 
-const handleNavigation = (event: MouseEvent, uid: string) => {
+const handleNavigation = (
+  event: MouseEvent,
+  uid: string,
+  collectionId?: string,
+) => {
+  const path = collectionId
+    ? `/workspace/default/environment/${collectionId}/${uid}`
+    : `/workspace/default/environment/${uid}`
   if (event.metaKey) {
-    window.open(uid, '_blank')
+    window.open(path, '_blank')
   } else {
-    router.push(uid)
+    router.push({ path })
   }
 }
 
@@ -52,7 +60,7 @@ const handleColorClick = (uid: string) => {
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
       :to="`${variable.uid}`"
-      @click.prevent="handleNavigation($event, variable.uid)">
+      @click.prevent="handleNavigation($event, variable.uid, collectionId)">
       <button
         v-if="variable.color"
         class="hover:bg-b-3 rounded p-1.5"
