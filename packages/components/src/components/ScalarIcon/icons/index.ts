@@ -61,6 +61,7 @@ export const ICONS = [
   'PaperAirplane',
   'Pencil',
   'Play',
+  'Postman',
   'Refresh',
   'Roadmap',
   'Scribble',

@@ -33,7 +33,10 @@ export function processItem(
   item: Item | ItemGroup,
   parentTags: string[] = [],
   parentPath: string = '',
-): { paths: OpenAPIV3_1.PathsObject; components: OpenAPIV3_1.ComponentsObject } {
+): {
+  paths: OpenAPIV3_1.PathsObject
+  components: OpenAPIV3_1.ComponentsObject
+} {
   const paths: OpenAPIV3_1.PathsObject = {}
   const components: OpenAPIV3_1.ComponentsObject = {}
 
@@ -294,17 +297,17 @@ function parseParametersFromDescription(description: string): {
 // Instead of using regex with \s*, let's split this into two steps
 function extractOperationInfo(name: string | undefined) {
   if (!name) return { operationId: undefined, summary: undefined }
-  
+
   // First check if the string ends with something in brackets
   const match = name.match(/\[([^[\]]{0,1000})\]$/)
   if (!match) return { operationId: undefined, summary: name }
-  
+
   // Get the operation ID from inside brackets
   const operationId = match[1]
-  
+
   // Trim the brackets part from the end using string operations instead of regex
   const lastBracketIndex = name.lastIndexOf('[')
   const summary = name.substring(0, lastBracketIndex).trim()
-  
+
   return { operationId, summary }
 }

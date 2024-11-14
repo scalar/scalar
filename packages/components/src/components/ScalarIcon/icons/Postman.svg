@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="128" cy="128" r="120" />
+    <line x1="85" y1="80" x2="170" y2="150" />
+    <line x1="170" y1="80" x2="85" y2="150" />
+</svg>

@@ -18,17 +18,18 @@ export function convert(
   postmanCollection: PostmanCollection | string,
 ): OpenAPIV3_1.Document {
   // Parse string input if provided
-  const collection: PostmanCollection = typeof postmanCollection === 'string' 
-    ? JSON.parse(postmanCollection) 
-    : postmanCollection
+  const collection: PostmanCollection =
+    typeof postmanCollection === 'string'
+      ? JSON.parse(postmanCollection)
+      : postmanCollection
 
   // Extract title from collection info, fallback to 'API' if not provided
   const title = collection.info.name || 'API'
 
   // Look for version in collection variables, default to '1.0.0'
   const version =
-    (collection.variable?.find((v) => v.key === 'version')
-      ?.value as string) || '1.0.0'
+    (collection.variable?.find((v) => v.key === 'version')?.value as string) ||
+    '1.0.0'
 
   // Handle different description formats in Postman
   const description =

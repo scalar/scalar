@@ -79,7 +79,7 @@ describe('convert', () => {
           'XLogoVar',
         ].map(async (name) => {
           const response = await fetch(
-            `${BASE_URL}/oas/postman-to-openapi/fixtures/output/${name}.json`
+            `${BASE_URL}/oas/postman-to-openapi/fixtures/output/${name}.json`,
           )
           expected[name] = await response.text()
         }),
