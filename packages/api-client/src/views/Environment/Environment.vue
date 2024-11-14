@@ -81,6 +81,7 @@ function addEnvironment(environment: {
 
     environmentMutators.add(newEnvironment)
     activeEnvironmentID.value = newEnvironment.uid
+    toggleSidebarFolder('global')
     router.push(activeEnvironmentID.value)
   } else if (environment.type === 'collection' && environment.collectionId) {
     const collection = activeWorkspaceCollections.value.find(
@@ -94,6 +95,12 @@ function addEnvironment(environment: {
           variables: { '': '' },
           color: environment.color,
         },
+      })
+      activeEnvironmentID.value = environment.name
+      toggleSidebarFolder(collection.uid)
+      router.push({
+        name: 'environment',
+        params: { environment: environment.name },
       })
     }
   }
@@ -260,6 +267,37 @@ const removeCollectionEnvironment = (envName: string) => {
       )
     }
   })
+
+  if (activeEnvironmentID.value === envName) {
+    const remainingEnvironments = Object.values(environments)
+    const remainingCollectionEnvironments =
+      activeWorkspaceCollections.value.flatMap((collection) =>
+        Object.keys(collection['x-scalar-environments'] || {}),
+      )
+
+    if (remainingCollectionEnvironments.length > 0) {
+      const lastCollectionEnvironment =
+        remainingCollectionEnvironments[
+          remainingCollectionEnvironments.length - 1
+        ]
+      activeEnvironmentID.value = lastCollectionEnvironment
+      router.push({
+        name: 'environment',
+        params: { environment: lastCollectionEnvironment },
+      })
+    } else if (remainingEnvironments.length > 0) {
+      const lastEnvironment =
+        remainingEnvironments[remainingEnvironments.length - 1]
+      activeEnvironmentID.value = lastEnvironment.uid
+      router.push({
+        name: 'environment',
+        params: { environment: lastEnvironment.uid },
+      })
+    } else {
+      activeEnvironmentID.value = environments.default.uid
+      router.push({ name: 'environment', params: { environment: 'default' } })
+    }
+  }
 }
 
 function setActiveEnvironment() {
