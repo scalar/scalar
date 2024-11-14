@@ -6,7 +6,7 @@ import {
   ScalarIcon,
   ScalarListbox,
   type ScalarListboxOption,
-} from '../../'
+} from '../..'
 
 const props = defineProps<{
   team?: ScalarListboxOption | undefined
@@ -23,14 +23,14 @@ const model = computed<ScalarListboxOption | undefined>({
 })
 </script>
 <template>
-  <div class="flex flex-col *:contents *:w-full">
+  <div class="flex flex-col pb-px">
     <ScalarListbox
       v-model="model"
       :options="teams"
       placement="bottom-end"
       resize>
       <ScalarButton
-        class="h-auto px-2.5 py-1 text-xs shadow-none"
+        class="h-auto px-2.5 py-1 text-xs leading shadow-none"
         variant="outlined">
         {{ team?.label }}
         <ScalarIcon

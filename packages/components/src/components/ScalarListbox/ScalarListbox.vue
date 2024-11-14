@@ -58,8 +58,6 @@ const variants = cva({
 <template>
   <Listbox
     v-slot="{ open }"
-    as="div"
-    :class="[{ 'w-full': fullWidth }, 'text-sm']"
     :modelValue="modelValue"
     :multiple="multiple"
     @update:modelValue="(v) => $emit('update:modelValue', v)">
@@ -76,14 +74,15 @@ const variants = cva({
       <ListboxButton
         :id="id"
         as="template"
-        class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent">
+        class="justify-start focus:outline-none focus-visible:ring-1 focus-visible:ring-c-accent"
+        :class="[{ 'w-full': fullWidth }]">
         <slot :open="open" />
       </ListboxButton>
       <template #floating="{ width }">
         <!-- Background container -->
         <div
           v-bind="$attrs"
-          class="relative flex max-h-[inherit] w-40 rounded border"
+          class="relative flex max-h-[inherit] w-40 rounded border text-sm"
           :style="{ width }">
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">

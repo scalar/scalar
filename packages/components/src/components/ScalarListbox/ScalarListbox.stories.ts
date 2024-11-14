@@ -10,13 +10,9 @@ const meta = {
   component: ScalarListbox,
   tags: ['autodocs'],
   argTypes: {
-    resize: {
-      control: 'boolean',
-    },
-    placement: {
-      control: 'select',
-      options: placements,
-    },
+    fullWidth: { control: 'boolean' },
+    resize: { control: 'boolean' },
+    placement: { control: 'select', options: placements },
   },
 } satisfies Meta<typeof ScalarListbox>
 
