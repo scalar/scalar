@@ -19,7 +19,6 @@ const security = computed(() => {
   if (!activeCollection.value || !activeRequest.value) return []
 
   return selectedSecuritySchemeUids.map((uid) => ({
-    example: activeCollection.value!.auth[uid],
     scheme: securitySchemes[uid],
   }))
 })
@@ -47,7 +46,7 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="{ scheme, example } in security"
+    v-for="{ scheme } in security"
     :key="scheme.uid">
     <!-- Header -->
     <DataTableRow class="group/delete">
@@ -59,16 +58,16 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
     </DataTableRow>
 
     <!-- HTTP -->
-    <template v-if="scheme.type === 'http' && example.type === 'http'">
+    <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :modelValue="example.token"
+          :modelValue="scheme.token"
           placeholder="Token"
           type="password"
           @update:modelValue="
-            (v) => updateExampleValue(scheme.uid, example, 'token', v)
+            (v) => updateScheme(scheme.uid, example, 'token', v)
           ">
           Bearer Token
         </RequestAuthDataTableInput>

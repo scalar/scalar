@@ -12,10 +12,7 @@ import {
   type SecuritySchemeGroup,
   type SecuritySchemeOption,
 } from '@/views/Request/consts'
-import {
-  createSchemeValueSet,
-  displaySchemeFormatter,
-} from '@/views/Request/libs'
+import { displaySchemeFormatter } from '@/views/Request/libs'
 import {
   type Icon,
   ScalarButton,
@@ -201,19 +198,6 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
 
     if (scheme) _entries.push(scheme.uid)
   }
-
-  // Here we grab the keys for auth that doesn't yet exist
-  const newAuth = _entries.filter((uid) => !activeCollection.value!.auth[uid])
-
-  // Create new auth entries for new auth
-  collectionMutators.edit(
-    activeCollection.value.uid,
-    'auth',
-    newAuth.reduce((prev, uid) => {
-      prev[uid] = createSchemeValueSet(securitySchemes[uid])
-      return prev
-    }, activeCollection.value.auth),
-  )
 
   editSelectedSchemeUids(_entries)
 }
