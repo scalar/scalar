@@ -9,7 +9,10 @@ import {
   type WorkspaceStore,
   createWorkspaceStore,
 } from '@/store/store'
-import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type {
+  RequestMethod,
+  SecurityScheme,
+} from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import {
   LS_KEYS,
@@ -187,6 +190,7 @@ export const createApiClient = ({
     modalState,
     requests,
     securitySchemes,
+    securitySchemeMutators,
     servers,
     workspaceMutators,
     requestExampleMutators,
@@ -287,25 +291,19 @@ export const createApiClient = ({
     /**
      * Update the auth values, we currently don't change the auth selection
      */
-    updateAuth: <P extends Path<Collection['auth'][string]>>({
+    updateAuth: <P extends Path<SecurityScheme>>({
       nameKey,
       propertyKey,
       value,
     }: {
       nameKey: string
       propertyKey: P
-      value: PathValue<Collection['auth'][string], P>
+      value: NonNullable<PathValue<SecurityScheme, P>>
     }) => {
       const schemes = Object.values(securitySchemes)
       const scheme = schemes.find((s) => s.nameKey === nameKey)
 
-      if (scheme && activeCollection.value)
-        collectionMutators.edit(
-          activeCollection.value.uid,
-          `auth.${scheme.uid}.${propertyKey}`,
-          // @ts-expect-error why typescript why
-          value,
-        )
+      if (scheme) securitySchemeMutators.edit(scheme.uid, propertyKey, value)
     },
     /** Route to a method + path */
     route: (

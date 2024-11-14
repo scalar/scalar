@@ -107,7 +107,7 @@ const authorizationUrl = z.string().default('')
 const tokenUrl = z.string().default('')
 
 /** Common properties used across all oauth2 flows */
-const oauthCommon = z.object({
+const flowsCommon = z.object({
   /**
    * The URL to be used for obtaining refresh tokens. This MUST be in the form of a
    * URL. The OAuth2 standard requires the use of TLS.
@@ -141,70 +141,77 @@ const defaultRedirectUri =
 /** Options for the x-usePkce extension */
 export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
 
-export const oasOauthFlowSchema = z
-  .discriminatedUnion('type', [
-    /** Configuration for the OAuth Implicit flow */
-    oauthCommon.extend({
-      'type': z.literal('implicit'),
-      authorizationUrl,
-      'x-scalar-redirect-uri': z
-        .string()
-        .optional()
-        .default(defaultRedirectUri),
-    }),
-    /** Configuration for the OAuth Resource Owner Password flow */
-    oauthCommon.extend({
-      type: z.literal('password'),
-      tokenUrl,
-      clientSecret: z.string().default(''),
-      username: z.string().default(''),
-      password: z.string().default(''),
-    }),
-    /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
-    oauthCommon.extend({
-      type: z.literal('clientCredentials'),
-      tokenUrl,
-      clientSecret: z.string().default(''),
-    }),
-    /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
-    oauthCommon.extend({
-      'type': z.literal('authorizationCode'),
-      authorizationUrl,
-      /**
-       * Whether to use PKCE for the authorization code flow.
-       *
-       * TODO: add docs
-       */
-      'x-usePkce': z.enum(pkceOptions).optional().default('no'),
-      'x-scalar-redirect-uri': z
-        .string()
-        .optional()
-        .default(defaultRedirectUri),
-      tokenUrl,
-      'clientSecret': z.string().default(''),
-    }),
-  ])
-  .optional()
-  .default({ type: 'implicit', authorizationUrl: 'http://localhost:8080' })
-
+/** Oauth2 security scheme */
 const oasSecuritySchemeOauth2 = commonProps.extend({
   type: z.literal('oauth2'),
   /** REQUIRED. An object containing configuration information for the flow types supported. */
-  flows: z.record(
-    z.enum(['implicit', 'password', 'clientCredentials', 'authorizationCode']),
-    oasOauthFlowSchema,
-  ),
+  flows: z
+    .object({
+      /** Configuration for the OAuth Implicit flow */
+      implicit: flowsCommon.extend({
+        'type': z.literal('implicit'),
+        authorizationUrl,
+        'x-scalar-redirect-uri': z
+          .string()
+          .optional()
+          .default(defaultRedirectUri),
+      }),
+      /** Configuration for the OAuth Resource Owner Password flow */
+      password: flowsCommon.extend({
+        type: z.literal('password'),
+        tokenUrl,
+        clientSecret: z.string().default(''),
+        username: z.string().default(''),
+        password: z.string().default(''),
+      }),
+      /** Configuration for the OAuth Client Credentials flow. Previously called application in OpenAPI 2.0. */
+      clientCredentials: flowsCommon.extend({
+        type: z.literal('clientCredentials'),
+        tokenUrl,
+        clientSecret: z.string().default(''),
+      }),
+      /** Configuration for the OAuth Authorization Code flow. Previously called accessCode in OpenAPI 2.0.*/
+      authorizationCode: flowsCommon.extend({
+        'type': z.literal('authorizationCode'),
+        authorizationUrl,
+        /**
+         * Whether to use PKCE for the authorization code flow.
+         *
+         * TODO: add docs
+         */
+        'x-usePkce': z.enum(pkceOptions).optional().default('no'),
+        'x-scalar-redirect-uri': z
+          .string()
+          .optional()
+          .default(defaultRedirectUri),
+        tokenUrl,
+        'clientSecret': z.string().default(''),
+      }),
+    })
+    .partial()
+    .default({
+      implicit: { type: 'implicit', authorizationUrl: 'http://localhost:8080' },
+    }),
 })
-
-/** Flow payload with extensions */
-export type OauthFlowSchemaPayload = z.input<typeof oasOauthFlowSchema> &
-  Record<`x-${string}`, string>
 
 export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
   extendedSecuritySchema,
 )
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
+export type SecuritySchemeOauth2Payload = z.input<typeof securityOauthSchema>
+export type Oauth2Flow = NonNullable<
+  SecuritySchemeOauth2['flows'][
+    | 'authorizationCode'
+    | 'clientCredentials'
+    | 'implicit'
+    | 'password']
+>
+/** Payload for the oauth 2 flows + extensions */
+export type Oauth2FlowPayload = NonNullable<
+  SecuritySchemeOauth2Payload['flows']
+>['authorizationCode' | 'clientCredentials' | 'implicit' | 'password'] &
+  Record<`x-${string}`, string>
 
 // ---------------------------------------------------------------------------
 // Final Types

@@ -1,21 +1,12 @@
 import type { ErrorResponse } from '@/libs'
 import type {
-  SecuritySchemeExampleValue,
+  Oauth2Flow,
   SecuritySchemeOauth2,
-  SecuritySchemeOauth2ExampleValue,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 
 /** Oauth2 security schemes which are not implicit */
-type SecuritySchemeOauth2NonImplicit = Omit<SecuritySchemeOauth2, 'flow'> & {
-  flow: Exclude<SecuritySchemeOauth2['flow'], { type: 'implicit' }>
-}
-
-/** Type guard to check for oauth2 example */
-export const isOauth2Example = (
-  example: SecuritySchemeExampleValue,
-): example is SecuritySchemeOauth2ExampleValue =>
-  example.type.startsWith('oauth')
+type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>
 
 type PKCEState = {
   codeVerifier: string
@@ -67,49 +58,43 @@ export const generateCodeChallenge = async (
  * @returns the accessToken
  */
 export const authorizeOauth2 = async (
-  scheme: SecuritySchemeOauth2,
-  example: SecuritySchemeOauth2ExampleValue,
+  flow: Oauth2Flow,
   /** We use the active server to set a base for relative redirect uris */
   activeServer: Server,
 ): Promise<ErrorResponse<string>> => {
   try {
-    const scopes = scheme.flow.selectedScopes.join(' ')
+    if (!flow) return [new Error('Flow not found'), null]
+
+    const scopes = flow.selectedScopes.join(' ')
 
     // Client Credentials or Password Flow
-    if (
-      scheme.flow.type === 'clientCredentials' ||
-      scheme.flow.type === 'password'
-    ) {
-      return authorizeServers(
-        scheme as SecuritySchemeOauth2NonImplicit,
-        example,
-        scopes,
-      )
+    if (flow.type === 'clientCredentials' || flow.type === 'password') {
+      return authorizeServers(flow, scopes)
     }
 
     // OAuth2 flows with a login popup
     else {
       const state = (Math.random() + 1).toString(36).substring(7)
-      const url = new URL(scheme.flow.authorizationUrl)
+      const url = new URL(flow.authorizationUrl)
 
       /** Special PKCE state */
       let pkce: PKCEState | null = null
 
       // Params unique to the flows
-      if (scheme.flow.type === 'implicit') {
+      if (flow.type === 'implicit') {
         url.searchParams.set('response_type', 'token')
       }
 
       // Authorization Code Flow
-      else if (scheme.flow.type === 'authorizationCode') {
+      else if (flow.type === 'authorizationCode') {
         url.searchParams.set('response_type', 'code')
 
         // PKCE
-        if (scheme.flow['x-usePkce'] !== 'no') {
+        if (flow['x-usePkce'] !== 'no') {
           const codeVerifier = generateCodeVerifier()
           const codeChallenge = await generateCodeChallenge(
             codeVerifier,
-            scheme.flow['x-usePkce'],
+            flow['x-usePkce'],
           )
 
           // Set state for later verification
@@ -117,7 +102,7 @@ export const authorizeOauth2 = async (
             codeVerifier,
             codeChallenge,
             codeChallengeMethod:
-              scheme.flow['x-usePkce'] === 'SHA-256' ? 'S256' : 'plain',
+              flow['x-usePkce'] === 'SHA-256' ? 'S256' : 'plain',
           }
 
           // Set the code challenge and method on the url
@@ -130,24 +115,21 @@ export const authorizeOauth2 = async (
       }
 
       // Handle relative redirect uris
-      if (scheme.flow['x-scalar-redirect-uri'].startsWith('/')) {
+      if (flow['x-scalar-redirect-uri'].startsWith('/')) {
         const baseUrl =
           activeServer.url || window.location.origin + window.location.pathname
         const redirectUri = new URL(
-          scheme.flow['x-scalar-redirect-uri'],
+          flow['x-scalar-redirect-uri'],
           baseUrl,
         ).toString()
 
         url.searchParams.set('redirect_uri', redirectUri)
       } else {
-        url.searchParams.set(
-          'redirect_uri',
-          scheme.flow['x-scalar-redirect-uri'],
-        )
+        url.searchParams.set('redirect_uri', flow['x-scalar-redirect-uri'])
       }
 
       // Common to all flows
-      url.searchParams.set('client_id', scheme['x-scalar-client-id'])
+      url.searchParams.set('client_id', flow['x-scalar-client-id'])
       url.searchParams.set('state', state)
       if (scopes) url.searchParams.set('scope', scopes)
 
@@ -203,8 +185,7 @@ export const authorizeOauth2 = async (
 
                 if (_state === state) {
                   authorizeServers(
-                    scheme as SecuritySchemeOauth2NonImplicit,
-                    example,
+                    flow as NonImplicitFlow,
                     scopes,
                     code,
                     pkce,
@@ -236,28 +217,20 @@ export const authorizeOauth2 = async (
  * Used for clientCredentials and authorizationCode
  */
 export const authorizeServers = async (
-  scheme: SecuritySchemeOauth2NonImplicit,
-  example: SecuritySchemeOauth2ExampleValue,
+  flow: NonImplicitFlow,
   scopes: string,
   code?: string,
   pkce?: PKCEState | null,
 ): Promise<ErrorResponse<string>> => {
-  if (!('clientSecret' in example))
-    return [
-      new Error(
-        'Authorize Servers only works for Password, Client Credentials or Authorization Code flow',
-      ),
-      null,
-    ]
-  if (!scheme.flow) return [new Error('OAuth2 flow was not defined'), null]
+  if (!flow) return [new Error('OAuth2 flow was not defined'), null]
 
   const formData = new URLSearchParams()
-  formData.set('client_id', scheme['x-scalar-client-id'])
+  formData.set('client_id', flow['x-scalar-client-id'])
   if (scopes) formData.set('scope', scopes)
 
-  if (example.clientSecret) formData.set('client_secret', example.clientSecret)
-  if ('x-scalar-redirect-uri' in scheme.flow)
-    formData.set('redirect_uri', scheme.flow['x-scalar-redirect-uri'])
+  if (flow.clientSecret) formData.set('client_secret', flow.clientSecret)
+  if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri'])
+    formData.set('redirect_uri', flow['x-scalar-redirect-uri'])
 
   // Authorization Code
   if (code) {
@@ -270,10 +243,10 @@ export const authorizeServers = async (
     }
   }
   // Password
-  else if (example.type === 'oauth-password') {
+  else if (flow.type === 'password') {
     formData.set('grant_type', 'password')
-    formData.set('username', example.username)
-    formData.set('password', example.password)
+    formData.set('username', flow.username)
+    formData.set('password', flow.password)
   }
   // Client Credentials
   else {
@@ -286,11 +259,10 @@ export const authorizeServers = async (
     }
 
     // Add client id + secret to headers
-    if (scheme['x-scalar-client-id'] && example.clientSecret)
-      headers.Authorization = `Basic ${btoa(`${scheme['x-scalar-client-id']}:${example.clientSecret}`)}`
+    headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
 
     // Make the call
-    const resp = await fetch(scheme.flow.tokenUrl, {
+    const resp = await fetch(flow.tokenUrl, {
       method: 'POST',
       headers,
       body: formData,

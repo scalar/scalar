@@ -15,7 +15,7 @@ import {
   tagSchema,
 } from '@/entities/spec'
 import {
-  type OauthFlowSchemaPayload,
+  type Oauth2FlowPayload,
   type SecurityScheme,
   type SecuritySchemePayload,
   securitySchemeSchema,
@@ -158,7 +158,7 @@ export async function importSpecToWorkspace(
 
         flowKeys.forEach((key) => {
           if (!payload.flows?.[key]) return
-          const flow = payload.flows[key] as OauthFlowSchemaPayload
+          const flow = payload.flows[key] as Oauth2FlowPayload
 
           // Set the type
           flow.type = key
