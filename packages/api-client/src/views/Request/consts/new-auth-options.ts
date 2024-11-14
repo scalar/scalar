@@ -64,8 +64,10 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'oauth2',
       nameKey: 'oauth2Implicit',
-      flow: {
-        type: 'implicit',
+      flows: {
+        implicit: {
+          type: 'implicit',
+        },
       },
     },
   },
@@ -74,8 +76,10 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'oauth2',
       nameKey: 'oauth2Password',
-      flow: {
-        type: 'password',
+      flows: {
+        password: {
+          type: 'password',
+        },
       },
     },
   },
@@ -84,8 +88,10 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'oauth2',
       nameKey: 'oauth2ClientCredentials',
-      flow: {
-        type: 'clientCredentials',
+      flows: {
+        clientCredentials: {
+          type: 'clientCredentials',
+        },
       },
     },
   },
@@ -94,8 +100,10 @@ export const ADD_AUTH_DICT = {
     payload: {
       type: 'oauth2',
       nameKey: 'oauth2AuthorizationFlow',
-      flow: {
-        type: 'authorizationCode',
+      flows: {
+        authorizationCode: {
+          type: 'authorizationCode',
+        },
       },
     },
   },
