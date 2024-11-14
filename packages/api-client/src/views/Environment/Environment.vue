@@ -91,7 +91,7 @@ function addEnvironment(environment: {
       collectionMutators.edit(collection.uid, `x-scalar-environments`, {
         ...currentEnvironments,
         [environment.name]: {
-          variables: newEnvironmentValue,
+          variables: { '': '' },
           color: environment.color,
         },
       })
@@ -106,22 +106,42 @@ function handleEnvironmentUpdate(raw: string) {
     const updatedValue = parseEnvironmentValue(raw)
 
     const currentValue = parseEnvironmentValue(
-      environments[activeEnvironmentID.value].value,
+      JSON.stringify(
+        activeWorkspaceCollections.value.find(
+          (c) => c['x-scalar-environments']?.[activeEnvironmentID.value ?? ''],
+        )?.['x-scalar-environments']?.[activeEnvironmentID.value ?? '']
+          ?.variables || {},
+      ),
     )
 
-    Object.keys(updatedValue).forEach((key) => {
-      if (!(key in currentValue)) {
-        synchronizeKeys(key)
-      }
-    })
+    if (environments[activeEnvironmentID.value]) {
+      Object.keys(updatedValue).forEach((key) => {
+        if (!(key in currentValue)) {
+          synchronizeKeys(key)
+        }
+      })
 
-    Object.keys(currentValue).forEach((key) => {
-      if (!(key in updatedValue)) {
-        synchronizeKeyRemoval(key)
+      Object.keys(currentValue).forEach((key) => {
+        if (!(key in updatedValue)) {
+          synchronizeKeyRemoval(key)
+        }
+      })
+      environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
+    } else {
+      const collection = activeWorkspaceCollections.value.find(
+        (c) => c['x-scalar-environments']?.[activeEnvironmentID.value ?? ''],
+      )
+      if (collection?.['x-scalar-environments']?.[activeEnvironmentID.value]) {
+        collection['x-scalar-environments'][
+          activeEnvironmentID.value
+        ].variables = updatedValue
+        collectionMutators.edit(
+          collection.uid,
+          'x-scalar-environments',
+          collection['x-scalar-environments'],
+        )
       }
-    })
-
-    environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
+    }
   }
 }
 
@@ -275,6 +295,31 @@ const handleHotKey = (event?: HotKeyEvent) => {
   }
 }
 
+const getEnvironmentName = (environmentId: string) => {
+  return environments[environmentId]?.name || environmentId
+}
+
+const getEnvironmentValue = (environmentId: string) => {
+  const environment = environments[environmentId]
+  if (environment?.value) {
+    return environment.value
+  }
+
+  const collection = activeWorkspaceCollections.value.find(
+    (c) => c['x-scalar-environments']?.[environmentId ?? ''],
+  )
+
+  if (collection?.['x-scalar-environments']) {
+    return JSON.stringify(
+      collection['x-scalar-environments']?.[environmentId ?? '']?.variables,
+      null,
+      2,
+    )
+  }
+
+  return ''
+}
+
 watch(
   () => route.params.environment,
   (newEnvironmentId) =>
@@ -394,7 +439,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           <span
             v-if="!isEditingName || environments[activeEnvironmentID].isDefault"
             @dblclick="enableNameEditing">
-            {{ environments[activeEnvironmentID].name }}
+            {{ getEnvironmentName(activeEnvironmentID) }}
           </span>
           <input
             v-else
@@ -402,7 +447,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             class="ring-1 ring-offset-4 ring-b-outline rounded"
             spellcheck="false"
             type="text"
-            :value="environments[activeEnvironmentID].name"
+            :value="getEnvironmentName(activeEnvironmentID)"
             @blur="isEditingName = false"
             @input="updateEnvironmentName"
             @keyup.enter="isEditingName = false" />
@@ -414,7 +459,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           language="json"
           lineNumbers
           lint
-          :modelValue="environments[activeEnvironmentID].value"
+          :modelValue="getEnvironmentValue(activeEnvironmentID)"
           @update:modelValue="handleEnvironmentUpdate" />
       </ViewLayoutSection>
     </ViewLayoutContent>
