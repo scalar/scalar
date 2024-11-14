@@ -36,7 +36,6 @@ const selected = computed<ScalarListboxOption | undefined>({
   <ScalarListbox
     v-model="selected"
     class="text-sm"
-    fullWidth
     :options="options"
     resize
     teleport>

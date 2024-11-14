@@ -29,7 +29,6 @@ const selected = computed<ScalarListboxOption | undefined>({
 <template>
   <ScalarListbox
     v-model="selected"
-    fullWidth
     :options="options">
     <ScalarButton
       :aria-controls="controls"
@@ -39,9 +38,9 @@ const selected = computed<ScalarListboxOption | undefined>({
       <span :class="{ 'text-c-1': value }">
         <span
           v-if="value"
-          class="sr-only"
-          >Selected:</span
-        >
+          class="sr-only">
+          Selected:
+        </span>
         {{ value || 'Select value' }}
       </span>
       <ScalarIcon

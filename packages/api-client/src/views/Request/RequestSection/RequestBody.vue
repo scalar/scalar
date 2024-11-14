@@ -403,15 +403,14 @@ watch(
     <DataTable :columns="['']">
       <DataTableRow>
         <DataTableHeader
-          class="relative col-span-full flex h-8 cursor-pointer items-center px-[2.25px] py-[2.25px]">
+          class="relative col-span-full flex h-8 cursor-pointer items-center !p-0">
           <ScalarListbox
             v-model="selectedContentType"
-            class="text-xxs w-full"
-            fullWidth
+            class="text-xxs"
             :options="contentTypeOptions"
             teleport>
             <ScalarButton
-              class="flex gap-1.5 h-auto px-1.5 text-c-2 font-normal hover:text-c-1"
+              class="flex gap-1.5 h-full px-2 text-c-2 font-normal hover:text-c-1"
               fullWidth
               variant="ghost">
               <span>{{ selectedContentType?.label }}</span>
