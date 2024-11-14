@@ -14,6 +14,7 @@ import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import {
+  ScalarButton,
   ScalarIcon,
   ScalarSearchInput,
   ScalarSearchResultItem,
@@ -59,7 +60,9 @@ const {
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
-
+const openCommandPaletteImport = () => {
+  events.commandPalette.emit({ commandName: 'Import from OpenAPI/Swagger' })
+}
 const searchResultsId = useId()
 
 /** The currently selected sidebarMenuItem for the context menu */
@@ -276,6 +279,15 @@ const handleClearDrafts = () => {
             </p>
           </div>
         </div>
+        <ScalarButton
+          v-if="!isReadonly"
+          class="mb-1.5 w-full h-fit hidden opacity-0 p-1.5"
+          :class="{
+            'flex opacity-100': activeWorkspaceRequests.length <= 1,
+          }"
+          @click="openCommandPaletteImport">
+          Import Collection
+        </ScalarButton>
         <SidebarButton
           v-if="!isReadonly"
           :click="events.commandPalette.emit"
@@ -301,13 +313,6 @@ const handleClearDrafts = () => {
     color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
     transparent
   );
-}
-.empty-sidebar-item:deep(.scalar-button) {
-  background: var(--scalar-button-1);
-  color: var(--scalar-button-1-color);
-}
-.empty-sidebar-item:deep(.scalar-button:hover) {
-  background: var(--scalar-button-1-hover);
 }
 .empty-sidebar-item:deep(.add-item-hotkey) {
   color: var(--scalar-button-1-color);
