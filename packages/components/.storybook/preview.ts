@@ -6,6 +6,7 @@ import '../src/tailwind/tailwind.css'
 import './preview.css'
 
 document.documentElement.classList.add('scalar-app')
+document.documentElement.classList.add('light-mode')
 
 const preview: Preview = {
   parameters: {
