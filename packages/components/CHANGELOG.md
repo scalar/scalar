@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.69
+
+### Patch Changes
+
+- 0a34402: feat(components): simplify index exports
+
 ## 0.12.68
 
 ### Patch Changes

@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.1.49
+
+### Patch Changes
+
+- 49ccdee: refactor: updates regexHelpers
+- 45342e3: style(api-client): add import button and command k ascii art in empty state
+- d0c93f5: feat: adds clear drafts action to draft collection
+- 8b54fac: fix(api-client): overflow scroll mobile on api client
+- Updated dependencies [49ccdee]
+- Updated dependencies [0a34402]
+  - @scalar/oas-utils@0.2.75
+  - @scalar/components@0.12.69
+  - @scalar/use-codemirror@0.11.36
+
 ## 2.1.48
 
 ### Patch Changes

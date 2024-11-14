@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.64
+
+### Patch Changes
+
+- 49ccdee: refactor: updates regexHelpers
+- 49ccdee: fix: base url server variables
+- Updated dependencies [49ccdee]
+- Updated dependencies [45342e3]
+- Updated dependencies [0a34402]
+- Updated dependencies [d0c93f5]
+- Updated dependencies [8b54fac]
+  - @scalar/api-client@2.1.49
+  - @scalar/oas-utils@0.2.75
+  - @scalar/components@0.12.69
+
 ## 1.25.63
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.75
+
+### Patch Changes
+
+- 49ccdee: refactor: updates regexHelpers
+
 ## 0.2.74
 
 ### Patch Changes
