@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CommandActionForm from '@/components/CommandPalette/CommandActionForm.vue'
 import CommandActionInput from '@/components/CommandPalette/CommandActionInput.vue'
+import { useWorkspace } from '@/store'
 import {
   type ModalState,
   ScalarButton,
@@ -18,6 +19,7 @@ import EnvironmentColors from './EnvironmentColors.vue'
 const props = defineProps<{
   state: ModalState
   activeWorkspaceCollections: Collection[]
+  collectionId?: string
 }>()
 
 const emit = defineEmits<{
@@ -33,12 +35,12 @@ const emit = defineEmits<{
   ): void
 }>()
 
+const { events } = useWorkspace()
+
 const environmentName = ref('')
 const selectedColor = ref('#8E8E8E')
-const environmentType = ref<ScalarComboboxOption | undefined>()
 
 const collections = computed(() => [
-  { id: 'global', label: 'Global' },
   ...props.activeWorkspaceCollections
     .filter((collection) => collection.info?.title !== 'Drafts')
     .map((collection) => ({
@@ -48,9 +50,7 @@ const collections = computed(() => [
 ])
 
 const selectedEnvironment = ref<ScalarComboboxOption | undefined>(
-  collections.value.find(
-    (collection) => collection.id === environmentType.value?.id,
-  ),
+  collections.value.find((collection) => collection.id === props.collectionId),
 )
 
 const { toast } = useToasts()
@@ -66,8 +66,13 @@ watch(
     if (isOpen) {
       environmentName.value = ''
       selectedColor.value = '#8E8E8E'
-      environmentType.value = undefined
-      selectedEnvironment.value = undefined
+      if (props.collectionId) {
+        selectedEnvironment.value = collections.value.find(
+          (collection) => collection.id === props.collectionId,
+        )
+      } else {
+        selectedEnvironment.value = undefined
+      }
     }
   },
 )
@@ -86,6 +91,11 @@ const handleSubmit = () => {
         ? selectedEnvironment.value?.id
         : undefined,
   })
+}
+
+const redirectToCreateCollection = () => {
+  props.state.hide()
+  events.commandPalette.emit({ commandName: 'Create Collection' })
 }
 </script>
 
@@ -119,12 +129,21 @@ const handleSubmit = () => {
             class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2 w-fit"
             variant="outlined">
             <span :class="selectedEnvironment ? 'text-c-1' : 'text-c-3'">{{
-              selectedEnvironment ? selectedEnvironment.label : 'Select Scope'
+              selectedEnvironment
+                ? selectedEnvironment.label
+                : 'Select Collection'
             }}</span>
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
               size="xs" />
+          </ScalarButton>
+          <ScalarButton
+            v-else
+            class="justify-between p-2 max-h-8 gap-1 text-xs hover:bg-b-2"
+            variant="outlined"
+            @click="redirectToCreateCollection">
+            <span class="text-c-1">Create Collection</span>
           </ScalarButton>
         </ScalarListbox>
       </template>

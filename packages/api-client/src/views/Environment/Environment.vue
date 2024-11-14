@@ -10,7 +10,7 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { ScalarIcon, useModal } from '@scalar/components'
+import { ScalarButton, ScalarIcon, useModal } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import { nanoid } from 'nanoid'
@@ -38,6 +38,7 @@ const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
 const selectedColor = ref('')
+const selectedCollectionId = ref<string | undefined>(undefined)
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
@@ -81,7 +82,9 @@ function addEnvironment(environment: {
 
     environmentMutators.add(newEnvironment)
     activeEnvironmentID.value = newEnvironment.uid
-    toggleSidebarFolder('global')
+    if (!collapsedSidebarFolders['global']) {
+      toggleSidebarFolder('global')
+    }
     router.push(activeEnvironmentID.value)
   } else if (environment.type === 'collection' && environment.collectionId) {
     const collection = activeWorkspaceCollections.value.find(
@@ -97,7 +100,9 @@ function addEnvironment(environment: {
         },
       })
       activeEnvironmentID.value = environment.name
-      toggleSidebarFolder(collection.uid)
+      if (!collapsedSidebarFolders[collection.uid]) {
+        toggleSidebarFolder(collection.uid)
+      }
       router.push({
         name: 'environment',
         params: { environment: environment.name },
@@ -189,7 +194,8 @@ const updateEnvironmentName = (event: Event) => {
   }
 }
 
-const openEnvironmentModal = () => {
+const openEnvironmentModal = (collectionId?: string) => {
+  selectedCollectionId.value = collectionId
   environmentModal.show()
 }
 
@@ -384,7 +390,7 @@ onMounted(() => {
   events.hotKeys.on(handleHotKey)
   collapsedSidebarFolders.global = true
   const { collectionId } = router.currentRoute.value.params
-  if (collectionId) {
+  if (collectionId && !collapsedSidebarFolders[collectionId as string]) {
     toggleSidebarFolder(collectionId as string)
   }
 })
@@ -435,7 +441,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             </div>
             <div
               v-for="collection in activeWorkspaceCollections"
-              :key="collection.uid">
+              :key="collection.uid"
+              class="flex flex-col gap-0.25">
               <button
                 v-if="collection.info?.title !== 'Drafts'"
                 class="flex font-medium gap-1.5 group items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
@@ -459,7 +466,11 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               <div
                 v-if="collection.info?.title !== 'Drafts'"
                 v-show="showChildren(collection.uid)"
-                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                :class="{
+                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative':
+                    Object.keys(collection['x-scalar-environments'] || {})
+                      .length > 0,
+                }">
                 <SidebarListElement
                   v-for="(env, envName) in collection['x-scalar-environments']"
                   :key="envName"
@@ -475,6 +486,20 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                   :warningMessage="`Are you sure you want to delete this environment?`"
                   @colorModal="handleOpenColorModal(envName, true)"
                   @delete="removeCollectionEnvironment(envName)" />
+                <ScalarButton
+                  v-if="
+                    Object.keys(collection['x-scalar-environments'] || {})
+                      .length === 0
+                  "
+                  class="mb-[.5px] flex gap-1.5 h-8 text-c-1 pl-6 py-0 justify-start text-xs w-full hover:bg-b-2"
+                  variant="ghost"
+                  @click="openEnvironmentModal(collection.uid)">
+                  <ScalarIcon
+                    class="ml-0.5 h-2.5 w-2.5"
+                    icon="Add"
+                    thickness="3" />
+                  <span>Add Environment</span>
+                </ScalarButton>
               </div>
             </div>
           </SidebarList>
@@ -527,6 +552,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       @submit="submitColorChange" />
     <EnvironmentModal
       :activeWorkspaceCollections="activeWorkspaceCollections"
+      :collectionId="selectedCollectionId"
       :state="environmentModal"
       @cancel="environmentModal.hide()"
       @submit="addEnvironment" />
