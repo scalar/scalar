@@ -6,7 +6,7 @@ import type { v_2_2_0 } from './types.generated'
 export const migrate_v_2_2_0 = (
   data: v_2_1_0.DataRecord,
 ): v_2_2_0.DataRecord => {
-  console.info('Performing data migration v-0.0.0 to v-2.1.0')
+  console.info('Performing data migration v-2.1.0 to v-2.2.0')
 
   console.log('TODO: this')
 

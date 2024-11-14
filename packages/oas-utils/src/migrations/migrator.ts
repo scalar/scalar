@@ -28,19 +28,19 @@ export const migrator = (): v_2_2_0.DataArray => {
   if (semverLessThan(dataVersion, '2.1.0')) data = migrate_v_2_1_0(data)
   // 2.1.0 -> 2.2.0 migration
   if (semverLessThan(dataVersion, '2.2.0')) data = migrate_v_2_2_0(data)
-  // If no migration, just grab values
-  else
-    data = {
-      collections: Object.values(data.collections),
-      cookies: Object.values(data.cookies),
-      environments: Object.values(data.environments),
-      requestExamples: Object.values(data.requestExamples),
-      requests: Object.values(data.requests),
-      securitySchemes: Object.values(data.securitySchemes),
-      servers: Object.values(data.servers),
-      tags: Object.values(data.tags),
-      workspaces: Object.values(data.workspaces),
-    } satisfies v_2_2_0.DataArray
+
+  // Convert to data array
+  data = {
+    collections: Object.values(data.collections),
+    cookies: Object.values(data.cookies),
+    environments: Object.values(data.environments),
+    requestExamples: Object.values(data.requestExamples),
+    requests: Object.values(data.requests),
+    securitySchemes: Object.values(data.securitySchemes),
+    servers: Object.values(data.servers),
+    tags: Object.values(data.tags),
+    workspaces: Object.values(data.workspaces),
+  } satisfies v_2_2_0.DataArray
 
   return data
 }
