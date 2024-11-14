@@ -3,11 +3,7 @@ import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
-import { isOauth2Example } from '@/views/Request/libs'
-import type {
-  SecurityScheme,
-  SecuritySchemeExampleValue,
-} from '@scalar/oas-utils/entities/spec'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'

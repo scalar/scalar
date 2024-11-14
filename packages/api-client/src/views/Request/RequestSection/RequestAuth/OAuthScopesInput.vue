@@ -7,16 +7,16 @@ import {
 import type { UpdateScheme } from '@/store'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { SecuritySchemeOauth2 } from '@scalar/oas-utils/entities/spec'
+import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
-const props = defineProps<{
-  activeFlow: SecuritySchemeOauth2['flow']
+const { flow, updateScheme } = defineProps<{
+  flow: Oauth2Flow
   updateScheme: UpdateScheme
 }>()
 
 const scopes = computed(() =>
-  Object.entries(props.activeFlow?.scopes ?? {}).map(([key, val]) => ({
+  Object.entries(flow?.scopes ?? {}).map(([key, val]) => ({
     id: key,
     label: key,
     description: val,
@@ -24,16 +24,19 @@ const scopes = computed(() =>
 )
 
 /** An array of the selected scope ids */
-const selectedScopes = computed(() => props.activeFlow?.selectedScopes || [])
+const selectedScopes = computed(() => flow?.selectedScopes || [])
 
 function setScope(id: string, checked: boolean) {
   // Checked - Add scope to list
   if (checked)
-    props.updateScheme('flow.selectedScopes', [...selectedScopes.value, id])
+    updateScheme(`flows.${flow.type}.selectedScopes`, [
+      ...selectedScopes.value,
+      id,
+    ])
   // Unchecked - Remove scope from list
   else
-    props.updateScheme(
-      'flow.selectedScopes',
+    updateScheme(
+      `flows.${flow.type}.selectedScopes`,
       selectedScopes.value.filter((scope) => scope !== id),
     )
 }
@@ -52,14 +55,12 @@ function setScope(id: string, checked: boolean) {
           v-slot="{ open }"
           :class="[
             'group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-2 hover:text-c-1 pr-2.5 cursor-pointer',
-            (activeFlow?.selectedScopes?.length || 0) > 0
-              ? 'text-c-1'
-              : 'text-c-3',
+            (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
             Selected
-            {{ activeFlow?.selectedScopes?.length || 0 }} /
-            {{ Object.keys(activeFlow?.scopes ?? {}).length || 0 }}
+            {{ flow?.selectedScopes?.length || 0 }} /
+            {{ Object.keys(flow?.scopes ?? {}).length || 0 }}
           </div>
           <ScalarIcon
             class="text-c-3 group-hover/scopes-accordion:text-c-2"

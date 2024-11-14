@@ -6,36 +6,28 @@ import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAut
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import {
+  type Oauth2Flow,
   type SecuritySchemeOauth2,
-  type SecuritySchemeOauth2ExampleValue,
   pkceOptions,
 } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 
-const props = defineProps<{
-  example: SecuritySchemeOauth2ExampleValue
+const { scheme, flow } = defineProps<{
   scheme: SecuritySchemeOauth2
+  flow: Oauth2Flow
 }>()
 
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 
 const { activeCollection, activeServer } = useActiveEntities()
-const { collectionMutators, isReadOnly, securitySchemeMutators } =
-  useWorkspace()
-
-type CollectionArgs = Parameters<typeof collectionMutators.edit>
-
-/** Update the current auth */
-const updateAuth = (path: CollectionArgs[1], value: CollectionArgs[2]) =>
-  activeCollection.value &&
-  collectionMutators.edit(activeCollection.value.uid, path, value)
+const { isReadOnly, securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
-  securitySchemeMutators.edit(props.scheme.uid, path, value)
+  securitySchemeMutators.edit(scheme.uid, path, value)
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
@@ -43,12 +35,11 @@ const handleAuthorize = async () => {
   loadingState.startLoading()
 
   const [error, accessToken] = await authorizeOauth2(
-    props.scheme,
-    props.example,
+    flow,
     activeServer.value,
   ).finally(() => loadingState.stopLoading())
 
-  if (accessToken) updateAuth(`auth.${props.scheme.uid}.token`, accessToken)
+  if (accessToken) updateScheme(`flows.${flow.type}.token`, accessToken)
   else {
     console.error(error)
     toast(error?.message ?? 'Failed to authorize', 'error')
@@ -58,17 +49,15 @@ const handleAuthorize = async () => {
 
 <template>
   <!-- Access Token Granted -->
-  <template v-if="example.token">
+  <template v-if="flow.token">
     <DataTableRow>
       <RequestAuthDataTableInput
         id="oauth2-access-token"
         class="border-r-transparent"
-        :modelValue="example.token"
+        :modelValue="flow.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
-        @update:modelValue="
-          (v) => updateAuth(`auth.${props.scheme.uid}.token`, v)
-        ">
+        @update:modelValue="(v) => updateScheme(`flows.${flow.type}.token`, v)">
         Access Token
       </RequestAuthDataTableInput>
     </DataTableRow>
@@ -79,7 +68,7 @@ const handleAuthorize = async () => {
           :loading="loadingState"
           size="sm"
           variant="outlined"
-          @click="updateAuth(`auth.${props.scheme.uid}.token`, '')">
+          @click="updateScheme(`flows.${flow.type}.token`, '')">
           Clear
         </ScalarButton>
       </div>
@@ -90,47 +79,51 @@ const handleAuthorize = async () => {
     <!-- Custom auth -->
     <DataTableRow v-if="!isReadOnly">
       <RequestAuthDataTableInput
-        v-if="'authorizationUrl' in scheme.flow"
+        v-if="'authorizationUrl' in flow"
         :id="`oauth2-authorization-url-${scheme.uid}`"
-        :modelValue="scheme.flow.authorizationUrl"
+        :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
-        @update:modelValue="(v) => updateScheme('flow.authorizationUrl', v)">
+        @update:modelValue="
+          (v) => updateScheme(`flows.${flow.type}.authorizationUrl`, v)
+        ">
         Auth Url
       </RequestAuthDataTableInput>
 
       <RequestAuthDataTableInput
-        v-if="'tokenUrl' in scheme.flow"
+        v-if="'tokenUrl' in flow"
         :id="`oauth2-token-url-${scheme.uid}`"
-        :modelValue="scheme.flow.tokenUrl"
+        :modelValue="flow.tokenUrl"
         placeholder="https://galaxy.scalar.com/token"
-        @update:modelValue="(v) => updateScheme('flow.tokenUrl', v)">
+        @update:modelValue="
+          (v) => updateScheme(`flows.${flow.type}.tokenUrl`, v)
+        ">
         Token Url
       </RequestAuthDataTableInput>
     </DataTableRow>
 
-    <DataTableRow v-if="'x-scalar-redirect-uri' in scheme.flow">
+    <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         :id="`oauth2-redirect-uri-${scheme.uid}`"
-        :modelValue="scheme.flow['x-scalar-redirect-uri']"
+        :modelValue="flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
-          (v) => updateScheme('flow.x-scalar-redirect-uri', v)
+          (v) => updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, v)
         ">
         Redirect Url
       </RequestAuthDataTableInput>
     </DataTableRow>
 
     <!-- Username and password -->
-    <template v-if="example.type === 'oauth-password'">
+    <template v-if="flow.type === 'password'">
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
-          :modelValue="example.username"
+          :modelValue="flow.username"
           placeholder="ScalarEnjoyer01"
           @update:modelValue="
-            (v) => updateAuth(`auth.${scheme.uid}.username`, v)
+            (v) => updateScheme(`flows.${flow.type}.username`, v)
           ">
           Username
         </RequestAuthDataTableInput>
@@ -138,11 +131,11 @@ const handleAuthorize = async () => {
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-password-${scheme.uid}`"
-          :modelValue="example.password"
+          :modelValue="flow.password"
           placeholder="xxxxxx"
           type="password"
           @update:modelValue="
-            (v) => updateAuth(`auth.${scheme.uid}.password`, v)
+            (v) => updateScheme(`flows.${flow.type}.password`, v)
           ">
           Password
         </RequestAuthDataTableInput>
@@ -153,46 +146,51 @@ const handleAuthorize = async () => {
     <DataTableRow>
       <RequestAuthDataTableInput
         :id="`oauth2-client-id-${scheme.uid}`"
-        :modelValue="scheme['x-scalar-client-id']"
+        :modelValue="flow['x-scalar-client-id']"
         placeholder="12345"
-        @update:modelValue="(v) => updateScheme('x-scalar-client-id', v)">
+        @update:modelValue="
+          (v) => updateScheme(`flows.${flow.type}.x-scalar-client-id`, v)
+        ">
         Client ID
       </RequestAuthDataTableInput>
     </DataTableRow>
 
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
-    <DataTableRow v-if="'clientSecret' in example">
+    <DataTableRow v-if="'clientSecret' in flow">
       <RequestAuthDataTableInput
         :id="`oauth2-client-secret-${scheme.uid}`"
-        :modelValue="example.clientSecret"
+        :modelValue="flow.clientSecret"
         placeholder="XYZ123"
         type="password"
         @update:modelValue="
-          (v) => updateAuth(`auth.${scheme.uid}.clientSecret`, v)
+          (v) => updateScheme(`flows.${flow.type}.clientSecret`, v)
         ">
         Client Secret
       </RequestAuthDataTableInput>
     </DataTableRow>
 
     <!-- PKCE -->
-    <DataTableRow v-if="'x-usePkce' in scheme.flow">
+    <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
         :id="`oauth2-use-pkce-${scheme.uid}`"
         :enum="pkceOptions"
-        :modelValue="scheme.flow['x-usePkce']"
+        :modelValue="flow['x-usePkce']"
         readOnly
         @update:modelValue="
           (v) =>
-            updateScheme('flow.x-usePkce', v as (typeof pkceOptions)[number])
+            updateScheme(
+              `flows.${flow.type}.x-usePkce`,
+              v as (typeof pkceOptions)[number],
+            )
         ">
         Use PKCE
       </RequestAuthDataTableInput>
     </DataTableRow>
 
     <!-- Scopes -->
-    <DataTableRow v-if="Object.keys(scheme.flow.scopes ?? {}).length">
+    <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
       <OAuthScopesInput
-        :activeFlow="scheme.flow"
+        :flow="flow"
         :updateScheme="updateScheme" />
     </DataTableRow>
 

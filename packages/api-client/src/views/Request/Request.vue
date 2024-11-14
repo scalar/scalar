@@ -92,7 +92,6 @@ const executeRequest = async () => {
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
   const [error, requestOperation] = createRequestOperation({
-    auth: activeCollection.value.auth,
     request: activeRequest.value,
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
