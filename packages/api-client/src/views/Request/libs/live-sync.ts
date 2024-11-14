@@ -9,7 +9,6 @@ import {
   type Server,
   collectionSchema,
   createExampleFromRequest,
-  oasOauthFlowSchema,
   requestSchema,
   securitySchemeSchema,
   serverSchema,
@@ -605,51 +604,43 @@ export const mutateSecuritySchemeDiff = (
 
   // Edit update properties
   if (keys?.length) {
-    if (!scheme) return false
-
-    // Narrows the schema and path based on oauth2 vs non oauth2
-    const { schema, _path } =
-      keys[0] === 'flows' && scheme.type === 'oauth2'
-        ? {
-            schema: narrowUnionSchema(
-              oasOauthFlowSchema,
-              'type',
-              scheme?.flow?.type,
-            ),
-            _path: keys.slice(2),
-          }
-        : {
-            schema: narrowUnionSchema(
-              securitySchemeSchema,
-              'type',
-              scheme?.type,
-            ),
-            _path: keys,
-          }
-
-    // Scopes is another union so lets handle it separately
-    if (_path[0] === 'scopes' && scheme.type === 'oauth2') {
-      const scopes = { ...scheme.flow.scopes } as Record<string, string>
-
-      if (diff.type === 'CREATE' || diff.type === 'CHANGE') {
-        scopes[_path[1]] = diff.value
-      } else delete scopes[_path[1]]
-
-      securitySchemeMutators.edit(scheme.uid, 'flow.scopes', scopes)
-      return true
-    }
-
-    if (!schema) return false
-
-    const parsed = parseDiff(schema, { ...diff, path: _path })
-    if (!parsed) return false
-
-    // We prepend flow to the path for an oauth2 flow
-    const path = (
-      keys[0] === 'flows' ? ['flow', ..._path].join('.') : parsed.path
-    ) as Path<SecurityScheme>
-
-    securitySchemeMutators.edit(scheme.uid, path, parsed.value)
+    // if (!scheme) return false
+    // // Narrows the schema and path based on oauth2 vs non oauth2
+    // const { schema, _path } =
+    //   keys[0] === 'flows' && scheme.type === 'oauth2'
+    //     ? {
+    //         schema: narrowUnionSchema(
+    //           oasOauthFlowSchema,
+    //           'type',
+    //           scheme?.flow?.type,
+    //         ),
+    //         _path: keys.slice(2),
+    //       }
+    //     : {
+    //         schema: narrowUnionSchema(
+    //           securitySchemeSchema,
+    //           'type',
+    //           scheme?.type,
+    //         ),
+    //         _path: keys,
+    //       }
+    // // Scopes is another union so lets handle it separately
+    // if (_path[0] === 'scopes' && scheme.type === 'oauth2') {
+    //   const scopes = { ...scheme.flow.scopes } as Record<string, string>
+    //   if (diff.type === 'CREATE' || diff.type === 'CHANGE') {
+    //     scopes[_path[1]] = diff.value
+    //   } else delete scopes[_path[1]]
+    //   securitySchemeMutators.edit(scheme.uid, 'flow.scopes', scopes)
+    //   return true
+    // }
+    // if (!schema) return false
+    // const parsed = parseDiff(schema, { ...diff, path: _path })
+    // if (!parsed) return false
+    // // We prepend flow to the path for an oauth2 flow
+    // const path = (
+    //   keys[0] === 'flows' ? ['flow', ..._path].join('.') : parsed.path
+    // ) as Path<SecurityScheme>
+    // securitySchemeMutators.edit(scheme.uid, path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
