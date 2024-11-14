@@ -2,12 +2,12 @@
 // TODO: Disabled until we polished the UI.
 // import { ImportCollectionListener } from '@/components/ImportCollection'
 import TopNav from '@/components/TopNav/TopNav.vue'
-import { useDarkModeState } from '@/hooks'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { DEFAULT_HOTKEYS, type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
@@ -26,8 +26,8 @@ const handleNewTab = (item: { name: string; uid: string }) => {
   newTab.value = item
 }
 
-// Initialize dark mode state globally
-useDarkModeState()
+// Initialize color mode state globally
+useColorMode()
 
 const workspaceStore = useWorkspace()
 const { events } = workspaceStore

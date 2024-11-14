@@ -2,6 +2,7 @@
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
 import {
@@ -11,7 +12,6 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../components/Card'
-import { useClipboard } from '../../hooks'
 import { ExamplePicker } from '../ExampleRequest'
 import ExampleResponse from './ExampleResponse.vue'
 

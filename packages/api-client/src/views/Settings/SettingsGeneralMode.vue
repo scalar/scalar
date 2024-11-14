@@ -1,36 +1,9 @@
 <script setup lang="ts">
-import { useDarkModeState } from '@/hooks'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import { ref } from 'vue'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
-const { colorMode, setDarkMode } = useDarkModeState()
-const currentMode = ref<string>('System Preference')
-
-// Initialize currentMode based on colorMode value
-if (colorMode.value === 'system') {
-  currentMode.value = 'System Preference'
-} else if (colorMode.value === 'dark') {
-  currentMode.value = 'Dark'
-} else {
-  currentMode.value = 'Light'
-}
-
-const setSystemDarkMode = () => {
-  setDarkMode(null)
-  currentMode.value = 'System Preference'
-}
-
-const setLightMode = () => {
-  setDarkMode(false)
-  currentMode.value = 'Light'
-}
-
-const setDarkModePreference = () => {
-  setDarkMode(true)
-  currentMode.value = 'Dark'
-}
+const { colorMode, setColorMode } = useColorMode()
 </script>
-
 <template>
   <h3 class="font-bold mb-1 mt-8">Appearance</h3>
   <p class="text-c-2 mb-4 leading-[21px]">
@@ -40,13 +13,13 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        currentMode === 'System Preference' ? 'bg-b-2 text-c-1' : 'bg-b-1',
+        colorMode === 'system' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
-      @click="setSystemDarkMode">
+      @click="setColorMode('system')">
       <div
         class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
         <ScalarIcon
-          v-if="currentMode === 'System Preference'"
+          v-if="colorMode === 'system'"
           icon="Checkmark"
           size="xs"
           thickness="3.5" />
@@ -56,13 +29,13 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        currentMode === 'Light' ? 'bg-b-2 text-c-1' : 'bg-b-1',
+        colorMode === 'light' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
-      @click="setLightMode">
+      @click="setColorMode('light')">
       <div
         class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
         <ScalarIcon
-          v-if="currentMode === 'Light'"
+          v-if="colorMode === 'light'"
           icon="Checkmark"
           size="xs"
           thickness="3.5" />
@@ -72,13 +45,13 @@ const setDarkModePreference = () => {
     <ScalarButton
       :class="[
         'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8 border-1/2',
-        currentMode === 'Dark' ? 'bg-b-2 text-c-1' : 'bg-b-1',
+        colorMode === 'dark' ? 'bg-b-2 text-c-1' : 'bg-b-1',
       ]"
-      @click="setDarkModePreference">
+      @click="setColorMode('dark')">
       <div
         class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
         <ScalarIcon
-          v-if="currentMode === 'Dark'"
+          v-if="colorMode === 'dark'"
           icon="Checkmark"
           size="xs"
           thickness="3.5" />

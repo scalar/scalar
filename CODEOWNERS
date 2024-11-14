@@ -32,6 +32,7 @@
 /packages/build-watch @geoffgscott
 /packages/nestjs-api-reference @marclave
 /packages/scalar.aspnetcore @marclave @hanspagel
+/packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk
 /packages/cli @hanspagel

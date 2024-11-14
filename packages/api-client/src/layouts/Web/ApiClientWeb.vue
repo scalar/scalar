@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ImportCollectionListener } from '@/components/ImportCollection'
-import { useDarkModeState } from '@/hooks'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { ScalarToasts } from '@scalar/use-toasts'
 import { computed, onBeforeMount, onBeforeUnmount, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
-// Initialize dark mode state globally
-useDarkModeState()
+// Initialize color mode state globally
+useColorMode()
 
 const workspaceStore = useWorkspace()
 const { events } = workspaceStore

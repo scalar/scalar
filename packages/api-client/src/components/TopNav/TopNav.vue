@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
-import { useClipboard } from '@/hooks/useClipboard'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import {
@@ -12,6 +11,7 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import { capitalize } from '@scalar/oas-utils/helpers'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 
 import TopNavItem from './TopNavItem.vue'

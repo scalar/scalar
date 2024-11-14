@@ -15,7 +15,6 @@ const props = withDefaults(
   },
 )
 
-// const isDark = useDarkMode(
 const model = defineModel<string>()
 
 const monacoEditorRef: Ref<HTMLElement | null> = ref(null)

@@ -1,0 +1,55 @@
+{
+  "name": "@scalar/use-hooks",
+  "description": "Utility hooks for Scalar",
+  "license": "MIT",
+  "author": "Scalar (https://github.com/scalar)",
+  "homepage": "https://github.com/scalar/scalar",
+  "bugs": "https://github.com/scalar/scalar/issues/new/choose",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/scalar/scalar.git",
+    "directory": "packages/use-hooks"
+  },
+  "version": "0.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "scalar-build-vite",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
+  },
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    "./useColorMode": {
+      "import": "./dist/useColorMode/index.js",
+      "types": "./dist/useColorMode/index.d.ts",
+      "default": "./dist/useColorMode/index.js"
+    },
+    "./useClipboard": {
+      "import": "./dist/useClipboard/index.js",
+      "types": "./dist/useClipboard/index.d.ts",
+      "default": "./dist/useClipboard/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "dependencies": {
+    "@scalar/use-toasts": "workspace:*",
+    "vue": "^3.5.12",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.4.9",
+    "zod-to-ts": "^1.2.0"
+  }
+}

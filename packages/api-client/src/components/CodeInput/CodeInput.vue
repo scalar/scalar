@@ -12,7 +12,7 @@ import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
 import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { useWorkspace } from '@/store'
-import { useClipboard } from '@/hooks/useClipboard'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 
