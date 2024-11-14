@@ -118,11 +118,7 @@ const flowsCommon = z.object({
    * between the scope name and a short description for it. The map MAY be empty.
    */
   'scopes': z
-    .union([
-      z.map(z.string(), z.string().optional()),
-      z.record(z.string(), z.string().optional()),
-      z.object({}),
-    ])
+    .record(z.string(), z.string().optional().default(''))
     .optional()
     .default({}),
   'selectedScopes': z.array(z.string()).optional().default([]),

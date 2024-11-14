@@ -167,21 +167,25 @@ const mockSecuritySchemes: Record<string, SecurityScheme> = {
     type: 'apiKey',
     name: 'api_key',
     in: 'header',
+    value: 'test-api-key',
   },
   oauth2: {
-    'uid': 'oauth2',
-    'type': 'oauth2',
-    'nameKey': 'oauth2',
-    'x-scalar-client-id': 'random-1',
-    'flow': {
-      'type': 'implicit',
-      'authorizationUrl': 'https://example.com/oauth/authorize',
-      'refreshUrl': 'http://referesh.com',
-      'selectedScopes': [],
-      'x-scalar-redirect-uri': '',
-      'scopes': {
-        'write:api': 'modify api',
-        'read:api': 'read api',
+    uid: 'oauth2',
+    type: 'oauth2',
+    nameKey: 'oauth2',
+    flows: {
+      implicit: {
+        'type': 'implicit',
+        'authorizationUrl': 'https://example.com/oauth/authorize',
+        'refreshUrl': 'http://referesh.com',
+        'selectedScopes': [],
+        'x-scalar-redirect-uri': '',
+        'x-scalar-client-id': 'random-1',
+        'token': 'text-implicit-token',
+        'scopes': {
+          'write:api': 'modify api',
+          'read:api': 'read api',
+        },
       },
     },
   },
@@ -419,7 +423,9 @@ describe('combineRenameDiffs', () => {
     const mutatedSecuritySchemes = JSON.parse(
       JSON.stringify(mockSecuritySchemes),
     )
-    mutatedSecuritySchemes.oauth2.flow.scopes = { 'write:api': 'modify api' }
+    mutatedSecuritySchemes.oauth2.flows.implicit.scopes = {
+      'write:api': 'modify api',
+    }
 
     const diff = microdiff(mockSecuritySchemes, mutatedSecuritySchemes)
     const combinedDiff = combineRenameDiffs(diff)
@@ -427,7 +433,7 @@ describe('combineRenameDiffs', () => {
     expect(combinedDiff).toEqual([
       {
         type: 'REMOVE',
-        path: ['oauth2', 'flow', 'scopes', 'read:api'],
+        path: ['oauth2', 'flows', 'implicit', 'scopes', 'read:api'],
         oldValue: 'read api',
       },
     ])
@@ -1032,11 +1038,14 @@ describe('mutateSecuritySchemeDiff', () => {
 
   it('generates an add payload for creating a new security scheme', () => {
     const newScheme: SecuritySchemePayload = {
-      uid: 'bearerAuth',
       type: 'http',
-      bearerFormat: 'jwt',
-      nameKey: 'bearerAuth',
       scheme: 'bearer',
+      bearerFormat: 'jwt',
+      uid: 'bearerAuth',
+      nameKey: 'bearerAuth',
+      username: '',
+      password: '',
+      token: '',
     }
     const diff: Difference = {
       type: 'CREATE',
@@ -1102,7 +1111,7 @@ describe('mutateSecuritySchemeDiff', () => {
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
-      'flow.authorizationUrl',
+      'flows.implicit.authorizationUrl',
       'https://example.com/oauth/authorize-admin',
     )
   })
@@ -1142,8 +1151,8 @@ describe('mutateSecuritySchemeDiff', () => {
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
-      'flow.scopes',
-      { 'write:api': 'modify api' },
+      'flows.implicit.scopes.read:api',
+      undefined,
     )
   })
 
@@ -1167,12 +1176,8 @@ describe('mutateSecuritySchemeDiff', () => {
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
-      'flow.scopes',
-      {
-        'read:api': 'read api',
-        'write:api': 'modify api',
-        'write:users': 'write users',
-      },
+      'flows.implicit.scopes.write:users',
+      'write users',
     )
   })
 
@@ -1196,11 +1201,8 @@ describe('mutateSecuritySchemeDiff', () => {
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
-      'flow.scopes',
-      {
-        'read:api': 'read api',
-        'write:api': 'write the api',
-      },
+      'flows.implicit.scopes.write:api',
+      'write the api',
     )
   })
 
@@ -1247,7 +1249,7 @@ describe('mutateSecuritySchemeDiff', () => {
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
-      'flow.authorizationUrl',
+      'flows.implicit.authorizationUrl',
       'https://api.example.com/oauth2/authorize',
     )
   })
