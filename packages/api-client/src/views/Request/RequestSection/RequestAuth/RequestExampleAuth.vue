@@ -24,8 +24,13 @@ const security = computed(() => {
   }))
 })
 
-const generateLabel = (scheme: SecurityScheme) =>
-  `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' ? Object.values(scheme.flows)[0]!.type : ''}`
+const generateLabel = (scheme: SecurityScheme) => {
+  if (scheme.type !== 'oauth2')
+    return `${capitalize(scheme.nameKey)}: ${scheme.type}`
+
+  const firstFlow = Object.values(scheme.flows ?? {})[0]
+  return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' && firstFlow ? firstFlow.type : ''}`
+}
 
 /** Update the scheme */
 const updateScheme = <U extends string, P extends Path<SecurityScheme>>(

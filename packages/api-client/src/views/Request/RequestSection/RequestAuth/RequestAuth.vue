@@ -191,14 +191,10 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   // Adding new auth
   if (addNewOption?.payload) {
     // Create new scheme
-    console.log('addNewOption', addNewOption)
     const scheme = securitySchemeMutators.add(
       addNewOption.payload,
       activeCollection.value.uid,
     )
-
-    console.log('scheme', scheme)
-
     if (scheme) _entries.push(scheme.uid)
   }
 

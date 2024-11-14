@@ -8,7 +8,7 @@ import type { v_2_1_0 } from './types.generated'
 export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
   console.info('Performing data migration v-0.0.0 to v-2.1.0')
 
-  // Augment the previous dataama
+  // Augment the previous data
   const oldData = {
     ...data,
     // @ts-expect-error Tags used to be called folders
