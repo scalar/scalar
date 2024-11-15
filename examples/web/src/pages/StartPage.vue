@@ -69,7 +69,7 @@ const inDevelopment = import.meta.env.DEV
         <template #title>Next.js</template>
         <template #description>@scalar/nuxtjs-openapi</template>
       </PageLink>
-      <PageLink href="http://localhost:5063/scalar">
+      <PageLink href="http://localhost:5063/yaml-url">
         <template #title>Docusaurus</template>
         <template #description>@scalar/docusaurus</template>
       </PageLink>

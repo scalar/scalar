@@ -38,7 +38,7 @@
     "@scalar/api-reference-react": "workspace:*"
   },
   "devDependencies": {
-    "@docusaurus/types": "^3.4.0",
+    "@docusaurus/types": "^3.6.0",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "path": "^0.12.7",
