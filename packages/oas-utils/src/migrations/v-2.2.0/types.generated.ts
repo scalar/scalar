@@ -11,8 +11,7 @@ import type {
 import type { Workspace as W } from '@/entities/workspace'
 
 /**
- * TODO: These types are not generated, this was manually grabbed but we must generate them before the next
- * migration else we will have issues!
+ * The most current types are not generated
  */
 export namespace v_2_2_0 {
   export type Cookie = Ck

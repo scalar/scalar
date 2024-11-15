@@ -6,31 +6,30 @@ import type { v_2_2_0 } from './types.generated'
 export const migrate_v_2_2_0 = (
   data: v_2_1_0.DataRecord,
 ): v_2_2_0.DataRecord => {
-  // console.info('Performing data migration v-2.1.0 to v-2.2.0')
+  console.info('Performing data migration v-2.1.0 to v-2.2.0')
 
-  // const collections = data.collections
-  // const cookies = Object.values(data.cookies).reduce((prev, c) => {
-  //   prev[c.u] = c.
-  //   return prev
-  // }, {})
-  // const environments = data.environments
-  // const requestExamples = data.requestExamples
-  // const requests = data.requests
-  // const securitySchemes = data.securitySchemes
-  // const servers = data.servers
-  // const tags = data.tags
-  // const workspaces = data.workspaces
+  const securitySchemes = Object.values(data.securitySchemes).reduce<
+    v_2_2_0.DataRecord['securitySchemes']
+  >((prev, s) => {
+    const collection = Object.values(data.collections).find((c) =>
+      c.securitySchemes.includes(s.uid),
+    )
+    console.log(collection)
+    // if (s.type === 'oauth') {
+    // } else {
+    //   prev[s.uid] = {
+    //     ...s,
+    //   } satisfies v_2_2_0.SecurityScheme
+    // }
+    return prev
+  }, {})
 
-  // return {
-  //   collections,
-  //   cookies,
-  //   environments,
-  //   requestExamples,
-  //   requests,
-  //   securitySchemes,
-  //   servers,
-  //   tags,
-  //   workspaces,
-  // } satisfies v_2_2_0.DataRecord
-  return data as v_2_2_0.DataRecord
+  // No changes to servers
+  const servers = data.servers as v_2_2_0.DataRecord['servers']
+
+  return {
+    ...data,
+    securitySchemes,
+    servers,
+  } satisfies v_2_2_0.DataRecord
 }

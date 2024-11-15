@@ -1,11 +1,11 @@
 export namespace v_2_1_0 {
   export type Collection = {
-    'type'?: 'collection'
-    'openapi'?: string | '3.0.0' | '3.1.0' | '4.0.0'
+    'type': 'collection'
+    'openapi': string | '3.0.0' | '3.1.0' | '4.0.0'
     'jsonSchemaDialect'?: string | undefined
     'info'?:
       | {
-          title?: string
+          title: string
           summary?: string | undefined
           description?: string | undefined
           termsOfService?: string | undefined
@@ -18,21 +18,21 @@ export namespace v_2_1_0 {
             | undefined
           license?:
             | {
-                name?: string
+                name: string
                 identifier?: string | undefined
                 url?: string | undefined
               }
             | undefined
-          version?: string
+          version: string
         }
       | undefined
-    'security'?: {
+    'security': {
       [x: string]: string[]
     }[]
     'externalDocs'?:
       | {
           description?: string | undefined
-          url?: string
+          url: string
         }
       | undefined
     'components'?:
@@ -45,104 +45,104 @@ export namespace v_2_1_0 {
           [x: string]: unknown
         }
       | undefined
-    'x-scalar-icon'?: string
-    'uid'?: string
-    'securitySchemes'?: string[]
-    'selectedSecuritySchemeUids'?: string[]
-    'selectedServerUid'?: string
-    'servers'?: string[]
-    'requests'?: string[]
-    'tags'?: string[]
-    'children'?: string[]
-    'auth'?: {
+    'x-scalar-icon': string
+    'uid': string
+    'securitySchemes': string[]
+    'selectedSecuritySchemeUids': string[]
+    'selectedServerUid': string
+    'servers': string[]
+    'requests': string[]
+    'tags': string[]
+    'children': string[]
+    'auth': {
       [x: string]:
         | {
-            type?: 'apiKey'
-            name?: string
-            value?: string
+            type: 'apiKey'
+            name: string
+            value: string
           }
         | {
-            type?: 'http'
-            username?: string
-            password?: string
-            token?: string
+            type: 'http'
+            username: string
+            password: string
+            token: string
           }
         | {
-            type?: 'oauth-implicit'
-            token?: string
+            type: 'oauth-implicit'
+            token: string
           }
         | {
-            type?: 'oauth-password'
-            token?: string
-            username?: string
-            password?: string
-            clientSecret?: string
+            type: 'oauth-password'
+            token: string
+            username: string
+            password: string
+            clientSecret: string
           }
         | {
-            type?: 'oauth-clientCredentials'
-            token?: string
-            clientSecret?: string
+            type: 'oauth-clientCredentials'
+            token: string
+            clientSecret: string
           }
         | {
-            type?: 'oauth-authorizationCode'
-            token?: string
-            clientSecret?: string
+            type: 'oauth-authorizationCode'
+            token: string
+            clientSecret: string
           }
     }
     'documentUrl'?: string | undefined
-    'watchMode'?: boolean
+    'watchMode': boolean
     'integration'?: (string | null) | undefined
-    'watchModeStatus'?: 'IDLE' | 'WATCHING' | 'ERROR'
+    'watchModeStatus': 'IDLE' | 'WATCHING' | 'ERROR'
   }
 
   export type Cookie = {
-    uid?: string
-    name?: string
-    value?: string
+    uid: string
+    name: string
+    value: string
     domain?: string | undefined
     expires?: Date | undefined
     httpOnly?: boolean | undefined
     maxAge?: number | undefined
     partitioned?: boolean | undefined
     path?: string | undefined
-    sameSite?: 'Lax' | 'Strict' | 'None'
+    sameSite: 'Lax' | 'Strict' | 'None'
     secure?: boolean | undefined
   }
 
   export type Environment = {
-    uid?: string
-    name?: string
-    color?: string
-    value?: string
+    uid: string
+    name: string
+    color: string
+    value: string
     isDefault?: boolean | undefined
   }
 
   export type Tag = {
-    'type'?: 'tag'
+    'type': 'tag'
     'name': string
     'description'?: string | undefined
     'externalDocs'?:
       | {
           description?: string | undefined
-          url?: string
+          url: string
         }
       | undefined
-    'x-scalar-children'?: {
+    'x-scalar-children': {
       tagName: string
     }[]
-    'uid'?: string
-    'children'?: string[]
+    'uid': string
+    'children': string[]
   }
 
   export type RequestExample = {
-    type?: 'requestExample'
-    uid?: string
-    requestUid?: string
-    name?: string
-    body?: {
+    type: 'requestExample'
+    uid: string
+    requestUid: string
+    name: string
+    body: {
       raw?:
         | {
-            encoding?:
+            encoding:
               | 'json'
               | 'text'
               | 'html'
@@ -150,16 +150,16 @@ export namespace v_2_1_0 {
               | 'xml'
               | 'yaml'
               | 'edn'
-            value?: string
+            value: string
           }
         | undefined
       formData?:
         | {
-            encoding?: 'form-data' | 'urlencoded'
-            value?: {
-              key?: string
-              value?: string
-              enabled?: boolean
+            encoding: 'form-data' | 'urlencoded'
+            value: {
+              key: string
+              value: string
+              enabled: boolean
               file?: any | undefined
               description?: string | undefined
               refUid?: string | undefined
@@ -175,13 +175,13 @@ export namespace v_2_1_0 {
           }
         | undefined
       binary?: any | undefined
-      activeBody?: 'raw' | 'formData' | 'binary'
+      activeBody: 'raw' | 'formData' | 'binary'
     }
-    parameters?: {
-      path?: {
-        key?: string
-        value?: string
-        enabled?: boolean
+    parameters: {
+      path: {
+        key: string
+        value: string
+        enabled: boolean
         file?: any | undefined
         description?: string | undefined
         refUid?: string | undefined
@@ -194,10 +194,10 @@ export namespace v_2_1_0 {
         default?: any | undefined
         nullable?: boolean | undefined
       }[]
-      query?: {
-        key?: string
-        value?: string
-        enabled?: boolean
+      query: {
+        key: string
+        value: string
+        enabled: boolean
         file?: any | undefined
         description?: string | undefined
         refUid?: string | undefined
@@ -210,10 +210,10 @@ export namespace v_2_1_0 {
         default?: any | undefined
         nullable?: boolean | undefined
       }[]
-      headers?: {
-        key?: string
-        value?: string
-        enabled?: boolean
+      headers: {
+        key: string
+        value: string
+        enabled: boolean
         file?: any | undefined
         description?: string | undefined
         refUid?: string | undefined
@@ -226,10 +226,10 @@ export namespace v_2_1_0 {
         default?: any | undefined
         nullable?: boolean | undefined
       }[]
-      cookies?: {
-        key?: string
-        value?: string
-        enabled?: boolean
+      cookies: {
+        key: string
+        value: string
+        enabled: boolean
         file?: any | undefined
         description?: string | undefined
         refUid?: string | undefined
@@ -266,8 +266,8 @@ export namespace v_2_1_0 {
           in: 'path' | 'query' | 'header' | 'cookie'
           name: string
           description?: string | undefined
-          required?: boolean
-          deprecated?: boolean
+          required: boolean
+          deprecated: boolean
           schema?: unknown | undefined
           content?: unknown | undefined
           style?:
@@ -295,7 +295,7 @@ export namespace v_2_1_0 {
     externalDocs?:
       | {
           description?: string | undefined
-          url?: string
+          url: string
         }
       | undefined
     deprecated?: boolean | undefined
@@ -304,10 +304,10 @@ export namespace v_2_1_0 {
           [x: string]: any
         }
       | undefined
-    type?: 'request'
-    uid?: string
-    path?: string
-    method?:
+    type: 'request'
+    uid: string
+    path: string
+    method:
       | 'connect'
       | 'delete'
       | 'get'
@@ -317,122 +317,122 @@ export namespace v_2_1_0 {
       | 'post'
       | 'put'
       | 'trace'
-    servers?: string[]
-    selectedServerUid?: string
-    examples?: string[]
-    selectedSecuritySchemeUids?: string[]
+    servers: string[]
+    selectedServerUid: string
+    examples: string[]
+    selectedSecuritySchemeUids: string[]
   }
 
   export type SecurityScheme =
     | {
         description?: string | undefined
         type: 'apiKey'
-        name?: string
-        in?: 'query' | 'header' | 'cookie'
-        uid?: string
-        nameKey?: string
+        name: string
+        in: 'query' | 'header' | 'cookie'
+        uid: string
+        nameKey: string
       }
     | {
         description?: string | undefined
         type: 'http'
-        scheme?: any
-        bearerFormat?: 'JWT' | string
-        uid?: string
-        nameKey?: string
+        scheme: any
+        bearerFormat: 'JWT' | string
+        uid: string
+        nameKey: string
       }
     | {
         description?: string | undefined
         type: 'openIdConnect'
-        openIdConnectUrl?: string
-        uid?: string
-        nameKey?: string
+        openIdConnectUrl: string
+        uid: string
+        nameKey: string
       }
     | {
         'description'?: string | undefined
         'type': 'oauth2'
-        'flow'?:
+        'flow':
           | {
-              'refreshUrl'?: string
-              'scopes'?:
+              'refreshUrl': string
+              'scopes':
                 | Map<string, string | undefined>
                 | {
                     [x: string]: string | undefined
                   }
                 | {}
-              'selectedScopes'?: string[]
+              'selectedScopes': string[]
               'type': 'implicit'
-              'authorizationUrl'?: string
-              'x-scalar-redirect-uri'?: string
+              'authorizationUrl': string
+              'x-scalar-redirect-uri': string
             }
           | {
-              refreshUrl?: string
-              scopes?:
+              refreshUrl: string
+              scopes:
                 | Map<string, string | undefined>
                 | {
                     [x: string]: string | undefined
                   }
                 | {}
-              selectedScopes?: string[]
+              selectedScopes: string[]
               type: 'password'
-              tokenUrl?: string
+              tokenUrl: string
             }
           | {
-              refreshUrl?: string
-              scopes?:
+              refreshUrl: string
+              scopes:
                 | Map<string, string | undefined>
                 | {
                     [x: string]: string | undefined
                   }
                 | {}
-              selectedScopes?: string[]
+              selectedScopes: string[]
               type: 'clientCredentials'
-              tokenUrl?: string
+              tokenUrl: string
             }
           | {
-              'refreshUrl'?: string
-              'scopes'?:
+              'refreshUrl': string
+              'scopes':
                 | Map<string, string | undefined>
                 | {
                     [x: string]: string | undefined
                   }
                 | {}
-              'selectedScopes'?: string[]
+              'selectedScopes': string[]
               'type': 'authorizationCode'
-              'authorizationUrl'?: string
-              'x-usePkce'?: 'SHA-256' | 'plain' | 'no'
-              'x-scalar-redirect-uri'?: string
-              'tokenUrl'?: string
+              'authorizationUrl': string
+              'x-usePkce': 'SHA-256' | 'plain' | 'no'
+              'x-scalar-redirect-uri': string
+              'tokenUrl': string
             }
-        'x-scalar-client-id'?: string
-        'uid'?: string
-        'nameKey'?: string
+        'x-scalar-client-id': string
+        'uid': string
+        'nameKey': string
       }
 
   export type Server = {
-    url?: string
+    url: string
     description?: string | undefined
     variables?:
       | {
           [x: string]: {
             enum?: string[] | undefined
-            default?: string
+            default: string
             description?: string | undefined
           }
         }
       | undefined
-    uid?: string
+    uid: string
   }
 
   export type Workspace = {
-    uid?: string
-    name?: string
-    description?: string
-    isReadOnly?: boolean
-    collections?: string[]
-    environments?: string[]
+    uid: string
+    name: string
+    description: string
+    isReadOnly: boolean
+    collections: string[]
+    environments: string[]
     hotKeyConfig?:
       | {
-          modifiers?: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[]
+          modifiers: ('Meta' | 'Control' | 'Shift' | 'Alt' | 'default')[]
           hotKeys?:
             | {
                 [x: string]: {
@@ -460,10 +460,10 @@ export namespace v_2_1_0 {
             | undefined
         }
       | undefined
-    activeEnvironmentId?: string
-    cookies?: string[]
+    activeEnvironmentId: string
+    cookies: string[]
     proxyUrl?: string | undefined
-    themeId?:
+    themeId:
       | 'alternate'
       | 'default'
       | 'moon'
@@ -487,17 +487,5 @@ export namespace v_2_1_0 {
     servers: Record<string, Server>
     tags: Record<string, Tag>
     workspaces: Record<string, Workspace>
-  }
-
-  export type DataArray = {
-    collections: Collection[]
-    cookies: Cookie[]
-    environments: Environment[]
-    requestExamples: RequestExample[]
-    requests: Request[]
-    securitySchemes: SecurityScheme[]
-    servers: Server[]
-    tags: Tag[]
-    workspaces: Workspace[]
   }
 }
