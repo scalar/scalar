@@ -126,6 +126,9 @@ const extendedRequestSchema = z.object({
 })
 
 /** Unified request schema for client usage */
-export const requestSchema = oasRequestSchema.merge(extendedRequestSchema)
+export const requestSchema = oasRequestSchema
+  .omit({ 'x-scalar-examples': true })
+  .merge(extendedRequestSchema)
+
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>
