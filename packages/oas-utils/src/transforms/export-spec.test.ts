@@ -4,7 +4,6 @@ import type {
   SecurityScheme,
   Tag,
 } from '@/entities/spec'
-import { yaml } from '@/helpers'
 import { exportSpecFromWorkspace, importSpecToWorkspace } from '@/transforms'
 import { describe, expect, test } from 'vitest'
 
@@ -66,6 +65,10 @@ const testSpec = {
   },
 }
 
+const galaxy = await fetch(
+  'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+).then((r) => r.json())
+
 describe('Converts a collection into a spec', () => {
   test('Handles basic spec', async () => {
     const workspace = await importSpecToWorkspace(testSpec)
@@ -82,5 +85,123 @@ describe('Converts a collection into a spec', () => {
     expect(exported.paths).toHaveProperty('/pet')
     expect(exported.paths['/pet']).toHaveProperty('put')
     expect(exported.paths['/pet']).toHaveProperty('delete')
+  })
+})
+
+describe('Workspace output matches input when round-tripped', async () => {
+  const baseWorkspace = await importSpecToWorkspace(galaxy)
+  if (baseWorkspace.error) throw Error('Bad workspace')
+
+  // TODO:
+  // Modify workspace to test export functionality
+
+  const exported = exportSpecFromWorkspace({
+    requests: arrayToUidMap<Request>(baseWorkspace.requests),
+    collection: baseWorkspace.collection,
+    requestExamples: arrayToUidMap<RequestExample>(baseWorkspace.examples),
+    securitySchemes: arrayToUidMap<SecurityScheme>(
+      baseWorkspace.securitySchemes,
+    ),
+    tags: arrayToUidMap<Tag>(baseWorkspace.tags),
+  })
+
+  const nextWorkspace = await importSpecToWorkspace(exported)
+  if (nextWorkspace.error) throw Error('Bad round-tripped workspace')
+
+  const baseRequests = arrayToUidMap<Request>(baseWorkspace.requests)
+
+  const baseExamples = arrayToUidMap<RequestExample>(baseWorkspace.examples)
+  const nextExamples = arrayToUidMap<RequestExample>(nextWorkspace.examples)
+
+  const baseSecuritySchemes = arrayToUidMap<SecurityScheme>(
+    baseWorkspace.securitySchemes,
+  )
+  const nextSecuritySchemes = arrayToUidMap<SecurityScheme>(
+    nextWorkspace.securitySchemes,
+  )
+
+  function getMatchingRequest(uid: string) {
+    if (nextWorkspace.error) throw Error('Bad round-tripped workspace')
+
+    const base = baseRequests[uid]
+    const next = nextWorkspace.requests.find(
+      (r) => r.path === base.path && r.method === base.method,
+    )
+
+    if (!next) throw Error('Request not found')
+    return { base, next }
+  }
+
+  test('Collections have the same number of requests', () => {
+    expect(baseWorkspace.collection.requests.length).toEqual(
+      nextWorkspace.collection.requests.length,
+    )
+  })
+
+  test('Requests have the same examples', async () => {
+    baseWorkspace.collection.requests.forEach((uid) => {
+      const { base, next } = getMatchingRequest(uid)
+
+      expect(base.examples.length).toEqual(next.examples.length)
+    })
+
+    // expect(roundTripped.requests).toEqual(workspace.requests)
+  })
+
+  test.each(
+    baseWorkspace.requests.map((r) => [r.path, r.method.toUpperCase(), r.uid]),
+  )('Request %s:%s are functionally equivalent', (path, method, uid) => {
+    const { base, next } = getMatchingRequest(uid)
+
+    expect({
+      ...base,
+      uid: 'ignore',
+      selectedSecuritySchemeUids: 'ignore',
+      examples: 'ignore',
+    }).toEqual({
+      ...next,
+      uid: 'ignore',
+      selectedSecuritySchemeUids: 'ignore',
+      examples: 'ignore',
+    })
+
+    /** Check that the examples all match */
+    const baseRequestExamples = base.examples.map(
+      (exampleUid) => baseExamples[exampleUid],
+    )
+    const nextRequestExamples = next.examples.map(
+      (exampleUid) => nextExamples[exampleUid],
+    )
+
+    baseRequestExamples.forEach((example, idx) => {
+      expect({
+        ...example,
+        uid: 'ignore',
+        requestUid: 'ignore',
+      }).toEqual({
+        ...nextRequestExamples[idx],
+        uid: 'ignore',
+        requestUid: 'ignore',
+      })
+    })
+
+    const baseSchemes = base.selectedSecuritySchemeUids.map(
+      (schemeUid) => baseSecuritySchemes[schemeUid],
+    )
+    const nextSchemes = next.selectedSecuritySchemeUids.map(
+      (schemeUid) => nextSecuritySchemes[schemeUid],
+    )
+
+    expect(
+      baseSchemes.map((s) => ({
+        ...s,
+        uid: 'ignore',
+      })),
+    ).toEqual(
+      nextSchemes.map((s) => ({
+        ...s,
+        uid: 'ignore',
+      })),
+    )
   })
 })
