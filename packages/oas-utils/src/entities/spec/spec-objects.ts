@@ -90,6 +90,12 @@ export const xScalarNestedSchema = z
  * @see https://spec.openapis.org/oas/latest.html#tag-object
  */
 export const oasTagSchema = z.object({
+  /**
+   * @deprecated
+   *
+   * Needs to be remove as it is not a spec property
+   */
+  'type': z.literal('tag').optional().default('tag'),
   /** REQUIRED. The name of the tag. */
   'name': z.string(),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */

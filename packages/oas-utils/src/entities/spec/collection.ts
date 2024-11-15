@@ -8,6 +8,12 @@ import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema, oasInfoSchema } from './spec-objects'
 
 export const oasCollectionSchema = z.object({
+  /**
+   * @deprecated
+   *
+   * Needs to be remove as it is not a spec property
+   */
+  'type': z.literal('collection').optional().default('collection'),
   'openapi': z
     .union([
       z.string(),

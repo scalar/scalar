@@ -175,6 +175,7 @@ export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 
 export const requestExampleSchema = z.object({
   uid: nanoidSchema,
+  type: z.literal('requestExample').optional().default('requestExample'),
   requestUid: nanoidSchema,
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
