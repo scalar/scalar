@@ -5,11 +5,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { provide, ref, toRef, watch } from 'vue'
 
-import {
-  useAuthenticationStore,
-  useHttpClientStore,
-  useReactiveSpec,
-} from '../../../src'
+import { useHttpClientStore, useReactiveSpec } from '../../../src'
 import { GLOBAL_SECURITY_SYMBOL } from '../../../src/helpers'
 import { ApiClientModal } from '../../features/ApiClientModal'
 import type { OpenApiDocumentConfiguration } from './types'
@@ -44,10 +40,6 @@ function mapConfigToState<K extends keyof OpenApiDocumentConfiguration>(
     { immediate: true },
   )
 }
-
-// Prefill authentication
-const { setAuthentication } = useAuthenticationStore()
-mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
 const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()

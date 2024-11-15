@@ -5,7 +5,6 @@ import { computed } from 'vue'
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
 import { Loading } from './Lazy'
@@ -22,6 +21,8 @@ const props = defineProps<{
 }>()
 
 const { hideModels } = useSidebar()
+
+console.log(props.proxy)
 
 const introCardsSlot = computed(() =>
   props.layout === 'accordion' ? 'after' : 'aside',
@@ -58,10 +59,10 @@ const introCardsSlot = computed(() =>
             :defaultServerUrl="baseServerURL"
             :servers="props.servers"
             :specification="parsedSpec" />
-          <Authentication
+          <!-- <Authentication
             class="introduction-card-item"
             :parsedSpec="parsedSpec"
-            :proxy="proxy" />
+            :proxy="proxy" /> -->
           <ClientLibraries class="introduction-card-item" />
         </div>
       </template>
