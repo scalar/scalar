@@ -35,7 +35,6 @@ export const getLocalStorageVersion = (): string => {
   } catch (e) {
     console.error(e)
 
-    if (dataVersion) return dataVersion
     return '0.0.0'
   }
 }
