@@ -34,7 +34,7 @@
           "type": "folder",
           "children": [
             {
-              "name": ".NET integration",
+              "name": ".NET Integration",
               "path": "documentation/integrations/dotnet.md",
               "type": "page"
             },
