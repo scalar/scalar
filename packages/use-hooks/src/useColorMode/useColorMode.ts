@@ -14,12 +14,14 @@ const colorModeSchema = z
  * A composable hook that provides color mode (dark/light) functionality.
  */
 export function useColorMode(opts: UseColorModeOptions = {}) {
-  const { initialColorMode = 'dark', overrideColorMode } = opts
+  const { initialColorMode = 'system', overrideColorMode } = opts
 
   /** Toggles the color mode between light and dark. */
   function toggleColorMode() {
+    const darkLightMode =
+      colorMode.value === 'system' ? getSystemModePreference() : colorMode.value
     // Update state
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    colorMode.value = darkLightMode === 'dark' ? 'light' : 'dark'
 
     // Store in local storage
     if (typeof window === 'undefined') return

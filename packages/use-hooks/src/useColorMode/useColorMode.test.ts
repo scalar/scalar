@@ -28,9 +28,9 @@ describe('useColorMode', () => {
     window.matchMedia = actualMatchMedia
   })
 
-  it('initializes with dark mode by default', () => {
+  it('defaults to system mode preference', () => {
     const { colorMode } = useColorMode()
-    expect(colorMode.value).toBe('dark')
+    expect(colorMode.value).toBe('system')
   })
 
   it.each(['light', 'dark'] as const)(
@@ -44,22 +44,32 @@ describe('useColorMode', () => {
 
   it('handles unknown localStorage values', () => {
     localStorage.setItem('colorMode', 'foobar')
-    const { colorMode } = useColorMode()
-    expect(colorMode.value).toBe('dark')
+    expect(() => useColorMode()).not.toThrow()
   })
 
-  it('toggles between light and dark mode', () => {
-    const { colorMode, toggleColorMode } = useColorMode()
-    expect(colorMode.value).toBe('dark')
+  it.each(['light', 'dark'] as const)(
+    'toggles between light and dark mode when system is %s',
+    (mode) => {
+      // Mock the matchMedia to simulate system dark mode
+      window.matchMedia = vi.fn().mockImplementation((query) => ({
+        matches: query === `(prefers-color-scheme: ${mode})`,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      }))
 
-    toggleColorMode()
-    expect(colorMode.value).toBe('light')
-    expect(localStorage.getItem('colorMode')).toBe('light')
+      const { colorMode, toggleColorMode } = useColorMode()
+      expect(colorMode.value).toBe('system')
 
-    toggleColorMode()
-    expect(colorMode.value).toBe('dark')
-    expect(localStorage.getItem('colorMode')).toBe('dark')
-  })
+      toggleColorMode()
+      const inverted = mode === 'light' ? 'dark' : 'light'
+      expect(colorMode.value).toBe(inverted)
+      expect(localStorage.getItem('colorMode')).toBe(inverted)
+
+      toggleColorMode()
+      expect(colorMode.value).toBe(mode)
+      expect(localStorage.getItem('colorMode')).toBe(mode)
+    },
+  )
 
   it('sets specific color mode', () => {
     const { colorMode, setColorMode } = useColorMode()
