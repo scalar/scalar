@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useAuthenticationStore } from '#legacy'
 import { migrateThemeVariables } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -67,15 +66,12 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
   watch(
     () => configuration.value?.[key],
     (newValue) => {
+      console.log('newValue', newValue)
       if (typeof newValue !== 'undefined') setter(newValue)
     },
     { immediate: true },
   )
 }
-
-// Prefill authentication
-const { setAuthentication } = useAuthenticationStore()
-mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
 const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
