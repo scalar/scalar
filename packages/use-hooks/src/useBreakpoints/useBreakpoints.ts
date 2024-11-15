@@ -6,6 +6,8 @@ type Screen = keyof typeof preset.theme.screens
 
 /**
  * Exposes Tailwind CSS breakpoints as reactive media queries
+ *
+ * **Warning:** This hook is not a replacement for Tailwind CSS breakpoints. Using breakpoints in Javascript can cause issues with Server Side Rendering (SSR) and the Tailwind CSS breakpoints should be used when possible.
  */
 export function useBreakpoints() {
   const screens = preset.theme.screens
