@@ -1,4 +1,3 @@
-import { useOpenApiStore } from '#legacy'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
@@ -130,9 +129,6 @@ function updateHeadings(description: string) {
 const items = computed(() => {
   // Check whether the API client is visible
   const titlesById: Record<string, string> = {}
-  const {
-    openApi: { globalSecurity },
-  } = useOpenApiStore()
 
   // Headings from the OpenAPI description field
   const headingEntries: SidebarEntry[] = []

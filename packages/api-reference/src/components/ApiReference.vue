@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useAuthenticationStore } from '#legacy'
 import { migrateThemeVariables } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -54,27 +53,6 @@ const configuration = computed<ReferenceConfiguration>(() => ({
 if (configuration.value?.metaData) {
   useSeoMeta(configuration.value.metaData)
 }
-
-// ---------------------------------------------------------------------------/
-// HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
-
-/** Helper utility to map configuration props to the ApiReference internal state */
-function mapConfigToState<K extends keyof ReferenceConfiguration>(
-  key: K,
-  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
-) {
-  watch(
-    () => configuration.value?.[key],
-    (newValue) => {
-      if (typeof newValue !== 'undefined') setter(newValue)
-    },
-    { immediate: true },
-  )
-}
-
-// Prefill authentication
-const { setAuthentication } = useAuthenticationStore()
-mapConfigToState('authentication', setAuthentication)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(
