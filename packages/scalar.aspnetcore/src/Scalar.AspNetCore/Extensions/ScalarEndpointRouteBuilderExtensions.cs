@@ -36,7 +36,8 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// <param name="configureOptions">An action to configure the Scalar options.</param>
     public static IEndpointConventionBuilder MapScalarApiReference(this IEndpointRouteBuilder endpoints, Action<ScalarOptions> configureOptions)
     {
-        var options = endpoints.ServiceProvider.GetService<IOptions<ScalarOptions>>()?.Value ?? new ScalarOptions();
+        // Clone existing ScalarOptions or create a new instance
+        var options = endpoints.ServiceProvider.GetService<IOptions<ScalarOptions>>()?.Value is { } existingOptions ? existingOptions with { } : new ScalarOptions();
         configureOptions(options);
 
         if (!options.EndpointPathPrefix.Contains(DocumentName))

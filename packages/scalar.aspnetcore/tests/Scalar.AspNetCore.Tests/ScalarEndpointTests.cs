@@ -139,4 +139,23 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         act.Should().Throw<ArgumentException>().WithMessage("'EndpointPathPrefix' must define '{documentName}'.");
     }
+
+    [Fact]
+    public async Task MapScalarApiReference_ShouldHandleMultipleReferenceEndpoints_WhenAdded()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var fooResponse = await client.GetAsync("/foo-docs/v1");
+        var barResponse = await client.GetAsync("/bar-docs/v1");
+
+        // Assert
+        fooResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var fooContent = await fooResponse.Content.ReadAsStringAsync();
+        fooContent.Should().Contain("/foo/v1.json");
+        barResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var barContent = await barResponse.Content.ReadAsStringAsync();
+        barContent.Should().Contain("/bar/v1.json");
+    }
 }

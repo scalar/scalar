@@ -10,6 +10,18 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithEndpointPrefix("/foo-docs/{documentName}")
+            .WithOpenApiRoutePattern("/foo/{documentName}.json");
+    });
+    app.MapScalarApiReference(options =>
+    {
+        options
+            .WithEndpointPrefix("/bar-docs/{documentName}")
+            .WithOpenApiRoutePattern("/bar/{documentName}.json");
+    });
 }
 
 app.Run();
