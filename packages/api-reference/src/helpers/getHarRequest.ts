@@ -1,4 +1,4 @@
-import { normalizeHeaders } from '#legacy'
+import { normalizeHeaders } from '@scalar/api-client/libs'
 import type {
   Cookie,
   HarRequestWithPath,
