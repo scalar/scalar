@@ -58,18 +58,6 @@ typeString += `
     tags: Record<string, Tag>
     workspaces: Record<string, Workspace>
   }
-
-  export type DataArray = {
-    collections: Collection[]
-    cookies: Cookie[]
-    environments: Environment[]
-    requestExamples: RequestExample[]
-    requests: Request[]
-    securitySchemes: SecurityScheme[]
-    servers: Server[]
-    tags: Tag[]
-    workspaces: Workspace[]
-  }
 }
 `
 

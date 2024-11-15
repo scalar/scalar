@@ -528,15 +528,4 @@ export namespace v_0_0_0 {
     servers: Record<string, Server>
     workspaces: Record<string, Workspace>
   }
-  export type DataArray = {
-    collections: Collection[]
-    cookies: Cookie[]
-    environments: Environment[]
-    folders: Folder[]
-    requestExamples: RequestExample[]
-    requests: Request[]
-    securitySchemes: SecurityScheme[]
-    servers: Server[]
-    workspaces: Workspace[]
-  }
 }
