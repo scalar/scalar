@@ -66,7 +66,6 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
   watch(
     () => configuration.value?.[key],
     (newValue) => {
-      console.log('newValue', newValue)
       if (typeof newValue !== 'undefined') setter(newValue)
     },
     { immediate: true },
