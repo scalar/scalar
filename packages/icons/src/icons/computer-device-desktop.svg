@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5">
-    <title>desktop-computer-1</title>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.25 4.5h12s1.5 0 1.5 1.5v9s0 1.5-1.5 1.5h-12s-1.5 0-1.5-1.5V6s0-1.5 1.5-1.5"></path>
-    <path d="M18.75 7.5h1.5l1.5-1.5a1.5 1.5 0 0 1 1.5 1.5V18a1.5 1.5 0 0 1-1.5 1.5l-1.5-1.5h-1.5" fill="none"
-        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M8.25 16.5v3"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M5.25 19.5h6"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M20.25 10.5h-1.5"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M20.25 13.5h-1.5"></path>
-</svg>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8m-5 4h5m6-7h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
