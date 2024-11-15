@@ -3,7 +3,6 @@
  */
 import { createRequestOperation } from '@/libs'
 import {
-  type RequestExamplePayload,
   type RequestPayload,
   type ServerPayload,
   createExampleFromRequest,
@@ -12,11 +11,14 @@ import {
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
+import type { z } from 'zod'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
 const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
+
+type RequestExamplePayload = z.input<typeof requestExampleSchema>
 
 type MetaRequestPayload = {
   serverPayload?: ServerPayload

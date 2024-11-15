@@ -5,25 +5,26 @@ info:
 tags:
   - name: my-tag
     description: 'My tag description'
+    x-scalar-children:
+      - my-nested-tag
+      - my-second-nested-tag
   - name: my-nested-tag
     description: 'My nested tag description'
   - name: my-second-nested-tag
     description: 'My second nested tag description'
-    x-scalar-nested:
-      - tagName: my-nested-tag
 paths:
   '/foobar':
     get:
       summary: 'GET /foobar'
       tags:
-        - tagName: my-nested-tag
+        - my-nested-tag
     post:
       operationId: the-post
       summary: 'POST /foobar'
       tags:
-        - tagName: my-second-nested-tag
+        - my-second-nested-tag
     delete:
       operationId: delete-post
       summary: 'POST /foobar'
       tags:
-        - tagName: my-tag
+        - my-tag

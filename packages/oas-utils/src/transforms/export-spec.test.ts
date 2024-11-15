@@ -1,14 +1,28 @@
-import { exportSpecFromWorkspace } from '@/transforms/export-spec'
-import { importSpecToWorkspace } from '@/transforms/import-spec'
+import type {
+  Request,
+  RequestExample,
+  SecurityScheme,
+  Tag,
+} from '@/entities/spec'
+import { yaml } from '@/helpers'
+import { exportSpecFromWorkspace, importSpecToWorkspace } from '@/transforms'
 import { describe, expect, test } from 'vitest'
 
+/** Convert an array of objects into a map of objects by UID */
+function arrayToUidMap<T extends { uid: string }>(array: T[]) {
+  return array.reduce<Record<string, T>>((map, item) => {
+    map[item.uid] = item
+    return map
+  }, {})
+}
+
 const testSpec = {
-  'openapi': '3.1.0',
-  'info': {
+  openapi: '3.1.0',
+  info: {
     title: 'Swagger Petstore - OpenAPI 3.1',
     version: '1.0.0',
   },
-  'paths': {
+  paths: {
     '/pet': {
       put: {
         tags: ['pet'],
@@ -33,23 +47,21 @@ const testSpec = {
           },
         ],
       },
-    },
-  },
-  '/pet': {
-    delete: {
-      tags: ['pet'],
-      summary: 'Delete an existing pet',
-      description: 'Delete an existing pet by Id',
-      operationId: 'deletePet',
-      parameters: [
-        {
-          in: 'query',
-          name: 'id',
-          schema: {
-            type: 'string',
+      delete: {
+        tags: ['pet'],
+        summary: 'Delete an existing pet',
+        description: 'Delete an existing pet by Id',
+        operationId: 'deletePet',
+        parameters: [
+          {
+            in: 'query',
+            name: 'id',
+            schema: {
+              type: 'string',
+            },
           },
-        },
-      ],
+        ],
+      },
     },
   },
 }
@@ -59,17 +71,16 @@ describe('Converts a collection into a spec', () => {
     const workspace = await importSpecToWorkspace(testSpec)
     if (workspace.error) throw Error('Bad workspace')
 
-    console.log(
-      exportSpecFromWorkspace({
-        collection: workspace.collection,
-        requests: workspace.requests.reduce(
-          (tot, curr) => ({
-            ...tot,
-            [curr.uid]: curr,
-          }),
-          {},
-        ),
-      }),
-    )
+    const exported = exportSpecFromWorkspace({
+      requests: arrayToUidMap<Request>(workspace.requests),
+      collection: workspace.collection,
+      requestExamples: arrayToUidMap<RequestExample>(workspace.examples),
+      securitySchemes: arrayToUidMap<SecurityScheme>(workspace.securitySchemes),
+      tags: arrayToUidMap<Tag>(workspace.tags),
+    })
+
+    expect(exported.paths).toHaveProperty('/pet')
+    expect(exported.paths['/pet']).toHaveProperty('put')
+    expect(exported.paths['/pet']).toHaveProperty('delete')
   })
 })

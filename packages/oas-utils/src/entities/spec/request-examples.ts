@@ -4,20 +4,28 @@ import {
   getRequestBodyFromOperation,
   getServerVariableExamples,
 } from '@/spec-getters'
+import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
 
 import type { RequestParameter } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'
 
+// ---------------------------------------------------------------------------
+// Example Parameters
+
+/**
+ * TODO: Deprecate this.
+ *
+ * The request schema should be stored in the request and any
+ * parameters should be validated against that
+ */
 export const requestExampleParametersSchema = z.object({
   key: z.string().default(''),
   value: z.coerce.string().default(''),
   enabled: z.boolean().default(true),
   file: z.any().optional(),
   description: z.string().optional(),
-  /** Params are linked to parents such as path params and global headers/cookies */
-  refUid: nanoidSchema.optional(),
   required: z.boolean().optional(),
   enum: z.array(z.string()).optional(),
   type: z.string().optional(),
@@ -28,10 +36,52 @@ export const requestExampleParametersSchema = z.object({
   nullable: z.boolean().optional(),
 })
 
+/** Convert the array of parameters to an object keyed by the parameter name */
+function parameterArrayToObject(params: RequestExampleParameter[]) {
+  return params.reduce<Record<string, string>>((map, param) => {
+    map[param.key] = param.value
+    return map
+  }, {})
+}
+
 /** Request examples - formerly known as instances - are "children" of requests */
 export type RequestExampleParameter = z.infer<
   typeof requestExampleParametersSchema
 >
+
+export const xScalarFileValueSchema = z
+  .object({
+    url: z.string(),
+    base64: z.string().optional(),
+  })
+  .nullable()
+
+/**
+ * When files are required for an example we provide the options
+ * to provide a public URL or a base64 encoded string
+ */
+export type XScalarFileValue = z.infer<typeof xScalarFileValueSchema>
+
+/**
+ * Schema for the OAS serialization of request example parameters
+ *
+ * File values can be optionally fetched on import OR inserted as a base64 encoded string
+ */
+export const xScalarFormDataValue = z.union([
+  z.object({
+    type: z.literal('string'),
+    value: z.string(),
+  }),
+  z.object({
+    type: z.literal('file'),
+    file: xScalarFileValueSchema,
+  }),
+])
+
+export type XScalarFormDataValue = z.infer<typeof xScalarFormDataValue>
+
+// ---------------------------------------------------------------------------
+// Example Body
 
 /**
  * Possible encodings for example request bodies when using text formats
@@ -47,8 +97,41 @@ export const exampleRequestBodyEncoding = [
   'yaml',
   'edn',
 ] as const
+
 export type BodyEncoding = (typeof exampleRequestBodyEncoding)[number]
 
+export const exampleBodyMime = [
+  'application/json',
+  'text/plain',
+  'text/html',
+  'application/javascript',
+  'application/xml',
+  'application/yaml',
+  'application/edn',
+  'application/octet-stream',
+  'application/x-www-form-urlencoded',
+  'multipart/form-data',
+  /** Used for direct files */
+  'binary',
+] as const
+
+export type BodyMime = (typeof exampleBodyMime)[number]
+
+const contentMapping: Record<BodyEncoding, BodyMime> = {
+  json: 'application/json',
+  text: 'text/plain',
+  html: 'text/html',
+  javascript: 'application/javascript',
+  xml: 'application/xml',
+  yaml: 'application/yaml',
+  edn: 'application/edn',
+} as const
+
+/**
+ * TODO: Migrate away from this layout to the format used in the extension
+ *
+ * If a user changes the encoding of the body we expect the content to change as well
+ */
 export const exampleRequestBodySchema = z.object({
   raw: z
     .object({
@@ -69,11 +152,30 @@ export const exampleRequestBodySchema = z.object({
     .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
     .default('raw'),
 })
+
 export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
+/** Schema for the OAS serialization of request example bodies */
+export const xScalarExampleBodySchema = z.object({
+  encoding: z.enum(exampleBodyMime).default('application/json'),
+  /**
+   * Body content as an object with a separately specified encoding or a simple pre-encoded string value
+   *
+   * Ideally we would convert any objects into the proper encoding on import
+   */
+  content: z.union([z.record(z.string(), z.any()), z.string()]),
+  /** When the encoding is `binary` this will be used to link to the file */
+  file: xScalarFileValueSchema.optional(),
+})
+
+export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
+
+// ---------------------------------------------------------------------------
+// Example Schema
+
 export const requestExampleSchema = z.object({
-  type: z.literal('requestExample').optional().default('requestExample'),
   uid: nanoidSchema,
+  type: z.literal('requestExample').optional().default('requestExample'),
   requestUid: nanoidSchema,
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
@@ -86,12 +188,100 @@ export const requestExampleSchema = z.object({
     })
     .optional()
     .default({}),
+  /** TODO: Should this be deprecated? */
   serverVariables: z.record(z.string(), z.array(z.string())).optional(),
 })
 
-/** A single set 23of params for a request example */
 export type RequestExample = z.infer<typeof requestExampleSchema>
-export type RequestExamplePayload = z.input<typeof requestExampleSchema>
+
+/** For OAS serialization we just store the simple key/value pairs */
+const xScalarExampleParameterSchema = z
+  .record(z.string(), z.string())
+  .optional()
+
+/** Schema for the OAS serialization of request examples */
+export const xScalarExampleSchema = z.object({
+  /** TODO: Should this be required? */
+  name: z.string().optional(),
+  body: xScalarExampleBodySchema.optional(),
+  parameters: z.object({
+    path: xScalarExampleParameterSchema,
+    query: xScalarExampleParameterSchema,
+    headers: xScalarExampleParameterSchema,
+    cookies: xScalarExampleParameterSchema,
+  }),
+})
+
+export type XScalarExample = z.infer<typeof xScalarExampleSchema>
+
+/**
+ * Convert a request example to the xScalar serialized format
+ *
+ * TODO: The base format should be migrated to align MUCH closer to the serialized format
+ */
+export function convertExampleToXScalar(example: RequestExample) {
+  const active = example.body?.activeBody
+
+  const xScalarBody: XScalarExampleBody = {
+    encoding: 'text/plain',
+    content: '',
+  }
+
+  if (example.body?.activeBody === 'binary') {
+    xScalarBody.encoding = 'binary'
+    // TODO: Need to allow users to set these properties
+    xScalarBody.file = null
+  }
+
+  if (active === 'formData' && example.body?.[active]) {
+    const body = example.body[active]
+    xScalarBody.encoding =
+      body.encoding === 'form-data'
+        ? 'multipart/form-data'
+        : 'application/x-www-form-urlencoded'
+
+    // TODO: Need to allow users to set these properties
+    xScalarBody.content = body.value.reduce<
+      Record<string, XScalarFormDataValue>
+    >((map, param) => {
+      /** TODO: We need to ensure only file or value is set */
+      map[param.key] = param.file
+        ? {
+            type: 'file',
+            file: null,
+          }
+        : {
+            type: 'string',
+            value: param.value,
+          }
+      return map
+    }, {})
+  }
+
+  if (example.body?.activeBody === 'raw') {
+    xScalarBody.encoding =
+      contentMapping[example.body.raw?.encoding ?? 'text'] ?? 'text/plain'
+
+    xScalarBody.content = example.body.raw?.value ?? ''
+  }
+
+  const parameters: XScalarExample['parameters'] = {}
+
+  keysOf(example.parameters ?? {}).forEach((key) => {
+    if (example.parameters?.[key].length) {
+      parameters[key] = parameterArrayToObject(example.parameters[key])
+    }
+  })
+
+  return xScalarExampleSchema.parse({
+    /** Only add the body if we have content or the body should be a file */
+    body:
+      xScalarBody.content || xScalarBody.encoding === 'binary'
+        ? xScalarBody
+        : undefined,
+    parameters,
+  })
+}
 
 // ---------------------------------------------------------------------------
 // Example Helpers

@@ -90,6 +90,11 @@ export const xScalarNestedSchema = z
  * @see https://spec.openapis.org/oas/latest.html#tag-object
  */
 export const oasTagSchema = z.object({
+  /**
+   * @deprecated
+   *
+   * Needs to be remove as it is not a spec property
+   */
   'type': z.literal('tag').optional().default('tag'),
   /** REQUIRED. The name of the tag. */
   'name': z.string(),
@@ -97,7 +102,7 @@ export const oasTagSchema = z.object({
   'description': z.string().optional(),
   /** Additional external documentation for this tag. */
   'externalDocs': oasExternalDocumentationSchema.optional(),
-  'x-scalar-children': xScalarNestedSchema.default([]),
+  'x-scalar-children': xScalarNestedSchema.default([]).optional(),
 })
 
 export const tagSchema = oasTagSchema.extend({
