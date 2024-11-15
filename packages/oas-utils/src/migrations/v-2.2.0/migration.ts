@@ -14,6 +14,8 @@ export const migrate_v_2_2_0 = (
     const collection = Object.values(data.collections).find((c) =>
       c.securitySchemes.includes(s.uid),
     )
+    if (!collection) return prev
+
     console.log(collection)
     // if (s.type === 'oauth') {
     // } else {

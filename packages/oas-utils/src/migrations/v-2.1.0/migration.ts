@@ -5,7 +5,7 @@ import type { v_0_0_0 } from '@/migrations/v-0.0.0/types.generated'
 import type { v_2_1_0 } from './types.generated'
 
 /** V-0.0.0 to V-2.1.0 migration */
-export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
+export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.DataRecord, 'folders'>) => {
   console.info('Performing data migration v-0.0.0 to v-2.1.0')
 
   // Augment the previous data
@@ -13,7 +13,7 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     ...data,
     // @ts-expect-error Tags used to be called folders
     folders: parseLocalStorage('folder'),
-  } as v_0_0_0.Data
+  } as v_0_0_0.DataRecord
 
   /** To grab requests and tags we must traverse children, also for security */
   const flattenChildren = (childUids: string[]) =>
@@ -219,8 +219,10 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
     { type: 'http' } | { type: 'apiKey' } | { type: 'openIdConnect' }
   >
 
+  type Flow = Extract<v_0_0_0.SecurityScheme, { type: 'oauth2' }>['flow']
+
   /** Specifically handle each oauth2 flow */
-  const migrateFlow = (flow: v_0_0_0.Flow): Oauth2['flow'] => {
+  const migrateFlow = (flow: Flow): Oauth2['flow'] => {
     const base = {
       refreshUrl: flow.refreshUrl || '',
       selectedScopes: flow.selectedScopes || [],
