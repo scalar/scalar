@@ -86,7 +86,7 @@ export const loadAllResources = (mutators: WorkspaceStore) => {
     loadResources(workspaces, workspaceSchema, workspaceMutators.rawAdd)
 
     // Set localStorage version for future migrations
-    localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
+    // localStorage.setItem(DATA_VERSION_LS_LEY, DATA_VERSION)
   } catch (e) {
     console.error(e)
   }
