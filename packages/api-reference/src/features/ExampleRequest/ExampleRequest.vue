@@ -7,7 +7,6 @@ import {
   useExampleStore,
   useServerStore,
 } from '#legacy'
-import { useApiClient } from '@/features/ApiClientModal'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
@@ -41,6 +40,7 @@ import {
   getHarRequest,
 } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
+import { useApiClient } from '../ApiClientModal/useApiClient'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -65,10 +65,12 @@ const {
   httpTargetTitle,
   httpClientTitle,
 } = useHttpClientStore()
-const { authentication } = useApiClient()
+const { client } = useApiClient()
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()
+console.log(authenticationState)
+console.log(client.value)
 
 const id = useId()
 
@@ -206,13 +208,13 @@ const options = computed<TextSelectOptions>(() => {
     return {
       value: target.key,
       label: target.title,
-      options: target.clients.map((client) => {
+      options: target.clients.map((c) => {
         return {
           value: JSON.stringify({
             targetKey: target.key,
-            clientKey: client.key,
+            clientKey: c.key,
           }),
-          label: client.title,
+          label: c.title,
         }
       }),
     }
