@@ -35,6 +35,11 @@
       "import": "./dist/useClipboard/index.js",
       "types": "./dist/useClipboard/index.d.ts",
       "default": "./dist/useClipboard/index.js"
+    },
+    "./useBreakpoints": {
+      "import": "./dist/useBreakpoints/index.js",
+      "types": "./dist/useBreakpoints/index.d.ts",
+      "default": "./dist/useBreakpoints/index.js"
     }
   },
   "files": [
@@ -42,7 +47,9 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "@scalar/themes": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
+    "@vueuse/core": "^10.10.0",
     "vue": "^3.5.12",
     "zod": "^3.23.8"
   },

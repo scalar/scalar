@@ -2156,9 +2156,15 @@ importers:
 
   packages/use-hooks:
     dependencies:
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@scalar/use-toasts':
         specifier: workspace:*
         version: link:../use-toasts
+      '@vueuse/core':
+        specifier: ^10.10.0
+        version: 10.11.0(vue@3.5.12(typescript@5.6.2))
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)

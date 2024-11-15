@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { OpenApiClientButton } from '@scalar/api-client/components'
-import { useMediaQuery } from '@vueuse/core'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { watch } from 'vue'
 
 import { SearchButton } from '../../features/Search'
@@ -18,13 +18,13 @@ defineEmits<{
 
 const slots = defineSlots<ReferenceLayoutSlots>()
 
-const isMobile = useMediaQuery('(max-width: 1000px)')
+const { mediaQueries } = useBreakpoints()
 const { isSidebarOpen } = useSidebar()
 const isDevelopment = import.meta.env.MODE === 'development'
 
-watch(isMobile, (n, o) => {
+watch(mediaQueries.lg, (newValue, oldValue) => {
   // Close the drawer when we go from desktop to mobile
-  if (n && !o) isSidebarOpen.value = false
+  if (oldValue && !newValue) isSidebarOpen.value = false
 })
 
 const { hash } = useNavState()

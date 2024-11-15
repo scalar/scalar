@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
-import { useMediaQuery } from '@vueuse/core'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ref } from 'vue'
 
 const props = withDefaults(
@@ -15,9 +15,8 @@ const props = withDefaults(
 const { isReadOnly, sidebarWidth, setSidebarWidth } = useWorkspace()
 const isDragging = ref(false)
 
-const isNarrow = useMediaQuery('(max-width: 780px)')
 const sidebarRef = ref<HTMLElement | null>(null)
-const isMobile = useMediaQuery('(max-width: 800px)')
+const { breakpoints } = useBreakpoints()
 
 const startDrag = (event: MouseEvent) => {
   event.preventDefault()
@@ -66,7 +65,7 @@ const startDrag = (event: MouseEvent) => {
     ref="sidebarRef"
     class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit"
     :class="{ dragging: isDragging }"
-    :style="{ width: isNarrow ? '100%' : sidebarWidth }">
+    :style="{ width: breakpoints.md ? sidebarWidth : '100%' }">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
@@ -75,7 +74,7 @@ const startDrag = (event: MouseEvent) => {
         {{ title }}
       </h2>
       <slot
-        v-if="isMobile"
+        v-if="!breakpoints.md"
         name="button" />
     </div>
     <div
@@ -85,15 +84,15 @@ const startDrag = (event: MouseEvent) => {
       }">
       <slot name="content" />
     </div>
-    <div
-      v-if="!isMobile"
-      class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 sticky bottom-0 w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
-      <slot name="button" />
-    </div>
-    <div
-      v-if="!isNarrow"
-      class="resizer"
-      @mousedown="startDrag"></div>
+    <template v-if="breakpoints.md">
+      <div
+        class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 sticky bottom-0 w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
+        <slot name="button" />
+      </div>
+      <div
+        class="resizer"
+        @mousedown="startDrag" />
+    </template>
   </aside>
 </template>
 <style scoped>

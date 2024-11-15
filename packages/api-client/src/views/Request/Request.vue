@@ -12,8 +12,8 @@ import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
 import { safeJSON } from '@scalar/object-utils/parse'
+import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useToasts } from '@scalar/use-toasts'
-import { useMediaQuery } from '@vueuse/core'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -54,8 +54,8 @@ const activeHistoryEntry = computed(() =>
 )
 
 /** Show / hide the sidebar when we resize the screen */
-const isNarrow = useMediaQuery('(max-width: 800px)')
-watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
+const { mediaQueries } = useBreakpoints()
+watch(mediaQueries.md, (isMedium) => (showSideBar.value = isMedium))
 
 /**
  * Selected scheme UIDs
