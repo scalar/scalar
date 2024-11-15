@@ -7,6 +7,7 @@ import {
   useExampleStore,
   useServerStore,
 } from '#legacy'
+import { useApiClient } from '@/features/ApiClientModal'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
@@ -64,6 +65,7 @@ const {
   httpTargetTitle,
   httpClientTitle,
 } = useHttpClientStore()
+const { authentication } = useApiClient()
 
 const { server: serverState } = useServerStore()
 const { authentication: authenticationState } = useAuthenticationStore()

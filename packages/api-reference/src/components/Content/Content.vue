@@ -6,7 +6,6 @@ import { computed } from 'vue'
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
 import { Loading } from './Lazy'
@@ -20,7 +19,6 @@ const props = withDefaults(
     layout?: 'modern' | 'classic'
     baseServerURL?: string
     servers?: Server[]
-    proxyUrl?: string
   }>(),
   {
     layout: 'modern',
@@ -65,10 +63,10 @@ const introCardsSlot = computed(() =>
               :defaultServerUrl="baseServerURL"
               :servers="props.servers"
               :specification="parsedSpec" />
-            <Authentication
+            <!-- <Authentication
               class="introduction-card-item"
               :parsedSpec="parsedSpec"
-              :proxyUrl="proxyUrl" />
+              :proxyUrl="proxyUrl" /> -->
             <ClientLibraries class="introduction-card-item" />
           </div>
         </ScalarErrorBoundary>
