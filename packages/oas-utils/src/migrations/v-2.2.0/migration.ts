@@ -12,7 +12,7 @@ const migrateSecurityScheme = (
     return {
       ...scheme,
       value: auth.value,
-    } satisfies v_2_2_0.SecurityScheme
+    }
   }
 
   // HTTP
@@ -22,10 +22,84 @@ const migrateSecurityScheme = (
       username: auth.username,
       password: auth.password,
       token: auth.token,
-    } satisfies v_2_2_0.SecurityScheme
+    }
   }
 
-  // OAuth
+  // OAuth2
+  if (scheme.type === 'oauth2') {
+    const { flow, ..._scheme } = scheme
+
+    // Implicit
+    if (flow.type === 'implicit' && auth.type === 'oauth-implicit') {
+      return {
+        ..._scheme,
+        flows: {
+          implicit: {
+            ...flow,
+            'scopes': flow.scopes as Record<string, string>,
+            'token': auth.token,
+            'x-scalar-client-id': _scheme['x-scalar-client-id'],
+          },
+        },
+      }
+    }
+
+    // Password
+    if (flow.type === 'password' && auth.type === 'oauth-password') {
+      return {
+        ..._scheme,
+        flows: {
+          password: {
+            ...flow,
+            'username': auth.username,
+            'password': auth.password,
+            'token': auth.token,
+            'clientSecret': auth.clientSecret,
+            'scopes': flow.scopes as Record<string, string>,
+            'x-scalar-client-id': _scheme['x-scalar-client-id'],
+          },
+        },
+      } satisfies v_2_2_0.SecurityScheme
+    }
+
+    // Client Credentials
+    if (
+      flow.type === 'clientCredentials' &&
+      auth.type === 'oauth-clientCredentials'
+    ) {
+      return {
+        ..._scheme,
+        flows: {
+          clientCredentials: {
+            ...flow,
+            'token': auth.token,
+            'clientSecret': auth.clientSecret,
+            'scopes': flow.scopes as Record<string, string>,
+            'x-scalar-client-id': _scheme['x-scalar-client-id'],
+          },
+        },
+      } satisfies v_2_2_0.SecurityScheme
+    }
+
+    // Authorization Code
+    if (
+      flow.type === 'authorizationCode' &&
+      auth.type === 'oauth-authorizationCode'
+    ) {
+      return {
+        ..._scheme,
+        flows: {
+          authorizationCode: {
+            ...flow,
+            'token': auth.token,
+            'clientSecret': auth.clientSecret,
+            'scopes': flow.scopes as Record<string, string>,
+            'x-scalar-client-id': _scheme['x-scalar-client-id'],
+          },
+        },
+      } satisfies v_2_2_0.SecurityScheme
+    }
+  }
 
   return null
 }
