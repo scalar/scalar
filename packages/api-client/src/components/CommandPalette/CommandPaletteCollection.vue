@@ -56,7 +56,7 @@ const handleSubmit = () => {
           class="aspect-square px-0 h-auto"
           variant="outlined">
           <LibraryIcon
-            class="size-4 text-c-2 stroke-2"
+            class="size-4 text-c-2 stroke-[1.75]"
             :src="collectionIcon" />
         </ScalarButton>
       </IconSelector>
