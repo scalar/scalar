@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -59,10 +60,9 @@ const introCardsSlot = computed(() =>
             :defaultServerUrl="baseServerURL"
             :servers="props.servers"
             :specification="parsedSpec" />
-          <!-- <Authentication
-            class="introduction-card-item"
-            :parsedSpec="parsedSpec"
-            :proxy="proxy" /> -->
+          <RequestAuth
+            :selectedSecuritySchemeUids="[]"
+            title="Authentication" />
           <ClientLibraries class="introduction-card-item" />
         </div>
       </template>

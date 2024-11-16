@@ -3,7 +3,6 @@ import {
   getRequestFromAuthentication,
   getSecretCredentialsFromAuthentication,
   getUrlFromServerState,
-  useAuthenticationStore,
   useExampleStore,
   useServerStore,
 } from '#legacy'
@@ -11,6 +10,7 @@ import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import type {
+  AuthenticationState,
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
@@ -35,6 +35,7 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
 import {
+  AUTHENTICATION_SYMBOL,
   GLOBAL_SECURITY_SYMBOL,
   getExampleCode,
   getHarRequest,
@@ -65,14 +66,10 @@ const {
   httpTargetTitle,
   httpClientTitle,
 } = useHttpClientStore()
-const { client } = useApiClient()
-
-const { server: serverState } = useServerStore()
-const { authentication: authenticationState } = useAuthenticationStore()
-console.log(authenticationState)
-console.log(client.value)
 
 const id = useId()
+const { client } = useApiClient()
+const { server: serverState } = useServerStore()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
@@ -125,6 +122,54 @@ const hasMultipleExamples = computed<boolean>(
 )
 
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
+const getAuthentication = inject(AUTHENTICATION_SYMBOL)
+
+const createEmptyAuthenticationState = (): AuthenticationState => ({
+  preferredSecurityScheme: null,
+  customSecurity: false,
+  http: {
+    basic: {
+      username: '',
+      password: '',
+    },
+    bearer: {
+      token: '',
+    },
+  },
+  apiKey: {
+    token: '',
+  },
+  oAuth2: {
+    username: '',
+    password: '',
+    clientId: '',
+    scopes: [],
+    accessToken: '',
+    state: '',
+  },
+})
+
+/** A little hack to use reactive client as the old authentication state */
+const authenticationState = computed(() => {
+  const baseAuth = createEmptyAuthenticationState()
+
+  if (client.value?.store.activeCollection) {
+    const { selectedSecuritySchemeUids } = client.value.store.activeCollection
+    const schemes = selectedSecuritySchemeUids
+      .map((uid) => client.value?.store.securitySchemes[uid])
+      .filter(Boolean)
+
+    console.log(schemes)
+    // return auth
+  } else {
+    Object.assign(baseAuth, getAuthentication?.())
+  }
+
+  console.log('==========')
+  console.log(baseAuth)
+  console.log('==========')
+  return baseAuth
+})
 
 async function generateSnippet() {
   // Use the selected custom example
@@ -148,7 +193,7 @@ async function generateSnippet() {
       true,
     ),
     getRequestFromAuthentication(
-      authenticationState,
+      authenticationState.value,
       props.operation.information?.security ?? getGlobalSecurity?.(),
     ),
   )

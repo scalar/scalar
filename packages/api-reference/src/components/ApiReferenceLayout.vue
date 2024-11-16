@@ -25,6 +25,7 @@ import {
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import {
+  AUTHENTICATION_SYMBOL,
   GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
@@ -241,6 +242,7 @@ provideUseId(() => {
 
 // Provide global security
 provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
+provide(AUTHENTICATION_SYMBOL, () => props.configuration.authentication)
 provide(
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   () => props.configuration.hideDownloadButton,
