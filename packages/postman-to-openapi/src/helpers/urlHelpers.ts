@@ -1,5 +1,6 @@
-import type { ParsedUrl } from '../types'
 import { templateVariableRegex } from '@scalar/oas-utils/helpers'
+
+import type { ParsedUrl } from '../types'
 
 /**
  * Parses a URL string into its component parts.
@@ -42,7 +43,8 @@ export function extractPathFromUrl(url: string | undefined): string {
  * Normalizes a path by converting colon-style parameters to curly brace style
  * e.g., '/users/:id' becomes '/users/{id}'
  */
-export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '{$1}')
+export const normalizePath = (path: string): string =>
+  path.replace(/:(\w+)/g, '{$1}')
 
 /**
  * Extracts parameter names from a path string.
