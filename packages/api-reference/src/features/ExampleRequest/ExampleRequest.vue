@@ -140,6 +140,7 @@ async function generateSnippet() {
         replaceVariables: true,
       },
       selectedExampleKey.value,
+      true,
     ),
     getRequestFromAuthentication(
       authenticationState,

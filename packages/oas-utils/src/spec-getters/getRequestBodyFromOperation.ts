@@ -45,6 +45,7 @@ const mimeTypes = [
 export function getRequestBodyFromOperation(
   operation: Omit<TransformedOperation, 'httpVerb'>,
   selectedExampleKey?: string | number,
+  omitEmptyAndOptionalProperties?: boolean,
 ): {
   headers?: { name: string; value: string }[]
   body?: {
@@ -176,7 +177,7 @@ export function getRequestBodyFromOperation(
     const exampleFromSchema = requestBodyObject?.schema
       ? getExampleFromSchema(requestBodyObject?.schema, {
           mode: 'write',
-          omitEmptyAndOptionalProperties: true,
+          omitEmptyAndOptionalProperties: omitEmptyAndOptionalProperties,
         })
       : null
 
@@ -197,7 +198,6 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
-          omitEmptyAndOptionalProperties: true,
         })
       : null
 
@@ -227,7 +227,6 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
-          omitEmptyAndOptionalProperties: true,
         })
       : null
 
@@ -249,7 +248,6 @@ export function getRequestBodyFromOperation(
       ? getExampleFromSchema(requestBodyObject?.schema, {
           xml: true,
           mode: 'write',
-          omitEmptyAndOptionalProperties: true,
         })
       : null
 

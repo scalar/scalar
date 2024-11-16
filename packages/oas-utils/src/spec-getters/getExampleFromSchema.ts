@@ -82,6 +82,7 @@ export const getExampleFromSchema = (
     variables?: Record<string, any>
     /**
      * Whether to omit empty and optional properties.
+     * @default false
      */
     omitEmptyAndOptionalProperties?: boolean
   },
