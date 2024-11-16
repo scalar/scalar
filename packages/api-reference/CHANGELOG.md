@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.25.65
+
+### Patch Changes
+
+- bfad6dc: feat(use-hooks): create @scalar/use-hooks with useColorMode and useClipboard
+- c8fae11: fix(components): cleanup ScalarMenu and ScalarListbox
+- 6894b7d: feat: omits empty and optional properties from example request
+- Updated dependencies [bfad6dc]
+- Updated dependencies [c8fae11]
+- Updated dependencies [6894b7d]
+- Updated dependencies [c87353e]
+- Updated dependencies [c3d9f3c]
+  - @scalar/api-client@2.1.50
+  - @scalar/components@0.12.70
+  - @scalar/use-hooks@0.1.0
+  - @scalar/oas-utils@0.2.76
+
 ## 1.25.64
 
 ### Patch Changes

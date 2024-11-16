@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.12.70
+
+### Patch Changes
+
+- bfad6dc: feat(use-hooks): create @scalar/use-hooks with useColorMode and useClipboard
+- c8fae11: fix(components): cleanup ScalarMenu and ScalarListbox
+- Updated dependencies [bfad6dc]
+- Updated dependencies [c3d9f3c]
+  - @scalar/use-hooks@0.1.0
+
 ## 0.12.69
 
 ### Patch Changes
