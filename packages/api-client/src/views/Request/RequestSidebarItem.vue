@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
 import { useSidebar } from '@/hooks'
+import { useActiveEntities } from '@/hooks/use-active-entities'
 import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
@@ -50,11 +51,15 @@ defineSlots<{
   leftIcon(): void
 }>()
 
+console.log('asdhjaskd')
 const {
   activeCollection,
+  router,
   activeRequest,
   activeRouterParams,
   activeWorkspace,
+} = useActiveEntities()
+const {
   collections,
   tags,
   isReadOnly,
@@ -64,7 +69,6 @@ const {
   tagMutators,
   requestMutators,
   requestExampleMutators,
-  router,
   events,
 } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
@@ -160,12 +164,12 @@ const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '12px'
-  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else if (isReadOnly) return `${(props.parentUids.length - 1) * 12}px`
   else return `${props.parentUids.length * 12}px`
 })
 const paddingOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else if (isReadOnly) return `${(props.parentUids.length - 1) * 12}px`
   else return `${props.parentUids.length * 12}px`
 })
 
@@ -262,7 +266,7 @@ const watchIconColor = computed(() => {
 const hasDraftRequests = computed(() => {
   return (
     item.value.title == 'Drafts' &&
-    !isReadOnly.value &&
+    !isReadOnly &&
     item.value.children.length > 0
   )
 })

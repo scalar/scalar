@@ -67,7 +67,7 @@ watch(isNarrow, (narrow) => (showSideBar.value = !narrow))
  */
 const selectedSecuritySchemeUids = computed(
   () =>
-    (isReadOnly.value
+    (isReadOnly
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )

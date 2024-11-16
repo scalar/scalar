@@ -1,5 +1,3 @@
-import { flattenEnvVars } from '@/libs/string-template'
-import { PathId } from '@/router'
 import {
   createStoreCollections,
   extendedCollectionDataFactory,
@@ -32,16 +30,12 @@ import {
 } from '@/store/workspace'
 import { useModal } from '@scalar/components'
 import type {
-  Request,
   RequestEvent,
-  RequestExample,
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { computed, inject, reactive, ref, toRaw } from 'vue'
-import type { Router } from 'vue-router'
-
-import { getRouterParams } from './router-params'
+import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { inject, reactive, ref, toRaw } from 'vue'
 
 export type UpdateScheme = <P extends Path<SecurityScheme>>(
   path: P,
@@ -62,7 +56,10 @@ type CreateWorkspaceStoreOptions = {
    * @default true
    */
   useLocalStorage: boolean
-  defaultProxyUrl: string | undefined
+  /** Puts the client into read only mode, usually reservered for the modal */
+  isReadOnly: boolean
+  proxyUrl: ReferenceConfiguration['proxy']
+  themeId: ReferenceConfiguration['theme']
 }
 
 /**
@@ -72,16 +69,12 @@ type CreateWorkspaceStoreOptions = {
  * This store manages all data and state for the application.
  * It should be instantiated once and injected into the app’s root component.
  */
-export const createWorkspaceStore = (
-  router: Router,
-  {
-    useLocalStorage = true,
-    defaultProxyUrl = undefined,
-  }: CreateWorkspaceStoreOptions,
-) => {
-  /** Gives the required UID usually per route */
-  const activeRouterParams = computed(getRouterParams(router))
-
+export const createWorkspaceStore = ({
+  useLocalStorage = true,
+  isReadOnly = false,
+  proxyUrl,
+  themeId,
+}: CreateWorkspaceStoreOptions) => {
   // ---------------------------------------------------------------------------
   // Initialize all storage objects
 
@@ -105,7 +98,6 @@ export const createWorkspaceStore = (
 
   // Provide the workspace to the extended mutator factories
   const storeContext: StoreContext = {
-    routerParams: activeRouterParams,
     collections,
     collectionMutators,
     tags,
@@ -140,132 +132,9 @@ export const createWorkspaceStore = (
     extendedSecurityDataFactory(storeContext)
 
   // ---------------------------------------------------------------------------
-  // Active entities based on the router
-
-  /** The currently selected workspace OR the first one */
-  const activeWorkspace = computed(() => {
-    const workspace =
-      workspaces[activeRouterParams.value[PathId.Workspace]] ??
-      workspaces[Object.keys(workspaces)[0]]
-    if (workspace) {
-      workspace.proxyUrl = proxyUrl.value
-    }
-    return workspace
-  })
-
-  /** Ordered list of the active workspace's collections with drafts last */
-  const activeWorkspaceCollections = computed(() =>
-    activeWorkspace.value?.collections
-      .map((uid) => collections[uid])
-      .sort((a, b) => {
-        if (a.info?.title === 'Drafts') return 1
-        if (b.info?.title === 'Drafts') return -1
-        return 0
-      }),
-  )
-
-  /** Simplified list of servers in the workspace for displaying */
-  const activeWorkspaceServers = computed(() =>
-    activeWorkspaceCollections.value?.flatMap((collection) =>
-      collection.servers.map((uid) => servers[uid]),
-    ),
-  )
-
-  /** Simplified list of requests in the workspace for displaying */
-  const activeWorkspaceRequests = computed(() =>
-    activeWorkspaceCollections.value?.flatMap(
-      (collection) => collection.requests,
-    ),
-  )
-
-  /** TODO: need to merge collection environments into the global space */
-  const activeEnvironment = computed(
-    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
-  )
-
-  /**
-   * Request associated with the current route
-   *
-   * undefined must be handled as we may have no requests
-   */
-  const activeRequest = computed<Request | undefined>(() => {
-    const key = activeRouterParams.value[PathId.Request]
-
-    // Can use this fallback to get an active request
-    // TODO: Do we really need this? We have to handle undefined anyways
-    const collection =
-      collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value.collections[0]]
-
-    return requests[key] || requests[collection?.requests[0]]
-  })
-
-  /** Grabs the currently active example using the path param */
-  const activeExample = computed<RequestExample | undefined>(() => {
-    const key =
-      activeRouterParams.value[PathId.Examples] === 'default'
-        ? activeRequest.value?.examples[0] || ''
-        : activeRouterParams.value[PathId.Examples]
-
-    return requestExamples[key]
-  })
-
-  /**
-   * First collection that the active request is in
-   *
-   * TODO we should add collection to the route and grab this from the params
-   */
-  const activeCollection = computed(() => {
-    const requestUid = activeRequest.value?.uid
-    if (requestUid)
-      return Object.values(collections).find((c) =>
-        c.requests?.includes(requestUid),
-      )
-
-    const fallbackUid =
-      activeWorkspace.value.collections[0] ?? collections[0]?.uid
-
-    return collections[fallbackUid]
-  })
-
-  /** The currently selected server in the addressBar */
-  const activeServer = computed(
-    () =>
-      servers[
-        activeRequest.value?.selectedServerUid ||
-          activeCollection.value?.selectedServerUid ||
-          ''
-      ],
-  )
-
-  /** Cookie associated with the current route */
-  const activeCookieId = computed<string | undefined>(
-    () => activeRouterParams.value[PathId.Cookies],
-  )
-
-  /**
-   * Active list all available substitution variables. Server variables
-   * will be populated into the environment on spec loading
-   */
-  const activeEnvVariables = computed(() => {
-    if (!activeEnvironment.value) return []
-    // TODO: Must merge global variables and collection level variables here
-    // Return a list of key value pairs that includes dot nested paths
-    return flattenEnvVars(JSON.parse(activeEnvironment.value.value)).map(
-      ([key, value]) => ({
-        key,
-        value,
-      }),
-    )
-  })
-
-  // ---------------------------------------------------------------------------
   // OTHER HELPER DATA
   /** Running request history list */
   const requestHistory = reactive<RequestEvent[]>([])
-
-  /** Most commonly used property of workspace, we don't need check activeWorkspace.value this way */
-  const isReadOnly = computed(() => activeWorkspace.value?.isReadOnly ?? false)
 
   const { importSpecFile, importSpecFromUrl } =
     importSpecFileFactory(storeContext)
@@ -281,6 +150,12 @@ export const createWorkspaceStore = (
 
   /** This state is to be used by the API Client Modal component to control the modal */
   const modalState = useModal()
+
+  // Set some defaults on all workspaces
+  Object.keys(workspaces).forEach((uid) => {
+    if (proxyUrl) workspaceMutators.edit(uid, 'proxyUrl', proxyUrl)
+    if (themeId) workspaceMutators.edit(uid, 'themeId', themeId)
+  })
 
   /**
    * For development, expose this method for debugging our data stores
@@ -298,25 +173,6 @@ export const createWorkspaceStore = (
   })
 
   // ---------------------------------------------------------------------------
-  // PROXY URL STATE
-  const PROXY_URL = 'globalProxyUrl' as const
-
-  // Initialize proxyUrl with the value from localStorage, defaultProxyUrl, or https://proxy.scalar.com
-  const proxyUrl = ref(
-    localStorage.getItem(PROXY_URL) === null
-      ? defaultProxyUrl
-      : (localStorage.getItem(PROXY_URL) as string),
-  )
-
-  const setProxyUrl = (url: string) => {
-    proxyUrl.value = url
-
-    localStorage.setItem(PROXY_URL, url)
-
-    workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', url)
-  }
-
-  // ---------------------------------------------------------------------------
   // Events Busses
   const events = createStoreEvents()
 
@@ -332,27 +188,11 @@ export const createWorkspaceStore = (
     requests,
     servers,
     securitySchemes,
-    activeCollection,
-    activeCookieId,
-    activeExample,
-    activeRequest,
-    activeRouterParams,
-    activeEnvironment,
-    activeServer,
-    activeWorkspace,
-    activeWorkspaceCollections,
-    activeWorkspaceServers,
-    activeEnvVariables,
-    activeWorkspaceRequests,
     modalState,
-    isReadOnly,
-    router,
     events,
     sidebarWidth,
     setSidebarWidth,
-    proxyUrl,
-    setProxyUrl,
-    defaultProxyUrl,
+    isReadOnly,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

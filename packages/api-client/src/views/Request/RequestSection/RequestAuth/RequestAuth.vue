@@ -123,7 +123,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
     ]
 
     // Read only mode we don't want to add new auth
-    if (isReadOnly.value)
+    if (isReadOnly)
       return requiredFormatted.length ? options : availableFormatted
 
     options.push({
@@ -160,7 +160,7 @@ const editSelectedSchemeUids = (uids: string[]) => {
   if (!activeCollection.value || !activeRequest.value) return
 
   // Set as selected on the collection for the modal
-  if (isReadOnly.value) {
+  if (isReadOnly) {
     collectionMutators.edit(
       activeCollection.value.uid,
       'selectedSecuritySchemeUids',
