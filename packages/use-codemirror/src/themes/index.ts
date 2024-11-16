@@ -50,7 +50,7 @@ export const customTheme = createTheme({
     },
     {
       tag: [t.number],
-      color: 'var(--scalar-color-blue)',
+      color: 'var(--scalar-color-orange)',
     },
     {
       tag: [t.name, t.quote],
