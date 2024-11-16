@@ -12,6 +12,10 @@ export const GLOBAL_SECURITY_SYMBOL = Symbol() as InjectionKey<
     | undefined
 >
 
+export const AUTHENTICATION_SYMBOL = Symbol() as InjectionKey<
+  () => ReferenceConfiguration['authentication']
+>
+
 export const HIDE_DOWNLOAD_BUTTON_SYMBOL = Symbol() as InjectionKey<
   () => boolean | undefined
 >
