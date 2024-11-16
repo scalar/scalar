@@ -22,12 +22,18 @@ public class ScalarOptionsExtensionsTests
             .WithProxyUrl("http://localhost:8080")
             .AddMetadata("key", "value")
             .WithPreferredScheme("my-scheme")
-            .WithApiKeyAuthentication(x => x.Token = "my-token")
+            .WithApiKeyAuthentication(x => x.Token = "my-api-token")
             .WithOAuth2Authentication(x =>
             {
                 x.ClientId = "my-client";
                 x.Scopes = ["scope"];
             })
+            .WithHttpBasicAuthentication(x =>
+            {
+                x.Username = "my-username";
+                x.Password = "my-password";
+            })
+            .WithHttpBearerAuthentication(x => x.Token = "my-bearer-token")
             .WithOpenApiRoutePattern("/swagger/{documentName}")
             .WithCdnUrl("http://localhost:8080")
             .WithDefaultFonts(false)
@@ -57,9 +63,12 @@ public class ScalarOptionsExtensionsTests
         options.ProxyUrl.Should().Be("http://localhost:8080");
         options.Metadata.Should().ContainKey("key").And.ContainValue("value");
         options.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
-        options.Authentication!.ApiKey!.Token.Should().Be("my-token");
+        options.Authentication!.ApiKey!.Token.Should().Be("my-api-token");
         options.Authentication!.OAuth2!.ClientId.Should().Be("my-client");
         options.Authentication!.OAuth2!.Scopes.Should().Contain("scope");
+        options.Authentication!.Http!.Basic!.Username.Should().Contain("my-username");
+        options.Authentication!.Http!.Basic!.Password.Should().Contain("my-password");
+        options.Authentication!.Http!.Bearer!.Token.Should().Contain("my-bearer-token");
         options.OpenApiRoutePattern.Should().Be("/swagger/{documentName}");
         options.CdnUrl.Should().Be("http://localhost:8080");
         options.DefaultFonts.Should().BeFalse();

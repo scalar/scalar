@@ -89,7 +89,7 @@ app.MapScalarApiReference(options =>
 
 ### Authentication
 
-Scalar supports various authentication schemes, including OAuth and API Key, by allowing you to pre-fill certain authentication details.
+Scalar supports various authentication schemes, including API Key, OAuth, HTTP Basic and Bearer, by allowing you to pre-fill certain authentication details.
 
 > [!WARNING]
 > Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
@@ -137,6 +137,32 @@ app.MapScalarApiReference(options =>
         {
             oauth.ClientId = "your-client-id";
             oauth.Scopes = ["profile"];
+        });
+});
+```
+
+#### HTTP Basic/Bearer
+
+HTTP Basic or Bearer authentication fields can also be pre-filled easily:
+
+```csharp
+app.MapScalarApiReference(options =>
+{
+    // Basic
+    options
+        .WithPreferredScheme("Basic") // Security scheme name from the OpenAPI document
+        .WithHttpBasicAuthentication(basic =>
+        {
+            basic.Username = "your-username";
+            basic.Password = "your-password";
+        });
+
+    // Bearer
+    options
+        .WithPreferredScheme("Bearer") // Security scheme name from the OpenAPI document
+        .WithHttpBearerAuthentication(bearer =>
+        {
+            bearer.Token = "your-bearer-token";
         });
 });
 ```

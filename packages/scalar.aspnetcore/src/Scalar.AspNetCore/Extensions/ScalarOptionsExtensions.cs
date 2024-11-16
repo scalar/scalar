@@ -302,6 +302,56 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the HTTP basic authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="httpBasicOptions">The HTTP basic options to set.</param>
+    public static ScalarOptions WithHttpBasicAuthentication(this ScalarOptions options, HttpBasicOptions httpBasicOptions)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.Http ??= new HttpOptions();
+        options.Authentication.Http.Basic = httpBasicOptions;
+        return options;
+    }
+
+    /// <summary>
+    /// Configures the HTTP basic authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="configureHttpBasicOptions">The action to configure the HTTP basic options.</param>
+    public static ScalarOptions WithHttpBasicAuthentication(this ScalarOptions options, Action<HttpBasicOptions> configureHttpBasicOptions)
+    {
+        var httpBasicOptions = new HttpBasicOptions();
+        configureHttpBasicOptions(httpBasicOptions);
+        return options.WithHttpBasicAuthentication(httpBasicOptions);
+    }
+
+    /// <summary>
+    /// Sets the HTTP bearer authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="httpBearerOptions">The HTTP bearer options to set.</param>
+    public static ScalarOptions WithHttpBearerAuthentication(this ScalarOptions options, HttpBearerOptions httpBearerOptions)
+    {
+        options.Authentication ??= new ScalarAuthenticationOptions();
+        options.Authentication.Http ??= new HttpOptions();
+        options.Authentication.Http.Bearer = httpBearerOptions;
+        return options;
+    }
+
+    /// <summary>
+    /// Configures the HTTP bearer authentication options.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="configureHttpBearerOptions">The action to configure the HTTP bearer options.</param>
+    public static ScalarOptions WithHttpBearerAuthentication(this ScalarOptions options, Action<HttpBearerOptions> configureHttpBearerOptions)
+    {
+        var httpBearerOptions = new HttpBearerOptions();
+        configureHttpBearerOptions(httpBearerOptions);
+        return options.WithHttpBearerAuthentication(httpBearerOptions);
+    }
+
+    /// <summary>
     /// Sets the default HTTP client.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
