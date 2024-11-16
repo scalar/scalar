@@ -67,7 +67,7 @@ watch(mediaQueries.md, (isMedium) => (showSideBar.value = isMedium))
  */
 const selectedSecuritySchemeUids = computed(
   () =>
-    (isReadOnly.value
+    (isReadOnly
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )

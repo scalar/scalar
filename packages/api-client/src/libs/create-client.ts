@@ -1,5 +1,6 @@
 import type { ClientLayout } from '@/hooks'
 import { loadAllResources } from '@/libs/local-storage'
+import { PathId } from '@/routes'
 import { type WorkspaceStore, createWorkspaceStore } from '@/store'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
@@ -110,9 +111,11 @@ export const createApiClient = ({
   // Create the store if it wasn't passed in
   const store =
     _store ||
-    createWorkspaceStore(router, {
+    createWorkspaceStore({
+      isReadOnly,
       useLocalStorage: persistData,
-      defaultProxyUrl: configuration.proxyUrl,
+      themeId: configuration.themeId,
+      proxyUrl: configuration.proxyUrl,
     })
 
   // Load from localStorage if available
@@ -167,8 +170,7 @@ export const createApiClient = ({
   app.provide('layout', layout)
 
   const {
-    activeCollection,
-    activeWorkspace,
+    collections,
     collectionMutators,
     importSpecFile,
     importSpecFromUrl,
@@ -176,6 +178,7 @@ export const createApiClient = ({
     requests,
     securitySchemes,
     servers,
+    workspaces,
     workspaceMutators,
     requestExampleMutators,
   } = store
@@ -193,27 +196,16 @@ export const createApiClient = ({
     }
     app.mount(mountingEl)
   }
+  if (mountOnInitialize) mount()
 
-  // Update some workspace params from the config
-  if (activeWorkspace.value) {
-    if (mountOnInitialize) mount()
-
-    if (configuration?.proxyUrl) {
-      workspaceMutators.edit(
-        activeWorkspace.value.uid,
-        'proxyUrl',
-        configuration?.proxyUrl,
-      )
-    }
-
-    if (configuration?.themeId) {
-      workspaceMutators.edit(
-        activeWorkspace.value.uid,
-        'themeId',
-        configuration?.themeId,
-      )
-    }
-  }
+  // Get active entities - pulled out since the others are moved to a new hook
+  const getActiveWorkspace = () =>
+    workspaces[router.currentRoute.value.params[PathId.Workspace] as string] ??
+    workspaces[Object.keys(workspaces)[0]]
+  const getActiveCollection = () =>
+    collections[
+      router.currentRoute.value.params[PathId.Collection] as string
+    ] ?? Object.values(collections)[0]
 
   /**
    * Update the spec
@@ -221,14 +213,15 @@ export const createApiClient = ({
    * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
    */
   const updateSpec = async (spec: SpecConfiguration) => {
+    const activeWorkspace = getActiveWorkspace()
     if (spec?.url) {
-      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+      await importSpecFromUrl(spec.url, activeWorkspace.uid, {
         proxy: configuration?.proxyUrl,
         setCollectionSecurity: true,
         ...configuration,
       })
     } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
+      await importSpecFile(spec?.content, activeWorkspace.uid, {
         setCollectionSecurity: true,
         ...configuration,
       })
@@ -265,7 +258,8 @@ export const createApiClient = ({
         store.serverMutators.reset()
         store.tagMutators.reset()
 
-        workspaceMutators.edit(activeWorkspace.value.uid, 'collections', [])
+        const activeWorkspace = getActiveWorkspace()
+        workspaceMutators.edit(activeWorkspace.uid, 'collections', [])
 
         updateSpec(newConfig.spec)
       }
@@ -273,10 +267,11 @@ export const createApiClient = ({
     /** Update the currently selected server via URL */
     updateServer: (serverUrl: string) => {
       const server = Object.values(servers).find((s) => s.url === serverUrl)
+      const activeCollection = getActiveCollection()
 
-      if (server && activeCollection.value)
+      if (server && activeCollection)
         collectionMutators.edit(
-          activeCollection.value?.uid,
+          activeCollection.uid,
           'selectedServerUid',
           server.uid,
         )
@@ -284,7 +279,10 @@ export const createApiClient = ({
     /** Update the currently selected server via URL */
     onUpdateServer: (callback: (url: string) => void) => {
       watch(
-        () => activeCollection.value?.selectedServerUid,
+        () => {
+          const activeCollection = getActiveCollection()
+          return activeCollection.selectedServerUid
+        },
         (uid) => {
           const server = Object.values(servers).find((s) => s.uid === uid)
           if (server?.url) callback(server.url)
@@ -305,10 +303,11 @@ export const createApiClient = ({
     }) => {
       const schemes = Object.values(securitySchemes)
       const scheme = schemes.find((s) => s.nameKey === nameKey)
+      const activeCollection = getActiveCollection()
 
-      if (scheme && activeCollection.value)
+      if (scheme && activeCollection)
         collectionMutators.edit(
-          activeCollection.value.uid,
+          activeCollection.uid,
           `auth.${scheme.uid}.${propertyKey}`,
           // @ts-expect-error why typescript why
           value,
