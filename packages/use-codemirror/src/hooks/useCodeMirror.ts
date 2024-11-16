@@ -64,6 +64,7 @@ type BaseParameters = {
   /** Option to show line numbers in the editor */
   lineNumbers?: MaybeRefOrGetter<boolean | undefined>
   withVariables?: MaybeRefOrGetter<boolean | undefined>
+  forceFoldGutter?: MaybeRefOrGetter<boolean | undefined>
   disableEnter?: MaybeRefOrGetter<boolean | undefined>
   disableCloseBrackets?: MaybeRefOrGetter<boolean | undefined>
   /** Option to lint and show error in the editor */
@@ -159,6 +160,7 @@ export const useCodeMirror = (
     readOnly: toValue(params.readOnly),
     lineNumbers: toValue(params.lineNumbers),
     withVariables: toValue(params.withVariables),
+    forceFoldGutter: toValue(params.forceFoldGutter),
     disableEnter: toValue(params.disableEnter),
     disableCloseBrackets: toValue(params.disableCloseBrackets),
     withoutTheme: toValue(params.withoutTheme),
@@ -266,6 +268,7 @@ function getCodeMirrorExtensions({
   readOnly = false,
   lineNumbers = false,
   withVariables = false,
+  forceFoldGutter = false,
   disableEnter = false,
   disableCloseBrackets = false,
   disableTabIndent = false,
@@ -282,6 +285,7 @@ function getCodeMirrorExtensions({
   disableTabIndent?: boolean
   withVariables?: boolean
   disableEnter?: boolean
+  forceFoldGutter?: boolean
   onChange?: (val: string) => void
   onFocus?: (val: string) => void
   onBlur?: (val: string) => void
@@ -381,10 +385,8 @@ function getCodeMirrorExtensions({
   // Line numbers
   if (lineNumbers) extensions.push(lineNumbersExtension())
 
-  // Syntax highlighting
-  if (language && languageExtensions[language]) {
+  if (forceFoldGutter) {
     extensions.push(
-      languageExtensions[language](),
       foldGutter({
         markerDOM: (open) => {
           const icon = document.createElement('div')
@@ -398,6 +400,27 @@ function getCodeMirrorExtensions({
         },
       }),
     )
+  }
+
+  // Syntax highlighting
+  if (language && languageExtensions[language]) {
+    extensions.push(languageExtensions[language]())
+    if (!forceFoldGutter) {
+      extensions.push(
+        foldGutter({
+          markerDOM: (open) => {
+            const icon = document.createElement('div')
+            icon.classList.add('cm-foldMarker')
+            const vnode = h(ScalarIcon, {
+              icon: open ? 'ChevronDown' : 'ChevronRight',
+              size: 'xs',
+            })
+            render(vnode, icon)
+            return icon
+          },
+        }),
+      )
+    }
   }
 
   // JSON Linter
