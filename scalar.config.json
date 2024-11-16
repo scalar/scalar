@@ -34,6 +34,11 @@
           "type": "folder",
           "children": [
             {
+              "name": ".NET Integration",
+              "path": "documentation/integrations/dotnet.md",
+              "type": "page"
+            },
+            {
               "name": "AdonisJS",
               "path": "documentation/integrations/adonisjs.md",
               "type": "page"
