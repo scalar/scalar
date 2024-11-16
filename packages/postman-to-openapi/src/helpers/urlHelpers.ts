@@ -49,15 +49,16 @@ export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '
  * Handles double curly braces {{param}}, single curly braces {param}, and colon format :param.
  */
 export function extractPathParameterNames(path: string): string[] {
-  const params = []
+  const params = new Set<string>()
   let match
 
   while ((match = templateVariableRegex.exec(path)) !== null) {
-    // match[1] is for double curly braces, match[2] is for single curly braces
-    // if neither exists, it's a colon parameter
+    // match[1] contains the parameter name from {{param}}
+    // match[2] contains the parameter name from {param}
+    // match[0].slice(1) gets the parameter name from :param
     const param = match[1] || match[2] || match[0].slice(1)
-    params.push(param.trim())
+    params.add(param.trim())
   }
 
-  return [...new Set(params)] // Deduplicate parameters
+  return Array.from(params)
 }
