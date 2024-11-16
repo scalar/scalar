@@ -24,8 +24,8 @@
 </h1>
 
 <p>
-	<img width="830" height="500" src="https://github.com/user-attachments/assets/d4ba1717-1583-44b7-9b00-f7acd4550eea#gh-light-mode-only">
-	<img width="830" height="500" src="https://github.com/user-attachments/assets/8c670164-6218-47b0-8595-f6244d1a1cd2#gh-dark-mode-only">
+	<img width="830" height="510" src="https://github.com/user-attachments/assets/7c4d4971-a6d9-457d-a7ab-11894889f6f9#gh-light-mode-only">
+	<img width="830" height="510" src="https://github.com/user-attachments/assets/0e3ffca5-8912-487a-a390-fef0e8222c35#gh-dark-mode-only">
 </p>
 
 ### An offline first API Client built for OpenAPI
