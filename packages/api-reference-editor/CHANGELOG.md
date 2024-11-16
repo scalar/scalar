@@ -1,5 +1,22 @@
 # @scalar/api-reference-editor
 
+## 0.1.124
+
+### Patch Changes
+
+- bfad6dc: feat(use-hooks): create @scalar/use-hooks with useColorMode and useClipboard
+- Updated dependencies [bfad6dc]
+- Updated dependencies [c8fae11]
+- Updated dependencies [6894b7d]
+- Updated dependencies [c87353e]
+- Updated dependencies [6894b7d]
+- Updated dependencies [c3d9f3c]
+  - @scalar/api-reference@1.25.65
+  - @scalar/api-client@2.1.50
+  - @scalar/use-hooks@0.1.0
+  - @scalar/oas-utils@0.2.76
+  - @scalar/use-codemirror@0.11.37
+
 ## 0.1.123
 
 ### Patch Changes

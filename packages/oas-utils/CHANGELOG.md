@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.76
+
+### Patch Changes
+
+- 6894b7d: feat: passes omitEmptyAndOptionalProperties from operation
+- c87353e: Add serialization back to OpenAPI spec for custom entities
+
 ## 0.2.75
 
 ### Patch Changes

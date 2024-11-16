@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.143
+
+### Patch Changes
+
+- 526e800: chore(docusaurus): update docusaurus version
+  - @scalar/api-reference-react@0.3.141
+
 ## 0.4.142
 
 ### Patch Changes
