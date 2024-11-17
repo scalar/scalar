@@ -15,6 +15,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import {
   canMethodHaveBody,
+  concatenateUrlAndPath,
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
@@ -359,8 +360,10 @@ export const createRequestOperation = ({
         if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
           /** Prefix the url with the origin if it is relative */
           const base = isRelativePath(url)
-            ? window.location.origin + url
+            ? concatenateUrlAndPath(window.location.origin, url)
             : ensureProtocol(url)
+
+          console.log('base', base)
 
           /** We create a separate server URL to snag any search params from the server */
           const serverURL = new URL(base)
