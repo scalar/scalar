@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.12.71
+
+### Patch Changes
+
+- 7abe0f9: fix: add min height to virtual scroll text component
+
 ## 0.12.70
 
 ### Patch Changes
