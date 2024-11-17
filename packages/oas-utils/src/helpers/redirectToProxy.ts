@@ -18,8 +18,21 @@ export function redirectToProxy(proxy?: string, url?: string): string {
   return newUrl.toString()
 }
 
-/** Check if the URL is relative, aka doesn't start with http[s] */
-export const isRelativePath = (url: string) => !/^https?:\/\//.test(url)
+/** Check if the URL is relative or if it's a domain without protocol */
+export const isRelativePath = (url: string) => {
+  // Absolute URLs start with http:// or https://
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return false
+  }
+
+  // Check if it looks like a domain (contains dots and no spaces)
+  // This catches cases like "galaxy.scalar.com/planets"
+  if (/^[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+(\/|$)/.test(url)) {
+    return false
+  }
+
+  return true
+}
 
 /** Returns false for requests to localhost, relative URLs, if no proxy is defined … */
 export function shouldUseProxy(proxy?: string, url?: string): boolean {
