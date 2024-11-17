@@ -33,9 +33,9 @@
 └ Minimal, powerful & open-souce <br>
 └ Integrates with dozens of API Frameworks (Elysia, Hono, FastAPI, etc)<br>
 └ Syncs directly with your server frameworks with our Watch Mode <br>
-└ First class OpenAPI (formerly Swagger) support
-└ Environment variables and dynamic parameters
-└ Save and organize requests into collections
+└ First class OpenAPI (formerly Swagger) support <br>
+└ Environment variables and dynamic parameters <br>
+└ Save and organize requests into collections <br>
 └ Syncs directly with your server frameworks <br>
 └ <a href="https://scalar.com/download">Download (Windows, MacOS, Linux)</a> <br>
 └ <a href="https://client.scalar.com/">Try Online Demo</a>
