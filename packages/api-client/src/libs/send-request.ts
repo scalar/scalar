@@ -363,8 +363,6 @@ export const createRequestOperation = ({
             ? concatenateUrlAndPath(window.location.origin, url)
             : ensureProtocol(url)
 
-          console.log('base', base)
-
           /** We create a separate server URL to snag any search params from the server */
           const serverURL = new URL(base)
           /** We create a separate path URL to grab the path params */
