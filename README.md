@@ -24,16 +24,20 @@
 </h1>
 
 <p>
-	<img width="830" height="510" src="https://github.com/user-attachments/assets/7c4d4971-a6d9-457d-a7ab-11894889f6f9#gh-light-mode-only">
-	<img width="830" height="510" src="https://github.com/user-attachments/assets/0e3ffca5-8912-487a-a390-fef0e8222c35#gh-dark-mode-only">
+	<img width="830" height="520" src="https://github.com/user-attachments/assets/7c4d4971-a6d9-457d-a7ab-11894889f6f9#gh-light-mode-only">
+	<img width="830" height="520" src="https://github.com/user-attachments/assets/0e3ffca5-8912-487a-a390-fef0e8222c35#gh-dark-mode-only">
 </p>
 
 ### An offline first API Client built for OpenAPI
 
-<p>
-	<a href="https://scalar.com/download">Download</a> &nbsp;&nbsp;
-	<a href="https://client.scalar.com/">Try Demo</a>
-</p>
+└ Minimal, powerful & open-souce <br>
+└ Integrates with dozens of API Frameworks (Elysia, Hono, FastAPI, etc)<br>
+└ Syncs directly with your server frameworks with our Watch Mode <br>
+└ First class OpenAPI (formerly Swagger) support <br>
+└ Environment variables and dynamic parameters <br>
+└ Save and organize requests into collections <br>
+└ <a href="https://scalar.com/download">Download (Windows, MacOS, Linux)</a> <br>
+└ <a href="https://client.scalar.com/">Try Online Demo</a>
 
 <!-- minimal line break-->
 <p>
@@ -43,14 +47,17 @@
 <!-- end minimal line break-->
 
 <p>
-	<img width="830" height="510" src="https://github.com/user-attachments/assets/acf01c03-afd3-451b-8eb6-ce32e29463e2#gh-light-mode-only">
-	<img width="830" height="510" src="https://github.com/user-attachments/assets/6466e49b-4922-43d0-8b48-40d63ab650b6#gh-dark-mode-only">
+	<img width="830" height="520" src="https://github.com/user-attachments/assets/718201bf-421a-4802-b0b0-2b016ee3f1b4#gh-light-mode-only">
+	<img width="830" height="520" src="https://github.com/user-attachments/assets/28b4b80c-2c12-4501-b403-1c1e4949941c#gh-dark-mode-only">
 </p>
 
 <h3>Interactive API Reference from OpenAPI/Swagger</h3>
-<p>
-	<a href="https://docs.scalar.com/swagger-editor">Try Demo</a> &nbsp;&nbsp;
-</p>
+└ Uses OpenAPI/Swagger documents <br>
+└ Request examples for many favorite languages and frameworks <br>
+└ Comes with an integrated API playground <br>
+└ Integrates with your favorite framework <br>
+└ Doesn't look like 2011 <br>
+└ <a href="https://docs.scalar.com/swagger-editor">Try Demo</a>
 
 <!-- minimal line break-->
 <p>
@@ -69,18 +76,6 @@
 	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/c792c977-8551-432c-9417-3ea05e408151#gh-dark-mode-only">
 	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/54a9ea69-c50a-4f49-8c3e-ddd6f8fbe1f3#gh-dark-mode-only">
 </p>
-
-<br>
-
-### Features
-
-- Uses OpenAPI/Swagger documents
-- Request examples for many favorite languages and frameworks
-- Comes with an integrated API client
-- Integrates with your favorite framework
-- Doesn’t look like it’s 2011
-
-<br>
 
 ### Quickstart
 
