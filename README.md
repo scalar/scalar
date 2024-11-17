@@ -30,8 +30,12 @@
 
 ### An offline first API Client built for OpenAPI
 
-└ Minimal, powerful & open-souce <br> 
+└ Minimal, powerful & open-souce <br>
 └ Integrates with dozens of API Frameworks (Elysia, Hono, FastAPI, etc)<br>
+└ Syncs directly with your server frameworks with our Watch Mode <br>
+└ First class OpenAPI (formerly Swagger) support
+└ Environment variables and dynamic parameters
+└ Save and organize requests into collections
 └ Syncs directly with your server frameworks <br>
 └ <a href="https://scalar.com/download">Download (Windows, MacOS, Linux)</a> <br>
 └ <a href="https://client.scalar.com/">Try Online Demo</a>
@@ -54,7 +58,7 @@
 └ Comes with an integrated API playground <br>
 └ Integrates with your favorite framework <br>
 └ Doesn't look like 2011 <br>
-└ <a href="https://docs.scalar.com/swagger-editor">Try Demo</a> 
+└ <a href="https://docs.scalar.com/swagger-editor">Try Demo</a>
 
 <!-- minimal line break-->
 <p>
@@ -73,7 +77,6 @@
 	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/c792c977-8551-432c-9417-3ea05e408151#gh-dark-mode-only">
 	<img width="48.494%" height="330" src="https://github.com/user-attachments/assets/54a9ea69-c50a-4f49-8c3e-ddd6f8fbe1f3#gh-dark-mode-only">
 </p>
-
 
 ### Quickstart
 
