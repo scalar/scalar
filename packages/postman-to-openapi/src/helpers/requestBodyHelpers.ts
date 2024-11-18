@@ -43,7 +43,7 @@ function handleRawBody(
       'application/json': {
         schema: {
           type: 'object',
-          examples: { default: jsonBody },
+          examples: { default: { value: jsonBody } },
         },
       },
     }
