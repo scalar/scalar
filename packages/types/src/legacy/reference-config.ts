@@ -397,7 +397,7 @@ export type Schema = {
 }
 
 export type TransformedOperation = Operation & {
-  pathParameters?: Parameters[]
+  pathParameters?: Parameter[]
 }
 
 export type CollapsedSidebarItems = Record<string, boolean>

@@ -7,12 +7,15 @@ import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
-import { ScalarIcon, ScalarIconButton } from '@scalar/components'
+import {
+  ScalarIcon,
+  ScalarIconButton,
+  ScalarMarkdown,
+} from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
 
-import OperationDescription from '../components/OperationDescription.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
@@ -71,7 +74,9 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
     <template
       v-if="operation.description"
       #description>
-      <OperationDescription :operation="operation" />
+      <ScalarMarkdown
+        :value="operation.description"
+        withImages />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">

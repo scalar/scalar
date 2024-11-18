@@ -12,9 +12,9 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
+import { ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import OperationDescription from '../components/OperationDescription.vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
@@ -39,7 +39,9 @@ defineProps<{
             </SectionHeader>
           </div>
           <div class="operation-details">
-            <OperationDescription :operation="operation" />
+            <ScalarMarkdown
+              :value="operation.description"
+              withImages />
             <OperationParameters :operation="operation" />
             <OperationResponses :operation="operation" />
           </div>
