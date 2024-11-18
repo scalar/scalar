@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { useResponses } from '@/hooks'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
+import { useResponses } from '../hooks/useResponses'
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 

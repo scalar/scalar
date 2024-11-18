@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Anchor } from '@/components/Anchor'
 import { HttpMethod } from '@/components/HttpMethod'
+import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
@@ -13,7 +14,6 @@ import { inject } from 'vue'
 
 import OperationDescription from '../components/OperationDescription.vue'
 import OperationParameters from '../components/OperationParameters.vue'
-import OperationPath from '../components/OperationPath.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{

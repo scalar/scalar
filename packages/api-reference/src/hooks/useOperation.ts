@@ -1,12 +1,12 @@
-import type { Parameters, TransformedOperation } from '@scalar/types/legacy'
+import type { Parameter, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 export type ParamMap = {
-  path: Parameters[]
-  query: Parameters[]
-  header: Parameters[]
-  body: Parameters[]
-  formData: Parameters[]
+  path: Parameter[]
+  query: Parameter[]
+  header: Parameter[]
+  body: Parameter[]
+  formData: Parameter[]
 }
 
 /**
@@ -23,7 +23,7 @@ export function useOperation(operation: TransformedOperation) {
     }
 
     if (operation.pathParameters) {
-      operation.pathParameters.forEach((parameter: Parameters) => {
+      operation.pathParameters.forEach((parameter: Parameter) => {
         if (parameter.in === 'path') {
           map.path.push(parameter)
         } else if (parameter.in === 'query') {

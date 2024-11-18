@@ -6,21 +6,27 @@ const prop = defineProps<{
   requestBody?: RequestBody
   defaultValue?: ContentType
 }>()
+
 const emit = defineEmits<{
   (e: 'selectContentType', payload: { contentType: ContentType }): void
 }>()
+
 const handleSelectChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
   const contentType = target.value as ContentType
+
   selectedContentType.value = contentType
+
   emit('selectContentType', { contentType })
 }
+
 const contentTypes = computed(() => {
   if (prop.requestBody?.content) {
     return Object.keys(prop.requestBody.content)
   }
   return []
 })
+
 const selectedContentType = ref<ContentType>(
   prop.defaultValue || (contentTypes.value[0] as ContentType),
 )
@@ -35,7 +41,7 @@ const selectedContentType = ref<ContentType>(
       :value="selectedContentType"
       @change="handleSelectChange($event)">
       <option
-        v-for="(value, key) in prop.requestBody?.content"
+        v-for="(_, key) in prop.requestBody?.content"
         :key="key"
         :value="key">
         {{ key }}

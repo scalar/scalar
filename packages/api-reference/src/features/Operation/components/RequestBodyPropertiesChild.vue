@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import type { ContentProperties } from '@/types'
 import { ScalarIcon } from '@scalar/components'
-
-import type { ContentProperties } from '../../../types'
 
 defineProps<{ contentProperties: ContentProperties }>()
 </script>

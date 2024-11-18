@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
+import OperationPath from '@/components/OperationPath.vue'
 import {
   Section,
   SectionColumn,
@@ -15,7 +16,6 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 
 import OperationDescription from '../components/OperationDescription.vue'
 import OperationParameters from '../components/OperationParameters.vue'
-import OperationPath from '../components/OperationPath.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
