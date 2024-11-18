@@ -84,7 +84,7 @@ function handleUrlEncodedBody(
       const paramObject = createParameterObject(item, 'query')
       schema.properties[item.key] = {
         type: 'string',
-        example: [item.value],
+        examples: [item.value],
         description: paramObject.description,
       }
       if (paramObject.required) {
