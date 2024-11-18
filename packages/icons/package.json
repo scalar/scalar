@@ -15,7 +15,8 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-vite",
+    "build": "pnpm update:icons && pnpm prettier --write README.md && scalar-build-vite",
+    "update:icons": "vite-node ./scripts/update-list-of-icons.ts",
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/icons/*.svg --config .svglintrc.js",
