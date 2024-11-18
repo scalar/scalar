@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_OPENAPI_VERSION, transform } from './transform'
+import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, transform } from './transform'
 
 describe('transform', () => {
   describe('required properties', () => {
@@ -11,7 +11,7 @@ describe('transform', () => {
       expect(result).toStrictEqual({
         openapi: DEFAULT_OPENAPI_VERSION,
         info: {
-          title: '',
+          title: DEFAULT_TITLE,
           version: '1.0',
         },
       })
