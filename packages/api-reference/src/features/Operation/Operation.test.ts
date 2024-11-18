@@ -9,7 +9,9 @@ import Operation from './Operation.vue'
 /**
  * Helper function to create a TransformedOperation
  *
- * TODO: We need a helper function to create a store-compatible operation to migrate the tests to it.
+ * We can use this to test existing components, but we want to move to store-compatible props eventually.
+ *
+ * @deprecated TODO: We need a helper function to create a store-compatible operation to migrate the tests to it.
  */
 function createTransformedOperation(
   requestMethod: TransformedOperation['httpVerb'],
@@ -123,7 +125,10 @@ describe('Operation', () => {
       },
     })
 
-    const html = await renderToString(operationComponent.vm)
+    expect(operationComponent).not.toBeUndefined()
+
+    const html = await renderToString(operationComponent.vm.$el)
+
     expect(html).toBeTruthy()
     expect(html).toContain('Get all planets')
   })
