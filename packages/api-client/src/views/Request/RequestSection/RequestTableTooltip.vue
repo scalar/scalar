@@ -5,13 +5,15 @@ import { computed } from 'vue'
 
 const props = defineProps<{ item: RequestExampleParameter }>()
 
+const isDefined = (value: unknown): boolean => value !== undefined
+
 const hasItemProperties = computed(
   () =>
     props.item.type ||
     props.item.format ||
-    props.item.minimum ||
-    props.item.maximum ||
-    props.item.default,
+    isDefined(props.item.minimum) ||
+    isDefined(props.item.maximum) ||
+    isDefined(props.item.default),
 )
 </script>
 <template>
@@ -43,17 +45,17 @@ const hasItemProperties = computed(
             >{{ props.item.format }}</span
           >
           <span
-            v-if="props.item.minimum"
+            v-if="isDefined(props.item.minimum)"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >min: {{ props.item.minimum }}</span
           >
           <span
-            v-if="props.item.maximum"
+            v-if="isDefined(props.item.maximum)"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >max: {{ props.item.maximum }}</span
           >
           <span
-            v-if="props.item.default"
+            v-if="isDefined(props.item.default)"
             class="before:content-['·'] before:block before:mx-[0.5ch] flex whitespace-nowrap"
             >default: {{ props.item.default }}</span
           >
