@@ -332,6 +332,8 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
 .property-enum-value {
   padding: 3px 0;
   color: var(--scalar-color-2);
+  line-height: 1.5;
+  word-break: break-word;
 }
 .property-enum-value::before {
   content: '⊢';

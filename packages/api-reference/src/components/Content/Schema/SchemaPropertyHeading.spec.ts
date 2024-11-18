@@ -14,7 +14,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
 
-    const defaultValueElement = wrapper.find('.property-details')
+    const defaultValueElement = wrapper.find('.property-heading')
     expect(defaultValueElement.text()).toContain('default:')
     expect(defaultValueElement.text()).toContain('false')
   })
@@ -41,7 +41,7 @@ describe('SchemaPropertyHeading', () => {
       },
     })
 
-    const detailsElement = wrapper.find('.property-details')
+    const detailsElement = wrapper.find('.property-heading')
     expect(detailsElement.text()).toContain('string')
     expect(detailsElement.text()).toContain('date-time')
   })

@@ -51,9 +51,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         {{ value.const ?? value.enum[0] }}
       </SchemaPropertyDetail>
     </div>
-    <div
-      v-else-if="value?.type"
-      class="property-details">
+    <template v-else-if="value?.type">
       <SchemaPropertyDetail>
         <!-- prettier-ignore -->
         <template v-if="value?.items?.type">
@@ -115,7 +113,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         <template #prefix>default:</template>
         {{ flattenDefaultValue(value) }}
       </SchemaPropertyDetail>
-    </div>
+    </template>
     <div
       v-if="value?.writeOnly"
       class="property-write-only">
@@ -141,9 +139,22 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 <style scoped>
 .property-heading {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 9px;
+  row-gap: 9px;
   white-space: nowrap;
+}
+
+.property-heading > * {
+  margin-right: 9px;
+}
+
+.property-heading:last-child {
+  margin-right: 0;
+}
+
+.property-heading > .property-detail:not(:last-of-type) {
+  margin-right: 0;
 }
 
 .property-name {
@@ -175,7 +186,7 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-green);
 }
-.property-details {
+.property-detail {
   font-size: var(--scalar-micro);
   color: var(--scalar-color-2);
   display: flex;
