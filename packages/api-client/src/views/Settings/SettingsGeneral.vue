@@ -143,7 +143,7 @@ const changeTheme = (themeId: ThemeId) => {
               :class="{ 'bg-b-2 text-c-1': !activeWorkspace.proxyUrl }"
               :variant="!activeWorkspace.proxyUrl ? 'primary' : 'secondary'"
               @click="
-                workspaceMutators.edit(activeWorkspace.uid, 'proxyUrl', null)
+                workspaceMutators.edit(activeWorkspace.uid, 'proxyUrl', '')
               ">
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">

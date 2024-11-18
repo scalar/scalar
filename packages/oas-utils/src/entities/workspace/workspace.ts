@@ -44,7 +44,7 @@ export const workspaceSchema = z.object({
   /** List of all cookie uids in a given workspace */
   cookies: z.array(z.string()).default([]),
   /** Workspace level proxy for all requests to be sent through */
-  proxyUrl: z.string().optional().nullable().default(null),
+  proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */
   themeId: z.enum(themeIds).optional().default('default'),
 })
