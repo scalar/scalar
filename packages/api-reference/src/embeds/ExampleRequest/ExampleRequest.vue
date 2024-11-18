@@ -3,7 +3,7 @@ import { useServerStore } from '#legacy'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { toRef } from 'vue'
 
-import EndpointPath from '../../components/Content/Operation/EndpointPath.vue'
+import OperationPath from '../../components/Content/Operation/OperationPath.vue'
 import TestRequestButton from '../../components/Content/Operation/TestRequestButton.vue'
 import { ExampleRequest } from '../../features/ExampleRequest'
 import type { OpenApiDocumentConfiguration } from '../OpenApiDocument/types'
@@ -30,7 +30,7 @@ useServerStore({
       v-if="operation"
       :operation="operation">
       <template #header>
-        <EndpointPath
+        <OperationPath
           class="example-path"
           :deprecated="operation.information?.deprecated"
           :path="operation.path" />

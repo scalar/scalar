@@ -15,7 +15,7 @@ import { Anchor } from '../../Anchor'
 import { HttpMethod } from '../../HttpMethod'
 import { SectionAccordion } from '../../Section'
 import EndpointDetailsCard from './EndpointDetailsCard.vue'
-import EndpointPath from './EndpointPath.vue'
+import OperationPath from './OperationPath.vue'
 import TestRequestButton from './TestRequestButton.vue'
 
 defineProps<{
@@ -35,7 +35,7 @@ console.log(!getHideTestRequestButton?.())
     transparent>
     <template #title>
       <h3 class="endpoint-header">
-        <div class="endpoint-details">
+        <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
             :method="operation.httpVerb"
@@ -45,7 +45,7 @@ console.log(!getHideTestRequestButton?.())
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">
-                <EndpointPath
+                <OperationPath
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </div>
@@ -92,7 +92,7 @@ console.log(!getHideTestRequestButton?.())
   display: flex;
   justify-content: space-between;
 }
-.endpoint-details {
+.operation-details {
   display: flex;
   align-items: center;
   margin-top: 0;

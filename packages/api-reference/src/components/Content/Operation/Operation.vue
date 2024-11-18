@@ -12,8 +12,10 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import EndpointDetails from './EndpointDetails.vue'
-import EndpointPath from './EndpointPath.vue'
+import OperationDescription from './OperationDescription.vue'
+import OperationParameters from './OperationParameters.vue'
+import OperationPath from './OperationPath.vue'
+import OperationResponses from './OperationResponses.vue'
 import TestRequestButton from './TestRequestButton.vue'
 
 defineProps<{
@@ -36,7 +38,11 @@ defineProps<{
               </Anchor>
             </SectionHeader>
           </div>
-          <EndpointDetails :operation="operation" />
+          <div class="operation-details">
+            <OperationDescription :operation="operation" />
+            <OperationParameters :operation="operation" />
+            <OperationResponses :operation="operation" />
+          </div>
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
@@ -44,7 +50,7 @@ defineProps<{
               fallback
               :operation="operation">
               <template #header>
-                <EndpointPath
+                <OperationPath
                   class="example-path"
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
