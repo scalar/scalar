@@ -4,6 +4,7 @@ import { HttpMethod } from '@/components/HttpMethod'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import { TestRequestButton } from '@/features/TestRequestButton'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import { ScalarIcon, ScalarIconButton } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
@@ -14,7 +15,6 @@ import OperationDescription from '../OperationDescription.vue'
 import OperationParameters from '../OperationParameters.vue'
 import OperationPath from '../OperationPath.vue'
 import OperationResponses from '../OperationResponses.vue'
-import TestRequestButton from '../TestRequestButton.vue'
 
 defineProps<{
   id?: string

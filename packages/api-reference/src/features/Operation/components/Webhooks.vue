@@ -12,7 +12,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Webhooks } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { Lazy } from '../Lazy'
+import { Lazy } from '../../../components/Content/Lazy'
 import Webhook from './Webhook.vue'
 
 const props = defineProps<{
