@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useServerStore } from '#legacy'
 import { ExampleRequest } from '@/features/ExampleRequest'
-import OperationPath from '@/features/Operation/OperationPath.vue'
+import OperationPath from '@/features/Operation/components/OperationPath.vue'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { toRef } from 'vue'

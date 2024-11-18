@@ -217,13 +217,20 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
   flex-direction: column;
   gap: 12px;
 }
-.operation-details-card-item {
+.operation-details-card-item :deep(.parameter-list) {
   border: 1px solid var(--scalar-border-color);
   border-radius: var(--scalar-radius-lg);
   margin-top: 0;
 }
-.operation-details-card :deep(.parameter-list:first-of-type:last-of-type) {
-  margin: 0;
+
+.operation-details-card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.operation-details-card-item :deep(.parameter-list-items) {
+  margin-bottom: 0;
 }
 .operation-details-card :deep(.parameter-item:last-of-type .parameter-schema) {
   padding-bottom: 12px;
