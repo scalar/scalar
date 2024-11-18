@@ -136,5 +136,32 @@ describe('transform', () => {
         },
       })
     })
+
+    it('converts array scopes to objects', () => {
+      const result = transform({
+        components: {
+          securitySchemes: {
+            oauth2: {
+              type: 'oauth2',
+              flows: {
+                authorizationCode: {
+                  authorizationUrl: 'https://example.com/oauth/authorize',
+                  tokenUrl: 'https://example.com/oauth/token',
+                  scopes: ['read:data', 'write:data'],
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(
+        result.components?.securitySchemes?.oauth2.flows.authorizationCode
+          .scopes,
+      ).toStrictEqual({
+        'read:data': '',
+        'write:data': '',
+      })
+    })
   })
 })
