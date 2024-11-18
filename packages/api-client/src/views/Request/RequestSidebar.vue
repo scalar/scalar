@@ -55,7 +55,10 @@ const {
 const { findRequestParents, isReadOnly, events, requestMutators, requests } =
   workspaceContext
 
-const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
+const { handleDragEnd, isDroppable } = dragHandlerFactory(
+  activeWorkspace,
+  workspaceContext,
+)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
