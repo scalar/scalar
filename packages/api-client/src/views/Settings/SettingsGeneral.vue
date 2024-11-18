@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { type ThemeId, themeLabels } from '@scalar/themes'
 
 import SettingsGeneralMode from './SettingsGeneralMode.vue'
 
-const {
-  activeWorkspace,
-  workspaceMutators,
-  proxyUrl,
-  setProxyUrl,
-  defaultProxyUrl,
-} = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { workspaceMutators, defaultProxyUrl } = useWorkspace()
 
 const themeIds: ThemeId[] = [
   'default',

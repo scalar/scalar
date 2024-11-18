@@ -1,4 +1,5 @@
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -10,7 +11,8 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const { activeWorkspace, activeWorkspaceRequests, requests } = useWorkspace()
+  const { activeWorkspace, activeWorkspaceRequests } = useActiveEntities()
+  const { requests } = useWorkspace()
 
   type FuseData = {
     title: string

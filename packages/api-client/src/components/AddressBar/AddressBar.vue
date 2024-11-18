@@ -19,7 +19,7 @@ defineEmits<{
   (e: 'importCurl', value: string): void
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
+const { activeRequest, activeExample, activeServer } = useActiveEntities()
 const { isReadOnly, requestMutators, requestHistory, events } = useWorkspace()
 
 const selectedRequest = ref(requestHistory[0])
