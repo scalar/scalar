@@ -1,28 +1,42 @@
 import { flattenEnvVars } from '@/libs/string-template'
 import { PathId } from '@/router'
-import { useWorkspace } from '@/store'
-import type { Request, RequestExample } from '@scalar/oas-utils/entities/spec'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type {
+  Collection,
+  Request,
+  RequestExample,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { type InjectionKey, computed, inject } from 'vue'
+import type { Router } from 'vue-router'
 
-import { getRouterParams } from '../store/router-params'
+import { getRouterParams } from './router-params'
+
+type CreateActiveEntitiesStoreParams = {
+  router: Router
+  collections: Record<string, Collection>
+  environments: Record<string, Environment>
+  requestExamples: Record<string, RequestExample>
+  requests: Record<string, Request>
+  servers: Record<string, Server>
+  workspaces: Record<string, Workspace>
+}
 
 /**
- * Hook for the active entities store
+ * Create the active entities store
  *
- * This store returns anything related to the currently active entities
+ * We need the factory function to pass the router instance
  */
-export const useActiveEntities = () => {
-  const {
-    workspaces,
-    collections,
-    environments,
-    requestExamples,
-    requests,
-    servers,
-  } = useWorkspace()
-  const router = useRouter()
-
+export const createActiveEntitiesStore = ({
+  collections,
+  environments,
+  requestExamples,
+  requests,
+  router,
+  servers,
+  workspaces,
+}: CreateActiveEntitiesStoreParams) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
 
@@ -157,3 +171,15 @@ export const useActiveEntities = () => {
     router,
   }
 }
+
+export type ActiveEntitiesStore = ReturnType<typeof createActiveEntitiesStore>
+export const ACTIVE_ENTITIES_SYMBOL =
+  Symbol() as InjectionKey<ActiveEntitiesStore>
+
+/**
+ * The active entities store
+ *
+ * This store returns anything related to the currently active entities
+ * The only reason this is a store and not a simple hook is due to storing the current router here
+ */
+export const useActiveEntities = () => inject(ACTIVE_ENTITIES_SYMBOL)
