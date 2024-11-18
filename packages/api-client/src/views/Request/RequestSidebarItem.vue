@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { HttpMethod } from '@/components/HttpMethod'
 import { useSidebar } from '@/hooks'
-import { useActiveEntities } from '@/hooks/use-active-entities'
 import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
@@ -51,7 +51,6 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-console.log('asdhjaskd')
 const {
   activeCollection,
   router,

@@ -182,4 +182,8 @@ export const ACTIVE_ENTITIES_SYMBOL =
  * This store returns anything related to the currently active entities
  * The only reason this is a store and not a simple hook is due to storing the current router here
  */
-export const useActiveEntities = () => inject(ACTIVE_ENTITIES_SYMBOL)
+export const useActiveEntities = (): ActiveEntitiesStore => {
+  const store = inject(ACTIVE_ENTITIES_SYMBOL)
+  if (!store) throw new Error('Active entities store not provided')
+  return store
+}

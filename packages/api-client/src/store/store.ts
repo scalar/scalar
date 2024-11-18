@@ -258,4 +258,8 @@ export const WORKSPACE_SYMBOL = Symbol() as InjectionKey<WorkspaceStore>
  * The rawAdd methods are the mutator.add methods. Some add methods have been replaced when we need some side effects
  * ex: add examples when adding a request
  */
-export const useWorkspace = () => inject(WORKSPACE_SYMBOL)
+export const useWorkspace = (): WorkspaceStore => {
+  const store = inject(WORKSPACE_SYMBOL)
+  if (!store) throw new Error('Workspace store not provided')
+  return store
+}
