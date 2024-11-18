@@ -15,6 +15,7 @@ import { useWorkspace } from '@/store'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
+import { useActiveEntities } from '@/store/active-entities'
 
 const props = withDefaults(
   defineProps<{
@@ -70,8 +71,8 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
-const { activeEnvVariables, isReadOnly, activeEnvironment, router } =
-  useWorkspace()
+const { activeEnvVariables, activeEnvironment, router } = useActiveEntities()
+const { isReadOnly } = useWorkspace()
 
 const { copyToClipboard } = useClipboard()
 

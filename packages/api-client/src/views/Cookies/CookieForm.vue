@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { computed } from 'vue'
 
-const { cookies, activeCookieId, cookieMutators } = useWorkspace()
+const { activeCookieId } = useActiveEntities()
+const { cookies, cookieMutators } = useWorkspace()
 
 const options = [
   { label: 'Key', key: 'key', placeholder: 'Username' },

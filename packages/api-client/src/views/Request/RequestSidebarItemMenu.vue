@@ -4,6 +4,7 @@ import EditSidebarListCollection from '@/components/Sidebar/Actions/EditSidebarL
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
 import type { SidebarMenuItem } from '@/views/Request/types'
 import {
@@ -28,11 +29,10 @@ const { replace } = useRouter()
 const {
   activeWorkspace,
   activeRouterParams,
-  events,
-  requestMutators,
   activeWorkspaceCollections,
   activeWorkspaceRequests,
-} = useWorkspace()
+} = useActiveEntities()
+const { events, requestMutators } = useWorkspace()
 
 const editModal = useModal()
 const deleteModal = useModal()

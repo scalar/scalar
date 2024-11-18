@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SideNavLink from '@/components/SideNav/SideNavLink.vue'
 import type { ROUTES } from '@/constants'
-import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { Icon } from '@scalar/components'
 import { RouterLink } from 'vue-router'
 
@@ -11,7 +11,7 @@ defineProps<{
   active?: boolean
 }>()
 
-const { activeWorkspace } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
 </script>
 <template>
   <SideNavLink

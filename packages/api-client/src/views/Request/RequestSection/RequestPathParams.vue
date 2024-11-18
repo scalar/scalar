@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
@@ -11,12 +12,8 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const {
-  activeRequest,
-  activeExample,
-  requestMutators,
-  requestExampleMutators,
-} = useWorkspace()
+const { activeRequest, activeExample } = useActiveEntities()
+const { requestMutators, requestExampleMutators } = useWorkspace()
 
 const params = computed(() => {
   const example = activeExample.value

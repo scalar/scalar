@@ -9,6 +9,7 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
 import RequestSidebarItemMenu from '@/views/Request/RequestSidebarItemMenu.vue'
 import { dragHandlerFactory } from '@/views/Request/handle-drag'
@@ -50,12 +51,9 @@ const {
   activeRequest,
   activeWorkspaceRequests,
   activeWorkspace,
-  findRequestParents,
-  isReadOnly,
-  events,
-  requestMutators,
-  requests,
-} = workspaceContext
+} = useActiveEntities()
+const { findRequestParents, isReadOnly, events, requestMutators, requests } =
+  workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(workspaceContext)
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()

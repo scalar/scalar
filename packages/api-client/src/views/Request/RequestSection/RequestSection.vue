@@ -2,6 +2,7 @@
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
@@ -14,8 +15,8 @@ defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeRequest, activeExample, isReadOnly, requestMutators } =
-  useWorkspace()
+const { activeRequest, activeExample } = useActiveEntities()
+const { isReadOnly, requestMutators } = useWorkspace()
 
 const sections = computed(() => {
   const allSections = new Set([

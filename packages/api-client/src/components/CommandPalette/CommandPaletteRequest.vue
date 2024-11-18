@@ -2,6 +2,7 @@
 import { isHTTPMethod } from '@/components/HttpMethod'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   type ScalarComboboxOption,
@@ -34,10 +35,9 @@ const {
   activeCollection,
   activeWorkspace,
   activeWorkspaceCollections,
-  requestMutators,
   activeRequest,
-  tags: _tags,
-} = useWorkspace()
+} = useActiveEntities()
+const { requestMutators, tags: _tags } = useWorkspace()
 
 const requestName = ref('')
 const requestMethod = ref('get')

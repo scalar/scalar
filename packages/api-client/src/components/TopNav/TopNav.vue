@@ -3,6 +3,7 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { ROUTES } from '@/constants'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   type Icon,
   ScalarContextMenu,
@@ -19,7 +20,8 @@ import TopNavItem from './TopNavItem.vue'
 const props = defineProps<{
   openNewTab: { name: string; uid: string } | null
 }>()
-const { activeRequest, router, events } = useWorkspace()
+const { activeRequest, router } = useActiveEntities()
+const { events } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 
 /** Nav Items list */

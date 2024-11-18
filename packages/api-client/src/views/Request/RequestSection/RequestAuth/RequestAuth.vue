@@ -6,6 +6,7 @@ import {
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ADD_AUTH_OPTIONS,
   type SecuritySchemeGroup,
@@ -34,9 +35,8 @@ const { selectedSecuritySchemeUids } = defineProps<{
   title: string
 }>()
 
+const { activeCollection, activeRequest } = useActiveEntities()
 const {
-  activeCollection,
-  activeRequest,
   collectionMutators,
   isReadOnly,
   requestMutators,

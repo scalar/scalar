@@ -224,7 +224,7 @@ const getDraggableOffsets = computed(() => {
 /** Guard to check if an element is able to be dropped on */
 const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   // Cannot drop in read only mode
-  if (activeWorkspace.value.isReadOnly) return false
+  if (isReadOnly) return false
   // RequestExamples cannot be dropped on
   if (requestExamples[hoveredItem.id]) return false
   // Collection cannot be dropped into another collection

@@ -2,6 +2,7 @@
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
@@ -18,15 +19,8 @@ defineEmits<{
   (e: 'importCurl', value: string): void
 }>()
 
-const {
-  activeRequest,
-  activeExample,
-  activeServer,
-  isReadOnly,
-  requestMutators,
-  requestHistory,
-  events,
-} = useWorkspace()
+const { activeRequest, activeExample } = useActiveEntities()
+const { isReadOnly, requestMutators, requestHistory, events } = useWorkspace()
 
 const selectedRequest = ref(requestHistory[0])
 const addressBarRef = ref<typeof CodeInput | null>(null)

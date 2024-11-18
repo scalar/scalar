@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { isOauth2Example } from '@/views/Request/libs'
 import type {
@@ -15,8 +16,8 @@ const { selectedSecuritySchemeUids } = defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeCollection, activeRequest, collectionMutators, securitySchemes } =
-  useWorkspace()
+const { activeCollection, activeRequest } = useActiveEntities()
+const { collectionMutators, securitySchemes } = useWorkspace()
 
 const security = computed(() => {
   if (!activeCollection.value || !activeRequest.value) return []

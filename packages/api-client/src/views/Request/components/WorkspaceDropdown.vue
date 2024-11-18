@@ -2,6 +2,7 @@
 import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -15,8 +16,8 @@ import {
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, workspaces, workspaceMutators, events } =
-  useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { workspaces, workspaceMutators, events } = useWorkspace()
 const { push } = useRouter()
 
 const updateSelected = (uid: string) => {

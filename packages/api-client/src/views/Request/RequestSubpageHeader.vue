@@ -4,7 +4,7 @@ import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
-import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon } from '@scalar/components'
 
 import { WorkspaceDropdown } from './components'
@@ -20,7 +20,7 @@ defineEmits<{
   (e: 'importCurl', value: string): void
 }>()
 
-const { activeCollection } = useWorkspace()
+const { activeCollection } = useActiveEntities()
 const { layout } = useLayout()
 </script>
 <template>
