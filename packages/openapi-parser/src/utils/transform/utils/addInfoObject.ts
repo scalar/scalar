@@ -1,6 +1,6 @@
 import type { AnyObject } from '../../../types'
 
-export const DEFAULT_TITLE = ''
+export const DEFAULT_TITLE = 'API'
 export const DEFAULT_VERSION = '1.0'
 
 export const addInfoObject = (definition: AnyObject) => ({
