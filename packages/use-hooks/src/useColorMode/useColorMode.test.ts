@@ -57,29 +57,34 @@ describe('useColorMode', () => {
         removeEventListener: vi.fn(),
       }))
 
-      const { colorMode, toggleColorMode } = useColorMode()
+      const { colorMode, darkLightMode, toggleColorMode } = useColorMode()
       expect(colorMode.value).toBe('system')
+      expect(darkLightMode.value).toBe(mode)
 
       toggleColorMode()
       const inverted = mode === 'light' ? 'dark' : 'light'
       expect(colorMode.value).toBe(inverted)
+      expect(darkLightMode.value).toBe(inverted)
       expect(localStorage.getItem('colorMode')).toBe(inverted)
 
       toggleColorMode()
       expect(colorMode.value).toBe(mode)
+      expect(darkLightMode.value).toBe(mode)
       expect(localStorage.getItem('colorMode')).toBe(mode)
     },
   )
 
   it('sets specific color mode', () => {
-    const { colorMode, setColorMode } = useColorMode()
+    const { colorMode, darkLightMode, setColorMode } = useColorMode()
 
     setColorMode('light')
     expect(colorMode.value).toBe('light')
+    expect(darkLightMode.value).toBe('light')
     expect(localStorage.getItem('colorMode')).toBe('light')
 
     setColorMode('dark')
     expect(colorMode.value).toBe('dark')
+    expect(darkLightMode.value).toBe('dark')
     expect(localStorage.getItem('colorMode')).toBe('dark')
   })
 
@@ -92,8 +97,9 @@ describe('useColorMode', () => {
         removeEventListener: vi.fn(),
       }))
 
-      const { getSystemModePreference } = useColorMode()
+      const { getSystemModePreference, darkLightMode } = useColorMode()
       expect(getSystemModePreference()).toBe(mode)
+      expect(darkLightMode.value).toBe(mode)
     },
   )
 
