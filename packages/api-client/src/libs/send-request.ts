@@ -15,6 +15,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import {
   canMethodHaveBody,
+  concatenateUrlAndPath,
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
@@ -221,10 +222,16 @@ type SendRequestResponse = Promise<
   }>
 >
 
-/**
- * Execute the request
- * called from the send button as well as keyboard shortcuts
- */
+/** Ensure URL has a protocol prefix */
+function ensureProtocol(url: string): string {
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url
+  }
+  // Default to http if no protocol is specified
+  return `http://${url}`
+}
+
+/** Execute the request */
 export const createRequestOperation = ({
   request,
   auth,
@@ -352,7 +359,10 @@ export const createRequestOperation = ({
         // Extract and merge all query params
         if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
           /** Prefix the url with the origin if it is relative */
-          const base = isRelativePath(url) ? window.location.origin + url : url
+          const base = isRelativePath(url)
+            ? concatenateUrlAndPath(window.location.origin, url)
+            : ensureProtocol(url)
+
           /** We create a separate server URL to snag any search params from the server */
           const serverURL = new URL(base)
           /** We create a separate path URL to grab the path params */

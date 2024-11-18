@@ -554,4 +554,23 @@ describe('sendRequest', () => {
       },
     })
   })
+
+  it('adds http://', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        requestPayload: {
+          path: 'void.scalar.com/me',
+        },
+      }),
+    )
+    if (error) throw error
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/me',
+      body: '',
+    })
+  })
 })
