@@ -315,7 +315,6 @@ export const migrate_v_2_1_0 = (data: Omit<v_0_0_0.Data, 'folders'>) => {
         cookies: w.cookieUids || [],
         collections: w.collectionUids || [],
         environments: w.environmentUids || [],
-        proxyUrl: w.proxyUrl ?? null,
       }) satisfies v_2_1_0.Workspace,
   )
 
