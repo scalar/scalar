@@ -52,7 +52,7 @@ function handleRawBody(
       'text/plain': {
         schema: {
           type: 'string',
-          example: [body.raw],
+          examples: [body.raw],
         },
       },
     }
