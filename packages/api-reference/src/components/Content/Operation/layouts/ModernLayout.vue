@@ -1,22 +1,22 @@
 <script setup lang="ts">
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import { ExampleRequest } from '../../../features/ExampleRequest'
-import { ExampleResponses } from '../../../features/ExampleResponses'
-import { Anchor } from '../../Anchor'
-import { Badge } from '../../Badge'
+import { ExampleRequest } from '../../../../features/ExampleRequest'
+import { ExampleResponses } from '../../../../features/ExampleResponses'
+import { Anchor } from '../../../Anchor'
+import { Badge } from '../../../Badge'
 import {
   Section,
   SectionColumn,
   SectionColumns,
   SectionContent,
   SectionHeader,
-} from '../../Section'
-import OperationDescription from './OperationDescription.vue'
-import OperationParameters from './OperationParameters.vue'
-import OperationPath from './OperationPath.vue'
-import OperationResponses from './OperationResponses.vue'
-import TestRequestButton from './TestRequestButton.vue'
+} from '../../../Section'
+import OperationDescription from '../OperationDescription.vue'
+import OperationParameters from '../OperationParameters.vue'
+import OperationPath from '../OperationPath.vue'
+import OperationResponses from '../OperationResponses.vue'
+import TestRequestButton from '../TestRequestButton.vue'
 
 defineProps<{
   id?: string

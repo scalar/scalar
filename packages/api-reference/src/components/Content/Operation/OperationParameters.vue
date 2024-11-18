@@ -5,7 +5,9 @@ import { useOperation } from '../../../hooks'
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
-const props = defineProps<{ operation: TransformedOperation }>()
+const props = defineProps<{
+  operation: TransformedOperation
+}>()
 
 const { parameterMap } = useOperation(props.operation)
 </script>

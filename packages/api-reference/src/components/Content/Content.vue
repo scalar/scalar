@@ -15,7 +15,7 @@ import { Webhooks } from './Webhooks'
 
 const props = defineProps<{
   parsedSpec: Spec
-  layout?: 'default' | 'accordion'
+  layout?: 'modern' | 'classic'
   baseServerURL?: string
   servers?: Server[]
   proxy?: string
@@ -24,7 +24,7 @@ const props = defineProps<{
 const { hideModels } = useSidebar()
 
 const introCardsSlot = computed(() =>
-  props.layout === 'accordion' ? 'after' : 'aside',
+  props.layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 <template>

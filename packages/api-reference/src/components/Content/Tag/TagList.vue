@@ -4,28 +4,24 @@ import { computed } from 'vue'
 
 import { useNavState, useSidebar } from '../../../hooks'
 import { Lazy } from '../Lazy'
-import { Operation, OperationAccordion } from '../Operation'
+import { Operation } from '../Operation'
 import { Tag, TagAccordion } from './'
 
 const props = defineProps<{
   tags: tagType[]
   spec: Spec
-  layout?: 'default' | 'accordion'
+  layout?: 'modern' | 'classic'
 }>()
 
 const { getOperationId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
 
 const tagLayout = computed<typeof Tag>(() =>
-  props.layout === 'accordion' ? TagAccordion : Tag,
-)
-
-const endpointLayout = computed<typeof Operation>(() =>
-  props.layout === 'accordion' ? OperationAccordion : Operation,
+  props.layout === 'classic' ? TagAccordion : Tag,
 )
 
 // If the first load is models, we do not lazy load tags/operations
-const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
+const isLazy = props.layout !== 'classic' && !hash.value.startsWith('model')
 </script>
 <template>
   <Lazy
@@ -43,9 +39,9 @@ const isLazy = props.layout !== 'accordion' && !hash.value.startsWith('model')
         :id="getOperationId(operation, tag)"
         :key="`${operation.httpVerb}-${operation.operationId}`"
         :isLazy="operationIndex > 0">
-        <Component
-          :is="endpointLayout"
+        <Operation
           :id="getOperationId(operation, tag)"
+          :layout="layout"
           :operation="operation"
           :tag="tag" />
       </Lazy>
