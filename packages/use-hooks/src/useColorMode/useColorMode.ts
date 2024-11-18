@@ -1,7 +1,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { z } from 'zod'
 
-import type { ColorMode, UseColorModeOptions } from './types'
+import type { ColorMode, DarkLightMode, UseColorModeOptions } from './types'
 
 const colorMode = ref<ColorMode>('dark')
 
@@ -18,10 +18,8 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   /** Toggles the color mode between light and dark. */
   function toggleColorMode() {
-    const darkLightMode =
-      colorMode.value === 'system' ? getSystemModePreference() : colorMode.value
     // Update state
-    colorMode.value = darkLightMode === 'dark' ? 'light' : 'dark'
+    colorMode.value = darkLightMode.value === 'dark' ? 'light' : 'dark'
 
     // Store in local storage
     if (typeof window === 'undefined') return
@@ -36,13 +34,20 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   }
 
   /** Gets the system mode preference. */
-  function getSystemModePreference(): ColorMode {
+  function getSystemModePreference(): DarkLightMode {
     if (typeof window?.matchMedia !== 'function') return 'dark'
 
     return window?.matchMedia('(prefers-color-scheme: dark)')?.matches
       ? 'dark'
       : 'light'
   }
+
+  /** The computed dark/light mode with system preference applied */
+  const darkLightMode = computed<DarkLightMode>(() => {
+    return colorMode.value === 'system'
+      ? getSystemModePreference()
+      : colorMode.value
+  })
 
   /** Applies the appropriate color mode class to the body. */
   function applyColorMode(mode: ColorMode): void {
@@ -87,6 +92,7 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   return {
     colorMode: computed(() => colorMode.value),
+    darkLightMode,
     toggleColorMode,
     setColorMode,
     getSystemModePreference,
