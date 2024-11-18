@@ -4,16 +4,28 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import { useResponses } from '../../../hooks'
 import ParameterList from './ParameterList.vue'
 
-const props = defineProps<{
-  operation: TransformedOperation
-}>()
+const props = withDefaults(
+  defineProps<{
+    operation: TransformedOperation
+    collapsableItems?: boolean
+  }>(),
+  {
+    collapsableItems: true,
+  },
+)
 
 const { responses } = useResponses(props.operation)
 </script>
 <template>
   <ParameterList
-    :collapsableItems="true"
+    :collapsableItems="collapsableItems"
     :parameters="responses">
     <template #title>Responses</template>
   </ParameterList>
+
+  <Parameters
+    class="endpoint-details-card-item"
+    :parameters="responses">
+    <template #title>Responses</template>
+  </Parameters>
 </template>

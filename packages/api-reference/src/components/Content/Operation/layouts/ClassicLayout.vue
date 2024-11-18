@@ -79,7 +79,9 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
           <OperationParameters :operation="operation" />
         </div>
         <div class="operation-details-card-item">
-          <OperationResponses :operation="operation" />
+          <OperationResponses
+            :collapsableItems="false"
+            :operation="operation" />
         </div>
       </div>
       <ExampleResponses :operation="operation" />
