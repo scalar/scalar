@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useResponses } from '@/hooks'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import { useResponses } from '../../../hooks'
 import ParameterList from './ParameterList.vue'
 
 const props = withDefaults(

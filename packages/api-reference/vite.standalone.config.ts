@@ -1,7 +1,6 @@
 import vue from '@vitejs/plugin-vue'
-import path from 'path'
+import { URL, fileURLToPath } from 'node:url'
 import { webpackStats } from 'rollup-plugin-webpack-stats'
-import { fileURLToPath } from 'url'
 import banner from 'vite-plugin-banner'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import { defineConfig } from 'vitest/config'
@@ -18,6 +17,12 @@ function replaceVariables(template: string, variables: Record<string, string>) {
 export default defineConfig({
   define: {
     'process.env.NODE_ENV': '"production"',
+  },
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+    dedupe: ['vue'],
   },
   plugins: [
     vue(),
@@ -60,9 +65,6 @@ export default defineConfig({
         entryFileNames: '[name].js',
       },
     },
-  },
-  resolve: {
-    dedupe: ['vue'],
   },
   test: {
     coverage: {

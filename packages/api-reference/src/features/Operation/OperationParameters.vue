@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useOperation } from '@/hooks'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import { useOperation } from '../../../hooks'
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 

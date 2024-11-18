@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { Lazy } from '@/components/Content/Lazy'
+import { Operation } from '@/features/Operation'
+import { useNavState, useSidebar } from '@/hooks'
 import type { Spec, Tag as tagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { useNavState, useSidebar } from '../../../hooks'
-import { Lazy } from '../Lazy'
-import { Operation } from '../Operation'
 import { Tag, TagAccordion } from './'
 
 const props = defineProps<{

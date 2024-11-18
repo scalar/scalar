@@ -1,11 +1,11 @@
 <script lang="ts" setup>
 import { useServerStore } from '#legacy'
+import { ExampleRequest } from '@/features/ExampleRequest'
+import OperationPath from '@/features/Operation/OperationPath.vue'
+import TestRequestButton from '@/features/Operation/TestRequestButton.vue'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { toRef } from 'vue'
 
-import OperationPath from '../../components/Content/Operation/OperationPath.vue'
-import TestRequestButton from '../../components/Content/Operation/TestRequestButton.vue'
-import { ExampleRequest } from '../../features/ExampleRequest'
 import type { OpenApiDocumentConfiguration } from '../OpenApiDocument/types'
 
 const props = defineProps<{

@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { TransformedOperation } from '@scalar/types/legacy'
-
-import { ExampleRequest } from '../../../../features/ExampleRequest'
-import { ExampleResponses } from '../../../../features/ExampleResponses'
-import { Anchor } from '../../../Anchor'
-import { Badge } from '../../../Badge'
+import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
 import {
   Section,
   SectionColumn,
   SectionColumns,
   SectionContent,
   SectionHeader,
-} from '../../../Section'
+} from '@/components/Section'
+import { ExampleRequest } from '@/features/ExampleRequest'
+import { ExampleResponses } from '@/features/ExampleResponses'
+import type { TransformedOperation } from '@scalar/types/legacy'
+
 import OperationDescription from '../OperationDescription.vue'
 import OperationParameters from '../OperationParameters.vue'
 import OperationPath from '../OperationPath.vue'

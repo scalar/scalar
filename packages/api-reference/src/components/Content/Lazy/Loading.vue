@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Operation } from '@/features/Operation'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
@@ -16,7 +17,6 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import { Operation } from '../Operation'
 import { Schema } from '../Schema'
 import { Tag } from '../Tag'
 import { lazyBus } from './lazyBus'
