@@ -2,7 +2,7 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useOperation, useResponses } from '../../../hooks'
-import Parameters from './Parameters.vue'
+import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{ operation: TransformedOperation }>()
@@ -13,31 +13,31 @@ const { responses } = useResponses(props.operation)
 </script>
 <template>
   <div class="operation-details-card">
-    <Parameters
+    <ParameterList
       class="operation-details-card-item"
       :parameters="parameterMap.path">
       <template #title>Path Parameters</template>
-    </Parameters>
-    <Parameters
+    </ParameterList>
+    <ParameterList
       class="operation-details-card-item"
       :parameters="parameterMap.query">
       <template #title>Query Parameters</template>
-    </Parameters>
-    <Parameters
+    </ParameterList>
+    <ParameterList
       class="operation-details-card-item"
       :parameters="parameterMap.header">
       <template #title>Headers</template>
-    </Parameters>
+    </ParameterList>
     <RequestBody
       class="operation-details-card-item"
       :requestBody="operation.information?.requestBody">
       <template #title>Body</template>
     </RequestBody>
-    <Parameters
+    <ParameterList
       class="operation-details-card-item"
       :parameters="responses">
       <template #title>Responses</template>
-    </Parameters>
+    </ParameterList>
   </div>
 </template>
 <style scoped>

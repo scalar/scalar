@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Parameters } from '@scalar/types/legacy'
+import type { Parameter } from '@scalar/types/legacy'
 
-import ParameterItem from './ParameterItem.vue'
+import ParameterListItem from './ParameterListItem.vue'
 
 withDefaults(
   defineProps<{
-    parameters?: Parameters[]
+    parameters?: Parameter[]
     showChildren?: boolean
     collapsableItems?: boolean
   }>(),
@@ -18,12 +18,12 @@ withDefaults(
 <template>
   <div
     v-if="parameters?.length"
-    class="parameters">
-    <div class="parameters-title">
+    class="parameter-list">
+    <div class="parameter-list-title">
       <slot name="title" />
     </div>
-    <ul class="parameter-list">
-      <ParameterItem
+    <ul class="parameter-list-items">
+      <ParameterListItem
         v-for="item in parameters"
         :key="item.name"
         :collapsableItems="collapsableItems"
@@ -34,10 +34,10 @@ withDefaults(
 </template>
 
 <style scoped>
-.parameters {
+.parameter-list {
   margin-top: 24px;
 }
-.parameters-title {
+.parameter-list-title {
   font-size: var(--scalar-font-size-2);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-1);
@@ -46,7 +46,7 @@ withDefaults(
   margin-bottom: 12px;
 }
 
-.parameter-list {
+.parameter-list-items {
   list-style: none;
   padding: 0;
   margin: 0;

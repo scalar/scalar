@@ -2,7 +2,7 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useResponses } from '../../../hooks'
-import Parameters from '../Operation/Parameters.vue'
+import ParameterList from '../Operation/ParameterList.vue'
 import RequestBody from '../Operation/RequestBody.vue'
 
 const props = defineProps<{
@@ -19,11 +19,11 @@ const { responses } = useResponses(props.webhook)
       :requestBody="webhook.information?.requestBody">
       <template #title>Payload</template>
     </RequestBody>
-    <Parameters
+    <ParameterList
       class="webhook-response-parameters"
       :parameters="responses">
       <template #title>Responses</template>
-    </Parameters>
+    </ParameterList>
   </template>
 </template>
 <style scoped>

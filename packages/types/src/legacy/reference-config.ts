@@ -327,7 +327,13 @@ export type Operation = {
   description?: string
   information?: Information
 }
-export type Parameters = {
+
+/**
+ * @deprecated Use Parameter instead
+ */
+export type Parameters = Parameter
+
+export type Parameter = {
   // Fixed Fields
   name: string
   in?: string

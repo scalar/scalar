@@ -2,16 +2,16 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useResponses } from '../../../hooks'
-import Parameters from './Parameters.vue'
+import ParameterList from './ParameterList.vue'
 
 const props = defineProps<{ operation: TransformedOperation }>()
 
 const { responses } = useResponses(props.operation)
 </script>
 <template>
-  <Parameters
+  <ParameterList
     :collapsableItems="true"
     :parameters="responses">
     <template #title>Responses</template>
-  </Parameters>
+  </ParameterList>
 </template>

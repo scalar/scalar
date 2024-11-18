@@ -2,7 +2,7 @@
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useOperation } from '../../../hooks'
-import Parameters from './Parameters.vue'
+import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{ operation: TransformedOperation }>()
@@ -11,31 +11,31 @@ const { parameterMap } = useOperation(props.operation)
 </script>
 <template>
   <!-- Path parameters-->
-  <Parameters :parameters="parameterMap.path">
+  <ParameterList :parameters="parameterMap.path">
     <template #title>Path Parameters</template>
-  </Parameters>
+  </ParameterList>
 
   <!-- Query parameters -->
-  <Parameters :parameters="parameterMap.query">
+  <ParameterList :parameters="parameterMap.query">
     <template #title>Query Parameters</template>
-  </Parameters>
+  </ParameterList>
 
   <!-- Headers -->
-  <Parameters :parameters="parameterMap.header">
+  <ParameterList :parameters="parameterMap.header">
     <template #title>Headers</template>
-  </Parameters>
+  </ParameterList>
 
   <!-- Body parameters -->
-  <Parameters
+  <ParameterList
     :parameters="parameterMap.body"
     showChildren>
     <template #title>Body Parameters</template>
-  </Parameters>
+  </ParameterList>
 
   <!-- Form data -->
-  <Parameters :parameters="parameterMap.formData">
+  <ParameterList :parameters="parameterMap.formData">
     <template #title>Form Data</template>
-  </Parameters>
+  </ParameterList>
 
   <!-- Request body -->
   <RequestBody
