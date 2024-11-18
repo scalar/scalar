@@ -5,6 +5,7 @@ export * from './request-examples'
 export * from './spec-objects'
 export * from './parameters'
 export * from './security'
+export * from './x-scalar-environments'
 
 type FetchRequest = Request
 export type { FetchRequest }

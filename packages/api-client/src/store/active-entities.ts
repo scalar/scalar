@@ -74,10 +74,60 @@ export const createActiveEntitiesStore = ({
     ),
   )
 
-  /** The currently active environment */
-  const activeEnvironment = computed(
-    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
-  )
+  /** The currently selected environment */
+  const activeEnvironment = computed(() => {
+    if (!activeWorkspace.value.activeEnvironmentId) {
+      return ''
+    }
+
+    const activeEnvironmentCollection = activeWorkspaceCollections.value.find(
+      (c) =>
+        c['x-scalar-environments']?.[activeWorkspace.value.activeEnvironmentId],
+    )
+
+    if (activeEnvironmentCollection) {
+      return {
+        uid: activeWorkspace.value.activeEnvironmentId,
+        name: activeWorkspace.value.activeEnvironmentId,
+        value: JSON.stringify(
+          activeEnvironmentCollection['x-scalar-environments']?.[
+            activeWorkspace.value.activeEnvironmentId
+          ].variables,
+          null,
+          2,
+        ),
+        color:
+          activeEnvironmentCollection['x-scalar-environments']?.[
+            activeWorkspace.value.activeEnvironmentId
+          ].color,
+        isDefault: false,
+      }
+    }
+
+    return {
+      uid: 'default',
+      name: 'Global Environment',
+      value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+    }
+  })
+
+  /**
+   * Sets the active environment
+   */
+  const setActiveEnvironment = (uid?: string) => {
+    if (!uid) {
+      activeWorkspace.value.activeEnvironmentId = ''
+      return
+    }
+
+    if (uid === 'default') {
+      // Global environment
+      activeWorkspace.value.activeEnvironmentId = 'default'
+    } else {
+      // Collection environment
+      activeWorkspace.value.activeEnvironmentId = uid
+    }
+  }
 
   /**
    * Request associated with the current route
@@ -168,6 +218,7 @@ export const createActiveEntitiesStore = ({
     activeWorkspaceServers,
     activeEnvVariables,
     activeWorkspaceRequests,
+    setActiveEnvironment,
     router,
   }
 }

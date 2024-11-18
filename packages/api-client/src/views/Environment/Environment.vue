@@ -10,10 +10,9 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, useModal } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
-import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import { nanoid } from 'nanoid'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -22,130 +21,73 @@ import EnvironmentModal from './EnvironmentModal.vue'
 
 const router = useRouter()
 const route = useRoute()
-const {
-  environments,
-  environmentMutators,
-  events,
-  activeWorkspaceCollections,
-  collectionMutators,
-} = useWorkspace()
+const { activeWorkspace, activeEnvironment, activeWorkspaceCollections } =
+  useActiveEntities()
+const { events, workspaceMutators, collectionMutators } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const colorModal = useModal()
 const environmentModal = useModal()
 
-const activeEnvironmentID = ref<string | null>(null)
 const nameInputRef = ref<HTMLInputElement | null>(null)
 const isEditingName = ref(false)
 const colorModalEnvironment = ref<string | null>(null)
+const currentEnvironmentId = ref('default')
 const selectedColor = ref('')
 const selectedCollectionId = ref<string | undefined>(undefined)
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
 
-const stringifyEnvironmentValue = (value: Record<string, string>): string =>
-  JSON.stringify(value, null, 2)
-
 function addEnvironment(environment: {
   name: string
   color: string
-  type: string
   collectionId?: string
 }) {
-  const existingEnvironment = environments[Object.keys(environments)[0]]
-  const defaultKeys = existingEnvironment
-    ? Object.keys(parseEnvironmentValue(existingEnvironment.value))
-    : []
-
-  const newEnvironmentValue = defaultKeys.reduce(
-    (acc, key) => {
-      acc[key] = ''
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-
-  if (environment.type === 'global') {
-    const newEnvironment = environmentSchema.parse({
-      'name': environment.name,
-      'uid': nanoid(),
-      'color': environment.color,
-      'value': stringifyEnvironmentValue(newEnvironmentValue),
-      'isDefault': false,
-      'x-scalar-environments': {
-        [environment.name]: {
-          variables: newEnvironmentValue,
-          color: environment.color,
-        },
+  if (environment.collectionId) {
+    collectionMutators.addEnvironment(
+      environment.name,
+      {
+        variables: {},
+        color: environment.color,
+      },
+      environment.collectionId,
+    )
+    if (!collapsedSidebarFolders[environment.collectionId]) {
+      toggleSidebarFolder(environment.collectionId)
+    }
+    router.push({
+      name: 'environment.collection',
+      params: {
+        collectionId: environment.collectionId,
+        environmentId: environment.name,
       },
     })
-
-    environmentMutators.add(newEnvironment)
-    activeEnvironmentID.value = newEnvironment.uid
-    if (!collapsedSidebarFolders['global']) {
-      toggleSidebarFolder('global')
-    }
-    router.push(activeEnvironmentID.value)
-  } else if (environment.type === 'collection' && environment.collectionId) {
-    const collection = activeWorkspaceCollections.value.find(
-      (c) => c.uid === environment.collectionId,
-    )
-    if (collection) {
-      const currentEnvironments = collection['x-scalar-environments'] || {}
-      collectionMutators.edit(collection.uid, `x-scalar-environments`, {
-        ...currentEnvironments,
-        [environment.name]: {
-          variables: { '': '' },
-          color: environment.color,
-        },
-      })
-      activeEnvironmentID.value = environment.name
-      if (!collapsedSidebarFolders[collection.uid]) {
-        toggleSidebarFolder(collection.uid)
-      }
-      router.push({
-        name: 'environment',
-        params: { environment: environment.name },
-      })
-    }
   }
 
   environmentModal.hide()
 }
 
 function handleEnvironmentUpdate(raw: string) {
-  if (activeEnvironmentID.value) {
+  if (activeEnvironment) {
     const updatedValue = parseEnvironmentValue(raw)
 
-    const currentValue = parseEnvironmentValue(
-      JSON.stringify(
-        activeWorkspaceCollections.value.find(
-          (c) => c['x-scalar-environments']?.[activeEnvironmentID.value ?? ''],
-        )?.['x-scalar-environments']?.[activeEnvironmentID.value ?? '']
-          ?.variables || {},
-      ),
-    )
-
-    if (environments[activeEnvironmentID.value]) {
-      Object.keys(updatedValue).forEach((key) => {
-        if (!(key in currentValue)) {
-          synchronizeKeys(key)
-        }
-      })
-
-      Object.keys(currentValue).forEach((key) => {
-        if (!(key in updatedValue)) {
-          synchronizeKeyRemoval(key)
-        }
-      })
-      environmentMutators.edit(activeEnvironmentID.value, 'value', raw)
+    if (currentEnvironmentId.value === 'default') {
+      workspaceMutators.edit(
+        activeWorkspace.value.uid,
+        'environments',
+        updatedValue,
+      )
     } else {
       const collection = activeWorkspaceCollections.value.find(
-        (c) => c['x-scalar-environments']?.[activeEnvironmentID.value ?? ''],
+        (c) => c['x-scalar-environments']?.[currentEnvironmentId.value ?? ''],
       )
-      if (collection?.['x-scalar-environments']?.[activeEnvironmentID.value]) {
+      if (
+        collection?.['x-scalar-environments']?.[
+          currentEnvironmentId.value ?? ''
+        ]
+      ) {
         collection['x-scalar-environments'][
-          activeEnvironmentID.value
+          currentEnvironmentId.value ?? ''
         ].variables = updatedValue
         collectionMutators.edit(
           collection.uid,
@@ -157,40 +99,28 @@ function handleEnvironmentUpdate(raw: string) {
   }
 }
 
-const removeEnvironment = (uid: string) => {
-  environmentMutators.delete(uid)
-
-  if (activeEnvironmentID.value === uid) {
-    const remainingEnvironments = Object.values(environments)
-
-    if (remainingEnvironments.length > 0) {
-      // Redirect to the last environment
-      const lastEnvironment =
-        remainingEnvironments[remainingEnvironments.length - 1]
-
-      activeEnvironmentID.value = lastEnvironment.uid
-
-      router.push({
-        name: 'environment',
-        params: { environment: lastEnvironment.uid },
-      })
-    } else {
-      // Redirect to the default environment
-      activeEnvironmentID.value = environments.default.uid
-
-      router.push({ name: 'environment', params: { environment: 'default' } })
-    }
-  }
-}
-
 const updateEnvironmentName = (event: Event) => {
   const target = event.target as HTMLInputElement
   const newName = target.value
-  if (
-    activeEnvironmentID.value &&
-    !environments[activeEnvironmentID.value].isDefault
-  ) {
-    environmentMutators.edit(activeEnvironmentID.value, 'name', newName)
+  if (currentEnvironmentId.value !== 'default') {
+    activeWorkspaceCollections.value.forEach((collection) => {
+      if (
+        collection['x-scalar-environments']?.[currentEnvironmentId.value ?? '']
+      ) {
+        const env =
+          collection['x-scalar-environments'][currentEnvironmentId.value ?? '']
+        delete collection['x-scalar-environments'][
+          currentEnvironmentId.value ?? ''
+        ]
+        collection['x-scalar-environments'][newName] = env
+        collectionMutators.edit(
+          collection.uid,
+          'x-scalar-environments',
+          collection['x-scalar-environments'],
+        )
+      }
+    })
+    currentEnvironmentId.value = newName
   }
 }
 
@@ -199,41 +129,12 @@ const openEnvironmentModal = (collectionId?: string) => {
   environmentModal.show()
 }
 
-function synchronizeKeys(newKey: string) {
-  Object.values(environments).forEach((env) => {
-    const envValue = parseEnvironmentValue(env.value)
-    if (!(newKey in envValue)) {
-      envValue[newKey] = ''
-      environmentMutators.edit(
-        env.uid,
-        'value',
-        stringifyEnvironmentValue(envValue),
-      )
-    }
-  })
-}
-
-function synchronizeKeyRemoval(removedKey: string) {
-  Object.values(environments).forEach((env) => {
-    const envValue = parseEnvironmentValue(env.value)
-    if (removedKey in envValue) {
-      delete envValue[removedKey]
-      environmentMutators.edit(
-        env.uid,
-        'value',
-        stringifyEnvironmentValue(envValue),
-      )
-    }
-  })
-}
-
-const handleOpenColorModal = (uid: string, isCollection = false) => {
+const handleOpenColorModal = (uid: string) => {
   colorModalEnvironment.value = uid
-  selectedColor.value = isCollection
-    ? (activeWorkspaceCollections.value.find(
-        (collection) => collection['x-scalar-environments']?.[uid],
-      )?.['x-scalar-environments']?.[uid]?.color ?? '')
-    : (environments[uid]?.color ?? '')
+  selectedColor.value =
+    activeWorkspaceCollections.value.find(
+      (collection) => collection['x-scalar-environments']?.[uid],
+    )?.['x-scalar-environments']?.[uid]?.color ?? ''
   colorModal.show()
 }
 
@@ -254,82 +155,83 @@ const submitColorChange = (color: string) => {
           )
         }
       })
-    } else {
-      environmentMutators.edit(environmentId, 'color', color)
     }
     colorModal.hide()
   }
 }
 
-const removeCollectionEnvironment = (envName: string) => {
+function removeCollectionEnvironment(environmentName: string) {
   activeWorkspaceCollections.value.forEach((collection) => {
-    const currentEnvironments = collection['x-scalar-environments'] || {}
-    if (envName in currentEnvironments) {
-      delete currentEnvironments[envName]
-      collectionMutators.edit(
-        collection.uid,
-        'x-scalar-environments',
-        currentEnvironments,
-      )
-    }
+    collectionMutators.removeEnvironment(environmentName, collection.uid)
   })
 
-  if (activeEnvironmentID.value === envName) {
-    const remainingEnvironments = Object.values(environments)
-    const remainingCollectionEnvironments =
-      activeWorkspaceCollections.value.flatMap((collection) =>
-        Object.keys(collection['x-scalar-environments'] || {}),
-      )
+  // Redirect to last available environment
+  const remainingCollectionEnvironments =
+    activeWorkspaceCollections.value.flatMap((collection) =>
+      Object.keys(collection['x-scalar-environments'] || {}),
+    )
 
-    if (remainingCollectionEnvironments.length > 0) {
-      const lastCollectionEnvironment =
-        remainingCollectionEnvironments[
-          remainingCollectionEnvironments.length - 1
-        ]
-      activeEnvironmentID.value = lastCollectionEnvironment
-      router.push({
-        name: 'environment',
-        params: { environment: lastCollectionEnvironment },
-      })
-    } else if (remainingEnvironments.length > 0) {
-      const lastEnvironment =
-        remainingEnvironments[remainingEnvironments.length - 1]
-      activeEnvironmentID.value = lastEnvironment.uid
-      router.push({
-        name: 'environment',
-        params: { environment: lastEnvironment.uid },
-      })
-    } else {
-      activeEnvironmentID.value = environments.default.uid
-      router.push({ name: 'environment', params: { environment: 'default' } })
+  if (remainingCollectionEnvironments.length > 0) {
+    const lastCollectionEnvironment =
+      remainingCollectionEnvironments[
+        remainingCollectionEnvironments.length - 1
+      ]
+    const currentCollection = activeWorkspaceCollections.value.find(
+      (collection) =>
+        Object.keys(collection['x-scalar-environments'] || {}).includes(
+          lastCollectionEnvironment,
+        ),
+    )
+    currentEnvironmentId.value = lastCollectionEnvironment
+    router.push({
+      name: 'environment.collection',
+      params: {
+        collectionId: currentCollection?.uid,
+        environmentId: lastCollectionEnvironment,
+      },
+    })
+    if (currentCollection && !collapsedSidebarFolders[currentCollection.uid]) {
+      toggleSidebarFolder(currentCollection.uid)
     }
-  }
-}
-
-function setActiveEnvironment() {
-  const { collectionId, environment, environmentId } =
-    router.currentRoute.value.params
-  if (collectionId) {
-    // Collection environment
-    activeEnvironmentID.value = environmentId as string
   } else {
-    // Global environment
-    activeEnvironmentID.value =
-      (environment as string) || environments.default.uid
+    currentEnvironmentId.value = 'default'
+    router.push({
+      name: 'environment',
+      params: { environment: 'default' },
+    })
   }
 }
 
 /** display a focused input to edit environment name */
 const enableNameEditing = () => {
-  if (
-    activeEnvironmentID.value &&
-    !environments[activeEnvironmentID.value].isDefault
-  ) {
+  if (currentEnvironmentId.value !== 'default') {
     isEditingName.value = true
     nextTick(() => {
       nameInputRef.value?.focus()
     })
   }
+}
+
+const getEnvironmentName = () => {
+  return currentEnvironmentId.value === 'default'
+    ? 'Global Environment'
+    : currentEnvironmentId.value
+}
+
+const getEnvironmentValue = () => {
+  return currentEnvironmentId.value === 'default'
+    ? JSON.stringify(activeWorkspace.value.environments, null, 2)
+    : JSON.stringify(
+        activeWorkspaceCollections.value.find(
+          (collection) =>
+            collection['x-scalar-environments']?.[
+              currentEnvironmentId.value ?? ''
+            ],
+        )?.['x-scalar-environments']?.[currentEnvironmentId.value ?? '']
+          ?.variables,
+        null,
+        2,
+      )
 }
 
 const showChildren = (key: string) => {
@@ -342,53 +244,23 @@ const handleHotKey = (event?: HotKeyEvent) => {
   }
 }
 
-const getEnvironmentName = (environmentId: string) => {
-  return environments[environmentId]?.name || environmentId
-}
-
-const getEnvironmentValue = (environmentId: string) => {
-  const environment = environments[environmentId]
-  if (environment?.value) {
-    return environment.value
-  }
-
-  const collection = activeWorkspaceCollections.value.find(
-    (c) => c['x-scalar-environments']?.[environmentId ?? ''],
-  )
-
-  if (collection?.['x-scalar-environments']) {
-    return JSON.stringify(
-      collection['x-scalar-environments']?.[environmentId ?? '']?.variables,
-      null,
-      2,
-    )
-  }
-
-  return ''
-}
-
 watch(
-  () => [
-    route.params.collectionId,
-    route.params.environment,
-    route.params.environmentId,
-  ],
-  ([newCollectionId, newEnvironment, newEnvironmentId]) => {
+  () => [route.params.collectionId, route.params.environmentId],
+  ([newCollectionId, newEnvironmentId]) => {
     if (newCollectionId) {
       // Collection environment
-      activeEnvironmentID.value = newEnvironmentId as string
+      currentEnvironmentId.value = newEnvironmentId as string
     } else {
       // Global environment
-      activeEnvironmentID.value =
-        (newEnvironment as string) || environments.default.uid
+      currentEnvironmentId.value = 'default'
     }
   },
 )
 
 onMounted(() => {
-  setActiveEnvironment()
+  currentEnvironmentId.value =
+    (route.params.environmentId as string) || 'default'
   events.hotKeys.on(handleHotKey)
-  collapsedSidebarFolders.global = true
   const { collectionId } = router.currentRoute.value.params
   if (collectionId && !collapsedSidebarFolders[collectionId as string]) {
     toggleSidebarFolder(collectionId as string)
@@ -402,49 +274,21 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <template #content>
         <div class="flex-1">
           <SidebarList>
-            <div class="flex flex-col gap-0.25">
-              <button
-                class="flex font-medium gap-1.5 group items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
-                type="button"
-                @click="toggleSidebarFolder('global')">
-                <ScalarIcon
-                  class="text-sidebar-c-2 size-3.5 stroke-[2.25] group-hover:hidden"
-                  icon="Globe" />
-                <ScalarIcon
-                  class="text-c-3 hidden group-hover:block"
-                  :class="{
-                    'rotate-90': collapsedSidebarFolders['global'],
-                  }"
-                  icon="ChevronRight"
-                  size="sm"
-                  thickness="2.5" />
-                Global
-              </button>
-              <div
-                v-show="showChildren('global')"
-                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
-                <SidebarListElement
-                  v-for="environment in environments"
-                  :key="environment.uid"
-                  class="text-xs [&>a]:pl-5"
-                  :isCopyable="false"
-                  :variable="{
-                    name: environment.name,
-                    uid: environment.uid,
-                    color: environment.color,
-                    isDefault: environment.isDefault,
-                  }"
-                  :warningMessage="`Are you sure you want to delete this environment?`"
-                  @colorModal="handleOpenColorModal(environment.uid, false)"
-                  @delete="removeEnvironment(environment.uid)" />
-              </div>
-            </div>
+            <SidebarListElement
+              :key="'default'"
+              class="text-xs"
+              :isCopyable="false"
+              :variable="{
+                name: 'Global Environment',
+                uid: 'default',
+                icon: 'Globe',
+                isDefault: true,
+              }" />
             <div
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
               class="flex flex-col gap-0.25">
               <button
-                v-if="collection.info?.title !== 'Drafts'"
                 class="flex font-medium gap-1.5 group items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                 type="button"
                 @click="toggleSidebarFolder(collection.uid)">
@@ -464,28 +308,29 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                 {{ collection.info?.title ?? '' }}
               </button>
               <div
-                v-if="collection.info?.title !== 'Drafts'"
                 v-show="showChildren(collection.uid)"
                 :class="{
-                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative':
+                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] flex flex-col gap-px mb-[.5px] last:mb-0 relative':
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length > 0,
                 }">
                 <SidebarListElement
-                  v-for="(env, envName) in collection['x-scalar-environments']"
-                  :key="envName"
+                  v-for="(environment, environmentName) in collection[
+                    'x-scalar-environments'
+                  ]"
+                  :key="environmentName"
                   class="text-xs [&>a]:pl-5"
                   :collectionId="collection.uid"
                   :isCopyable="false"
                   :variable="{
-                    name: envName,
-                    uid: envName,
-                    color: env.color,
+                    name: environmentName,
+                    uid: environmentName,
+                    color: environment.color ?? '#8E8E8E',
                     isDefault: false,
                   }"
                   :warningMessage="`Are you sure you want to delete this environment?`"
-                  @colorModal="handleOpenColorModal(envName, true)"
-                  @delete="removeCollectionEnvironment(envName)" />
+                  @colorModal="handleOpenColorModal(environmentName)"
+                  @delete="removeCollectionEnvironment(environmentName)" />
                 <ScalarButton
                   v-if="
                     Object.keys(collection['x-scalar-environments'] || {})
@@ -516,12 +361,12 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
         <template
-          v-if="activeEnvironmentID"
+          v-if="currentEnvironmentId"
           #title>
           <span
-            v-if="!isEditingName || environments[activeEnvironmentID].isDefault"
+            v-if="!isEditingName || currentEnvironmentId === 'default'"
             @dblclick="enableNameEditing">
-            {{ getEnvironmentName(activeEnvironmentID) }}
+            {{ getEnvironmentName() }}
           </span>
           <input
             v-else
@@ -529,19 +374,19 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             class="ring-1 ring-offset-4 ring-b-outline rounded"
             spellcheck="false"
             type="text"
-            :value="getEnvironmentName(activeEnvironmentID)"
+            :value="getEnvironmentName()"
             @blur="isEditingName = false"
             @input="updateEnvironmentName"
             @keyup.enter="isEditingName = false" />
         </template>
         <CodeInput
-          v-if="activeEnvironmentID"
+          v-if="currentEnvironmentId"
           class="pl-px pr-2 md:px-4 py-2"
           isCopyable
           language="json"
           lineNumbers
           lint
-          :modelValue="getEnvironmentValue(activeEnvironmentID)"
+          :modelValue="getEnvironmentValue()"
           @update:modelValue="handleEnvironmentUpdate" />
       </ViewLayoutSection>
     </ViewLayoutContent>

@@ -130,6 +130,8 @@ export const createWorkspaceStore = ({
     extendedWorkspaceDataFactory(storeContext)
   const { addSecurityScheme, deleteSecurityScheme } =
     extendedSecurityDataFactory(storeContext)
+  const { addCollectionEnvironment, removeCollectionEnvironment } =
+    extendedCollectionDataFactory(storeContext)
 
   // ---------------------------------------------------------------------------
   // OTHER HELPER DATA
@@ -204,6 +206,8 @@ export const createWorkspaceStore = ({
       rawAdd: collectionMutators.add,
       add: addCollection,
       delete: deleteCollection,
+      addEnvironment: addCollectionEnvironment,
+      removeEnvironment: removeCollectionEnvironment,
     },
     environmentMutators: {
       ...environmentMutators,
@@ -247,6 +251,8 @@ export const createWorkspaceStore = ({
       add: addWorkspace,
       delete: deleteWorkspace,
     },
+    addCollectionEnvironment,
+    removeCollectionEnvironment,
   }
 }
 
