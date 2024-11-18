@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { DataTableRow } from '@/components/DataTable'
 import { type UpdateScheme, useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
@@ -21,13 +22,9 @@ const props = defineProps<{
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 
-const {
-  activeCollection,
-  activeServer,
-  collectionMutators,
-  isReadOnly,
-  securitySchemeMutators,
-} = useWorkspace()
+const { activeCollection, activeServer } = useActiveEntities()
+const { collectionMutators, isReadOnly, securitySchemeMutators } =
+  useWorkspace()
 
 type CollectionArgs = Parameters<typeof collectionMutators.edit>
 

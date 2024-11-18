@@ -3,6 +3,7 @@ export type ServerOption = { id: string; label: string }
 </script>
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarDropdownItem, ScalarIcon } from '@scalar/components'
 
 const props = defineProps<{
@@ -10,13 +11,8 @@ const props = defineProps<{
   type: 'collection' | 'request'
 }>()
 
-const {
-  activeCollection,
-  activeRequest,
-  activeServer,
-  collectionMutators,
-  requestMutators,
-} = useWorkspace()
+const { activeCollection, activeRequest, activeServer } = useActiveEntities()
+const { collectionMutators, requestMutators } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
 const updateSelectedServer = (serverUid: string) => {

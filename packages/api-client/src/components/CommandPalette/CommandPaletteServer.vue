@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   type ScalarComboboxOption,
@@ -19,13 +20,8 @@ const emits = defineEmits<{
 
 const { toast } = useToasts()
 
-const {
-  activeCollection,
-  activeWorkspaceCollections,
-  collectionMutators,
-  serverMutators,
-  events,
-} = useWorkspace()
+const { activeCollection, activeWorkspaceCollections } = useActiveEntities()
+const { collectionMutators, serverMutators, events } = useWorkspace()
 
 const url = ref('')
 

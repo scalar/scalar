@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { parseEnvVariables } from '@/libs'
-import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
@@ -9,8 +9,8 @@ import type { Router } from 'vue-router'
 
 const props = defineProps<{
   query: string
-  activeEnvironment: WorkspaceStore['activeEnvironment']
-  activeEnvVariables: WorkspaceStore['activeEnvVariables']
+  activeEnvironment: ActiveEntitiesStore['activeEnvironment']
+  activeEnvVariables: ActiveEntitiesStore['activeEnvVariables']
   router: Router
   // withServers?: boolean
   dropdownPosition?: { left: number; top: number }
@@ -20,7 +20,6 @@ const emit = defineEmits<{
   (e: 'select', variable: string): void
 }>()
 
-type ActiveEnvironment = WorkspaceStore['activeEnvironment']
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
@@ -69,7 +68,9 @@ const selectVariable = (variableKey: string) => {
   emit('select', variableKey)
 }
 
-const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
+const getEnvColor = (
+  activeEnvironment: ActiveEntitiesStore['activeEnvironment'],
+) => {
   if (activeEnvironment.value) {
     return activeEnvironment.value.color
   }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -13,7 +14,8 @@ import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, workspaces, workspaceMutators } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { workspaces, workspaceMutators } = useWorkspace()
 const { push } = useRouter()
 
 const modal = useModal()

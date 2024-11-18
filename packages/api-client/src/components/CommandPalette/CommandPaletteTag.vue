@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   type ScalarComboboxOption,
@@ -17,8 +18,8 @@ const emits = defineEmits<{
   (event: 'back', e: KeyboardEvent): void
 }>()
 
-const { activeWorkspaceCollections, activeCollection, tagMutators } =
-  useWorkspace()
+const { activeWorkspaceCollections, activeCollection } = useActiveEntities()
+const { tagMutators } = useWorkspace()
 const { toast } = useToasts()
 
 const availableCollections = computed(() =>

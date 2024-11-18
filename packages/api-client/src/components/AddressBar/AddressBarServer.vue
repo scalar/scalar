@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarDropdown,
   ScalarDropdownDivider,
@@ -10,15 +11,8 @@ import { computed, watch } from 'vue'
 
 import AddressBarServerItem from './AddressBarServerItem.vue'
 
-const {
-  activeRequest,
-  activeCollection,
-  activeServer,
-  isReadOnly,
-  servers,
-  collectionMutators,
-  events,
-} = useWorkspace()
+const { activeRequest, activeCollection, activeServer } = useActiveEntities()
+const { isReadOnly, servers, collectionMutators, events } = useWorkspace()
 
 const requestServerOptions = computed(() =>
   activeRequest.value?.servers?.map((serverUid: string) => ({

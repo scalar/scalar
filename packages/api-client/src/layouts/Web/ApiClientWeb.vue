@@ -3,6 +3,7 @@ import { ImportCollectionListener } from '@/components/ImportCollection'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -13,8 +14,8 @@ import { RouterView } from 'vue-router'
 // Initialize color mode state globally
 useColorMode()
 
-const workspaceStore = useWorkspace()
-const { events } = workspaceStore
+const { activeWorkspace } = useActiveEntities()
+const { events } = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
@@ -46,8 +47,8 @@ onBeforeUnmount(() => {
 
 const themeStyleTag = computed(
   () =>
-    workspaceStore.activeWorkspace.value &&
-    `<style>${getThemeStyles(workspaceStore.activeWorkspace.value.themeId)}</style>`,
+    activeWorkspace.value &&
+    `<style>${getThemeStyles(activeWorkspace.value.themeId)}</style>`,
 )
 </script>
 <template>
@@ -56,7 +57,7 @@ const themeStyleTag = computed(
     <div v-html="themeStyleTag"></div>
 
     <!-- Ensure we have the workspace loaded from localStorage above -->
-    <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
+    <MainLayout v-if="activeWorkspace?.uid">
       <RouterView v-slot="{ Component }">
         <keep-alive>
           <component :is="Component" />

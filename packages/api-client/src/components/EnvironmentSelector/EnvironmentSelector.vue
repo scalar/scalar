@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -10,13 +11,8 @@ import {
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-const {
-  environments,
-  activeWorkspace,
-  workspaceMutators,
-  activeEnvironment,
-  isReadOnly,
-} = useWorkspace()
+const { activeWorkspace, activeEnvironment } = useActiveEntities()
+const { environments, workspaceMutators, isReadOnly } = useWorkspace()
 
 const router = useRouter()
 

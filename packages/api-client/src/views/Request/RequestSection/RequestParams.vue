@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton } from '@scalar/components'
 import {
@@ -14,7 +15,8 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
+const { activeRequest, activeExample } = useActiveEntities()
+const { requestExampleMutators } = useWorkspace()
 
 const params = computed(
   () => activeExample.value?.parameters[props.paramKey] ?? [],

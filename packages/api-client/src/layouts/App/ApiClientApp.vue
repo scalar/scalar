@@ -5,6 +5,7 @@ import TopNav from '@/components/TopNav/TopNav.vue'
 import MainLayout from '@/layouts/App/MainLayout.vue'
 import { DEFAULT_HOTKEYS, type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
@@ -29,8 +30,8 @@ const handleNewTab = (item: { name: string; uid: string }) => {
 // Initialize color mode state globally
 useColorMode()
 
-const workspaceStore = useWorkspace()
-const { events } = workspaceStore
+const { activeWorkspace } = useActiveEntities()
+const { events } = useWorkspace()
 
 // Ensure we add our scalar wrapper class to the headless ui root
 onBeforeMount(() => addScalarClassesToHeadless())
@@ -62,8 +63,8 @@ onBeforeUnmount(() => {
 
 const themeStyleTag = computed(
   () =>
-    workspaceStore.activeWorkspace.value &&
-    `<style>${getThemeStyles(workspaceStore.activeWorkspace.value.themeId)}</style>`,
+    activeWorkspace.value &&
+    `<style>${getThemeStyles(activeWorkspace.value.themeId)}</style>`,
 )
 </script>
 <template>
@@ -73,7 +74,7 @@ const themeStyleTag = computed(
   <TopNav :openNewTab="newTab" />
 
   <!-- Ensure we have the workspace loaded from localStorage above -->
-  <MainLayout v-if="workspaceStore.activeWorkspace.value?.uid">
+  <MainLayout v-if="activeWorkspace?.uid">
     <RouterView
       v-slot="{ Component }"
       @newTab="handleNewTab">

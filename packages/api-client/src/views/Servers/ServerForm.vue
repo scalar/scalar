@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { Server } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { activeCollection, servers, serverMutators } = useWorkspace()
+const { activeCollection } = useActiveEntities()
+const { servers, serverMutators } = useWorkspace()
 
 const options = [
   { label: 'URL', key: 'url', placeholder: 'https://void.scalar.com/api' },

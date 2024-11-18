@@ -6,6 +6,7 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
@@ -19,7 +20,8 @@ defineProps<{
   title: string
 }>()
 
-const { activeRequest, activeExample, requestExampleMutators } = useWorkspace()
+const { activeRequest, activeExample } = useActiveEntities()
+const { requestExampleMutators } = useWorkspace()
 
 /** use-codemirror package to be udpated accordingly */
 const contentTypeToLanguageMap = {

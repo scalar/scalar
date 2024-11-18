@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton } from '@scalar/components'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
@@ -18,7 +19,8 @@ const emit = defineEmits<{
 
 const router = useRouter()
 
-const { importSpecFromUrl, importSpecFile, activeWorkspace } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { importSpecFromUrl, importSpecFile } = useWorkspace()
 const { toast } = useToasts()
 
 async function importCollection() {

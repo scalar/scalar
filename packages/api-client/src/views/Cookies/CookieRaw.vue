@@ -2,8 +2,10 @@
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
-const { cookies, activeCookieId } = useWorkspace()
+const { activeCookieId } = useActiveEntities()
+const { cookies } = useWorkspace()
 </script>
 <template>
   <ViewLayoutSection>

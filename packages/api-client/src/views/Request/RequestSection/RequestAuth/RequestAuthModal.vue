@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ADD_AUTH_OPTIONS } from '@/views/Request/consts/new-auth-options'
 import {
   ScalarButton,
@@ -37,7 +38,8 @@ const newFlow = ref<
   | undefined
 >(undefined)
 
-const { securitySchemeMutators, activeCollection } = useWorkspace()
+const { activeCollection } = useActiveEntities()
+const { securitySchemeMutators } = useWorkspace()
 
 const authTypes = computed(() =>
   ADD_AUTH_OPTIONS.map((option) => ({
