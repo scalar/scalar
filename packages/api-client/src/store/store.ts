@@ -190,6 +190,7 @@ export const createWorkspaceStore = ({
     securitySchemes,
     modalState,
     events,
+    proxyUrl,
     sidebarWidth,
     setSidebarWidth,
     isReadOnly,
