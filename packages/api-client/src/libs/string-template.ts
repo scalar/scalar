@@ -1,4 +1,4 @@
-import { templateVariableRegex } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/oas-utils/helpers'
 
 /**
  * Get the nested value from a context object
@@ -25,7 +25,7 @@ export function replaceTemplateVariables(
   templateString: string,
   context: object,
 ) {
-  const matches = templateString.match(templateVariableRegex) ?? []
+  const matches = templateString.match(REGEX.TEMPLATE_VARIABLE) ?? []
 
   let substitutedString = templateString
   matches.forEach((m) => {

@@ -1,4 +1,4 @@
-import { templateVariableRegex } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/oas-utils/helpers'
 
 import type { ParsedUrl } from '../types'
 
@@ -54,7 +54,7 @@ export function extractPathParameterNames(path: string): string[] {
   const params = new Set<string>()
   let match
 
-  while ((match = templateVariableRegex.exec(path)) !== null) {
+  while ((match = REGEX.TEMPLATE_VARIABLE.exec(path)) !== null) {
     // match[1] contains the parameter name from {{param}}
     // match[2] contains the parameter name from {param}
     // match[0].slice(1) gets the parameter name from :param
