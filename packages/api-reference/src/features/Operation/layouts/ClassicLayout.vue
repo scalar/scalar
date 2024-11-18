@@ -11,10 +11,10 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
 
-import OperationDescription from '../OperationDescription.vue'
-import OperationParameters from '../OperationParameters.vue'
-import OperationPath from '../OperationPath.vue'
-import OperationResponses from '../OperationResponses.vue'
+import OperationDescription from '../components/OperationDescription.vue'
+import OperationParameters from '../components/OperationParameters.vue'
+import OperationPath from '../components/OperationPath.vue'
+import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string

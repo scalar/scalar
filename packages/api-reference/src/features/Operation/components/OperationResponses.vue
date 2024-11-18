@@ -23,9 +23,9 @@ const { responses } = useResponses(props.operation)
     <template #title>Responses</template>
   </ParameterList>
 
-  <Parameters
+  <ParameterList
     class="endpoint-details-card-item"
     :parameters="responses">
     <template #title>Responses</template>
-  </Parameters>
+  </ParameterList>
 </template>

@@ -13,10 +13,10 @@ import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import OperationDescription from '../OperationDescription.vue'
-import OperationParameters from '../OperationParameters.vue'
-import OperationPath from '../OperationPath.vue'
-import OperationResponses from '../OperationResponses.vue'
+import OperationDescription from '../components/OperationDescription.vue'
+import OperationParameters from '../components/OperationParameters.vue'
+import OperationPath from '../components/OperationPath.vue'
+import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string

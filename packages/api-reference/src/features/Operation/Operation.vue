@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import ClassicLayout from '../layouts/ClassicLayout.vue'
-import ModernLayout from '../layouts/ModernLayout.vue'
+import ClassicLayout from './layouts/ClassicLayout.vue'
+import ModernLayout from './layouts/ModernLayout.vue'
 
 withDefaults(
   defineProps<{

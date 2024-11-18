@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import ParameterList from '@/features/Operation/ParameterList.vue'
-import RequestBody from '@/features/Operation/RequestBody.vue'
 import { useResponses } from '@/hooks'
 import type { TransformedOperation } from '@scalar/types/legacy'
+
+import ParameterList from './ParameterList.vue'
+import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{
   webhook: TransformedOperation
