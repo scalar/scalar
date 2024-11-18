@@ -50,14 +50,10 @@ const setSecuritySchemeKey = (key: string) => {
 
   // Set it in the client as well
   if (client.value?.store) {
-    const {
-      activeCollection,
-      collections,
-      collectionMutators,
-      securitySchemes,
-    } = client.value.store
+    const { collections, collectionMutators, securitySchemes } =
+      client.value.store
 
-    const collectionUid = activeCollection?.uid ?? Object.keys(collections)[0]
+    const collectionUid = Object.keys(collections)[0]
     const securityScheme = Object.values(securitySchemes).find(
       ({ nameKey }) => nameKey === key,
     )
