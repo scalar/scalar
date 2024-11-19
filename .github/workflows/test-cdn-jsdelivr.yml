@@ -20,8 +20,6 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - run: |
-          echo "github.event_name: ${{ github.event_name }}"
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
@@ -76,7 +74,7 @@ jobs:
           retention-days: 7
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
-        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true'}}
+        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' && github.event_name == 'pull_request'}}
         with:
           message: |
             ### Playwright visual snapshot differences were detected.
