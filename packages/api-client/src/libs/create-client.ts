@@ -1,4 +1,4 @@
-import type { ClientLayout } from '@/hooks'
+import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { loadAllResources } from '@/libs/local-storage'
 import {
   ACTIVE_ENTITIES_SYMBOL,
@@ -176,7 +176,7 @@ export const createApiClient = ({
   // Provide the workspace store for the useWorkspace hook
   app.provide(WORKSPACE_SYMBOL, store)
   // Provide the layout for the useLayout hook
-  app.provide('layout', layout)
+  app.provide(LAYOUT_SYMBOL, layout)
   // Provide the active entities store
   app.provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
 
