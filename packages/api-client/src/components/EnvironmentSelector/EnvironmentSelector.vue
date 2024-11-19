@@ -9,18 +9,23 @@ import {
   ScalarIcon,
   ScalarListboxCheckbox,
 } from '@scalar/components'
-import { computed } from 'vue'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, activeEnvironment } = useActiveEntities()
-const { environments, workspaceMutators, isReadOnly } = useWorkspace()
+const {
+  activeCollection,
+  activeWorkspace,
+  activeEnvironment,
+  setActiveEnvironment,
+} = useActiveEntities()
+const { isReadOnly } = useWorkspace()
 
 const router = useRouter()
 
 const updateSelected = (uid: string) => {
-  workspaceMutators.edit(activeWorkspace.value.uid, 'activeEnvironmentId', uid)
+  setActiveEnvironment(uid)
 }
-
 const createNewEnvironment = () =>
   router.push({
     name: 'environment',
@@ -29,11 +34,50 @@ const createNewEnvironment = () =>
     },
   })
 
-const envs = computed(() => [
-  // Always add the default environment
-  environments['default'],
-  ...Object.values(environments).filter((env) => env.uid !== 'default'),
-])
+const selectedEnvironment = computed(() => {
+  if (!activeEnvironment.value) {
+    return 'No Environment'
+  }
+
+  return activeEnvironment?.value?.uid === ''
+    ? 'No Environment'
+    : activeEnvironment?.value?.uid
+})
+
+const availableEnvironments = computed(() => {
+  if (
+    activeCollection.value?.['x-scalar-environments'] &&
+    Object.keys(activeCollection.value['x-scalar-environments']).length > 0
+  ) {
+    return Object.entries(activeCollection.value['x-scalar-environments']).map(
+      ([key, env]) => ({ ...env, uid: key, name: key }),
+    )
+  } else {
+    return []
+  }
+})
+
+const setInitialEnvironment = (collection: Collection) => {
+  if (collection['x-scalar-environment']) {
+    setActiveEnvironment(collection['x-scalar-environment'])
+  } else if (
+    collection['x-scalar-environments'] &&
+    Object.keys(collection['x-scalar-environments']).length > 0
+  ) {
+    const firstEnvironment = Object.keys(collection['x-scalar-environments'])[0]
+    setActiveEnvironment(firstEnvironment)
+  } else {
+    setActiveEnvironment('')
+  }
+}
+
+watch(activeCollection, (newCollection) => {
+  setInitialEnvironment(newCollection as Collection)
+})
+
+onMounted(() => {
+  setInitialEnvironment(activeCollection.value as Collection)
+})
 </script>
 <template>
   <div>
@@ -43,7 +87,7 @@ const envs = computed(() => [
         fullWidth
         variant="ghost">
         <h2 class="font-medium m-0 flex gap-1.5 items-center whitespace-nowrap">
-          {{ activeEnvironment?.name ?? 'No Environment' }}
+          {{ selectedEnvironment }}
           <ScalarIcon
             icon="ChevronDown"
             size="md" />
@@ -52,13 +96,15 @@ const envs = computed(() => [
       <!-- Workspace list -->
       <template #items>
         <ScalarDropdownItem
-          v-for="env in envs"
-          :key="env.uid"
+          v-for="environment in availableEnvironments"
+          :key="environment.uid"
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
-          @click.stop="updateSelected(env.uid)">
+          @click.stop="updateSelected(environment.uid)">
           <ScalarListboxCheckbox
-            :selected="activeWorkspace.activeEnvironmentId === env.uid" />
-          {{ env.name }}
+            :selected="
+              activeWorkspace.activeEnvironmentId === environment.uid
+            " />
+          {{ environment.name }}
         </ScalarDropdownItem>
         <ScalarDropdownItem
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
@@ -66,7 +112,7 @@ const envs = computed(() => [
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
-              activeWorkspace.activeEnvironmentId === ''
+              activeEnvironment.uid === ''
                 ? 'bg-c-accent text-b-1'
                 : 'group-hover/item:shadow-border text-transparent'
             ">

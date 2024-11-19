@@ -20,11 +20,13 @@ type ActiveParsedEnvironments = ActiveEntitiesStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
 const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
-  if (activeEnvironment.value) {
-    return activeEnvironment.value.color
-  }
+  if (!activeEnvironment.value) return '#8E8E8E'
 
-  return '#8E8E8E'
+  if (activeEnvironment.value.color) {
+    return activeEnvironment.value.color
+  } else {
+    return '#8E8E8E'
+  }
 }
 
 /**
@@ -67,7 +69,7 @@ class PillWidget extends WidgetType {
             ? getEnvColor(this.activeEnvironment)
             : '#8E8E8E'
 
-        span.style.setProperty('--tw-bg-base', pillColor)
+        span.style.setProperty('--tw-bg-base', pillColor || '#8E8E8E')
 
         // Set opacity based on the existence of a value
         span.style.opacity = val?.value ? '1' : '0.5'
@@ -88,14 +90,16 @@ class PillWidget extends WidgetType {
                         window.location.href = '/environment'
                       },
                     },
-                    [
-                      h(ScalarIcon, {
-                        class: 'w-2',
-                        icon: 'Add',
-                        size: 'xs',
-                      }),
-                      'Add variable',
-                    ],
+                    {
+                      default: () => [
+                        h(ScalarIcon, {
+                          class: 'w-2',
+                          icon: 'Add',
+                          size: 'xs',
+                        }),
+                        'Add variable',
+                      ],
+                    },
                   ),
                 ]),
             ])
@@ -168,7 +172,10 @@ export const pillPlugin = (props: {
 
       update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
-          this.decorations = this.buildDecorations(update.view)
+          requestAnimationFrame(() => {
+            this.decorations = this.buildDecorations(update.view)
+            update.view.update([])
+          })
         }
       }
 
