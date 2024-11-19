@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getUrlFromServerState, useServerStore } from '#legacy'
+import { getUrlFromServerState, useExampleStore, useServerStore } from '#legacy'
 import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
@@ -13,6 +13,7 @@ const el = ref<HTMLDivElement | null>(null)
 
 const { server, setServer } = useServerStore()
 const { client, init } = useApiClient()
+const { selectedExampleKey, operationId } = useExampleStore()
 
 onMounted(async () => {
   if (!el.value) return
@@ -43,6 +44,12 @@ watch(
   (_config) => _config && client.value?.updateConfig(_config),
   { deep: true },
 )
+
+watch(selectedExampleKey, (newKey) => {
+  if (client.value && newKey && operationId.value) {
+    client.value.updateExample(newKey, operationId.value)
+  }
+})
 
 onBeforeUnmount(() => client.value?.app.unmount())
 </script>
