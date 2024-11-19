@@ -1,3 +1,5 @@
+import { REGEX } from '@scalar/oas-utils/helpers'
+
 /**
  * Get the nested value from a context object
  *
@@ -23,11 +25,8 @@ export function replaceTemplateVariables(
   templateString: string,
   context: object,
 ) {
-  /** Matches single, double curly and colon style variables */
-  const variableRegex = /{{\s*([^}\s]+?)\s*}}|{\s*([^}\s]+?)\s*}|:\b[\w.]+\b/g
-  const matches = templateString.match(variableRegex) ?? []
+  const matches = templateString.match(REGEX.TEMPLATE_VARIABLE) ?? []
 
-  // Very few good ways other than a `let` here
   let substitutedString = templateString
   matches.forEach((m) => {
     const key = m.startsWith(':') ? m.slice(1) : m.replace(/[{}]/g, '').trim()
