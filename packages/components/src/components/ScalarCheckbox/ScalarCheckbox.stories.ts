@@ -12,13 +12,14 @@ const meta = {
   argTypes: {
     modelValue: { control: 'boolean', default: false },
     size: { control: 'select', options: ['sm', 'md'] },
+    label: { control: 'text' },
   },
   render: (args) => ({
     components: { ScalarCheckbox },
     setup() {
       return { args }
     },
-    template: `<ScalarCheckbox v-bind="args">Button</ScalarCheckbox>`,
+    template: `<ScalarCheckbox v-bind="args" />`,
   }),
 } satisfies Meta<typeof ScalarCheckbox>
 
@@ -26,3 +27,6 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+export const WithLabel: Story = {
+  args: { label: 'Click me baby one more time' },
+}
