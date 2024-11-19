@@ -1,10 +1,11 @@
 import type { createApiClient } from '@/libs'
-import { inject } from 'vue'
+import { type InjectionKey, inject } from 'vue'
 
 /**
  * The layout of the client
  */
 export type ClientLayout = 'modal' | 'web' | 'desktop'
+export const LAYOUT_SYMBOL = Symbol() as InjectionKey<ClientLayout>
 
 /**
  * Get the current client layout
@@ -12,5 +13,5 @@ export type ClientLayout = 'modal' | 'web' | 'desktop'
  * @see {@link createApiClient}
  */
 export const useLayout = () => ({
-  layout: inject<ClientLayout>('layout') ?? 'desktop',
+  layout: inject(LAYOUT_SYMBOL) ?? 'desktop',
 })

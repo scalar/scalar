@@ -74,7 +74,7 @@ export const createActiveEntitiesStore = ({
     ),
   )
 
-  /** TODO: need to merge collection environments into the global space */
+  /** The currently active environment */
   const activeEnvironment = computed(
     () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
   )
