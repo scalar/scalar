@@ -14,7 +14,6 @@ jobs:
       matrix:
         node-version: [20]
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/approve-snapshots')
-
     steps:
       - name: Get branch of PR
         uses: xt0rted/pull-request-comment-branch@4d0b1387dddf780342553efbddb07489137a9159
