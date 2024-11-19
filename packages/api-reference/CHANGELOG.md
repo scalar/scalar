@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.25.67
+
+### Patch Changes
+
+- 594a96c: fix: wrap property heading and detail
+- 0adbfd5: feat(use-hooks): add useBreakpoint hook
+- 9b4def7: feat: adds use example store
+- 2a6117e: feat(use-hooks): add computed dark light mode
+- Updated dependencies [cb3e89f]
+- Updated dependencies [0adbfd5]
+- Updated dependencies [98e9cb2]
+- Updated dependencies [9b4def7]
+- Updated dependencies [44a7100]
+- Updated dependencies [12fed75]
+- Updated dependencies [1e3214c]
+- Updated dependencies [2a6117e]
+  - @scalar/api-client@2.1.52
+  - @scalar/use-hooks@0.1.1
+  - @scalar/openapi-parser@0.8.10
+  - @scalar/oas-utils@0.2.77
+  - @scalar/components@0.12.72
+
 ## 1.25.66
 
 ### Patch Changes

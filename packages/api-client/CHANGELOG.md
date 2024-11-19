@@ -1,5 +1,30 @@
 # @scalar/api-client
 
+## 2.1.52
+
+### Patch Changes
+
+- cb3e89f: fix: falsy value display in RequestTableTooltip
+- 0adbfd5: feat(use-hooks): add useBreakpoint hook
+- 9b4def7: feat: adds selected example update function
+- 44a7100: fix: handle no protocol prefix
+- 1e3214c: fix: replace scalarcodeblock with codemirror for response preview
+- Updated dependencies [841283d]
+- Updated dependencies [0adbfd5]
+- Updated dependencies [98e9cb2]
+- Updated dependencies [ecdb3bc]
+- Updated dependencies [44a7100]
+- Updated dependencies [12fed75]
+- Updated dependencies [1e3214c]
+- Updated dependencies [2a6117e]
+  - @scalar/icons@0.1.2
+  - @scalar/use-hooks@0.1.1
+  - @scalar/openapi-parser@0.8.10
+  - @scalar/oas-utils@0.2.77
+  - @scalar/components@0.12.72
+  - @scalar/use-codemirror@0.11.39
+  - @scalar/import@0.1.2
+
 ## 2.1.51
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.8.10
+
+### Patch Changes
+
+- 98e9cb2: feat: new `sanitize` utility to make documents OpenAPI-compliant
+
 ## 0.8.9
 
 ### Patch Changes
