@@ -47,11 +47,7 @@ const integrationIcon = computed(() => {
 </script>
 
 <template>
-  <div class="flex justify-center items-center mb-2 p-1">
-    <div class="rounded-xl">
-      <ScalarIcon
-        class="size-10 rounded-lg"
-        :logo="integrationIcon" />
-    </div>
-  </div>
+  <ScalarIcon
+    class="w-full h-full rounded-lg"
+    :logo="integrationIcon" />
 </template>

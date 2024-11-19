@@ -14,6 +14,7 @@ import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
+import { type IntegrationThemeId, getThemeStyles } from '@scalar/themes'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
@@ -22,12 +23,12 @@ const props = defineProps<{
   eventType: 'drop' | 'paste' | 'query' | null
 }>()
 
-defineEmits<{
+const emits = defineEmits<{
   (e: 'importFinished'): void
 }>()
 
 const { activeWorkspace } = useActiveEntities()
-const { events } = useWorkspace()
+const { workspaceMutators, events } = useWorkspace()
 
 const { prefetchResult, prefetchUrl, resetPrefetchResult } = useUrlPrefetcher()
 
@@ -157,6 +158,24 @@ onUnmounted(() => {
   document.body.classList.remove('has-import-url')
   document.body.classList.remove('has-no-import-url')
 })
+const themeStyleTag = computed(
+  () =>
+    activeWorkspace.value &&
+    shouldShowIntegrationIcon.value &&
+    props.integration &&
+    `<style>${getThemeStyles(props.integration as IntegrationThemeId)}</style>`,
+)
+
+function handleImportFinished() {
+  if (shouldShowIntegrationIcon.value && props.integration) {
+    workspaceMutators.edit(
+      activeWorkspace.value.uid,
+      'themeId',
+      props.integration as IntegrationThemeId,
+    )
+  }
+  emits('importFinished')
+}
 </script>
 
 <template>
@@ -164,7 +183,20 @@ onUnmounted(() => {
     size="full"
     :state="modalState">
     <div
+      v-if="themeStyleTag"
+      v-html="themeStyleTag"></div>
+    <div
       class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
+      <div class="section-flare">
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+        <div class="section-flare-item"></div>
+      </div>
       <!-- Wait until the URL is fetched -->
       <div
         class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
@@ -184,10 +216,13 @@ onUnmounted(() => {
         <!-- Sucess -->
         <template v-else>
           <!-- Logo -->
-          <IntegrationLogo
+          <div
             v-if="shouldShowIntegrationIcon"
-            :integration="integration" />
-
+            class="flex justify-center items-center mb-2 p-1">
+            <div class="rounded-xl size-10">
+              <IntegrationLogo :integration="integration" />
+            </div>
+          </div>
           <!-- Title -->
           <div class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title || 'Untitled Collection' }}
@@ -204,7 +239,7 @@ onUnmounted(() => {
                 :source="prefetchResult?.url ?? source"
                 variant="button"
                 :watchMode="watchMode"
-                @importFinished="() => $emit('importFinished')" />
+                @importFinished="handleImportFinished" />
             </div>
             <!-- Select the workspace -->
             <div class="flex justify-center">
@@ -279,6 +314,10 @@ onUnmounted(() => {
     border: var(--scalar-border-width) solid var(--scalar-border-color);
     border-radius: 12px;
     overflow: hidden;
+    z-index: 10000;
+  }
+  .has-import-url .scalar-client .sidenav {
+    display: none;
   }
   .has-no-import-url .scalar-app,
   .has-import-url .scalar-app {
@@ -307,5 +346,10 @@ onUnmounted(() => {
 }
 .openapi-color {
   color: var(--scalar-color-green);
+}
+.section-flare {
+  position: fixed;
+  top: 0;
+  right: -50dvw;
 }
 </style>

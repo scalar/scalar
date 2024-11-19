@@ -90,6 +90,6 @@ body {
   background-color: var(--scalar-background-2);
 }
 .dark-mode #scalar-client {
-  background-color: color-mix(in srgb, var(--scalar-background-1) 30%, black);
+  background-color: color-mix(in srgb, var(--scalar-background-1) 65%, black);
 }
 </style>

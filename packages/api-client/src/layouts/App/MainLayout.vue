@@ -10,7 +10,7 @@ const { layout } = useLayout()
   <main
     class="flex flex-col sm:flex-row min-h-0 flex-1"
     :class="layout === 'web' ? 'sm:flex-col' : 'sm:flex-row'">
-    <SideNav class="order-last sm:order-none" />
+    <SideNav class="order-last sm:order-none sidenav" />
 
     <!-- Popup command palette to add resources from anywhere -->
     <TheCommandPalette />
