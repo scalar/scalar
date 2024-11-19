@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5">
-    <title>graph-stats-square</title>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.25.75h19.5s1.5 0 1.5 1.5v19.5s0 1.5-1.5 1.5H2.25s-1.5 0-1.5-1.5V2.25s0-1.5 1.5-1.5"></path>
-    <path d="M3.75 12.75h3L9.01 7.1a.749.749 0 0 1 1.4.029l3.292 9.325a.75.75 0 0 0 1.358.123l2.19-3.827h3" fill="none"
-        stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"></path>
-</svg>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 12h-1.488a1.2 1.2 0 0 0-1.158.876l-1.41 5.016a.15.15 0 0 1-.288 0L10.344 6.108a.15.15 0 0 0-.288 0l-1.41 5.016A1.2 1.2 0 0 1 7.494 12H6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>

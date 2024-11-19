@@ -42,14 +42,14 @@ const value = computed<string>({
             v-for="icon in libraryIcons"
             :key="icon.src"
             as="li"
-            class="p-2.25 rounded flex items-center justify-center text-c-3 cursor-pointer hover:text-c-2 hover:bg-b-2 ui-checked:bg-b-3 ui-active:bg-b-2"
+            class="p-2 rounded flex items-center justify-center text-c-3 cursor-pointer hover:text-c-2 hover:bg-b-2 ui-checked:bg-b-3 ui-active:bg-b-2"
             :value="icon.src"
             @click="close">
             <RadioGroupLabel class="sr-only">
               {{ icon.src.replaceAll('-', ' ') }} Icon
             </RadioGroupLabel>
             <LibraryIcon
-              class="stroke-2"
+              class="stroke-[1.5]"
               :src="icon.src" />
           </RadioGroupOption>
         </ul>

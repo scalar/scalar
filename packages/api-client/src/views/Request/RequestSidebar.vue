@@ -239,7 +239,7 @@ const handleClearDrafts = () => {
                 thickness="2.25" />
               <LibraryIcon
                 v-else
-                class="text-sidebar-c-2 size-3.5 stroke-[2.25] group-hover:hidden"
+                class="min-w-3.5 text-sidebar-c-2 size-3.5 stroke-2 group-hover:hidden"
                 :src="
                   collection['x-scalar-icon'] || 'interface-content-folder'
                 " />
@@ -251,7 +251,7 @@ const handleClearDrafts = () => {
                   class="text-c-3 hidden text-sm group-hover:block"
                   icon="ChevronRight"
                   size="sm"
-                  thickness="2.5" />
+                  thickness="2" />
               </div>
             </template>
           </RequestSidebarItem>

@@ -1,11 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5">
-    <title>layout-module-1</title>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.25.747h6s1.5 0 1.5 1.5v6s0 1.5-1.5 1.5h-6s-1.5 0-1.5-1.5v-6s0-1.5 1.5-1.5"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M2.25 14.247h6s1.5 0 1.5 1.5v6s0 1.5-1.5 1.5h-6s-1.5 0-1.5-1.5v-6s0-1.5 1.5-1.5"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M15.75.747h6s1.5 0 1.5 1.5v6s0 1.5-1.5 1.5h-6s-1.5 0-1.5-1.5v-6s0-1.5 1.5-1.5"></path>
-    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-        d="M15.75 14.247h6s1.5 0 1.5 1.5v6s0 1.5-1.5 1.5h-6s-1.5 0-1.5-1.5v-6s0-1.5 1.5-1.5"></path>
-</svg>
+<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 3H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1ZM20 3h-5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1ZM20 14h-5a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1ZM9 14H4a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"/></svg>
