@@ -129,7 +129,7 @@ defineEmits<{
   justify-content: center;
   align-items: center;
   display: flex;
-  border-radius: var(--scalar-radius);
+  border-radius: var(--scalar-radius-lg);
   background: var(--scalar-background-3);
   border: var(--scalar-border-width) solid var(--scalar-background-2);
   color: var(--scalar-color-3);
