@@ -3,11 +3,8 @@ import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
-import { isOauth2Example } from '@/views/Request/libs'
-import type {
-  SecurityScheme,
-  SecuritySchemeExampleValue,
-} from '@scalar/oas-utils/entities/spec'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
@@ -17,41 +14,35 @@ const { selectedSecuritySchemeUids } = defineProps<{
 }>()
 
 const { activeCollection, activeRequest } = useActiveEntities()
-const { collectionMutators, securitySchemes } = useWorkspace()
+const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
 const security = computed(() => {
   if (!activeCollection.value || !activeRequest.value) return []
 
   return selectedSecuritySchemeUids.map((uid) => ({
-    example: activeCollection.value!.auth[uid],
     scheme: securitySchemes[uid],
   }))
 })
 
-function generateLabel(scheme: SecurityScheme) {
-  return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' ? scheme.flow.type : ''}`
+const generateLabel = (scheme: SecurityScheme) => {
+  if (scheme.type !== 'oauth2')
+    return `${capitalize(scheme.nameKey)}: ${scheme.type}`
+
+  const firstFlow = Object.values(scheme.flows ?? {})[0]
+  return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' && firstFlow ? firstFlow.type : ''}`
 }
 
-function updateExampleValue<T extends SecuritySchemeExampleValue>(
-  uid: string,
-  /** Example instance added as property for type safety */
-  exampleAuth: T,
-  key: keyof T & string,
-  value: string,
-) {
-  if (!activeCollection.value?.uid) return
-
-  collectionMutators.edit(
-    activeCollection.value.uid,
-    `auth.${uid}.${key}`,
-    value as any,
-  )
-}
+/** Update the scheme */
+const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
+  uid: U,
+  path: P,
+  value: NonNullable<PathValue<SecurityScheme, P>>,
+) => securitySchemeMutators.edit(uid, path, value)
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="{ scheme, example } in security"
+    v-for="{ scheme } in security"
     :key="scheme.uid">
     <!-- Header -->
     <DataTableRow class="group/delete">
@@ -63,17 +54,15 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
     </DataTableRow>
 
     <!-- HTTP -->
-    <template v-if="scheme.type === 'http' && example.type === 'http'">
+    <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :modelValue="example.token"
+          :modelValue="scheme.token"
           placeholder="Token"
           type="password"
-          @update:modelValue="
-            (v) => updateExampleValue(scheme.uid, example, 'token', v)
-          ">
+          @update:modelValue="(v) => updateScheme(scheme.uid, 'token', v)">
           Bearer Token
         </RequestAuthDataTableInput>
       </DataTableRow>
@@ -84,24 +73,20 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
           <RequestAuthDataTableInput
             :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
-            :modelValue="example.username"
+            :modelValue="scheme.username"
             placeholder="ScalarEnjoyer01"
             required
-            @update:modelValue="
-              (v) => updateExampleValue(scheme.uid, example, 'username', v)
-            ">
+            @update:modelValue="(v) => updateScheme(scheme.uid, 'username', v)">
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
-            :modelValue="example.password"
+            :modelValue="scheme.password"
             placeholder="xxxxxx"
             type="password"
-            @update:modelValue="
-              (v) => updateExampleValue(scheme.uid, example, 'password', v)
-            ">
+            @update:modelValue="(v) => updateScheme(scheme.uid, 'password', v)">
             Password
           </RequestAuthDataTableInput>
         </DataTableRow>
@@ -109,35 +94,34 @@ function updateExampleValue<T extends SecuritySchemeExampleValue>(
     </template>
 
     <!-- API Key -->
-    <template v-else-if="scheme.type === 'apiKey' && example.type === 'apiKey'">
+    <template v-else-if="scheme.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-name-${scheme.uid}`"
-          :modelValue="example.name"
+          :modelValue="scheme.name"
           placeholder="api-key"
-          @update:modelValue="
-            (v) => updateExampleValue(scheme.uid, example, 'name', v)
-          ">
+          @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
           Name
         </RequestAuthDataTableInput>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-value-add-${scheme.uid}`"
-          :modelValue="example.value"
+          :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-          @update:modelValue="
-            (v) => updateExampleValue(scheme.uid, example, 'value', v)
-          ">
+          @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
           Value
         </RequestAuthDataTableInput>
       </DataTableRow>
     </template>
 
     <!-- OAuth 2 -->
-    <OAuth2
-      v-else-if="scheme.type === 'oauth2' && isOauth2Example(example)"
-      :example="example"
-      :scheme="scheme" />
+    <template v-else-if="scheme.type === 'oauth2'">
+      <OAuth2
+        v-for="(flow, key) in scheme.flows"
+        :key="key"
+        :flow="flow!"
+        :scheme="scheme" />
+    </template>
   </template>
 </template>

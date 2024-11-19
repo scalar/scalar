@@ -1769,8 +1769,8 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.14.10)(jsdom@25.0.1)(terser@5.31.2)
       zod-to-ts:
-        specifier: ^1.2.0
-        version: 1.2.0(typescript@5.6.2)(zod@3.23.8)
+        specifier: github:amritk/zod-to-ts#build
+        version: https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.23.8)
 
   packages/object-utils:
     dependencies:
@@ -18159,6 +18159,13 @@ packages:
 
   zod-to-ts@1.2.0:
     resolution: {integrity: sha512-x30XE43V+InwGpvTySRNz9kB7qFU8DlyEy7BsSTCHPH1R0QasMmHWZDCzYm6bVXtj/9NNJAZF3jW8rzFvH5OFA==}
+    peerDependencies:
+      typescript: ^4.9.4 || ^5.0.2
+      zod: ^3
+
+  zod-to-ts@https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400:
+    resolution: {tarball: https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400}
+    version: 1.2.0
     peerDependencies:
       typescript: ^4.9.4 || ^5.0.2
       zod: ^3
@@ -39373,6 +39380,11 @@ snapshots:
       readable-stream: 4.5.2
 
   zod-to-ts@1.2.0(typescript@5.6.2)(zod@3.23.8):
+    dependencies:
+      typescript: 5.6.2
+      zod: 3.23.8
+
+  zod-to-ts@https://codeload.github.com/amritk/zod-to-ts/tar.gz/1f956fe246b5b3e70bbeb9e3a928396f9c22e400(typescript@5.6.2)(zod@3.23.8):
     dependencies:
       typescript: 5.6.2
       zod: 3.23.8

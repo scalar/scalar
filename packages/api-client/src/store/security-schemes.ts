@@ -2,7 +2,6 @@ import type { StoreContext } from '@/store/store-context'
 import {
   type SecurityScheme,
   type SecuritySchemePayload,
-  authExampleFromSchema,
   securitySchemeSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
@@ -49,16 +48,6 @@ export function extendedSecurityDataFactory({
       ])
     }
 
-    // Add to the collection as auth
-    // This is NOT written to spec and just allows collections to use securitySchemes ad-hoc
-    const defaultValue = authExampleFromSchema(scheme)
-    if (!defaultValue) return null
-
-    collectionMutators.edit(collectionUid, 'auth', {
-      ...collections[collectionUid].auth,
-      [scheme.uid]: defaultValue,
-    })
-
     return scheme
   }
 
@@ -72,12 +61,6 @@ export function extendedSecurityDataFactory({
           'securitySchemes',
           c.securitySchemes.filter((s) => s !== schemeUid),
         )
-      }
-
-      // Remove the scheme from any collections that use it
-      if (schemeUid in c.auth) {
-        const { [schemeUid]: toDelete, ...rest } = c.auth
-        collectionMutators.edit(c.uid, 'auth', rest)
       }
     })
 

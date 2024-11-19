@@ -39,24 +39,25 @@ let typeString = entities.reduce(
   (prev, { identifier, schema }) => {
     const { node } = zodToTs(schema, identifier)
     const typeAlias = createTypeAlias(node, identifier)
-    const nodeString = 'export ' + printNode(typeAlias) + '\n\n'
+    const nodeString = '  export ' + printNode(typeAlias) + '\n\n'
     return prev + nodeString
   },
   `export namespace v_${DATA_VERSION.replace(/\./g, '_')} {\n`,
 )
 
 // Add all types data object
-typeString += `export type Data = { 
-  collections: Record<string, Collection>
-  cookies: Record<string, Cookie>
-  environments: Record<string, Environment>
-  requestExamples: Record<string, RequestExample>
-  requests: Record<string, Request>
-  securitySchemes: Record<string, SecurityScheme>
-  servers: Record<string, Server>
-  tags: Record<string, Tag>
-  workspaces: Record<string, Workspace>
-}
+typeString += `
+  export type DataRecord = { 
+    collections: Record<string, Collection>
+    cookies: Record<string, Cookie>
+    environments: Record<string, Environment>
+    requestExamples: Record<string, RequestExample>
+    requests: Record<string, Request>
+    securitySchemes: Record<string, SecurityScheme>
+    servers: Record<string, Server>
+    tags: Record<string, Tag>
+    workspaces: Record<string, Workspace>
+  }
 }
 `
 

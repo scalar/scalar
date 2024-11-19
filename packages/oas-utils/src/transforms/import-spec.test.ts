@@ -1,9 +1,6 @@
 /** @vitest-environment jsdom */
 import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
-import {
-  getBaseAuthValues,
-  importSpecToWorkspace,
-} from '@/transforms/import-spec'
+import { importSpecToWorkspace } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it } from 'vitest'
@@ -102,49 +99,89 @@ describe('importSpecToWorkspace', () => {
   })
 
   describe('security', () => {
-    it('handles vanilla security schemes', async () => {
-      const res = await importSpecToWorkspace(galaxy)
-      if (res.error) throw res.error
+    const testSchemes = [
+      {
+        bearerFormat: 'JWT',
+        description: 'JWT Bearer token authentication',
+        nameKey: 'bearerAuth',
+        password: '',
+        scheme: 'bearer',
+        token: '',
+        type: 'http',
+        username: '',
+      },
+      {
+        bearerFormat: 'JWT',
+        description: 'Basic HTTP authentication',
+        nameKey: 'basicAuth',
+        password: '',
+        scheme: 'basic',
+        token: '',
+        type: 'http',
+        username: '',
+      },
+      {
+        description: 'API key request header',
+        in: 'header',
+        name: 'X-API-Key',
+        nameKey: 'apiKeyHeader',
+        type: 'apiKey',
+        value: '',
+      },
+      {
+        description: 'API key query parameter',
+        in: 'query',
+        name: 'api_key',
+        nameKey: 'apiKeyQuery',
+        type: 'apiKey',
+        value: '',
+      },
+      {
+        description: 'API key browser cookie',
+        in: 'cookie',
+        name: 'api_key',
+        nameKey: 'apiKeyCookie',
+        type: 'apiKey',
+        value: '',
+      },
+      {
+        description: 'OAuth 2.0 authentication',
+        nameKey: 'oAuth2',
+        type: 'oauth2',
+        flows: {
+          authorizationCode: {
+            'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
+            'clientSecret': '',
+            'refreshUrl': '',
+            'scopes': {
+              'read:account': 'read your account information',
+              'read:planets': 'read your planets',
+              'write:planets': 'modify planets in your account',
+            },
+            'selectedScopes': [] as string[],
+            'token': '',
+            'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+            'type': 'authorizationCode',
+            'x-scalar-redirect-uri': 'http://localhost:3000/',
+            'x-usePkce': 'no',
+            'x-scalar-client-id': '',
+          },
 
-      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual([
-        {
-          bearerFormat: 'JWT',
-          description: 'JWT Bearer token authentication',
-          nameKey: 'bearerAuth',
-          scheme: 'bearer',
-          type: 'http',
-        },
-        {
-          bearerFormat: 'JWT',
-          description: 'Basic HTTP authentication',
-          nameKey: 'basicAuth',
-          scheme: 'basic',
-          type: 'http',
-        },
-        {
-          description: 'API key request header',
-          in: 'header',
-          name: 'X-API-Key',
-          nameKey: 'apiKeyHeader',
-          type: 'apiKey',
-        },
-        {
-          description: 'API key query parameter',
-          in: 'query',
-          name: 'api_key',
-          nameKey: 'apiKeyQuery',
-          type: 'apiKey',
-        },
-        {
-          description: 'API key browser cookie',
-          in: 'cookie',
-          name: 'api_key',
-          nameKey: 'apiKeyCookie',
-          type: 'apiKey',
-        },
-        {
-          'description': 'OAuth 2.0 authentication',
-          'flow': {
+          clientCredentials: {
+            'clientSecret': '',
+            'refreshUrl': '',
+            'scopes': {
+              'read:account': 'read your account information',
+              'read:planets': 'read your planets',
+              'write:planets': 'modify planets in your account',
+            },
+            'selectedScopes': [] as string[],
+            'token': '',
+            'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+            'type': 'clientCredentials',
+            'x-scalar-client-id': '',
+          },
+          implicit: {
             'authorizationUrl': 'https://galaxy.scalar.com/oauth/authorize',
             'refreshUrl': '',
             'scopes': {
@@ -152,38 +189,142 @@ describe('importSpecToWorkspace', () => {
               'read:planets': 'read your planets',
               'write:planets': 'modify planets in your account',
             },
-            'selectedScopes': [],
-            'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
-            'type': 'authorizationCode',
+            'selectedScopes': [] as string[],
+            'token': '',
+            'type': 'implicit',
+            'x-scalar-client-id': '',
             'x-scalar-redirect-uri': 'http://localhost:3000/',
-            'x-usePkce': 'no',
           },
-          'nameKey': 'oAuth2',
-          'type': 'oauth2',
-          'x-scalar-client-id': '',
+          password: {
+            'clientSecret': '',
+            'password': '',
+            'refreshUrl': '',
+            'scopes': {
+              'read:account': 'read your account information',
+              'read:planets': 'read your planets',
+              'write:planets': 'modify planets in your account',
+            },
+            'selectedScopes': [] as string[],
+            'token': '',
+            'tokenUrl': 'https://galaxy.scalar.com/oauth/token',
+            'type': 'password',
+            'username': '',
+            'x-scalar-client-id': '',
+          },
         },
-        {
-          description: 'OpenID Connect Authentication',
-          nameKey: 'openIdConnect',
-          openIdConnectUrl:
-            'https://galaxy.scalar.com/.well-known/openid-configuration',
-          type: 'openIdConnect',
-        },
-      ])
+      },
+      {
+        description: 'OpenID Connect Authentication',
+        nameKey: 'openIdConnect',
+        openIdConnectUrl:
+          'https://galaxy.scalar.com/.well-known/openid-configuration',
+        type: 'openIdConnect',
+      },
+    ]
+
+    it('handles vanilla security schemes', async () => {
+      const res = await importSpecToWorkspace(galaxy)
+      if (res.error) throw res.error
+
+      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(
+        testSchemes,
+      )
     })
 
     it('supports the x-defaultClientId extension', async () => {
-      const testId = 'test-default-client-id'
       const clonedGalaxy: any = structuredClone(galaxy)
       clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode[
         'x-defaultClientId'
-      ] = testId
+      ] = 'test-default-client-id'
 
       const res = await importSpecToWorkspace(clonedGalaxy)
       if (res.error) throw res.error
 
       const authScheme = res.securitySchemes[5] as SecuritySchemeOauth2
-      expect(authScheme['x-scalar-client-id']).toEqual(testId)
+      expect(
+        authScheme.flows.authorizationCode?.['x-scalar-client-id'],
+      ).toEqual('test-default-client-id')
+    })
+
+    it('prefills from the authentication property', async () => {
+      const res = await importSpecToWorkspace(galaxy, {
+        authentication: {
+          apiKey: {
+            token: 'test-api-key',
+          },
+          preferredSecurityScheme: 'apiKeyHeader',
+          http: {
+            basic: {
+              username: 'test-username',
+              password: 'test-password',
+            },
+            bearer: {
+              token: 'test-bearer-token',
+            },
+          },
+          oAuth2: {
+            clientId: 'test-client-id',
+            scopes: ['read:account', 'read:planets'],
+            accessToken: 'test-access-token',
+            state: 'test-state',
+            username: 'test-username',
+            password: 'test-password',
+          },
+        },
+        setCollectionSecurity: true,
+      })
+      if (res.error) throw res.error
+
+      // test if the values were filled
+      const clonedSchemes = structuredClone(testSchemes)
+      clonedSchemes[0].token = 'test-bearer-token'
+      clonedSchemes[1].username = 'test-username'
+      clonedSchemes[1].password = 'test-password'
+      clonedSchemes[2].value = 'test-api-key'
+      clonedSchemes[3].value = 'test-api-key'
+      clonedSchemes[4].value = 'test-api-key'
+
+      const flows = clonedSchemes[5].flows!
+      flows.authorizationCode['x-scalar-client-id'] = 'test-client-id'
+      flows.authorizationCode.token = 'test-access-token'
+      flows.authorizationCode.selectedScopes = ['read:account', 'read:planets']
+      flows.clientCredentials['x-scalar-client-id'] = 'test-client-id'
+      flows.clientCredentials.token = 'test-access-token'
+      flows.clientCredentials.selectedScopes = ['read:account', 'read:planets']
+      flows.implicit['x-scalar-client-id'] = 'test-client-id'
+      flows.implicit.token = 'test-access-token'
+      flows.implicit.selectedScopes = ['read:account', 'read:planets']
+      flows.password['x-scalar-client-id'] = 'test-client-id'
+      flows.password.token = 'test-access-token'
+      flows.password.selectedScopes = ['read:account', 'read:planets']
+      flows.password.username = 'test-username'
+      flows.password.password = 'test-password'
+
+      const apiKey = res.securitySchemes.find(
+        ({ nameKey }) => nameKey === 'apiKeyHeader',
+      )
+
+      expect(res.securitySchemes.map(({ uid, ...rest }) => rest)).toEqual(
+        clonedSchemes,
+      )
+      expect(res.collection.selectedSecuritySchemeUids).toEqual([apiKey!.uid])
+    })
+
+    it('converts scope arrays to objects', async () => {
+      const clonedGalaxy: any = structuredClone(galaxy)
+      clonedGalaxy.components.securitySchemes.oAuth2.flows.authorizationCode.scopes =
+        ['read:account', 'read:planets']
+
+      const res = await importSpecToWorkspace(clonedGalaxy)
+      if (res.error) throw res.error
+
+      expect(
+        (res.securitySchemes[5] as SecuritySchemeOauth2).flows!
+          .authorizationCode!.scopes,
+      ).toEqual({
+        'read:account': '',
+        'read:planets': '',
+      })
     })
 
     it('handles empty security requirements', async () => {
@@ -243,35 +384,6 @@ describe('importSpecToWorkspace', () => {
       expect(scheme?.nameKey).toBe('basicAuth')
     })
 
-    it('handles array scopes conversion', async () => {
-      const specWithArrayScopes = {
-        ...galaxy,
-        components: {
-          securitySchemes: {
-            oAuth2: {
-              type: 'oauth2',
-              flows: {
-                authorizationCode: {
-                  authorizationUrl: 'https://example.com/auth',
-                  tokenUrl: 'https://example.com/token',
-                  scopes: ['read:test', 'write:test'],
-                },
-              },
-            },
-          },
-        },
-      }
-
-      const res = await importSpecToWorkspace(specWithArrayScopes)
-      if (res.error) throw res.error
-
-      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
-      expect(oauth2Scheme?.flow?.scopes).toEqual({
-        'read:test': '',
-        'write:test': '',
-      })
-    })
-
     it('handles oauth2 authentication configuration', async () => {
       const res = await importSpecToWorkspace(galaxy, {
         authentication: {
@@ -284,9 +396,10 @@ describe('importSpecToWorkspace', () => {
       })
       if (res.error) throw res.error
 
-      const oauth2Scheme = res.securitySchemes.find((s) => s.type === 'oauth2')
-      expect(oauth2Scheme?.['x-scalar-client-id']).toBe('test-client')
-      expect(oauth2Scheme?.flow?.selectedScopes).toEqual(['read:account'])
+      const flow = res.securitySchemes.find((s) => s.type === 'oauth2')?.flows
+        .authorizationCode
+      expect(flow?.['x-scalar-client-id']).toBe('test-client')
+      expect(flow?.selectedScopes).toEqual(['read:account'])
     })
   })
 
@@ -349,104 +462,6 @@ describe('importSpecToWorkspace', () => {
 
       // Test URLS only
       expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
-    })
-  })
-})
-
-describe('getBaseAuthValues', () => {
-  it('handles implicit oauth2 flow', async () => {
-    const res = await importSpecToWorkspace(galaxy, {
-      authentication: {
-        // @ts-expect-error
-        oAuth2: {
-          accessToken: 'test-token',
-        },
-      },
-    })
-    if (res.error) throw res.error
-
-    // Modify one scheme to be implicit flow
-    const implicitScheme = {
-      ...res.securitySchemes[5],
-      flow: {
-        // @ts-expect-error
-        ...res.securitySchemes[5].flow,
-        type: 'implicit',
-      },
-    }
-
-    const baseValues = getBaseAuthValues(implicitScheme, {
-      // @ts-expect-error
-      oAuth2: { accessToken: 'test-token' },
-    })
-
-    expect(baseValues).toEqual({
-      type: 'oauth-implicit',
-      token: 'test-token',
-    })
-  })
-
-  it('handles password oauth2 flow', async () => {
-    const res = await importSpecToWorkspace(galaxy, {
-      authentication: {
-        // @ts-expect-error
-        oAuth2: {
-          accessToken: 'test-token',
-          username: 'test-user',
-          password: 'test-pass',
-        },
-      },
-    })
-    if (res.error) throw res.error
-
-    // Modify one scheme to be password flow
-    const passwordScheme = {
-      ...res.securitySchemes[5],
-      flow: {
-        // @ts-expect-error
-        ...res.securitySchemes[5].flow,
-        type: 'password',
-      },
-    }
-
-    const baseValues = getBaseAuthValues(passwordScheme, {
-      // @ts-expect-error
-      oAuth2: {
-        accessToken: 'test-token',
-        username: 'test-user',
-        password: 'test-pass',
-      },
-    })
-
-    expect(baseValues).toEqual({
-      type: 'oauth-password',
-      token: 'test-token',
-      username: 'test-user',
-      password: 'test-pass',
-    })
-  })
-
-  it('handles basic http auth', async () => {
-    const baseValues = getBaseAuthValues(
-      // @ts-expect-error
-      {
-        type: 'http',
-        scheme: 'basic',
-        nameKey: 'basicAuth',
-      },
-      {
-        http: {
-          basic: {
-            username: 'test-user',
-            password: 'test-pass',
-          },
-        },
-      },
-    )
-
-    expect(baseValues).toEqual({
-      username: 'test-user',
-      password: 'test-pass',
     })
   })
 })

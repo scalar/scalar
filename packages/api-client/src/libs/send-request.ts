@@ -5,7 +5,6 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
-  Collection,
   Request,
   RequestExample,
   RequestMethod,
@@ -234,7 +233,6 @@ function ensureProtocol(url: string): string {
 /** Execute the request */
 export const createRequestOperation = ({
   request,
-  auth,
   example,
   server,
   securitySchemes,
@@ -244,7 +242,6 @@ export const createRequestOperation = ({
   environment,
   globalCookies,
 }: {
-  auth: Collection['auth']
   request: Request
   example: RequestExample
   selectedSecuritySchemeUids?: string[]
@@ -303,43 +300,41 @@ export const createRequestOperation = ({
 
     // Populate all forms of auth to the request segments
     selectedSecuritySchemeUids?.forEach((uid) => {
-      const exampleAuth = auth[uid]
       const scheme = securitySchemes[uid]
-      if (!exampleAuth || !scheme) return
+      if (!scheme) return
 
       // Scheme type and example value type should always match
-      if (scheme.type === 'apiKey' && exampleAuth.type === 'apiKey') {
-        const value = replaceTemplateVariables(exampleAuth.value, env)
-        if (scheme.in === 'header') headers[exampleAuth.name] = value
-        if (scheme.in === 'query') urlParams.append(exampleAuth.name, value)
+      if (scheme.type === 'apiKey') {
+        const value = replaceTemplateVariables(scheme.value, env)
+        if (scheme.in === 'header') headers[scheme.name] = value
+        if (scheme.in === 'query') urlParams.append(scheme.name, value)
         if (scheme.in === 'cookie') {
-          Cookies.set(exampleAuth.name, value)
+          Cookies.set(scheme.name, value)
           // Not sure if this one works yet
           // Cookies.set(exampleAuth.name, value, cookieParams)
         }
       }
 
-      if (scheme.type === 'http' && exampleAuth.type === 'http') {
+      if (scheme.type === 'http') {
         if (scheme.scheme === 'basic') {
-          const username = replaceTemplateVariables(exampleAuth.username, env)
-          const password = replaceTemplateVariables(exampleAuth.password, env)
+          const username = replaceTemplateVariables(scheme.username, env)
+          const password = replaceTemplateVariables(scheme.password, env)
           const value = `${username}:${password}`
 
           headers['Authorization'] = `Basic ${btoa(value)}`
         } else {
-          const value = replaceTemplateVariables(exampleAuth.token, env)
+          const value = replaceTemplateVariables(scheme.token, env)
           headers['Authorization'] = `Bearer ${value}`
         }
       }
 
-      // For OAuth we just add the token that was previously generated
-      if (
-        scheme.type === 'oauth2' &&
-        exampleAuth.type.includes('oauth') &&
-        'token' in exampleAuth
-      ) {
-        if (!exampleAuth.token) console.error('OAuth token was not created')
-        headers['Authorization'] = `Bearer ${exampleAuth.token}`
+      // For OAuth we take the token from the first flow
+      if (scheme.type === 'oauth2') {
+        const flows = Object.values(scheme.flows)
+        const token = flows.find((f) => f.token)?.token
+        if (!token) return
+
+        headers['Authorization'] = `Bearer ${token}`
       }
     })
 

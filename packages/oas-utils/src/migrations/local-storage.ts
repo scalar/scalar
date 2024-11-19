@@ -19,23 +19,22 @@ export const parseLocalStorage = (
 export const getLocalStorageVersion = (): string => {
   const collectionStr = localStorage.getItem('collection')
   const dataVersion = localStorage.getItem(DATA_VERSION_LS_LEY)
+  if (dataVersion) return dataVersion
 
   // No flatted means first version
   if (!collectionStr?.length || collectionStr?.[0] === '{') return '0.0.0'
 
-  // Flatted + types means 2.1.0
+  // Flatted + types means > 2.1.0 but we should have a data version
   try {
     const [collection] = Object.values(
       parse(collectionStr) ?? {},
     ) as v_2_1_0.Collection[]
     if (collection?.type === 'collection') return '2.1.0'
 
-    if (dataVersion) return dataVersion
     return '0.0.0'
   } catch (e) {
     console.error(e)
 
-    if (dataVersion) return dataVersion
     return '0.0.0'
   }
 }

@@ -1,5 +1,4 @@
 import { nanoidSchema } from '@/entities/shared'
-import { securitySchemeExampleValueSchema } from '@/entities/spec/security'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -67,13 +66,6 @@ export const extendedCollectionSchema = z.object({
   tags: nanoidSchema.array().default([]),
   /** List of requests without tags and top level tag "folders" */
   children: nanoidSchema.array().default([]),
-  /**
-   * Map of security schemas to their value sets
-   *
-   * For each selected security schema we should have an entry here
-   * The entry will contain the secret values (but not the schema definition)
-   */
-  auth: z.record(nanoidSchema, securitySchemeExampleValueSchema).default({}),
   /** A link to where this document is stored, useful for live sync and possibly git sync down the line */
   documentUrl: z.string().optional(),
   /**
