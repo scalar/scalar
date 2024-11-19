@@ -63,7 +63,7 @@ const specification = `{
 const { schema, errors } = await dereference(specification)
 ```
 
-### Modify an OpenAPI specification
+### Modify an OpenAPI document
 
 ```ts
 import { filter } from '@scalar/openapi-parser'
@@ -80,9 +80,9 @@ const specification = `{
 const { specification } = filter(specification, (schema) => !schema?.['x-internal'])
 ```
 
-### Upgrade your OpenAPI specification
+### Upgrade your OpenAPI document
 
-There’s an `upgrade` command to upgrade all your OpenAPI specifications to the latest OpenAPI version.
+There’s an `upgrade` command to upgrade all your OpenAPI documents to the latest OpenAPI version.
 
 > ⚠️ The upgrade from Swagger 2.0 is still experimental and probably lacks features.
 
@@ -100,6 +100,29 @@ const { specification } = upgrade({
 
 console.log(specification.openapi)
 // Output: 3.1.0
+```
+
+### Sanitize your OpenAPI document
+
+The `sanitize()` utility helps ensure your OpenAPI document is valid and complete.
+It automatically adds any missing required properties like the OpenAPI version and info object, collects operation tags
+and adds them to the global tags array and normalizes security scheme types.
+
+This makes your document as OpenAPI-compliant as possible with minimal effort, handling many common specification
+requirements automatically.
+
+> ⚠️ This doesn’t support Swagger 2.0 documents.
+
+```ts
+import { sanitize } from '@scalar/openapi-parser'
+
+const result = sanitize({
+  info: {
+    title: 'Hello World',
+  },
+})
+
+console.log(result)
 ```
 
 ### Pipeline syntax

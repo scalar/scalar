@@ -1,8 +1,8 @@
-import { type OpenApiVersion, OpenApiVersions } from '../configuration'
+import { OpenApiVersions } from '../configuration'
 import type { AnyObject, DetailsResult } from '../types'
 
 /**
- * Get versions of the OpenAPI specification.
+ * Get versions of the OpenAPI document.
  */
 export function details(specification: AnyObject): DetailsResult {
   for (const version of new Set(OpenApiVersions)) {

@@ -12,7 +12,7 @@ import { makeFilesystem } from './makeFilesystem'
 export type ValidateOptions = ThrowOnErrorOption
 
 /**
- * Validates an OpenAPI schema.
+ * Validates an OpenAPI document
  */
 export async function validate(
   value: string | AnyObject | Filesystem,

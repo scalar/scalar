@@ -2,10 +2,10 @@ import type { OpenAPI } from '@scalar/openapi-types'
 
 import type { ERRORS, OpenApiVersion } from '../configuration'
 
+// TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
 /**
  * Merge types with each other
  */
-// TODO: I’d expect merge to overwrite the other way around (overwrite A, keep B)
 export type Merge<A, B> = A & Omit<B, keyof A>
 
 export type AnyObject = Record<string, any>
