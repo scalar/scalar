@@ -1,4 +1,4 @@
-export type { Request } from 'har-format'
+export type { Request } from '@scalar/types/external'
 
 export type Source = {
   /** The language or environment. */
