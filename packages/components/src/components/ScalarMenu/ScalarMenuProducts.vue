@@ -13,7 +13,7 @@ defineEmits<{
 }>()
 </script>
 <template>
-  <div class="flex gap-2 sm:gap-3">
+  <div class="flex flex-col">
     <ScalarMenuProduct
       :href="hrefs?.dashboard ?? 'https://dashboard.scalar.com'"
       icon="House"

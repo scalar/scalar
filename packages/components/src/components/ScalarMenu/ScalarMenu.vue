@@ -8,7 +8,7 @@ defineProps<Pick<FloatingOptions, 'placement' | 'teleport'>>()
 </script>
 <template>
   <ScalarPopover
-    class="max-h-[inherit] w-[420px] max-w-[inherit]"
+    class="max-h-[inherit] w-[280px] max-w-[inherit]"
     :placement="placement ?? 'bottom-start'"
     :teleport="teleport">
     <!-- Logo Button to open the popover -->
@@ -30,7 +30,7 @@ defineProps<Pick<FloatingOptions, 'placement' | 'teleport'>>()
     </template>
     <!-- Popover content -->
     <template #popover="{ close }">
-      <div class="custom-scroll flex flex-col gap-3 p-3 sm:gap-5 sm:p-4">
+      <div class="custom-scroll flex flex-col gap-3 p-2.25 sm:gap-3">
         <!-- Base Product List (can be overridden by slot) -->
         <slot
           :close="close"
