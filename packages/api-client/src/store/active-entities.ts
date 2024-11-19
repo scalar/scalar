@@ -195,14 +195,13 @@ export const createActiveEntitiesStore = ({
    */
   const activeEnvVariables = computed(() => {
     if (!activeEnvironment.value) return []
-    // TODO: Must merge global variables and collection level variables here
-    // Return a list of key value pairs that includes dot nested paths
-    return flattenEnvVars(JSON.parse(activeEnvironment.value.value)).map(
-      ([key, value]) => ({
-        key,
-        value,
-      }),
-    )
+    const globalEnvironment = activeWorkspace.value.environments
+    const collectionEnvironment = JSON.parse(activeEnvironment.value.value)
+    const mergedEnvironment = { ...globalEnvironment, ...collectionEnvironment }
+    return flattenEnvVars(mergedEnvironment).map(([key, value]) => ({
+      key,
+      value,
+    }))
   })
 
   return {
