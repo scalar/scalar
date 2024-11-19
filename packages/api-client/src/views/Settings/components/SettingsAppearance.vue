@@ -5,10 +5,6 @@ import { useColorMode } from '@scalar/use-hooks/useColorMode'
 const { colorMode, setColorMode } = useColorMode()
 </script>
 <template>
-  <h3 class="font-bold mb-1 mt-8">Appearance</h3>
-  <p class="text-c-2 mb-4 leading-[21px]">
-    Choose between light, dark, or system-based appearance for your workspace.
-  </p>
   <div class="flex flex-col gap-2">
     <ScalarButton
       :class="[
