@@ -15,7 +15,7 @@ defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
+const { activeRequest, activeExample, activeCollection } = useActiveEntities()
 const { isReadOnly, requestMutators } = useWorkspace()
 
 const sections = computed(() => {
@@ -94,9 +94,12 @@ const updateRequestNameHandler = (event: Event) => {
     <div
       class="request-section-content custom-scroll flex flex-1 flex-col px-3 xl:px-4 py-2.5">
       <RequestAuth
+        v-if="activeCollection && activeRequest"
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
+        :collection="activeCollection"
+        :request="activeRequest"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
         title="Authentication" />
       <RequestPathParams

@@ -49,7 +49,7 @@ export type OpenClientPayload = {
   method: LiteralUnion<RequestMethod | Lowercase<RequestMethod>, string>
 }
 
-type CreateApiClientParams = {
+export type CreateApiClientParams = {
   /** Element to mount the references to */
   el: HTMLElement | null
   /** Main vue app component to create the vue app */
