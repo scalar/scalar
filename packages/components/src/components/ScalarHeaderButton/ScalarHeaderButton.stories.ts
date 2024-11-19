@@ -10,7 +10,7 @@ const meta = {
   component: ScalarHeaderButton,
   tags: ['autodocs'],
   argTypes: {
-    // modelValue: { control: 'boolean', default: false },
+    href: { control: 'text' },
   },
   render: (args) => ({
     components: { ScalarHeaderButton },
@@ -25,3 +25,5 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const WithHref: Story = { args: { href: 'https://scalar.dev' } }
