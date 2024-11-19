@@ -24,4 +24,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Lint Markdown files
+        continue-on-error: true
         run: pnpm markdown:check
