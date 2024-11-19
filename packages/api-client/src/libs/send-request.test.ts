@@ -1,7 +1,6 @@
 /**
  * @vitest-environment jsdom
  */
-import { createRequestOperation } from '@/libs'
 import {
   type RequestPayload,
   type ServerPayload,
@@ -12,6 +11,11 @@ import {
 } from '@scalar/oas-utils/entities/spec'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
+
+import {
+  convertFetchOptionsToHarRequest,
+  createRequestOperation,
+} from './send-request'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -572,5 +576,74 @@ describe('sendRequest', () => {
       path: '/me',
       body: '',
     })
+  })
+})
+
+describe('convertFetchOptionsToHarRequest', () => {
+  it('converts basic request', () => {
+    const result = convertFetchOptionsToHarRequest('https://example.com')
+
+    expect(result).toEqual({
+      method: 'GET',
+      url: 'https://example.com',
+      httpVersion: 'HTTP/1.1',
+      cookies: [],
+      headers: [],
+      queryString: [],
+      headersSize: -1,
+      bodySize: 0,
+    })
+  })
+
+  it('converts request with method and body', () => {
+    const result = convertFetchOptionsToHarRequest('https://example.com', {
+      method: 'POST',
+      body: 'test body',
+    })
+
+    expect(result).toEqual({
+      method: 'POST',
+      url: 'https://example.com',
+      httpVersion: 'HTTP/1.1',
+      cookies: [],
+      headers: [],
+      queryString: [],
+      headersSize: -1,
+      bodySize: 9,
+    })
+  })
+
+  it('converts headers from Headers object', () => {
+    const headers = new Headers()
+    headers.append('Content-Type', 'application/json')
+    headers.append('Authorization', 'Bearer token')
+
+    const result = convertFetchOptionsToHarRequest('https://example.com', {
+      headers,
+    })
+
+    expect(result.headers).toHaveLength(2)
+    expect(result.headers).toEqual(
+      expect.arrayContaining([
+        { name: 'content-type', value: 'application/json' },
+        { name: 'authorization', value: 'Bearer token' },
+      ]),
+    )
+  })
+
+  it('converts headers from object', () => {
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer token',
+    }
+
+    const result = convertFetchOptionsToHarRequest('https://example.com', {
+      headers,
+    })
+
+    expect([...result.headers]).toStrictEqual([
+      { name: 'Content-Type', value: 'application/json' },
+      { name: 'Authorization', value: 'Bearer token' },
+    ])
   })
 })
