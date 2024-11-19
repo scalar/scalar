@@ -49,6 +49,7 @@
     "build:api-reference": "turbo --filter './packages/api-reference' build",
     "build:standalone": "pnpm --filter api-reference --filter play-button build:standalone",
     "clean": "pnpm clean:nodeModules; pnpm clean:dist; pnpm clean:turbo; pnpm clean:nuxt",
+    "clean:install": "pnpm clean ; pnpm i",
     "clean:build": "pnpm clean ; pnpm i && pnpm build:packages",
     "clean:nodeModules": "find . -name node_modules -type d -exec rm -rf {} \\;",
     "clean:nuxt": "find . -name .nuxt -type d -exec rm -rf {} \\;",

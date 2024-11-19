@@ -9,8 +9,11 @@ describe('createApiClientModal', () => {
 
     expect(element.innerHTML).not.toContain('scalar-app')
 
-    await createApiClientModal(element, {
-      proxyUrl: 'https://proxy.scalar.com',
+    await createApiClientModal({
+      el: element,
+      configuration: {
+        proxyUrl: 'https://proxy.scalar.com',
+      },
     })
 
     expect(element.innerHTML).toContain('scalar-app')
