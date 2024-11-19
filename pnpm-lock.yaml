@@ -561,6 +561,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

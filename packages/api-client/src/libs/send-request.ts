@@ -262,6 +262,8 @@ export const createRequestOperation = ({
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
+  createUrl: () => string
+  createFetchOptions: () => RequestInit
 }> => {
   try {
     const env = environment ?? {}
@@ -465,6 +467,8 @@ export const createRequestOperation = ({
       null,
       {
         sendRequest,
+        createFetchOptions,
+        createUrl,
         controller,
       },
     ]
