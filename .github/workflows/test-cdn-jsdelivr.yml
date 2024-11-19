@@ -4,12 +4,11 @@ on:
   schedule:
     # every hour
     - cron: '0 * * * *'
-  push:
+  pull_request:
     paths:
       - 'playwright/tests/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
-  pull_request:
 
 jobs:
   test:
@@ -75,7 +74,7 @@ jobs:
           retention-days: 7
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
-        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' && github.event_name == !'schedule'}}
+        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true'}}
         with:
           message: |
             ### Playwright visual snapshot differences were detected.
