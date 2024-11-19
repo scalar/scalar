@@ -29,7 +29,7 @@ import MimeTypeParser from 'whatwg-mimetype'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
 
-// TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
+// TODO: This should return `unknown` to acknowledge we don’t know the type, shouldn’t it?
 /** Decode the buffer according to its content-type */
 export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
   const mimeType = new MimeTypeParser(contentType)
@@ -228,7 +228,7 @@ type SendRequestResponse = Promise<
 >
 
 /** Ensure URL has a protocol prefix */
-function ensureProtocol(url: string): string {
+function addHttpProtocol(url: string): string {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url
   }
@@ -236,7 +236,9 @@ function ensureProtocol(url: string): string {
   return `http://${url}`
 }
 
-/** Execute the request */
+/**
+ * Prepares a fetch request with authentication, security schemes, and environment variables
+ */
 export const createRequestOperation = ({
   request,
   example,
@@ -344,6 +346,55 @@ export const createRequestOperation = ({
       }
     })
 
+    /**
+     * Create a URL by combining server URL, path, and query parameters
+     */
+    const createUrl = () => {
+      // Extract and merge all query params
+      if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
+        /** Prefix the url with the origin if it is relative */
+        const base = isRelativePath(url)
+          ? concatenateUrlAndPath(window.location.origin, url)
+          : addHttpProtocol(url)
+
+        /** We create a separate server URL to snag any search params from the server */
+        const serverUrl = new URL(base)
+        /** We create a separate path URL to grab the path params */
+        const pathUrl = new URL(pathString, serverUrl.origin)
+
+        /** Finally we combine the two but make sure that we keep the path from server */
+        const combinedURL = new URL(serverUrl)
+
+        if (server?.url) {
+          if (serverUrl.pathname === '/') combinedURL.pathname = pathString
+          else combinedURL.pathname = serverUrl.pathname + pathString
+        }
+
+        // Combines all query params
+        combinedURL.search = new URLSearchParams([
+          ...serverUrl.searchParams,
+          ...pathUrl.searchParams,
+          ...urlParams,
+        ]).toString()
+
+        return combinedURL.toString()
+      }
+
+      return url
+    }
+
+    /**
+     * Create fetch options including method, body and headers.
+     * This is used to configure the actual fetch request that will be sent.
+     */
+    const createFetchOptions = () => {
+      return {
+        method: request.method.toUpperCase(),
+        body,
+        headers,
+      }
+    }
+
     const sendRequest = async (): Promise<
       ErrorResponse<{
         response: ResponseInstance
@@ -357,52 +408,20 @@ export const createRequestOperation = ({
       const startTime = Date.now()
 
       try {
-        // Extract and merge all query params
-        if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-          /** Prefix the url with the origin if it is relative */
-          const base = isRelativePath(url)
-            ? concatenateUrlAndPath(window.location.origin, url)
-            : ensureProtocol(url)
-
-          /** We create a separate server URL to snag any search params from the server */
-          const serverURL = new URL(base)
-          /** We create a separate path URL to grab the path params */
-          const pathURL = new URL(pathString, serverURL.origin)
-
-          /** Finally we combine the two but make sure that we keep the path from server */
-          const combinedURL = new URL(serverURL)
-          if (server?.url) {
-            if (serverURL.pathname === '/') combinedURL.pathname = pathString
-            else combinedURL.pathname = serverURL.pathname + pathString
-          }
-
-          // Combines all query params
-          combinedURL.search = new URLSearchParams([
-            ...serverURL.searchParams,
-            ...pathURL.searchParams,
-            ...urlParams,
-          ]).toString()
-
-          url = combinedURL.toString()
-        }
-
-        const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-        const proxiedUrl = shouldUseProxy(proxy, url)
-          ? `${proxy}?${proxyPath.toString()}`
-          : url
+        const fullUrl = createUrl()
+        const proxiedUrl = createProxiedUrl(fullUrl, proxy)
+        const fetchOptions = createFetchOptions()
 
         const response = await fetch(proxiedUrl, {
           signal: controller.signal,
-          method: request.method.toUpperCase(),
-          body,
-          headers,
+          ...fetchOptions,
         })
 
         status?.emit('stop')
 
         const responseHeaders = normalizeHeaders(
           response.headers,
-          shouldUseProxy(proxy, url),
+          shouldUseProxy(proxy, fullUrl),
         )
         const responseType =
           response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'
@@ -493,4 +512,15 @@ export function convertFetchOptionsToHarRequest(
     headersSize: -1,
     bodySize: options?.body ? String(options?.body).length : 0,
   }
+}
+
+/**
+ * Create a proxied URL by combining the proxy URL with the target URL.
+ *
+ * Returns the original URL, if the proxy is not provided or not needed.
+ */
+const createProxiedUrl = (url: string, proxy?: string) => {
+  const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+
+  return shouldUseProxy(proxy, url) ? `${proxy}?${proxyPath.toString()}` : url
 }
