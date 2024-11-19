@@ -24,10 +24,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Lint Markdown files
+        id: lint
         run: pnpm markdown:check
-        # Shows a ❌ but still passes
         continue-on-error: true
       - name: Show warning on failure
-        if: ${{ failure() }}
+        if: steps.lint.outcome == 'failure'
         run: |
           echo "::warning::Markdown linting failed. Please check the output above for details."
