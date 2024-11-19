@@ -5,20 +5,20 @@ import { describe, expect, test } from 'vitest'
 import { type AnyObject, normalize, openapi } from '../src'
 import { downloadFileToMemory } from './utils/downloadFileGcp'
 
-const bucketName = 'test-specifications'
+const bucketName = 'scalar-test-fixtures'
 
 const expectedErrors = {
-  'files/opensuseorgobs.yaml': [
+  'oas/files/opensuseorgobs.yaml': [
     {
       message: "must have required property '$ref'",
     },
   ],
-  'files/royalmailcomclick-and-drop.yaml': [
+  'oas/files/royalmailcomclick-and-drop.yaml': [
     {
       message: "must have required property 'schema'",
     },
   ],
-  'files/spotifycom.yaml': [
+  'oas/files/spotifycom.yaml': [
     {
       message: 'Can’t resolve URI: ../policies.yaml',
     },
@@ -27,31 +27,31 @@ const expectedErrors = {
 
 // We can’t make a diff for files with circular references. :(
 const circularReferences = [
-  'files/xerocomxero_accounting.yaml',
-  'files/xtrfeu.yaml',
-  'files/webflowcom.yaml',
-  'files/amazonawscomathena.yaml',
-  'files/amazonawscomce.yaml',
-  'files/amazonawscomconnect.yaml',
-  'files/opentrialslocal.yaml',
-  'files/bbccouk.yaml',
-  'files/ote-godaddycomdomains.yaml',
-  'files/googleapiscomfirebaserules.yaml',
+  'oas/files/xerocomxero_accounting.yaml',
+  'oas/files/xtrfeu.yaml',
+  'oas/files/webflowcom.yaml',
+  'oas/files/amazonawscomathena.yaml',
+  'oas/files/amazonawscomce.yaml',
+  'oas/files/amazonawscomconnect.yaml',
+  'oas/files/opentrialslocal.yaml',
+  'oas/files/bbccouk.yaml',
+  'oas/files/ote-godaddycomdomains.yaml',
+  'oas/files/googleapiscomfirebaserules.yaml',
 ]
 
 // Just skip some files. If it’s not empty, we’ve got some work to do. :)
 const ignoreFiles = [
   // Very slow files
-  'files/amazonawscomdynamodb.yaml',
-  'files/amazonawscomelasticmapreduce.yaml',
-  'files/amazonawscomemr-containers.yaml',
-  'files/amazonawscomec2.yaml',
-  'files/amazonawscomdynamodb.yaml',
+  'oas/files/amazonawscomdynamodb.yaml',
+  'oas/files/amazonawscomelasticmapreduce.yaml',
+  'oas/files/amazonawscomemr-containers.yaml',
+  'oas/files/amazonawscomec2.yaml',
+  'oas/files/amazonawscomdynamodb.yaml',
 ]
 
-// get the list of files from the storage bucket test-specifications
+// get the list of files from the storage bucket scalar-test-fixtures/oas
 const files = await fetch(
-  'https://storage.googleapis.com/storage/v1/b/test-specifications/o',
+  'https://storage.googleapis.com/storage/v1/b/scalar-test-fixtures/o',
 )
   .then((response) => response.json())
   .then((data) => data.items)
