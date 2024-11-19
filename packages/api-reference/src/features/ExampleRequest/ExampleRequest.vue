@@ -6,6 +6,7 @@ import {
   useExampleStore,
   useServerStore,
 } from '#legacy'
+import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
@@ -35,13 +36,11 @@ import {
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
 import {
-  AUTHENTICATION_SYMBOL,
   GLOBAL_SECURITY_SYMBOL,
   getExampleCode,
   getHarRequest,
 } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
-import { useApiClient } from '../ApiClientModal/useApiClient'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
@@ -58,6 +57,7 @@ const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
 
 const { selectedExampleKey, operationId } = useExampleStore()
+const { collections, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -68,7 +68,6 @@ const {
 } = useHttpClientStore()
 
 const id = useId()
-const { client } = useApiClient()
 const { server: serverState } = useServerStore()
 
 const customRequestExamples = computed(() => {
@@ -122,7 +121,6 @@ const hasMultipleExamples = computed<boolean>(
 )
 
 const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
-const getAuthentication = inject(AUTHENTICATION_SYMBOL)
 
 const createEmptyAuthenticationState = (): AuthenticationState => ({
   preferredSecurityScheme: null,
@@ -152,22 +150,24 @@ const createEmptyAuthenticationState = (): AuthenticationState => ({
 /** A little hack to use reactive client as the old authentication state */
 const authenticationState = computed(() => {
   const baseAuth = createEmptyAuthenticationState()
+  const activeCollection = Object.values(collections)[0]
 
-  if (client.value?.store.activeCollection) {
-    const { selectedSecuritySchemeUids } = client.value.store.activeCollection
+  if (activeCollection) {
+    const { selectedSecuritySchemeUids } = activeCollection
     const schemes = selectedSecuritySchemeUids
-      .map((uid) => client.value?.store.securitySchemes[uid])
+      .map((uid) => securitySchemes[uid])
       .filter(Boolean)
+
+    schemes.forEach((s) => {
+      if (s.type === 'apiKey') {
+        baseAuth.apiKey.token = s.value
+      }
+    })
 
     console.log(schemes)
     // return auth
-  } else {
-    Object.assign(baseAuth, getAuthentication?.())
   }
 
-  console.log('==========')
-  console.log(baseAuth)
-  console.log('==========')
   return baseAuth
 })
 

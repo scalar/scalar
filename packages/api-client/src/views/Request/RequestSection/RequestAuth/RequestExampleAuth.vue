@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
@@ -13,16 +12,13 @@ const { selectedSecuritySchemeUids } = defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeCollection, activeRequest } = useActiveEntities()
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
-const security = computed(() => {
-  if (!activeCollection.value || !activeRequest.value) return []
-
-  return selectedSecuritySchemeUids.map((uid) => ({
+const security = computed(() =>
+  selectedSecuritySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
-  }))
-})
+  })),
+)
 
 const generateLabel = (scheme: SecurityScheme) => {
   if (scheme.type !== 'oauth2')

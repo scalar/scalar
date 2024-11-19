@@ -73,7 +73,10 @@ export const ApiClientModalProvider = ({
     if (!el.current || !state.createClient || clientDict[key]) return () => null
 
     // Check for cached client first
-    const _client = state.createClient(el.current, configuration)
+    const _client = state.createClient({
+      el: el.current,
+      configuration,
+    })
 
     const updateSpec = async () => {
       await _client.updateSpec(configuration.spec!)

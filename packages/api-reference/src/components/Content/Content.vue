@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
@@ -27,6 +28,9 @@ const props = withDefaults(
 )
 
 const { hideModels } = useSidebar()
+const { collections } = useWorkspace()
+
+const activeCollection = computed(() => Object.values(collections)[0])
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -65,6 +69,8 @@ const introCardsSlot = computed(() =>
               :servers="props.servers"
               :specification="parsedSpec" />
             <RequestAuth
+              v-if="activeCollection"
+              :collection="activeCollection"
               :selectedSecuritySchemeUids="[]"
               title="Authentication" />
             <ClientLibraries class="introduction-card-item" />
