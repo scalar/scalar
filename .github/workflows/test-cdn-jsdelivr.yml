@@ -1,9 +1,14 @@
 name: Test CDN Build (jsdelivr)
 
 on:
+  schedule:
+    # every hour
+    - cron: '0 * * * *'
   push:
-    branches:
-      - main
+    paths:
+      - 'playwright/tests/**'
+      - 'examples/cdn-api-reference/**'
+      - '.github/workflows/test-cdn-jsdelivr.yml'
   pull_request:
 
 jobs:
@@ -75,4 +80,5 @@ jobs:
           message: |
             ### Playwright visual snapshot differences were detected.
             View the [Playwright report](${{ steps.artifact-upload.outputs.artifact-url }}) to review the visual differences.
-            **To approve the snapshot changes and update the snapshots, please comment:** /approve-snapshots
+            Inspect the changes and commit the updated snapshots if they are satisfactory.
+            If a **snapshot-diff.png** is not provided, the snapshots are different sizes.
