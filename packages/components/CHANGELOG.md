@@ -1,5 +1,14 @@
 # @scalar/components
 
+## 0.12.72
+
+### Patch Changes
+
+- 12fed75: Add header button and checkbox component
+- Updated dependencies [0adbfd5]
+- Updated dependencies [2a6117e]
+  - @scalar/use-hooks@0.1.1
+
 ## 0.12.71
 
 ### Patch Changes

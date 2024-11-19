@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.77
+
+### Patch Changes
+
+- 44a7100: fix: handle no protocol prefix
+
 ## 0.2.76
 
 ### Patch Changes

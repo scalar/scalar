@@ -1,5 +1,13 @@
 # @scalar/use-codemirror
 
+## 0.11.39
+
+### Patch Changes
+
+- 1e3214c: fix: replace scalarcodeblock with codemirror for response preview
+- Updated dependencies [12fed75]
+  - @scalar/components@0.12.72
+
 ## 0.11.38
 
 ### Patch Changes

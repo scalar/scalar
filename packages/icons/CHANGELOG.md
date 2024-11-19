@@ -1,5 +1,12 @@
 # @scalar/icons
 
+## 0.1.2
+
+### Patch Changes
+
+- 841283d: feat: add list of icons to the README
+- ecdb3bc: stye: updates library icons
+
 ## 0.1.1
 
 ### Patch Changes
