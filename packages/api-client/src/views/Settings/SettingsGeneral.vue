@@ -178,9 +178,8 @@ const changeTheme = (themeId: ThemeId) => {
               <ScalarButton
                 v-for="themeId in themeIds"
                 :key="themeId"
-                class="px-2"
+                class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
                 :class="[
-                  'flex items-center justify-between gap-2 text-c-1 border-1/2',
                   activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
                 ]"
                 variant="ghost"
@@ -239,9 +238,8 @@ const changeTheme = (themeId: ThemeId) => {
             <ScalarButton
               v-for="themeId in integrationThemeIds"
               :key="themeId"
-              class="px-2"
+              class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
               :class="[
-                'flex items-center justify-between gap-2 text-c-1 border-1/2',
                 activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
               ]"
               variant="ghost"
