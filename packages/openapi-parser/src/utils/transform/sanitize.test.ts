@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, transform } from './transform'
+import { DEFAULT_OPENAPI_VERSION, DEFAULT_TITLE, sanitize } from './sanitize'
 
-describe('transform', () => {
+describe('sanitize', () => {
   describe('required properties', () => {
     /** @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#openapi-object */
     it('adds required properties', () => {
-      const result = transform({})
+      const result = sanitize({})
 
       expect(result).toStrictEqual({
         openapi: DEFAULT_OPENAPI_VERSION,
@@ -18,7 +18,7 @@ describe('transform', () => {
     })
 
     it('doesn’t overwrite existing properties', () => {
-      const result = transform({
+      const result = sanitize({
         openapi: '3.0.0',
         info: {
           title: 'Foobar',
@@ -36,7 +36,7 @@ describe('transform', () => {
 
     it('throws an error when it’s a swagger document', () => {
       expect(() =>
-        transform({
+        sanitize({
           swagger: '2.0',
         }),
       ).toThrow(
@@ -47,7 +47,7 @@ describe('transform', () => {
 
   describe('tags', () => {
     it('adds missing tags', () => {
-      const result = transform({
+      const result = sanitize({
         paths: {
           '/pets': {
             get: {
@@ -70,7 +70,7 @@ describe('transform', () => {
 
   describe('components.securitySchemes', () => {
     it('normalizes security scheme types to lowercase', () => {
-      const result = transform({
+      const result = sanitize({
         components: {
           securitySchemes: {
             bearerAuth: {
@@ -138,7 +138,7 @@ describe('transform', () => {
     })
 
     it('converts array scopes to objects', () => {
-      const result = transform({
+      const result = sanitize({
         components: {
           securitySchemes: {
             oauth2: {

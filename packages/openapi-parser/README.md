@@ -102,9 +102,9 @@ console.log(specification.openapi)
 // Output: 3.1.0
 ```
 
-### Make it an OpenAPI-compliant document
+### Sanitize your OpenAPI document
 
-The `transform()` utility helps ensure your OpenAPI document is valid and complete.
+The `sanitize()` utility helps ensure your OpenAPI document is valid and complete.
 It automatically adds any missing required properties like the OpenAPI version and info object, collects operation tags
 and adds them to the global tags array and normalizes security scheme types.
 
@@ -114,27 +114,15 @@ requirements automatically.
 > ⚠️ This doesn’t support Swagger 2.0 documents.
 
 ```ts
-import { transform } from '@scalar/openapi-parser'
+import { sanitize } from '@scalar/openapi-parser'
 
-const result = transform({
+const result = sanitize({
   info: {
     title: 'Hello World',
   },
 })
 
 console.log(result)
-```
-
-The output would be:
-
-```diff
-{
-+  openapi: '3.1.1',
-  info: {
-    title: 'Hello World',
-+    version: '1.0',
-  },
-}
 ```
 
 ### Pipeline syntax
