@@ -20,6 +20,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - run: |
+          echo "github.event_name: ${{ github.event_name }}"
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
