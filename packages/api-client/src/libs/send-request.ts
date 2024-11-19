@@ -448,3 +448,42 @@ export const createRequestOperation = ({
     return [normalizeError(e), null]
   }
 }
+
+/**
+ * Convert a fetch request options object into a HAR request format
+ */
+export function convertFetchOptionsToHarRequest(
+  options: RequestInit,
+): HarRequest {
+  const headers: Header[] = []
+  const cookies: HarCookie[] = []
+  const queryString: QueryString[] = []
+
+  // Convert headers
+  if (options.headers) {
+    if (options.headers instanceof Headers) {
+      options.headers.forEach((value, name) => {
+        headers.push({ name, value })
+      })
+    } else if (Array.isArray(options.headers)) {
+      options.headers.forEach(([name, value]) => {
+        headers.push({ name, value })
+      })
+    } else {
+      Object.entries(options.headers).forEach(([name, value]) => {
+        headers.push({ name, value: String(value) })
+      })
+    }
+  }
+
+  return {
+    method: options.method || 'GET',
+    url: '',
+    httpVersion: 'HTTP/1.1',
+    cookies,
+    headers,
+    queryString,
+    headersSize: -1,
+    bodySize: options.body ? String(options.body).length : 0,
+  }
+}
