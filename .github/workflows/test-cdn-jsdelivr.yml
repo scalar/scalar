@@ -1,14 +1,10 @@
 name: Test CDN Build (jsdelivr)
 
 on:
-  schedule:
-    # every hour
-    - cron: '0 * * * *'
   push:
-    paths:
-      - 'playwright/tests/**'
-      - 'examples/cdn-api-reference/**'
-      - '.github/workflows/test-cdn-jsdelivr.yml'
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
