@@ -12,9 +12,6 @@ jobs:
       matrix:
         node-version: [20]
 
-    # Shows a ❌ but still passes
-    continue-on-error: true
-
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -28,3 +25,9 @@ jobs:
         run: pnpm install
       - name: Lint Markdown files
         run: pnpm markdown:check
+        # Shows a ❌ but still passes
+        continue-on-error: true
+      - name: Show warning on failure
+        if: ${{ failure() }}
+        run: |
+          echo "::warning::Markdown linting failed. Please check the output above for details."
