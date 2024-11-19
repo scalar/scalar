@@ -8,11 +8,7 @@ import { useWorkspace } from '@/store'
 import { ScalarCodeBlock } from '@scalar/components'
 import '@scalar/oas-utils/entities/spec'
 import { safeJSON } from '@scalar/object-utils/parse'
-import {
-  type ClientId as SnippetzClientId,
-  type TargetId as SnippetzTargetId,
-  snippetz,
-} from '@scalar/snippetz'
+import { snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
 
 const workspaceContext = useWorkspace()
