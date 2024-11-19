@@ -1,4 +1,5 @@
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
 import {
@@ -18,6 +19,10 @@ vi.mock('@/store', () => ({
   useWorkspace: vi.fn(),
 }))
 
+vi.mock('@/store/active-entities', () => ({
+  useActiveEntities: vi.fn(),
+}))
+
 describe('RequestBody.vue', () => {
   const props = { props: { title: 'Body' } }
   const mockActiveRequest = { value: { uid: 'mockRequestUid' } }
@@ -35,9 +40,11 @@ describe('RequestBody.vue', () => {
 
   // Mock our request + example
   beforeEach(() => {
-    ;(useWorkspace as Mock).mockReturnValue({
+    ;(useActiveEntities as Mock).mockReturnValue({
       activeRequest: mockActiveRequest,
       activeExample: mockActiveExample,
+    })
+    ;(useWorkspace as Mock).mockReturnValue({
       requestExampleMutators: mockRequestExampleMutators,
     })
   })

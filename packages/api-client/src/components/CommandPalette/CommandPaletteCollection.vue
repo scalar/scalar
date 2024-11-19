@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import IconSelector from '@/components/IconSelector.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
@@ -14,7 +15,8 @@ const emits = defineEmits<{
   (event: 'back', e: KeyboardEvent): void
 }>()
 
-const { activeWorkspace, collectionMutators } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { collectionMutators } = useWorkspace()
 const collectionName = ref('')
 const collectionIcon = ref('interface-content-folder')
 const { toast } = useToasts()

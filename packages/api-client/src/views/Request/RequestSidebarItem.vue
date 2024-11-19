@@ -4,6 +4,7 @@ import { useSidebar } from '@/hooks'
 import { getModifiers } from '@/libs'
 import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
@@ -52,9 +53,12 @@ defineSlots<{
 
 const {
   activeCollection,
+  router,
   activeRequest,
   activeRouterParams,
   activeWorkspace,
+} = useActiveEntities()
+const {
   collections,
   tags,
   isReadOnly,
@@ -64,7 +68,6 @@ const {
   tagMutators,
   requestMutators,
   requestExampleMutators,
-  router,
   events,
 } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
@@ -160,12 +163,12 @@ const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!props.parentUids.length) return '12px'
-  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else if (isReadOnly) return `${(props.parentUids.length - 1) * 12}px`
   else return `${props.parentUids.length * 12}px`
 })
 const paddingOffset = computed(() => {
   if (!props.parentUids.length) return '0px'
-  else if (isReadOnly.value) return `${(props.parentUids.length - 1) * 12}px`
+  else if (isReadOnly) return `${(props.parentUids.length - 1) * 12}px`
   else return `${props.parentUids.length * 12}px`
 })
 
@@ -221,7 +224,7 @@ const getDraggableOffsets = computed(() => {
 /** Guard to check if an element is able to be dropped on */
 const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   // Cannot drop in read only mode
-  if (activeWorkspace.value.isReadOnly) return false
+  if (isReadOnly) return false
   // RequestExamples cannot be dropped on
   if (requestExamples[hoveredItem.id]) return false
   // Collection cannot be dropped into another collection
@@ -262,7 +265,7 @@ const watchIconColor = computed(() => {
 const hasDraftRequests = computed(() => {
   return (
     item.value.title == 'Drafts' &&
-    !isReadOnly.value &&
+    !isReadOnly &&
     item.value.children.length > 0
   )
 })

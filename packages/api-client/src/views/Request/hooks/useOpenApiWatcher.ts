@@ -1,4 +1,5 @@
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { specDictionary } from '@/store/import-spec'
 import {
   combineRenameDiffs,
@@ -30,9 +31,11 @@ const ERROR_TIMEOUT = 60 * 1000
  */
 export const useOpenApiWatcher = () => {
   const { toast } = useToasts()
+  const activeEntities = useActiveEntities()
   const store = useWorkspace()
 
-  const { activeCollection, activeWorkspace, collectionMutators } = store
+  const { activeCollection, activeWorkspace } = activeEntities
+  const { collectionMutators } = store
 
   /** Little toast helper */
   const toastError = (type: string) =>
@@ -45,27 +48,27 @@ export const useOpenApiWatcher = () => {
   const applyDiff = (d: Difference) => {
     // Info/Security
     if (d.path[0] === 'info' || d.path[0] === 'security') {
-      const success = mutateCollectionDiff(d, store)
+      const success = mutateCollectionDiff(d, activeEntities, store)
       if (!success) toastError('collection')
     }
     // Components.securitySchemes
     else if (d.path[0] === 'components' && d.path[1] === 'securitySchemes') {
-      const success = mutateSecuritySchemeDiff(d, store)
+      const success = mutateSecuritySchemeDiff(d, activeEntities, store)
       if (!success) toastError('securitySchemes')
     }
     // Servers
     else if (d.path[0] === 'servers') {
-      const success = mutateServerDiff(d, store)
+      const success = mutateServerDiff(d, activeEntities, store)
       if (!success) toastError('servers')
     }
     // Tags
     else if (d.path[0] === 'tags') {
-      const success = mutateTagDiff(d, store)
+      const success = mutateTagDiff(d, activeEntities, store)
       if (!success) toastError('tags')
     }
     // Requests
     else if (d.path[0] === 'paths') {
-      const success = mutateRequestDiff(d, store)
+      const success = mutateRequestDiff(d, activeEntities, store)
       if (!success) toastError('requests')
     }
   }

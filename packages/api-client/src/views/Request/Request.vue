@@ -6,6 +6,7 @@ import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
@@ -32,6 +33,8 @@ const {
   activeRequest,
   activeWorkspace,
   activeServer,
+} = useActiveEntities()
+const {
   cookies,
   isReadOnly,
   modalState,
@@ -43,7 +46,7 @@ const {
   events,
 } = workspaceContext
 
-const showSideBar = ref(!activeWorkspace.value?.isReadOnly)
+const showSideBar = ref(!isReadOnly)
 const requestAbortController = ref<AbortController>()
 const parsedCurl = ref<RequestPayload>()
 const selectedServerUid = ref('')
@@ -67,7 +70,7 @@ watch(mediaQueries.md, (isMedium) => (showSideBar.value = isMedium))
  */
 const selectedSecuritySchemeUids = computed(
   () =>
-    (isReadOnly.value
+    (isReadOnly
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
@@ -180,16 +183,16 @@ function handleCurlImport(curl: string) {
   <div
     class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative overflow-hidden"
     :class="{
-      '!mr-0 !mb-0 !border-0': activeWorkspace.isReadOnly,
+      '!mr-0 !mb-0 !border-0': isReadOnly,
     }">
     <RequestSubpageHeader
       v-model="showSideBar"
-      :isReadonly="activeWorkspace.isReadOnly"
+      :isReadonly="isReadOnly"
       @hideModal="() => modalState.hide()"
       @importCurl="handleCurlImport" />
     <ViewLayout>
       <RequestSidebar
-        :isReadonly="activeWorkspace.isReadOnly"
+        :isReadonly="isReadOnly"
         :showSidebar="showSideBar"
         @newTab="$emit('newTab', $event)"
         @update:showSidebar="(show) => (showSideBar = show)" />

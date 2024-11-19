@@ -1,6 +1,14 @@
-import type { ClientLayout } from '@/hooks'
+import { type ClientLayout, LAYOUT_SYMBOL } from '@/hooks/useLayout'
 import { loadAllResources } from '@/libs/local-storage'
-import { type WorkspaceStore, createWorkspaceStore } from '@/store'
+import {
+  ACTIVE_ENTITIES_SYMBOL,
+  createActiveEntitiesStore,
+} from '@/store/active-entities'
+import {
+  WORKSPACE_SYMBOL,
+  type WorkspaceStore,
+  createWorkspaceStore,
+} from '@/store/store'
 import type { Collection, RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import {
@@ -110,10 +118,15 @@ export const createApiClient = ({
   // Create the store if it wasn't passed in
   const store =
     _store ||
-    createWorkspaceStore(router, {
+    createWorkspaceStore({
+      isReadOnly,
+      proxyUrl: configuration.proxyUrl,
+      themeId: configuration.themeId,
       useLocalStorage: persistData,
-      defaultProxyUrl: configuration.proxyUrl,
     })
+
+  // Create the router based active entities store
+  const activeEntities = createActiveEntitiesStore({ ...store, router })
 
   // Load from localStorage if available
   // Check if we have localStorage data
@@ -142,7 +155,6 @@ export const createApiClient = ({
     store.workspaceMutators.add({
       uid: 'default',
       name: 'Workspace',
-      isReadOnly,
       proxyUrl: configuration.proxyUrl,
     })
 
@@ -162,13 +174,13 @@ export const createApiClient = ({
   const app = createApp(appComponent)
   app.use(router)
   // Provide the workspace store for the useWorkspace hook
-  app.provide('workspace', store)
+  app.provide(WORKSPACE_SYMBOL, store)
   // Provide the layout for the useLayout hook
-  app.provide('layout', layout)
+  app.provide(LAYOUT_SYMBOL, layout)
+  // Provide the active entities store
+  app.provide(ACTIVE_ENTITIES_SYMBOL, activeEntities)
 
   const {
-    activeCollection,
-    activeWorkspace,
     collectionMutators,
     importSpecFile,
     importSpecFromUrl,
@@ -179,6 +191,7 @@ export const createApiClient = ({
     workspaceMutators,
     requestExampleMutators,
   } = store
+  const { activeCollection, activeWorkspace } = activeEntities
 
   // Mount the vue app
   const mount = (mountingEl = el) => {
@@ -193,27 +206,7 @@ export const createApiClient = ({
     }
     app.mount(mountingEl)
   }
-
-  // Update some workspace params from the config
-  if (activeWorkspace.value) {
-    if (mountOnInitialize) mount()
-
-    if (configuration?.proxyUrl) {
-      workspaceMutators.edit(
-        activeWorkspace.value.uid,
-        'proxyUrl',
-        configuration?.proxyUrl,
-      )
-    }
-
-    if (configuration?.themeId) {
-      workspaceMutators.edit(
-        activeWorkspace.value.uid,
-        'themeId',
-        configuration?.themeId,
-      )
-    }
-  }
+  if (mountOnInitialize) mount()
 
   /**
    * Update the spec

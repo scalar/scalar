@@ -6,11 +6,12 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { isReadOnly, activeWorkspace, events, activeWorkspaceRequests } =
-  useWorkspace()
+const { activeWorkspaceRequests } = useActiveEntities()
+const { isReadOnly, events } = useWorkspace()
 const route = useRoute()
 const { layout } = useLayout()
 
@@ -38,7 +39,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           activeWorkspaceRequests.length <= 1 && layout !== 'modal',
       }">
       <div
-        v-if="!activeWorkspace.isReadOnly"
+        v-if="!isReadOnly"
         class="scalar-version-number">
         Scalar App V{{ packageVersion }} Beta
         <div class="mt-2">

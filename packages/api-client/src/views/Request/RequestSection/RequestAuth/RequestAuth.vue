@@ -6,6 +6,7 @@ import {
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ADD_AUTH_OPTIONS,
   type SecuritySchemeGroup,
@@ -34,9 +35,8 @@ const { selectedSecuritySchemeUids } = defineProps<{
   title: string
 }>()
 
+const { activeCollection, activeRequest } = useActiveEntities()
 const {
-  activeCollection,
-  activeRequest,
   collectionMutators,
   isReadOnly,
   requestMutators,
@@ -123,7 +123,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
     ]
 
     // Read only mode we don't want to add new auth
-    if (isReadOnly.value)
+    if (isReadOnly)
       return requiredFormatted.length ? options : availableFormatted
 
     options.push({
@@ -160,7 +160,7 @@ const editSelectedSchemeUids = (uids: string[]) => {
   if (!activeCollection.value || !activeRequest.value) return
 
   // Set as selected on the collection for the modal
-  if (isReadOnly.value) {
+  if (isReadOnly) {
     collectionMutators.edit(
       activeCollection.value.uid,
       'selectedSecuritySchemeUids',

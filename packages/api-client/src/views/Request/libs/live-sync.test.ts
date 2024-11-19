@@ -1,4 +1,5 @@
 import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 import json from '@scalar/galaxy/3.1.json'
 import {
   type Request,
@@ -185,6 +186,10 @@ const mockSecuritySchemes: Record<string, SecurityScheme> = {
     },
   },
 }
+
+const mockActiveEntities = {
+  activeCollection: { value: mockCollection },
+} as unknown as ActiveEntitiesStore
 
 const original = (await parseSchema(json)).schema
 
@@ -463,7 +468,6 @@ describe('combineRenameDiffs', () => {
 
 describe('mutateCollectionDiff', () => {
   const mockStore = {
-    activeCollection: { value: mockCollection },
     collectionMutators: {
       edit: vi.fn(),
     },
@@ -477,7 +481,7 @@ describe('mutateCollectionDiff', () => {
       value: 'Updated Test API',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -494,7 +498,7 @@ describe('mutateCollectionDiff', () => {
       value: '2.0.0',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -511,7 +515,7 @@ describe('mutateCollectionDiff', () => {
       value: 'An updated test API for unit testing',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -526,7 +530,7 @@ describe('mutateCollectionDiff', () => {
       path: ['info', 'termsOfService'],
       value: 'https://example.com/terms',
     }
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -542,7 +546,7 @@ describe('mutateCollectionDiff', () => {
       oldValue: 'https://example.com/terms',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -558,7 +562,7 @@ describe('mutateCollectionDiff', () => {
       value: { oauth2: ['read:api', 'write:api'] },
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -574,7 +578,7 @@ describe('mutateCollectionDiff', () => {
       oldValue: { apiKeyQuery: [] },
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -590,7 +594,7 @@ describe('mutateCollectionDiff', () => {
       value: 'write:events',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -606,7 +610,7 @@ describe('mutateCollectionDiff', () => {
       oldValue: 'read:events',
     }
 
-    const result = mutateCollectionDiff(diff, mockStore)
+    const result = mutateCollectionDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.collectionMutators.edit).toHaveBeenCalledWith(
       'collection1',
@@ -642,7 +646,6 @@ describe('mutateServerDiff', () => {
     },
   }
   const mockStore = {
-    activeCollection: { value: mockCollection },
     servers: mockServers,
     serverMutators: {
       edit: vi.fn(),
@@ -659,7 +662,7 @@ describe('mutateServerDiff', () => {
       value: 'https://new-api.example.com',
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server1',
@@ -675,7 +678,7 @@ describe('mutateServerDiff', () => {
       oldValue: mockServers.server2,
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.delete).toHaveBeenCalledWith(
       'server2',
@@ -695,7 +698,7 @@ describe('mutateServerDiff', () => {
       value: newServer,
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.add).toHaveBeenCalledWith(
       newServer,
@@ -710,7 +713,7 @@ describe('mutateServerDiff', () => {
       value: { default: 'default', enum: ['default', 'other'] },
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server1',
@@ -727,7 +730,7 @@ describe('mutateServerDiff', () => {
       value: 'v2',
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server3',
@@ -743,7 +746,7 @@ describe('mutateServerDiff', () => {
       oldValue: { default: 'v1', enum: ['v1', 'v2'] },
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server3',
@@ -762,7 +765,7 @@ describe('mutateServerDiff', () => {
       },
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server2',
@@ -781,7 +784,7 @@ describe('mutateServerDiff', () => {
       oldValue: mockServers.server3.variables,
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server3',
@@ -798,7 +801,7 @@ describe('mutateServerDiff', () => {
       value: ['v1', 'v2', 'v3'],
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.serverMutators.edit).toHaveBeenCalledWith(
       'server3',
@@ -815,7 +818,7 @@ describe('mutateServerDiff', () => {
       value: 'https://new-nonexistent.example.com',
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -827,7 +830,7 @@ describe('mutateServerDiff', () => {
       value: [99],
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -839,7 +842,7 @@ describe('mutateServerDiff', () => {
       value: [],
     }
 
-    const result = mutateServerDiff(diff, mockStore)
+    const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 })
@@ -873,7 +876,6 @@ describe('mutateTagDiff', () => {
   }
 
   const mockStore = {
-    activeCollection: { value: mockCollection },
     tags: mockTags,
     tagMutators: {
       edit: vi.fn(),
@@ -897,7 +899,7 @@ describe('mutateTagDiff', () => {
       value: newTag,
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.add).toHaveBeenCalledWith(
       newTag,
@@ -912,7 +914,7 @@ describe('mutateTagDiff', () => {
       oldValue: mockTags.tag2,
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.delete).toHaveBeenCalledWith(
       {
@@ -935,7 +937,7 @@ describe('mutateTagDiff', () => {
       value: 'Updated Tag 1',
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
       'tag1uid',
@@ -952,7 +954,7 @@ describe('mutateTagDiff', () => {
       value: 'Updated second tag',
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
       'tag2uid',
@@ -968,7 +970,7 @@ describe('mutateTagDiff', () => {
       value: { url: 'https://example.com/docs' },
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
       'tag3uid',
@@ -984,7 +986,7 @@ describe('mutateTagDiff', () => {
       oldValue: 'First tag',
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.tagMutators.edit).toHaveBeenCalledWith(
       'tag1uid',
@@ -1001,7 +1003,7 @@ describe('mutateTagDiff', () => {
       value: 'Updated Non-existent Tag',
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -1013,14 +1015,13 @@ describe('mutateTagDiff', () => {
       value: 'new',
     }
 
-    const result = mutateTagDiff(diff, mockStore)
+    const result = mutateTagDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 })
 
 describe('mutateSecuritySchemeDiff', () => {
   const mockStore = {
-    activeCollection: { value: mockCollection },
     securitySchemes: mockSecuritySchemes,
     securitySchemeMutators: {
       edit: vi.fn(),
@@ -1043,7 +1044,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: newScheme,
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.add).toHaveBeenCalledWith(
       newScheme,
@@ -1058,7 +1059,7 @@ describe('mutateSecuritySchemeDiff', () => {
       oldValue: mockSecuritySchemes.apiKey,
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.delete).toHaveBeenCalledWith(
       'apiKeyUid',
@@ -1073,7 +1074,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'new_api_key',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'apiKeyUid',
@@ -1097,7 +1098,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'https://example.com/oauth/authorize-admin',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
@@ -1113,7 +1114,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'API Key for authentication',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'apiKeyUid',
@@ -1137,7 +1138,7 @@ describe('mutateSecuritySchemeDiff', () => {
       oldValue: 'read api',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
@@ -1162,7 +1163,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'write users',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
@@ -1191,7 +1192,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'write the api',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
@@ -1211,7 +1212,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'http',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -1223,7 +1224,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'new',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -1242,7 +1243,7 @@ describe('mutateSecuritySchemeDiff', () => {
       value: 'https://api.example.com/oauth2/authorize',
     }
 
-    const result = mutateSecuritySchemeDiff(diff, mockStore)
+    const result = mutateSecuritySchemeDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.securitySchemeMutators.edit).toHaveBeenCalledWith(
       'oauth2',
@@ -1287,7 +1288,7 @@ describe('mutateRequestDiff', () => {
       value: newRequest,
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.add).toHaveBeenCalledWith(
       newRequest,
@@ -1302,7 +1303,7 @@ describe('mutateRequestDiff', () => {
       oldValue: mockRequests.request2uid,
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.delete).toHaveBeenCalledWith(
       mockRequests.request2uid,
@@ -1318,7 +1319,7 @@ describe('mutateRequestDiff', () => {
       value: 'Retrieve planet details',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request3uid',
@@ -1340,7 +1341,7 @@ describe('mutateRequestDiff', () => {
       },
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
@@ -1372,7 +1373,7 @@ describe('mutateRequestDiff', () => {
       },
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
@@ -1391,7 +1392,7 @@ describe('mutateRequestDiff', () => {
       value: 'Get the list of all planets',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
@@ -1408,7 +1409,7 @@ describe('mutateRequestDiff', () => {
       value: 'New Summary',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -1420,7 +1421,7 @@ describe('mutateRequestDiff', () => {
       value: '/planets/list',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
@@ -1442,7 +1443,7 @@ describe('mutateRequestDiff', () => {
       value: 'post',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
@@ -1459,7 +1460,7 @@ describe('mutateRequestDiff', () => {
       value: 'new',
     }
 
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(false)
   })
 
@@ -1482,7 +1483,7 @@ describe('mutateRequestDiff', () => {
       value: 'The blue planet',
       oldValue: 'The red planet',
     }
-    const result = mutateRequestDiff(diff, mockStore)
+    const result = mutateRequestDiff(diff, mockActiveEntities, mockStore)
     expect(result).toBe(true)
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request2uid',

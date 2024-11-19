@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { type ThemeId, themeLabels } from '@scalar/themes'
 
 import SettingsGeneralMode from './SettingsGeneralMode.vue'
 
-const {
-  activeWorkspace,
-  workspaceMutators,
-  proxyUrl,
-  setProxyUrl,
-  defaultProxyUrl,
-} = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { proxyUrl, workspaceMutators } = useWorkspace()
+
+const DEFAULT_PROXY_URL = 'https://proxy.scalar.com'
 
 const themeIds: ThemeId[] = [
   'default',
@@ -73,27 +71,42 @@ const changeTheme = (themeId: ThemeId) => {
             <a
               class="hover:text-c-1 underline-offset-2"
               href="https://en.wikipedia.org/wiki/Cross-origin_resource_sharing"
-              target="_blank"
-              >bypass CORS issues</a
-            >. Check the
+              target="_blank">
+              bypass CORS issues
+            </a>
+            . Check the
             <a
               class="hover:text-c-1 underline-offset-2"
               href="https://github.com/scalar/scalar/tree/main/examples/proxy-server"
-              target="_blank"
-              >source code on GitHub</a
-            >.
+              target="_blank">
+              source code on GitHub
+            </a>
+            .
           </p>
           <div class="gap-2 mt-4 mb-8 flex flex-col">
             <!-- Default proxy -->
             <ScalarButton
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              :class="{ 'bg-b-2 text-c-1': proxyUrl }"
-              :variant="proxyUrl ? 'primary' : 'secondary'"
-              @click="setProxyUrl('https://proxy.scalar.com')">
+              :class="{
+                'bg-b-2 text-c-1':
+                  activeWorkspace.proxyUrl === DEFAULT_PROXY_URL,
+              }"
+              :variant="
+                activeWorkspace.proxyUrl === DEFAULT_PROXY_URL
+                  ? 'primary'
+                  : 'secondary'
+              "
+              @click="
+                workspaceMutators.edit(
+                  activeWorkspace.uid,
+                  'proxyUrl',
+                  DEFAULT_PROXY_URL,
+                )
+              ">
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                 <ScalarIcon
-                  v-if="proxyUrl === 'https://proxy.scalar.com'"
+                  v-if="activeWorkspace.proxyUrl === DEFAULT_PROXY_URL"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -103,34 +116,39 @@ const changeTheme = (themeId: ThemeId) => {
 
             <!-- Custom proxy (only if configured) -->
             <ScalarButton
-              v-if="
-                defaultProxyUrl &&
-                defaultProxyUrl !== 'https://proxy.scalar.com'
-              "
+              v-if="proxyUrl && proxyUrl !== DEFAULT_PROXY_URL"
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
               variant="primary"
-              @click="setProxyUrl(defaultProxyUrl)">
+              @click="
+                workspaceMutators.edit(
+                  activeWorkspace.uid,
+                  'proxyUrl',
+                  proxyUrl,
+                )
+              ">
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                 <ScalarIcon
-                  v-if="proxyUrl === defaultProxyUrl"
+                  v-if="activeWorkspace.proxyUrl === proxyUrl"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
               </div>
-              Use custom proxy ({{ defaultProxyUrl }})
+              Use custom proxy ({{ proxyUrl }})
             </ScalarButton>
 
             <!-- No proxy -->
             <ScalarButton
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              :class="{ 'bg-b-2 text-c-1': !proxyUrl }"
-              :variant="!proxyUrl ? 'primary' : 'secondary'"
-              @click="setProxyUrl('')">
+              :class="{ 'bg-b-2 text-c-1': !activeWorkspace.proxyUrl }"
+              :variant="!activeWorkspace.proxyUrl ? 'primary' : 'secondary'"
+              @click="
+                workspaceMutators.edit(activeWorkspace.uid, 'proxyUrl', '')
+              ">
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                 <ScalarIcon
-                  v-if="!proxyUrl"
+                  v-if="!activeWorkspace.proxyUrl"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />

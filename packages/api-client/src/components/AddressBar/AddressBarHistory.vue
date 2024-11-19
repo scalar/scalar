@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { formatMs } from '@/libs/formatters'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 import type { RequestEvent } from '@scalar/oas-utils/entities/spec'
@@ -15,7 +16,8 @@ defineProps<{
   open: boolean
 }>()
 
-const { activeRequest, requestHistory, requestExampleMutators } = useWorkspace()
+const { activeRequest } = useActiveEntities()
+const { requestHistory, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
 

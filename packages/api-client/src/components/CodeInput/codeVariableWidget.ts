@@ -1,6 +1,7 @@
 /* eslint-disable vue/one-component-per-file */
 import { parseEnvVariables } from '@/libs'
 import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import {
@@ -14,8 +15,8 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
-type ActiveEnvironment = WorkspaceStore['activeEnvironment']
-type ActiveParsedEnvironments = WorkspaceStore['activeEnvVariables']
+type ActiveEnvironment = ActiveEntitiesStore['activeEnvironment']
+type ActiveParsedEnvironments = ActiveEntitiesStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
 const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
@@ -153,7 +154,7 @@ class PillWidget extends WidgetType {
  * Styles the active environment variable pill
  */
 export const pillPlugin = (props: {
-  activeEnvironment: WorkspaceStore['activeEnvironment']
+  activeEnvironment: ActiveEntitiesStore['activeEnvironment']
   activeEnvVariables: ActiveParsedEnvironments
   isReadOnly: IsReadOnly
 }) =>

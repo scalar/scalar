@@ -1,5 +1,6 @@
 import { isHTTPMethod } from '@/components/HttpMethod/helpers'
 import type { WorkspaceStore } from '@/store'
+import type { ActiveEntitiesStore } from '@/store/active-entities'
 import {
   type Request,
   type RequestParameterPayload,
@@ -253,7 +254,8 @@ export const parseDiff = <T>(
  */
 export const mutateCollectionDiff = (
   diff: Difference,
-  { activeCollection, collectionMutators }: WorkspaceStore,
+  { activeCollection }: ActiveEntitiesStore,
+  { collectionMutators }: WorkspaceStore,
 ): boolean => {
   if (!activeCollection.value) return false
 
@@ -325,10 +327,11 @@ const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
  */
 export const mutateRequestDiff = (
   diff: Difference,
+  { activeCollection }: ActiveEntitiesStore,
   store: WorkspaceStore,
 ): boolean => {
-  const { activeCollection, requests, requestMutators } = store
   if (!activeCollection.value) return false
+  const { requests, requestMutators } = store
 
   const [, path, method, ...keys] = diff.path as [
     'paths',
@@ -467,7 +470,8 @@ export const mutateRequestDiff = (
 /** Generates a payload for the server mutator from the server diff including the mutator method */
 export const mutateServerDiff = (
   diff: Difference,
-  { activeCollection, servers, serverMutators }: WorkspaceStore,
+  { activeCollection }: ActiveEntitiesStore,
+  { servers, serverMutators }: WorkspaceStore,
 ): boolean => {
   if (!activeCollection.value) return false
 
@@ -509,7 +513,8 @@ export const mutateServerDiff = (
 /** Generates a payload for the tag mutator from the tag diff */
 export const mutateTagDiff = (
   diff: Difference,
-  { activeCollection, tags, tagMutators }: WorkspaceStore,
+  { activeCollection }: ActiveEntitiesStore,
+  { tags, tagMutators }: WorkspaceStore,
 ): boolean => {
   if (!activeCollection.value) return false
 
@@ -578,7 +583,8 @@ export const narrowUnionSchema = (
  */
 export const mutateSecuritySchemeDiff = (
   diff: Difference,
-  { activeCollection, securitySchemes, securitySchemeMutators }: WorkspaceStore,
+  { activeCollection }: ActiveEntitiesStore,
+  { securitySchemes, securitySchemeMutators }: WorkspaceStore,
 ): boolean => {
   if (!activeCollection.value) return false
 

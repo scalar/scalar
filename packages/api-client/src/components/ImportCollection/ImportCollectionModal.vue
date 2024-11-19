@@ -9,6 +9,7 @@ import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/g
 import { isDocument } from '@/components/ImportCollection/utils/isDocument'
 import { isUrl } from '@/components/ImportCollection/utils/isUrl'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
@@ -25,7 +26,8 @@ defineEmits<{
   (e: 'importFinished'): void
 }>()
 
-const { activeWorkspace, events } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { events } = useWorkspace()
 
 const { prefetchResult, prefetchUrl, resetPrefetchResult } = useUrlPrefetcher()
 

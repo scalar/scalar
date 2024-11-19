@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -26,13 +27,9 @@ const emits = defineEmits<{
 }>()
 
 const { push } = useRouter()
-const {
-  activeRequest,
-  activeWorkspace,
-  activeWorkspaceRequests,
-  requests,
-  requestExampleMutators,
-} = useWorkspace()
+const { activeRequest, activeWorkspace, activeWorkspaceRequests } =
+  useActiveEntities()
+const { requests, requestExampleMutators } = useWorkspace()
 const { toast } = useToasts()
 
 const exampleName = ref('')

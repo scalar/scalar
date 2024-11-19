@@ -6,12 +6,14 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { serverSchema } from '@scalar/oas-utils/entities/spec'
 import { useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
 
-const { activeCollection, servers, serverMutators } = useWorkspace()
+const { activeCollection } = useActiveEntities()
+const { servers, serverMutators } = useWorkspace()
 const { push } = useRouter()
 
 const addServerHandler = () => {

@@ -1,5 +1,6 @@
 <script lang="ts">
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import CommandPaletteCollection from './CommandPaletteCollection.vue'
 import CommandPaletteExample from './CommandPaletteExample.vue'
@@ -111,7 +112,8 @@ type Command = (typeof availableCommands)[number]['commands'][number]
 
 const modalState = useModal()
 const { push } = useRouter()
-const { activeWorkspace, events } = useWorkspace()
+const { activeWorkspace } = useActiveEntities()
+const { events } = useWorkspace()
 
 /** Additional metadata for the command palettes */
 const metaData = ref<Record<string, any> | undefined>()
