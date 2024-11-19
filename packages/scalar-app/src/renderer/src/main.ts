@@ -50,6 +50,11 @@ if (window.electron) {
       url: `https://scalar-${os}/${route.name}`,
     })
   })
+
+  // Set the platform class on the client app
+  document
+    .getElementById('scalar-client-app')
+    ?.classList.add('app-platform-desktop', `app-platform-${os}`)
 }
 
 // Open… menu

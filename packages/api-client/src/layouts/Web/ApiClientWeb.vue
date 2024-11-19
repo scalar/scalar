@@ -71,8 +71,8 @@ const themeStyleTag = computed(
 <style>
 @import '@scalar/components/style.css';
 @import '@scalar/themes/style.css';
-@import '@/assets/tailwind.css';
-@import '@/assets/variables.css';
+@import '@/tailwind/tailwind.css';
+@import '@/tailwind/variables.css';
 
 /** Add background for iOS and Safari scroll overflow */
 html,
