@@ -32,18 +32,26 @@ export const createApiClientModal = async (
 
   const { importSpecFile, importSpecFromUrl } = client.store
 
-  // Import the spec if needed
-  if (configuration.spec?.url)
-    await importSpecFromUrl(configuration.spec.url, 'default', {
-      proxy: configuration.proxyUrl,
-      setCollectionSecurity: true,
-      ...configuration,
-    })
-  else if (configuration.spec?.content)
-    await importSpecFile(configuration.spec?.content, 'default', {
-      setCollectionSecurity: true,
-      ...configuration,
-    })
+  // Import the API definition
+  try {
+    if (configuration.spec?.url) {
+      await importSpecFromUrl(configuration.spec.url, 'default', {
+        proxy: configuration.proxyUrl,
+        setCollectionSecurity: true,
+        ...configuration,
+      })
+    } else if (configuration.spec?.content) {
+      await importSpecFile(configuration.spec?.content, 'default', {
+        setCollectionSecurity: true,
+        ...configuration,
+      })
+    }
+  } catch (error) {
+    console.error(
+      '[createApiClientModal] Failed to import the OpenAPI document.',
+    )
+    console.error(error)
+  }
 
   return client
 }

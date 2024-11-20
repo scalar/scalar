@@ -201,7 +201,7 @@ export const createApiClient = ({
   const mount = (mountingEl = el) => {
     if (!mountingEl) {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
+        `[createApiClient] Could not create the API client.`,
         `Invalid HTML element provided.`,
         `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
       )
@@ -218,22 +218,30 @@ export const createApiClient = ({
    * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
    */
   const updateSpec = async (spec: SpecConfiguration) => {
-    if (spec?.url) {
-      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
-        proxy: configuration?.proxyUrl,
-        setCollectionSecurity: true,
-        ...configuration,
-      })
-    } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
-        setCollectionSecurity: true,
-        ...configuration,
-      })
-    } else {
+    try {
+      if (spec?.url) {
+        await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+          proxy: configuration?.proxyUrl,
+          setCollectionSecurity: true,
+          ...configuration,
+        })
+      } else if (spec?.content) {
+        await importSpecFile(spec?.content, activeWorkspace.value.uid, {
+          setCollectionSecurity: true,
+          ...configuration,
+        })
+      } else {
+        console.error(
+          `[createApiClient] Could not create the API client.
+          Please provide an OpenAPI document: { spec: { url: '…' } }
+          Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        )
+      }
+    } catch (error) {
       console.error(
-        `[@scalar/api-client-modal] Could not create the API client.`,
-        `Please provide an OpenAPI document: { spec: { url: '…' } }`,
-        `Read more: https://github.com/scalar/scalar/tree/main/packages/api-client`,
+        `[createApiClient] Failed to import the OpenAPI document.
+        The document might be invalid.`,
+        error,
       )
     }
   }

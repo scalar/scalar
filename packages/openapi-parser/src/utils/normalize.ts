@@ -19,15 +19,9 @@ export function normalize(
     try {
       return JSON.parse(specification)
     } catch (error) {
-      try {
-        return parse(specification, {
-          maxAliasCount: 10000,
-        })
-      } catch (yamlError) {
-        console.error('[normalize]', yamlError)
-
-        return {}
-      }
+      return parse(specification, {
+        maxAliasCount: 10000,
+      })
     }
   }
 

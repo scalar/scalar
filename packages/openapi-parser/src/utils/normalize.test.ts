@@ -47,13 +47,6 @@ info:
     title: Scalar Galaxy
     spec
 `
-    const consoleSpy = vi.spyOn(console, 'error')
-    expect(() => normalize(invalidYaml)).not.toThrow()
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '[normalize]',
-      expect.objectContaining({
-        name: 'YAMLParseError',
-      }),
-    )
+    expect(() => normalize(invalidYaml)).toThrow()
   })
 })
