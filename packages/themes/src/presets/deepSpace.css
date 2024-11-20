@@ -105,7 +105,7 @@
 .section-flare {
   width: 100vw;
   height: 550px;
-  position: relative;
+  position: absolute;
 }
 .section-flare-item:nth-of-type(1) {
   position: absolute;
