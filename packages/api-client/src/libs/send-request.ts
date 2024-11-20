@@ -21,6 +21,7 @@ import {
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
+import { safeJSON } from '@scalar/object-utils/parse'
 import type {
   Cookie as HarCookie,
   Header as HarHeader,
@@ -258,7 +259,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids?: string[]
   proxy?: string
   status?: EventBus<RequestStatus>
-  environment: object | undefined
+  environment: object | string | undefined
   server?: Server
   securitySchemes: Record<string, SecurityScheme>
   globalCookies: Cookie[]
@@ -269,8 +270,9 @@ export const createRequestOperation = ({
   createFetchOptions: () => RequestInit
 }> => {
   try {
-    const env = environment ?? {}
     const controller = new AbortController()
+
+    const env = convertToObject(environment, {})
 
     /** Parsed and evaluated values for path parameters */
     const pathVariables = example.parameters.path.reduce<
@@ -532,4 +534,28 @@ const createProxiedUrl = (url: string, proxy?: string) => {
   const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
 
   return shouldUseProxy(proxy, url) ? `${proxy}?${proxyPath.toString()}` : url
+}
+
+/**
+ * Convert a string to an object by parsing it as JSON.
+ *
+ * If parsing fails or the result is not an object, return the provided fallback object instead.
+ */
+function convertToObject(
+  input: string | object | undefined,
+  fallback: object,
+): object {
+  if (typeof input === 'object') {
+    return input
+  }
+
+  if (!input) {
+    return fallback
+  }
+
+  const result = safeJSON.parse(input)
+
+  return result.error || typeof result.data !== 'object'
+    ? fallback
+    : (result.data ?? fallback)
 }

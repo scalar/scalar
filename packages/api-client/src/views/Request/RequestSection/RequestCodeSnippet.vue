@@ -1,15 +1,11 @@
 <script lang="ts" setup>
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import {
-  convertFetchOptionsToHarRequest,
-  createRequestOperation,
-} from '@/libs/send-request'
+import { useCodeSnippet } from '@/libs/code-snippets'
+import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarCodeBlock } from '@scalar/components'
 import '@scalar/oas-utils/entities/spec'
-import { safeJSON } from '@scalar/object-utils/parse'
-import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed, ref } from 'vue'
 
 const target = ref<string>('node')
@@ -41,10 +37,6 @@ const request = computed(() => {
   }
 
   // Parse the environment string
-  const e = safeJSON.parse(activeEnvironment.value?.value || '{}')
-  const environment =
-    e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
-
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
   const [_, preparedRequest] = createRequestOperation({
@@ -52,7 +44,7 @@ const request = computed(() => {
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
-    environment,
+    environment: activeEnvironment.value?.value,
     globalCookies,
     status: events.requestStatus,
     securitySchemes: securitySchemes,
@@ -62,40 +54,11 @@ const request = computed(() => {
   return preparedRequest
 })
 
-const codeSnippet = computed(() => {
-  return createCodeSnippet(
-    target.value,
-    client.value,
-    request.value?.createUrl(),
-    request.value?.createFetchOptions(),
-  )
+const { codeSnippet } = useCodeSnippet({
+  target,
+  client,
+  request,
 })
-
-/**
- * Create the code example for a request
- */
-function createCodeSnippet(
-  targetId: string,
-  clientId: string,
-  url?: string,
-  fetchOptions?: RequestInit,
-) {
-  if (!url) {
-    return ''
-  }
-
-  if (!snippetz().hasPlugin(targetId, clientId)) {
-    return ''
-  }
-
-  const harRequest = convertFetchOptionsToHarRequest(url, fetchOptions)
-
-  return snippetz().print(
-    targetId as TargetId,
-    clientId as ClientId,
-    harRequest,
-  )
-}
 </script>
 
 <template>
