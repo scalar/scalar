@@ -3,10 +3,9 @@ import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { type ErrorObject, dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { provide, ref, toRef, watch } from 'vue'
+import { ref, toRef, watch } from 'vue'
 
 import { useHttpClientStore, useReactiveSpec } from '../../../src'
-import { GLOBAL_SECURITY_SYMBOL } from '../../../src/helpers'
 import { ApiClientModal } from '../../features/ApiClientModal'
 import type { OpenApiDocumentConfiguration } from './types'
 
@@ -25,8 +24,6 @@ const { parsedSpec: parsedSpec } = useReactiveSpec({
     props.configuration?.proxyUrl ?? props.configuration?.proxy ?? '',
   specConfig: () => props.configuration?.spec ?? { content: '' },
 })
-
-provide(GLOBAL_SECURITY_SYMBOL, () => parsedSpec.security)
 
 /** Helper utility to map configuration props to the ApiReference internal state */
 function mapConfigToState<K extends keyof OpenApiDocumentConfiguration>(

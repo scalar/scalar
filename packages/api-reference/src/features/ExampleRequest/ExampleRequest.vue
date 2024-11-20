@@ -19,7 +19,6 @@ import type {
 import { asyncComputed } from '@vueuse/core'
 import {
   computed,
-  inject,
   onServerPrefetch,
   ref,
   useId,
@@ -35,11 +34,7 @@ import {
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
-import {
-  GLOBAL_SECURITY_SYMBOL,
-  getExampleCode,
-  getHarRequest,
-} from '../../helpers'
+import { getExampleCode, getHarRequest } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
@@ -120,8 +115,6 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
-const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
-
 const createEmptyAuthenticationState = (): AuthenticationState => ({
   preferredSecurityScheme: null,
   customSecurity: false,
@@ -164,7 +157,6 @@ const authenticationState = computed(() => {
       }
     })
 
-    console.log(schemes)
     // return auth
   }
 

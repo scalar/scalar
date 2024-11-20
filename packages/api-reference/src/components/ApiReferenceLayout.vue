@@ -30,7 +30,6 @@ import {
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import {
-  GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
   INTEGRATION_SYMBOL,
@@ -253,8 +252,6 @@ const workspaceStore = createWorkspaceStore({
 })
 provide(WORKSPACE_SYMBOL, workspaceStore)
 
-// Provide global security
-provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
 provide(
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   () => props.configuration.hideDownloadButton,
