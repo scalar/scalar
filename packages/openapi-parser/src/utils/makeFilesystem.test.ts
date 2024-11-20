@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import { getEntrypoint } from './getEntrypoint'
 import { isFilesystem } from './isFilesystem'
 import { makeFilesystem } from './makeFilesystem'
 
