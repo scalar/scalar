@@ -95,7 +95,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <ScalarHotkey hotkey="↵" />
       </button>
       <button
-        v-if="layout !== 'modal'"
+        v-if="layout === 'desktop'"
         class="flex items-center gap-1.5"
         type="button"
         @click="openCommandPaletteRequest">
