@@ -1,7 +1,32 @@
+import type { AuthenticationState } from '@scalar/types/legacy'
 import { describe, expect, it } from 'vitest'
 
-import { createEmptyAuthenticationState } from '../stores'
 import { getRequestFromAuthentication } from './getRequestFromAuthentication'
+
+const createEmptyAuthenticationState = (): AuthenticationState => ({
+  preferredSecurityScheme: null,
+  customSecurity: false,
+  http: {
+    basic: {
+      username: '',
+      password: '',
+    },
+    bearer: {
+      token: '',
+    },
+  },
+  apiKey: {
+    token: '',
+  },
+  oAuth2: {
+    username: '',
+    password: '',
+    clientId: '',
+    scopes: [],
+    accessToken: '',
+    state: '',
+  },
+})
 
 describe('getRequestFromAuthentication', () => {
   it('apiKey in header', () => {
