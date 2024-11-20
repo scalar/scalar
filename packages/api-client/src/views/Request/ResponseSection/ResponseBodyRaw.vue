@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ScalarIcon } from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { type CodeMirrorLanguage, useCodeMirror } from '@scalar/use-codemirror'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ref, toRef } from 'vue'
@@ -16,7 +17,7 @@ const { codeMirror } = useCodeMirror({
   codeMirrorRef,
   readOnly: true,
   lineNumbers: true,
-  content: toRef(() => props.content),
+  content: toRef(() => prettyPrintJson(props.content)),
   language: toRef(() => props.language),
   forceFoldGutter: true,
 })
