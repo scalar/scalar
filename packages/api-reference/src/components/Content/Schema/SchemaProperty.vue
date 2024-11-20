@@ -314,6 +314,7 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
   padding: 6px;
 }
 .property-example-value {
+  all: unset;
   font-family: var(--scalar-font-code);
   white-space: pre;
   padding: 6px;
