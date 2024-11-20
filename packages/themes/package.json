@@ -28,17 +28,25 @@
   },
   "type": "module",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./tailwind": "./src/tailwind.ts",
-    "./style.css": "./dist/style.css",
-    "./presets/*.css": "./dist/presets/*.css"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./tailwind": {
+      "import": "./dist/tailwind.js",
+      "types": "./dist/tailwind.d.ts",
+      "default": "./dist/tailwind.js"
+    },
+    "./presets/*.css": "./dist/presets/*.css",
+    "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
     "CHANGELOG.md",
-    "src/tailwind.ts",
-    "src/pixelPreset.ts"
+    "src/tailwind.ts"
   ],
   "module": "./dist/index.js",
   "dependencies": {

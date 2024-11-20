@@ -26,7 +26,6 @@
     "lefthook": "^1.7.18",
     "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
-    "prettier-plugin-tailwindcss": "^0.6.8",
     "remark-cli": "^12.0.1",
     "remark-lint-no-dead-urls": "^1.1.0",
     "remark-validate-links": "^13.0.1",
