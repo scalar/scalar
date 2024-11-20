@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { parseEnvVariables } from '@/libs'
-import type { ActiveEntitiesStore } from '@/store/active-entities'
+import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { type CSSProperties, computed, onMounted, ref } from 'vue'
@@ -9,9 +10,9 @@ import type { Router } from 'vue-router'
 
 const props = defineProps<{
   query: string
-  activeEnvironment: ActiveEntitiesStore['activeEnvironment']
-  activeEnvVariables: ActiveEntitiesStore['activeEnvVariables']
-  router: Router
+  environment: Environment
+  envVariables: EnvVariables
+  router?: Router
   // withServers?: boolean
   dropdownPosition?: { left: number; top: number }
 }>()
@@ -25,21 +26,20 @@ const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
 
 const redirectToEnvironment = () => {
-  const workspaceId = currentRoute.value.params.workspace
+  if (!props.router) return
+  const { currentRoute, push } = props.router
 
+  const workspaceId = currentRoute.value.params.workspace
   push({
     name: 'environment.default',
     params: {
       workspace: workspaceId,
     },
   })
-
   isOpen.value = false
 }
 
-const { push, currentRoute } = props.router
-
-const fuse = new Fuse(parseEnvVariables(props.activeEnvVariables.value), {
+const fuse = new Fuse(parseEnvVariables(props.envVariables), {
   keys: ['key', 'value'],
 })
 
@@ -48,7 +48,7 @@ const filteredVariables = computed(() => {
 
   if (!searchQuery) {
     /** return the last 4 environment variables on first display */
-    return parseEnvVariables(props.activeEnvVariables.value)
+    return parseEnvVariables(props.envVariables)
       .slice(-4)
       .filter(({ key, value }) => key !== '' || value !== '')
   }
@@ -66,16 +66,6 @@ const filteredVariables = computed(() => {
 
 const selectVariable = (variableKey: string) => {
   emit('select', variableKey)
-}
-
-const getEnvColor = (
-  activeEnvironment: ActiveEntitiesStore['activeEnvironment'],
-) => {
-  if (activeEnvironment.value) {
-    return activeEnvironment.value.color
-  }
-
-  return '#8E8E8E'
 }
 
 const handleArrowKey = (direction: 'up' | 'down') => {
@@ -144,7 +134,7 @@ onClickOutside(
               <span
                 class="h-2.5 w-2.5 min-w-2.5 rounded-full"
                 :style="{
-                  backgroundColor: getEnvColor(activeEnvironment),
+                  backgroundColor: getEnvColor(environment),
                 }"></span>
               {{ item.key }}
             </div>
@@ -156,7 +146,7 @@ onClickOutside(
         </template>
       </ul>
       <ScalarButton
-        v-else
+        v-else-if="router"
         class="font-code text-xxs hover:bg-b-2 flex h-8 w-full justify-start gap-2 px-1.5 transition-colors duration-150"
         variant="secondary"
         @click="redirectToEnvironment">
