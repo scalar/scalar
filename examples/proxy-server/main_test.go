@@ -42,6 +42,60 @@ func TestBasicEndpoints(t *testing.T) {
 		}
 	})
 
+	t.Run("Root path serves HTML", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		if contentType := w.Header().Get("Content-Type"); contentType != "text/html" {
+			t.Errorf("Expected Content-Type 'text/html', got '%s'", contentType)
+		}
+
+		if len(w.Body.String()) == 0 {
+			t.Error("Expected non-empty HTML response")
+		}
+	})
+
+	t.Run("OpenAPI document is served", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/openapi.yaml", nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+
+		if contentType := w.Header().Get("Content-Type"); contentType != "text/yaml" {
+			t.Errorf("Expected Content-Type 'text/yaml', got '%s'", contentType)
+		}
+
+		if len(w.Body.String()) == 0 {
+			t.Error("Expected non-empty YAML response")
+		}
+	})
+
+	t.Run("Root path with query params requires scalar_url", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/?something=value", nil)
+		w := httptest.NewRecorder()
+
+		proxyServer.handleRequest(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("Expected status code %d, got %d", http.StatusBadRequest, w.Code)
+		}
+
+		expectedError := "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL."
+		if w.Body.String() != expectedError+"\n" {
+			t.Errorf("Expected error message about missing scalar_url parameter")
+		}
+	})
+
 	t.Run("Returns error when scalar_url is missing", func(t *testing.T) {
 		// Create a new request without scalar_url parameter
 		req := httptest.NewRequest(http.MethodGet, "/some/path", nil)
