@@ -62,21 +62,35 @@ const request = computed(() => {
 })
 
 const codeSnippet = computed(() => {
-  if (!request.value) {
-    return ''
-  }
-
-  if (!snippetz().hasPlugin('node', 'fetch')) {
-    return ''
-  }
-
-  const harRequest = convertFetchOptionsToHarRequest(
-    request.value.createUrl(),
-    request.value.createFetchOptions(),
+  return createCodeSnippet(
+    'node',
+    'fetch',
+    request.value?.createUrl(),
+    request.value?.createFetchOptions(),
   )
-
-  return snippetz().print('node', 'fetch', harRequest)
 })
+
+/**
+ * Create the code example for a request
+ */
+function createCodeSnippet(
+  target: string,
+  client: string,
+  url?: string,
+  fetchOptions?: RequestInit,
+) {
+  if (!url) {
+    return ''
+  }
+
+  if (!snippetz().hasPlugin(target, client)) {
+    return ''
+  }
+
+  const harRequest = convertFetchOptionsToHarRequest(url, fetchOptions)
+
+  return snippetz().print(target, client, harRequest)
+}
 </script>
 
 <template>

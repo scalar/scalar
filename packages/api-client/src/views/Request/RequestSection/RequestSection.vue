@@ -10,7 +10,7 @@ import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
-import RequestCodeExample from './RequestCodeExample.vue'
+import RequestCodeSnippet from './RequestCodeSnippet.vue'
 
 defineProps<{
   selectedSecuritySchemeUids: string[]
@@ -126,7 +126,7 @@ const updateRequestNameHandler = (event: Event) => {
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
-      <RequestCodeExample />
+      <RequestCodeSnippet />
     </div>
   </ViewLayoutSection>
 </template>
