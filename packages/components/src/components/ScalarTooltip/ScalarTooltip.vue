@@ -50,7 +50,7 @@ defineEmits<{
         <TooltipContent
           v-if="!props.disabled"
           :align="props.align"
-          class="scalar-app"
+          class="scalar-app z-context"
           :class="props.class"
           :side="props.side"
           :sideOffset="props.sideOffset">
