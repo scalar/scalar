@@ -124,8 +124,8 @@ const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 extensions.push(
   pillPlugin({
-    activeEnvironment,
-    activeEnvVariables,
+    environment: activeEnvironment.value,
+    envVariables: activeEnvVariables.value,
     isReadOnly,
   }),
   backspaceCommand,
@@ -265,9 +265,9 @@ export default {
   <EnvironmentVariableDropdown
     v-if="showDropdown && props.withVariables && !isReadOnly"
     ref="dropdownRef"
-    :activeEnvVariables="computed(() => activeEnvVariables)"
-    :activeEnvironment="computed(() => activeEnvironment)"
     :dropdownPosition="dropdownPosition"
+    :envVariables="activeEnvVariables"
+    :environment="activeEnvironment"
     :query="dropdownQuery"
     :router="router"
     @select="handleDropdownSelect" />

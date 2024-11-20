@@ -6,6 +6,7 @@ import {
 } from '@/components/DataTable'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import {
   ADD_AUTH_OPTIONS,
   type SecuritySchemeGroup,
@@ -20,20 +21,18 @@ import {
   ScalarIconButton,
   useModal,
 } from '@scalar/components'
-import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
-const { collection, request, selectedSecuritySchemeUids } = defineProps<{
-  collection: Collection
-  request?: Request
+const { selectedSecuritySchemeUids } = defineProps<{
   selectedSecuritySchemeUids: string[]
   title: string
 }>()
 
+const { activeCollection, activeRequest } = useActiveEntities()
 const {
   collectionMutators,
   isReadOnly,
@@ -52,7 +51,8 @@ const teleportId = `combobox-${nanoid()}`
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
-  const requirements = collection.security ?? request?.security ?? []
+  const requirements =
+    activeRequest.value?.security ?? activeCollection.value?.security ?? []
 
   /** Filter out empty objects */
   const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
@@ -84,9 +84,9 @@ const availableSchemes = computed(() => {
   //             ?.uid ?? ''
   //         )
   //       })
-  //     : collection.securitySchemes
+  //     : activeCollection.value?.securitySchemes
 
-  const base = collection.securitySchemes
+  const base = activeCollection.value?.securitySchemes
   return (base ?? []).map((s) => securitySchemes[s]).filter((s) => s)
 })
 
@@ -154,13 +154,23 @@ const authIndicator = computed(() => {
 
 /** Ensure to update the correct mutator with the selected scheme UIDs */
 const editSelectedSchemeUids = (uids: string[]) => {
+  if (!activeCollection.value || !activeRequest.value) return
+
   // Set as selected on the collection for the modal
   if (isReadOnly) {
-    collectionMutators.edit(collection.uid, 'selectedSecuritySchemeUids', uids)
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
   }
   // Set as selected on request
-  else if (request) {
-    requestMutators.edit(request.uid, 'selectedSecuritySchemeUids', uids)
+  else {
+    requestMutators.edit(
+      activeRequest.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
   }
 }
 
@@ -173,6 +183,8 @@ const selectedAuth = computed(() =>
 
 /** Update the selected auth types */
 function updateSelectedAuth(entries: SecuritySchemeOption[]) {
+  if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
+
   const addNewOption = entries.find((e) => e.payload)
   const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
 
@@ -181,9 +193,8 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
     // Create new scheme
     const scheme = securitySchemeMutators.add(
       addNewOption.payload,
-      collection.uid,
+      activeCollection.value.uid,
     )
-
     if (scheme) _entries.push(scheme.uid)
   }
 
