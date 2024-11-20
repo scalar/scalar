@@ -42,7 +42,7 @@ Making requests to other domains is restricted in the browser and requires [CORS
 
 ```js
 {
-  proxy: 'https://proxy.example.com'
+  proxyUrl: 'https://proxy.example.com'
 }
 ```
 
@@ -50,7 +50,7 @@ You can use our hosted proxy:
 
 ```js
 {
-  proxy: 'https://proxy.scalar.com'
+  proxyUrl: 'https://proxy.scalar.com'
 }
 ```
 
