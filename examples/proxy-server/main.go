@@ -53,6 +53,30 @@ func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Serve HTML page for root path
+	if r.URL.Path == "/" && r.URL.RawQuery == "" {
+		w.Header().Set("Content-Type", "text/html")
+		content, err := os.ReadFile("public/index.html")
+		if err != nil {
+			http.Error(w, "Error reading index.html", http.StatusInternalServerError)
+			return
+		}
+		w.Write(content)
+		return
+	}
+
+	// Serve OpenAPI spec for /openapi.yaml path
+	if r.URL.Path == "/openapi.yaml" {
+		w.Header().Set("Content-Type", "text/yaml")
+		content, err := os.ReadFile("public/openapi.yaml")
+		if err != nil {
+			http.Error(w, "Error reading openapi.yaml", http.StatusInternalServerError)
+			return
+		}
+		w.Write(content)
+		return
+	}
+
 	// Get and validate target URL
 	target := r.URL.Query().Get("scalar_url")
 	if target == "" {
