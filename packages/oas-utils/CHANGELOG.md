@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.2.78
+
+### Patch Changes
+
+- daa2663: feat: split out the router based computed values from the store into its own store
+- 37abd4f: feat: make security spec compliant + migrations
+- Updated dependencies [d379b81]
+- Updated dependencies [f67c3bc]
+  - @scalar/themes@0.9.49
+  - @scalar/types@0.0.20
+
 ## 0.2.77
 
 ### Patch Changes

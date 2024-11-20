@@ -1,5 +1,27 @@
 # @scalar/api-client
 
+## 2.2.0
+
+### Minor Changes
+
+- 37abd4f: feat: bring security schemes closer to the openapi spec
+
+### Patch Changes
+
+- daa2663: feat: split out the router based computed values from the store into its own store
+- f67c3bc: feat: add framework themes
+- Updated dependencies [d379b81]
+- Updated dependencies [daa2663]
+- Updated dependencies [f67c3bc]
+- Updated dependencies [28a6b05]
+- Updated dependencies [37abd4f]
+  - @scalar/themes@0.9.49
+  - @scalar/oas-utils@0.2.78
+  - @scalar/types@0.0.20
+  - @scalar/components@0.12.73
+  - @scalar/use-hooks@0.1.2
+  - @scalar/use-codemirror@0.11.40
+
 ## 2.1.52
 
 ### Patch Changes
