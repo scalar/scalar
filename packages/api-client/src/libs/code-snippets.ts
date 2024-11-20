@@ -41,7 +41,7 @@ function createCodeSnippet(
   clientId: string,
   url?: string,
   fetchOptions?: RequestInit,
-) {
+): string {
   if (!url) {
     return ''
   }

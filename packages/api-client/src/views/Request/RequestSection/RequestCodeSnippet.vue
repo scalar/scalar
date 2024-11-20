@@ -6,12 +6,13 @@ import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarCodeBlock } from '@scalar/components'
 import '@scalar/oas-utils/entities/spec'
-import { computed, ref } from 'vue'
+import { snippetz } from '@scalar/snippetz'
+import { computed, reactive, toRef } from 'vue'
 
-const target = ref<string>('node')
-const client = ref<string>('undici')
-
-const workspaceContext = useWorkspace()
+const library = reactive({
+  target: 'node',
+  client: 'undici',
+})
 
 const {
   activeCollection,
@@ -22,7 +23,7 @@ const {
   activeServer,
 } = useActiveEntities()
 
-const { cookies, isReadOnly, securitySchemes, events } = workspaceContext
+const { cookies, isReadOnly, securitySchemes, events } = useWorkspace()
 
 const selectedSecuritySchemeUids = computed(
   () =>
@@ -36,16 +37,13 @@ const request = computed(() => {
     return undefined
   }
 
-  // Parse the environment string
-  const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
-
-  const [_, preparedRequest] = createRequestOperation({
+  const [, preparedRequest] = createRequestOperation({
     request: activeRequest.value,
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
     proxy: activeWorkspace.value.proxyUrl ?? '',
     environment: activeEnvironment.value?.value,
-    globalCookies,
+    globalCookies: activeWorkspace.value.cookies.map((c) => cookies[c]),
     status: events.requestStatus,
     securitySchemes: securitySchemes,
     server: activeServer.value,
@@ -55,8 +53,8 @@ const request = computed(() => {
 })
 
 const { codeSnippet } = useCodeSnippet({
-  target,
-  client,
+  target: toRef(library, 'target'),
+  client: toRef(library, 'client'),
   request,
 })
 </script>
@@ -65,11 +63,34 @@ const { codeSnippet } = useCodeSnippet({
   <template v-if="request">
     <ViewLayoutCollapse>
       <template #title>Code Snippet</template>
+
+      <select
+        class="my-2 p-1"
+        :value="
+          JSON.stringify({ target: library.target, client: library.client })
+        "
+        @change="
+          (e) => {
+            const value = JSON.parse((e.target as HTMLSelectElement).value)
+
+            library.target = value.target
+            library.client = value.client
+          }
+        ">
+        >
+        <option
+          v-for="plugin in snippetz().plugins()"
+          :key="JSON.stringify(plugin)"
+          :value="JSON.stringify(plugin)">
+          {{ plugin.target }} {{ plugin.client }}
+        </option>
+      </select>
+
       <div class="border rounded">
         <ScalarCodeBlock
           :content="codeSnippet"
           :copy="true"
-          :lang="target" />
+          :lang="library.target" />
       </div>
     </ViewLayoutCollapse>
   </template>
