@@ -81,6 +81,7 @@ const isContentValid = computed(() => {
 }
 /* Code blocks */
 .scalar-codeblock-pre {
+  all: unset;
   margin: 0;
   background: transparent;
   text-wrap: nowrap;
