@@ -58,6 +58,9 @@ function handleScroll() {
   /* Offset by header height to line up scroll position */
   scroll-margin-top: var(--refs-header-height);
 }
+.section:has(~ div.contents) {
+  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+}
 .references-classic .section {
   padding: 48px 0;
   gap: 24px;
