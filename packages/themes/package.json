@@ -30,15 +30,13 @@
   "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js",
-    "./tailwind": "./src/tailwind.ts",
+    "./tailwind": "./dist/tailwind.js",
     "./style.css": "./dist/style.css",
     "./presets/*.css": "./dist/presets/*.css"
   },
   "files": [
     "dist",
-    "CHANGELOG.md",
-    "src/tailwind.ts",
-    "src/pixelPreset.ts"
+    "CHANGELOG.md"
   ],
   "module": "./dist/index.js",
   "dependencies": {
