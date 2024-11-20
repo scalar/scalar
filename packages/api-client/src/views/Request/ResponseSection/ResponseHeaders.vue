@@ -20,7 +20,7 @@ const findHeaderInfo = (name: string) => {
 </script>
 <template>
   <ViewLayoutCollapse
-    class="overflow-scroll"
+    class="overflow-auto"
     :defaultOpen="false"
     :itemCount="headers.length">
     <template #title>Headers</template>
@@ -56,7 +56,7 @@ const findHeaderInfo = (name: string) => {
     <!-- Empty state -->
     <div
       v-else
-      class="text-c-3 px-4 text-sm border rounded min-h-12 justify-center flex items-center bg-b-1 mx-1">
+      class="text-c-3 px-4 text-sm border rounded min-h-12 justify-center flex items-center bg-b-1">
       No Headers
     </div>
   </ViewLayoutCollapse>
