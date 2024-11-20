@@ -16,12 +16,12 @@
   },
   "scripts": {
     "build": "pnpm update:icons && pnpm prettier --write README.md && scalar-build-vite",
-    "update:icons": "vite-node ./scripts/update-list-of-icons.ts",
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/icons/*.svg --config .svglintrc.js",
     "types:build": "scalar-types-build-vue",
-    "types:check": "scalar-types-check-vue"
+    "types:check": "scalar-types-check-vue",
+    "update:icons": "vite-node ./scripts/update-list-of-icons.ts"
   },
   "type": "module",
   "main": "./dist/index.cjs",
