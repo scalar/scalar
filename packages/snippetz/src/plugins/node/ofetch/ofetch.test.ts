@@ -8,7 +8,9 @@ describe('ofetch', () => {
       url: 'https://example.com',
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com')`)
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com')`)
   })
 
   it('returns a POST request', () => {
@@ -17,7 +19,9 @@ describe('ofetch', () => {
       method: 'post',
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com', {
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
   method: 'POST'
 })`)
   })
@@ -33,7 +37,9 @@ describe('ofetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com', {
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
   headers: {
     'Content-Type': 'application/json'
   }
@@ -46,7 +52,9 @@ describe('ofetch', () => {
       headers: [],
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com')`)
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com')`)
   })
 
   it('has JSON body', () => {
@@ -60,7 +68,9 @@ describe('ofetch', () => {
       },
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com', {
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
   body: {
     hello: 'world'
   }
@@ -82,7 +92,9 @@ describe('ofetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com', {
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
   query: {
     foo: 'bar',
     bar: 'foo'
@@ -105,7 +117,9 @@ describe('ofetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com', {
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com', {
   headers: {
     'Set-Cookie': 'foo=bar; bar=foo'
   }
@@ -118,6 +132,8 @@ describe('ofetch', () => {
       cookies: [],
     })
 
-    expect(source.code).toBe(`ofetch('https://example.com')`)
+    expect(source.code).toBe(`import { ofetch } from 'ofetch'
+
+ofetch('https://example.com')`)
   })
 })
