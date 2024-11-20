@@ -625,16 +625,32 @@ describe('convertFetchOptionsToHarRequest', () => {
     expect(result.headers).toHaveLength(2)
     expect(result.headers).toEqual(
       expect.arrayContaining([
-        { name: 'content-type', value: 'application/json' },
-        { name: 'authorization', value: 'Bearer token' },
+        { name: 'Content-Type', value: 'application/json' },
+        { name: 'Authorization', value: 'Bearer token' },
       ]),
     )
   })
 
   it('converts headers from object', () => {
     const headers = {
-      'Content-Type': 'application/json',
       'Authorization': 'Bearer token',
+      'Content-Type': 'application/json',
+    }
+
+    const result = convertFetchOptionsToHarRequest('https://example.com', {
+      headers,
+    })
+
+    expect([...result.headers]).toStrictEqual([
+      { name: 'Authorization', value: 'Bearer token' },
+      { name: 'Content-Type', value: 'application/json' },
+    ])
+  })
+
+  it('normalizes headers', () => {
+    const headers = {
+      'Content-Type': 'text/html',
+      'cOnTeNt-type': 'application/json',
     }
 
     const result = convertFetchOptionsToHarRequest('https://example.com', {
@@ -643,7 +659,6 @@ describe('convertFetchOptionsToHarRequest', () => {
 
     expect([...result.headers]).toStrictEqual([
       { name: 'Content-Type', value: 'application/json' },
-      { name: 'Authorization', value: 'Bearer token' },
     ])
   })
 })

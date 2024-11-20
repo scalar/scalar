@@ -5,11 +5,15 @@ import {
   createRequestOperation,
 } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 import { ScalarCodeBlock } from '@scalar/components'
 import '@scalar/oas-utils/entities/spec'
 import { safeJSON } from '@scalar/object-utils/parse'
-import { snippetz } from '@scalar/snippetz'
-import { computed } from 'vue'
+import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import { computed, ref } from 'vue'
+
+const target = ref<string>('node')
+const client = ref<string>('undici')
 
 const workspaceContext = useWorkspace()
 
@@ -20,15 +24,13 @@ const {
   activeRequest,
   activeWorkspace,
   activeServer,
-  cookies,
-  isReadOnly,
-  securitySchemes,
-  events,
-} = workspaceContext
+} = useActiveEntities()
+
+const { cookies, isReadOnly, securitySchemes, events } = workspaceContext
 
 const selectedSecuritySchemeUids = computed(
   () =>
-    (isReadOnly.value
+    (isReadOnly
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
@@ -46,7 +48,6 @@ const request = computed(() => {
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
 
   const [_, preparedRequest] = createRequestOperation({
-    auth: activeCollection.value.auth,
     request: activeRequest.value,
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
@@ -63,8 +64,8 @@ const request = computed(() => {
 
 const codeSnippet = computed(() => {
   return createCodeSnippet(
-    'node',
-    'fetch',
+    target.value,
+    client.value,
     request.value?.createUrl(),
     request.value?.createFetchOptions(),
   )
@@ -74,8 +75,8 @@ const codeSnippet = computed(() => {
  * Create the code example for a request
  */
 function createCodeSnippet(
-  target: string,
-  client: string,
+  targetId: string,
+  clientId: string,
   url?: string,
   fetchOptions?: RequestInit,
 ) {
@@ -83,13 +84,17 @@ function createCodeSnippet(
     return ''
   }
 
-  if (!snippetz().hasPlugin(target, client)) {
+  if (!snippetz().hasPlugin(targetId, clientId)) {
     return ''
   }
 
   const harRequest = convertFetchOptionsToHarRequest(url, fetchOptions)
 
-  return snippetz().print(target, client, harRequest)
+  return snippetz().print(
+    targetId as TargetId,
+    clientId as ClientId,
+    harRequest,
+  )
 }
 </script>
 
@@ -97,10 +102,11 @@ function createCodeSnippet(
   <template v-if="request">
     <ViewLayoutCollapse>
       <template #title>Code Snippet</template>
-      <div class="border">
+      <div class="border rounded">
         <ScalarCodeBlock
           :content="codeSnippet"
-          lang="js" />
+          :copy="true"
+          :lang="target" />
       </div>
     </ViewLayoutCollapse>
   </template>

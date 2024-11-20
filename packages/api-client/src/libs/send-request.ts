@@ -1,6 +1,9 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
-import { normalizeHeaders } from '@/libs/normalize-headers'
+import {
+  convertKeyValueObjectToArray,
+  normalizeHeaders,
+} from '@/libs/normalize-headers'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
@@ -511,7 +514,7 @@ export function convertFetchOptionsToHarRequest(
     url,
     httpVersion: 'HTTP/1.1',
     cookies,
-    headers,
+    headers: convertKeyValueObjectToArray(normalizeHeaders(headers)),
     queryString,
     headersSize: -1,
     bodySize: options?.body ? String(options?.body).length : 0,
@@ -522,6 +525,8 @@ export function convertFetchOptionsToHarRequest(
  * Create a proxied URL by combining the proxy URL with the target URL.
  *
  * Returns the original URL, if the proxy is not provided or not needed.
+ *
+ * TODO: Try to merge this with the existing `redirectToProxy`
  */
 const createProxiedUrl = (url: string, proxy?: string) => {
   const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
