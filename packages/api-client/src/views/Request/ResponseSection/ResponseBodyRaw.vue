@@ -27,9 +27,11 @@ const getCurrentContent = () => {
 }
 </script>
 <template>
-  <div class="relative">
+  <div class="body-raw relative overflow-auto">
     <!-- Copy button -->
-    <div class="scalar-code-copy">
+    <div
+      v-if="getCurrentContent()"
+      class="scalar-code-copy">
       <button
         class="copy-button"
         type="button"
@@ -65,12 +67,14 @@ const getCurrentContent = () => {
   right: 6px;
   z-index: 10;
   pointer-events: none;
+  position: sticky;
+  transform: translateX(-6px);
 }
 
 .copy-button {
   align-items: center;
   display: flex;
-  background-color: var(--scalar-background-2);
+  background-color: var(--scalar-background-1);
   border: 1px solid var(--scalar-border-color);
   border-radius: 3px;
   color: var(--scalar-color-3);
@@ -85,18 +89,12 @@ const getCurrentContent = () => {
 }
 
 /* Show button on container hover */
-.relative:hover .copy-button,
+.body-raw:hover .copy-button,
 .copy-button:focus-visible {
   opacity: 1;
 }
 
 .copy-button:hover {
   color: var(--scalar-color-1);
-}
-
-/* Ensure proper background inheritance */
-.scalar-code-copy,
-.copy-button {
-  background: inherit;
 }
 </style>
