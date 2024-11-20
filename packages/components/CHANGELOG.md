@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.12.73
+
+### Patch Changes
+
+- 28a6b05: style(components): scalar menu flex col for products
+- Updated dependencies [d379b81]
+- Updated dependencies [f67c3bc]
+  - @scalar/themes@0.9.49
+  - @scalar/code-highlight@0.0.15
+  - @scalar/use-hooks@0.1.2
+
 ## 0.12.72
 
 ### Patch Changes

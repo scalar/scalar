@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.20
+
+### Patch Changes
+
+- f67c3bc: feat: add framework themes
+
 ## 0.0.19
 
 ### Patch Changes

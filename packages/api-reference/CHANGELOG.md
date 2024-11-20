@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.25.68
+
+### Patch Changes
+
+- daa2663: feat: split out the router based computed values from the store into its own store
+- f67c3bc: feat: add framework themes
+- Updated dependencies [d379b81]
+- Updated dependencies [daa2663]
+- Updated dependencies [f67c3bc]
+- Updated dependencies [28a6b05]
+- Updated dependencies [37abd4f]
+- Updated dependencies [37abd4f]
+  - @scalar/themes@0.9.49
+  - @scalar/api-client@2.2.0
+  - @scalar/oas-utils@0.2.78
+  - @scalar/types@0.0.20
+  - @scalar/components@0.12.73
+  - @scalar/code-highlight@0.0.15
+  - @scalar/use-hooks@0.1.2
+
 ## 1.25.67
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @scalar/themes
 
+## 0.9.49
+
+### Patch Changes
+
+- d379b81: feat(themes): expose tailwind preset as js not just ts
+- f67c3bc: feat: add framework themes
+- Updated dependencies [f67c3bc]
+  - @scalar/types@0.0.20
+
 ## 0.9.48
 
 ### Patch Changes
