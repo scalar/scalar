@@ -466,19 +466,120 @@ describe('importSpecToWorkspace', () => {
   })
 })
 
-describe('Handles invalid input', () => {
-  it('Handles invalid JSON', async () => {
-    const res = await parseSchema('"invalid')
-    expect(res.errors).toHaveLength(1)
+describe('parseSchema', () => {
+  it('handles valid OpenAPI spec', async () => {
+    const input = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'getTest',
+            responses: {
+              '200': {
+                description: 'Success',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const { schema, errors } = await parseSchema(input)
+
+    expect(errors).toHaveLength(0)
+    expect(schema).toMatchObject({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'getTest',
+          },
+        },
+      },
+    })
   })
 
-  it('Handles invalid YAML', async () => {
-    const res = await parseSchema(`
+  it('handles internal references', async () => {
+    const input = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Foobar: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Success',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const { schema, errors } = await parseSchema(input)
+
+    expect(errors).toHaveLength(0)
+    expect(schema.components?.schemas?.Foobar).toMatchObject({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    })
+    expect(
+      schema.paths?.['/foobar']?.get?.responses?.['200'].content[
+        'application/json'
+      ].schema,
+    ).toMatchObject({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    })
+  })
+
+  it('handles invalid JSON', async () => {
+    const { errors } = await parseSchema('"invalid')
+
+    expect(errors).toMatchObject([{ code: 'MISSING_CHAR' }])
+    expect(errors).toHaveLength(1)
+  })
+
+  it('handles invalid YAML', async () => {
+    const { errors } = await parseSchema(`
 
       openapi: 3.1.0
       asd
-      `)
+    `)
 
-    expect(res.errors).toHaveLength(1)
+    expect(errors).toMatchObject([{ code: 'MISSING_CHAR' }])
+    expect(errors).toHaveLength(1)
   })
 })
