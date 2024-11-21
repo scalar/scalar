@@ -37,7 +37,7 @@ defineEmits<{
         :sideOffset="4">
         <template #trigger>
           <div
-            class="nav-item webkit-app-no-drag"
+            class="nav-item app-no-drag-region"
             :class="{ 'nav-item__active': active }"
             @click="$emit('click')">
             <div
@@ -129,7 +129,7 @@ defineEmits<{
   justify-content: center;
   align-items: center;
   display: flex;
-  border-radius: var(--scalar-radius);
+  border-radius: var(--scalar-radius-lg);
   background: var(--scalar-background-3);
   border: var(--scalar-border-width) solid var(--scalar-background-2);
   color: var(--scalar-color-3);
@@ -192,8 +192,5 @@ defineEmits<{
 }
 .nav-item__active .nav-item-close:hover {
   background-color: var(--scalar-background-2);
-}
-.webkit-app-no-drag {
-  -webkit-app-region: no-drag;
 }
 </style>

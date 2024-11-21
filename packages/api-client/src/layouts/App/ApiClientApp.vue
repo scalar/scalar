@@ -68,30 +68,34 @@ const themeStyleTag = computed(
 )
 </script>
 <template>
-  <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
-  <!-- <ImportCollectionListener> -->
-  <div v-html="themeStyleTag"></div>
-  <TopNav :openNewTab="newTab" />
+  <div
+    id="scalar-client-app"
+    class="contents">
+    <!-- Listen for paste and drop events, and look for `url` query parameters to import collections -->
+    <!-- <ImportCollectionListener> -->
+    <div v-html="themeStyleTag"></div>
+    <TopNav :openNewTab="newTab" />
 
-  <!-- Ensure we have the workspace loaded from localStorage above -->
-  <MainLayout v-if="activeWorkspace?.uid">
-    <RouterView
-      v-slot="{ Component }"
-      @newTab="handleNewTab">
-      <keep-alive>
-        <component :is="Component" />
-      </keep-alive>
-    </RouterView>
-  </MainLayout>
+    <!-- Ensure we have the workspace loaded from localStorage above -->
+    <MainLayout v-if="activeWorkspace?.uid">
+      <RouterView
+        v-slot="{ Component }"
+        @newTab="handleNewTab">
+        <keep-alive>
+          <component :is="Component" />
+        </keep-alive>
+      </RouterView>
+    </MainLayout>
 
-  <ScalarToasts />
-  <!-- </ImportCollectionListener> -->
+    <ScalarToasts />
+    <!-- </ImportCollectionListener> -->
+  </div>
 </template>
 <style>
 @import '@scalar/components/style.css';
 @import '@scalar/themes/style.css';
-@import '@/assets/tailwind.css';
-@import '@/assets/variables.css';
+@import '@/tailwind/tailwind.css';
+@import '@/tailwind/variables.css';
 
 #scalar-client {
   display: flex;

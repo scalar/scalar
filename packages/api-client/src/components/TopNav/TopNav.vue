@@ -148,8 +148,9 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
-  <nav class="flex h-10 t-app__top-nav">
-    <div class="t-app__top-nav-draggable"></div>
+  <nav class="flex relative h-10 pl-2 mac:pl-[72px] t-app__top-nav">
+    <!-- Add a draggable overlay -->
+    <div class="absolute inset-0 app-drag-region" />
     <div
       class="flex h-10 flex-1 items-center gap-1.5 text-sm font-medium pr-2.5 relative overflow-hidden">
       <template v-if="topNavItems.length === 1">
@@ -210,7 +211,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           @newTab="addNavItem" />
       </template>
       <button
-        class="text-c-3 hover:bg-b-3 p-1.5 rounded webkit-app-no-drag"
+        class="text-c-3 hover:bg-b-3 p-1.5 rounded app-no-drag-region"
         type="button"
         @click="addNavItem">
         <ScalarIcon
@@ -221,31 +222,3 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     </div>
   </nav>
 </template>
-<style scoped>
-.t-app__top-nav {
-  padding-left: 52px;
-  padding-right: 4px;
-  position: relative;
-}
-@screen lg {
-  .t-app__top-nav {
-    padding-right: 6px;
-  }
-}
-@screen lg {
-  .t-app__top-nav {
-    padding-right: 10px;
-  }
-}
-.t-app__top-nav-draggable {
-  -webkit-app-region: drag;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-.webkit-app-no-drag {
-  -webkit-app-region: no-drag;
-}
-</style>

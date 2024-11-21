@@ -3,6 +3,8 @@ import scalarPreset from '@scalar/themes/tailwind'
 import { type Config } from 'tailwindcss'
 import colorMix from 'tailwindcss-color-mix'
 
+import { desktopVariants } from './src/tailwind/desktop-variants'
+
 export default {
   presets: [scalarPreset],
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
@@ -53,5 +55,5 @@ export default {
       },
     },
   },
-  plugins: [headlessPlugin, colorMix()],
+  plugins: [headlessPlugin, desktopVariants, colorMix()],
 } satisfies Config
