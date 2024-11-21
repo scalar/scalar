@@ -108,33 +108,84 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
-const generateSnippet = async () => {
-  if (!Object.values(requests).length) return ''
+/** Current request */
+const request = computed(() => {
+  const requestsArr = Object.values(requests)
+  if (!requestsArr.length) return null
 
+  return requestsArr.find(
+    ({ method, path }) =>
+      method === props.operation.httpVerb.toLowerCase() &&
+      path === props.operation.path,
+  )
+})
+
+/** Just grab the first example for now */
+const requestExample = computed(() =>
+  request.value ? requestExamples[request.value.examples[0]] : null,
+)
+
+/** Selected security scheme uids restircted by what is required by the request */
+const selectedSecuritySchemeUids = computed(() => {
+  // Grab the required uids
+  const requirementObjects =
+    request.value?.security ?? activeCollection.value?.security ?? []
+  const filteredObjects = requirementObjects.filter(
+    (r) => Object.keys(r).length,
+  )
+  const filteredKeys = filteredObjects.map((r) => Object.keys(r)[0])
+
+  // We have an empty object so any auth will work
+  if (filteredObjects.length < requirementObjects.length) {
+    return activeCollection.value?.selectedSecuritySchemeUids ?? []
+  }
+  // Otherwise filter the selected uids by what is required by this request
+  else {
+    const _securitySchemes = Object.values(securitySchemes)
+    const requirementUids = filteredKeys
+      .map((name) => _securitySchemes.find((s) => s.nameKey === name)?.uid)
+      .filter(Boolean)
+
+    return activeCollection.value?.selectedSecuritySchemeUids.filter((uid) =>
+      requirementUids.find((fuid) => fuid === uid),
+    )
+  }
+})
+
+/** Generates an array of secrets we want to hide in the code block */
+const secretCredentials = computed(() =>
+  selectedSecuritySchemeUids.value?.flatMap((uid) => {
+    const scheme = securitySchemes[uid]
+    if (scheme?.type === 'apiKey') return scheme.value
+    if (scheme?.type === 'http')
+      return [
+        scheme.token,
+        scheme.password,
+        btoa(`${scheme.username}:${scheme.password}`),
+      ]
+    if (scheme?.type === 'oauth2')
+      return Object.values(scheme.flows).map((flow) => flow.token)
+
+    return []
+  }),
+)
+
+const generateSnippet = async () => {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
     return (
       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
     )
   }
-
-  // Grab the request and example
-  const _request = Object.values(requests).find(
-    ({ method, path }) =>
-      method === props.operation.httpVerb.toLowerCase() &&
-      path === props.operation.path,
-  )
-  const example = requestExamples[_request?.examples[0] ?? '']
-  if (!_request || !example) return ''
+  if (!request.value || !requestExample.value) return ''
 
   // Generate a request object
   const [error, response] = createRequestOperation({
-    request: _request,
-    example,
+    request: request.value,
+    example: requestExample.value,
     server: activeServer.value,
     securitySchemes,
-    selectedSecuritySchemeUids:
-      activeCollection.value?.selectedSecuritySchemeUids,
+    selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
     proxy: activeWorkspace.value.proxyUrl,
     // TODO: env vars if we want em
     environment: {},
@@ -283,9 +334,7 @@ function updateHttpClient(value: string) {
         <ScalarCodeBlock
           class="bg-b-2"
           :content="generatedCode"
-          :hideCredentials="
-            getSecretCredentialsFromAuthentication(authenticationState)
-          "
+          :hideCredentials="secretCredentials"
           :lang="language"
           lineNumbers />
       </div>
