@@ -120,9 +120,9 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
   Object.assign(props, {
     configuration: {
       _integration: 'html',
+      proxyUrl: getProxyUrl(),
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
-      proxyUrl: getProxyUrl(),
     },
   })
 
