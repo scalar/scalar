@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
-import { importSpecToWorkspace } from '@/transforms/import-spec'
+import { importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it } from 'vitest'
@@ -463,5 +463,22 @@ describe('importSpecToWorkspace', () => {
       // Test URLS only
       expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
     })
+  })
+})
+
+describe('Handles invalid input', () => {
+  it('Handles invalid JSON', async () => {
+    const res = await parseSchema('"invalid')
+    expect(res.errors).toHaveLength(1)
+  })
+
+  it('Handles invalid YAML', async () => {
+    const res = await parseSchema(`
+
+      openapi: 3.1.0
+      asd
+      `)
+
+    expect(res.errors).toHaveLength(1)
   })
 })
