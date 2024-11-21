@@ -18,6 +18,21 @@ export const specDictionary: Record<
 type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
   Pick<ReferenceConfiguration, 'servers'>
 
+type SuccessfulImportResult = Awaited<ReturnType<typeof importSpecToWorkspace>>
+type ErrorImportResult = { error: true; importWarnings: any[] }
+
+/** Handle errors from importSpecToWorkspace */
+const safeImportSpecToWorkspace = async (
+  spec: string | Record<string, any>,
+  options: ImportSpecFileArgs = {},
+): Promise<SuccessfulImportResult | ErrorImportResult> => {
+  try {
+    return await importSpecToWorkspace(spec, options)
+  } catch (error) {
+    return { error: true, importWarnings: [normalizeError(error)] }
+  }
+}
+
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
   requestMutators,
@@ -35,7 +50,7 @@ export function importSpecFileFactory({
     options: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
-    const workspaceEntities = await importSpecToWorkspace(spec, options)
+    const workspaceEntities = await safeImportSpecToWorkspace(spec, options)
 
     if (workspaceEntities.error) {
       console.group('IMPORT ERRORS')
