@@ -1,6 +1,6 @@
 /** @vitest-environment jsdom */
 import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
-import { importSpecToWorkspace } from '@/transforms/import-spec'
+import { importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it } from 'vitest'
@@ -463,5 +463,123 @@ describe('importSpecToWorkspace', () => {
       // Test URLS only
       expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
     })
+  })
+})
+
+describe('parseSchema', () => {
+  it('handles valid OpenAPI spec', async () => {
+    const input = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'getTest',
+            responses: {
+              '200': {
+                description: 'Success',
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const { schema, errors } = await parseSchema(input)
+
+    expect(errors).toHaveLength(0)
+    expect(schema).toMatchObject({
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {
+        '/test': {
+          get: {
+            operationId: 'getTest',
+          },
+        },
+      },
+    })
+  })
+
+  it('handles internal references', async () => {
+    const input = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      components: {
+        schemas: {
+          Foobar: {
+            type: 'object',
+            properties: {
+              name: { type: 'string' },
+            },
+          },
+        },
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'Success',
+                content: {
+                  'application/json': {
+                    schema: {
+                      $ref: '#/components/schemas/Foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const { schema, errors } = await parseSchema(input)
+
+    expect(errors).toHaveLength(0)
+    expect(schema.components?.schemas?.Foobar).toMatchObject({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    })
+    expect(
+      schema.paths?.['/foobar']?.get?.responses?.['200'].content[
+        'application/json'
+      ].schema,
+    ).toMatchObject({
+      type: 'object',
+      properties: {
+        name: { type: 'string' },
+      },
+    })
+  })
+
+  it('handles invalid JSON', async () => {
+    const { errors } = await parseSchema('"invalid')
+
+    expect(errors).toMatchObject([{ code: 'MISSING_CHAR' }])
+    expect(errors).toHaveLength(1)
+  })
+
+  it('handles invalid YAML', async () => {
+    const { errors } = await parseSchema(`
+
+      openapi: 3.1.0
+      asd
+    `)
+
+    expect(errors).toMatchObject([{ code: 'MISSING_CHAR' }])
+    expect(errors).toHaveLength(1)
   })
 })

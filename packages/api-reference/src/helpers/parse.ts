@@ -73,6 +73,12 @@ export const parse = (
 
       return resolve(transformResult(schema))
     } catch (error) {
+      console.error(
+        '[@scalar/api-reference]',
+        'Failed to parse the OpenAPI document. It might be invalid?',
+      )
+      console.error(error)
+
       reject(error)
     }
 

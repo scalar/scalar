@@ -32,11 +32,36 @@ import type { Entries } from 'type-fest'
 export const parseSchema = async (spec: string | UnknownObject) => {
   // TODO: Plugins for URLs and files with the proxy is missing here.
   // @see packages/api-reference/src/helpers/parse.ts
-  const { filesystem } = await load(spec)
-  const { specification } = upgrade(filesystem)
-  const { schema, errors = [] } = await dereference(specification)
 
-  return { schema: schema as OpenAPIV3.Document | OpenAPIV3_1.Document, errors }
+  const { filesystem, errors: loadErrors = [] } = await load(spec).catch(
+    (e) => ({
+      errors: [
+        {
+          code: e.code,
+          message: e.message,
+        },
+      ],
+      filesystem: [],
+    }),
+  )
+
+  const { specification } = upgrade(filesystem)
+  const { schema, errors: derefErrors = [] } = await dereference(specification)
+
+  if (!schema)
+    console.warn(
+      '[@scalar/oas-utils] OpenAPI Parser Warning: Schema is undefined',
+    )
+  return {
+    /**
+     * Temporary fix for the parser returning an empty array
+     * TODO: remove this once the parser is fixed
+     */
+    schema: (Array.isArray(schema) ? {} : schema) as
+      | OpenAPIV3.Document
+      | OpenAPIV3_1.Document,
+    errors: [...loadErrors, ...derefErrors],
+  }
 }
 
 export type ImportSpecToWorkspaceArgs = Pick<
