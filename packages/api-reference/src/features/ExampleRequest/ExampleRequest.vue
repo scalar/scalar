@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import {
-  getRequestFromAuthentication,
-  getSecretCredentialsFromAuthentication,
-  getUrlFromServerState,
-  useExampleStore,
-  useServerStore,
-} from '#legacy'
-import { useWorkspace } from '@scalar/api-client/store'
+import { useExampleStore } from '#legacy'
+import { createRequestOperation } from '@scalar/api-client/libs'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
-import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
+import type { Request as HarRequest } from '@scalar/snippetz'
 import type {
-  AuthenticationState,
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
@@ -52,7 +46,8 @@ const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
 
 const { selectedExampleKey, operationId } = useExampleStore()
-const { collections, securitySchemes } = useWorkspace()
+const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
+const { requests, requestExamples, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -63,7 +58,6 @@ const {
 } = useHttpClientStore()
 
 const id = useId()
-const { server: serverState } = useServerStore()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
@@ -115,55 +109,9 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
-const createEmptyAuthenticationState = (): AuthenticationState => ({
-  preferredSecurityScheme: null,
-  customSecurity: false,
-  http: {
-    basic: {
-      username: '',
-      password: '',
-    },
-    bearer: {
-      token: '',
-    },
-  },
-  apiKey: {
-    token: '',
-  },
-  oAuth2: {
-    username: '',
-    password: '',
-    clientId: '',
-    scopes: [],
-    accessToken: '',
-    state: '',
-  },
-})
+const generateSnippet = async () => {
+  if (!Object.values(requests).length) return ''
 
-/** A little hack to use reactive client as the old authentication state */
-const authenticationState = computed(() => {
-  const baseAuth = createEmptyAuthenticationState()
-  const activeCollection = Object.values(collections)[0]
-
-  if (activeCollection) {
-    const { selectedSecuritySchemeUids } = activeCollection
-    const schemes = selectedSecuritySchemeUids
-      .map((uid) => securitySchemes[uid])
-      .filter(Boolean)
-
-    schemes.forEach((s) => {
-      if (s.type === 'apiKey') {
-        baseAuth.apiKey.token = s.value
-      }
-    })
-
-    // return auth
-  }
-
-  return baseAuth
-})
-
-async function generateSnippet() {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
     return (
@@ -171,36 +119,39 @@ async function generateSnippet() {
     )
   }
 
-  // Generate a request from operation server or fallback to global server URL
-  const serverUrl = computed(() => {
-    const operationServer = props.operation.information?.servers?.[0]
-    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
-    return modifiedUrl
+  const _request = Object.values(requests).find(
+    ({ method, path }) =>
+      method === props.operation.httpVerb.toLowerCase() &&
+      path === props.operation.path,
+  )
+  const example = requestExamples[_request?.examples[0] ?? '']
+  if (!_request || !example) return ''
+
+  // Generate a request object
+  const [error, response] = createRequestOperation({
+    request: _request,
+    example,
+    server: activeServer.value,
+    securitySchemes,
+    selectedSecuritySchemeUids:
+      activeCollection.value?.selectedSecuritySchemeUids,
+    proxy: activeWorkspace.value.proxyUrl,
+    // TODO: env vars if we want em
+    environment: {},
+    // TODO: cookies if we want em
+    globalCookies: [],
   })
 
-  const harRequest = getHarRequest(
-    {
-      url: serverUrl.value,
-    },
-    getRequestFromOperation(
-      props.operation,
-      {
-        replaceVariables: true,
-      },
-      selectedExampleKey.value,
-      true,
-    ),
-    getRequestFromAuthentication(
-      authenticationState.value,
-      props.operation.information?.security ?? getGlobalSecurity?.(),
-    ),
-  )
+  if (error) {
+    console.error('[generateSnippet]', error)
+    return ''
+  }
 
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
   return (
-    (await getExampleCode(harRequest as any, targetKey, clientKey as string)) ??
+    (await getExampleCode(response.request, targetKey, clientKey as string)) ??
     ''
   )
 }
