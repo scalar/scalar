@@ -1,5 +1,18 @@
-import type { PluginConfiguration, Request, Snippet } from '../../../core'
+import type {
+  AddClient,
+  PluginConfiguration,
+  Request,
+  Snippet,
+} from '../../../core'
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients extends AddClient<'shell', 'curl'> {}
+}
+
+/**
+ * shell/curl
+ */
 export function curl(
   request?: Partial<Request>,
   configuration?: PluginConfiguration,

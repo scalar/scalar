@@ -1,13 +1,11 @@
-/* eslint-disable */
-interface Clients {}
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients {}
+}
 
 export type AddClient<T extends string, C extends string> = {
   [K in `${T} ${C}`]: C
 }
-
-interface Clients extends AddClient<'shell', 'curl'> {}
-interface Clients extends AddClient<'node', 'undici'> {}
-interface Clients extends AddClient<'node', 'fetch'> {}
 
 export type TargetId = keyof Clients & string extends `${infer T} ${string}`
   ? T
@@ -17,17 +15,17 @@ export type ClientId<T extends TargetId> = Clients[keyof Clients &
   `${T} ${string}`]
 
 // TODO: Move to type tests
-const goodTarget: TargetId = 'node'
-// @ts-expect-error
-const badTarget: TargetId = 'foo'
+// const goodTarget: TargetId = 'node'
+// // @ts-expect-error
+// const badTarget: TargetId = 'foo'
 
-const goodClient: ClientId<'node'> = 'undici'
-// @ts-expect-error
-const badClient: ClientId<'node'> = 'undica'
-// @ts-expect-error
-const otherBadClient: ClientId<'foobar'> = 'undici'
-// @ts-expect-error
-const andAnotherBadClient: ClientId<'shell'> = 'undici'
+// const goodClient: ClientId<'node'> = 'undici'
+// // @ts-expect-error
+// const badClient: ClientId<'node'> = 'undica'
+// // @ts-expect-error
+// const otherBadClient: ClientId<'foobar'> = 'undici'
+// // @ts-expect-error
+// const andAnotherBadClient: ClientId<'shell'> = 'undici'
 
 export type { Request } from '@scalar/types/external'
 

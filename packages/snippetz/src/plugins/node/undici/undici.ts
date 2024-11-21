@@ -1,10 +1,19 @@
 import {
+  type AddClient,
   type Request,
   type Snippet,
   arrayToObject,
   objectToString,
 } from '../../../core'
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients extends AddClient<'node', 'undici'> {}
+}
+
+/**
+ * node/undici
+ */
 export function undici(request?: Partial<Request>): Snippet {
   // Defaults
   const normalizedRequest = {

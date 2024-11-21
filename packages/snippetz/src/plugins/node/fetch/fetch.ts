@@ -1,10 +1,19 @@
 import {
+  type AddClient,
   type Request,
   type Snippet,
   arrayToObject,
   objectToString,
 } from '../../../core'
 
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients extends AddClient<'node', 'fetch'> {}
+}
+
+/**
+ * node/fetch
+ */
 export function fetch(request?: Partial<Request>): Snippet {
   // Defaults
   const normalizedRequest = {
