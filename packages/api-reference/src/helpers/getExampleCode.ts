@@ -1,11 +1,11 @@
 import {
-  type Request,
   type ClientId as SnippetzClientId,
   type TargetId as SnippetzTargetId,
   snippetz,
 } from '@scalar/snippetz'
 import {
   HTTPSnippet,
+  type HarRequest,
   type ClientId as HttpSnippetLiteClientId,
   type TargetId as HttpSnippetLiteTargetId,
 } from 'httpsnippet-lite'
