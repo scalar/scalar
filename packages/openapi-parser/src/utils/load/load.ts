@@ -10,7 +10,7 @@ import type {
 import { getEntrypoint } from '../getEntrypoint'
 import { getListOfReferences } from '../getListOfReferences'
 import { makeFilesystem } from '../makeFilesystem'
-import { normalize } from '../normalize'
+import { normalizeSafe } from '../normalize'
 
 export type LoadPlugin = {
   check: (value?: any) => boolean
@@ -49,7 +49,6 @@ export async function load(
       errors,
     }
   }
-
   // Check whether the value is an URL or file path
   const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
 
@@ -57,7 +56,19 @@ export async function load(
 
   if (plugin) {
     try {
-      content = normalize(await plugin.get(value))
+      const res = normalizeSafe(await plugin.get(value))
+      if (res.error) {
+        errors.push({
+          code: 'INVALID_CONTENT',
+          message: ERRORS.INVALID_CONTENT,
+        })
+        return {
+          specification: null,
+          filesystem: [],
+          errors,
+        }
+      }
+      content = res.content
     } catch (error) {
       if (options?.throwOnError) {
         throw new Error(
@@ -80,7 +91,19 @@ export async function load(
       }
     }
   } else {
-    content = normalize(value)
+    const res = normalizeSafe(value)
+    if (res.error) {
+      errors.push({
+        code: 'INVALID_CONTENT',
+        message: ERRORS.INVALID_CONTENT,
+      })
+      return {
+        specification: null,
+        filesystem: [],
+        errors,
+      }
+    }
+    content = res.content
   }
 
   // No content

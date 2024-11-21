@@ -29,6 +29,7 @@ export const ERRORS = {
   EXTERNAL_REFERENCE_NOT_FOUND: 'Can’t resolve external reference: %s',
   FILE_DOES_NOT_EXIST: 'File does not exist: %s',
   NO_CONTENT: 'No content found',
+  INVALID_CONTENT: 'Unable to parse valid JSON or YAML.',
 } as const
 
 export type ValidationError = keyof typeof ERRORS
