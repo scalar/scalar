@@ -176,7 +176,7 @@ const selected = computed<ScalarListboxOption | undefined>({
   display: inline-flex;
   gap: 4px;
   height: auto;
-  padding: 0;
+  padding: 0 !important; /* fix for non tailwind padding */
   text-transform: uppercase;
 }
 .security-scheme-selector:hover {

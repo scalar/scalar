@@ -11,7 +11,9 @@
     tab-size: 4;
   }
   code.hljs {
+    all: unset;
     font-size: var(--scalar-small);
+    color: var(--scalar-color-2);
     font-family: var(--scalar-font-code);
     display: inline-block;
     counter-reset: linenumber;

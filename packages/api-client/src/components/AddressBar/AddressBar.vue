@@ -189,7 +189,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 
           <AddressBarHistory :open="open" />
           <ScalarButton
-            class="relative h-auto shrink-0 overflow-hidden pl-2 pr-2.5 py-1 font-bold"
+            class="relative h-auto shrink-0 overflow-hidden !pl-2 !pr-2.5 !py-1 font-bold"
             :disabled="isRequesting"
             @click="handleExecuteRequest">
             <span
