@@ -1,53 +1,52 @@
-import { normalizeHeaders } from '@scalar/api-client/libs'
-import type {
-  Cookie,
-  HarRequestWithPath,
-  Header,
-  Query,
-} from '@scalar/types/legacy'
 import type { HarRequest } from 'httpsnippet-lite'
 
-export const getHarRequest = (
-  ...requests: Partial<HarRequestWithPath>[]
-): HarRequest => {
-  let mergedRequests: HarRequestWithPath = {
-    httpVersion: '1.1',
-    method: 'GET',
-    url: '',
-    path: '',
-    headers: [] as Header[],
+/** Takes in a regular request object and returns a HAR request */
+export const getHarRequest = (request: Request): HarRequest => {
+  // Create base HAR request structure
+  const harRequest: HarRequest = {
+    method: request.method,
+    url: request.url,
+    httpVersion: 'HTTP/1.1',
+    headers: [],
+    queryString: [],
+    cookies: [],
     headersSize: -1,
-    queryString: [] as Query[],
-    cookies: [] as Cookie[],
     bodySize: -1,
   }
 
-  // Merge all the requests
-  requests.forEach((request: Partial<HarRequestWithPath>) => {
-    mergedRequests = {
-      ...mergedRequests,
-      ...request,
-      headers: [...mergedRequests.headers, ...(request.headers ?? [])],
-      queryString: [
-        ...mergedRequests.queryString,
-        ...(request.queryString ?? []),
-      ],
-      cookies: [...mergedRequests.cookies, ...(request.cookies ?? [])],
-    }
-  })
+  // Convert headers
+  if (request.headers) {
+    harRequest.headers = Array.from(request.headers.entries()).map(
+      ([name, value]) => ({
+        name,
+        value,
+      }),
+    )
+  }
 
-  // Normalize HTTP headers
-  mergedRequests.headers = normalizeHeaders(mergedRequests.headers) as Header[]
+  // Handle query parameters
+  try {
+    const url = new URL(request.url)
+    harRequest.queryString = Array.from(url.searchParams.entries()).map(
+      ([name, value]) => ({
+        name,
+        value,
+      }),
+    )
+  } catch (e) {
+    // Invalid URL, leave queryString empty
+  }
 
-  // Path doesn’t exist in HAR, let’s concat the path and the URL
-  const { path, ...result } = mergedRequests
-
-  if (path) {
-    return {
-      ...result,
-      url: `${mergedRequests.url}${path}`,
+  // Handle request body if present
+  if (request.body) {
+    harRequest.postData = {
+      mimeType: request.headers.get('content-type') || 'application/json',
+      text:
+        typeof request.body === 'string'
+          ? request.body
+          : JSON.stringify(request.body),
     }
   }
 
-  return result
+  return harRequest
 }

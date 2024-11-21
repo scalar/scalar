@@ -5,12 +5,13 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
-  Request,
   RequestExample,
   RequestMethod,
   ResponseInstance,
   SecurityScheme,
   Server,
+  /** Renamed due to conflict with the global Request class */
+  Request as _Request,
 } from '@scalar/oas-utils/entities/spec'
 import {
   canMethodHaveBody,
@@ -242,7 +243,7 @@ export const createRequestOperation = ({
   environment,
   globalCookies,
 }: {
-  request: Request
+  request: _Request
   example: RequestExample
   selectedSecuritySchemeUids?: string[]
   proxyUrl?: string
@@ -254,6 +255,7 @@ export const createRequestOperation = ({
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
+  request: Request
 }> => {
   try {
     const env = environment ?? {}
@@ -338,6 +340,46 @@ export const createRequestOperation = ({
       }
     })
 
+    // Extract and merge all query params
+    if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
+      /** Prefix the url with the origin if it is relative */
+      const base = isRelativePath(url)
+        ? concatenateUrlAndPath(window.location.origin, url)
+        : ensureProtocol(url)
+
+      /** We create a separate server URL to snag any search params from the server */
+      const serverURL = new URL(base)
+      /** We create a separate path URL to grab the path params */
+      const pathURL = new URL(pathString, serverURL.origin)
+
+      /** Finally we combine the two but make sure that we keep the path from server */
+      const combinedURL = new URL(serverURL)
+      if (server?.url) {
+        if (serverURL.pathname === '/') combinedURL.pathname = pathString
+        else combinedURL.pathname = serverURL.pathname + pathString
+      }
+
+      // Combines all query params
+      combinedURL.search = new URLSearchParams([
+        ...serverURL.searchParams,
+        ...pathURL.searchParams,
+        ...urlParams,
+      ]).toString()
+
+      url = combinedURL.toString()
+    }
+
+    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+    const proxiedUrl = shouldUseProxy(proxyUrl, url)
+      ? `${proxyUrl}?${proxyPath.toString()}`
+      : url
+
+    const proxiedRequest = new Request(proxiedUrl, {
+      method: request.method,
+      body,
+      headers,
+    })
+
     const sendRequest = async (): Promise<
       ErrorResponse<{
         response: ResponseInstance
@@ -351,45 +393,8 @@ export const createRequestOperation = ({
       const startTime = Date.now()
 
       try {
-        // Extract and merge all query params
-        if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-          /** Prefix the url with the origin if it is relative */
-          const base = isRelativePath(url)
-            ? concatenateUrlAndPath(window.location.origin, url)
-            : ensureProtocol(url)
-
-          /** We create a separate server URL to snag any search params from the server */
-          const serverURL = new URL(base)
-          /** We create a separate path URL to grab the path params */
-          const pathURL = new URL(pathString, serverURL.origin)
-
-          /** Finally we combine the two but make sure that we keep the path from server */
-          const combinedURL = new URL(serverURL)
-          if (server?.url) {
-            if (serverURL.pathname === '/') combinedURL.pathname = pathString
-            else combinedURL.pathname = serverURL.pathname + pathString
-          }
-
-          // Combines all query params
-          combinedURL.search = new URLSearchParams([
-            ...serverURL.searchParams,
-            ...pathURL.searchParams,
-            ...urlParams,
-          ]).toString()
-
-          url = combinedURL.toString()
-        }
-
-        const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-        const proxiedUrl = shouldUseProxy(proxyUrl, url)
-          ? `${proxyUrl}?${proxyPath.toString()}`
-          : url
-
-        const response = await fetch(proxiedUrl, {
+        const response = await fetch(proxiedRequest, {
           signal: controller.signal,
-          method: request.method.toUpperCase(),
-          body,
-          headers,
         })
 
         status?.emit('stop')
@@ -439,11 +444,13 @@ export const createRequestOperation = ({
     return [
       null,
       {
+        request: proxiedRequest,
         sendRequest,
         controller,
       },
     ]
   } catch (e) {
+    console.error(e)
     status?.emit('abort')
     return [normalizeError(e), null]
   }
