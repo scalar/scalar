@@ -14,13 +14,13 @@ import type { Router } from 'vue-router'
 import { getRouterParams } from './router-params'
 
 type CreateActiveEntitiesStoreParams = {
-  router: Router
   collections: Record<string, Collection>
   environments: Record<string, Environment>
   requestExamples: Record<string, RequestExample>
   requests: Record<string, Request>
   servers: Record<string, Server>
   workspaces: Record<string, Workspace>
+  router?: Router
 }
 
 /**
@@ -168,7 +168,6 @@ export const createActiveEntitiesStore = ({
     activeWorkspaceServers,
     activeEnvVariables,
     activeWorkspaceRequests,
-    router,
   }
 }
 
