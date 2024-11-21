@@ -37,7 +37,6 @@ const getUrlWithId = (id: string) => {
 .label {
   position: relative;
   display: inline-block;
-  text-align: left;
   word-break: break-all;
 }
 .anchor {

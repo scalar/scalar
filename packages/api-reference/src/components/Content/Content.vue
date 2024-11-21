@@ -135,10 +135,14 @@ const introCardsSlot = computed(() =>
 }
 .introduction-card-item {
   padding: 9px;
-  border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
+}
+@container narrow-references-container (max-width: 900px) {
+  .introduction-card-item {
+    border-bottom: var(--scalar-border-width) solid var(--scalar-border-color);
+  }
 }
 .introduction-card-item:has(.description) :deep(.server-form-container) {
   border-bottom-left-radius: 0;
@@ -153,8 +157,12 @@ const introCardsSlot = computed(() =>
   color: var(--scalar-color-3);
 }
 .introduction-card-row {
-  flex-flow: row wrap;
   gap: 24px;
+}
+@media (min-width: 600px) {
+  .introduction-card-row {
+    flex-flow: row wrap;
+  }
 }
 .introduction-card-row > * {
   flex: 1;

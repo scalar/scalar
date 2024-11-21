@@ -41,5 +41,6 @@ const { getTagId } = useNavState()
 }
 .tag-description {
   padding-bottom: 4px;
+  text-align: left;
 }
 </style>

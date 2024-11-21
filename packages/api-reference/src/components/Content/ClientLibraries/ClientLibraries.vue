@@ -33,6 +33,7 @@ const { availableTargets, httpTargetTitle, httpClientTitle } =
   border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
   border: var(--scalar-border-width) solid var(--scalar-border-color);
   border-top: none;
+  min-height: fit-content;
 }
 .client-libraries-heading {
   font-weight: var(--scalar-semibold);
