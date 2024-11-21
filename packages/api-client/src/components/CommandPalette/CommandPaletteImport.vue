@@ -85,7 +85,7 @@ async function importCollection() {
         inputContent.value,
         activeWorkspace.value.uid,
         {
-          proxy: activeWorkspace.value.proxyUrl,
+          proxyUrl: activeWorkspace.value.proxyUrl,
           watchMode: watchMode.value,
         },
       )

@@ -38,9 +38,9 @@ const configuration = computed(
     showSidebar
   </div>
   <div>
-    proxy:
+    proxyUrl:
     <input
-      v-model="configuration.proxy"
+      v-model="configuration.proxyUrl"
       type="text" />
   </div>
   <div>

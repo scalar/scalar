@@ -20,7 +20,7 @@ import { parse } from '../helpers/parse'
  */
 const getSpecContent = async (
   { url, content }: SpecConfiguration,
-  proxy?: string,
+  proxyUrl?: string,
 ): Promise<string | undefined> => {
   // If the URL is provided, fetch the API definition from the URL
   if (url) {
@@ -33,7 +33,7 @@ const getSpecContent = async (
       // if it’s a path we can skip the proxy.
       const result = !isValidUrl(url)
         ? await fetchSpecFromUrl(url)
-        : await fetchSpecFromUrl(url, proxy)
+        : await fetchSpecFromUrl(url, proxyUrl)
 
       const end = performance.now()
       console.log(`fetch: ${Math.round(end - start)} ms (${url})`)
@@ -66,10 +66,10 @@ const getSpecContent = async (
  */
 export function useReactiveSpec({
   specConfig,
-  proxy,
+  proxyUrl,
 }: {
   specConfig?: MaybeRefOrGetter<SpecConfiguration>
-  proxy?: MaybeRefOrGetter<string>
+  proxyUrl?: MaybeRefOrGetter<string>
 }) {
   /** OAS spec as a string */
   const rawSpec = ref('')
@@ -87,7 +87,7 @@ export function useReactiveSpec({
     if (!value) return Object.assign(parsedSpec, createEmptySpecification())
 
     return parse(value, {
-      proxy: proxy ? toValue(proxy) : undefined,
+      proxyUrl: proxyUrl ? toValue(proxyUrl) : undefined,
     })
       .then((validSpec) => {
         specErrors.value = null
@@ -109,7 +109,7 @@ export function useReactiveSpec({
     async (newConfig) => {
       if (newConfig) {
         const specContent = (
-          await getSpecContent(newConfig, toValue(proxy))
+          await getSpecContent(newConfig, toValue(proxyUrl))
         )?.trim()
         if (typeof specContent === 'string') rawSpec.value = specContent
       }

@@ -122,7 +122,7 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
       _integration: 'html',
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
-      proxy: getProxyUrl(),
+      proxyUrl: getProxyUrl(),
     },
   })
 

@@ -167,7 +167,7 @@ function authorizeWithPassword(
   tokenUrl?: string,
   options?: {
     baseUrl?: string
-    proxy?: string
+    proxyUrl?: string
   },
 ) {
   // Require tokenUrl
@@ -196,8 +196,8 @@ function authorizeWithPassword(
 
   // TODO: Proxy this request
   fetch(
-    options?.proxy
-      ? redirectToProxy(options?.proxy, url.toString())
+    options?.proxyUrl
+      ? redirectToProxy(options?.proxyUrl, url.toString())
       : url.toString(),
     {
       method: 'POST',

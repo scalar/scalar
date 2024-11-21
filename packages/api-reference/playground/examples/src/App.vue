@@ -36,7 +36,7 @@ onMounted(async () => {
 
 /** Configuration */
 const configuration = reactive<ReferenceConfiguration>({
-  proxy: 'https://proxy.scalar.com',
+  proxyUrl: 'https://proxy.scalar.com',
   spec: {
     url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   },

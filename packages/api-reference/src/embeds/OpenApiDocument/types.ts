@@ -3,7 +3,8 @@ import type { ReferenceConfiguration } from '@/types'
 export type OpenApiDocumentConfiguration = Partial<
   Pick<
     ReferenceConfiguration,
-    | 'proxy'
+    | 'proxy' // deprecated, but still supported
+    | 'proxyUrl'
     | 'baseServerURL'
     | 'servers'
     | 'spec'

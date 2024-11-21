@@ -24,7 +24,7 @@ type MetaRequestPayload = {
   serverPayload?: ServerPayload
   requestPayload?: RequestPayload
   requestExamplePayload?: RequestExamplePayload
-  proxy?: string
+  proxyUrl?: string
 }
 
 /** Creates the payload for createRequestOperation */
@@ -47,7 +47,7 @@ const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
     globalCookies: [],
     example,
     server,
-    proxy: metaRequestPayload.proxy,
+    proxyUrl: metaRequestPayload.proxyUrl,
     securitySchemes: {},
   }
 }
@@ -212,7 +212,7 @@ describe('createRequestOperation', () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
-        proxy: PROXY_URL,
+        proxyUrl: PROXY_URL,
       }),
     )
     if (error) throw error

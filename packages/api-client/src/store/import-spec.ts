@@ -82,13 +82,13 @@ export function importSpecFileFactory({
     url: string,
     workspaceUid: string,
     {
-      proxy,
+      proxyUrl,
       ...options
     }: Omit<ImportSpecFileArgs, 'documentUrl'> &
-      Pick<ReferenceConfiguration, 'proxy'> = {},
+      Pick<ReferenceConfiguration, 'proxyUrl'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
-      const spec = await fetchSpecFromUrl(url, proxy)
+      const spec = await fetchSpecFromUrl(url, proxyUrl)
 
       return [
         null,

@@ -9,7 +9,7 @@ import { reactive } from 'vue'
 import SlotPlaceholder from '../components/SlotPlaceholder.vue'
 
 const configuration = reactive<ReferenceConfiguration>({
-  proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
+  proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
   // Add path routing option
   ...(window.location.pathname.startsWith('/path-routing')

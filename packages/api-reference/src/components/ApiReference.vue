@@ -44,7 +44,7 @@ const configuration = computed<ReferenceConfiguration>(() => ({
     url: undefined,
     ...props.configuration?.spec,
   },
-  proxy: undefined,
+  proxyUrl: undefined,
   theme: 'default',
   showSidebar: true,
   isEditable: false,
@@ -83,7 +83,9 @@ mapConfigToState('defaultHttpClient', setDefaultHttpClient)
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxy: toRef(() => configuration.value.proxy || ''),
+  proxyUrl: toRef(
+    () => configuration.value.proxyUrl || configuration.value.proxy || '',
+  ),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
 

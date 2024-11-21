@@ -8,7 +8,7 @@ import { reactive } from 'vue'
 
 const configuration = reactive<ReferenceConfiguration>({
   theme: 'default',
-  proxy: import.meta.env.VITE_REQUEST_PROXY_URL,
+  proxyUrl: import.meta.env.VITE_REQUEST_PROXY_URL,
   isEditable: false,
   layout: 'classic',
   spec: { content },

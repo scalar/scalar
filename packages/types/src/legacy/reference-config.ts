@@ -69,8 +69,14 @@ export type ReferenceConfiguration = {
   layout?: 'modern' | 'classic'
   /** The Swagger/OpenAPI spec to render */
   spec?: SpecConfiguration
-  /** URL to a request proxy for the API client */
+  /**
+   * URL to a request proxy for the API client
+   *
+   * @deprecated Use proxyUrl instead
+   */
   proxy?: string
+  /** URL to a request proxy for the API client */
+  proxyUrl?: string
   /** Whether the spec input should show */
   isEditable?: boolean
   /** Whether to show the sidebar */

@@ -11,7 +11,7 @@ import {
 const sourcecode = `<OpenApiDocument
   v-slot="{ configuration, parsedSpec }"
   :configuration="{
-    proxy: 'https://proxy.scalar.com',
+    proxyUrl: 'https://proxy.scalar.com',
     spec: {
       url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
     }
@@ -43,7 +43,7 @@ const sourcecode = `<OpenApiDocument
     <OpenApiDocument
       v-slot="{ configuration, parsedSpec }"
       :configuration="{
-        proxy: 'https://proxy.scalar.com',
+        proxyUrl: 'https://proxy.scalar.com',
         hiddenClients: ['guzzle'],
         defaultHttpClient: {
           targetKey: 'node',

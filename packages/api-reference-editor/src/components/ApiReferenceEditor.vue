@@ -128,7 +128,9 @@ const { setExcludedClients } = useHttpClientStore()
 mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
-  proxy: toRef(() => configuration.value.proxy || ''),
+  proxyUrl: toRef(
+    () => configuration.value.proxyUrl || configuration.value.proxy || '',
+  ),
   specConfig: toRef(() => configuration.value.spec || {}),
 })
 </script>
