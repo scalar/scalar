@@ -15,7 +15,7 @@ import {
 } from '@scalar/draggable'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 
 const props = withDefaults(
   defineProps<{
@@ -51,13 +51,8 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const {
-  activeCollection,
-  router,
-  activeRequest,
-  activeRouterParams,
-  activeWorkspace,
-} = useActiveEntities()
+const { activeCollection, activeRequest, activeRouterParams, activeWorkspace } =
+  useActiveEntities()
 const {
   collections,
   tags,
@@ -70,6 +65,7 @@ const {
   requestExampleMutators,
   events,
 } = useWorkspace()
+const router = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 /** Normalize properties across different types for easy consumption */

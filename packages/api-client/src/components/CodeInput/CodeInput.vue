@@ -71,7 +71,7 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
-const { activeEnvVariables, activeEnvironment, activeWorkspace, router } =
+const { activeEnvVariables, activeEnvironment, activeWorkspace } =
   useActiveEntities()
 const { isReadOnly } = useWorkspace()
 
@@ -271,7 +271,6 @@ export default {
     :envVariables="activeEnvVariables"
     :environment="activeEnvironment"
     :query="dropdownQuery"
-    :router="router"
     @select="handleDropdownSelect" />
 </template>
 <style scoped>
