@@ -112,7 +112,6 @@ export async function resolve(
 
         // Relative or absolute URL
         if (urlOrPathOrDocument) {
-          console.log('make absolute', forwardedHost, urlOrPathOrDocument)
           return makeUrlAbsolute(urlOrPathOrDocument, forwardedHost || value)
         }
 
