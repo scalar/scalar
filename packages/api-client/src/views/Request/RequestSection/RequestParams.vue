@@ -91,6 +91,11 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       inputs[inputsIndex]?.focus()
     })
   }
+
+  // Add a new row if the updated row is the last one
+  if (rowIdx === currentParams.length - 1) {
+    addRow()
+  }
 }
 
 /** Toggle a parameter row on or off */
@@ -172,7 +177,6 @@ watch(
         class="flex-1"
         :columns="['32px', '', '']"
         :items="params"
-        @addRow="addRow"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />
     </div>
