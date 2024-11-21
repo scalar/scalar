@@ -1,5 +1,4 @@
 import type { Middleware, Placement } from '@floating-ui/vue'
-import type { Ref } from 'vue'
 
 export type FloatingOptions = {
   /**
@@ -19,6 +18,14 @@ export type FloatingOptions = {
   targetRef?: HTMLElement
   /**
    * Floating UI Middleware to be passed to Floating UI
+   *
+   * Overrides the default middleware
+   *
+   * @example
+   * ```ts
+   * // change the offset to 10px
+   * middleware: [offset(10)]
+   * ```
    * @see https://floating-ui.com/docs/computePosition#middleware
    */
   middleware?: Middleware[]
