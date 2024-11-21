@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.25.69
+
+### Patch Changes
+
+- 1b06f64: fix(api-reference): conflicting styles with bulma, galaxy bug on docs
+- fda0e5c: fix(api-reference): missing section borders and card-form border
+- Updated dependencies [5da67b2]
+- Updated dependencies [6b0d817]
+- Updated dependencies [6b0d817]
+- Updated dependencies [6c843e6]
+- Updated dependencies [324834d]
+- Updated dependencies [1b06f64]
+- Updated dependencies [8066c8c]
+- Updated dependencies [6dd7eda]
+  - @scalar/api-client@2.2.1
+  - @scalar/components@0.12.74
+  - @scalar/code-highlight@0.0.16
+  - @scalar/themes@0.9.50
+  - @scalar/oas-utils@0.2.79
+  - @scalar/use-hooks@0.1.3
+
 ## 1.25.68
 
 ### Patch Changes

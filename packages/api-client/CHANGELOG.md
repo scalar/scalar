@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.2.1
+
+### Patch Changes
+
+- 5da67b2: style: enhances responsive alignment layout
+- 6b0d817: style: updates response headers and copy button ui"
+- 6b0d817: fix: pretty print response body content
+- 6c843e6: feat(api-client): polish non-macos layouts
+- 1b06f64: fix(api-reference): conflicting styles with bulma, galaxy bug on docs
+- 8066c8c: fix: displays empty state new request button in desktop only
+- Updated dependencies [324834d]
+- Updated dependencies [1b06f64]
+- Updated dependencies [6dd7eda]
+  - @scalar/components@0.12.74
+  - @scalar/themes@0.9.50
+  - @scalar/oas-utils@0.2.79
+  - @scalar/use-codemirror@0.11.41
+  - @scalar/use-hooks@0.1.3
+
 ## 2.2.0
 
 ### Minor Changes

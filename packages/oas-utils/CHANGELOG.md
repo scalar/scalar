@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.79
+
+### Patch Changes
+
+- 6dd7eda: fix: catch errors for invalid OpenAPI documents
+- Updated dependencies [1b06f64]
+  - @scalar/themes@0.9.50
+
 ## 0.2.78
 
 ### Patch Changes

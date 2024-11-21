@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.12.74
+
+### Patch Changes
+
+- 324834d: style: sets z context to tooltip content
+- 1b06f64: fix(api-reference): conflicting styles with bulma, galaxy bug on docs
+- Updated dependencies [1b06f64]
+  - @scalar/code-highlight@0.0.16
+  - @scalar/themes@0.9.50
+  - @scalar/use-hooks@0.1.3
+
 ## 0.12.73
 
 ### Patch Changes
