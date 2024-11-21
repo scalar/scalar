@@ -1,6 +1,14 @@
-import { type Request, type Source, arrayToObject } from '../../../core'
+import type { Request, Source } from '../../../core'
 
-export function curl(request?: Partial<Request>): Source {
+export type PluginConfiguration = {
+  /** Credentials to add HTTP Basic Authentication */
+  auth?: { username: string; password: string }
+}
+
+export function curl(
+  request?: Partial<Request>,
+  configuration?: PluginConfiguration,
+): Source {
   // Defaults
   const normalizedRequest = {
     method: 'GET',
@@ -27,6 +35,13 @@ export function curl(request?: Partial<Request>): Source {
   // Method
   if (normalizedRequest.method !== 'GET') {
     parts.push(`-X ${normalizedRequest.method}`)
+  }
+
+  // Basic Auth
+  if (configuration?.auth?.username && configuration?.auth?.password) {
+    parts.push(
+      `-u '${configuration.auth.username}:${configuration.auth.password}'`,
+    )
   }
 
   // Headers
