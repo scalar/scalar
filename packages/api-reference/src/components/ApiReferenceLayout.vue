@@ -335,7 +335,7 @@ const themeStyleTag = computed(
           :baseServerURL="configuration.baseServerURL"
           :layout="configuration.layout"
           :parsedSpec="parsedSpec"
-          :proxy="configuration.proxyUrl ?? configuration.proxy"
+          :proxyUrl="configuration.proxyUrl ?? configuration.proxy"
           :servers="configuration.servers">
           <template #start>
             <slot

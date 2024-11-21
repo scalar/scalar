@@ -22,7 +22,7 @@ defineProps<{
     | OpenAPIV2.SecuritySchemeObject
     | OpenAPIV3.SecuritySchemeObject
     | OpenAPIV3_1.SecuritySchemeObject
-  proxy?: string
+  proxyUrl?: string
 }>()
 
 const { toast } = useToasts()
@@ -428,7 +428,7 @@ const startAuthentication = (url: string) => {
                     ).flows?.password?.tokenUrl,
                     {
                       baseUrl: getUrlFromServerState(server).modifiedUrl,
-                      proxy,
+                      proxyUrl,
                     },
                   )
               ">

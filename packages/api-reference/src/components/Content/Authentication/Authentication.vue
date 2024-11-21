@@ -8,7 +8,7 @@ import { hasSecuritySchemes, sleep } from '../../../helpers'
 import SecurityScheme from '../../../legacy/components/SecurityScheme.vue'
 import SecuritySchemeSelector from '../../../legacy/components/SecuritySchemeSelector.vue'
 
-const props = defineProps<{ parsedSpec?: Spec; proxy?: string }>()
+const props = defineProps<{ parsedSpec?: Spec; proxyUrl?: string }>()
 
 const { authentication, setAuthentication } = useAuthenticationStore()
 
@@ -57,7 +57,7 @@ onServerPrefetch(async () => {
       class="authentication-content">
       <SecurityScheme
         v-if="authentication.preferredSecurityScheme"
-        :proxy="proxy"
+        :proxyUrl="proxyUrl"
         :value="
           parsedSpec?.components?.securitySchemes?.[
             authentication.preferredSecurityScheme
