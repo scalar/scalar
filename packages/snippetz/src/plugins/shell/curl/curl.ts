@@ -5,6 +5,17 @@ export type PluginConfiguration = {
   auth?: { username: string; password: string }
 }
 
+type AddSnippetzPlugin<T extends string, C extends string> = {
+  [K in T]: {
+    [L in C]: L
+  }
+}
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface SnippetzTargets extends AddSnippetzPlugin<'shell', 'curl'> {}
+}
+
 export function curl(
   request?: Partial<Request>,
   configuration?: PluginConfiguration,
