@@ -1,20 +1,4 @@
-import type { Request, Source } from '../../../core'
-
-export type PluginConfiguration = {
-  /** Credentials to add HTTP Basic Authentication */
-  auth?: { username: string; password: string }
-}
-
-type AddSnippetzPlugin<T extends string, C extends string> = {
-  [K in T]: {
-    [L in C]: L
-  }
-}
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface SnippetzTargets extends AddSnippetzPlugin<'shell', 'curl'> {}
-}
+import type { PluginConfiguration, Request, Source } from '../../../core'
 
 export function curl(
   request?: Partial<Request>,
