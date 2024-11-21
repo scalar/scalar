@@ -37,21 +37,21 @@ const formattedSpecTitle = computed(() => {
   <SectionContainer>
     <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
+        <div class="badges">
+          <Badge v-if="info.version">
+            {{ info.version }}
+          </Badge>
+          <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
+        </div>
+        <SectionHeader
+          :level="1"
+          :loading="!info.title"
+          tight>
+          {{ info.title }}
+        </SectionHeader>
+        <DownloadLink :specTitle="formattedSpecTitle" />
         <SectionColumns>
           <SectionColumn>
-            <div class="badges">
-              <Badge v-if="info.version">
-                {{ info.version }}
-              </Badge>
-              <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
-            </div>
-            <SectionHeader
-              :level="1"
-              :loading="!info.title"
-              tight>
-              {{ info.title }}
-            </SectionHeader>
-            <DownloadLink :specTitle="formattedSpecTitle" />
             <Description :value="info.description" />
           </SectionColumn>
           <SectionColumn v-if="$slots.aside">
