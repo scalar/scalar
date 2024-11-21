@@ -1,11 +1,11 @@
 import {
   type Request,
-  type Source,
+  type Snippet,
   arrayToObject,
   objectToString,
 } from '../../../core'
 
-export function fetch(request?: Partial<Request>): Source {
+export function fetch(request?: Partial<Request>): Snippet {
   // Defaults
   const normalizedRequest = {
     method: 'GET',

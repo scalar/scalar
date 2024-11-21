@@ -1,21 +1,20 @@
 /* eslint-disable */
-interface SnippetzClients {}
+interface Clients {}
 
 export type AddClient<T extends string, C extends string> = {
   [K in `${T} ${C}`]: C
 }
 
-interface SnippetzClients extends AddClient<'shell', 'curl'> {}
-interface SnippetzClients extends AddClient<'node', 'undici'> {}
-interface SnippetzClients extends AddClient<'node', 'fetch'> {}
+interface Clients extends AddClient<'shell', 'curl'> {}
+interface Clients extends AddClient<'node', 'undici'> {}
+interface Clients extends AddClient<'node', 'fetch'> {}
 
-export type TargetId = keyof SnippetzClients &
-  string extends `${infer T} ${string}`
+export type TargetId = keyof Clients & string extends `${infer T} ${string}`
   ? T
   : never
 
-export type ClientId<T extends TargetId> =
-  SnippetzClients[keyof SnippetzClients & `${T} ${string}`]
+export type ClientId<T extends TargetId> = Clients[keyof Clients &
+  `${T} ${string}`]
 
 // TODO: Move to type tests
 const goodTarget: TargetId = 'node'
@@ -37,7 +36,7 @@ export type PluginConfiguration = {
   auth?: { username: string; password: string }
 }
 
-export type Source = {
+export type Snippet = {
   /** The language or environment. */
   target: TargetId
   /** The identifier of the client. */

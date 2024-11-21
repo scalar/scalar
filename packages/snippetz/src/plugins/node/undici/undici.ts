@@ -1,11 +1,11 @@
 import {
   type Request,
-  type Source,
+  type Snippet,
   arrayToObject,
   objectToString,
 } from '../../../core'
 
-export function undici(request?: Partial<Request>): Source {
+export function undici(request?: Partial<Request>): Snippet {
   // Defaults
   const normalizedRequest = {
     method: 'GET',

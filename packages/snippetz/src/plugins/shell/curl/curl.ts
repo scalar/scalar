@@ -1,9 +1,9 @@
-import type { PluginConfiguration, Request, Source } from '../../../core'
+import type { PluginConfiguration, Request, Snippet } from '../../../core'
 
 export function curl(
   request?: Partial<Request>,
   configuration?: PluginConfiguration,
-): Source {
+): Snippet {
   // Defaults
   const normalizedRequest = {
     method: 'GET',
