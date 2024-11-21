@@ -34,7 +34,15 @@ export const parseSchema = async (spec: string | UnknownObject) => {
   // @see packages/api-reference/src/helpers/parse.ts
 
   const { filesystem, errors: loadErrors = [] } = await load(spec).catch(
-    (e) => ({ errors: [e.message], filesystem: [] }),
+    (e) => ({
+      errors: [
+        {
+          code: e.code,
+          message: e.message,
+        },
+      ],
+      filesystem: [],
+    }),
   )
 
   const { specification } = upgrade(filesystem)
