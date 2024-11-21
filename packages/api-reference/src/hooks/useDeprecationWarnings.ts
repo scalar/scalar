@@ -14,13 +14,13 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
     () => {
       if (configuration.proxy) {
         console.warn(
-          `[DEPRECATED] Warning: You’re using the deprecated proxy attribute, please rename it to proxyUrl.`,
+          `[DEPRECATED] You’re using the deprecated proxy attribute, please rename it to proxyUrl.`,
         )
       }
 
       if ((configuration.proxyUrl || configuration.proxy) === OLD_PROXY_URL) {
         console.warn(
-          `[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}).`,
+          `[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}) or update your integration.`,
         )
 
         console.warn(
