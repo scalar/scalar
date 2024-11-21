@@ -57,6 +57,16 @@ const { codeSnippet } = useCodeSnippet({
   client: toRef(library, 'client'),
   request,
 })
+
+// Map target to syntax highlighting language
+const targetToLanguage: Record<string, string> = {
+  shell: 'bash',
+}
+
+const language = computed(() => {
+  // Return mapped language or fallback to target
+  return targetToLanguage[library.target] || library.target
+})
 </script>
 
 <template>
@@ -90,7 +100,7 @@ const { codeSnippet } = useCodeSnippet({
         <ScalarCodeBlock
           :content="codeSnippet"
           :copy="true"
-          :lang="library.target" />
+          :lang="language" />
       </div>
     </ViewLayoutCollapse>
   </template>
