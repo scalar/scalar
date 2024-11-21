@@ -1,5 +1,4 @@
 export * from './createEmptySpecification'
-export * from './createRequest'
 export * from './deepMerge'
 export * from './getExampleCode'
 export * from './convertRequestToHarRequest'
