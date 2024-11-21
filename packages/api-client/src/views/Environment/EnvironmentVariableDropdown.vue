@@ -6,13 +6,12 @@ import type { Environment } from '@scalar/oas-utils/entities/environment'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { type CSSProperties, computed, onMounted, ref } from 'vue'
-import type { Router } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   query: string
   environment: Environment
   envVariables: EnvVariables
-  router?: Router
   // withServers?: boolean
   dropdownPosition?: { left: number; top: number }
 }>()
@@ -24,10 +23,11 @@ const emit = defineEmits<{
 const isOpen = ref(true)
 const dropdownRef = ref<HTMLElement | null>(null)
 const selectedVariableIndex = ref(0)
+const router = useRouter()
 
 const redirectToEnvironment = () => {
-  if (!props.router) return
-  const { currentRoute, push } = props.router
+  if (!router) return
+  const { currentRoute, push } = router
 
   const workspaceId = currentRoute.value.params.workspace
   push({
