@@ -4,7 +4,6 @@ import { createRequestOperation } from '@scalar/api-client/libs'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
-import type { Request as HarRequest } from '@scalar/snippetz'
 import type {
   ExampleRequestSSRKey,
   SSRState,
@@ -28,7 +27,7 @@ import {
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
-import { getExampleCode, getHarRequest } from '../../helpers'
+import { getExampleCode } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
@@ -119,6 +118,7 @@ const generateSnippet = async () => {
     )
   }
 
+  // Grab the request and example
   const _request = Object.values(requests).find(
     ({ method, path }) =>
       method === props.operation.httpVerb.toLowerCase() &&
