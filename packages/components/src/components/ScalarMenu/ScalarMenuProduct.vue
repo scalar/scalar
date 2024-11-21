@@ -8,7 +8,7 @@ defineProps<{
 </script>
 <template>
   <a
-    class="relative flex min-w-0 flex-1 flex-col items-center gap-2 overflow-hidden rounded px-2 py-1.5 leading no-underline xs:flex-row"
+    class="relative flex min-w-0 flex-1 items-center gap-2 overflow-hidden rounded px-2 py-1.5 leading no-underline flex-row"
     :class="
       selected
         ? 'pointer-events-none bg-b-2'
