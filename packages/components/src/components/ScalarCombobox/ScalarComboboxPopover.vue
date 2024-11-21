@@ -28,6 +28,7 @@ defineExpose({ popoverButtonRef })
       :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
+      :targetRef="targetRef"
       :teleport="teleport">
       <PopoverButton
         ref="popoverButtonRef"

@@ -5,8 +5,12 @@ import { ScalarIcon } from '../ScalarIcon'
 defineProps<{
   active?: boolean
   selected?: boolean
-  style?: 'radio' | 'checkbox'
+  style?: 'radio' | 'checkbox' | 'button'
   isDeletable?: boolean
+}>()
+
+defineEmits<{
+  (e: 'delete'): void
 }>()
 
 const variants = cva({

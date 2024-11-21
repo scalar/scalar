@@ -113,9 +113,10 @@ function moveActive(dir: 1 | -1) {
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length"
+    v-show="filtered.length || $slots.before || $slots.after"
     :id="id"
     class="border-t p-0.75">
+    <slot name="before" />
     <template
       v-for="(group, i) in groups"
       :key="i">
@@ -145,5 +146,6 @@ function moveActive(dir: 1 | -1) {
         </ComboboxOption>
       </template>
     </template>
+    <slot name="after" />
   </ul>
 </template>

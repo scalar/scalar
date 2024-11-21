@@ -21,6 +21,7 @@ defineEmits<{
     :isOpen="isOpen"
     :placement="placement ?? 'bottom-start'"
     :resize="resize"
+    :targetRef="targetRef"
     :teleport="teleport">
     <slot />
     <template #popover="{ open, close }">
@@ -29,9 +30,18 @@ defineEmits<{
         :open="open"
         :options="options"
         :placeholder="placeholder"
-        @update:modelValue="
-          (v) => (close(), $emit('update:modelValue', v[0]))
-        " />
+        @update:modelValue="(v) => (close(), $emit('update:modelValue', v[0]))">
+        <template
+          v-if="$slots.before"
+          #before>
+          <slot name="before" />
+        </template>
+        <template
+          v-if="$slots.after"
+          #after>
+          <slot name="after" />
+        </template>
+      </ComboboxOptions>
     </template>
   </ComboboxPopover>
 </template>
