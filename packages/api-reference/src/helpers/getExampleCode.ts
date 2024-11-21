@@ -1,4 +1,3 @@
-import { convertRequestToHarRequest } from '@/helpers/convertRequestToHarRequest'
 import {
   type ClientId as SnippetzClientId,
   type TargetId as SnippetzTargetId,
@@ -9,6 +8,8 @@ import {
   type ClientId as HttpSnippetLiteClientId,
   type TargetId as HttpSnippetLiteTargetId,
 } from 'httpsnippet-lite'
+
+import { convertRequestToHarRequest } from '../helpers/convertRequestToHarRequest'
 
 export type TargetId = HttpSnippetLiteTargetId | SnippetzTargetId
 export type ClientId<T extends SnippetzTargetId> =
