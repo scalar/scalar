@@ -1,4 +1,4 @@
-import { REGEX } from '../helpers'
+import { REGEX } from '../helpers/regexHelpers'
 
 /**
  * Find all strings wrapped in {} or {{}} in value.

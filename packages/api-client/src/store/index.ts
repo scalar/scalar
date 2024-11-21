@@ -1,3 +1,6 @@
 export * from './store'
-export { ACTIVE_ENTITIES_SYMBOL, useActiveEntities } from './active-entities'
-export { defaultRouterParamsFactory } from './router-params'
+export {
+  ACTIVE_ENTITIES_SYMBOL,
+  createActiveEntitiesStore,
+  useActiveEntities,
+} from './active-entities'
