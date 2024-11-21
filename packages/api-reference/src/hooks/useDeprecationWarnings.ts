@@ -34,17 +34,6 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
         console.warn(
           `[DEPRECATED] Action Required: You should manually update your configuration to use the new URL (${NEW_PROXY_URL}). Read more: https://github.com/scalar/scalar`,
         )
-      } else if (
-        configuration.proxyUrl?.length &&
-        configuration.proxyUrl !== NEW_PROXY_URL &&
-        configuration.proxyUrl !== LOCAL_PROXY_URL
-      ) {
-        console.warn(
-          `[DEPRECATED] Warning: configuration.proxyUrl points to a custom proxy (${configuration?.proxyUrl || configuration?.proxy}).`,
-        )
-        console.warn(
-          `[DEPRECATED] Action Required: You need to use our new proxy (written in Go). Read more: https://github.com/scalar/scalar/tree/main/examples/proxy-server`,
-        )
       }
     },
     {
