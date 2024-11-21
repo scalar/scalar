@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.50
+
+### Patch Changes
+
+- 1b06f64: fix(api-reference): conflicting styles with bulma, galaxy bug on docs
+
 ## 0.9.49
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # scalar-app
 
+## 0.1.93
+
+### Patch Changes
+
+- 6c843e6: feat(api-client): polish non-macos layouts
+- Updated dependencies [5da67b2]
+- Updated dependencies [6b0d817]
+- Updated dependencies [6b0d817]
+- Updated dependencies [6c843e6]
+- Updated dependencies [324834d]
+- Updated dependencies [1b06f64]
+- Updated dependencies [8066c8c]
+  - @scalar/api-client@2.2.1
+  - @scalar/components@0.12.74
+  - @scalar/themes@0.9.50
+
 ## 0.1.92
 
 ### Patch Changes
