@@ -1,27 +1,21 @@
 /* eslint-disable */
-interface NewTargets {}
+interface SnippetzClients {}
 
-export type AddTarget<T extends string> = {
-  [K in T]: T
+export type AddClient<T extends string, C extends string> = {
+  [K in `${T} ${C}`]: C
 }
 
-interface NewClients {}
+interface SnippetzClients extends AddClient<'shell', 'curl'> {}
+interface SnippetzClients extends AddClient<'node', 'undici'> {}
+interface SnippetzClients extends AddClient<'node', 'fetch'> {}
 
-export type AddClient<T extends keyof NewTargets, C extends string> = {
-  [K in `${T}-${C}`]: C
-}
+export type TargetId = keyof SnippetzClients &
+  string extends `${infer T} ${string}`
+  ? T
+  : never
 
-interface NewTargets extends AddTarget<'shell'> {}
-interface NewClients extends AddClient<'shell', 'curl'> {}
-
-interface NewTargets extends AddTarget<'node'> {}
-interface NewClients extends AddClient<'node', 'undici'> {}
-interface NewTargets extends AddTarget<'node'> {}
-interface NewClients extends AddClient<'node', 'fetch'> {}
-
-export type TargetId = NewTargets[keyof NewTargets]
-export type ClientId<T extends TargetId> = NewClients[keyof NewClients &
-  `${T}-${string}`]
+export type ClientId<T extends TargetId> =
+  SnippetzClients[keyof SnippetzClients & `${T} ${string}`]
 
 // TODO: Move to type tests
 const goodTarget: TargetId = 'node'
