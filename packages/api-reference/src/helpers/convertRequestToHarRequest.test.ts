@@ -77,9 +77,10 @@ describe('convertRequestToHarRequest', () => {
   })
 
   it('converts a request with headers', async () => {
+    const testToken = 'token123'
     const request = new Request('https://api.example.com/users', {
       headers: {
-        Authorization: 'Bearer token123',
+        Authorization: `Bearer ${testToken}`,
         Accept: 'application/json',
       },
     })
@@ -91,7 +92,7 @@ describe('convertRequestToHarRequest', () => {
       httpVersion: 'HTTP/1.1',
       headers: [
         { name: 'accept', value: 'application/json' },
-        { name: 'authorization', value: 'Bearer token123' },
+        { name: 'authorization', value: `Bearer ${testToken}` },
       ],
       queryString: [],
       cookies: [],
