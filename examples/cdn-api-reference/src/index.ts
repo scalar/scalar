@@ -1,5 +1,6 @@
 import fastifyStatic from '@fastify/static'
 import apiReferenceBundle from '@scalar/api-reference/browser/standalone.js?raw'
+import apiReferenceComponentBundle from '@scalar/api-reference/component.js?raw'
 import playButtonBundle from '@scalar/play-button?raw'
 import fastify from 'fastify'
 import { readdirSync } from 'node:fs'
@@ -25,6 +26,13 @@ app.get('/api-reference/standalone.js', (_request, reply) => {
     .code(200)
     .header('Content-Type', 'text/javascript; charset=utf-8')
     .send(apiReferenceBundle)
+})
+
+app.get('/api-reference/component.js', (_request, reply) => {
+  reply
+    .code(200)
+    .header('Content-Type', 'text/javascript; charset=utf-8')
+    .send(apiReferenceComponentBundle)
 })
 
 // @scalar/play-button bundle
