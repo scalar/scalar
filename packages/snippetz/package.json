@@ -31,6 +31,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./plugins/shell/curl": {
+      "import": "./dist/plugins/shell/curl/index.js",
+      "types": "./dist/plugins/shell/curl/index.d.ts",
+      "default": "./dist/plugins/shell/curl/index.js"
+    },
     "./plugins/node/undici": {
       "import": "./dist/plugins/node/undici/index.js",
       "types": "./dist/plugins/node/undici/index.d.ts",

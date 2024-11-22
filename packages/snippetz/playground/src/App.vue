@@ -6,6 +6,7 @@ import CodeExample from './components/CodeExample.vue'
 
 const selectedTarget = ref<TargetId>('node')
 const selectedClient = ref<ClientId>('undici')
+
 function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
   selectedTarget.value = plugin.target
   selectedClient.value = plugin.client
@@ -81,7 +82,7 @@ function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
           text: JSON.stringify({ hello: 'world' }),
         },
       }"
-      target="node" />
+      :target="selectedTarget" />
   </div>
 </template>
 

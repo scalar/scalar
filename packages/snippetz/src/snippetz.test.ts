@@ -15,7 +15,7 @@ const { statusCode, body } = await request('https://example.com')`)
 
   it('loads some clients by default', async () => {
     const targets = snippetz().targets()
-    expect(targets).toStrictEqual(['node', 'js'])
+    expect(targets).toStrictEqual(['node', 'js', 'shell'])
 
     const clients = snippetz().clients()
     expect(clients).toStrictEqual([
@@ -24,6 +24,7 @@ const { statusCode, body } = await request('https://example.com')`)
       'fetch',
       'ofetch',
       'ofetch',
+      'curl',
     ])
   })
 })
@@ -52,6 +53,10 @@ describe('plugins', async () => {
       {
         target: 'node',
         client: 'ofetch',
+      },
+      {
+        target: 'shell',
+        client: 'curl',
       },
     ])
   })

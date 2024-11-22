@@ -4,12 +4,13 @@ import { ofetch as jsOFetch } from './plugins/js/ofetch'
 import { fetch as nodeFetch } from './plugins/node/fetch'
 import { ofetch as nodeOFetch } from './plugins/node/ofetch'
 import { undici } from './plugins/node/undici'
+import { curl } from './plugins/shell/curl'
 
 /**
  * Generate code examples for HAR requests
  */
 export function snippetz() {
-  const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch]
+  const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch, curl]
 
   return {
     get(target: TargetId, client: ClientId, request: Partial<Request>) {
