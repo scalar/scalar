@@ -7,7 +7,7 @@ defineProps<{
 </script>
 <template>
   <button
-    class="group/button -m-1 flex items-center gap-1 rounded bg-transparent px-2.5 py-2 hover:bg-b-2"
+    class="group/button flex items-center gap-1 rounded bg-transparent px-2.5 py-2 hover:bg-b-2"
     type="button">
     <div class="size-5">
       <slot><ScalarIcon icon="Logo" /></slot>
