@@ -70,10 +70,10 @@ const getVariable = (name: string) => {
 }
 
 .variable-label {
-  padding: 9px 0 9px 9px;
-  color: var(--scalar-color-2);
   border-top: 0.5px solid var(--scalar-border-color);
-  font-size: var(--scalar-micro);
+  color: var(--scalar-color-2);
+  font-size: var(--scalar-mini);
+  padding: 9px 0 9px 9px;
 }
 .variable-label:after {
   content: ':';

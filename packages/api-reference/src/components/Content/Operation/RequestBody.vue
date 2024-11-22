@@ -100,11 +100,11 @@ if (prop.requestBody?.content) {
 }
 .request-body-title-select:after {
   content: '';
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg) translate3d(-2px, -4px, 0);
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg) translate3d(0, -3px, 0);
   display: block;
-  margin-left: 5px;
+  margin-left: 6px;
   box-shadow: 1px 1px 0 currentColor;
   margin-right: 5px;
 }

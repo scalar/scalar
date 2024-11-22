@@ -184,6 +184,10 @@
     padding: 0 3px;
   }
 
+  .markdown .hljs {
+    font-size: var(--scalar-small);
+  }
+
   .markdown pre code {
     display: block;
     white-space: pre;
