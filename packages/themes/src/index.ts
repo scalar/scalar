@@ -130,3 +130,17 @@ export const getThemeStyles = (themeId?: ThemeId, opts?: GetThemeOpts) => {
   if (layer) return `@layer ${layer} {\n${styles}}`
   return styles
 }
+
+// Export all presets for easier access
+export { alternateTheme }
+export { bluePlanetTheme }
+export { deepSpaceTheme }
+export { defaultTheme }
+export { elysiajsTheme }
+export { fastifyTheme }
+export { keplerTheme }
+export { marsTheme }
+export { moonTheme }
+export { purpleTheme }
+export { saturnTheme }
+export { solarizedTheme }
