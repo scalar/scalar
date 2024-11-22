@@ -1,5 +1,21 @@
 # @scalar/api-client
 
+## 2.2.2
+
+### Patch Changes
+
+- 794a50d: fix(api-client): fix css conflict with grid
+- 85a9aea: fix: sets row addition call in update row method
+- Updated dependencies [9d23f95]
+- Updated dependencies [91123e8]
+- Updated dependencies [6140275]
+  - @scalar/types@0.0.21
+  - @scalar/themes@0.9.51
+  - @scalar/components@0.12.75
+  - @scalar/oas-utils@0.2.80
+  - @scalar/use-hooks@0.1.4
+  - @scalar/use-codemirror@0.11.42
+
 ## 2.2.1
 
 ### Patch Changes
