@@ -120,8 +120,12 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 		return err
 	}
 
-	// Copy the headers
-	outreq.Header = r.Header
+	// Copy the headers but exclude Origin
+	for key, values := range r.Header {
+		if !strings.EqualFold(key, "Origin") {
+			outreq.Header[key] = values
+		}
+	}
 
 	// Make the request
 	resp, err := client.Do(outreq)
