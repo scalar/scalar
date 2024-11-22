@@ -1,30 +1,30 @@
 <script lang="ts" setup>
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { ExampleRequestProps } from '@/features/ExampleRequest/ExampleRequest.vue'
 
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
-withDefaults(
-  defineProps<{
-    id?: string
-    operation: TransformedOperation
-    layout?: 'modern' | 'classic'
-  }>(),
+const {
+  id,
+  layout = 'modern',
+  ...exampleRequestProps
+} = defineProps<
   {
-    layout: 'modern',
-  },
-)
+    id?: string
+    layout?: 'modern' | 'classic'
+  } & ExampleRequestProps
+>()
 </script>
 
 <template>
   <template v-if="layout === 'classic'">
     <ClassicLayout
       :id="id"
-      :operation="operation" />
+      v-bind="exampleRequestProps" />
   </template>
   <template v-else>
     <ModernLayout
       :id="id"
-      :operation="operation" />
+      v-bind="exampleRequestProps" />
   </template>
 </template>
