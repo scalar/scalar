@@ -183,9 +183,12 @@ We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 Contributions are welcome! Read the [`CONTRIBUTING`](CONTRIBUTING.md) guide.
 
-**Top 10 Contributors (September 2024)**
+**Top 10 Contributors (November 2024)**
 
-<img width="830" height="560" src="https://github.com/user-attachments/assets/09cf5d60-3bc7-432e-8356-1cec7c78e638">
+<p>
+	<img width="830" height="280" src="https://github.com/user-attachments/assets/f325a891-8b23-4c4f-97e8-8c0e768a9d4a#gh-light-mode-only">
+	<img width="830" height="280" src="https://github.com/user-attachments/assets/8811e01d-914b-4a4b-8d24-166b360fa637#gh-dark-mode-only">
+</p>
 
 <br>
 <br>
