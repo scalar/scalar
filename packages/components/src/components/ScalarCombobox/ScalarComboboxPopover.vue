@@ -34,7 +34,9 @@ defineExpose({ popoverButtonRef })
         @keydown="handleKeydown">
         <slot :open="open" />
       </PopoverButton>
-      <template #floating="{ width }">
+      <template
+        v-if="open"
+        #floating="{ width }">
         <PopoverPanel
           v-slot="{ close }"
           class="relative flex w-40 flex-col rounded border text-sm"

@@ -37,7 +37,7 @@ const envs = computed(() => [
 </script>
 <template>
   <div>
-    <ScalarDropdown>
+    <ScalarDropdown placement="bottom-end">
       <ScalarButton
         class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-1 w-fit"
         fullWidth
