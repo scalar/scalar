@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../../src/createMockServer'
-import { createOpenAPIDocument } from '../../src/utils/createOpenAPIDocument'
+import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
 
 describe('OAuth 2.0 Authentication', () => {
   describe('Authorization Code Flow', () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -44,7 +44,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Implicit Flow', () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -82,7 +82,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Client Credentials Flow', () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {
@@ -120,7 +120,7 @@ describe('OAuth 2.0 Authentication', () => {
   })
 
   describe('Password Flow', () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       oauth2: {
         type: 'oauth2',
         flows: {

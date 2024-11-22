@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../../src/createMockServer'
-import { createOpenAPIDocument } from '../../src/utils/createOpenAPIDocument'
+import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
 
 describe('Bearer Token Authentication', () => {
   it('succeeds with valid bearer token', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       bearerAuth: { type: 'http', scheme: 'bearer' },
     })
     specification.paths = {
@@ -27,7 +27,7 @@ describe('Bearer Token Authentication', () => {
   })
 
   it('fails without bearer token', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       bearerAuth: { type: 'http', scheme: 'bearer' },
     })
 

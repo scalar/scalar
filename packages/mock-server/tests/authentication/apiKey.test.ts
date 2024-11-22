@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../../src/createMockServer'
-import { createOpenAPIDocument } from '../../src/utils/createOpenAPIDocument'
+import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
 
 describe('API Key Authentication', () => {
   it('succeeds with API key in header', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
     specification.paths = {
@@ -30,7 +30,7 @@ describe('API Key Authentication', () => {
   })
 
   it('fails without API key in header', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       apiKey: { type: 'apiKey', in: 'header', name: 'X-API-Key' },
     })
     specification.paths = {

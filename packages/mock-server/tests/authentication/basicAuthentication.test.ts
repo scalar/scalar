@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../../src/createMockServer'
-import { createOpenAPIDocument } from '../../src/utils/createOpenAPIDocument'
+import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
 
 describe('HTTP Basic Authentication', () => {
   it('succeeds with valid basic auth credentials', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       basicAuth: { type: 'http', scheme: 'basic' },
     })
     specification.paths = {
@@ -26,7 +26,7 @@ describe('HTTP Basic Authentication', () => {
   })
 
   it('fails without basic auth credentials', async () => {
-    const specification = createOpenAPIDocument({
+    const specification = createOpenApiDefinition({
       basicAuth: { type: 'http', scheme: 'basic' },
     })
     specification.paths = {

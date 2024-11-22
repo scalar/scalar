@@ -1,3 +1,10 @@
+import type { HttpMethod, MockServerOptions } from '@/types'
+import { getOperations } from '@/utils/getOperations'
+import { handleAuthentication } from '@/utils/handleAuthentication'
+import { honoRouteFromPath } from '@/utils/honoRouteFromPath'
+import { isAuthenticationRequired } from '@/utils/isAuthenticationRequired'
+import { logAuthenticationInstructions } from '@/utils/logAuthenticationInstructions'
+import { setupAuthenticationRoutes } from '@/utils/setupAuthenticationRoutes'
 import { openapi } from '@scalar/openapi-parser'
 import type { OpenAPI, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type Context, Hono } from 'hono'
@@ -5,13 +12,6 @@ import { cors } from 'hono/cors'
 
 import { mockAnyResponse } from './routes/mockAnyResponse'
 import { respondWithOpenApiDocument } from './routes/respondWithOpenApiDocument'
-import type { HttpMethod, MockServerOptions } from './types'
-import { getOperations } from './utils/getOperations'
-import { handleAuthentication } from './utils/handleAuthentication'
-import { honoRouteFromPath } from './utils/honoRouteFromPath'
-import { isAuthenticationRequired } from './utils/isAuthenticationRequired'
-import { logAuthenticationInstructions } from './utils/logAuthenticationInstructions'
-import { setupAuthenticationRoutes } from './utils/setupAuthenticationRoutes'
 
 /**
  * Create a mock server instance
