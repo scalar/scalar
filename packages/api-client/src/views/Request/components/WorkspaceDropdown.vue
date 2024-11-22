@@ -118,7 +118,9 @@ const deleteWorkspace = async () => {
             <span class="text-ellipsis overflow-hidden">{{
               workspace.name
             }}</span>
-            <ScalarDropdown teleport=".scalar-client">
+            <ScalarDropdown
+              placement="right-start"
+              teleport=".scalar-client">
               <ScalarButton
                 class="px-0.5 py-0 hover:bg-b-3 group-hover/item:flex aspect-square ml-auto -mr-1 h-fit"
                 size="sm"

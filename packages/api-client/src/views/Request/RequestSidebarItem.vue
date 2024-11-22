@@ -321,9 +321,10 @@ const hasDraftRequests = computed(() => {
                 v-if="!isReadOnly"
                 class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
                 :class="{
-                  flex:
+                  'flex':
                     menuItem?.item?.entity.uid === item.entity.uid &&
                     menuItem.open,
+                  'opacity-100': menuItem.open,
                 }"
                 size="sm"
                 type="button"
@@ -333,8 +334,8 @@ const hasDraftRequests = computed(() => {
                     $emit('openMenu', {
                       item,
                       parentUids,
-                      targetRef: ev.currentTarget.parentNode,
-                      open: true,
+                      targetRef: ev.currentTarget,
+                      open: !menuItem.open,
                     })
                 ">
                 <ScalarIcon

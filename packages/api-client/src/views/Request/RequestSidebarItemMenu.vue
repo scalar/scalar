@@ -8,8 +8,10 @@ import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
 import type { SidebarMenuItem } from '@/views/Request/types'
 import {
-  ScalarDropdown,
-  ScalarDropdownItem,
+  type ScalarDropdown,
+  ScalarDropdownButton,
+  ScalarDropdownMenu,
+  ScalarFloating,
   ScalarIcon,
   ScalarModal,
   useModal,
@@ -113,47 +115,47 @@ const isDraftsMenuItem = computed(() => {
 </script>
 
 <template>
-  <ScalarDropdown
+  <ScalarFloating
     v-if="menuItem.targetRef && menuItem.open"
-    static
+    placement="right-start"
     :target="menuItem.targetRef"
-    teleport
-    @keydown.escape="$emit('closeMenu')">
-    <template #items>
-      <!-- Add example -->
-      <ScalarDropdownItem
-        v-if="menuItem.item?.entity.type === 'request'"
-        class="flex gap-2"
-        @click="handleAddExample">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Example"
-          size="md"
-          thickness="1.5" />
-        <span>Add Example</span>
-      </ScalarDropdownItem>
+    teleport>
+    <template #floating>
+      <ScalarDropdownMenu @keydown.escape="$emit('closeMenu')">
+        <!-- Add example -->
+        <ScalarDropdownButton
+          v-if="menuItem.item?.entity.type === 'request'"
+          class="flex gap-2"
+          @click="handleAddExample">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Example"
+            size="md"
+            thickness="1.5" />
+          <span>Add Example</span>
+        </ScalarDropdownButton>
 
-      <!-- Rename -->
-      <ScalarDropdownItem
-        v-if="!isDraftsMenuItem"
-        ref="menuRef"
-        class="flex gap-2"
-        @click="editModal.show()">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Edit"
-          size="md"
-          thickness="1.5" />
-        <span>
-          <template v-if="menuItem.item?.entity.type === 'collection'">
-            Edit
-          </template>
-          <template v-else> Rename </template>
-        </span>
-      </ScalarDropdownItem>
+        <!-- Rename -->
+        <ScalarDropdownButton
+          v-if="!isDraftsMenuItem"
+          ref="menuRef"
+          class="flex gap-2"
+          @click="editModal.show()">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Edit"
+            size="md"
+            thickness="1.5" />
+          <span>
+            <template v-if="menuItem.item?.entity.type === 'collection'">
+              Edit
+            </template>
+            <template v-else> Rename </template>
+          </span>
+        </ScalarDropdownButton>
 
-      <!-- Duplicate -->
-      <!-- <ScalarDropdownItem
+        <!-- Duplicate -->
+        <!-- <ScalarDropdownButton
         class="flex !gap-2"
         @click="handleItemDuplicate">
         <ScalarIcon
@@ -162,56 +164,57 @@ const isDraftsMenuItem = computed(() => {
           icon="Duplicate"
           size="sm" />
         <span>Duplicate</span>
-      </ScalarDropdownItem>
+      </ScalarDropdownButton>
       <ScalarDropdownDivider /> -->
 
-      <!-- Watch -->
-      <ScalarDropdownItem
-        v-if="menuItem.item?.documentUrl"
-        ref="menuRef"
-        class="flex gap-2"
-        @click="toggleWatchMode">
-        <ScalarIcon
-          class="inline-flex"
-          :icon="menuItem.item?.watchMode ? 'Unwatch' : 'Watch'"
-          size="md"
-          thickness="1.5" />
-        <span>
-          {{
-            menuItem.item?.watchMode
-              ? 'Disable Watch Mode'
-              : 'Enable Watch Mode'
-          }}
-        </span>
-      </ScalarDropdownItem>
+        <!-- Watch -->
+        <ScalarDropdownButton
+          v-if="menuItem.item?.documentUrl"
+          ref="menuRef"
+          class="flex gap-2"
+          @click="toggleWatchMode">
+          <ScalarIcon
+            class="inline-flex"
+            :icon="menuItem.item?.watchMode ? 'Unwatch' : 'Watch'"
+            size="md"
+            thickness="1.5" />
+          <span>
+            {{
+              menuItem.item?.watchMode
+                ? 'Disable Watch Mode'
+                : 'Enable Watch Mode'
+            }}
+          </span>
+        </ScalarDropdownButton>
 
-      <!-- Delete -->
-      <ScalarDropdownItem
-        v-if="!isDraftsMenuItem"
-        class="flex gap-2"
-        @click="deleteModal.show()">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Delete"
-          size="md"
-          thickness="1.5" />
-        <span>Delete</span>
-      </ScalarDropdownItem>
+        <!-- Delete -->
+        <ScalarDropdownButton
+          v-if="!isDraftsMenuItem"
+          class="flex gap-2"
+          @click="deleteModal.show()">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Delete"
+            size="md"
+            thickness="1.5" />
+          <span>Delete</span>
+        </ScalarDropdownButton>
 
-      <!-- Clear Drafts -->
-      <ScalarDropdownItem
-        v-if="isDraftsMenuItem"
-        class="flex gap-2"
-        @click="clearDraftsModal.show()">
-        <ScalarIcon
-          class="inline-flex"
-          icon="Delete"
-          size="md"
-          thickness="1.5" />
-        <span>Clear Drafts</span>
-      </ScalarDropdownItem>
+        <!-- Clear Drafts -->
+        <ScalarDropdownButton
+          v-if="isDraftsMenuItem"
+          class="flex gap-2"
+          @click="clearDraftsModal.show()">
+          <ScalarIcon
+            class="inline-flex"
+            icon="Delete"
+            size="md"
+            thickness="1.5" />
+          <span>Clear Drafts</span>
+        </ScalarDropdownButton>
+      </ScalarDropdownMenu>
     </template>
-  </ScalarDropdown>
+  </ScalarFloating>
 
   <!-- Modals -->
   <ScalarModal

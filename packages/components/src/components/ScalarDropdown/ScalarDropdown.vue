@@ -1,8 +1,27 @@
+<script lang="ts">
+/**
+ * Scalar dropdown component
+ *
+ * Uses the headlessui Menu component under the hood
+ * @see https://headlessui.com/v1/vue/menu
+ *
+ * @example
+ * <ScalarDropdown>
+ *   <ScalarButton>Click Me</ScalarButton>
+ *   <template #items>
+ *     <ScalarDropdownItem>Item 1</ScalarDropdownItem>
+ *     <ScalarDropdownItem>Item 2</ScalarDropdownItem>
+ *   </template>
+ * </ScalarDropdown>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
 import type { Slot } from 'vue'
 
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import ScalarDropdownMenu from './ScalarDropdownMenu.vue'
 
 defineProps<ScalarFloatingOptions>()
 
@@ -34,24 +53,15 @@ defineOptions({ inheritAttrs: false })
       </MenuButton>
       <template #floating="{ width }">
         <!-- Background container -->
-        <MenuItems
+        <ScalarDropdownMenu
+          :is="MenuItems"
           v-bind="$attrs"
-          class="relative flex max-h-[inherit] w-56 rounded border"
+          class="max-h-[inherit]"
           :style="{ width }">
-          <!-- Scroll container -->
-          <div class="custom-scroll min-h-0 flex-1">
-            <!-- Menu items -->
-            <div
-              class="flex flex-col p-0.75"
-              :style="{ width }">
-              <slot
-                name="items"
-                :open="open" />
-            </div>
-            <div
-              class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
-          </div>
-        </MenuItems>
+          <slot
+            name="items"
+            :open="open" />
+        </ScalarDropdownMenu>
       </template>
     </ScalarFloating>
   </Menu>
