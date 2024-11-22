@@ -308,6 +308,8 @@ export const createRequestOperation = ({
       // Scheme type and example value type should always match
       if (scheme.type === 'apiKey') {
         const value = replaceTemplateVariables(scheme.value, env)
+        if (!value) return
+
         if (scheme.in === 'header') headers[scheme.name] = value
         if (scheme.in === 'query') urlParams.append(scheme.name, value)
         if (scheme.in === 'cookie') {
@@ -323,10 +325,10 @@ export const createRequestOperation = ({
           const password = replaceTemplateVariables(scheme.password, env)
           const value = `${username}:${password}`
 
-          headers['Authorization'] = `Basic ${btoa(value)}`
+          if (value !== ':') headers['Authorization'] = `Basic ${btoa(value)}`
         } else {
           const value = replaceTemplateVariables(scheme.token, env)
-          headers['Authorization'] = `Bearer ${value}`
+          if (value) headers['Authorization'] = `Bearer ${value}`
         }
       }
 

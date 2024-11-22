@@ -77,7 +77,7 @@ describe('convertRequestToHarRequest', () => {
   })
 
   it('converts a request with headers', async () => {
-    const testToken = 'token123'
+    const testToken = 'xxxxx'
     const request = new Request('https://api.example.com/users', {
       headers: {
         Authorization: `Bearer ${testToken}`,
