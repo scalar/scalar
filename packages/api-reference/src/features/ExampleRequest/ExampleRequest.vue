@@ -203,8 +203,13 @@ const generateSnippet = async () => {
   const mediaTypes = Object.keys(
     props.operation.information?.requestBody?.content ?? {},
   )
-  if (mediaTypes.length)
+  if (
+    response.request.headers.get('content-type') ===
+      'text/plain;charset=UTF-8' &&
+    mediaTypes.length
+  ) {
     response.request.headers.set('content-type', mediaTypes[0])
+  }
 
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
