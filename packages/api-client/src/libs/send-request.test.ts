@@ -602,7 +602,7 @@ describe('sendRequest', () => {
   })
 })
 
-describe.only('authentication', () => {
+describe('authentication', () => {
   it('adds apiKey auth in header', async () => {
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({
