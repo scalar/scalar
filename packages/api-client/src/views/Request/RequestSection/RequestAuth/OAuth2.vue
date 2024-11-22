@@ -23,7 +23,7 @@ const loadingState = useLoadingState()
 const { toast } = useToasts()
 
 const { activeCollection, activeServer } = useActiveEntities()
-const { isReadOnly, securitySchemeMutators } = useWorkspace()
+const { securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
@@ -77,7 +77,7 @@ const handleAuthorize = async () => {
 
   <template v-else>
     <!-- Custom auth -->
-    <DataTableRow v-if="!isReadOnly">
+    <DataTableRow>
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
         :id="`oauth2-authorization-url-${scheme.uid}`"
