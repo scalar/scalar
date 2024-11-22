@@ -1,14 +1,32 @@
-<script setup lang="ts">
-import { useExampleStore } from '#legacy'
-import { createRequestOperation } from '@scalar/api-client/libs'
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
-import { ScalarCodeBlock } from '@scalar/components'
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
+<script lang="ts">
+import type { WorkspaceStore } from '@scalar/api-client/store'
+import type {
+  Collection,
+  Request,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type {
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
 } from '@scalar/types/legacy'
+
+/** Props required for the ExampleRequest component (for now) */
+export type ExampleRequestProps = {
+  collection?: Collection
+  operation: TransformedOperation
+  request?: Request
+  requestExamples: WorkspaceStore['requestExamples']
+  securitySchemes: WorkspaceStore['securitySchemes']
+  server: Server
+}
+</script>
+<script setup lang="ts">
+import { useExampleStore } from '#legacy'
+import { createRequestOperation } from '@scalar/api-client/libs'
+import { ScalarCodeBlock } from '@scalar/components'
+
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { asyncComputed } from '@vueuse/core'
 import {
   computed,
@@ -32,21 +50,27 @@ import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const props = defineProps<{
-  operation: TransformedOperation
-  /** Show a simplified card if no example are available */
-  fallback?: boolean
-}>()
+const {
+  collection,
+  operation,
+  request,
+  requestExamples,
+  securitySchemes,
+  server,
+} = defineProps<
+  ExampleRequestProps & {
+    /** Show a simplified card if no example are available */
+    fallback?: boolean
+  }
+>()
 
 const ssrHash = createHash(
-  props.operation.path + props.operation.httpVerb + props.operation.operationId,
+  operation.path + operation.httpVerb + operation.operationId,
 )
 const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
 
 const { selectedExampleKey, operationId } = useExampleStore()
-const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
-const { requests, requestExamples, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -62,8 +86,8 @@ const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (props.operation.information?.[key]) {
-      const examples = [...props.operation.information[key]]
+    if (operation.information?.[key]) {
+      const examples = [...operation.information[key]]
       return examples
     }
   }
@@ -103,33 +127,15 @@ watch(httpClient, () => {
 const hasMultipleExamples = computed<boolean>(
   () =>
     Object.keys(
-      props.operation.information?.requestBody?.content?.['application/json']
+      operation.information?.requestBody?.content?.['application/json']
         ?.examples ?? {},
     ).length > 1,
-)
-
-/** Current request */
-const request = computed(() => {
-  const requestsArr = Object.values(requests)
-  if (!requestsArr.length) return null
-
-  return requestsArr.find(
-    ({ method, path }) =>
-      method === props.operation.httpVerb.toLowerCase() &&
-      path === props.operation.path,
-  )
-})
-
-/** Just grab the first example for now */
-const requestExample = computed(() =>
-  request.value ? requestExamples[request.value.examples[0]] : null,
 )
 
 /** Selected security scheme uids restircted by what is required by the request */
 const selectedSecuritySchemeUids = computed(() => {
   // Grab the required uids
-  const requirementObjects =
-    request.value?.security ?? activeCollection.value?.security ?? []
+  const requirementObjects = request?.security ?? collection?.security ?? []
   const filteredObjects = requirementObjects.filter(
     (r) => Object.keys(r).length,
   )
@@ -137,7 +143,7 @@ const selectedSecuritySchemeUids = computed(() => {
 
   // We have an empty object so any auth will work
   if (filteredObjects.length < requirementObjects.length) {
-    return activeCollection.value?.selectedSecuritySchemeUids ?? []
+    return collection?.selectedSecuritySchemeUids ?? []
   }
   // Otherwise filter the selected uids by what is required by this request
   else {
@@ -146,7 +152,7 @@ const selectedSecuritySchemeUids = computed(() => {
       .map((name) => _securitySchemes.find((s) => s.nameKey === name)?.uid)
       .filter(Boolean)
 
-    return activeCollection.value?.selectedSecuritySchemeUids.filter((uid) =>
+    return collection?.selectedSecuritySchemeUids.filter((uid) =>
       requirementUids.find((fuid) => fuid === uid),
     )
   }
@@ -177,16 +183,18 @@ const generateSnippet = async () => {
       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
     )
   }
-  if (!request.value || !requestExample.value) return ''
+
+  /** Just grab the first example for now */
+  const example = requestExamples[request?.examples?.[0] ?? '']
+  if (!request || !example) return ''
 
   // Generate a request object
   const [error, response] = createRequestOperation({
-    request: request.value,
-    example: requestExample.value,
-    server: activeServer.value,
+    request,
+    example,
+    server,
     securitySchemes,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
-    proxy: activeWorkspace.value.proxyUrl,
     // TODO: env vars if we want em
     environment: {},
     // TODO: cookies if we want em
@@ -201,7 +209,7 @@ const generateSnippet = async () => {
   // Set the content type of the request
   // TODO: this is a bit of a hack, solve this properly later from the example
   const mediaTypes = Object.keys(
-    props.operation.information?.requestBody?.content ?? {},
+    operation.information?.requestBody?.content ?? {},
   )
   if (
     response.request.headers.get('content-type') ===
