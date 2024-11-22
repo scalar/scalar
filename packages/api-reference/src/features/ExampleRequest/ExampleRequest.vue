@@ -198,6 +198,14 @@ const generateSnippet = async () => {
     return ''
   }
 
+  // Set the content type of the request
+  // TODO: this is a bit of a hack, solve this properly later from the example
+  const mediaTypes = Object.keys(
+    props.operation.information?.requestBody?.content ?? {},
+  )
+  if (mediaTypes.length)
+    response.request.headers.set('content-type', mediaTypes[0])
+
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
