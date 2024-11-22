@@ -1,11 +1,34 @@
 <script setup lang="ts">
+import type { ScalarFloatingOptions } from '../ScalarFloating'
 import { ScalarPopover } from '../ScalarPopover'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
+
+defineProps<ScalarFloatingOptions>()
+
+type ButtonSlotProps = { open: boolean }
+type MenuSlotProps = { close: () => void }
+
+defineSlots<{
+  /** Overrides the menu button */
+  button?: (p: ButtonSlotProps) => any
+  /** Overrides the logo in the menu button */
+  logo?: () => any
+  /** Overrides the label in the menu button */
+  label?: () => any
+  /** Overrides the products list */
+  products?: (p: MenuSlotProps) => any
+  /** Adds items the profile section (e.g. a team picker) */
+  profile?: (p: MenuSlotProps) => any
+  /** Overrides the resources section */
+  sections?: (p: MenuSlotProps) => any
+}>()
 </script>
 <template>
-  <ScalarPopover class="max-h-[inherit] w-[280px] max-w-[inherit]">
+  <ScalarPopover
+    v-bind="$props"
+    class="max-h-[inherit] w-[280px] max-w-[inherit]">
     <!-- Logo Button to open the popover -->
     <template #default="{ open }">
       <slot
