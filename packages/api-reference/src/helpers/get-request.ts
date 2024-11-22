@@ -5,4 +5,7 @@ export const getRequest = (
   requests: WorkspaceStore['requests'],
   path: string,
   method: string,
-) => Object.values(requests).find((r) => r.path === path && r.method === method)
+) =>
+  Object.values(requests).find(
+    (r) => r.path === path && r.method.toLowerCase() === method.toLowerCase(),
+  )
