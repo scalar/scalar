@@ -7,18 +7,26 @@ import {
 } from '@headlessui/vue'
 
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
-import ScalarListboxOption from './ScalarListboxOption.vue'
+import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
+
+type SingleSelectListboxProps = {
+  multiple?: false
+  modelValue?: Option
+}
+
+type MultipleSelectListboxProps = {
+  multiple: true
+  modelValue?: Option[]
+}
 
 defineProps<
   {
-    /** Allow selecting multiple values */
-    multiple?: boolean
     options: Option[]
-    modelValue?: Option | Option[]
     id?: string
     label?: string
-  } & Omit<FloatingOptions, 'middleware' | 'targetRef'>
+  } & (SingleSelectListboxProps | MultipleSelectListboxProps) &
+    Omit<FloatingOptions, 'middleware' | 'targetRef'>
 >()
 
 defineEmits<{
@@ -62,7 +70,8 @@ defineOptions({ inheritAttrs: false })
               <ScalarListboxOption
                 v-for="option in options"
                 :key="option.id"
-                :option="option" />
+                :option="option"
+                :style="multiple ? 'checkbox' : 'radio'" />
             </ListboxOptions>
           </div>
           <div

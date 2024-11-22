@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { cva, cx } from '../../cva'
 import { ScalarIcon } from '../ScalarIcon'
+import { ScalarListboxCheckbox } from '../ScalarListbox'
 
 defineProps<{
   active?: boolean
@@ -15,8 +16,9 @@ defineEmits<{
 
 const variants = cva({
   base: [
+    // Group
+    'group/item',
     // Layout
-    'group',
     'flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5 text-left',
     // Text / background style
     'truncate bg-transparent text-c-1',
@@ -30,25 +32,14 @@ const variants = cva({
 })
 </script>
 <template>
-  <li :class="cx(variants({ active, selected }), 'group')">
-    <div
-      class="flex size-4 items-center justify-center p-0.75"
-      :class="[
-        selected
-          ? 'bg-c-accent text-b-1'
-          : 'text-transparent group-hover:shadow-border',
-        style === 'checkbox' ? 'rounded' : 'rounded-full',
-      ]">
-      <!-- Icon needs help to be optically centered (╥﹏╥) -->
-      <ScalarIcon
-        class="relative top-[0.5px] size-2.5"
-        icon="Checkmark"
-        thickness="2.5" />
-    </div>
+  <li :class="cx(variants({ active, selected }))">
+    <ScalarListboxCheckbox
+      :selected="selected"
+      :style="style" />
     <span class="inline-block min-w-0 flex-1 truncate text-c-1"><slot /></span>
     <ScalarIcon
       v-if="isDeletable"
-      class="text-c-2 opacity-0 group-hover:opacity-100"
+      class="text-c-2 opacity-0 group-hover/item:opacity-100"
       icon="Delete"
       size="md"
       thickness="1.5"

@@ -38,12 +38,48 @@ export const Base: Story = {
       return { args, selected }
     },
     template: `
-<div class="flex items-center justify-center w-full h-screen">
+<div class="flex justify-center w-full min-h-96">
   <ScalarListbox v-model="selected" v-bind="args">
     <ScalarButton class="w-48 px-3" variant="outlined">
       <div class="flex flex-1 items-center min-w-0">
         <span class="inline-block truncate flex-1 min-w-0 text-left">
         {{ selected?.label ?? 'Select an option' }}
+        </span>
+        <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
+      </div>
+    </ScalarButton>
+  </ScalarListbox>
+</div>
+`,
+  }),
+}
+
+export const Multiselect: Story = {
+  args: {
+    multiple: true,
+    options: [
+      { id: '1', label: 'Option 1' },
+      { id: '2', label: 'Option 2' },
+      { id: '3', label: 'Option 3' },
+    ],
+  },
+  render: (args) => ({
+    components: {
+      ScalarListbox,
+      ScalarButton,
+      ScalarIcon,
+    },
+    setup() {
+      const selected = ref<Option[]>([])
+      return { args, selected }
+    },
+    template: `
+<div class="flex justify-center w-full min-h-96">
+  <ScalarListbox v-model="selected" v-bind="args">
+    <ScalarButton class="w-48 min-w-max px-3" variant="outlined">
+      <div class="flex flex-1 items-center min-w-0">
+        <span class="inline-block truncate flex-1 min-w-0 text-left">
+        {{ selected?.length ? selected.map(o => o.label).join(', ') : 'Select an option' }}
         </span>
         <ScalarIcon icon="ChevronDown" size="sm" class="ml-1 ui-open:rotate-180" />
       </div>

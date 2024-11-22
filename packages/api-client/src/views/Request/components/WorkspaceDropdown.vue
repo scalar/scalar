@@ -9,6 +9,7 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
+  ScalarListboxCheckbox,
   ScalarModal,
   ScalarTooltip,
   useModal,
@@ -113,18 +114,7 @@ const deleteWorkspace = async () => {
             :key="uid"
             class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
             @click.stop="updateSelected(uid)">
-            <div
-              class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
-              :class="
-                activeWorkspace.uid === uid
-                  ? 'bg-c-accent text-b-1'
-                  : 'group-hover/item:shadow-border text-transparent'
-              ">
-              <ScalarIcon
-                class="size-2.5"
-                icon="Checkmark"
-                thickness="3.5" />
-            </div>
+            <ScalarListboxCheckbox :selected="activeWorkspace.uid === uid" />
             <span class="text-ellipsis overflow-hidden">{{
               workspace.name
             }}</span>
