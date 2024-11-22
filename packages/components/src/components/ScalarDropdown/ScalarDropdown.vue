@@ -5,7 +5,7 @@ import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
 withDefaults(
   defineProps<
-    Omit<FloatingOptions, 'middleware'> & {
+    FloatingOptions & {
       static?: boolean
       staticOpen?: boolean
     }
@@ -19,6 +19,7 @@ defineOptions({ inheritAttrs: false })
   <Menu v-slot="{ open }">
     <ScalarFloating
       :isOpen="static ? staticOpen : (open ?? isOpen)"
+      :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :target="target"

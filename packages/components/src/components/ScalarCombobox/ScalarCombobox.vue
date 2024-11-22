@@ -9,7 +9,7 @@ defineProps<
     options: Option[] | OptionGroup[]
     modelValue?: Option
     placeholder?: string
-  } & Omit<FloatingOptions, 'middleware'>
+  } & FloatingOptions
 >()
 
 defineEmits<{
@@ -19,6 +19,7 @@ defineEmits<{
 <template>
   <ComboboxPopover
     :isOpen="isOpen"
+    :middleware="middleware"
     :placement="placement ?? 'bottom-start'"
     :resize="resize"
     :target="target"

@@ -26,7 +26,7 @@ defineProps<
     id?: string
     label?: string
   } & (SingleSelectListboxProps | MultipleSelectListboxProps) &
-    Omit<FloatingOptions, 'middleware'>
+    FloatingOptions
 >()
 
 defineEmits<{
@@ -48,6 +48,7 @@ defineOptions({ inheritAttrs: false })
     </ListboxLabel>
     <ScalarFloating
       :isOpen="open ?? isOpen"
+      :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :target="target"

@@ -4,6 +4,8 @@ export type FloatingOptions = {
   /**
    * Where to place the floating element relative to its reference element.
    * @default 'bottom'
+   *
+   * @see https://floating-ui.com/docs/computePosition#placement
    */
   placement?: Placement
   /**
