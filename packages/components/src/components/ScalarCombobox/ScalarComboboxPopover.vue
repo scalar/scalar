@@ -2,9 +2,12 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ref } from 'vue'
 
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import type { ScalarPopoverSlots } from '../ScalarPopover'
 
-defineProps<Omit<FloatingOptions, 'middleware'>>()
+defineProps<ScalarFloatingOptions>()
+
+defineSlots<ScalarPopoverSlots>()
 
 defineOptions({ inheritAttrs: false })
 
@@ -24,17 +27,12 @@ defineExpose({ popoverButtonRef })
   <Popover
     v-slot="{ open }"
     as="template">
-    <ScalarFloating
-      :isOpen="open ?? isOpen"
-      :placement="placement ?? 'bottom-start'"
-      :resize="resize"
-      :target="target"
-      :teleport="teleport">
+    <ScalarFloating v-bind="$props">
       <PopoverButton
         ref="popoverButtonRef"
         as="template"
         @keydown="handleKeydown">
-        <slot />
+        <slot :open="open" />
       </PopoverButton>
       <template #floating="{ width }">
         <PopoverPanel

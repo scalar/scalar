@@ -1,16 +1,11 @@
 <script setup lang="ts">
-import { type FloatingOptions, ScalarPopover } from '../../'
+import { ScalarPopover } from '../ScalarPopover'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
-
-defineProps<Pick<FloatingOptions, 'placement' | 'teleport'>>()
 </script>
 <template>
-  <ScalarPopover
-    class="max-h-[inherit] w-[280px] max-w-[inherit]"
-    :placement="placement ?? 'bottom-start'"
-    :teleport="teleport">
+  <ScalarPopover class="max-h-[inherit] w-[280px] max-w-[inherit]">
     <!-- Logo Button to open the popover -->
     <template #default="{ open }">
       <slot

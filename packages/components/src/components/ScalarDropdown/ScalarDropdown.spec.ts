@@ -9,6 +9,7 @@ describe('ScalarIconButton', () => {
       props: {},
       slots: {
         default: `<button>Button</button>`,
+        items: `<div>Items</div>`,
       },
     })
 

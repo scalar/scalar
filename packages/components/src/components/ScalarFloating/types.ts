@@ -1,5 +1,6 @@
 import type { Middleware, Placement } from '@floating-ui/vue'
 
+/** The props for the ScalarFloating component */
 export type FloatingOptions = {
   /**
    * Where to place the floating element relative to its reference element.
@@ -33,11 +34,6 @@ export type FloatingOptions = {
    * @see https://floating-ui.com/docs/computePosition#middleware
    */
   middleware?: Middleware[]
-  /**
-   * Whether the floating element is open or not.
-   * @default false
-   */
-  isOpen?: boolean
   /**
    * Whether to teleport the floating element.
    * Can be an `id` to teleport to or `true` to teleport to the `<body>`.

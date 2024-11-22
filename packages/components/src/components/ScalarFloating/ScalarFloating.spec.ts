@@ -23,12 +23,7 @@ describe('ScalarFloating', () => {
 
   describe('floating target', () => {
     it('should find target by ID string', async () => {
-      wrapper = mount(ScalarFloating, {
-        props: {
-          target: 'test-target',
-          isOpen: true,
-        },
-      })
+      wrapper = mount(ScalarFloating, { props: { target: 'test-target' } })
 
       await nextTick()
 
@@ -38,12 +33,7 @@ describe('ScalarFloating', () => {
     it('should fallback to the wrapper if target ID is not found', async () => {
       const consoleSpy = vi.spyOn(console, 'warn')
 
-      wrapper = mount(ScalarFloating, {
-        props: {
-          target: 'non-existent-id',
-          isOpen: true,
-        },
-      })
+      wrapper = mount(ScalarFloating, { props: { target: 'non-existent-id' } })
 
       await nextTick()
 
@@ -58,23 +48,18 @@ describe('ScalarFloating', () => {
     it('should use direct HTMLElement target', async () => {
       const directTarget = document.createElement('div')
 
-      wrapper = mount(ScalarFloating, {
-        props: {
-          target: directTarget,
-          isOpen: true,
-        },
-      })
+      wrapper = mount(ScalarFloating, { props: { target: directTarget } })
 
       await nextTick()
 
       expect(wrapper.vm.targetRef).toBe(directTarget)
+
+      directTarget.remove()
     })
 
     it('should fallback to first child of wrapper when no target specified', async () => {
       wrapper = mount(ScalarFloating, {
-        props: {
-          isOpen: true,
-        },
+        props: {},
         slots: {
           default: '<div class="child">Target Content</div>',
           floating: '<div class="floating">Floating Content</div>',
@@ -88,11 +73,7 @@ describe('ScalarFloating', () => {
     })
 
     it('should fallback to wrapper itself when no children present', async () => {
-      wrapper = mount(ScalarFloating, {
-        props: {
-          isOpen: true,
-        },
-      })
+      wrapper = mount(ScalarFloating, { props: {} })
 
       await nextTick()
 

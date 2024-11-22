@@ -52,7 +52,7 @@ export const CustomOffset: Story = {
     },
     template: `
 <div class="flex items-center justify-center w-full h-screen">
-  <ScalarFloating :middleware="middleware" isOpen>
+  <ScalarFloating :middleware="middleware">
     <div class="rounded border bg-b-2 p-2">Target for #floating</div>
     <template #floating="{ width, height }">
       <div 

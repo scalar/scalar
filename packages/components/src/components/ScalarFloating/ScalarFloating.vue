@@ -9,7 +9,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, computed, ref } from 'vue'
+import { type Ref, type Slot, computed, ref } from 'vue'
 
 import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
@@ -18,7 +18,7 @@ const props = defineProps<FloatingOptions>()
 
 defineSlots<{
   /** The reference element for the element in the #floating slot */
-  default(): any
+  default(): Slot
   /** The floating element */
   floating(props: {
     /** The width of the reference element if `resize` is true and placement is on the y axis */
@@ -27,7 +27,7 @@ defineSlots<{
     height?: string
     /** The middleware data return by Floating UI */
     data?: MiddlewareData
-  }): any
+  }): Slot
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -96,7 +96,6 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     <slot />
   </div>
   <Teleport
-    v-if="isOpen"
     :disabled="!teleport"
     :to="typeof teleport === 'string' ? teleport : 'body'">
     <div class="scalar-app">

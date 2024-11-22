@@ -5,8 +5,9 @@ import {
   ListboxLabel,
   ListboxOptions,
 } from '@headlessui/vue'
+import type { Slot } from 'vue'
 
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
 
@@ -26,11 +27,19 @@ defineProps<
     id?: string
     label?: string
   } & (SingleSelectListboxProps | MultipleSelectListboxProps) &
-    FloatingOptions
+    ScalarFloatingOptions
 >()
 
 defineEmits<{
   (e: 'update:modelValue', v: Option): void
+}>()
+
+defineSlots<{
+  /** The reference element for the listbox */
+  default(props: {
+    /** Whether or not the listbox is open */
+    open: boolean
+  }): Slot
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -47,7 +56,6 @@ defineOptions({ inheritAttrs: false })
       {{ label }}
     </ListboxLabel>
     <ScalarFloating
-      :isOpen="open ?? isOpen"
       :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
@@ -62,6 +70,7 @@ defineOptions({ inheritAttrs: false })
       <template #floating="{ width }">
         <!-- Background container -->
         <div
+          v-if="open"
           v-bind="$attrs"
           class="relative flex max-h-[inherit] w-40 rounded border text-sm"
           :style="{ width }">

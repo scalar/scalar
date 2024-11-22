@@ -1,32 +1,35 @@
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
+import type { Slot } from 'vue'
 
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 
-withDefaults(
-  defineProps<
-    FloatingOptions & {
-      static?: boolean
-      staticOpen?: boolean
-    }
-  >(),
-  { static: false, staticOpen: true },
-)
+defineProps<ScalarFloatingOptions>()
+
+defineSlots<{
+  /** The reference element for the element in the #floating slot */
+  default(props: {
+    /** Whether or not the dropdown is open */
+    open: boolean
+  }): Slot
+  /** The list of dropdown items */
+  items(props: {
+    /** Whether or not the dropdown is open */
+    open: boolean
+  }): Slot
+}>()
 
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
   <Menu v-slot="{ open }">
     <ScalarFloating
-      :isOpen="static ? staticOpen : (open ?? isOpen)"
       :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
       :target="target"
       :teleport="teleport">
-      <MenuButton
-        v-if="!static"
-        as="template">
+      <MenuButton as="template">
         <slot :open="open" />
       </MenuButton>
       <template #floating="{ width }">
@@ -34,7 +37,6 @@ defineOptions({ inheritAttrs: false })
         <MenuItems
           v-bind="$attrs"
           class="relative flex max-h-[inherit] w-56 rounded border"
-          :static="static"
           :style="{ width }">
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">
@@ -42,7 +44,9 @@ defineOptions({ inheritAttrs: false })
             <div
               class="flex flex-col p-0.75"
               :style="{ width }">
-              <slot name="items" />
+              <slot
+                name="items"
+                :open="open" />
             </div>
             <div
               class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import type { Slots } from './types'
 
-defineProps<FloatingOptions>()
+defineProps<ScalarFloatingOptions>()
+
+defineSlots<Slots>()
 
 defineOptions({ inheritAttrs: false })
 </script>
@@ -11,12 +14,7 @@ defineOptions({ inheritAttrs: false })
   <Popover
     v-slot="{ open }"
     as="template">
-    <ScalarFloating
-      v-bind="$props"
-      :isOpen="open ?? isOpen"
-      :middleware="middleware"
-      :target="target"
-      :teleport="teleport">
+    <ScalarFloating v-bind="$props">
       <PopoverButton as="template">
         <slot :open="open" />
       </PopoverButton>
@@ -28,7 +26,8 @@ defineOptions({ inheritAttrs: false })
           v-bind="$attrs">
           <slot
             :close="() => close()"
-            name="popover" />
+            name="popover"
+            :open="open" />
           <div
             class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
         </PopoverPanel>
