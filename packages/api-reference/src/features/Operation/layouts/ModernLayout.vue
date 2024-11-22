@@ -1,20 +1,22 @@
 <script setup lang="ts">
-import type { TransformedOperation } from '@scalar/types/legacy'
-
-import { ExampleRequest } from '../../../features/ExampleRequest'
-import { ExampleResponses } from '../../../features/ExampleResponses'
-import { Anchor } from '../../Anchor'
-import { Badge } from '../../Badge'
+import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
+import OperationPath from '@/components/OperationPath.vue'
 import {
   Section,
   SectionColumn,
   SectionColumns,
   SectionContent,
   SectionHeader,
-} from '../../Section'
-import EndpointDetails from './EndpointDetails.vue'
-import EndpointPath from './EndpointPath.vue'
-import TestRequestButton from './TestRequestButton.vue'
+} from '@/components/Section'
+import { ExampleRequest } from '@/features/ExampleRequest'
+import { ExampleResponses } from '@/features/ExampleResponses'
+import { TestRequestButton } from '@/features/TestRequestButton'
+import { ScalarMarkdown } from '@scalar/components'
+import type { TransformedOperation } from '@scalar/types/legacy'
+
+import OperationParameters from '../components/OperationParameters.vue'
+import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string
@@ -36,7 +38,13 @@ defineProps<{
               </Anchor>
             </SectionHeader>
           </div>
-          <EndpointDetails :operation="operation" />
+          <div class="operation-details">
+            <ScalarMarkdown
+              :value="operation.description"
+              withImages />
+            <OperationParameters :operation="operation" />
+            <OperationResponses :operation="operation" />
+          </div>
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
@@ -44,7 +52,7 @@ defineProps<{
               fallback
               :operation="operation">
               <template #header>
-                <EndpointPath
+                <OperationPath
                   class="example-path"
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />

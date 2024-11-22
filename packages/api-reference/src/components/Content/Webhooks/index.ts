@@ -1,1 +1,1 @@
-export { default as Webhooks } from './Webhooks.vue'
+export { default as Webhooks } from '../../../features/Operation/Webhooks.vue'

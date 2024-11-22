@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
+import ClassicHeader from '@/components/ClassicHeader.vue'
+import { DarkModeIconToggle } from '@/components/DarkModeToggle'
+import { SearchButton } from '@/features/Search'
+import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
 import { computed } from 'vue'
-
-import { SearchButton } from '../../features/Search'
-import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
-import ApiReferenceLayout from '../ApiReferenceLayout.vue'
-import ClassicHeader from '../ClassicHeader.vue'
-import { DarkModeIconToggle } from '../DarkModeToggle'
 
 const props = defineProps<ReferenceLayoutProps>()
 

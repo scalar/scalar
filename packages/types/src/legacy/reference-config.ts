@@ -327,7 +327,13 @@ export type Operation = {
   description?: string
   information?: Information
 }
-export type Parameters = {
+
+/**
+ * @deprecated Use Parameter instead
+ */
+export type Parameters = Parameter
+
+export type Parameter = {
   // Fixed Fields
   name: string
   in?: string
@@ -391,7 +397,7 @@ export type Schema = {
 }
 
 export type TransformedOperation = Operation & {
-  pathParameters?: Parameters[]
+  pathParameters?: Parameter[]
 }
 
 export type CollapsedSidebarItems = Record<string, boolean>

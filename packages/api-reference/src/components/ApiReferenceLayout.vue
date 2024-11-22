@@ -333,7 +333,7 @@ const themeStyleTag = computed(
         class="references-rendered">
         <Content
           :baseServerURL="configuration.baseServerURL"
-          :layout="configuration.layout === 'classic' ? 'accordion' : 'default'"
+          :layout="configuration.layout"
           :parsedSpec="parsedSpec"
           :proxy="configuration.proxy"
           :servers="configuration.servers">

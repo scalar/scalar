@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { Operation } from '@/features/Operation'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
@@ -16,7 +17,6 @@ import {
   SectionContent,
   SectionHeader,
 } from '../../Section'
-import { Operation } from '../Operation'
 import { Schema } from '../Schema'
 import { Tag } from '../Tag'
 import { lazyBus } from './lazyBus'
@@ -29,17 +29,17 @@ import { lazyBus } from './lazyBus'
  * TODO list
  * - only works on first load, but we will use this when
  *   hitting endpoint links in V2
- * - only works for default layout, add accordion (if we need)
+ * - only works for default layout, add classic (if we need)
  * - code is ripe for refactor as it is duplicated from content and models
  * - need to handle case of last operation/model
  * - need to find an event for codemirror loaded, currently using timeout for models
  */
 const props = withDefaults(
   defineProps<{
-    layout?: 'accordion' | 'default'
+    layout?: 'modern' | 'classic'
     parsedSpec: Spec
   }>(),
-  { layout: 'default' },
+  { layout: 'modern' },
 )
 
 const hideTag = ref(false)
@@ -50,7 +50,7 @@ const models = ref<string[]>([])
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
 
-const isLoading = ref(props.layout !== 'accordion' && hash.value)
+const isLoading = ref(props.layout !== 'classic' && hash.value)
 
 // Ensure we have a spec loaded
 watch(

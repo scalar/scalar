@@ -1,24 +1,19 @@
-import type { Parameters, TransformedOperation } from '@scalar/types/legacy'
+import type { Parameter, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 export type ParamMap = {
-  path: Parameters[]
-  query: Parameters[]
-  header: Parameters[]
-  body: Parameters[]
-  formData: Parameters[]
-}
-
-export type OperationProps = {
-  operation: TransformedOperation
+  path: Parameter[]
+  query: Parameter[]
+  header: Parameter[]
+  body: Parameter[]
+  formData: Parameter[]
 }
 
 /**
  * This hook is used to generate the parameters for the request from the parameters in the swagger file
  */
-export function useOperation(props: OperationProps) {
+export function useOperation(operation: TransformedOperation) {
   const parameterMap = computed(() => {
-    const parameters = props.operation.information?.parameters ?? []
     const map: ParamMap = {
       path: [],
       query: [],
@@ -27,8 +22,8 @@ export function useOperation(props: OperationProps) {
       formData: [],
     }
 
-    if (props.operation.pathParameters) {
-      props.operation.pathParameters.forEach((parameter: Parameters) => {
+    if (operation.pathParameters) {
+      operation.pathParameters.forEach((parameter: Parameter) => {
         if (parameter.in === 'path') {
           map.path.push(parameter)
         } else if (parameter.in === 'query') {
@@ -43,8 +38,10 @@ export function useOperation(props: OperationProps) {
       })
     }
 
+    const parameters = operation.information?.parameters ?? []
+
     if (parameters) {
-      parameters.forEach((parameter: Parameters) => {
+      parameters.forEach((parameter) => {
         if (parameter.in === 'path') {
           map.path.push(parameter)
         } else if (parameter.in === 'query') {

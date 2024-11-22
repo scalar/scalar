@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import { Anchor } from '@/components/Anchor'
+import { HttpMethod } from '@/components/HttpMethod'
+import OperationPath from '@/components/OperationPath.vue'
+import { SectionAccordion } from '@/components/Section'
+import { ExampleRequest } from '@/features/ExampleRequest'
+import { ExampleResponses } from '@/features/ExampleResponses'
+import { TestRequestButton } from '@/features/TestRequestButton'
+import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import {
   ScalarIcon,
   ScalarIconButton,
@@ -8,15 +16,8 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
 
-import { ExampleRequest } from '../../../features/ExampleRequest'
-import { ExampleResponses } from '../../../features/ExampleResponses'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
-import { Anchor } from '../../Anchor'
-import { HttpMethod } from '../../HttpMethod'
-import { SectionAccordion } from '../../Section'
-import EndpointDetailsCard from './EndpointDetailsCard.vue'
-import EndpointPath from './EndpointPath.vue'
-import TestRequestButton from './TestRequestButton.vue'
+import OperationParameters from '../components/OperationParameters.vue'
+import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string
@@ -25,8 +26,6 @@ defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
-
-console.log(!getHideTestRequestButton?.())
 </script>
 <template>
   <SectionAccordion
@@ -34,8 +33,8 @@ console.log(!getHideTestRequestButton?.())
     class="reference-endpoint"
     transparent>
     <template #title>
-      <h3 class="endpoint-header">
-        <div class="endpoint-details">
+      <h3 class="operation-title">
+        <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
             :method="operation.httpVerb"
@@ -45,7 +44,7 @@ console.log(!getHideTestRequestButton?.())
             class="endpoint-anchor">
             <div class="endpoint-label">
               <div class="endpoint-label-path">
-                <EndpointPath
+                <OperationPath
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </div>
@@ -80,7 +79,16 @@ console.log(!getHideTestRequestButton?.())
         withImages />
     </template>
     <div class="endpoint-content">
-      <EndpointDetailsCard :operation="operation" />
+      <div class="operation-details-card">
+        <div class="operation-details-card-item">
+          <OperationParameters :operation="operation" />
+        </div>
+        <div class="operation-details-card-item">
+          <OperationResponses
+            :collapsableItems="false"
+            :operation="operation" />
+        </div>
+      </div>
       <ExampleResponses :operation="operation" />
       <ExampleRequest :operation="operation" />
     </div>
@@ -88,11 +96,11 @@ console.log(!getHideTestRequestButton?.())
 </template>
 
 <style scoped>
-.endpoint-header {
+.operation-title {
   display: flex;
   justify-content: space-between;
 }
-.endpoint-details {
+.operation-details {
   display: flex;
   align-items: center;
   margin-top: 0;
@@ -207,5 +215,55 @@ console.log(!getHideTestRequestButton?.())
 
 .endpoint-content > * {
   max-height: unset;
+}
+
+.operation-details-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.operation-details-card-item :deep(.parameter-list) {
+  border: 1px solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
+  margin-top: 0;
+}
+
+.operation-details-card-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.operation-details-card-item :deep(.parameter-list-items) {
+  margin-bottom: 0;
+}
+.operation-details-card :deep(.parameter-item:last-of-type .parameter-schema) {
+  padding-bottom: 12px;
+}
+.operation-details-card :deep(.parameter-list .parameter-list) {
+  margin-bottom: 12px;
+}
+.operation-details-card :deep(.parameter-item) {
+  margin: 0;
+  padding: 0 9px;
+}
+.operation-details-card :deep(.property) {
+  padding: 9px;
+  margin: 0;
+}
+.operation-details-card :deep(.parameter-list-title),
+.operation-details-card :deep(.request-body-title) {
+  text-transform: uppercase;
+  font-weight: var(--scalar-bold);
+  font-size: var(--scalar-mini);
+  color: var(--scalar-color-2);
+  line-height: 1.33;
+  padding: 9px;
+  margin: 0;
+}
+.operation-details-card :deep(.request-body-title-select) {
+  text-transform: initial;
+  font-weight: initial;
+  margin-left: auto;
 }
 </style>

@@ -128,7 +128,7 @@ export function useSearchIndex({
 
         if (tag.operations) {
           tag.operations.forEach((operation) => {
-            const { parameterMap } = useOperation({ operation })
+            const { parameterMap } = useOperation(operation)
             const bodyData = extractRequestBody(operation) || parameterMap.value
             let body = null
             if (typeof bodyData !== 'boolean') {

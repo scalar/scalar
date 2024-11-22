@@ -13,18 +13,23 @@ import { Models, ModelsAccordion } from './Models'
 import { TagList } from './Tag'
 import { Webhooks } from './Webhooks'
 
-const props = defineProps<{
-  parsedSpec: Spec
-  layout?: 'default' | 'accordion'
-  baseServerURL?: string
-  servers?: Server[]
-  proxy?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    parsedSpec: Spec
+    layout?: 'modern' | 'classic'
+    baseServerURL?: string
+    servers?: Server[]
+    proxy?: string
+  }>(),
+  {
+    layout: 'modern',
+  },
+)
 
 const { hideModels } = useSidebar()
 
 const introCardsSlot = computed(() =>
-  props.layout === 'accordion' ? 'after' : 'aside',
+  props.layout === 'classic' ? 'after' : 'aside',
 )
 </script>
 <template>
@@ -52,7 +57,7 @@ const introCardsSlot = computed(() =>
       <template #[introCardsSlot]>
         <div
           class="introduction-card"
-          :class="{ 'introduction-card-row': layout === 'accordion' }">
+          :class="{ 'introduction-card-row': layout === 'classic' }">
           <BaseUrl
             class="introduction-card-item"
             :defaultServerUrl="baseServerURL"
@@ -95,7 +100,7 @@ const introCardsSlot = computed(() =>
 
     <template v-if="hasModels(parsedSpec) && !hideModels">
       <ModelsAccordion
-        v-if="layout === 'accordion'"
+        v-if="layout === 'classic'"
         :schemas="getModels(parsedSpec)" />
       <Models
         v-else

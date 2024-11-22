@@ -6,7 +6,7 @@ import type {
 import { computed } from 'vue'
 
 /**
- * This hook is used to generate the responses for the request from the parameters in the swagger file
+ * Generates the responses for the request from the parameters in the OpenAPI document
  */
 export function useResponses(operation: TransformedOperation) {
   const r = computed(() => {

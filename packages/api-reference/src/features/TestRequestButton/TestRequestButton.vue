@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import ScreenReader from '@/components/ScreenReader.vue'
+import { useApiClient } from '@/features/ApiClientModal'
+import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import { ScalarIcon } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { inject } from 'vue'
-
-import { useApiClient } from '../../../features/ApiClientModal'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '../../../helpers'
-import ScreenReader from '../../ScreenReader.vue'
 
 defineProps<{
   operation: TransformedOperation

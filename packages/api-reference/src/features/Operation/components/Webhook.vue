@@ -1,15 +1,12 @@
 <script lang="ts" setup>
 import type { TransformedOperation } from '@scalar/types/legacy'
 
-import { useResponses } from '../../../hooks'
-import Parameters from '../Operation/Parameters.vue'
-import RequestBody from '../Operation/RequestBody.vue'
+import OperationResponses from './OperationResponses.vue'
+import RequestBody from './RequestBody.vue'
 
-const props = defineProps<{
+defineProps<{
   webhook: TransformedOperation
 }>()
-
-const { responses } = useResponses(props.webhook)
 </script>
 
 <template>
@@ -19,11 +16,7 @@ const { responses } = useResponses(props.webhook)
       :requestBody="webhook.information?.requestBody">
       <template #title>Payload</template>
     </RequestBody>
-    <Parameters
-      class="webhook-response-parameters"
-      :parameters="responses">
-      <template #title>Responses</template>
-    </Parameters>
+    <OperationResponses :operation="webhook" />
   </template>
 </template>
 <style scoped>
