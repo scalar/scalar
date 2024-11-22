@@ -5,6 +5,9 @@ import {
   objectToString,
 } from '../../../core'
 
+/**
+ * node/fetch
+ */
 export function fetch(request?: Partial<Request>): Source {
   // Defaults
   const normalizedRequest = {

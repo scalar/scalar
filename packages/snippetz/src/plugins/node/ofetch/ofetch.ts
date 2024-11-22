@@ -6,7 +6,7 @@ import {
 } from '../../../core'
 
 /**
- * js/ofetch
+ * node/ofetch
  */
 export function ofetch(request?: Partial<Request>): Source {
   // Defaults
