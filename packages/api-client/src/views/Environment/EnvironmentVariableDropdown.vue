@@ -165,6 +165,7 @@ onClickOutside(
           icon="Add" />
         Add Variable
       </ScalarButton>
+      <!-- Backdrop for the dropdown -->
       <div
         class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
     </div>
