@@ -1,11 +1,20 @@
 import {
+  type AddClient,
   type Request,
-  type Source,
+  type Snippet,
   arrayToObject,
   objectToString,
 } from '../../../core'
 
-export function fetch(request?: Partial<Request>): Source {
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients extends AddClient<'node', 'fetch'> {}
+}
+
+/**
+ * node/fetch
+ */
+export function fetch(request?: Partial<Request>): Snippet {
   // Defaults
   const normalizedRequest = {
     method: 'GET',

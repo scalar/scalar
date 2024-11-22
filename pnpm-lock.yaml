@@ -561,6 +561,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1994,13 +1997,14 @@ importers:
         version: link:../api-reference
 
   packages/snippetz:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
-      '@types/har-format':
-        specifier: ^1.2.15
-        version: 1.2.15
 
   packages/snippetz/playground:
     dependencies:

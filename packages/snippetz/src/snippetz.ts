@@ -4,15 +4,20 @@ import { ofetch as jsOFetch } from './plugins/js/ofetch'
 import { fetch as nodeFetch } from './plugins/node/fetch'
 import { ofetch as nodeOFetch } from './plugins/node/ofetch'
 import { undici } from './plugins/node/undici'
+import { curl } from './plugins/shell/curl'
 
 /**
  * Generate code examples for HAR requests
  */
 export function snippetz() {
-  const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch]
+  const plugins = [undici, nodeFetch, jsFetch, jsOFetch, nodeOFetch, curl]
 
   return {
-    get(target: TargetId, client: ClientId, request: Partial<Request>) {
+    get(
+      target: TargetId,
+      client: ClientId<TargetId>,
+      request: Partial<Request>,
+    ) {
       const plugin = this.findPlugin(target, client)
 
       if (plugin) {
@@ -23,7 +28,11 @@ export function snippetz() {
         code: '',
       }
     },
-    print(target: TargetId, client: ClientId, request: Partial<Request>) {
+    print<T extends TargetId>(
+      target: T,
+      client: ClientId<T>,
+      request: Partial<Request>,
+    ) {
       return this.get(target, client, request)?.code
     },
     targets() {
@@ -48,15 +57,21 @@ export function snippetz() {
         }
       })
     },
-    findPlugin(target: TargetId, client: ClientId) {
+    findPlugin<T extends TargetId>(
+      target: T | string,
+      client: ClientId<T> | string,
+    ) {
       return plugins.find((plugin) => {
         const details = plugin()
 
         return details.target === target && details.client === client
       })
     },
-    hasPlugin(target: string, client: string) {
-      return Boolean(this.findPlugin(target as TargetId, client as ClientId))
+    hasPlugin<T extends TargetId>(
+      target: T | string,
+      client: ClientId<T> | string,
+    ) {
+      return Boolean(this.findPlugin(target, client))
     },
   }
 }

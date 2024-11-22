@@ -28,9 +28,13 @@ async function renderExample() {
   const example =
     `/* Snippetz */
 import { snippetz } from '@scalar/snippetz'
+
 const request = ${objectToString(props.request)}
+
 const snippet = snippetz().print('${props.target}', '${props.client}', request)
+
 /* Output */
+
 // ` + code.value.split(`\n`).join(`\n// `)
   highlightedConfiguration.value = shiki.codeToHtml(
     JSON.stringify(props.request, null, 2),

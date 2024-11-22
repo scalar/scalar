@@ -81,7 +81,7 @@ function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
           text: JSON.stringify({ hello: 'world' }),
         },
       }"
-      target="node" />
+      :target="selectedTarget" />
   </div>
 </template>
 

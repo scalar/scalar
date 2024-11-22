@@ -9,11 +9,13 @@
  *
  */
 export const normalizeHeaders = (
-  _headers: Headers,
+  _headers: Headers | { name: string; value: string }[],
   removeProxyHeaders = false,
 ): Record<string, string> => {
   // Convert headers to an object
-  const headers = Object.fromEntries(_headers)
+  const headers = Array.isArray(_headers)
+    ? Object.fromEntries((_headers ?? []).map((h) => [h.name, h.value]))
+    : Object.fromEntries(_headers)
 
   // Remove headers, that are added by the proxy
   if (removeProxyHeaders) {
@@ -90,3 +92,13 @@ export const formatHeaderKey = (key: string) =>
       return word.charAt(0).toUpperCase() + word.toLowerCase().slice(1)
     })
     .join('-')
+
+/**
+ * Convert a key-value object into an array of objects with name and value properties
+ */
+export const convertKeyValueObjectToArray = (list: Record<string, string>) => {
+  return Object.entries(list).map(([name, value]) => ({
+    name,
+    value,
+  }))
+}
