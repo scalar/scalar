@@ -122,7 +122,7 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Copy the headers but exclude Origin
 	for key, values := range r.Header {
-		if !strings.EqualFold(key, "Origin") {
+		if !strings.EqualFold(strings.ToLower(key), "origin") {
 			outreq.Header[key] = values
 		}
 	}
