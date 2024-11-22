@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
-import { createOpenAPIDocument } from './createOpenAPIDocument'
+import { createOpenApiDefinition } from './createOpenApiDefinition'
 import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls'
 
 describe('getOpenAuthTokenUrls', () => {
   it('returns an empty array for schema without securitySchemes', () => {
-    const schema = createOpenAPIDocument({})
+    const schema = createOpenApiDefinition({})
     expect(getOpenAuthTokenUrls(schema)).toEqual([])
   })
 
   it('returns token URLs from OAuth2 password flow', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       oauth2Password: {
         type: 'oauth2',
         flows: {
@@ -24,7 +24,7 @@ describe('getOpenAuthTokenUrls', () => {
   })
 
   it('returns token URLs from OAuth2 clientCredentials flow', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       oauth2ClientCredentials: {
         type: 'oauth2',
         flows: {
@@ -38,7 +38,7 @@ describe('getOpenAuthTokenUrls', () => {
   })
 
   it('returns token URLs from OAuth2 authorizationCode flow', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       oauth2AuthCode: {
         type: 'oauth2',
         flows: {
@@ -53,7 +53,7 @@ describe('getOpenAuthTokenUrls', () => {
   })
 
   it('returns multiple token URLs from different OAuth2 flows', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       oauth2Password: {
         type: 'oauth2',
         flows: {
@@ -78,7 +78,7 @@ describe('getOpenAuthTokenUrls', () => {
   })
 
   it('ignores non-OAuth2 security schemes', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       basicAuth: {
         type: 'http',
         scheme: 'basic',
@@ -96,7 +96,7 @@ describe('getOpenAuthTokenUrls', () => {
   })
 
   it('returns unique token URLs', () => {
-    const schema = createOpenAPIDocument({
+    const schema = createOpenApiDefinition({
       oauth2Password: {
         type: 'oauth2',
         flows: {

@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import { createMockServer } from '../../src/createMockServer'
-import { createOpenAPIDocument } from '../../src/utils/createOpenAPIDocument'
+import { createOpenApiDefinition } from '../../src/utils/createOpenApiDefinition'
 
 describe('OpenID Connect', () => {
-  const specification = createOpenAPIDocument({
+  const specification = createOpenApiDefinition({
     openIdConnect: {
       type: 'openIdConnect',
       openIdConnectUrl: 'https://example.com/.well-known/openid-configuration',
