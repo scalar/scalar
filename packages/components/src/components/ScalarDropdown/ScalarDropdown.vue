@@ -21,7 +21,7 @@ defineOptions({ inheritAttrs: false })
       :isOpen="static ? staticOpen : (open ?? isOpen)"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
-      :targetRef="targetRef"
+      :target="target"
       :teleport="teleport">
       <MenuButton
         v-if="!static"

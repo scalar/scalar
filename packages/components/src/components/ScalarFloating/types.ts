@@ -12,10 +12,12 @@ export type FloatingOptions = {
    */
   resize?: boolean
   /**
-   * Override the targetRef, useful if we are not passing a button
+   * Override the target, useful if we are not passing a button
    * into the slot but is controlled from an external button
+   *
+   * Can be a string id or a reference to an element
    */
-  targetRef?: HTMLElement
+  target?: string | HTMLElement
   /**
    * Floating UI Middleware to be passed to Floating UI
    *

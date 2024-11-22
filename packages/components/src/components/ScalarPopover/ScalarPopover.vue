@@ -3,7 +3,6 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
 import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
 
-// eslint-disable-next-line vue/no-unused-properties
 defineProps<Omit<FloatingOptions, 'middleware'>>()
 
 defineOptions({ inheritAttrs: false })
@@ -15,6 +14,7 @@ defineOptions({ inheritAttrs: false })
     <ScalarFloating
       v-bind="$props"
       :isOpen="open ?? isOpen"
+      :target="target"
       :teleport="teleport">
       <PopoverButton as="template">
         <slot :open="open" />

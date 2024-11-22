@@ -116,7 +116,7 @@ const isDraftsMenuItem = computed(() => {
   <ScalarDropdown
     v-if="menuItem.targetRef && menuItem.open"
     static
-    :targetRef="menuItem.targetRef"
+    :target="menuItem.targetRef"
     teleport
     @keydown.escape="$emit('closeMenu')">
     <template #items>

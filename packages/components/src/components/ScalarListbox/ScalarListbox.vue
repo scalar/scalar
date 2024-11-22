@@ -26,7 +26,7 @@ defineProps<
     id?: string
     label?: string
   } & (SingleSelectListboxProps | MultipleSelectListboxProps) &
-    Omit<FloatingOptions, 'middleware' | 'targetRef'>
+    Omit<FloatingOptions, 'middleware'>
 >()
 
 defineEmits<{
@@ -50,6 +50,7 @@ defineOptions({ inheritAttrs: false })
       :isOpen="open ?? isOpen"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
+      :target="target"
       :teleport="teleport">
       <ListboxButton
         :id="id"

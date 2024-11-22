@@ -21,7 +21,7 @@ defineEmits<{
     :isOpen="isOpen"
     :placement="placement ?? 'bottom-start'"
     :resize="resize"
-    :targetRef="targetRef"
+    :target="target"
     :teleport="teleport">
     <slot />
     <template #popover="{ open, close }">

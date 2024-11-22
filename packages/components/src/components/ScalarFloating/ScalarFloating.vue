@@ -35,12 +35,22 @@ defineOptions({ inheritAttrs: false })
 const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
-/** Fallback to div wrapper if a button element is not provided */
-const targetRef = computed(
-  () =>
-    (props.targetRef || wrapperRef.value?.children?.[0] || wrapperRef.value) ??
-    undefined,
-)
+const targetRef = computed(() => {
+  // If target is a string (id), try to find it in the document
+  if (typeof props.target === 'string') {
+    const target = document.getElementById(props.target)
+    if (target) return target
+    else
+      console.warn(`ScalarFloating: Target with id="${props.target}" not found`)
+  }
+  // If target is an HTMLElement, return it
+  else if (props.target instanceof HTMLElement) return props.target
+  // Fallback to div wrapper if no child element is provided
+  if (wrapperRef.value)
+    return wrapperRef.value.children?.[0] || wrapperRef.value
+  // Return undefined if nothing is found
+  return undefined
+})
 
 const targetSize = useResizeWithTarget(targetRef, {
   enabled: computed(() => props.resize),
