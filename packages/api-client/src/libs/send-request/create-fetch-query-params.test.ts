@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createFetchQueryParams } from './send-request'
 
-describe('create-fetch-query-params', () => {
+describe('createFetchQueryParams', () => {
   it('creates query paramer from an example', () => {
     const requestExample: Pick<RequestExample, 'parameters'> = {
       parameters: {
