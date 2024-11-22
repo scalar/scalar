@@ -22,10 +22,4 @@ const { responses } = useResponses(props.operation)
     :parameters="responses">
     <template #title>Responses</template>
   </ParameterList>
-
-  <ParameterList
-    class="endpoint-details-card-item"
-    :parameters="responses">
-    <template #title>Responses</template>
-  </ParameterList>
 </template>
