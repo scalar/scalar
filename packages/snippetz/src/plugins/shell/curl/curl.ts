@@ -32,20 +32,20 @@ export function curl(
 
   // Method
   if (normalizedRequest.method !== 'GET') {
-    parts.push(`-X ${normalizedRequest.method}`)
+    parts.push(`--request ${normalizedRequest.method}`)
   }
 
   // Basic Auth
   if (configuration?.auth?.username && configuration?.auth?.password) {
     parts.push(
-      `-u '${configuration.auth.username}:${configuration.auth.password}'`,
+      `--user '${configuration.auth.username}:${configuration.auth.password}'`,
     )
   }
 
   // Headers
   if (normalizedRequest.headers?.length) {
     normalizedRequest.headers.forEach((header) => {
-      parts.push(`-H '${header.name}: ${header.value}'`)
+      parts.push(`--header '${header.name}: ${header.value}'`)
     })
   }
 
@@ -54,15 +54,15 @@ export function curl(
     const cookieString = normalizedRequest.cookies
       .map((cookie) => `${cookie.name}=${cookie.value}`)
       .join('; ')
-    parts.push(`-b '${cookieString}'`)
+    parts.push(`--cookie '${cookieString}'`)
   }
 
   // Body
   if (normalizedRequest.postData) {
     if (normalizedRequest.postData.mimeType === 'application/json') {
-      parts.push(`-d '${normalizedRequest.postData.text}'`)
+      parts.push(`--data '${normalizedRequest.postData.text}'`)
     } else {
-      parts.push(`-d "${normalizedRequest.postData.text}"`)
+      parts.push(`--data "${normalizedRequest.postData.text}"`)
     }
   }
 

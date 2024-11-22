@@ -18,7 +18,7 @@ describe('curl', () => {
     })
 
     expect(source.code).toBe(`curl https://example.com \\
-  -X POST`)
+  --request POST`)
   })
 
   it('has headers', () => {
@@ -33,7 +33,7 @@ describe('curl', () => {
     })
 
     expect(source.code).toBe(`curl https://example.com \\
-  -H 'Content-Type: application/json'`)
+  --header 'Content-Type: application/json'`)
   })
 
   it('doesn’t add empty headers', () => {
@@ -64,9 +64,9 @@ describe('curl', () => {
     })
 
     expect(source.code).toBe(`curl https://example.com \\
-  -X POST \\
-  -H 'Content-Type: application/json' \\
-  -d '{"hello":"world"}'`)
+  --request POST \\
+  --header 'Content-Type: application/json' \\
+  --data '{"hello":"world"}'`)
   })
 
   it('has query string', () => {
@@ -103,7 +103,7 @@ describe('curl', () => {
     })
 
     expect(source.code).toBe(`curl https://example.com \\
-  -b 'foo=bar; bar=foo'`)
+  --cookie 'foo=bar; bar=foo'`)
   })
 
   it('doesn’t add empty cookies', () => {
@@ -129,7 +129,7 @@ describe('curl', () => {
     )
 
     expect(source.code).toBe(`curl https://example.com \\
-  -u 'user:pass'`)
+  --user 'user:pass'`)
   })
 
   it('omits auth when not provided', () => {
@@ -186,7 +186,7 @@ describe('curl', () => {
     )
 
     expect(source.code).toBe(`curl https://example.com \\
-  -u 'user@example.com:pass:word!'`)
+  --user 'user@example.com:pass:word!'`)
   })
 
   it('handles undefined auth object', () => {

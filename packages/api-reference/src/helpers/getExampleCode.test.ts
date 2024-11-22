@@ -14,9 +14,8 @@ describe('getExampleCode', () => {
       'curl',
     )
 
-    expect(result).toContain('curl')
+    expect(result).toContain('curl https://example.com')
     expect(result).toContain('--request POST')
-    expect(result).toContain('--url https://example.com')
   })
 
   it('generates a basic node/undici example (@scalar/snippetz)', async () => {
