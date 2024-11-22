@@ -133,7 +133,7 @@ const handleSubmit = () => {
       placeholder="Request Name"
       @onDelete="emits('back', $event)" />
     <template #options>
-      <div class="flex gap-2">
+      <div class="flex">
         <HttpMethod
           :isEditable="true"
           isSquare
@@ -143,7 +143,7 @@ const handleSubmit = () => {
           v-model="selectedCollection"
           :options="collections">
           <ScalarButton
-            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            class="justify-between p-2 ml-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
             variant="outlined">
             <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
               selectedCollection
@@ -161,7 +161,7 @@ const handleSubmit = () => {
           v-model="selectedTag"
           :options="tags">
           <ScalarButton
-            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            class="justify-between p-2 ml-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
             variant="outlined">
             <span :class="selectedTag ? 'text-c-1' : 'text-c-3'">
               {{ selectedTag ? selectedTag.label : 'Select Tag' }}
