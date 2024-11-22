@@ -206,4 +206,9 @@ const introCardsSlot = computed(() =>
   right: 0;
   pointer-events: none;
 }
+.references-auth :deep(.scalar-data-table) {
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+}
 </style>
