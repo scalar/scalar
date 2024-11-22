@@ -132,7 +132,7 @@ const handleAuthorize = async () => {
         <RequestAuthDataTableInput
           :id="`oauth2-password-password-${scheme.uid}`"
           :modelValue="flow.password"
-          placeholder="xxxxxx"
+          placeholder="********"
           type="password"
           @update:modelValue="
             (v) => updateScheme(`flows.${flow.type}.password`, v)

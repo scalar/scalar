@@ -80,7 +80,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
             :modelValue="scheme.password"
-            placeholder="xxxxxx"
+            placeholder="********"
             type="password"
             @update:modelValue="(v) => updateScheme(scheme.uid, 'password', v)">
             Password

@@ -249,6 +249,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               :modelValue="selectedAuth"
               multiple
               :options="schemeOptions"
+              resize
               style="margin-left: 120px"
               :teleport="`#${teleportId}`"
               @delete="handleDeleteScheme"
