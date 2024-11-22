@@ -7,6 +7,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 )
 
 // corsMiddleware adds CORS headers to the response and handles pre-flight requests.
@@ -77,6 +78,13 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 	proxy.Director = func(req *http.Request) {
 		req.Header = r.Header
+		// Remove Origin header
+		for key := range req.Header {
+			if !strings.EqualFold(strings.ToLower(key), "origin") {
+				req.Header.Del(key)
+			}
+		}
+
 		req.Host = remote.Host
 		req.URL.Scheme = remote.Scheme
 		req.URL.Host = remote.Host
