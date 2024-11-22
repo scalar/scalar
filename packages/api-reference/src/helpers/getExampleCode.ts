@@ -11,23 +11,25 @@ import {
 } from 'httpsnippet-lite'
 
 export type TargetId = HttpSnippetLiteTargetId | SnippetzTargetId
-export type ClientId = HttpSnippetLiteClientId | SnippetzClientId
+export type ClientId<T extends SnippetzTargetId> =
+  | HttpSnippetLiteClientId
+  | SnippetzClientId<T>
 
 /**
  * Returns a code example for given HAR request
  */
-export async function getExampleCode(
+export async function getExampleCode<T extends SnippetzTargetId>(
   request: Request,
   target: TargetId,
-  client: ClientId,
+  client: ClientId<T>,
 ) {
   // @scalar/snippetz
   const snippetzTargetKey = target
 
   if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
-      target as SnippetzTargetId,
-      client as SnippetzClientId,
+      snippetzTargetKey as SnippetzTargetId,
+      client as SnippetzClientId<SnippetzTargetId>,
       request,
     )
   }
