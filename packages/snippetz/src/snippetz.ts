@@ -28,9 +28,9 @@ export function snippetz() {
         code: '',
       }
     },
-    print(
-      target: TargetId,
-      client: ClientId<TargetId>,
+    print<T extends TargetId>(
+      target: T,
+      client: ClientId<T>,
       request: Partial<Request>,
     ) {
       return this.get(target, client, request)?.code
@@ -57,14 +57,20 @@ export function snippetz() {
         }
       })
     },
-    findPlugin(target: TargetId | string, client: ClientId<TargetId> | string) {
+    findPlugin<T extends TargetId>(
+      target: T | string,
+      client: ClientId<T> | string,
+    ) {
       return plugins.find((plugin) => {
         const details = plugin()
 
         return details.target === target && details.client === client
       })
     },
-    hasPlugin(target: TargetId | string, client: ClientId<TargetId> | string) {
+    hasPlugin<T extends TargetId>(
+      target: T | string,
+      client: ClientId<T> | string,
+    ) {
       return Boolean(this.findPlugin(target, client))
     },
   }
