@@ -1,5 +1,26 @@
 # @scalar/api-reference
 
+## 1.25.70
+
+### Patch Changes
+
+- 8004539: fix: response have been doubled
+- 9d23f95: refactor: make the Operations component a feature
+- 9002259: style: font size fixtures
+- Updated dependencies [794a50d]
+- Updated dependencies [85a9aea]
+- Updated dependencies [9d23f95]
+- Updated dependencies [91123e8]
+- Updated dependencies [6140275]
+- Updated dependencies [9002259]
+  - @scalar/api-client@2.2.2
+  - @scalar/types@0.0.21
+  - @scalar/themes@0.9.51
+  - @scalar/components@0.12.75
+  - @scalar/code-highlight@0.0.17
+  - @scalar/oas-utils@0.2.80
+  - @scalar/use-hooks@0.1.4
+
 ## 1.25.69
 
 ### Patch Changes

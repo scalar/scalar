@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.51
+
+### Patch Changes
+
+- 91123e8: chore: export each theme individually for easier access
+- Updated dependencies [9d23f95]
+  - @scalar/types@0.0.21
+
 ## 0.9.50
 
 ### Patch Changes

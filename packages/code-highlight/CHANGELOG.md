@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.17
+
+### Patch Changes
+
+- 9002259: style: font size fixtures
+
 ## 0.0.16
 
 ### Patch Changes

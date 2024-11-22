@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.21
+
+### Patch Changes
+
+- 9d23f95: chore: deprecate Parameters, use Parameter instead
+
 ## 0.0.20
 
 ### Patch Changes

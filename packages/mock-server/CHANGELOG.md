@@ -1,5 +1,12 @@
 # @scalar/mock-server
 
+## 0.2.84
+
+### Patch Changes
+
+- 7465487: refactor: use path aliases
+  - @scalar/oas-utils@0.2.80
+
 ## 0.2.83
 
 ### Patch Changes

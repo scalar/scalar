@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.12.75
+
+### Patch Changes
+
+- 6140275: fix(components): remove col on larger screens only use row
+- Updated dependencies [91123e8]
+- Updated dependencies [9002259]
+  - @scalar/themes@0.9.51
+  - @scalar/code-highlight@0.0.17
+  - @scalar/use-hooks@0.1.4
+
 ## 0.12.74
 
 ### Patch Changes
