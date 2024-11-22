@@ -5,4 +5,4 @@ export type Option = {
   [x: string]: any
 }
 
-export type OptionStyle = 'radio' | 'checkbox' | 'button'
+export type OptionStyle = 'radio' | 'checkbox'

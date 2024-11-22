@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { cva, cx } from '../../cva'
 import { ScalarIcon } from '../ScalarIcon'
-import { ScalarListboxCheckbox } from '../ScalarListbox'
+import {
+  ScalarListboxCheckbox,
+  type ScalarListboxOptionStyle,
+} from '../ScalarListbox'
 
 defineProps<{
   active?: boolean
   selected?: boolean
-  style?: 'radio' | 'checkbox' | 'button'
+  style?: ScalarListboxOptionStyle
   isDeletable?: boolean
 }>()
 
