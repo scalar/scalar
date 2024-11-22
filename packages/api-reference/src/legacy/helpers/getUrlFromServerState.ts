@@ -1,25 +1,30 @@
 import type { ServerState } from '#legacy'
 import { REGEX, replaceVariables } from '@scalar/oas-utils/helpers'
+import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/types'
 
 /**
  * Get the URL from the server state.
  */
-export function getUrlFromServerState(state: ServerState) {
-  // Get the selected server and remove trailing slash
-  const server = state?.servers?.[state.selectedServer ?? 0]
+export function getUrlFromServerState(
+  state: ServerState,
+  server?: OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject,
+) {
+  // Use the provided server or fallback to the selected server in the state
+  const selectedServer = server ?? state?.servers?.[state.selectedServer ?? 0]
 
-  if (server?.url?.endsWith('/')) {
-    server.url = server.url.slice(0, -1)
+  // Get the selected server and remove trailing slash
+  if (selectedServer?.url?.endsWith('/')) {
+    selectedServer.url = selectedServer.url.slice(0, -1)
   }
 
   // Store the original URL before any modifications
-  const originalUrl = server?.url
+  const originalUrl = selectedServer?.url
 
   // Replace variables: {protocol}://{host}:{port}/{basePath}
   const url =
-    typeof server?.url === 'string'
-      ? replaceVariables(server?.url, state.variables)
-      : server?.url
+    typeof selectedServer?.url === 'string'
+      ? replaceVariables(selectedServer?.url, state.variables)
+      : selectedServer?.url
 
   // {id} -> __ID__
   const urlVariables = url?.match(REGEX.PATH)
