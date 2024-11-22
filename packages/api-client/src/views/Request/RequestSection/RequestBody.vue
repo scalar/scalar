@@ -146,6 +146,11 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
       inputs[inputsIndex]?.focus()
     })
   }
+
+  // Add a new row if the updated row is the last one
+  if (rowIdx === currentParams.length - 1) {
+    addRow()
+  }
 }
 
 const formParams = computed(
@@ -469,7 +474,6 @@ watch(
             :columns="['32px', '', '', '61px']"
             :items="formParams"
             showUploadButton
-            @addRow="addRow"
             @deleteRow="deleteRow"
             @removeFile="handleRemoveFileFormData"
             @toggleRow="toggleRow"
@@ -483,7 +487,6 @@ watch(
             :columns="['32px', '', '', '61px']"
             :items="formParams"
             showUploadButton
-            @addRow="addRow"
             @deleteRow="deleteRow"
             @removeFile="handleRemoveFileFormData"
             @toggleRow="toggleRow"

@@ -95,7 +95,6 @@ const flattenValue = (item: RequestExampleParameter) => {
           :required="item.required"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
-          @input="items && idx === items.length - 1 && emit('addRow')"
           @selectVariable="(v: string) => handleSelectVariable(idx, 'key', v)"
           @update:modelValue="
             (v: string) => emit('updateRow', idx, 'key', v)
@@ -119,7 +118,6 @@ const flattenValue = (item: RequestExampleParameter) => {
           :type="item.type"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
-          @input="items && idx === items.length - 1 && emit('addRow')"
           @selectVariable="(v: string) => handleSelectVariable(idx, 'value', v)"
           @update:modelValue="
             (v: string) => emit('updateRow', idx, 'value', v)
