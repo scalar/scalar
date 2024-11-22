@@ -47,7 +47,7 @@ whenever(
     type="button"
     @click="modalState.show">
     <ScalarIcon
-      class="search-icon"
+      class="scalar-search-icon"
       icon="Search"
       size="sm"
       thickness="2.5" />
@@ -111,7 +111,7 @@ whenever(
   color: var(--scalar-sidebar-color-2, var(--scalar-color-2));
 }
 
-.search-icon {
+.scalar-search-icon {
   padding: 0;
   margin-right: 6px;
   width: 12px;
