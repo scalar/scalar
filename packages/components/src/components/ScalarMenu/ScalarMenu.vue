@@ -28,7 +28,8 @@ defineSlots<{
 <template>
   <ScalarPopover
     v-bind="$props"
-    class="max-h-[inherit] w-[280px] max-w-[inherit]">
+    class="max-h-[inherit] w-[280px] max-w-[inherit]"
+    :placement="placement ?? 'bottom-start'">
     <!-- Logo Button to open the popover -->
     <template #default="{ open }">
       <slot
@@ -48,7 +49,7 @@ defineSlots<{
     </template>
     <!-- Popover content -->
     <template #popover="{ close }">
-      <div class="custom-scroll flex flex-col gap-3 p-2.25 sm:gap-3">
+      <div class="custom-scroll flex flex-col gap-3 p-2.25">
         <!-- Base Product List (can be overridden by slot) -->
         <slot
           :close="close"
