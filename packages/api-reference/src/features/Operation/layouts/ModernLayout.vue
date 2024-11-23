@@ -10,19 +10,20 @@ import {
   SectionHeader,
 } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
-import type { ExampleRequestProps } from '@/features/ExampleRequest/ExampleRequest.vue'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import type { TransformedOperation } from '@scalar/types/legacy'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { id, operation, ...exampleRequestProps } = defineProps<
-  {
-    id?: string
-  } & ExampleRequestProps
->()
+const { id, operation, request, secretCredentials } = defineProps<{
+  id?: string
+  operation: TransformedOperation
+  request: Request | null
+  secretCredentials: string[]
+}>()
 </script>
 <template>
   <Section
@@ -71,9 +72,10 @@ const { id, operation, ...exampleRequestProps } = defineProps<
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
             <ExampleRequest
-              v-bind="exampleRequestProps"
               fallback
-              :operation="operation">
+              :operation="operation"
+              :request="request"
+              :secretCredentials="secretCredentials">
               <template #header>
                 <OperationPath
                   class="example-path"
