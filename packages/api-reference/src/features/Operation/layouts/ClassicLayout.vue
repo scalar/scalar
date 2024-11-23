@@ -4,7 +4,6 @@ import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
-import type { ExampleRequestProps } from '@/features/ExampleRequest/ExampleRequest.vue'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
@@ -13,17 +12,19 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
+import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { id, operation, ...exampleRequestProps } = defineProps<
-  {
-    id?: string
-  } & ExampleRequestProps
->()
+const { id, operation, request, secretCredentials } = defineProps<{
+  id?: string
+  operation: TransformedOperation
+  request: Request | null
+  secretCredentials: string[]
+}>()
 
 const { copyToClipboard } = useClipboard()
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
@@ -93,7 +94,8 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
       <ExampleResponses :operation="operation" />
       <ExampleRequest
         :operation="operation"
-        v-bind="exampleRequestProps" />
+        :request="request"
+        :secretCredentials="secretCredentials" />
     </div>
   </SectionAccordion>
 </template>
