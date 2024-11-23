@@ -30,7 +30,7 @@
 
 ### An offline first API Client built for OpenAPI
 
-└ Minimal, powerful & open-souce <br>
+└ Minimal, powerful & open-source <br>
 └ Integrates with dozens of API Frameworks (Elysia, Hono, FastAPI, etc)<br>
 └ Syncs directly with your server frameworks with our Watch Mode <br>
 └ First class OpenAPI (formerly Swagger) support <br>
