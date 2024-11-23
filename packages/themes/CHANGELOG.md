@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.52
+
+### Patch Changes
+
+- 1fa0d20: feat(themes): add commonjs export for themes
+
 ## 0.9.51
 
 ### Patch Changes

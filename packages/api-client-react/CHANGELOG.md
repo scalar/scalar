@@ -1,5 +1,11 @@
 # @scalar/api-client-react
 
+## 1.0.94
+
+### Patch Changes
+
+- @scalar/api-client@2.2.3
+
 ## 1.0.93
 
 ### Patch Changes
