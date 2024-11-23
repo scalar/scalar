@@ -246,11 +246,17 @@ provideUseId(() => {
 })
 
 // Create the workspace store and provide it
+console.time('populate workspace')
 const workspaceStore = createWorkspaceStore({
   isReadOnly: true,
   proxyUrl: props.configuration.proxy,
   themeId: props.configuration.theme,
   useLocalStorage: false,
+})
+// Populate the workspace store
+workspaceStore.importSpecFile(props.parsedSpec, 'default', {
+  setCollectionSecurity: true,
+  ...props.configuration,
 })
 provide(WORKSPACE_SYMBOL, workspaceStore)
 

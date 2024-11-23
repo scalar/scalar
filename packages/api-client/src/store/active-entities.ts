@@ -8,7 +8,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { type InjectionKey, computed, inject } from 'vue'
+import { type InjectionKey, computed, inject, watch } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
@@ -91,7 +91,7 @@ export const createActiveEntitiesStore = ({
     // TODO: Do we really need this? We have to handle undefined anyways
     const collection =
       collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value.collections[0]]
+      collections[activeWorkspace.value?.collections[0]]
 
     return requests[key] || requests[collection?.requests[0]]
   })
@@ -119,7 +119,7 @@ export const createActiveEntitiesStore = ({
       )
 
     const fallbackUid =
-      activeWorkspace.value.collections[0] ?? collections[0]?.uid
+      activeWorkspace.value?.collections[0] ?? collections[0]?.uid
 
     return collections[fallbackUid]
   })
@@ -130,7 +130,7 @@ export const createActiveEntitiesStore = ({
       servers[
         activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
-          ''
+          Object.keys(servers)[0]
       ],
   )
 

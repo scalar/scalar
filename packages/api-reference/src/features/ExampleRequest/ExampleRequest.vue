@@ -1,32 +1,12 @@
-<script lang="ts">
-import type { WorkspaceStore } from '@scalar/api-client/store'
-import type {
-  Collection,
-  Request,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+<script setup lang="ts">
+import { useExampleStore } from '#legacy'
+import { ScalarCodeBlock } from '@scalar/components'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
 } from '@scalar/types/legacy'
-
-/** Props required for the ExampleRequest component (for now) */
-export type ExampleRequestProps = {
-  collection?: Collection
-  operation: TransformedOperation
-  request?: Request
-  requestExamples: WorkspaceStore['requestExamples']
-  securitySchemes: WorkspaceStore['securitySchemes']
-  server: Server
-}
-</script>
-<script setup lang="ts">
-import { useExampleStore } from '#legacy'
-import { createRequestOperation } from '@scalar/api-client/libs'
-import { ScalarCodeBlock } from '@scalar/components'
-
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import { asyncComputed } from '@vueuse/core'
 import {
   computed,
@@ -50,19 +30,14 @@ import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const {
-  collection,
-  operation,
-  request,
-  requestExamples,
-  securitySchemes,
-  server,
-} = defineProps<
-  ExampleRequestProps & {
-    /** Show a simplified card if no example are available */
-    fallback?: boolean
-  }
->()
+const { operation, request } = defineProps<{
+  operation: TransformedOperation
+  request: Request | null
+  /** Array of strings to obscure in the code block */
+  secretCredentials: string[]
+  /** Show a simplified card if no example are available */
+  fallback?: boolean
+}>()
 
 const ssrHash = createHash(
   operation.path + operation.httpVerb + operation.operationId,
@@ -132,50 +107,6 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
-/** Selected security scheme uids restircted by what is required by the request */
-const selectedSecuritySchemeUids = computed(() => {
-  // Grab the required uids
-  const requirementObjects = request?.security ?? collection?.security ?? []
-  const filteredObjects = requirementObjects.filter(
-    (r) => Object.keys(r).length,
-  )
-  const filteredKeys = filteredObjects.map((r) => Object.keys(r)[0])
-
-  // We have an empty object so any auth will work
-  if (filteredObjects.length < requirementObjects.length) {
-    return collection?.selectedSecuritySchemeUids ?? []
-  }
-  // Otherwise filter the selected uids by what is required by this request
-  else {
-    const _securitySchemes = Object.values(securitySchemes)
-    const requirementUids = filteredKeys
-      .map((name) => _securitySchemes.find((s) => s.nameKey === name)?.uid)
-      .filter(Boolean)
-
-    return collection?.selectedSecuritySchemeUids.filter((uid) =>
-      requirementUids.find((fuid) => fuid === uid),
-    )
-  }
-})
-
-/** Generates an array of secrets we want to hide in the code block */
-const secretCredentials = computed(() =>
-  selectedSecuritySchemeUids.value?.flatMap((uid) => {
-    const scheme = securitySchemes[uid]
-    if (scheme?.type === 'apiKey') return scheme.value
-    if (scheme?.type === 'http')
-      return [
-        scheme.token,
-        scheme.password,
-        btoa(`${scheme.username}:${scheme.password}`),
-      ]
-    if (scheme?.type === 'oauth2')
-      return Object.values(scheme.flows).map((flow) => flow.token)
-
-    return []
-  }),
-)
-
 const generateSnippet = async () => {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
@@ -183,49 +114,12 @@ const generateSnippet = async () => {
       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
     )
   }
-
-  /** Just grab the first example for now */
-  const example = requestExamples[request?.examples?.[0] ?? '']
-  if (!request || !example) return ''
-
-  // Generate a request object
-  const [error, response] = createRequestOperation({
-    request,
-    example,
-    server,
-    securitySchemes,
-    selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
-    // TODO: env vars if we want em
-    environment: {},
-    // TODO: cookies if we want em
-    globalCookies: [],
-  })
-
-  if (error) {
-    console.error('[generateSnippet]', error)
-    return ''
-  }
-
-  // Set the content type of the request
-  // TODO: this is a bit of a hack, solve this properly later from the example
-  const mediaTypes = Object.keys(
-    operation.information?.requestBody?.content ?? {},
-  )
-  if (
-    response.request.headers.get('content-type') ===
-      'text/plain;charset=UTF-8' &&
-    mediaTypes.length
-  ) {
-    response.request.headers.set('content-type', mediaTypes[0])
-  }
+  if (!request) return ''
 
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (
-    (await getExampleCode(response.request, targetKey, clientKey as string)) ??
-    ''
-  )
+  return (await getExampleCode(request, targetKey, clientKey as string)) ?? ''
 }
 
 const generatedCode = asyncComputed<string>(async () => {
