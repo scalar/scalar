@@ -130,10 +130,16 @@ async function generateSnippet() {
     )
   }
 
-  // Generate a request object
+  // Generate a request from operation server or fallback to global server URL
+  const serverUrl = computed(() => {
+    const operationServer = props.operation.information?.servers?.[0]
+    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
+    return modifiedUrl
+  })
+
   const harRequest = getHarRequest(
     {
-      url: getUrlFromServerState(serverState).modifiedUrl,
+      url: serverUrl.value,
     },
     getRequestFromOperation(
       props.operation,

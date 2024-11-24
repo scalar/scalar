@@ -296,6 +296,7 @@ export type Information = {
   'summary'?: string
   'tags'?: string[]
   'deprecated'?: boolean
+  'servers'?: Server[]
   /**
    * Scalar
    */
@@ -326,6 +327,7 @@ export type Operation = {
   name?: string
   description?: string
   information?: Information
+  servers?: Server[]
 }
 
 /**
