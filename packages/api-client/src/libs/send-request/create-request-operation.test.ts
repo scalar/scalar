@@ -90,7 +90,7 @@ $ pnpm dev:void-server
   }
 })
 
-describe('create-request-operation', () => {
+describe('createRequestOperation', () => {
   it('shows a warning when scalar_url is missing', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
@@ -573,6 +573,25 @@ describe('create-request-operation', () => {
           type: 'image/png',
         },
       },
+    })
+  })
+
+  it('adds http://', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        requestPayload: {
+          path: 'void.scalar.com/me',
+        },
+      }),
+    )
+    if (error) throw error
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(JSON.parse(result?.response.data as string)).toMatchObject({
+      method: 'GET',
+      path: '/me',
+      body: '',
     })
   })
 })

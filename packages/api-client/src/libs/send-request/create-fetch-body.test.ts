@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createFetchBody } from './send-request'
 
-describe('create-fetch-body', () => {
+describe('createFetchBody', () => {
   it('should handle request method in lowercase', () => {
     const example: RequestExample = {
       uid: 'random-uid',

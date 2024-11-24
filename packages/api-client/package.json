@@ -73,6 +73,11 @@
       "types": "./dist/libs/index.d.ts",
       "default": "./dist/libs/index.js"
     },
+    "./libs/send-request": {
+      "import": "./dist/libs/send-request/index.js",
+      "types": "./dist/libs/send-request/index.d.ts",
+      "default": "./dist/libs/send-request/index.js"
+    },
     "./libs/importers": {
       "import": "./dist/libs/importers/index.js",
       "types": "./dist/libs/importers/index.d.ts",
