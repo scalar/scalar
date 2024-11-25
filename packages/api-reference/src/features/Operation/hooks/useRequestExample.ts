@@ -59,8 +59,6 @@ export const useRequestExample = ({
     const example = requestExamples[request.value?.examples?.[0] ?? '']
     if (!request.value || !example) return null
 
-    console.log('[server]', server)
-
     // Generate a request object
     const [error, response] = createRequestOperation({
       request: request.value,

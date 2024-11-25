@@ -22,19 +22,30 @@ import {
 import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
-import { dereference, load, upgrade } from '@scalar/openapi-parser'
+import {
+  type LoadResult,
+  dereference,
+  load,
+  upgrade,
+} from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
-export const parseSchema = async (spec: string | UnknownObject) => {
+export const parseSchema = async (
+  spec: string | UnknownObject,
+  { shouldLoad = true } = {},
+) => {
   // TODO: Plugins for URLs and files with the proxy is missing here.
   // @see packages/api-reference/src/helpers/parse.ts
 
-  const { filesystem, errors: loadErrors = [] } = await load(spec).catch(
-    (e) => ({
+  let filesystem: LoadResult['filesystem'] | string | UnknownObject = spec
+  let loadErrors: LoadResult['errors'] = []
+
+  if (shouldLoad) {
+    const resp = await load(spec).catch((e) => ({
       errors: [
         {
           code: e.code,
@@ -42,8 +53,10 @@ export const parseSchema = async (spec: string | UnknownObject) => {
         },
       ],
       filesystem: [],
-    }),
-  )
+    }))
+    filesystem = resp.filesystem
+    loadErrors = resp.errors ?? []
+  }
 
   const { specification } = upgrade(filesystem)
   const { schema, errors: derefErrors = [] } = await dereference(specification)
@@ -74,6 +87,8 @@ export type ImportSpecToWorkspaceArgs = Pick<
   > & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
+    /** Call the load step from the parser */
+    shouldLoad?: boolean
   }
 
 /**
@@ -97,6 +112,7 @@ export async function importSpecToWorkspace(
     documentUrl,
     servers: overloadServers,
     setCollectionSecurity = false,
+    shouldLoad,
     watchMode = false,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
@@ -112,7 +128,7 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[] }
 > {
-  const { schema, errors } = await parseSchema(spec)
+  const { schema, errors } = await parseSchema(spec, { shouldLoad })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
   if (!schema) return { importWarnings, error: true }
