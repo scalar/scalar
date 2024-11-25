@@ -63,11 +63,18 @@ const statusCodeInformation = computed((): HttpStatusCode | undefined => {
         <span class="sr-only">, Status:</span>
         <HelpfulLink
           v-if="statusCodeInformation.url"
+          class="flex items-center gap-1.5"
           :href="statusCodeInformation.url">
           {{ response.status }} {{ statusCodeInformation.name }}
+          <span
+            class="block h-1.5 w-1.5 rounded-full"
+            :style="{ backgroundColor: statusCodeInformation.color }" />
         </HelpfulLink>
         <span v-else>
           {{ response.status }} {{ statusCodeInformation.name }}
+          <span
+            class="block h-1.5 w-1.5 rounded-full"
+            :style="{ backgroundColor: statusCodeInformation.color }" />
         </span>
       </template>
     </template>
