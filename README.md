@@ -108,28 +108,34 @@ And there’s an ever-growing list of plugins and integrations:
 
 ### Integrations
 
-- [HTML](documentation/integrations/html.md)
+- [HTML](documentation/integrations/html.md) (works everywhere)
 - [.NET](packages/scalar.aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django Ninja](packages/scalar_django_ninja/README.md)
 - [Docusaurus](packages/docusaurus/README.md)
-- [ElysiaJS](documentation/integrations/elysiajs.md)
 - [Express](packages/express-api-reference/README.md)
 - [FastAPI](packages/scalar_fastapi/README.md)
 - [Fastify](packages/fastify-api-reference/README.md)
 - [Go](documentation/integrations/go.md)
 - [Hono](packages/hono-api-reference/README.md)
-- [Scalar for Laravel](https://github.com/scalar/laravel)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
-- [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
 - [NestJS](packages/nestjs-api-reference/README.md)
 - [Next.js](packages/nextjs-api-reference/README.md)
-- [Nitro](documentation/integrations/nitro.md)
 - [Nuxt](packages/nuxt/README.md)
-- [Platformatic](documentation/integrations/platformatic.md)
 - [React](packages/api-reference-react/README.md)
 - [Rust](documentation/integrations/rust.md)
+- [Scalar for Laravel](https://github.com/scalar/laravel)
 - [Vue.js](packages/api-reference/README.md)
+
+### Built-in Support
+
+The following frameworks have chosen Scalar API Reference as their default OpenAPI documentation UI, recognizing its developer-friendly features and modern design:
+
+- [ElysiaJS](documentation/integrations/elysiajs.md)
+- [HappyX](https://github.com/HapticX/happyx)
+- [Litestar](https://docs.litestar.dev/latest/usage/openapi/ui_plugins.html)
+- [Nitro](documentation/integrations/nitro.md)
+- [Platformatic](documentation/integrations/platformatic.md)
 
 <br>
 
