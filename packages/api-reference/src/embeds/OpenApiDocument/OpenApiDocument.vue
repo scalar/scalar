@@ -1,9 +1,15 @@
 <script lang="ts" setup>
+import {
+  ACTIVE_ENTITIES_SYMBOL,
+  WORKSPACE_SYMBOL,
+  createActiveEntitiesStore,
+  createWorkspaceStore,
+} from '@scalar/api-client/store'
 import { redirectToProxy } from '@scalar/oas-utils/helpers'
 import { type ErrorObject, dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/openapi-types'
-import { ref, toRef, watch } from 'vue'
+import { provide, ref, toRef, watch } from 'vue'
 
 import { useHttpClientStore, useReactiveSpec } from '../../../src'
 import { ApiClientModal } from '../../features/ApiClientModal'
@@ -61,6 +67,24 @@ defineSlots<{
     parsedSpec: typeof parsedSpec
   }): any
 }>()
+
+// Create the workspace store and provide it
+const workspaceStore = createWorkspaceStore({
+  isReadOnly: true,
+  proxyUrl: configuration.value?.proxy ?? '',
+  themeId: configuration.value?.theme,
+  useLocalStorage: false,
+})
+provide(WORKSPACE_SYMBOL, workspaceStore)
+workspaceStore.importSpecFile(props.configuration?.spec ?? {}, 'default', {
+  shouldLoad: false,
+  setCollectionSecurity: true,
+  ...props.configuration,
+})
+
+// Same for the active entities store
+const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
+provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
 const loadDocument = async () => {
   const content =

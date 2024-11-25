@@ -8,7 +8,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
-import { type InjectionKey, computed, inject, watch } from 'vue'
+import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
