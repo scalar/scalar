@@ -16,7 +16,7 @@ import type { z } from 'zod'
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
 const PROXY_URL = `http://127.0.0.1:${PROXY_PORT}`
-const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
+export const VOID_URL = `http://127.0.0.1:${VOID_PORT}`
 
 type RequestExamplePayload = z.input<typeof requestExampleSchema>
 
@@ -28,7 +28,9 @@ type MetaRequestPayload = {
 }
 
 /** Creates the payload for createRequestOperation */
-const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
+export const createRequestPayload = (
+  metaRequestPayload: MetaRequestPayload = {},
+) => {
   const request = requestSchema.parse(metaRequestPayload.requestPayload ?? {})
   const server = serverSchema.parse(metaRequestPayload.serverPayload ?? {})
   let example = createExampleFromRequest(request, 'example')
@@ -92,6 +94,12 @@ $ pnpm dev:void-server
 
 describe('create-request-operation', () => {
   it('builds a request with a relative server url', async () => {
+    // Mock the origin to make the relative request work
+    vi.spyOn(window, 'location', 'get').mockReturnValue({
+      ...window.location,
+      origin: VOID_URL,
+    })
+
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: `/api` },
@@ -118,12 +126,6 @@ describe('create-request-operation', () => {
       }),
     )
     if (error) throw error
-
-    // Mock the origin to make the relative request work
-    vi.spyOn(window, 'location', 'get').mockReturnValue({
-      ...window.location,
-      origin: VOID_URL,
-    })
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
@@ -276,8 +278,7 @@ describe('create-request-operation', () => {
     })
   })
 
-  // TODO: We can’t access the fetch configuration as of now. We could return them, though.
-  it.skip('uses uppercase request method', async () => {
+  it('returns the request object with an uppercase method', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: { url: VOID_URL },
@@ -289,17 +290,17 @@ describe('create-request-operation', () => {
     )
     if (error) throw error
 
-    // @ts-expect-error Not added yet
-    const [requestError, result, fetchOptions] =
-      await requestOperation.sendRequest()
+    const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
     expect(JSON.parse(result?.response.data as string)).toMatchObject({
       method: 'POST',
     })
-    expect(fetchOptions).toMatchObject({
+    expect(requestOperation.request).toBeInstanceOf(Request)
+    expect(requestOperation.request).toMatchObject({
       // Uppercase method
       method: 'POST',
+      url: 'http://127.0.0.1:5052/',
     })
   })
 
