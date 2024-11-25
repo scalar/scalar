@@ -70,8 +70,6 @@ export function importSpecFileFactory({
       workspaceEntities.collection.uid,
     ])
 
-    console.timeEnd('populate workspace')
-
     return workspaceEntities.collection
   }
 
