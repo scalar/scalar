@@ -2,7 +2,9 @@
 import { useServerStore } from '#legacy'
 import OperationPath from '@/components/OperationPath.vue'
 import { ExampleRequest } from '@/features/ExampleRequest'
+import { useRequestExample } from '@/features/Operation/hooks/useRequestExample'
 import { TestRequestButton } from '@/features/TestRequestButton'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import { toRef } from 'vue'
 
@@ -10,7 +12,7 @@ import type { OpenApiDocumentConfiguration } from '../OpenApiDocument/types'
 
 const props = defineProps<{
   parsedSpec: Spec
-  operation?: TransformedOperation
+  operation: TransformedOperation
   configuration?: OpenApiDocumentConfiguration
 }>()
 
@@ -23,12 +25,24 @@ useServerStore({
   defaultServerUrl,
   servers,
 })
+
+const { activeCollection, activeServer } = useActiveEntities()
+const { requests, requestExamples, securitySchemes } = useWorkspace()
+const { request, secretCredentials } = useRequestExample({
+  operation: props.operation,
+  collection: activeCollection.value,
+  requests,
+  requestExamples,
+  securitySchemes,
+  server: activeServer.value,
+})
 </script>
 <template>
   <div class="scalar-app">
     <ExampleRequest
-      v-if="operation"
-      :operation="operation">
+      :operation="operation"
+      :request="request"
+      :secretCredentials="secretCredentials">
       <template #header>
         <OperationPath
           class="example-path"
