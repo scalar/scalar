@@ -247,7 +247,6 @@ provideUseId(() => {
 })
 
 // Create the workspace store and provide it
-console.time('populate workspace')
 const workspaceStore = createWorkspaceStore({
   isReadOnly: true,
   proxyUrl: props.configuration.proxy,
@@ -255,10 +254,16 @@ const workspaceStore = createWorkspaceStore({
   useLocalStorage: false,
 })
 // Populate the workspace store
-workspaceStore.importSpecFile(props.parsedSpec, 'default', {
-  setCollectionSecurity: true,
-  ...props.configuration,
-})
+watch(
+  () => props.rawSpec,
+  (spec) =>
+    workspaceStore.importSpecFile(spec, 'default', {
+      shouldLoad: false,
+      setCollectionSecurity: true,
+      ...props.configuration,
+    }),
+)
+
 provide(WORKSPACE_SYMBOL, workspaceStore)
 
 // Same for the active entities store
