@@ -3,6 +3,8 @@ FROM golang:1.22-alpine as build
 WORKDIR /app
 
 COPY ./main.go ./
+COPY ./public ./public
+
 RUN go build main.go
 
 # Build distroless image
