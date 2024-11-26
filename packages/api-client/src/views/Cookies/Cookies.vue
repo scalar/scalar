@@ -116,13 +116,12 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     'rotate-90': collapsedSidebarFolders[domain],
                   }"
                   icon="ChevronRight"
-                  size="sm"
-                  thickness="2.5" />
+                  size="md" />
                 {{ domain }}
               </button>
               <div
                 v-show="showChildren(domain)"
-                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                 <div
                   v-for="(cookieList, path) in paths"
                   :key="path">
@@ -136,13 +135,12 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                         'rotate-90': collapsedSidebarFolders[domain + path],
                       }"
                       icon="ChevronRight"
-                      size="sm"
-                      thickness="2.5" />
+                      size="md" />
                     {{ path }}
                   </button>
                   <div
                     v-show="showChildren(domain + path)"
-                    class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1.75rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                    class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1.75rem_-_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                     <SidebarListElement
                       v-for="cookie in cookieList"
                       :key="cookie.uid"

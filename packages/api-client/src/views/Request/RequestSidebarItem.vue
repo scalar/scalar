@@ -371,8 +371,7 @@ const hasDraftRequests = computed(() => {
               <ScalarIcon
                 class="text-c-3 text-sm"
                 icon="ChevronRight"
-                size="sm"
-                thickness="2.5" />
+                size="md" />
             </div>
           </slot>
           &hairsp;
