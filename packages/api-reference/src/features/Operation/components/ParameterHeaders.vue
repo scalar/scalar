@@ -31,7 +31,7 @@ function hasSchema(
             class="headers-card-title-icon"
             :class="{ 'headers-card-title-icon--open': open }"
             icon="Add"
-            thickness="3" />
+            size="sm" />
           <template v-if="open"> Hide Headers </template>
           <template v-else> Show Headers </template>
         </DisclosureButton>

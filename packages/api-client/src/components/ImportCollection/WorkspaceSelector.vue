@@ -105,9 +105,8 @@ const handleCreateWorkspace = () => {
           @click="modal.show()">
           <div class="flex items-center justify-center h-4 w-4">
             <ScalarIcon
-              class="h-2.5"
               icon="Add"
-              thickness="3" />
+              size="sm" />
           </div>
           <span>New Workspace</span>
         </ScalarDropdownItem>

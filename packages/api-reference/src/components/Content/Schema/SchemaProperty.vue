@@ -175,10 +175,10 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
             </DisclosurePanel>
             <DisclosureButton class="enum-toggle-button">
               <ScalarIcon
-                class="enum-toggle-button-icon h-2.5"
+                class="enum-toggle-button-icon"
                 :class="{ 'enum-toggle-button-icon--open': open }"
                 icon="Add"
-                thickness="3" />
+                size="sm" />
               {{ open ? 'Hide values' : 'Show all values' }}
             </DisclosureButton>
           </Disclosure>

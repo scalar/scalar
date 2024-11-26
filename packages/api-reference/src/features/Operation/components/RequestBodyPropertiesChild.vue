@@ -23,8 +23,8 @@ defineProps<{ contentProperties: ContentProperties }>()
         class="parameter-child parameter-child__on">
         <div class="parameter-child-trigger">
           <ScalarIcon
-            class="h-2.5"
-            icon="Add" />
+            icon="Add"
+            size="sm" />
           <span>Child Attributes</span>
         </div>
       </div>

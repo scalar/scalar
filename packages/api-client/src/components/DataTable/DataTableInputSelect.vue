@@ -121,8 +121,8 @@ const initialValue = computed(() => {
               @click="addingCustomValue = true">
               <div class="flex items-center justify-center h-4 w-4">
                 <ScalarIcon
-                  class="h-2.5"
-                  icon="Add" />
+                  icon="Add"
+                  size="sm" />
               </div>
               <span>Add value</span>
             </ScalarDropdownItem>
