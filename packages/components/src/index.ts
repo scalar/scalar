@@ -22,4 +22,5 @@ export * from './components/ScalarToggle'
 export * from './components/ScalarTooltip'
 export * from './components/ScalarVirtualText'
 
+export * from './cva'
 export * from './helpers'

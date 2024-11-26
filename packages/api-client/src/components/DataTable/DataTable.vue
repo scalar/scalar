@@ -1,17 +1,28 @@
 <script setup lang="ts">
-defineProps<{
+import { tw } from '@scalar/components'
+
+const { tableClass = '' } = defineProps<{
   columns: (string | undefined)[]
+  tableClass?:
+    | string
+    | Record<string, boolean>
+    | (string | Record<string, boolean>)[]
+    | false
   /** Scroll horizontally */
   scroll?: boolean
 }>()
 </script>
 <template>
   <div
-    class="scalar-data-table border-1/2 rounded bg-b-1"
-    :class="scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible'">
+    :class="[
+      scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible',
+      tw('scalar-data-table border-1/2 rounded bg-b-1', $attrs.class as string),
+    ]">
     <table
-      class="grid auto-rows-auto min-h-8 mb-0"
-      :class="{ 'min-w-full w-max': scroll }"
+      :class="[
+        { 'min-w-full w-max': scroll },
+        tw('table min-h-8 mb-0', tableClass as string),
+      ]"
       :style="{
         gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
       }">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities } from '@scalar/api-client/store'
-import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
+import { RequestAuthDataTable } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -66,11 +66,14 @@ const introCardsSlot = computed(() =>
               :defaultServerUrl="baseServerURL"
               :servers="props.servers"
               :specification="parsedSpec" />
-            <RequestAuth
-              :selectedSecuritySchemeUids="
-                activeCollection?.selectedSecuritySchemeUids ?? []
-              "
-              title="Authentication" />
+            <div class="scalar-client px-[9px]">
+              <RequestAuthDataTable
+                layout="reference"
+                :selectedSecuritySchemeUids="
+                  activeCollection?.selectedSecuritySchemeUids ?? []
+                "
+                title="Authentication" />
+            </div>
             <ClientLibraries class="introduction-card-item" />
           </div>
         </ScalarErrorBoundary>
@@ -205,10 +208,5 @@ const introCardsSlot = computed(() =>
   top: 0;
   right: 0;
   pointer-events: none;
-}
-.references-auth :deep(.scalar-data-table) {
-  border-radius: 0;
-  border-left: 0;
-  border-right: 0;
 }
 </style>
