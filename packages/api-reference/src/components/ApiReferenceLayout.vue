@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
+import { ScalarErrorBoundary } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   type ThemeId,
@@ -299,21 +300,23 @@ const themeStyleTag = computed(
       class="references-navigation t-doc__sidebar">
       <!-- Navigation tree / Table of Contents -->
       <div class="references-navigation-list">
-        <Sidebar
-          :operationsSorter="configuration.operationsSorter"
-          :parsedSpec="parsedSpec"
-          :tagsSorter="configuration.tagsSorter">
-          <template #sidebar-start>
-            <slot
-              v-bind="referenceSlotProps"
-              name="sidebar-start" />
-          </template>
-          <template #sidebar-end>
-            <slot
-              v-bind="referenceSlotProps"
-              name="sidebar-end" />
-          </template>
-        </Sidebar>
+        <ScalarErrorBoundary>
+          <Sidebar
+            :operationsSorter="configuration.operationsSorter"
+            :parsedSpec="parsedSpec"
+            :tagsSorter="configuration.tagsSorter">
+            <template #sidebar-start>
+              <slot
+                v-bind="referenceSlotProps"
+                name="sidebar-start" />
+            </template>
+            <template #sidebar-end>
+              <slot
+                v-bind="referenceSlotProps"
+                name="sidebar-end" />
+            </template>
+          </Sidebar>
+        </ScalarErrorBoundary>
       </div>
     </aside>
     <!-- Swagger file editing -->

@@ -12,7 +12,7 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { ScalarMarkdown } from '@scalar/components'
+import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import OperationParameters from '../components/OperationParameters.vue'
@@ -48,22 +48,26 @@ defineProps<{
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
-            <ExampleRequest
-              fallback
-              :operation="operation">
-              <template #header>
-                <OperationPath
-                  class="example-path"
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TestRequestButton :operation="operation" />
-              </template>
-            </ExampleRequest>
-            <ExampleResponses
-              :operation="operation"
-              style="margin-top: 12px" />
+            <ScalarErrorBoundary>
+              <ExampleRequest
+                fallback
+                :operation="operation">
+                <template #header>
+                  <OperationPath
+                    class="example-path"
+                    :deprecated="operation.information?.deprecated"
+                    :path="operation.path" />
+                </template>
+                <template #footer>
+                  <TestRequestButton :operation="operation" />
+                </template>
+              </ExampleRequest>
+            </ScalarErrorBoundary>
+            <ScalarErrorBoundary>
+              <ExampleResponses
+                :operation="operation"
+                style="margin-top: 12px" />
+            </ScalarErrorBoundary>
           </div>
         </SectionColumn>
       </SectionColumns>

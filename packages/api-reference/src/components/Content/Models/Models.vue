@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import { computed } from 'vue'
 
@@ -70,10 +71,12 @@ const models = computed(() => {
                 :name="name"
                 :value="(schemas as any)[name]" />
             </template>
-            <Schema
-              :hideHeading="true"
-              noncollapsible
-              :value="(schemas as any)[name]" />
+            <ScalarErrorBoundary>
+              <Schema
+                :hideHeading="true"
+                noncollapsible
+                :value="(schemas as any)[name]" />
+            </ScalarErrorBoundary>
           </CompactSection>
         </Lazy>
       </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
@@ -55,20 +56,22 @@ const introCardsSlot = computed(() =>
       :info="parsedSpec.info"
       :parsedSpec="parsedSpec">
       <template #[introCardsSlot]>
-        <div
-          class="introduction-card"
-          :class="{ 'introduction-card-row': layout === 'classic' }">
-          <BaseUrl
-            class="introduction-card-item"
-            :defaultServerUrl="baseServerURL"
-            :servers="props.servers"
-            :specification="parsedSpec" />
-          <Authentication
-            class="introduction-card-item"
-            :parsedSpec="parsedSpec"
-            :proxyUrl="proxyUrl" />
-          <ClientLibraries class="introduction-card-item" />
-        </div>
+        <ScalarErrorBoundary>
+          <div
+            class="introduction-card"
+            :class="{ 'introduction-card-row': layout === 'classic' }">
+            <BaseUrl
+              class="introduction-card-item"
+              :defaultServerUrl="baseServerURL"
+              :servers="props.servers"
+              :specification="parsedSpec" />
+            <Authentication
+              class="introduction-card-item"
+              :parsedSpec="parsedSpec"
+              :proxyUrl="proxyUrl" />
+            <ClientLibraries class="introduction-card-item" />
+          </div>
+        </ScalarErrorBoundary>
       </template>
     </Introduction>
     <slot
