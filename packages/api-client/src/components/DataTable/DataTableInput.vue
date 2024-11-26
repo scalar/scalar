@@ -11,7 +11,10 @@ const props = withDefaults(
     id?: string
     type?: string
     /** Class for the wrapping cell because attrs is bound to the input */
-    containerClass?: string
+    containerClass?:
+      | string
+      | Record<string, boolean>
+      | (string | Record<string, boolean>)[]
     required?: boolean
     modelValue: string | number
     /** Allows adding a custom value to the enum dropdown, defaults to true */
