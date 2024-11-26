@@ -12,6 +12,7 @@ const meta = {
   component: ScalarButton,
   tags: ['autodocs'],
   argTypes: {
+    class: { control: 'text' },
     size: { control: 'select', options: ['md'] },
     variant: {
       control: 'select',
