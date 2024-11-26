@@ -58,7 +58,7 @@ type CreateWorkspaceStoreOptions = {
   useLocalStorage: boolean
   /** Puts the client into read only mode, usually reservered for the modal */
   isReadOnly: boolean
-  proxyUrl: ReferenceConfiguration['proxy']
+  proxyUrl: ReferenceConfiguration['proxyUrl']
   themeId: ReferenceConfiguration['theme']
 }
 

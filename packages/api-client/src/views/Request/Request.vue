@@ -95,7 +95,7 @@ const executeRequest = async () => {
     request: activeRequest.value,
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
-    proxy: activeWorkspace.value.proxyUrl ?? '',
+    proxyUrl: activeWorkspace.value.proxyUrl ?? '',
     environment,
     globalCookies,
     status: events.requestStatus,

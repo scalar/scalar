@@ -31,7 +31,7 @@ import type { Router } from 'vue-router'
 
 /** Configuration options for the Scalar API client */
 export type ClientConfiguration = {
-  proxyUrl?: ReferenceConfiguration['proxy']
+  proxyUrl?: ReferenceConfiguration['proxyUrl']
   themeId?: ReferenceConfiguration['theme']
 } & Pick<
   ReferenceConfiguration,
@@ -220,7 +220,7 @@ export const createApiClient = ({
   const updateSpec = async (spec: SpecConfiguration) => {
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
-        proxy: configuration?.proxyUrl,
+        proxyUrl: configuration?.proxyUrl,
         setCollectionSecurity: true,
         ...configuration,
       })

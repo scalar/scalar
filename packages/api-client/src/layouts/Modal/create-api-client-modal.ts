@@ -35,7 +35,7 @@ export const createApiClientModal = async (
   // Import the spec if needed
   if (configuration.spec?.url)
     await importSpecFromUrl(configuration.spec.url, 'default', {
-      proxy: configuration.proxyUrl,
+      proxyUrl: configuration.proxyUrl,
       setCollectionSecurity: true,
       ...configuration,
     })

@@ -12,9 +12,15 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
   watch(
     () => configuration,
     () => {
-      if (configuration.proxy === OLD_PROXY_URL) {
+      if (configuration.proxy) {
         console.warn(
-          `[DEPRECATED] Warning: configuration.proxy points to our old proxy (${OLD_PROXY_URL}).`,
+          `[DEPRECATED] You’re using the deprecated 'proxy' attribute, rename it to 'proxyUrl' or update the package.`,
+        )
+      }
+
+      if ((configuration.proxyUrl || configuration.proxy) === OLD_PROXY_URL) {
+        console.warn(
+          `[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}).`,
         )
 
         console.warn(
@@ -22,21 +28,11 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
         )
 
         // WARNING: This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
-        configuration.proxy = NEW_PROXY_URL
+        delete configuration.proxy
+        configuration.proxyUrl = NEW_PROXY_URL
 
         console.warn(
           `[DEPRECATED] Action Required: You should manually update your configuration to use the new URL (${NEW_PROXY_URL}). Read more: https://github.com/scalar/scalar`,
-        )
-      } else if (
-        configuration.proxy?.length &&
-        configuration.proxy !== NEW_PROXY_URL &&
-        configuration.proxy !== LOCAL_PROXY_URL
-      ) {
-        console.warn(
-          `[DEPRECATED] Warning: configuration.proxy points to a custom proxy (${configuration?.proxy}).`,
-        )
-        console.warn(
-          `[DEPRECATED] Action Required: You need to use our new proxy (written in Go). Read more: https://github.com/scalar/scalar/tree/main/examples/proxy-server`,
         )
       }
     },

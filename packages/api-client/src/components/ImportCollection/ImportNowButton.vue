@@ -31,7 +31,7 @@ async function importCollection() {
           props.source,
           activeWorkspace.value.uid,
           {
-            proxy: activeWorkspace.value.proxyUrl,
+            proxyUrl: activeWorkspace.value.proxyUrl,
             watchMode: props.watchMode,
           },
         )

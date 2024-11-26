@@ -22,7 +22,7 @@ defineProps<{
     | OpenAPIV2.SecuritySchemeObject
     | OpenAPIV3.SecuritySchemeObject
     | OpenAPIV3_1.SecuritySchemeObject
-  proxy?: string
+  proxyUrl?: string
 }>()
 
 const { toast } = useToasts()
@@ -167,7 +167,7 @@ function authorizeWithPassword(
   tokenUrl?: string,
   options?: {
     baseUrl?: string
-    proxy?: string
+    proxyUrl?: string
   },
 ) {
   // Require tokenUrl
@@ -196,8 +196,8 @@ function authorizeWithPassword(
 
   // TODO: Proxy this request
   fetch(
-    options?.proxy
-      ? redirectToProxy(options?.proxy, url.toString())
+    options?.proxyUrl
+      ? redirectToProxy(options?.proxyUrl, url.toString())
       : url.toString(),
     {
       method: 'POST',
@@ -428,7 +428,7 @@ const startAuthentication = (url: string) => {
                     ).flows?.password?.tokenUrl,
                     {
                       baseUrl: getUrlFromServerState(server).modifiedUrl,
-                      proxy,
+                      proxyUrl,
                     },
                   )
               ">

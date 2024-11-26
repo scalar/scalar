@@ -81,18 +81,18 @@ export function setRequestCookies({
   env,
   globalCookies,
   domain,
-  proxy,
+  proxyUrl,
 }: {
   example: RequestExample
   env: object
   globalCookies: Cookie[]
   domain: string
-  proxy?: string
+  proxyUrl?: string
 }) {
   let _domain: string | undefined
 
   try {
-    _domain = new URL(proxy || domain).host
+    _domain = new URL(proxyUrl || domain).host
   } catch (e) {
     if (typeof window !== 'undefined') _domain = window.location.host
   }
@@ -237,7 +237,7 @@ export const createRequestOperation = ({
   server,
   securitySchemes,
   selectedSecuritySchemeUids = [],
-  proxy,
+  proxyUrl,
   status,
   environment,
   globalCookies,
@@ -245,7 +245,7 @@ export const createRequestOperation = ({
   request: Request
   example: RequestExample
   selectedSecuritySchemeUids?: string[]
-  proxy?: string
+  proxyUrl?: string
   status?: EventBus<RequestStatus>
   environment: object | undefined
   server?: Server
@@ -295,7 +295,7 @@ export const createRequestOperation = ({
       env,
       globalCookies,
       domain: url,
-      proxy,
+      proxyUrl,
     })
 
     // Populate all forms of auth to the request segments
@@ -381,8 +381,8 @@ export const createRequestOperation = ({
         }
 
         const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-        const proxiedUrl = shouldUseProxy(proxy, url)
-          ? `${proxy}?${proxyPath.toString()}`
+        const proxiedUrl = shouldUseProxy(proxyUrl, url)
+          ? `${proxyUrl}?${proxyPath.toString()}`
           : url
 
         const response = await fetch(proxiedUrl, {
@@ -396,7 +396,7 @@ export const createRequestOperation = ({
 
         const responseHeaders = normalizeHeaders(
           response.headers,
-          shouldUseProxy(proxy, url),
+          shouldUseProxy(proxyUrl, url),
         )
         const responseType =
           response.headers.get('content-type') ?? 'text/plain;charset=UTF-8'

@@ -25,7 +25,8 @@ const configuration = toRef(props.configuration)
 const spec = toRef(props.configuration?.spec)
 
 const { parsedSpec: parsedSpec } = useReactiveSpec({
-  proxy: () => props.configuration?.proxy ?? '',
+  proxyUrl: () =>
+    props.configuration?.proxyUrl ?? props.configuration?.proxy ?? '',
   specConfig: () => props.configuration?.spec ?? { content: '' },
 })
 
@@ -83,8 +84,11 @@ const loadDocument = async () => {
       fetchUrls({
         fetch: (url) =>
           fetch(
-            props.configuration?.proxy
-              ? redirectToProxy(props.configuration.proxy, url)
+            props.configuration?.proxyUrl || props.configuration?.proxy
+              ? redirectToProxy(
+                  props.configuration?.proxyUrl || props.configuration?.proxy,
+                  url,
+                )
               : url,
           ),
       }),

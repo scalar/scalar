@@ -19,7 +19,7 @@ const props = withDefaults(
     layout?: 'modern' | 'classic'
     baseServerURL?: string
     servers?: Server[]
-    proxy?: string
+    proxyUrl?: string
   }>(),
   {
     layout: 'modern',
@@ -66,7 +66,7 @@ const introCardsSlot = computed(() =>
           <Authentication
             class="introduction-card-item"
             :parsedSpec="parsedSpec"
-            :proxy="proxy" />
+            :proxyUrl="proxyUrl" />
           <ClientLibraries class="introduction-card-item" />
         </div>
       </template>
