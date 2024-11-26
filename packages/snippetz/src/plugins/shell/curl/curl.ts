@@ -19,15 +19,21 @@ export function curl(
   // Build curl command parts
   const parts: string[] = ['curl']
 
-  // URL (quote if has query parameters)
+  // URL (quote if has query parameters or special characters)
   const queryString = normalizedRequest.queryString?.length
     ? '?' +
       normalizedRequest.queryString
-        .map((param) => `${param.name}=${param.value}`)
+        .map((param) => {
+          // Ensure both name and value are fully URI encoded
+          const encodedName = encodeURIComponent(param.name)
+          const encodedValue = encodeURIComponent(param.value)
+          return `${encodedName}=${encodedValue}`
+        })
         .join('&')
     : ''
   const url = `${normalizedRequest.url}${queryString}`
-  const urlPart = queryString ? `'${url}'` : url
+  const hasSpecialChars = /[\s<>[\]{}|\\^%]/.test(url)
+  const urlPart = queryString || hasSpecialChars ? `'${url}'` : url
   parts[0] = `curl ${urlPart}`
 
   // Method
@@ -47,6 +53,14 @@ export function curl(
     normalizedRequest.headers.forEach((header) => {
       parts.push(`--header '${header.name}: ${header.value}'`)
     })
+
+    // Add compressed flag if Accept-Encoding header includes compression
+    const acceptEncoding = normalizedRequest.headers.find(
+      (header) => header.name.toLowerCase() === 'accept-encoding',
+    )
+    if (acceptEncoding && /gzip|deflate/.test(acceptEncoding.value)) {
+      parts.push('--compressed')
+    }
   }
 
   // Cookies
@@ -61,6 +75,33 @@ export function curl(
   if (normalizedRequest.postData) {
     if (normalizedRequest.postData.mimeType === 'application/json') {
       parts.push(`--data '${normalizedRequest.postData.text}'`)
+    } else if (
+      normalizedRequest.postData.mimeType === 'application/octet-stream'
+    ) {
+      parts.push(`--data-binary '${normalizedRequest.postData.text}'`)
+    } else if (
+      normalizedRequest.postData.mimeType ===
+        'application/x-www-form-urlencoded' &&
+      normalizedRequest.postData.params
+    ) {
+      // Handle URL-encoded form data
+      normalizedRequest.postData.params.forEach((param) => {
+        parts.push(
+          `--data-urlencode '${encodeURIComponent(param.name)}=${param.value}'`,
+        )
+      })
+    } else if (
+      normalizedRequest.postData.mimeType === 'multipart/form-data' &&
+      normalizedRequest.postData.params
+    ) {
+      // Handle multipart form data
+      normalizedRequest.postData.params.forEach((param) => {
+        if (param.fileName) {
+          parts.push(`--form '${param.name}=@${param.fileName}'`)
+        } else {
+          parts.push(`--form '${param.name}=${param.value}'`)
+        }
+      })
     } else {
       parts.push(`--data "${normalizedRequest.postData.text}"`)
     }

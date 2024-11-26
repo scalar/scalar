@@ -201,4 +201,110 @@ describe('curl', () => {
 
     expect(source.code).toBe('curl https://example.com')
   })
+
+  it('handles multipart form data with files', () => {
+    const source = curl({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'multipart/form-data',
+        params: [
+          {
+            name: 'file',
+            fileName: 'test.txt',
+          },
+          {
+            name: 'field',
+            value: 'value',
+          },
+        ],
+      },
+    })
+
+    expect(source.code).toBe(`curl https://example.com \\
+  --request POST \\
+  --form 'file=@test.txt' \\
+  --form 'field=value'`)
+  })
+
+  it('handles url-encoded form data with special characters', () => {
+    const source = curl({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/x-www-form-urlencoded',
+        params: [
+          {
+            name: 'special chars!@#',
+            value: 'value',
+          },
+        ],
+      },
+    })
+
+    expect(source.code).toBe(`curl https://example.com \\
+  --request POST \\
+  --data-urlencode 'special%20chars!%40%23=value'`)
+  })
+
+  it('handles binary data flag', () => {
+    const source = curl({
+      url: 'https://example.com',
+      method: 'POST',
+      postData: {
+        mimeType: 'application/octet-stream',
+        text: 'binary content',
+      },
+    })
+
+    expect(source.code).toBe(`curl https://example.com \\
+  --request POST \\
+  --data-binary 'binary content'`)
+  })
+
+  it('handles compressed response', () => {
+    const source = curl({
+      url: 'https://example.com',
+      headers: [
+        {
+          name: 'Accept-Encoding',
+          value: 'gzip, deflate',
+        },
+      ],
+    })
+
+    expect(source.code).toBe(`curl https://example.com \\
+  --header 'Accept-Encoding: gzip, deflate' \\
+  --compressed`)
+  })
+
+  it('handles special characters in URL', () => {
+    const source = curl({
+      url: 'https://example.com/path with spaces/[brackets]',
+    })
+
+    expect(source.code).toBe(
+      `curl 'https://example.com/path with spaces/[brackets]'`,
+    )
+  })
+
+  it('handles special characters in query parameters', () => {
+    const source = curl({
+      url: 'https://example.com',
+      queryString: [
+        {
+          name: 'q',
+          value: 'hello world & more',
+        },
+        {
+          name: 'special',
+          value: '!@#$%^&*()',
+        },
+      ],
+    })
+
+    expect(source.code).toBe(
+      `curl 'https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()'`,
+    )
+  })
 })
