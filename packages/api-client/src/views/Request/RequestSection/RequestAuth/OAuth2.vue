@@ -14,9 +14,14 @@ import { useToasts } from '@scalar/use-toasts'
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, flow } = defineProps<{
+const {
+  scheme,
+  flow,
+  layout = 'client',
+} = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
+  layout?: 'client' | 'reference'
 }>()
 
 const loadingState = useLoadingState()
@@ -46,6 +51,12 @@ const handleAuthorize = async () => {
     toast(error?.message ?? 'Failed to authorize', 'error')
   }
 }
+
+/** To override the styling when we are in references */
+const getReferenceClass = (className = '') =>
+  layout === 'reference'
+    ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    : ''
 </script>
 
 <template>
@@ -77,11 +88,12 @@ const handleAuthorize = async () => {
   </template>
 
   <template v-else>
-    <!-- Custom auth -->
     <DataTableRow>
+      <!-- Auth URL -->
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
         :id="`oauth2-authorization-url-${scheme.uid}`"
+        :containerClass="getReferenceClass('rounded-t border-t-1/2')"
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="
@@ -90,9 +102,15 @@ const handleAuthorize = async () => {
         Auth Url
       </RequestAuthDataTableInput>
 
+      <!-- Token URL -->
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
         :id="`oauth2-token-url-${scheme.uid}`"
+        :containerClass="
+          getReferenceClass(
+            flow.type === 'authorizationCode' ? '' : 'rounded-t border-t-1/2',
+          )
+        "
         :modelValue="flow.tokenUrl"
         placeholder="https://galaxy.scalar.com/token"
         @update:modelValue="
@@ -106,6 +124,7 @@ const handleAuthorize = async () => {
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
         :id="`oauth2-redirect-uri-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
@@ -121,6 +140,7 @@ const handleAuthorize = async () => {
         <RequestAuthDataTableInput
           :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
+          :containerClass="getReferenceClass()"
           :modelValue="flow.username"
           placeholder="ScalarEnjoyer01"
           @update:modelValue="
@@ -132,6 +152,7 @@ const handleAuthorize = async () => {
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`oauth2-password-password-${scheme.uid}`"
+          :containerClass="getReferenceClass()"
           :modelValue="flow.password"
           placeholder="********"
           type="password"
@@ -147,6 +168,7 @@ const handleAuthorize = async () => {
     <DataTableRow>
       <RequestAuthDataTableInput
         :id="`oauth2-client-id-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-client-id']"
         placeholder="12345"
         @update:modelValue="
@@ -160,6 +182,7 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="'clientSecret' in flow">
       <RequestAuthDataTableInput
         :id="`oauth2-client-secret-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow.clientSecret"
         placeholder="XYZ123"
         type="password"
@@ -174,6 +197,7 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
         :id="`oauth2-use-pkce-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :enum="pkceOptions"
         :modelValue="flow['x-usePkce']"
         readOnly
@@ -192,6 +216,7 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
       <OAuthScopesInput
         :flow="flow"
+        :layout="layout"
         :updateScheme="updateScheme" />
     </DataTableRow>
 

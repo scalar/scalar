@@ -120,7 +120,7 @@ const handleDropdownMouseUp = () => {
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
           v-if="required"
-          class="absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
+          class="scalar-input-required absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
           Required
         </div>
       </template>
