@@ -5,6 +5,9 @@ import {
   objectToString,
 } from '../../../core'
 
+/**
+ * node/ofetch
+ */
 export function ofetch(request?: Partial<Request>): Source {
   // Defaults
   const normalizedRequest = {
@@ -79,7 +82,9 @@ export function ofetch(request?: Partial<Request>): Source {
     : ''
 
   // Code Template
-  const code = `ofetch('${normalizedRequest.url}'${jsonOptions})`
+  const code = `import { ofetch } from 'ofetch'
+
+ofetch('${normalizedRequest.url}'${jsonOptions})`
 
   return {
     target: 'node',

@@ -1,12 +1,17 @@
-import { isKeyNeedsQuotes } from './isKeyNeedsQuotes'
+import { needsQuotes } from './needsQuotes'
 
+/**
+ * Converts an object into a string representation with proper formatting and indentation
+ *
+ * Handles nested objects, arrays, and special string values
+ */
 export function objectToString(obj: Record<string, any>, indent = 0): string {
   const parts = []
   const indentation = ' '.repeat(indent)
   const innerIndentation = ' '.repeat(indent + 2)
 
   for (const [key, value] of Object.entries(obj)) {
-    const formattedKey = isKeyNeedsQuotes(key) ? `'${key}'` : key
+    const formattedKey = needsQuotes(key) ? `'${key}'` : key
 
     if (Array.isArray(value)) {
       const arrayString = value

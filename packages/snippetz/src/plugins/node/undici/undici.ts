@@ -5,6 +5,9 @@ import {
   objectToString,
 } from '../../../core'
 
+/**
+ * node/undici
+ */
 export function undici(request?: Partial<Request>): Source {
   // Defaults
   const normalizedRequest = {

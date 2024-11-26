@@ -9,6 +9,11 @@ export type Source = {
   code: string
 }
 
-export type TargetId = 'node' | 'js'
+export type TargetId = 'node' | 'js' | 'shell'
 
-export type ClientId = 'undici' | 'fetch' | 'ofetch'
+export type ClientId = 'undici' | 'fetch' | 'ofetch' | 'curl'
+
+export type PluginConfiguration = {
+  /** Credentials to add HTTP Basic Authentication */
+  auth?: { username: string; password: string }
+}
