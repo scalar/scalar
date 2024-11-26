@@ -8,16 +8,9 @@ import { capitalize, computed } from 'vue'
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids } = defineProps<{
-  rowClass?:
-    | string
-    | Record<string, boolean>
-    | (string | Record<string, boolean>)[]
-  cellClass?:
-    | string
-    | Record<string, boolean>
-    | (string | Record<string, boolean>)[]
+const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
   selectedSecuritySchemeUids: string[]
+  layout?: 'client' | 'reference'
 }>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
@@ -42,6 +35,11 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
+
+const baseReferenceClass = 'bg-b-2 border-l-1/2 last:border-r-1/2'
+/** To override the styling when we are in references */
+const getReferenceClass = (className: string) =>
+  layout === 'reference' ? `${baseReferenceClass} ${className}` : ''
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
@@ -52,7 +50,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <DataTableRow class="group/delete">
       <DataTableCell
         v-if="security.length > 1"
-        class="text-c-3 pl-2 font-medium flex items-center">
+        class="text-c-3 border-b-0 pl-2 font-medium flex items-center">
         {{ generateLabel(scheme) }}
       </DataTableCell>
     </DataTableRow>
@@ -60,12 +58,10 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <!-- HTTP -->
     <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow
-        v-if="scheme.scheme === 'bearer'"
-        :class="rowClass">
+      <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :containerClass="cellClass"
+          :containerClass="getReferenceClass('rounded border-1/2')"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -76,11 +72,11 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
 
       <!-- HTTP Basic -->
       <template v-else-if="scheme.scheme === 'basic'">
-        <DataTableRow :class="rowClass">
+        <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
-            :containerClass="cellClass"
+            :containerClass="getReferenceClass('rounded-t border-t-1/2')"
             :modelValue="scheme.username"
             placeholder="ScalarEnjoyer01"
             required
@@ -88,10 +84,10 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
-        <DataTableRow :class="rowClass">
+        <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
-            :containerClass="cellClass"
+            :containerClass="getReferenceClass('rounded-b')"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -104,20 +100,20 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
 
     <!-- API Key -->
     <template v-else-if="scheme.type === 'apiKey'">
-      <DataTableRow :class="rowClass">
+      <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-name-${scheme.uid}`"
-          :containerClass="cellClass"
+          :containerClass="getReferenceClass('rounded-t border-t-1/2')"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
           Name
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow :class="rowClass">
+      <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-value-add-${scheme.uid}`"
-          :containerClass="cellClass"
+          :containerClass="getReferenceClass('rounded-b')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
