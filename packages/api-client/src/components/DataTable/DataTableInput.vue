@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
-import type { VueClassProp } from '@scalar/types/external'
 import { computed, ref } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
