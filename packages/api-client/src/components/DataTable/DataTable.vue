@@ -1,13 +1,8 @@
 <script setup lang="ts">
 import { tw } from '@scalar/components'
 
-const { tableClass = '' } = defineProps<{
+defineProps<{
   columns: (string | undefined)[]
-  tableClass?:
-    | string
-    | Record<string, boolean>
-    | (string | Record<string, boolean>)[]
-    | false
   /** Scroll horizontally */
   scroll?: boolean
 }>()
@@ -19,10 +14,8 @@ const { tableClass = '' } = defineProps<{
       tw('scalar-data-table border-1/2 rounded bg-b-1', $attrs.class as string),
     ]">
     <table
-      :class="[
-        { 'min-w-full w-max': scroll },
-        tw('table min-h-8 mb-0', tableClass as string),
-      ]"
+      class="grid auto-rows-auto min-h-8 mb-0"
+      :class="{ 'min-w-full w-max': scroll }"
       :style="{
         gridTemplateColumns: columns.map((col) => col || '1fr').join(' '),
       }">
