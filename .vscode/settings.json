@@ -49,6 +49,7 @@
     ["cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)"]
   ],
   "tailwindCSS.experimental.configFile": {
+    "packages/api-client/tailwind.config.ts": "packages/api-client/**",
     "packages/components/tailwind.config.ts": "packages/components/**"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
