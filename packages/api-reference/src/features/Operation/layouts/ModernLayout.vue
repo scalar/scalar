@@ -52,9 +52,10 @@ const { id, operation, request, secretCredentials } = defineProps<{
           <div class="examples">
             <ScalarErrorBoundary>
               <ExampleRequest
-                v-bind="exampleRequestProps"
                 fallback
-                :operation="operation">
+                :operation="operation"
+                :request="request"
+                :secretCredentials="secretCredentials">
                 <template #header>
                   <OperationPath
                     class="example-path"
@@ -65,8 +66,6 @@ const { id, operation, request, secretCredentials } = defineProps<{
                   <TestRequestButton :operation="operation" />
                 </template>
               </ExampleRequest>
-            </ScalarErrorBoundary>
-            <ScalarErrorBoundary>
               <ExampleResponses
                 :operation="operation"
                 style="margin-top: 12px" />
