@@ -1,4 +1,14 @@
-import type { PluginConfiguration, Request, Source } from '../../../core'
+import type {
+  AddClient,
+  PluginConfiguration,
+  Request,
+  Source,
+} from '../../../core'
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
+  interface Clients extends AddClient<'shell', 'curl'> {}
+}
 
 /**
  * shell/curl
