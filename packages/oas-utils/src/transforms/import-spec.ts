@@ -424,8 +424,7 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
-
-  const securityKeys = Object.keys(security)
+  const securityKeys = Object.keys(schema.security?.[0] ?? security ?? {})
   let selectedSecuritySchemeUids: string[] = []
 
   /** Selected security scheme UIDs for the collection, defaults to the first key */
