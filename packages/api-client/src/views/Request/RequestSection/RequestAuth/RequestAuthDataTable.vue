@@ -199,8 +199,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
     <DataTable
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
-      :columns="['']"
-      :tableClass="layout === 'reference' && 'border-collapse'">
+      :columns="['']">
       <DataTableRow>
         <DataTableHeader
           class="relative col-span-full cursor-pointer py-0 px-0 flex items-center"
@@ -277,11 +276,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
         </DataTableHeader>
       </DataTableRow>
       <RequestExampleAuth
-        :cellClass="{
-          'bg-b-2 rounded border-1/2 last:border-r-1/2 group-last:border-b-border':
-            layout === 'reference',
-        }"
-        rowClass="border-collapse"
+        :layout="layout"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
     </DataTable>
     <DeleteRequestAuthModal
