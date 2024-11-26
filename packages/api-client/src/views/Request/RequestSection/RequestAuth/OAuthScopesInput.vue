@@ -10,8 +10,13 @@ import { ScalarIcon } from '@scalar/components'
 import type { Oauth2Flow } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
-const { flow, updateScheme } = defineProps<{
+const {
+  flow,
+  layout = 'client',
+  updateScheme,
+} = defineProps<{
   flow: Oauth2Flow
+  layout: 'client' | 'reference'
   updateScheme: UpdateScheme
 }>()
 
@@ -43,7 +48,11 @@ function setScope(id: string, checked: boolean) {
 </script>
 
 <template>
-  <DataTableCell class="items-center min-h-8 h-auto">
+  <DataTableCell
+    class="items-center min-h-8 h-auto"
+    :class="{
+      'bg-b-2 border-l-1/2 last:border-r-1/2 rounded-b': layout === 'reference',
+    }">
     <div class="flex h-fit w-full">
       <div class="text-c-1 min-w-[94px] items-center pl-2 h-full">
         <span class="h-8 flex items-center"> Scopes </span>

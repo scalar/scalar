@@ -36,10 +36,11 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
 
-const baseReferenceClass = 'bg-b-2 border-l-1/2 last:border-r-1/2'
 /** To override the styling when we are in references */
-const getReferenceClass = (className: string) =>
-  layout === 'reference' ? `${baseReferenceClass} ${className}` : ''
+const getReferenceClass = (className = '') =>
+  layout === 'reference'
+    ? `references-layout bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    : ''
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
@@ -50,7 +51,10 @@ const getReferenceClass = (className: string) =>
     <DataTableRow class="group/delete">
       <DataTableCell
         v-if="security.length > 1"
-        class="text-c-3 border-b-0 pl-2 font-medium flex items-center">
+        class="text-c-3 pl-2 font-medium flex items-center"
+        :class="{
+          'border-b-0': layout === 'reference',
+        }">
         {{ generateLabel(scheme) }}
       </DataTableCell>
     </DataTableRow>
@@ -61,7 +65,7 @@ const getReferenceClass = (className: string) =>
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :containerClass="getReferenceClass('rounded border-1/2')"
+          :containerClass="getReferenceClass('border-1/2 rounded')"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -87,7 +91,7 @@ const getReferenceClass = (className: string) =>
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
-            :containerClass="getReferenceClass('rounded-b')"
+            :containerClass="getReferenceClass('rounded-b border-b-1/2')"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -113,7 +117,7 @@ const getReferenceClass = (className: string) =>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-value-add-${scheme.uid}`"
-          :containerClass="getReferenceClass('rounded-b')"
+          :containerClass="getReferenceClass('rounded-b border-b-1/2')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
@@ -128,7 +132,17 @@ const getReferenceClass = (className: string) =>
         v-for="(flow, key) in scheme.flows"
         :key="key"
         :flow="flow!"
+        :layout="layout"
         :scheme="scheme" />
     </template>
   </template>
 </template>
+
+<style scoped>
+.references-layout :deep(.scalar-input-required),
+.references-layout :deep(.required) {
+  background: var(--scalar-background-2);
+  --tw-bg-base: var(--scalar-background-2);
+  --tw-shadow: -8px 0 4px var(--scalar-background-2);
+}
+</style>
