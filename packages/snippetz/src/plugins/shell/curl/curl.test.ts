@@ -66,7 +66,9 @@ describe('curl', () => {
     expect(source.code).toBe(`curl https://example.com \\
   --request POST \\
   --header 'Content-Type: application/json' \\
-  --data '{"hello":"world"}'`)
+  --data '{
+  "hello": "world"
+}'`)
   })
 
   it('has query string', () => {
@@ -392,7 +394,16 @@ describe('curl', () => {
     expect(source.code).toBe(`curl https://example.com \\
   --request POST \\
   --header 'Content-Type: application/json' \\
-  --data '{"key":"\\"quotes\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}'`)
+  --data '{
+  "key": "\\"quotes\\" and \\\\backslashes\\\\",
+  "nested": {
+    "array": [
+      "item1",
+      null,
+      null
+    ]
+  }
+}'`)
   })
 
   it('handles cookies with special characters', () => {
@@ -408,5 +419,45 @@ describe('curl', () => {
 
     expect(source.code).toBe(`curl https://example.com \\
   --cookie 'special%3Bcookie=value%20with%20spaces'`)
+  })
+
+  it('prettifies JSON body', () => {
+    const source = curl({
+      url: 'https://example.com',
+      method: 'POST',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: JSON.stringify({
+          nested: {
+            array: [1, 2, 3],
+            object: { foo: 'bar' },
+          },
+          simple: 'value',
+        }),
+      },
+    })
+
+    expect(source.code).toBe(`curl https://example.com \\
+  --request POST \\
+  --header 'Content-Type: application/json' \\
+  --data '{
+  "nested": {
+    "array": [
+      1,
+      2,
+      3
+    ],
+    "object": {
+      "foo": "bar"
+    }
+  },
+  "simple": "value"
+}'`)
   })
 })
