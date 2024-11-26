@@ -55,7 +55,7 @@ const handleAuthorize = async () => {
 /** To override the styling when we are in references */
 const getReferenceClass = (className = '') =>
   layout === 'reference'
-    ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    ? `references-layout bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
     : ''
 </script>
 
