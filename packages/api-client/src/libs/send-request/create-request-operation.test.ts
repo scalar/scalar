@@ -90,23 +90,7 @@ $ pnpm dev:void-server
   }
 })
 
-describe('createRequestOperation', () => {
-  it('shows a warning when scalar_url is missing', async () => {
-    const [error, requestOperation] = createRequestOperation(
-      createRequestPayload({
-        serverPayload: { url: PROXY_URL },
-      }),
-    )
-    if (error) throw error
-
-    const [requestError, result] = await requestOperation.sendRequest()
-
-    expect(requestError).toBe(null)
-    expect(result?.response.data).toContain(
-      'The `scalar_url` query parameter is required.',
-    )
-  })
-
+describe('create-request-operation', () => {
   it('builds a request with a relative server url', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({

@@ -2,7 +2,25 @@
 
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-The Scalar Proxy redirects requests to another server to avoid CORS issues. It’s made to work well with the Scalar API Client.
+When making requests from a web browser to different domains, browsers enforce the Same-Origin Policy by default. These
+cross-origin requests are blocked unless the target server implements proper [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+(Cross-Origin Resource Sharing) headers.
+
+The Scalar Proxy Server acts as an intermediary, forwarding requests to external servers while automatically adding the
+necessary CORS headers to the responses. This enables seamless cross-origin requests when using the Scalar API Client
+in browser environments.
+
+## Features
+
+- Full CORS support
+- Handles HTTP redirects while preserving headers
+- Supports HTTPS (and even self-signed certificates)
+- Request logging with method and target URL
+- Health check endpoint at `/ping`
+- Configurable port via environment variable (`PORT`)
+- Preserves original request headers and body (except `Origin` header)
+- Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH)
+- Zero external dependencies (only using Go standard libraries)
 
 ## Usage
 
@@ -12,6 +30,8 @@ The Scalar Proxy redirects requests to another server to avoid CORS issues. It�
 
 ### Run
 
+You can start the proxy server in two ways. The default port is 1337:
+
 ```bash
 go run main.go
 ```
@@ -20,11 +40,13 @@ go run main.go
 2024/05/08 10:49:59 🥤 Proxy Server listening on http://localhost:1337
 ```
 
+But you can customize it using the `PORT` environment variable:
+
 ```bash
 PORT=8080 go run main.go
 ```
 
-### Example
+### Example request
 
 ```bash
 curl --request GET \
@@ -55,9 +77,9 @@ curl --request GET \
 }
 ```
 
-> Yo, there’s no mod file.
+## Community
 
-You’re so right! We’re using the standard libraries. Isn’t that why we all love Go? Anyway, we just don’t need a mod file. :)
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
 
 ## License
 

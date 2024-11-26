@@ -2,24 +2,229 @@ package main
 
 import (
 	"crypto/tls"
+	"io"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
+	"strings"
 )
 
-// corsMiddleware adds CORS headers to the response and handles pre-flight requests.
+// Set up and start the proxy server. The server is designed to bypass CORS and make cross-origin requests in browsers
+// behave like server-side requests (or let’s say like `curl`).
+func main() {
+	// The default port
+	port := ":1337"
+
+	// Allow to overwrite the port with an environment variable
+	if p := os.Getenv("PORT"); p != "" {
+		port = ":" + p
+	}
+
+	// Create a new proxy server instance
+	proxyServer := NewProxyServer()
+
+	// Set up routing using the default HTTP multiplexer
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", proxyServer.handleRequest)
+
+	// Add our custom CORS middleware to handle cross-origin requests
+	handler := corsMiddleware(mux)
+
+	log.Println("🥤 Proxy Server listening on http://localhost" + port)
+
+	// Start the server and log any errors that occur
+	if err := http.ListenAndServe(port, handler); err != nil {
+		log.Fatal("⚠️ Error starting the Proxy Server: ", err)
+	}
+}
+
+// ProxyServer encapsulates the proxy server configuration and handlers.
+//
+// It uses a custom transport to handle HTTPS connections, including those
+// with self-signed certificates for development environments.
+type ProxyServer struct {
+	transport *http.Transport
+}
+
+// NewProxyServer creates a new proxy server instance
+func NewProxyServer() *ProxyServer {
+	return &ProxyServer{
+		transport: &http.Transport{
+			// Skip TLS verification. This is useful for development environments
+			// where the target API might use self-signed certificates.
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+}
+
+// Processes all incoming HTTP requests.
+//
+// It serves both as a proxy for API requests, but also provides some utility endpoints.
+//
+// - /openapi.yaml: OpenAPI specification
+// For all other paths, it forwards the request to the URL specified in scalar_url
+func (ps *ProxyServer) handleRequest(w http.ResponseWriter, r *http.Request) {
+	// Health check
+	if r.URL.Path == "/ping" {
+		w.Write([]byte("pong"))
+
+		return
+	}
+
+	// Serve an API reference on root
+	if r.URL.Path == "/" && r.URL.RawQuery == "" {
+		w.Header().Set("Content-Type", "text/html")
+		content, err := os.ReadFile("public/index.html")
+		if err != nil {
+			http.Error(w, "Error reading index.html", http.StatusInternalServerError)
+			return
+		}
+		w.Write(content)
+		return
+	}
+
+	// Serve the OpenAPI document
+	if r.URL.Path == "/openapi.yaml" {
+		w.Header().Set("Content-Type", "text/yaml")
+		content, err := os.ReadFile("public/openapi.yaml")
+		if err != nil {
+			http.Error(w, "Error reading openapi.yaml", http.StatusInternalServerError)
+			return
+		}
+		w.Write(content)
+		return
+	}
+
+	// Get and validate the target URL from the `scalar_url` query parameter
+	target := r.URL.Query().Get("scalar_url")
+
+	// Show an error if the scalar_url is missing
+	if target == "" {
+		http.Error(w, "The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest)
+		return
+	}
+
+	// Validate the URL
+	remote, err := url.Parse(target)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		return
+	}
+
+	// Log the request
+	log.Println(r.Method, target)
+
+	// Create and execute the proxy request
+	if err := ps.executeProxyRequest(w, r, remote, target); err != nil {
+		// Log any errors
+		log.Printf("[ERROR] %v\n", err)
+	}
+}
+
+// executeProxyRequest handles the proxying logic
+//
+// 1. Preserves all original headers (except CORS headers)
+// 2. Maintains session state through redirects
+// 3. Adds consistent CORS headers to allow browser access
+// 4. Tracks the final URL after any redirects
+func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Request, remote *url.URL, target string) error {
+	client := &http.Client{
+		Transport: ps.transport,
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			// Copy headers from the original request to maintain authentication
+			// and other important headers through redirect chains.
+			for key, values := range via[0].Header {
+				req.Header[key] = values
+			}
+
+			return nil
+		},
+	}
+
+	// Create the outbound request
+	outreq, err := http.NewRequest(r.Method, target, r.Body)
+
+	// Return error if request creation fails
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		return err
+	}
+
+	// Copy the headers but exclude Origin. It’s not required and might confuse some target servers.
+	for key, values := range r.Header {
+		if !strings.EqualFold(strings.ToLower(key), "origin") {
+			outreq.Header[key] = values
+		}
+	}
+
+	// Make the request
+	resp, err := client.Do(outreq)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
+		return err
+	}
+
+	// Close response body when done to prevent resource leaks
+	defer resp.Body.Close()
+
+	// Copy headers from final response, but skip CORS headers
+	for key, values := range resp.Header {
+
+		// Check if header is a CORS headers
+		isCorsHeader := func(header string) bool {
+			return strings.HasPrefix(strings.ToLower(header), "access-control-")
+		}
+
+		if !isCorsHeader(key) {
+			for _, value := range values {
+				w.Header().Add(key, value)
+			}
+		}
+	}
+
+	// Add CORS headers here, after the response headers are copied
+	allowOrigin := "*"
+
+	if r.Header.Get("Origin") != "" {
+		allowOrigin = r.Header.Get("Origin")
+	}
+
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
+	w.Header().Set("Access-Control-Expose-Headers", "*")
+
+	// Add the final URL as a header
+	w.Header().Set("X-Forwarded-Host", resp.Request.URL.String())
+
+	// Copy the status code from the proxied response
+	w.WriteHeader(resp.StatusCode)
+
+	// Copy the body
+	if _, err := io.Copy(w, resp.Body); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Handle preflight requests and ensures browsers can access the proxy regardless of where the request originates from.
+// This is essential to make cross-origin requests work in browser environments.
 func corsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Headers", "*")
 
 		allowOrigin := "*"
+
 		if r.Header.Get("Origin") != "" {
 			allowOrigin = r.Header.Get("Origin")
 		}
-		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 
+		w.Header().Set("Access-Control-Allow-Origin", allowOrigin)
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE, PATCH")
 		w.Header().Set("Access-Control-Expose-Headers", "*")
@@ -27,121 +232,11 @@ func corsMiddleware(next http.Handler) http.Handler {
 		// Handle pre-flight requests
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
+
 			return
 		}
 
-		// Pass down the request to the next middleware (or final handler)
+		// Pass down the request to the next middleware or handler
 		next.ServeHTTP(w, r)
 	})
-}
-
-// Handler that forwards requests to the target and writes the response back to the original client
-func handleRequest(w http.ResponseWriter, r *http.Request) {
-	// Parse query parameters
-	queryValues := r.URL.Query()
-	target := queryValues.Get("scalar_url")
-
-	remote, _ := url.Parse(target)
-
-	// If the requested path is /ping, return a simple response.
-	if r.URL.Path == "/ping" {
-		log.Println("/ping")
-
-		w.Write([]byte("pong"))
-		return
-	}
-
-	// The URL parameter is required. Return a helpful error message if it’s not provided.
-	if target == "" {
-		http.Error(
-			w,
-			"The `scalar_url` query parameter is required. Try to add `?scalar_url=https%3A%2F%2Fgalaxy.scalar.com%2Fplanets` to the URL.", http.StatusBadRequest,
-		)
-
-		return
-	}
-
-	// we can eventually do a check on the type of request
-	// i.e. websocket vs mqtt vs grpc
-	// but let's handle just http for now :)
-
-	// Log the request
-	// Format: [HTTP Method] [Target URL]
-	log.Println(r.Method, target)
-
-	proxy := httputil.NewSingleHostReverseProxy(remote)
-
-	proxy.Transport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	proxy.Director = func(req *http.Request) {
-		req.Header = r.Header
-		req.Host = remote.Host
-		req.URL.Scheme = remote.Scheme
-		req.URL.Host = remote.Host
-		req.URL.Path = r.URL.Path
-	}
-
-	// Modify the response to remove original CORS headers
-	proxy.ModifyResponse = func(res *http.Response) error {
-		res.Header.Del("Access-Control-Allow-Headers")
-		res.Header.Del("Access-Control-Allow-Origin")
-		res.Header.Del("Access-Control-Allow-Methods")
-		res.Header.Del("Access-Control-Expose-Headers")
-
-		// Handle relative URLs in Location header
-		if location := res.Header.Get("Location"); location != "" {
-			if location[0] == '/' {
-				// If location starts with '/', it's a relative URL
-				res.Header.Set("Location", remote.Scheme+"://"+remote.Host+location)
-			}
-		}
-
-		return nil
-	}
-
-	// Deal with network errors
-	proxy.ErrorHandler = func(w http.ResponseWriter, r *http.Request, e error) {
-		// Original behavior
-		http.Error(w, e.Error(), http.StatusServiceUnavailable)
-
-		// Output the error to the console
-		log.Printf("[ERROR] %v\n", e)
-	}
-
-	// Modify the request to indicate it is proxied
-	r.URL.Host = remote.Host
-	r.URL = remote
-	r.URL.Scheme = remote.Scheme
-	r.URL.Path = remote.Path
-
-	r.Header.Set("X-Forwarded-Host", r.Header.Get("Host"))
-
-	r.Host = remote.Host
-
-	proxy.ServeHTTP(w, r)
-}
-
-func main() {
-	port := ":1337"
-
-	if p := os.Getenv("PORT"); p != "" {
-		port = ":" + os.Getenv("PORT")
-	}
-
-	mux := http.NewServeMux()
-
-	mux.HandleFunc("/", handleRequest)
-
-	handler := corsMiddleware(mux)
-
-	// Console output
-	log.Println("🥤 Proxy Server listening on http://localhost" + port)
-
-	err := http.ListenAndServe(port, handler)
-
-	if err != nil {
-		log.Fatal("Error starting proxy server: ", err)
-	}
 }
