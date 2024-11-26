@@ -66,7 +66,12 @@ export function curl(
   // Cookies
   if (normalizedRequest.cookies?.length) {
     const cookieString = normalizedRequest.cookies
-      .map((cookie) => `${cookie.name}=${cookie.value}`)
+      .map((cookie) => {
+        // Encode both cookie name and value to handle special characters
+        const encodedName = encodeURIComponent(cookie.name)
+        const encodedValue = encodeURIComponent(cookie.value)
+        return `${encodedName}=${encodedValue}`
+      })
       .join('; ')
     parts.push(`--cookie '${cookieString}'`)
   }
@@ -96,7 +101,7 @@ export function curl(
     ) {
       // Handle multipart form data
       normalizedRequest.postData.params.forEach((param) => {
-        if (param.fileName) {
+        if (param.fileName !== undefined) {
           parts.push(`--form '${param.name}=@${param.fileName}'`)
         } else {
           parts.push(`--form '${param.name}=${param.value}'`)
