@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
+import type { VueClassProp } from '@scalar/types/external'
 
 const props = withDefaults(
   defineProps<{
     id: string
     type?: string
-    containerClass?:
-      | string
-      | Record<string, boolean>
-      | (string | Record<string, boolean>)[]
+    containerClass?: VueClassProp
     required?: boolean
     modelValue: string | number
     readOnly?: boolean

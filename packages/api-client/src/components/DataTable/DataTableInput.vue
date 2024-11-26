@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ScalarIconButton } from '@scalar/components'
+import type { VueClassProp } from '@scalar/types/external'
 import { computed, ref } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
@@ -11,10 +12,7 @@ const props = withDefaults(
     id?: string
     type?: string
     /** Class for the wrapping cell because attrs is bound to the input */
-    containerClass?:
-      | string
-      | Record<string, boolean>
-      | (string | Record<string, boolean>)[]
+    containerClass?: VueClassProp
     required?: boolean
     modelValue: string | number
     /** Allows adding a custom value to the enum dropdown, defaults to true */
