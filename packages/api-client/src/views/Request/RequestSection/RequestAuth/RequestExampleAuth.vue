@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
-import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
+import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const { selectedSecuritySchemeUids } = defineProps<{
+  rowClass?:
+    | string
+    | Record<string, boolean>
+    | (string | Record<string, boolean>)[]
+  cellClass?:
+    | string
+    | Record<string, boolean>
+    | (string | Record<string, boolean>)[]
   selectedSecuritySchemeUids: string[]
 }>()
 
@@ -52,9 +60,12 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <!-- HTTP -->
     <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
+      <DataTableRow
+        v-if="scheme.scheme === 'bearer'"
+        :class="rowClass">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
+          :containerClass="cellClass"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -65,10 +76,11 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
 
       <!-- HTTP Basic -->
       <template v-else-if="scheme.scheme === 'basic'">
-        <DataTableRow>
+        <DataTableRow :class="rowClass">
           <RequestAuthDataTableInput
             :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
+            :containerClass="cellClass"
             :modelValue="scheme.username"
             placeholder="ScalarEnjoyer01"
             required
@@ -76,9 +88,10 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
             Username
           </RequestAuthDataTableInput>
         </DataTableRow>
-        <DataTableRow>
+        <DataTableRow :class="rowClass">
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
+            :containerClass="cellClass"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -91,18 +104,20 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
 
     <!-- API Key -->
     <template v-else-if="scheme.type === 'apiKey'">
-      <DataTableRow>
+      <DataTableRow :class="rowClass">
         <RequestAuthDataTableInput
           :id="`api-key-name-${scheme.uid}`"
+          :containerClass="cellClass"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
           Name
         </RequestAuthDataTableInput>
       </DataTableRow>
-      <DataTableRow>
+      <DataTableRow :class="rowClass">
         <RequestAuthDataTableInput
           :id="`api-key-value-add-${scheme.uid}`"
+          :containerClass="cellClass"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">

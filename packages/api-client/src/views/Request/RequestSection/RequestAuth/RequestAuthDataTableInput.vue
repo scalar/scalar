@@ -5,7 +5,10 @@ const props = withDefaults(
   defineProps<{
     id: string
     type?: string
-    containerClass?: string
+    containerClass?:
+      | string
+      | Record<string, boolean>
+      | (string | Record<string, boolean>)[]
     required?: boolean
     modelValue: string | number
     readOnly?: boolean

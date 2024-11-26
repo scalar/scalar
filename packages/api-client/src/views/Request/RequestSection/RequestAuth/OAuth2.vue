@@ -2,7 +2,6 @@
 import { DataTableRow } from '@/components/DataTable'
 import { type UpdateScheme, useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import {
@@ -13,6 +12,7 @@ import {
 import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
+import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
 const { scheme, flow } = defineProps<{
   scheme: SecuritySchemeOauth2
