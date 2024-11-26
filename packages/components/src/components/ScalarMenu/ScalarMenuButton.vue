@@ -9,7 +9,7 @@ defineProps<{
   <button
     class="group/button flex items-center gap-1 rounded bg-transparent px-2.5 py-2 hover:bg-b-2"
     type="button">
-    <div class="size-5">
+    <div class="h-5 w-auto">
       <slot><ScalarIcon icon="Logo" /></slot>
     </div>
     <span class="sr-only">
