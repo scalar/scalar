@@ -80,9 +80,11 @@ export function curl(
   if (normalizedRequest.postData) {
     if (normalizedRequest.postData.mimeType === 'application/json') {
       // Pretty print JSON data
-      const jsonData = JSON.parse(normalizedRequest.postData.text)
-      const prettyJson = JSON.stringify(jsonData, null, 2)
-      parts.push(`--data '${prettyJson}'`)
+      if (normalizedRequest.postData.text) {
+        const jsonData = JSON.parse(normalizedRequest.postData.text)
+        const prettyJson = JSON.stringify(jsonData, null, 2)
+        parts.push(`--data '${prettyJson}'`)
+      }
     } else if (
       normalizedRequest.postData.mimeType === 'application/octet-stream'
     ) {
