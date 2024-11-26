@@ -408,4 +408,30 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected X-Forwarded-Host header to be '%s', got '%s'", expectedFinalURL, actualForwardedHost)
 		}
 	})
+
+	t.Run("Removes Origin header from outbound request", func(t *testing.T) {
+		// Create a test server that echoes back the received headers
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			// Check if Origin header exists in the proxied request
+			if origin := r.Header.Get("Origin"); origin != "" {
+				t.Errorf("Origin header should have been removed, but got: %s", origin)
+			}
+
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with Origin header
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("Origin", "http://example.com")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
 }
