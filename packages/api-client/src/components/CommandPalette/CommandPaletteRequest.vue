@@ -145,11 +145,15 @@ const handleSubmit = () => {
           <ScalarButton
             class="justify-between p-2 ml-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
             variant="outlined">
-            <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
-              selectedCollection
-                ? selectedCollection.label
-                : 'Select Collection'
-            }}</span>
+            <span
+              class="whitespace-nowrap"
+              :class="selectedCollection ? 'text-c-1' : 'text-c-3'"
+              >{{
+                selectedCollection
+                  ? selectedCollection.label
+                  : 'Select Collection'
+              }}</span
+            >
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
