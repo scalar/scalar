@@ -1,52 +1,67 @@
+<script lang="ts">
+/**
+ * Scalar dropdown component
+ *
+ * Uses the headlessui Menu component under the hood
+ * @see https://headlessui.com/v1/vue/menu
+ *
+ * @example
+ * <ScalarDropdown>
+ *   <ScalarButton>Click Me</ScalarButton>
+ *   <template #items>
+ *     <ScalarDropdownItem>Item 1</ScalarDropdownItem>
+ *     <ScalarDropdownItem>Item 2</ScalarDropdownItem>
+ *   </template>
+ * </ScalarDropdown>
+ */
+export default {}
+</script>
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
+import type { Slot } from 'vue'
 
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import ScalarDropdownMenu from './ScalarDropdownMenu.vue'
 
-withDefaults(
-  defineProps<
-    Omit<FloatingOptions, 'middleware'> & {
-      static?: boolean
-      staticOpen?: boolean
-    }
-  >(),
-  { static: false, staticOpen: true },
-)
+defineProps<ScalarFloatingOptions>()
+
+defineSlots<{
+  /** The reference element for the element in the #floating slot */
+  default(props: {
+    /** Whether or not the dropdown is open */
+    open: boolean
+  }): Slot
+  /** The list of dropdown items */
+  items(props: {
+    /** Whether or not the dropdown is open */
+    open: boolean
+  }): Slot
+}>()
 
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
   <Menu v-slot="{ open }">
     <ScalarFloating
-      :isOpen="static ? staticOpen : (open ?? isOpen)"
+      :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
-      :targetRef="targetRef"
+      :target="target"
       :teleport="teleport">
-      <MenuButton
-        v-if="!static"
-        as="template">
+      <MenuButton as="template">
         <slot :open="open" />
       </MenuButton>
       <template #floating="{ width }">
         <!-- Background container -->
-        <MenuItems
+        <ScalarDropdownMenu
+          :is="MenuItems"
           v-bind="$attrs"
-          class="relative flex max-h-[inherit] w-56 rounded border"
-          :static="static"
+          class="max-h-[inherit]"
           :style="{ width }">
-          <!-- Scroll container -->
-          <div class="custom-scroll min-h-0 flex-1">
-            <!-- Menu items -->
-            <div
-              class="flex flex-col p-0.75"
-              :style="{ width }">
-              <slot name="items" />
-            </div>
-            <div
-              class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
-          </div>
-        </MenuItems>
+          <slot
+            name="items"
+            :open="open" />
+        </ScalarDropdownMenu>
       </template>
     </ScalarFloating>
   </Menu>

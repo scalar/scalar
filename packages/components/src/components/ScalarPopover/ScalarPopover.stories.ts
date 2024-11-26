@@ -25,7 +25,7 @@ const meta = {
       return { args }
     },
     template: `
-<div class="flex items-center justify-center w-full h-screen">
+<div class="flex justify-center w-full min-h-96">
   <ScalarPopover v-bind="args">
     <ScalarButton>Click Me</ScalarButton>
     <template #popover>

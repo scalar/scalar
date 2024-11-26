@@ -9,6 +9,7 @@ describe('ScalarPopover', () => {
       props: {},
       slots: {
         default: `<button>Button</button>`,
+        popover: `<div>Popover</div>`,
       },
     })
 

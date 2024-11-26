@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
-import { computed, ref, watch } from 'vue'
+import { type Slot, computed, ref, watch } from 'vue'
 
 import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
@@ -18,6 +18,13 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', v: Option[]): void
   (e: 'delete', option: Option): void
+}>()
+
+defineSlots<{
+  /** A slot for contents before the combobox options */
+  before(): Slot
+  /** A slot for contents after the combobox options */
+  after(): Slot
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -113,9 +120,10 @@ function moveActive(dir: 1 | -1) {
       @keydown.up.prevent="moveActive(-1)" />
   </div>
   <ul
-    v-show="filtered.length"
+    v-show="filtered.length || $slots.before || $slots.after"
     :id="id"
     class="border-t p-0.75">
+    <slot name="before" />
     <template
       v-for="(group, i) in groups"
       :key="i">
@@ -145,5 +153,6 @@ function moveActive(dir: 1 | -1) {
         </ComboboxOption>
       </template>
     </template>
+    <slot name="after" />
   </ul>
 </template>

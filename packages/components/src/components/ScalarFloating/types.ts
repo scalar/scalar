@@ -1,10 +1,12 @@
 import type { Middleware, Placement } from '@floating-ui/vue'
-import type { Ref } from 'vue'
 
+/** The props for the ScalarFloating component */
 export type FloatingOptions = {
   /**
    * Where to place the floating element relative to its reference element.
    * @default 'bottom'
+   *
+   * @see https://floating-ui.com/docs/computePosition#placement
    */
   placement?: Placement
   /**
@@ -13,20 +15,25 @@ export type FloatingOptions = {
    */
   resize?: boolean
   /**
-   * Override the targetRef, useful if we are not passing a button
+   * Override the target, useful if we are not passing a button
    * into the slot but is controlled from an external button
+   *
+   * Can be a string id or a reference to an element
    */
-  targetRef?: HTMLElement
+  target?: string | HTMLElement
   /**
    * Floating UI Middleware to be passed to Floating UI
+   *
+   * Overrides the default middleware
+   *
+   * @example
+   * ```ts
+   * // change the offset to 10px
+   * middleware: [offset(10)]
+   * ```
    * @see https://floating-ui.com/docs/computePosition#middleware
    */
   middleware?: Middleware[]
-  /**
-   * Whether the floating element is open or not.
-   * @default false
-   */
-  isOpen?: boolean
   /**
    * Whether to teleport the floating element.
    * Can be an `id` to teleport to or `true` to teleport to the `<body>`.

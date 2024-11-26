@@ -1,3 +1,5 @@
 export { default as ScalarDropdown } from './ScalarDropdown.vue'
 export { default as ScalarDropdownDivider } from './ScalarDropdownDivider.vue'
+export { default as ScalarDropdownButton } from './ScalarDropdownButton.vue'
 export { default as ScalarDropdownItem } from './ScalarDropdownItem.vue'
+export { default as ScalarDropdownMenu } from './ScalarDropdownMenu.vue'

@@ -4,6 +4,9 @@ type ResizeOptions = {
   enabled?: MaybeRefOrGetter<boolean>
 }
 
+/**
+ * Resize a floating element to match a target element
+ */
 export function useResizeWithTarget(
   target: MaybeRefOrGetter<Element | undefined>,
   opts: ResizeOptions = { enabled: ref(true) },

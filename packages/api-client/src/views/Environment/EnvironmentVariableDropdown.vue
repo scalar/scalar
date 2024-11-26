@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { parseEnvVariables } from '@/libs'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
-import { ScalarButton, ScalarDropdown, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
-import { computed, onMounted, ref } from 'vue'
+import { type CSSProperties, computed, onMounted, ref } from 'vue'
 import type { Router } from 'vue-router'
 
 const props = defineProps<{
@@ -54,7 +54,7 @@ const filteredVariables = computed(() => {
   }
 
   /** filter environment variables by name */
-  const result = fuse.search(searchQuery)
+  const result = fuse.search(searchQuery, { limit: 10 })
   if (result.length > 0) {
     return result
       .map((res) => res.item)
@@ -108,6 +108,14 @@ onMounted(() => {
   selectedVariableIndex.value = 0
 })
 
+const dropdownStyle = computed<CSSProperties>(() => {
+  return {
+    left: (props.dropdownPosition?.left ?? 0) + 'px',
+    // Add a 5px offset from the editor
+    top: (props.dropdownPosition?.top ?? 0) + 5 + 'px',
+  }
+})
+
 onClickOutside(
   dropdownRef,
   () => {
@@ -117,16 +125,13 @@ onClickOutside(
 )
 </script>
 <template>
-  <ScalarDropdown
-    ref="dropdownRef"
-    static
-    :staticOpen="isOpen"
-    :style="{
-      left: dropdownPosition?.left + 'px',
-      top: dropdownPosition?.top + 'px',
-    }"
-    teleport=".scalar-client">
-    <template #items>
+  <Teleport
+    v-if="isOpen"
+    :to="'.scalar-client'">
+    <div
+      ref="dropdownRef"
+      class="fixed left-0 top-0 flex flex-col p-0.75 max-h-[60svh] w-56 rounded border custom-scroll"
+      :style="dropdownStyle">
       <ul v-if="filteredVariables.length">
         <template
           v-for="(item, index) in filteredVariables"
@@ -135,7 +140,6 @@ onClickOutside(
             class="h-8 font-code text-xxs hover:bg-b-2 flex cursor-pointer items-center justify-between gap-1.5 rounded p-1.5 transition-colors duration-150"
             :class="{ 'bg-b-2': index === selectedVariableIndex }"
             @click="selectVariable(item.key)">
-            <!-- @click.stop="selectVariable(variable)" -->
             <div class="flex items-center gap-1.5 whitespace-nowrap">
               <span
                 class="h-2.5 w-2.5 min-w-2.5 rounded-full"
@@ -161,6 +165,9 @@ onClickOutside(
           icon="Add" />
         Add Variable
       </ScalarButton>
-    </template>
-  </ScalarDropdown>
+      <!-- Backdrop for the dropdown -->
+      <div
+        class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
+    </div>
+  </Teleport>
 </template>

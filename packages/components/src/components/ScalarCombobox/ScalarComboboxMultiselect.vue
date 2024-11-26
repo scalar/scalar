@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import type { FloatingOptions } from '../ScalarFloating'
+import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ComboboxOptions from './ScalarComboboxOptions.vue'
 import ComboboxPopover from './ScalarComboboxPopover.vue'
 import type { Option, OptionGroup } from './types'
@@ -12,7 +12,7 @@ defineProps<
     modelValue?: Option[]
     placeholder?: string
     isDeletable?: boolean
-  } & Omit<FloatingOptions, 'middleware'>
+  } & ScalarFloatingOptions
 >()
 
 defineEmits<{
@@ -28,9 +28,10 @@ defineExpose({ comboboxPopoverRef })
 <template>
   <ComboboxPopover
     ref="comboboxPopoverRef"
-    :isOpen="isOpen"
+    :middleware="middleware"
     :placement="placement ?? 'bottom-start'"
     :resize="resize"
+    :target="target"
     :teleport="teleport">
     <slot />
     <template #popover="{ open }">

@@ -7,8 +7,9 @@ import { useActiveEntities } from '@/store/active-entities'
 import {
   type Icon,
   ScalarContextMenu,
-  ScalarDropdown,
-  ScalarDropdownItem,
+  ScalarDropdownButton,
+  ScalarDropdownMenu,
+  ScalarFloating,
   ScalarIcon,
 } from '@scalar/components'
 import { capitalize } from '@scalar/oas-utils/helpers'
@@ -165,33 +166,33 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               <span>{{ topNavItems[0].label }}</span>
             </template>
             <template #content>
-              <ScalarDropdown
-                class="scalar-client"
-                static>
-                <template #items>
-                  <ScalarDropdownItem
-                    class="flex items-center gap-1.5"
-                    @click="addNavItem">
-                    <ScalarIcon
-                      icon="AddTab"
-                      size="sm"
-                      thickness="1.5" />
-                    New Tab
-                    <ScalarHotkey
-                      class="bg-b-2 ml-auto"
-                      hotkey="T" />
-                  </ScalarDropdownItem>
-                  <ScalarDropdownItem
-                    class="flex items-center gap-1.5"
-                    @click="copyUrl(activeNavItemIdxValue)">
-                    <ScalarIcon
-                      icon="Link"
-                      size="sm"
-                      thickness="1.5" />
-                    Copy URL
-                  </ScalarDropdownItem>
+              <ScalarFloating placement="right-start">
+                <template #floating>
+                  <ScalarDropdownMenu class="scalar-app scalar-client">
+                    <ScalarDropdownButton
+                      class="flex items-center gap-1.5"
+                      @click="addNavItem">
+                      <ScalarIcon
+                        icon="AddTab"
+                        size="sm"
+                        thickness="1.5" />
+                      New Tab
+                      <ScalarHotkey
+                        class="bg-b-2 ml-auto"
+                        hotkey="T" />
+                    </ScalarDropdownButton>
+                    <ScalarDropdownButton
+                      class="flex items-center gap-1.5"
+                      @click="copyUrl(activeNavItemIdxValue)">
+                      <ScalarIcon
+                        icon="Link"
+                        size="sm"
+                        thickness="1.5" />
+                      Copy URL
+                    </ScalarDropdownButton>
+                  </ScalarDropdownMenu>
                 </template>
-              </ScalarDropdown>
+              </ScalarFloating>
             </template>
           </ScalarContextMenu>
         </div>

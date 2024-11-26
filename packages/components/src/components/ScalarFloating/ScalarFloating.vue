@@ -9,7 +9,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, computed, ref } from 'vue'
+import { type Ref, type Slot, computed, ref } from 'vue'
 
 import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
@@ -18,7 +18,7 @@ const props = defineProps<FloatingOptions>()
 
 defineSlots<{
   /** The reference element for the element in the #floating slot */
-  default(): any
+  default(): Slot
   /** The floating element */
   floating(props: {
     /** The width of the reference element if `resize` is true and placement is on the y axis */
@@ -27,7 +27,7 @@ defineSlots<{
     height?: string
     /** The middleware data return by Floating UI */
     data?: MiddlewareData
-  }): any
+  }): Slot
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -35,12 +35,22 @@ defineOptions({ inheritAttrs: false })
 const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
-/** Fallback to div wrapper if a button element is not provided */
-const targetRef = computed(
-  () =>
-    (props.targetRef || wrapperRef.value?.children?.[0] || wrapperRef.value) ??
-    undefined,
-)
+const targetRef = computed(() => {
+  // If target is a string (id), try to find it in the document
+  if (typeof props.target === 'string') {
+    const target = document.getElementById(props.target)
+    if (target) return target
+    else
+      console.warn(`ScalarFloating: Target with id="${props.target}" not found`)
+  }
+  // If target is an HTMLElement, return it
+  else if (props.target instanceof HTMLElement) return props.target
+  // Fallback to div wrapper if no child element is provided
+  if (wrapperRef.value)
+    return wrapperRef.value.children?.[0] || wrapperRef.value
+  // Return undefined if nothing is found
+  return undefined
+})
 
 const targetSize = useResizeWithTarget(targetRef, {
   enabled: computed(() => props.resize),
@@ -86,7 +96,7 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     <slot />
   </div>
   <Teleport
-    v-if="isOpen"
+    v-if="$slots.floating"
     :disabled="!teleport"
     :to="typeof teleport === 'string' ? teleport : 'body'">
     <div class="scalar-app">

@@ -333,8 +333,8 @@ const hasDraftRequests = computed(() => {
                     $emit('openMenu', {
                       item,
                       parentUids,
-                      targetRef: ev.currentTarget.parentNode,
-                      open: true,
+                      targetRef: ev.currentTarget,
+                      open: !menuItem.open,
                     })
                 ">
                 <ScalarIcon

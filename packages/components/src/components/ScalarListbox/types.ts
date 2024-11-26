@@ -4,3 +4,5 @@ export type Option = {
   disabled?: boolean
   [x: string]: any
 }
+
+export type OptionStyle = 'radio' | 'checkbox'

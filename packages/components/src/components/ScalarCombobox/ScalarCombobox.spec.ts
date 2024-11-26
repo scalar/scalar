@@ -15,6 +15,8 @@ describe('ScalarCombobox', () => {
       },
       slots: {
         default: `<button>Button</button>`,
+        before: `<div>Before</div>`,
+        after: `<div>After</div>`,
       },
     })
 

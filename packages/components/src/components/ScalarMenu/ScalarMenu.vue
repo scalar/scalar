@@ -1,16 +1,35 @@
 <script setup lang="ts">
-import { type FloatingOptions, ScalarPopover } from '../../'
+import type { ScalarFloatingOptions } from '../ScalarFloating'
+import { ScalarPopover } from '../ScalarPopover'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
 
-defineProps<Pick<FloatingOptions, 'placement' | 'teleport'>>()
+defineProps<ScalarFloatingOptions>()
+
+type ButtonSlotProps = { open: boolean }
+type MenuSlotProps = { close: () => void }
+
+defineSlots<{
+  /** Overrides the menu button */
+  button?: (p: ButtonSlotProps) => any
+  /** Overrides the logo in the menu button */
+  logo?: () => any
+  /** Overrides the label in the menu button */
+  label?: () => any
+  /** Overrides the products list */
+  products?: (p: MenuSlotProps) => any
+  /** Adds items the profile section (e.g. a team picker) */
+  profile?: (p: MenuSlotProps) => any
+  /** Overrides the resources section */
+  sections?: (p: MenuSlotProps) => any
+}>()
 </script>
 <template>
   <ScalarPopover
+    v-bind="$props"
     class="max-h-[inherit] w-[280px] max-w-[inherit]"
-    :placement="placement ?? 'bottom-start'"
-    :teleport="teleport">
+    :placement="placement ?? 'bottom-start'">
     <!-- Logo Button to open the popover -->
     <template #default="{ open }">
       <slot
@@ -30,7 +49,7 @@ defineProps<Pick<FloatingOptions, 'placement' | 'teleport'>>()
     </template>
     <!-- Popover content -->
     <template #popover="{ close }">
-      <div class="custom-scroll flex flex-col gap-3 p-2.25 sm:gap-3">
+      <div class="custom-scroll flex flex-col gap-3 p-2.25">
         <!-- Base Product List (can be overridden by slot) -->
         <slot
           :close="close"

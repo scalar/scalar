@@ -3,56 +3,46 @@ import {
   Listbox,
   ListboxButton,
   ListboxLabel,
-  ListboxOption,
   ListboxOptions,
 } from '@headlessui/vue'
+import type { Slot } from 'vue'
 
-import { cva, cx } from '../../cva'
-import { type FloatingOptions, ScalarFloating } from '../ScalarFloating'
-import { ScalarIcon } from '../ScalarIcon'
+import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
 
-withDefaults(
-  defineProps<
-    {
-      /**
-       * Allow selecting multiple values
-       *
-       * @default false
-       */
-      multiple?: boolean
-      options: Option[]
-      modelValue?: Option | Option[]
-      id?: string
-      label?: string
-    } & Omit<FloatingOptions, 'middleware' | 'offset' | 'targetRef'>
-  >(),
-  { multiple: false },
-)
+type SingleSelectListboxProps = {
+  multiple?: false
+  modelValue?: Option
+}
+
+type MultipleSelectListboxProps = {
+  multiple: true
+  modelValue?: Option[]
+}
+
+defineProps<
+  {
+    options: Option[]
+    id?: string
+    label?: string
+  } & (SingleSelectListboxProps | MultipleSelectListboxProps) &
+    ScalarFloatingOptions
+>()
 
 defineEmits<{
   (e: 'update:modelValue', v: Option): void
 }>()
 
-defineOptions({ inheritAttrs: false })
+defineSlots<{
+  /** The reference element for the listbox */
+  default(props: {
+    /** Whether or not the listbox is open */
+    open: boolean
+  }): Slot
+}>()
 
-const variants = cva({
-  base: [
-    // Layout
-    'group/listbox',
-    'flex min-w-0 items-center gap-1.5 rounded px-2 py-1.5 text-left',
-    'first-of-type:mt-0.75 last-of-type:mb-0.75',
-    // Text / background style
-    'truncate bg-transparent text-c-1',
-    // Interaction
-    'cursor-pointer hover:bg-b-2',
-  ],
-  variants: {
-    selected: { true: 'text-c-1' },
-    active: { true: 'bg-b-2' },
-    disabled: { true: 'pointer-events-none opacity-50' },
-  },
-})
+defineOptions({ inheritAttrs: false })
 </script>
 <template>
   <Listbox
@@ -66,9 +56,10 @@ const variants = cva({
       {{ label }}
     </ListboxLabel>
     <ScalarFloating
-      :isOpen="open ?? isOpen"
+      :middleware="middleware"
       :placement="placement ?? 'bottom-start'"
       :resize="resize"
+      :target="target"
       :teleport="teleport">
       <ListboxButton
         :id="id"
@@ -79,6 +70,7 @@ const variants = cva({
       <template #floating="{ width }">
         <!-- Background container -->
         <div
+          v-if="open"
           v-bind="$attrs"
           class="relative flex max-h-[inherit] w-40 rounded border text-sm"
           :style="{ width }">
@@ -86,39 +78,11 @@ const variants = cva({
           <div class="custom-scroll min-h-0 flex-1">
             <!-- Options list -->
             <ListboxOptions class="flex flex-col p-0.75">
-              <ListboxOption
+              <ScalarListboxOption
                 v-for="option in options"
                 :key="option.id"
-                v-slot="{ active, selected }"
-                as="template"
-                :disabled="option.disabled"
-                :value="option">
-                <li
-                  :class="
-                    cx(
-                      variants({ active, selected, disabled: option.disabled }),
-                    )
-                  ">
-                  <div
-                    class="flex size-4 items-center justify-center rounded-full p-[3px]"
-                    :class="
-                      selected
-                        ? 'bg-c-accent text-b-1'
-                        : 'text-transparent group-hover/listbox:shadow-border'
-                    ">
-                    <!-- Icon needs help to be optically centered (╥﹏╥) -->
-                    <ScalarIcon
-                      class="relative top-[0.5px] size-2.5"
-                      icon="Checkmark"
-                      thickness="2.5" />
-                  </div>
-                  <span
-                    class="inline-block min-w-0 flex-1 truncate"
-                    :class="option.color ? option.color : 'text-c-1'">
-                    {{ option.label }}
-                  </span>
-                </li>
-              </ListboxOption>
+                :option="option"
+                :style="multiple ? 'checkbox' : 'radio'" />
             </ListboxOptions>
           </div>
           <div

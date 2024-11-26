@@ -7,6 +7,7 @@ import {
   ScalarDropdownDivider,
   ScalarDropdownItem,
   ScalarIcon,
+  ScalarListboxCheckbox,
 } from '@scalar/components'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -36,7 +37,7 @@ const envs = computed(() => [
 </script>
 <template>
   <div>
-    <ScalarDropdown>
+    <ScalarDropdown placement="bottom-end">
       <ScalarButton
         class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-1 w-fit"
         fullWidth
@@ -56,18 +57,8 @@ const envs = computed(() => [
           :key="env.uid"
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
           @click.stop="updateSelected(env.uid)">
-          <div
-            class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
-            :class="
-              activeWorkspace.activeEnvironmentId === env.uid
-                ? 'bg-c-accent text-b-1'
-                : 'group-hover/item:shadow-border text-transparent'
-            ">
-            <ScalarIcon
-              class="size-2.5"
-              icon="Checkmark"
-              thickness="3.5" />
-          </div>
+          <ScalarListboxCheckbox
+            :selected="activeWorkspace.activeEnvironmentId === env.uid" />
           {{ env.name }}
         </ScalarDropdownItem>
         <ScalarDropdownItem
