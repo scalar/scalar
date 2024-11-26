@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
-import type { VueClassProp } from '@scalar/types/external'
+import type { VueClassProp } from '@/types/vue'
 
 const props = withDefaults(
   defineProps<{
