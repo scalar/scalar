@@ -203,7 +203,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
       <DataTableRow>
         <DataTableHeader
           class="relative col-span-full cursor-pointer py-0 px-0 flex items-center"
-          :class="layout === 'reference' && 'border-0'">
+          :class="layout === 'reference' && 'border-0 min-h-0 mb-1.5'">
           <ScalarComboboxMultiselect
             ref="comboboxRef"
             class="text-xs w-full"
