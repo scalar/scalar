@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { tw } from '@scalar/components'
+import { useBindCx } from '@scalar/components'
 import type { Component } from 'vue'
 
 withDefaults(
@@ -8,16 +8,17 @@ withDefaults(
   }>(),
   { is: 'td' },
 )
+
+const { cx } = useBindCx()
 </script>
 <template>
   <component
     :is="is"
-    :class="[
-      tw(
+    v-bind="
+      cx(
         'min-h-8 min-w-8 border-l-0 border-t-0 border-b-1/2 border-r-1/2 flex text-sm last:border-r-0 group-last:border-b-transparent p-0 m-0 relative',
-        $attrs.class as string,
-      ),
-    ]"
+      )
+    "
     role="cell">
     <slot />
   </component>

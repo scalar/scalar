@@ -36,25 +36,31 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
 
-/** To override the styling when we are in references */
+/**
+ * A hacky way to override the styling on the references side,
+ * not ideal but doesn't touch the original styling
+ */
 const getReferenceClass = (className = '') =>
   layout === 'reference'
-    ? `references-layout bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    ? `border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
     : ''
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="{ scheme } in security"
+    v-for="({ scheme }, index) in security"
     :key="scheme.uid">
     <!-- Header -->
-    <DataTableRow class="group/delete">
+    <DataTableRow
+      v-if="security.length > 1"
+      :class="{ peer: layout === 'reference' }">
       <DataTableCell
-        v-if="security.length > 1"
         class="text-c-3 pl-2 font-medium flex items-center"
-        :class="{
-          'border-b-0': layout === 'reference',
-        }">
+        :class="
+          getReferenceClass(
+            `rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
+          )
+        ">
         {{ generateLabel(scheme) }}
       </DataTableCell>
     </DataTableRow>
@@ -62,10 +68,15 @@ const getReferenceClass = (className = '') =>
     <!-- HTTP -->
     <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
+      <DataTableRow
+        v-if="scheme.scheme === 'bearer'"
+        :class="{
+          'peer-first:*:rounded-t-none peer-first:*:border-t-0':
+            layout === 'reference',
+        }">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
-          :containerClass="getReferenceClass('border-1/2 rounded')"
+          :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -80,7 +91,11 @@ const getReferenceClass = (className = '') =>
           <RequestAuthDataTableInput
             :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
-            :containerClass="getReferenceClass('rounded-t border-t-1/2')"
+            :containerClass="
+              getReferenceClass(
+                'auth-blend-required bg-b-2 rounded-t border-t-1/2',
+              )
+            "
             :modelValue="scheme.username"
             placeholder="ScalarEnjoyer01"
             required
@@ -91,7 +106,7 @@ const getReferenceClass = (className = '') =>
         <DataTableRow>
           <RequestAuthDataTableInput
             :id="`http-basic-password-${scheme.uid}`"
-            :containerClass="getReferenceClass('rounded-b border-b-1/2')"
+            :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -107,7 +122,7 @@ const getReferenceClass = (className = '') =>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-name-${scheme.uid}`"
-          :containerClass="getReferenceClass('rounded-t border-t-1/2')"
+          :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
@@ -117,7 +132,7 @@ const getReferenceClass = (className = '') =>
       <DataTableRow>
         <RequestAuthDataTableInput
           :id="`api-key-value-add-${scheme.uid}`"
-          :containerClass="getReferenceClass('rounded-b border-b-1/2')"
+          :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
@@ -132,6 +147,7 @@ const getReferenceClass = (className = '') =>
         v-for="(flow, key) in scheme.flows"
         :key="key"
         :flow="flow!"
+        :getReferenceClass="getReferenceClass"
         :layout="layout"
         :scheme="scheme" />
     </template>
@@ -139,10 +155,16 @@ const getReferenceClass = (className = '') =>
 </template>
 
 <style scoped>
-.references-layout :deep(.scalar-input-required),
-.references-layout :deep(.required) {
+.auth-blend-required :deep(.scalar-input-required),
+.auth-blend-required :deep(.required) {
   background: var(--scalar-background-2);
   --tw-bg-base: var(--scalar-background-2);
   --tw-shadow: -8px 0 4px var(--scalar-background-2);
 }
+/* 
+.request-example-references-header :deep(+ tr > td) {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+} */
 </style>

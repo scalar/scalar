@@ -171,7 +171,7 @@ export const createActiveEntitiesStore = ({
       servers[
         activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
-          Object.keys(servers)[0]
+          (Object.keys(servers ?? {})[0] ?? '')
       ],
   )
 

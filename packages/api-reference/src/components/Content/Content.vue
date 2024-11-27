@@ -66,7 +66,7 @@ const introCardsSlot = computed(() =>
               :defaultServerUrl="baseServerURL"
               :servers="props.servers"
               :specification="parsedSpec" />
-            <div class="scalar-client px-[9px]">
+            <div class="scalar-client p-[9px] border-b-1/2">
               <RequestAuthDataTable
                 layout="reference"
                 :selectedSecuritySchemeUids="
