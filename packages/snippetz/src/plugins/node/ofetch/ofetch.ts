@@ -1,16 +1,10 @@
 import {
-  type AddClient,
   type PluginConfiguration,
   type Request,
   type Source,
   arrayToObject,
   objectToString,
 } from '../../../core'
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Clients extends AddClient<'node', 'ofetch'> {}
-}
 
 /**
  * node/ofetch

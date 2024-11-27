@@ -1,5 +1,4 @@
 import {
-  type AddClient,
   type PluginConfiguration,
   type Request,
   type Source,
@@ -7,18 +6,13 @@ import {
   objectToString,
 } from '../../../core'
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
-  interface Clients extends AddClient<'node', 'fetch'> {}
-}
-
 /**
  * node/fetch
  */
 export function fetch(
   request?: Partial<Request>,
   configuration?: PluginConfiguration,
-) {
+): Source {
   // Defaults
   const normalizedRequest = {
     method: 'GET',
