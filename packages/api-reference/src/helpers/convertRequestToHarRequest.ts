@@ -1,4 +1,4 @@
-import type { HarRequest } from 'httpsnippet-lite'
+import type { HarRequest } from '@scalar/types/external'
 
 /** Takes in a regular request object and returns a HAR request */
 export const convertRequestToHarRequest = async (

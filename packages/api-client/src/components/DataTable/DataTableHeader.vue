@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { tw } from '@scalar/components'
+import { useBindCx } from '@scalar/components'
 
 import DataTableCell from './DataTableCell.vue'
+
+const { cx } = useBindCx()
 </script>
 <template>
   <DataTableCell
     is="th"
-    :class="tw('truncate font-medium px-2 py-1.5', $attrs.class as string)">
+    v-bind="cx('truncate font-medium px-2 py-1.5')">
     <slot />
   </DataTableCell>
 </template>
