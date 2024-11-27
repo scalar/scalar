@@ -1,5 +1,12 @@
 # @scalar/snippetz
 
+## 0.2.5
+
+### Patch Changes
+
+- ae0555b: refactor: dynamically extend the TargetId and ClientId types
+- 80ee5e0: feat: add shell/curl
+
 ## 0.2.4
 
 ### Patch Changes

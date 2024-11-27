@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.13.0
+
+### Minor Changes
+
+- d08a7ae: feat(components): cleanup and extend floating components
+
+### Patch Changes
+
+- 2dd6aa3: feat(components): update ScalarErrorBoundary
+- 7605d6f: feat: add error boundary component
+- 7278742: feat(components): allow logo in ScalarMenu to adjust width
+- 3ca88dc: feat(components): create useBindCx hook
+- f6cd5ed: feat: updates show hide icons
+  - @scalar/themes@0.9.53
+  - @scalar/code-highlight@0.0.17
+  - @scalar/use-hooks@0.1.6
+
 ## 0.12.76
 
 ### Patch Changes

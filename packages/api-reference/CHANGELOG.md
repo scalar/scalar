@@ -1,5 +1,35 @@
 # @scalar/api-reference
 
+## 1.25.72
+
+### Patch Changes
+
+- 7605d6f: feat: add error boundary component
+- c9b6873: feat: moved hidden client config to apiReferenceLayout
+- baaad1c: refactor: deprecated the `proxy` configuration attribute, and use `proxyUrl` everywhere
+- c984ac8: feat(api-reference): displays path server in request example
+- Updated dependencies [ae0555b]
+- Updated dependencies [2dd6aa3]
+- Updated dependencies [6389557]
+- Updated dependencies [7605d6f]
+- Updated dependencies [d08a7ae]
+- Updated dependencies [baaad1c]
+- Updated dependencies [80ee5e0]
+- Updated dependencies [642d112]
+- Updated dependencies [c984ac8]
+- Updated dependencies [7278742]
+- Updated dependencies [bae9997]
+- Updated dependencies [3ca88dc]
+- Updated dependencies [f6cd5ed]
+  - @scalar/snippetz@0.2.5
+  - @scalar/components@0.13.0
+  - @scalar/oas-utils@0.2.82
+  - @scalar/api-client@2.2.4
+  - @scalar/types@0.0.22
+  - @scalar/themes@0.9.53
+  - @scalar/code-highlight@0.0.17
+  - @scalar/use-hooks@0.1.6
+
 ## 1.25.71
 
 ### Patch Changes

@@ -1,5 +1,20 @@
 # @scalar/nuxt
 
+## 0.2.150
+
+### Patch Changes
+
+- baaad1c: refactor: deprecated the `proxy` configuration attribute, and use `proxyUrl` everywhere
+- Updated dependencies [7605d6f]
+- Updated dependencies [c9b6873]
+- Updated dependencies [d08a7ae]
+- Updated dependencies [baaad1c]
+- Updated dependencies [642d112]
+- Updated dependencies [bae9997]
+- Updated dependencies [c984ac8]
+  - @scalar/api-reference@1.25.72
+  - @scalar/api-client@2.2.4
+
 ## 0.2.149
 
 ### Patch Changes

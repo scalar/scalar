@@ -1,5 +1,31 @@
 # @scalar/api-client
 
+## 2.2.4
+
+### Patch Changes
+
+- d08a7ae: feat(components): cleanup and extend floating components
+- baaad1c: refactor: deprecated the `proxy` configuration attribute, and use `proxyUrl` everywhere
+- 642d112: feat: adds request body example selector
+- bae9997: refactor: move send-request lib to its own folder
+- Updated dependencies [2dd6aa3]
+- Updated dependencies [6389557]
+- Updated dependencies [6389557]
+- Updated dependencies [7605d6f]
+- Updated dependencies [d08a7ae]
+- Updated dependencies [baaad1c]
+- Updated dependencies [c984ac8]
+- Updated dependencies [7278742]
+- Updated dependencies [3ca88dc]
+- Updated dependencies [f6cd5ed]
+  - @scalar/components@0.13.0
+  - @scalar/import@0.2.0
+  - @scalar/oas-utils@0.2.82
+  - @scalar/types@0.0.22
+  - @scalar/use-codemirror@0.11.44
+  - @scalar/themes@0.9.53
+  - @scalar/use-hooks@0.1.6
+
 ## 2.2.3
 
 ### Patch Changes
