@@ -28,7 +28,7 @@ defineOptions({ inheritAttrs: false })
 /* Extract the classes so they can be merged by `cx` */
 const attrs = computed(() => {
   const { class: className, ...rest } = useAttrs()
-  return { className: className || '', rest }
+  return { class: className || '', rest }
 })
 
 const variants = cva({
@@ -51,7 +51,7 @@ defineExpose({
 })
 </script>
 <template>
-  <label :class="cx(variants({ sidebar }), attrs.className)">
+  <label :class="cx(variants({ sidebar }), attrs.class)">
     <ScalarIcon
       v-if="sidebar"
       class="text-c-2"

@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
-
-import { cx } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
 defineProps<{
@@ -10,26 +8,19 @@ defineProps<{
 }>()
 
 defineOptions({ inheritAttrs: false })
-
-/* Extract the classes so they can be merged by `cx` */
-const attrs = computed(() => {
-  const { class: className, ...rest } = useAttrs()
-  return { className: className || '', rest }
-})
+const { cx } = useBindCx()
 </script>
 <template>
   <li
     class="contents"
     role="option">
     <a
-      v-bind="attrs.rest"
-      :class="
+      v-bind="
         cx(
           'group flex cursor-pointer gap-2.5 rounded px-3 py-1.5 no-underline hover:bg-b-2',
           {
             'bg-b-2': active,
           },
-          attrs.className,
         )
       ">
       <!-- Icon -->

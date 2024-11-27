@@ -2,11 +2,9 @@
 import { cva, cx } from '../../cva'
 
 const props = defineProps<{
-  modelValue: boolean
+  modelValue?: boolean
   disabled?: boolean
-  id?: string
-  ariaLabel?: string
-  ariaLabelledBy?: string
+  label?: string
 }>()
 
 const emit = defineEmits<{
@@ -14,12 +12,11 @@ const emit = defineEmits<{
 }>()
 
 function toggle() {
-  if (!props.disabled) {
-    emit('update:modelValue', !props.modelValue)
-  }
+  if (props.disabled) return
+  emit('update:modelValue', !props.modelValue)
 }
 
-const toggleClasses = cva({
+const variants = cva({
   base: 'relative h-3.5 w-6 cursor-pointer rounded-full bg-b-3 transition-colors duration-300',
   variants: {
     checked: { true: 'bg-c-accent' },
@@ -28,25 +25,20 @@ const toggleClasses = cva({
 })
 </script>
 <template>
-  <div
-    :class="cx(toggleClasses({ checked: modelValue, disabled }))"
+  <button
+    :aria-checked="modelValue"
+    :aria-disabled="disabled"
+    :class="cx(variants({ checked: modelValue, disabled }))"
     role="switch"
-    tabindex="0"
-    @keydown.enter.prevent="toggle"
-    @keydown.space.prevent="toggle">
-    <input
-      :id="props.id"
-      :aria-checked="modelValue"
-      :aria-disabled="disabled"
-      :aria-label="props.ariaLabel"
-      :aria-labelledby="props.ariaLabelledBy"
-      :checked="modelValue"
-      class="hidden"
-      :disabled="disabled"
-      type="checkbox"
-      @change="toggle" />
+    type="button"
+    @click="toggle">
     <div
       class="absolute left-px top-px flex h-3 w-3 items-center justify-center rounded-full bg-white text-c-accent transition-transform duration-300"
-      :class="{ 'translate-x-2.5': modelValue }"></div>
-  </div>
+      :class="{ 'translate-x-2.5': modelValue }" />
+    <span
+      v-if="label"
+      class="sr-only">
+      {{ label }}
+    </span>
+  </button>
 </template>

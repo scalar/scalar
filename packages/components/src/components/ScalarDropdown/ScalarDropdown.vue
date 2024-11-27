@@ -20,6 +20,7 @@ export default {}
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
 import type { Slot } from 'vue'
 
+import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarDropdownMenu from './ScalarDropdownMenu.vue'
 
@@ -39,6 +40,7 @@ defineSlots<{
 }>()
 
 defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
   <Menu v-slot="{ open }">
@@ -55,9 +57,8 @@ defineOptions({ inheritAttrs: false })
         <!-- Background container -->
         <ScalarDropdownMenu
           :is="MenuItems"
-          v-bind="$attrs"
-          class="max-h-[inherit]"
-          :style="{ width }">
+          :style="{ width }"
+          v-bind="cx('max-h-[inherit]')">
           <slot
             name="items"
             :open="open" />

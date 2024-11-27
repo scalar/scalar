@@ -7,6 +7,7 @@ import {
 } from '@headlessui/vue'
 import type { Slot } from 'vue'
 
+import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
@@ -43,6 +44,7 @@ defineSlots<{
 }>()
 
 defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
   <Listbox
@@ -71,9 +73,10 @@ defineOptions({ inheritAttrs: false })
         <!-- Background container -->
         <div
           v-if="open"
-          v-bind="$attrs"
-          class="relative flex max-h-[inherit] w-40 rounded border text-sm"
-          :style="{ width }">
+          :style="{ width }"
+          v-bind="
+            cx('relative flex max-h-[inherit] w-40 rounded border text-sm')
+          ">
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">
             <!-- Options list -->

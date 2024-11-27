@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
-
-import { cx } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 import { type Variants, variants } from './variants'
 
@@ -26,25 +24,17 @@ withDefaults(
 )
 
 defineOptions({ inheritAttrs: false })
-
-/* Extract the classes so they can be merged by `cx` */
-const attrs = computed(() => {
-  const { class: className, ...rest } = useAttrs()
-  return { class: className || '', rest }
-})
+const { cx } = useBindCx()
 </script>
 <template>
   <button
-    v-bind="attrs.rest"
     :ariaDisabled="disabled || undefined"
-    :class="
-      cx(
-        variants({ fullWidth, disabled, size, variant }),
-        { relative: loading?.isLoading },
-        `${attrs.class}`,
-      )
-    "
-    :type="type">
+    :type="type"
+    v-bind="
+      cx(variants({ fullWidth, disabled, size, variant }), {
+        relative: loading?.isLoading,
+      })
+    ">
     <div
       v-if="$slots.icon"
       class="mr-2 h-4 w-4"

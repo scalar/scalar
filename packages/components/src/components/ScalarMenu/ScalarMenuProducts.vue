@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useBindCx } from '../../hooks/useBindCx'
 import ScalarMenuProduct from './ScalarMenuProduct.vue'
 
 type Product = 'dashboard' | 'docs' | 'client'
@@ -11,9 +12,12 @@ defineProps<{
 defineEmits<{
   (e: 'open', event: Event, product: Product): void
 }>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
-  <div class="flex flex-col">
+  <div v-bind="cx('flex flex-col')">
     <ScalarMenuProduct
       :href="hrefs?.dashboard ?? 'https://dashboard.scalar.com'"
       icon="House"

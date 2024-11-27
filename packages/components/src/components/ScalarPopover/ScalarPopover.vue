@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
+import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
 import type { Slots } from './types'
 
@@ -9,6 +10,7 @@ defineProps<ScalarFloatingOptions>()
 defineSlots<Slots>()
 
 defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
   <Popover
@@ -21,9 +23,8 @@ defineOptions({ inheritAttrs: false })
       <template #floating="{ width, height }">
         <PopoverPanel
           v-slot="{ close }"
-          class="relative flex flex-col p-0.75"
           :style="{ width, height }"
-          v-bind="$attrs">
+          v-bind="cx('relative flex flex-col p-0.75')">
           <slot
             :close="() => close()"
             name="popover"

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
-import { computed, useAttrs } from 'vue'
 
-import { cva, cx } from '../../cva'
+import { cva } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 import { styles } from '../ScalarButton'
 import { type Icon, ScalarIcon } from '../ScalarIcon'
 
@@ -23,6 +23,9 @@ withDefaults(
   },
 )
 
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
+
 const variants = cva({
   base: 'scalar-icon-button grid aspect-square cursor-pointer rounded',
   variants: {
@@ -39,19 +42,12 @@ const variants = cva({
     variant: styles,
   },
 })
-
-/* Extract the classes so they can be merged by `cx` */
-const attrs = computed(() => {
-  const { class: className, ...rest } = useAttrs()
-  return { class: className || '', rest }
-})
 </script>
 <template>
   <button
-    v-bind="attrs.rest"
     :ariaDisabled="disabled || undefined"
-    :class="cx(variants({ size, variant, disabled }), attrs.class)"
-    type="button">
+    type="button"
+    v-bind="cx(variants({ size, variant, disabled }))">
     <ScalarIcon
       :icon="icon"
       :thickness="thickness" />

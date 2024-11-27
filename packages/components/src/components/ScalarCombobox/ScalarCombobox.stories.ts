@@ -18,6 +18,7 @@ const meta = {
       control: 'select',
       options: placements,
     },
+    class: { control: 'text' },
   },
 } satisfies Meta<typeof ScalarCombobox>
 
@@ -166,6 +167,40 @@ export const MultiselectGroups: Story = {
       </div>
     </ScalarButton>
   </ScalarComboboxMultiselect>
+</div>
+`,
+  }),
+}
+
+/**
+ * Applies a custom class to the combobox popover
+ */
+export const CustomClasses: Story = {
+  args: {
+    options,
+    class: 'border-red',
+  },
+  render: (args) => ({
+    components: {
+      ScalarCombobox,
+      ScalarButton,
+      ScalarIcon,
+    },
+    setup() {
+      const selected = ref<Option>()
+      return { args, selected }
+    },
+    template: `
+<div class="flex justify-center w-full min-h-96">
+  <ScalarCombobox v-model="selected" placeholder="Change fruit..." v-bind="args">
+    <ScalarButton class="w-48 px-3" variant="outlined">
+      <div class="flex flex-1 items-center min-w-0">
+        <span class="inline-block truncate flex-1 min-w-0 text-left">
+        {{ selected?.label ?? 'Select a fruit' }}
+        </span>
+      </div>
+    </ScalarButton>
+  </ScalarCombobox>
 </div>
 `,
   }),
