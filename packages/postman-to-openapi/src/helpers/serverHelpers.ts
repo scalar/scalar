@@ -11,27 +11,34 @@ import { getDomainFromUrl } from './urlHelpers'
 export function parseServers(
   postmanCollection: PostmanCollection,
 ): OpenAPIV3_1.ServerObject[] {
-  // Set to store unique domains
   const domains = new Set<string>()
 
-  if (postmanCollection.item && Array.isArray(postmanCollection.item)) {
-    postmanCollection.item.forEach((item) => {
-      if ('request' in item && typeof item.request !== 'string') {
-        const url =
-          typeof item.request.url === 'string'
-            ? item.request.url
-            : item.request.url?.raw
+  function processItem(item: any) {
+    // Handle request items
+    if ('request' in item && typeof item.request !== 'string') {
+      const url =
+        typeof item.request.url === 'string'
+          ? item.request.url
+          : item.request.url?.raw
 
-        if (url) {
-          try {
-            const domain = getDomainFromUrl(url)
-            domains.add(domain)
-          } catch (error) {
-            console.error(`Error extracting domain from URL "${url}":`, error)
-          }
+      if (url) {
+        try {
+          const domain = getDomainFromUrl(url)
+          domains.add(domain)
+        } catch (error) {
+          console.error(`Error extracting domain from URL "${url}":`, error)
         }
       }
-    })
+    }
+
+    // Recursively process nested items
+    if ('item' in item && Array.isArray(item.item)) {
+      item.item.forEach(processItem)
+    }
+  }
+
+  if (postmanCollection.item && Array.isArray(postmanCollection.item)) {
+    postmanCollection.item.forEach(processItem)
   }
 
   return Array.from(domains).map((domain) => ({ url: domain }))
