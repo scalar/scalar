@@ -1,5 +1,6 @@
 import {
   type AddClient,
+  type PluginConfiguration,
   type Request,
   type Source,
   arrayToObject,
@@ -14,7 +15,10 @@ declare global {
 /**
  * node/fetch
  */
-export function fetch(request?: Partial<Request>): Source {
+export function fetch(
+  request?: Partial<Request>,
+  configuration?: PluginConfiguration,
+) {
   // Defaults
   const normalizedRequest = {
     method: 'GET',

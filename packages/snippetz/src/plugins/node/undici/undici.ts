@@ -1,5 +1,6 @@
 import {
   type AddClient,
+  type PluginConfiguration,
   type Request,
   type Source,
   arrayToObject,
@@ -14,7 +15,10 @@ declare global {
 /**
  * node/undici
  */
-export function undici(request?: Partial<Request>): Source {
+export function undici(
+  request?: Partial<Request>,
+  configuration?: PluginConfiguration,
+): Source {
   // Defaults
   const normalizedRequest = {
     method: 'GET',
