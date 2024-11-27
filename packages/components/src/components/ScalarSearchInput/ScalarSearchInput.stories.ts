@@ -7,7 +7,9 @@ import ScalarSearchInput from './ScalarSearchInput.vue'
 const meta = {
   component: ScalarSearchInput,
   tags: ['autodocs'],
-  argTypes: {},
+  argTypes: {
+    class: { control: 'text' },
+  },
   render: (args) => ({
     components: { ScalarSearchInput },
     setup() {
@@ -33,4 +35,8 @@ export const Loading: Story = {
     },
     template: `<ScalarSearchInput modelValue="My search query" :loading="loadingState" />`,
   }),
+}
+
+export const CustomClasses: Story = {
+  args: { class: 'border-red' },
 }

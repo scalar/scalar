@@ -15,6 +15,9 @@ const meta = {
       control: 'select',
       options: placements,
     },
+    class: {
+      control: 'text',
+    },
   },
   render: (args) => ({
     components: {
@@ -43,3 +46,7 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const CustomClasses: Story = {
+  args: { class: 'border border-red' },
+}

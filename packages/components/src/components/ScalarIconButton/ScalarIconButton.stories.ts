@@ -3,6 +3,9 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import { ICONS } from '../ScalarIcon/icons'
 import ScalarIconButton from './ScalarIconButton.vue'
 
+/**
+ * A helper wrapper around the icon only ScalarButton
+ */
 const meta = {
   component: ScalarIconButton,
   tags: ['autodocs'],
@@ -14,13 +17,8 @@ const meta = {
       control: 'select',
       options: ['solid', 'outlined', 'ghost', 'danger'],
     },
-  },
-  parameters: {
-    docs: {
-      description: {
-        component: 'A helper wrapper around the icon only ScalarButton',
-      },
-    },
+    disabled: { control: 'boolean' },
+    class: { control: 'text' },
   },
 } satisfies Meta<typeof ScalarIconButton>
 
@@ -33,4 +31,8 @@ export const Base: Story = {
 
 export const Disabled: Story = {
   args: { icon: 'Logo', label: 'Logo button', disabled: true },
+}
+
+export const CustomClasses: Story = {
+  args: { icon: 'Logo', label: 'Logo button', class: 'size-3 p-0' },
 }

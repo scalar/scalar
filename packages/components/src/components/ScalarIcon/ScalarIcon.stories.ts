@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/vue3'
 import IconList from './IconList.vue'
 import ScalarIcon from './ScalarIcon.vue'
 import { ICONS } from './icons'
-import { LOGOS } from './logos'
 
 const meta = {
   component: ScalarIcon,
@@ -40,6 +39,10 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {
   args: { icon: 'Logo' },
+}
+
+export const CustomClasses: Story = {
+  args: { icon: 'Logo', class: 'size-2' },
 }
 
 export const AllSizes: Story = {

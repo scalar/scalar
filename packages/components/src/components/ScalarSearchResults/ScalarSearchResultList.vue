@@ -1,25 +1,17 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
-
-import { cx } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 
 defineProps<{
   noResults?: boolean
 }>()
 
 defineOptions({ inheritAttrs: false })
-
-/* Extract the classes so they can be merged by `cx` */
-const attrs = computed(() => {
-  const { class: className, ...rest } = useAttrs()
-  return { className: className || '', rest }
-})
+const { cx } = useBindCx()
 </script>
 <template>
   <ul
-    v-bind="attrs.rest"
-    :class="cx('flex flex-col', attrs.className)"
-    role="listbox">
+    role="listbox"
+    v-bind="cx('flex flex-col')">
     <slot
       v-if="noResults"
       name="noResults">

@@ -5,7 +5,8 @@ import { cx } from '../cva'
 
 /**
  * Provides a wrapper around the `cx` function that merges the
- * component's class attribute with the provided classes
+ * component's class attribute with the provided classes and binds the
+ * remaining attributes
  *
  * @see https://beta.cva.style/api-reference#cx
  *
@@ -35,7 +36,12 @@ export function useBindCx() {
     return { class: className || '', rest }
   })
 
-  function bindCx(...args: CXOptions) {
+  function bindCx(...args: CXOptions): {
+    /** The merged class attribute */
+    class: string
+    /** The remaining attributes */
+    [key: string]: any
+  } {
     return {
       class: cx(...args, attrs.value.class),
       ...attrs.value.rest,
@@ -45,9 +51,8 @@ export function useBindCx() {
   return {
     /**
      * Provides a wrapper around the `cx` function that merges the
-     * component's class attribute with the provided classes
-     *
-     * See stories for a complete example
+     * component's class attribute with the provided classes and binds the
+     * remaining attributes
      *
      * @example
      * <script setup>

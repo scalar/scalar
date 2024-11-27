@@ -2,7 +2,8 @@
 import type { VariantProps } from 'cva'
 import { computed } from 'vue'
 
-import { cva, cx } from '../../cva'
+import { cva } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 import { type Icon, type Logo, getIcon, getLogo } from './utils'
 
 /**
@@ -18,6 +19,9 @@ const props = defineProps<{
   thickness?: string
   label?: string
 }>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 
 const iconProps = cva({
   variants: {
@@ -58,8 +62,10 @@ const svg = computed(() => {
 <template>
   <component
     :is="svg"
-    :class="cx('scalar-icon', iconProps({ size }))"
-    v-bind="accessibilityAttrs" />
+    v-bind="{
+      ...cx('scalar-icon', iconProps({ size })),
+      ...accessibilityAttrs,
+    }" />
 </template>
 <style scoped>
 .scalar-icon,

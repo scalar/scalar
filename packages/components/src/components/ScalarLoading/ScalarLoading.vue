@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
-import { cva, cx } from '../../cva'
+import { cva } from '../../cva'
+import { useBindCx } from '../../hooks/useBindCx'
 import { reactive } from 'vue'
 
 type Variants = VariantProps<typeof variants>
 
 defineProps<{
-  loadingState: LoadingState
+  loadingState?: LoadingState
   size?: Variants['size']
 }>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 
 const variants = cva({
   variants: {
@@ -86,7 +90,7 @@ export function useLoadingState() {
 <template>
   <div
     v-if="loadingState"
-    :class="cx('loader-wrapper', variants({ size }))">
+    v-bind="cx('loader-wrapper', variants({ size }))">
     <svg
       class="svg-loader"
       :class="{

@@ -6,8 +6,9 @@ import ScalarToggle from './ScalarToggle.vue'
 const meta = {
   component: ScalarToggle,
   tags: ['autodocs'],
+  args: { modelValue: false },
   argTypes: {
-    modelValue: { control: 'boolean' },
+    label: { control: 'text' },
     disabled: { control: 'boolean' },
   },
   render: (args) => ({
@@ -23,10 +24,8 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Base: Story = {
-  args: { modelValue: false, disabled: false },
-}
+export const Base: Story = { args: { label: 'My Toggle' } }
 
 export const Disabled: Story = {
-  args: { modelValue: false, disabled: true },
+  args: { disabled: true },
 }

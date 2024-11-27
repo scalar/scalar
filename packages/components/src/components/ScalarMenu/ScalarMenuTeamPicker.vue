@@ -7,6 +7,7 @@ import {
   ScalarListbox,
   type ScalarListboxOption,
 } from '../..'
+import { useBindCx } from '../../hooks/useBindCx'
 
 const props = defineProps<{
   team?: ScalarListboxOption | undefined
@@ -21,9 +22,12 @@ const model = computed<ScalarListboxOption | undefined>({
   get: () => props.team,
   set: (v) => emit('update:team', v),
 })
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
-  <div class="flex flex-col pb-px">
+  <div v-bind="cx('flex flex-col pb-px')">
     <ScalarListbox
       v-model="model"
       :options="teams"
