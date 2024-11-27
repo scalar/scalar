@@ -8,7 +8,6 @@ import { useFavicon } from '@vueuse/core'
 import { computed, toRef, watch } from 'vue'
 
 import { useReactiveSpec } from '../hooks'
-import { useHttpClientStore } from '../stores'
 import type { ReferenceProps } from '../types'
 import { Layouts } from './Layouts'
 
@@ -76,11 +75,6 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
 // Prefill authentication
 const { setAuthentication } = useAuthenticationStore()
 mapConfigToState('authentication', setAuthentication)
-
-// Hides any client snippets from the references
-const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
-mapConfigToState('defaultHttpClient', setDefaultHttpClient)
-mapConfigToState('hiddenClients', setExcludedClients)
 
 const { parsedSpec, rawSpec } = useReactiveSpec({
   proxyUrl: toRef(
