@@ -1,3 +1,5 @@
+import type { Request } from 'har-format'
+
 export type { Request } from 'har-format'
 
 /**
@@ -28,13 +30,16 @@ export type ClientId<T extends string> = T extends TargetId
   : never
 
 /** What any plugins needs to return */
-export type Source = {
+export type Plugin = {
   /** The language or environment. */
   target: TargetId
   /** The identifier of the client. */
   client: ClientId<TargetId>
   /** The actual source code. */
-  code: string
+  generate: (
+    request?: Partial<Request>,
+    configuration?: PluginConfiguration,
+  ) => string
 }
 
 /**
