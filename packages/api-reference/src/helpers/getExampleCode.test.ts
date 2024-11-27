@@ -52,6 +52,7 @@ describe('getExampleCode', () => {
         method: 'POST',
         url: 'https://example.com',
       }),
+      // @ts-expect-error Fails, but shouldn’t be necessary soon anway.
       'js',
       'jquery',
     )
