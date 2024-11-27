@@ -1,5 +1,16 @@
 # @scalar/import
 
+## 0.2.0
+
+### Minor Changes
+
+- 6389557: feat: use X-Forwarded-Host header (if available)
+
+### Patch Changes
+
+- Updated dependencies [6389557]
+  - @scalar/oas-utils@0.2.82
+
 ## 0.1.2
 
 ### Patch Changes

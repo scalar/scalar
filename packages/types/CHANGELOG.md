@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.0.22
+
+### Patch Changes
+
+- baaad1c: refactor: deprecated the `proxy` configuration attribute, and use `proxyUrl` everywhere
+- c984ac8: feat: adds servers to information reference config
+
 ## 0.0.21
 
 ### Patch Changes

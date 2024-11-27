@@ -1,5 +1,26 @@
 # @scalar/api-reference-editor
 
+## 0.1.131
+
+### Patch Changes
+
+- baaad1c: refactor: deprecated the `proxy` configuration attribute, and use `proxyUrl` everywhere
+- Updated dependencies [6389557]
+- Updated dependencies [7605d6f]
+- Updated dependencies [c9b6873]
+- Updated dependencies [d08a7ae]
+- Updated dependencies [baaad1c]
+- Updated dependencies [642d112]
+- Updated dependencies [c984ac8]
+- Updated dependencies [bae9997]
+- Updated dependencies [c984ac8]
+  - @scalar/oas-utils@0.2.82
+  - @scalar/api-reference@1.25.72
+  - @scalar/api-client@2.2.4
+  - @scalar/types@0.0.22
+  - @scalar/use-codemirror@0.11.44
+  - @scalar/use-hooks@0.1.6
+
 ## 0.1.130
 
 ### Patch Changes

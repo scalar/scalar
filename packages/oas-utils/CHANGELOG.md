@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.82
+
+### Patch Changes
+
+- 6389557: feat: allow to pass a base URL to makeUrlAbsolute
+- Updated dependencies [baaad1c]
+- Updated dependencies [c984ac8]
+  - @scalar/types@0.0.22
+  - @scalar/themes@0.9.53
+
 ## 0.2.81
 
 ### Patch Changes
