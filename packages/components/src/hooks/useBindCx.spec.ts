@@ -1,3 +1,4 @@
+/* eslint-disable vue/one-component-per-file */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
@@ -42,6 +43,33 @@ describe('useBindCx', () => {
       attrs: { class: 'external-class' },
     })
     expect(wrapper.attributes('class')).toBe('bg-base external-class')
+  })
+
+  it('should be reactive to prop changes', async () => {
+    const wrapper = mount(TestComponent, {
+      props: { active: false },
+      attrs: { class: 'external-class' },
+    })
+    expect(wrapper.attributes('class')).toBe('bg-base external-class')
+
+    await wrapper.setProps({ active: true })
+    expect(wrapper.attributes('class')).toBe('bg-active external-class')
+  })
+
+  it('should be reactive to attribute changes', async () => {
+    const WrapperComponent = defineComponent({
+      props: { c: { type: String, default: '' } },
+      components: { TestComponent },
+      template: '<TestComponent :class="c" />',
+    })
+
+    const wrapper = mount(WrapperComponent, {
+      props: { c: 'external-class' },
+    })
+    expect(wrapper.attributes('class')).toBe('bg-base external-class')
+
+    await wrapper.setProps({ c: 'updated-class' })
+    expect(wrapper.attributes('class')).toBe('bg-base updated-class')
   })
 
   it('should handle multiple class combinations', () => {

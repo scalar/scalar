@@ -31,8 +31,10 @@ import { cx } from '../cva'
  * </template>
  */
 export function useBindCx() {
-  const attrs = computed(() => {
-    const { class: className, ...rest } = useAttrs()
+  const attrs = useAttrs()
+
+  const destructured = computed(() => {
+    const { class: className, ...rest } = attrs
     return { class: className || '', rest }
   })
 
@@ -43,8 +45,8 @@ export function useBindCx() {
     [key: string]: any
   } {
     return {
-      class: cx(...args, attrs.value.class),
-      ...attrs.value.rest,
+      class: cx(...args, destructured.value.class),
+      ...destructured.value.rest,
     }
   }
 
