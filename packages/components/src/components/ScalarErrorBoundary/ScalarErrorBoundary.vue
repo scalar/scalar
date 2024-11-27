@@ -2,13 +2,13 @@
 import { onErrorCaptured, ref } from 'vue'
 
 const hasError = ref<boolean>(false)
-const errorMessage = ref<string>('')
+const error = ref<Error>()
 
 onErrorCaptured((err, _, info) => {
   console.error('[ERROR]', err, info)
 
   hasError.value = true
-  errorMessage.value = err.message
+  error.value = err
 
   // Prevent the error from propagating further up
   return false
@@ -19,12 +19,12 @@ onErrorCaptured((err, _, info) => {
   <slot v-if="!hasError" />
   <div
     v-else
-    class="m-4 rounded border bg-b-2 p-3 text-sm">
+    class="rounded border bg-b-2 p-3 text-sm">
     <div class="p-2">Oops, something went wrong here.</div>
     <div
-      v-if="errorMessage"
+      v-if="error"
       class="mt-2 rounded border bg-b-1 p-2 font-code text-c-2">
-      {{ errorMessage }}
+      {{ error?.name }}: {{ error?.message }}
     </div>
   </div>
 </template>
