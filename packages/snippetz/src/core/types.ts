@@ -3,7 +3,7 @@ export type { Request } from 'har-format'
 /**
  * List of available clients
  */
-export type Clients = [
+export type AvailableClients = [
   'js/fetch',
   'js/ofetch',
   'node/fetch',
@@ -12,12 +12,17 @@ export type Clients = [
   'shell/curl',
 ]
 
-export type TargetId = Clients[number] extends `${infer T}/${string}`
+/** Programming language */
+export type TargetId = AvailableClients[number] extends `${infer T}/${string}`
   ? T
   : never
 
+/** HTTP client */
 export type ClientId<T extends string> = T extends TargetId
-  ? Extract<Clients[number], `${T}/${string}`> extends `${T}/${infer C}`
+  ? Extract<
+      AvailableClients[number],
+      `${T}/${string}`
+    > extends `${T}/${infer C}`
     ? C
     : never
   : never
