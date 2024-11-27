@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { ScalarErrorBoundary } from '@scalar/components'
@@ -8,7 +9,7 @@ import {
   getThemeStyles,
   hasObtrusiveScrollbars,
 } from '@scalar/themes'
-import type { SSRState } from '@scalar/types/legacy'
+import type { ReferenceConfiguration, SSRState } from '@scalar/types/legacy'
 import { ScalarToasts, useToasts } from '@scalar/use-toasts'
 import { useDebounceFn, useMediaQuery, useResizeObserver } from '@vueuse/core'
 import {
@@ -256,6 +257,28 @@ provide(INTEGRATION_SYMBOL, () =>
     ? props.configuration._integration
     : 'vue',
 )
+
+// ---------------------------------------------------------------------------/
+// HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE
+
+/** Helper utility to map configuration props to the ApiReference internal state */
+function mapConfigToState<K extends keyof ReferenceConfiguration>(
+  key: K,
+  setter: (val: NonNullable<ReferenceConfiguration[K]>) => any,
+) {
+  watch(
+    () => props.configuration[key],
+    (newValue) => {
+      if (typeof newValue !== 'undefined') setter(newValue)
+    },
+    { immediate: true },
+  )
+}
+
+// Hides any client snippets from the references
+const { setExcludedClients, setDefaultHttpClient } = useHttpClientStore()
+mapConfigToState('defaultHttpClient', setDefaultHttpClient)
+mapConfigToState('hiddenClients', setExcludedClients)
 
 hideModels.value = props.configuration.hideModels ?? false
 defaultOpenAllTags.value = props.configuration.defaultOpenAllTags ?? false
