@@ -27,25 +27,14 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   // Convert request to HarRequest
   const harRequest = await convertRequestToHarRequest(request)
 
-  if (snippetz().hasPlugin(target, client)) {
-    // Transform harRequest to match snippetz's expected format
-    const snippetzRequest = {
-      ...harRequest,
-      postData: harRequest.postData
-        ? {
-            text: harRequest.postData.text || '',
-            mimeType: harRequest.postData.mimeType,
-            ...(harRequest.postData.comment && {
-              comment: harRequest.postData.comment,
-            }),
-          }
-        : undefined,
-    }
+  // @scalar/snippetz
+  const snippetzTargetKey = target
 
+  if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
       target as SnippetzTargetId,
       client as SnippetzClientId<typeof target>,
-      snippetzRequest,
+      harRequest,
     )
   }
 
