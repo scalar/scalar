@@ -1,11 +1,4 @@
-import {
-  type Plugin,
-  type PluginConfiguration,
-  type Request,
-  type Source,
-  arrayToObject,
-  objectToString,
-} from '../../../core'
+import { type Plugin, arrayToObject, objectToString } from '../../../core'
 
 /**
  * js/ofetch
