@@ -3,8 +3,8 @@
   "include": ["src", "rollup.config.ts"],
   "compilerOptions": {
     "paths": {
-      // "@/*": ["./src/*"],
-      // "@test/*": ["./test/*"],
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"],
       "~*": ["./node_modules/*"]
     }
   }
