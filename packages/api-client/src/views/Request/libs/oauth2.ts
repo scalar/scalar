@@ -1,9 +1,5 @@
 import type { ErrorResponse } from '@/libs'
-import type {
-  Oauth2Flow,
-  SecuritySchemeOauth2,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 /** Oauth2 security schemes which are not implicit */
