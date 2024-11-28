@@ -3,7 +3,7 @@ import { createRequestOperation } from '@scalar/api-client/libs'
 import type { WorkspaceStore } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { type ComputedRef, computed } from 'vue'
 
 /** Builds a request object for the code sniipet, as well as the security credentials to obfuscate */
 export const useRequestExample = ({
@@ -15,11 +15,11 @@ export const useRequestExample = ({
   server,
 }: {
   operation: TransformedOperation
-  collection?: Collection
+  collection: ComputedRef<Collection | undefined>
   requests: WorkspaceStore['requests']
   requestExamples: WorkspaceStore['requestExamples']
   securitySchemes: WorkspaceStore['securitySchemes']
-  server: Server
+  server: ComputedRef<Server>
 }) => {
   /** Grab a spec request from an operation */
   const request = computed(() =>
@@ -30,7 +30,7 @@ export const useRequestExample = ({
   const selectedSecuritySchemeUids = computed(() => {
     // Grab the required uids
     const requirementObjects =
-      request.value?.security ?? collection?.security ?? []
+      request.value?.security ?? collection.value?.security ?? []
     const filteredObjects = requirementObjects.filter(
       (r) => Object.keys(r).length,
     )
@@ -38,7 +38,7 @@ export const useRequestExample = ({
 
     // We have an empty object so any auth will work
     if (filteredObjects.length < requirementObjects.length) {
-      return collection?.selectedSecuritySchemeUids ?? []
+      return collection.value?.selectedSecuritySchemeUids ?? []
     }
     // Otherwise filter the selected uids by what is required by this request
     else {
@@ -47,7 +47,7 @@ export const useRequestExample = ({
         .map((name) => _securitySchemes.find((s) => s.nameKey === name)?.uid)
         .filter(Boolean)
 
-      return collection?.selectedSecuritySchemeUids.filter((uid) =>
+      return collection.value?.selectedSecuritySchemeUids.filter((uid) =>
         requirementUids.find((fuid) => fuid === uid),
       )
     }
@@ -63,7 +63,7 @@ export const useRequestExample = ({
     const [error, response] = createRequestOperation({
       request: request.value,
       example,
-      server,
+      server: server.value,
       securitySchemes,
       selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
       // TODO: env vars if we want em
