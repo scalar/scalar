@@ -29,7 +29,7 @@ export const convertRequestToHarRequest = async (
   if (request.headers) {
     harRequest.headers = Array.from(request.headers.entries()).map(
       ([name, value]) => ({
-        name,
+        name: name.replace(/\b\w/g, (letter) => letter.toUpperCase()),
         value,
       }),
     )
