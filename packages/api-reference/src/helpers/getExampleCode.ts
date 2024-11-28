@@ -1,5 +1,6 @@
 import {
   type ClientId as SnippetzClientId,
+  type Request as SnippetzRequest,
   type TargetId as SnippetzTargetId,
   snippetz,
 } from '@scalar/snippetz'
@@ -34,7 +35,9 @@ export async function getExampleCode<T extends SnippetzTargetId>(
     return snippetz().print(
       target as SnippetzTargetId,
       client as SnippetzClientId<typeof target>,
-      harRequest,
+      // TODO: We shouldn’t cast the type here.
+      // Luckily, the difference between those two types is tiny. We’ll get rid of this compatibility issue soon.
+      harRequest as SnippetzRequest,
     )
   }
 
