@@ -42,7 +42,7 @@ describe('convertRequestToHarRequest', () => {
       httpVersion: 'HTTP/1.1',
       headers: [
         {
-          name: 'content-type',
+          name: 'Content-Type',
           value: 'application/json',
         },
       ],
@@ -91,8 +91,8 @@ describe('convertRequestToHarRequest', () => {
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
       headers: [
-        { name: 'accept', value: 'application/json' },
-        { name: 'authorization', value: `Bearer ${testToken}` },
+        { name: 'Accept', value: 'application/json' },
+        { name: 'Authorization', value: `Bearer ${testToken}` },
       ],
       queryString: [],
       cookies: [],
@@ -114,7 +114,7 @@ describe('convertRequestToHarRequest', () => {
       method: 'GET',
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
-      headers: [{ name: 'cookie', value: 'sessionId=abc123; theme=dark' }],
+      headers: [{ name: 'Cookie', value: 'sessionId=abc123; theme=dark' }],
       queryString: [],
       cookies: [
         { name: 'sessionId', value: 'abc123' },
