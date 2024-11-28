@@ -1,11 +1,13 @@
+import { jsFetch } from '@/plugins/js/fetch'
+import { jsOfetch } from '@/plugins/js/ofetch'
+import { nodeFetch } from '@/plugins/node/fetch'
+import { nodeOfetch } from '@/plugins/node/ofetch'
+import { nodeUndici } from '@/plugins/node/undici'
+import { shellCurl } from '@/plugins/shell/curl'
+import { shellHttpie } from '@/plugins/shell/httpie'
+import { shellWget } from '@/plugins/shell/wget'
+
 import type { ClientId, Plugin, Request, TargetId } from './core'
-import { jsFetch } from './plugins/js/fetch'
-import { jsOfetch } from './plugins/js/ofetch'
-import { nodeFetch } from './plugins/node/fetch'
-import { nodeOfetch } from './plugins/node/ofetch'
-import { nodeUndici } from './plugins/node/undici'
-import { shellCurl } from './plugins/shell/curl'
-import { shellWget } from './plugins/shell/wget'
 
 /**
  * Generate code examples for HAR requests
@@ -19,6 +21,7 @@ export function snippetz() {
     nodeOfetch,
     shellCurl,
     shellWget,
+    shellHttpie,
   ]
 
   return {

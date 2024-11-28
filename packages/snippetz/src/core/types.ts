@@ -12,6 +12,7 @@ export type AvailableClients = [
   'node/ofetch',
   'node/undici',
   'shell/curl',
+  'shell/httpie',
   'shell/wget',
 ]
 
