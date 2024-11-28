@@ -30,11 +30,11 @@ const { activeCollection, activeServer } = useActiveEntities()
 const { requests, requestExamples, securitySchemes } = useWorkspace()
 const { request, secretCredentials } = useRequestExample({
   operation: props.operation,
-  collection: activeCollection.value,
+  collection: activeCollection,
   requests,
   requestExamples,
   securitySchemes,
-  server: activeServer.value,
+  server: activeServer,
 })
 </script>
 <template>

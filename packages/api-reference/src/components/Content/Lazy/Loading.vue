@@ -49,7 +49,6 @@ const hideTag = ref(false)
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
-const { activeCollection, activeServer } = useActiveEntities()
 const { requests, requestExamples, securitySchemes } = useWorkspace()
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
@@ -166,13 +165,11 @@ onMounted(() => {
         <Operation
           v-for="operation in tag.lazyOperations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
-          :collection="activeCollection"
           :layout="layout"
           :operation="operation"
           :requestExamples="requestExamples"
           :requests="requests"
           :securitySchemes="securitySchemes"
-          :server="activeServer"
           :tag="tag" />
       </Tag>
     </template>

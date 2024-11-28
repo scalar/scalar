@@ -17,7 +17,6 @@ const props = defineProps<{
 
 const { getOperationId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
-const { activeCollection, activeServer } = useActiveEntities()
 const { requests, requestExamples, securitySchemes } = useWorkspace()
 
 const tagLayout = computed<typeof Tag>(() =>
@@ -46,13 +45,11 @@ const isLazy = props.layout !== 'classic' && !hash.value.startsWith('model')
         <ScalarErrorBoundary>
           <Operation
             :id="getOperationId(operation, tag)"
-            :collection="activeCollection"
             :layout="layout"
             :operation="operation"
             :requestExamples="requestExamples"
             :requests="requests"
             :securitySchemes="securitySchemes"
-            :server="activeServer"
             :tag="tag" />
         </ScalarErrorBoundary>
       </Lazy>
