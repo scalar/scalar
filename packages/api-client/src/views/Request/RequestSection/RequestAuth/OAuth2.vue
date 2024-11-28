@@ -17,10 +17,12 @@ import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 const {
   scheme,
   flow,
+  getReferenceClass,
   layout = 'client',
 } = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
+  getReferenceClass: (className?: string) => string
   layout?: 'client' | 'reference'
 }>()
 
@@ -51,12 +53,6 @@ const handleAuthorize = async () => {
     toast(error?.message ?? 'Failed to authorize', 'error')
   }
 }
-
-/** To override the styling when we are in references */
-const getReferenceClass = (className = '') =>
-  layout === 'reference'
-    ? `references-layout bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
-    : ''
 </script>
 
 <template>
