@@ -70,7 +70,6 @@ const getReferenceClass = (className = '') =>
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
-          :id="`http-bearer-token-${scheme.uid}`"
           :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
           :modelValue="scheme.token"
           placeholder="Token"
@@ -84,7 +83,6 @@ const getReferenceClass = (className = '') =>
       <template v-else-if="scheme.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
-            :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
             :containerClass="
               getReferenceClass(
@@ -100,7 +98,6 @@ const getReferenceClass = (className = '') =>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
-            :id="`http-basic-password-${scheme.uid}`"
             :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
             :modelValue="scheme.password"
             placeholder="********"
@@ -116,7 +113,6 @@ const getReferenceClass = (className = '') =>
     <template v-else-if="scheme.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`api-key-name-${scheme.uid}`"
           :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
           :modelValue="scheme.name"
           placeholder="api-key"
@@ -126,7 +122,6 @@ const getReferenceClass = (className = '') =>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`api-key-value-add-${scheme.uid}`"
           :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
