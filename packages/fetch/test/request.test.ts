@@ -206,7 +206,7 @@ describe('Executes requests and handles errors', () => {
     if (result.error) expect(result.message).toEqual('Unauthorized')
   })
 
-  test.todo('Handles Promise<string> access token', async () => {
+  it.todo('Handles Promise<string> access token', async () => {
     const result = await request({
       // accessToken: Promise.resolve(accessToken),
       url: `${BASE_URL}/object-fetch?id=1`,
