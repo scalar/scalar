@@ -1,9 +1,9 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { objectFromArray } from './object-from-array'
 
 describe('Converts an array of objects into a hash map', () => {
-  test('Handles basic maps', () => {
+  it('Handles basic maps', () => {
     const arr = [
       { key: '1', name: 'one' },
       { key: '2', name: 'two' },
@@ -14,7 +14,7 @@ describe('Converts an array of objects into a hash map', () => {
     })
   })
 
-  test('Handles key transforms', () => {
+  it('Handles key transforms', () => {
     const arr = [
       { key: '1', name: 'one', animal: 'Cow' },
       { key: '2', name: 'two', animal: 'Chicken' },

@@ -1,5 +1,5 @@
 import { clone } from '@/clone'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { setNestedValue } from './nested'
 
@@ -39,7 +39,7 @@ const request = {
 }
 
 describe('Set a nested value', () => {
-  test('Basic nested set', () => {
+  it('Basic nested set', () => {
     const baseObj = clone(nestedObj)
     const copy = clone(nestedObj)
 
@@ -50,7 +50,7 @@ describe('Set a nested value', () => {
     expect(copy.a.ab).toEqual('some string')
   })
 
-  test('Nested array replacement', () => {
+  it('Nested array replacement', () => {
     const baseObj = clone(nestedObj)
     const copy = clone(nestedObj)
 
@@ -60,7 +60,7 @@ describe('Set a nested value', () => {
     expect(baseObj).toEqual(copy)
   })
 
-  test('Object replacement', () => {
+  it('Object replacement', () => {
     const baseObj = clone(nestedObj)
     const copy = clone(nestedObj)
 
@@ -70,7 +70,7 @@ describe('Set a nested value', () => {
     expect(baseObj).toEqual(copy)
   })
 
-  test('Nested array replacement on request parameters', () => {
+  it('Nested array replacement on request parameters', () => {
     const baseObj = clone(request)
     const copy = clone(request)
 

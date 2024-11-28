@@ -5,7 +5,7 @@ import type {
   Tag,
 } from '@/entities/spec'
 import { exportSpecFromWorkspace, importSpecToWorkspace } from '@/transforms'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 /** Convert an array of objects into a map of objects by UID */
 function arrayToUidMap<T extends { uid: string }>(array: T[]) {
@@ -70,7 +70,7 @@ const galaxy = await fetch(
 ).then((r) => r.json())
 
 describe('Converts a collection into a spec', () => {
-  test('Handles basic spec', async () => {
+  it('Handles basic spec', async () => {
     const workspace = await importSpecToWorkspace(testSpec)
     if (workspace.error) throw Error('Bad workspace')
 
@@ -132,13 +132,13 @@ describe('Workspace output matches input when round-tripped', async () => {
     return { base, next }
   }
 
-  test('Collections have the same number of requests', () => {
+  it('Collections have the same number of requests', () => {
     expect(baseWorkspace.collection.requests.length).toEqual(
       nextWorkspace.collection.requests.length,
     )
   })
 
-  test('Requests have the same examples', async () => {
+  it('Requests have the same examples', async () => {
     baseWorkspace.collection.requests.forEach((uid) => {
       const { base, next } = getMatchingRequest(uid)
 

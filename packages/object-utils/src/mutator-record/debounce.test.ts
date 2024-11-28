@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { debounce } from './debounce'
 
@@ -10,7 +10,7 @@ describe('Functions are debounced', () => {
     vi.restoreAllMocks()
   })
 
-  test('Debounce function', () => {
+  it('Debounce function', () => {
     const func = vi.fn()
     const debouncedFunc = debounce(func, 1000)
 
@@ -30,7 +30,7 @@ describe('Functions are debounced', () => {
     expect(func).toHaveBeenCalledTimes(1) // func called
   })
 
-  test('Debounce function with max wait', () => {
+  it('Debounce function with max wait', () => {
     const func = vi.fn()
     const debouncedFunc = debounce(func, 1000, { maxWait: 2000 })
 

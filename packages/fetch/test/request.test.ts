@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
 import { request } from '../src/request'
@@ -7,7 +7,7 @@ const BASE_URL = 'https://rest-endpoint.example'
 const accessToken = '1234567890'
 
 describe('Executes requests and handles errors', () => {
-  test('Basic request without auth token', async () => {
+  it('Basic request without auth token', async () => {
     const result = await request({
       disableAuth: true,
       url: `${BASE_URL}/posts`,
@@ -27,7 +27,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.data.length).toEqual(1)
   })
 
-  test('Basic request with string return', async () => {
+  it('Basic request with string return', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch?id=1`,
@@ -40,7 +40,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.data).toEqual('first post title')
   })
 
-  test('Basic request with JSON return', async () => {
+  it('Basic request with JSON return', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch/1`,
@@ -63,7 +63,7 @@ describe('Executes requests and handles errors', () => {
     })
   })
 
-  test('authenticated post request with data', async () => {
+  it('authenticated post request with data', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch`,
@@ -91,7 +91,7 @@ describe('Executes requests and handles errors', () => {
     })
   })
 
-  test('Throws for invalid request body', async () => {
+  it('Throws for invalid request body', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch`,
@@ -108,7 +108,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.message).toEqual('Invalid request body')
   })
 
-  test('Throws for unexpected response', async () => {
+  it('Throws for unexpected response', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch`,
@@ -131,7 +131,7 @@ describe('Executes requests and handles errors', () => {
     )
   })
 
-  test('Handles incorrect http method', async () => {
+  it('Handles incorrect http method', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch/1`,
@@ -147,7 +147,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.error).toEqual(true)
   })
 
-  test('Handles missing endpoint', async () => {
+  it('Handles missing endpoint', async () => {
     const result = await request({
       url: 'https://example.com/undefined',
       method: 'get',
@@ -157,7 +157,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.error).toEqual(true)
   })
 
-  test('Handles empty access token', async () => {
+  it('Handles empty access token', async () => {
     const result = await request({
       accessToken: '',
       url: `${BASE_URL}/object-fetch?id=1`,
@@ -169,7 +169,7 @@ describe('Executes requests and handles errors', () => {
     if (result.error) expect(result.message).toEqual('Unauthorized')
   })
 
-  test('Handles string access token', async () => {
+  it('Handles string access token', async () => {
     const result = await request({
       accessToken: accessToken,
       url: `${BASE_URL}/object-fetch?id=1`,
@@ -182,7 +182,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.data).toEqual('first post title')
   })
 
-  test('Handles function access token', async () => {
+  it('Handles function access token', async () => {
     const result = await request({
       accessToken: () => accessToken,
       url: `${BASE_URL}/object-fetch?id=1`,
@@ -194,7 +194,7 @@ describe('Executes requests and handles errors', () => {
     if (result.error) return
     expect(result.data).toEqual('first post title')
   })
-  test('Handles empty function access token', async () => {
+  it('Handles empty function access token', async () => {
     const result = await request({
       accessToken: () => '',
       url: `${BASE_URL}/object-fetch?id=1`,
