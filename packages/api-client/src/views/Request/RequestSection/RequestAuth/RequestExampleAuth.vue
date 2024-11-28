@@ -42,7 +42,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
  */
 const getReferenceClass = (className = '') =>
   layout === 'reference'
-    ? `border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
     : ''
 </script>
 <template>
@@ -53,12 +53,12 @@ const getReferenceClass = (className = '') =>
     <!-- Header -->
     <DataTableRow
       v-if="security.length > 1"
-      :class="{ peer: layout === 'reference' }">
+      :class="{ 'request-example-references-header': layout === 'reference' }">
       <DataTableCell
         class="text-c-3 pl-2 font-medium flex items-center"
         :class="
           getReferenceClass(
-            `rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
+            `bg-b-1 rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
           )
         ">
         {{ generateLabel(scheme) }}
@@ -68,12 +68,7 @@ const getReferenceClass = (className = '') =>
     <!-- HTTP -->
     <template v-if="scheme.type === 'http'">
       <!-- Bearer -->
-      <DataTableRow
-        v-if="scheme.scheme === 'bearer'"
-        :class="{
-          'peer-first:*:rounded-t-none peer-first:*:border-t-0':
-            layout === 'reference',
-        }">
+      <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
           :id="`http-bearer-token-${scheme.uid}`"
           :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
@@ -161,10 +156,11 @@ const getReferenceClass = (className = '') =>
   --tw-bg-base: var(--scalar-background-2);
   --tw-shadow: -8px 0 4px var(--scalar-background-2);
 }
-/* 
+
+/* Not sure why tailwind peer selector not working */
 .request-example-references-header :deep(+ tr > td) {
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
-} */
+}
 </style>
