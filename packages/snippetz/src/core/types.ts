@@ -8,6 +8,7 @@ export type { Request } from 'har-format'
 export type AvailableClients = [
   'c/libcurl',
   'go/native',
+  'http/http1.1',
   'js/fetch',
   'js/ofetch',
   'node/fetch',

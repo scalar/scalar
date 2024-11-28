@@ -30,6 +30,7 @@ export function convertWithHttpSnippetLite(
 
   return client?.convert({
     url: request.url,
+    uriObj: { ...new URL(request.url), path: new URL(request.url).pathname },
     method: request.method?.toLocaleUpperCase() ?? 'GET',
     httpVersion: request.httpVersion,
     cookies: request.cookies,
