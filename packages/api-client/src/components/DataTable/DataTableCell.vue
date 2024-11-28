@@ -9,6 +9,7 @@ withDefaults(
   { is: 'td' },
 )
 
+defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
