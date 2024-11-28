@@ -29,7 +29,7 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
       snippetzTargetKey as SnippetzTargetId,
-      client,
+      client as SnippetzClientId<typeof snippetzTargetKey>,
       request,
     )
   }
