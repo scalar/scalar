@@ -1,8 +1,7 @@
+import type { Plugin } from '@/core'
+import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
 // @ts-expect-error no types available
 import { wget } from '~httpsnippet-lite/dist/esm/targets/shell/wget/client.mjs'
-
-import type { Plugin } from '../../../core'
-import { convertWithHttpSnippetLite } from './convertWithHttpSnippetLite'
 
 /**
  * shell/wget

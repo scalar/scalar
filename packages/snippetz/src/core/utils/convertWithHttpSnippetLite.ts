@@ -3,12 +3,12 @@ import type { HarRequest } from 'httpsnippet-lite'
 import type { Client } from '~httpsnippet-lite/dist/types/targets/targets'
 
 /**
- * Takes a httpsnippet-lite and converts the given request to a code example with it.
+ * Takes a httpsnippet-lite client and converts the given request to a code example with it.
  */
 export function convertWithHttpSnippetLite(
   client: Client<object>,
   partialRequest?: Partial<Request>,
-) {
+): string {
   const request = {
     url: partialRequest?.url ?? '',
     httpVersion: partialRequest?.httpVersion ?? 'HTTP/1.1',
@@ -36,7 +36,7 @@ export function convertWithHttpSnippetLite(
     headers: request.headers,
     headersSize: request.headersSize,
     bodySize: request.bodySize,
-    // @ts-expect-error Might be fine.
+    // @ts-expect-error TS complaing, but the tests pass. We’ll get rid of this inconsistency soon.
     queryString: request.queryString,
     postData: ((request ?? {}) as HarRequest)?.postData,
     allHeaders,
