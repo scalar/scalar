@@ -35,6 +35,7 @@ export function convertWithHttpSnippetLite(
     cookies: request.cookies,
     headers: request.headers,
     headersSize: request.headersSize,
+    headersObj: allHeaders,
     bodySize: request.bodySize,
     // @ts-expect-error TS complaing, but the tests pass. We’ll get rid of this inconsistency soon.
     queryString: request.queryString,

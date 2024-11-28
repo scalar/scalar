@@ -6,6 +6,7 @@ export type { Request } from 'har-format'
  * List of available clients
  */
 export type AvailableClients = [
+  'c/libcurl',
   'js/fetch',
   'js/ofetch',
   'node/fetch',
