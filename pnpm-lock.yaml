@@ -1994,6 +1994,10 @@ importers:
         version: link:../api-reference
 
   packages/snippetz:
+    dependencies:
+      httpsnippet-lite:
+        specifier: ^3.0.5
+        version: 3.0.5
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2001,6 +2005,9 @@ importers:
       '@types/har-format':
         specifier: ^1.2.15
         version: 1.2.15
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
 
   packages/snippetz/playground:
     dependencies:
@@ -26283,7 +26290,7 @@ snapshots:
       '@vue/shared': 3.4.31
       estree-walker: 2.0.2
       magic-string: 0.30.10
-      postcss: 8.4.39
+      postcss: 8.4.47
       source-map-js: 1.2.1
 
   '@vue/compiler-sfc@3.5.12':

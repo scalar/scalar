@@ -1,8 +1,10 @@
 import { alias } from '@scalar/build-tooling'
+import { join } from 'node:path'
 import { defineConfig } from 'vite'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
-  plugins: [],
+  plugins: [tsconfigPaths()],
   resolve: {
     alias: [
       {

@@ -5,6 +5,7 @@ import { nodeFetch } from './plugins/node/fetch'
 import { nodeOfetch } from './plugins/node/ofetch'
 import { nodeUndici } from './plugins/node/undici'
 import { shellCurl } from './plugins/shell/curl'
+import { shellWget } from './plugins/shell/wget'
 
 /**
  * Generate code examples for HAR requests
@@ -17,6 +18,7 @@ export function snippetz() {
     jsOfetch,
     nodeOfetch,
     shellCurl,
+    shellWget,
   ]
 
   return {
