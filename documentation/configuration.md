@@ -385,3 +385,15 @@ Can be one of: **alternate**, **default**, **moon**, **purple**, **solarized**, 
   theme: 'default'
 }
 ```
+
+#### hideClientButton?: boolean
+
+Whether to show the client button from the reference sidebar and modal
+
+`@default false`
+
+```js
+{
+  hideClientButton: true
+}
+```

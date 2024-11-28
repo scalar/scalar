@@ -60,6 +60,7 @@ type CreateWorkspaceStoreOptions = {
   isReadOnly: boolean
   proxyUrl: ReferenceConfiguration['proxyUrl']
   themeId: ReferenceConfiguration['theme']
+  hideClientButton: ReferenceConfiguration['hideClientButton']
 }
 
 /**
@@ -74,6 +75,7 @@ export const createWorkspaceStore = ({
   isReadOnly = false,
   proxyUrl,
   themeId,
+  hideClientButton,
 }: CreateWorkspaceStoreOptions) => {
   // ---------------------------------------------------------------------------
   // Initialize all storage objects
@@ -194,6 +196,7 @@ export const createWorkspaceStore = ({
     sidebarWidth,
     setSidebarWidth,
     isReadOnly,
+    hideClientButton,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

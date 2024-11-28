@@ -67,6 +67,7 @@ watch(hash, (newHash, oldHash) => {
     <template #sidebar-end>
       <div class="darklight-reference">
         <OpenApiClientButton
+          v-if="!props.configuration.hideClientButton"
           buttonSource="sidebar"
           :integration="configuration._integration"
           :isDevelopment="isDevelopment"
