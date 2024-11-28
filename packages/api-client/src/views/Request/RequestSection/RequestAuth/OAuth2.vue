@@ -95,7 +95,7 @@ const handleAuthorize = async () => {
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.authorizationUrl`, v)
         ">
-        Auth Url
+        Auth URL
       </RequestAuthDataTableInput>
 
       <!-- Token URL -->
@@ -112,7 +112,7 @@ const handleAuthorize = async () => {
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.tokenUrl`, v)
         ">
-        Token Url
+        Token URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -126,7 +126,7 @@ const handleAuthorize = async () => {
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, v)
         ">
-        Redirect Url
+        Redirect URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
