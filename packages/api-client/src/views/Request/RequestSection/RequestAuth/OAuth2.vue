@@ -61,6 +61,7 @@ const handleAuthorize = async () => {
     <DataTableRow>
       <RequestAuthDataTableInput
         class="border-r-transparent"
+        :containerClass="getReferenceClass('rounded border-1/2')"
         :modelValue="flow.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
