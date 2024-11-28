@@ -1,3 +1,5 @@
+import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
+import { goNative } from '@/plugins/go/native'
 import { jsFetch } from '@/plugins/js/fetch'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
@@ -14,14 +16,16 @@ import type { ClientId, Plugin, Request, TargetId } from './core'
  */
 export function snippetz() {
   const plugins: Plugin[] = [
-    nodeUndici,
-    nodeFetch,
+    cLibcurl,
+    goNative,
     jsFetch,
     jsOfetch,
+    nodeFetch,
     nodeOfetch,
+    nodeUndici,
     shellCurl,
-    shellWget,
     shellHttpie,
+    shellWget,
   ]
 
   return {
