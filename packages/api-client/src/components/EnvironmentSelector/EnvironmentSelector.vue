@@ -58,8 +58,8 @@ const availableEnvironments = computed(() => {
 })
 
 const setInitialEnvironment = (collection: Collection) => {
-  if (collection['x-scalar-environment']) {
-    setActiveEnvironment(collection['x-scalar-environment'])
+  if (collection['x-scalar-active-environment']) {
+    setActiveEnvironment(collection['x-scalar-active-environment'])
   } else if (
     collection['x-scalar-environments'] &&
     Object.keys(collection['x-scalar-environments']).length > 0
