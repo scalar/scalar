@@ -193,8 +193,10 @@ export const useCodeMirror = (
           provider,
         })
 
-        codeMirror.value.dispatch({
-          effects: StateEffect.reconfigure.of(extensions),
+        requestAnimationFrame(() => {
+          codeMirror.value?.dispatch({
+            effects: StateEffect.reconfigure.of(extensions),
+          })
         })
       }
     },
