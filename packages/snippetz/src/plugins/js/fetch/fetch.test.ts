@@ -1,29 +1,29 @@
 import { describe, expect, it } from 'vitest'
 
-import { fetch } from './fetch'
+import { jsFetch } from './fetch'
 
-describe('fetch', () => {
+describe('jsFetch', () => {
   it('returns a basic request', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
     })
 
-    expect(source.code).toBe(`fetch('https://example.com')`)
+    expect(result).toBe(`fetch('https://example.com')`)
   })
 
   it('returns a POST request', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(source.code).toBe(`fetch('https://example.com', {
+    expect(result).toBe(`fetch('https://example.com', {
   method: 'POST'
 })`)
   })
 
   it('has headers', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -33,7 +33,7 @@ describe('fetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`fetch('https://example.com', {
+    expect(result).toBe(`fetch('https://example.com', {
   headers: {
     'Content-Type': 'application/json'
   }
@@ -41,16 +41,16 @@ describe('fetch', () => {
   })
 
   it('doesn’t add empty headers', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(source.code).toBe(`fetch('https://example.com')`)
+    expect(result).toBe(`fetch('https://example.com')`)
   })
 
   it('has JSON body', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -66,7 +66,7 @@ describe('fetch', () => {
       },
     })
 
-    expect(source.code).toBe(`fetch('https://example.com', {
+    expect(result).toBe(`fetch('https://example.com', {
   headers: {
     'Content-Type': 'application/json'
   },
@@ -77,7 +77,7 @@ describe('fetch', () => {
   })
 
   it('has query string', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -91,11 +91,11 @@ describe('fetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`fetch('https://example.com?foo=bar&bar=foo')`)
+    expect(result).toBe(`fetch('https://example.com?foo=bar&bar=foo')`)
   })
 
   it('has cookies', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -109,7 +109,7 @@ describe('fetch', () => {
       ],
     })
 
-    expect(source.code).toBe(`fetch('https://example.com', {
+    expect(result).toBe(`fetch('https://example.com', {
   headers: {
     'Set-Cookie': 'foo=bar; bar=foo'
   }
@@ -117,11 +117,11 @@ describe('fetch', () => {
   })
 
   it('doesn’t add empty cookies', () => {
-    const source = fetch({
+    const result = jsFetch.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(source.code).toBe(`fetch('https://example.com')`)
+    expect(result).toBe(`fetch('https://example.com')`)
   })
 })

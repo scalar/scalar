@@ -69,13 +69,13 @@ const snippet = snippetz().hasPlugin('node', 'undici')
 You can also just use one specific plugin to keep your bundle size small.
 
 ```ts
-import { undici } from '@scalar/snippetz/plugins/node/undici'
+import { nodeUndici } from '@scalar/snippetz/plugins/node/undici'
 
-const source = undici({
+const result = nodeUndici.generate({
   url: 'https://example.com',
 })
 
-console.log(source.code)
+console.log(source)
 
 // import { request } from 'undici'
 

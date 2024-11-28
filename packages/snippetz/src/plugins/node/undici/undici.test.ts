@@ -1,33 +1,33 @@
 import { describe, expect, it } from 'vitest'
 
-import { undici } from './undici'
+import { nodeUndici } from './undici'
 
-describe('undici', () => {
+describe('nodeUndici', () => {
   it('has import', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
     })
 
-    expect(source.code).toContain(`import { request } from 'undici'`)
+    expect(result).toContain(`import { request } from 'undici'`)
   })
 
   it('returns a basic request', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com')`)
   })
 
   it('returns a POST request', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com', {
   method: 'POST'
@@ -35,7 +35,7 @@ const { statusCode, body } = await request('https://example.com', {
   })
 
   it('has headers', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -45,7 +45,7 @@ const { statusCode, body } = await request('https://example.com', {
       ],
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com', {
   headers: {
@@ -55,18 +55,18 @@ const { statusCode, body } = await request('https://example.com', {
   })
 
   it('doesn’t add empty headers', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com')`)
   })
 
   it('has JSON body', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -82,7 +82,7 @@ const { statusCode, body } = await request('https://example.com')`)
       },
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com', {
   headers: {
@@ -95,7 +95,7 @@ const { statusCode, body } = await request('https://example.com', {
   })
 
   it('has query string', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -109,13 +109,13 @@ const { statusCode, body } = await request('https://example.com', {
       ],
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com?foo=bar&bar=foo')`)
   })
 
   it('has cookies', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -129,7 +129,7 @@ const { statusCode, body } = await request('https://example.com?foo=bar&bar=foo'
       ],
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com', {
   headers: {
@@ -139,12 +139,12 @@ const { statusCode, body } = await request('https://example.com', {
   })
 
   it('doesn’t add empty cookies', () => {
-    const source = undici({
+    const result = nodeUndici.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(source.code).toBe(`import { request } from 'undici'
+    expect(result).toBe(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com')`)
   })

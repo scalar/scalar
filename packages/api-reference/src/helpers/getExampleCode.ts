@@ -29,8 +29,7 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
       snippetzTargetKey as SnippetzTargetId,
-      // @ts-expect-error Typecasting fails, but shouldn’t be necessary soon anway.
-      client,
+      client as SnippetzClientId<typeof snippetzTargetKey>,
       request,
     )
   }

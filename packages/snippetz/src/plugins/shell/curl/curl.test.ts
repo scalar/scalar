@@ -1,28 +1,28 @@
 import { describe, expect, it } from 'vitest'
 
-import { curl } from './curl'
+import { shellCurl } from './curl'
 
-describe('curl', () => {
+describe('shellCurl', () => {
   it('returns a basic request', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
     })
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('returns a POST request', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'post',
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST`)
   })
 
   it('has headers', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -32,21 +32,21 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --header 'Content-Type: application/json'`)
   })
 
   it('doesn’t add empty headers', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [],
     })
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('has JSON body', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -63,7 +63,7 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -72,7 +72,7 @@ describe('curl', () => {
   })
 
   it('has query string', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -86,11 +86,11 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl 'https://example.com?foo=bar&bar=foo'`)
+    expect(result).toBe(`curl 'https://example.com?foo=bar&bar=foo'`)
   })
 
   it('has cookies', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -104,21 +104,21 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --cookie 'foo=bar; bar=foo'`)
   })
 
   it('doesn’t add empty cookies', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       cookies: [],
     })
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('adds basic auth credentials', () => {
-    const source = curl(
+    const result = shellCurl.generate(
       {
         url: 'https://example.com',
       },
@@ -130,20 +130,20 @@ describe('curl', () => {
       },
     )
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --user 'user:pass'`)
   })
 
   it('omits auth when not provided', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
     })
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('omits auth when username is missing', () => {
-    const source = curl(
+    const result = shellCurl.generate(
       {
         url: 'https://example.com',
       },
@@ -155,11 +155,11 @@ describe('curl', () => {
       },
     )
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('omits auth when password is missing', () => {
-    const source = curl(
+    const result = shellCurl.generate(
       {
         url: 'https://example.com',
       },
@@ -171,11 +171,11 @@ describe('curl', () => {
       },
     )
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('handles special characters in auth credentials', () => {
-    const source = curl(
+    const result = shellCurl.generate(
       {
         url: 'https://example.com',
       },
@@ -187,12 +187,12 @@ describe('curl', () => {
       },
     )
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --user 'user@example.com:pass:word!'`)
   })
 
   it('handles undefined auth object', () => {
-    const source = curl(
+    const result = shellCurl.generate(
       {
         url: 'https://example.com',
       },
@@ -201,11 +201,11 @@ describe('curl', () => {
       },
     )
 
-    expect(source.code).toBe('curl https://example.com')
+    expect(result).toBe('curl https://example.com')
   })
 
   it('handles multipart form data with files', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -223,14 +223,14 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --form 'file=@test.txt' \\
   --form 'field=value'`)
   })
 
   it('handles url-encoded form data with special characters', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -244,13 +244,13 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --data-urlencode 'special%20chars!%40%23=value'`)
   })
 
   it('handles binary data flag', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -259,13 +259,13 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --data-binary 'binary content'`)
   })
 
   it('handles compressed response', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [
         {
@@ -275,23 +275,23 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --header 'Accept-Encoding: gzip, deflate' \\
   --compressed`)
   })
 
   it('handles special characters in URL', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(source.code).toBe(
+    expect(result).toBe(
       `curl 'https://example.com/path with spaces/[brackets]'`,
     )
   })
 
   it('handles special characters in query parameters', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       queryString: [
         {
@@ -305,29 +305,29 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(
+    expect(result).toBe(
       `curl 'https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()'`,
     )
   })
 
   it('handles empty URL', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: '',
     })
 
-    expect(source.code).toBe('curl ')
+    expect(result).toBe('curl ')
   })
 
   it('handles extremely long URLs', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com/' + 'a'.repeat(2000),
     })
 
-    expect(source.code).toBe(`curl https://example.com/${'a'.repeat(2000)}`)
+    expect(result).toBe(`curl https://example.com/${'a'.repeat(2000)}`)
   })
 
   it('handles multiple headers with same name', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [
         { name: 'X-Custom', value: 'value1' },
@@ -335,23 +335,23 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --header 'X-Custom: value1' \\
   --header 'X-Custom: value2'`)
   })
 
   it('handles headers with empty values', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --header 'X-Empty: '`)
   })
 
   it('handles multipart form data with empty file names', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       postData: {
@@ -365,13 +365,13 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --form 'file=@'`)
   })
 
   it('handles JSON body with special characters', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -391,7 +391,7 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -407,7 +407,7 @@ describe('curl', () => {
   })
 
   it('handles cookies with special characters', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       cookies: [
         {
@@ -417,12 +417,12 @@ describe('curl', () => {
       ],
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --cookie 'special%3Bcookie=value%20with%20spaces'`)
   })
 
   it('prettifies JSON body', () => {
-    const source = curl({
+    const result = shellCurl.generate({
       url: 'https://example.com',
       method: 'POST',
       headers: [
@@ -443,7 +443,7 @@ describe('curl', () => {
       },
     })
 
-    expect(source.code).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{
