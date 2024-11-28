@@ -23,5 +23,5 @@ export * from './components/ScalarTooltip'
 export * from './components/ScalarVirtualText'
 
 export * from './hooks/useBindCx'
-
+export * from './cva'
 export * from './helpers'

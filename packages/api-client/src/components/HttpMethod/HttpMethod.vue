@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ScalarListbox } from '@scalar/components'
+import { ScalarListbox, cva, cx } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { REQUEST_METHODS, getHttpMethodInfo } from '@scalar/oas-utils/helpers'
-import { cva, cx } from 'cva'
 import { computed } from 'vue'
 
 const props = withDefaults(

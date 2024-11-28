@@ -173,7 +173,6 @@
     "@scalar/use-tooltip": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "@vueuse/integrations": "^11.2.0",
-    "cva": "1.0.0-beta.1",
     "focus-trap": "^7",
     "fuse.js": "^7.0.0",
     "js-cookie": "^3.0.5",

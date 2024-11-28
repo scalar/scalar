@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ScalarIcon } from '@scalar/components'
-import { cva } from 'cva'
+import { ScalarIcon, cva } from '@scalar/components'
 
 import DataTableCell from './DataTableCell.vue'
 
