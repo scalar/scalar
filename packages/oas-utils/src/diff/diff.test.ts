@@ -1,6 +1,6 @@
 import { parseJsonOrYaml } from '@/helpers'
 import fs from 'fs'
-import { describe, test } from 'vitest'
+import { describe, it } from 'vitest'
 
 import { diffSpec } from './diff'
 
@@ -19,15 +19,15 @@ const bDelete = loadYaml('b-basic-delete')
 const bModify = loadYaml('b-basic-modify')
 
 describe('Diffs specs', () => {
-  test('Handles basic add', () => {
+  it('Handles basic add', () => {
     console.log(diffSpec(a, bAdd))
   })
 
-  test('Handles delete', () => {
+  it('Handles delete', () => {
     console.log(diffSpec(bAdd, bDelete))
   })
 
-  test('Handles modify', () => {
+  it('Handles modify', () => {
     console.log(diffSpec(a, bModify))
   })
 })

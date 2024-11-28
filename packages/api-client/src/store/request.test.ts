@@ -1,5 +1,5 @@
 import type { Collection, Request, Tag } from '@scalar/oas-utils/entities/spec'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { findRequestParentsFactory } from './requests'
 
@@ -12,7 +12,7 @@ describe('Tests finding all parents of a request', () => {
     'c-0': { uid: 'c-0', children: ['t-0', 't-1'], requests: ['r-0'] },
   } as unknown as Record<string, Collection>
 
-  test('Recursively finds all parent folders of a request', () => {
+  it('Recursively finds all parent folders of a request', () => {
     const tags = {
       't-0': { uid: 't-1', children: [] },
       't-1': { uid: 't-1', children: ['t-2'] },
@@ -38,7 +38,7 @@ describe('Tests finding all parents of a request', () => {
     ])
   })
 
-  test('Handles mixed folders', () => {
+  it('Handles mixed folders', () => {
     const tags = {
       't-0': { uid: 't-1', children: [] },
       't-1': { uid: 't-1', children: ['t-2'] },
@@ -55,7 +55,7 @@ describe('Tests finding all parents of a request', () => {
     expect(findRequestParentss(request)).toEqual(['c-0', 't-1', 't-2'])
   })
 
-  test('Handles request at top level', () => {
+  it('Handles request at top level', () => {
     const _collections = {
       'c-0': { uid: 'c-0', children: ['t-0', 't-1', 'r-0'], requests: ['r-0'] },
     } as unknown as Record<string, Collection>

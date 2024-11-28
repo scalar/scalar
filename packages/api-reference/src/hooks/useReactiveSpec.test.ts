@@ -1,6 +1,6 @@
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import type { SpecConfiguration } from '@scalar/types/legacy'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 
 import { useReactiveSpec } from './useReactiveSpec'
@@ -21,7 +21,7 @@ describe('useReactiveSpec', () => {
     global.fetch.mockReset()
   })
 
-  test('returns the content', async () => {
+  it('returns the content', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: basicSpec,
@@ -33,7 +33,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
-  test('returns an empty string', async () => {
+  it('returns an empty string', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: '',
@@ -45,7 +45,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe('')
   })
 
-  test('calls the content callback', async () => {
+  it('calls the content callback', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: () => {
@@ -60,7 +60,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
-  test('works with strings', async () => {
+  it('works with strings', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: basicSpecString,
@@ -72,7 +72,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe(basicSpecString)
   })
 
-  test('works with strings in callbacks', async () => {
+  it('works with strings in callbacks', async () => {
     const { rawSpec } = useReactiveSpec({
       specConfig: {
         content: () => basicSpecString,
@@ -92,7 +92,7 @@ describe('useReactiveSpec', () => {
     }
   }
 
-  test('fetches JSON from an URL', async () => {
+  it('fetches JSON from an URL', async () => {
     // @ts-expect-error TODO
     fetch.mockResolvedValue(createFetchResponse(basicSpecString))
 
@@ -122,7 +122,7 @@ describe('useReactiveSpec', () => {
     })
   })
 
-  test('uses a ref', async () => {
+  it('uses a ref', async () => {
     const specConfig = reactive<SpecConfiguration>({
       content: basicSpec,
     })
@@ -136,7 +136,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe(prettyPrintJson(basicSpecString))
   })
 
-  test('reacts to ref changes', async () => {
+  it('reacts to ref changes', async () => {
     const configurationRef = reactive<SpecConfiguration>({
       content: basicSpec,
     })
@@ -174,7 +174,7 @@ describe('useReactiveSpec', () => {
     expect(rawSpec.value).toBe('')
   })
 
-  test('content isn’t overwritten if there’s nothing configured', async () => {
+  it('content isn’t overwritten if there’s nothing configured', async () => {
     const configurationRef = reactive<SpecConfiguration>({ content: basicSpec })
 
     // Pass the configuration as a ComputedRef
@@ -201,7 +201,7 @@ describe('useReactiveSpec', () => {
 // ---------------------------------------------------------------------------
 
 describe('useParser', () => {
-  test('returns the content', async () => {
+  it('returns the content', async () => {
     const { parsedSpec } = useReactiveSpec({
       specConfig: {
         content: basicSpec,
@@ -215,7 +215,7 @@ describe('useParser', () => {
     expect(parsedSpec.info?.title).toBe('Example')
   })
 
-  test('works with refs', async () => {
+  it('works with refs', async () => {
     const rawSpecConfig = ref({
       content: basicSpecString,
     })
@@ -230,7 +230,7 @@ describe('useParser', () => {
     expect(parsedSpec.info?.title).toBe('Example')
   })
 
-  test('watches the ref', async () => {
+  it('watches the ref', async () => {
     const rawSpecConfig = ref({
       content: basicSpecString,
     })
@@ -254,7 +254,7 @@ describe('useParser', () => {
     expect(parsedSpec.info?.title).toBe('Foobar')
   })
 
-  test('deals with undefined input', async () => {
+  it('deals with undefined input', async () => {
     const { parsedSpec } = useReactiveSpec({})
 
     // Sleep for 10ms to wait for the parser to finish
@@ -263,7 +263,7 @@ describe('useParser', () => {
     expect(parsedSpec.info?.title).toBe('')
   })
 
-  test('deals with empty input', async () => {
+  it('deals with empty input', async () => {
     const { parsedSpec } = useReactiveSpec({
       specConfig: {
         content: '',
@@ -276,7 +276,7 @@ describe('useParser', () => {
     expect(parsedSpec.info?.title).toBe('')
   })
 
-  test('returns errors', async () => {
+  it('returns errors', async () => {
     const { specErrors } = useReactiveSpec({
       specConfig: {
         content: '{"foo}',

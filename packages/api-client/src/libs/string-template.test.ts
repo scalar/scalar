@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
   flattenEnvVars,
@@ -7,7 +7,7 @@ import {
 } from './string-template'
 
 describe('Gets nested values from an object', () => {
-  test('Gets basic value', () => {
+  it('Gets basic value', () => {
     const res = getDotPathValue('some.nested', {
       some: {
         nested: 'isValue',
@@ -17,12 +17,12 @@ describe('Gets nested values from an object', () => {
     expect(res).toEqual('isValue')
   })
 
-  test('Handles undefined', () => {
+  it('Handles undefined', () => {
     const res = getDotPathValue('some.bad.var', {})
     expect(res).toEqual(undefined)
   })
 
-  test('Handles top level', () => {
+  it('Handles top level', () => {
     const res = getDotPathValue('name', { name: 'Dave' })
     expect(res).toEqual('Dave')
   })
@@ -38,28 +38,28 @@ describe('Replaces template vars with context values', () => {
       country: 'Bananaland',
     },
   }
-  test('Handles double curly variable substitution', () => {
+  it('Handles double curly variable substitution', () => {
     const res = replaceTemplateVariables(
       'My name is {{name}} from {{address.city}}',
       ctx,
     )
     expect(res).toEqual('My name is Dave from Peel')
   })
-  test('Handles single curly variable substitution', () => {
+  it('Handles single curly variable substitution', () => {
     const res = replaceTemplateVariables(
       'My name is {name} from { address.city }',
       ctx,
     )
     expect(res).toEqual('My name is Dave from Peel')
   })
-  test('Handles colon variable substitution', () => {
+  it('Handles colon variable substitution', () => {
     const res = replaceTemplateVariables(
       'My name is :name from :address.city',
       ctx,
     )
     expect(res).toEqual('My name is Dave from Peel')
   })
-  test('Handles object conversion to string', () => {
+  it('Handles object conversion to string', () => {
     const res = replaceTemplateVariables(
       'My name is {{name}} from {{address}}',
       ctx,
@@ -70,7 +70,7 @@ describe('Replaces template vars with context values', () => {
 })
 
 describe('Gets dot nested paths for an environment', () => {
-  test('Handles basic env', () => {
+  it('Handles basic env', () => {
     const paths = flattenEnvVars({
       one: '1',
       two: '2',
@@ -90,7 +90,7 @@ describe('Gets dot nested paths for an environment', () => {
     ])
   })
 
-  test('Handles array values', () => {
+  it('Handles array values', () => {
     const paths = flattenEnvVars({
       one: ['bear', 'cat', 'bird'],
       two: '2',

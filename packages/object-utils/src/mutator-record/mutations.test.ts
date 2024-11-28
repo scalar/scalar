@@ -1,5 +1,5 @@
 import { clone } from '@/clone'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { Mutation } from './mutations'
 
@@ -26,7 +26,7 @@ describe('Assign mutation records', () => {
   const mutation = new Mutation(state)
 
   let intermediateState: typeof originalState
-  test('Assigns value to store and creates records', () => {
+  it('Assigns value to store and creates records', () => {
     const newName = 'A NEW NAME!'
     mutation.mutate('storage.0.name', newName)
 
@@ -43,7 +43,7 @@ describe('Assign mutation records', () => {
     intermediateState = clone(state)
   })
 
-  test('Reverts start when undoing', () => {
+  it('Reverts start when undoing', () => {
     // Double check state has been changed.
     expect(state).not.toEqual(originalState)
 
@@ -60,7 +60,7 @@ describe('Assign mutation records', () => {
     expect(state).toEqual(originalState)
   })
 
-  test('Rolls state forward when redoing', () => {
+  it('Rolls state forward when redoing', () => {
     expect(state).not.toEqual(intermediateState)
 
     mutation.redo()
@@ -69,12 +69,12 @@ describe('Assign mutation records', () => {
     expect(state).toEqual(intermediateState)
   })
 
-  test('Does not rollover end of records', () => {
+  it('Does not rollover end of records', () => {
     expect(mutation.redo()).toEqual(false)
     expect(state).toEqual(intermediateState)
   })
 
-  test('Does not rollover beginning of records', () => {
+  it('Does not rollover beginning of records', () => {
     for (let i = 0; i < mutation.records.length + 1; i++) {
       mutation.undo()
     }
@@ -82,7 +82,7 @@ describe('Assign mutation records', () => {
     expect(state).toEqual(originalState)
   })
 
-  test('Truncates record when new mutation is made at idx === -1', () => {
+  it('Truncates record when new mutation is made at idx === -1', () => {
     mutation.mutate('param2', 2010)
     expect(mutation.records.length).toEqual(1)
     expect(mutation.records[0]).toEqual({
@@ -92,7 +92,7 @@ describe('Assign mutation records', () => {
     })
   })
 
-  test('Trucates record when new mutation is made in middle of array', () => {
+  it('Trucates record when new mutation is made in middle of array', () => {
     mutation.mutate('param1', 'A new param')
     mutation.mutate('storage.2.name', 'A new name')
 
@@ -112,7 +112,7 @@ describe('Assign mutation records', () => {
     })
   })
 
-  test('Truncates record when a new mutation is made at end of array', () => {
+  it('Truncates record when a new mutation is made at end of array', () => {
     mutation.undo()
 
     const prevVal = state.param1
@@ -126,7 +126,7 @@ describe('Assign mutation records', () => {
     })
   })
 
-  test('Limits the number of records', () => {
+  it('Limits the number of records', () => {
     const limitMutation = new Mutation(state, 20)
     for (let i = 0; i < 200; i++) {
       limitMutation.mutate('param1', String(Math.random() * 100))
@@ -155,7 +155,7 @@ describe('Handles history rolling', () => {
   }
 
   // TODO: This test fails way too often, there seems to be a race condition.
-  test.skip(
+  it.skip(
     'Rolls history back to initial then forward to modified state',
     { retry: 3 },
     () => {

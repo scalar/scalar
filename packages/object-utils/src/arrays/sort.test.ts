@@ -1,8 +1,8 @@
 import { sortByOrder } from '@/arrays/sort'
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 describe('Sort arrays by an order list', () => {
-  test('Sorts basic by list', () => {
+  it('Sorts basic by list', () => {
     const list = [
       { id: '1' },
       { id: '2' },
@@ -20,7 +20,7 @@ describe('Sort arrays by an order list', () => {
     ])
   })
 
-  test('Handles items without an id in the order list', () => {
+  it('Handles items without an id in the order list', () => {
     const list = [
       { id: '1' },
       { id: '2' },
