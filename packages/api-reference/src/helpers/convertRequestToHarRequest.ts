@@ -1,6 +1,9 @@
 import type { HarRequest } from '@scalar/types/external'
 
-/** Takes in a regular request object and returns a HAR request */
+/**
+ * Takes in a regular request object and returns a HAR request
+ * We also Titlecase the headers
+ */
 export const convertRequestToHarRequest = async (
   request: Request,
 ): Promise<HarRequest> => {
