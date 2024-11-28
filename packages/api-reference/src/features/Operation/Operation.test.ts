@@ -3,7 +3,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types'
 import { renderToString } from '@vue/server-renderer'
 import { mount } from '@vue/test-utils'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import Operation from './Operation.vue'
 
@@ -53,6 +53,32 @@ const mockProps = {
     url: 'https://example.com',
   },
 }
+
+// We temporarily mock this before we move it to a hook
+vi.mock('@scalar/api-client/store', () => ({
+  useActiveEntities: vi.fn().mockReturnValue({
+    activeCollection: {
+      value: {
+        uid: 'collection1',
+        openapi: '3.1.0',
+        selectedSecuritySchemeUids: [],
+        requests: [],
+        servers: ['server1', 'server2', 'server3'],
+        security: [
+          { bearerAuth: ['read:users', 'read:events'] },
+          { apiKeyQuery: [] },
+        ],
+        tags: ['tag1uid', 'tag2uid', 'tag3uid'],
+      },
+    },
+    activeServer: {
+      value: {
+        uid: 'server1',
+        url: 'https://example.com',
+      },
+    },
+  }),
+}))
 
 describe('Operation', () => {
   it('renders the modern layout by default', async () => {
