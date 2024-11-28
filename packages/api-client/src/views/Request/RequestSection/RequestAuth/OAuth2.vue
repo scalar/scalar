@@ -60,7 +60,6 @@ const handleAuthorize = async () => {
   <template v-if="flow.token">
     <DataTableRow>
       <RequestAuthDataTableInput
-        id="oauth2-access-token"
         class="border-r-transparent"
         :modelValue="flow.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
@@ -88,7 +87,6 @@ const handleAuthorize = async () => {
       <!-- Auth URL -->
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
-        :id="`oauth2-authorization-url-${scheme.uid}`"
         :containerClass="getReferenceClass('rounded-t border-t-1/2')"
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
@@ -101,7 +99,6 @@ const handleAuthorize = async () => {
       <!-- Token URL -->
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
-        :id="`oauth2-token-url-${scheme.uid}`"
         :containerClass="
           getReferenceClass(
             flow.type === 'authorizationCode' ? '' : 'rounded-t border-t-1/2',
@@ -119,7 +116,6 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
-        :id="`oauth2-redirect-uri-${scheme.uid}`"
         :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
@@ -134,7 +130,6 @@ const handleAuthorize = async () => {
     <template v-if="flow.type === 'password'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
           :containerClass="getReferenceClass()"
           :modelValue="flow.username"
@@ -147,7 +142,6 @@ const handleAuthorize = async () => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`oauth2-password-password-${scheme.uid}`"
           :containerClass="getReferenceClass()"
           :modelValue="flow.password"
           placeholder="********"
@@ -163,7 +157,6 @@ const handleAuthorize = async () => {
     <!-- Client ID -->
     <DataTableRow>
       <RequestAuthDataTableInput
-        :id="`oauth2-client-id-${scheme.uid}`"
         :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-client-id']"
         placeholder="12345"
@@ -177,7 +170,6 @@ const handleAuthorize = async () => {
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
     <DataTableRow v-if="'clientSecret' in flow">
       <RequestAuthDataTableInput
-        :id="`oauth2-client-secret-${scheme.uid}`"
         :containerClass="getReferenceClass()"
         :modelValue="flow.clientSecret"
         placeholder="XYZ123"
@@ -192,7 +184,6 @@ const handleAuthorize = async () => {
     <!-- PKCE -->
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
-        :id="`oauth2-use-pkce-${scheme.uid}`"
         :containerClass="getReferenceClass()"
         :enum="pkceOptions"
         :modelValue="flow['x-usePkce']"
