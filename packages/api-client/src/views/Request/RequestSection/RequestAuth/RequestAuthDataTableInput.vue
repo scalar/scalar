@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import type { VueClassProp } from '@/types/vue'
+import { useId } from 'vue'
 
 const props = withDefaults(
   defineProps<{
-    id: string
     type?: string
     containerClass?: VueClassProp
     required?: boolean
@@ -20,10 +20,12 @@ const emit = defineEmits<{
   (e: 'inputBlur'): void
   (e: 'selectVariable', value: string): void
 }>()
+
+const id = useId()
 </script>
 <template>
   <DataTableInput
-    :id="props.id"
+    :id="id"
     :canAddCustomEnumValue="!props.readOnly"
     :containerClass="props.containerClass"
     :modelValue="props.modelValue"
@@ -36,7 +38,7 @@ const emit = defineEmits<{
     @selectVariable="emit('selectVariable', $event)"
     @update:modelValue="emit('update:modelValue', $event)">
     <template #default>
-      <label :for="props.id">
+      <label :for="id">
         <slot />
       </label>
     </template>
