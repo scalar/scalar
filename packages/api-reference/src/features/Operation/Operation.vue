@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import type { WorkspaceStore } from '@scalar/api-client/store'
-import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import {
+  type WorkspaceStore,
+  useActiveEntities,
+} from '@scalar/api-client/store'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import { useRequestExample } from './hooks/useRequestExample'
@@ -11,29 +13,26 @@ const {
   id,
   layout = 'modern',
   operation,
-  collection,
   requests,
   requestExamples,
   securitySchemes,
-  server,
 } = defineProps<{
   id?: string
   layout?: 'modern' | 'classic'
   operation: TransformedOperation
-  collection?: Collection
   requests: WorkspaceStore['requests']
   requestExamples: WorkspaceStore['requestExamples']
   securitySchemes: WorkspaceStore['securitySchemes']
-  server: Server
 }>()
 
+const { activeCollection, activeServer } = useActiveEntities()
 const { request, secretCredentials } = useRequestExample({
   operation,
-  collection,
+  collection: activeCollection,
   requests,
   requestExamples,
   securitySchemes,
-  server,
+  server: activeServer,
 })
 </script>
 
