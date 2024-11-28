@@ -7,7 +7,7 @@
  * - 2.1.0 - refactor
  * - 2.2.0 - auth compliancy
  */
-export const DATA_VERSION = '2.2.0'
+export const DATA_VERSION = '2.3.0'
 
 /** The localStorage key under which the data version is stored */
 export const DATA_VERSION_LS_LEY = 'scalar_api_client_data_version'
