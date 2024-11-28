@@ -148,7 +148,7 @@ describe('Workspace output matches input when round-tripped', async () => {
     // expect(roundTripped.requests).toEqual(workspace.requests)
   })
 
-  test.each(
+  it.each(
     baseWorkspace.requests.map((r) => [r.path, r.method.toUpperCase(), r.uid]),
   )('Request %s:%s are functionally equivalent', (path, method, uid) => {
     const { base, next } = getMatchingRequest(uid)
