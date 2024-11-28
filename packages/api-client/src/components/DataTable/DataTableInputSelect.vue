@@ -90,7 +90,7 @@ const initialValue = computed(() => {
           <span class="text-c-1">{{ initialValue || 'Select a value' }}</span>
           <ScalarIcon
             icon="ChevronDown"
-            size="xs" />
+            size="md" />
         </ScalarButton>
         <template #items>
           <ScalarDropdownItem

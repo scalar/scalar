@@ -157,7 +157,7 @@ const handleSubmit = () => {
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
-              size="xs" />
+              size="md" />
           </ScalarButton>
         </ScalarListbox>
         <ScalarListbox
@@ -173,7 +173,7 @@ const handleSubmit = () => {
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
-              size="xs" />
+              size="md" />
           </ScalarButton>
         </ScalarListbox>
       </div>

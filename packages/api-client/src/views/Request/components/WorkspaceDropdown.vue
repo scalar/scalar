@@ -101,9 +101,8 @@ const deleteWorkspace = async () => {
               {{ activeWorkspace.name }}
             </h2>
             <ScalarIcon
-              class="size-3"
               icon="ChevronDown"
-              thickness="3" />
+              size="md" />
           </div>
         </ScalarButton>
 

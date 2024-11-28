@@ -36,8 +36,7 @@ const model = computed<ScalarListboxOption | undefined>({
         <ScalarIcon
           class="ml-auto text-c-2"
           icon="ChevronDown"
-          size="xs"
-          thickness="2.5" />
+          size="sm" />
       </ScalarButton>
     </ScalarListbox>
   </div>

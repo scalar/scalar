@@ -53,7 +53,7 @@ const selected = computed<ScalarListboxOption | undefined>({
       <ScalarIcon
         v-if="options.length > 1"
         icon="ChevronDown"
-        size="xs" />
+        size="sm" />
     </ScalarButton>
   </ScalarListbox>
 </template>

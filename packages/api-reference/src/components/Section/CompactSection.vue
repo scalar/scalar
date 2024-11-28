@@ -37,7 +37,8 @@ watch(
       @click="open = !open">
       <ScalarIcon
         :icon="open ? 'ChevronDown' : 'ChevronRight'"
-        size="sm" />
+        size="md"
+        thickness="1.5" />
       <Anchor
         :id="id"
         class="collapsible-section-header">
@@ -80,8 +81,7 @@ watch(
 .collapsible-section-trigger svg {
   color: var(--scalar-color-3);
   position: absolute;
-  left: -18px;
-  margin-top: 1px;
+  left: -19px;
 }
 .collapsible-section:hover .collapsible-section-trigger svg {
   color: var(--scalar-color-1);

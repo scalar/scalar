@@ -45,7 +45,7 @@ const selected = computed<ScalarListboxOption | undefined>({
       </span>
       <ScalarIcon
         icon="ChevronDown"
-        size="xs" />
+        size="sm" />
     </ScalarButton>
   </ScalarListbox>
 </template>
