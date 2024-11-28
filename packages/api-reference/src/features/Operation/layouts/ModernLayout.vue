@@ -66,28 +66,12 @@ const { id, operation, request, secretCredentials } = defineProps<{
                   <TestRequestButton :operation="operation" />
                 </template>
               </ExampleRequest>
+            </ScalarErrorBoundary>
+            <ScalarErrorBoundary>
               <ExampleResponses
                 :operation="operation"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
-            <ExampleRequest
-              fallback
-              :operation="operation"
-              :request="request"
-              :secretCredentials="secretCredentials">
-              <template #header>
-                <OperationPath
-                  class="example-path"
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
-              </template>
-              <template #footer>
-                <TestRequestButton :operation="operation" />
-              </template>
-            </ExampleRequest>
-            <ExampleResponses
-              :operation="operation"
-              style="margin-top: 12px" />
           </div>
         </SectionColumn>
       </SectionColumns>
