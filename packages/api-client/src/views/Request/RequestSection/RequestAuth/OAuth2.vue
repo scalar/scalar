@@ -22,7 +22,7 @@ const { scheme, flow } = defineProps<{
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 
-const { activeCollection, activeServer } = useActiveEntities()
+const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
 const { isReadOnly, securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
@@ -37,6 +37,7 @@ const handleAuthorize = async () => {
   const [error, accessToken] = await authorizeOauth2(
     flow,
     activeServer.value,
+    activeWorkspace.value.proxyUrl,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateScheme(`flows.${flow.type}.token`, accessToken)
