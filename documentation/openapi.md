@@ -4,6 +4,40 @@ We’re expecting the passed specification to adhere to [the Swagger 2.0, OpenAP
 
 On top of that, we’ve added a few things for your convenience:
 
+## x-scalar-environments
+
+you can specify predefined environment variables for the API Client/References to consume and use :)
+
+```
+x-scalar-environments:
+  production:
+    description: "Production environment"
+    color: "#0082D0"
+    # Variables are saved directly to the specification
+    variables:
+      userId:
+        description: "User ID"
+        default: "1234567890"
+      apiUrl:
+        description: "API URL"
+        default: "https://api.production.example.com"
+  staging:
+    description: "Staging environment"
+    variables:
+      userId: "1234567890"
+      apiUrl:
+        description: "API URL"
+        default: "https://api.staging.example.com"
+```
+
+## x-scalar-active-environment
+
+You can also specify the default active environment a user will have :) if theres none set here we pick the first from the `x-scalar-environments` to be the default
+
+```
+x-scalar-active-environment: staging
+```
+
 ## x-codeSamples
 
 We provide examples for a lot of popular HTTP clients and frameworks. For something completly custom, for example to show the use of your own SDK, you can use `x-codeSamples`:
