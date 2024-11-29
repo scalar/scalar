@@ -14,6 +14,7 @@ export type AvailableClients = [
   'node/fetch',
   'node/ofetch',
   'node/undici',
+  'r/httr',
   'ruby/native',
   'shell/curl',
   'shell/httpie',

@@ -6,6 +6,7 @@ import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
+import { rHttr } from '@/plugins/r/httr'
 import { rubyNative } from '@/plugins/ruby/native'
 import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
@@ -27,6 +28,7 @@ export function snippetz() {
     nodeFetch,
     nodeOfetch,
     nodeUndici,
+    rHttr,
     rubyNative,
     shellCurl,
     shellHttpie,

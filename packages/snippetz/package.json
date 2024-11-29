@@ -31,6 +31,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./plugins/swift/nsurlsession": {
+      "import": "./dist/plugins/swift/nsurlsession/index.js",
+      "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
+      "default": "./dist/plugins/swift/nsurlsession/index.js"
+    },
     "./plugins/shell/wget": {
       "import": "./dist/plugins/shell/wget/index.js",
       "types": "./dist/plugins/shell/wget/index.d.ts",
@@ -45,6 +50,16 @@
       "import": "./dist/plugins/shell/curl/index.js",
       "types": "./dist/plugins/shell/curl/index.d.ts",
       "default": "./dist/plugins/shell/curl/index.js"
+    },
+    "./plugins/ruby/native": {
+      "import": "./dist/plugins/ruby/native/index.js",
+      "types": "./dist/plugins/ruby/native/index.d.ts",
+      "default": "./dist/plugins/ruby/native/index.js"
+    },
+    "./plugins/r/httr": {
+      "import": "./dist/plugins/r/httr/index.js",
+      "types": "./dist/plugins/r/httr/index.d.ts",
+      "default": "./dist/plugins/r/httr/index.js"
     },
     "./plugins/node/undici": {
       "import": "./dist/plugins/node/undici/index.js",
