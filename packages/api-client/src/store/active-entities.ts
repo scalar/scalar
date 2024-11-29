@@ -23,6 +23,12 @@ type CreateActiveEntitiesStoreParams = {
   workspaces: Record<string, Workspace>
 }
 
+type EnvVariable = {
+  key: string
+  value: any
+  source: 'global' | 'collection'
+}
+
 /**
  * Create the active entities store
  *
@@ -30,7 +36,6 @@ type CreateActiveEntitiesStoreParams = {
  */
 export const createActiveEntitiesStore = ({
   collections,
-  environments,
   requestExamples,
   requests,
   router,
@@ -77,7 +82,11 @@ export const createActiveEntitiesStore = ({
   /** The currently selected environment */
   const activeEnvironment = computed(() => {
     if (!activeWorkspace.value.activeEnvironmentId) {
-      return ''
+      return {
+        uid: '',
+        name: 'No Environment',
+        value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+      }
     }
 
     const activeEnvironmentCollection = activeWorkspaceCollections.value.find(
@@ -105,8 +114,8 @@ export const createActiveEntitiesStore = ({
     }
 
     return {
-      uid: 'default',
-      name: 'Global Environment',
+      uid: '',
+      name: 'No Environment',
       value: JSON.stringify(activeWorkspace.value.environments, null, 2),
     }
   })
@@ -193,15 +202,41 @@ export const createActiveEntitiesStore = ({
    * Active list all available substitution variables. Server variables
    * will be populated into the environment on spec loading
    */
-  const activeEnvVariables = computed(() => {
-    if (!activeEnvironment.value) return []
+  const activeEnvVariables = computed<EnvVariable[]>(() => {
     const globalEnvironment = activeWorkspace.value.environments
-    const collectionEnvironment = JSON.parse(activeEnvironment.value.value)
-    const mergedEnvironment = { ...globalEnvironment, ...collectionEnvironment }
-    return flattenEnvVars(mergedEnvironment).map(([key, value]) => ({
+    const collectionEnvironment = activeEnvironment.value.uid
+      ? JSON.parse(activeEnvironment.value.value)
+      : {}
+
+    const globalEnvVars: EnvVariable[] = flattenEnvVars(globalEnvironment).map(
+      ([key, value]) => ({
+        key,
+        value,
+        source: 'global',
+      }),
+    )
+
+    const collectionEnvVars: EnvVariable[] = flattenEnvVars(
+      collectionEnvironment,
+    ).map(([key, value]) => ({
       key,
       value,
+      source: 'collection',
     }))
+
+    const mergedEnvVars = new Map<string, EnvVariable>()
+
+    collectionEnvVars.forEach((envVar) => {
+      mergedEnvVars.set(envVar.key, envVar)
+    })
+
+    globalEnvVars.forEach((envVar) => {
+      if (!mergedEnvVars.has(envVar.key)) {
+        mergedEnvVars.set(envVar.key, envVar)
+      }
+    })
+
+    return Array.from(mergedEnvVars.values())
   })
 
   return {

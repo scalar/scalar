@@ -134,7 +134,9 @@ onClickOutside(
       ref="dropdownRef"
       class="fixed left-0 top-0 flex flex-col p-0.75 max-h-[60svh] w-56 rounded border custom-scroll"
       :style="dropdownStyle">
-      <ul v-if="filteredVariables.length">
+      <ul
+        v-if="filteredVariables.length"
+        class="flex flex-col gap-px">
         <template
           v-for="(item, index) in filteredVariables"
           :key="item.key">
@@ -144,10 +146,15 @@ onClickOutside(
             @click="selectVariable(item.key)">
             <div class="flex items-center gap-1.5 whitespace-nowrap">
               <span
+                v-if="item.source === 'collection'"
                 class="h-2.5 w-2.5 min-w-2.5 rounded-full"
                 :style="{
                   backgroundColor: getEnvColor(activeEnvironment),
                 }"></span>
+              <ScalarIcon
+                v-else
+                class="w-2.5"
+                icon="Globe" />
               {{ item.key }}
             </div>
             <span
