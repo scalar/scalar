@@ -1,1 +1,1 @@
-export * from './curl'
+export * from './guzzle'
