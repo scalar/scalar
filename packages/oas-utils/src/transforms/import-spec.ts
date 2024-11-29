@@ -356,7 +356,7 @@ export async function importSpecToWorkspace(
   tags.forEach((t) => tagNames.delete(t.name))
 
   // Add an entry for any tags that are used but do not have a definition
-  tagNames.forEach((name) => tags.push(tagSchema.parse({ name })))
+  tagNames.forEach((name) => name && tags.push(tagSchema.parse({ name })))
 
   // Tag name to UID map
   const tagMap: Record<string, Tag> = {}
