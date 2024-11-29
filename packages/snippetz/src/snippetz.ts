@@ -6,6 +6,7 @@ import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
+import { rubyNative } from '@/plugins/ruby/native'
 import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
@@ -19,15 +20,16 @@ export function snippetz() {
   const plugins: Plugin[] = [
     cLibcurl,
     goNative,
+    httpHttp11,
     jsFetch,
     jsOfetch,
     nodeFetch,
     nodeOfetch,
     nodeUndici,
+    rubyNative,
     shellCurl,
     shellHttpie,
     shellWget,
-    httpHttp11,
   ]
 
   return {
