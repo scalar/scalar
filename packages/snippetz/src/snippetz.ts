@@ -1,5 +1,6 @@
 import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
 import { goNative } from '@/plugins/go/native'
+import { httpHttp11 } from '@/plugins/http/http11'
 import { jsFetch } from '@/plugins/js/fetch'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
@@ -26,6 +27,7 @@ export function snippetz() {
     shellCurl,
     shellHttpie,
     shellWget,
+    httpHttp11,
   ]
 
   return {

@@ -36,6 +36,11 @@
       "types": "./dist/plugins/shell/wget/index.d.ts",
       "default": "./dist/plugins/shell/wget/index.js"
     },
+    "./plugins/shell/httpie": {
+      "import": "./dist/plugins/shell/httpie/index.js",
+      "types": "./dist/plugins/shell/httpie/index.d.ts",
+      "default": "./dist/plugins/shell/httpie/index.js"
+    },
     "./plugins/shell/curl": {
       "import": "./dist/plugins/shell/curl/index.js",
       "types": "./dist/plugins/shell/curl/index.d.ts",
@@ -65,6 +70,21 @@
       "import": "./dist/plugins/js/fetch/index.js",
       "types": "./dist/plugins/js/fetch/index.d.ts",
       "default": "./dist/plugins/js/fetch/index.js"
+    },
+    "./plugins/http/http11": {
+      "import": "./dist/plugins/http/http11/index.js",
+      "types": "./dist/plugins/http/http11/index.d.ts",
+      "default": "./dist/plugins/http/http11/index.js"
+    },
+    "./plugins/go/native": {
+      "import": "./dist/plugins/go/native/index.js",
+      "types": "./dist/plugins/go/native/index.d.ts",
+      "default": "./dist/plugins/go/native/index.js"
+    },
+    "./plugins/c/libcurl": {
+      "import": "./dist/plugins/c/libcurl/index.js",
+      "types": "./dist/plugins/c/libcurl/index.d.ts",
+      "default": "./dist/plugins/c/libcurl/index.js"
     },
     "./core": {
       "import": "./dist/core/index.js",

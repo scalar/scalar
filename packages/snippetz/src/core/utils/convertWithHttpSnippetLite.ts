@@ -16,7 +16,7 @@ export function convertWithHttpSnippetLite(
     headers: partialRequest?.headers ?? [],
     headersSize: partialRequest?.headersSize ?? 0,
     bodySize: partialRequest?.bodySize ?? 0,
-    queryString: partialRequest ?? [],
+    queryString: partialRequest?.queryString ?? [],
     ...partialRequest,
   }
 
@@ -28,9 +28,52 @@ export function convertWithHttpSnippetLite(
     {} as Record<string, string>,
   )
 
+  const queryObj = (request.queryString ?? []).reduce(
+    (acc, param) => ({
+      ...acc,
+      [param.name]: param.value,
+    }),
+    {} as Record<string, string>,
+  )
+
+  const cookiesObj = (request.cookies ?? []).reduce(
+    (acc, cookie) => ({
+      ...acc,
+      [cookie.name]: cookie.value,
+    }),
+    {} as Record<string, string>,
+  )
+
+  const parsedUrl = new URL(request.url)
+  const uriObj = {
+    protocol: parsedUrl.protocol,
+    hostname: parsedUrl.hostname,
+    host: parsedUrl.hostname,
+    port: parsedUrl.port,
+    pathname:
+      parsedUrl.pathname
+        .split('/')
+        .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+        .join('/') + parsedUrl.search,
+    path:
+      parsedUrl.pathname
+        .split('/')
+        .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
+        .join('/') + parsedUrl.search,
+    search: parsedUrl.search,
+    hash: parsedUrl.hash,
+    href: parsedUrl.href,
+    origin: parsedUrl.origin,
+    password: parsedUrl.password,
+    searchParams: parsedUrl.searchParams,
+    username: parsedUrl.username,
+    toString: parsedUrl.toString,
+    toJSON: () => parsedUrl.toJSON(),
+  }
+
   return client?.convert({
     url: request.url,
-    uriObj: { ...new URL(request.url), path: new URL(request.url).pathname },
+    uriObj,
     method: request.method?.toLocaleUpperCase() ?? 'GET',
     httpVersion: request.httpVersion,
     cookies: request.cookies,
@@ -38,10 +81,11 @@ export function convertWithHttpSnippetLite(
     headersSize: request.headersSize,
     headersObj: allHeaders,
     bodySize: request.bodySize,
-    // @ts-expect-error TS complaing, but the tests pass. We’ll get rid of this inconsistency soon.
     queryString: request.queryString,
     postData: ((request ?? {}) as HarRequest)?.postData,
     allHeaders,
     fullUrl: request.url,
+    queryObj,
+    cookiesObj,
   })
 }
