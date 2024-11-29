@@ -8,6 +8,7 @@ import { javaAsynchttp } from '@/plugins/java/asynchttp'
 import { javaNethttp } from '@/plugins/java/nethttp/nethttp'
 import { javaOkhttp } from '@/plugins/java/okhttp/okhttp'
 import { javaUnirest } from '@/plugins/java/unirest/unirest'
+import { jsAxios } from '@/plugins/js/axios'
 import { jsFetch } from '@/plugins/js/fetch'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
@@ -41,6 +42,7 @@ export function snippetz() {
     javaNethttp,
     javaOkhttp,
     javaUnirest,
+    jsAxios,
     jsFetch,
     jsOfetch,
     nodeFetch,

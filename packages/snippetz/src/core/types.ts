@@ -16,6 +16,7 @@ export type AvailableClients = [
   'java/nethttp',
   'java/okhttp',
   'java/unirest',
+  'js/axios',
   'js/fetch',
   'js/ofetch',
   'node/fetch',
