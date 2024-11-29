@@ -116,6 +116,11 @@
       "types": "./dist/plugins/go/native/index.d.ts",
       "default": "./dist/plugins/go/native/index.js"
     },
+    "./plugins/clojure/clj_http": {
+      "import": "./dist/plugins/clojure/clj_http/index.js",
+      "types": "./dist/plugins/clojure/clj_http/index.d.ts",
+      "default": "./dist/plugins/clojure/clj_http/index.js"
+    },
     "./plugins/c/libcurl": {
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",

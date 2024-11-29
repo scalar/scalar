@@ -7,6 +7,7 @@ export type { Request } from 'har-format'
  */
 export type AvailableClients = [
   'c/libcurl',
+  'clojure/clj_http',
   'go/native',
   'http/http1.1',
   'js/fetch',

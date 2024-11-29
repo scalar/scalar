@@ -7,7 +7,7 @@ import { libcurl } from '~httpsnippet-lite/dist/esm/targets/c/libcurl/client.mjs
  * c/libcurl
  */
 export const cLibcurl: Plugin = {
-  target: 'shell',
+  target: 'c',
   client: 'libcurl',
   generate(request) {
     // TODO: Write an own converter

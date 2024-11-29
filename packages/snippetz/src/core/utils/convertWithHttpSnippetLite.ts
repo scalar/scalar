@@ -76,16 +76,33 @@ export function convertWithHttpSnippetLite(
     uriObj,
     method: request.method?.toLocaleUpperCase() ?? 'GET',
     httpVersion: request.httpVersion,
-    cookies: request.cookies,
-    headers: request.headers,
-    headersSize: request.headersSize,
-    headersObj: allHeaders,
-    bodySize: request.bodySize,
-    queryString: request.queryString,
-    postData: ((request ?? {}) as HarRequest)?.postData,
-    allHeaders,
+    cookies: request.cookies ?? [],
+    headers: request.headers ?? [],
+    headersSize: request.headersSize ?? 0,
+    headersObj: allHeaders ?? {},
+    bodySize: request.bodySize ?? 0,
+    queryString: request.queryString ?? [],
+    postData: request.postData
+      ? {
+          mimeType: request.postData.mimeType ?? 'application/json',
+          text: request.postData.text,
+          params: request.postData.params ?? [],
+          jsonObj: request.postData.mimeType?.includes('json')
+            ? JSON.parse(request.postData.text ?? '{}')
+            : undefined,
+          paramsObj:
+            request.postData.params?.reduce(
+              (acc: Record<string, string>, param) => ({
+                ...acc,
+                [param.name]: param.value ?? '',
+              }),
+              {} as Record<string, string>,
+            ) ?? {},
+        }
+      : undefined,
+    allHeaders: allHeaders ?? {},
     fullUrl: request.url,
-    queryObj,
-    cookiesObj,
+    queryObj: queryObj ?? {},
+    cookiesObj: cookiesObj ?? {},
   })
 }

@@ -1,4 +1,5 @@
 import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
+import { clojureCljhttp } from '@/plugins/clojure/clj_http'
 import { goNative } from '@/plugins/go/native'
 import { httpHttp11 } from '@/plugins/http/http11'
 import { jsFetch } from '@/plugins/js/fetch'
@@ -25,6 +26,7 @@ import type { ClientId, Plugin, Request, TargetId } from './core'
 export function snippetz() {
   const plugins: Plugin[] = [
     cLibcurl,
+    clojureCljhttp,
     goNative,
     httpHttp11,
     jsFetch,
@@ -32,6 +34,8 @@ export function snippetz() {
     nodeFetch,
     nodeOfetch,
     nodeUndici,
+    powershellRestmethod,
+    powershellWebrequest,
     pythonPython3,
     pythonRequests,
     rHttr,
@@ -40,8 +44,6 @@ export function snippetz() {
     shellHttpie,
     shellWget,
     swiftNsurlsession,
-    powershellRestmethod,
-    powershellWebrequest,
   ]
 
   return {

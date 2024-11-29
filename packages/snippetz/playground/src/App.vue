@@ -66,6 +66,7 @@ function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
         ],
       }"
       :target="selectedTarget" />
+    {{ selectedTarget }} {{ selectedClient }}
     <CodeExample
       :client="selectedClient"
       :request="{
