@@ -14,9 +14,11 @@ import { jsJquery } from '@/plugins/js/jquery'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { jsXhr } from '@/plugins/js/xhr'
 import { kotlinOkhttp } from '@/plugins/kotlin/okhttp'
+import { nodeAxios } from '@/plugins/node/axios'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
+import { objcNsurlsession } from '@/plugins/objc/nsurlsession'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonPython3 } from '@/plugins/python/python3'
@@ -51,9 +53,11 @@ export function snippetz() {
     jsOfetch,
     jsXhr,
     kotlinOkhttp,
+    nodeAxios,
     nodeFetch,
     nodeOfetch,
     nodeUndici,
+    objcNsurlsession,
     powershellRestmethod,
     powershellWebrequest,
     pythonPython3,
