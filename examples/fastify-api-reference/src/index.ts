@@ -1,5 +1,7 @@
 import fastifySwagger from '@fastify/swagger'
-import fastifyApiReference from '@scalar/fastify-api-reference'
+import fastifyApiReference, {
+  type FastifyApiReferenceOptions,
+} from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
 // Init Fastify
@@ -64,7 +66,7 @@ fastify.put<{ Body: { name: string } }>(
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/reference',
-})
+} satisfies FastifyApiReferenceOptions)
 
 const PORT = Number(process.env.PORT) || 5053
 const HOST = process.env.HOST || '0.0.0.0'
