@@ -41,6 +41,7 @@ export type ClientConfiguration = {
   | 'searchHotKey'
   | 'authentication'
   | 'baseServerURL'
+  | 'hideClientButton'
 >
 
 export type OpenClientPayload = {
@@ -125,6 +126,7 @@ export const createApiClient = ({
       isReadOnly,
       proxyUrl: configuration.proxyUrl,
       themeId: configuration.themeId,
+      hideClientButton: configuration.hideClientButton,
       useLocalStorage: persistData,
     })
 

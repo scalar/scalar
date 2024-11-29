@@ -249,6 +249,12 @@ export type ReferenceConfiguration = {
     | 'react' // ✅
     | 'rust'
     | 'vue' // ✅
+  /**
+   * Whether to show the client button from the reference sidebar and modal
+   *
+   * @default false
+   */
+  hideClientButton?: boolean
 }
 
 export type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
