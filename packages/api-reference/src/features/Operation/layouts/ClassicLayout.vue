@@ -202,9 +202,15 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
 .endpoint-content {
   display: grid;
   grid-auto-columns: 1fr;
-  grid-auto-flow: column;
+  grid-auto-flow: row;
   gap: 9px;
   padding: 9px;
+}
+
+@screen lg {
+  .endpoint-content {
+    grid-auto-flow: column;
+  }
 }
 
 @container (max-width: 900px) {

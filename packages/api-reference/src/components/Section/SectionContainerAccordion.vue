@@ -69,6 +69,9 @@ import { ScalarIcon } from '@scalar/components'
   flex: 1;
   padding: 0 6px;
 }
+.section-accordion-title :deep(.section-header-wrapper) {
+  grid-template-columns: 1fr;
+}
 .section-accordion-title :deep(.section-header) {
   margin-bottom: 0;
 }

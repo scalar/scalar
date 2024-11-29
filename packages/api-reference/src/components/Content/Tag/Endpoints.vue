@@ -33,12 +33,12 @@ const scrollHandler = async (operation: TransformedOperation) => {
   <Section
     :id="id"
     :label="tag.name.toUpperCase()">
+    <SectionHeader :level="2">
+      <Anchor :id="getTagId(tag)">{{ tagName }}</Anchor>
+    </SectionHeader>
     <SectionContent>
       <SectionColumns>
         <SectionColumn>
-          <SectionHeader :level="2">
-            <Anchor :id="getTagId(tag)">{{ tagName }}</Anchor>
-          </SectionHeader>
           <ScalarMarkdown
             :clamp="isCollapsed ? '7' : false"
             :value="tag.description"

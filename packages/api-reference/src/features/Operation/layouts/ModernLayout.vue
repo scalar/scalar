@@ -28,16 +28,16 @@ defineProps<{
     :id="id"
     :label="operation.name">
     <SectionContent>
+      <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
+      <div :class="operation.information?.deprecated ? 'deprecated' : ''">
+        <SectionHeader :level="3">
+          <Anchor :id="id ?? ''">
+            {{ operation.name }}
+          </Anchor>
+        </SectionHeader>
+      </div>
       <SectionColumns>
         <SectionColumn>
-          <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
-          <div :class="operation.information?.deprecated ? 'deprecated' : ''">
-            <SectionHeader :level="3">
-              <Anchor :id="id ?? ''">
-                {{ operation.name }}
-              </Anchor>
-            </SectionHeader>
-          </div>
           <div class="operation-details">
             <ScalarMarkdown
               :value="operation.description"
