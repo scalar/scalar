@@ -81,6 +81,16 @@
       "types": "./dist/plugins/powershell/restmethod/index.d.ts",
       "default": "./dist/plugins/powershell/restmethod/index.js"
     },
+    "./plugins/php/guzzle": {
+      "import": "./dist/plugins/php/guzzle/index.js",
+      "types": "./dist/plugins/php/guzzle/index.d.ts",
+      "default": "./dist/plugins/php/guzzle/index.js"
+    },
+    "./plugins/php/curl": {
+      "import": "./dist/plugins/php/curl/index.js",
+      "types": "./dist/plugins/php/curl/index.d.ts",
+      "default": "./dist/plugins/php/curl/index.js"
+    },
     "./plugins/ocaml/cohttp": {
       "import": "./dist/plugins/ocaml/cohttp/index.js",
       "types": "./dist/plugins/ocaml/cohttp/index.d.ts",
