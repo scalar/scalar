@@ -4,7 +4,7 @@ import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetL
 import { httr } from '~httpsnippet-lite/dist/esm/targets/r/httr/client.mjs'
 
 /**
- * ruby/httr
+ * r/httr
  */
 export const rHttr: Plugin = {
   target: 'r',

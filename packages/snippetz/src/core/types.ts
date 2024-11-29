@@ -20,6 +20,8 @@ export type AvailableClients = [
   'shell/httpie',
   'shell/wget',
   'swift/nsurlsession',
+  'python/python3',
+  'python/requests',
 ]
 
 /** Programming language */

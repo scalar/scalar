@@ -6,6 +6,8 @@ import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
+import { pythonPython3 } from '@/plugins/python/python3'
+import { pythonRequests } from '@/plugins/python/requests'
 import { rHttr } from '@/plugins/r/httr'
 import { rubyNative } from '@/plugins/ruby/native'
 import { shellCurl } from '@/plugins/shell/curl'
@@ -28,6 +30,8 @@ export function snippetz() {
     nodeFetch,
     nodeOfetch,
     nodeUndici,
+    pythonPython3,
+    pythonRequests,
     rHttr,
     rubyNative,
     shellCurl,

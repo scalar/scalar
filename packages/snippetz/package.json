@@ -61,6 +61,16 @@
       "types": "./dist/plugins/r/httr/index.d.ts",
       "default": "./dist/plugins/r/httr/index.js"
     },
+    "./plugins/python/requests": {
+      "import": "./dist/plugins/python/requests/index.js",
+      "types": "./dist/plugins/python/requests/index.d.ts",
+      "default": "./dist/plugins/python/requests/index.js"
+    },
+    "./plugins/python/python3": {
+      "import": "./dist/plugins/python/python3/index.js",
+      "types": "./dist/plugins/python/python3/index.d.ts",
+      "default": "./dist/plugins/python/python3/index.js"
+    },
     "./plugins/node/undici": {
       "import": "./dist/plugins/node/undici/index.js",
       "types": "./dist/plugins/node/undici/index.d.ts",
