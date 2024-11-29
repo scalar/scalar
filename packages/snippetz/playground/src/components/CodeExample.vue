@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { snippetz } from '@scalar/snippetz'
-import {
-  type ClientId,
-  type TargetId,
-  objectToString,
-} from '@scalar/snippetz/core'
+import { type TargetId, objectToString } from '@scalar/snippetz/core'
 import { getHighlighter } from 'shikiji'
 import { onMounted, ref, watch } from 'vue'
 
 const props = defineProps<{
-  target: TargetId
-  client: ClientId
+  target: string
+  client: string
   request: any
 }>()
 const code = ref('')
@@ -19,7 +15,13 @@ const highlightedResult = ref('')
 const highlightedExample = ref('')
 async function renderExample() {
   // Code
-  code.value = snippetz().print(props.target, props.client, props.request) ?? ''
+  code.value =
+    snippetz().print(
+      props.target as TargetId,
+      // @ts-expect-error I don’t know how to type this.
+      props.client,
+      props.request,
+    ) ?? ''
   // Syntax highlighting for the code
   const shiki = await getHighlighter({
     themes: ['vitesse-dark'],
