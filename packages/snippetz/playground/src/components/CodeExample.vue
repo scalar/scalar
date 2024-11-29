@@ -35,7 +35,7 @@ const snippet = snippetz().print('${props.target}', '${props.client}', request)
 
 /* Output */
 
-// ` + code.value.split(`\n`).join(`\n// `)
+// ` + code.value.split(`\r`).join(``).split(`\n`).join(`\n// `)
   highlightedConfiguration.value = shiki.codeToHtml(
     JSON.stringify(props.request, null, 2),
     { lang: 'json', theme: 'vitesse-dark' },
