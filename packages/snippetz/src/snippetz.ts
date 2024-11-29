@@ -13,6 +13,7 @@ import { jsFetch } from '@/plugins/js/fetch'
 import { jsJquery } from '@/plugins/js/jquery'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { jsXhr } from '@/plugins/js/xhr'
+import { kotlinOkhttp } from '@/plugins/kotlin/okhttp'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
@@ -49,6 +50,7 @@ export function snippetz() {
     jsJquery,
     jsOfetch,
     jsXhr,
+    kotlinOkhttp,
     nodeFetch,
     nodeOfetch,
     nodeUndici,

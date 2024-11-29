@@ -21,6 +21,7 @@ export type AvailableClients = [
   'js/jquery',
   'js/ofetch',
   'js/xhr',
+  'kotlin/okhttp',
   'node/fetch',
   'node/ofetch',
   'node/undici',

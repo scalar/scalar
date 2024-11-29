@@ -96,6 +96,11 @@
       "types": "./dist/plugins/node/fetch/index.d.ts",
       "default": "./dist/plugins/node/fetch/index.js"
     },
+    "./plugins/kotlin/okhttp": {
+      "import": "./dist/plugins/kotlin/okhttp/index.js",
+      "types": "./dist/plugins/kotlin/okhttp/index.d.ts",
+      "default": "./dist/plugins/kotlin/okhttp/index.js"
+    },
     "./plugins/js/xhr": {
       "import": "./dist/plugins/js/xhr/index.js",
       "types": "./dist/plugins/js/xhr/index.d.ts",
