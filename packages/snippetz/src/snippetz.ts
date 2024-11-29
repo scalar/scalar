@@ -10,6 +10,7 @@ import { rubyNative } from '@/plugins/ruby/native'
 import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
+import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
 
 import type { ClientId, Plugin, Request, TargetId } from './core'
 
@@ -30,6 +31,7 @@ export function snippetz() {
     shellCurl,
     shellHttpie,
     shellWget,
+    swiftNsurlsession,
   ]
 
   return {

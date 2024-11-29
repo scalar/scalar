@@ -18,6 +18,7 @@ export type AvailableClients = [
   'shell/curl',
   'shell/httpie',
   'shell/wget',
+  'swift/nsurlsession',
 ]
 
 /** Programming language */
