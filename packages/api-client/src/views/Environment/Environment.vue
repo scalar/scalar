@@ -267,6 +267,21 @@ onMounted(() => {
   }
 })
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
+
+const handleNavigation = (
+  event: MouseEvent,
+  uid: string,
+  collectionId?: string,
+) => {
+  const path = collectionId
+    ? `/workspace/default/environment/${collectionId}/${uid}`
+    : `/workspace/default/environment/${uid}`
+  if (event.metaKey) {
+    window.open(path, '_blank')
+  } else {
+    router.push({ path })
+  }
+}
 </script>
 <template>
   <ViewLayout>
@@ -278,6 +293,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               :key="'default'"
               class="text-xs"
               :isCopyable="false"
+              type="environment"
               :variable="{
                 name: 'Global Environment',
                 uid: 'default',
@@ -322,6 +338,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                   class="text-xs [&>a]:pl-5"
                   :collectionId="collection.uid"
                   :isCopyable="false"
+                  type="environment"
                   :variable="{
                     name: environmentName,
                     uid: environmentName,
@@ -329,6 +346,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                     isDefault: false,
                   }"
                   :warningMessage="`Are you sure you want to delete this environment?`"
+                  @click.prevent="
+                    handleNavigation($event, environmentName, collection.uid)
+                  "
                   @colorModal="handleOpenColorModal(environmentName)"
                   @delete="removeCollectionEnvironment(environmentName)" />
                 <ScalarButton

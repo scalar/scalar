@@ -1,27 +1,23 @@
 <script setup lang="ts">
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
+import { useActiveEntities } from '@/store/active-entities'
 import { type Icon, ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
-withDefaults(
-  defineProps<{
-    variable: {
-      uid: string
-      name: string
-      color?: string
-      icon?: Icon
-      isDefault?: boolean
-    }
-    collectionId?: string
-    warningMessage?: string
-    isDeletable?: boolean
-    isCopyable?: boolean
-  }>(),
-  {
-    isCopyable: true,
-    isDeletable: true,
-  },
-)
+const props = defineProps<{
+  variable: {
+    uid: string
+    name: string
+    color?: string
+    icon?: Icon
+    isDefault?: boolean
+  }
+  collectionId?: string
+  warningMessage?: string
+  isDeletable?: boolean
+  isCopyable?: boolean
+  type: 'environment' | 'cookies' | 'server'
+}>()
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
@@ -29,15 +25,22 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
-
+const { activeWorkspace } = useActiveEntities()
+console.log(activeWorkspace.value)
 const handleNavigation = (
   event: MouseEvent,
   uid: string,
   collectionId?: string,
 ) => {
+  const params = {
+    workspaceId: activeWorkspace.value.uid,
+    type: props.type,
+    collectionId: collectionId || undefined,
+    uid: uid,
+  }
   const path = collectionId
-    ? `/workspace/default/environment/${collectionId}/${uid}`
-    : `/workspace/default/environment/${uid}`
+    ? `/workspace/${params.workspaceId}/${params.type}/${params.collectionId}/${params.uid}`
+    : `/workspace/${params.workspaceId}/${params.type}/${params.uid}`
   if (event.metaKey) {
     window.open(path, '_blank')
   } else {
@@ -59,7 +62,11 @@ const handleColorClick = (uid: string) => {
       class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-2 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
-      :to="`${variable.uid}`"
+      :to="
+        collectionId
+          ? `/workspace/${activeWorkspace.uid}/${type}/${collectionId}/${variable.uid}`
+          : `/workspace/${activeWorkspace.uid}/${type}/${variable.uid}`
+      "
       @click.prevent="handleNavigation($event, variable.uid, collectionId)">
       <button
         v-if="variable.color"

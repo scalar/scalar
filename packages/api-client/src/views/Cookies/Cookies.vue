@@ -80,6 +80,15 @@ const handleHotKey = (event?: HotKeyEvent) => {
   }
 }
 
+const handleNavigation = (event: MouseEvent, uid: string) => {
+  const path = `/workspace/default/cookies/${uid}`
+  if (event.metaKey) {
+    window.open(path, '_blank')
+  } else {
+    router.push({ path })
+  }
+}
+
 /** Initialize collapsedSidebarFolders to be open by default */
 onMounted(() => {
   const domains = Object.keys(groupedCookies.value)
@@ -145,8 +154,10 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                       v-for="cookie in cookieList"
                       :key="cookie.uid"
                       class="cookie text-xs"
+                      type="cookies"
                       :variable="{ name: cookie.name, uid: cookie.uid }"
                       :warningMessage="`Are you sure you want to delete this cookie?`"
+                      @click.prevent="handleNavigation($event, cookie.uid)"
                       @delete="removeCookie(cookie.uid)" />
                   </div>
                 </div>
