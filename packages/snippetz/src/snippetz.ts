@@ -4,6 +4,10 @@ import { csharpHttpclient } from '@/plugins/csharp/httpclient'
 import { csharpRestsharp } from '@/plugins/csharp/restsharp'
 import { goNative } from '@/plugins/go/native'
 import { httpHttp11 } from '@/plugins/http/http11'
+import { javaAsynchttp } from '@/plugins/java/asynchttp'
+import { javaNethttp } from '@/plugins/java/nethttp/nethttp'
+import { javaOkhttp } from '@/plugins/java/okhttp/okhttp'
+import { javaUnirest } from '@/plugins/java/unirest/unirest'
 import { jsFetch } from '@/plugins/js/fetch'
 import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
@@ -33,6 +37,10 @@ export function snippetz() {
     csharpRestsharp,
     goNative,
     httpHttp11,
+    javaAsynchttp,
+    javaNethttp,
+    javaOkhttp,
+    javaUnirest,
     jsFetch,
     jsOfetch,
     nodeFetch,

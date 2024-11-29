@@ -106,6 +106,26 @@
       "types": "./dist/plugins/js/fetch/index.d.ts",
       "default": "./dist/plugins/js/fetch/index.js"
     },
+    "./plugins/java/unirest": {
+      "import": "./dist/plugins/java/unirest/index.js",
+      "types": "./dist/plugins/java/unirest/index.d.ts",
+      "default": "./dist/plugins/java/unirest/index.js"
+    },
+    "./plugins/java/okhttp": {
+      "import": "./dist/plugins/java/okhttp/index.js",
+      "types": "./dist/plugins/java/okhttp/index.d.ts",
+      "default": "./dist/plugins/java/okhttp/index.js"
+    },
+    "./plugins/java/nethttp": {
+      "import": "./dist/plugins/java/nethttp/index.js",
+      "types": "./dist/plugins/java/nethttp/index.d.ts",
+      "default": "./dist/plugins/java/nethttp/index.js"
+    },
+    "./plugins/java/asynchttp": {
+      "import": "./dist/plugins/java/asynchttp/index.js",
+      "types": "./dist/plugins/java/asynchttp/index.d.ts",
+      "default": "./dist/plugins/java/asynchttp/index.js"
+    },
     "./plugins/http/http11": {
       "import": "./dist/plugins/http/http11/index.js",
       "types": "./dist/plugins/http/http11/index.d.ts",
