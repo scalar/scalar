@@ -81,6 +81,11 @@
       "types": "./dist/plugins/powershell/restmethod/index.d.ts",
       "default": "./dist/plugins/powershell/restmethod/index.js"
     },
+    "./plugins/ocaml/cohttp": {
+      "import": "./dist/plugins/ocaml/cohttp/index.js",
+      "types": "./dist/plugins/ocaml/cohttp/index.d.ts",
+      "default": "./dist/plugins/ocaml/cohttp/index.js"
+    },
     "./plugins/objc/nsurlsession": {
       "import": "./dist/plugins/objc/nsurlsession/index.js",
       "types": "./dist/plugins/objc/nsurlsession/index.d.ts",

@@ -27,6 +27,7 @@ export type AvailableClients = [
   'node/ofetch',
   'node/undici',
   'objc/nsurlsession',
+  'ocaml/cohttp',
   'powershell/restmethod',
   'powershell/webrequest',
   'python/python3',

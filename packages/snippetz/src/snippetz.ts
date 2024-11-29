@@ -19,6 +19,7 @@ import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
 import { objcNsurlsession } from '@/plugins/objc/nsurlsession'
+import { ocamlCohttp } from '@/plugins/ocaml/cohttp'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonPython3 } from '@/plugins/python/python3'
@@ -58,6 +59,7 @@ export function snippetz() {
     nodeOfetch,
     nodeUndici,
     objcNsurlsession,
+    ocamlCohttp,
     powershellRestmethod,
     powershellWebrequest,
     pythonPython3,
