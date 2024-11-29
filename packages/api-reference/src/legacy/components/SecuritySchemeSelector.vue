@@ -164,7 +164,7 @@ const selected = computed<ScalarListboxOption | undefined>({
         }}
         <ScalarIcon
           icon="ChevronDown"
-          size="xs" />
+          size="sm" />
       </ScalarButton>
     </ScalarListbox>
   </template>

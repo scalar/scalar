@@ -27,7 +27,6 @@ const { cx } = useBindCx()
     <ScalarIcon
       class="text-c-3 group-hover/button:text-c-1"
       :icon="open ? 'ChevronUp' : 'ChevronDown'"
-      size="sm"
-      thickness="2.5" />
+      size="sm" />
   </button>
 </template>

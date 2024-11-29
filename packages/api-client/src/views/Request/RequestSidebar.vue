@@ -251,8 +251,7 @@ const handleClearDrafts = () => {
                 <ScalarIcon
                   class="text-c-3 hidden text-sm group-hover:block"
                   icon="ChevronRight"
-                  size="sm"
-                  thickness="2" />
+                  size="md" />
               </div>
             </template>
           </RequestSidebarItem>

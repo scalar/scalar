@@ -70,10 +70,10 @@ const handleClick = (e: MouseEvent) =>
           <template v-if="compact">
             <ScalarIcon
               v-if="shouldShowToggle"
-              class="schema-card-title-icon h-2.5"
+              class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
-              thickness="3" />
+              size="sm" />
             <template v-if="open">
               Hide {{ value?.title ?? 'Child Attributes' }}
             </template>
@@ -87,8 +87,7 @@ const handleClick = (e: MouseEvent) =>
               class="schema-card-title-icon"
               :class="{ 'schema-card-title-icon--open': open }"
               icon="Add"
-              size="xs"
-              thickness="2.5" />
+              size="sm" />
             <SchemaHeading
               :name="(value?.title ?? name) as string"
               :value="value" />
@@ -235,7 +234,7 @@ button.schema-card-title:hover {
 
 .schema-card-title--compact {
   color: var(--scalar-color-2);
-  padding: 6px 10px;
+  padding: 6px 8px;
   height: auto;
   border-bottom: none;
 }
@@ -245,8 +244,6 @@ button.schema-card-title:hover {
 }
 
 .schema-card-title--compact > .schema-card-title-icon {
-  width: 10px;
-  height: 10px;
   margin: 0;
 }
 .schema-card-title--compact > .schema-card-title-icon--open {

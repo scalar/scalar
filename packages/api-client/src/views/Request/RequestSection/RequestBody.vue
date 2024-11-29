@@ -460,8 +460,7 @@ const selectedExample = computed({
               <span>{{ selectedContentType?.label }}</span>
               <ScalarIcon
                 icon="ChevronDown"
-                size="xs"
-                thickness="2.5" />
+                size="md" />
             </ScalarButton>
           </ScalarListbox>
           <ScalarListbox
@@ -477,8 +476,7 @@ const selectedExample = computed({
               <span>{{ selectedExample?.label }}</span>
               <ScalarIcon
                 icon="ChevronDown"
-                size="xs"
-                thickness="2.5" />
+                size="md" />
             </ScalarButton>
           </ScalarListbox>
         </DataTableHeader>

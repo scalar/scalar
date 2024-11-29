@@ -50,8 +50,7 @@ const shouldCollapse = computed<boolean>(() => {
         <ScalarIcon
           class="parameter-item-icon"
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
-          size="md"
-          thickness="1.75" />
+          thickness="1.5" />
         <ScreenReader>
           {{ open ? 'Collapse' : 'Expand' }}
         </ScreenReader>
@@ -190,8 +189,11 @@ const shouldCollapse = computed<boolean>(() => {
 }
 .parameter-item-icon {
   color: var(--scalar-color-3);
+  height: 18px;
+  left: -19px;
   position: absolute;
-  left: -18px;
+  top: 11px;
+  width: 18px;
 }
 .parameter-item-trigger:hover .parameter-item-icon,
 .parameter-item-trigger:focus-visible .parameter-item-icon {

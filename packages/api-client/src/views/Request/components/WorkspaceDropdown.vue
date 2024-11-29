@@ -101,9 +101,8 @@ const deleteWorkspace = async () => {
               {{ activeWorkspace.name }}
             </h2>
             <ScalarIcon
-              class="size-3"
               icon="ChevronDown"
-              thickness="3" />
+              size="md" />
           </div>
         </ScalarButton>
 
@@ -192,9 +191,8 @@ const deleteWorkspace = async () => {
             @click="createNewWorkspace">
             <div class="flex items-center justify-center h-4 w-4">
               <ScalarIcon
-                class="h-2.5"
                 icon="Add"
-                thickness="3" />
+                size="sm" />
             </div>
             <span>Create Workspace</span>
           </ScalarDropdownItem>

@@ -105,6 +105,7 @@ const onAnchorClick = async (ev: Event) => {
           :icon="open ? 'ChevronDown' : 'ChevronRight'"
           :label="`${open ? 'Collapse' : 'Expand'} ${item.title}`"
           size="xs"
+          thickness="1.5"
           @click.stop="handleClick" />
         &hairsp;
       </p>
@@ -274,7 +275,7 @@ const onAnchorClick = async (ev: Event) => {
 .toggle-nested-icon {
   border: none;
   color: currentColor;
-  padding: 3px;
+  padding: 2px;
   color: var(--scalar-sidebar-color-2);
 }
 .active_page .toggle-nested-icon {

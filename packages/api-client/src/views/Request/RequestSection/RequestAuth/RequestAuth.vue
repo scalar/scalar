@@ -289,9 +289,9 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                   None
                 </div>
                 <ScalarIcon
-                  class="min-w-3 ml-auto mr-2.5"
+                  class="mr-[9px]"
                   icon="ChevronDown"
-                  size="xs" />
+                  size="md" />
               </ScalarButton>
             </ScalarComboboxMultiselect>
           </DataTableHeader>

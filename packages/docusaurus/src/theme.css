@@ -531,8 +531,8 @@ html[data-theme='light'] body .api-client-drawer {
     top: 1px;
     left: 1px;
 
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
 
     background-color: var(--scalar-color-3);
     mask-image: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8.25 19.5L15.75 12L8.25 4.5" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>');

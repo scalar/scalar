@@ -83,7 +83,7 @@ const handleSubmit = () => {
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
-              size="xs" />
+              size="md" />
           </div>
         </ScalarButton>
         <template #items>

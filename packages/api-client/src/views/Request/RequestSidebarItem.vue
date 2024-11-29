@@ -339,7 +339,7 @@ const hasDraftRequests = computed(() => {
                 ">
                 <ScalarIcon
                   icon="Ellipses"
-                  size="sm" />
+                  size="md" />
               </ScalarButton>
             </div>
             <span class="flex items-start">
@@ -371,8 +371,7 @@ const hasDraftRequests = computed(() => {
               <ScalarIcon
                 class="text-c-3 text-sm"
                 icon="ChevronRight"
-                size="sm"
-                thickness="2.5" />
+                size="md" />
             </div>
           </slot>
           &hairsp;
@@ -387,54 +386,46 @@ const hasDraftRequests = computed(() => {
             {{ item.title }}
           </span>
           <div class="relative flex h-fit">
-            <ScalarButton
-              v-if="!isReadOnly && !isDraftCollection"
-              class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+            <div
+              class="flex items-center opacity-0 gap-px group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 -right-px inset-y-2/4"
               :class="{
                 'flex':
                   menuItem.item?.entity.uid === item.entity.uid &&
                   menuItem.open,
-                'right-5': item.watchMode,
-              }"
-              size="sm"
-              variant="ghost"
-              @click.stop.prevent="
-                (ev) =>
-                  $emit('openMenu', {
-                    item,
-                    parentUids,
-                    targetRef: ev.currentTarget.parentNode,
-                    open: true,
-                  })
-              ">
-              <ScalarIcon
-                icon="Ellipses"
-                size="sm" />
-            </ScalarButton>
-            <ScalarButton
-              v-if="isDraftCollection && hasDraftRequests"
-              class="px-0.5 py-0 hover:bg-b-3 hidden group-hover:flex absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
-              :class="{
-                'flex':
-                  menuItem.item?.entity.uid === item.entity.uid &&
-                  menuItem.open,
-                'right-5': item.watchMode,
-              }"
-              size="sm"
-              variant="ghost"
-              @click.stop.prevent="
-                (ev) =>
-                  $emit('openMenu', {
-                    item,
-                    parentUids,
-                    targetRef: ev.currentTarget.parentNode,
-                    open: true,
-                  })
-              ">
-              <ScalarIcon
-                icon="Ellipses"
-                size="sm" />
-            </ScalarButton>
+                '!right-5': item.watchMode,
+              }">
+              <ScalarButton
+                v-if="
+                  (!isReadOnly && !isDraftCollection) ||
+                  (isDraftCollection && hasDraftRequests)
+                "
+                class="px-0.5 py-0 hover:bg-b-3 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                size="sm"
+                variant="ghost"
+                @click.stop.prevent="
+                  (ev) =>
+                    $emit('openMenu', {
+                      item,
+                      parentUids,
+                      targetRef: ev.currentTarget.parentNode,
+                      open: true,
+                    })
+                ">
+                <ScalarIcon
+                  icon="Ellipses"
+                  size="md" />
+              </ScalarButton>
+              <ScalarButton
+                class="px-0.5 py-0 hover:bg-b-3 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                size="sm"
+                variant="ghost"
+                @click.stop.prevent="openCommandPaletteRequest()">
+                <ScalarIcon
+                  icon="Add"
+                  size="md"
+                  thickness="2" />
+              </ScalarButton>
+            </div>
             <ScalarTooltip
               v-if="item.watchMode"
               side="right"
@@ -444,8 +435,8 @@ const hasDraftRequests = computed(() => {
                   class="text-sm"
                   :class="watchIconColor"
                   icon="Watch"
-                  size="sm"
-                  thickness="2.5" />
+                  size="md"
+                  thickness="2" />
               </template>
               <template #content>
                 <div

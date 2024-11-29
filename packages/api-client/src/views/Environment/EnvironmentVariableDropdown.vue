@@ -161,8 +161,8 @@ onClickOutside(
         variant="secondary"
         @click="redirectToEnvironment">
         <ScalarIcon
-          class="w-2.5"
-          icon="Add" />
+          icon="Add"
+          size="sm" />
         Add Variable
       </ScalarButton>
       <!-- Backdrop for the dropdown -->

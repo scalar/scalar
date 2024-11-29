@@ -25,8 +25,7 @@ withDefaults(
         <ScalarIcon
           class="text-c-3 group-hover:text-c-1 group-focus-visible:outline ui-open:rotate-90 ui-not-open:rotate-0 rounded-[1px] outline-offset-2"
           icon="ChevronRight"
-          size="sm"
-          thickness="2.5" />
+          size="md" />
         <div class="flex flex-1 items-center gap-1.5 text-c-1">
           <slot
             name="title"
