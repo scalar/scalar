@@ -4,6 +4,7 @@ import type {
   SecuritySchemeOauth2,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 /** Oauth2 security schemes which are not implicit */
 type NonImplicitFlow = Exclude<Oauth2Flow, { type: 'implicit' }>
@@ -61,6 +62,8 @@ export const authorizeOauth2 = async (
   flow: Oauth2Flow,
   /** We use the active server to set a base for relative redirect uris */
   activeServer: Server,
+  /** If we want to use the proxy */
+  proxyUrl?: string,
 ): Promise<ErrorResponse<string>> => {
   try {
     if (!flow) return [new Error('Flow not found'), null]
@@ -69,7 +72,9 @@ export const authorizeOauth2 = async (
 
     // Client Credentials or Password Flow
     if (flow.type === 'clientCredentials' || flow.type === 'password') {
-      return authorizeServers(flow, scopes)
+      return authorizeServers(flow, scopes, {
+        proxyUrl,
+      })
     }
 
     // OAuth2 flows with a login popup
@@ -184,12 +189,11 @@ export const authorizeOauth2 = async (
                 ).searchParams.get('state')
 
                 if (_state === state) {
-                  authorizeServers(
-                    flow as NonImplicitFlow,
-                    scopes,
+                  authorizeServers(flow as NonImplicitFlow, scopes, {
                     code,
                     pkce,
-                  ).then(resolve)
+                    proxyUrl,
+                  }).then(resolve)
                 } else {
                   resolve([new Error('State mismatch'), null])
                 }
@@ -219,8 +223,15 @@ export const authorizeOauth2 = async (
 export const authorizeServers = async (
   flow: NonImplicitFlow,
   scopes: string,
-  code?: string,
-  pkce?: PKCEState | null,
+  {
+    code,
+    pkce,
+    proxyUrl,
+  }: {
+    code?: string
+    pkce?: PKCEState | null
+    proxyUrl?: string
+  } = {},
 ): Promise<ErrorResponse<string>> => {
   if (!flow) return [new Error('OAuth2 flow was not defined'), null]
 
@@ -261,8 +272,13 @@ export const authorizeServers = async (
     // Add client id + secret to headers
     headers.Authorization = `Basic ${btoa(`${flow['x-scalar-client-id']}:${flow.clientSecret}`)}`
 
+    // Check if we should use the proxy
+    const url = shouldUseProxy(proxyUrl, flow.tokenUrl)
+      ? `${proxyUrl}?${new URLSearchParams([['scalar_url', flow.tokenUrl]]).toString()}`
+      : flow.tokenUrl
+
     // Make the call
-    const resp = await fetch(flow.tokenUrl, {
+    const resp = await fetch(url, {
       method: 'POST',
       headers,
       body: formData,

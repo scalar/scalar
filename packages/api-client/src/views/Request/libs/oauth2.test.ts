@@ -279,6 +279,67 @@ describe('oauth2', () => {
       expect(error).toBeInstanceOf(Error)
       expect(error!.message).toBe('State mismatch')
     })
+
+    it('should use the proxy if provided', async () => {
+      const promise = authorizeOauth2(
+        flow,
+        mockServer,
+        'https://proxy.example.com',
+      )
+
+      const accessToken = 'access_token_123'
+
+      // Test the window.open call
+      expect(window.open).toHaveBeenCalledWith(
+        new URL(
+          `${flow.authorizationUrl}?${new URLSearchParams({
+            response_type: 'code',
+            redirect_uri: flow['x-scalar-redirect-uri'],
+            client_id: flow['x-scalar-client-id'],
+            state: state,
+            scope: scope.join(' '),
+          }).toString()}`,
+        ),
+        windowTarget,
+        windowFeatures,
+      )
+
+      // Mock redirect back from login
+      mockWindow.location.href = `${flow['x-scalar-redirect-uri']}?code=auth_code_123&state=${state}`
+
+      // Mock the token exchange
+      global.fetch = vi.fn().mockResolvedValueOnce({
+        json: () => Promise.resolve({ access_token: accessToken }),
+      })
+
+      // Run setInterval
+      vi.advanceTimersByTime(200)
+
+      // Resolve
+      const [error, result] = await promise
+      expect(error).toBe(null)
+      expect(result).toBe(accessToken)
+
+      // Test the server call
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://proxy.example.com?scalar_url=https%3A%2F%2Fauth.example.com%2Ftoken',
+        {
+          method: 'POST',
+          body: new URLSearchParams({
+            client_id: flow['x-scalar-client-id'],
+            scope: scope.join(' '),
+            client_secret: flow.clientSecret,
+            redirect_uri: flow['x-scalar-redirect-uri'],
+            code: 'auth_code_123',
+            grant_type: 'authorization_code',
+          }),
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${secretAuth}`,
+          },
+        },
+      )
+    })
   })
 
   describe('Client Credentials Grant', () => {
