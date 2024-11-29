@@ -10,7 +10,9 @@ import { javaOkhttp } from '@/plugins/java/okhttp/okhttp'
 import { javaUnirest } from '@/plugins/java/unirest/unirest'
 import { jsAxios } from '@/plugins/js/axios'
 import { jsFetch } from '@/plugins/js/fetch'
+import { jsJquery } from '@/plugins/js/jquery'
 import { jsOfetch } from '@/plugins/js/ofetch'
+import { jsXhr } from '@/plugins/js/xhr'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
@@ -44,7 +46,9 @@ export function snippetz() {
     javaUnirest,
     jsAxios,
     jsFetch,
+    jsJquery,
     jsOfetch,
+    jsXhr,
     nodeFetch,
     nodeOfetch,
     nodeUndici,

@@ -76,7 +76,7 @@ function selectPlugin<T extends TargetId>(plugin: {
     </a>
   </div>
 
-  <h2>Examples</h2>
+  <h2>Usage</h2>
 
   <div class="examples">
     <CodeExample

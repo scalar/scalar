@@ -96,10 +96,20 @@
       "types": "./dist/plugins/node/fetch/index.d.ts",
       "default": "./dist/plugins/node/fetch/index.js"
     },
+    "./plugins/js/xhr": {
+      "import": "./dist/plugins/js/xhr/index.js",
+      "types": "./dist/plugins/js/xhr/index.d.ts",
+      "default": "./dist/plugins/js/xhr/index.js"
+    },
     "./plugins/js/ofetch": {
       "import": "./dist/plugins/js/ofetch/index.js",
       "types": "./dist/plugins/js/ofetch/index.d.ts",
       "default": "./dist/plugins/js/ofetch/index.js"
+    },
+    "./plugins/js/jquery": {
+      "import": "./dist/plugins/js/jquery/index.js",
+      "types": "./dist/plugins/js/jquery/index.d.ts",
+      "default": "./dist/plugins/js/jquery/index.js"
     },
     "./plugins/js/fetch": {
       "import": "./dist/plugins/js/fetch/index.js",
