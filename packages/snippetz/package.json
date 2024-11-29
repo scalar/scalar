@@ -116,6 +116,16 @@
       "types": "./dist/plugins/go/native/index.d.ts",
       "default": "./dist/plugins/go/native/index.js"
     },
+    "./plugins/csharp/restsharp": {
+      "import": "./dist/plugins/csharp/restsharp/index.js",
+      "types": "./dist/plugins/csharp/restsharp/index.d.ts",
+      "default": "./dist/plugins/csharp/restsharp/index.js"
+    },
+    "./plugins/csharp/httpclient": {
+      "import": "./dist/plugins/csharp/httpclient/index.js",
+      "types": "./dist/plugins/csharp/httpclient/index.d.ts",
+      "default": "./dist/plugins/csharp/httpclient/index.js"
+    },
     "./plugins/clojure/clj_http": {
       "import": "./dist/plugins/clojure/clj_http/index.js",
       "types": "./dist/plugins/clojure/clj_http/index.d.ts",

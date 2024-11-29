@@ -1,5 +1,7 @@
 import { cLibcurl } from '@/plugins/c/libcurl/libcurl'
 import { clojureCljhttp } from '@/plugins/clojure/clj_http'
+import { csharpHttpclient } from '@/plugins/csharp/httpclient'
+import { csharpRestsharp } from '@/plugins/csharp/restsharp'
 import { goNative } from '@/plugins/go/native'
 import { httpHttp11 } from '@/plugins/http/http11'
 import { jsFetch } from '@/plugins/js/fetch'
@@ -27,6 +29,8 @@ export function snippetz() {
   const plugins: Plugin[] = [
     cLibcurl,
     clojureCljhttp,
+    csharpHttpclient,
+    csharpRestsharp,
     goNative,
     httpHttp11,
     jsFetch,
