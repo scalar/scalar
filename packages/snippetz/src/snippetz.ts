@@ -20,6 +20,8 @@ import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
 import { objcNsurlsession } from '@/plugins/objc/nsurlsession'
 import { ocamlCohttp } from '@/plugins/ocaml/cohttp'
+import { phpCurl } from '@/plugins/php/curl'
+import { phpGuzzle } from '@/plugins/php/guzzle'
 import { powershellRestmethod } from '@/plugins/powershell/restmethod'
 import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonPython3 } from '@/plugins/python/python3'
@@ -60,6 +62,8 @@ export function snippetz() {
     nodeUndici,
     objcNsurlsession,
     ocamlCohttp,
+    phpCurl,
+    phpGuzzle,
     powershellRestmethod,
     powershellWebrequest,
     pythonPython3,

@@ -28,6 +28,8 @@ export type AvailableClients = [
   'node/undici',
   'objc/nsurlsession',
   'ocaml/cohttp',
+  'php/curl',
+  'php/guzzle',
   'powershell/restmethod',
   'powershell/webrequest',
   'python/python3',
