@@ -6,6 +6,8 @@ import { jsOfetch } from '@/plugins/js/ofetch'
 import { nodeFetch } from '@/plugins/node/fetch'
 import { nodeOfetch } from '@/plugins/node/ofetch'
 import { nodeUndici } from '@/plugins/node/undici'
+import { powershellRestmethod } from '@/plugins/powershell/restmethod'
+import { powershellWebrequest } from '@/plugins/powershell/webrequest'
 import { pythonPython3 } from '@/plugins/python/python3'
 import { pythonRequests } from '@/plugins/python/requests'
 import { rHttr } from '@/plugins/r/httr'
@@ -38,6 +40,8 @@ export function snippetz() {
     shellHttpie,
     shellWget,
     swiftNsurlsession,
+    powershellRestmethod,
+    powershellWebrequest,
   ]
 
   return {

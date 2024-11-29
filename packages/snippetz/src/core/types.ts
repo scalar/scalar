@@ -14,14 +14,16 @@ export type AvailableClients = [
   'node/fetch',
   'node/ofetch',
   'node/undici',
+  'powershell/restmethod',
+  'powershell/webrequest',
+  'python/python3',
+  'python/requests',
   'r/httr',
   'ruby/native',
   'shell/curl',
   'shell/httpie',
   'shell/wget',
   'swift/nsurlsession',
-  'python/python3',
-  'python/requests',
 ]
 
 /** Programming language */

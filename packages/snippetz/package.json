@@ -71,6 +71,16 @@
       "types": "./dist/plugins/python/python3/index.d.ts",
       "default": "./dist/plugins/python/python3/index.js"
     },
+    "./plugins/powershell/webrequest": {
+      "import": "./dist/plugins/powershell/webrequest/index.js",
+      "types": "./dist/plugins/powershell/webrequest/index.d.ts",
+      "default": "./dist/plugins/powershell/webrequest/index.js"
+    },
+    "./plugins/powershell/restmethod": {
+      "import": "./dist/plugins/powershell/restmethod/index.js",
+      "types": "./dist/plugins/powershell/restmethod/index.d.ts",
+      "default": "./dist/plugins/powershell/restmethod/index.js"
+    },
     "./plugins/node/undici": {
       "import": "./dist/plugins/node/undici/index.js",
       "types": "./dist/plugins/node/undici/index.d.ts",
