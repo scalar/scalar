@@ -32,7 +32,6 @@ export type ResolveReferencesOptions = ThrowOnErrorOption & {
   onDereference?: (schema: AnyObject, $ref: string) => void
 }
 
-// TODO: Exists already, clean up
 type DereferenceResult = {
   errors: ErrorObject[]
 }
@@ -129,19 +128,18 @@ export function resolveReferences(
         errors,
       )
 
-      if (typeof target === 'object') {
-        onResolve?.(schema, schema.$ref)
+      // invalid
+      if (typeof target !== 'object' || target === null) break
 
-        // Get rid of the reference
-        delete schema.$ref
+      onResolve?.(schema, schema.$ref)
 
-        for (const key of Object.keys(target)) {
-          if (schema[key] === undefined) {
-            schema[key] = target[key]
-          }
+      // Get rid of the reference
+      delete schema.$ref
+
+      for (const key of Object.keys(target)) {
+        if (schema[key] === undefined) {
+          schema[key] = target[key]
         }
-      } else {
-        break
       }
     }
 
@@ -164,6 +162,8 @@ export function resolveReferences(
 
 /**
  * Resolves a URI to a part of the specification
+ *
+ * The output is not necessarily dereferenced
  */
 function resolveUri(
   // 'foobar.json#/foo/bar'
@@ -174,7 +174,7 @@ function resolveUri(
   // [ { filename: './foobar.json '} ]
   filesystem: Filesystem,
 
-  // a fucntion to resolve references in file
+  // a function to resolve references in external file
   resolve: (file: FilesystemEntry) => FilesystemEntry,
   errors?: ErrorObject[],
 ) {
