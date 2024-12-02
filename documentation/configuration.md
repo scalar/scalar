@@ -251,7 +251,7 @@ Here’s a list of all clients that you can potentially hide:
 
 ```js
 {
-  hiddenClients: ['libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1', 'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch', 'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch', 'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2', 'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native', 'curl', 'httpie', 'wget', 'nsurlsession'],
+  hiddenClients: ['libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1', 'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch', 'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch', 'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2', 'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native', 'curl', 'httpie', 'wget', 'nsurlsession', 'undici'],
 }
 ```
 
