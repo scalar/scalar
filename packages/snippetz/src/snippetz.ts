@@ -39,8 +39,14 @@ export function snippetz() {
           .filter((value, index, self) => self.indexOf(value) === index)
       )
     },
-    clients() {
-      return plugins.map((plugin) => plugin.client)
+    clients(target: string) {
+      return (
+        plugins
+          // Only for the specified target
+          .filter((plugin) => plugin.target === target)
+          // Only the client key
+          .map((plugin) => plugin.client)
+      )
     },
     plugins() {
       return plugins.map((plugin) => {
