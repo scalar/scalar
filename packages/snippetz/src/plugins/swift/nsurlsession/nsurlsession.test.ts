@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { swiftNsurlsession } from './nsurlsession'
 
 describe('swiftNsurlsession', () => {
-  it.only('returns a basic request', () => {
+  it('returns a basic request', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
     })
@@ -30,7 +30,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('returns a POST request', () => {
+  it('returns a POST request', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       method: 'post',
@@ -58,7 +58,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('has headers', () => {
+  it('has headers', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       headers: [
@@ -93,7 +93,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles multipart form data with files', () => {
+  it('handles multipart form data with files', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -167,7 +167,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles url-encoded form data with special characters', () => {
+  it('handles url-encoded form data with special characters', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -207,7 +207,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles binary data', () => {
+  it('handles binary data', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       method: 'POST',
@@ -242,7 +242,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles special characters in URL', () => {
+  it('handles special characters in URL', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com/path with spaces/[brackets]',
     })
@@ -269,7 +269,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles multiple headers with same name', () => {
+  it('handles multiple headers with same name', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       headers: [
@@ -303,7 +303,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles headers with empty values', () => {
+  it('handles headers with empty values', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com',
       headers: [{ name: 'X-Empty', value: '' }],
@@ -334,7 +334,7 @@ dataTask.resume()`,
     )
   })
 
-  it.only('handles query string parameters', () => {
+  it('handles query string parameters', () => {
     const result = swiftNsurlsession.generate({
       url: 'https://example.com/api?param1=value1&param2=special value&param3=123',
     })
