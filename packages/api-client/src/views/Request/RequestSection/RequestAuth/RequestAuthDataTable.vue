@@ -274,6 +274,11 @@ function handleDeleteScheme(option: { id: string; label: string }) {
             </ScalarButton>
           </ScalarComboboxMultiselect>
         </DataTableHeader>
+        <div
+          v-if="!selectedAuth.length"
+          class="flex items-center min-h-8 min-w-8 rounded border-1/2 px-2 text-sm">
+          None
+        </div>
       </DataTableRow>
       <RequestExampleAuth
         :layout="layout"
