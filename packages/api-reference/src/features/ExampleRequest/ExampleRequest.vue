@@ -158,10 +158,7 @@ async function generateSnippet() {
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (
-    (await getExampleCode(harRequest as any, targetKey, clientKey as string)) ??
-    ''
-  )
+  return (await getExampleCode(harRequest as any, targetKey, clientKey)) ?? ''
 }
 
 const generatedCode = asyncComputed<string>(async () => {

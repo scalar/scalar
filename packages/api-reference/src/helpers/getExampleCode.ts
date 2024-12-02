@@ -9,12 +9,12 @@ import {
  * Returns a code example for given HAR request
  */
 export async function getExampleCode<T extends TargetId>(
-  request: Request,
-  target: TargetId,
-  client: ClientId<T>,
+  request: Partial<Request>,
+  target: TargetId | string,
+  client: ClientId<T> | string,
 ) {
   // Prevent snippet generation if starting by a variable
-  if (request.url.startsWith('__')) {
+  if (request.url?.startsWith('__')) {
     return request.url
   }
 
