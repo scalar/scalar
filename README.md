@@ -123,6 +123,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Next.js](packages/nextjs-api-reference/README.md)
 - [Nuxt](packages/nuxt/README.md)
 - [React](packages/api-reference-react/README.md)
+- [Ruby on Rails](https://github.com/dmytroshevchuk/scalar_ruby)
 - [Rust](documentation/integrations/rust.md)
 - [Scalar for Laravel](https://github.com/scalar/laravel)
 - [Vue.js](packages/api-reference/README.md)
