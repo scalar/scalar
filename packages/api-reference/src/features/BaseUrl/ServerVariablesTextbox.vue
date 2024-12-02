@@ -41,5 +41,6 @@ const model = computed<string>({
   height: auto;
   outline: none;
   width: 100%;
+  font-size: var(--scalar-mini);
 }
 </style>
