@@ -357,7 +357,7 @@ jobs:
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
-        uses: cloudflare/wrangler-action@05f17c4a695b4d94b57b59997562c6a4624c64e4
+        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
         with:
           command: pages deploy dist --project-name=client
           workingDirectory: projects/client-scalar-com
