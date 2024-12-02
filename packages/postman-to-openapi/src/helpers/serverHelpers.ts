@@ -1,5 +1,6 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
-import type { PostmanCollection, Item, ItemGroup } from '../types'
+
+import type { Item, ItemGroup, PostmanCollection } from '../types'
 
 /**
  * Recursively processes collection items to extract server URLs
@@ -11,9 +12,8 @@ function processItems(items: (Item | ItemGroup)[], domains: Set<string>) {
     } else if ('request' in item) {
       const request = item.request
       if (typeof request !== 'string') {
-        const url = typeof request.url === 'string' 
-          ? request.url 
-          : request.url?.raw
+        const url =
+          typeof request.url === 'string' ? request.url : request.url?.raw
 
         if (url) {
           try {
@@ -21,8 +21,8 @@ function processItems(items: (Item | ItemGroup)[], domains: Set<string>) {
             const urlMatch = url.match(/^(?:https?:\/\/)?([^/?#]+)/i)
             if (urlMatch && urlMatch[1]) {
               // Ensure we have the protocol
-              const serverUrl = urlMatch[1].startsWith('http') 
-                ? urlMatch[1].replace(/\/$/, '') 
+              const serverUrl = urlMatch[1].startsWith('http')
+                ? urlMatch[1].replace(/\/$/, '')
                 : `https://${urlMatch[1]}`.replace(/\/$/, '')
               domains.add(serverUrl)
             }
@@ -48,6 +48,6 @@ export function parseServers(
   }
 
   return Array.from(domains).map((domain) => ({
-    url: domain
+    url: domain,
   }))
 }
