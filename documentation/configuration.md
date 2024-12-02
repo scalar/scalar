@@ -229,7 +229,7 @@ You can explicitly set the default HTTP client, though:
 
 #### hiddenClients?: array | true
 
-By default, Scalar generates API request examples in the [httpsnippet clients](https://github.com/Kong/httpsnippet/wiki/Targets) list and displays them under any code samples objects in your spec. You can pass an array of these targets to hide them from the clients menu.
+We’re generating code examples for a long list of popular HTTP clients. You can control which are shown by passing an array of clients, to hide the given clients.
 
 Pass an empty array `[]` to show all available clients.
 
@@ -247,7 +247,15 @@ Pass an array of individual clients to hide just those clients.
 }
 ```
 
-You can also pass `true` to **hide** all automatically generated clients. If you have any `x-codeSamples` in your OpenAPI spec, these still render.
+Here’s a list of all clients that you can potentially hide:
+
+```js
+{
+  hiddenClients: ['libcurl', 'clj_http', 'httpclient', 'restsharp', 'native', 'http1.1', 'asynchttp', 'nethttp', 'okhttp', 'unirest', 'xhr', 'axios', 'fetch', 'jquery', 'okhttp', 'native', 'request', 'unirest', 'axios', 'fetch', 'nsurlsession', 'cohttp', 'curl', 'guzzle', 'http1', 'http2', 'webrequest', 'restmethod', 'python3', 'requests', 'httr', 'native', 'curl', 'httpie', 'wget', 'nsurlsession'],
+}
+```
+
+But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render.
 
 ```js
 {
