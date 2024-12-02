@@ -190,7 +190,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@87f731dcda883c5a65050a96f0a3d225fb790a45
+        uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
