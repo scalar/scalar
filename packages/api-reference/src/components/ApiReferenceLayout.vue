@@ -323,7 +323,7 @@ const themeStyleTag = computed(
   <div v-html="themeStyleTag"></div>
   <div
     ref="documentEl"
-    class="scalar-app scalar-api-reference references-layout"
+    class="scalar-app scalar-client scalar-api-reference references-layout"
     :class="[
       {
         'scalar-scrollbars-obtrusive': obtrusiveScrollbars,
