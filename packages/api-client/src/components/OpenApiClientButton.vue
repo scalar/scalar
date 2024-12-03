@@ -12,7 +12,14 @@ const { integration, isDevelopment, url, buttonSource } = defineProps<{
 
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
-  const absoluteUrl = makeUrlAbsolute(url)
+  /**
+   * The URL we want to pass to client.scalar.com for the import.
+   * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
+   */
+  const urlToImportFrom =
+    (url ?? typeof window !== 'undefined') ? window.location.href : undefined
+
+  const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
 
   if (!absoluteUrl?.length) {
     return undefined
