@@ -48,7 +48,8 @@ public class ScalarOptionsExtensionsTests
             .AddServer(new ScalarServer("https://example.org", "My other server"))
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithFavicon("/favicon.png")
-            .WithDotNetFlag(false);
+            .WithDotNetFlag(false)
+            .WithClientButton(false);
 
         // Assert
         options.Title.Should().Be("My title");
@@ -86,5 +87,6 @@ public class ScalarOptionsExtensionsTests
         options.DefaultHttpClient.Should().Be(new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient));
         options.Favicon.Should().Be("/favicon.png");
         options.DotNetFlag.Should().BeFalse();
+        options.HideClientButton.Should().BeTrue();
     }
 }
