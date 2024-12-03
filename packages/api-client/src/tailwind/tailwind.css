@@ -1,7 +1,6 @@
 @import 'tailwindcss/base' layer(scalar-base);
 
-.scalar-client,
-.scalar-api-reference {
+.scalar-client {
   @tailwind components;
   @tailwind utilities;
   @tailwind variants;
