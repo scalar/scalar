@@ -17,7 +17,7 @@ const href = computed((): string | undefined => {
    * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
    */
   const urlToImportFrom =
-    (url ?? typeof window !== 'undefined') ? window.location.href : undefined
+    url ?? (typeof window !== 'undefined' ? window.location.href : undefined)
 
   const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
 
