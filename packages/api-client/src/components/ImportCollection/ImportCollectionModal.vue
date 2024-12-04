@@ -65,11 +65,17 @@ const { currentRoute } = useRouter()
 
 /** Grab light and dark logos from the url query params */
 const companyLogo = computed(() => {
-  const query = currentRoute.value.query
-  const logo =
-    darkLightMode.value === 'dark' ? query.dark_logo : query.light_logo
+  try {
+    const query = currentRoute.value.query
+    const logo =
+      darkLightMode.value === 'dark' ? query.dark_logo : query.light_logo
 
-  return (logo as string) ?? null
+    if (logo) return decodeURIComponent(logo as string)
+  } catch {
+    // No harm no foul
+  }
+
+  return null
 })
 
 /** Open/close modal on events  */
@@ -229,7 +235,7 @@ function handleImportFinished() {
         </template>
         <!-- Sucess -->
         <template v-else>
-          <!-- Logo -->
+          <!-- Integration Logo -->
           <div
             v-if="shouldShowIntegrationIcon"
             class="flex justify-center items-center mb-2 p-1">
@@ -237,11 +243,13 @@ function handleImportFinished() {
               <IntegrationLogo :integration="integration" />
             </div>
           </div>
-          <!-- TODO check for dark vs light theme -->
+
+          <!-- Company Logo -->
           <img
             v-else-if="companyLogo"
             alt="Logo"
             :src="companyLogo" />
+
           <!-- Title -->
           <div class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title || 'Untitled Collection' }}
