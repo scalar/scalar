@@ -236,7 +236,9 @@ function handleImportFinished() {
           <template v-if="version">
             <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
               <ImportNowButton
-                :source="prefetchResult?.url ?? source"
+                :source="
+                  prefetchResult?.url ?? prefetchResult?.content ?? source
+                "
                 variant="button"
                 :watchMode="watchMode"
                 @importFinished="handleImportFinished" />
