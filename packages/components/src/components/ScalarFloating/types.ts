@@ -38,7 +38,7 @@ export type FloatingOptions = {
   middleware?: Middleware[]
   /**
    * Whether to teleport the floating element.
-   * Can be an `id` to teleport to or `true` to teleport to the nearest <ScalarTeleportRoot> (or `<body>`).
+   * Can be an `id` to teleport to or `true` to teleport to the nearest `<ScalarTeleportRoot>` (or `<body>`).
    *
    * @see {@link ScalarTeleportRoot}
    * @default false
