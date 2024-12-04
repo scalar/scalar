@@ -50,6 +50,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           </a>
         </div>
       </div>
+      <div class="gitbook-show scalar-version-number">
+        Powered By Scalar.com
+      </div>
       <ScalarAsciiArt
         :art="Computer"
         class="text-c-3" />
@@ -123,6 +126,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-transform: initial;
 }
 .scalar-version-number a {
   font-weight: bold;
@@ -155,5 +159,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   border: none;
   font-weight: 400;
   font-family: var(--scalar-font);
+}
+.gitbook-show {
+  display: none;
 }
 </style>
