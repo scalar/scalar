@@ -2,6 +2,7 @@
 import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 
 const { integration, isDevelopment, url, buttonSource } = defineProps<{
   buttonSource: 'sidebar' | 'modal'
@@ -9,6 +10,8 @@ const { integration, isDevelopment, url, buttonSource } = defineProps<{
   integration?: string | null
   url?: string
 }>()
+
+const { currentRoute } = useRouter()
 
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
@@ -42,6 +45,22 @@ const href = computed((): string | undefined => {
   link.searchParams.set('utm_source', 'api-reference')
   link.searchParams.set('utm_medium', 'button')
   link.searchParams.set('utm_campaign', buttonSource)
+
+  // Special for gitbook, set the source and grab the logos (hacky)
+  if (
+    typeof window !== 'undefined' &&
+    currentRoute.value.query.source === 'gitbook'
+  ) {
+    link.searchParams.set('utm_source', 'gitbook')
+
+    const darkLogo = document.querySelector("img.dark\\:block[alt='Logo']")
+    const lightLogo = document.querySelector("img.dark\\:hidden[alt='Logo']")
+
+    if (darkLogo && darkLogo instanceof HTMLImageElement)
+      link.searchParams.set('dark_logo', darkLogo.src)
+    if (lightLogo && lightLogo instanceof HTMLImageElement)
+      link.searchParams.set('light_logo', lightLogo.src)
+  }
 
   return link.toString()
 })
