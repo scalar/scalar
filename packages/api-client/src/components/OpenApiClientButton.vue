@@ -2,7 +2,6 @@
 import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
 
 const { integration, isDevelopment, url, buttonSource } = defineProps<{
   buttonSource: 'sidebar' | 'modal'
@@ -10,8 +9,6 @@ const { integration, isDevelopment, url, buttonSource } = defineProps<{
   integration?: string | null
   url?: string
 }>()
-
-const { currentRoute } = useRouter()
 
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
@@ -49,7 +46,7 @@ const href = computed((): string | undefined => {
   // Special for gitbook, set the source and grab the logos (hacky)
   if (
     typeof window !== 'undefined' &&
-    currentRoute.value.query.source === 'gitbook'
+    new URL(window.location.href).searchParams.get('source') === 'gitbook'
   ) {
     link.searchParams.set('utm_source', 'gitbook')
 
