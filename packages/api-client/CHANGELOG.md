@@ -1,5 +1,36 @@
 # @scalar/api-client
 
+## 2.2.5
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+- f524411: feat: adds response status color
+- e199e9b: feat: updates add icon
+- 10c01b2: fix: updates overflow and height for image response preview
+- e199e9b: feat: adds request creation from sidebar
+- 31cb86b: style: updates http method variants
+- c2f5f08: feat: adds hideClientButton option configuration
+- 1f730c6: feat: upgraded cva and added tests
+- 8958af0: feat: add the proxy to oauth authorize calls
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [d6e7008]
+- Updated dependencies [10c9016]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [b11294c]
+- Updated dependencies [f30ce11]
+  - @scalar/components@0.13.1
+  - @scalar/oas-utils@0.2.83
+  - @scalar/use-codemirror@0.11.45
+  - @scalar/types@0.0.23
+  - @scalar/import@0.2.1
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 2.2.4
 
 ### Patch Changes

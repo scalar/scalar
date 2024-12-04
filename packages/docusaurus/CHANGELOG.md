@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.151
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+  - @scalar/api-reference-react@0.3.149
+
 ## 0.4.150
 
 ### Patch Changes

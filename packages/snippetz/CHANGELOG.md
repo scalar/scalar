@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.6
+
+### Patch Changes
+
+- 4a72149: refactor: new plugin API
+
 ## 0.2.5
 
 ### Patch Changes

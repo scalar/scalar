@@ -1,5 +1,17 @@
 # @scalar/use-codemirror
 
+## 0.11.45
+
+### Patch Changes
+
+- d6e7008: fix: requests animation frame to dispatched value
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [1f730c6]
+- Updated dependencies [f30ce11]
+  - @scalar/components@0.13.1
+
 ## 0.11.44
 
 ### Patch Changes

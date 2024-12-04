@@ -1,5 +1,16 @@
 # @scalar/oas-utils
 
+## 0.2.83
+
+### Patch Changes
+
+- f524411: feat: adds response status color
+- 10c9016: fix: updates find variables import
+- b11294c: fix: add bit of safety to tag name parsing
+- Updated dependencies [c2f5f08]
+  - @scalar/types@0.0.23
+  - @scalar/themes@0.9.54
+
 ## 0.2.82
 
 ### Patch Changes
