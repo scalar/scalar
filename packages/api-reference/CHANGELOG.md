@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.25.73
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+- e199e9b: feat: updates add icon
+- ab5f0a0: style: enhances section header long content
+- c2f5f08: feat: adds hideClientButton option configuration
+- ab5f0a0: fix: classic layout responsiveness
+- Updated dependencies [e199e9b]
+- Updated dependencies [4a72149]
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [10c01b2]
+- Updated dependencies [10c9016]
+- Updated dependencies [e199e9b]
+- Updated dependencies [31cb86b]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [b11294c]
+- Updated dependencies [f30ce11]
+- Updated dependencies [8958af0]
+  - @scalar/components@0.13.1
+  - @scalar/snippetz@0.2.6
+  - @scalar/code-highlight@0.0.18
+  - @scalar/api-client@2.2.5
+  - @scalar/oas-utils@0.2.83
+  - @scalar/types@0.0.23
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 1.25.72
 
 ### Patch Changes

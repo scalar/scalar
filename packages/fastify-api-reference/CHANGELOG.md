@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.73
+
+### Patch Changes
+
+- a8d2d3b: fix: explicit export map is missing the type export
+- Updated dependencies [c2f5f08]
+  - @scalar/types@0.0.23
+
 ## 1.25.72
 
 ### Patch Changes

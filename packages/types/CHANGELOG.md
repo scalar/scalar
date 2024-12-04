@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.23
+
+### Patch Changes
+
+- c2f5f08: feat: adds hideClientButton option configuration
+
 ## 0.0.22
 
 ### Patch Changes

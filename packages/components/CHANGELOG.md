@@ -1,5 +1,19 @@
 # @scalar/components
 
+## 0.13.1
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron up icon
+- e199e9b: feat: updates chevron down icon
+- e199e9b: feat: updates add icon
+- 1f730c6: feat: upgraded cva and added tests
+- f30ce11: feat(components): clean up reactivity for useBindCx
+- Updated dependencies [e199e9b]
+  - @scalar/code-highlight@0.0.18
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 0.13.0
 
 ### Minor Changes
