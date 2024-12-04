@@ -100,17 +100,15 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     v-if="$slots.floating"
     :disabled="!teleport"
     :to="typeof teleport === 'string' ? teleport : undefined">
-    <div class="scalar-app">
-      <div
-        ref="floatingRef"
-        class="relative z-overlay"
-        :style="floatingStyles">
-        <slot
-          :data="middlewareData"
-          :height="targetHeight"
-          name="floating"
-          :width="targetWidth" />
-      </div>
+    <div
+      ref="floatingRef"
+      class="relative z-overlay"
+      :style="floatingStyles">
+      <slot
+        :data="middlewareData"
+        :height="targetHeight"
+        name="floating"
+        :width="targetWidth" />
     </div>
   </ScalarTeleport>
 </template>

@@ -50,6 +50,11 @@ const root = useTeleport()
     :defer="!immediate"
     :disabled="disabled"
     :to="to || root">
-    <slot />
+    <div
+      class="scalar-app"
+      style="display: contents"
+      v-bind="$attrs">
+      <slot />
+    </div>
   </Teleport>
 </template>

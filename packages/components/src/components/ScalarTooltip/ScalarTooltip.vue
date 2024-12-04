@@ -46,7 +46,7 @@ defineEmits<{
         @click="props.click">
         <slot name="trigger" />
       </TooltipTrigger>
-      <TooltipPortal to=".scalar-client">
+      <TooltipPortal>
         <TooltipContent
           v-if="!props.disabled"
           :align="props.align"
