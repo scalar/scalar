@@ -3,8 +3,15 @@ import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-const { integration, isDevelopment, url, buttonSource } = defineProps<{
+const {
+  integration,
+  isDevelopment,
+  url,
+  buttonSource,
+  source = 'api-reference',
+} = defineProps<{
   buttonSource: 'sidebar' | 'modal'
+  source?: 'api-reference' | 'gitbook'
   isDevelopment?: boolean
   integration?: string | null
   url?: string
@@ -44,10 +51,7 @@ const href = computed((): string | undefined => {
   link.searchParams.set('utm_campaign', buttonSource)
 
   // Special for gitbook, set the source and grab the logos (hacky)
-  if (
-    typeof window !== 'undefined' &&
-    new URL(window.location.href).searchParams.get('source') === 'gitbook'
-  ) {
+  if (source === 'gitbook') {
     link.searchParams.set('utm_source', 'gitbook')
 
     const darkLogo = document.querySelector("img.dark\\:block[alt='Logo']")

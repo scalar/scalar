@@ -7,6 +7,7 @@ import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
 
 import { WorkspaceDropdown } from './components'
 
@@ -27,6 +28,7 @@ const workspaceContext = useWorkspace()
 const { hideClientButton } = workspaceContext
 
 const { layout } = useLayout()
+const { currentRoute } = useRouter()
 </script>
 <template>
   <div
@@ -53,6 +55,9 @@ const { layout } = useLayout()
         buttonSource="modal"
         class="!w-fit lg:-mr-1"
         :integration="activeCollection?.integration"
+        :source="
+          currentRoute.query.source === 'gitbook' ? 'gitbook' : 'api-reference'
+        "
         :url="activeCollection?.documentUrl" />
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
