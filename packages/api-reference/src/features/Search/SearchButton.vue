@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
-import { useMagicKeys, whenever } from '@vueuse/core'
+import { useEventListener, useMagicKeys } from '@vueuse/core'
 
 import { isMacOs } from '../../helpers'
 import { useApiClient } from '../ApiClientModal'
@@ -31,14 +31,13 @@ const keys = useMagicKeys({
   },
 })
 
-whenever(
-  keys[`${isMacOs() ? 'meta' : 'control'}_${props.searchHotKey}`],
-  () => {
+useEventListener(document, 'keydown', (event) => {
+  if ((isMacOs() ? keys.meta.value : keys.ctrl.value) && event.key === 'k') {
     if (!client.value?.modalState.open) {
       modalState.open ? modalState.hide() : modalState.show()
     }
-  },
-)
+  }
+})
 </script>
 <template>
   <button
