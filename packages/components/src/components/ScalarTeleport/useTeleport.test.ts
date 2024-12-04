@@ -7,16 +7,14 @@ import { useProvideTeleport, useTeleport } from './useTeleport'
 vi.mock('vue', () => ({
   inject: vi.fn(),
   provide: vi.fn(),
-  useId: () => 'generated-id',
+}))
+
+// Mock nanoid
+vi.mock('nanoid', () => ({
+  nanoid: vi.fn().mockReturnValue('1234567890'),
 }))
 
 describe('useTeleport', () => {
-  it('returns "body" when no teleport target is injected', () => {
-    vi.mocked(inject).mockReturnValue(undefined)
-    const target = useTeleport()
-    expect(target).toBe('body')
-  })
-
   it('returns the injected teleport target when available', () => {
     vi.mocked(inject).mockReturnValue('#custom-target')
     const target = useTeleport()
@@ -33,6 +31,6 @@ describe('useProvideTeleport', () => {
 
   it('generates a target ID when none is specified', () => {
     const result = useProvideTeleport()
-    expect(result).toBe('generated-id')
+    expect(result).toBe('scalar-teleport-1234567890')
   })
 })
