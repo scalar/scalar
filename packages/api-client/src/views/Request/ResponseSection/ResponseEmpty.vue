@@ -50,9 +50,12 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           </a>
         </div>
       </div>
-      <div class="gitbook-show scalar-version-number">
+      <a
+        class="gitbook-show scalar-version-number"
+        href="https://www.scalar.com"
+        target="_blank">
         Powered By Scalar.com
-      </div>
+      </a>
       <ScalarAsciiArt
         :art="Computer"
         class="text-c-3" />
@@ -127,6 +130,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   align-items: center;
   justify-content: center;
   text-transform: initial;
+  text-decoration-color: var(--scalar-color-3);
 }
 .scalar-version-number a {
   font-weight: bold;
