@@ -53,6 +53,8 @@ internal sealed class ScalarConfiguration
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("_integration")]
     public required string? Integration { get; init; }
+
+    public required bool HideClientButton { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]

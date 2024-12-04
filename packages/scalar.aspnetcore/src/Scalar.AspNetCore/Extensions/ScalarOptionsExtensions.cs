@@ -396,4 +396,15 @@ public static class ScalarOptionsExtensions
         options.DotNetFlag = expose;
         return options;
     }
+    
+    /// <summary>
+    /// Sets whether the client button from the reference sidebar should be shown.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="showButton">Whether to show the client button.</param>
+    public static ScalarOptions WithClientButton(this ScalarOptions options, bool showButton)
+    {
+        options.HideClientButton = !showButton;
+        return options;
+    }
 }

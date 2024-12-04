@@ -69,7 +69,8 @@ public class ScalarOptionsMapperTests
             DefaultOpenAllTags = true,
             TagSorter = TagSorter.Alpha,
             OperationSorter = OperationSorter.Method,
-            DotNetFlag = false
+            DotNetFlag = false,
+            HideClientButton = true
         };
 
         // Act
@@ -101,6 +102,7 @@ public class ScalarOptionsMapperTests
         configuration.OperationsSorter.Should().Be(OperationSorter.Method.ToStringFast());
         configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
         configuration.Integration.Should().BeNull();
+        configuration.HideClientButton.Should().BeTrue();
     }
 
     [Fact]
