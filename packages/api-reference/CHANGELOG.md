@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.25.74
+
+### Patch Changes
+
+- 13432e7: feat: fall back to the API reference URL for the import
+- Updated dependencies [b744324]
+- Updated dependencies [0804d6b]
+- Updated dependencies [0076308]
+- Updated dependencies [9b4f85d]
+- Updated dependencies [13432e7]
+  - @scalar/api-client@2.2.6
+  - @scalar/oas-utils@0.2.84
+
 ## 1.25.73
 
 ### Patch Changes
