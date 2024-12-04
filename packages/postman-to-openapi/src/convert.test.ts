@@ -43,6 +43,7 @@ describe('convert', () => {
           'SimplePost',
           'UrlWithPort',
           'XLogo',
+          'NestedServers',
         ].map(async (name) => {
           const path = `oas/postman-to-openapi/fixtures/input/${name}.json`
           const response = await fetch(`${BASE_URL}/${path}`)
@@ -76,6 +77,7 @@ describe('convert', () => {
           'SimplePost',
           'UrlWithPort',
           'XLogoVar',
+          'NestedServers',
         ].map(async (name) => {
           const response = await fetch(
             `${BASE_URL}/oas/postman-to-openapi/fixtures/output/${name}.json`,
@@ -246,5 +248,11 @@ describe('convert', () => {
     expect(
       convert(JSON.parse(collections.Responses) as PostmanCollection),
     ).toEqual(JSON.parse(expected.Responses))
+  })
+
+  it('should parse nested servers instead of leaving the server empty', () => {
+    expect(
+      convert(JSON.parse(collections.NestedServers) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.NestedServers))
   })
 })
