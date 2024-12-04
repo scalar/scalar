@@ -170,6 +170,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           packages-only: 'fastify-api-reference'
+      - name: Build @scalar/echo-server
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: 'echo-server'
       - name: Run tests
         run: pnpm test:ci
       - name: Setup Go
