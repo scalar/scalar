@@ -9,7 +9,7 @@ on:
 jobs:
   harden_security:
     name: Check used GitHub Actions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -17,7 +17,7 @@ jobs:
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [18, 20]
@@ -37,7 +37,7 @@ jobs:
 
   docker:
     name: Build and Tag Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -114,7 +114,7 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -135,7 +135,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -152,7 +152,7 @@ jobs:
 
   test:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [18, 20]
@@ -176,7 +176,7 @@ jobs:
 
   stats:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -198,7 +198,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       id-token: write
@@ -243,7 +243,7 @@ jobs:
 
   todesktop-release:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build, test]
     strategy:
       matrix:
@@ -294,7 +294,7 @@ jobs:
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build]
     strategy:
       matrix:
@@ -333,7 +333,7 @@ jobs:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -383,7 +383,7 @@ jobs:
     # Skip for forks and bot PRs
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -419,7 +419,7 @@ jobs:
           comment_tag: 'netlify-preview'
 
   aspnetcore-build-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     steps:
       - name: Checkout repository
@@ -454,7 +454,7 @@ jobs:
 
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [aspnetcore-build-test]
 
     steps:
