@@ -80,8 +80,6 @@ export function useUrlPrefetcher() {
         }
       }
 
-      console.log('urlOrDocument', urlOrDocument)
-
       if (!isUrl(urlOrDocument)) {
         return {
           state: 'idle',
@@ -93,7 +91,6 @@ export function useUrlPrefetcher() {
       }
 
       const url = urlOrDocument
-      console.log('prefetchUrl', url)
 
       // Okay, we've got an URL. Let's fetch it:
       const result = await fetchWithProxyFallback(url, {
