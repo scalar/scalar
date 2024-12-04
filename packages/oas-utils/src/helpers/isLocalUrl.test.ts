@@ -42,4 +42,8 @@ describe('isLocalUrl ', () => {
     expect(isLocalUrl('http://localhost/api/data')).toBe(true)
     expect(isLocalUrl('https://127.0.0.1/search?q=test')).toBe(true)
   })
+
+  it('returns true for relative file paths', () => {
+    expect(isLocalUrl('openapi.json')).toBe(true)
+  })
 })
