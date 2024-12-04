@@ -60,6 +60,14 @@ export function useSearch() {
     searchResults.value = fuse.search(searchText.value)
   }
 
+  watch(searchText, (newValue) => {
+    if (newValue.length) {
+      fuseSearch()
+    } else {
+      searchResults.value = []
+    }
+  })
+
   const navigateSearchResults = (direction: 'up' | 'down') => {
     const offset = direction === 'up' ? -1 : 1
     const length = searchResultsWithPlaceholderResults.value.length

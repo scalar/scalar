@@ -54,6 +54,14 @@ export function useSearchIndex({
     searchResults.value = fuse.search(searchText.value)
   }
 
+  watch(searchText, (newValue) => {
+    if (newValue.length) {
+      fuseSearch()
+    } else {
+      searchResults.value = []
+    }
+  })
+
   function resetSearch(): void {
     searchText.value = ''
     selectedSearchResult.value = 0
