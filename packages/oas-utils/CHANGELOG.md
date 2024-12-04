@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.84
+
+### Patch Changes
+
+- 9b4f85d: fix: allow to pass relative file names
+
 ## 0.2.83
 
 ### Patch Changes

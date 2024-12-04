@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.2.6
+
+### Patch Changes
+
+- b744324: style: removes add item hotkey style
+- 0804d6b: feat: fall back to just the request path in the sidebar
+- 0076308: feat: show API client button in GitBook
+- 13432e7: feat: fall back to the API reference URL for the import
+- Updated dependencies [9b4f85d]
+  - @scalar/oas-utils@0.2.84
+  - @scalar/import@0.2.2
+
 ## 2.2.5
 
 ### Patch Changes
