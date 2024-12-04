@@ -55,6 +55,23 @@ describe('importSpecToWorkspace', () => {
       expect(request.parameters?.map((p) => p.name)).toContain('id')
       expect(request.parameters?.map((p) => p.name)).toContain('filter')
     })
+
+    it('handles requests in the order defined in the OpenAPI document', async () => {
+      const res = await importSpecToWorkspace(galaxy)
+      if (res.error) throw res.error
+
+      expect(res.requests.map((r) => r.operationId)).toEqual([
+        'getAllData',
+        'createPlanet',
+        'getPlanet',
+        'updatePlanet',
+        'deletePlanet',
+        'uploadImage',
+        'createUser',
+        'getToken',
+        'getMe',
+      ])
+    })
   })
 
   describe('tags', () => {
