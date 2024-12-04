@@ -171,6 +171,7 @@
     "@scalar/use-hooks": "workspace:*",
     "@scalar/use-toasts": "workspace:*",
     "@scalar/use-tooltip": "workspace:*",
+    "@scalar/postman-to-openapi": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "@vueuse/integrations": "^11.2.0",
     "focus-trap": "^7",
