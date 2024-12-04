@@ -112,7 +112,7 @@ const item = computed<SidebarItem>(() => {
 
   if (request)
     return {
-      title: request.summary ?? [request.method, request.path].join(' - '),
+      title: request.summary ?? request.path,
       link: {
         name: 'request',
         params: {
