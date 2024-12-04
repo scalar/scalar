@@ -73,7 +73,7 @@ watch(
         // Check whether the URL is pointing to an OpenAPI document
         const { error } = await prefetchUrl(
           value,
-          activeWorkspace.value.proxyUrl,
+          activeWorkspace.value?.proxyUrl,
         )
 
         if (error) {
