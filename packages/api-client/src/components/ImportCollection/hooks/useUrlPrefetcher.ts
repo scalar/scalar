@@ -57,10 +57,16 @@ export function useUrlPrefetcher() {
         },
       })
 
-      // If the input is an object, we're done
+      // If the input is an object, we’re done
       if (typeof urlOrDocument === 'object' && urlOrDocument !== null) {
         const json = JSON.stringify(urlOrDocument, null, 2)
-        return { state: 'idle', content: json, url: input, error: null }
+
+        return {
+          state: 'idle',
+          content: json,
+          url: null,
+          error: null,
+        }
       }
 
       // Nothing was found.
@@ -74,6 +80,8 @@ export function useUrlPrefetcher() {
         }
       }
 
+      console.log('urlOrDocument', urlOrDocument)
+
       if (!isUrl(urlOrDocument)) {
         return {
           state: 'idle',
@@ -85,6 +93,7 @@ export function useUrlPrefetcher() {
       }
 
       const url = urlOrDocument
+      console.log('prefetchUrl', url)
 
       // Okay, we've got an URL. Let's fetch it:
       const result = await fetchWithProxyFallback(url, {
