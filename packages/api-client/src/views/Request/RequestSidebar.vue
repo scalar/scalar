@@ -314,11 +314,6 @@ const handleClearDrafts = () => {
     transparent
   );
 }
-.empty-sidebar-item:deep(.add-item-hotkey) {
-  color: var(--scalar-button-1-color);
-  background: color-mix(in srgb, var(--scalar-button-1), white 20%);
-  border-color: transparent;
-}
 .empty-sidebar-item-content {
   display: none;
 }
