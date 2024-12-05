@@ -1,5 +1,4 @@
 import { convert } from '@scalar/postman-to-openapi'
-import { URL } from 'url'
 
 /** Checks if the given content is a Postman collection */
 export function isPostmanCollection(content: string): boolean {
