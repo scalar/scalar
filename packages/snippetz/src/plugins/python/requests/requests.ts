@@ -1,5 +1,5 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 // @ts-expect-error no types available
 import { requests } from '@/httpsnippet-lite/dist/esm/targets/python/requests/client.mjs'
 

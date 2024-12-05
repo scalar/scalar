@@ -1,4 +1,4 @@
-import type { Plugin } from '../../../core'
+import type { Plugin } from '@/types'
 
 /**
  * shell/curl
