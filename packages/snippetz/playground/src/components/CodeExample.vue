@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { snippetz } from '@scalar/snippetz'
-import { type TargetId, objectToString } from '@scalar/snippetz/core'
+import type { TargetId } from '@scalar/snippetz/core'
+import { objectToString } from '@scalar/snippetz/utils'
 import { getHighlighter } from 'shikiji'
 import { onMounted, ref, watch } from 'vue'
 
