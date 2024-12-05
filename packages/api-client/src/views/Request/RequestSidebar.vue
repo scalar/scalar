@@ -62,7 +62,9 @@ const { handleDragEnd, isDroppable } = dragHandlerFactory(
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
-  events.commandPalette.emit({ commandName: 'Import from OpenAPI/Swagger' })
+  events.commandPalette.emit({
+    commandName: 'Import from OpenAPI/Swagger/Postman',
+  })
 }
 const searchResultsId = useId()
 
@@ -275,7 +277,7 @@ const handleClearDrafts = () => {
           <div class="text-center text-balance text-sm mb-2 mt-2">
             <b class="font-medium">Let's Get Started</b>
             <p class="mt-2">
-              Create request, folder, collection or import OpenAPI document
+              Create request, folder, collection or import from OpenAPI/Postman
             </p>
           </div>
         </div>

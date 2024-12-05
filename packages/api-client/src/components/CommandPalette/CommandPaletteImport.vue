@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useFileDialog } from '@/hooks'
-import { getOpenApiDocumentDetails, isUrl } from '@/libs'
+import {
+  convertPostmanToOpenApi,
+  getOpenApiDocumentDetails,
+  getPostmanDocumentDetails,
+  isPostmanCollection,
+  isUrl,
+} from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -30,9 +36,13 @@ const loader = useLoadingState()
 const inputContent = ref('')
 const watchMode = ref(true)
 
-const documentDetails = computed(() =>
-  getOpenApiDocumentDetails(inputContent.value),
-)
+const documentDetails = computed(() => {
+  if (isPostmanCollection(inputContent.value)) {
+    return getPostmanDocumentDetails(inputContent.value)
+  } else {
+    return getOpenApiDocumentDetails(inputContent.value)
+  }
+})
 
 const documentType = computed(() =>
   documentDetails.value ? documentDetails.value.type : 'json',
@@ -49,7 +59,14 @@ const { open: openSpecFileDialog } = useFileDialog({
       reader.onload = async (e) => {
         const text = e.target?.result as string
         try {
-          await importSpecFile(text, activeWorkspace.value.uid)
+          if (isPostmanCollection(text)) {
+            await importSpecFile(
+              await convertPostmanToOpenApi(text),
+              activeWorkspace.value.uid,
+            )
+          } else {
+            await importSpecFile(text, activeWorkspace.value.uid)
+          }
           toast('Import successful', 'info')
           emits('close')
         } catch (error) {
@@ -99,12 +116,17 @@ async function importCollection() {
         loader.invalidate(2000, true)
         return
       }
-    } else if (isInputDocument.value)
-      await importSpecFile(
-        String(inputContent.value),
-        activeWorkspace.value.uid,
-      )
-    else {
+    } else if (isInputDocument.value) {
+      if (isPostmanCollection(inputContent.value)) {
+        await importSpecFile(
+          await convertPostmanToOpenApi(inputContent.value),
+          activeWorkspace.value.uid,
+        )
+        toast('Successfully converted Postman collection', 'info')
+      } else {
+        await importSpecFile(inputContent.value, activeWorkspace.value.uid)
+      }
+    } else {
       toast('Import failed: Invalid URL or OpenAPI document', 'error')
       loader.invalidate(2000, true)
       return
@@ -130,7 +152,7 @@ async function importCollection() {
     <template v-if="!documentDetails || isUrl(inputContent)">
       <CommandActionInput
         v-model="inputContent"
-        placeholder="OpenAPI/Swagger URL or document"
+        placeholder="OpenAPI/Swagger/Postman URL or document"
         @onDelete="emits('back', $event)" />
     </template>
     <template v-else>
