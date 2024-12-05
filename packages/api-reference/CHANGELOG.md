@@ -1,5 +1,25 @@
 # @scalar/api-reference
 
+## 1.25.75
+
+### Patch Changes
+
+- f955985: fix: favors use event listener for meta k command
+- c2be791: fix: watches text input to fuse search
+- Updated dependencies [a90d827]
+- Updated dependencies [57b5e5d]
+- Updated dependencies [d0adebf]
+- Updated dependencies [c2be791]
+- Updated dependencies [3b4a788]
+- Updated dependencies [3b4a788]
+- Updated dependencies [f4440f5]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/api-client@2.2.7
+  - @scalar/components@0.13.2
+  - @scalar/snippetz@0.2.7
+  - @scalar/oas-utils@0.2.85
+
 ## 1.25.74
 
 ### Patch Changes
