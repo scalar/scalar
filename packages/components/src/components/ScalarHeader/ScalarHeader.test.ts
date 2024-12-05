@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import ScalarHeaderButton from './ScalarHeaderButton.vue'
 
-describe('ScalarHeaderButton', () => {
+describe('ScalarHeader', () => {
   it('renders properly', () => {
     const wrapper = mount(ScalarHeaderButton, {
       slots: {
