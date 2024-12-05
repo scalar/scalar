@@ -71,9 +71,10 @@ defineSlots<{
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
   isReadOnly: true,
-  proxyUrl: configuration.value?.proxy ?? '',
+  proxyUrl: configuration.value?.proxyUrl ?? configuration.value?.proxy ?? '',
   themeId: configuration.value?.theme,
   useLocalStorage: false,
+  hideClientButton: configuration.value?.hideClientButton,
 })
 provide(WORKSPACE_SYMBOL, workspaceStore)
 workspaceStore.importSpecFile(props.configuration?.spec ?? {}, 'default', {
