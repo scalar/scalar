@@ -1,4 +1,3 @@
-import { isHTTPMethod } from '@/components/HttpMethod/helpers'
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import {
@@ -14,7 +13,7 @@ import {
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { schemaModel } from '@scalar/oas-utils/helpers'
+import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import {
   type Path,
   type PathValue,
@@ -407,7 +406,7 @@ export const mutateRequestDiff = (
 
     const requestPayload: RequestPayload = {
       ...operationWithoutSecurity,
-      method: isHTTPMethod(newMethod) ? newMethod : 'get',
+      method: isHttpMethod(newMethod) ? newMethod : 'get',
       path,
       parameters: (operation.parameters ?? []) as RequestParameterPayload[],
       servers: operationServers.map((s) => s.uid),

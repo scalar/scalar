@@ -9,7 +9,6 @@ import {
   type Tag,
   collectionSchema,
   createExampleFromRequest,
-  requestMethods,
   requestSchema,
   serverSchema,
   tagSchema,
@@ -20,6 +19,7 @@ import {
   type SecuritySchemePayload,
   securitySchemeSchema,
 } from '@/entities/spec/security'
+import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
@@ -255,9 +255,7 @@ export async function importSpecToWorkspace(
     servers.push(...pathServers)
 
     // Creates a sorted array of methods based on the path object.
-    const methods = Object.keys(path).filter((method) =>
-      requestMethods.includes(method as any),
-    )
+    const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
       const operation = path[method]
