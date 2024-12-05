@@ -27,9 +27,11 @@ export async function convertPostmanToOpenApi(
 }
 
 /** Extracts details from a Postman collection JSON string */
-export function getPostmanDocumentDetails(
-  content: string,
-): { type: string; title: string; version: string } | null {
+export function getPostmanDocumentDetails(content: string): {
+  type: string
+  title: string
+  version: string
+} | null {
   try {
     if (isPostmanCollection(content)) {
       const parsed = JSON.parse(content)
