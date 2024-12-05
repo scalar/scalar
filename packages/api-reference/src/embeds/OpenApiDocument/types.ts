@@ -10,6 +10,7 @@ export type OpenApiDocumentConfiguration = Partial<
     | 'spec'
     | 'authentication'
     | 'defaultHttpClient'
+    | 'hideClientButton'
     | 'hiddenClients'
     | 'theme'
   >
