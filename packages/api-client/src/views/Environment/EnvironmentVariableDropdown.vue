@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { parseEnvVariables } from '@/libs'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarTeleport } from '@scalar/components'
 import { onClickOutside } from '@vueuse/core'
 import Fuse from 'fuse.js'
 import { type CSSProperties, computed, onMounted, ref } from 'vue'
@@ -125,9 +125,9 @@ onClickOutside(
 )
 </script>
 <template>
-  <Teleport
+  <ScalarTeleport
     v-if="isOpen"
-    :to="'.scalar-client'">
+    class="scalar-client">
     <div
       ref="dropdownRef"
       class="fixed left-0 top-0 flex flex-col p-0.75 max-h-[60svh] w-56 rounded border custom-scroll"
@@ -169,5 +169,5 @@ onClickOutside(
       <div
         class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
     </div>
-  </Teleport>
+  </ScalarTeleport>
 </template>

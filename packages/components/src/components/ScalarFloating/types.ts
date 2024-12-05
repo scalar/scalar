@@ -1,5 +1,7 @@
 import type { Middleware, Placement } from '@floating-ui/vue'
 
+import { ScalarTeleportRoot } from '../ScalarTeleport'
+
 /** The props for the ScalarFloating component */
 export type FloatingOptions = {
   /**
@@ -36,7 +38,9 @@ export type FloatingOptions = {
   middleware?: Middleware[]
   /**
    * Whether to teleport the floating element.
-   * Can be an `id` to teleport to or `true` to teleport to the `<body>`.
+   * Can be an `id` to teleport to or `true` to teleport to the nearest `<ScalarTeleportRoot>` (or `<body>`).
+   *
+   * @see {@link ScalarTeleportRoot}
    * @default false
    */
   teleport?: boolean | string
