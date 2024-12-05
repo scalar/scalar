@@ -50,7 +50,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         var fileProvider = new EmbeddedFileProvider(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, StaticAssets);
         var fileExtensionContentTypeProvider = new FileExtensionContentTypeProvider();
 
-        var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
+        var configuration = JsonSerializer.Serialize(options.ToScalarConfiguration(), ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
 
         return endpoints.MapGet(options.EndpointPathPrefix, (string documentName) =>
             {
