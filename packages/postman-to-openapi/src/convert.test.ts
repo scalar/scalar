@@ -17,18 +17,14 @@ describe.skip('convert', () => {
       const allPromises = [
         // Input collections
         ...[
-          'PostmantoOpenAPI',
-          'NoVersion',
-          'NullHeaders',
           'AuthBasic',
           'AuthBearer',
           'AuthMultiple',
           'AuthRequest',
           'DeleteOperation',
-          'DepthPathParams',
-          'DisabledParams',
           'EmptyUrl',
           'ExternalDocs',
+          'Folders',
           'FormData',
           'FormUrlencoded',
           'GetMethods',
@@ -36,34 +32,34 @@ describe.skip('convert', () => {
           'LicenseContact',
           'MultipleServers',
           'NoPath',
+          'NoVersion',
           'OperationIds',
           'ParseStatusCode',
           'PathParams',
+          'PostmantoOpenAPI',
           'RawBody',
+          'Responses',
+          'ResponsesEmpty',
+          'SimplePost',
           'UrlWithPort',
           'XLogo',
+          'NestedServers',
         ].map(async (name) => {
-          const path =
-            name === 'NullHeaders'
-              ? `oas/postman-to-openapi/fixtures/input/${name}.json`
-              : `oas/postman-to-openapi/fixtures/input/v21/${name}.json`
+          const path = `oas/postman-to-openapi/fixtures/input/${name}.json`
           const response = await fetch(`${BASE_URL}/${path}`)
           collections[name] = await response.text()
         }),
         // Expected outputs
         ...[
-          'Basic',
-          'NoVersion',
-          'NullHeader',
           'AuthBasic',
           'AuthBearer',
           'AuthMultiple',
           'AuthRequest',
+          'Basic',
           'DeleteOperation',
-          'DepthPathParams',
-          'DisabledParamsDefault',
           'EmptyUrl',
           'ExternalDocs',
+          'Folders',
           'FormData',
           'FormUrlencoded',
           'GetMethods',
@@ -71,12 +67,17 @@ describe.skip('convert', () => {
           'LicenseContact',
           'MultipleServers',
           'NoPath',
+          'NoVersion',
           'OperationIds',
-          'ParseStatus',
+          'ParseStatusCode',
           'PathParams',
           'RawBody',
+          'Responses',
+          'ResponsesEmpty',
+          'SimplePost',
           'UrlWithPort',
           'XLogoVar',
+          'NestedServers',
         ].map(async (name) => {
           const response = await fetch(
             `${BASE_URL}/oas/postman-to-openapi/fixtures/output/${name}.json`,
@@ -98,10 +99,22 @@ describe.skip('convert', () => {
     ).toEqual(JSON.parse(expected.Basic))
   })
 
+  it('Should convert a simple postman collection to OpenAPI including servers', () => {
+    expect(
+      convert(JSON.parse(collections.SimplePost) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.SimplePost))
+  })
+
   it('should use default version if not informed and not in postman variables', () => {
     expect(
       convert(JSON.parse(collections.NoVersion) as PostmanCollection),
     ).toEqual(JSON.parse(expected.NoVersion))
+  })
+
+  it('should work with folders and use as tags', () => {
+    expect(
+      convert(JSON.parse(collections.Folders) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.Folders))
   })
 
   it('should parse GET methods with query string', () => {
@@ -110,7 +123,6 @@ describe.skip('convert', () => {
     ).toEqual(JSON.parse(expected.GetMethods))
   })
 
-  // working on this
   it.skip('should parse HEADERS parameters', () => {
     expect(
       convert(JSON.parse(collections.Headers) as PostmanCollection),
@@ -135,16 +147,10 @@ describe.skip('convert', () => {
     ).toEqual(JSON.parse(expected.LicenseContact))
   })
 
-  it('should use depth configuration for parse paths', () => {
-    expect(
-      convert(JSON.parse(collections.DepthPathParams) as PostmanCollection),
-    ).toEqual(JSON.parse(expected.DepthPathParams))
-  })
-
   it('should parse status codes from test', () => {
     expect(
       convert(JSON.parse(collections.ParseStatusCode) as PostmanCollection),
-    ).toEqual(JSON.parse(expected.ParseStatus))
+    ).toEqual(JSON.parse(expected.ParseStatusCode))
   })
 
   it('should parse operation when no path (only domain)', () => {
@@ -225,24 +231,28 @@ describe.skip('convert', () => {
     ).toEqual(JSON.parse(expected.RawBody))
   })
 
-  // working on this (idk man)
-  it.skip('should not parse `disabled` parameters', () => {
+  it.skip('should not fail if response body is json but empty', () => {
     expect(
-      convert(JSON.parse(collections.DisabledParams) as PostmanCollection),
-    ).toEqual(JSON.parse(expected.DisabledParamsDefault))
+      convert(JSON.parse(collections.ResponsesEmpty) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.ResponsesEmpty))
   })
 
-  // working on this (I don't think this test makes sense for us we always add operationId)
-  it('should not add `operationId` by default', () => {
+  it('should include `operationId` when `brackets` is selected', () => {
     expect(
       convert(JSON.parse(collections.OperationIds) as PostmanCollection),
     ).toEqual(JSON.parse(expected.OperationIds))
   })
 
-  // working on this
-  it.skip('should work if header is equals to "null" in response', () => {
+  // fast follow with this test
+  it.skip('should add responses from postman examples', () => {
     expect(
-      convert(JSON.parse(collections.NullHeaders) as PostmanCollection),
-    ).toEqual(JSON.parse(expected.NullHeader))
+      convert(JSON.parse(collections.Responses) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.Responses))
+  })
+
+  it('should parse nested servers instead of leaving the server empty', () => {
+    expect(
+      convert(JSON.parse(collections.NestedServers) as PostmanCollection),
+    ).toEqual(JSON.parse(expected.NestedServers))
   })
 })
