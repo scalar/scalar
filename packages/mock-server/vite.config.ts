@@ -5,6 +5,5 @@ export default defineConfig({
   plugins: [],
   resolve: {
     alias: alias(import.meta.url),
-    dedupe: ['vue'],
   },
 })

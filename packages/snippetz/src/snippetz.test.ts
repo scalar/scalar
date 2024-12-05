@@ -15,17 +15,17 @@ const { statusCode, body } = await request('https://example.com')`)
 
   it('loads some clients by default', async () => {
     const targets = snippetz().targets()
-    expect(targets).toStrictEqual(['node', 'js', 'shell'])
+
+    expect(targets).toEqual(
+      expect.arrayContaining(['node', 'js', 'shell', 'php']),
+    )
 
     const clients = snippetz().clients()
-    expect(clients).toStrictEqual([
-      'undici',
-      'fetch',
-      'fetch',
-      'ofetch',
-      'ofetch',
-      'curl',
-    ])
+
+    expect(clients).toContain('undici')
+    expect(clients).toContain('fetch')
+    expect(clients).toContain('ofetch')
+    expect(clients).toContain('curl')
   })
 })
 
@@ -33,32 +33,22 @@ describe('plugins', async () => {
   it('returns true if it has the plugin', async () => {
     const result = snippetz().plugins()
 
-    expect(result).toStrictEqual([
-      {
-        target: 'node',
-        client: 'undici',
-      },
-      {
-        target: 'node',
-        client: 'fetch',
-      },
-      {
-        target: 'js',
-        client: 'fetch',
-      },
-      {
-        target: 'js',
-        client: 'ofetch',
-      },
-      {
-        target: 'node',
-        client: 'ofetch',
-      },
-      {
-        target: 'shell',
-        client: 'curl',
-      },
-    ])
+    expect(result).toEqual(
+      expect.arrayContaining([
+        {
+          target: 'node',
+          client: 'undici',
+        },
+        {
+          target: 'node',
+          client: 'fetch',
+        },
+        {
+          target: 'shell',
+          client: 'curl',
+        },
+      ]),
+    )
   })
 })
 

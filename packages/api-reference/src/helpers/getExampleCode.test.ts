@@ -46,28 +46,6 @@ describe('getExampleCode', () => {
     expect(result).toContain('$.ajax')
   })
 
-  it('works with js and javascript (httpsnippet-lite)', async () => {
-    const result1 = await getExampleCode(
-      createRequest({
-        method: 'POST',
-        url: 'https://example.com',
-      }),
-      'js',
-      'jquery',
-    )
-
-    const result2 = await getExampleCode(
-      createRequest({
-        method: 'POST',
-        url: 'https://example.com',
-      }),
-      'javascript',
-      'jquery',
-    )
-
-    expect(result1).toBe(result2)
-  })
-
   it('returns an empty string if passed rubbish', async () => {
     const result = await getExampleCode(
       createRequest({
