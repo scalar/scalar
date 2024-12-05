@@ -7,10 +7,16 @@ import type { HarRequest } from '@scalar/types/external'
 export const convertRequestToHarRequest = async (
   request: Request,
 ): Promise<HarRequest> => {
+  const url = new URL(request.url)
+
+  // Prevent duplication of query string
+  const query = Array.from(url.searchParams.entries())
+  url.search = ''
+
   // Create base HAR request structure
   const harRequest: HarRequest = {
     method: request.method.toUpperCase(),
-    url: request.url,
+    url: url.toString(),
     httpVersion: 'HTTP/1.1',
     headers: [],
     queryString: [],
@@ -40,17 +46,13 @@ export const convertRequestToHarRequest = async (
 
   // Handle query parameters
   try {
-    const url = new URL(request.url)
+    harRequest.queryString = query.map(([name, value]) => ({
+      name,
+      value,
+    }))
 
     // Prevent duplication of query params
     url.search = ''
-
-    harRequest.queryString = Array.from(url.searchParams.entries()).map(
-      ([name, value]) => ({
-        name,
-        value,
-      }),
-    )
   } catch (e) {
     // Invalid URL, leave queryString empty
   }
