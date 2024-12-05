@@ -80,6 +80,16 @@ function createOAuth2Config(): SecurityConfig {
 }
 
 /**
+ * Creates security configuration for no authentication
+ */
+function createNoAuthConfig(): SecurityConfig {
+  return {
+    scheme: {},
+    requirement: {},
+  }
+}
+
+/**
  * Maps authentication types to their configuration creators
  */
 const AUTH_TYPE_HANDLERS: Record<string, () => SecurityConfig> = {
@@ -87,12 +97,13 @@ const AUTH_TYPE_HANDLERS: Record<string, () => SecurityConfig> = {
   basic: createBasicConfig,
   bearer: createBearerConfig,
   oauth2: createOAuth2Config,
+  noauth: createNoAuthConfig,
 }
 
 /**
  * Processes authentication information from a Postman collection and updates
  * the OpenAPI document with the corresponding security schemes and requirements.
- * Supports API key, basic auth, bearer token, and OAuth2 authentication types.
+ * Supports API key, basic auth, bearer token, OAuth2, and no authentication types.
  */
 export function processAuth(auth: Auth): {
   securitySchemes: Record<string, OpenAPIV3_1.SecuritySchemeObject>
@@ -108,9 +119,13 @@ export function processAuth(auth: Auth): {
     }
 
     const { scheme, requirement } = handler()
-    const schemeKey = `${auth.type}Auth`
-    securitySchemes[schemeKey] = scheme
-    security.push(requirement)
+    
+    // Only add security schemes and requirements if they're not empty
+    if (Object.keys(scheme).length > 0) {
+      const schemeKey = `${auth.type}Auth`
+      securitySchemes[schemeKey] = scheme
+      security.push(requirement)
+    }
   } catch (error) {
     console.error('Error processing authentication:', error)
     throw error
