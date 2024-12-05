@@ -252,6 +252,7 @@ const workspaceStore = createWorkspaceStore({
   proxyUrl: props.configuration.proxy,
   themeId: props.configuration.theme,
   useLocalStorage: false,
+  hideClientButton: props.configuration.hideClientButton,
 })
 // Populate the workspace store
 watch(
