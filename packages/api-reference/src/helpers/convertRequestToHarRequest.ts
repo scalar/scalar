@@ -41,6 +41,10 @@ export const convertRequestToHarRequest = async (
   // Handle query parameters
   try {
     const url = new URL(request.url)
+
+    // Prevent duplication of query params
+    url.search = ''
+
     harRequest.queryString = Array.from(url.searchParams.entries()).map(
       ([name, value]) => ({
         name,

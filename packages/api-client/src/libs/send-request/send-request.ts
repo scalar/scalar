@@ -231,6 +231,9 @@ function ensureProtocol(url: string): string {
   return `http://${url}`
 }
 
+/** For the examples mostly */
+const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
+
 /** Execute the request */
 export const createRequestOperation = ({
   request,
@@ -307,8 +310,8 @@ export const createRequestOperation = ({
 
       // Scheme type and example value type should always match
       if (scheme.type === 'apiKey') {
-        const value = replaceTemplateVariables(scheme.value, env)
-        if (!value) return
+        const value =
+          replaceTemplateVariables(scheme.value, env) || EMPTY_TOKEN_PLACEHOLDER
 
         if (scheme.in === 'header') headers[scheme.name] = value
         if (scheme.in === 'query') urlParams.append(scheme.name, value)
@@ -325,10 +328,12 @@ export const createRequestOperation = ({
           const password = replaceTemplateVariables(scheme.password, env)
           const value = `${username}:${password}`
 
-          if (value !== ':') headers['Authorization'] = `Basic ${btoa(value)}`
+          headers['Authorization'] =
+            `Basic ${value === ':' ? 'username:password' : btoa(value)}`
         } else {
           const value = replaceTemplateVariables(scheme.token, env)
-          if (value) headers['Authorization'] = `Bearer ${value}`
+          headers['Authorization'] =
+            `Bearer ${value || EMPTY_TOKEN_PLACEHOLDER}`
         }
       }
 
@@ -336,9 +341,8 @@ export const createRequestOperation = ({
       if (scheme.type === 'oauth2') {
         const flows = Object.values(scheme.flows)
         const token = flows.find((f) => f.token)?.token
-        if (!token) return
 
-        headers['Authorization'] = `Bearer ${token}`
+        headers['Authorization'] = `Bearer ${token || EMPTY_TOKEN_PLACEHOLDER}`
       }
     })
 
