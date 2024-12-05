@@ -1,7 +1,3 @@
-import type { Request } from 'har-format'
-
-export type { Request } from 'har-format'
-
 /**
  * List of available clients
  */
