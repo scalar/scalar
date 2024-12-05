@@ -9,7 +9,6 @@ import {
   type Tag,
   collectionSchema,
   createExampleFromRequest,
-  requestMethods,
   requestSchema,
   serverSchema,
   tagSchema,
@@ -20,6 +19,7 @@ import {
   type SecuritySchemePayload,
   securitySchemeSchema,
 } from '@/entities/spec/security'
+import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { dereference, load, upgrade } from '@scalar/openapi-parser'
@@ -254,77 +254,77 @@ export async function importSpecToWorkspace(
     const pathServers = serverSchema.array().parse(path.servers ?? [])
     servers.push(...pathServers)
 
-    requestMethods.forEach((method) => {
-      const operation: OpenAPIV3_1.OperationObject<{
-        tags?: string[]
-        security?: OpenAPIV3_1.SecurityRequirementObject[]
-      }> = path[method as keyof typeof path]
-      if (operation && typeof operation === 'object') {
-        const operationServers = serverSchema
-          .array()
-          .parse(operation.servers ?? [])
+    // Creates a sorted array of methods based on the path object.
+    const methods = Object.keys(path).filter(isHttpMethod)
 
-        servers.push(...operationServers)
+    methods.forEach((method) => {
+      const operation = path[method]
+      const operationServers = serverSchema
+        .array()
+        .parse(operation.servers ?? [])
 
-        // We will save a list of all tags to ensure they exists at the top level
-        // TODO: make sure we add any loose requests with no tags to the collection children
-        operation.tags?.forEach((t) => tagNames.add(t))
+      servers.push(...operationServers)
 
-        // Remove security here and add it correctly below
-        const { security: operationSecurity, ...operationWithoutSecurity } =
-          operation
+      // We will save a list of all tags to ensure they exists at the top level
+      // TODO: make sure we add any loose requests with no tags to the collection children
+      operation.tags?.forEach((t: string) => tagNames.add(t))
 
-        // Grab the security requirements for this operation
-        const securityRequirements = (
-          operationSecurity ??
-          (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
-          []
-        ).flatMap((s) => {
-          const keys = Object.keys(s)
-          if (keys.length) return keys[0]
-          else return []
-        })
+      // Remove security here and add it correctly below
+      const { security: operationSecurity, ...operationWithoutSecurity } =
+        operation
 
-        let selectedSecuritySchemeUids: string[] = []
+      // Grab the security requirements for this operation
+      const securityRequirements = (
+        operationSecurity ??
+        (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
+        []
+      ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
+        const keys = Object.keys(s)
+        if (keys.length) return keys[0]
+        else return []
+      })
 
-        // Set the initially selected security scheme
-        if (securityRequirements.length && !setCollectionSecurity) {
-          const name =
-            authentication?.preferredSecurityScheme &&
-            securityRequirements.includes(
-              authentication.preferredSecurityScheme ?? '',
-            )
-              ? authentication.preferredSecurityScheme
-              : securityRequirements[0]
-          const uid = securitySchemeMap[name]
-          selectedSecuritySchemeUids = [uid]
-        }
+      let selectedSecuritySchemeUids: string[] = []
 
-        const requestPayload: RequestPayload = {
-          ...operationWithoutSecurity,
-          method,
-          path: pathString,
-          selectedSecuritySchemeUids,
-          // Merge path and operation level parameters
-          parameters: [
-            ...(path?.parameters ?? []),
-            ...(operation.parameters ?? []),
-          ] as RequestParameterPayload[],
-          servers: [...pathServers, ...operationServers].map((s) => s.uid),
-        }
-
-        // Remove any examples from the request payload as they conflict with our examples property and are not valid
-        if (requestPayload.examples) {
-          console.warn(
-            '[@scalar/api-client] operation.examples is not a valid openapi property',
+      // Set the initially selected security scheme
+      if (securityRequirements.length && !setCollectionSecurity) {
+        const name =
+          authentication?.preferredSecurityScheme &&
+          securityRequirements.includes(
+            authentication.preferredSecurityScheme ?? '',
           )
-          delete requestPayload.examples
-        }
+            ? authentication.preferredSecurityScheme
+            : securityRequirements[0]
+        const uid = securitySchemeMap[name]
+        selectedSecuritySchemeUids = [uid]
+      }
 
-        // Add list of UIDs to associate security schemes
-        // As per the spec if there is operation level security we ignore the top level requirements
-        if (operationSecurity?.length)
-          requestPayload.security = operationSecurity.map((s) => {
+      const requestPayload: RequestPayload = {
+        ...operationWithoutSecurity,
+        method,
+        path: pathString,
+        selectedSecuritySchemeUids,
+        // Merge path and operation level parameters
+        parameters: [
+          ...(path?.parameters ?? []),
+          ...(operation.parameters ?? []),
+        ] as RequestParameterPayload[],
+        servers: [...pathServers, ...operationServers].map((s) => s.uid),
+      }
+
+      // Remove any examples from the request payload as they conflict with our examples property and are not valid
+      if (requestPayload.examples) {
+        console.warn(
+          '[@scalar/api-client] operation.examples is not a valid openapi property',
+        )
+        delete requestPayload.examples
+      }
+
+      // Add list of UIDs to associate security schemes
+      // As per the spec if there is operation level security we ignore the top level requirements
+      if (operationSecurity?.length)
+        requestPayload.security = operationSecurity.map(
+          (s: OpenAPIV3_1.SecurityRequirementObject) => {
             const keys = Object.keys(s)
 
             // Handle the case of {} for optional
@@ -334,15 +334,15 @@ export async function importSpecToWorkspace(
                 [key]: s[key],
               }
             } else return s
-          })
+          },
+        )
 
-        // Save parse the request
-        const request = schemaModel(requestPayload, requestSchema, false)
+      // Save parse the request
+      const request = schemaModel(requestPayload, requestSchema, false)
 
-        if (!request)
-          importWarnings.push(`${method} Request at ${path} is invalid.`)
-        else requests.push(request)
-      }
+      if (!request)
+        importWarnings.push(`${method} Request at ${path} is invalid.`)
+      else requests.push(request)
     })
   })
 
