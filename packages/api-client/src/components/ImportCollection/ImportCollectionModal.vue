@@ -15,7 +15,9 @@ import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type IntegrationThemeId, getThemeStyles } from '@scalar/themes'
+import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
   source: string | null
@@ -57,6 +59,24 @@ const title = computed(() => openApiDocument.value?.info?.title)
 const version = computed(() =>
   getOpenApiDocumentVersion(prefetchResult.content || props.source || ''),
 )
+
+const { darkLightMode } = useColorMode()
+const { currentRoute } = useRouter()
+
+/** Grab light and dark logos from the url query params */
+const companyLogo = computed(() => {
+  try {
+    const query = currentRoute.value.query
+    const logo =
+      darkLightMode.value === 'dark' ? query.dark_logo : query.light_logo
+
+    if (logo) return decodeURIComponent(logo as string)
+  } catch {
+    // No harm no foul
+  }
+
+  return null
+})
 
 /** Open/close modal on events  */
 watch(
@@ -215,7 +235,7 @@ function handleImportFinished() {
         </template>
         <!-- Sucess -->
         <template v-else>
-          <!-- Logo -->
+          <!-- Integration Logo -->
           <div
             v-if="shouldShowIntegrationIcon"
             class="flex justify-center items-center mb-2 p-1">
@@ -223,10 +243,21 @@ function handleImportFinished() {
               <IntegrationLogo :integration="integration" />
             </div>
           </div>
+
+          <!-- Company Logo -->
+          <img
+            v-else-if="companyLogo"
+            alt="Logo"
+            class="w-full object-contain mb-2"
+            :src="companyLogo" />
+
           <!-- Title -->
-          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+          <div
+            v-if="!companyLogo"
+            class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title || 'Untitled Collection' }}
           </div>
+
           <div class="text-c-1 text-sm font-medium text-center text-balance">
             Import the OpenAPI document to instantly send API requests. No
             signup required.

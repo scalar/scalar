@@ -47,6 +47,7 @@ export type ClientConfiguration = {
 export type OpenClientPayload = {
   path: string
   method: LiteralUnion<RequestMethod | Lowercase<RequestMethod>, string>
+  _source?: 'api-reference' | 'gitbook'
 }
 
 type CreateApiClientParams = {
@@ -343,6 +344,7 @@ export const createApiClient = ({
         if (_request)
           router.push({
             name: 'request',
+            query: payload._source ? { source: payload._source } : undefined,
             params: {
               workspace: 'default',
               request: _request.uid,
