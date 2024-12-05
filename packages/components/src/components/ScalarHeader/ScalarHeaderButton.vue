@@ -1,16 +1,25 @@
 <script setup lang="ts">
-defineProps<{
-  label?: string
-  href?: string
+import type { Component } from 'vue'
+
+import { useBindCx } from '../../hooks/useBindCx'
+
+const { is = 'button' } = defineProps<{
+  is?: string | Component
 }>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
 </script>
 <template>
   <component
-    :is="href ? 'a' : 'button'"
-    class="flex min-w-[37px] max-w-[37px] items-center justify-center rounded-lg p-2 font-medium no-underline hover:bg-b-3 sm:min-w-max sm:max-w-max sm:rounded sm:py-1.5"
-    type="button">
-    <slot>
-      {{ label }}
-    </slot>
+    :is="is"
+    :type="is === 'button' ? 'button' : undefined"
+    v-bind="
+      cx(
+        'group/button flex items-center gap-1 rounded bg-transparent px-2.5 py-2 hover:bg-b-2',
+        'font-medium no-underline',
+      )
+    ">
+    <slot />
   </component>
 </template>

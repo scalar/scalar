@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 
+import { ScalarMenu } from '../ScalarMenu'
 import ScalarHeader from './ScalarHeader.vue'
+import ScalarHeaderButton from './ScalarHeaderButton.vue'
 
 const placeholder = (s: string) =>
   `<div class="flex items-center justify-center border border-c-1 border-dashed rounded w-full h-8">${s}</div>`
@@ -11,6 +13,7 @@ const placeholder = (s: string) =>
  */
 const meta = {
   component: ScalarHeader,
+  subcomponents: { ScalarHeaderButton },
   tags: ['autodocs'],
   argTypes: {},
   parameters: { layout: 'fullscreen' },
@@ -32,3 +35,21 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
+
+export const WithMenuAndButton: Story = {
+  render: (args) => ({
+    components: { ScalarHeader, ScalarHeaderButton, ScalarMenu },
+    setup() {
+      return { args }
+    },
+    template: `
+<ScalarHeader v-bind="args">
+  <template #start>
+    <ScalarMenu />
+  </template>
+  <template #end>
+    <ScalarHeaderButton>Button</ScalarHeaderButton>
+  </template>
+</ScalarHeader>`,
+  }),
+}
