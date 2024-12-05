@@ -1,4 +1,5 @@
 import { convert } from '@scalar/postman-to-openapi'
+import { URL } from 'url';
 
 /** Checks if the given content is a Postman collection */
 export function isPostmanCollection(content: string): boolean {
@@ -6,7 +7,7 @@ export function isPostmanCollection(content: string): boolean {
     const parsed = JSON.parse(content)
     const isPostman =
       parsed.info?._postman_id !== undefined &&
-      parsed.info?.schema?.includes('schema.getpostman.com')
+      new URL(parsed.info?.schema).host === 'schema.getpostman.com'
     return isPostman
   } catch (error) {
     return false
