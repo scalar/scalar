@@ -20,7 +20,7 @@ const emit = defineEmits<{
 const method = computed(() => getHttpMethodInfo(props.method))
 const methodOptions = Object.entries(REQUEST_METHODS).map(([id]) => ({
   id: id as RequestMethod,
-  label: id.charAt(0) + id.toLowerCase().slice(1),
+  label: id.toUpperCase(),
   color: getHttpMethodInfo(id).color,
 }))
 const selectedMethod = computed({
@@ -49,7 +49,7 @@ const httpLabel = computed(() => method.value.short)
   <ScalarListbox
     v-if="isEditable"
     v-model="selectedMethod"
-    class="mt-1 font-code text-sm uppercase"
+    class="mt-1 font-code text-sm scalar-client"
     :options="methodOptions">
     <div
       class="h-full"
