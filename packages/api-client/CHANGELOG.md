@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.2.7
+
+### Patch Changes
+
+- a90d827: feat(components): create ScalarTeleport component
+- d0adebf: fix: updates tailwind config content
+- c2be791: fix: watches text input to fuse search
+- 3b4a788: fix: updates default row for request body
+- f4440f5: feat: added logo functionality to the importer
+- 4c5be96: feat: adds isHttpMethod to helpers
+- Updated dependencies [a90d827]
+- Updated dependencies [3b4a788]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/components@0.13.2
+  - @scalar/oas-utils@0.2.85
+  - @scalar/use-codemirror@0.11.46
+  - @scalar/import@0.2.3
+
 ## 2.2.6
 
 ### Patch Changes

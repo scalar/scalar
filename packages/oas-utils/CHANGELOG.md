@@ -1,5 +1,13 @@
 # @scalar/oas-utils
 
+## 0.2.85
+
+### Patch Changes
+
+- 3b4a788: feat: sets form request examples defaulting
+- 4c5be96: feat: adds isHttpMethod to helpers
+- 4c5be96: fix: sorts method based on path in import spec
+
 ## 0.2.84
 
 ### Patch Changes

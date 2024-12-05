@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.7
+
+### Patch Changes
+
+- 57b5e5d: feat: add httpsnippet-lite and all the converters
+
 ## 0.2.6
 
 ### Patch Changes

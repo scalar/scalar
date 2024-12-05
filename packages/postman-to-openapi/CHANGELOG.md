@@ -1,5 +1,15 @@
 # @scalar/postman-to-openapi
 
+## 0.1.8
+
+### Patch Changes
+
+- eeb2a8b: fix: postman examples are misinterpreted as folders
+- Updated dependencies [3b4a788]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/oas-utils@0.2.85
+
 ## 0.1.7
 
 ### Patch Changes

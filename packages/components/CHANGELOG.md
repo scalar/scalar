@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.2
+
+### Patch Changes
+
+- a90d827: feat(components): create ScalarTeleport component
+
 ## 0.13.1
 
 ### Patch Changes
