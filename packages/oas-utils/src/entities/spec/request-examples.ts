@@ -412,12 +412,22 @@ export function createExampleFromRequest(
       body.binary = undefined
     }
 
-    /**
-     * TODO: How are handling form data examples from the spec
-     */
-    if (requestBody?.body?.mimeType === 'application/x-www-form-urlencoded') {
+    if (
+      requestBody?.body?.mimeType === 'application/x-www-form-urlencoded' ||
+      requestBody?.body?.mimeType === 'multipart/form-data'
+    ) {
       body.activeBody = 'formData'
-      body.formData = undefined
+      body.formData = {
+        encoding:
+          requestBody.body.mimeType === 'application/x-www-form-urlencoded'
+            ? 'urlencoded'
+            : 'form-data',
+        value: (requestBody.body.params || []).map((param) => ({
+          key: param.name,
+          value: param.value || '',
+          enabled: true,
+        })),
+      }
     }
   }
 
