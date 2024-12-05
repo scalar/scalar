@@ -117,7 +117,7 @@ describe('shellWget', () => {
     expect(result).toBe(`wget --quiet \\
   --method GET \\
   --output-document \\
-  - 'https://example.com/path with spaces/[brackets]'`)
+  - 'https://example.com/path%20with%20spaces/[brackets]'`)
   })
 
   it('handles multiple headers with same name', () => {
@@ -157,6 +157,6 @@ describe('shellWget', () => {
     expect(result).toBe(`wget --quiet \\
   --method GET \\
   --output-document \\
-  - 'https://example.com/api?param1=value1&param2=special value&param3=123'`)
+  - 'https://example.com/api?param1=value1&param2=special%20value&param3=123'`)
   })
 })

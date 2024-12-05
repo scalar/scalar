@@ -97,7 +97,7 @@ describe('shellHttpie', () => {
     })
 
     expect(result).toBe(
-      `http GET 'https://example.com/path with spaces/[brackets]'`,
+      `http GET 'https://example.com/path%20with%20spaces/[brackets]'`,
     )
   })
 
@@ -130,7 +130,7 @@ describe('shellHttpie', () => {
     })
 
     expect(result).toBe(
-      `http GET 'https://example.com/api?param1=value1&param2=special value&param3=123'`,
+      `http GET 'https://example.com/api?param1=value1&param2=special%20value&param3=123'`,
     )
   })
 })

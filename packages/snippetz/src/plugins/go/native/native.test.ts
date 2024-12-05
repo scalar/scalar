@@ -263,7 +263,7 @@ import (
 
 func main() {
 
-	url := "https://example.com/path with spaces/[brackets]"
+	url := "https://example.com/path%20with%20spaces/[brackets]"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

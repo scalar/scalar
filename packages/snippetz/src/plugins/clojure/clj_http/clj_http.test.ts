@@ -68,8 +68,8 @@ describe('clojureCljhttp', () => {
       `(require '[clj-http.client :as client])
 
 (client/post "https://example.com/" {:multipart [{:name "file"
-                                                 :content (clojure.java.io/file "test.txt")} {:name "field"
-                                                 :content "value"}]})`,
+                                                  :content (clojure.java.io/file "test.txt")} {:name "field"
+                                                  :content "value"}]})`,
     )
   })
 
@@ -121,7 +121,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com/path with spaces/[brackets]")`,
+(client/get "https://example.com/path%20with%20spaces/[brackets]")`,
     )
   })
 

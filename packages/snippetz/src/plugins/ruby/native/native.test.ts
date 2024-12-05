@@ -175,7 +175,7 @@ puts response.read_body`,
       `require 'uri'
 require 'net/http'
 
-url = URI("https://example.com/path with spaces/[brackets]")
+url = URI("https://example.com/path%20with%20spaces/[brackets]")
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true
@@ -245,7 +245,7 @@ puts response.read_body`,
       `require 'uri'
 require 'net/http'
 
-url = URI("https://example.com/api?param1=value1&param2=special value&param3=123")
+url = URI("https://example.com/api?param1=value1&param2=special%20value&param3=123")
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true
