@@ -62,7 +62,9 @@ const { handleDragEnd, isDroppable } = dragHandlerFactory(
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
-  events.commandPalette.emit({ commandName: 'Import from OpenAPI/Swagger' })
+  events.commandPalette.emit({
+    commandName: 'Import from OpenAPI/Swagger/Postman',
+  })
 }
 const searchResultsId = useId()
 
