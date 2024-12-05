@@ -63,7 +63,7 @@ describe('convertRequestToHarRequest', () => {
 
     expect(harRequest).toEqual({
       method: 'GET',
-      url: 'https://api.example.com/users?page=1&limit=10',
+      url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
       headers: [],
       queryString: [
