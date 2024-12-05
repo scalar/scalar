@@ -5,13 +5,13 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
+  /** Renamed due to conflict with the global Request class */
+  Request as HarRequest,
   RequestExample,
   RequestMethod,
   ResponseInstance,
   SecurityScheme,
   Server,
-  /** Renamed due to conflict with the global Request class */
-  Request as _Request,
 } from '@scalar/oas-utils/entities/spec'
 import {
   canMethodHaveBody,
@@ -243,7 +243,7 @@ export const createRequestOperation = ({
   environment,
   globalCookies,
 }: {
-  request: _Request
+  request: HarRequest
   example: RequestExample
   selectedSecuritySchemeUids?: string[]
   proxyUrl?: string
