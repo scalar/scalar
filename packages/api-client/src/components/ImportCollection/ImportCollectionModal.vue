@@ -16,7 +16,7 @@ import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import { type IntegrationThemeId, getThemeStyles } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps<{
@@ -248,12 +248,16 @@ function handleImportFinished() {
           <img
             v-else-if="companyLogo"
             alt="Logo"
+            class="w-full object-contain mb-2"
             :src="companyLogo" />
 
           <!-- Title -->
-          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+          <div
+            v-if="!companyLogo"
+            class="text-center text-md font-bold mb-2 line-clamp-1">
             {{ title || 'Untitled Collection' }}
           </div>
+
           <div class="text-c-1 text-sm font-medium text-center text-balance">
             Import the OpenAPI document to instantly send API requests. No
             signup required.
