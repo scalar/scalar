@@ -119,7 +119,7 @@ export function processAuth(auth: Auth): {
     }
 
     const { scheme, requirement } = handler()
-    
+
     // Only add security schemes and requirements if they're not empty
     if (Object.keys(scheme).length > 0) {
       const schemeKey = `${auth.type}Auth`
