@@ -1,5 +1,4 @@
 import type { Request } from 'har-format'
-import type { HarRequest } from 'httpsnippet-lite'
 import type { Client } from '~httpsnippet-lite/dist/types/targets/targets'
 
 /**
