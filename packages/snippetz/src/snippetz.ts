@@ -32,8 +32,7 @@ import { shellCurl } from '@/plugins/shell/curl'
 import { shellHttpie } from '@/plugins/shell/httpie'
 import { shellWget } from '@/plugins/shell/wget'
 import { swiftNsurlsession } from '@/plugins/swift/nsurlsession'
-
-import type { ClientId, Plugin, TargetId } from './types'
+import type { ClientId, HarRequest, Plugin, TargetId } from '@/types'
 
 /**
  * Generate code examples for HAR requests
@@ -83,7 +82,7 @@ export function snippetz() {
     print<T extends TargetId>(
       target: T,
       client: ClientId<T>,
-      request: Partial<Request>,
+      request: Partial<HarRequest>,
     ) {
       return this.get(target, client)?.generate(request)
     },

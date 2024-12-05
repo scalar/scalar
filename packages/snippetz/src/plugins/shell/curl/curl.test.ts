@@ -17,7 +17,7 @@ describe('shellCurl', () => {
       method: 'post',
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST`)
   })
 
@@ -32,7 +32,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --header 'Content-Type: application/json'`)
   })
 
@@ -63,7 +63,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -104,7 +104,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --cookie 'foo=bar; bar=foo'`)
   })
 
@@ -130,7 +130,7 @@ describe('shellCurl', () => {
       },
     )
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --user 'user:pass'`)
   })
 
@@ -187,7 +187,7 @@ describe('shellCurl', () => {
       },
     )
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --user 'user@example.com:pass:word!'`)
   })
 
@@ -223,7 +223,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --form 'file=@test.txt' \\
   --form 'field=value'`)
@@ -244,7 +244,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --data-urlencode 'special%20chars!%40%23=value'`)
   })
@@ -259,7 +259,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --data-binary 'binary content'`)
   })
@@ -275,7 +275,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --header 'Accept-Encoding: gzip, deflate' \\
   --compressed`)
   })
@@ -335,7 +335,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --header 'X-Custom: value1' \\
   --header 'X-Custom: value2'`)
   })
@@ -346,7 +346,7 @@ describe('shellCurl', () => {
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --header 'X-Empty: '`)
   })
 
@@ -365,7 +365,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --form 'file=@'`)
   })
@@ -391,7 +391,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{
@@ -417,7 +417,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --cookie 'special%3Bcookie=value%20with%20spaces'`)
   })
 
@@ -443,7 +443,7 @@ describe('shellCurl', () => {
       },
     })
 
-    expect(result).toBe(`curl https://example.com \\
+    expect(result).toBe(`curl https://example.com/ \\
   --request POST \\
   --header 'Content-Type: application/json' \\
   --data '{

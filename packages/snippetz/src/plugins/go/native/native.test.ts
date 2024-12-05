@@ -19,7 +19,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -52,7 +52,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("POST", url, nil)
 
@@ -89,7 +89,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -139,7 +139,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -190,7 +190,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("POST", url, nil)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
@@ -229,7 +229,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	payload := strings.NewReader("binary content")
 
@@ -299,7 +299,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -334,7 +334,7 @@ import (
 
 func main() {
 
-	url := "https://example.com"
+	url := "https://example.com/"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -368,7 +368,7 @@ import (
 
 func main() {
 
-	url := "https://example.com/api?param1=value1&param2=special value&param3=123"
+	url := "https://example.com/api?param1=value1&param2=special%20value&param3=123"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
