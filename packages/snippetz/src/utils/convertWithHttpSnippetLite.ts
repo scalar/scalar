@@ -6,7 +6,7 @@ import type { Request as HarRequest } from 'har-format'
  */
 export function convertWithHttpSnippetLite(
   client: Client<object>,
-  request?: Partial<Request>,
+  request?: Partial<HarRequest>,
 ): string {
   const url = new URL(request?.url ?? '')
   const harRequest: HarRequest = {
@@ -14,12 +14,7 @@ export function convertWithHttpSnippetLite(
     url: url.toString(),
     httpVersion: 'HTTP/1.1',
     cookies: [], // Cookies are handled through headers
-    headers: request?.headers
-      ? Array.from(request.headers.entries()).map(([name, value]) => ({
-          name,
-          value,
-        }))
-      : [],
+    headers: request?.headers ?? [],
     headersSize: -1,
     bodySize: -1,
     queryString: Array.from(url.searchParams.entries()).map(
@@ -28,13 +23,7 @@ export function convertWithHttpSnippetLite(
         value,
       }),
     ),
-    // Request body can be accessed via request.body, bodyUsed, and the various body methods
-    postData: request?.body
-      ? {
-          mimeType: request.headers?.get('content-type') ?? 'application/json',
-          text: request.body.toString(),
-        }
-      : undefined,
+    postData: request?.postData,
   }
 
   const allHeaders = (harRequest?.headers ?? []).reduce(

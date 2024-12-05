@@ -11,7 +11,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com")`,
+(client/get "https://example.com/")`,
     )
   })
 
@@ -24,7 +24,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/post "https://example.com")`,
+(client/post "https://example.com/")`,
     )
   })
 
@@ -41,7 +41,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com" {:headers {:Content-Type "application/json"}})`,
+(client/get "https://example.com/" {:headers {:Content-Type "application/json"}})`,
     )
   })
 
@@ -67,7 +67,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/post "https://example.com" {:multipart [{:name "file"
+(client/post "https://example.com/" {:multipart [{:name "file"
                                                  :content (clojure.java.io/file "test.txt")} {:name "field"
                                                  :content "value"}]})`,
     )
@@ -91,7 +91,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/post "https://example.com" {:form-params {:special chars!@# "value"}})`,
+(client/post "https://example.com/" {:form-params {:special chars!@# "value"}})`,
     )
   })
 
@@ -108,7 +108,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/post "https://example.com" {:body "binary content"
+(client/post "https://example.com/" {:body "binary content"
                                    :content-type :application/octet-stream})`,
     )
   })
@@ -137,7 +137,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com" {:headers {:X-Custom "value2"}})`,
+(client/get "https://example.com/" {:headers {:X-Custom "value2"}})`,
     )
   })
 
@@ -150,7 +150,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com" {:headers {:X-Empty ""}})`,
+(client/get "https://example.com/" {:headers {:X-Empty ""}})`,
     )
   })
 

@@ -1,3 +1,6 @@
+import type { Request as HarRequest } from 'har-format'
+
+export type { Request as HarRequest } from 'har-format'
 /**
  * List of available clients
  */
@@ -61,7 +64,7 @@ export type Plugin = {
   client: ClientId<TargetId>
   /** The actual source code. */
   generate: (
-    request?: Partial<Request>,
+    request?: Partial<HarRequest>,
     configuration?: PluginConfiguration,
   ) => string
 }
