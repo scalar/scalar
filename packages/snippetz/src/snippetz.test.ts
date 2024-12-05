@@ -13,19 +13,10 @@ describe('snippetz', async () => {
 const { statusCode, body } = await request('https://example.com')`)
   })
 
-  it('loads some clients by default', async () => {
-    const targets = snippetz().targets()
-    expect(targets).toStrictEqual(['node', 'js', 'shell'])
+  it('returns clients for a specific target', async () => {
+    const clients = snippetz().clients('node')
 
-    const clients = snippetz().clients()
-    expect(clients).toStrictEqual([
-      'undici',
-      'fetch',
-      'fetch',
-      'ofetch',
-      'ofetch',
-      'curl',
-    ])
+    expect(clients).toStrictEqual(['undici', 'fetch', 'ofetch'])
   })
 })
 
