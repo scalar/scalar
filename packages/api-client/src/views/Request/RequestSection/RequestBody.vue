@@ -158,7 +158,12 @@ const formParams = computed(
 )
 
 /** ensure one empty row by default */
-const defaultRow = () => formParams.value.length === 0 && addRow()
+const defaultRow = () => {
+  const lastParam = formParams.value[formParams.value.length - 1]
+  if (!lastParam || lastParam.key !== '' || lastParam.value !== '') {
+    addRow()
+  }
+}
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
