@@ -16,6 +16,7 @@ import {
 import { createApp, defineComponent, h } from 'vue'
 
 type ActiveEnvironment = ActiveEntitiesStore['activeEnvironment']
+type ActiveWorkspace = ActiveEntitiesStore['activeWorkspace']
 type ActiveParsedEnvironments = ActiveEntitiesStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
@@ -36,17 +37,20 @@ class PillWidget extends WidgetType {
   private app: any
   activeEnvironment: ActiveEnvironment
   activeEnvVariables: ActiveParsedEnvironments
+  activeWorkspace: ActiveWorkspace
   isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
     activeEnvironment: ActiveEnvironment,
     activeEnvVariables: ActiveParsedEnvironments,
+    activeWorkspace: ActiveWorkspace,
     isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
     this.activeEnvironment = activeEnvironment
+    this.activeWorkspace = activeWorkspace
     this.activeEnvVariables = activeEnvVariables
     this.isReadOnly = isReadOnly
   }
@@ -87,7 +91,7 @@ class PillWidget extends WidgetType {
                         'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
                       variant: 'ghost',
                       onClick: () => {
-                        window.location.href = '/environment'
+                        window.location.href = `/workspace/${this.activeWorkspace.value.uid}/environment`
                       },
                     },
                     {
@@ -160,6 +164,7 @@ class PillWidget extends WidgetType {
 export const pillPlugin = (props: {
   activeEnvironment: ActiveEntitiesStore['activeEnvironment']
   activeEnvVariables: ActiveParsedEnvironments
+  activeWorkspace: ActiveEntitiesStore['activeWorkspace']
   isReadOnly: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
@@ -198,6 +203,7 @@ export const pillPlugin = (props: {
                   variableName,
                   props.activeEnvironment,
                   props.activeEnvVariables,
+                  props.activeWorkspace,
                   props.isReadOnly,
                 ),
                 side: 1,
