@@ -271,7 +271,7 @@ function handleCancelRename() {
 }
 
 function handleRename(newName: string) {
-  if (selectedEnvironmentId.value !== 'default') {
+  if (newName && selectedEnvironmentId.value !== 'default') {
     activeWorkspaceCollections.value.forEach((collection) => {
       if (
         collection['x-scalar-environments']?.[selectedEnvironmentId.value ?? '']
@@ -291,7 +291,7 @@ function handleRename(newName: string) {
     })
   }
 
-  if (currentEnvironmentId.value === selectedEnvironmentId.value) {
+  if (newName && currentEnvironmentId.value === selectedEnvironmentId.value) {
     currentEnvironmentId.value = newName
   }
 
@@ -435,7 +435,6 @@ function handleRename(newName: string) {
       :size="'xxs'"
       :state="editModal"
       :title="`Edit ${selectedEnvironmentId}`">
-      <input v-model="tempEnvironmentName" />
       <EditSidebarListElement
         :name="tempEnvironmentName ?? ''"
         @close="handleCancelRename"
