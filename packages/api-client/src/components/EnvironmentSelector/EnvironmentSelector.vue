@@ -26,6 +26,7 @@ const updateSelected = (uid: string) => {
       'x-scalar-active-environment',
       uid,
     )
+    activeWorkspace.value.activeEnvironmentId = uid
   }
 }
 const createNewEnvironment = () =>
@@ -62,6 +63,7 @@ const setInitialEnvironment = (collection: Collection) => {
   const activeEnv = collection['x-scalar-active-environment']
   if (activeEnv && activeCollection.value) {
     activeCollection.value['x-scalar-active-environment'] = activeEnv
+    activeWorkspace.value.activeEnvironmentId = activeEnv
   } else {
     activeWorkspace.value.activeEnvironmentId = ''
   }
