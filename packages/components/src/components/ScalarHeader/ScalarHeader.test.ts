@@ -1,11 +1,11 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ScalarHeaderButton from './ScalarHeaderButton.vue'
+import ScalarHeader from './ScalarHeader.vue'
 
 describe('ScalarHeader', () => {
   it('renders properly', () => {
-    const wrapper = mount(ScalarHeaderButton, {
+    const wrapper = mount(ScalarHeader, {
       slots: {
         default: 'Hello Vitest',
       },

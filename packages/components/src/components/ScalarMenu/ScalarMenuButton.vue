@@ -7,7 +7,7 @@ defineProps<{
 }>()
 </script>
 <template>
-  <ScalarHeaderButton>
+  <ScalarHeaderButton class="px-2">
     <div class="h-5 w-auto">
       <slot><ScalarIcon icon="Logo" /></slot>
     </div>
