@@ -22,6 +22,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import { useToasts } from '@scalar/use-toasts'
 import {
   computed,
   onBeforeUnmount,
@@ -67,7 +68,7 @@ const openCommandPaletteImport = () => {
   })
 }
 const searchResultsId = useId()
-
+const { toast } = useToasts()
 /** The currently selected sidebarMenuItem for the context menu */
 const menuItem = reactive<SidebarMenuItem>({ open: false })
 
@@ -122,8 +123,28 @@ onBeforeUnmount(() => {
 const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
     item.watchMode = !item.watchMode
+    const currentCollection = activeWorkspaceCollections.value.find(
+      (collection) => collection.uid === item.entity.uid,
+    )
+    if (currentCollection) {
+      currentCollection.watchMode = item.watchMode
+    }
   }
 }
+
+watch(
+  () =>
+    activeWorkspaceCollections.value.map((collection) => collection.watchMode),
+  (newWatchModes, oldWatchModes) => {
+    newWatchModes.forEach((newWatchMode, index) => {
+      if (newWatchMode !== oldWatchModes[index]) {
+        const currentCollection = activeWorkspaceCollections.value[index]
+        const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
+        toast(message, 'info')
+      }
+    })
+  },
+)
 
 const selectedResultId = computed(() => {
   const result =
