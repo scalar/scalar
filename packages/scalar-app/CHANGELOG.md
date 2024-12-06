@@ -1,5 +1,11 @@
 # scalar-app
 
+## 0.1.102
+
+### Patch Changes
+
+- 21833e6: fix: todesktop pnpm version
+
 ## 0.1.101
 
 ### Patch Changes
