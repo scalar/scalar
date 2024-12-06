@@ -1,5 +1,13 @@
 # @scalar/use-codemirror
 
+## 0.11.47
+
+### Patch Changes
+
+- b66a85c: fix: editor view rendering
+- Updated dependencies [b66a85c]
+  - @scalar/components@0.13.3
+
 ## 0.11.46
 
 ### Patch Changes

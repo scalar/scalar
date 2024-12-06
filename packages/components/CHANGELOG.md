@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.3
+
+### Patch Changes
+
+- b66a85c: feat: adds globe icon
+
 ## 0.13.2
 
 ### Patch Changes

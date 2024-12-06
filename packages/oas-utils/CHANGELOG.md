@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.86
+
+### Patch Changes
+
+- b66a85c: feat: adds v-2.3.0 migration for workspace type
+
 ## 0.2.85
 
 ### Patch Changes
