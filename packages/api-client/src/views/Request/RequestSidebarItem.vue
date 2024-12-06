@@ -359,7 +359,7 @@ const hasDraftRequests = computed(() => {
         v-else-if="!isReadOnly || parentUids.length"
         :aria-expanded="collapsedSidebarFolders[item.entity.uid]"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
-        :class="highlightClasses"
+        :class="[highlightClasses, { 'editable-sidebar-hover': !isReadOnly }]"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
         <span class="flex h-5 items-center justify-center max-w-[14px]">
@@ -376,16 +376,20 @@ const hasDraftRequests = computed(() => {
           </slot>
           &hairsp;
         </span>
-        <div
-          class="flex flex-1 flex-row justify-between editable-sidebar-hover">
+        <div class="flex flex-1 flex-row justify-between">
           <span
             class="line-clamp-3 font-medium text-left w-full word-break-break-word"
             :class="{
               'editable-sidebar-hover-item': !isReadOnly,
+              'watch': item.watchMode,
             }">
             {{ item.title }}
           </span>
-          <div class="relative flex h-fit">
+          <div
+            class="relative flex justify-end h-fit"
+            :class="{
+              'min-w-10': item.watchMode,
+            }">
             <div
               class="flex items-center opacity-0 gap-px group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 -right-px inset-y-2/4"
               :class="{
@@ -497,8 +501,15 @@ const hasDraftRequests = computed(() => {
 .editable-sidebar-hover:hover .editable-sidebar-hover-item {
   mask-image: linear-gradient(
     to left,
-    transparent 10px,
-    var(--scalar-background-2) 30px
+    transparent 12px,
+    var(--scalar-background-2) 40px
+  );
+}
+.editable-sidebar-hover:hover .editable-sidebar-hover-item.watch {
+  mask-image: linear-gradient(
+    to left,
+    transparent 22px,
+    var(--scalar-background-2) 80px
   );
 }
 .sidebar-folderitem :deep(.ellipsis-position) {
