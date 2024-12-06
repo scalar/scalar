@@ -1,5 +1,12 @@
 # @scalar/import
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [b66a85c]
+  - @scalar/oas-utils@0.2.86
+
 ## 0.2.3
 
 ### Patch Changes

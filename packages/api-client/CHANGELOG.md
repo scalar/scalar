@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.2.9
+
+### Patch Changes
+
+- b66a85c: updates environment sidebar to welcome collection environment
+- bccfa3a: fix: scopes scalar button danger overload style
+- 66c1573: fix: edits collection on watch mode toggle from sidebar
+- b66a85c: feat: adds collection environments logic
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/use-codemirror@0.11.47
+  - @scalar/components@0.13.3
+  - @scalar/oas-utils@0.2.86
+  - @scalar/import@0.2.4
+  - @scalar/postman-to-openapi@0.1.9
+
 ## 2.2.8
 
 ### Patch Changes
