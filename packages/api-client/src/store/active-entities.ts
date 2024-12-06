@@ -121,24 +121,6 @@ export const createActiveEntitiesStore = ({
   })
 
   /**
-   * Sets the active environment
-   */
-  const setActiveEnvironment = (uid?: string) => {
-    if (!uid) {
-      activeWorkspace.value.activeEnvironmentId = ''
-      return
-    }
-
-    if (uid === 'default') {
-      // Global environment
-      activeWorkspace.value.activeEnvironmentId = 'default'
-    } else {
-      // Collection environment
-      activeWorkspace.value.activeEnvironmentId = uid
-    }
-  }
-
-  /**
    * Request associated with the current route
    *
    * undefined must be handled as we may have no requests
@@ -252,7 +234,6 @@ export const createActiveEntitiesStore = ({
     activeWorkspaceServers,
     activeEnvVariables,
     activeWorkspaceRequests,
-    setActiveEnvironment,
     router,
   }
 }

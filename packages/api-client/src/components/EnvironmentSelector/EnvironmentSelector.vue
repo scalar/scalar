@@ -13,18 +13,20 @@ import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-const {
-  activeCollection,
-  activeWorkspace,
-  activeEnvironment,
-  setActiveEnvironment,
-} = useActiveEntities()
-const { isReadOnly } = useWorkspace()
+const { activeCollection, activeWorkspace, activeEnvironment } =
+  useActiveEntities()
+const { isReadOnly, collectionMutators } = useWorkspace()
 
 const router = useRouter()
 
 const updateSelected = (uid: string) => {
-  setActiveEnvironment(uid)
+  if (activeCollection.value) {
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      'x-scalar-active-environment',
+      uid,
+    )
+  }
 }
 const createNewEnvironment = () =>
   router.push({
@@ -35,39 +37,33 @@ const createNewEnvironment = () =>
   })
 
 const selectedEnvironment = computed(() => {
-  if (!activeEnvironment.value) {
-    return 'No Environment'
-  }
-
-  return activeEnvironment?.value?.uid === ''
-    ? 'No Environment'
-    : activeEnvironment?.value?.uid
+  const { value: environment } = activeEnvironment
+  const { value: collection } = activeCollection
+  return (
+    environment?.uid ||
+    collection?.['x-scalar-active-environment'] ||
+    'No Environment'
+  )
 })
 
 const availableEnvironments = computed(() => {
-  if (
-    activeCollection.value?.['x-scalar-environments'] &&
-    Object.keys(activeCollection.value['x-scalar-environments']).length > 0
-  ) {
-    return Object.entries(activeCollection.value['x-scalar-environments']).map(
-      ([key, env]) => ({ ...env, uid: key, name: key }),
-    )
-  } else {
-    return []
-  }
+  const { value: collection } = activeCollection
+  const environments = collection?.['x-scalar-environments']
+  return environments
+    ? Object.entries(environments).map(([key, env]) => ({
+        ...env,
+        uid: key,
+        name: key,
+      }))
+    : []
 })
 
 const setInitialEnvironment = (collection: Collection) => {
-  if (collection['x-scalar-active-environment']) {
-    setActiveEnvironment(collection['x-scalar-active-environment'])
-  } else if (
-    collection['x-scalar-environments'] &&
-    Object.keys(collection['x-scalar-environments']).length > 0
-  ) {
-    const firstEnvironment = Object.keys(collection['x-scalar-environments'])[0]
-    setActiveEnvironment(firstEnvironment)
+  const activeEnv = collection['x-scalar-active-environment']
+  if (activeEnv && activeCollection.value) {
+    activeCollection.value['x-scalar-active-environment'] = activeEnv
   } else {
-    setActiveEnvironment('')
+    activeWorkspace.value.activeEnvironmentId = ''
   }
 }
 
@@ -102,7 +98,8 @@ onMounted(() => {
           @click.stop="updateSelected(environment.uid)">
           <ScalarListboxCheckbox
             :selected="
-              activeWorkspace.activeEnvironmentId === environment.uid
+              activeCollection?.['x-scalar-active-environment'] ===
+              environment.uid
             " />
           {{ environment.name }}
         </ScalarDropdownItem>
@@ -112,7 +109,8 @@ onMounted(() => {
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
-              activeEnvironment.uid === ''
+              activeEnvironment.uid === '' &&
+              activeCollection?.['x-scalar-active-environment'] === ''
                 ? 'bg-c-accent text-b-1'
                 : 'group-hover/item:shadow-border text-transparent'
             ">

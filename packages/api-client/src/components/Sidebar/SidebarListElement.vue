@@ -26,7 +26,6 @@ const emit = defineEmits<{
 
 const router = useRouter()
 const { activeWorkspace } = useActiveEntities()
-console.log(activeWorkspace.value)
 const handleNavigation = (
   event: MouseEvent,
   uid: string,
