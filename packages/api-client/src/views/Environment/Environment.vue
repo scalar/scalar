@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
 import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
@@ -11,9 +12,14 @@ import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon, useModal } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarModal,
+  useModal,
+} from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import EnvironmentColorModal from './EnvironmentColorModal.vue'
@@ -28,12 +34,14 @@ const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const colorModal = useModal()
 const environmentModal = useModal()
 
-const nameInputRef = ref<HTMLInputElement | null>(null)
-const isEditingName = ref(false)
+const editModal = useModal()
+
 const colorModalEnvironment = ref<string | null>(null)
 const currentEnvironmentId = ref('default')
 const selectedColor = ref('')
 const selectedCollectionId = ref<string | undefined>(undefined)
+const selectedEnvironmentId = ref<string | undefined>(undefined)
+const tempEnvironmentName = ref<string | undefined>(undefined)
 
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
@@ -99,34 +107,16 @@ function handleEnvironmentUpdate(raw: string) {
   }
 }
 
-const updateEnvironmentName = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const newName = target.value
-  if (currentEnvironmentId.value !== 'default') {
-    activeWorkspaceCollections.value.forEach((collection) => {
-      if (
-        collection['x-scalar-environments']?.[currentEnvironmentId.value ?? '']
-      ) {
-        const env =
-          collection['x-scalar-environments'][currentEnvironmentId.value ?? '']
-        delete collection['x-scalar-environments'][
-          currentEnvironmentId.value ?? ''
-        ]
-        collection['x-scalar-environments'][newName] = env
-        collectionMutators.edit(
-          collection.uid,
-          'x-scalar-environments',
-          collection['x-scalar-environments'],
-        )
-      }
-    })
-    currentEnvironmentId.value = newName
-  }
-}
-
 const openEnvironmentModal = (collectionId?: string) => {
   selectedCollectionId.value = collectionId
   environmentModal.show()
+}
+
+const openRenameModal = (environmentId: string, collectionId: string) => {
+  selectedEnvironmentId.value = environmentId
+  selectedCollectionId.value = collectionId
+  tempEnvironmentName.value = environmentId
+  editModal.show()
 }
 
 const handleOpenColorModal = (uid: string) => {
@@ -202,16 +192,6 @@ function removeCollectionEnvironment(environmentName: string) {
   }
 }
 
-/** display a focused input to edit environment name */
-const enableNameEditing = () => {
-  if (currentEnvironmentId.value !== 'default') {
-    isEditingName.value = true
-    nextTick(() => {
-      nameInputRef.value?.focus()
-    })
-  }
-}
-
 const getEnvironmentName = () => {
   return currentEnvironmentId.value === 'default'
     ? 'Global Environment'
@@ -282,6 +262,44 @@ const handleNavigation = (
     router.push({ path })
   }
 }
+
+function handleCancelRename() {
+  selectedEnvironmentId.value = undefined
+  selectedCollectionId.value = undefined
+  tempEnvironmentName.value = undefined
+  editModal.hide()
+}
+
+function handleRename(newName: string) {
+  if (selectedEnvironmentId.value !== 'default') {
+    activeWorkspaceCollections.value.forEach((collection) => {
+      if (
+        collection['x-scalar-environments']?.[selectedEnvironmentId.value ?? '']
+      ) {
+        const env =
+          collection['x-scalar-environments'][selectedEnvironmentId.value ?? '']
+        delete collection['x-scalar-environments'][
+          selectedEnvironmentId.value ?? ''
+        ]
+        collection['x-scalar-environments'][newName] = env
+        collectionMutators.edit(
+          collection.uid,
+          'x-scalar-environments',
+          collection['x-scalar-environments'],
+        )
+      }
+    })
+  }
+
+  if (currentEnvironmentId.value === selectedEnvironmentId.value) {
+    currentEnvironmentId.value = newName
+  }
+
+  selectedEnvironmentId.value = undefined
+  selectedCollectionId.value = undefined
+  tempEnvironmentName.value = undefined
+  editModal.hide()
+}
 </script>
 <template>
   <ViewLayout>
@@ -338,6 +356,8 @@ const handleNavigation = (
                   class="text-xs [&>a]:pl-5"
                   :collectionId="collection.uid"
                   :isCopyable="false"
+                  :isDeletable="true"
+                  :isRenameable="true"
                   type="environment"
                   :variable="{
                     name: environmentName,
@@ -350,7 +370,8 @@ const handleNavigation = (
                     handleNavigation($event, environmentName, collection.uid)
                   "
                   @colorModal="handleOpenColorModal(environmentName)"
-                  @delete="removeCollectionEnvironment(environmentName)" />
+                  @delete="removeCollectionEnvironment(environmentName)"
+                  @rename="openRenameModal(environmentName, collection.uid)" />
                 <ScalarButton
                   v-if="
                     Object.keys(collection['x-scalar-environments'] || {})
@@ -383,21 +404,9 @@ const handleNavigation = (
         <template
           v-if="currentEnvironmentId"
           #title>
-          <span
-            v-if="!isEditingName || currentEnvironmentId === 'default'"
-            @dblclick="enableNameEditing">
+          <span>
             {{ getEnvironmentName() }}
           </span>
-          <input
-            v-else
-            ref="nameInputRef"
-            class="ring-1 ring-offset-4 ring-b-outline rounded"
-            spellcheck="false"
-            type="text"
-            :value="getEnvironmentName()"
-            @blur="isEditingName = false"
-            @input="updateEnvironmentName"
-            @keyup.enter="isEditingName = false" />
         </template>
         <CodeInput
           v-if="currentEnvironmentId"
@@ -421,5 +430,16 @@ const handleNavigation = (
       :state="environmentModal"
       @cancel="environmentModal.hide()"
       @submit="addEnvironment" />
+
+    <ScalarModal
+      :size="'xxs'"
+      :state="editModal"
+      :title="`Edit ${selectedEnvironmentId}`">
+      <input v-model="tempEnvironmentName" />
+      <EditSidebarListElement
+        :name="tempEnvironmentName ?? ''"
+        @close="handleCancelRename"
+        @edit="handleRename" />
+    </ScalarModal>
   </ViewLayout>
 </template>

@@ -13,10 +13,12 @@ const { variable } = defineProps<{
   warningMessage?: string
   isCopyable?: boolean
   isDeletable?: boolean
+  isRenameable?: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
+  (e: 'rename', id: string): void
 }>()
 
 enum ModalAction {
@@ -54,6 +56,15 @@ function handleDelete(id: string) {
       <ScalarIcon
         class="h-3 w-3"
         icon="Clipboard" />
+    </button>
+    <button
+      v-if="isRenameable"
+      class="text-c-3 hover:bg-b-3 hover:text-c-1 rounded p-[5px]"
+      type="button"
+      @click="emit('rename', variable.uid)">
+      <ScalarIcon
+        class="h-3 w-3"
+        icon="Edit" />
     </button>
     <button
       v-if="!variable.isDefault && isDeletable"

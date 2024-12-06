@@ -16,12 +16,14 @@ const props = defineProps<{
   warningMessage?: string
   isDeletable?: boolean
   isCopyable?: boolean
+  isRenameable?: boolean
   type: 'environment' | 'cookies' | 'server'
 }>()
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
   (e: 'colorModal', id: string): void
+  (e: 'rename', id: string): void
 }>()
 
 const router = useRouter()
@@ -54,6 +56,10 @@ const handleDelete = (id: string) => {
 const handleColorClick = (uid: string) => {
   emit('colorModal', uid)
 }
+
+const handleRename = (id: string) => {
+  emit('rename', id)
+}
 </script>
 <template>
   <li>
@@ -84,9 +90,11 @@ const handleColorClick = (uid: string) => {
       <SidebarListElementActions
         :isCopyable="isCopyable"
         :isDeletable="isDeletable"
+        :isRenameable="isRenameable"
         :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
         :warningMessage="warningMessage"
-        @delete="handleDelete" />
+        @delete="handleDelete"
+        @rename="handleRename" />
     </router-link>
   </li>
 </template>
