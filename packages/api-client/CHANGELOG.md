@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.8
+
+### Patch Changes
+
+- f2ec59d: feat: add postman import
+
 ## 2.2.7
 
 ### Patch Changes

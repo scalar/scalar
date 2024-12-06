@@ -1,5 +1,13 @@
 # scalar-app
 
+## 0.1.100
+
+### Patch Changes
+
+- 729fcaf: feat: adds dialog box on check for updates
+- Updated dependencies [f2ec59d]
+  - @scalar/api-client@2.2.8
+
 ## 0.1.99
 
 ### Patch Changes
