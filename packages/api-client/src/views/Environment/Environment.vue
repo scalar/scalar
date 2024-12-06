@@ -19,6 +19,7 @@ import {
   useModal,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import { useToasts } from '@scalar/use-toasts'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -43,14 +44,45 @@ const selectedCollectionId = ref<string | undefined>(undefined)
 const selectedEnvironmentId = ref<string | undefined>(undefined)
 const tempEnvironmentName = ref<string | undefined>(undefined)
 
+const { toast } = useToasts()
+
 const parseEnvironmentValue = (value: string): Record<string, string> =>
   JSON.parse(value)
+
+function environmentNameToast(
+  environmentNameUsed: boolean,
+  collection: any,
+  collectionId: string | undefined,
+) {
+  if (environmentNameUsed) {
+    if (collection.uid === collectionId) {
+      toast(
+        `Environment name already used in ${collection.info?.title}`,
+        'error',
+      )
+    } else {
+      toast('Environment name already used in another collection', 'error')
+    }
+  }
+}
 
 function addEnvironment(environment: {
   name: string
   color: string
   collectionId?: string
 }) {
+  const environmentNameUsed = activeWorkspaceCollections.value.some(
+    (collection) => {
+      const enviromentName = Object.keys(
+        collection['x-scalar-environments'] || {},
+      ).includes(environment.name)
+      environmentNameToast(enviromentName, collection, environment.collectionId)
+      return enviromentName
+    },
+  )
+  if (environmentNameUsed) {
+    return
+  }
   if (environment.collectionId) {
     collectionMutators.addEnvironment(
       environment.name,
@@ -271,6 +303,22 @@ function handleCancelRename() {
 }
 
 function handleRename(newName: string) {
+  const environmentNameUsed = activeWorkspaceCollections.value.some(
+    (collection) => {
+      const enviromentName = Object.keys(
+        collection['x-scalar-environments'] || {},
+      ).includes(newName)
+      environmentNameToast(
+        enviromentName,
+        collection,
+        selectedCollectionId.value,
+      )
+      return enviromentName
+    },
+  )
+  if (environmentNameUsed) {
+    return
+  }
   if (newName && selectedEnvironmentId.value !== 'default') {
     activeWorkspaceCollections.value.forEach((collection) => {
       if (
