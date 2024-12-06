@@ -160,6 +160,14 @@ function createWindow(): void {
                     if (result?.updateInfo) {
                       console.log('Update:', result.updateInfo.version)
                       todesktop.autoUpdater?.restartAndInstall()
+                    } else {
+                      console.log('No updates available')
+                      dialog.showMessageBox({
+                        type: 'info',
+                        title: 'No Updates Available',
+                        message: 'You are currently using the latest version.',
+                        detail: app.getVersion(),
+                      })
                     }
                   } catch (e) {
                     console.log('Update check failed:', e)
