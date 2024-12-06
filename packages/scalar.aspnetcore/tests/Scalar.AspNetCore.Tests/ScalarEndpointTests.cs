@@ -64,7 +64,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         var configuration = new ScalarOptions().ToScalarConfiguration();
-        var expectedConfiguration = JsonSerializer.Serialize(configuration, ScalaConfigurationSerializerContext.Default.ScalarConfiguration);
+        var expectedConfiguration = JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
         var client = factory.CreateClient();
 
         // Act
