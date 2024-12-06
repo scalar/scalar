@@ -8,7 +8,7 @@
   ],
   "icon": "./build/icon.png",
   "nodeVersion": "20",
-  "packageManager": "pnpm",
+  "packageManager": "pnpm@9.2.0",
   "packageJson": {
     "extends": "package.json",
     "productName": "Scalar",
