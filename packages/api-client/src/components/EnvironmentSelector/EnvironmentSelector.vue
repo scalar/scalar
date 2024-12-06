@@ -9,18 +9,26 @@ import {
   ScalarIcon,
   ScalarListboxCheckbox,
 } from '@scalar/components'
-import { computed } from 'vue'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-const { activeWorkspace, activeEnvironment } = useActiveEntities()
-const { environments, workspaceMutators, isReadOnly } = useWorkspace()
+const { activeCollection, activeWorkspace, activeEnvironment } =
+  useActiveEntities()
+const { isReadOnly, collectionMutators } = useWorkspace()
 
 const router = useRouter()
 
 const updateSelected = (uid: string) => {
-  workspaceMutators.edit(activeWorkspace.value.uid, 'activeEnvironmentId', uid)
+  if (activeCollection.value) {
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      'x-scalar-active-environment',
+      uid,
+    )
+    activeWorkspace.value.activeEnvironmentId = uid
+  }
 }
-
 const createNewEnvironment = () =>
   router.push({
     name: 'environment',
@@ -29,11 +37,45 @@ const createNewEnvironment = () =>
     },
   })
 
-const envs = computed(() => [
-  // Always add the default environment
-  environments['default'],
-  ...Object.values(environments).filter((env) => env.uid !== 'default'),
-])
+const selectedEnvironment = computed(() => {
+  const { value: environment } = activeEnvironment
+  const { value: collection } = activeCollection
+  return (
+    environment?.uid ||
+    collection?.['x-scalar-active-environment'] ||
+    'No Environment'
+  )
+})
+
+const availableEnvironments = computed(() => {
+  const { value: collection } = activeCollection
+  const environments = collection?.['x-scalar-environments']
+  return environments
+    ? Object.entries(environments).map(([key, env]) => ({
+        ...env,
+        uid: key,
+        name: key,
+      }))
+    : []
+})
+
+const setInitialEnvironment = (collection: Collection) => {
+  const activeEnv = collection['x-scalar-active-environment']
+  if (activeEnv && activeCollection.value) {
+    activeCollection.value['x-scalar-active-environment'] = activeEnv
+    activeWorkspace.value.activeEnvironmentId = activeEnv
+  } else {
+    activeWorkspace.value.activeEnvironmentId = ''
+  }
+}
+
+watch(activeCollection, (newCollection) => {
+  setInitialEnvironment(newCollection as Collection)
+})
+
+onMounted(() => {
+  setInitialEnvironment(activeCollection.value as Collection)
+})
 </script>
 <template>
   <div>
@@ -43,7 +85,7 @@ const envs = computed(() => [
         fullWidth
         variant="ghost">
         <h2 class="font-medium m-0 flex gap-1.5 items-center whitespace-nowrap">
-          {{ activeEnvironment?.name ?? 'No Environment' }}
+          {{ selectedEnvironment }}
           <ScalarIcon
             icon="ChevronDown"
             size="md" />
@@ -52,13 +94,16 @@ const envs = computed(() => [
       <!-- Workspace list -->
       <template #items>
         <ScalarDropdownItem
-          v-for="env in envs"
-          :key="env.uid"
+          v-for="environment in availableEnvironments"
+          :key="environment.uid"
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
-          @click.stop="updateSelected(env.uid)">
+          @click.stop="updateSelected(environment.uid)">
           <ScalarListboxCheckbox
-            :selected="activeWorkspace.activeEnvironmentId === env.uid" />
-          {{ env.name }}
+            :selected="
+              activeCollection?.['x-scalar-active-environment'] ===
+              environment.uid
+            " />
+          {{ environment.name }}
         </ScalarDropdownItem>
         <ScalarDropdownItem
           class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden"
@@ -66,7 +111,8 @@ const envs = computed(() => [
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
-              activeWorkspace.activeEnvironmentId === ''
+              activeEnvironment.uid === '' &&
+              activeCollection?.['x-scalar-active-environment'] === ''
                 ? 'bg-c-accent text-b-1'
                 : 'group-hover/item:shadow-border text-transparent'
             ">

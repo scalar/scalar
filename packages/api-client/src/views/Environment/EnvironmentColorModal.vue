@@ -20,6 +20,11 @@ const newColor = ref('')
 const handleColorSelect = (color: string) => {
   newColor.value = color
 }
+
+const handleSubmit = () => {
+  emit('submit', newColor.value)
+  newColor.value = ''
+}
 </script>
 <template>
   <ScalarModal
@@ -33,7 +38,7 @@ const handleColorSelect = (color: string) => {
         @select="handleColorSelect" />
       <SidebarListElementForm
         @cancel="emit('cancel')"
-        @submit="emit('submit', newColor)">
+        @submit="handleSubmit">
       </SidebarListElementForm>
     </div>
   </ScalarModal>

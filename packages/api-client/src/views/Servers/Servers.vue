@@ -40,6 +40,7 @@ const addServerHandler = () => {
               v-for="serverUid in activeCollection?.servers"
               :key="serverUid"
               class="text-xs"
+              type="server"
               :variable="{
                 name: servers[serverUid].url ?? '',
                 uid: serverUid,

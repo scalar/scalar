@@ -16,15 +16,18 @@ import {
 import { createApp, defineComponent, h } from 'vue'
 
 type ActiveEnvironment = ActiveEntitiesStore['activeEnvironment']
+type ActiveWorkspace = ActiveEntitiesStore['activeWorkspace']
 type ActiveParsedEnvironments = ActiveEntitiesStore['activeEnvVariables']
 type IsReadOnly = WorkspaceStore['isReadOnly']
 
 const getEnvColor = (activeEnvironment: ActiveEnvironment) => {
-  if (activeEnvironment.value) {
-    return activeEnvironment.value.color
-  }
+  if (!activeEnvironment.value) return '#8E8E8E'
 
-  return '#8E8E8E'
+  if (activeEnvironment.value.color) {
+    return activeEnvironment.value.color
+  } else {
+    return '#8E8E8E'
+  }
 }
 
 /**
@@ -34,17 +37,20 @@ class PillWidget extends WidgetType {
   private app: any
   activeEnvironment: ActiveEnvironment
   activeEnvVariables: ActiveParsedEnvironments
+  activeWorkspace: ActiveWorkspace
   isReadOnly: IsReadOnly
 
   constructor(
     private variableName: string,
     activeEnvironment: ActiveEnvironment,
     activeEnvVariables: ActiveParsedEnvironments,
+    activeWorkspace: ActiveWorkspace,
     isReadOnly: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
     this.activeEnvironment = activeEnvironment
+    this.activeWorkspace = activeWorkspace
     this.activeEnvVariables = activeEnvVariables
     this.isReadOnly = isReadOnly
   }
@@ -67,7 +73,7 @@ class PillWidget extends WidgetType {
             ? getEnvColor(this.activeEnvironment)
             : '#8E8E8E'
 
-        span.style.setProperty('--tw-bg-base', pillColor)
+        span.style.setProperty('--tw-bg-base', pillColor || '#8E8E8E')
 
         // Set opacity based on the existence of a value
         span.style.opacity = val?.value ? '1' : '0.5'
@@ -85,17 +91,19 @@ class PillWidget extends WidgetType {
                         'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
                       variant: 'ghost',
                       onClick: () => {
-                        window.location.href = '/environment'
+                        window.location.href = `/workspace/${this.activeWorkspace.value.uid}/environment`
                       },
                     },
-                    [
-                      h(ScalarIcon, {
-                        class: 'w-2',
-                        icon: 'Add',
-                        size: 'xs',
-                      }),
-                      'Add variable',
-                    ],
+                    {
+                      default: () => [
+                        h(ScalarIcon, {
+                          class: 'w-2',
+                          icon: 'Add',
+                          size: 'xs',
+                        }),
+                        'Add variable',
+                      ],
+                    },
                   ),
                 ]),
             ])
@@ -156,6 +164,7 @@ class PillWidget extends WidgetType {
 export const pillPlugin = (props: {
   activeEnvironment: ActiveEntitiesStore['activeEnvironment']
   activeEnvVariables: ActiveParsedEnvironments
+  activeWorkspace: ActiveEntitiesStore['activeWorkspace']
   isReadOnly: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
@@ -168,7 +177,10 @@ export const pillPlugin = (props: {
 
       update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
-          this.decorations = this.buildDecorations(update.view)
+          requestAnimationFrame(() => {
+            this.decorations = this.buildDecorations(update.view)
+            update.view.update([])
+          })
         }
       }
 
@@ -191,6 +203,7 @@ export const pillPlugin = (props: {
                   variableName,
                   props.activeEnvironment,
                   props.activeEnvVariables,
+                  props.activeWorkspace,
                   props.isReadOnly,
                 ),
                 side: 1,

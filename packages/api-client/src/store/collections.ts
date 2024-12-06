@@ -2,6 +2,7 @@ import type { StoreContext } from '@/store/store-context'
 import {
   type Collection,
   type CollectionPayload,
+  type XScalarEnvironment,
   collectionSchema,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -87,8 +88,43 @@ export function extendedCollectionDataFactory({
     collectionMutators.delete(collection.uid)
   }
 
+  const addCollectionEnvironment = (
+    environmentName: string,
+    environment: XScalarEnvironment,
+    collectionUid: string,
+  ) => {
+    const collection = collections[collectionUid]
+    if (collection) {
+      const currentEnvironments = collection['x-scalar-environments'] || {}
+      collectionMutators.edit(collectionUid, 'x-scalar-environments', {
+        ...currentEnvironments,
+        [environmentName]: environment,
+      })
+    }
+  }
+
+  const removeCollectionEnvironment = (
+    environmentName: string,
+    collectionUid: string,
+  ) => {
+    const collection = collections[collectionUid]
+    if (collection) {
+      const currentEnvironments = collection['x-scalar-environments'] || {}
+      if (environmentName in currentEnvironments) {
+        delete currentEnvironments[environmentName]
+        collectionMutators.edit(
+          collectionUid,
+          'x-scalar-environments',
+          currentEnvironments,
+        )
+      }
+    }
+  }
+
   return {
     addCollection,
     deleteCollection,
+    addCollectionEnvironment,
+    removeCollectionEnvironment,
   }
 }

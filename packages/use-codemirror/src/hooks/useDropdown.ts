@@ -22,13 +22,15 @@ export function useDropdown(params: {
   /** Updates position of the dropdown based on the current cursor position */
   function updateDropdownPosition() {
     const cursorPos = getCursorPos()
-    const coords = getCoordsAtPos(cursorPos - query.value.length - 2)
-    if (coords) {
-      dropdownPosition.value = {
-        left: coords.left,
-        top: Math.max(coords.bottom),
+    requestAnimationFrame(() => {
+      const coords = getCoordsAtPos(cursorPos - query.value.length - 2)
+      if (coords) {
+        dropdownPosition.value = {
+          left: coords.left,
+          top: Math.max(coords.bottom),
+        }
       }
-    }
+    })
   }
 
   // Watch for changes in the query and update the dropdown position

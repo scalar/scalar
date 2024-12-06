@@ -1,37 +1,51 @@
 <script setup lang="ts">
 import SidebarListElementActions from '@/components/Sidebar/SidebarListElementActions.vue'
+import { useActiveEntities } from '@/store/active-entities'
+import { type Icon, ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
-withDefaults(
-  defineProps<{
-    variable: {
-      uid: string
-      name: string
-      color?: string
-      isDefault?: boolean
-    }
-    warningMessage?: string
-    isDeletable?: boolean
-    isCopyable?: boolean
-  }>(),
-  {
-    isCopyable: true,
-    isDeletable: true,
-  },
-)
+const props = defineProps<{
+  variable: {
+    uid: string
+    name: string
+    color?: string
+    icon?: Icon
+    isDefault?: boolean
+  }
+  collectionId?: string
+  warningMessage?: string
+  isDeletable?: boolean
+  isCopyable?: boolean
+  isRenameable?: boolean
+  type: 'environment' | 'cookies' | 'server'
+}>()
 
 const emit = defineEmits<{
   (e: 'delete', id: string): void
   (e: 'colorModal', id: string): void
+  (e: 'rename', id: string): void
 }>()
 
 const router = useRouter()
-
-const handleNavigation = (event: MouseEvent, uid: string) => {
+const { activeWorkspace } = useActiveEntities()
+const handleNavigation = (
+  event: MouseEvent,
+  uid: string,
+  collectionId?: string,
+) => {
+  const params = {
+    workspaceId: activeWorkspace.value.uid,
+    type: props.type,
+    collectionId: collectionId || undefined,
+    uid: uid,
+  }
+  const path = collectionId
+    ? `/workspace/${params.workspaceId}/${params.type}/${params.collectionId}/${params.uid}`
+    : `/workspace/${params.workspaceId}/${params.type}/${params.uid}`
   if (event.metaKey) {
-    window.open(uid, '_blank')
+    window.open(path, '_blank')
   } else {
-    router.push(uid)
+    router.push({ path })
   }
 }
 
@@ -42,15 +56,23 @@ const handleDelete = (id: string) => {
 const handleColorClick = (uid: string) => {
   emit('colorModal', uid)
 }
+
+const handleRename = (id: string) => {
+  emit('rename', id)
+}
 </script>
 <template>
   <li>
     <router-link
-      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1 rounded py-1 pr-2 font-medium no-underline"
+      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-2 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-2']"
       exactActiveClass="active-link"
-      :to="`${variable.uid}`"
-      @click.prevent="handleNavigation($event, variable.uid)">
+      :to="
+        collectionId
+          ? `/workspace/${activeWorkspace.uid}/${type}/${collectionId}/${variable.uid}`
+          : `/workspace/${activeWorkspace.uid}/${type}/${variable.uid}`
+      "
+      @click.prevent="handleNavigation($event, variable.uid, collectionId)">
       <button
         v-if="variable.color"
         class="hover:bg-b-3 rounded p-1.5"
@@ -60,13 +82,19 @@ const handleColorClick = (uid: string) => {
           class="h-2.5 w-2.5 rounded-xl"
           :style="{ backgroundColor: variable.color }"></div>
       </button>
-      <span class="empty-variable-name">{{ variable.name }}</span>
+      <ScalarIcon
+        v-if="variable.icon"
+        class="text-sidebar-c-2 size-3.5 stroke-[2.25]"
+        :icon="variable.icon" />
+      <span class="empty-variable-name text-sm">{{ variable.name }}</span>
       <SidebarListElementActions
         :isCopyable="isCopyable"
         :isDeletable="isDeletable"
+        :isRenameable="isRenameable"
         :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
         :warningMessage="warningMessage"
-        @delete="handleDelete" />
+        @delete="handleDelete"
+        @rename="handleRename" />
     </router-link>
   </li>
 </template>

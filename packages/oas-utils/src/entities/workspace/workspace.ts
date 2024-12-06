@@ -36,7 +36,7 @@ export const workspaceSchema = z.object({
   /** List of all collection uids in a given workspace */
   collections: z.array(z.string()).default([]),
   /** List of all environment uids in a given workspace */
-  environments: z.array(z.string()).default([]),
+  environments: z.record(z.string()).default({}),
   /** Customize hotkeys */
   hotKeyConfig: hotKeyConfigSchema,
   /** Active Environment ID to use for requests  */

@@ -71,7 +71,8 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
-const { activeEnvVariables, activeEnvironment, router } = useActiveEntities()
+const { activeEnvVariables, activeEnvironment, activeWorkspace, router } =
+  useActiveEntities()
 const { isReadOnly } = useWorkspace()
 
 const { copyToClipboard } = useClipboard()
@@ -126,6 +127,7 @@ extensions.push(
   pillPlugin({
     activeEnvironment,
     activeEnvVariables,
+    activeWorkspace,
     isReadOnly,
   }),
   backspaceCommand,
