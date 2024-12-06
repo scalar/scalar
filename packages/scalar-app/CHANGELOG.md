@@ -1,5 +1,11 @@
 # scalar-app
 
+## 0.1.101
+
+### Patch Changes
+
+- 525a735: chore: specifies pnpm package manager version in todesktop
+
 ## 0.1.100
 
 ### Patch Changes
