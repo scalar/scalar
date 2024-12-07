@@ -3,7 +3,7 @@ import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
-import { capitalize, computed } from 'vue'
+import { capitalize, computed, ref } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -20,6 +20,8 @@ const security = computed(() =>
     scheme: securitySchemes[uid],
   })),
 )
+
+const activeOauth = ref('')
 
 const generateLabel = (scheme: SecurityScheme) => {
   if (scheme.type !== 'oauth2')
@@ -133,13 +135,26 @@ const getReferenceClass = (className = '') =>
 
     <!-- OAuth 2 -->
     <template v-else-if="scheme.type === 'oauth2'">
-      <OAuth2
-        v-for="(flow, key) in scheme.flows"
+      <button
+        v-for="(flow, key, ind) in scheme.flows"
         :key="key"
-        :flow="flow!"
-        :getReferenceClass="getReferenceClass"
-        :layout="layout"
-        :scheme="scheme" />
+        :class="{
+          'bg-b-2': activeOauth === key || (ind === 0 && !activeOauth),
+        }"
+        type="button"
+        @click="activeOauth = key">
+        {{ key }}
+      </button>
+      <template
+        v-for="(flow, key, ind) in scheme.flows"
+        :key="key">
+        <OAuth2
+          v-if="activeOauth === key || (ind === 0 && !activeOauth)"
+          :flow="flow!"
+          :getReferenceClass="getReferenceClass"
+          :layout="layout"
+          :scheme="scheme" />
+      </template>
     </template>
   </template>
 </template>
