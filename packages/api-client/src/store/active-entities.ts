@@ -84,6 +84,7 @@ export const createActiveEntitiesStore = ({
     if (!activeWorkspace.value.activeEnvironmentId) {
       return {
         uid: '',
+        color: '#0082D0',
         name: 'No Environment',
         value: JSON.stringify(activeWorkspace.value.environments, null, 2),
       }
@@ -108,13 +109,14 @@ export const createActiveEntitiesStore = ({
         color:
           activeEnvironmentCollection['x-scalar-environments']?.[
             activeWorkspace.value.activeEnvironmentId
-          ].color,
+          ].color || '#0082D0',
         isDefault: false,
       }
     }
 
     return {
       uid: '',
+      color: '#0082D0',
       name: 'No Environment',
       value: JSON.stringify(activeWorkspace.value.environments, null, 2),
     }
