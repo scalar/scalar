@@ -15,13 +15,15 @@ import {
 import { capitalize } from '@scalar/oas-utils/helpers'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 import TopNavItem from './TopNavItem.vue'
 
 const props = defineProps<{
   openNewTab: { name: string; uid: string } | null
 }>()
-const { activeRequest, router } = useActiveEntities()
+const { activeRequest } = useActiveEntities()
+const router = useRouter()
 const { events } = useWorkspace()
 const { copyToClipboard } = useClipboard()
 

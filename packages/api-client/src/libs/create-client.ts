@@ -50,7 +50,7 @@ export type OpenClientPayload = {
   _source?: 'api-reference' | 'gitbook'
 }
 
-type CreateApiClientParams = {
+export type CreateApiClientParams = {
   /** Element to mount the references to */
   el: HTMLElement | null
   /** Main vue app component to create the vue app */

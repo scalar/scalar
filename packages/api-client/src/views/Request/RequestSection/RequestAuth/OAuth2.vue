@@ -2,7 +2,6 @@
 import { DataTableRow } from '@/components/DataTable'
 import { type UpdateScheme, useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import {
@@ -13,17 +12,25 @@ import {
 import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
+import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, flow } = defineProps<{
+const {
+  scheme,
+  flow,
+  getReferenceClass,
+  layout = 'client',
+} = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
+  getReferenceClass: (className?: string) => string
+  layout?: 'client' | 'reference'
 }>()
 
 const loadingState = useLoadingState()
 const { toast } = useToasts()
 
 const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
-const { isReadOnly, securitySchemeMutators } = useWorkspace()
+const { securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
 const updateScheme: UpdateScheme = (path, value) =>
@@ -53,8 +60,8 @@ const handleAuthorize = async () => {
   <template v-if="flow.token">
     <DataTableRow>
       <RequestAuthDataTableInput
-        id="oauth2-access-token"
         class="border-r-transparent"
+        :containerClass="getReferenceClass('rounded border-1/2')"
         :modelValue="flow.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
         type="password"
@@ -77,41 +84,46 @@ const handleAuthorize = async () => {
   </template>
 
   <template v-else>
-    <!-- Custom auth -->
-    <DataTableRow v-if="!isReadOnly">
+    <DataTableRow>
+      <!-- Auth URL -->
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
-        :id="`oauth2-authorization-url-${scheme.uid}`"
+        :containerClass="getReferenceClass('rounded-t border-t-1/2')"
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.authorizationUrl`, v)
         ">
-        Auth Url
+        Auth URL
       </RequestAuthDataTableInput>
 
+      <!-- Token URL -->
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
-        :id="`oauth2-token-url-${scheme.uid}`"
+        :containerClass="
+          getReferenceClass(
+            flow.type === 'authorizationCode' ? '' : 'rounded-t border-t-1/2',
+          )
+        "
         :modelValue="flow.tokenUrl"
         placeholder="https://galaxy.scalar.com/token"
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.tokenUrl`, v)
         ">
-        Token Url
+        Token URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
     <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
-        :id="`oauth2-redirect-uri-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
           (v) => updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, v)
         ">
-        Redirect Url
+        Redirect URL
       </RequestAuthDataTableInput>
     </DataTableRow>
 
@@ -119,8 +131,8 @@ const handleAuthorize = async () => {
     <template v-if="flow.type === 'password'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`oauth2-password-username-${scheme.uid}`"
           class="text-c-2"
+          :containerClass="getReferenceClass()"
           :modelValue="flow.username"
           placeholder="ScalarEnjoyer01"
           @update:modelValue="
@@ -131,9 +143,9 @@ const handleAuthorize = async () => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`oauth2-password-password-${scheme.uid}`"
+          :containerClass="getReferenceClass()"
           :modelValue="flow.password"
-          placeholder="xxxxxx"
+          placeholder="********"
           type="password"
           @update:modelValue="
             (v) => updateScheme(`flows.${flow.type}.password`, v)
@@ -146,7 +158,7 @@ const handleAuthorize = async () => {
     <!-- Client ID -->
     <DataTableRow>
       <RequestAuthDataTableInput
-        :id="`oauth2-client-id-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow['x-scalar-client-id']"
         placeholder="12345"
         @update:modelValue="
@@ -159,7 +171,7 @@ const handleAuthorize = async () => {
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
     <DataTableRow v-if="'clientSecret' in flow">
       <RequestAuthDataTableInput
-        :id="`oauth2-client-secret-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :modelValue="flow.clientSecret"
         placeholder="XYZ123"
         type="password"
@@ -173,7 +185,7 @@ const handleAuthorize = async () => {
     <!-- PKCE -->
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
-        :id="`oauth2-use-pkce-${scheme.uid}`"
+        :containerClass="getReferenceClass()"
         :enum="pkceOptions"
         :modelValue="flow['x-usePkce']"
         readOnly
@@ -192,6 +204,7 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
       <OAuthScopesInput
         :flow="flow"
+        :layout="layout"
         :updateScheme="updateScheme" />
     </DataTableRow>
 

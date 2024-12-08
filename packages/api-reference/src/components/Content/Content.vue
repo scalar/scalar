@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useActiveEntities } from '@scalar/api-client/store'
+import { RequestAuthDataTable } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -6,7 +8,6 @@ import { computed } from 'vue'
 import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
-import { Authentication } from './Authentication'
 import { ClientLibraries } from './ClientLibraries'
 import { Introduction } from './Introduction'
 import { Loading } from './Lazy'
@@ -20,7 +21,6 @@ const props = withDefaults(
     layout?: 'modern' | 'classic'
     baseServerURL?: string
     servers?: Server[]
-    proxyUrl?: string
   }>(),
   {
     layout: 'modern',
@@ -28,6 +28,7 @@ const props = withDefaults(
 )
 
 const { hideModels } = useSidebar()
+const { activeCollection } = useActiveEntities()
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -65,10 +66,14 @@ const introCardsSlot = computed(() =>
               :defaultServerUrl="baseServerURL"
               :servers="props.servers"
               :specification="parsedSpec" />
-            <Authentication
-              class="introduction-card-item"
-              :parsedSpec="parsedSpec"
-              :proxyUrl="proxyUrl" />
+            <div class="scalar-client p-[9px] border-y-1/2">
+              <RequestAuthDataTable
+                layout="reference"
+                :selectedSecuritySchemeUids="
+                  activeCollection?.selectedSecuritySchemeUids ?? []
+                "
+                title="Authentication" />
+            </div>
             <ClientLibraries class="introduction-card-item" />
           </div>
         </ScalarErrorBoundary>

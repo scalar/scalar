@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
 
@@ -11,7 +12,7 @@ const props = withDefaults(
     id?: string
     type?: string
     /** Class for the wrapping cell because attrs is bound to the input */
-    containerClass?: string
+    containerClass?: VueClassProp
     required?: boolean
     modelValue: string | number
     /** Allows adding a custom value to the enum dropdown, defaults to true */
@@ -117,7 +118,7 @@ const handleDropdownMouseUp = () => {
           @update:modelValue="emit('update:modelValue', $event)" />
         <div
           v-if="required"
-          class="absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
+          class="scalar-input-required absolute centered-y right-2 pt-px text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[:focus-visible]:opacity-0">
           Required
         </div>
       </template>

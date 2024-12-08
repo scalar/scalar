@@ -14,13 +14,13 @@ import type { Router } from 'vue-router'
 import { getRouterParams } from './router-params'
 
 type CreateActiveEntitiesStoreParams = {
-  router: Router
   collections: Record<string, Collection>
   environments: Record<string, Environment>
   requestExamples: Record<string, RequestExample>
   requests: Record<string, Request>
   servers: Record<string, Server>
   workspaces: Record<string, Workspace>
+  router?: Router
 }
 
 type EnvVariable = {
@@ -84,6 +84,7 @@ export const createActiveEntitiesStore = ({
     if (!activeWorkspace.value.activeEnvironmentId) {
       return {
         uid: '',
+        color: '#0082D0',
         name: 'No Environment',
         value: JSON.stringify(activeWorkspace.value.environments, null, 2),
       }
@@ -108,13 +109,14 @@ export const createActiveEntitiesStore = ({
         color:
           activeEnvironmentCollection['x-scalar-environments']?.[
             activeWorkspace.value.activeEnvironmentId
-          ].color,
+          ].color || '#0082D0',
         isDefault: false,
       }
     }
 
     return {
       uid: '',
+      color: '#0082D0',
       name: 'No Environment',
       value: JSON.stringify(activeWorkspace.value.environments, null, 2),
     }
@@ -132,7 +134,7 @@ export const createActiveEntitiesStore = ({
     // TODO: Do we really need this? We have to handle undefined anyways
     const collection =
       collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value.collections[0]]
+      collections[activeWorkspace.value?.collections[0]]
 
     return requests[key] || requests[collection?.requests[0]]
   })
@@ -160,7 +162,7 @@ export const createActiveEntitiesStore = ({
       )
 
     const fallbackUid =
-      activeWorkspace.value.collections[0] ?? collections[0]?.uid
+      activeWorkspace.value?.collections[0] ?? collections[0]?.uid
 
     return collections[fallbackUid]
   })
@@ -171,7 +173,7 @@ export const createActiveEntitiesStore = ({
       servers[
         activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
-          ''
+          (Object.keys(servers ?? {})[0] ?? '')
       ],
   )
 
@@ -234,7 +236,6 @@ export const createActiveEntitiesStore = ({
     activeWorkspaceServers,
     activeEnvVariables,
     activeWorkspaceRequests,
-    router,
   }
 }
 

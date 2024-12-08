@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import { Operation } from '@/features/Operation'
+import { getRequest } from '@/helpers/get-request'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
@@ -47,6 +49,7 @@ const hideTag = ref(false)
 const tags = ref<(TagType & { lazyOperations: TransformedOperation[] })[]>([])
 const models = ref<string[]>([])
 
+const { requests, requestExamples, securitySchemes } = useWorkspace()
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
 
@@ -162,7 +165,11 @@ onMounted(() => {
         <Operation
           v-for="operation in tag.lazyOperations"
           :key="`${operation.httpVerb}-${operation.operationId}`"
+          :layout="layout"
           :operation="operation"
+          :requestExamples="requestExamples"
+          :requests="requests"
+          :securitySchemes="securitySchemes"
           :tag="tag" />
       </Tag>
     </template>

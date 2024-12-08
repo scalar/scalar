@@ -18,9 +18,11 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { id, operation, request, secretCredentials } = defineProps<{
   id?: string
   operation: TransformedOperation
+  request: Request | null
+  secretCredentials: string[]
 }>()
 </script>
 <template>
@@ -51,7 +53,9 @@ defineProps<{
             <ScalarErrorBoundary>
               <ExampleRequest
                 fallback
-                :operation="operation">
+                :operation="operation"
+                :request="request"
+                :secretCredentials="secretCredentials">
                 <template #header>
                   <OperationPath
                     class="example-path"

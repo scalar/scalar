@@ -2,6 +2,7 @@
 import { Lazy } from '@/components/Content/Lazy'
 import { Operation } from '@/features/Operation'
 import { useNavState, useSidebar } from '@/hooks'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec, Tag as tagType } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -16,6 +17,7 @@ const props = defineProps<{
 
 const { getOperationId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
+const { requests, requestExamples, securitySchemes } = useWorkspace()
 
 const tagLayout = computed<typeof Tag>(() =>
   props.layout === 'classic' ? TagAccordion : Tag,
@@ -45,6 +47,9 @@ const isLazy = props.layout !== 'classic' && !hash.value.startsWith('model')
             :id="getOperationId(operation, tag)"
             :layout="layout"
             :operation="operation"
+            :requestExamples="requestExamples"
+            :requests="requests"
+            :securitySchemes="securitySchemes"
             :tag="tag" />
         </ScalarErrorBoundary>
       </Lazy>

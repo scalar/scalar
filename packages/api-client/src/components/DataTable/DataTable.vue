@@ -1,14 +1,21 @@
 <script setup lang="ts">
+import { useBindCx } from '@scalar/components'
+
 defineProps<{
   columns: (string | undefined)[]
   /** Scroll horizontally */
   scroll?: boolean
 }>()
+const { cx } = useBindCx()
 </script>
 <template>
   <div
-    class="border-1/2 rounded bg-b-1"
-    :class="scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible'">
+    v-bind="
+      cx(
+        scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible',
+        'scalar-data-table border-1/2 rounded bg-b-1',
+      )
+    ">
     <table
       class="grid auto-rows-auto min-h-8 mb-0"
       :class="{ 'min-w-full w-max': scroll }"

@@ -2,7 +2,6 @@
 import {
   Layouts,
   type ReferenceConfiguration,
-  useAuthenticationStore,
   useHttpClientStore,
   useReactiveSpec,
 } from '@scalar/api-reference'
@@ -118,10 +117,6 @@ function mapConfigToState<K extends keyof ReferenceConfiguration>(
     { immediate: true },
   )
 }
-
-// Prefill authentication
-const { setAuthentication } = useAuthenticationStore()
-mapConfigToState('authentication', setAuthentication)
 
 // Hides any client snippets from the references
 const { setExcludedClients } = useHttpClientStore()

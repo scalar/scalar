@@ -1,7 +1,7 @@
+import type { EnvVariables } from '@/libs/env-helpers'
+
 /** Parses the active environment variables and extracts key-value pairs. */
-export function parseEnvVariables(
-  activeEnvVariables: { key: string; value: string; source: string }[],
-) {
+export function parseEnvVariables(activeEnvVariables: EnvVariables) {
   return activeEnvVariables.flatMap((variable) => {
     if (variable.key === 'value') {
       try {

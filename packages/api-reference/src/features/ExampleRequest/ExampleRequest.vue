@@ -1,15 +1,7 @@
 <script setup lang="ts">
-import {
-  getRequestFromAuthentication,
-  getSecretCredentialsFromAuthentication,
-  getUrlFromServerState,
-  useAuthenticationStore,
-  useExampleStore,
-  useServerStore,
-} from '#legacy'
+import { useExampleStore } from '#legacy'
 import { ScalarCodeBlock } from '@scalar/components'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
-import { getRequestFromOperation } from '@scalar/oas-utils/spec-getters'
 import type {
   ExampleRequestSSRKey,
   SSRState,
@@ -18,7 +10,6 @@ import type {
 import { asyncComputed } from '@vueuse/core'
 import {
   computed,
-  inject,
   onServerPrefetch,
   ref,
   useId,
@@ -34,23 +25,22 @@ import {
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
-import {
-  GLOBAL_SECURITY_SYMBOL,
-  getExampleCode,
-  getHarRequest,
-} from '../../helpers'
+import { getExampleCode } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const props = defineProps<{
+const { operation, request } = defineProps<{
   operation: TransformedOperation
+  request: Request | null
+  /** Array of strings to obscure in the code block */
+  secretCredentials: string[]
   /** Show a simplified card if no example are available */
   fallback?: boolean
 }>()
 
 const ssrHash = createHash(
-  props.operation.path + props.operation.httpVerb + props.operation.operationId,
+  operation.path + operation.httpVerb + operation.operationId,
 )
 const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
@@ -65,17 +55,14 @@ const {
   httpClientTitle,
 } = useHttpClientStore()
 
-const { server: serverState } = useServerStore()
-const { authentication: authenticationState } = useAuthenticationStore()
-
 const id = useId()
 
 const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (props.operation.information?.[key]) {
-      const examples = [...props.operation.information[key]]
+    if (operation.information?.[key]) {
+      const examples = [...operation.information[key]]
       return examples
     }
   }
@@ -115,53 +102,24 @@ watch(httpClient, () => {
 const hasMultipleExamples = computed<boolean>(
   () =>
     Object.keys(
-      props.operation.information?.requestBody?.content?.['application/json']
+      operation.information?.requestBody?.content?.['application/json']
         ?.examples ?? {},
     ).length > 1,
 )
 
-const getGlobalSecurity = inject(GLOBAL_SECURITY_SYMBOL)
-
-async function generateSnippet() {
+const generateSnippet = async () => {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
     return (
       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
     )
   }
-
-  // Generate a request from operation server or fallback to global server URL
-  const serverUrl = computed(() => {
-    const operationServer = props.operation.information?.servers?.[0]
-    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
-    return modifiedUrl
-  })
-
-  const harRequest = getHarRequest(
-    {
-      url: serverUrl.value,
-    },
-    getRequestFromOperation(
-      props.operation,
-      {
-        replaceVariables: true,
-      },
-      selectedExampleKey.value,
-      true,
-    ),
-    getRequestFromAuthentication(
-      authenticationState,
-      props.operation.information?.security ?? getGlobalSecurity?.(),
-    ),
-  )
+  if (!request) return ''
 
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (
-    (await getExampleCode(harRequest as any, targetKey, clientKey as string)) ??
-    ''
-  )
+  return (await getExampleCode(request, targetKey, clientKey as string)) ?? ''
 }
 
 const generatedCode = asyncComputed<string>(async () => {
@@ -204,13 +162,13 @@ const options = computed<TextSelectOptions>(() => {
     return {
       value: target.key,
       label: target.title,
-      options: target.clients.map((client) => {
+      options: target.clients.map((c) => {
         return {
           value: JSON.stringify({
             targetKey: target.key,
-            clientKey: client.key,
+            clientKey: c.key,
           }),
-          label: client.title,
+          label: c.title,
         }
       }),
     }
@@ -291,9 +249,7 @@ function updateHttpClient(value: string) {
         <ScalarCodeBlock
           class="bg-b-2"
           :content="generatedCode"
-          :hideCredentials="
-            getSecretCredentialsFromAuthentication(authenticationState)
-          "
+          :hideCredentials="secretCredentials"
           :lang="language"
           lineNumbers />
       </div>

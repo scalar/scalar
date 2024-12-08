@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
+import {
+  ACTIVE_ENTITIES_SYMBOL,
+  WORKSPACE_SYMBOL,
+  createActiveEntitiesStore,
+  createWorkspaceStore,
+} from '@scalar/api-client/store'
 import { addScalarClassesToHeadless } from '@scalar/components'
 import { ScalarErrorBoundary } from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
@@ -27,7 +33,6 @@ import {
 
 import { ApiClientModal } from '../features/ApiClientModal'
 import {
-  GLOBAL_SECURITY_SYMBOL,
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
   INTEGRATION_SYMBOL,
@@ -241,8 +246,31 @@ provideUseId(() => {
   return `${ATTR_KEY}-${instanceId}`
 })
 
-// Provide global security
-provide(GLOBAL_SECURITY_SYMBOL, () => props.parsedSpec.security)
+// Create the workspace store and provide it
+const workspaceStore = createWorkspaceStore({
+  isReadOnly: true,
+  proxyUrl: props.configuration.proxy,
+  themeId: props.configuration.theme,
+  useLocalStorage: false,
+  hideClientButton: props.configuration.hideClientButton,
+})
+// Populate the workspace store
+watch(
+  () => props.rawSpec,
+  (spec) =>
+    workspaceStore.importSpecFile(spec, 'default', {
+      shouldLoad: false,
+      setCollectionSecurity: true,
+      ...props.configuration,
+    }),
+)
+
+provide(WORKSPACE_SYMBOL, workspaceStore)
+
+// Same for the active entities store
+const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
+provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
+
 provide(
   HIDE_DOWNLOAD_BUTTON_SYMBOL,
   () => props.configuration.hideDownloadButton,
@@ -361,7 +389,6 @@ const themeStyleTag = computed(
           :baseServerURL="configuration.baseServerURL"
           :layout="configuration.layout"
           :parsedSpec="parsedSpec"
-          :proxyUrl="configuration.proxyUrl ?? configuration.proxy"
           :servers="configuration.servers">
           <template #start>
             <slot

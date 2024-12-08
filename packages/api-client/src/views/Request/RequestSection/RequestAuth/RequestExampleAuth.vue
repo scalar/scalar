@@ -1,28 +1,25 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import RequestAuthDataTableInput from '@/views/Request/RequestSection/RequestAuthDataTableInput.vue'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
+import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids } = defineProps<{
+const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
   selectedSecuritySchemeUids: string[]
+  layout?: 'client' | 'reference'
 }>()
 
-const { activeCollection, activeRequest } = useActiveEntities()
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
-const security = computed(() => {
-  if (!activeCollection.value || !activeRequest.value) return []
-
-  return selectedSecuritySchemeUids.map((uid) => ({
+const security = computed(() =>
+  selectedSecuritySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
-  }))
-})
+  })),
+)
 
 const generateLabel = (scheme: SecurityScheme) => {
   if (scheme.type !== 'oauth2')
@@ -38,17 +35,32 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
+
+/**
+ * A hacky way to override the styling on the references side,
+ * not ideal but doesn't touch the original styling
+ */
+const getReferenceClass = (className = '') =>
+  layout === 'reference'
+    ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
+    : ''
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
   <template
-    v-for="{ scheme } in security"
+    v-for="({ scheme }, index) in security"
     :key="scheme.uid">
     <!-- Header -->
-    <DataTableRow class="group/delete">
+    <DataTableRow
+      v-if="security.length > 1"
+      :class="{ 'request-example-references-header': layout === 'reference' }">
       <DataTableCell
-        v-if="security.length > 1"
-        class="text-c-3 pl-2 font-medium flex items-center">
+        class="text-c-3 pl-2 font-medium flex items-center"
+        :class="
+          getReferenceClass(
+            `bg-b-1 rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
+          )
+        ">
         {{ generateLabel(scheme) }}
       </DataTableCell>
     </DataTableRow>
@@ -58,7 +70,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
-          :id="`http-bearer-token-${scheme.uid}`"
+          :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -71,8 +83,12 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <template v-else-if="scheme.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
-            :id="`http-basic-username-${scheme.uid}`"
             class="text-c-2"
+            :containerClass="
+              getReferenceClass(
+                'auth-blend-required bg-b-2 rounded-t border-t-1/2',
+              )
+            "
             :modelValue="scheme.username"
             placeholder="ScalarEnjoyer01"
             required
@@ -82,9 +98,9 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
-            :id="`http-basic-password-${scheme.uid}`"
+            :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
             :modelValue="scheme.password"
-            placeholder="xxxxxx"
+            placeholder="********"
             type="password"
             @update:modelValue="(v) => updateScheme(scheme.uid, 'password', v)">
             Password
@@ -97,7 +113,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <template v-else-if="scheme.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`api-key-name-${scheme.uid}`"
+          :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
@@ -106,7 +122,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          :id="`api-key-value-add-${scheme.uid}`"
+          :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
@@ -121,7 +137,25 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         v-for="(flow, key) in scheme.flows"
         :key="key"
         :flow="flow!"
+        :getReferenceClass="getReferenceClass"
+        :layout="layout"
         :scheme="scheme" />
     </template>
   </template>
 </template>
+
+<style scoped>
+.auth-blend-required :deep(.scalar-input-required),
+.auth-blend-required :deep(.required) {
+  background: var(--scalar-background-2);
+  --tw-bg-base: var(--scalar-background-2);
+  --tw-shadow: -8px 0 4px var(--scalar-background-2);
+}
+
+/* Not sure why tailwind peer selector not working */
+.request-example-references-header :deep(+ tr > td) {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+</style>
