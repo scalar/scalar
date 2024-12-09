@@ -69,68 +69,84 @@ const getReferenceClass = (className = '') =>
 
     <!-- HTTP -->
     <template v-if="scheme.type === 'http'">
-      <!-- Bearer -->
-      <DataTableRow v-if="scheme.scheme === 'bearer'">
-        <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
-          :modelValue="scheme.token"
-          placeholder="Token"
-          type="password"
-          @update:modelValue="(v) => updateScheme(scheme.uid, 'token', v)">
-          Bearer Token
-        </RequestAuthDataTableInput>
-      </DataTableRow>
+      <div
+        :class="{
+          'rounded border-1/2 bg-b-2': layout === 'reference',
+        }">
+        <!-- Bearer -->
+        <DataTableRow v-if="scheme.scheme === 'bearer'">
+          <RequestAuthDataTableInput
+            :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
+            :modelValue="scheme.token"
+            placeholder="Token"
+            type="password"
+            @update:modelValue="(v) => updateScheme(scheme.uid, 'token', v)">
+            Bearer Token
+          </RequestAuthDataTableInput>
+        </DataTableRow>
 
-      <!-- HTTP Basic -->
-      <template v-else-if="scheme.scheme === 'basic'">
+        <!-- HTTP Basic -->
+        <template v-else-if="scheme.scheme === 'basic'">
+          <DataTableRow>
+            <RequestAuthDataTableInput
+              class="text-c-2"
+              :containerClass="
+                getReferenceClass(
+                  'auth-blend-required bg-b-2 rounded-t border-t-1/2',
+                )
+              "
+              :modelValue="scheme.username"
+              placeholder="Jane Doe"
+              required
+              @update:modelValue="
+                (v) => updateScheme(scheme.uid, 'username', v)
+              ">
+              Username
+            </RequestAuthDataTableInput>
+          </DataTableRow>
+          <DataTableRow>
+            <RequestAuthDataTableInput
+              :containerClass="
+                getReferenceClass('bg-b-2 rounded-b border-b-1/2')
+              "
+              :modelValue="scheme.password"
+              placeholder="********"
+              type="password"
+              @update:modelValue="
+                (v) => updateScheme(scheme.uid, 'password', v)
+              ">
+              Password
+            </RequestAuthDataTableInput>
+          </DataTableRow>
+        </template>
+      </div>
+    </template>
+
+    <!-- API Key -->
+    <template v-else-if="scheme.type === 'apiKey'">
+      <div
+        :class="{
+          'rounded border-1/2 bg-b-2': layout === 'reference',
+        }">
         <DataTableRow>
           <RequestAuthDataTableInput
-            class="text-c-2"
-            :containerClass="
-              getReferenceClass(
-                'auth-blend-required bg-b-2 rounded-t border-t-1/2',
-              )
-            "
-            :modelValue="scheme.username"
-            placeholder="Jane Doe"
-            required
-            @update:modelValue="(v) => updateScheme(scheme.uid, 'username', v)">
-            Username
+            :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
+            :modelValue="scheme.name"
+            placeholder="api-key"
+            @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
+            Name
           </RequestAuthDataTableInput>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
             :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
-            :modelValue="scheme.password"
-            placeholder="********"
-            type="password"
-            @update:modelValue="(v) => updateScheme(scheme.uid, 'password', v)">
-            Password
+            :modelValue="scheme.value"
+            placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
+            @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
+            Value
           </RequestAuthDataTableInput>
         </DataTableRow>
-      </template>
-    </template>
-
-    <!-- API Key -->
-    <template v-else-if="scheme.type === 'apiKey'">
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
-          :modelValue="scheme.name"
-          placeholder="api-key"
-          @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
-          Name
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
-          :modelValue="scheme.value"
-          placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-          @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
-          Value
-        </RequestAuthDataTableInput>
-      </DataTableRow>
+      </div>
     </template>
 
     <!-- OAuth 2 -->
