@@ -53,6 +53,7 @@ public class ScalarOptionsMapperTests
             CustomCss = "*{}",
             SearchHotKey = "o",
             Theme = ScalarTheme.Saturn,
+            Layout = ScalarLayout.Classic,
             Servers = [new ScalarServer("https://example.com")],
             Metadata = new Dictionary<string, string> { ["key"] = "value" },
             DefaultHttpClient = new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient),
@@ -101,6 +102,7 @@ public class ScalarOptionsMapperTests
         configuration.TagSorter.Should().Be(TagSorter.Alpha.ToStringFast());
         configuration.OperationsSorter.Should().Be(OperationSorter.Method.ToStringFast());
         configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
+        configuration.Layout.Should().Be(ScalarLayout.Classic.ToStringFast());
         configuration.Integration.Should().BeNull();
         configuration.HideClientButton.Should().BeTrue();
     }

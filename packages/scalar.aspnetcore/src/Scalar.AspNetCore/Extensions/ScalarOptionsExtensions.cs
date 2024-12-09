@@ -163,6 +163,17 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the layout for the Scalar API reference.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="layout">The layout to use.</param>
+    public static ScalarOptions WithLayout(this ScalarOptions options, ScalarLayout layout)
+    {
+        options.Layout = layout;
+        return options;
+    }
+
+    /// <summary>
     /// Sets whether to use the default fonts.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>

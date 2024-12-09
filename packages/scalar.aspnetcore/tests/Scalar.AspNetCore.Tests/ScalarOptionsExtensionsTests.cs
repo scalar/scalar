@@ -18,6 +18,7 @@ public class ScalarOptionsExtensionsTests
             .WithDarkMode(false)
             .WithSidebar(false)
             .WithTheme(ScalarTheme.Saturn)
+            .WithLayout(ScalarLayout.Classic)
             .WithSearchHotKey("o")
             .WithProxyUrl("http://localhost:8080")
             .AddMetadata("key", "value")
@@ -60,6 +61,7 @@ public class ScalarOptionsExtensionsTests
         options.DarkMode.Should().BeFalse();
         options.ShowSidebar.Should().BeFalse();
         options.Theme.Should().Be(ScalarTheme.Saturn);
+        options.Layout.Should().Be(ScalarLayout.Classic);
         options.SearchHotKey.Should().Be("o");
         options.ProxyUrl.Should().Be("http://localhost:8080");
         options.Metadata.Should().ContainKey("key").And.ContainValue("value");

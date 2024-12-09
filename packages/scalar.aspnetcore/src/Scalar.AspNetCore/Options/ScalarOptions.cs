@@ -102,6 +102,12 @@ public sealed class ScalarOptions
     public ScalarTheme Theme { get; set; } = ScalarTheme.Purple;
 
     /// <summary>
+    /// Gets or sets the layout for the Scalar API reference.
+    /// </summary>
+    /// <value>The default value is <see cref="ScalarLayout.Modern" />.</value>
+    public ScalarLayout Layout { get; set; } = ScalarLayout.Modern;
+
+    /// <summary>
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>

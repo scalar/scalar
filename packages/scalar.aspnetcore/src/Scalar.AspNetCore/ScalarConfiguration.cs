@@ -48,6 +48,8 @@ internal sealed class ScalarConfiguration
 
     public required string? Theme { get; init; }
 
+    public required string? Layout { get; init; }
+
     public required string? Favicon { get; init; }
     
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
