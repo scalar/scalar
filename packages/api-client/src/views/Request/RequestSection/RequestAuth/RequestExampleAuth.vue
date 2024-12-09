@@ -135,16 +135,19 @@ const getReferenceClass = (className = '') =>
 
     <!-- OAuth 2 -->
     <template v-else-if="scheme.type === 'oauth2'">
-      <button
-        v-for="(flow, key, ind) in scheme.flows"
-        :key="key"
-        :class="{
-          'bg-b-2': activeOauth === key || (ind === 0 && !activeOauth),
-        }"
-        type="button"
-        @click="activeOauth = key">
-        {{ key }}
-      </button>
+      <div class="flex flex-wrap gap-2 p-2 border-b-1/2">
+        <button
+          v-for="(_, key, ind) in scheme.flows"
+          :key="key"
+          class="text-left text-sm px-2 py-1 text-c-1 rounded border-1/2"
+          :class="{
+            'bg-b-3': activeOauth === key || (ind === 0 && !activeOauth),
+          }"
+          type="button"
+          @click="activeOauth = key">
+          {{ key }}
+        </button>
+      </div>
       <template
         v-for="(flow, key, ind) in scheme.flows"
         :key="key">
