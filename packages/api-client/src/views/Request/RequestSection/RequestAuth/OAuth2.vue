@@ -17,12 +17,10 @@ import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 const {
   scheme,
   flow,
-  getReferenceClass,
   layout = 'client',
 } = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
-  getReferenceClass: (className?: string) => string
   layout?: 'client' | 'reference'
 }>()
 
@@ -56,158 +54,168 @@ const handleAuthorize = async () => {
 </script>
 
 <template>
-  <!-- Access Token Granted -->
-  <template v-if="flow.token">
-    <DataTableRow>
-      <RequestAuthDataTableInput
-        class="border-r-transparent"
-        :containerClass="getReferenceClass('rounded border-1/2')"
-        :modelValue="flow.token"
-        placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
-        type="password"
-        @update:modelValue="(v) => updateScheme(`flows.${flow.type}.token`, v)">
-        Access Token
-      </RequestAuthDataTableInput>
-    </DataTableRow>
-    <DataTableRow class="min-w-full">
-      <div class="h-8 flex items-center justify-self-end">
-        <ScalarButton
-          class="p-0 py-0.5 px-2 mr-1"
-          :loading="loadingState"
-          size="sm"
-          variant="outlined"
-          @click="updateScheme(`flows.${flow.type}.token`, '')">
-          Clear
-        </ScalarButton>
-      </div>
-    </DataTableRow>
-  </template>
-
-  <template v-else>
-    <DataTableRow>
-      <!-- Auth URL -->
-      <RequestAuthDataTableInput
-        v-if="'authorizationUrl' in flow"
-        :containerClass="getReferenceClass('rounded-t border-t-1/2')"
-        :modelValue="flow.authorizationUrl"
-        placeholder="https://galaxy.scalar.com/authorize"
-        @update:modelValue="
-          (v) => updateScheme(`flows.${flow.type}.authorizationUrl`, v)
-        ">
-        Auth URL
-      </RequestAuthDataTableInput>
-
-      <!-- Token URL -->
-      <RequestAuthDataTableInput
-        v-if="'tokenUrl' in flow"
-        :containerClass="
-          getReferenceClass(
-            flow.type === 'authorizationCode' ? '' : 'rounded-t border-t-1/2',
-          )
-        "
-        :modelValue="flow.tokenUrl"
-        placeholder="https://galaxy.scalar.com/token"
-        @update:modelValue="
-          (v) => updateScheme(`flows.${flow.type}.tokenUrl`, v)
-        ">
-        Token URL
-      </RequestAuthDataTableInput>
-    </DataTableRow>
-
-    <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
-      <!-- Redirect URI -->
-      <RequestAuthDataTableInput
-        :containerClass="getReferenceClass()"
-        :modelValue="flow['x-scalar-redirect-uri']"
-        placeholder="https://galaxy.scalar.com/callback"
-        @update:modelValue="
-          (v) => updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, v)
-        ">
-        Redirect URL
-      </RequestAuthDataTableInput>
-    </DataTableRow>
-
-    <!-- Username and password -->
-    <template v-if="flow.type === 'password'">
+  <div
+    :class="{
+      'bg-b-2 rounded-b border-1/2 border-t-0': layout === 'reference',
+    }">
+    <!-- Access Token Granted -->
+    <template v-if="flow.token">
       <DataTableRow>
         <RequestAuthDataTableInput
-          class="text-c-2"
-          :containerClass="getReferenceClass()"
-          :modelValue="flow.username"
-          placeholder="ScalarEnjoyer01"
-          @update:modelValue="
-            (v) => updateScheme(`flows.${flow.type}.username`, v)
-          ">
-          Username
-        </RequestAuthDataTableInput>
-      </DataTableRow>
-      <DataTableRow>
-        <RequestAuthDataTableInput
-          :containerClass="getReferenceClass()"
-          :modelValue="flow.password"
-          placeholder="********"
+          class="border-r-transparent"
+          :modelValue="flow.token"
+          placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           type="password"
           @update:modelValue="
-            (v) => updateScheme(`flows.${flow.type}.password`, v)
+            (v) => updateScheme(`flows.${flow.type}.token`, v)
           ">
-          Password
+          Access Token
         </RequestAuthDataTableInput>
+      </DataTableRow>
+      <DataTableRow class="min-w-full">
+        <div class="h-8 flex items-center justify-self-end">
+          <ScalarButton
+            class="p-0 py-0.5 px-2 mr-1"
+            :loading="loadingState"
+            size="sm"
+            variant="outlined"
+            @click="updateScheme(`flows.${flow.type}.token`, '')">
+            Clear
+          </ScalarButton>
+        </div>
       </DataTableRow>
     </template>
 
-    <!-- Client ID -->
-    <DataTableRow>
-      <RequestAuthDataTableInput
-        :containerClass="getReferenceClass()"
-        :modelValue="flow['x-scalar-client-id']"
-        placeholder="12345"
-        @update:modelValue="
-          (v) => updateScheme(`flows.${flow.type}.x-scalar-client-id`, v)
-        ">
-        Client ID
-      </RequestAuthDataTableInput>
-    </DataTableRow>
+    <template v-else>
+      <DataTableRow>
+        <!-- Auth URL -->
+        <RequestAuthDataTableInput
+          v-if="'authorizationUrl' in flow"
+          :modelValue="flow.authorizationUrl"
+          placeholder="https://galaxy.scalar.com/authorize"
+          @update:modelValue="
+            (v) => updateScheme(`flows.${flow.type}.authorizationUrl`, v)
+          ">
+          Auth URL
+        </RequestAuthDataTableInput>
 
-    <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
-    <DataTableRow v-if="'clientSecret' in flow">
-      <RequestAuthDataTableInput
-        :containerClass="getReferenceClass()"
-        :modelValue="flow.clientSecret"
-        placeholder="XYZ123"
-        type="password"
-        @update:modelValue="
-          (v) => updateScheme(`flows.${flow.type}.clientSecret`, v)
-        ">
-        Client Secret
-      </RequestAuthDataTableInput>
-    </DataTableRow>
+        <!-- Token URL -->
+        <RequestAuthDataTableInput
+          v-if="'tokenUrl' in flow"
+          :modelValue="flow.tokenUrl"
+          placeholder="https://galaxy.scalar.com/token"
+          @update:modelValue="
+            (v) => updateScheme(`flows.${flow.type}.tokenUrl`, v)
+          ">
+          Token URL
+        </RequestAuthDataTableInput>
+      </DataTableRow>
 
-    <!-- PKCE -->
-    <DataTableRow v-if="'x-usePkce' in flow">
-      <RequestAuthDataTableInput
-        :containerClass="getReferenceClass()"
-        :enum="pkceOptions"
-        :modelValue="flow['x-usePkce']"
-        readOnly
-        @update:modelValue="
-          (v) =>
-            updateScheme(
-              `flows.${flow.type}.x-usePkce`,
-              v as (typeof pkceOptions)[number],
-            )
-        ">
-        Use PKCE
-      </RequestAuthDataTableInput>
-    </DataTableRow>
+      <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
+        <!-- Redirect URI -->
+        <RequestAuthDataTableInput
+          :modelValue="flow['x-scalar-redirect-uri']"
+          placeholder="https://galaxy.scalar.com/callback"
+          @update:modelValue="
+            (v) => updateScheme(`flows.${flow.type}.x-scalar-redirect-uri`, v)
+          ">
+          Redirect URL
+        </RequestAuthDataTableInput>
+      </DataTableRow>
 
-    <!-- Scopes -->
-    <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
-      <OAuthScopesInput
-        :flow="flow"
-        :layout="layout"
-        :updateScheme="updateScheme" />
-    </DataTableRow>
+      <!-- Username and password -->
+      <template v-if="flow.type === 'password'">
+        <DataTableRow>
+          <RequestAuthDataTableInput
+            class="text-c-2"
+            :modelValue="flow.username"
+            placeholder="ScalarEnjoyer01"
+            @update:modelValue="
+              (v) => updateScheme(`flows.${flow.type}.username`, v)
+            ">
+            Username
+          </RequestAuthDataTableInput>
+        </DataTableRow>
+        <DataTableRow>
+          <RequestAuthDataTableInput
+            :modelValue="flow.password"
+            placeholder="********"
+            type="password"
+            @update:modelValue="
+              (v) => updateScheme(`flows.${flow.type}.password`, v)
+            ">
+            Password
+          </RequestAuthDataTableInput>
+        </DataTableRow>
+      </template>
 
+      <!-- Client ID -->
+      <DataTableRow>
+        <RequestAuthDataTableInput
+          :modelValue="flow['x-scalar-client-id']"
+          placeholder="12345"
+          @update:modelValue="
+            (v) => updateScheme(`flows.${flow.type}.x-scalar-client-id`, v)
+          ">
+          Client ID
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+
+      <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
+      <DataTableRow v-if="'clientSecret' in flow">
+        <RequestAuthDataTableInput
+          :modelValue="flow.clientSecret"
+          placeholder="XYZ123"
+          type="password"
+          @update:modelValue="
+            (v) => updateScheme(`flows.${flow.type}.clientSecret`, v)
+          ">
+          Client Secret
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+
+      <!-- PKCE -->
+      <DataTableRow v-if="'x-usePkce' in flow">
+        <RequestAuthDataTableInput
+          :enum="pkceOptions"
+          :modelValue="flow['x-usePkce']"
+          readOnly
+          @update:modelValue="
+            (v) =>
+              updateScheme(
+                `flows.${flow.type}.x-usePkce`,
+                v as (typeof pkceOptions)[number],
+              )
+          ">
+          Use PKCE
+        </RequestAuthDataTableInput>
+      </DataTableRow>
+
+      <!-- Scopes -->
+      <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
+        <OAuthScopesInput
+          :flow="flow"
+          :layout="layout"
+          :updateScheme="updateScheme" />
+      </DataTableRow>
+
+      <!-- Open ID Connect -->
+      <!-- <DataTableRow -->
+      <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
+      <!--   class="border-r-transparent"> -->
+      <!--   <DataTableInput -->
+      <!--     v-model="password" -->
+      <!--     placeholder="Token"> -->
+      <!--     TODO -->
+      <!--   </DataTableInput> -->
+      <!--   <DataTableCell class="flex items-center"> -->
+      <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
+      <!--   </DataTableCell> -->
+      <!-- </DataTableRow> -->
+    </template>
+  </div>
+
+  <template v-if="!flow.token">
     <DataTableRow class="min-w-full">
       <div class="h-8 flex items-center justify-self-end">
         <ScalarButton
@@ -220,19 +228,5 @@ const handleAuthorize = async () => {
         </ScalarButton>
       </div>
     </DataTableRow>
-
-    <!-- Open ID Connect -->
-    <!-- <DataTableRow -->
-    <!--   v-else-if="activeScheme?.type === 'openIdConnect'" -->
-    <!--   class="border-r-transparent"> -->
-    <!--   <DataTableInput -->
-    <!--     v-model="password" -->
-    <!--     placeholder="Token"> -->
-    <!--     TODO -->
-    <!--   </DataTableInput> -->
-    <!--   <DataTableCell class="flex items-center"> -->
-    <!--     <ScalarButton size="sm"> Authorize </ScalarButton> -->
-    <!--   </DataTableCell> -->
-    <!-- </DataTableRow> -->
   </template>
 </template>

@@ -21,7 +21,7 @@ const security = computed(() =>
   })),
 )
 
-const activeOauth = ref('')
+const activeFlow = ref('')
 
 const generateLabel = (scheme: SecurityScheme) => {
   if (scheme.type !== 'oauth2')
@@ -43,7 +43,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
  * not ideal but doesn't touch the original styling
  */
 const getReferenceClass = (className = '') =>
-  layout === 'reference'
+  layout === 'client'
     ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
     : ''
 </script>
@@ -92,7 +92,7 @@ const getReferenceClass = (className = '') =>
               )
             "
             :modelValue="scheme.username"
-            placeholder="ScalarEnjoyer01"
+            placeholder="Jane Doe"
             required
             @update:modelValue="(v) => updateScheme(scheme.uid, 'username', v)">
             Username
@@ -136,31 +136,40 @@ const getReferenceClass = (className = '') =>
     <!-- OAuth 2 -->
     <template v-else-if="scheme.type === 'oauth2'">
       <div
-        class="min-h-8 min-w-8 flex text-sm last:border-r-0 p-0 m-0 relative row border-b-1/2">
-        <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
-          Flow
-        </div>
-        <div class="flex flex-wrap px-2 items-center gap-1 py-1">
-          <button
-            v-for="(_, key, ind) in scheme.flows"
-            :key="key"
-            class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 shadow p-0 px-2"
-            :class="{
-              'bg-b-3': activeOauth === key || (ind === 0 && !activeOauth),
-            }"
-            type="button"
-            @click="activeOauth = key">
-            {{ key }}
-          </button>
+        :class="{
+          'rounded-t border-1/2 border-b-0 bg-b-2': layout === 'reference',
+        }">
+        <div
+          class="min-h-8 min-w-8 flex text-sm last:border-r-0 p-0 m-0 relative row border-b-1/2">
+          <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
+            Flow
+          </div>
+          <div class="flex flex-wrap px-2 items-center gap-1 py-1">
+            <button
+              v-for="(_, key, ind) in scheme.flows"
+              :key="key"
+              class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
+              :class="{
+                'bg-b-3':
+                  layout === 'client' &&
+                  (activeFlow === key || (ind === 0 && !activeFlow)),
+                'bg-b-1':
+                  layout === 'reference' &&
+                  (activeFlow === key || (ind === 0 && !activeFlow)),
+              }"
+              type="button"
+              @click="activeFlow = key">
+              {{ key }}
+            </button>
+          </div>
         </div>
       </div>
       <template
         v-for="(flow, key, ind) in scheme.flows"
         :key="key">
         <OAuth2
-          v-if="activeOauth === key || (ind === 0 && !activeOauth)"
+          v-if="activeFlow === key || (ind === 0 && !activeFlow)"
           :flow="flow!"
-          :getReferenceClass="getReferenceClass"
           :layout="layout"
           :scheme="scheme" />
       </template>
