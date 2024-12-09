@@ -24,11 +24,27 @@ const security = computed(() =>
 const activeFlow = ref('')
 
 const generateLabel = (scheme: SecurityScheme) => {
-  if (scheme.type !== 'oauth2')
-    return `${capitalize(scheme.nameKey)}: ${scheme.type}`
+  // ApiKeyHeader: header
+  if (scheme.type === 'apiKey') {
+    return `${capitalize(scheme.nameKey)}: ${scheme.in}`
+  }
 
-  const firstFlow = Object.values(scheme.flows ?? {})[0]
-  return `${capitalize(scheme.nameKey)}: ${scheme.type} ${scheme.type === 'oauth2' && firstFlow ? firstFlow.type : ''}`
+  // OAuth2: Authorization Code
+  if (scheme.type === 'oauth2') {
+    const firstFlow = Object.values(scheme.flows ?? {})[0]
+
+    return `${capitalize(scheme.nameKey)}: ${
+      activeFlow.value ? activeFlow.value : firstFlow.type
+    }`
+  }
+
+  // HTTP: Bearer
+  if (scheme.type === 'http') {
+    return `${capitalize(scheme.nameKey)}: ${scheme.scheme}`
+  }
+
+  // Default
+  return `${capitalize(scheme.nameKey)}: ${scheme.type}`
 }
 
 /** Update the scheme */
@@ -96,7 +112,7 @@ const getReferenceClass = (className = '') =>
                 )
               "
               :modelValue="scheme.username"
-              placeholder="Jane Doe"
+              placeholder="janedoe"
               required
               @update:modelValue="
                 (v) => updateScheme(scheme.uid, 'username', v)
@@ -202,9 +218,10 @@ const getReferenceClass = (className = '') =>
 }
 
 /* Not sure why tailwind peer selector not working */
-.request-example-references-header :deep(+ tr > td) {
+.request-example-references-header :deep(td) {
   border-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
+  border-bottom: 0;
 }
 </style>
