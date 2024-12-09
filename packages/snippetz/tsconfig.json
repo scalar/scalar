@@ -4,8 +4,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
-      "@test/*": ["./test/*"],
-      "~*": ["./node_modules/*"]
+      "@test/*": ["./test/*"]
     }
   }
 }

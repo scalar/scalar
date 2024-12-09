@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { nsurlsession } from '~httpsnippet-lite/dist/esm/targets/objc/nsurlsession/client.mjs'
+import { nsurlsession } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/objc/nsurlsession/client.mjs'
 
 /**
  * objc/nsurlsession
