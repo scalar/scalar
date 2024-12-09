@@ -51,7 +51,7 @@
     "@rollup/plugin-yaml": "^4.1.2",
     "glob": "^10.3.10",
     "picomatch": "^4.0.2",
-    "rollup": "^4.24.1",
+    "rollup": "^4.25.0",
     "rollup-plugin-copy": "^3.5.0",
     "rollup-plugin-dts": "^6.1.0",
     "rollup-plugin-import-css": "^3.5.0",
