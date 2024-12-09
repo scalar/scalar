@@ -65,7 +65,7 @@ fastify.put<{ Body: { name: string } }>(
 
 // Add the plugin
 await fastify.register(fastifyApiReference, {
-  routePrefix: '/reference',
+  routePrefix: '/',
 } satisfies FastifyApiReferenceOptions)
 
 const PORT = Number(process.env.PORT) || 5053
@@ -73,5 +73,5 @@ const HOST = process.env.HOST || '0.0.0.0'
 
 // Start the server
 fastify.listen({ port: PORT, host: HOST }, function (_, address) {
-  console.log(`⚡️ Fastify Plugin running on ${address}/reference`)
+  console.log(`⚡️ Fastify Plugin running on ${address}`)
 })
