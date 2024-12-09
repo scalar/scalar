@@ -2,14 +2,16 @@ import type {
   AnyApiDefinitionFormat,
   DereferenceResult,
   Filesystem,
-  ThrowOnErrorOption,
 } from '../types'
 import { details } from './details'
 import { getEntrypoint } from './getEntrypoint'
 import { makeFilesystem } from './makeFilesystem'
-import { resolveReferences } from './resolveReferences'
+import {
+  type ResolveReferencesOptions,
+  resolveReferences,
+} from './resolveReferences'
 
-export type DereferenceOptions = ThrowOnErrorOption
+export type DereferenceOptions = ResolveReferencesOptions
 
 /**
  * Resolves all references in an OpenAPI document
