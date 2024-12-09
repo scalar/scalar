@@ -1,5 +1,12 @@
 # @scalar/oas-utils
 
+## 0.2.86
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- b66a85c: feat: adds v-2.3.0 migration for workspace type
+
 ## 0.2.85
 
 ### Patch Changes

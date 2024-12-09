@@ -1,5 +1,19 @@
 # @scalar/api-client-react
 
+## 1.0.100
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+
 ## 1.0.99
 
 ### Patch Changes
