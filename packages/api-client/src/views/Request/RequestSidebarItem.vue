@@ -412,6 +412,7 @@ const hasDraftRequests = computed(() => {
                   size="md" />
               </ScalarButton>
               <ScalarButton
+                v-if="!isReadOnly"
                 class="px-0.5 py-0 hover:bg-b-3 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
                 size="sm"
                 variant="ghost"
