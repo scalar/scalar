@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { httpie } from '~httpsnippet-lite/dist/esm/targets/shell/httpie/client.mjs'
+import { httpie } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/shell/httpie/client.mjs'
 
 /**
  * shell/httpie

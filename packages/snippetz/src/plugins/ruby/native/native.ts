@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { native } from '~httpsnippet-lite/dist/esm/targets/ruby/native/client.mjs'
+import { native } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/ruby/native/client.mjs'
 
 /**
  * ruby/native

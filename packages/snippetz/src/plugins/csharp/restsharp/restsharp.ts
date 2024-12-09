@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { restsharp } from '~httpsnippet-lite/dist/esm/targets/csharp/restsharp/client.mjs'
+import { restsharp } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/csharp/restsharp/client.mjs'
 
 /**
  * csharp/restsharp
