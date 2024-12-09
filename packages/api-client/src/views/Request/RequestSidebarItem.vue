@@ -124,7 +124,7 @@ const item = computed<SidebarItem>(() => {
       entity: request,
       resourceTitle: 'Request',
       warning: 'This cannot be undone. You’re about to delete the request.',
-      children: request.examples,
+      children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
       delete: () => requestMutators.delete(request, props.parentUids[0]),
