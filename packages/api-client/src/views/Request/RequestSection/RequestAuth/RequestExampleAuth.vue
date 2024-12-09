@@ -59,7 +59,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
  * not ideal but doesn't touch the original styling
  */
 const getReferenceClass = (className = '') =>
-  layout === 'client'
+  layout === 'reference'
     ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
     : ''
 </script>
