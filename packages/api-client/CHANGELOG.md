@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.10
+
+### Patch Changes
+
+- 02e6a57: fix: displays sidebar request button on client only
+
 ## 2.2.9
 
 ### Patch Changes
