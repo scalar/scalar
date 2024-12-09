@@ -87,7 +87,7 @@ const getReferenceClass = (className = '') =>
     <template v-if="scheme.type === 'http'">
       <div
         :class="{
-          'rounded border-1/2 bg-b-2': layout === 'reference',
+          'border-b-1/2': layout === 'client',
         }">
         <!-- Bearer -->
         <DataTableRow v-if="scheme.scheme === 'bearer'">
@@ -142,7 +142,7 @@ const getReferenceClass = (className = '') =>
     <template v-else-if="scheme.type === 'apiKey'">
       <div
         :class="{
-          'rounded border-1/2 bg-b-2': layout === 'reference',
+          'border-b-1/2': layout === 'client',
         }">
         <DataTableRow>
           <RequestAuthDataTableInput
@@ -168,32 +168,30 @@ const getReferenceClass = (className = '') =>
     <!-- OAuth 2 -->
     <template v-else-if="scheme.type === 'oauth2'">
       <div
+        class="min-h-8 min-w-8 flex text-sm last:border-r-0 p-0 m-0 relative row border-b-1/2"
         :class="{
-          'rounded-t border-1/2 border-b-0 bg-b-2': layout === 'reference',
+          'border-1/2 border-b-0 rounded-t bg-b-2': layout === 'reference',
         }">
-        <div
-          class="min-h-8 min-w-8 flex text-sm last:border-r-0 p-0 m-0 relative row border-b-1/2">
-          <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
-            Flow
-          </div>
-          <div class="flex flex-wrap px-2 items-center gap-1 py-1">
-            <button
-              v-for="(_, key, ind) in scheme.flows"
-              :key="key"
-              class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
-              :class="{
-                'bg-b-3':
-                  layout === 'client' &&
-                  (activeFlow === key || (ind === 0 && !activeFlow)),
-                'bg-b-1':
-                  layout === 'reference' &&
-                  (activeFlow === key || (ind === 0 && !activeFlow)),
-              }"
-              type="button"
-              @click="activeFlow = key">
-              {{ key }}
-            </button>
-          </div>
+        <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
+          Flow
+        </div>
+        <div class="flex flex-wrap px-2 items-center gap-1 py-1">
+          <button
+            v-for="(_, key, ind) in scheme.flows"
+            :key="key"
+            class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
+            :class="{
+              'bg-b-3':
+                layout === 'client' &&
+                (activeFlow === key || (ind === 0 && !activeFlow)),
+              'bg-b-1':
+                layout === 'reference' &&
+                (activeFlow === key || (ind === 0 && !activeFlow)),
+            }"
+            type="button"
+            @click="activeFlow = key">
+            {{ key }}
+          </button>
         </div>
       </div>
       <template
@@ -223,5 +221,7 @@ const getReferenceClass = (className = '') =>
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
 }
 </style>
