@@ -1,5 +1,24 @@
 # @scalar/api-reference-editor
 
+## 0.1.136
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [b66a85c]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+  - @scalar/api-reference@1.25.77
+  - @scalar/oas-utils@0.2.86
+  - @scalar/use-codemirror@0.11.47
+
 ## 0.1.135
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.2.9
+
+### Patch Changes
+
+- 3eb0d11: feat: apply specific OAuth 2.0 security schemes
+- b66a85c: updates environment sidebar to welcome collection environment
+- 3eb0d11: feat: moved api-client auth into references
+- 62e80cd: fix: filters out first request example
+- bccfa3a: fix: scopes scalar button danger overload style
+- 66c1573: fix: edits collection on watch mode toggle from sidebar
+- b66a85c: feat: adds collection environments logic
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/oas-utils@0.2.86
+  - @scalar/use-codemirror@0.11.47
+  - @scalar/components@0.13.3
+  - @scalar/import@0.2.4
+  - @scalar/postman-to-openapi@0.1.9
+
 ## 2.2.8
 
 ### Patch Changes
