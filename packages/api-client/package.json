@@ -63,6 +63,16 @@
       "types": "./dist/views/Request/components/index.d.ts",
       "default": "./dist/views/Request/components/index.js"
     },
+    "./views/Request/RequestSection/RequestAuth": {
+      "import": "./dist/views/Request/RequestSection/RequestAuth/index.js",
+      "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
+      "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
     "./store": {
       "import": "./dist/store/index.js",
       "types": "./dist/store/index.d.ts",

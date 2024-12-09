@@ -32,7 +32,7 @@ const selected = computed<ScalarListboxOption | undefined>({
     :options="options">
     <ScalarButton
       :aria-controls="controls"
-      class="variable-select"
+      class="variable-select px-0"
       fullWidth
       variant="ghost">
       <span :class="{ 'text-c-1': value }">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { getUrlFromServerState, useExampleStore, useServerStore } from '#legacy'
 import type { ClientConfiguration } from '@scalar/api-client/libs'
+import { useWorkspace } from '@scalar/api-client/store'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from './useApiClient'
@@ -14,6 +15,7 @@ const el = ref<HTMLDivElement | null>(null)
 const { server, setServer } = useServerStore()
 const { client, init } = useApiClient()
 const { selectedExampleKey, operationId } = useExampleStore()
+const store = useWorkspace()
 
 onMounted(async () => {
   if (!el.value) return
@@ -22,6 +24,7 @@ onMounted(async () => {
   const _client = await init({
     el: el.value,
     configuration,
+    store,
   })
 
   // Update the references server when the client server changes

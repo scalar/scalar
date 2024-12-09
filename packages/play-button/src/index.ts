@@ -79,11 +79,14 @@ if (!specUrlElement && !specElement && !specScriptTag) {
       return null
     }
 
-    const { open } = await createApiClientModal(container as HTMLElement, {
-      spec: {
-        url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    const { open } = await createApiClientModal({
+      el: container as HTMLElement,
+      configuration: {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+        proxyUrl: 'https://proxy.scalar.com',
       },
-      proxyUrl: 'https://proxy.scalar.com',
     })
 
     for (const testButton of testButtons) {

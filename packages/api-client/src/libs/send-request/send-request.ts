@@ -5,7 +5,8 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
-  Request,
+  /** Renamed due to conflict with the global Request class */
+  Request as HarRequest,
   RequestExample,
   RequestMethod,
   ResponseInstance,
@@ -230,6 +231,9 @@ function ensureProtocol(url: string): string {
   return `http://${url}`
 }
 
+/** For the examples mostly */
+const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
+
 /** Execute the request */
 export const createRequestOperation = ({
   request,
@@ -242,7 +246,7 @@ export const createRequestOperation = ({
   environment,
   globalCookies,
 }: {
-  request: Request
+  request: HarRequest
   example: RequestExample
   selectedSecuritySchemeUids?: string[]
   proxyUrl?: string
@@ -254,6 +258,7 @@ export const createRequestOperation = ({
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
+  request: Request
 }> => {
   try {
     const env = environment ?? {}
@@ -305,7 +310,9 @@ export const createRequestOperation = ({
 
       // Scheme type and example value type should always match
       if (scheme.type === 'apiKey') {
-        const value = replaceTemplateVariables(scheme.value, env)
+        const value =
+          replaceTemplateVariables(scheme.value, env) || EMPTY_TOKEN_PLACEHOLDER
+
         if (scheme.in === 'header') headers[scheme.name] = value
         if (scheme.in === 'query') urlParams.append(scheme.name, value)
         if (scheme.in === 'cookie') {
@@ -321,10 +328,12 @@ export const createRequestOperation = ({
           const password = replaceTemplateVariables(scheme.password, env)
           const value = `${username}:${password}`
 
-          headers['Authorization'] = `Basic ${btoa(value)}`
+          headers['Authorization'] =
+            `Basic ${value === ':' ? 'username:password' : btoa(value)}`
         } else {
           const value = replaceTemplateVariables(scheme.token, env)
-          headers['Authorization'] = `Bearer ${value}`
+          headers['Authorization'] =
+            `Bearer ${value || EMPTY_TOKEN_PLACEHOLDER}`
         }
       }
 
@@ -332,10 +341,49 @@ export const createRequestOperation = ({
       if (scheme.type === 'oauth2') {
         const flows = Object.values(scheme.flows)
         const token = flows.find((f) => f.token)?.token
-        if (!token) return
 
-        headers['Authorization'] = `Bearer ${token}`
+        headers['Authorization'] = `Bearer ${token || EMPTY_TOKEN_PLACEHOLDER}`
       }
+    })
+
+    // Extract and merge all query params
+    if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
+      /** Prefix the url with the origin if it is relative */
+      const base = isRelativePath(url)
+        ? concatenateUrlAndPath(window.location.origin, url)
+        : ensureProtocol(url)
+
+      /** We create a separate server URL to snag any search params from the server */
+      const serverURL = new URL(base)
+      /** We create a separate path URL to grab the path params */
+      const pathURL = new URL(pathString, serverURL.origin)
+
+      /** Finally we combine the two but make sure that we keep the path from server */
+      const combinedURL = new URL(serverURL)
+      if (server?.url) {
+        if (serverURL.pathname === '/') combinedURL.pathname = pathString
+        else combinedURL.pathname = serverURL.pathname + pathString
+      }
+
+      // Combines all query params
+      combinedURL.search = new URLSearchParams([
+        ...serverURL.searchParams,
+        ...pathURL.searchParams,
+        ...urlParams,
+      ]).toString()
+
+      url = combinedURL.toString()
+    }
+
+    const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
+    const proxiedUrl = shouldUseProxy(proxyUrl, url)
+      ? `${proxyUrl}?${proxyPath.toString()}`
+      : url
+
+    const proxiedRequest = new Request(proxiedUrl, {
+      method: request.method,
+      body,
+      headers,
     })
 
     const sendRequest = async (): Promise<
@@ -351,45 +399,8 @@ export const createRequestOperation = ({
       const startTime = Date.now()
 
       try {
-        // Extract and merge all query params
-        if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-          /** Prefix the url with the origin if it is relative */
-          const base = isRelativePath(url)
-            ? concatenateUrlAndPath(window.location.origin, url)
-            : ensureProtocol(url)
-
-          /** We create a separate server URL to snag any search params from the server */
-          const serverURL = new URL(base)
-          /** We create a separate path URL to grab the path params */
-          const pathURL = new URL(pathString, serverURL.origin)
-
-          /** Finally we combine the two but make sure that we keep the path from server */
-          const combinedURL = new URL(serverURL)
-          if (server?.url) {
-            if (serverURL.pathname === '/') combinedURL.pathname = pathString
-            else combinedURL.pathname = serverURL.pathname + pathString
-          }
-
-          // Combines all query params
-          combinedURL.search = new URLSearchParams([
-            ...serverURL.searchParams,
-            ...pathURL.searchParams,
-            ...urlParams,
-          ]).toString()
-
-          url = combinedURL.toString()
-        }
-
-        const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
-        const proxiedUrl = shouldUseProxy(proxyUrl, url)
-          ? `${proxyUrl}?${proxyPath.toString()}`
-          : url
-
-        const response = await fetch(proxiedUrl, {
+        const response = await fetch(proxiedRequest, {
           signal: controller.signal,
-          method: request.method.toUpperCase(),
-          body,
-          headers,
         })
 
         status?.emit('stop')
@@ -439,11 +450,13 @@ export const createRequestOperation = ({
     return [
       null,
       {
+        request: proxiedRequest,
         sendRequest,
         controller,
       },
     ]
   } catch (e) {
+    console.error(e)
     status?.emit('abort')
     return [normalizeError(e), null]
   }

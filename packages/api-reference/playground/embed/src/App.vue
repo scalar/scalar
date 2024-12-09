@@ -63,6 +63,7 @@ const sourcecode = `<OpenApiDocument
       <div class="embed">
         <h2>ExampleRequest</h2>
         <ExampleRequest
+          v-if="parsedSpec.tags?.[1]?.operations?.[1]"
           :configuration="configuration"
           :operation="parsedSpec.tags?.[1]?.operations?.[1]"
           :parsedSpec="parsedSpec" />
