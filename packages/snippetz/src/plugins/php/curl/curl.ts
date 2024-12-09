@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { curl } from '~httpsnippet-lite/dist/esm/targets/php/curl/client.mjs'
+import { curl } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/php/curl/client.mjs'
 
 /**
  * php/curl

@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { webrequest } from '~httpsnippet-lite/dist/esm/targets/powershell/webrequest/client.mjs'
+import { webrequest } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/powershell/webrequest/client.mjs'
 
 /**
  * powershell/webrequest

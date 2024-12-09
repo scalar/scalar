@@ -1,7 +1,8 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
+
 // @ts-expect-error no types available
-import { restmethod } from '~httpsnippet-lite/dist/esm/targets/powershell/restmethod/client.mjs'
+import { restmethod } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/powershell/restmethod/client.mjs'
 
 /**
  * powershell/restmethod
