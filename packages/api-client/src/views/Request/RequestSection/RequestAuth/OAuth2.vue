@@ -129,7 +129,7 @@ const handleAuthorize = async () => {
           <RequestAuthDataTableInput
             class="text-c-2"
             :modelValue="flow.username"
-            placeholder="ScalarEnjoyer01"
+            placeholder="janedoe"
             @update:modelValue="
               (v) => updateScheme(`flows.${flow.type}.username`, v)
             ">
