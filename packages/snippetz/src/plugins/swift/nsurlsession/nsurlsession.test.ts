@@ -11,7 +11,7 @@ describe('swiftNsurlsession', () => {
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -39,7 +39,7 @@ dataTask.resume()`,
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "POST"
@@ -73,7 +73,7 @@ dataTask.resume()`,
 
 let headers = ["Content-Type": "application/json"]
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -147,7 +147,7 @@ for param in parameters {
   }
 }
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "POST"
@@ -187,7 +187,7 @@ dataTask.resume()`,
 
 let postData = NSMutableData(data: "special chars!@#=value".data(using: String.Encoding.utf8)!)
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "POST"
@@ -222,7 +222,7 @@ dataTask.resume()`,
 
 let postData = NSData(data: "binary content".data(using: String.Encoding.utf8)!)
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "POST"
@@ -250,7 +250,7 @@ dataTask.resume()`,
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path with spaces/[brackets]")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path%20with%20spaces/[brackets]")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -283,7 +283,7 @@ dataTask.resume()`,
 
 let headers = ["X-Custom": "value2"]
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -314,7 +314,7 @@ dataTask.resume()`,
 
 let headers = ["X-Empty": ""]
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -342,7 +342,7 @@ dataTask.resume()`,
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/api?param1=value1&param2=special value&param3=123")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/api?param1=value1&param2=special%20value&param3=123")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"

@@ -1,5 +1,4 @@
-import type { Request } from 'har-format'
-import type { HarRequest } from 'httpsnippet-lite'
+import type { HarRequest } from '@/types'
 import type { Client } from '~httpsnippet-lite/dist/types/targets/targets'
 
 /**
@@ -7,20 +6,27 @@ import type { Client } from '~httpsnippet-lite/dist/types/targets/targets'
  */
 export function convertWithHttpSnippetLite(
   client: Client<object>,
-  partialRequest?: Partial<Request>,
+  request?: Partial<HarRequest>,
 ): string {
-  const request = {
-    url: partialRequest?.url ?? '',
-    httpVersion: partialRequest?.httpVersion ?? 'HTTP/1.1',
-    cookies: partialRequest?.cookies ?? [],
-    headers: partialRequest?.headers ?? [],
-    headersSize: partialRequest?.headersSize ?? 0,
-    bodySize: partialRequest?.bodySize ?? 0,
-    queryString: partialRequest?.queryString ?? [],
-    ...partialRequest,
+  const url = new URL(request?.url ?? '')
+  const harRequest: HarRequest = {
+    method: request?.method ?? 'GET',
+    url: url.toString(),
+    httpVersion: 'HTTP/1.1',
+    cookies: [], // Cookies are handled through headers
+    headers: request?.headers ?? [],
+    headersSize: -1,
+    bodySize: -1,
+    queryString: Array.from(url.searchParams.entries()).map(
+      ([name, value]) => ({
+        name,
+        value,
+      }),
+    ),
+    postData: request?.postData,
   }
 
-  const allHeaders = (request?.headers ?? []).reduce(
+  const allHeaders = (harRequest?.headers ?? []).reduce(
     (acc, header) => ({
       ...acc,
       [header.name]: header.value,
@@ -28,7 +34,7 @@ export function convertWithHttpSnippetLite(
     {} as Record<string, string>,
   )
 
-  const queryObj = (request.queryString ?? []).reduce(
+  const queryObj = (harRequest.queryString ?? []).reduce(
     (acc, param) => ({
       ...acc,
       [param.name]: param.value,
@@ -36,7 +42,7 @@ export function convertWithHttpSnippetLite(
     {} as Record<string, string>,
   )
 
-  const cookiesObj = (request.cookies ?? []).reduce(
+  const cookiesObj = (harRequest.cookies ?? []).reduce(
     (acc, cookie) => ({
       ...acc,
       [cookie.name]: cookie.value,
@@ -44,7 +50,7 @@ export function convertWithHttpSnippetLite(
     {} as Record<string, string>,
   )
 
-  const parsedUrl = new URL(request.url)
+  const parsedUrl = new URL(harRequest.url)
   const uriObj = {
     protocol: parsedUrl.protocol,
     hostname: parsedUrl.hostname,
@@ -72,26 +78,26 @@ export function convertWithHttpSnippetLite(
   }
 
   return client?.convert({
-    url: request.url,
+    url: harRequest.url,
     uriObj,
-    method: request.method?.toLocaleUpperCase() ?? 'GET',
-    httpVersion: request.httpVersion,
-    cookies: request.cookies ?? [],
-    headers: request.headers ?? [],
-    headersSize: request.headersSize ?? 0,
+    method: harRequest.method?.toLocaleUpperCase() ?? 'GET',
+    httpVersion: harRequest.httpVersion,
+    cookies: harRequest.cookies ?? [],
+    headers: harRequest.headers ?? [],
+    headersSize: harRequest.headersSize ?? 0,
     headersObj: allHeaders ?? {},
-    bodySize: request.bodySize ?? 0,
-    queryString: request.queryString ?? [],
-    postData: request.postData
+    bodySize: harRequest.bodySize ?? 0,
+    queryString: harRequest.queryString ?? [],
+    postData: harRequest.postData
       ? {
-          mimeType: request.postData.mimeType ?? 'application/json',
-          text: request.postData.text,
-          params: request.postData.params ?? [],
-          jsonObj: request.postData.mimeType?.includes('json')
-            ? JSON.parse(request.postData.text ?? '{}')
+          mimeType: harRequest.postData.mimeType ?? 'application/json',
+          text: harRequest.postData.text,
+          params: harRequest.postData.params ?? [],
+          jsonObj: harRequest.postData.mimeType?.includes('json')
+            ? JSON.parse(harRequest.postData.text ?? '{}')
             : undefined,
           paramsObj:
-            request.postData.params?.reduce(
+            harRequest.postData.params?.reduce(
               (acc: Record<string, string>, param) => ({
                 ...acc,
                 [param.name]: param.value ?? '',
@@ -101,7 +107,7 @@ export function convertWithHttpSnippetLite(
         }
       : undefined,
     allHeaders: allHeaders ?? {},
-    fullUrl: request.url,
+    fullUrl: harRequest.url,
     queryObj: queryObj ?? {},
     cookiesObj: cookiesObj ?? {},
   })
