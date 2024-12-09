@@ -44,7 +44,7 @@ jobs:
 
       - name: Check whether the Dockerfile or any of its contents were modified
         id: changed-files
-        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366
         with:
           files_yaml: |
             api_reference_docker:
@@ -275,7 +275,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check whether there’s a new version of the app
         id: changed-files
-        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366
         with:
           files_yaml: |
             api_client_app:
@@ -353,7 +353,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Check which files were touched
         id: changed-files
-        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366
         with:
           files_yaml: |
             api_client:
@@ -480,7 +480,7 @@ jobs:
       - if: startsWith(github.event.head_commit.message, 'RELEASING:')
         name: Check for new NuGet package version
         id: changed-files
-        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366
         with:
           files_yaml: |
             aspnetcore_package:
