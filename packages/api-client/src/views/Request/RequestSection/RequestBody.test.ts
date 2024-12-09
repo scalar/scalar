@@ -36,6 +36,7 @@ describe('RequestBody.vue', () => {
   }
   const mockActiveEnvironment = { value: { uid: 'mockEnvironmentUid' } }
   const mockActiveEnvVariables = { value: [] }
+  const mockActiveWorkspace = { value: {} }
   const mockRequestExampleMutators = {
     edit: vi.fn(),
   }
@@ -47,6 +48,7 @@ describe('RequestBody.vue', () => {
       activeExample: mockActiveExample,
       activeEnvironment: mockActiveEnvironment,
       activeEnvVariables: mockActiveEnvVariables,
+      activeWorkspace: mockActiveWorkspace,
     })
     ;(useWorkspace as Mock).mockReturnValue({
       requestExampleMutators: mockRequestExampleMutators,
