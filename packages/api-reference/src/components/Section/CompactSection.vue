@@ -2,10 +2,10 @@
 import { ScalarIcon } from '@scalar/components'
 import { nextTick, ref, watch } from 'vue'
 
-import { Section } from '.'
 import { scrollToId } from '../../helpers'
 import { useNavState } from '../../hooks'
 import Anchor from '../Anchor/Anchor.vue'
+import Section from './Section.vue'
 
 const props = defineProps<{
   id: string
