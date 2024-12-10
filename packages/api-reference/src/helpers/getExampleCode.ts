@@ -23,9 +23,12 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   // @scalar/snippetz
   const snippetzTargetKey = target
 
-  if (snippetz().hasPlugin(snippetzTargetKey, client)) {
+  // TODO: Fix this, use js (instead of javascript) everywhere
+  if (
+    snippetz().hasPlugin(snippetzTargetKey.replace('javascript', 'js'), client)
+  ) {
     return snippetz().print(
-      target as SnippetzTargetId,
+      target.replace('javascript', 'js') as SnippetzTargetId,
       client as SnippetzClientId<typeof target>,
       harRequest,
     )
