@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.78
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+- Updated dependencies [749ebf1]
+- Updated dependencies [c761730]
+- Updated dependencies [02e6a57]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/api-client@2.2.10
+  - @scalar/snippetz@0.2.8
+  - @scalar/oas-utils@0.2.86
+
 ## 1.25.77
 
 ### Patch Changes

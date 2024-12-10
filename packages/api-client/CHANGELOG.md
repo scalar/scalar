@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.2.10
+
+### Patch Changes
+
+- 749ebf1: fix: updates workspace dropdown tooltip index
+- 02e6a57: fix: displays sidebar request button on client only
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/use-codemirror@0.11.48
+  - @scalar/import@0.2.5
+  - @scalar/oas-utils@0.2.86
+
 ## 2.2.9
 
 ### Patch Changes
