@@ -425,12 +425,13 @@ const selectedExample = computed({
   get: () => {
     const rawValue = activeExample.value?.body.raw?.value ?? '{}'
     const parsedValue = JSON.parse(rawValue)
-    const [key] = Object.keys(parsedValue)
-    const value = parsedValue[key]
-    return (
-      exampleOptions.value.find((example) => example.id === value) ??
-      exampleOptions.value[0]
-    )
+    const getExample = exampleOptions.value.find((example) => {
+      const exampleValue = example.value as {
+        value: Record<string, string>
+      }
+      return JSON.stringify(exampleValue.value) === JSON.stringify(parsedValue)
+    })
+    return getExample ?? exampleOptions.value[0]
   },
   set: (opt) => {
     if (opt?.id) {
@@ -553,6 +554,7 @@ const selectedExample = computed({
         <template v-else>
           <!-- TODO: remove this as type hack when we add syntax highligting -->
           <CodeInput
+            class="border-t-1/2"
             content=""
             :language="codeInputLanguage as CodeMirrorLanguage"
             lineNumbers
