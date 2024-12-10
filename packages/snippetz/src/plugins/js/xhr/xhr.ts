@@ -1,4 +1,4 @@
-import { xhr } from '@/httpsnippet-lite/esm/targets/javascript/xhr/client.mjs'
+import { xhr } from '@/httpsnippet-lite/esm/targets/javascript/xhr/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

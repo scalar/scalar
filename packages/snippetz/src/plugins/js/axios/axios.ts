@@ -1,4 +1,4 @@
-import { axios } from '@/httpsnippet-lite/esm/targets/javascript/axios/client.mjs'
+import { axios } from '@/httpsnippet-lite/esm/targets/javascript/axios/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

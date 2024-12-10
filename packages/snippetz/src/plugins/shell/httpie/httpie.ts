@@ -1,4 +1,4 @@
-import { httpie } from '@/httpsnippet-lite/esm/targets/shell/httpie/client.mjs'
+import { httpie } from '@/httpsnippet-lite/esm/targets/shell/httpie/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

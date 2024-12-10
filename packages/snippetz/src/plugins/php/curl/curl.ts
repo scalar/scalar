@@ -1,4 +1,4 @@
-import { curl } from '@/httpsnippet-lite/esm/targets/php/curl/client.mjs'
+import { curl } from '@/httpsnippet-lite/esm/targets/php/curl/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

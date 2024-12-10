@@ -1,4 +1,4 @@
-import { guzzle } from '@/httpsnippet-lite/esm/targets/php/guzzle/client.mjs'
+import { guzzle } from '@/httpsnippet-lite/esm/targets/php/guzzle/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

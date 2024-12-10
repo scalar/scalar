@@ -1,4 +1,4 @@
-import { jquery } from '@/httpsnippet-lite/esm/targets/javascript/jquery/client.mjs'
+import { jquery } from '@/httpsnippet-lite/esm/targets/javascript/jquery/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

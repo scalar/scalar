@@ -1,4 +1,4 @@
-import { libcurl } from '@/httpsnippet-lite/esm/targets/c/libcurl/client.mjs'
+import { libcurl } from '@/httpsnippet-lite/esm/targets/c/libcurl/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

@@ -1,4 +1,4 @@
-import { native } from '@/httpsnippet-lite/esm/targets/ruby/native/client.mjs'
+import { native } from '@/httpsnippet-lite/esm/targets/ruby/native/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

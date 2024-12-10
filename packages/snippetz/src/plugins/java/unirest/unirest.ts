@@ -1,4 +1,4 @@
-import { unirest } from '@/httpsnippet-lite/esm/targets/java/unirest/client.mjs'
+import { unirest } from '@/httpsnippet-lite/esm/targets/java/unirest/client'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
