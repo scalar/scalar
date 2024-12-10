@@ -143,7 +143,7 @@ const deleteWorkspace = async () => {
                 </ScalarDropdownItem>
                 <ScalarTooltip
                   v-if="isLastWorkspace"
-                  class="z-10"
+                  class="z-overlay"
                   side="bottom">
                   <template #trigger>
                     <ScalarDropdownItem
@@ -161,7 +161,7 @@ const deleteWorkspace = async () => {
                   </template>
                   <template #content>
                     <div
-                      class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                      class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-context p-2 text-xxs leading-5 z-10 text-c-1">
                       <div class="flex items-center text-c-2">
                         <span>Only workspace cannot be deleted.</span>
                       </div>

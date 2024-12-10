@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import {
   TooltipContent,
-  TooltipPortal,
   TooltipProvider,
   TooltipRoot,
   TooltipTrigger,
 } from 'radix-vue'
+
+import { ScalarTeleport } from '../ScalarTeleport'
 
 const props = withDefaults(
   defineProps<{
@@ -46,7 +47,7 @@ defineEmits<{
         @click="props.click">
         <slot name="trigger" />
       </TooltipTrigger>
-      <TooltipPortal>
+      <ScalarTeleport>
         <TooltipContent
           v-if="!props.disabled"
           :align="props.align"
@@ -56,7 +57,7 @@ defineEmits<{
           :sideOffset="props.sideOffset">
           <slot name="content" />
         </TooltipContent>
-      </TooltipPortal>
+      </ScalarTeleport>
     </TooltipRoot>
   </TooltipProvider>
 </template>
