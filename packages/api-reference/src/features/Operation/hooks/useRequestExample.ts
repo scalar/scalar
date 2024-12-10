@@ -1,3 +1,4 @@
+import { useServerStore } from '#legacy'
 import { getRequest } from '@/helpers/get-request'
 import { createRequestOperation } from '@scalar/api-client/libs'
 import type { WorkspaceStore } from '@scalar/api-client/store'
@@ -5,6 +6,9 @@ import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { type ComputedRef, computed } from 'vue'
 
+import { getUrlFromServerState } from '../../../legacy/helpers/getUrlFromServerState'
+
+const { server: serverState } = useServerStore()
 /** Builds a request object for the code sniipet, as well as the security credentials to obfuscate */
 export const useRequestExample = ({
   operation,
@@ -53,6 +57,15 @@ export const useRequestExample = ({
     }
   })
 
+  const serverWithVariables = computed(() => {
+    const operationServer = server.value
+    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
+    return {
+      uid: operationServer.uid,
+      url: modifiedUrl || '',
+    }
+  })
+
   /** The request object to use for the code snippet */
   const httpRequest = computed(() => {
     /** Just grab the first example for now */
@@ -63,7 +76,7 @@ export const useRequestExample = ({
     const [error, response] = createRequestOperation({
       request: request.value,
       example,
-      server: server.value,
+      server: serverWithVariables.value,
       securitySchemes,
       selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
       // TODO: env vars if we want em
