@@ -29,7 +29,7 @@ export type ResolveReferencesResult = {
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
-  onDereference?: (schema: AnyObject, $ref: string) => void
+  onDereference?: (data: { schema: AnyObject; ref: string }) => void
 }
 
 // TODO: Exists already, clean up
@@ -105,7 +105,7 @@ export function resolveReferences(
     schema: AnyObject,
     resolveFilesystem: Filesystem,
     resolveFile: FilesystemEntry,
-    onResolve?: (schema: AnyObject, $ref: string) => void,
+    onResolve?: (data: { schema: AnyObject; ref: string }) => void,
   ): DereferenceResult {
     let result: DereferenceResult | undefined
 
@@ -126,7 +126,7 @@ export function resolveReferences(
           return undefined
         }
 
-        onResolve?.(schema, schema.$ref)
+        onResolve?.({ schema, ref: schema.$ref })
 
         // Get rid of the reference
         delete schema.$ref

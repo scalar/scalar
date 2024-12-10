@@ -235,7 +235,7 @@ it('calls onDereference when resolving references', async () => {
   const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
 
   const result = await dereference(openapi, {
-    onDereference: (schema, ref) => {
+    onDereference: ({ schema, ref }) => {
       dereferencedSchemas.push({ schema, ref })
     },
   })
