@@ -28,6 +28,10 @@ export type ResolveReferencesResult = {
   schema: OpenAPI.Document
 }
 
+export type ResolveReferencesOptions = ThrowOnErrorOption & {
+  onDereference?: (data: { schema: AnyObject; ref: string }) => void
+}
+
 // TODO: Exists already, clean up
 type DereferenceResult = {
   errors: ErrorObject[]
@@ -40,7 +44,7 @@ export function resolveReferences(
   // Just a specification, or a set of files.
   input: AnyObject | Filesystem,
   // Additional options to control the behaviour
-  options?: ThrowOnErrorOption,
+  options?: ResolveReferencesOptions,
   // Fallback to the entrypoint
   file?: FilesystemEntry,
   // Errors that occurred during the process
@@ -65,6 +69,7 @@ export function resolveReferences(
     file?.specification ?? entrypoint.specification,
     filesystem,
     file ?? entrypoint,
+    options?.onDereference,
   )
 
   // If we replace references with content, that includes a reference, we can’t deal with that right-away.
@@ -73,6 +78,7 @@ export function resolveReferences(
     file?.specification ?? entrypoint.specification,
     filesystem,
     file ?? entrypoint,
+    options?.onDereference,
   )
 
   // Remove duplicats (according to message) from errors
@@ -99,6 +105,7 @@ export function resolveReferences(
     schema: AnyObject,
     resolveFilesystem: Filesystem,
     resolveFile: FilesystemEntry,
+    onResolve?: (data: { schema: AnyObject; ref: string }) => void,
   ): DereferenceResult {
     let result: DereferenceResult | undefined
 
@@ -119,6 +126,8 @@ export function resolveReferences(
           return undefined
         }
 
+        onResolve?.({ schema, ref: schema.$ref })
+
         // Get rid of the reference
         delete schema.$ref
 
@@ -132,7 +141,7 @@ export function resolveReferences(
       }
 
       if (typeof value === 'object' && !isCircular(value)) {
-        result = resolve(value, resolveFilesystem, resolveFile)
+        result = resolve(value, resolveFilesystem, resolveFile, onResolve)
       }
     })
 
