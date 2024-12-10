@@ -1,5 +1,5 @@
 import type { Client } from '@/httpsnippet-lite/dist/types/targets/targets'
-import type { Request as HarRequest } from 'har-format'
+import type { HarRequest } from '@/types'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
