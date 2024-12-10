@@ -8,16 +8,21 @@ export function convertWithHttpSnippetLite(
   client: Client<object>,
   request?: Partial<HarRequest>,
 ): string {
-  const url = new URL(request?.url ?? '')
+  const urlObject = new URL(request?.url ?? '')
+
+  // If it’s just the domain, omit the trailing slash
+  const url =
+    urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
+
   const harRequest: HarRequest = {
     method: request?.method ?? 'GET',
-    url: url.toString(),
+    url,
     httpVersion: 'HTTP/1.1',
     cookies: [], // Cookies are handled through headers
     headers: request?.headers ?? [],
     headersSize: -1,
     bodySize: -1,
-    queryString: Array.from(url.searchParams.entries()).map(
+    queryString: Array.from(urlObject.searchParams.entries()).map(
       ([name, value]) => ({
         name,
         value,

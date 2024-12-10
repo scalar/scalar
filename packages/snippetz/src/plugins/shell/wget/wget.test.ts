@@ -11,7 +11,7 @@ describe('shellWget', () => {
     expect(result).toBe(`wget --quiet \\
   --method GET \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('returns a POST request', () => {
@@ -23,7 +23,7 @@ describe('shellWget', () => {
     expect(result).toBe(`wget --quiet \\
   --method POST \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('has headers', () => {
@@ -40,7 +40,7 @@ describe('shellWget', () => {
   --method GET \\
   --header 'Content-Type: application/json' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it.skip('handles multipart form data with files', () => {
@@ -67,7 +67,7 @@ describe('shellWget', () => {
   --body-file='test.txt' \\
   --body-data 'field=value' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it.skip('handles url-encoded form data with special characters', () => {
@@ -89,7 +89,7 @@ describe('shellWget', () => {
   --method POST \\
   --body-data 'special%20chars!%40%23=value' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('handles binary data', () => {
@@ -106,7 +106,7 @@ describe('shellWget', () => {
   --method POST \\
   --body-data 'binary content' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('handles special characters in URL', () => {
@@ -133,7 +133,7 @@ describe('shellWget', () => {
   --method GET \\
   --header 'X-Custom: value2' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('handles headers with empty values', () => {
@@ -146,7 +146,7 @@ describe('shellWget', () => {
   --method GET \\
   --header 'X-Empty: ' \\
   --output-document \\
-  - https://example.com/`)
+  - https://example.com`)
   })
 
   it('handles query string parameters', () => {
