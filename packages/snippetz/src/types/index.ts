@@ -1,6 +1,7 @@
 import type { Request as HarRequest } from 'har-format'
 
 export type { Request as HarRequest } from 'har-format'
+
 /**
  * List of available clients
  */
