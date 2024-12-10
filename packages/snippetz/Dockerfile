@@ -17,6 +17,6 @@ RUN chown node:node /app
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/snippetz /app/packages/snippetz
-WORKDIR /app/packages/snippetz
+WORKDIR /app/packages/snippetz/playground
 
-CMD ["http-server", "playground/dist"]
+CMD ["http-server", "dist"]
