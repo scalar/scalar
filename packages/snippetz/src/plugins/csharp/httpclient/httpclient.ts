@@ -1,7 +1,6 @@
+import { httpclient } from '@/httpsnippet-lite/dist/esm/targets/csharp/httpclient/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { httpclient } from '@/httpsnippet-lite/dist/esm/targets/csharp/httpclient/client.mjs'
 
 /**
  * csharp/httpclient

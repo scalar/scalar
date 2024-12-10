@@ -1,7 +1,6 @@
+import { nethttp } from '@/httpsnippet-lite/dist/esm/targets/java/nethttp/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { nethttp } from '@/httpsnippet-lite/dist/esm/targets/java/nethttp/client.mjs'
 
 /**
  * java/nethttp

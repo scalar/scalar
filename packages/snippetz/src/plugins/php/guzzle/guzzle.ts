@@ -1,7 +1,6 @@
+import { guzzle } from '@/httpsnippet-lite/dist/esm/targets/php/guzzle/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { guzzle } from '@/httpsnippet-lite/dist/esm/targets/php/guzzle/client.mjs'
 
 /**
  * php/guzzle

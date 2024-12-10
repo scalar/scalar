@@ -1,16 +1,17 @@
-import type { Client } from '@/httpsnippet-lite/dist/types/targets/targets'
+import type { Request } from '@/httpsnippet-lite/dist/types/httpsnippet'
 import type { HarRequest } from '@/types'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
  */
 export function convertWithHttpSnippetLite(
-  client: Client<object>,
+  // Couldn’t find the proper type, there was always a mismatch.
+  client: Record<string, unknown>,
   request?: Partial<HarRequest>,
 ): string {
   const urlObject = new URL(request?.url ?? '')
 
-  // If it’s just the domain, omit the trailing slash
+  // If it's just the domain, omit the trailing slash
   const url =
     urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
 
@@ -82,7 +83,7 @@ export function convertWithHttpSnippetLite(
     toJSON: () => parsedUrl.toJSON(),
   }
 
-  return client?.convert({
+  const convertRequest = {
     url: harRequest.url,
     uriObj,
     method: harRequest.method?.toLocaleUpperCase() ?? 'GET',
@@ -96,24 +97,19 @@ export function convertWithHttpSnippetLite(
     postData: harRequest.postData
       ? {
           mimeType: harRequest.postData.mimeType ?? 'application/json',
-          text: harRequest.postData.text,
+          text: harRequest.postData.text ?? '',
           params: harRequest.postData.params ?? [],
-          jsonObj: harRequest.postData.mimeType?.includes('json')
-            ? JSON.parse(harRequest.postData.text ?? '{}')
-            : undefined,
-          paramsObj:
-            harRequest.postData.params?.reduce(
-              (acc: Record<string, string>, param) => ({
-                ...acc,
-                [param.name]: param.value ?? '',
-              }),
-              {} as Record<string, string>,
-            ) ?? {},
         }
       : undefined,
     allHeaders: allHeaders ?? {},
     fullUrl: harRequest.url,
     queryObj: queryObj ?? {},
     cookiesObj: cookiesObj ?? {},
-  })
+  } as Request
+
+  if (typeof client.convert === 'function') {
+    return client.convert(convertRequest)
+  }
+
+  return ''
 }

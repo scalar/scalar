@@ -1,7 +1,6 @@
+import { axios } from '@/httpsnippet-lite/dist/esm/targets/javascript/axios/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { axios } from '@/httpsnippet-lite/dist/esm/targets/javascript/axios/client.mjs'
 
 /**
  * js/axios

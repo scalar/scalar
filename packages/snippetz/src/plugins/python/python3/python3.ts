@@ -1,7 +1,6 @@
+import { python3 } from '@/httpsnippet-lite/dist/esm/targets/python/python3/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { python3 } from '@/httpsnippet-lite/dist/esm/targets/python/python3/client.mjs'
 
 /**
  * python/python3

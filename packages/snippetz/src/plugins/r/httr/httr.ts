@@ -1,7 +1,6 @@
+import { httr } from '@/httpsnippet-lite/dist/esm/targets/r/httr/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { httr } from '@/httpsnippet-lite/dist/esm/targets/r/httr/client.mjs'
 
 /**
  * r/httr

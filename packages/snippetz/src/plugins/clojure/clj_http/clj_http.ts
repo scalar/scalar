@@ -1,7 +1,6 @@
+import { clj_http } from '@/httpsnippet-lite/dist/esm/targets/clojure/clj_http/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { clj_http } from '@/httpsnippet-lite/dist/esm/targets/clojure/clj_http/client.mjs'
 
 /**
  * clojure/clj_http
