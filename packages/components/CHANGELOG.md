@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.4
+
+### Patch Changes
+
+- 749ebf1: feat: favors scalar teleport in scalar tooltip
+
 ## 0.13.3
 
 ### Patch Changes

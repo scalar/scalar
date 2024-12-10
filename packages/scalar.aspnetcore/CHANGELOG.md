@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 1.2.51
+
+### Patch Changes
+
+- 1ae0286: feat: Add Layout option
+  - @scalar/api-reference@1.25.78
+
 ## 1.2.50
 
 ### Patch Changes
