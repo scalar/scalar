@@ -126,6 +126,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Ruby on Rails](https://github.com/dmytroshevchuk/scalar_ruby)
 - [Rust](documentation/integrations/rust.md)
 - [Scalar for Laravel](https://github.com/scalar/laravel)
+- [Ts.ED](https://tsed.dev/tutorials/scalar.html)
 - [Vue.js](packages/api-reference/README.md)
 
 ### Built-in Support
