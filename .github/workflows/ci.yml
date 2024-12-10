@@ -251,7 +251,7 @@ jobs:
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  todesktop-release:
+  todesktop-build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs: [build, test]
@@ -295,12 +295,12 @@ jobs:
       #   env:
       #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
       #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Release the app
-        run: pnpm --filter scalar-app todesktop:release:ci
-        env:
-          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
-          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+      #   name: Release the app
+      #   run: pnpm --filter scalar-app todesktop:release:ci
+      #   env:
+      #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+      #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
