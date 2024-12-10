@@ -2,8 +2,6 @@
   "extends": "../../tsconfig.json",
   "include": ["src", "rollup.config.ts"],
   "compilerOptions": {
-    "allowJs": true,
-    "outDir": "dist/",
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
