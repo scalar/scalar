@@ -25,7 +25,7 @@ export async function getExampleCode<T extends SnippetzTargetId>(
 
   // TODO: Fix this, use js (instead of javascript) everywhere
   if (
-    snippetz().hasPlugin(snippetzTargetKey.replace('javascript', 'js'), client)
+    snippetz().hasPlugin(snippetzTargetKey?.replace('javascript', 'js'), client)
   ) {
     return snippetz().print(
       target.replace('javascript', 'js') as SnippetzTargetId,
