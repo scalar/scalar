@@ -107,6 +107,12 @@ export const clj_http = {
       'headers': allHeaders,
       'query-params': queryObj,
     }
+
+    // Remove query string from URL if queryObj has parameters
+    if (queryObj && Object.keys(queryObj).length > 0) {
+      url = url.split('?')[0]
+    }
+
     switch (
       postData === null || postData === void 0 ? void 0 : postData.mimeType
     ) {
