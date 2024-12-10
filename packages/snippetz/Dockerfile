@@ -5,18 +5,11 @@ WORKDIR /app
 # Build the package
 RUN pnpm --filter @scalar/snippetz build:playground
 
-FROM node:20-bullseye-slim AS runner
-# install simple http server for serving static content
-RUN npm install -g http-server
+# production stage
+FROM nginx:stable-alpine AS runner
 
-# Use default non-root user from the node image
-USER node
-WORKDIR /app
-RUN chown node:node /app
+COPY --from=builder /app/packages/snippetz/playground/dist /usr/share/nginx/html
+COPY --from=builder /app/packages/snippetz/nginx.conf /etc/nginx/nginx.conf
 
-# Copy root node modules and any utilized packages
-COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/packages/snippetz /app/packages/snippetz
-WORKDIR /app/packages/snippetz/playground
-
-CMD ["http-server", "dist"]
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
