@@ -193,3 +193,64 @@ it('throws an error', async () => {
     'Can’t resolve reference: #/components/requestBodies/DoesNotExist',
   )
 })
+it('calls onDereference when resolving references', async () => {
+  const openapi = {
+    openapi: '3.1.0',
+    info: {
+      title: 'Hello World',
+      version: '1.0.0',
+    },
+    paths: {
+      '/test': {
+        get: {
+          responses: {
+            '200': {
+              description: 'foobar',
+              content: {
+                'application/json': {
+                  schema: {
+                    $ref: '#/components/schemas/Test',
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    components: {
+      schemas: {
+        Test: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  }
+
+  const dereferencedSchemas: Array<{ schema: any; ref: string }> = []
+
+  const result = await dereference(openapi, {
+    onDereference: (schema, ref) => {
+      dereferencedSchemas.push({ schema, ref })
+    },
+  })
+
+  expect(result.errors).toStrictEqual([])
+  expect(dereferencedSchemas).toHaveLength(1)
+  expect(dereferencedSchemas[0]).toEqual({
+    schema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+        },
+      },
+    },
+    ref: '#/components/schemas/Test',
+  })
+})
