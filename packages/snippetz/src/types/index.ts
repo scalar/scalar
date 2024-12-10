@@ -47,6 +47,16 @@ export type TargetId = AvailableClients[number] extends `${infer T}/${string}`
   ? T
   : never
 
+/** Configuration for a target */
+export type Target = {
+  [K in TargetId]: {
+    key: K
+    title: string
+    default: ClientId<K>
+    clients: ClientId<K>[]
+  }
+}[TargetId]
+
 /** HTTP client */
 export type ClientId<T extends string> = T extends TargetId
   ? Extract<
