@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const ocamlCohttp: Plugin = {
   target: 'ocaml',
   client: 'cohttp',
+  title: 'Cohttp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(cohttp, request)

@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const csharpHttpclient: Plugin = {
   target: 'csharp',
   client: 'httpclient',
+  title: 'HttpClient',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(httpclient, request)

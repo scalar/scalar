@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const jsJquery: Plugin = {
   target: 'js',
   client: 'jquery',
+  title: 'jQuery',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(jquery, request)

@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const httpHttp11: Plugin = {
   target: 'http',
   client: 'http1.1',
+  title: 'HTTP/1.1',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(http11, request)

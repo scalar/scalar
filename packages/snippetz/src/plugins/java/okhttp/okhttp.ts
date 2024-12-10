@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const javaOkhttp: Plugin = {
   target: 'java',
   client: 'okhttp',
+  title: 'OkHttp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(okhttp, request)

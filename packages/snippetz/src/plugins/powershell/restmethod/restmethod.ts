@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const powershellRestmethod: Plugin = {
   target: 'powershell',
   client: 'restmethod',
+  title: 'Invoke-RestMethod',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(restmethod, request)

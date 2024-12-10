@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const javaNethttp: Plugin = {
   target: 'java',
   client: 'nethttp',
+  title: 'java.net.http',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(nethttp, request)

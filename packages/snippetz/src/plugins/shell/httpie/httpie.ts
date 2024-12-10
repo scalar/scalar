@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const shellHttpie: Plugin = {
   target: 'shell',
   client: 'httpie',
+  title: 'HTTPie',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(httpie, request)

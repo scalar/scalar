@@ -53,7 +53,7 @@ export type Target = {
     key: K
     title: string
     default: ClientId<K>
-    clients: ClientId<K>[]
+    clients: Plugin[]
   }
 }[TargetId]
 
@@ -73,6 +73,8 @@ export type Plugin = {
   target: TargetId
   /** The identifier of the client. */
   client: ClientId<TargetId>
+  /** The title of the client. */
+  title: string
   /** The actual source code. */
   generate: (
     request?: Partial<HarRequest>,

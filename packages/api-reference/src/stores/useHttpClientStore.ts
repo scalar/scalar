@@ -1,10 +1,8 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
-import { availableTargets as allTargets } from '@scalar/snippetz/httpsnippet-lite'
-import type { TargetId } from '@scalar/snippetz/types'
+import { snippetz } from '@scalar/snippetz'
+import type { Target, TargetId } from '@scalar/snippetz/types'
 import type { HiddenClients } from '@scalar/types/legacy'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
-
-import type { AvailableTarget } from '../types'
 
 const FALLBACK_HTTP_CLIENT: HttpClientState = {
   targetKey: 'shell',
@@ -30,7 +28,7 @@ function getClientTitle(client: HttpClientState) {
   return (
     availableTargets.value
       .find((target) => target.key === client.targetKey)
-      ?.clients.find((item) => item.key === client.clientKey)?.title ??
+      ?.clients.find((item) => item.client === client.clientKey)?.title ??
     client.clientKey
   )
 }
@@ -49,15 +47,15 @@ const httpClientTitle = computed(() => {
  * Filters out hidden clients from the available targets (based on the given configuration).
  */
 export function filterHiddenClients(
-  targets: AvailableTarget[],
+  targets: Target[],
   exclude: Ref<HiddenClients>,
-): AvailableTarget[] {
+): Target[] {
   // Just remove all clients
   if (exclude.value === true) {
     return []
   }
 
-  return targets.flatMap((target: AvailableTarget) => {
+  return targets.flatMap((target: Target) => {
     // Just to please TypeScript
     if (typeof exclude.value !== 'object') {
       return []
@@ -70,7 +68,7 @@ export function filterHiddenClients(
     if (Array.isArray(exclude.value)) {
       target.clients = target.clients.filter(
         // @ts-expect-error Typescript, chill. It’s all good. It has to be an array.
-        (client) => !exclude.value.includes(client.key),
+        (client) => !exclude.value.includes(client.client),
       )
       // Remove targets that don’t have any clients left
       if (!target.clients.length) return []
@@ -89,7 +87,7 @@ export function filterHiddenClients(
       target.clients = target.clients.filter((client) => {
         return !(
           // @ts-expect-error We checked whether it’s an Array already.
-          exclude.value[target.key].includes(client.key)
+          exclude.value[target.key].includes(client.client)
         )
       })
     }
@@ -106,32 +104,16 @@ export function filterHiddenClients(
 /**
  * Get all available targets with the hidden clients filtered out
  */
-const availableTargets = computed<AvailableTarget[]>(() => {
-  const targets = allTargets()
+const availableTargets = computed<Target[]>(() => {
+  const clients = snippetz().clients()
 
-  // Add undici to node (comes from @scalar/snippetz)
-  targets
-    .find((target) => target.key === 'node')
-    ?.clients.unshift({
-      description: 'An HTTP/1.1 client, written from scratch for Node.js.',
-      key: 'undici',
-      link: 'https://github.com/nodejs/undici',
-      title: 'undici',
-    })
-
-  return filterHiddenClients(targets, excludedClients)
+  return filterHiddenClients(clients, excludedClients)
 })
 
 /** The selected HTTP client */
 export type HttpClientState = { targetKey: TargetId; clientKey: string }
 
-const DEFAULT_EXCLUDED_CLIENTS = {
-  node: ['unirest'],
-} as HiddenClients
-
-const excludedClients = ref<HiddenClients>({
-  ...(DEFAULT_EXCLUDED_CLIENTS === true ? {} : DEFAULT_EXCLUDED_CLIENTS),
-})
+const excludedClients = ref<HiddenClients>({})
 
 const defaultHttpClient = ref<HttpClientState>()
 
@@ -161,7 +143,7 @@ const getDefaultHttpClient = (): HttpClientState => {
   // Just use the first available client
   return {
     targetKey: availableTargets.value[0]?.key,
-    clientKey: availableTargets.value[0]?.clients?.[0]?.key,
+    clientKey: availableTargets.value[0]?.clients?.[0]?.client,
   }
 }
 
@@ -174,7 +156,7 @@ function isClientAvailable(httpClient?: HttpClientState) {
   return !!availableTargets.value.find(
     (target) =>
       target.key === httpClient.targetKey &&
-      target.clients.find((client) => client.key === httpClient.clientKey),
+      target.clients.find((client) => client.client === httpClient.clientKey),
   )
 }
 

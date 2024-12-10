@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const javaUnirest: Plugin = {
   target: 'java',
   client: 'unirest',
+  title: 'Unirest',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(unirest, request)

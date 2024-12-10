@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const goNative: Plugin = {
   target: 'go',
   client: 'native',
+  title: 'NewRequest',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(native, request)

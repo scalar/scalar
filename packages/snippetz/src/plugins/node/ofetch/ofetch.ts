@@ -8,6 +8,7 @@ import { objectToString } from '@/utils/objectToString'
 export const nodeOfetch: Plugin = {
   target: 'node',
   client: 'ofetch',
+  title: 'ofetch',
   generate(request) {
     // Defaults
     const normalizedRequest = {

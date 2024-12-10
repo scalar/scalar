@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const pythonPython3: Plugin = {
   target: 'python',
   client: 'python3',
+  title: 'http.client',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(python3, request)

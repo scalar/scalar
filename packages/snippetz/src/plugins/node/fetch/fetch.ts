@@ -8,6 +8,7 @@ import { objectToString } from '@/utils/objectToString'
 export const nodeFetch: Plugin = {
   target: 'node',
   client: 'fetch',
+  title: 'Fetch',
   generate(request) {
     // Defaults
     const normalizedRequest = {

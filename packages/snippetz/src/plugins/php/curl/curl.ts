@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const phpCurl: Plugin = {
   target: 'php',
   client: 'curl',
+  title: 'cURL',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(curl, request)

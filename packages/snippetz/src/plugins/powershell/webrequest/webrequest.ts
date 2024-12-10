@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const powershellWebrequest: Plugin = {
   target: 'powershell',
   client: 'webrequest',
+  title: 'Invoke-WebRequest',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(webrequest, request)

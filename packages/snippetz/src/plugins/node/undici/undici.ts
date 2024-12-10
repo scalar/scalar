@@ -8,6 +8,7 @@ import { objectToString } from '@/utils/objectToString'
 export const nodeUndici: Plugin = {
   target: 'node',
   client: 'undici',
+  title: 'undici',
   generate(request) {
     // Defaults
     const normalizedRequest = {

@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const jsXhr: Plugin = {
   target: 'js',
   client: 'xhr',
+  title: 'XHR',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(xhr, request)

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { TargetId } from '@scalar/snippetz/types'
+import type { Target, TargetId } from '@scalar/snippetz/types'
 import { ref } from 'vue'
 
 import { type HttpClientState, useHttpClientStore } from '../../../stores'
-import type { AvailableTarget } from '../../../types'
 
 // Use the template store to keep it accessible globally
 const {
@@ -42,10 +41,12 @@ const featuredClients = (
     },
   ] as const
 ).filter((featuredClient) =>
-  availableTargets.value.find((target: AvailableTarget) => {
+  availableTargets.value.find((target: Target) => {
     return (
       target.key === featuredClient.targetKey &&
-      target.clients.find((client) => client.key === featuredClient.clientKey)
+      target.clients.find(
+        (client) => client.client === featuredClient.clientKey,
+      )
     )
   }),
 )
@@ -114,21 +115,21 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           :label="target.title">
           <option
             v-for="client in target.clients"
-            :key="client.key"
+            :key="client.client"
             :aria-label="`${target.title} ${getClientTitle({
               targetKey: target.key,
-              clientKey: client.key,
+              clientKey: client.client,
             })}`"
             :value="
               JSON.stringify({
                 targetKey: target.key,
-                clientKey: client.key,
+                clientKey: client.client,
               })
             ">
             {{
               getClientTitle({
                 targetKey: target.key,
-                clientKey: client.key,
+                clientKey: client.client,
               })
             }}
           </option>

@@ -14,18 +14,41 @@ const { statusCode, body } = await request('https://example.com')`)
   })
 
   it('loads some clients by default', async () => {
-    const targets = snippetz().targets()
-
-    expect(targets).toEqual(
-      expect.arrayContaining(['node', 'js', 'shell', 'php']),
-    )
-
     const clients = snippetz().clients()
 
-    expect(clients).toContain('undici')
-    expect(clients).toContain('fetch')
-    expect(clients).toContain('ofetch')
-    expect(clients).toContain('curl')
+    expect(clients).toEqual(
+      expect.arrayContaining([
+        {
+          key: 'node',
+          title: 'Node.js',
+          default: 'fetch',
+          clients: expect.arrayContaining([
+            expect.objectContaining({
+              client: 'undici',
+            }),
+            expect.objectContaining({
+              client: 'fetch',
+            }),
+          ]),
+        },
+        {
+          key: 'shell',
+          title: 'Shell',
+          default: 'curl',
+          clients: expect.arrayContaining([
+            expect.objectContaining({
+              client: 'curl',
+            }),
+            expect.objectContaining({
+              client: 'wget',
+            }),
+            expect.objectContaining({
+              client: 'httpie',
+            }),
+          ]),
+        },
+      ]),
+    )
   })
 })
 

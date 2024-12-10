@@ -8,6 +8,7 @@ import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 export const rHttr: Plugin = {
   target: 'r',
   client: 'httr',
+  title: 'httr',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(httr, request)
