@@ -1,4 +1,4 @@
-import { http11 } from '@/httpsnippet-lite/dist/esm/targets/http/http1.1/client.mjs'
+import { http11 } from '@/httpsnippet-lite/esm/targets/http/http1.1/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

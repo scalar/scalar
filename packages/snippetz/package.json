@@ -210,11 +210,6 @@
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",
       "default": "./dist/plugins/c/libcurl/index.js"
-    },
-    "./httpsnippet-lite": {
-      "import": "./dist/httpsnippet-lite/index.js",
-      "types": "./dist/httpsnippet-lite/index.d.ts",
-      "default": "./dist/httpsnippet-lite/index.js"
     }
   },
   "files": [
@@ -223,6 +218,7 @@
   ],
   "module": "./dist/index.js",
   "dependencies": {
+    "httpsnippet-lite": "^3.0.5",
     "stringify-object": "^5.0.0"
   },
   "devDependencies": {

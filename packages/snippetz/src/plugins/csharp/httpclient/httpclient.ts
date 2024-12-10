@@ -1,4 +1,4 @@
-import { httpclient } from '@/httpsnippet-lite/dist/esm/targets/csharp/httpclient/client.mjs'
+import { httpclient } from '@/httpsnippet-lite/esm/targets/csharp/httpclient/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

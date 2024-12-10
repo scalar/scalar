@@ -1,4 +1,4 @@
-import { httr } from '@/httpsnippet-lite/dist/esm/targets/r/httr/client.mjs'
+import { httr } from '@/httpsnippet-lite/esm/targets/r/httr/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

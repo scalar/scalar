@@ -1,4 +1,4 @@
-import type { Request } from '@/httpsnippet-lite/dist/types/httpsnippet'
+import type { Request } from '@/httpsnippet-lite/types/httpsnippet'
 import type { HarRequest } from '@/types'
 
 /**

@@ -1,4 +1,4 @@
-import { restsharp } from '@/httpsnippet-lite/dist/esm/targets/csharp/restsharp/client.mjs'
+import { restsharp } from '@/httpsnippet-lite/esm/targets/csharp/restsharp/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

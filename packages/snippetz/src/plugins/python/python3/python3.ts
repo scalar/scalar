@@ -1,4 +1,4 @@
-import { python3 } from '@/httpsnippet-lite/dist/esm/targets/python/python3/client.mjs'
+import { python3 } from '@/httpsnippet-lite/esm/targets/python/python3/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

@@ -1,4 +1,4 @@
-import { cohttp } from '@/httpsnippet-lite/dist/esm/targets/ocaml/cohttp/client.mjs'
+import { cohttp } from '@/httpsnippet-lite/esm/targets/ocaml/cohttp/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

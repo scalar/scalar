@@ -1,4 +1,4 @@
-import { webrequest } from '@/httpsnippet-lite/dist/esm/targets/powershell/webrequest/client.mjs'
+import { webrequest } from '@/httpsnippet-lite/esm/targets/powershell/webrequest/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

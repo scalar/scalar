@@ -1,4 +1,4 @@
-import { wget } from '@/httpsnippet-lite/dist/esm/targets/shell/wget/client.mjs'
+import { wget } from '@/httpsnippet-lite/esm/targets/shell/wget/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

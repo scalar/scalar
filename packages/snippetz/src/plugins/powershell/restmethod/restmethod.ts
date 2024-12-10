@@ -1,4 +1,4 @@
-import { restmethod } from '@/httpsnippet-lite/dist/esm/targets/powershell/restmethod/client.mjs'
+import { restmethod } from '@/httpsnippet-lite/esm/targets/powershell/restmethod/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

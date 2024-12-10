@@ -1,4 +1,4 @@
-import { nsurlsession } from '@/httpsnippet-lite/dist/esm/targets/objc/nsurlsession/client.mjs'
+import { nsurlsession } from '@/httpsnippet-lite/esm/targets/objc/nsurlsession/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 

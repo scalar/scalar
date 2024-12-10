@@ -1,4 +1,4 @@
-import { requests } from '@/httpsnippet-lite/dist/esm/targets/python/requests/client.mjs'
+import { requests } from '@/httpsnippet-lite/esm/targets/python/requests/client.mjs'
 import type { Plugin } from '@/types'
 import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
