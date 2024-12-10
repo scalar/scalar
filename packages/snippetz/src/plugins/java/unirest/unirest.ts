@@ -1,7 +1,7 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
 // @ts-expect-error no types available
-import { unirest } from '~httpsnippet-lite/dist/esm/targets/java/unirest/client.mjs'
+import { unirest } from '@/httpsnippet-lite/dist/esm/targets/java/unirest/client.mjs'
 
 /**
  * java/unirest

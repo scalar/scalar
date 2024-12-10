@@ -1998,9 +1998,6 @@ importers:
 
   packages/snippetz:
     dependencies:
-      httpsnippet-lite:
-        specifier: ^3.0.5
-        version: 3.0.5
       stringify-object:
         specifier: ^5.0.0
         version: 5.0.0

@@ -1,7 +1,7 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
 // @ts-expect-error no types available
-import { okhttp } from '~httpsnippet-lite/dist/esm/targets/java/okhttp/client.mjs'
+import { okhttp } from '@/httpsnippet-lite/dist/esm/targets/java/okhttp/client.mjs'
 
 /**
  * java/okhttp
