@@ -81,7 +81,6 @@
     "@vueuse/core": "^10.10.0",
     "fuse.js": "^7.0.0",
     "github-slugger": "^2.0.0",
-    "httpsnippet-lite": "^3.0.5",
     "nanoid": "^5.0.7",
     "vue": "^3.5.12"
   },

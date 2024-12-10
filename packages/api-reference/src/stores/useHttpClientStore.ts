@@ -1,6 +1,7 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
+import { availableTargets as allTargets } from '@scalar/snippetz/httpsnippet-lite'
+import type { TargetId } from '@scalar/snippetz/types'
 import type { HiddenClients } from '@scalar/types/legacy'
-import { type TargetId, availableTargets as allTargets } from 'httpsnippet-lite'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 
 import type { AvailableTarget } from '../types'

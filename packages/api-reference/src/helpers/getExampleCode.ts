@@ -15,7 +15,7 @@ export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
 export async function getExampleCode<T extends SnippetzTargetId>(
   request: Request,
   target: TargetId,
-  client: ClientId<T>,
+  client: ClientId<T> | string,
 ) {
   // Convert request to HarRequest
   const harRequest = await convertRequestToHarRequest(request)
