@@ -1,8 +1,7 @@
 import type { Plugin } from '@/core'
 import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-
 // @ts-expect-error no types available
-import { xhr } from '../../../../node_modules/httpsnippet-lite/dist/esm/targets/javascript/xhr/client.mjs'
+import { xhr } from '@/httpsnippet-lite/dist/esm/targets/javascript/xhr/client.mjs'
 
 /**
  * js/xhr

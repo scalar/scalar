@@ -1,6 +1,5 @@
+import type { Client } from '@/httpsnippet-lite/dist/types/targets/targets'
 import type { Request } from 'har-format'
-
-import type { Client } from '../../../node_modules/httpsnippet-lite/dist/types/targets/targets'
 
 /**
  * Takes a httpsnippet-lite client and converts the given request to a code example with it.
