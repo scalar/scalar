@@ -48,16 +48,16 @@ const filterEmpty = (input) => {
 };
 const padBlock = (padSize, input) => {
     const padding = ' '.repeat(padSize);
-    return input.replace(/\n/g, `\n${padding}`);
+    return input?.replace(/\n/g, `\n${padding}`);
 };
 const jsToEdn = (js) => {
     switch (jsType(js)) {
         case 'string':
             return `"${js.replace(/"/g, '\\"')}"`;
         case 'file':
-            return js.toString();
+            return js?.toString();
         case 'keyword':
-            return js.toString();
+            return js?.toString();
         case 'null':
             return 'nil';
         case 'regexp':
@@ -80,7 +80,7 @@ const jsToEdn = (js) => {
             return `[${padBlock(1, arr)}]`;
         }
         default: // 'number' 'boolean'
-            return js.toString();
+            return js?.toString();
     }
 };
 export const clj_http = {
@@ -102,6 +102,13 @@ export const clj_http = {
             headers: allHeaders,
             'query-params': queryObj,
         };
+
+
+        // Remove query string from URL if queryObj has parameters
+        if (queryObj && Object.keys(queryObj).length > 0) {
+            url = url.split('?')[0]
+        }
+
         switch (postData === null || postData === void 0 ? void 0 : postData.mimeType) {
             case 'application/json':
                 {

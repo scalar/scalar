@@ -99,6 +99,16 @@ export function convertWithHttpSnippetLite(
           mimeType: harRequest.postData.mimeType ?? 'application/json',
           text: harRequest.postData.text ?? '',
           params: harRequest.postData.params ?? [],
+          paramsObj:
+            harRequest.postData.params?.reduce(
+              (acc, param) => {
+                if (param.name && param.value !== undefined) {
+                  acc[param.name] = param.value
+                }
+                return acc
+              },
+              {} as Record<string, string>,
+            ) ?? {},
         }
       : undefined,
     allHeaders: allHeaders ?? {},
