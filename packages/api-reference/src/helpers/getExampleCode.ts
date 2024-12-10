@@ -20,15 +20,15 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   // Convert request to HarRequest
   const harRequest = await convertRequestToHarRequest(request)
 
-  // @scalar/snippetz
-  const snippetzTargetKey = target
-
   // TODO: Fix this, use js (instead of javascript) everywhere
-  if (
-    snippetz().hasPlugin(snippetzTargetKey?.replace('javascript', 'js'), client)
-  ) {
+  const snippetzTargetKey = target?.replace(
+    'javascript',
+    'js',
+  ) as SnippetzTargetId
+
+  if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
-      target.replace('javascript', 'js') as SnippetzTargetId,
+      snippetzTargetKey,
       client as SnippetzClientId<typeof target>,
       harRequest,
     )
