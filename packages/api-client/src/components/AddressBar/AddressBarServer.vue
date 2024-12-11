@@ -39,11 +39,13 @@ watch([activeCollection, activeRequest], ([collection, request]) => {
   if (!collection || collection.selectedServerUid || request?.selectedServerUid)
     return
 
-  collectionMutators.edit(
-    collection.uid,
-    'selectedServerUid',
-    collection.servers[0],
-  )
+  if (collection.servers?.[0]) {
+    collectionMutators.edit(
+      collection.uid,
+      'selectedServerUid',
+      collection.servers[0],
+    )
+  }
 })
 
 /** Add server */
