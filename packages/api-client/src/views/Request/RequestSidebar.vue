@@ -137,7 +137,7 @@ watch(
     activeWorkspaceCollections.value.map((collection) => collection.watchMode),
   (newWatchModes, oldWatchModes) => {
     newWatchModes.forEach((newWatchMode, index) => {
-      if (newWatchMode !== oldWatchModes[index]) {
+      if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
         const currentCollection = activeWorkspaceCollections.value[index]
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
         toast(message, 'info')
