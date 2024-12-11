@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.87
+
+### Patch Changes
+
+- 8017ff9: feat: updates parse enum to include array
+
 ## 0.2.86
 
 ### Patch Changes

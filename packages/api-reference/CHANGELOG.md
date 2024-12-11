@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.79
+
+### Patch Changes
+
+- cbc70ae: fix: circular dependency
+- eea1822: fix: adds server with variables to request example
+- Updated dependencies [371a105]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [8017ff9]
+- Updated dependencies [e05c29f]
+  - @scalar/api-client@2.2.11
+  - @scalar/oas-utils@0.2.87
+
 ## 1.25.78
 
 ### Patch Changes
