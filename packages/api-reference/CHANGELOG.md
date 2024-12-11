@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.25.80
+
+### Patch Changes
+
+- a109244: fix: operation server null check
+
 ## 1.25.79
 
 ### Patch Changes
