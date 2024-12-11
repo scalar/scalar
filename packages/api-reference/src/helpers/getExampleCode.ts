@@ -9,8 +9,6 @@ import { convertRequestToHarRequest } from '../helpers/convertRequestToHarReques
 export type TargetId = SnippetzTargetId
 export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
 
-const { hasPlugin, print } = snippetz()
-
 /**
  * Returns a code example for given Request
  */
@@ -28,8 +26,8 @@ export async function getExampleCode<T extends SnippetzTargetId>(
     'js',
   ) as SnippetzTargetId
 
-  if (hasPlugin(snippetzTargetKey, client)) {
-    return print(
+  if (snippetz().hasPlugin(snippetzTargetKey, client)) {
+    return snippetz().print(
       snippetzTargetKey,
       client as SnippetzClientId<typeof target>,
       harRequest,
