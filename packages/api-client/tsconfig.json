@@ -6,7 +6,8 @@
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     },
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "noUncheckedIndexedAccess": true
   },
   "include": ["src", "global.d.ts", "playground"]
 }

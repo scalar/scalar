@@ -9,7 +9,7 @@ import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { isMacOS } from '@scalar/use-tooltip'
 import { useMagicKeys, whenever } from '@vueuse/core'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -27,9 +27,10 @@ const selectedRequest = ref(requestHistory[0])
 const addressBarRef = ref<typeof CodeInput | null>(null)
 
 const keys = useMagicKeys()
-whenever(isMacOS() ? keys.meta_enter : keys.ctrl_enter, () =>
-  events.executeRequest.emit(),
+const executeKey = computed(() =>
+  isMacOS() ? keys.meta_enter : keys.ctrl_enter,
 )
+whenever(executeKey, () => events.executeRequest.emit())
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
