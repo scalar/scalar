@@ -107,6 +107,12 @@ const remainingEnumValues = computed(() =>
         #name>
         {{ name }}
       </template>
+      <template
+        v-if="value?.example"
+        #example>
+        Example:
+        {{ value.example }}
+      </template>
     </SchemaPropertyHeading>
     <!-- Description -->
     <div
@@ -362,7 +368,22 @@ const remainingEnumValues = computed(() =>
 }
 
 .property--compact .property-example {
-  display: none;
+  align-items: center;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+.property--compact .property-example-label,
+.property--compact .property-example-value {
+  padding: 0;
+}
+.property--compact .property-example-value {
+  background: var(--scalar-background-2);
+  border-top: 0;
+  border-radius: var(--scalar-radius);
+  padding: 2px 6px;
 }
 .property-list {
   border: var(--scalar-border-width) solid var(--scalar-border-color);
