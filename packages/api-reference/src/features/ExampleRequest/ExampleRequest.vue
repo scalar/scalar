@@ -166,7 +166,7 @@ const options = computed<TextSelectOptions>(() => {
         return {
           value: JSON.stringify({
             targetKey: target.key,
-            clientKey: c.key,
+            clientKey: c.client,
           }),
           label: c.title,
         }
