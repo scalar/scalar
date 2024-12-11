@@ -381,7 +381,7 @@ export const createRequestOperation = ({
       : url
 
     const proxiedRequest = new Request(proxiedUrl, {
-      method: request.method,
+      method: request.method.toUpperCase(),
       body,
       headers,
     })
