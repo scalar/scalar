@@ -180,7 +180,7 @@ export const pillPlugin = (props: {
           while ((match = REGEX.VARIABLES.exec(text)) !== null) {
             const start = from + match.index
             const end = start + match[0].length
-            const variableName = match[1]
+            const variableName = match[1] ?? ''
             builder.add(
               start,
               end,
