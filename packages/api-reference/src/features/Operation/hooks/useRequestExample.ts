@@ -61,7 +61,7 @@ export const useRequestExample = ({
     const operationServer = server.value
     const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
     return {
-      uid: operationServer.uid,
+      uid: operationServer?.uid || '',
       url: modifiedUrl || '',
     }
   })
