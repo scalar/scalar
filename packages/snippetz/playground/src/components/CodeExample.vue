@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { snippetz } from '@scalar/snippetz'
-import type { TargetId } from '@scalar/snippetz/core'
+import { type TargetId, snippetz } from '@scalar/snippetz'
 import { objectToString } from '@scalar/snippetz/utils'
 import { getHighlighter } from 'shikiji'
 import { onMounted, ref, watch } from 'vue'
@@ -10,6 +9,9 @@ const props = defineProps<{
   client: string
   request: any
 }>()
+
+const { print } = snippetz()
+
 const code = ref('')
 const highlightedConfiguration = ref('')
 const highlightedResult = ref('')
@@ -17,7 +19,7 @@ const highlightedExample = ref('')
 async function renderExample() {
   // Code
   code.value =
-    snippetz().print(
+    print(
       props.target as TargetId,
       // @ts-expect-error I don’t know how to type this.
       props.client,
@@ -32,9 +34,11 @@ async function renderExample() {
     `/* Snippetz */
 import { snippetz } from '@scalar/snippetz'
 
+const { print } = snippetz()
+
 const request = ${objectToString(props.request)}
 
-const snippet = snippetz().print('${props.target}', '${props.client}', request)
+const snippet = print('${props.target}', '${props.client}', request)
 
 /* Output */
 

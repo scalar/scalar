@@ -9,6 +9,8 @@ const FALLBACK_HTTP_CLIENT: HttpClientState = {
   clientKey: 'curl',
 }
 
+const { clients } = snippetz()
+
 /**
  * Gets the client title from the availableTargets
  * { targetKey: 'shell', clientKey: 'curl' } -> 'Shell'
@@ -105,9 +107,7 @@ export function filterHiddenClients(
  * Get all available targets with the hidden clients filtered out
  */
 const availableTargets = computed<Target[]>(() => {
-  const clients = snippetz().clients()
-
-  return filterHiddenClients(clients, excludedClients)
+  return filterHiddenClients(clients(), excludedClients)
 })
 
 /** The selected HTTP client */
