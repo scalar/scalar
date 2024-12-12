@@ -16,20 +16,19 @@ function generateTypeDocumentation() {
   const startTime = performance.now()
 
   const filePath = path.join(__dirname, INPUT_FILE)
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    fs.readFileSync(filePath, 'utf8'),
-    ts.ScriptTarget.Latest,
-    true,
-  )
+  const program = ts.createProgram([filePath], {})
+  const typeChecker = program.getTypeChecker()
+  const sourceFile = program.getSourceFile(filePath)
+
+  if (!sourceFile) {
+    throw new Error(`Could not find source file: ${filePath}`)
+  }
 
   markdown += `## ${TYPE_NAME}\n\n`
 
-  // Find the ReferenceConfiguration type
   function visit(node: ts.Node) {
     if (ts.isTypeAliasDeclaration(node) && node.name.getText() === TYPE_NAME) {
       if (ts.isTypeLiteralNode(node.type)) {
-        // Sort members alphabetically by name
         const sortedMembers = [...node.type.members].sort((a, b) => {
           const nameA = a.name?.getText() || ''
           const nameB = b.name?.getText() || ''
@@ -39,21 +38,31 @@ function generateTypeDocumentation() {
         sortedMembers.forEach((member) => {
           if (ts.isPropertySignature(member)) {
             const name = member.name.getText()
-
-            // Skip properties that start with underscore
             if (name.startsWith('_')) return
 
-            // Add question mark if property is optional
             const displayName = member.questionToken ? `${name}?` : name
-            const type = member.type?.getText() || 'unknown'
 
-            // Check if type is a union type
+            // Get the full type using the TypeChecker with full resolution
+            const type = member.type
+              ? typeChecker.typeToString(
+                  typeChecker.getTypeFromTypeNode(member.type),
+                  undefined,
+                  ts.TypeFormatFlags.NoTruncation |
+                    ts.TypeFormatFlags.NoTypeReduction |
+                    ts.TypeFormatFlags.WriteTypeArgumentsOfSignature |
+                    ts.TypeFormatFlags.InTypeAlias |
+                    ts.TypeFormatFlags.UseStructuralFallback |
+                    ts.TypeFormatFlags.WriteArrowStyleSignature |
+                    ts.TypeFormatFlags.MultilineObjectLiterals,
+                )
+              : 'unknown'
+
             const isUnionType = member.type && ts.isUnionTypeNode(member.type)
 
-            // For union types, only show the property name in heading
-            const displayNameWithType = isUnionType
-              ? displayName
-              : `${displayName}: ${type}`
+            const displayNameWithType =
+              isUnionType || (type.includes('{') && type.includes('}'))
+                ? displayName
+                : `${displayName}: ${type}`
 
             // Get JSDoc comment if it exists
             const jsDoc = ts
@@ -82,11 +91,34 @@ function generateTypeDocumentation() {
 
             // Add strikethrough if @deprecated tag exists
             markdown += hasDeprecatedTag
-              ? `## ~~${displayNameWithType}~~\n\n`
-              : `## ${displayNameWithType}\n\n`
+              ? `### ~~${displayNameWithType}~~\n\n`
+              : `### ${displayNameWithType}\n\n`
 
             if (deprecatedValue) {
               markdown += `**Deprecated:** ${deprecatedValue}\n\n`
+            }
+
+            // Add type as code block if it's an object
+            if (!isUnionType && type.includes('{') && type.includes('}')) {
+              // Use TypeScript's built-in formatter for better type formatting
+              const printer = ts.createPrinter({
+                newLine: ts.NewLineKind.LineFeed,
+              })
+              const temporarySourceFile = ts.createSourceFile(
+                'temp.ts',
+                `type Temp = ${type}`,
+                ts.ScriptTarget.Latest,
+              )
+              const typeNode = (
+                temporarySourceFile.statements[0] as ts.TypeAliasDeclaration
+              ).type
+              const formattedType = printer.printNode(
+                ts.EmitHint.Unspecified,
+                typeNode,
+                temporarySourceFile,
+              )
+
+              markdown += `**Type:**\n\`\`\`typescript\n${formattedType}\n\`\`\`\n\n`
             }
 
             if (jsDoc) {
