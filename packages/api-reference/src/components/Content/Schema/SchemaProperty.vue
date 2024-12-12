@@ -157,17 +157,20 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <template v-else>
         <ul class="property-enum-values">
           <li
-            v-for="enumValue in getEnumFromValue(value).slice(0, 4)"
+            v-for="enumValue in getEnumFromValue(value).slice(
+              0,
+              getEnumFromValue(value).length > 9 ? 5 : 9,
+            )"
             :key="enumValue"
             class="property-enum-value">
             {{ enumValue }}
           </li>
           <Disclosure
-            v-if="getEnumFromValue(value).length > 4"
+            v-if="getEnumFromValue(value).length > 9"
             v-slot="{ open }">
             <DisclosurePanel>
               <li
-                v-for="enumValue in getEnumFromValue(value).slice(4)"
+                v-for="enumValue in getEnumFromValue(value).slice(5)"
                 :key="enumValue"
                 class="property-enum-value">
                 {{ enumValue }}
