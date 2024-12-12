@@ -16,6 +16,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -61,7 +62,7 @@ const handleItemDelete = () => {
   if (!activeWorkspaceRequests.value.length) {
     const { request } = createInitialRequest()
     const draftCollection = activeWorkspaceCollections.value.find(
-      (collection) => collection.info?.title === 'Drafts',
+      (collection: Collection) => collection.info?.title === 'Drafts',
     )
 
     if (draftCollection) {

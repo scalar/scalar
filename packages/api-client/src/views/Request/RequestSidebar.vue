@@ -22,6 +22,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import {
   computed,
@@ -124,7 +125,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
     item.watchMode = !item.watchMode
     const currentCollection = activeWorkspaceCollections.value.find(
-      (collection) => collection.uid === item.entity.uid,
+      (collection: Collection) => collection.uid === item.entity.uid,
     )
     if (currentCollection) {
       currentCollection.watchMode = item.watchMode
@@ -134,9 +135,11 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
 
 watch(
   () =>
-    activeWorkspaceCollections.value.map((collection) => collection.watchMode),
-  (newWatchModes, oldWatchModes) => {
-    newWatchModes.forEach((newWatchMode, index) => {
+    activeWorkspaceCollections.value.map(
+      (collection: Collection) => collection.watchMode,
+    ),
+  (newWatchModes: boolean[], oldWatchModes: boolean[]) => {
+    newWatchModes.forEach((newWatchMode: boolean, index: number) => {
       if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
         const currentCollection = activeWorkspaceCollections.value[index]
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
@@ -154,12 +157,15 @@ const selectedResultId = computed(() => {
 
 const handleClearDrafts = () => {
   const draftCollection = activeWorkspaceCollections.value.find(
-    (collection) => collection.info?.title === 'Drafts',
+    (collection: Collection) => collection.info?.title === 'Drafts',
   )
 
   if (draftCollection) {
-    draftCollection.requests.forEach((requestUid) => {
-      requestMutators.delete(requests[requestUid], draftCollection.uid)
+    draftCollection.requests.forEach((requestUid: string) => {
+      const request = requests[requestUid]
+      if (request) {
+        requestMutators.delete(request, draftCollection.uid)
+      }
     })
   }
 

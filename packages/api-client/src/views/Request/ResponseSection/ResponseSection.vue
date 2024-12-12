@@ -24,7 +24,7 @@ const responseHeaders = computed(() => {
     ? Object.keys(headers)
         .map((key) => ({
           name: key,
-          value: headers[key],
+          value: headers[key] ?? '',
           required: false,
         }))
         .filter(
