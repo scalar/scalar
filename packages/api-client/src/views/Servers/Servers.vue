@@ -42,7 +42,7 @@ const addServerHandler = () => {
               class="text-xs"
               type="server"
               :variable="{
-                name: servers[serverUid].url ?? '',
+                name: servers[serverUid]?.url ?? '',
                 uid: serverUid,
               }" />
           </SidebarList>
