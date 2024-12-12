@@ -21,9 +21,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "docs:dev": "nodemon --watch \"src/**/*.ts\" --watch \"scripts/**/*.ts\" -e ts --exec \"pnpm run docs:generate && pnpm run docs:serve\"",
-    "docs:generate": "vite-node scripts/generate-docs.ts",
+    "build": "scalar-build-rollup && pnpm run docs:build",
+    "docs:dev": "nodemon --watch \"src/**/*.ts\" --watch \"scripts/**/*.ts\" -e ts --exec \"pnpm run docs:build && pnpm run docs:serve\"",
+    "docs:build": "vite-node scripts/build-docs.ts",
     "docs:serve": "markserv docs/reference-configuration.md",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
