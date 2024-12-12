@@ -45,9 +45,10 @@ export default {
           },
         },
       },
-      height: { header: 'var(--scalar-client-header-height)' },
-      width: { sidebar: 'var(--scalar-sidebar-width)' },
-      minHeight: { header: 'var(--scalar-client-header-height)' },
+      spacing: {
+        /** Client headers including the address bar and the section headers */
+        'client-header': '52px',
+      },
       zIndex: {
         // Numeric indexes
         10: '10',
