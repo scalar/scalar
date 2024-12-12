@@ -63,6 +63,20 @@ const specification = `{
 const { schema, errors } = await dereference(specification)
 ```
 
+### Track references
+
+The `dereference` function accepts an `onDereference` callback option that gets called whenever a reference is resolved. This can be useful for tracking which schemas are being dereferenced:
+
+```ts
+import { dereference } from '@scalar/openapi-parser'
+
+const { schema, errors } = await dereference(specification, {
+  onDereference: ({ schema, ref }) => {
+    //
+  },
+})
+```
+
 ### Modify an OpenAPI document
 
 ```ts

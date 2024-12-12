@@ -561,6 +561,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/postman-to-openapi':
+        specifier: workspace:*
+        version: link:../postman-to-openapi
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes
@@ -1924,10 +1927,10 @@ importers:
     dependencies:
       '@electron-toolkit/preload':
         specifier: ^3.0.0
-        version: 3.0.1(electron@33.0.0)
+        version: 3.0.1(electron@33.2.1)
       '@electron-toolkit/utils':
         specifier: ^3.0.0
-        version: 3.0.0(electron@33.0.0)
+        version: 3.0.0(electron@33.2.1)
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
@@ -1957,8 +1960,8 @@ importers:
         specifier: ^1.10.3
         version: 1.10.3
       '@todesktop/cli':
-        specifier: ^1.10.2
-        version: 1.10.4(@types/react@18.3.3)
+        specifier: ^1.10.5
+        version: 1.10.5(@types/react@18.3.3)
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
@@ -1972,8 +1975,8 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
       electron:
-        specifier: ^33.0.0
-        version: 33.0.0
+        specifier: ^33.2.1
+        version: 33.2.1
       electron-vite:
         specifier: ^2.3.0
         version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.14.10)(terser@5.31.2))
@@ -1994,6 +1997,10 @@ importers:
         version: link:../api-reference
 
   packages/snippetz:
+    dependencies:
+      stringify-object:
+        specifier: ^5.0.0
+        version: 5.0.0
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*
@@ -2001,6 +2008,9 @@ importers:
       '@types/har-format':
         specifier: ^1.2.15
         version: 1.2.15
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.14.10)(terser@5.31.2)
 
   packages/snippetz/playground:
     dependencies:
@@ -7205,8 +7215,8 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@todesktop/cli@1.10.4':
-    resolution: {integrity: sha512-BP6WRdxJrxUW1J1UKslbqARJBDHaIdEKdmlbfpw1Om4WwS2Zhl+DxY4o+BpzYmDLhuB0f4uyxC8u2moJZPQ6PQ==}
+  '@todesktop/cli@1.10.5':
+    resolution: {integrity: sha512-aka+kzmTJSOsl9yvUrE2X3kgckkMLK72UEwt2IJOIKvYO0EBE7Umxj7oSFvZ1fsn91fMzNlcqBzPdo7y5OkO6w==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -10117,8 +10127,8 @@ packages:
     resolution: {integrity: sha512-1mNTwCfkolXl3kMf50yW3vE2lZj0y92P/HYWFBrb+v2S/pCka5mdwN3cagKm458A7NjndSwijynXgcLWRodsVg==}
     engines: {node: '>=8.0.0'}
 
-  electron@33.0.0:
-    resolution: {integrity: sha512-OdLLR/zAVuNfKahSSYokZmSi7uK2wEYTbCoiIdqWLsOWmCqO9j0JC2XkYQmXQcAk2BJY0ri4lxwAfc5pzPDYsA==}
+  electron@33.2.1:
+    resolution: {integrity: sha512-SG/nmSsK9Qg1p6wAW+ZfqU+AV8cmXMTIklUL18NnOKfZLlum4ZsDoVdmmmlL39ZmeCaq27dr7CgslRPahfoVJg==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -11080,6 +11090,10 @@ packages:
     resolution: {integrity: sha512-ro+DiMu5DXgRBabqXupW38h7WPZ9+Ad8UjwhvsmmN8w1sU7ab0nzAXvVZ4kqYg57OrqomRtJvepX5/xvFKNtjA==}
     engines: {node: '>=12.17'}
 
+  get-own-enumerable-keys@1.0.0:
+    resolution: {integrity: sha512-PKsK2FSrQCyxcGHsGrLDcK0lx+0Ke+6e8KFFozA9/fIQLhQzPaRvJFdcz7+Axg3jUH/Mq+NI4xa5u/UT2tQskA==}
+    engines: {node: '>=14.16'}
+
   get-own-enumerable-property-symbols@3.0.2:
     resolution: {integrity: sha512-I0UBV/XOz1XkIJHEUDMZAbzCThU/H8DxmSfmdGcKPnVhu2VfFqr34jr9777IyaTYvxjedWhqVIilEDsCdP5G6g==}
 
@@ -12014,6 +12028,10 @@ packages:
     resolution: {integrity: sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==}
     engines: {node: '>=8'}
 
+  is-obj@3.0.0:
+    resolution: {integrity: sha512-IlsXEHOjtKhpN8r/tRFj2nDyTmHvcfNeu/nrRIcXE17ROeatXchkojffa1SpdqW4cr/Fj6QkEf/Gn4zf6KKvEQ==}
+    engines: {node: '>=12'}
+
   is-online@8.5.1:
     resolution: {integrity: sha512-RKyTQx/rJqw2QOXHwy7TmXdlkpe0Hhj7GBsr6TQJaj4ebNOfameZCMspU5vYbwBBzJ2brWArdSvNVox6T6oCTQ==}
     engines: {node: '>=8'}
@@ -12069,6 +12087,10 @@ packages:
   is-regexp@1.0.0:
     resolution: {integrity: sha512-7zjFAPO4/gwyQAAgRRmqeEeyIICSdmCqa3tsVHMdBzaXXRiqopZL4Cyghg/XulGWrtABTpbnYYzzIRffLkP4oA==}
     engines: {node: '>=0.10.0'}
+
+  is-regexp@3.1.0:
+    resolution: {integrity: sha512-rbku49cWloU5bSMI+zaRaXdQHXnthP6DZ/vLnfdSKyL4zUzuWnomtOEiZZOd+ioQ+avFo/qau3KPTc7Fjy1uPA==}
+    engines: {node: '>=12'}
 
   is-relative-url@2.0.0:
     resolution: {integrity: sha512-UMyEi3F+Rvjpc29IAQQ5OuMoKylt8npO0eQdXPQ2M3A5iFvh1qG+MtiLQR2tyHcVVsqwWrQiztjPAe9hnSHYeQ==}
@@ -16191,6 +16213,10 @@ packages:
   stringify-object@3.3.0:
     resolution: {integrity: sha512-rHqiFh1elqCQ9WPLIC8I0Q/g/wj5J1eMkyoiD6eoQApWHP0FtlK7rqnhmabL5VUY9JQCcqwwvlOaSuutekgyrw==}
     engines: {node: '>=4'}
+
+  stringify-object@5.0.0:
+    resolution: {integrity: sha512-zaJYxz2FtcMb4f+g60KsRNFOpVMUyuJgA51Zi5Z1DOTC3S59+OQiVOzE9GZt0x72uBGWKsQIuBKeF9iusmKFsg==}
+    engines: {node: '>=14.16'}
 
   strip-ansi@6.0.1:
     resolution: {integrity: sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A==}
@@ -21252,17 +21278,17 @@ snapshots:
       effect: 3.0.3
       fast-check: 3.17.2
 
-  '@electron-toolkit/preload@3.0.1(electron@33.0.0)':
+  '@electron-toolkit/preload@3.0.1(electron@33.2.1)':
     dependencies:
-      electron: 33.0.0
+      electron: 33.2.1
 
   '@electron-toolkit/tsconfig@1.0.1(@types/node@20.14.10)':
     dependencies:
       '@types/node': 20.14.10
 
-  '@electron-toolkit/utils@3.0.0(electron@33.0.0)':
+  '@electron-toolkit/utils@3.0.0(electron@33.2.1)':
     dependencies:
-      electron: 33.0.0
+      electron: 33.2.1
 
   '@electron/get@2.0.3':
     dependencies:
@@ -25188,7 +25214,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 9.3.4
 
-  '@todesktop/cli@1.10.4(@types/react@18.3.3)':
+  '@todesktop/cli@1.10.5(@types/react@18.3.3)':
     dependencies:
       '@sentry/node': 8.38.0
       ajv: 8.17.1
@@ -26283,7 +26309,7 @@ snapshots:
       '@vue/shared': 3.4.31
       estree-walker: 2.0.2
       magic-string: 0.30.10
-      postcss: 8.4.39
+      postcss: 8.4.47
       source-map-js: 1.2.1
 
   '@vue/compiler-sfc@3.5.12':
@@ -27073,7 +27099,7 @@ snapshots:
 
   axios-retry@3.9.1:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.0
       is-retry-allowed: 2.2.0
 
   axios@0.21.4:
@@ -27262,7 +27288,7 @@ snapshots:
 
   better-ajv-errors@1.2.0(ajv@8.17.1):
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.26.2
       '@humanwhocodes/momoa': 2.0.4
       ajv: 8.17.1
       chalk: 4.1.2
@@ -28922,7 +28948,7 @@ snapshots:
       jsonfile: 4.0.0
       mkdirp: 0.5.6
 
-  electron@33.0.0:
+  electron@33.2.1:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 20.14.10
@@ -30049,7 +30075,7 @@ snapshots:
 
   final-form@4.20.10:
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.0
 
   finalhandler@1.2.0:
     dependencies:
@@ -30365,6 +30391,8 @@ snapshots:
   get-nonce@1.0.1: {}
 
   get-npm-tarball-url@2.1.0: {}
+
+  get-own-enumerable-keys@1.0.0: {}
 
   get-own-enumerable-property-symbols@3.0.2: {}
 
@@ -31210,8 +31238,8 @@ snapshots:
 
   import-in-the-middle@1.11.2:
     dependencies:
-      acorn: 8.12.1
-      acorn-import-attributes: 1.9.5(acorn@8.12.1)
+      acorn: 8.14.0
+      acorn-import-attributes: 1.9.5(acorn@8.14.0)
       cjs-module-lexer: 1.3.1
       module-details-from-path: 1.0.3
 
@@ -31552,6 +31580,8 @@ snapshots:
 
   is-obj@2.0.0: {}
 
+  is-obj@3.0.0: {}
+
   is-online@8.5.1:
     dependencies:
       got: 9.6.0
@@ -31595,6 +31625,8 @@ snapshots:
       has-tostringtag: 1.0.2
 
   is-regexp@1.0.0: {}
+
+  is-regexp@3.1.0: {}
 
   is-relative-url@2.0.0:
     dependencies:
@@ -35522,7 +35554,7 @@ snapshots:
 
   react-final-form@6.5.9(final-form@4.20.10)(react@17.0.2):
     dependencies:
-      '@babel/runtime': 7.24.7
+      '@babel/runtime': 7.26.0
       final-form: 4.20.10
       react: 17.0.2
 
@@ -36891,6 +36923,12 @@ snapshots:
       get-own-enumerable-property-symbols: 3.0.2
       is-obj: 1.0.1
       is-regexp: 1.0.0
+
+  stringify-object@5.0.0:
+    dependencies:
+      get-own-enumerable-keys: 1.0.0
+      is-obj: 3.0.0
+      is-regexp: 3.1.0
 
   strip-ansi@6.0.1:
     dependencies:

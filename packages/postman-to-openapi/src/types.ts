@@ -42,6 +42,7 @@ export type Item = {
   request: Request
   response?: Response[]
   protocolProfileBehavior?: ProtocolProfileBehavior
+  variables?: Variable[]
 }
 
 export type ItemGroup = {
@@ -52,6 +53,7 @@ export type ItemGroup = {
   event?: Event[]
   auth?: Auth | null
   protocolProfileBehavior?: ProtocolProfileBehavior
+  variables?: Variable[]
 }
 
 export type Event = {
@@ -90,14 +92,11 @@ export type QueryParam = {
 }
 
 export type Variable = {
-  id?: string
-  key?: string
-  value?: string | number | boolean | null
-  type?: 'string' | 'boolean' | 'any' | 'number'
-  name?: string
-  description?: Description
-  system?: boolean
-  disabled?: boolean
+  key: string
+  value: string | number | boolean
+  type?: 'string' | 'number' | 'boolean' | 'environment'
+  enum?: string[]
+  description?: string
 }
 
 export type Auth = {

@@ -102,6 +102,12 @@ public sealed class ScalarOptions
     public ScalarTheme Theme { get; set; } = ScalarTheme.Purple;
 
     /// <summary>
+    /// Gets or sets the layout for the Scalar API reference.
+    /// </summary>
+    /// <value>The default value is <see cref="ScalarLayout.Modern" />.</value>
+    public ScalarLayout Layout { get; set; } = ScalarLayout.Modern;
+
+    /// <summary>
     /// By default, we are using Inter and JetBrains Mono, served by Google Fonts.
     /// </summary>
     /// <value>The default value is <c>true</c>.</value>
@@ -183,4 +189,10 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>A boolean that indicates if 'dotnet' should be exposed to the configuration. The default value is <c>true</c>.</value>
     public bool DotNetFlag { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets whether the client button from the reference sidebar should be hidden.
+    /// </summary>
+    /// <value>A boolean that indicates if the client button should be hidden. The default value is <c>false</c>.</value>
+    public bool HideClientButton { get; set; }
 }

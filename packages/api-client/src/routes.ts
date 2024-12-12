@@ -169,6 +169,12 @@ export const routes = [
         component: () => import('@/views/Environment/Environment.vue'),
       },
       {
+        name: 'environment.collection',
+        path: 'environment/:collectionId/:environmentId',
+        component: () => import('@/views/Environment/Environment.vue'),
+        props: true,
+      },
+      {
         name: 'cookies.default',
         path: 'cookies',
         redirect: (to) => ({

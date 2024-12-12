@@ -19,9 +19,11 @@ import { inject } from 'vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { id, operation, request, secretCredentials } = defineProps<{
   id?: string
   operation: TransformedOperation
+  request: Request | null
+  secretCredentials: string[]
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -90,7 +92,10 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
         </div>
       </div>
       <ExampleResponses :operation="operation" />
-      <ExampleRequest :operation="operation" />
+      <ExampleRequest
+        :operation="operation"
+        :request="request"
+        :secretCredentials="secretCredentials" />
     </div>
   </SectionAccordion>
 </template>

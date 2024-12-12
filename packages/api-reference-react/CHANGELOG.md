@@ -1,5 +1,65 @@
 # @scalar/api-reference-react
 
+## 0.3.156
+
+### Patch Changes
+
+- Updated dependencies [a109244]
+  - @scalar/api-reference@1.25.80
+
+## 0.3.155
+
+### Patch Changes
+
+- Updated dependencies [cbc70ae]
+- Updated dependencies [eea1822]
+  - @scalar/api-reference@1.25.79
+
+## 0.3.154
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.78
+
+## 0.3.153
+
+### Patch Changes
+
+- Updated dependencies [3eb0d11]
+  - @scalar/api-reference@1.25.77
+
+## 0.3.152
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.76
+
+## 0.3.151
+
+### Patch Changes
+
+- Updated dependencies [f955985]
+- Updated dependencies [c2be791]
+  - @scalar/api-reference@1.25.75
+
+## 0.3.150
+
+### Patch Changes
+
+- Updated dependencies [13432e7]
+  - @scalar/api-reference@1.25.74
+
+## 0.3.149
+
+### Patch Changes
+
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [ab5f0a0]
+  - @scalar/api-reference@1.25.73
+
 ## 0.3.148
 
 ### Patch Changes

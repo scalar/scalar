@@ -9,7 +9,6 @@ import {
   type Tag,
   collectionSchema,
   createExampleFromRequest,
-  requestMethods,
   requestSchema,
   serverSchema,
   tagSchema,
@@ -20,21 +19,33 @@ import {
   type SecuritySchemePayload,
   securitySchemeSchema,
 } from '@/entities/spec/security'
+import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
-import { dereference, load, upgrade } from '@scalar/openapi-parser'
+import {
+  type LoadResult,
+  dereference,
+  load,
+  upgrade,
+} from '@scalar/openapi-parser'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 import type { Entries } from 'type-fest'
 
 /** Takes a string or object and parses it into an openapi spec compliant schema */
-export const parseSchema = async (spec: string | UnknownObject) => {
+export const parseSchema = async (
+  spec: string | UnknownObject,
+  { shouldLoad = true } = {},
+) => {
   // TODO: Plugins for URLs and files with the proxy is missing here.
   // @see packages/api-reference/src/helpers/parse.ts
 
-  const { filesystem, errors: loadErrors = [] } = await load(spec).catch(
-    (e) => ({
+  let filesystem: LoadResult['filesystem'] | string | UnknownObject = spec
+  let loadErrors: LoadResult['errors'] = []
+
+  if (shouldLoad) {
+    const resp = await load(spec).catch((e) => ({
       errors: [
         {
           code: e.code,
@@ -42,8 +53,10 @@ export const parseSchema = async (spec: string | UnknownObject) => {
         },
       ],
       filesystem: [],
-    }),
-  )
+    }))
+    filesystem = resp.filesystem
+    loadErrors = resp.errors ?? []
+  }
 
   const { specification } = upgrade(filesystem)
   const { schema, errors: derefErrors = [] } = await dereference(specification)
@@ -74,6 +87,8 @@ export type ImportSpecToWorkspaceArgs = Pick<
   > & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
+    /** Call the load step from the parser */
+    shouldLoad?: boolean
   }
 
 /**
@@ -97,6 +112,7 @@ export async function importSpecToWorkspace(
     documentUrl,
     servers: overloadServers,
     setCollectionSecurity = false,
+    shouldLoad,
     watchMode = false,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
@@ -112,7 +128,7 @@ export async function importSpecToWorkspace(
     }
   | { error: true; importWarnings: string[] }
 > {
-  const { schema, errors } = await parseSchema(spec)
+  const { schema, errors } = await parseSchema(spec, { shouldLoad })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
   if (!schema) return { importWarnings, error: true }
@@ -254,77 +270,77 @@ export async function importSpecToWorkspace(
     const pathServers = serverSchema.array().parse(path.servers ?? [])
     servers.push(...pathServers)
 
-    requestMethods.forEach((method) => {
-      const operation: OpenAPIV3_1.OperationObject<{
-        tags?: string[]
-        security?: OpenAPIV3_1.SecurityRequirementObject[]
-      }> = path[method as keyof typeof path]
-      if (operation && typeof operation === 'object') {
-        const operationServers = serverSchema
-          .array()
-          .parse(operation.servers ?? [])
+    // Creates a sorted array of methods based on the path object.
+    const methods = Object.keys(path).filter(isHttpMethod)
 
-        servers.push(...operationServers)
+    methods.forEach((method) => {
+      const operation = path[method]
+      const operationServers = serverSchema
+        .array()
+        .parse(operation.servers ?? [])
 
-        // We will save a list of all tags to ensure they exists at the top level
-        // TODO: make sure we add any loose requests with no tags to the collection children
-        operation.tags?.forEach((t) => tagNames.add(t))
+      servers.push(...operationServers)
 
-        // Remove security here and add it correctly below
-        const { security: operationSecurity, ...operationWithoutSecurity } =
-          operation
+      // We will save a list of all tags to ensure they exists at the top level
+      // TODO: make sure we add any loose requests with no tags to the collection children
+      operation.tags?.forEach((t: string) => tagNames.add(t))
 
-        // Grab the security requirements for this operation
-        const securityRequirements = (
-          operationSecurity ??
-          (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
-          []
-        ).flatMap((s) => {
-          const keys = Object.keys(s)
-          if (keys.length) return keys[0]
-          else return []
-        })
+      // Remove security here and add it correctly below
+      const { security: operationSecurity, ...operationWithoutSecurity } =
+        operation
 
-        let selectedSecuritySchemeUids: string[] = []
+      // Grab the security requirements for this operation
+      const securityRequirements = (
+        operationSecurity ??
+        (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
+        []
+      ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
+        const keys = Object.keys(s)
+        if (keys.length) return keys[0]
+        else return []
+      })
 
-        // Set the initially selected security scheme
-        if (securityRequirements.length && !setCollectionSecurity) {
-          const name =
-            authentication?.preferredSecurityScheme &&
-            securityRequirements.includes(
-              authentication.preferredSecurityScheme ?? '',
-            )
-              ? authentication.preferredSecurityScheme
-              : securityRequirements[0]
-          const uid = securitySchemeMap[name]
-          selectedSecuritySchemeUids = [uid]
-        }
+      let selectedSecuritySchemeUids: string[] = []
 
-        const requestPayload: RequestPayload = {
-          ...operationWithoutSecurity,
-          method,
-          path: pathString,
-          selectedSecuritySchemeUids,
-          // Merge path and operation level parameters
-          parameters: [
-            ...(path?.parameters ?? []),
-            ...(operation.parameters ?? []),
-          ] as RequestParameterPayload[],
-          servers: [...pathServers, ...operationServers].map((s) => s.uid),
-        }
-
-        // Remove any examples from the request payload as they conflict with our examples property and are not valid
-        if (requestPayload.examples) {
-          console.warn(
-            '[@scalar/api-client] operation.examples is not a valid openapi property',
+      // Set the initially selected security scheme
+      if (securityRequirements.length && !setCollectionSecurity) {
+        const name =
+          authentication?.preferredSecurityScheme &&
+          securityRequirements.includes(
+            authentication.preferredSecurityScheme ?? '',
           )
-          delete requestPayload.examples
-        }
+            ? authentication.preferredSecurityScheme
+            : securityRequirements[0]
+        const uid = securitySchemeMap[name]
+        selectedSecuritySchemeUids = [uid]
+      }
 
-        // Add list of UIDs to associate security schemes
-        // As per the spec if there is operation level security we ignore the top level requirements
-        if (operationSecurity?.length)
-          requestPayload.security = operationSecurity.map((s) => {
+      const requestPayload: RequestPayload = {
+        ...operationWithoutSecurity,
+        method,
+        path: pathString,
+        selectedSecuritySchemeUids,
+        // Merge path and operation level parameters
+        parameters: [
+          ...(path?.parameters ?? []),
+          ...(operation.parameters ?? []),
+        ] as RequestParameterPayload[],
+        servers: [...pathServers, ...operationServers].map((s) => s.uid),
+      }
+
+      // Remove any examples from the request payload as they conflict with our examples property and are not valid
+      if (requestPayload.examples) {
+        console.warn(
+          '[@scalar/api-client] operation.examples is not a valid openapi property',
+        )
+        delete requestPayload.examples
+      }
+
+      // Add list of UIDs to associate security schemes
+      // As per the spec if there is operation level security we ignore the top level requirements
+      if (operationSecurity?.length)
+        requestPayload.security = operationSecurity.map(
+          (s: OpenAPIV3_1.SecurityRequirementObject) => {
             const keys = Object.keys(s)
 
             // Handle the case of {} for optional
@@ -334,15 +350,15 @@ export async function importSpecToWorkspace(
                 [key]: s[key],
               }
             } else return s
-          })
+          },
+        )
 
-        // Save parse the request
-        const request = schemaModel(requestPayload, requestSchema, false)
+      // Save parse the request
+      const request = schemaModel(requestPayload, requestSchema, false)
 
-        if (!request)
-          importWarnings.push(`${method} Request at ${path} is invalid.`)
-        else requests.push(request)
-      }
+      if (!request)
+        importWarnings.push(`${method} Request at ${path} is invalid.`)
+      else requests.push(request)
     })
   })
 
@@ -408,8 +424,7 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
-
-  const securityKeys = Object.keys(security)
+  const securityKeys = Object.keys(schema.security?.[0] ?? security ?? {})
   let selectedSecuritySchemeUids: string[] = []
 
   /** Selected security scheme UIDs for the collection, defaults to the first key */

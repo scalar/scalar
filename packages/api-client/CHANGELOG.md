@@ -1,5 +1,122 @@
 # @scalar/api-client
 
+## 2.2.11
+
+### Patch Changes
+
+- 371a105: style: updates request sidebar item mask
+- f2ec4f2: fix: updates request body selected example function
+- 035d9af: style: re-orders empty response actions
+- 8687842: fix(api-reference): scope ui in reference
+- e05c29f: fix: updates watch mode toast watcher
+- Updated dependencies [8017ff9]
+  - @scalar/oas-utils@0.2.87
+  - @scalar/import@0.2.6
+  - @scalar/postman-to-openapi@0.1.10
+
+## 2.2.10
+
+### Patch Changes
+
+- 749ebf1: fix: updates workspace dropdown tooltip index
+- 02e6a57: fix: displays sidebar request button on client only
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/use-codemirror@0.11.48
+  - @scalar/import@0.2.5
+  - @scalar/oas-utils@0.2.86
+
+## 2.2.9
+
+### Patch Changes
+
+- 3eb0d11: feat: apply specific OAuth 2.0 security schemes
+- b66a85c: updates environment sidebar to welcome collection environment
+- 3eb0d11: feat: moved api-client auth into references
+- 62e80cd: fix: filters out first request example
+- bccfa3a: fix: scopes scalar button danger overload style
+- 66c1573: fix: edits collection on watch mode toggle from sidebar
+- b66a85c: feat: adds collection environments logic
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/oas-utils@0.2.86
+  - @scalar/use-codemirror@0.11.47
+  - @scalar/components@0.13.3
+  - @scalar/import@0.2.4
+  - @scalar/postman-to-openapi@0.1.9
+
+## 2.2.8
+
+### Patch Changes
+
+- f2ec59d: feat: add postman import
+
+## 2.2.7
+
+### Patch Changes
+
+- a90d827: feat(components): create ScalarTeleport component
+- d0adebf: fix: updates tailwind config content
+- c2be791: fix: watches text input to fuse search
+- 3b4a788: fix: updates default row for request body
+- f4440f5: feat: added logo functionality to the importer
+- 4c5be96: feat: adds isHttpMethod to helpers
+- Updated dependencies [a90d827]
+- Updated dependencies [3b4a788]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/components@0.13.2
+  - @scalar/oas-utils@0.2.85
+  - @scalar/use-codemirror@0.11.46
+  - @scalar/import@0.2.3
+
+## 2.2.6
+
+### Patch Changes
+
+- b744324: style: removes add item hotkey style
+- 0804d6b: feat: fall back to just the request path in the sidebar
+- 0076308: feat: show API client button in GitBook
+- 13432e7: feat: fall back to the API reference URL for the import
+- Updated dependencies [9b4f85d]
+  - @scalar/oas-utils@0.2.84
+  - @scalar/import@0.2.2
+
+## 2.2.5
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+- f524411: feat: adds response status color
+- e199e9b: feat: updates add icon
+- 10c01b2: fix: updates overflow and height for image response preview
+- e199e9b: feat: adds request creation from sidebar
+- 31cb86b: style: updates http method variants
+- c2f5f08: feat: adds hideClientButton option configuration
+- 1f730c6: feat: upgraded cva and added tests
+- 8958af0: feat: add the proxy to oauth authorize calls
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [d6e7008]
+- Updated dependencies [10c9016]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [b11294c]
+- Updated dependencies [f30ce11]
+  - @scalar/components@0.13.1
+  - @scalar/oas-utils@0.2.83
+  - @scalar/use-codemirror@0.11.45
+  - @scalar/types@0.0.23
+  - @scalar/import@0.2.1
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 2.2.4
 
 ### Patch Changes

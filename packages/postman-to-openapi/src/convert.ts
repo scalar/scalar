@@ -10,6 +10,35 @@ import { normalizePath } from './helpers/urlHelpers'
 import type { PostmanCollection } from './types'
 
 /**
+ * Extracts tags from Postman collection folders
+ */
+function extractTags(
+  items: PostmanCollection['item'],
+): OpenAPIV3_1.TagObject[] {
+  const tags: OpenAPIV3_1.TagObject[] = []
+
+  function processTagItem(item: any, parentPath: string = '') {
+    if (item.item) {
+      const currentPath = parentPath
+        ? `${parentPath} > ${item.name}`
+        : item.name
+
+      // Add tag for the current folder
+      tags.push({
+        name: currentPath,
+        ...(item.description && { description: item.description }),
+      })
+
+      // Process nested folders
+      item.item.forEach((subItem: any) => processTagItem(subItem, currentPath))
+    }
+  }
+
+  items.forEach((item) => processTagItem(item))
+  return tags
+}
+
+/**
  * Converts a Postman Collection to an OpenAPI 3.1.0 document.
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
@@ -77,6 +106,12 @@ export function convert(
 
   // Process each item in the collection and merge into OpenAPI spec
   if (collection.item) {
+    // Extract tags from folders
+    const tags = extractTags(collection.item)
+    if (tags.length > 0) {
+      openapi.tags = tags
+    }
+
     collection.item.forEach((item) => {
       const { paths: itemPaths, components: itemComponents } = processItem(item)
 

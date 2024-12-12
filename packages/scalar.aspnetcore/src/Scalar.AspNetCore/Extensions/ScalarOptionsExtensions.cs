@@ -163,6 +163,17 @@ public static class ScalarOptionsExtensions
     }
 
     /// <summary>
+    /// Sets the layout for the Scalar API reference.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="layout">The layout to use.</param>
+    public static ScalarOptions WithLayout(this ScalarOptions options, ScalarLayout layout)
+    {
+        options.Layout = layout;
+        return options;
+    }
+
+    /// <summary>
     /// Sets whether to use the default fonts.
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
@@ -394,6 +405,17 @@ public static class ScalarOptionsExtensions
     public static ScalarOptions WithDotNetFlag(this ScalarOptions options, bool expose)
     {
         options.DotNetFlag = expose;
+        return options;
+    }
+    
+    /// <summary>
+    /// Sets whether the client button from the reference sidebar should be shown.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="showButton">Whether to show the client button.</param>
+    public static ScalarOptions WithClientButton(this ScalarOptions options, bool showButton)
+    {
+        options.HideClientButton = !showButton;
         return options;
     }
 }

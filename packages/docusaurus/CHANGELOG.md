@@ -1,5 +1,54 @@
 # @scalar/docusaurus
 
+## 0.4.158
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.156
+
+## 0.4.157
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.155
+
+## 0.4.156
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.154
+
+## 0.4.155
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.153
+
+## 0.4.154
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.152
+
+## 0.4.153
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.151
+
+## 0.4.152
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.3.150
+
+## 0.4.151
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+  - @scalar/api-reference-react@0.3.149
+
 ## 0.4.150
 
 ### Patch Changes

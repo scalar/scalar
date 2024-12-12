@@ -7,6 +7,7 @@ import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
 
 import { WorkspaceDropdown } from './components'
 
@@ -27,6 +28,7 @@ const workspaceContext = useWorkspace()
 const { hideClientButton } = workspaceContext
 
 const { layout } = useLayout()
+const { currentRoute } = useRouter()
 </script>
 <template>
   <div
@@ -43,12 +45,6 @@ const { layout } = useLayout()
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)" />
       <WorkspaceDropdown v-if="!isReadonly" />
-      <a
-        class="text-c-2 text-sm font-medium gitbook-show ml-.5 hover:text-c-1 border p-1 rounded hover:bg-b-3"
-        href="https://scalar.com/"
-        target="_blank">
-        Powered by Scalar.com
-      </a>
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
@@ -57,8 +53,11 @@ const { layout } = useLayout()
       <OpenApiClientButton
         v-if="isReadonly && activeCollection?.documentUrl && !hideClientButton"
         buttonSource="modal"
-        class="gitbook-hidden !w-fit lg:-mr-1"
+        class="!w-fit lg:-mr-1"
         :integration="activeCollection?.integration"
+        :source="
+          currentRoute.query.source === 'gitbook' ? 'gitbook' : 'api-reference'
+        "
         :url="activeCollection?.documentUrl" />
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button

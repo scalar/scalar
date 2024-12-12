@@ -1,5 +1,131 @@
 # @scalar/api-reference
 
+## 1.25.80
+
+### Patch Changes
+
+- a109244: fix: operation server null check
+
+## 1.25.79
+
+### Patch Changes
+
+- cbc70ae: fix: circular dependency
+- eea1822: fix: adds server with variables to request example
+- Updated dependencies [371a105]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [8017ff9]
+- Updated dependencies [e05c29f]
+  - @scalar/api-client@2.2.11
+  - @scalar/oas-utils@0.2.87
+
+## 1.25.78
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+- Updated dependencies [749ebf1]
+- Updated dependencies [c761730]
+- Updated dependencies [02e6a57]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/api-client@2.2.10
+  - @scalar/snippetz@0.2.8
+  - @scalar/oas-utils@0.2.86
+
+## 1.25.77
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+  - @scalar/oas-utils@0.2.86
+  - @scalar/components@0.13.3
+
+## 1.25.76
+
+### Patch Changes
+
+- Updated dependencies [f2ec59d]
+  - @scalar/api-client@2.2.8
+
+## 1.25.75
+
+### Patch Changes
+
+- f955985: fix: favors use event listener for meta k command
+- c2be791: fix: watches text input to fuse search
+- Updated dependencies [a90d827]
+- Updated dependencies [57b5e5d]
+- Updated dependencies [d0adebf]
+- Updated dependencies [c2be791]
+- Updated dependencies [3b4a788]
+- Updated dependencies [3b4a788]
+- Updated dependencies [f4440f5]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/api-client@2.2.7
+  - @scalar/components@0.13.2
+  - @scalar/snippetz@0.2.7
+  - @scalar/oas-utils@0.2.85
+
+## 1.25.74
+
+### Patch Changes
+
+- 13432e7: feat: fall back to the API reference URL for the import
+- Updated dependencies [b744324]
+- Updated dependencies [0804d6b]
+- Updated dependencies [0076308]
+- Updated dependencies [9b4f85d]
+- Updated dependencies [13432e7]
+  - @scalar/api-client@2.2.6
+  - @scalar/oas-utils@0.2.84
+
+## 1.25.73
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+- e199e9b: feat: updates add icon
+- ab5f0a0: style: enhances section header long content
+- c2f5f08: feat: adds hideClientButton option configuration
+- ab5f0a0: fix: classic layout responsiveness
+- Updated dependencies [e199e9b]
+- Updated dependencies [4a72149]
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [10c01b2]
+- Updated dependencies [10c9016]
+- Updated dependencies [e199e9b]
+- Updated dependencies [31cb86b]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [b11294c]
+- Updated dependencies [f30ce11]
+- Updated dependencies [8958af0]
+  - @scalar/components@0.13.1
+  - @scalar/snippetz@0.2.6
+  - @scalar/code-highlight@0.0.18
+  - @scalar/api-client@2.2.5
+  - @scalar/oas-utils@0.2.83
+  - @scalar/types@0.0.23
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 1.25.72
 
 ### Patch Changes

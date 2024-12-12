@@ -1,4 +1,4 @@
-import type { RequestMethod } from '@/entities/spec/requests'
+import { type RequestMethod, requestMethods } from '@/entities/spec/requests'
 
 /**
  * HTTP methods in a specific order
@@ -80,3 +80,7 @@ export const getHttpMethodInfo = (methodName: string) => {
     }
   )
 }
+
+/** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
+export const isHttpMethod = (method: string): method is RequestMethod =>
+  requestMethods.includes(method as RequestMethod)

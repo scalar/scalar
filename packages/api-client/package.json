@@ -18,7 +18,7 @@
     "rest",
     "testing"
   ],
-  "version": "2.2.4",
+  "version": "2.2.11",
   "engines": {
     "node": ">=18"
   },
@@ -62,6 +62,16 @@
       "import": "./dist/views/Request/components/index.js",
       "types": "./dist/views/Request/components/index.d.ts",
       "default": "./dist/views/Request/components/index.js"
+    },
+    "./views/Request/RequestSection/RequestAuth": {
+      "import": "./dist/views/Request/RequestSection/RequestAuth/index.js",
+      "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
+      "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
     },
     "./store": {
       "import": "./dist/store/index.js",
@@ -165,6 +175,7 @@
     "@scalar/object-utils": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/postman-to-openapi": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",

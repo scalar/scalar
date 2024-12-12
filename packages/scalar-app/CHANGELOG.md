@@ -1,5 +1,109 @@
 # scalar-app
 
+## 0.1.105
+
+### Patch Changes
+
+- Updated dependencies [371a105]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [e05c29f]
+  - @scalar/api-client@2.2.11
+  - @scalar/import@0.2.6
+
+## 0.1.104
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [749ebf1]
+- Updated dependencies [02e6a57]
+  - @scalar/components@0.13.4
+  - @scalar/api-client@2.2.10
+  - @scalar/import@0.2.5
+
+## 0.1.103
+
+### Patch Changes
+
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+  - @scalar/components@0.13.3
+  - @scalar/import@0.2.4
+
+## 0.1.102
+
+### Patch Changes
+
+- 21833e6: fix: todesktop pnpm version
+
+## 0.1.101
+
+### Patch Changes
+
+- 525a735: chore: specifies pnpm package manager version in todesktop
+
+## 0.1.100
+
+### Patch Changes
+
+- 729fcaf: feat: adds dialog box on check for updates
+- Updated dependencies [f2ec59d]
+  - @scalar/api-client@2.2.8
+
+## 0.1.99
+
+### Patch Changes
+
+- Updated dependencies [a90d827]
+- Updated dependencies [d0adebf]
+- Updated dependencies [c2be791]
+- Updated dependencies [3b4a788]
+- Updated dependencies [f4440f5]
+- Updated dependencies [4c5be96]
+  - @scalar/api-client@2.2.7
+  - @scalar/components@0.13.2
+  - @scalar/import@0.2.3
+
+## 0.1.98
+
+### Patch Changes
+
+- Updated dependencies [b744324]
+- Updated dependencies [0804d6b]
+- Updated dependencies [0076308]
+- Updated dependencies [13432e7]
+  - @scalar/api-client@2.2.6
+  - @scalar/import@0.2.2
+
+## 0.1.97
+
+### Patch Changes
+
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [10c01b2]
+- Updated dependencies [e199e9b]
+- Updated dependencies [31cb86b]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [f30ce11]
+- Updated dependencies [8958af0]
+  - @scalar/components@0.13.1
+  - @scalar/api-client@2.2.5
+  - @scalar/import@0.2.1
+  - @scalar/themes@0.9.54
+
 ## 0.1.96
 
 ### Patch Changes

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { isHTTPMethod } from '@/components/HttpMethod'
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -9,6 +8,7 @@ import {
   ScalarIcon,
   ScalarListbox,
 } from '@scalar/components'
+import { isHttpMethod } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -96,7 +96,7 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a request.', 'error')
     return
   }
-  if (!selectedCollection.value?.id || !isHTTPMethod(requestMethod.value))
+  if (!selectedCollection.value?.id || !isHttpMethod(requestMethod.value))
     return
 
   const newRequest = requestMutators.add(

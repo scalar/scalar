@@ -15,7 +15,7 @@ import {
 } from '@scalar/draggable'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 
 const props = withDefaults(
   defineProps<{
@@ -51,13 +51,8 @@ defineSlots<{
   leftIcon(): void
 }>()
 
-const {
-  activeCollection,
-  router,
-  activeRequest,
-  activeRouterParams,
-  activeWorkspace,
-} = useActiveEntities()
+const { activeCollection, activeRequest, activeRouterParams, activeWorkspace } =
+  useActiveEntities()
 const {
   collections,
   tags,
@@ -70,6 +65,7 @@ const {
   requestExampleMutators,
   events,
 } = useWorkspace()
+const router = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
 /** Normalize properties across different types for easy consumption */
@@ -112,7 +108,7 @@ const item = computed<SidebarItem>(() => {
 
   if (request)
     return {
-      title: request.summary ?? [request.method, request.path].join(' - '),
+      title: request.summary ?? request.path,
       link: {
         name: 'request',
         params: {
@@ -124,7 +120,7 @@ const item = computed<SidebarItem>(() => {
       entity: request,
       resourceTitle: 'Request',
       warning: 'This cannot be undone. You’re about to delete the request.',
-      children: request.examples,
+      children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
       delete: () => requestMutators.delete(request, props.parentUids[0]),
@@ -300,18 +296,14 @@ const hasDraftRequests = computed(() => {
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
         <div
-          class="relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-2 py-1.5 pr-2 rounded editable-sidebar-hover w-full"
+          class="relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-0.5 py-1.5 pr-2 rounded w-full"
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
           ]">
-          <span
-            class="line-clamp-3 font-medium w-full pl-2 word-break-break-word"
-            :class="{
-              'editable-sidebar-hover-item': !isReadOnly,
-            }">
+          <span class="break-all line-clamp-1 font-medium w-full pl-2">
             {{ item.title }}
           </span>
           <div class="flex flex-row gap-1 items-center">
@@ -319,7 +311,7 @@ const hasDraftRequests = computed(() => {
             <div class="relative">
               <ScalarButton
                 v-if="!isReadOnly"
-                class="px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 right-0 aspect-square inset-y-2/4 h-fit"
+                class="hidden px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-hover:flex group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
                 :class="{
                   flex:
                     menuItem?.item?.entity.uid === item.entity.uid &&
@@ -359,7 +351,7 @@ const hasDraftRequests = computed(() => {
         v-else-if="!isReadOnly || parentUids.length"
         :aria-expanded="collapsedSidebarFolders[item.entity.uid]"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
-        :class="highlightClasses"
+        :class="[highlightClasses]"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
         <span class="flex h-5 items-center justify-center max-w-[14px]">
@@ -376,30 +368,25 @@ const hasDraftRequests = computed(() => {
           </slot>
           &hairsp;
         </span>
-        <div
-          class="flex flex-1 flex-row justify-between editable-sidebar-hover">
-          <span
-            class="line-clamp-3 font-medium text-left w-full word-break-break-word"
-            :class="{
-              'editable-sidebar-hover-item': !isReadOnly,
-            }">
+        <div class="flex flex-1 flex-row justify-between">
+          <span class="break-all line-clamp-1 font-medium text-left w-full">
             {{ item.title }}
           </span>
-          <div class="relative flex h-fit">
+          <div class="relative flex justify-end h-fit">
             <div
-              class="flex items-center opacity-0 gap-px group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 absolute -translate-y-1/2 -right-px inset-y-2/4"
+              class="items-center opacity-0 gap-px group-hover:opacity-100 group-hover:flex group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
               :class="{
-                'flex':
-                  menuItem.item?.entity.uid === item.entity.uid &&
-                  menuItem.open,
-                '!right-5': item.watchMode,
+                flex: menuItem.open,
+                hidden:
+                  !menuItem.open ||
+                  menuItem.item?.entity.uid !== item.entity.uid,
               }">
               <ScalarButton
                 v-if="
                   (!isReadOnly && !isDraftCollection) ||
                   (isDraftCollection && hasDraftRequests)
                 "
-                class="px-0.5 py-0 hover:bg-b-3 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
@@ -416,7 +403,8 @@ const hasDraftRequests = computed(() => {
                   size="md" />
               </ScalarButton>
               <ScalarButton
-                class="px-0.5 py-0 hover:bg-b-3 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                v-if="!isReadOnly"
+                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="openCommandPaletteRequest()">
@@ -432,7 +420,7 @@ const hasDraftRequests = computed(() => {
               :sideOffset="12">
               <template #trigger>
                 <ScalarIcon
-                  class="text-sm"
+                  class="ml-0.5 text-sm"
                   :class="watchIconColor"
                   icon="Watch"
                   size="md"
@@ -475,7 +463,7 @@ const hasDraftRequests = computed(() => {
           variant="ghost"
           @click="openCommandPaletteRequest()">
           <ScalarIcon
-            class="ml-0.5 h-2.5 w-2.5"
+            class="mx-0.5 h-2.5 w-2.5"
             icon="Add"
             thickness="3" />
           <span>Add Request</span>
@@ -494,18 +482,8 @@ const hasDraftRequests = computed(() => {
 .indent-padding-left {
   padding-left: calc(v-bind(paddingOffset) + 6px);
 }
-.editable-sidebar-hover:hover .editable-sidebar-hover-item {
-  mask-image: linear-gradient(
-    to left,
-    transparent 10px,
-    var(--scalar-background-2) 30px
-  );
-}
 .sidebar-folderitem :deep(.ellipsis-position) {
   right: 6px;
   transform: none;
-}
-.word-break-break-word {
-  word-break: break-word;
 }
 </style>

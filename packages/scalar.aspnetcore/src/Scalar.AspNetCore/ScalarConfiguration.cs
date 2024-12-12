@@ -48,13 +48,17 @@ internal sealed class ScalarConfiguration
 
     public required string? Theme { get; init; }
 
+    public required string? Layout { get; init; }
+
     public required string? Favicon { get; init; }
     
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("_integration")]
     public required string? Integration { get; init; }
+
+    public required bool HideClientButton { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-internal sealed partial class ScalaConfigurationSerializerContext : JsonSerializerContext;
+internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;

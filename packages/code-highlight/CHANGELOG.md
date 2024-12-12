@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.18
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron down icon
+
 ## 0.0.17
 
 ### Patch Changes

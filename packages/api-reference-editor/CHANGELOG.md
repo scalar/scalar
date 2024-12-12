@@ -1,5 +1,122 @@
 # @scalar/api-reference-editor
 
+## 0.1.139
+
+### Patch Changes
+
+- Updated dependencies [a109244]
+  - @scalar/api-reference@1.25.80
+
+## 0.1.138
+
+### Patch Changes
+
+- Updated dependencies [371a105]
+- Updated dependencies [cbc70ae]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [8017ff9]
+- Updated dependencies [e05c29f]
+- Updated dependencies [eea1822]
+  - @scalar/api-client@2.2.11
+  - @scalar/api-reference@1.25.79
+  - @scalar/oas-utils@0.2.87
+
+## 0.1.137
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [02e6a57]
+  - @scalar/api-client@2.2.10
+  - @scalar/api-reference@1.25.78
+  - @scalar/use-codemirror@0.11.48
+  - @scalar/oas-utils@0.2.86
+
+## 0.1.136
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [b66a85c]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+  - @scalar/api-reference@1.25.77
+  - @scalar/oas-utils@0.2.86
+  - @scalar/use-codemirror@0.11.47
+
+## 0.1.135
+
+### Patch Changes
+
+- Updated dependencies [f2ec59d]
+  - @scalar/api-client@2.2.8
+  - @scalar/api-reference@1.25.76
+
+## 0.1.134
+
+### Patch Changes
+
+- Updated dependencies [a90d827]
+- Updated dependencies [f955985]
+- Updated dependencies [d0adebf]
+- Updated dependencies [c2be791]
+- Updated dependencies [3b4a788]
+- Updated dependencies [3b4a788]
+- Updated dependencies [f4440f5]
+- Updated dependencies [4c5be96]
+- Updated dependencies [4c5be96]
+  - @scalar/api-client@2.2.7
+  - @scalar/api-reference@1.25.75
+  - @scalar/oas-utils@0.2.85
+  - @scalar/use-codemirror@0.11.46
+
+## 0.1.133
+
+### Patch Changes
+
+- Updated dependencies [b744324]
+- Updated dependencies [0804d6b]
+- Updated dependencies [0076308]
+- Updated dependencies [9b4f85d]
+- Updated dependencies [13432e7]
+  - @scalar/api-client@2.2.6
+  - @scalar/oas-utils@0.2.84
+  - @scalar/api-reference@1.25.74
+
+## 0.1.132
+
+### Patch Changes
+
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [10c01b2]
+- Updated dependencies [d6e7008]
+- Updated dependencies [10c9016]
+- Updated dependencies [e199e9b]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [31cb86b]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [b11294c]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [8958af0]
+  - @scalar/api-reference@1.25.73
+  - @scalar/api-client@2.2.5
+  - @scalar/oas-utils@0.2.83
+  - @scalar/use-codemirror@0.11.45
+  - @scalar/types@0.0.23
+  - @scalar/use-hooks@0.1.7
+
 ## 0.1.131
 
 ### Patch Changes

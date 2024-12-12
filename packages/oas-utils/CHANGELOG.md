@@ -1,5 +1,43 @@
 # @scalar/oas-utils
 
+## 0.2.87
+
+### Patch Changes
+
+- 8017ff9: feat: updates parse enum to include array
+
+## 0.2.86
+
+### Patch Changes
+
+- 3eb0d11: feat: moved api-client auth into references
+- b66a85c: feat: adds v-2.3.0 migration for workspace type
+
+## 0.2.85
+
+### Patch Changes
+
+- 3b4a788: feat: sets form request examples defaulting
+- 4c5be96: feat: adds isHttpMethod to helpers
+- 4c5be96: fix: sorts method based on path in import spec
+
+## 0.2.84
+
+### Patch Changes
+
+- 9b4f85d: fix: allow to pass relative file names
+
+## 0.2.83
+
+### Patch Changes
+
+- f524411: feat: adds response status color
+- 10c9016: fix: updates find variables import
+- b11294c: fix: add bit of safety to tag name parsing
+- Updated dependencies [c2f5f08]
+  - @scalar/types@0.0.23
+  - @scalar/themes@0.9.54
+
 ## 0.2.82
 
 ### Patch Changes

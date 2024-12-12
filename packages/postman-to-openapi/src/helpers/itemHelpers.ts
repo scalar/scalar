@@ -6,7 +6,6 @@ import { parseMdTable } from './md-utils'
 import { extractParameters } from './parameterHelpers'
 import { extractRequestBody } from './requestBodyHelpers'
 import { extractResponses } from './responseHelpers'
-import { extractStatusCodesFromTests } from './statusCodeHelpers'
 import {
   extractPathFromUrl,
   extractPathParameterNames,
@@ -108,7 +107,7 @@ export function processItem(
     tags: parentTags.length > 0 ? [parentTags.join(' > ')] : ['default'],
     summary,
     description,
-    responses: extractResponses(response || []),
+    responses: extractResponses(response || [], item),
     parameters: [],
   }
 
@@ -180,49 +179,6 @@ export function processItem(
   if (!paths[path]) paths[path] = {}
   const pathItem = paths[path] as OpenAPIV3_1.PathItemObject
   pathItem[method] = operationObject
-
-  // Extract status codes from tests
-  const statusCodes = extractStatusCodesFromTests(item)
-
-  // Handle responses
-  if (statusCodes.length > 0) {
-    const responses: OpenAPIV3_1.ResponsesObject = {}
-    statusCodes.forEach((code) => {
-      responses[code.toString()] = {
-        description: 'Successful response',
-        content: {
-          'application/json': {},
-        },
-      }
-    })
-    if (pathItem[method]) {
-      pathItem[method].responses = responses
-    }
-  } else if (item.response && item.response.length > 0) {
-    const firstResponse = item.response[0]
-    const statusCode = firstResponse.code || 200
-    if (pathItem[method]) {
-      pathItem[method].responses = {
-        [statusCode.toString()]: {
-          description: firstResponse.status || 'Successful response',
-          content: {
-            'application/json': {},
-          },
-        },
-      }
-    }
-  } else {
-    if (pathItem[method]) {
-      pathItem[method].responses = {
-        '200': {
-          description: 'Successful response',
-          content: {
-            'application/json': {},
-          },
-        },
-      }
-    }
-  }
 
   return { paths, components }
 }

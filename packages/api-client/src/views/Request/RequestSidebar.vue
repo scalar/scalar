@@ -22,6 +22,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import { useToasts } from '@scalar/use-toasts'
 import {
   computed,
   onBeforeUnmount,
@@ -62,10 +63,12 @@ const { handleDragEnd, isDroppable } = dragHandlerFactory(
 const { collapsedSidebarFolders, setCollapsedSidebarFolder } = useSidebar()
 const { replace } = useRouter()
 const openCommandPaletteImport = () => {
-  events.commandPalette.emit({ commandName: 'Import from OpenAPI/Swagger' })
+  events.commandPalette.emit({
+    commandName: 'Import from OpenAPI/Swagger/Postman',
+  })
 }
 const searchResultsId = useId()
-
+const { toast } = useToasts()
 /** The currently selected sidebarMenuItem for the context menu */
 const menuItem = reactive<SidebarMenuItem>({ open: false })
 
@@ -120,8 +123,28 @@ onBeforeUnmount(() => {
 const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
     item.watchMode = !item.watchMode
+    const currentCollection = activeWorkspaceCollections.value.find(
+      (collection) => collection.uid === item.entity.uid,
+    )
+    if (currentCollection) {
+      currentCollection.watchMode = item.watchMode
+    }
   }
 }
+
+watch(
+  () =>
+    activeWorkspaceCollections.value.map((collection) => collection.watchMode),
+  (newWatchModes, oldWatchModes) => {
+    newWatchModes.forEach((newWatchMode, index) => {
+      if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
+        const currentCollection = activeWorkspaceCollections.value[index]
+        const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
+        toast(message, 'info')
+      }
+    })
+  },
+)
 
 const selectedResultId = computed(() => {
   const result =
@@ -275,7 +298,7 @@ const handleClearDrafts = () => {
           <div class="text-center text-balance text-sm mb-2 mt-2">
             <b class="font-medium">Let's Get Started</b>
             <p class="mt-2">
-              Create request, folder, collection or import OpenAPI document
+              Create request, folder, collection or import from OpenAPI/Postman
             </p>
           </div>
         </div>
@@ -313,11 +336,6 @@ const handleClearDrafts = () => {
     color-mix(in srgb, var(--scalar-background-1), transparent) 50px,
     transparent
   );
-}
-.empty-sidebar-item:deep(.add-item-hotkey) {
-  color: var(--scalar-button-1-color);
-  background: color-mix(in srgb, var(--scalar-button-1), white 20%);
-  border-color: transparent;
 }
 .empty-sidebar-item-content {
   display: none;

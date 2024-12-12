@@ -11,6 +11,7 @@ import {
 } from '@floating-ui/vue'
 import { type Ref, type Slot, computed, ref } from 'vue'
 
+import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
 
@@ -95,21 +96,19 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     :class="{ contents: !!$slots.default }">
     <slot />
   </div>
-  <Teleport
+  <ScalarTeleport
     v-if="$slots.floating"
     :disabled="!teleport"
-    :to="typeof teleport === 'string' ? teleport : 'body'">
-    <div class="scalar-app">
-      <div
-        ref="floatingRef"
-        class="relative z-overlay"
-        :style="floatingStyles">
-        <slot
-          :data="middlewareData"
-          :height="targetHeight"
-          name="floating"
-          :width="targetWidth" />
-      </div>
+    :to="typeof teleport === 'string' ? teleport : undefined">
+    <div
+      ref="floatingRef"
+      class="relative z-overlay"
+      :style="floatingStyles">
+      <slot
+        :data="middlewareData"
+        :height="targetHeight"
+        name="floating"
+        :width="targetWidth" />
     </div>
-  </Teleport>
+  </ScalarTeleport>
 </template>

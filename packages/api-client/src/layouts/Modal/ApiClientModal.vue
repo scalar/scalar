@@ -2,7 +2,10 @@
 import { type HotKeyEvent, handleHotKeyDown } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { addScalarClassesToHeadless } from '@scalar/components'
+import {
+  ScalarTeleportRoot,
+  addScalarClassesToHeadless,
+} from '@scalar/components'
 import { useFocusTrap } from '@vueuse/integrations/useFocusTrap'
 import {
   onBeforeMount,
@@ -79,7 +82,9 @@ onBeforeUnmount(() => {
         class="scalar-app-layout scalar-client"
         role="dialog"
         tabindex="0">
-        <RouterView key="$route.fullPath" />
+        <ScalarTeleportRoot>
+          <RouterView key="$route.fullPath" />
+        </ScalarTeleportRoot>
       </div>
       <div
         class="scalar-app-exit -z-1"

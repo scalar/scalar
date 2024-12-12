@@ -1,7 +1,8 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { HeaderList, Response } from '../types'
+import type { HeaderList, Item, Response } from '../types'
 import { inferSchemaFromExample } from './schemaHelpers'
+import { extractStatusCodesFromTests } from './statusCodeHelpers'
 
 /**
  * Extracts and converts Postman response objects to OpenAPI response objects.
@@ -10,16 +11,16 @@ import { inferSchemaFromExample } from './schemaHelpers'
  */
 export function extractResponses(
   responses: Response[],
+  item?: Item,
 ): OpenAPIV3_1.ResponsesObject {
-  if (!responses || !Array.isArray(responses) || responses.length === 0) {
-    return { '200': { description: 'OK' } }
-  }
+  // Extract status codes from tests
+  const statusCodes = item ? extractStatusCodesFromTests(item) : []
 
-  return responses.reduce((openapiResponses, response) => {
+  // Create a map of status codes to descriptions from responses
+  const responseMap = responses.reduce((acc, response) => {
     const statusCode = response.code?.toString() || 'default'
-
-    openapiResponses[statusCode] = {
-      description: response.status || '',
+    acc[statusCode] = {
+      description: response.status || 'Successful response',
       headers: extractHeaders(response.header),
       content: {
         'application/json': {
@@ -30,8 +31,33 @@ export function extractResponses(
         },
       },
     }
-    return openapiResponses
+    return acc
   }, {} as OpenAPIV3_1.ResponsesObject)
+
+  // Add status codes from tests if not already present
+  statusCodes.forEach((code) => {
+    const codeStr = code.toString()
+    if (!responseMap[codeStr]) {
+      responseMap[codeStr] = {
+        description: 'Successful response',
+        content: {
+          'application/json': {},
+        },
+      }
+    }
+  })
+
+  // If no responses and no status codes, return default 200
+  if (Object.keys(responseMap).length === 0) {
+    responseMap['200'] = {
+      description: 'Successful response',
+      content: {
+        'application/json': {},
+      },
+    }
+  }
+
+  return responseMap
 }
 
 function extractHeaders(

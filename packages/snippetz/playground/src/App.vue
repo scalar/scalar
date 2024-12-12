@@ -5,16 +5,42 @@ import { ref } from 'vue'
 import CodeExample from './components/CodeExample.vue'
 
 const selectedTarget = ref<TargetId>('node')
-const selectedClient = ref<ClientId>('undici')
+const selectedClient = ref<ClientId<typeof selectedTarget.value>>('undici')
 
-function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
+function selectPlugin<T extends TargetId>(plugin: {
+  target: TargetId
+  client: ClientId<T>
+}) {
   selectedTarget.value = plugin.target
   selectedClient.value = plugin.client
 }
 </script>
 
 <template>
-  <h1>Snippetz</h1>
+  <h1>Scalar Snippetz</h1>
+
+  <div class="badges">
+    <a href="https://www.npmjs.com/package/@scalar/snippetz">
+      <img
+        alt="Version"
+        src="https://img.shields.io/npm/v/%40scalar/snippetz" />
+    </a>
+    <a href="https://www.npmjs.com/package/@scalar/snippetz">
+      <img
+        alt="Downloads"
+        src="https://img.shields.io/npm/dm/%40scalar/snippetz" />
+    </a>
+    <a href="https://www.npmjs.com/package/@scalar/snippetz">
+      <img
+        alt="License"
+        src="https://img.shields.io/npm/l/%40scalar%2Fsnippetz" />
+    </a>
+    <a href="https://discord.gg/scalar">
+      <img
+        alt="Discord"
+        src="https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2" />
+    </a>
+  </div>
 
   <div class="introduction">
     <p>
@@ -23,7 +49,7 @@ function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
     </p>
   </div>
 
-  <h2>Clients</h2>
+  <h2>Available HTTP Clients</h2>
 
   <button
     v-for="plugin in snippetz().plugins()"
@@ -42,7 +68,15 @@ function selectPlugin(plugin: { target: TargetId; client: ClientId }) {
     {{ plugin.target }}/{{ plugin.client }}
   </button>
 
-  <h2>Examples</h2>
+  <h2>Source Code</h2>
+
+  <div>
+    <a href="https://github.com/scalar/scalar/tree/main/packages/snippetz">
+      github.com/scalar/scalar/tree/main/packages/snippetz
+    </a>
+  </div>
+
+  <h2>Usage</h2>
 
   <div class="examples">
     <CodeExample
@@ -91,6 +125,10 @@ h1,
 h2 {
   font-size: 1.2rem;
   margin: 2rem 0;
+}
+.badges {
+  display: flex;
+  gap: 4px;
 }
 .introduction {
   margin-bottom: 2rem;

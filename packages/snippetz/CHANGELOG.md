@@ -1,5 +1,23 @@
 # @scalar/snippetz
 
+## 0.2.8
+
+### Patch Changes
+
+- c761730: fix: httpsnippet-lite imports broken
+
+## 0.2.7
+
+### Patch Changes
+
+- 57b5e5d: feat: add httpsnippet-lite and all the converters
+
+## 0.2.6
+
+### Patch Changes
+
+- 4a72149: refactor: new plugin API
+
 ## 0.2.5
 
 ### Patch Changes

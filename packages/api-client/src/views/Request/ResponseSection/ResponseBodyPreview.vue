@@ -21,11 +21,11 @@ watch(
 <template>
   <div
     v-if="!error && src"
-    class="flex justify-center overflow-hidden rounded-b"
+    class="flex justify-center overflow-auto rounded-b"
     :class="{ 'p-2 bg-preview': alpha }">
     <img
       v-if="mode === 'image'"
-      class="max-w-full"
+      class="h-full max-w-full"
       :class="{ rounded: alpha }"
       :src="src"
       @error="error = true" />

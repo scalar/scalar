@@ -37,6 +37,7 @@ export const ICONS = [
   'Folder',
   'GitHub',
   'GitHubLine',
+  'Globe',
   'Google',
   'Help',
   'Hide',

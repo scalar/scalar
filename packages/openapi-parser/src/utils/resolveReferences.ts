@@ -29,9 +29,10 @@ export type ResolveReferencesResult = {
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
-  onDereference?: (schema: AnyObject, $ref: string) => void
+  onDereference?: (data: { schema: AnyObject; ref: string }) => void
 }
 
+// TODO: Exists already, clean up
 type DereferenceResult = {
   errors: ErrorObject[]
 }

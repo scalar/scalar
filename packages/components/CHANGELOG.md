@@ -1,5 +1,37 @@
 # @scalar/components
 
+## 0.13.4
+
+### Patch Changes
+
+- 749ebf1: feat: favors scalar teleport in scalar tooltip
+
+## 0.13.3
+
+### Patch Changes
+
+- b66a85c: feat: adds globe icon
+
+## 0.13.2
+
+### Patch Changes
+
+- a90d827: feat(components): create ScalarTeleport component
+
+## 0.13.1
+
+### Patch Changes
+
+- e199e9b: feat: updates chevron up icon
+- e199e9b: feat: updates chevron down icon
+- e199e9b: feat: updates add icon
+- 1f730c6: feat: upgraded cva and added tests
+- f30ce11: feat(components): clean up reactivity for useBindCx
+- Updated dependencies [e199e9b]
+  - @scalar/code-highlight@0.0.18
+  - @scalar/themes@0.9.54
+  - @scalar/use-hooks@0.1.7
+
 ## 0.13.0
 
 ### Minor Changes

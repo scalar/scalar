@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: Environments
   version: 1.0.0
-x-scalar-environment: staging
+x-scalar-active-environment: staging
 # Secrets will be defined separately from variables
 # All environments will inherit the same secrets
 # We will provide an interface for fetching secrets from a secret manager (Scalar hosted for now)

@@ -57,10 +57,16 @@ export function useUrlPrefetcher() {
         },
       })
 
-      // If the input is an object, we're done
+      // If the input is an object, we’re done
       if (typeof urlOrDocument === 'object' && urlOrDocument !== null) {
         const json = JSON.stringify(urlOrDocument, null, 2)
-        return { state: 'idle', content: json, url: input, error: null }
+
+        return {
+          state: 'idle',
+          content: json,
+          url: null,
+          error: null,
+        }
       }
 
       // Nothing was found.

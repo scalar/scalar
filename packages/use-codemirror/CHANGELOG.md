@@ -1,5 +1,39 @@
 # @scalar/use-codemirror
 
+## 0.11.48
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+  - @scalar/components@0.13.4
+
+## 0.11.47
+
+### Patch Changes
+
+- b66a85c: fix: editor view rendering
+- Updated dependencies [b66a85c]
+  - @scalar/components@0.13.3
+
+## 0.11.46
+
+### Patch Changes
+
+- Updated dependencies [a90d827]
+  - @scalar/components@0.13.2
+
+## 0.11.45
+
+### Patch Changes
+
+- d6e7008: fix: requests animation frame to dispatched value
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [1f730c6]
+- Updated dependencies [f30ce11]
+  - @scalar/components@0.13.1
+
 ## 0.11.44
 
 ### Patch Changes

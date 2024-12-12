@@ -4,7 +4,7 @@ import type { Router } from 'vue-router'
 export type RouterPathParams = Record<PathId, string>
 
 /** Getter function for router parameters */
-export function getRouterParams(router: Router) {
+export function getRouterParams(router?: Router) {
   return () => {
     const pathParams = {
       [PathId.Collection]: 'default',
@@ -16,9 +16,9 @@ export function getRouterParams(router: Router) {
       [PathId.Servers]: 'default',
       [PathId.Workspace]: 'default',
       [PathId.Settings]: 'default',
-    }
+    } satisfies RouterPathParams
 
-    const currentRoute = router.currentRoute.value
+    const currentRoute = router?.currentRoute.value
 
     if (currentRoute) {
       Object.values(PathId).forEach((k) => {

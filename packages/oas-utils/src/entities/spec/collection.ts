@@ -39,7 +39,7 @@ export const oasCollectionSchema = z.object({
   'webhooks': z.record(z.string(), z.unknown()).optional(),
   /** A custom icon representing the collection */
   'x-scalar-icon': z.string().optional().default('interface-content-folder'),
-  'x-scalar-environment': z.string().optional(),
+  'x-scalar-active-environment': z.string().optional(),
   'x-scalar-environments': xScalarEnvironmentsSchema.optional(),
   'x-scalar-secrets': xScalarSecretsSchema.optional(),
   // These properties will be stripped out and mapped back as id lists

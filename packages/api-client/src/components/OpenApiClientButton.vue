@@ -3,8 +3,15 @@ import { ScalarIcon } from '@scalar/components'
 import { makeUrlAbsolute } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
-const { integration, isDevelopment, url, buttonSource } = defineProps<{
+const {
+  integration,
+  isDevelopment,
+  url,
+  buttonSource,
+  source = 'api-reference',
+} = defineProps<{
   buttonSource: 'sidebar' | 'modal'
+  source?: 'api-reference' | 'gitbook'
   isDevelopment?: boolean
   integration?: string | null
   url?: string
@@ -12,7 +19,14 @@ const { integration, isDevelopment, url, buttonSource } = defineProps<{
 
 /** Link to import an OpenAPI document */
 const href = computed((): string | undefined => {
-  const absoluteUrl = makeUrlAbsolute(url)
+  /**
+   * The URL we want to pass to client.scalar.com for the import.
+   * Might be an OpenAPI document URL, but could also just be the URL of the API reference.
+   */
+  const urlToImportFrom =
+    url ?? (typeof window !== 'undefined' ? window.location.href : undefined)
+
+  const absoluteUrl = makeUrlAbsolute(urlToImportFrom)
 
   if (!absoluteUrl?.length) {
     return undefined
@@ -35,6 +49,19 @@ const href = computed((): string | undefined => {
   link.searchParams.set('utm_source', 'api-reference')
   link.searchParams.set('utm_medium', 'button')
   link.searchParams.set('utm_campaign', buttonSource)
+
+  // Special for gitbook, set the source and grab the logos (hacky)
+  if (source === 'gitbook') {
+    link.searchParams.set('utm_source', 'gitbook')
+
+    const darkLogo = document.querySelector("img.dark\\:block[alt='Logo']")
+    const lightLogo = document.querySelector("img.dark\\:hidden[alt='Logo']")
+
+    if (darkLogo && darkLogo instanceof HTMLImageElement)
+      link.searchParams.set('dark_logo', encodeURIComponent(darkLogo.src))
+    if (lightLogo && lightLogo instanceof HTMLImageElement)
+      link.searchParams.set('light_logo', encodeURIComponent(lightLogo.src))
+  }
 
   return link.toString()
 })

@@ -9,7 +9,7 @@ on:
 jobs:
   harden_security:
     name: Check used GitHub Actions
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -17,7 +17,7 @@ jobs:
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [18, 20]
@@ -30,14 +30,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Save Turborepo cache
-        uses: actions/cache/save@6849a6489940f00c2f30c0fb92c6274307ccb58a
+        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
 
   docker:
     name: Build and Tag Docker Image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -63,7 +63,7 @@ jobs:
 
       - if: steps.changed-files.outputs.api_reference_docker_any_changed == 'true'
         name: Build and tag Docker image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
         with:
           context: packages/api-reference/docker/src
           file: packages/api-reference/docker/src/Dockerfile
@@ -100,7 +100,7 @@ jobs:
 
       - if: startsWith(github.event.head_commit.message, 'RELEASING:') && steps.changed-files.outputs.api_reference_docker_version_any_changed == 'true'
         name: Push Docker image
-        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+        uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
         with:
           context: packages/api-reference/docker/src
           file: packages/api-reference/docker/src/Dockerfile
@@ -114,7 +114,7 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -135,7 +135,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -152,7 +152,7 @@ jobs:
 
   test:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [18, 20]
@@ -160,11 +160,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Build packages
+      - name: Build @scalar/cli
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'true'
+          packages-only: 'cli'
+      - name: Build @scalar/fastify-api-reference
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: 'fastify-api-reference'
+      - name: Build @scalar/echo-server
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+          packages-only: 'echo-server'
       - name: Run tests
         run: pnpm test:ci
       - name: Setup Go
@@ -176,7 +186,7 @@ jobs:
 
   stats:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -190,7 +200,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           packages-only: 'api-reference'
       - name: Send bundle stats and build information to RelativeCI
-        uses: relative-ci/agent-action@87f731dcda883c5a65050a96f0a3d225fb790a45
+        uses: relative-ci/agent-action@26338b6cffd0b7eef7136ebed5ff3ddc22cbe113
         with:
           key: ${{ secrets.RELATIVE_CI_KEY }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -198,7 +208,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     permissions:
       contents: write
       id-token: write
@@ -241,9 +251,9 @@ jobs:
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  todesktop-release:
+  todesktop-build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build, test]
     strategy:
       matrix:
@@ -285,16 +295,16 @@ jobs:
       #   env:
       #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
       #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
-      - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-        name: Release the app
-        run: pnpm --filter scalar-app todesktop:release:ci
-        env:
-          TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
-          TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
+      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
+      #   name: Release the app
+      #   run: pnpm --filter scalar-app todesktop:release:ci
+      #   env:
+      #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
+      #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [build]
     strategy:
       matrix:
@@ -333,7 +343,7 @@ jobs:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -357,7 +367,7 @@ jobs:
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com
         id: deploy-client
-        uses: cloudflare/wrangler-action@05f17c4a695b4d94b57b59997562c6a4624c64e4
+        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
         with:
           command: pages deploy dist --project-name=client
           workingDirectory: projects/client-scalar-com
@@ -383,7 +393,7 @@ jobs:
     # Skip for forks and bot PRs
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -419,7 +429,7 @@ jobs:
           comment_tag: 'netlify-preview'
 
   aspnetcore-build-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     steps:
       - name: Checkout repository
@@ -454,7 +464,7 @@ jobs:
 
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [aspnetcore-build-test]
 
     steps:

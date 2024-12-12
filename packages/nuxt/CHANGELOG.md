@@ -1,5 +1,100 @@
 # @scalar/nuxt
 
+## 0.2.158
+
+### Patch Changes
+
+- Updated dependencies [a109244]
+  - @scalar/api-reference@1.25.80
+
+## 0.2.157
+
+### Patch Changes
+
+- Updated dependencies [371a105]
+- Updated dependencies [cbc70ae]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [e05c29f]
+- Updated dependencies [eea1822]
+  - @scalar/api-client@2.2.11
+  - @scalar/api-reference@1.25.79
+
+## 0.2.156
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [02e6a57]
+  - @scalar/api-client@2.2.10
+  - @scalar/api-reference@1.25.78
+
+## 0.2.155
+
+### Patch Changes
+
+- Updated dependencies [3eb0d11]
+- Updated dependencies [b66a85c]
+- Updated dependencies [3eb0d11]
+- Updated dependencies [62e80cd]
+- Updated dependencies [bccfa3a]
+- Updated dependencies [66c1573]
+- Updated dependencies [b66a85c]
+  - @scalar/api-client@2.2.9
+  - @scalar/api-reference@1.25.77
+
+## 0.2.154
+
+### Patch Changes
+
+- Updated dependencies [f2ec59d]
+  - @scalar/api-client@2.2.8
+  - @scalar/api-reference@1.25.76
+
+## 0.2.153
+
+### Patch Changes
+
+- Updated dependencies [a90d827]
+- Updated dependencies [f955985]
+- Updated dependencies [d0adebf]
+- Updated dependencies [c2be791]
+- Updated dependencies [3b4a788]
+- Updated dependencies [f4440f5]
+- Updated dependencies [4c5be96]
+  - @scalar/api-client@2.2.7
+  - @scalar/api-reference@1.25.75
+
+## 0.2.152
+
+### Patch Changes
+
+- Updated dependencies [b744324]
+- Updated dependencies [0804d6b]
+- Updated dependencies [0076308]
+- Updated dependencies [13432e7]
+  - @scalar/api-client@2.2.6
+  - @scalar/api-reference@1.25.74
+
+## 0.2.151
+
+### Patch Changes
+
+- Updated dependencies [e199e9b]
+- Updated dependencies [f524411]
+- Updated dependencies [e199e9b]
+- Updated dependencies [10c01b2]
+- Updated dependencies [e199e9b]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [31cb86b]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [1f730c6]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [8958af0]
+  - @scalar/api-reference@1.25.73
+  - @scalar/api-client@2.2.5
+
 ## 0.2.150
 
 ### Patch Changes

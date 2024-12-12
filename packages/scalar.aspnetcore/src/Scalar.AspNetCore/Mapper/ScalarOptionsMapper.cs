@@ -30,6 +30,7 @@ internal static class ScalarOptionsMapper
         {
             Proxy = options.ProxyUrl,
             Theme = options.Theme.ToStringFast(),
+            Layout = options.Layout.ToStringFast(),
             Favicon = options.Favicon,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
@@ -53,7 +54,8 @@ internal static class ScalarOptionsMapper
                 ClientKey = options.DefaultHttpClient.Value.ToStringFast(),
                 TargetKey = options.DefaultHttpClient.Key.ToStringFast()
             },
-            Integration = options.DotNetFlag ? "dotnet" : null
+            Integration = options.DotNetFlag ? "dotnet" : null,
+            HideClientButton = options.HideClientButton
         };
     }
 

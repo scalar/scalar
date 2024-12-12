@@ -7,7 +7,12 @@ import { desktopVariants } from './src/tailwind/desktop-variants'
 
 export default {
   presets: [scalarPreset],
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx,vue}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,jsx,ts,tsx,vue}',
+    // Include oas-utils for http method colors
+    '../oas-utils/src/**/*.{js,ts,vue}',
+  ],
   corePlugins: { preflight: false },
   darkMode: ['selector', '.dark-mode'],
   theme: {

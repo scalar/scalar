@@ -1,5 +1,67 @@
 # @scalar/aspnetcore
 
+## 1.2.53
+
+### Patch Changes
+
+- Updated dependencies [a109244]
+  - @scalar/api-reference@1.25.80
+
+## 1.2.52
+
+### Patch Changes
+
+- Updated dependencies [cbc70ae]
+- Updated dependencies [eea1822]
+  - @scalar/api-reference@1.25.79
+
+## 1.2.51
+
+### Patch Changes
+
+- 1ae0286: feat: Add Layout option
+  - @scalar/api-reference@1.25.78
+
+## 1.2.50
+
+### Patch Changes
+
+- Updated dependencies [3eb0d11]
+  - @scalar/api-reference@1.25.77
+
+## 1.2.49
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.76
+
+## 1.2.48
+
+### Patch Changes
+
+- Updated dependencies [f955985]
+- Updated dependencies [c2be791]
+  - @scalar/api-reference@1.25.75
+
+## 1.2.47
+
+### Patch Changes
+
+- Updated dependencies [13432e7]
+  - @scalar/api-reference@1.25.74
+
+## 1.2.46
+
+### Patch Changes
+
+- b8de0e2: feat: Add HideClientButton configuration property
+- Updated dependencies [e199e9b]
+- Updated dependencies [e199e9b]
+- Updated dependencies [ab5f0a0]
+- Updated dependencies [c2f5f08]
+- Updated dependencies [ab5f0a0]
+  - @scalar/api-reference@1.25.73
+
 ## 1.2.45
 
 ### Patch Changes

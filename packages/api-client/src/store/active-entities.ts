@@ -14,13 +14,19 @@ import type { Router } from 'vue-router'
 import { getRouterParams } from './router-params'
 
 type CreateActiveEntitiesStoreParams = {
-  router: Router
   collections: Record<string, Collection>
   environments: Record<string, Environment>
   requestExamples: Record<string, RequestExample>
   requests: Record<string, Request>
   servers: Record<string, Server>
   workspaces: Record<string, Workspace>
+  router?: Router
+}
+
+type EnvVariable = {
+  key: string
+  value: any
+  source: 'global' | 'collection'
 }
 
 /**
@@ -30,7 +36,6 @@ type CreateActiveEntitiesStoreParams = {
  */
 export const createActiveEntitiesStore = ({
   collections,
-  environments,
   requestExamples,
   requests,
   router,
@@ -74,10 +79,48 @@ export const createActiveEntitiesStore = ({
     ),
   )
 
-  /** The currently active environment */
-  const activeEnvironment = computed(
-    () => environments[activeWorkspace.value?.activeEnvironmentId ?? 'default'],
-  )
+  /** The currently selected environment */
+  const activeEnvironment = computed(() => {
+    if (!activeWorkspace.value.activeEnvironmentId) {
+      return {
+        uid: '',
+        color: '#0082D0',
+        name: 'No Environment',
+        value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+      }
+    }
+
+    const activeEnvironmentCollection = activeWorkspaceCollections.value.find(
+      (c) =>
+        c['x-scalar-environments']?.[activeWorkspace.value.activeEnvironmentId],
+    )
+
+    if (activeEnvironmentCollection) {
+      return {
+        uid: activeWorkspace.value.activeEnvironmentId,
+        name: activeWorkspace.value.activeEnvironmentId,
+        value: JSON.stringify(
+          activeEnvironmentCollection['x-scalar-environments']?.[
+            activeWorkspace.value.activeEnvironmentId
+          ].variables,
+          null,
+          2,
+        ),
+        color:
+          activeEnvironmentCollection['x-scalar-environments']?.[
+            activeWorkspace.value.activeEnvironmentId
+          ].color || '#0082D0',
+        isDefault: false,
+      }
+    }
+
+    return {
+      uid: '',
+      color: '#0082D0',
+      name: 'No Environment',
+      value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+    }
+  })
 
   /**
    * Request associated with the current route
@@ -91,7 +134,7 @@ export const createActiveEntitiesStore = ({
     // TODO: Do we really need this? We have to handle undefined anyways
     const collection =
       collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value.collections[0]]
+      collections[activeWorkspace.value?.collections[0]]
 
     return requests[key] || requests[collection?.requests[0]]
   })
@@ -119,7 +162,7 @@ export const createActiveEntitiesStore = ({
       )
 
     const fallbackUid =
-      activeWorkspace.value.collections[0] ?? collections[0]?.uid
+      activeWorkspace.value?.collections[0] ?? collections[0]?.uid
 
     return collections[fallbackUid]
   })
@@ -130,7 +173,7 @@ export const createActiveEntitiesStore = ({
       servers[
         activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
-          ''
+          (Object.keys(servers ?? {})[0] ?? '')
       ],
   )
 
@@ -143,16 +186,41 @@ export const createActiveEntitiesStore = ({
    * Active list all available substitution variables. Server variables
    * will be populated into the environment on spec loading
    */
-  const activeEnvVariables = computed(() => {
-    if (!activeEnvironment.value) return []
-    // TODO: Must merge global variables and collection level variables here
-    // Return a list of key value pairs that includes dot nested paths
-    return flattenEnvVars(JSON.parse(activeEnvironment.value.value)).map(
+  const activeEnvVariables = computed<EnvVariable[]>(() => {
+    const globalEnvironment = activeWorkspace.value.environments
+    const collectionEnvironment = activeEnvironment.value.uid
+      ? JSON.parse(activeEnvironment.value.value)
+      : {}
+
+    const globalEnvVars: EnvVariable[] = flattenEnvVars(globalEnvironment).map(
       ([key, value]) => ({
         key,
         value,
+        source: 'global',
       }),
     )
+
+    const collectionEnvVars: EnvVariable[] = flattenEnvVars(
+      collectionEnvironment,
+    ).map(([key, value]) => ({
+      key,
+      value,
+      source: 'collection',
+    }))
+
+    const mergedEnvVars = new Map<string, EnvVariable>()
+
+    collectionEnvVars.forEach((envVar) => {
+      mergedEnvVars.set(envVar.key, envVar)
+    })
+
+    globalEnvVars.forEach((envVar) => {
+      if (!mergedEnvVars.has(envVar.key)) {
+        mergedEnvVars.set(envVar.key, envVar)
+      }
+    })
+
+    return Array.from(mergedEnvVars.values())
   })
 
   return {
@@ -168,7 +236,6 @@ export const createActiveEntitiesStore = ({
     activeWorkspaceServers,
     activeEnvVariables,
     activeWorkspaceRequests,
-    router,
   }
 }
 

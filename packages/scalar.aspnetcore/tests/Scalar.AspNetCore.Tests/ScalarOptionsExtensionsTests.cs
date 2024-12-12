@@ -18,6 +18,7 @@ public class ScalarOptionsExtensionsTests
             .WithDarkMode(false)
             .WithSidebar(false)
             .WithTheme(ScalarTheme.Saturn)
+            .WithLayout(ScalarLayout.Classic)
             .WithSearchHotKey("o")
             .WithProxyUrl("http://localhost:8080")
             .AddMetadata("key", "value")
@@ -48,7 +49,8 @@ public class ScalarOptionsExtensionsTests
             .AddServer(new ScalarServer("https://example.org", "My other server"))
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithFavicon("/favicon.png")
-            .WithDotNetFlag(false);
+            .WithDotNetFlag(false)
+            .WithClientButton(false);
 
         // Assert
         options.Title.Should().Be("My title");
@@ -59,6 +61,7 @@ public class ScalarOptionsExtensionsTests
         options.DarkMode.Should().BeFalse();
         options.ShowSidebar.Should().BeFalse();
         options.Theme.Should().Be(ScalarTheme.Saturn);
+        options.Layout.Should().Be(ScalarLayout.Classic);
         options.SearchHotKey.Should().Be("o");
         options.ProxyUrl.Should().Be("http://localhost:8080");
         options.Metadata.Should().ContainKey("key").And.ContainValue("value");
@@ -86,5 +89,6 @@ public class ScalarOptionsExtensionsTests
         options.DefaultHttpClient.Should().Be(new KeyValuePair<ScalarTarget, ScalarClient>(ScalarTarget.CSharp, ScalarClient.HttpClient));
         options.Favicon.Should().Be("/favicon.png");
         options.DotNetFlag.Should().BeFalse();
+        options.HideClientButton.Should().BeTrue();
     }
 }

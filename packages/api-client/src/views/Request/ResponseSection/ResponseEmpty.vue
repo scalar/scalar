@@ -50,6 +50,12 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           </a>
         </div>
       </div>
+      <a
+        class="gitbook-show scalar-version-number"
+        href="https://www.scalar.com"
+        target="_blank">
+        Powered By Scalar.com
+      </a>
       <ScalarAsciiArt
         :art="Computer"
         class="text-c-3" />
@@ -88,19 +94,19 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <ScalarHotkey hotkey="k" />
       </button>
       <button
-        class="flex items-center gap-1.5"
-        type="button"
-        @click="events.executeRequest.emit()">
-        Send Request
-        <ScalarHotkey hotkey="↵" />
-      </button>
-      <button
         v-if="layout === 'desktop'"
         class="flex items-center gap-1.5"
         type="button"
         @click="openCommandPaletteRequest">
         New Request
         <ScalarHotkey hotkey="N" />
+      </button>
+      <button
+        class="flex items-center gap-1.5"
+        type="button"
+        @click="events.executeRequest.emit()">
+        Send Request
+        <ScalarHotkey hotkey="↵" />
       </button>
     </div>
   </div>
@@ -123,6 +129,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-transform: initial;
+  text-decoration-color: var(--scalar-color-3);
 }
 .scalar-version-number a {
   font-weight: bold;
@@ -155,5 +163,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   border: none;
   font-weight: 400;
   font-family: var(--scalar-font);
+}
+.gitbook-show {
+  display: none;
 }
 </style>

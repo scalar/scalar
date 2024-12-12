@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 
 import { ApiReference, type ReferenceConfiguration } from '../../../src'
 
@@ -7,7 +7,7 @@ const LIST_OF_OPENAPI_EXAMPLES =
   'https://raw.githubusercontent.com/scalar/awesome-openapi/refs/heads/main/data/openapi-document-urls.json'
 
 /** OpenAPI document URL */
-const url = ref<string | undefined>()
+const url = ref<string | undefined>('')
 
 /** Store the fetched list of URLs */
 const urls = reactive<
@@ -57,6 +57,15 @@ function selectRandomExample() {
   // Update the selected item
   url.value = urls[randomIndex].url
 }
+
+/** Update configuration when URL changes */
+watch(url, (newUrl) => {
+  Object.assign(configuration, {
+    spec: {
+      url: newUrl,
+    },
+  })
+})
 </script>
 
 <template>

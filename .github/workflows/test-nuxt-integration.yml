@@ -7,7 +7,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         node-version: [20]
@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: Restore Turborepo cache
-        uses: actions/cache/restore@6849a6489940f00c2f30c0fb92c6274307ccb58a
+        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
         with:
           path: .turbo
           key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
@@ -34,7 +34,7 @@ jobs:
         id: playwright-version
         run: echo "PLAYWRIGHT_VERSION=$(npx playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
       - name: Playwright binary cache
-        uses: actions/cache@6849a6489940f00c2f30c0fb92c6274307ccb58a
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57
         id: playwright-cache
         with:
           path: |

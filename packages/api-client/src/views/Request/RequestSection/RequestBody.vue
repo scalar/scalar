@@ -158,7 +158,12 @@ const formParams = computed(
 )
 
 /** ensure one empty row by default */
-const defaultRow = () => formParams.value.length === 0 && addRow()
+const defaultRow = () => {
+  const lastParam = formParams.value[formParams.value.length - 1]
+  if (!lastParam || lastParam.key !== '' || lastParam.value !== '') {
+    addRow()
+  }
+}
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
@@ -420,12 +425,13 @@ const selectedExample = computed({
   get: () => {
     const rawValue = activeExample.value?.body.raw?.value ?? '{}'
     const parsedValue = JSON.parse(rawValue)
-    const [key] = Object.keys(parsedValue)
-    const value = parsedValue[key]
-    return (
-      exampleOptions.value.find((example) => example.id === value) ??
-      exampleOptions.value[0]
-    )
+    const getExample = exampleOptions.value.find((example) => {
+      const exampleValue = example.value as {
+        value: Record<string, string>
+      }
+      return JSON.stringify(exampleValue.value) === JSON.stringify(parsedValue)
+    })
+    return getExample ?? exampleOptions.value[0]
   },
   set: (opt) => {
     if (opt?.id) {
@@ -548,6 +554,7 @@ const selectedExample = computed({
         <template v-else>
           <!-- TODO: remove this as type hack when we add syntax highligting -->
           <CodeInput
+            class="border-t-1/2"
             content=""
             :language="codeInputLanguage as CodeMirrorLanguage"
             lineNumbers

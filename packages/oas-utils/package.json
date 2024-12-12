@@ -16,7 +16,7 @@
     "specification",
     "yaml"
   ],
-  "version": "0.2.82",
+  "version": "0.2.87",
   "engines": {
     "node": ">=18"
   },
@@ -49,6 +49,11 @@
       "import": "./dist/migrations/index.js",
       "types": "./dist/migrations/index.d.ts",
       "default": "./dist/migrations/index.js"
+    },
+    "./migrations/v-2.3.0": {
+      "import": "./dist/migrations/v-2.3.0/index.js",
+      "types": "./dist/migrations/v-2.3.0/index.d.ts",
+      "default": "./dist/migrations/v-2.3.0/index.js"
     },
     "./migrations/v-2.2.0": {
       "import": "./dist/migrations/v-2.2.0/index.js",

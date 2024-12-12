@@ -66,7 +66,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       (collectionServerOptions && collectionServerOptions?.length > 1)
     "
     class="w-max"
-    teleport=".scalar-client">
+    teleport>
     <button
       class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 -outline-offset-1"
       type="button">

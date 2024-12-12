@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.9.0
+
+### Minor Changes
+
+- 6fef2f3: feat(openapi-parser): support `onDereference` option on `dereference`
+
 ## 0.8.10
 
 ### Patch Changes
