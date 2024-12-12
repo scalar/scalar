@@ -8,6 +8,7 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-22.04
+    timeout-minutes: 15
     strategy:
       matrix:
         node-version: [20]
