@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { restsharp } from '@/httpsnippet-lite/dist/esm/targets/csharp/restsharp/client.mjs'
+import { restsharp } from '@/httpsnippet-lite/esm/targets/csharp/restsharp/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * csharp/restsharp
@@ -9,6 +8,7 @@ import { restsharp } from '@/httpsnippet-lite/dist/esm/targets/csharp/restsharp/
 export const csharpRestsharp: Plugin = {
   target: 'csharp',
   client: 'restsharp',
+  title: 'RestSharp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(restsharp, request)

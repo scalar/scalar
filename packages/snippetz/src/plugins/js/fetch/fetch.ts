@@ -1,4 +1,6 @@
-import { type Plugin, arrayToObject, objectToString } from '../../../core'
+import type { Plugin } from '@/types'
+import { arrayToObject } from '@/utils/arrayToObject'
+import { objectToString } from '@/utils/objectToString'
 
 /**
  * js/fetch
@@ -6,6 +8,7 @@ import { type Plugin, arrayToObject, objectToString } from '../../../core'
 export const jsFetch: Plugin = {
   target: 'js',
   client: 'fetch',
+  title: 'Fetch',
   generate(request) {
     // Defaults
     const normalizedRequest = {

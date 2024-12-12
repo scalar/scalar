@@ -1,4 +1,4 @@
-import type { HarRequest } from '@scalar/types/external'
+import type { HarRequest } from '@scalar/snippetz'
 
 /**
  * Takes in a regular request object and returns a HAR request

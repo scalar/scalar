@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { native } from '@/httpsnippet-lite/dist/esm/targets/ruby/native/client.mjs'
+import { native } from '@/httpsnippet-lite/esm/targets/ruby/native/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * ruby/native
@@ -9,6 +8,7 @@ import { native } from '@/httpsnippet-lite/dist/esm/targets/ruby/native/client.m
 export const rubyNative: Plugin = {
   target: 'ruby',
   client: 'native',
+  title: 'net::http',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(native, request)

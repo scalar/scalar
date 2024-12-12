@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { xhr } from '@/httpsnippet-lite/dist/esm/targets/javascript/xhr/client.mjs'
+import { xhr } from '@/httpsnippet-lite/esm/targets/javascript/xhr/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * js/xhr
@@ -9,6 +8,7 @@ import { xhr } from '@/httpsnippet-lite/dist/esm/targets/javascript/xhr/client.m
 export const jsXhr: Plugin = {
   target: 'js',
   client: 'xhr',
+  title: 'XHR',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(xhr, request)

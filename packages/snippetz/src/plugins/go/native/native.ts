@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { native } from '@/httpsnippet-lite/dist/esm/targets/go/native/client.mjs'
+import { native } from '@/httpsnippet-lite/esm/targets/go/native/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * go/native
@@ -9,6 +8,7 @@ import { native } from '@/httpsnippet-lite/dist/esm/targets/go/native/client.mjs
 export const goNative: Plugin = {
   target: 'go',
   client: 'native',
+  title: 'NewRequest',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(native, request)

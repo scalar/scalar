@@ -11,24 +11,8 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
-            clients: [
-              {
-                title: 'Axios',
-                key: 'axios',
-                description:
-                  'Promise based HTTP client for the browser and node.js',
-                link: 'https://example.com',
-              },
-              {
-                title: 'Fetch',
-                key: 'fetch',
-                description:
-                  'The Fetch API provides an interface for fetching resources',
-                link: 'https://example.com',
-              },
-            ],
+            default: 'fetch',
+            clients: [],
           },
         ],
         // No Node.js
@@ -44,22 +28,19 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
+            default: 'undici',
             clients: [
               {
                 title: 'Axios',
-                key: 'axios',
-                description:
-                  'Promise based HTTP client for the browser and node.js',
-                link: 'https://example.com',
+                client: 'axios',
+                target: 'node',
+                generate: () => '',
               },
               {
                 title: 'Fetch',
-                key: 'fetch',
-                description:
-                  'The Fetch API provides an interface for fetching resources',
-                link: 'https://example.com',
+                client: 'fetch',
+                target: 'node',
+                generate: () => '',
               },
             ],
           },
@@ -73,15 +54,11 @@ describe('useHttpClientStore', () => {
       {
         title: 'Node.js',
         key: 'node',
-        extname: '.js',
-        default: 'foobar',
+        default: 'undici',
         clients: [
           {
             title: 'Axios',
-            key: 'axios',
-            description:
-              'Promise based HTTP client for the browser and node.js',
-            link: 'https://example.com',
+            client: 'axios',
           },
         ],
       },
@@ -95,22 +72,19 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
+            default: 'undici',
             clients: [
               {
                 title: 'Axios',
-                key: 'axios',
-                description:
-                  'Promise based HTTP client for the browser and node.js',
-                link: 'https://example.com',
+                client: 'axios',
+                target: 'node',
+                generate: () => '',
               },
               {
                 title: 'Fetch',
-                key: 'fetch',
-                description:
-                  'The Fetch API provides an interface for fetching resources',
-                link: 'https://example.com',
+                client: 'fetch',
+                target: 'node',
+                generate: () => '',
               },
             ],
           },
@@ -122,15 +96,11 @@ describe('useHttpClientStore', () => {
       {
         title: 'Node.js',
         key: 'node',
-        extname: '.js',
-        default: 'foobar',
+        default: 'undici',
         clients: [
           {
             title: 'Axios',
-            key: 'axios',
-            description:
-              'Promise based HTTP client for the browser and node.js',
-            link: 'https://example.com',
+            client: 'axios',
           },
         ],
       },
@@ -144,22 +114,19 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
+            default: 'undici',
             clients: [
               {
                 title: 'Axios',
-                key: 'axios',
-                description:
-                  'Promise based HTTP client for the browser and node.js',
-                link: 'https://example.com',
+                client: 'axios',
+                target: 'node',
+                generate: () => '',
               },
               {
                 title: 'Fetch',
-                key: 'fetch',
-                description:
-                  'The Fetch API provides an interface for fetching resources',
-                link: 'https://example.com',
+                client: 'fetch',
+                target: 'node',
+                generate: () => '',
               },
             ],
           },
@@ -171,22 +138,15 @@ describe('useHttpClientStore', () => {
       {
         title: 'Node.js',
         key: 'node',
-        extname: '.js',
-        default: 'foobar',
+        default: 'undici',
         clients: [
           {
             title: 'Axios',
-            key: 'axios',
-            description:
-              'Promise based HTTP client for the browser and node.js',
-            link: 'https://example.com',
+            client: 'axios',
           },
           {
             title: 'Fetch',
-            key: 'fetch',
-            description:
-              'The Fetch API provides an interface for fetching resources',
-            link: 'https://example.com',
+            client: 'fetch',
           },
         ],
       },
@@ -200,8 +160,7 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
+            default: 'undici',
             clients: [],
           },
         ],
@@ -217,15 +176,13 @@ describe('useHttpClientStore', () => {
           {
             title: 'Node.js',
             key: 'node',
-            extname: '.js',
-            default: 'foobar',
+            default: 'undici',
             clients: [
               {
                 title: 'Fetch',
-                key: 'fetch',
-                description:
-                  'The Fetch API provides an interface for fetching resources',
-                link: 'https://example.com',
+                client: 'fetch',
+                target: 'node',
+                generate: () => '',
               },
             ],
           },

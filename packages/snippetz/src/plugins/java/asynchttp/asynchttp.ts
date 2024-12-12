@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { asynchttp } from '@/httpsnippet-lite/dist/esm/targets/java/asynchttp/client.mjs'
+import { asynchttp } from '@/httpsnippet-lite/esm/targets/java/asynchttp/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * java/asynchttp
@@ -9,6 +8,7 @@ import { asynchttp } from '@/httpsnippet-lite/dist/esm/targets/java/asynchttp/cl
 export const javaAsynchttp: Plugin = {
   target: 'java',
   client: 'asynchttp',
+  title: 'AsyncHttp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(asynchttp, request)

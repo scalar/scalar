@@ -1,4 +1,4 @@
-import type { Plugin } from '../../../core'
+import type { Plugin } from '@/types'
 
 /**
  * shell/curl
@@ -6,6 +6,7 @@ import type { Plugin } from '../../../core'
 export const shellCurl: Plugin = {
   target: 'shell',
   client: 'curl',
+  title: 'Curl',
   generate(request, configuration) {
     // Defaults
     const normalizedRequest = {

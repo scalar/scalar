@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { cohttp } from '@/httpsnippet-lite/dist/esm/targets/ocaml/cohttp/client.mjs'
+import { cohttp } from '@/httpsnippet-lite/esm/targets/ocaml/cohttp/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * ocaml/cohttp
@@ -9,6 +8,7 @@ import { cohttp } from '@/httpsnippet-lite/dist/esm/targets/ocaml/cohttp/client.
 export const ocamlCohttp: Plugin = {
   target: 'ocaml',
   client: 'cohttp',
+  title: 'Cohttp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(cohttp, request)

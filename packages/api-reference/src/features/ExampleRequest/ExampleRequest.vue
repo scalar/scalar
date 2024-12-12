@@ -119,7 +119,7 @@ const generateSnippet = async () => {
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (await getExampleCode(request, targetKey, clientKey as string)) ?? ''
+  return (await getExampleCode(request, targetKey, clientKey)) ?? ''
 }
 
 const generatedCode = asyncComputed<string>(async () => {
@@ -166,7 +166,7 @@ const options = computed<TextSelectOptions>(() => {
         return {
           value: JSON.stringify({
             targetKey: target.key,
-            clientKey: c.key,
+            clientKey: c.client,
           }),
           label: c.title,
         }

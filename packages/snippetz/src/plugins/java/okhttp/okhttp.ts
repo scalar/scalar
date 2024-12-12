@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { okhttp } from '@/httpsnippet-lite/dist/esm/targets/java/okhttp/client.mjs'
+import { okhttp } from '@/httpsnippet-lite/esm/targets/java/okhttp/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * java/okhttp
@@ -9,6 +8,7 @@ import { okhttp } from '@/httpsnippet-lite/dist/esm/targets/java/okhttp/client.m
 export const javaOkhttp: Plugin = {
   target: 'java',
   client: 'okhttp',
+  title: 'OkHttp',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(okhttp, request)
