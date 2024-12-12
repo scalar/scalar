@@ -141,7 +141,7 @@ export function resolveReferences(
       }
     }
 
-    // Iterate over the whole objecct
+    // Iterate over the whole object
     for (const value of Object.values(schema)) {
       if (typeof value === 'object' && value !== null) {
         result = resolve(value, resolveFilesystem, resolveFile, resolved)
