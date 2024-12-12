@@ -22,7 +22,9 @@ const activeSetting = ref('general')
 <template>
   <ViewLayout>
     <ViewLayoutContent class="flex-1">
-      <component :is="settings[activeSetting].component" />
+      <component
+        :is="settings[activeSetting]!.component"
+        v-if="settings[activeSetting]" />
     </ViewLayoutContent>
   </ViewLayout>
 </template>
