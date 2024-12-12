@@ -160,21 +160,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Build @scalar/cli
+      - name: Build packages
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-          packages-only: 'cli'
-      - name: Build @scalar/fastify-api-reference
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'fastify-api-reference'
-      - name: Build @scalar/echo-server
-        uses: ./.github/actions/build
-        with:
-          node-version: ${{ matrix.node-version }}
-          packages-only: 'echo-server'
+          packages-only: 'true'
       - name: Run tests
         run: pnpm test:ci
       - name: Setup Go
