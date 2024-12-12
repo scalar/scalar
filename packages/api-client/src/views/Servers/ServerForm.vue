@@ -23,21 +23,21 @@ const route = useRoute()
 const activeServer = computed(
   () =>
     servers[
-      activeCollection.value && route.params.server === 'default'
+      (activeCollection.value && route.params.server === 'default'
         ? activeCollection.value?.servers[0]
-        : (activeCollection.value?.servers.find(
+        : activeCollection.value?.servers.find(
             (uid) => uid === route.params.server,
-          ) ?? '')
+          )) ?? ''
     ],
 )
 
 const updateServer = (key: string, value: string) => {
-  if (!activeCollection.value) return
+  if (!activeCollection.value || !activeServer.value) return
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
 }
 
 const updateVariable = (key: string, value: any) => {
-  if (!activeCollection.value) return
+  if (!activeCollection.value || !activeServer.value) return
   serverMutators.edit(activeServer.value.uid, `variables.${key}.value`, value)
 }
 
@@ -54,7 +54,7 @@ const variableOptions = computed(() =>
 
 /** Values from the workspace, use `default` or `enum[0]` as fallback */
 const variablesData = computed(() =>
-  Object.entries(activeServer.value.variables ?? {}).reduce<
+  Object.entries(activeServer.value?.variables ?? {}).reduce<
     Record<string, string>
   >((acc, [key, variable]) => {
     acc[key] = (variable.default ?? variable?.enum?.[0] ?? '').toString()
