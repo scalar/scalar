@@ -22,6 +22,9 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
+    "docs:dev": "nodemon --watch \"src/**/*.ts\" --watch \"scripts/**/*.ts\" -e ts --exec \"pnpm run docs:generate && pnpm run docs:serve\"",
+    "docs:generate": "vite-node scripts/generate-docs.ts",
+    "docs:serve": "markserv docs/reference-configuration.md",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:build": "scalar-types-build",
@@ -61,6 +64,7 @@
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*"
+    "@scalar/snippetz": "workspace:*",
+    "markserv": "^1.17.4"
   }
 }
