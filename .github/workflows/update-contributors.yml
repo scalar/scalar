@@ -10,6 +10,7 @@ jobs:
     name: Update the README
     if: ${{ github.repository_owner == 'scalar' }}
     runs-on: ubuntu-22.04
+    timeout-minutes: 15
 
     steps:
       - name: Update the list of contributors
