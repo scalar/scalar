@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.8
+
+### Patch Changes
+
+- c761730: fix: httpsnippet-lite imports broken
+
 ## 0.2.7
 
 ### Patch Changes

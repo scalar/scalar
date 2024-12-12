@@ -1,5 +1,33 @@
 # @scalar/api-client
 
+## 2.2.11
+
+### Patch Changes
+
+- 371a105: style: updates request sidebar item mask
+- f2ec4f2: fix: updates request body selected example function
+- 035d9af: style: re-orders empty response actions
+- 8687842: fix(api-reference): scope ui in reference
+- e05c29f: fix: updates watch mode toast watcher
+- Updated dependencies [8017ff9]
+  - @scalar/oas-utils@0.2.87
+  - @scalar/import@0.2.6
+  - @scalar/postman-to-openapi@0.1.10
+
+## 2.2.10
+
+### Patch Changes
+
+- 749ebf1: fix: updates workspace dropdown tooltip index
+- 02e6a57: fix: displays sidebar request button on client only
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/use-codemirror@0.11.48
+  - @scalar/import@0.2.5
+  - @scalar/oas-utils@0.2.86
+
 ## 2.2.9
 
 ### Patch Changes

@@ -94,19 +94,19 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <ScalarHotkey hotkey="k" />
       </button>
       <button
-        class="flex items-center gap-1.5"
-        type="button"
-        @click="events.executeRequest.emit()">
-        Send Request
-        <ScalarHotkey hotkey="↵" />
-      </button>
-      <button
         v-if="layout === 'desktop'"
         class="flex items-center gap-1.5"
         type="button"
         @click="openCommandPaletteRequest">
         New Request
         <ScalarHotkey hotkey="N" />
+      </button>
+      <button
+        class="flex items-center gap-1.5"
+        type="button"
+        @click="events.executeRequest.emit()">
+        Send Request
+        <ScalarHotkey hotkey="↵" />
       </button>
     </div>
   </div>

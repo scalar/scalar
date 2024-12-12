@@ -1,5 +1,41 @@
 # @scalar/api-reference
 
+## 1.25.80
+
+### Patch Changes
+
+- a109244: fix: operation server null check
+
+## 1.25.79
+
+### Patch Changes
+
+- cbc70ae: fix: circular dependency
+- eea1822: fix: adds server with variables to request example
+- Updated dependencies [371a105]
+- Updated dependencies [f2ec4f2]
+- Updated dependencies [035d9af]
+- Updated dependencies [8687842]
+- Updated dependencies [8017ff9]
+- Updated dependencies [e05c29f]
+  - @scalar/api-client@2.2.11
+  - @scalar/oas-utils@0.2.87
+
+## 1.25.78
+
+### Patch Changes
+
+- Updated dependencies [749ebf1]
+- Updated dependencies [6fef2f3]
+- Updated dependencies [749ebf1]
+- Updated dependencies [c761730]
+- Updated dependencies [02e6a57]
+  - @scalar/components@0.13.4
+  - @scalar/openapi-parser@0.9.0
+  - @scalar/api-client@2.2.10
+  - @scalar/snippetz@0.2.8
+  - @scalar/oas-utils@0.2.86
+
 ## 1.25.77
 
 ### Patch Changes
