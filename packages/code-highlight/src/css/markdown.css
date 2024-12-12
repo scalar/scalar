@@ -152,11 +152,13 @@
     margin-top: 0;
   }
   .markdown a {
-    color: var(--scalar-color-accent);
+    color: var(--scalar-link-color, var(--scalar-color-accent));
+    font-weight: var(--scalar-link-font-weight, inherit);
     text-decoration: var(--scalar-text-decoration);
     cursor: pointer;
   }
   .markdown a:hover {
+    color: var(--scalar-link-color-hover, var(--scalar-color-accent));
     text-decoration: var(--scalar-text-decoration-hover);
   }
   .markdown em {
