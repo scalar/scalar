@@ -92,6 +92,12 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
         #name>
         {{ name }}
       </template>
+      <template
+        v-if="value?.example"
+        #example>
+        Example:
+        {{ value.example }}
+      </template>
     </SchemaPropertyHeading>
     <!-- Description -->
     <div
