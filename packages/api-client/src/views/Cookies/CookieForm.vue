@@ -2,6 +2,7 @@
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import { computed } from 'vue'
 
 const { activeCookieId } = useActiveEntities()
@@ -17,8 +18,14 @@ const options = [
   { label: 'HttpOnly', key: 'httpOnly', placeholder: 'True/False' },
 ]
 
-const activeCookie = computed(
-  () => cookies[activeCookieId.value as string] || {},
+const activeCookie = computed<Cookie>(
+  () =>
+    cookies[activeCookieId.value as string] || {
+      value: '',
+      uid: '',
+      name: '',
+      sameSite: 'Lax' as const,
+    },
 )
 const updateCookie = (key: any, value: any) => {
   if (activeCookieId.value) {
