@@ -37,9 +37,7 @@ const getWebhookId = (name?: string, httpVerb?: string) => {
     return 'webhooks'
   }
 
-  const webhookSlug = slug(name)
-  const encodedSlug = encodeURIComponent(webhookSlug)
-  return `webhook/${httpVerb}/${encodedSlug}`
+  return `webhook/${httpVerb}/${slug(name)}`
 }
 
 const getModelId = (name?: string) => {
@@ -47,19 +45,14 @@ const getModelId = (name?: string) => {
     return 'models'
   }
 
-  const modelSlug = slug(name)
-  const encodedSlug = encodeURIComponent(modelSlug)
-  return `model/${encodedSlug}`
+  return `model/${slug(name)}`
 }
 
 const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
   `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
 
 const getTagId = ({ name }: Tag) => {
-  const tagSlug = slug(name)
-  const encodedSlug = encodeURIComponent(tagSlug)
-
-  return `tag/${encodedSlug}`
+  return `tag/${slug(name)}`
 }
 
 // Grabs the sectionId of the hash to open the section before scrolling
