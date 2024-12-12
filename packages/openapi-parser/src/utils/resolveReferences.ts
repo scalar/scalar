@@ -69,7 +69,6 @@ export function resolveReferences(
     file?.specification ?? entrypoint.specification,
     filesystem,
     file ?? entrypoint,
-    options?.onDereference,
   )
 
   // Remove duplicats (according to message) from errors
@@ -96,8 +95,7 @@ export function resolveReferences(
     schema: AnyObject,
     resolveFilesystem: Filesystem,
     resolveFile: FilesystemEntry,
-    onResolve?: (schema: AnyObject, $ref: string) => void,
-    // $ref to value
+    // references to resolved object
     resolved: WeakSet<object> = new WeakSet(),
   ): DereferenceResult {
     let result: DereferenceResult = { errors: [] }
@@ -110,7 +108,6 @@ export function resolveReferences(
         externalFile.specification,
         resolveFilesystem,
         externalFile,
-        onResolve,
         resolved,
       )
 
@@ -132,7 +129,7 @@ export function resolveReferences(
       // invalid
       if (typeof target !== 'object' || target === null) break
 
-      onResolve?.(schema, schema.$ref)
+      options?.onDereference?.({ schema, ref: schema.$ref })
 
       // Get rid of the reference
       delete schema.$ref
@@ -147,13 +144,7 @@ export function resolveReferences(
     // Iterate over the whole objecct
     for (const value of Object.values(schema)) {
       if (typeof value === 'object' && value !== null) {
-        result = resolve(
-          value,
-          resolveFilesystem,
-          resolveFile,
-          onResolve,
-          resolved,
-        )
+        result = resolve(value, resolveFilesystem, resolveFile, resolved)
       }
     }
 
