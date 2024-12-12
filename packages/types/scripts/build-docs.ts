@@ -26,6 +26,10 @@ function generateTypeDocumentation() {
         node.type.members.forEach((member) => {
           if (ts.isPropertySignature(member)) {
             const name = member.name.getText()
+
+            // Skip properties that start with underscore
+            if (name.startsWith('_')) return
+
             const type = member.type?.getText() || 'unknown'
             const jsDoc = ts
               .getJSDocCommentsAndTags(member)
