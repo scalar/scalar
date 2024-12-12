@@ -105,7 +105,7 @@ const updateRequestNameHandler = (event: Event) => {
           activeExample?.parameters?.path?.length
         "
         paramKey="path"
-        title="Path Variables" />
+        title="Variables" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
         paramKey="cookies"
