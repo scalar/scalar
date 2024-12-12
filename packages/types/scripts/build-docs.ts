@@ -2,20 +2,30 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import ts from 'typescript'
 
-const INPUT_FILE = '../src/legacy/reference-config.ts'
-const TYPE_NAME = 'ReferenceConfiguration'
-const OUTPUT_FILE = '../docs/reference-configuration.md'
+type DocTarget = {
+  inputFile: string
+  typeName: string
+  outputFile: string
+  headline: string
+  introduction: string
+}
 
-const HEADLINE = 'Configuration'
-const INTRODUCTION =
-  'There’s a universal configuration object that can be used on all platforms.'
+const DOC_TARGETS: DocTarget[] = [
+  {
+    headline: 'Configuration',
+    introduction:
+      'There’s a universal configuration object that can be used on all platforms.',
+    inputFile: '../src/legacy/reference-config.ts',
+    typeName: 'ReferenceConfiguration',
+    outputFile: '../docs/reference-configuration.md',
+  },
+]
 
-let markdown = `# ${HEADLINE}\n\n${INTRODUCTION}\n\n`
-
-function generateTypeDocumentation() {
+function generateTypeDocumentation(target: DocTarget) {
+  let markdown = `# ${target.headline}\n\n${target.introduction}\n\n`
   const startTime = performance.now()
 
-  const filePath = path.join(__dirname, INPUT_FILE)
+  const filePath = path.join(__dirname, target.inputFile)
   const program = ts.createProgram([filePath], {})
   const typeChecker = program.getTypeChecker()
   const sourceFile = program.getSourceFile(filePath)
@@ -24,10 +34,13 @@ function generateTypeDocumentation() {
     throw new Error(`Could not find source file: ${filePath}`)
   }
 
-  markdown += `## ${TYPE_NAME}\n\n`
+  markdown += `## ${target.typeName}\n\n`
 
   function visit(node: ts.Node) {
-    if (ts.isTypeAliasDeclaration(node) && node.name.getText() === TYPE_NAME) {
+    if (
+      ts.isTypeAliasDeclaration(node) &&
+      node.name.getText() === target.typeName
+    ) {
       if (ts.isTypeLiteralNode(node.type)) {
         const sortedMembers = [...node.type.members].sort((a, b) => {
           const nameA = a.name?.getText() || ''
@@ -171,7 +184,7 @@ function generateTypeDocumentation() {
   }
 
   // Write the markdown file
-  const outputPath = path.join(__dirname, OUTPUT_FILE)
+  const outputPath = path.join(__dirname, target.outputFile)
   fs.writeFileSync(outputPath, markdown)
 
   const endTime = performance.now()
@@ -179,11 +192,14 @@ function generateTypeDocumentation() {
 
   console.log('Documentation Generation')
   console.log(`
-🔤 Type:           ${TYPE_NAME}
+🔤 Type:           ${target.typeName}
 📄 Input:          ${path.relative(__dirname, sourceFile.fileName)}
 📂 Output:         ${path.relative(__dirname, outputPath)}
 ⏱ Execution Time:  ${executionTime}s
 `)
 }
 
-generateTypeDocumentation()
+// Process all documentation targets
+DOC_TARGETS.forEach((target) => {
+  generateTypeDocumentation(target)
+})
