@@ -11,7 +11,6 @@ defineProps<{
 const { copyToClipboard } = useClipboard()
 const { getHashedUrl } = useNavState()
 const getUrlWithId = (id: string) => {
-  console.log(window.location.href, getHashedUrl(id))
   return getHashedUrl(id)
 }
 </script>
