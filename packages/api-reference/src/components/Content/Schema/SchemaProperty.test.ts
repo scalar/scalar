@@ -167,4 +167,69 @@ describe('SchemaProperty sub-schema', () => {
     expect(button.exists()).toBe(false)
     expect(schemas).toHaveLength(0)
   })
+
+  it('shows all enum values when there are 9 or fewer', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'],
+        },
+      },
+    })
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    const toggleButton = wrapper.find('.enum-toggle-button')
+
+    expect(enumValues).toHaveLength(9)
+    expect(toggleButton.exists()).toBe(false)
+  })
+
+  it('shows only first 5 enum values and toggle button when there are more than 9', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+        },
+      },
+    })
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    const toggleButton = wrapper.find('.enum-toggle-button')
+
+    expect(enumValues).toHaveLength(5)
+    expect(toggleButton.exists()).toBe(true)
+    expect(toggleButton.text()).toBe('Show all values')
+  })
+
+  it('shows all enum values when toggle button is clicked', async () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          enum: ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'],
+        },
+      },
+    })
+
+    const toggleButton = wrapper.find('.enum-toggle-button')
+    await toggleButton.trigger('click')
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    expect(enumValues).toHaveLength(10)
+    expect(toggleButton.text()).toBe('Hide values')
+  })
+
+  it('handles enum values from items property', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          items: {
+            enum: ['a', 'b', 'c'],
+          },
+        },
+      },
+    })
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    expect(enumValues).toHaveLength(3)
+  })
 })

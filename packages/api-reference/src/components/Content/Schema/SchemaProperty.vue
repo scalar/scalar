@@ -1,11 +1,12 @@
 <script lang="ts" setup>
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { computed } from 'vue'
 
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     value?: Record<string, any>
     level?: number
@@ -71,6 +72,20 @@ const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
 }
 
 const rules = ['oneOf', 'anyOf', 'allOf', 'not']
+
+// These helpers manage how enum values are displayed:
+//
+// - For enums with 9 or fewer values, all values are shown.
+// - For enums with more than 9 values, only first 5 are shown initially.
+// - A “Show more” button reveals the remaining values.
+const hasLongEnumList = computed(() => getEnumFromValue(props.value).length > 9)
+const initialEnumCount = computed(() => (hasLongEnumList.value ? 5 : 9))
+const visibleEnumValues = computed(() =>
+  getEnumFromValue(props.value).slice(0, initialEnumCount.value),
+)
+const remainingEnumValues = computed(() =>
+  getEnumFromValue(props.value).slice(initialEnumCount.value),
+)
 </script>
 <template>
   <div
@@ -157,17 +172,17 @@ const rules = ['oneOf', 'anyOf', 'allOf', 'not']
       <template v-else>
         <ul class="property-enum-values">
           <li
-            v-for="enumValue in getEnumFromValue(value).slice(0, 4)"
+            v-for="enumValue in visibleEnumValues"
             :key="enumValue"
             class="property-enum-value">
             {{ enumValue }}
           </li>
           <Disclosure
-            v-if="getEnumFromValue(value).length > 4"
+            v-if="hasLongEnumList"
             v-slot="{ open }">
             <DisclosurePanel>
               <li
-                v-for="enumValue in getEnumFromValue(value).slice(4)"
+                v-for="enumValue in remainingEnumValues"
                 :key="enumValue"
                 class="property-enum-value">
                 {{ enumValue }}
