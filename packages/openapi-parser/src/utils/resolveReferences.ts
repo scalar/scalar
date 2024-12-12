@@ -69,16 +69,6 @@ export function resolveReferences(
     file?.specification ?? entrypoint.specification,
     filesystem,
     file ?? entrypoint,
-    options?.onDereference,
-  )
-
-  // If we replace references with content, that includes a reference, we can’t deal with that right-away.
-  // That’s why we need a second run.
-  resolve(
-    file?.specification ?? entrypoint.specification,
-    filesystem,
-    file ?? entrypoint,
-    options?.onDereference,
   )
 
   // Remove duplicats (according to message) from errors
@@ -105,73 +95,79 @@ export function resolveReferences(
     schema: AnyObject,
     resolveFilesystem: Filesystem,
     resolveFile: FilesystemEntry,
-    onResolve?: (data: { schema: AnyObject; ref: string }) => void,
+    // references to resolved object
+    resolved: WeakSet<object> = new WeakSet(),
   ): DereferenceResult {
-    let result: DereferenceResult | undefined
+    let result: DereferenceResult = { errors: [] }
 
-    // Iterate over the whole objecct
-    Object.entries(schema ?? {}).forEach(([_, value]) => {
-      // Ignore parts without a reference
-      if (schema.$ref !== undefined) {
-        // Find the referenced content
-        const target = resolveUri(
-          schema.$ref,
-          options,
-          resolveFile,
-          resolveFilesystem,
-          errors,
-        )
+    if (schema === null || resolved.has(schema)) return result
+    resolved.add(schema)
 
-        if (target === undefined) {
-          return undefined
-        }
+    function resolveExternal(externalFile: FilesystemEntry) {
+      resolve(
+        externalFile.specification,
+        resolveFilesystem,
+        externalFile,
+        resolved,
+      )
 
-        onResolve?.({ schema, ref: schema.$ref })
-
-        // Get rid of the reference
-        delete schema.$ref
-
-        if (typeof target === 'object') {
-          Object.keys(target).forEach((key) => {
-            if (schema[key] === undefined) {
-              schema[key] = target[key]
-            }
-          })
-        }
-      }
-
-      if (typeof value === 'object' && !isCircular(value)) {
-        result = resolve(value, resolveFilesystem, resolveFile, onResolve)
-      }
-    })
-
-    return {
-      errors: result?.errors ?? [],
+      return externalFile
     }
-  }
-}
 
-// TODO: Is there a better way? :D
-function isCircular(schema: AnyObject) {
-  try {
-    JSON.stringify(schema)
-    return false
-  } catch (error) {
-    return true
+    // Ignore parts without a reference
+    while (schema.$ref !== undefined) {
+      // Find the referenced content
+      const target = resolveUri(
+        schema.$ref,
+        options,
+        resolveFile,
+        resolveFilesystem,
+        resolveExternal,
+        errors,
+      )
+
+      // invalid
+      if (typeof target !== 'object' || target === null) break
+
+      options?.onDereference?.({ schema, ref: schema.$ref })
+
+      // Get rid of the reference
+      delete schema.$ref
+
+      for (const key of Object.keys(target)) {
+        if (schema[key] === undefined) {
+          schema[key] = target[key]
+        }
+      }
+    }
+
+    // Iterate over the whole object
+    for (const value of Object.values(schema)) {
+      if (typeof value === 'object' && value !== null) {
+        result = resolve(value, resolveFilesystem, resolveFile, resolved)
+      }
+    }
+
+    return result
   }
 }
 
 /**
  * Resolves a URI to a part of the specification
+ *
+ * The output is not necessarily dereferenced
  */
 function resolveUri(
   // 'foobar.json#/foo/bar'
   uri: string,
-  options: ThrowOnErrorOption,
+  options: ResolveReferencesOptions,
   // { filename: './foobar.json '}
   file: FilesystemEntry,
   // [ { filename: './foobar.json '} ]
   filesystem: Filesystem,
+
+  // a function to resolve references in external file
+  resolve: (file: FilesystemEntry) => FilesystemEntry,
   errors?: ErrorObject[],
 ) {
   // Ignore invalid URIs
@@ -214,25 +210,19 @@ function resolveUri(
 
       return
     }
-
-    const result = resolveReferences(
-      filesystem,
-      options,
-      externalReference,
-      errors,
-    )
-
     // $ref: 'other-file.yaml'
     if (path === undefined) {
-      return result.schema
+      return externalReference.specification
     }
 
     // $ref: 'other-file.yaml#/foo/bar'
+    // resolve refs first before accessing properties directly
     return resolveUri(
       `#${path}`,
       options,
-      externalReference,
+      resolve(externalReference),
       filesystem,
+      resolve,
       errors,
     )
   }
