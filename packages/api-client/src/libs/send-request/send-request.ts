@@ -19,6 +19,7 @@ import {
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
+import { REGEX } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
 
@@ -224,7 +225,11 @@ type SendRequestResponse = Promise<
 
 /** Ensure URL has a protocol prefix */
 function ensureProtocol(url: string): string {
-  if (url.startsWith('http://') || url.startsWith('https://')) {
+  if (
+    REGEX.PATH.test(url) ||
+    url.startsWith('http://') ||
+    url.startsWith('https://')
+  ) {
     return url
   }
   // Default to http if no protocol is specified
@@ -289,7 +294,9 @@ export const createRequestOperation = ({
     // lets set the server variables
     // for now we only support default values
     Object.entries(server?.variables ?? {}).forEach(([k, v]) => {
-      url = replaceTemplateVariables(url, { [k]: v.default })
+      url = replaceTemplateVariables(url, {
+        [k]: pathVariables[k] || v.default,
+      })
     })
 
     const urlParams = createFetchQueryParams(example, env)

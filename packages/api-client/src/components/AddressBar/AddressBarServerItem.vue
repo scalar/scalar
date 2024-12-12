@@ -38,20 +38,21 @@ const isSelectedServer = (serverId: string) =>
 
 <template>
   <ScalarDropdownItem
-    class="flex !gap-1.5 group font-code text-xxs whitespace-nowrap text-ellipsis overflow-hidden"
+    key="serverOption.id"
+    class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
     :value="serverOption.id"
     @click="updateSelectedServer(serverOption.id)">
     <div
-      class="flex size-4 items-center justify-center rounded-full p-[3px]"
+      class="flex size-4 items-center justify-center p-0.75 text-b-1 rounded-full"
       :class="
         isSelectedServer(serverOption.id)
           ? 'bg-c-accent text-b-1'
-          : 'group-hover:shadow-border text-transparent'
+          : 'group-hover/item:shadow-border text-transparent'
       ">
       <ScalarIcon
-        class="relative top-[0.5px] size-2.5"
         icon="Checkmark"
-        thickness="3.5" />
+        size="xs"
+        thickness="2.5" />
     </div>
     <span class="whitespace-nowrap text-ellipsis overflow-hidden">
       {{ serverOption.label }}
