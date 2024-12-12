@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNavState } from '@/hooks'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
 import ScreenReader from '../ScreenReader.vue'
@@ -8,13 +9,10 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-
+const { getHashedUrl } = useNavState()
 const getUrlWithId = (id: string) => {
-  const url = new URL(window.location.href)
-
-  url.hash = id
-
-  return url.toString()
+  console.log(window.location.href, getHashedUrl(id))
+  return getHashedUrl(id)
 }
 </script>
 <template>

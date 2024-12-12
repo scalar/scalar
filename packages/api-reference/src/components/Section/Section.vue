@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { joinWithSlash } from '../../helpers'
 import { useNavState, useSidebar } from '../../hooks'
 import IntersectionObserver from '../IntersectionObserver.vue'
 
@@ -8,26 +7,13 @@ const props = defineProps<{
   label?: string
 }>()
 
-const { getSectionId, hash, isIntersectionEnabled, pathRouting } = useNavState()
+const { getSectionId, isIntersectionEnabled, replaceUrlState } = useNavState()
 const { setCollapsedSidebarItem } = useSidebar()
 
 function handleScroll() {
   if (!props.label || !isIntersectionEnabled.value) return
 
-  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
-  // this is why we set the hash value directly
-  const newUrl = new URL(window.location.href)
-  const id = props.id ?? ''
-
-  // If we are pathrouting, set path instead of hash
-  if (pathRouting.value) {
-    newUrl.pathname = joinWithSlash(pathRouting.value.basePath, id)
-  } else {
-    newUrl.hash = id
-  }
-  hash.value = id
-
-  window.history.replaceState({}, '', newUrl)
+  replaceUrlState(props.id ?? '')
 
   // Open models and webhooks on scroll
   if (props.id?.startsWith('model') || props.id?.startsWith('webhook'))
