@@ -55,10 +55,10 @@ export const createActiveEntitiesStore = ({
   })
 
   /** Ordered list of the active workspace's collections with drafts last */
-  const activeWorkspaceCollections = computed(() =>
+  const activeWorkspaceCollections = computed<Collection[]>(() =>
     activeWorkspace.value?.collections
-      .map((uid) => collections[uid])
-      .sort((a, b) => {
+      .map((uid: string) => collections[uid])
+      .sort((a: Collection, b: Collection) => {
         if (a.info?.title === 'Drafts') return 1
         if (b.info?.title === 'Drafts') return -1
         return 0

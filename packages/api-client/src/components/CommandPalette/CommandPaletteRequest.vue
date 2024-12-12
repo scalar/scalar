@@ -147,13 +147,13 @@ const handleSubmit = () => {
             variant="outlined">
             <span
               class="whitespace-nowrap"
-              :class="selectedCollection ? 'text-c-1' : 'text-c-3'"
-              >{{
+              :class="selectedCollection ? 'text-c-1' : 'text-c-3'">
+              {{
                 selectedCollection
                   ? selectedCollection.label
                   : 'Select Collection'
-              }}</span
-            >
+              }}
+            </span>
             <ScalarIcon
               class="text-c-3"
               icon="ChevronDown"
