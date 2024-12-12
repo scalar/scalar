@@ -121,7 +121,7 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com/path with spaces/[brackets]")`,
+(client/get "https://example.com/path%20with%20spaces/[brackets]")`,
     )
   })
 
@@ -162,7 +162,9 @@ describe('clojureCljhttp', () => {
     expect(result).toBe(
       `(require '[clj-http.client :as client])
 
-(client/get "https://example.com/api?param1=value1&param2=special value&param3=123")`,
+(client/get "https://example.com/api" {:query-params {:param1 "value1"
+                                                      :param2 "special value"
+                                                      :param3 "123"}})`,
     )
   })
 })

@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { nsurlsession } from '@/httpsnippet-lite/dist/esm/targets/swift/nsurlsession/client.mjs'
+import { nsurlsession } from '@/httpsnippet-lite/esm/targets/swift/nsurlsession/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * swift/nsurlsession
@@ -9,6 +8,7 @@ import { nsurlsession } from '@/httpsnippet-lite/dist/esm/targets/swift/nsurlses
 export const swiftNsurlsession: Plugin = {
   target: 'swift',
   client: 'nsurlsession',
+  title: 'NSURLSession',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(nsurlsession, request)

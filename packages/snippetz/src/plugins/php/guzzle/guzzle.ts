@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { guzzle } from '@/httpsnippet-lite/dist/esm/targets/php/guzzle/client.mjs'
+import { guzzle } from '@/httpsnippet-lite/esm/targets/php/guzzle/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * php/guzzle
@@ -9,6 +8,7 @@ import { guzzle } from '@/httpsnippet-lite/dist/esm/targets/php/guzzle/client.mj
 export const phpGuzzle: Plugin = {
   target: 'php',
   client: 'guzzle',
+  title: 'Guzzle',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(guzzle, request)

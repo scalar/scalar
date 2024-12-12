@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { jquery } from '@/httpsnippet-lite/dist/esm/targets/javascript/jquery/client.mjs'
+import { jquery } from '@/httpsnippet-lite/esm/targets/javascript/jquery/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * js/jquery
@@ -9,6 +8,7 @@ import { jquery } from '@/httpsnippet-lite/dist/esm/targets/javascript/jquery/cl
 export const jsJquery: Plugin = {
   target: 'js',
   client: 'jquery',
+  title: 'jQuery',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(jquery, request)

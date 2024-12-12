@@ -1,4 +1,6 @@
-import { type Plugin, arrayToObject, objectToString } from '../../../core'
+import type { Plugin } from '@/types'
+import { arrayToObject } from '@/utils/arrayToObject'
+import { objectToString } from '@/utils/objectToString'
 
 /**
  * node/undici
@@ -6,6 +8,7 @@ import { type Plugin, arrayToObject, objectToString } from '../../../core'
 export const nodeUndici: Plugin = {
   target: 'node',
   client: 'undici',
+  title: 'undici',
   generate(request) {
     // Defaults
     const normalizedRequest = {

@@ -7,6 +7,6 @@
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     },
-    "types": ["vite/client"]
+    "types": ["vite/client", "node"]
   }
 }

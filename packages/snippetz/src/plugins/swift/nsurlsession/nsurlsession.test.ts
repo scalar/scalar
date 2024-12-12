@@ -250,7 +250,7 @@ dataTask.resume()`,
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path with spaces/[brackets]")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/path%20with%20spaces/[brackets]")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"
@@ -342,7 +342,7 @@ dataTask.resume()`,
     expect(result).toBe(
       `import Foundation
 
-let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/api?param1=value1&param2=special value&param3=123")! as URL,
+let request = NSMutableURLRequest(url: NSURL(string: "https://example.com/api?param1=value1&param2=special%20value&param3=123")! as URL,
                                         cachePolicy: .useProtocolCachePolicy,
                                     timeoutInterval: 10.0)
 request.httpMethod = "GET"

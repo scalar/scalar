@@ -47,7 +47,6 @@ describe('getExampleCode', () => {
       new Request('https://example.com', {
         method: 'POST',
       }),
-      // @ts-expect-error passing in rubbish
       'fantasy',
       'blue',
     )

@@ -60,6 +60,7 @@
     "@unhead/schema": "^1.11.11"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*"
+    "@scalar/build-tooling": "workspace:*",
+    "@scalar/snippetz": "workspace:*"
   }
 }

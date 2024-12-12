@@ -153,7 +153,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
       `CURL *hnd = curl_easy_init();
 
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/path with spaces/[brackets]");
+curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/path%20with%20spaces/[brackets]");
 
 CURLcode ret = curl_easy_perform(hnd);`,
     )
@@ -211,7 +211,7 @@ CURLcode ret = curl_easy_perform(hnd);`,
       `CURL *hnd = curl_easy_init();
 
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
-curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/api?param1=value1&param2=special value&param3=123");
+curl_easy_setopt(hnd, CURLOPT_URL, "https://example.com/api?param1=value1&param2=special%20value&param3=123");
 
 CURLcode ret = curl_easy_perform(hnd);`,
     )

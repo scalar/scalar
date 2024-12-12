@@ -31,6 +31,16 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./utils": {
+      "import": "./dist/utils/index.js",
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
+    },
+    "./types": {
+      "import": "./dist/types/index.js",
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
+    },
     "./plugins/swift/nsurlsession": {
       "import": "./dist/plugins/swift/nsurlsession/index.js",
       "types": "./dist/plugins/swift/nsurlsession/index.d.ts",
@@ -200,11 +210,6 @@
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",
       "default": "./dist/plugins/c/libcurl/index.js"
-    },
-    "./core": {
-      "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts",
-      "default": "./dist/core/index.js"
     }
   },
   "files": [

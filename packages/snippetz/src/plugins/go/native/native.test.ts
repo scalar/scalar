@@ -263,7 +263,7 @@ import (
 
 func main() {
 
-	url := "https://example.com/path with spaces/[brackets]"
+	url := "https://example.com/path%20with%20spaces/[brackets]"
 
 	req, _ := http.NewRequest("GET", url, nil)
 
@@ -368,7 +368,7 @@ import (
 
 func main() {
 
-	url := "https://example.com/api?param1=value1&param2=special value&param3=123"
+	url := "https://example.com/api?param1=value1&param2=special%20value&param3=123"
 
 	req, _ := http.NewRequest("GET", url, nil)
 

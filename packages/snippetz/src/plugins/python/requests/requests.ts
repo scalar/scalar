@@ -1,7 +1,6 @@
-import type { Plugin } from '@/core'
-import { convertWithHttpSnippetLite } from '@/core/utils/convertWithHttpSnippetLite'
-// @ts-expect-error no types available
-import { requests } from '@/httpsnippet-lite/dist/esm/targets/python/requests/client.mjs'
+import { requests } from '@/httpsnippet-lite/esm/targets/python/requests/client'
+import type { Plugin } from '@/types'
+import { convertWithHttpSnippetLite } from '@/utils/convertWithHttpSnippetLite'
 
 /**
  * python/requests
@@ -9,6 +8,7 @@ import { requests } from '@/httpsnippet-lite/dist/esm/targets/python/requests/cl
 export const pythonRequests: Plugin = {
   target: 'python',
   client: 'requests',
+  title: 'Requests',
   generate(request) {
     // TODO: Write an own converter
     return convertWithHttpSnippetLite(requests, request)
