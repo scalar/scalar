@@ -30,7 +30,11 @@ function generateTypeDocumentation() {
             // Skip properties that start with underscore
             if (name.startsWith('_')) return
 
+            // Add question mark if property is optional
+            const displayName = member.questionToken ? `${name}?` : name
             const type = member.type?.getText() || 'unknown'
+
+            // Get JSDoc comment if it exists
             const jsDoc = ts
               .getJSDocCommentsAndTags(member)
               .map((doc) => doc.getText())
@@ -57,8 +61,8 @@ function generateTypeDocumentation() {
 
             // Add strikethrough if @deprecated tag exists
             markdown += hasDeprecatedTag
-              ? `## ~~${name}~~\n\n`
-              : `## ${name}\n\n`
+              ? `## ~~${displayName}~~\n\n`
+              : `## ${displayName}\n\n`
 
             if (deprecatedValue) {
               markdown += `**Deprecated:** ${deprecatedValue}\n\n`

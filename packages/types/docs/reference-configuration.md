@@ -1,12 +1,12 @@
 # ReferenceConfiguration
 
-## theme
+## theme?
 
 **Type:** `ThemeId`
 
 A string to use one of the color presets
 
-## layout
+## layout?
 
 **Type:** `'modern' | 'classic'`
 
@@ -14,13 +14,13 @@ The layout to use for the references
 
 **Default:** 'modern'
 
-## spec
+## spec?
 
 **Type:** `SpecConfiguration`
 
 The Swagger/OpenAPI spec to render
 
-## ~~proxy~~
+## ~~proxy?~~
 
 **Deprecated:** Use proxyUrl instead
 
@@ -28,25 +28,25 @@ The Swagger/OpenAPI spec to render
 
 URL to a request proxy for the API client
 
-## proxyUrl
+## proxyUrl?
 
 **Type:** `string`
 
 URL to a request proxy for the API client
 
-## isEditable
+## isEditable?
 
 **Type:** `boolean`
 
 Whether the spec input should show
 
-## showSidebar
+## showSidebar?
 
 **Type:** `boolean`
 
 Whether to show the sidebar
 
-## hideModels
+## hideModels?
 
 **Type:** `boolean`
 
@@ -54,7 +54,7 @@ Whether to show models in the sidebar, search, and content.
 
 **Default:** false
 
-## hideDownloadButton
+## hideDownloadButton?
 
 **Type:** `boolean`
 
@@ -62,7 +62,7 @@ Whether to show the “Download OpenAPI Document” button
 
 **Default:** false
 
-## hideTestRequestButton
+## hideTestRequestButton?
 
 **Type:** `boolean`
 
@@ -70,7 +70,7 @@ Whether to show the “Test Request” button
 
 **Default:** : false
 
-## hideSearch
+## hideSearch?
 
 **Type:** `boolean`
 
@@ -78,25 +78,25 @@ Whether to show the sidebar search bar
 
 **Default:** : false
 
-## darkMode
+## darkMode?
 
 **Type:** `boolean`
 
 Whether dark mode is on or off initially (light mode)
 
-## forceDarkModeState
+## forceDarkModeState?
 
 **Type:** `'dark' | 'light'`
 
 forceDarkModeState makes it always this state no matter what
 
-## hideDarkModeToggle
+## hideDarkModeToggle?
 
 **Type:** `boolean`
 
 Whether to show the dark mode toggle
 
-## searchHotKey
+## searchHotKey?
 
 **Type:** `| 'a'
     | 'b'
@@ -127,13 +127,13 @@ Whether to show the dark mode toggle
 
 Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 
-## metaData
+## metaData?
 
 **Type:** `UseSeoMetaInput`
 
 If used, passed data will be added to the HTML header
 
-## favicon
+## favicon?
 
 **Type:** `string`
 
@@ -141,38 +141,38 @@ Path to a favicon image
 
 **Default:** undefined
 
-## hiddenClients
+## hiddenClients?
 
 **Type:** `HiddenClients`
 
 List of httpsnippet clients to hide from the clients menu
 By default hides Unirest, pass `[]` to show all clients
 
-## defaultHttpClient
+## defaultHttpClient?
 
 **Type:** `HttpClientState`
 
 Determine the HTTP client that’s selected by default
 
-## customCss
+## customCss?
 
 **Type:** `string`
 
 Custom CSS to be added to the page
 
-## onSpecUpdate
+## onSpecUpdate?
 
 **Type:** `(spec: string) => void`
 
 onSpecUpdate is fired on spec/swagger content change
 
-## authentication
+## authentication?
 
 **Type:** `Partial<AuthenticationState>`
 
 Prefill authentication
 
-## pathRouting
+## pathRouting?
 
 **Type:** `PathRouting`
 
@@ -183,7 +183,7 @@ for example vue router needs a catch all so any subpaths are included
 
 **Default:** undefined
 
-## baseServerURL
+## baseServerURL?
 
 **Type:** `string`
 
@@ -193,7 +193,7 @@ to use this prop.
 
 **Default:** undefined
 
-## servers
+## servers?
 
 **Type:** `Server[]`
 
@@ -201,7 +201,7 @@ List of servers to override the openapi spec servers
 
 **Default:** undefined
 
-## withDefaultFonts
+## withDefaultFonts?
 
 **Type:** `boolean`
 
@@ -209,7 +209,7 @@ We’re using Inter and JetBrains Mono as the default fonts. If you want to use 
 
 **Default:** true
 
-## defaultOpenAllTags
+## defaultOpenAllTags?
 
 **Type:** `boolean`
 
@@ -217,13 +217,13 @@ By default we only open the relevant tag based on the url, however if you want a
 
 **Default:** false
 
-## tagsSorter
+## tagsSorter?
 
 **Type:** `'alpha' | ((a: Tag, b: Tag) => number)`
 
 Sort tags alphabetically or with a custom sort function
 
-## operationsSorter
+## operationsSorter?
 
 **Type:** `| 'alpha'
     | 'method'
@@ -231,7 +231,7 @@ Sort tags alphabetically or with a custom sort function
 
 Sort operations alphabetically, by method or with a custom sort function
 
-## hideClientButton
+## hideClientButton?
 
 **Type:** `boolean`
 
