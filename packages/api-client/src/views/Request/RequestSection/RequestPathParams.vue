@@ -31,6 +31,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
   const parameters = activeExample.value.parameters[props.paramKey]
   const oldKey = parameters[rowIdx]?.key
+  if (!oldKey) return
 
   /** Change variable in path as well */
   if (field === 'key') {
