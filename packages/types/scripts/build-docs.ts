@@ -57,7 +57,11 @@ function generateTypeDocumentation() {
                 )
               : 'unknown'
 
-            const isUnionType = member.type && ts.isUnionTypeNode(member.type)
+            // Better union type detection
+            const isUnionType =
+              member.type &&
+              (ts.isUnionTypeNode(member.type) ||
+                typeChecker.getTypeFromTypeNode(member.type).isUnion())
 
             const displayNameWithType =
               isUnionType || (type.includes('{') && type.includes('}'))
@@ -138,10 +142,16 @@ function generateTypeDocumentation() {
             }
 
             // Add union type values as bullet list if applicable
-            if (isUnionType && member.type) {
+            if (isUnionType) {
               markdown += '**Values:**\n\n'
-              member.type.types.forEach((typeNode) => {
-                markdown += `- \`${typeNode.getText()}\`\n`
+              const unionValues = type.split(' | ').map((t) => t.trim())
+              unionValues.forEach((value) => {
+                // Wrap string literals in single quotes instead of keeping their original quotes
+                const formattedValue =
+                  value.startsWith('"') && value.endsWith('"')
+                    ? value.replace(/^"|"$/g, "'")
+                    : value
+                markdown += `- \`${formattedValue}\`\n`
               })
               markdown += '\n'
             }

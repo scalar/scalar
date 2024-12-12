@@ -52,9 +52,13 @@ to use this prop.
 
 Custom CSS to be added to the page
 
-### darkMode?: boolean
+### darkMode?
 
 Whether dark mode is on or off initially (light mode)
+
+**Values:**
+
+- `boolean`
 
 ### defaultHttpClient?
 
@@ -69,11 +73,15 @@ Whether dark mode is on or off initially (light mode)
 
 Determine the HTTP client that’s selected by default
 
-### defaultOpenAllTags?: boolean
+### defaultOpenAllTags?
 
 By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
 
 **Default:** `false`
+
+**Values:**
+
+- `boolean`
 
 ### favicon?: string
 
@@ -90,48 +98,83 @@ forceDarkModeState makes it always this state no matter what
 - `'dark'`
 - `'light'`
 
-### hiddenClients?: true | Partial<Record<TargetId, boolean | string[]>> | string[]
+### hiddenClients?
 
 List of httpsnippet clients to hide from the clients menu
 By default hides Unirest, pass `[]` to show all clients
 
-### hideClientButton?: boolean
+**Values:**
+
+- `true`
+- `Partial<Record<TargetId, boolean`
+- `string[]>>`
+- `string[]`
+
+### hideClientButton?
 
 Whether to show the client button from the reference sidebar and modal
 
 **Default:** `false`
 
-### hideDarkModeToggle?: boolean
+**Values:**
+
+- `boolean`
+
+### hideDarkModeToggle?
 
 Whether to show the dark mode toggle
 
-### hideDownloadButton?: boolean
+**Values:**
+
+- `boolean`
+
+### hideDownloadButton?
 
 Whether to show the “Download OpenAPI Document” button
 
 **Default:** `false`
 
-### hideModels?: boolean
+**Values:**
+
+- `boolean`
+
+### hideModels?
 
 Whether to show models in the sidebar, search, and content.
 
 **Default:** `false`
 
-### hideSearch?: boolean
+**Values:**
+
+- `boolean`
+
+### hideSearch?
 
 Whether to show the sidebar search bar
 
 **Default:** `: false`
 
-### hideTestRequestButton?: boolean
+**Values:**
+
+- `boolean`
+
+### hideTestRequestButton?
 
 Whether to show the “Test Request” button
 
 **Default:** `: false`
 
-### isEditable?: boolean
+**Values:**
+
+- `boolean`
+
+### isEditable?
 
 Whether the spec input should show
+
+**Values:**
+
+- `boolean`
 
 ### layout?
 
@@ -204,9 +247,10 @@ Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 
 **Values:**
 
+- `'c'`
+- `'r'`
 - `'a'`
 - `'b'`
-- `'c'`
 - `'d'`
 - `'e'`
 - `'f'`
@@ -221,7 +265,6 @@ Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 - `'o'`
 - `'p'`
 - `'q'`
-- `'r'`
 - `'s'`
 - `'t'`
 - `'u'`
@@ -237,9 +280,13 @@ List of servers to override the openapi spec servers
 
 **Default:** `undefined`
 
-### showSidebar?: boolean
+### showSidebar?
 
 Whether to show the sidebar
+
+**Values:**
+
+- `boolean`
 
 ### spec?
 
@@ -263,12 +310,32 @@ Sort tags alphabetically or with a custom sort function
 - `'alpha'`
 - `((a: Tag, b: Tag) => number)`
 
-### theme?: "alternate" | "default" | "moon" | "purple" | "solarized" | "bluePlanet" | "deepSpace" | "saturn" | "kepler" | "elysiajs" | "fastify" | "mars" | "none"
+### theme?
 
 A string to use one of the color presets
 
-### withDefaultFonts?: boolean
+**Values:**
+
+- `'alternate'`
+- `'default'`
+- `'moon'`
+- `'purple'`
+- `'solarized'`
+- `'bluePlanet'`
+- `'deepSpace'`
+- `'saturn'`
+- `'kepler'`
+- `'elysiajs'`
+- `'fastify'`
+- `'mars'`
+- `'none'`
+
+### withDefaultFonts?
 
 We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
 
 **Default:** `true`
+
+**Values:**
+
+- `boolean`
