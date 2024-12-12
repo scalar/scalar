@@ -2,10 +2,14 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import ts from 'typescript'
 
+const INPUT_FILE = '../src/legacy/reference-config.ts'
+const TYPE_NAME = 'ReferenceConfiguration'
+const OUTPUT_FILE = '../docs/reference-configuration.md'
+
 function generateTypeDocumentation() {
   const startTime = performance.now()
 
-  const filePath = path.join(__dirname, '../src/legacy/reference-config.ts')
+  const filePath = path.join(__dirname, INPUT_FILE)
   const sourceFile = ts.createSourceFile(
     filePath,
     fs.readFileSync(filePath, 'utf8'),
@@ -13,14 +17,11 @@ function generateTypeDocumentation() {
     true,
   )
 
-  let markdown = '# ReferenceConfiguration\n\n'
+  let markdown = `# ${TYPE_NAME}\n\n`
 
   // Find the ReferenceConfiguration type
   function visit(node: ts.Node) {
-    if (
-      ts.isTypeAliasDeclaration(node) &&
-      node.name.getText() === 'ReferenceConfiguration'
-    ) {
+    if (ts.isTypeAliasDeclaration(node) && node.name.getText() === TYPE_NAME) {
       if (ts.isTypeLiteralNode(node.type)) {
         node.type.members.forEach((member) => {
           if (ts.isPropertySignature(member)) {
@@ -91,7 +92,7 @@ function generateTypeDocumentation() {
   }
 
   // Write the markdown file
-  const outputPath = path.join(__dirname, '../docs/reference-configuration.md')
+  const outputPath = path.join(__dirname, OUTPUT_FILE)
   fs.writeFileSync(outputPath, markdown)
 
   const endTime = performance.now()
@@ -99,7 +100,9 @@ function generateTypeDocumentation() {
 
   console.log('Documentation Generation')
   console.log(`
-📂 Output:         ${outputPath}
+🔤 Type:           ${TYPE_NAME}
+📄 Input:          ${path.relative(__dirname, sourceFile.fileName)}
+📂 Output:         ${path.relative(__dirname, outputPath)}
 ⏱ Execution Time:  ${executionTime}s
 `)
 }
