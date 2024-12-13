@@ -1,5 +1,11 @@
 # @scalar/api-reference
 
+## 1.25.82
+
+### Patch Changes
+
+- bd84466: Removes hardcoded test prefix
+
 ## 1.25.81
 
 ### Patch Changes
