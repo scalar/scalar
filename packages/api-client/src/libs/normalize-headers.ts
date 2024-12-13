@@ -62,15 +62,17 @@ export const normalizeHeaders = (
 
     if (ORIGINAL_KEY_REGEX.test(key)) {
       const originalKey = key.replace(ORIGINAL_KEY_REGEX, '')
-      headers[originalKey] = headers[key]
-      delete headers[key]
+      if (headers[key]) {
+        headers[originalKey] = headers[key]
+        delete headers[key]
+      }
     }
   })
 
   // Normalizes the header keys
   Object.keys(headers).forEach((key) => {
     const formattedKey = formatHeaderKey(key)
-    if (key !== formattedKey) {
+    if (key !== formattedKey && headers[key]) {
       headers[formattedKey] = headers[key]
       delete headers[key]
     }
