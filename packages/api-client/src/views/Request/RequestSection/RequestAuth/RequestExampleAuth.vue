@@ -153,6 +153,7 @@ const getReferenceClass = (className = '') =>
     <template v-else-if="scheme.type === 'oauth2'">
       <DataTableRow>
         <div
+          v-if="Object.keys(scheme.flows).length > 1"
           class="min-h-8 min-w-8 flex text-sm border-t-1/2 last:border-r-0 p-0 m-0 relative row"
           :class="{
             'border-1/2 border-b-0 rounded-t bg-b-2': layout === 'reference',
