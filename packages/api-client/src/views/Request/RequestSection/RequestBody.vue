@@ -104,20 +104,26 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   const currentParams = formParams.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
-    updatedParams[rowIdx] = { ...updatedParams[rowIdx], [field]: value }
+    updatedParams[rowIdx] = {
+      ...updatedParams[rowIdx],
+      [field]: value || '',
+      value: updatedParams[rowIdx]?.value || '',
+      key: updatedParams[rowIdx]?.key || '',
+      enabled: updatedParams[rowIdx]?.enabled ?? false,
+    }
 
     /** enable row key or value is filled */
     if (
-      updatedParams[rowIdx].key !== '' ||
-      updatedParams[rowIdx].value !== ''
+      updatedParams[rowIdx]?.key !== '' ||
+      updatedParams[rowIdx]?.value !== ''
     ) {
       updatedParams[rowIdx].enabled = true
     }
 
     /** check key and value input state */
     if (
-      updatedParams[rowIdx].key === '' &&
-      updatedParams[rowIdx].value === ''
+      updatedParams[rowIdx]?.key === '' &&
+      updatedParams[rowIdx]?.value === ''
     ) {
       /** remove if empty */
       updatedParams.splice(rowIdx, 1)
@@ -196,7 +202,9 @@ const toggleRow = (rowIdx: number, enabled: boolean) => {
   const currentParams = formParams.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
-    updatedParams[rowIdx].enabled = enabled
+    if (updatedParams[rowIdx]) {
+      updatedParams[rowIdx].enabled = enabled
+    }
 
     requestExampleMutators.edit(
       activeExample.value.uid,
@@ -302,9 +310,13 @@ const updateActiveBody = (type: Content) => {
 
   if (contentTypeIdx >= 0) {
     // Update header if exists
-    if (header) headers[contentTypeIdx].value = header
+    if (header && headers[contentTypeIdx]) {
+      headers[contentTypeIdx].value = header
+    }
     // Remove header if we don't want one
-    else headers.splice(contentTypeIdx, 1)
+    else if (headers[contentTypeIdx]) {
+      headers.splice(contentTypeIdx, 1)
+    }
   }
   // Add header if doesn't
   else if (header)
@@ -331,6 +343,9 @@ const handleFileUploadFormData = async (rowIdx: number) => {
         updatedParams[rowIdx] = {
           ...updatedParams[rowIdx],
           file,
+          value: file.name,
+          key: file.name,
+          enabled: true,
         }
         requestExampleMutators.edit(
           activeExample.value.uid,
@@ -356,6 +371,9 @@ function handleRemoveFileFormData(rowIdx: number) {
   updatedParams[rowIdx] = {
     ...updatedParams[rowIdx],
     file: undefined,
+    value: '',
+    key: '',
+    enabled: false,
   }
   requestExampleMutators.edit(
     activeExample.value.uid,
@@ -386,7 +404,8 @@ function handleFileUpload() {
 watch(
   selectedContentType,
   (val) => {
-    if (['multipartForm', 'formUrlEncoded'].includes(val?.id)) defaultRow()
+    if (['multipartForm', 'formUrlEncoded'].includes(val?.id || ''))
+      defaultRow()
   },
   { immediate: true },
 )
@@ -410,7 +429,7 @@ watch(
 )
 
 const exampleOptions = computed(() => {
-  const contentType = selectedContentType.value.id
+  const contentType = selectedContentType.value?.id
   const { header } = getBodyType(contentType as Content)
   const content = activeRequest.value?.requestBody?.content || {}
   const examples = header ? content[header]?.examples || {} : {}
@@ -488,13 +507,13 @@ const selectedExample = computed({
         </DataTableHeader>
       </DataTableRow>
       <DataTableRow>
-        <template v-if="selectedContentType.id === 'none'">
+        <template v-if="selectedContentType?.id === 'none'">
           <div
             class="border-t-1/2 text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
             <span>No Body</span>
           </div>
         </template>
-        <template v-else-if="selectedContentType.id === 'binaryFile'">
+        <template v-else-if="selectedContentType?.id === 'binaryFile'">
           <div class="flex items-center justify-center p-1.5 overflow-hidden">
             <template v-if="activeExample?.body.binary">
               <span
@@ -525,7 +544,7 @@ const selectedExample = computed({
             </template>
           </div>
         </template>
-        <template v-else-if="selectedContentType.id == 'multipartForm'">
+        <template v-else-if="selectedContentType?.id == 'multipartForm'">
           <RequestTable
             ref="tableWrapperRef"
             class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
@@ -538,7 +557,7 @@ const selectedExample = computed({
             @updateRow="updateRow"
             @uploadFile="handleFileUploadFormData" />
         </template>
-        <template v-else-if="selectedContentType.id == 'formUrlEncoded'">
+        <template v-else-if="selectedContentType?.id == 'formUrlEncoded'">
           <RequestTable
             ref="tableWrapperRef"
             class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
