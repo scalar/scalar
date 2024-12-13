@@ -1,11 +1,5 @@
 # @scalar/snippetz
 
-## 0.2.9
-
-### Patch Changes
-
-- 6852aca: chore: remove httpsnippet-lite
-
 ## 0.2.8
 
 ### Patch Changes

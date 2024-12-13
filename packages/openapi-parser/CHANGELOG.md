@@ -1,15 +1,5 @@
 # @scalar/openapi-parser
 
-## 0.10.0
-
-### Minor Changes
-
-- e0f8f21: fix(openapi-parser): improve performance
-
-### Patch Changes
-
-- 5f77272: fix: doesn’t validate files with external references
-
 ## 0.9.0
 
 ### Minor Changes
