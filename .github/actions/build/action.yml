@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'false'
   write-cache:
-    description: 'Whether to write the cache'
+    description: 'Whether to write the cache or just read it'
     required: false
     default: 'false'
 runs:
