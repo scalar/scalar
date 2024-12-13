@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
-      - name: Build
+      - name: Build packages
         uses: ./.github/actions/build
         with:
           packages-only: true
