@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.24
+
+### Patch Changes
+
+- 6852aca: chore: remove httpsnippet-lite
+
 ## 0.0.23
 
 ### Patch Changes
