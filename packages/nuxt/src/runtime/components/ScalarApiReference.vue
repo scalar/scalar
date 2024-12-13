@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import { useHead, useRequestURL, useSeoMeta } from '#imports'
-import {
-  ModernLayout,
-  type ReferenceConfiguration,
-  parse,
-} from '@scalar/api-reference'
+import { ModernLayout, parse } from '@scalar/api-reference'
 import { reactive, ref, toRaw } from 'vue'
 import type { Configuration } from '~/src/types'
+
+import type { ReferenceConfiguration } from '../../../../types/dist/legacy/reference-config'
 
 const props = defineProps<{
   configuration: Configuration
