@@ -11,7 +11,7 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -27,11 +27,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Restore Turborepo cache
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build packages
         run: pnpm build:packages
       - name: Format OpenAPI File
