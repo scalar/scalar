@@ -107,11 +107,9 @@ const {
   isIntersectionEnabled,
   pathRouting,
   updateHash,
-  setHashPrefix,
   replaceUrlState,
 } = useNavState()
 
-setHashPrefix('some/prefix/is-good/')
 pathRouting.value = props.configuration.pathRouting
 
 // Ideally this triggers absolutely first on the client so we can set hash value
