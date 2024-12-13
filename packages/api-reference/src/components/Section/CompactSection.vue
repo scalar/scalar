@@ -32,6 +32,7 @@ watch(
     :aria-expanded="open"
     class="collapsible-section">
     <div
+      :id="id"
       class="collapsible-section-trigger"
       :class="{ 'collapsible-section-trigger-open': open }"
       @click="open = !open">
@@ -47,7 +48,6 @@ watch(
     </div>
     <Section
       v-if="open"
-      :id="id"
       class="collapsible-section-content"
       :label="label">
       <slot />

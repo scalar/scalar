@@ -27,7 +27,8 @@ const emit = defineEmits<{
   (e: 'toggleOpen'): void
 }>()
 
-const { hash, isIntersectionEnabled, pathRouting } = useNavState()
+const { getFullHash, isIntersectionEnabled, pathRouting, replaceUrlState } =
+  useNavState()
 
 // We disable intersection observer on click
 const handleClick = async () => {
@@ -48,9 +49,9 @@ const generateLink = () => {
     return joinWithSlash(pathRouting.value.basePath, props.item.id)
   } else if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
-    newUrl.hash = props.item.id
+    newUrl.hash = getFullHash(props.item.id)
     return `${newUrl.pathname}${newUrl.search}${newUrl.hash}`
-  } else return `#${props.item.id}`
+  } else return `#${getFullHash(props.item.id)}`
 }
 
 // For path routing we want to handle the clicks
@@ -68,13 +69,7 @@ const onAnchorClick = async (ev: Event) => {
     // Disable intersection observer before we scroll
     isIntersectionEnabled.value = false
 
-    // Manually update "hash"
-    hash.value = props.item.id
-
-    const url = new URL(window.location.href)
-    url.pathname = joinWithSlash(pathRouting.value.basePath, props.item.id)
-
-    window.history.pushState({}, '', url)
+    replaceUrlState(props.item.id)
     scrollToId(props.item.id)
 
     await sleep(100)

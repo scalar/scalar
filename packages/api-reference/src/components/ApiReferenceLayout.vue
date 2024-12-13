@@ -7,8 +7,10 @@ import {
   createActiveEntitiesStore,
   createWorkspaceStore,
 } from '@scalar/api-client/store'
-import { addScalarClassesToHeadless } from '@scalar/components'
-import { ScalarErrorBoundary } from '@scalar/components'
+import {
+  ScalarErrorBoundary,
+  addScalarClassesToHeadless,
+} from '@scalar/components'
 import { defaultStateFactory } from '@scalar/oas-utils/helpers'
 import {
   type ThemeId,
@@ -97,6 +99,7 @@ const {
 } = useSidebar()
 
 const {
+  getReferenceHash,
   getPathRoutingId,
   getSectionId,
   getTagId,
@@ -104,8 +107,11 @@ const {
   isIntersectionEnabled,
   pathRouting,
   updateHash,
+  setHashPrefix,
+  replaceUrlState,
 } = useNavState()
 
+setHashPrefix('some/prefix/is-good/')
 pathRouting.value = props.configuration.pathRouting
 
 // Ideally this triggers absolutely first on the client so we can set hash value
@@ -150,9 +156,10 @@ onMounted(() => {
   }
 
   // This is what updates the hash ref from hash changes
-  window.onhashchange = () =>
-    scrollToSection(decodeURIComponent(window.location.hash.replace(/^#/, '')))
-
+  window.onhashchange = () => {
+    console.log('CHANGED TO: ', getReferenceHash())
+    scrollToSection(getReferenceHash())
+  }
   // Handle back for path routing
   window.onpopstate = () =>
     pathRouting.value &&
@@ -171,8 +178,7 @@ const debouncedScroll = useDebounceFn((value) => {
       ? props.configuration.pathRouting.basePath
       : window.location.pathname
 
-    window.history.replaceState({}, '', basePath + window.location.search)
-    hash.value = ''
+    replaceUrlState('', basePath + window.location.search)
   }
 })
 

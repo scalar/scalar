@@ -45,24 +45,12 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, hash, isIntersectionEnabled, pathRouting } = useNavState()
+const { getHeadingId, isIntersectionEnabled, replaceUrlState } = useNavState()
 
 function handleScroll(headingId = '') {
   if (!isIntersectionEnabled.value) return
 
-  const newUrl = new URL(window.location.href)
-
-  // If we are pathrouting, set path instead of hash
-  if (pathRouting.value) {
-    newUrl.pathname = joinWithSlash(pathRouting.value.basePath, headingId)
-  } else {
-    newUrl.hash = headingId
-  }
-  hash.value = headingId
-
-  // We use replaceState so we don't trigger the url hash watcher and trigger a scroll
-  // this is why we set the hash value directly
-  window.history.replaceState({}, '', newUrl)
+  replaceUrlState(headingId)
 }
 
 const slugger = new GithubSlugger()
