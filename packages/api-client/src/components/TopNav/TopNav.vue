@@ -62,7 +62,10 @@ function handleNavLabelAdd() {
 }
 
 function handleNavRoute() {
-  router.push(topNavItems[activeNavItemIdx.value].path)
+  const path = topNavItems[activeNavItemIdx.value]?.path
+  if (path) {
+    router.push(path)
+  }
 }
 
 /**
@@ -99,6 +102,8 @@ function removeNavItem(idx: number) {
 }
 
 const copyUrl = (idx: number) => {
+  if (!topNavItems[idx]?.path) return
+
   const fullUrl = new URL(window.location.href)
   fullUrl.pathname = topNavItems[idx].path
   copyToClipboard(fullUrl.toString())
@@ -162,10 +167,10 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
               <ScalarIcon
-                :icon="topNavItems[0].icon"
+                :icon="topNavItems[0]?.icon"
                 size="xs"
                 thickness="2.5" />
-              <span>{{ topNavItems[0].label }}</span>
+              <span>{{ topNavItems[0]?.label }}</span>
             </template>
             <template #content>
               <ScalarFloating placement="right-start">
