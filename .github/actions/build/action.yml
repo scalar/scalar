@@ -22,14 +22,14 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm install
-    # - name: Restore Turborepo cache
-    #   uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
-    #   with:
-    #     path: .turbo
-    #     key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
-    #     restore-keys: |
-    #       turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
-    #       turbo-${{ runner.os }}-node-
+    - name: Restore Turborepo cache
+      uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
+      with:
+        path: .turbo
+        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
+        restore-keys: |
+          turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
+          turbo-${{ runner.os }}-node-
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
