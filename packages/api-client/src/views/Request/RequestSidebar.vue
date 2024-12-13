@@ -146,13 +146,17 @@ watch(
     activeWorkspaceCollections.value.map(
       (collection: Collection) => collection.watchMode,
     ),
-  (newWatchModes: boolean[], oldWatchModes: boolean[]) => {
-    newWatchModes.forEach((newWatchMode: boolean, index: number) => {
-      if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
-        const currentCollection = activeWorkspaceCollections.value[index]
-        const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
-        toast(message, 'info')
-      }
+  (newValues: boolean[], oldValues: boolean[]) => {
+    newValues.forEach((newValue: boolean, index: number) => {
+      if (props.isReadonly) return
+      if (newValue === oldValues[index]) return
+
+      const currentCollection = activeWorkspaceCollections.value[index]
+
+      if (!currentCollection) return
+      const message = `${currentCollection.info?.title}: Watch Mode ${newValue ? 'enabled' : 'disabled'}`
+
+      toast(message, 'info')
     })
   },
 )
