@@ -12,7 +12,7 @@ const getLineAnimation = (chars: number, row: number): StyleValue => ({
   animationDuration: `${chars * PRINT}ms, ${BLINK}ms`,
   animationTimingFunction: `steps(${chars}), step-end`,
   animationDelay: `${row * PRINT}ms, 0ms`,
-  animationIterationCount: `1, ${((lines.value.length + lines.value[lines.value.length - 1].length + 5) * PRINT) / BLINK}`,
+  animationIterationCount: `1, ${(((lines.value?.length ?? 0) + (lines.value?.[lines.value?.length - 1]?.length ?? 0) + 5) * PRINT) / BLINK}`,
 })
 </script>
 <template>
