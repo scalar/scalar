@@ -44,11 +44,13 @@ const removeCookie = (uid: string) => {
     (cookie) => (cookie as Cookie).uid !== uid,
   ) as Cookie[]
   if (remainingCookies.length > 1) {
-    const lastCookie: Cookie = remainingCookies[remainingCookies.length - 1]
-    router.push(lastCookie.uid)
+    const lastCookie = remainingCookies[remainingCookies.length - 1]
+    if (lastCookie) {
+      router.push(lastCookie.uid)
+    }
   } else if (
     remainingCookies.length === 1 &&
-    remainingCookies[0].uid === 'default'
+    remainingCookies[0]?.uid === 'default'
   ) {
     router.push('default')
   }
@@ -57,15 +59,15 @@ const removeCookie = (uid: string) => {
 const groupedCookies = computed(() => {
   const groups: Record<string, Record<string, Cookie[]>> = {}
   Object.values(cookies).forEach((cookie) => {
-    if (cookie.domain && cookie.path) {
-      if (!groups[cookie.domain]) {
-        groups[cookie.domain] = {}
-      }
-      if (!groups[cookie.domain][cookie.path]) {
-        groups[cookie.domain][cookie.path] = []
-      }
-      groups[cookie.domain][cookie.path].push(cookie)
+    const domain = cookie.domain ?? ''
+    const path = cookie.path ?? ''
+    if (!groups[domain]) {
+      groups[domain] = {}
     }
+    if (!groups[domain][path]) {
+      groups[domain][path] = []
+    }
+    groups[domain][path].push(cookie)
   })
   return groups
 })
