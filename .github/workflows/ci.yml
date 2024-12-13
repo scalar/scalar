@@ -10,7 +10,7 @@ jobs:
   harden_security:
     name: Check used GitHub Actions
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -19,7 +19,7 @@ jobs:
 
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [18, 20]
@@ -31,16 +31,11 @@ jobs:
         uses: ./.github/actions/build
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Save Turborepo cache
-        uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}-${{ github.sha }}
 
   docker:
     name: Build and Tag Docker Image
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -118,7 +113,7 @@ jobs:
 
   format:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -140,7 +135,7 @@ jobs:
   types:
     needs: [build]
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -158,7 +153,7 @@ jobs:
   test:
     needs: [build]
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [18, 20]
@@ -183,7 +178,7 @@ jobs:
   stats:
     needs: [build]
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -206,7 +201,7 @@ jobs:
   npm-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     permissions:
       contents: write
       id-token: write
@@ -252,7 +247,7 @@ jobs:
   todesktop-build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     needs: [build, test]
     strategy:
       matrix:
@@ -304,7 +299,7 @@ jobs:
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     needs: [build]
     strategy:
       matrix:
@@ -344,7 +339,7 @@ jobs:
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -395,7 +390,7 @@ jobs:
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     strategy:
       matrix:
         node-version: [20]
@@ -432,7 +427,7 @@ jobs:
 
   aspnetcore-build-test:
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     needs: [build]
     steps:
       - name: Checkout repository
@@ -468,7 +463,7 @@ jobs:
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     needs: [aspnetcore-build-test]
 
     steps:
