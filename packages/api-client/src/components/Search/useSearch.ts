@@ -90,17 +90,25 @@ export function useSearch() {
 
   const selectSearchResult = () => {
     if (selectedSearchResult.value >= 0) {
-      onSearchResultClick(
-        searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
-      )
+      const selectedResult =
+        searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+      if (selectedResult) {
+        onSearchResultClick(selectedResult)
+      }
     }
   }
+
+  const validRequests = computed(() =>
+    activeWorkspaceRequests.value
+      .map((uid) => requests[uid])
+      .filter((request) => request !== undefined),
+  )
 
   // Populate our fuseDataArray with the request items
   watch(
     activeWorkspaceRequests,
-    (newRequests) => {
-      populateFuseDataArray(newRequests.map((uid) => requests[uid]))
+    () => {
+      populateFuseDataArray(validRequests.value)
     },
     { immediate: true },
   )
