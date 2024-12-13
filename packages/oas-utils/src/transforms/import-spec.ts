@@ -38,13 +38,21 @@ export const parseSchema = async (
   spec: string | UnknownObject,
   { shouldLoad = true } = {},
 ) => {
-  // TODO: Plugins for URLs and files with the proxy is missing here.
-  // @see packages/api-reference/src/helpers/parse.ts
+  if (spec === null || (typeof spec === 'string' && spec.trim() === '')) {
+    console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
+
+    return {
+      schema: {} as OpenAPIV3.Document | OpenAPIV3_1.Document,
+      errors: [],
+    }
+  }
 
   let filesystem: LoadResult['filesystem'] | string | UnknownObject = spec
   let loadErrors: LoadResult['errors'] = []
 
   if (shouldLoad) {
+    // TODO: Plugins for URLs and files with the proxy is missing here.
+    // @see packages/api-reference/src/helpers/parse.ts
     const resp = await load(spec).catch((e) => ({
       errors: [
         {
