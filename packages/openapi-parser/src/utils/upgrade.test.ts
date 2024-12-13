@@ -63,6 +63,6 @@ describe('upgrade', () => {
   it('deals with null', async () => {
     const { specification } = upgrade(null)
 
-    expect(specification).toBe(null)
+    expect(specification).toStrictEqual({})
   })
 })
