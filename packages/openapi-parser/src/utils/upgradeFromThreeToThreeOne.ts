@@ -1,9 +1,10 @@
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { traverse } from './traverse'
 
 /**
- * Upgrade from OpenAPI 3.0.x to 3.1.0
+ * Upgrade from OpenAPI 3.0.x to 3.1.1
  *
  * https://www.openapis.org/blog/2021/02/16/migrating-from-openapi-3-0-to-3-1-0
  */
@@ -121,7 +122,7 @@ export function upgradeFromThreeToThreeOne(
   //   specification.$schema = 'http://json-schema.org/draft-07/schema#'
   // }
 
-  return specification
+  return specification as OpenAPIV3_1.Document
 }
 
 /** Determine if the current path is within a schema */
