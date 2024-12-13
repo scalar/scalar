@@ -20,20 +20,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - uses: pnpm/action-setup@fe02b34f77f8bc703788d5817da081398fad5dd2
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'pnpm'
-      - name: Install dependencies
-        run: pnpm install
-      - name: Restore Turborepo cache
-        uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
-        with:
-          path: .turbo
-          key: turbo-${{ runner.os }}-node-${{ matrix.node-version }}
       - name: Build packages
-        run: pnpm build:packages
+        uses: ./.github/actions/build
+        with:
+          packages-only: true
+          node-version: ${{ matrix.node-version }}
       - name: Format OpenAPI File
         run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
       - name: Validate OpenAPI File
