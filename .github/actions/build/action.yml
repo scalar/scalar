@@ -33,7 +33,8 @@ runs:
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
-      run: pnpm turbo build
+      # GitHub Actions runners have two cores, so we can run two tasks in parallel
+      run: pnpm turbo build --concurrency=2
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
