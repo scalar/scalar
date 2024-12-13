@@ -58,7 +58,7 @@ export function extendedRequestDataFactory(
     const example = createExampleFromRequest(
       request,
       iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-        request.examples.some((uid) => t === requestExamples[uid].name),
+        request.examples.some((uid) => t === requestExamples[uid]?.name),
       ),
     )
     request.examples.push(example.uid)
@@ -68,17 +68,21 @@ export function extendedRequestDataFactory(
     requestExampleMutators.add(example)
 
     // Add the request to the collection
-    collectionMutators.edit(collectionUid, 'requests', [
-      ...collection.requests,
-      request.uid,
-    ])
+    if (collection) {
+      collectionMutators.edit(collectionUid, 'requests', [
+        ...collection.requests,
+        request.uid,
+      ])
+    }
 
     // Add to the tags
     if (request.tags?.length)
       request.tags.forEach((tagName) => {
-        const tagUid = collection.tags.find((uid) => tags[uid].name === tagName)
+        const tagUid = collection?.tags.find(
+          (uid) => tags[uid]?.name === tagName,
+        )
 
-        if (tagUid)
+        if (tagUid && tags[tagUid])
           tagMutators.edit(tagUid, 'children', [
             ...tags[tagUid].children,
             request.uid,
@@ -87,7 +91,7 @@ export function extendedRequestDataFactory(
         else addTag({ name: tagName, children: [request.uid] }, collectionUid)
       })
     // Add to the collection children if no tags
-    else
+    else if (collection)
       collectionMutators.edit(collectionUid, 'children', [
         ...collection.children,
         request.uid,
@@ -103,31 +107,35 @@ export function extendedRequestDataFactory(
     // Remove all examples
     request.examples.forEach((uid) => requestExampleMutators.delete(uid))
 
-    // Remove the request from the collection
-    collectionMutators.edit(
-      collectionUid,
-      'requests',
-      collection.requests.filter((r) => r !== request.uid),
-    )
-
-    // And collection children
-    collectionMutators.edit(
-      collectionUid,
-      'children',
-      collection.children.filter((r) => r !== request.uid),
-    )
-
-    // And from all tags
-    request.tags?.forEach((tagName) => {
-      const tagUid = collection.tags.find((uid) => tags[uid].name === tagName)
-      if (!tagUid) return
-
-      tagMutators.edit(
-        tagUid,
-        'children',
-        tags[tagUid].children.filter((r) => r !== request.uid),
+    if (collection) {
+      // Remove the request from the collection
+      collectionMutators.edit(
+        collectionUid,
+        'requests',
+        collection.requests.filter((r) => r !== request.uid),
       )
-    })
+
+      // And collection children
+      collectionMutators.edit(
+        collectionUid,
+        'children',
+        collection.children.filter((r) => r !== request.uid),
+      )
+
+      // And from all tags
+      request.tags?.forEach((tagName) => {
+        const tagUid = collection.tags.find(
+          (uid) => tags[uid]?.name === tagName,
+        )
+        if (!tagUid) return
+
+        tagMutators.edit(
+          tagUid,
+          'children',
+          tags[tagUid]?.children.filter((r) => r !== request.uid) || [],
+        )
+      })
+    }
 
     // Remove request
     requestMutators.delete(request.uid)
@@ -166,7 +174,7 @@ export function findRequestParentsFactory({
 
     // Recursively add nested children to the tagChildren values
     function addChildren(current: Tag | Collection, parentUids: string[]) {
-      parentUids.forEach((p) => tagChildren[p].push(...current.children))
+      parentUids.forEach((p) => tagChildren[p]?.push(...current.children))
 
       // tagChildren[current.uid].push(...current.children)
 

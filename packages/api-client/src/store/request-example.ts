@@ -40,7 +40,7 @@ export function extendedExampleDataFactory({
     const name =
       _name ??
       iterateTitle((request.summary ?? 'Example') + ' #1', (t) =>
-        request.examples.some((uid) => t === requestExamples[uid].name),
+        request.examples.some((uid) => requestExamples[uid]?.name === t),
       )
 
     const example = createExampleFromRequest(request, name)
@@ -63,9 +63,9 @@ export function extendedExampleDataFactory({
     requestMutators.edit(
       requestExample.requestUid,
       'examples',
-      requests[requestExample.requestUid].examples.filter(
+      requests[requestExample.requestUid]?.examples.filter(
         (uid) => uid !== requestExample.uid,
-      ),
+      ) || [],
     )
 
     // Remove from base
