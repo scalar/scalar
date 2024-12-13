@@ -1,5 +1,7 @@
+import type { UnknownObject } from '@scalar/types/utils'
+
 import { OpenApiVersions } from '../configuration'
-import type { DetailsResult, UnknownObject } from '../types'
+import type { DetailsResult } from '../types'
 
 /**
  * Get versions of the OpenAPI document.
