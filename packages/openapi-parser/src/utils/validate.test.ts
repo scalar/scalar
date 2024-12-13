@@ -74,8 +74,6 @@ paths: {}
       await validate(undefined, {
         throwOnError: true,
       })
-    }).rejects.toThrowError(
-      'Can’t find supported Swagger/OpenAPI version in specification, version must be a string.',
-    )
+    }).rejects.toThrowError('Can’t find JSON, YAML or filename in data')
   })
 })
