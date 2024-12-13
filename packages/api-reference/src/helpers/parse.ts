@@ -150,18 +150,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           ...originalWebhook,
         },
       }
-
-      // Object.assign(
-      //   (schema).webhooks?.[name]?.[httpVerb] ?? {},
-      //   {},
-      // )
-      // Object.assign(
-      //   (schema).webhooks?.[name]?.[httpVerb] ?? {},
-      //   {},
-      // )
-      // information: {
-      //   ...(schema).webhooks?.[name],
-      // },
     })
   })
 
