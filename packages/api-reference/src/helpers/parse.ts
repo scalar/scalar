@@ -29,7 +29,7 @@ type AnyObject = Record<string, any>
  * @deprecated Try to use a store instead.
  */
 export const parse = (
-  specification: UnknownObject | string,
+  specification: UnknownObject | string | undefined,
   {
     proxyUrl,
   }: {
