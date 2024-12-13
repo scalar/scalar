@@ -22,8 +22,8 @@
   },
   "scripts": {
     "build": "scalar-build-rollup && pnpm run docs:build",
-    "docs:dev": "nodemon --watch \"src/**/*.ts\" --watch \"scripts/**/*.ts\" -e ts --exec \"pnpm run docs:build && pnpm run docs:serve\"",
     "docs:build": "vite-node scripts/build-docs.ts",
+    "docs:dev": "nodemon --watch \"src/**/*.ts\" --watch \"scripts/**/*.ts\" -e ts --exec \"pnpm run docs:build && pnpm run docs:serve\"",
     "docs:serve": "markserv docs/reference-configuration.md",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
