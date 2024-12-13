@@ -9,6 +9,10 @@ inputs:
     description: 'Whether to build packages/ only'
     required: false
     default: 'false'
+  write-cache:
+    description: 'Whether to write the cache'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
