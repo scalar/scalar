@@ -1,5 +1,24 @@
 # @scalar/api-client
 
+## 2.2.12
+
+### Patch Changes
+
+- fbef0c3: fix: displays server path variables
+- fbef0c3: fix: sets server variables values in client
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+  - @scalar/openapi-parser@0.10.0
+  - @scalar/types@0.0.24
+  - @scalar/import@0.2.7
+  - @scalar/oas-utils@0.2.88
+  - @scalar/themes@0.9.55
+  - @scalar/postman-to-openapi@0.1.11
+  - @scalar/components@0.13.5
+  - @scalar/use-hooks@0.1.8
+  - @scalar/use-codemirror@0.11.49
+
 ## 2.2.11
 
 ### Patch Changes

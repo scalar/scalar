@@ -1,5 +1,22 @@
 # @scalar/cli
 
+## 0.2.264
+
+### Patch Changes
+
+- fbef0c3: fix: doesn’t validate files with external references
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+- Updated dependencies [fbef0c3]
+  - @scalar/openapi-parser@0.10.0
+  - @scalar/api-reference@1.25.81
+  - @scalar/mock-server@0.2.93
+  - @scalar/oas-utils@0.2.88
+
 ## 0.2.263
 
 ### Patch Changes
