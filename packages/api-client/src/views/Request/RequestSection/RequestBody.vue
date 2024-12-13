@@ -89,7 +89,7 @@ const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
 const codeInputLanguage = computed(() => {
   const type = selectedContentType.value
-    .id as keyof typeof contentTypeToLanguageMap
+    ?.id as keyof typeof contentTypeToLanguageMap
   return contentTypeToLanguageMap[type] ?? 'plaintext'
 })
 
