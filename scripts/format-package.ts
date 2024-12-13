@@ -126,7 +126,7 @@ async function formatPackage(filepath: string) {
 
   formattedData['repository'] = {
     type: 'git',
-    url: 'https://github.com/scalar/scalar.git',
+    url: 'git+https://github.com/scalar/scalar.git',
     directory,
   }
 
