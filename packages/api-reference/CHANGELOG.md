@@ -1,5 +1,29 @@
 # @scalar/api-reference
 
+## 1.25.81
+
+### Patch Changes
+
+- 60feddf: feat: increases visible enum value item number
+- 56c1981: Adds support for hash prefixing. Requires manual control of useNavState.
+- 1766efb: fix(api-reference): correct anchor id encoding to ensure correct page scrolling #4173
+- 29ca97f: fix: sets server variables values in client
+- 6852aca: chore: remove httpsnippet-lite
+- Updated dependencies [e0f8f21]
+- Updated dependencies [29ca97f]
+- Updated dependencies [5f77272]
+- Updated dependencies [29ca97f]
+- Updated dependencies [6852aca]
+  - @scalar/openapi-parser@0.10.0
+  - @scalar/api-client@2.2.12
+  - @scalar/snippetz@0.2.9
+  - @scalar/types@0.0.24
+  - @scalar/oas-utils@0.2.88
+  - @scalar/themes@0.9.55
+  - @scalar/code-highlight@0.0.18
+  - @scalar/components@0.13.5
+  - @scalar/use-hooks@0.1.8
+
 ## 1.25.80
 
 ### Patch Changes
