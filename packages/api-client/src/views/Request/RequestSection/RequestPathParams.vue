@@ -106,7 +106,7 @@ const handlePathVariableUpdate = (url: string) => {
 watch(
   () => activeRequest.value,
   (newURL) => {
-    if (newURL) {
+    if (newURL && activeServer.value?.url) {
       handlePathVariableUpdate(activeServer.value?.url)
     }
   },
@@ -115,7 +115,7 @@ watch(
 watch(
   () => activeServer.value?.url,
   (newServerUrl, oldServerUrl) => {
-    if (newServerUrl !== oldServerUrl) {
+    if (newServerUrl && newServerUrl !== oldServerUrl) {
       handlePathVariableUpdate(newServerUrl)
     }
   },
