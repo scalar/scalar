@@ -5,29 +5,59 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import { useSidebar } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { serverSchema } from '@scalar/oas-utils/entities/spec'
-import { useRouter } from 'vue-router'
+import { ScalarIcon } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
 import ServerForm from './ServerForm.vue'
 
-const { activeCollection } = useActiveEntities()
-const { servers, serverMutators } = useWorkspace()
+const { activeWorkspaceCollections, activeWorkspace, activeCollection } =
+  useActiveEntities()
+const { servers, events, serverMutators } = useWorkspace()
 const { push } = useRouter()
+const route = useRoute()
+const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
-const addServerHandler = () => {
-  if (!activeCollection.value) return
+const collectionIdParam = computed(() => route.params.collectionId as string)
+const serverUidParam = computed(() => route.params.servers as string)
 
-  const newServer = serverSchema.parse({ url: 'http://localhost' })
-  serverMutators.add(newServer, activeCollection.value.uid)
+const showChildren = (key: string) => {
+  return collapsedSidebarFolders[key]
+}
 
-  push({
-    name: 'servers',
-    params: {
-      server: newServer.uid,
-    },
+function openCommandPaletteServer() {
+  events.commandPalette.emit({
+    commandName: 'Add Server',
   })
+}
+
+const collections = computed(() => {
+  return activeWorkspaceCollections.value.filter(
+    (collection: Collection) => collection.info?.title !== 'Drafts',
+  )
+})
+
+const handleNavigation = (
+  event: MouseEvent,
+  uid: string,
+  collectionId: string,
+) => {
+  const path = `/workspace/${activeWorkspace?.value?.uid}/servers/${collectionId}/${uid}`
+  if (event.metaKey) {
+    window.open(path, '_blank')
+  } else {
+    push({ path })
+  }
+}
+
+function handleDelete(uid: string) {
+  if (!activeCollection?.value?.uid) return
+  serverMutators.delete(uid, collectionIdParam.value)
 }
 </script>
 <template>
@@ -36,26 +66,70 @@ const addServerHandler = () => {
       <template #content>
         <div class="flex-1">
           <SidebarList>
-            <SidebarListElement
-              v-for="serverUid in activeCollection?.servers"
-              :key="serverUid"
-              class="text-xs"
-              type="server"
-              :variable="{
-                name: servers[serverUid]?.url ?? '',
-                uid: serverUid,
-              }" />
+            <div
+              v-for="collection in collections"
+              :key="collection.uid"
+              class="flex flex-col gap-px">
+              <button
+                class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                type="button"
+                @click="toggleSidebarFolder(collection.uid)">
+                <span
+                  class="flex h-5 items-center justify-center max-w-[14px] pr-px">
+                  <LibraryIcon
+                    class="min-w-3.5 text-sidebar-c-2 size-3.5 stroke-2 group-hover:hidden"
+                    :src="
+                      collection['x-scalar-icon'] || 'interface-content-folder'
+                    " />
+                  <div
+                    :class="{
+                      'rotate-90': collapsedSidebarFolders[collection.uid],
+                    }">
+                    <ScalarIcon
+                      class="text-c-3 hidden text-sm group-hover:block"
+                      icon="ChevronRight"
+                      size="md" />
+                  </div>
+                </span>
+                <span
+                  class="break-all line-clamp-1 font-medium text-left w-full"
+                  >{{ collection.info?.title ?? '' }}</span
+                >
+              </button>
+              <div
+                v-show="showChildren(collection.uid)"
+                :class="{
+                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] flex flex-col gap-px mb-[.5px] last:mb-0 relative':
+                    Object.keys(collection['servers'] || {}).length > 0,
+                }">
+                <SidebarListElement
+                  v-for="serverUid in collection['servers']"
+                  :key="serverUid"
+                  class="[&>a]:pl-[1.625rem]"
+                  :collectionId="collection.uid"
+                  :isDeletable="true"
+                  type="servers"
+                  :variable="{
+                    name: servers[serverUid]?.url ?? '',
+                    uid: serverUid,
+                  }"
+                  @click="handleNavigation($event, serverUid, collection.uid)"
+                  @delete="handleDelete" />
+              </div>
+            </div>
           </SidebarList>
         </div>
       </template>
       <template #button>
-        <SidebarButton :click="addServerHandler">
+        <SidebarButton :click="openCommandPaletteServer">
           <template #title>Add Server</template>
         </SidebarButton>
       </template>
     </Sidebar>
     <ViewLayoutContent class="flex-1">
-      <ServerForm />
+      <ServerForm
+        :collectionId="collectionIdParam"
+        :serverUid="serverUidParam" />
     </ViewLayoutContent>
   </ViewLayout>
 </template>

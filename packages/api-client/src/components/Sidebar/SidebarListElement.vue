@@ -17,7 +17,7 @@ const props = defineProps<{
   isDeletable?: boolean
   isCopyable?: boolean
   isRenameable?: boolean
-  type: 'environment' | 'cookies' | 'server'
+  type: 'environment' | 'cookies' | 'servers'
 }>()
 
 const emit = defineEmits<{
