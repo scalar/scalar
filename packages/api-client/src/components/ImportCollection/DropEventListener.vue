@@ -51,6 +51,9 @@ async function handleDrop(event: DragEvent) {
     // Files
     else if (event.dataTransfer.files.length > 0) {
       const file = event.dataTransfer.files[0]
+
+      if (!file) return
+
       const reader = new FileReader()
 
       reader.onload = async (e) => {
@@ -58,6 +61,7 @@ async function handleDrop(event: DragEvent) {
           emit('input', e.target.result, null, 'drop')
         }
       }
+
       reader.readAsText(file)
     }
   }
@@ -91,10 +95,10 @@ function handleDragEnter(event: DragEvent) {
       const item = items[i]
 
       if (
-        item.kind === 'string' ||
-        item.type.includes('json') ||
-        item.type.includes('yml') ||
-        item.type.includes('yaml')
+        item?.kind === 'string' ||
+        item?.type?.includes('json') ||
+        item?.type?.includes('yml') ||
+        item?.type?.includes('yaml')
       ) {
         isDragging.value = true
         return
