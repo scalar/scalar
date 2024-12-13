@@ -12,11 +12,14 @@ const props = defineProps<{
 const isDark = ref(props.configuration.darkMode)
 
 // Grab spec if we can
-const content: unknown = props.configuration.spec?.content
-  ? toRaw(props.configuration.spec.content)
-  : props.configuration.spec?.url
-    ? await $fetch(props.configuration.spec?.url)
-    : await $fetch('/_nitro/openapi.json')
+const content =
+  typeof props.configuration.spec?.content === 'function'
+    ? toRaw(props.configuration.spec.content())
+    : props.configuration.spec?.content
+      ? toRaw(props.configuration.spec.content)
+      : props.configuration.spec?.url
+        ? await $fetch<string>(props.configuration.spec?.url)
+        : await $fetch<string>('/_nitro/openapi.json')
 
 // Check for empty spec
 if (!content)
