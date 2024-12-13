@@ -6,6 +6,9 @@ const decodeURIComponentSafe = (str: string) => {
   }
 }
 
+/**
+ * Extract the filename from a content disposition header
+ */
 export function extractFilename(contentDisposition: string) {
   let filename = ''
 
@@ -14,7 +17,7 @@ export function extractFilename(contentDisposition: string) {
       /filename\s*=\s*"?([^";]+)"?/,
     )
 
-    if (fileNameMatch && fileNameMatch.length === 2) {
+    if (typeof fileNameMatch?.[1] === 'string') {
       // Decode filename
       filename = decodeURIComponentSafe(fileNameMatch[1].trim())
     }
