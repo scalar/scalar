@@ -59,4 +59,10 @@ describe('upgrade', () => {
 
     expect(specification.openapi).toBe('3.1.1')
   })
+
+  it('deals with null', async () => {
+    const { specification } = upgrade(null)
+
+    expect(specification).toBe(null)
+  })
 })

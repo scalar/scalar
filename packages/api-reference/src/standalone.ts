@@ -122,8 +122,9 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
       _integration: 'html',
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
-      spec: { ...specOrSpecUrl },
-    },
+      // spec: { ...specOrSpecUrl },
+      spec: { content: null },
+    } satisfies ReferenceConfiguration,
   })
 
   if (getConfiguration().darkMode) {
