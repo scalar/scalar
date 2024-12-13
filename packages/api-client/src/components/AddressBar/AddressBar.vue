@@ -19,7 +19,8 @@ defineEmits<{
   (e: 'importCurl', value: string): void
 }>()
 
-const { activeRequest, activeExample, activeServer } = useActiveEntities()
+const { activeRequest, activeExample, activeServer, activeCollection } =
+  useActiveEntities()
 const { isReadOnly, requestMutators, requestHistory, events } = useWorkspace()
 
 const selectedRequest = ref(requestHistory[0])
@@ -165,7 +166,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             <div class="fade-left"></div>
 
             <!-- Servers -->
-            <AddressBarServers />
+            <AddressBarServers v-if="activeCollection?.servers?.length" />
 
             <!-- Path + URL + env vars -->
             <CodeInput
@@ -179,7 +180,11 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               :emitOnBlur="false"
               importCurl
               :modelValue="activeRequest.path"
-              :placeholder="activeServer ? '' : 'Enter a URL or cURL command'"
+              :placeholder="
+                activeCollection?.servers?.includes(activeServer?.uid)
+                  ? ''
+                  : 'Enter a URL or cURL command'
+              "
               server
               @curl="$emit('importCurl', $event)"
               @submit="handleExecuteRequest"

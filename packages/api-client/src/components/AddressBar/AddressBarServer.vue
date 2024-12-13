@@ -61,10 +61,6 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarDropdown
-    v-if="
-      (requestServerOptions && requestServerOptions?.length > 1) ||
-      (collectionServerOptions && collectionServerOptions?.length > 1)
-    "
     class="w-max"
     teleport>
     <button
@@ -115,9 +111,4 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       </template>
     </template>
   </ScalarDropdown>
-  <div
-    v-else-if="serverUrlWithoutTrailingSlash"
-    class="flex whitespace-nowrap items-center font-code lg:text-sm text-xs">
-    {{ serverUrlWithoutTrailingSlash }}
-  </div>
 </template>
