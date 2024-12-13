@@ -49,18 +49,18 @@ export const combineRenameDiffs = (
 
     // Prefix the paths when nested
     if (pathPrefix.length) {
-      current.path = [...pathPrefix, ...current.path]
-      if (next) next.path = [...pathPrefix, ...next.path]
+      current.path = [...pathPrefix, ...(current?.path ?? [])]
+      if (next) next.path = [...pathPrefix, ...(next?.path ?? [])]
     }
     // Only mutate paths
-    else if (current.path[0] !== 'paths') {
+    else if (current?.path?.[0] !== 'paths') {
       combined.push(current)
       continue
     }
 
-    if (current.type === 'REMOVE' && next?.type === 'CREATE') {
-      const [, currPath, currMethod] = current.path as string[]
-      const [, nextPath, nextMethod] = next.path as string[]
+    if (current?.type === 'REMOVE' && next?.type === 'CREATE') {
+      const [, currPath, currMethod] = current?.path ?? []
+      const [, nextPath, nextMethod] = next?.path ?? []
       const nestedPrefix = ['paths', nextPath]
 
       // Handle path rename
@@ -98,23 +98,23 @@ export const combineRenameDiffs = (
     }
     // If adding anthing other than a path, method, or array we can just change instead
     else if (
-      current.type === 'CREATE' &&
-      current.path.length > 3 &&
-      typeof current.path.at(-1) !== 'number'
+      current?.type === 'CREATE' &&
+      current?.path?.length > 3 &&
+      typeof current?.path?.at(-1) !== 'number'
     ) {
       combined.push({ ...current, type: 'CHANGE', oldValue: undefined })
     }
     // If deleting anthing other than a path, method, or array we can also do a change
     else if (
-      current.type === 'REMOVE' &&
-      current.path.length > 3 &&
-      typeof current.path.at(-1) !== 'number'
+      current?.type === 'REMOVE' &&
+      current?.path?.length > 3 &&
+      typeof current?.path?.at(-1) !== 'number'
     ) {
       combined.push({ ...current, type: 'CHANGE', value: undefined })
     }
     // Just regular things
     else {
-      combined.push(current)
+      if (current) combined.push(current)
     }
   }
 
@@ -310,7 +310,7 @@ const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
   request?.examples.forEach((exampleUid) => {
     const newExample = createExampleFromRequest(
       request,
-      requestExamples[exampleUid].name,
+      requestExamples[exampleUid]?.name ?? '',
     )
     if (newExample)
       requestExampleMutators.set({
@@ -341,7 +341,7 @@ export const mutateRequestDiff = (
   // Path has changed
   if (path === 'path' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
-      if (requests[uid].path === diff.oldValue) {
+      if (requests[uid]?.path === diff.oldValue) {
         requestMutators.edit(uid, 'path', diff.value)
       }
     })
@@ -350,8 +350,8 @@ export const mutateRequestDiff = (
   else if (method === 'method' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
       if (
-        requests[uid].method === diff.oldValue &&
-        requests[uid].path === path
+        requests[uid]?.method === diff.oldValue &&
+        requests[uid]?.path === path
       ) {
         requestMutators.edit(uid, 'method', diff.value)
       }
@@ -478,7 +478,7 @@ export const mutateServerDiff = (
   // Edit: update properties
   if (keys?.length) {
     const serverUid = activeCollection.value.servers[index]
-    const server = servers[serverUid]
+    const server = servers[serverUid ?? '']
     const parsed = parseDiff(serverSchema, { ...diff, path: keys })
 
     if (!server || !parsed) return false
@@ -487,7 +487,7 @@ export const mutateServerDiff = (
       diff.type === 'REMOVE' && keys[keys.length - 1] === 'variables'
     const value = removeVariables ? {} : parsed.value
 
-    serverMutators.edit(serverUid, parsed.path, value)
+    serverMutators.edit(serverUid ?? '', parsed.path, value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
@@ -520,17 +520,17 @@ export const mutateTagDiff = (
 
   if (keys?.length) {
     const tagUid = activeCollection.value.tags[index]
-    const tag = tags[tagUid]
+    const tag = tags[tagUid ?? '']
     const parsed = parseDiff(tagSchema, { ...diff, path: keys })
 
     if (!tag || !parsed) return false
 
-    tagMutators.edit(tagUid, parsed.path, parsed.value)
+    tagMutators.edit(tagUid ?? '', parsed.path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
     const tagUid = activeCollection.value.tags[index]
-    const tag = tags[tagUid]
+    const tag = tags[tagUid ?? '']
     if (!tag) return false
 
     tagMutators.delete(tag, activeCollection.value.uid)
@@ -610,12 +610,12 @@ export const mutateSecuritySchemeDiff = (
     if (!parsed) return false
 
     const path = parsed.path as Path<SecurityScheme>
-    securitySchemeMutators.edit(scheme.uid, path, parsed.value)
+    securitySchemeMutators.edit(scheme?.uid ?? '', path, parsed.value)
   }
   // Delete whole object
   else if (diff.type === 'REMOVE') {
     if (!scheme) return false
-    securitySchemeMutators.delete(scheme.uid)
+    securitySchemeMutators.delete(scheme?.uid ?? '')
   }
   // Add whole object
   else if (diff.type === 'CREATE')

@@ -14,11 +14,12 @@ defineProps<{
 const { activeWorkspace } = useActiveEntities()
 </script>
 <template>
+  <!-- Use named routes instead -->
   <SideNavLink
     :is="RouterLink"
     :active="active"
     :icon="icon"
-    :to="`/workspace/${activeWorkspace.uid}/${name}`">
+    :to="`/workspace/${activeWorkspace?.uid}/${name}`">
     <slot />
   </SideNavLink>
 </template>

@@ -34,7 +34,7 @@ const handleNavigation = (
   collectionId?: string,
 ) => {
   const params = {
-    workspaceId: activeWorkspace.value.uid,
+    workspaceId: activeWorkspace.value?.uid,
     type: props.type,
     collectionId: collectionId || undefined,
     uid: uid,
@@ -63,14 +63,15 @@ const handleRename = (id: string) => {
 </script>
 <template>
   <li>
+    <!-- TODO: Use named routes instead -->
     <router-link
       class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-1.5']"
       exactActiveClass="active-link"
       :to="
         collectionId
-          ? `/workspace/${activeWorkspace.uid}/${type}/${collectionId}/${variable.uid}`
-          : `/workspace/${activeWorkspace.uid}/${type}/${variable.uid}`
+          ? `/workspace/${activeWorkspace?.uid}/${type}/${collectionId}/${variable.uid}`
+          : `/workspace/${activeWorkspace?.uid}/${type}/${variable.uid}`
       "
       @click.prevent="handleNavigation($event, variable.uid, collectionId)">
       <button

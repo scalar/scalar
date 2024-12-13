@@ -93,8 +93,10 @@ const item = computed<SidebarItem>(() => {
         collectionMutators.edit(collection.uid, 'info.title', name)
         if (icon) collectionMutators.edit(collection.uid, 'x-scalar-icon', icon)
       },
-      delete: () =>
-        collectionMutators.delete(collection, activeWorkspace.value),
+      delete: () => {
+        if (!activeWorkspace.value) return
+        return collectionMutators.delete(collection, activeWorkspace.value)
+      },
     }
 
   if (tag)
@@ -115,7 +117,7 @@ const item = computed<SidebarItem>(() => {
       link: {
         name: 'request',
         params: {
-          workspace: activeWorkspace.value.uid,
+          workspace: activeWorkspace.value?.uid,
           request: request.uid,
         },
       },
@@ -135,7 +137,7 @@ const item = computed<SidebarItem>(() => {
       link: {
         name: 'request.examples',
         params: {
-          workspace: activeWorkspace.value.uid,
+          workspace: activeWorkspace.value?.uid,
           request: requestExample.requestUid,
           examples: requestExample.uid,
         },

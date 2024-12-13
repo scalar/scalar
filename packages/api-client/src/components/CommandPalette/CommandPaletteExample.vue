@@ -61,7 +61,7 @@ const handleSubmit = () => {
 
   // Route to new request example
   push(
-    `/workspace/${activeWorkspace.value.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
+    `/workspace/${activeWorkspace.value?.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
   )
   emits('close')
 }

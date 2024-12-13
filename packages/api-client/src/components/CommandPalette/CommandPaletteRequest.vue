@@ -115,7 +115,7 @@ const handleSubmit = () => {
     push({
       name: 'request',
       params: {
-        workspace: activeWorkspace.value.uid,
+        workspace: activeWorkspace.value?.uid,
         request: newRequest.uid,
       },
     })

@@ -39,10 +39,15 @@ const handleAuthorize = async () => {
   if (loadingState.isLoading || !activeCollection.value?.uid) return
   loadingState.startLoading()
 
+  if (!activeServer.value) {
+    toast('No server selected', 'error')
+    return
+  }
+
   const [error, accessToken] = await authorizeOauth2(
     flow,
     activeServer.value,
-    activeWorkspace.value.proxyUrl,
+    activeWorkspace.value?.proxyUrl,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateScheme(`flows.${flow.type}.token`, accessToken)

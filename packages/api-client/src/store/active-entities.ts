@@ -58,7 +58,7 @@ export const createActiveEntitiesStore = ({
   const activeWorkspaceCollections = computed<Collection[]>(() => {
     if (!activeWorkspace.value?.collections) return []
 
-    return activeWorkspace.value.collections
+    return activeWorkspace.value?.collections
       .map((uid: string) => collections[uid])
       .filter(
         (collection): collection is Collection => collection !== undefined,
@@ -104,21 +104,21 @@ export const createActiveEntitiesStore = ({
 
     if (
       activeEnvironmentCollection &&
-      activeWorkspace.value.activeEnvironmentId
+      activeWorkspace.value?.activeEnvironmentId
     ) {
       return {
-        uid: activeWorkspace.value.activeEnvironmentId,
-        name: activeWorkspace.value.activeEnvironmentId,
+        uid: activeWorkspace.value?.activeEnvironmentId,
+        name: activeWorkspace.value?.activeEnvironmentId,
         value: JSON.stringify(
           activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value.activeEnvironmentId
+            activeWorkspace.value?.activeEnvironmentId
           ]?.variables,
           null,
           2,
         ),
         color:
           activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value.activeEnvironmentId
+            activeWorkspace.value?.activeEnvironmentId
           ]?.color || '#0082D0',
         isDefault: false,
       }
@@ -128,7 +128,7 @@ export const createActiveEntitiesStore = ({
       uid: '',
       color: '#0082D0',
       name: 'No Environment',
-      value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+      value: JSON.stringify(activeWorkspace.value?.environments, null, 2),
     }
   })
 

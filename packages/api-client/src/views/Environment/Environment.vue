@@ -113,7 +113,7 @@ function handleEnvironmentUpdate(raw: string) {
 
     if (currentEnvironmentId.value === 'default') {
       workspaceMutators.edit(
-        activeWorkspace.value.uid,
+        activeWorkspace.value?.uid ?? '',
         'environments',
         updatedValue,
       )
@@ -237,7 +237,7 @@ const getEnvironmentName = () => {
 
 const getEnvironmentValue = () => {
   return currentEnvironmentId.value === 'default'
-    ? JSON.stringify(activeWorkspace.value.environments, null, 2)
+    ? JSON.stringify(activeWorkspace.value?.environments, null, 2)
     : JSON.stringify(
         activeWorkspaceCollections.value.find(
           (collection) =>
