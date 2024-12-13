@@ -73,7 +73,7 @@ watch(hash, (newHash, oldHash) => {
           :isDevelopment="isDevelopment"
           :url="configuration.spec?.url" />
         <DarkModeToggle
-          v-if="!!!props.configuration.hideDarkModeToggle"
+          :hideDarkModeToggle="configuration.hideDarkModeToggle"
           :isDarkMode="isDark"
           @toggleDarkMode="$emit('toggleDarkMode')" />
       </div>

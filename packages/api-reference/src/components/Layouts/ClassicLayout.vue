@@ -41,7 +41,7 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
           :spec="spec" />
         <template #dark-mode-toggle>
           <DarkModeIconToggle
-            v-if="!!!props.configuration.hideDarkModeToggle"
+            v-if="!props.configuration.hideDarkModeToggle"
             :isDarkMode="isDark"
             @toggleDarkMode="$emit('toggleDarkMode')" />
         </template>

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 defineProps<{
   isDarkMode: boolean
+  hideDarkModeToggle?: boolean
 }>()
 
 defineEmits<{
@@ -16,6 +17,7 @@ defineEmits<{
       Powered by Scalar
     </a>
     <button
+      v-if="!hideDarkModeToggle"
       aria-label="Toggle dark mode"
       :aria-pressed="isDarkMode"
       class="darklight"
