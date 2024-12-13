@@ -83,7 +83,7 @@ export const useOpenApiWatcher = () => {
       // Grab the new spec
       const spec = await fetchSpecFromUrl(
         url,
-        activeWorkspace.value.proxyUrl,
+        activeWorkspace.value?.proxyUrl,
         false,
       )
       const hash = createHash(spec)

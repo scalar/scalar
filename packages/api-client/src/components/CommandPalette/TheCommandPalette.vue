@@ -158,7 +158,7 @@ const executeCommand = (
     push({
       name: command.path,
       params: {
-        workspace: activeWorkspace.value.uid,
+        workspace: activeWorkspace.value?.uid,
       },
     })
     closeHandler()

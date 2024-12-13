@@ -30,9 +30,11 @@ export function dragHandlerFactory(
     // Parent is the workspace
     if (!draggingParentUid) {
       workspaceMutators.edit(
-        activeWorkspace.value.uid,
+        activeWorkspace.value?.uid ?? '',
         'collections',
-        activeWorkspace.value.collections.filter((uid) => uid !== draggingUid),
+        activeWorkspace.value?.collections.filter(
+          (uid) => uid !== draggingUid,
+        ) ?? [],
       )
     }
 
@@ -58,17 +60,20 @@ export function dragHandlerFactory(
     // Place it at the end of the list of the hoveredItem
     if (offset === 2) {
       const parent = collections[hoveredUid] || tags[hoveredUid]
-      mutateTagOrCollection(hoveredUid, [...parent.children, draggingUid])
+      mutateTagOrCollection(hoveredUid, [
+        ...(parent?.children ?? []),
+        draggingUid,
+      ])
     }
     // Special case for collections
     else if (!hoveredParentUid) {
-      const newChildUids = [...activeWorkspace.value.collections]
+      const newChildUids = [...(activeWorkspace.value?.collections ?? [])]
       const hoveredIndex =
         newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
 
       workspaceMutators.edit(
-        activeWorkspace.value.uid,
+        activeWorkspace.value?.uid ?? '',
         'collections',
         newChildUids,
       )
@@ -76,7 +81,7 @@ export function dragHandlerFactory(
     // Place it into the list at an index
     else {
       const parent = collections[hoveredParentUid] || tags[hoveredParentUid]
-      const newChildUids = [...parent.children]
+      const newChildUids = [...(parent?.children ?? [])]
 
       const hoveredIndex =
         newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0

@@ -50,7 +50,8 @@ export function useSearch() {
       description: request.description ?? '',
       httpVerb: request.method,
       path: request.path,
-      link: `/workspace/${activeWorkspace.value.uid}/request/${request.uid}`,
+      // TODO: Use router instead
+      link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
     }))
     fuse.setCollection(fuseDataArray.value)
   }

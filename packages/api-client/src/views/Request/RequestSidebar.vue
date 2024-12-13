@@ -173,14 +173,18 @@ const handleClearDrafts = () => {
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+      // TODO: Use named routes instead
+      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
     }
   } else {
     const firstCollection = activeWorkspaceCollections.value[0]
     const firstRequest = firstCollection?.requests[0]
 
     if (firstRequest) {
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+      // TODO: Use named routes instead
+      replace(
+        `/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`,
+      )
     }
   }
 }

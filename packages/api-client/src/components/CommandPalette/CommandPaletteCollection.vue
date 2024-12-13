@@ -36,7 +36,7 @@ const handleSubmit = () => {
       },
       'x-scalar-icon': collectionIcon.value,
     },
-    activeWorkspace.value.uid,
+    activeWorkspace.value?.uid ?? '',
   )
   emits('close')
 }

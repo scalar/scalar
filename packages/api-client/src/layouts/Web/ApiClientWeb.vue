@@ -48,7 +48,7 @@ onBeforeUnmount(() => {
 const themeStyleTag = computed(
   () =>
     activeWorkspace.value &&
-    `<style>${getThemeStyles(activeWorkspace.value.themeId)}</style>`,
+    `<style>${getThemeStyles(activeWorkspace.value?.themeId)}</style>`,
 )
 </script>
 <template>

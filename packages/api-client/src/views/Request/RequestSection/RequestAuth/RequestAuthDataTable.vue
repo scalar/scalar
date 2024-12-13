@@ -156,9 +156,11 @@ const editSelectedSchemeUids = (uids: string[]) => {
 
 /** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids.map((uid) =>
-    displaySchemeFormatter(securitySchemes[uid]),
-  ),
+  selectedSecuritySchemeUids.map((uid) => {
+    const scheme = securitySchemes[uid ?? '']
+    if (!scheme) return undefined
+    return displaySchemeFormatter(scheme)
+  }),
 )
 
 /** Update the selected auth types */

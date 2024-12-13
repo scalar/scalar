@@ -3,15 +3,8 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { displaySchemeFormatter } from '@/views/Request/libs'
-import {
-  type Icon,
-  type ScalarButton,
-  type ScalarComboboxMultiselect,
-  ScalarIcon,
-  ScalarIconButton,
-  useModal,
-} from '@scalar/components'
-import { computed, ref } from 'vue'
+import { type Icon, ScalarIcon } from '@scalar/components'
+import { computed } from 'vue'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
@@ -21,12 +14,7 @@ const { selectedSecuritySchemeUids } = defineProps<{
 }>()
 
 const { activeCollection, activeRequest } = useActiveEntities()
-const { isReadOnly, securitySchemes } = useWorkspace()
-
-const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
-const comboboxButtonRef = ref<typeof ScalarButton | null>(null)
-const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
+const { securitySchemes } = useWorkspace()
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
@@ -52,7 +40,7 @@ const authIndicator = computed(() => {
   const requiredText = isOptional ? 'Optional' : 'Required'
   const nameKey =
     filteredRequirements.length === 1
-      ? Object.keys(filteredRequirements[0])[0]
+      ? Object.keys(filteredRequirements[0] ?? {})[0]
       : 'Authentication'
   const text = `${nameKey} ${requiredText}`
 
@@ -61,9 +49,11 @@ const authIndicator = computed(() => {
 
 /** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids.map((uid) =>
-    displaySchemeFormatter(securitySchemes[uid]),
-  ),
+  selectedSecuritySchemeUids.map((uid) => {
+    const scheme = securitySchemes[uid ?? '']
+    if (!scheme) return undefined
+    return displaySchemeFormatter(scheme)
+  }),
 )
 </script>
 <template>

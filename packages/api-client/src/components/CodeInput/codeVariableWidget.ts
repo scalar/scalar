@@ -24,17 +24,17 @@ type IsReadOnly = WorkspaceStore['isReadOnly']
  */
 class PillWidget extends WidgetType {
   private app: any
-  environment: Environment
-  envVariables: EnvVariables
-  workspace: Workspace
-  isReadOnly: IsReadOnly
+  environment?: Environment
+  envVariables?: EnvVariables
+  workspace?: Workspace
+  isReadOnly?: IsReadOnly
 
   constructor(
     private variableName: string,
-    environment: Environment,
-    envVariables: EnvVariables,
-    workspace: Workspace,
-    isReadOnly: IsReadOnly,
+    environment?: Environment,
+    envVariables?: EnvVariables,
+    workspace?: Workspace,
+    isReadOnly?: IsReadOnly,
   ) {
     super()
     this.variableName = variableName
@@ -52,9 +52,11 @@ class PillWidget extends WidgetType {
     const tooltipComponent = defineComponent({
       props: { variableName: { type: String, default: null } },
       render: () => {
-        const val = parseEnvVariables(this.envVariables).find(
-          (thing) => thing.key === this.variableName,
-        )
+        const val = this.envVariables
+          ? parseEnvVariables(this.envVariables).find(
+              (thing) => thing.key === this.variableName,
+            )
+          : undefined
 
         // Set the pill color based on the environment or fallback to grey
         const pillColor =
@@ -77,8 +79,9 @@ class PillWidget extends WidgetType {
                       class:
                         'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
                       variant: 'ghost',
+                      // TODO: Use router instead
                       onClick: () =>
-                        (window.location.href = `/workspace/${this.workspace.uid}/environment`),
+                        (window.location.href = `/workspace/${this.workspace?.uid}/environment`),
                     },
                     {
                       default: () => [
@@ -148,10 +151,10 @@ class PillWidget extends WidgetType {
  * Styles the active environment variable pill
  */
 export const pillPlugin = (props: {
-  environment: Environment
-  envVariables: EnvVariables
-  workspace: Workspace
-  isReadOnly: IsReadOnly
+  environment?: Environment
+  envVariables?: EnvVariables
+  workspace?: Workspace
+  isReadOnly?: IsReadOnly
 }) =>
   ViewPlugin.fromClass(
     class {

@@ -13,6 +13,7 @@ import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useToasts } from '@scalar/use-toasts'
@@ -102,13 +103,15 @@ const executeRequest = async () => {
   const environment =
     e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
 
-  const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
+  const globalCookies =
+    activeWorkspace.value?.cookies.map((c) => cookies[c]).filter(isDefined) ??
+    []
 
   const [error, requestOperation] = createRequestOperation({
     request: activeRequest.value,
     example: activeExample.value,
     selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
-    proxyUrl: activeWorkspace.value.proxyUrl ?? '',
+    proxyUrl: activeWorkspace.value?.proxyUrl ?? '',
     environment,
     globalCookies,
     status: events.requestStatus,
@@ -194,7 +197,7 @@ function createRequestFromCurl({
     collection.uid,
   )
 
-  if (newRequest) {
+  if (newRequest && activeWorkspace.value?.uid) {
     router.push(
       `/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`,
     )

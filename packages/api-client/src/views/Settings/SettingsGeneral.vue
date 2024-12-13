@@ -57,7 +57,7 @@ const getThemeColors = (
 }
 
 const changeTheme = (themeId: ThemeId) => {
-  workspaceMutators.edit(activeWorkspace.value.uid, 'themeId', themeId)
+  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'themeId', themeId)
 }
 </script>
 <template>
@@ -97,16 +97,16 @@ const changeTheme = (themeId: ThemeId) => {
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
               :class="{
                 'bg-b-2 text-c-1':
-                  activeWorkspace.proxyUrl === DEFAULT_PROXY_URL,
+                  activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
               }"
               :variant="
-                activeWorkspace.proxyUrl === DEFAULT_PROXY_URL
+                activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL
                   ? 'primary'
                   : 'secondary'
               "
               @click="
                 workspaceMutators.edit(
-                  activeWorkspace.uid,
+                  activeWorkspace?.uid ?? '',
                   'proxyUrl',
                   DEFAULT_PROXY_URL,
                 )
@@ -129,7 +129,7 @@ const changeTheme = (themeId: ThemeId) => {
               variant="primary"
               @click="
                 workspaceMutators.edit(
-                  activeWorkspace.uid,
+                  activeWorkspace?.uid ?? '',
                   'proxyUrl',
                   proxyUrl,
                 )
@@ -148,15 +148,19 @@ const changeTheme = (themeId: ThemeId) => {
             <!-- No proxy -->
             <ScalarButton
               class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              :class="{ 'bg-b-2 text-c-1': !activeWorkspace.proxyUrl }"
-              :variant="!activeWorkspace.proxyUrl ? 'primary' : 'secondary'"
+              :class="{ 'bg-b-2 text-c-1': !activeWorkspace?.proxyUrl }"
+              :variant="!activeWorkspace?.proxyUrl ? 'primary' : 'secondary'"
               @click="
-                workspaceMutators.edit(activeWorkspace.uid, 'proxyUrl', '')
+                workspaceMutators.edit(
+                  activeWorkspace?.uid ?? '',
+                  'proxyUrl',
+                  '',
+                )
               ">
               <div
                 class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                 <ScalarIcon
-                  v-if="!activeWorkspace.proxyUrl"
+                  v-if="!activeWorkspace?.proxyUrl"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -180,7 +184,7 @@ const changeTheme = (themeId: ThemeId) => {
                 :key="themeId"
                 class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
                 :class="[
-                  activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
+                  activeWorkspace?.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
                 ]"
                 variant="ghost"
                 @click="changeTheme(themeId)">
@@ -188,12 +192,12 @@ const changeTheme = (themeId: ThemeId) => {
                   <div
                     class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-c-3"
                     :class="{
-                      'bg-primary': activeWorkspace.themeId === themeId,
+                      'bg-primary': activeWorkspace?.themeId === themeId,
                     }">
                     <div
                       class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                       <ScalarIcon
-                        v-if="activeWorkspace.themeId === themeId"
+                        v-if="activeWorkspace?.themeId === themeId"
                         icon="Checkmark"
                         size="xs"
                         thickness="3.5" />
@@ -240,7 +244,7 @@ const changeTheme = (themeId: ThemeId) => {
               :key="themeId"
               class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
               :class="[
-                activeWorkspace.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
+                activeWorkspace?.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
               ]"
               variant="ghost"
               @click="changeTheme(themeId)">
@@ -248,12 +252,12 @@ const changeTheme = (themeId: ThemeId) => {
                 <div
                   class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-c-3"
                   :class="{
-                    'bg-primary': activeWorkspace.themeId === themeId,
+                    'bg-primary': activeWorkspace?.themeId === themeId,
                   }">
                   <div
                     class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
                     <ScalarIcon
-                      v-if="activeWorkspace.themeId === themeId"
+                      v-if="activeWorkspace?.themeId === themeId"
                       icon="Checkmark"
                       size="xs"
                       thickness="3.5" />

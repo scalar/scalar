@@ -106,7 +106,7 @@ watch(
       }
 
       // Query parameters:
-      prefetchUrl(value, activeWorkspace.value.proxyUrl)
+      prefetchUrl(value, activeWorkspace.value?.proxyUrl)
 
       modalState.show()
 
@@ -189,7 +189,7 @@ const themeStyleTag = computed(
 function handleImportFinished() {
   if (shouldShowIntegrationIcon.value && props.integration) {
     workspaceMutators.edit(
-      activeWorkspace.value.uid,
+      activeWorkspace.value?.uid ?? '',
       'themeId',
       props.integration as IntegrationThemeId,
     )
