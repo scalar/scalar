@@ -43,7 +43,10 @@ const editModal = useModal()
 const deleteModal = useModal()
 
 const openRenameModal = (uid: string) => {
-  tempName.value = workspaces[uid].name
+  const workspace = workspaces[uid]
+  if (!workspace) return
+
+  tempName.value = workspace.name
   tempUid.value = uid
   editModal.show()
 }
@@ -58,7 +61,10 @@ const handleWorkspaceEdit = (name: string) => {
 }
 
 const openDeleteModal = (uid: string) => {
-  tempName.value = workspaces[uid].name
+  const workspace = workspaces[uid]
+  if (!workspace) return
+
+  tempName.value = workspace.name
   tempUid.value = uid
   deleteModal.show()
 }
