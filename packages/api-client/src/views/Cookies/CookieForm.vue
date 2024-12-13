@@ -29,7 +29,7 @@ const activeCookie = computed<Cookie>(
 )
 const updateCookie = (key: any, value: any) => {
   if (activeCookieId.value) {
-    cookieMutators.edit(activeCookieId.value as string, key, value)
+    cookieMutators.edit(activeCookieId.value, key, value)
   }
 }
 </script>
