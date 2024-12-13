@@ -72,6 +72,7 @@
     "@google-cloud/storage": "^7.12.1",
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
+    "@scalar/types": "workspace:*",
     "@types/node": "^20.14.10",
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
