@@ -9,7 +9,7 @@ on:
 jobs:
   harden_security:
     name: Check used GitHub Actions
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     steps:
       - name: Checkout code
@@ -18,7 +18,7 @@ jobs:
         uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -39,7 +39,7 @@ jobs:
 
   docker:
     name: Build and Tag Docker Image
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     steps:
       - name: Checkout repository
@@ -117,7 +117,7 @@ jobs:
             scalarapi/api-reference:${{ steps.package-version.outputs.VERSION }}
 
   format:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -139,7 +139,7 @@ jobs:
 
   types:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -157,7 +157,7 @@ jobs:
 
   test:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -182,7 +182,7 @@ jobs:
 
   stats:
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -205,7 +205,7 @@ jobs:
 
   npm-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     permissions:
       contents: write
@@ -251,7 +251,7 @@ jobs:
 
   todesktop-build:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     needs: [build, test]
     strategy:
@@ -303,7 +303,7 @@ jobs:
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     needs: [build]
     strategy:
@@ -343,7 +343,7 @@ jobs:
     # Only run this job for PRs from the same repository
     if: github.ref == 'refs/heads/main' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -394,7 +394,7 @@ jobs:
     # Skip for forks and bot PRs
     if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
     needs: [build]
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     strategy:
       matrix:
@@ -431,7 +431,7 @@ jobs:
           comment_tag: 'netlify-preview'
 
   aspnetcore-build-test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     needs: [build]
     steps:
@@ -467,7 +467,7 @@ jobs:
 
   aspnetcore-publish:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04-8core
     timeout-minutes: 15
     needs: [aspnetcore-build-test]
 
