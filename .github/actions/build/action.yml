@@ -34,20 +34,12 @@ runs:
       name: Build
       shell: bash
       # GitHub Actions runners have two cores, so we can run two tasks in parallel
-      run: pnpm turbo \
-        --concurrency=2 \
-        build
+      run: pnpm turbo --concurrency=2 build
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
-      run: pnpm turbo \
-        --concurrency=2 \
-        --filter './packages/**' \
-        build
+      run: pnpm turbo --concurrency=2 --filter './packages/**' build
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
       name: Build package
       shell: bash
-      run: pnpm turbo \
-        --concurrency=2 \
-        --filter './packages/${{inputs.packages-only}}' \
-        build
+      run: pnpm turbo --concurrency=2 --filter './packages/${{inputs.packages-only}}' build
