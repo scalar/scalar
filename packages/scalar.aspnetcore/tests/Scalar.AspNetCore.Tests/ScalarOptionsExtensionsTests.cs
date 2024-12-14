@@ -9,6 +9,7 @@ public class ScalarOptionsExtensionsTests
         var options = new ScalarOptions();
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         options
             .WithTitle("My title")
             .WithEndpointPrefix("/docs/{documentName}")
@@ -55,6 +56,7 @@ public class ScalarOptionsExtensionsTests
         // Assert
         options.Title.Should().Be("My title");
         options.EndpointPathPrefix.Should().Be("/docs/{documentName}");
+#pragma warning restore CS0618 // Type or member is obsolete
         options.HideModels.Should().BeTrue();
         options.HideDownloadButton.Should().BeTrue();
         options.HideTestRequestButton.Should().BeTrue();

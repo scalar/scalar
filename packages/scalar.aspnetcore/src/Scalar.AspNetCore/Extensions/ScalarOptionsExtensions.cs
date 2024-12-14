@@ -34,6 +34,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="prefix">The path prefix to set.</param>
+    [Obsolete("This property is obsolete and will be removed in the next major version. Please use the 'pattern' parameter of the 'MapScalarApiReference' method instead.")]
     public static ScalarOptions WithEndpointPrefix(this ScalarOptions options, string prefix)
     {
         options.EndpointPathPrefix = prefix;
