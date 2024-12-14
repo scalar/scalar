@@ -91,11 +91,10 @@ app.MapScalarApiReference(options =>
 
 Scalar supports various authentication schemes, including API Key, OAuth, HTTP Basic and Bearer, by allowing you to pre-fill certain authentication details.
 
+These details can only be prefilled if the security schemes are defined in the OpenAPI document. Make sure your OpenAPI document includes the necessary security schemes for authentication to work correctly. The scheme is added by the OpenAPI generator, and the implementation may vary depending on the generator used (`NSwag`, `Swashbuckle`, or `Microsoft.AspNetCore.OpenApi`). For more information, please refer to the documentation of the respective generator.
+
 > [!WARNING]
 > Sensitive Information: Pre-filled authentication details are exposed to the client/browser and may pose a security risk. Do not use this feature in production environments.
-
-> [!NOTE]
-> The available security schemes and flows are defined in the OpenAPI document your app provides, not within Scalar itself.
 
 #### API Key
 
@@ -106,7 +105,7 @@ app.MapScalarApiReference(options =>
 {
     // Fluent API
     options
-        .WithPreferredScheme("ApiKey") // Security scheme name from the OpenAPI document
+        .WithPreferredScheme("ApiKey") // Optional. Security scheme name from the OpenAPI document
         .WithApiKeyAuthentication(apiKey =>
         {
             apiKey.Token = "your-api-key";
@@ -115,7 +114,7 @@ app.MapScalarApiReference(options =>
     // Object initializer
     options.Authentication = new ScalarAuthenticationOptions
     {
-        PreferredSecurityScheme = "ApiKey", // Security scheme name from the OpenAPI document
+        PreferredSecurityScheme = "ApiKey", // Optional. Security scheme name from the OpenAPI document
         ApiKey = new ApiKeyOptions
         {
             Token = "your-api-key"
@@ -132,7 +131,6 @@ Similarly, you can pre-fill OAuth fields like the client ID and scopes:
 app.MapScalarApiReference(options =>
 {
     options
-        .WithPreferredScheme("OAuth2") // Security scheme name from the OpenAPI document
         .WithOAuth2Authentication(oauth =>
         {
             oauth.ClientId = "your-client-id";
@@ -150,7 +148,6 @@ app.MapScalarApiReference(options =>
 {
     // Basic
     options
-        .WithPreferredScheme("Basic") // Security scheme name from the OpenAPI document
         .WithHttpBasicAuthentication(basic =>
         {
             basic.Username = "your-username";
@@ -159,13 +156,15 @@ app.MapScalarApiReference(options =>
 
     // Bearer
     options
-        .WithPreferredScheme("Bearer") // Security scheme name from the OpenAPI document
         .WithHttpBearerAuthentication(bearer =>
         {
             bearer.Token = "your-bearer-token";
         });
 });
 ```
+
+> [!NOTE]
+> The `PreferredSecurityScheme` property is optional and only useful if the OpenAPI document contains multiple security schemes.
 
 ### OpenAPI Document
 
