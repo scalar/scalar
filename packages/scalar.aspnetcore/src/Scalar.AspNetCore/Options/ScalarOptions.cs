@@ -26,6 +26,7 @@ public sealed class ScalarOptions
     /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.
     /// Local assets are also served from this path.
     /// </remarks>
+    [Obsolete("This property is obsolete and will be removed in the next major version. Please use the 'pattern' parameter of the 'MapScalarApiReference' method instead.")]
     public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
 
     /// <summary>
