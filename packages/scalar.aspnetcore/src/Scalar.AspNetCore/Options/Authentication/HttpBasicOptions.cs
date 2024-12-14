@@ -10,7 +10,7 @@ public sealed class HttpBasicOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public string? Username { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the password used for HTTP basic authentication.
     /// </summary>

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -12,20 +13,26 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <RepositoryType>git</RepositoryType>
-    <PackageTags>Scalar;OpenAPI</PackageTags>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <RepositoryUrl>https://github.com/scalar/scalar</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/scalar/scalar</PackageProjectUrl>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <LicenseUrl>https://github.com/scalar/scalar/blob/main/LICENSE</LicenseUrl>
     <Title>Scalar</Title>
     <Authors>Scalar</Authors>
     <Description>Generate beautiful interactive API documentation from OpenAPI/Swagger documents.</Description>
+    <LicenseUrl>https://github.com/scalar/scalar/blob/main/LICENSE</LicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/scalar/scalar</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageTags>Scalar;OpenAPI</PackageTags>
+    <PackageProjectUrl>https://scalar.com</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>Please checkout https://github.com/scalar/scalar/blob/main/packages/scalar.aspnetcore/CHANGELOG.md</PackageReleaseNotes>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
@@ -43,10 +50,6 @@
     <EmbeddedResource Include="StaticAssets/*">
       <LogicalName>ScalarStaticAssets.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="StaticAssets\" />
   </ItemGroup>
   
   <ItemGroup>
