@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 
 namespace Scalar.AspNetCore;
 
@@ -34,9 +35,49 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="prefix">The path prefix to set.</param>
+    /// <remarks>
+    /// This method is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the <see cref="ScalarEndpointRouteBuilderExtensions.MapScalarApiReference(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)" /> method instead.
+    /// </remarks>
+    [Obsolete("This method is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the 'MapScalarApiReference' method instead.")]
     public static ScalarOptions WithEndpointPrefix(this ScalarOptions options, string prefix)
     {
         options.EndpointPathPrefix = prefix;
+        return options;
+    }
+
+    /// <summary>
+    /// Adds the given document names to <see cref="ScalarOptions" />.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="documentNames">The document names to add.</param>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
+    internal static ScalarOptions AddDocument(this ScalarOptions options, params IEnumerable<string> documentNames)
+    {
+        options.DocumentNames.AddRange(documentNames);
+        return options;
+    }
+
+    /// <summary>
+    /// Sets the document names provider.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="provider">The function to provide document names.</param>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
+    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, IEnumerable<string>> provider)
+    {
+        options.DocumentNamesProvider = context => Task.FromResult(provider(context));
+        return options;
+    }
+
+    /// <summary>
+    /// Sets a async document names provider.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="provider">The async function to provide document names.</param>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
+    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, Task<IEnumerable<string>>> provider)
+    {
+        options.DocumentNamesProvider = provider;
         return options;
     }
 
@@ -45,7 +86,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="proxyUrl">The proxy URL to set.</param>
-    public static ScalarOptions WithProxyUrl(this ScalarOptions options, string proxyUrl)
+    public static ScalarOptions WithProxyUrl(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string proxyUrl)
     {
         options.ProxyUrl = proxyUrl;
         return options;
@@ -111,7 +152,6 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="forceThemeMode">The theme mode to force.</param>
-    /// <returns></returns>
     public static ScalarOptions WithForceThemeMode(this ScalarOptions options, ThemeMode forceThemeMode)
     {
         options.ForceThemeMode = forceThemeMode;
@@ -134,7 +174,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="customCss">The custom CSS to set.</param>
-    public static ScalarOptions WithCustomCss(this ScalarOptions options, string customCss)
+    public static ScalarOptions WithCustomCss(this ScalarOptions options, [StringSyntax("css")] string customCss)
     {
         options.CustomCss = customCss;
         return options;
@@ -212,10 +252,7 @@ public static class ScalarOptionsExtensions
     /// </summary>
     /// <param name="options"><see cref="ScalarOptions" />.</param>
     /// <param name="url">The URL of the server to add.</param>
-    public static ScalarOptions AddServer(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url)
-    {
-        return options.AddServer(new ScalarServer(url));
-    }
+    public static ScalarOptions AddServer(this ScalarOptions options, [StringSyntax(StringSyntaxAttribute.Uri)] string url) => options.AddServer(new ScalarServer(url));
 
     /// <summary>
     /// Adds metadata to the configuration.
@@ -407,7 +444,7 @@ public static class ScalarOptionsExtensions
         options.DotNetFlag = expose;
         return options;
     }
-    
+
     /// <summary>
     /// Sets whether the client button from the reference sidebar should be shown.
     /// </summary>
@@ -416,6 +453,44 @@ public static class ScalarOptionsExtensions
     public static ScalarOptions WithClientButton(this ScalarOptions options, bool showButton)
     {
         options.HideClientButton = !showButton;
+        return options;
+    }
+
+    /// <summary>
+    /// Sets additional HTML content to be included in the head section of the HTML document.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="headContent">The additional content to include in the head section.</param>
+    /// <remarks>
+    /// The provided content will be appended.
+    /// </remarks>
+    public static ScalarOptions AddHeadContent(this ScalarOptions options, [StringSyntax("html")] string headContent)
+    {
+        options.HeadContent += headContent;
+        return options;
+    }
+
+    /// <summary>
+    /// Adds additional HTML content to be rendered in the header section of the page.
+    /// This content will be embedded after the <c>&lt;body&gt;</c> tag and before the API reference.
+    /// </summary>
+    /// <example>
+    /// The following is an example of how to use this property:
+    /// <code>AddHeaderContent("&lt;header&gt;Welcome to my API reference&lt;/header&gt;");</code>
+    /// renders the following HTML:
+    /// <code>
+    /// <![CDATA[
+    /// <body>
+    ///     <header>Welcome to my API reference</header>
+    ///     <script id="api-reference"></script>
+    /// </body>
+    /// ]]>
+    /// </code>
+    /// </example>
+    /// <remarks>The provided content will be appended.</remarks>
+    public static ScalarOptions AddHeaderContent(this ScalarOptions options, [StringSyntax("html")] string headerContent)
+    {
+        options.HeaderContent += headerContent;
         return options;
     }
 }

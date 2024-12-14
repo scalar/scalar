@@ -1,3 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
+
 namespace Scalar.AspNetCore;
 
 /// <summary>
@@ -6,12 +9,20 @@ namespace Scalar.AspNetCore;
 /// </summary>
 public sealed class ScalarOptions
 {
+    internal List<string> DocumentNames { get; } = [];
+
+    /// <summary>
+    /// Gets or sets a function that provides document names.
+    /// </summary>
+    /// <value>A function that returns an <see cref="IEnumerable{T}" /> of document names.</value>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents. If this property is set, the <see cref="DocumentNames" /> property will be ignored.</remarks>
+    internal Func<HttpContext, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
+
     /// <summary>
     /// Metadata title.
     /// </summary>
-    /// <value>The default value is <c>'Scalar API Reference -- {documentName}'</c>.</value>
-    /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.</remarks>
-    public string Title { get; set; } = "Scalar API Reference -- {documentName}";
+    /// <value>The default value is <c>'Scalar API Reference'</c>.</value>
+    public string? Title { get; set; } = "Scalar API Reference";
 
     /// <summary>
     /// Specify a path or URL to a favicon to be used for the documentation.
@@ -22,22 +33,29 @@ public sealed class ScalarOptions
     /// <summary>
     /// Path prefix to access the documentation.
     /// </summary>
-    /// <value>The default value is <c>'/scalar/{documentName}'</c>.</value>
-    /// <remarks>You can use <c>{documentName}</c>, and it will be replaced by the actual document name.
-    /// Local assets are also served from this path.
+    /// <value>The default value is <c>'/scalar'</c>.</value>
+    /// <remarks>
+    /// This property is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the <see cref="ScalarEndpointRouteBuilderExtensions.MapScalarApiReference(Microsoft.AspNetCore.Routing.IEndpointRouteBuilder)" /> method instead.
     /// </remarks>
-    public string EndpointPathPrefix { get; set; } = "/scalar/{documentName}";
+    [Obsolete("This property is obsolete and will be removed in a future release. Please use the 'endpointPrefix' parameter of the 'MapScalarApiReference' method instead.")]
+    public string EndpointPathPrefix { get; set; } = "/scalar";
 
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
     /// </summary>
     /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
-    public string OpenApiRoutePattern { get; set; } =  "/openapi/{documentName}.json";
+    [StringSyntax("Route")]
+    public string OpenApiRoutePattern
+    {
+        get => field.TrimStart('/');
+        set;
+    } = "/openapi/{documentName}.json";
 
     /// <summary>
     /// Proxy URL for the API requests.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
+    [StringSyntax(StringSyntaxAttribute.Uri)]
     public string? ProxyUrl { get; set; }
 
     /// <summary>
@@ -86,6 +104,7 @@ public sealed class ScalarOptions
     /// Pass custom CSS directly to the component.
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
+    [StringSyntax("css")]
     public string? CustomCss { get; set; }
 
     /// <summary>
@@ -132,7 +151,7 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c>.</value>
     public OperationSorter? OperationSorter { get; set; }
-    
+
     /// <summary>
     /// You can pass an array of HTTPSnippet clients to hide from the clients menu.
     /// </summary>
@@ -175,6 +194,7 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>The default value is <c>null</c></value>
     /// <remarks>Use this option to load the API reference from a different CDN or local server.</remarks>
+    [StringSyntax(StringSyntaxAttribute.Uri)]
     public string? CdnUrl { get; set; }
 
     /// <summary>
@@ -195,4 +215,31 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>A boolean that indicates if the client button should be hidden. The default value is <c>false</c>.</value>
     public bool HideClientButton { get; set; }
+
+    /// <summary>
+    /// Gets or sets additional content to be included in the head section of the HTML document.
+    /// </summary>
+    /// <value>The default value is <c>null</c>.</value>
+    [StringSyntax("html")]
+    public string? HeadContent { get; set; }
+
+    /// <summary>
+    /// Gets or sets the HTML content to be rendered in the header section of the page.
+    /// This content will be embedded after the <c>&lt;body&gt;</c> tag and before the API reference.
+    /// </summary>
+    /// <example>
+    /// The following is an example of how to use this property:
+    /// <code>HeaderContent = "&lt;header&gt;Welcome to my API reference&lt;/header&gt;";</code>
+    /// renders the following HTML:
+    /// <code>
+    /// <![CDATA[
+    /// <body>
+    ///     <header>Welcome to my API reference</header>
+    ///     <script id="api-reference"></script>
+    /// </body>
+    /// ]]>
+    /// </code>
+    /// </example>
+    [StringSyntax("html")]
+    public string? HeaderContent { get; set; }
 }

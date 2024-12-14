@@ -23,7 +23,7 @@ public class ScalarOptionsMapperTests
         configuration.CustomCss.Should().BeNull();
         configuration.SearchHotKey.Should().BeNull();
         configuration.Servers.Should().BeNull();
-        configuration.Metadata.Should().BeNull();
+        configuration.MetaData.Should().BeNull();
         configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.Shell.ToStringFast());
         configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.Curl.ToStringFast());
         configuration.HiddenClients.Should().BeNull();
@@ -34,6 +34,7 @@ public class ScalarOptionsMapperTests
         configuration.OperationsSorter.Should().BeNull();
         configuration.Theme.Should().Be(ScalarTheme.Purple.ToStringFast());
         configuration.Integration.Should().Be("dotnet");
+        configuration.Documents.Should().BeEmpty();
     }
 
     [Fact]
@@ -73,6 +74,7 @@ public class ScalarOptionsMapperTests
             DotNetFlag = false,
             HideClientButton = true
         };
+        options.AddDocument("v2");
 
         // Act
         var configuration = options.ToScalarConfiguration();
@@ -89,7 +91,7 @@ public class ScalarOptionsMapperTests
         configuration.CustomCss.Should().Be("*{}");
         configuration.SearchHotKey.Should().Be("o");
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
-        configuration.Metadata.Should().ContainKey("key").WhoseValue.Should().Be("value");
+        configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
         configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp.ToStringFast());
         configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient.ToStringFast());
         configuration.HiddenClients.Should().ContainKeys(ScalarOptionsMapper.ClientOptions.Keys.Select(x => x.ToStringFast()));
@@ -105,6 +107,7 @@ public class ScalarOptionsMapperTests
         configuration.Layout.Should().Be(ScalarLayout.Classic.ToStringFast());
         configuration.Integration.Should().BeNull();
         configuration.HideClientButton.Should().BeTrue();
+        configuration.Documents.Should().ContainSingle().Which.Should().Be("openapi/v2.json");
     }
 
     [Fact]

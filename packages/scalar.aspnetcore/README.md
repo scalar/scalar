@@ -10,16 +10,20 @@ Made possible by the wonderful work of [@captainsafia](https://github.com/captai
 
 ![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/packages/scalar.aspnetcore/dotnet.jpg)
 
+## Migration Guide
+
+If you are upgrading from `1.x.x` to `2.x.x`, please refer to the [migration guide](https://github.com/scalar/scalar/issues/4362).
+
 ## Usage
 
 1. **Install the package**
 
 ```shell
-dotnet add package Scalar.AspNetCore --version 1.2.*
+dotnet add package Scalar.AspNetCore --version 2.0.*
 ```
 
 > [!NOTE]
-> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `1.2.*`.
+> We release new versions frequently to bring you the latest features and bug fixes. To reduce the noise in your project file, we recommend using a wildcard for the patch version, e.g., `2.0.*`.
 
 2. **Add the using directive**
 
@@ -75,13 +79,15 @@ if (app.Environment.IsDevelopment())
 }
 ```
 
-That’s it! 🎉 With the default settings, you can now access the Scalar API reference at `/scalar/v1` in your browser, where `v1` is the default document name.
+That’s it! 🎉 With the default settings, you can now access the Scalar API reference at `/scalar` to see the API reference for the `v1` document. Alternatively, you can navigate to `/scalar/{documentName}` (e.g., `/scalar/v2`) to view the API reference for a specific document.
 
 ## Configuration
 
-For a full configuration guide, including OAuth integration and custom settings, refer to the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md).
+For a full configuration guide and examples, including OAuth integration and custom settings, refer to the [dotnet integration documentation](https://github.com/scalar/scalar/blob/main/documentation/integrations/dotnet.md).
 
 ## Development
+
+### Local
 
 1. Download [.NET 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
 2. Jump to the package folder: `cd packages/scalar.aspnetcore`
@@ -92,7 +98,14 @@ And see it in action here:
 
 1. Switch to the playground: `cd playground/Scalar.AspNetCore.Playground`
 2. Start the playground: `dotnet run`
-3. Open this URL in the browser: <http://localhost:5056/scalar/v1>
+3. Open this URL in the browser: <http://localhost:5056/scalar/>
+
+### Docker
+
+If you don't have the SDK installed or want to run the playground under a subpath, you can use Docker Compose:
+
+1. Run Docker Compose: `docker-compose up --build`
+2. Open this URL in the browser: <http://localhost:8080/api/scalar/>
 
 ## Community
 
