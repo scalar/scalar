@@ -1,5 +1,12 @@
 # @scalar/api-reference
 
+## 1.25.83
+
+### Patch Changes
+
+- 7a2b32d: fix: hides dark mode toggle only if configured
+- c78beda: fix: missing open in api client button
+
 ## 1.25.82
 
 ### Patch Changes
