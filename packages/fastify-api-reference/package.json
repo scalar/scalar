@@ -22,20 +22,23 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "scalar-build-rollup",
+    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
-    "types:build": "tsc -p tsconfig.build.json",
-    "types:check": "tsc --noEmit --skipLibCheck"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check"
   },
   "type": "module",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.ts",
   "exports": {
-    "types": "./dist/index.d.ts",
-    "import": "./dist/index.js",
-    "require": "./dist/index.cjs"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "files": [
     "dist",
@@ -51,6 +54,7 @@
     "@fastify/http-proxy": "^9.0.0",
     "@fastify/swagger": "^8.10.1",
     "@scalar/api-reference": "workspace:*",
+    "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-parser": "workspace:*",
     "@vitest/coverage-v8": "^1.6.0",
     "fastify": "^4.26.2",

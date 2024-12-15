@@ -1,6 +1,5 @@
 {
   "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "types": ["vite/client"]
-  }
+  "compilerOptions": {},
+  "include": ["src", "rollup.config.ts"]
 }
