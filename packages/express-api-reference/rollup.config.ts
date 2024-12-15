@@ -6,9 +6,9 @@ import {
 const entries = ['src/index.ts', 'playground/index.ts']
 
 // Build the playground for docker deployments
-// if (process.env.BUILD_PLAYGROUND) {
-//   entries.push('playground/index.ts')
-// }
+if (process.env.BUILD_PLAYGROUND) {
+  entries.push('playground/index.ts')
+}
 
 export default createRollupConfig({
   typescript: true,
