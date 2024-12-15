@@ -264,6 +264,7 @@ watch(
   (spec) =>
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
+      documentUrl: props.configuration.spec?.url,
       setCollectionSecurity: true,
       ...props.configuration,
     }),
