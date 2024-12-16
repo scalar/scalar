@@ -35,7 +35,7 @@ const variants = cva({
   base: 'search-background flex items-center rounded border text-sm font-medium has-[:focus-visible]:bg-b-1 has-[:focus-visible]:outline',
   variants: {
     sidebar: {
-      true: 'h-8 gap-1.5 px-1.5',
+      true: 'h-8 gap-2 px-1.5',
       false: 'h-10 p-3',
     },
   },
