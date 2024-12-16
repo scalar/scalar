@@ -71,7 +71,7 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   const savedColorMode = colorModeSchema.parse(
     typeof window !== 'undefined'
       ? window?.localStorage?.getItem('colorMode')
-      : 'light',
+      : 'system',
   )
   colorMode.value = savedColorMode ?? initialColorMode
 
@@ -80,7 +80,10 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   // Listen to system preference changes
   onMounted(() => {
-    if (typeof window?.matchMedia === 'function') {
+    if (
+      typeof window !== 'undefined' &&
+      typeof window?.matchMedia === 'function'
+    ) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
       const handleChange = () =>
         colorMode.value === 'system' && applyColorMode('system')
