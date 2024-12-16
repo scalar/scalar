@@ -55,4 +55,37 @@ describe('useBreakpoints', () => {
 
     expect(breakpoints.value.md).toEqual(true)
   })
+
+  it('works in SSG environment without window', () => {
+    const originalWindow = global.window
+
+    // Mock SSG environment by removing window
+    // @ts-expect-error
+    delete global.window
+
+    // Mock useMediaQuery to return false since there’s no window
+    vi.mocked(useMediaQuery).mockImplementation(() => ref(false))
+
+    const {
+      screens: exposedScreens,
+      mediaQueries,
+      breakpoints,
+    } = useBreakpoints()
+
+    // Screens should still be exposed since they’re static
+    expect(exposedScreens).toEqual(screens)
+
+    // Media queries should all be false without window
+    Object.values(mediaQueries).forEach((query) => {
+      expect(query.value).toBe(false)
+    })
+
+    // Breakpoints should all be false without window
+    Object.values(breakpoints.value).forEach((value) => {
+      expect(value).toBe(false)
+    })
+
+    // Restore window
+    global.window = originalWindow
+  })
 })
