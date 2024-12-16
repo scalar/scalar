@@ -291,8 +291,8 @@ const handleNavigation = (
   collectionId?: string,
 ) => {
   const path = collectionId
-    ? `/workspace/default/environment/${collectionId}/${uid}`
-    : `/workspace/default/environment/${uid}`
+    ? `/workspace/${activeWorkspace.value.uid}/environment/${collectionId}/${uid}`
+    : `/workspace/${activeWorkspace.value.uid}/environment/${uid}`
   if (event.metaKey) {
     window.open(path, '_blank')
   } else {
