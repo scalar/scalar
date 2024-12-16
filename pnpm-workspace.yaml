@@ -3,5 +3,6 @@ packages:
   - 'packages/*'
   - 'packages/api-reference/docker'
   - 'packages/snippetz/playground'
+  - 'packages/nextjs-api-reference/playground'
   - 'playwright'
   - 'projects/*'

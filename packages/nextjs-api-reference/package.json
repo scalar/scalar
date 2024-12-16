@@ -25,6 +25,8 @@
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
+    "build:playground": "cd ./playground && pnpm build",
+    "dev": "cd ./playground && pnpm dev",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
@@ -51,12 +53,13 @@
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "next": "^14.2.10",
+    "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "vite": "^5.4.10",
     "vite-plugin-dts": "^3.6.3"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "next": "^14.0.0"
+    "next": "^14.0.0",
+    "react": "^18.0.0"
   }
 }
