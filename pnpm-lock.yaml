@@ -1694,6 +1694,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
     devDependencies:
       '@nuxt/devtools':
         specifier: ^1.3.9
@@ -1833,6 +1836,9 @@ importers:
       '@scalar/openapi-types':
         specifier: workspace:*
         version: link:../openapi-types
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../types
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10

@@ -9,7 +9,8 @@ describe('validate', async () => {
     expect(result.valid).toBe(false)
     expect(result.errors).toMatchObject([
       {
-        message: 'Can’t find JSON, YAML or filename in data',
+        message:
+          'Can’t find supported Swagger/OpenAPI version in specification, version must be a string.',
       },
     ])
   })

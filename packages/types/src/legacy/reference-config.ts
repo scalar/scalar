@@ -397,7 +397,7 @@ export type SpecConfiguration = {
    *
    * @remark It’s recommended to pass an `url` instead of `content`.
    */
-  content?: string | Record<string, any> | (() => Record<string, any>)
+  content?: string | Record<string, any> | (() => Record<string, any>) | null
 }
 
 export type Schema = {

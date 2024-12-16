@@ -12,6 +12,12 @@ import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
 export function upgrade(
   value: string | AnyObject | Filesystem,
 ): UpgradeResult<OpenAPIV3_1.Document> {
+  if (!value) {
+    return {
+      specification: null,
+      version: '3.1',
+    }
+  }
   const upgraders = [upgradeFromTwoToThree, upgradeFromThreeToThreeOne]
 
   // TODO: Run upgrade over the whole filesystem

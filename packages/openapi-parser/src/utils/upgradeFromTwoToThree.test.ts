@@ -69,6 +69,7 @@ describe('upgradeFromTwoToThree', () => {
       },
     })
 
+    // @ts-expect-error it’s fine
     expect(result.components?.schemas).toStrictEqual({
       Category: {
         type: 'object',
@@ -430,6 +431,7 @@ describe('upgradeFromTwoToThree', () => {
 
     const result = upgradeFromTwoToThree(input)
 
+    // @ts-expect-error it’s fine
     expect(result.components.securitySchemes).toStrictEqual({
       api_key: {
         type: 'apiKey',

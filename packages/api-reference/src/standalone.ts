@@ -123,7 +123,7 @@ if (!specUrlElement && !specElement && !getSpecScriptTag()) {
       proxyUrl: getProxyUrl(),
       ...getConfiguration(),
       spec: { ...specOrSpecUrl },
-    },
+    } satisfies ReferenceConfiguration,
   })
 
   if (getConfiguration().darkMode) {

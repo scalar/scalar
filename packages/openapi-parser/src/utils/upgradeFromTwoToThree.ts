@@ -1,6 +1,6 @@
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
+import type { UnknownObject } from '@scalar/types/utils'
 
-import type { AnyObject } from '../types'
 import { traverse } from './traverse'
 
 /**
@@ -8,9 +8,15 @@ import { traverse } from './traverse'
  *
  * https://swagger.io/blog/news/whats-new-in-openapi-3-0/
  */
-export function upgradeFromTwoToThree(specification: AnyObject) {
+export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
+  let specification = originalSpecification
+
   // Version
-  if (specification.swagger?.startsWith('2.0')) {
+  if (
+    specification !== null &&
+    typeof specification.swagger === 'string' &&
+    specification.swagger?.startsWith('2.0')
+  ) {
     specification.openapi = '3.0.4'
     delete specification.swagger
   } else {
@@ -24,9 +30,10 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
 
   // Servers
   if (specification.host) {
-    const schemes = specification.schemes?.length
-      ? specification.schemes
-      : ['http']
+    const schemes =
+      Array.isArray(specification.schemes) && specification.schemes?.length
+        ? specification.schemes
+        : ['http']
 
     specification.servers = schemes.map((scheme: string[]) => ({
       url: `${scheme}://${specification.host}${specification.basePath ?? ''}`,
@@ -39,11 +46,9 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
 
   // Schemas
   if (specification.definitions) {
-    if (typeof specification.components !== 'object') {
-      specification.components = {}
-    }
-
-    specification.components.schemas = specification.definitions
+    specification.components = Object.assign({}, specification.components, {
+      schemas: specification.definitions,
+    })
 
     delete specification.definitions
 
@@ -61,7 +66,7 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
   }
 
   // Paths
-  if (specification.paths) {
+  if (typeof specification.paths === 'object') {
     for (const path in specification.paths) {
       if (Object.hasOwn(specification.paths, path)) {
         const pathItem = specification.paths[path]
@@ -209,7 +214,11 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
       specification.components = {}
     }
 
-    specification.components.securitySchemes = {}
+    // Assert that components is of type OpenAPIV3.ComponentsObject
+    specification.components =
+      specification.components as OpenAPIV3.ComponentsObject
+
+    Object.assign(specification.components, { securitySchemes: {} })
 
     for (const [key, securityScheme] of Object.entries(
       specification.securityDefinitions,
@@ -224,18 +233,31 @@ export function upgradeFromTwoToThree(specification: AnyObject) {
               tokenUrl?: string
               scopes?: Record<string, string>
             }
-          specification.components.securitySchemes[key] = {
-            type: 'oauth2',
-            flows: {
-              [flow as string]: {
-                ...(authorizationUrl && { authorizationUrl }),
-                ...(tokenUrl && { tokenUrl }),
-                ...(scopes && { scopes }),
+
+          // Assert that securitySchemes is of type OpenAPIV3.SecuritySchemeObject
+          Object.assign(
+            (specification.components as OpenAPIV3.ComponentsObject)
+              .securitySchemes,
+            {
+              [key]: {
+                type: 'oauth2',
+                flows: {
+                  [flow as string]: Object.assign(
+                    {},
+                    authorizationUrl && { authorizationUrl },
+                    tokenUrl && { tokenUrl },
+                    scopes && { scopes },
+                  ),
+                },
               },
             },
-          }
+          )
         } else {
-          specification.components.securitySchemes[key] = securityScheme
+          Object.assign(
+            (specification.components as OpenAPIV3.ComponentsObject)
+              .securitySchemes,
+            { [key]: securityScheme },
+          )
         }
       }
     }

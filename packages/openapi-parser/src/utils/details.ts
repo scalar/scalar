@@ -1,10 +1,20 @@
+import type { UnknownObject } from '@scalar/types/utils'
+
 import { OpenApiVersions } from '../configuration'
-import type { AnyObject, DetailsResult } from '../types'
+import type { DetailsResult } from '../types'
 
 /**
  * Get versions of the OpenAPI document.
  */
-export function details(specification: AnyObject): DetailsResult {
+export function details(specification: UnknownObject): DetailsResult {
+  if (specification === null) {
+    return {
+      version: undefined,
+      specificationType: undefined,
+      specificationVersion: undefined,
+    }
+  }
+
   for (const version of new Set(OpenApiVersions)) {
     const specificationType = version === '2.0' ? 'swagger' : 'openapi'
     const value = specification[specificationType]
