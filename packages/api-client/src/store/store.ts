@@ -144,12 +144,17 @@ export const createWorkspaceStore = ({
     importSpecFileFactory(storeContext)
 
   /** Helper function to manage the sidebar width */
-  const sidebarWidth = ref(localStorage.getItem('sidebarWidth') || '280px')
+  const sidebarWidth = ref(
+    (useLocalStorage ? localStorage?.getItem('sidebarWidth') : undefined) ||
+      '280px',
+  )
 
   // Set the sidebar width
   const setSidebarWidth = (width: string) => {
     sidebarWidth.value = width
-    localStorage.setItem('sidebarWidth', width)
+    if (useLocalStorage) {
+      localStorage?.setItem('sidebarWidth', width)
+    }
   }
 
   /** This state is to be used by the API Client Modal component to control the modal */
