@@ -13,6 +13,7 @@ import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useToasts } from '@scalar/use-toasts'
@@ -97,7 +98,7 @@ const executeRequest = async () => {
 
   const globalCookies = activeWorkspace.value?.cookies
     .map((c) => cookies[c])
-    .filter((c): c is NonNullable<typeof c> => c !== undefined)
+    .filter(isDefined)
 
   const [error, requestOperation] = createRequestOperation({
     request: activeRequest.value,
