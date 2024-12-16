@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 1.2.57
+
+### Patch Changes
+
+- de024a5: fix: Typo in ScalarTarget.JavaScript
+  - @scalar/api-reference@1.25.84
+
 ## 1.2.56
 
 ### Patch Changes
