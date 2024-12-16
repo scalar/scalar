@@ -48,7 +48,7 @@ public enum ScalarTarget
     /// <summary>
     /// JavaScript programming language.
     /// </summary>
-    [Description("javascript")]
+    [Description("js")]
     JavaScript,
 
     /// <summary>
