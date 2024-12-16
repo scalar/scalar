@@ -3,7 +3,7 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
-import { ScalarButton } from '@scalar/components'
+import { ScalarButton, ScalarTooltip } from '@scalar/components'
 import {
   type RequestExample,
   requestExampleParametersSchema,
@@ -112,9 +112,7 @@ const deleteAllRows = () => {
   if (!activeRequest.value || !activeExample.value) return
 
   // filter out params that are enabled or required
-  const exampleParams = params.value.filter(
-    (param) => param.enabled || param.required,
-  )
+  const exampleParams = params.value.filter((param) => param.required)
 
   requestExampleMutators.edit(
     activeExample.value.uid,
@@ -163,13 +161,28 @@ watch(
     <template #actions>
       <div
         class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100 request-meta-buttons">
-        <ScalarButton
-          class="px-1 transition-none"
-          size="sm"
-          variant="ghost"
-          @click.stop="deleteAllRows">
-          Clear<span class="sr-only">All {{ title }}</span>
-        </ScalarButton>
+        <ScalarTooltip
+          side="right"
+          :sideOffset="12">
+          <template #trigger>
+            <ScalarButton
+              class="px-1 transition-none"
+              size="sm"
+              variant="ghost"
+              @click.stop="deleteAllRows">
+              Clear
+              <span class="sr-only">All {{ title }}</span>
+            </ScalarButton>
+          </template>
+          <template #content>
+            <div
+              class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-context p-2 text-xxs leading-5 z-10 text-c-1">
+              <div class="flex items-center text-c-2">
+                <span>Clear all non required parameters</span>
+              </div>
+            </div>
+          </template>
+        </ScalarTooltip>
       </div>
     </template>
     <div ref="tableWrapperRef">
