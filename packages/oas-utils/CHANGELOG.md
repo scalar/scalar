@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.90
+
+### Patch Changes
+
+- 573d113: feat: add isDefined type safe filter helper
+- c263aaf: feat: better deal with empty OpenAPI documents
+- Updated dependencies [c263aaf]
+  - @scalar/types@0.0.25
+  - @scalar/themes@0.9.57
+
 ## 0.2.89
 
 ### Patch Changes

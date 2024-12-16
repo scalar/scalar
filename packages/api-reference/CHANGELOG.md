@@ -1,5 +1,22 @@
 # @scalar/api-reference
 
+## 1.25.86
+
+### Patch Changes
+
+- c263aaf: feat: better deal with empty OpenAPI documents
+- Updated dependencies [c263aaf]
+- Updated dependencies [573d113]
+- Updated dependencies [c263aaf]
+  - @scalar/types@0.0.25
+  - @scalar/oas-utils@0.2.90
+  - @scalar/openapi-parser@0.10.1
+  - @scalar/api-client@2.2.15
+  - @scalar/themes@0.9.57
+  - @scalar/code-highlight@0.0.18
+  - @scalar/components@0.13.7
+  - @scalar/use-hooks@0.1.10
+
 ## 1.25.85
 
 ### Patch Changes

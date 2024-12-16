@@ -1,5 +1,14 @@
 # @scalar/mock-server
 
+## 0.2.95
+
+### Patch Changes
+
+- Updated dependencies [573d113]
+- Updated dependencies [c263aaf]
+  - @scalar/oas-utils@0.2.90
+  - @scalar/openapi-parser@0.10.1
+
 ## 0.2.94
 
 ### Patch Changes
