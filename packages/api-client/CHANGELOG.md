@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.2.14
+
+### Patch Changes
+
+- 984e394: fix: hides flow row for unique scheme flow
+- 40ec239: fix: updates address bar servers dropdown display logic
+
 ## 2.2.13
 
 ### Patch Changes
