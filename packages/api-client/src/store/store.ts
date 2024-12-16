@@ -167,19 +167,21 @@ export const createWorkspaceStore = ({
   })
 
   /**
-   * For development, expose this method for debugging our data stores
+   * For debugging purposes, expose this method for dumping the data stores
    */
-  window.dataDump = () => ({
-    collections: toRaw(collections),
-    cookies: toRaw(cookies),
-    environments: toRaw(environments),
-    requestExamples: toRaw(requestExamples),
-    requests: toRaw(requests),
-    securitySchemes: toRaw(securitySchemes),
-    servers: toRaw(servers),
-    tags: toRaw(tags),
-    workspaces: toRaw(workspaces),
-  })
+  if (typeof window !== 'undefined') {
+    window.dataDump = () => ({
+      collections: toRaw(collections),
+      cookies: toRaw(cookies),
+      environments: toRaw(environments),
+      requestExamples: toRaw(requestExamples),
+      requests: toRaw(requests),
+      securitySchemes: toRaw(securitySchemes),
+      servers: toRaw(servers),
+      tags: toRaw(tags),
+      workspaces: toRaw(workspaces),
+    })
+  }
 
   // ---------------------------------------------------------------------------
   // Events Busses
