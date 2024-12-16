@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       - name: Ensure all Actions are pinned to a Commit SHA
-        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@5d6ac37a4cef8b8df67f482a8e384987766f0213
+        uses: zgosalvez/github-actions-ensure-sha-pinned-actions@64418826697dcd77c93a8e4a1f7601a1942e57b5
 
   build:
     runs-on: ubuntu-22.04
