@@ -64,8 +64,8 @@ const handleRename = (id: string) => {
 <template>
   <li>
     <router-link
-      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-2 font-medium no-underline"
-      :class="[variable.color ? 'pl-1' : 'pl-2']"
+      class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
+      :class="[variable.color ? 'pl-1' : 'pl-1.5']"
       exactActiveClass="active-link"
       :to="
         collectionId

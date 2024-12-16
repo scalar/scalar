@@ -371,7 +371,7 @@ function handleRename(newName: string) {
               :key="collection.uid"
               class="flex flex-col gap-0.25">
               <button
-                class="flex font-medium gap-1.5 group items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                 type="button"
                 @click="toggleSidebarFolder(collection.uid)">
                 <LibraryIcon

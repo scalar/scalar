@@ -57,7 +57,7 @@ const { layout } = useLayout()
       </li>
       <li
         v-if="layout !== 'desktop'"
-        class="hidden sm:ml-2 sm:flex items-center justify-center">
+        class="hidden sm:ml-1.5 sm:flex items-center justify-center">
         <DownloadAppButton />
       </li>
     </SideNavGroup>

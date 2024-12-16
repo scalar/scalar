@@ -490,7 +490,7 @@ const selectedExample = computed({
       <DataTableRow>
         <template v-if="selectedContentType.id === 'none'">
           <div
-            class="text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
+            class="border-t-1/2 text-c-3 flex min-h-10 w-full items-center justify-center p-2 text-sm">
             <span>No Body</span>
           </div>
         </template>
