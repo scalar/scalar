@@ -85,9 +85,9 @@ const setPathVariable = (url: string) => {
 
   parameters.splice(0, parameters.length, ...updatedParameters)
 
-  if (pathVariables.length === 0) {
-    parameters.splice(0, parameters.length)
-  }
+  // if (pathVariables.length === 0) {
+  //   parameters.splice(0, parameters.length)
+  // }
 
   requestExampleMutators.edit(
     activeExample.value.uid,
