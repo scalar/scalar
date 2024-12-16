@@ -8,6 +8,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -60,9 +61,7 @@ export const createActiveEntitiesStore = ({
 
     return activeWorkspace.value?.collections
       .map((uid: string) => collections[uid])
-      .filter(
-        (collection): collection is Collection => collection !== undefined,
-      )
+      .filter(isDefined)
       .sort((a, b) => {
         if (a.info?.title === 'Drafts') return 1
         if (b.info?.title === 'Drafts') return -1

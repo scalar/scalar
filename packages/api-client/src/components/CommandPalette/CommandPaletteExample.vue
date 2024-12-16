@@ -9,6 +9,7 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { Request } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -67,11 +68,9 @@ const handleSubmit = () => {
 }
 
 /** Requests for the active workspace */
-const visibleRequests = computed<Request[]>(() => {
-  return activeWorkspaceRequests.value
-    .map((uid) => requests?.[uid])
-    .filter((request) => request !== undefined)
-})
+const visibleRequests = computed<Request[]>(() =>
+  activeWorkspaceRequests.value.map((uid) => requests?.[uid]).filter(isDefined),
+)
 </script>
 <template>
   <CommandActionForm
