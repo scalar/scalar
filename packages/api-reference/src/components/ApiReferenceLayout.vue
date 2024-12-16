@@ -155,7 +155,6 @@ onMounted(() => {
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = () => {
-    console.log('CHANGED TO: ', getReferenceHash())
     scrollToSection(getReferenceHash())
   }
   // Handle back for path routing
