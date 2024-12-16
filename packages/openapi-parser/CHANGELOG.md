@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.1
+
+### Patch Changes
+
+- c263aaf: feat: better deal with empty OpenAPI documents
+
 ## 0.10.0
 
 ### Minor Changes

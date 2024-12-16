@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.25
+
+### Patch Changes
+
+- c263aaf: chore: improve the comment for UnknownObject
+
 ## 0.0.24
 
 ### Patch Changes
