@@ -19,6 +19,7 @@ import {
   ScalarIconButton,
   useModal,
 } from '@scalar/components'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
@@ -87,7 +88,7 @@ const availableSchemes = computed(() => {
   //     : activeCollection.value?.securitySchemes
 
   const base = activeCollection.value?.securitySchemes
-  return (base ?? []).map((s) => securitySchemes[s]).filter((s) => s)
+  return (base ?? []).map((s) => securitySchemes[s]).filter(isDefined)
 })
 
 /** Display formatted options for a user to select from */
@@ -101,7 +102,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       const i = _availableSchemes.findIndex(
         (s) => s.nameKey === Object.keys(r)[0],
       )
-      if (i > -1) {
+      if (i > -1 && _availableSchemes[i]) {
         requiredSchemes.push(_availableSchemes[i])
         _availableSchemes.splice(i, 1)
       }
@@ -156,11 +157,13 @@ const editSelectedSchemeUids = (uids: string[]) => {
 
 /** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids.map((uid) => {
-    const scheme = securitySchemes[uid ?? '']
-    if (!scheme) return undefined
-    return displaySchemeFormatter(scheme)
-  }),
+  selectedSecuritySchemeUids
+    .map((uid) => {
+      const scheme = securitySchemes[uid ?? '']
+      if (!scheme) return undefined
+      return displaySchemeFormatter(scheme)
+    })
+    .filter(isDefined),
 )
 
 /** Update the selected auth types */

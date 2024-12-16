@@ -182,7 +182,8 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
               importCurl
               :modelValue="activeRequest.path"
               :placeholder="
-                activeCollection?.servers?.includes(activeServer?.uid)
+                activeServer?.uid &&
+                activeCollection?.servers?.includes(activeServer.uid)
                   ? ''
                   : 'Enter a URL or cURL command'
               "
