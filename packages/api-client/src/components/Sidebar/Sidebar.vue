@@ -69,7 +69,7 @@ const startDrag = (event: MouseEvent) => {
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
-      class="min-h-12 xl:min-h-client-header flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2.5 text-sm">
+      class="min-h-12 xl:min-h-client-header flex items-center justify-between px-3 py-1.5 md:px-[18px] md:py-2.5 text-sm">
       <h2 class="font-medium m-0 text-sm whitespace-nowrap">
         {{ title }}
       </h2>
