@@ -9,6 +9,10 @@ inputs:
     description: 'Whether to build packages/ only'
     required: false
     default: 'false'
+  write-cache:
+    description: 'Whether to write the cache or just read it'
+    required: false
+    default: 'false'
 runs:
   using: 'composite'
   steps:
@@ -30,16 +34,25 @@ runs:
         restore-keys: |
           turbo-${{ runner.os }}-node-${{ inputs.node-version }}-
           turbo-${{ runner.os }}-node-
+    # Build everything
     - if: ${{ inputs.packages-only == 'false' }}
       name: Build
       shell: bash
       # GitHub Actions runners have two cores, so we can run two tasks in parallel
-      run: pnpm turbo --concurrency=2 build
+      run: pnpm turbo --concurrency=2 ${{ inputs.write-cache == 'true' && '--cache=local:rw' || '--cache=local:r' }} build
+    # Build the packages only
     - if: ${{ inputs.packages-only == 'true' }}
       name: Build packages
       shell: bash
-      run: pnpm turbo --concurrency=2 --filter './packages/**' build
+      run: pnpm turbo --concurrency=2 --filter './packages/**' ${{ inputs.write-cache == 'true' && '--cache=local:rw' || '--cache=local:r' }} build
+    # Build a specified package
     - if: ${{ inputs.packages-only != 'true' && inputs.packages-only != 'false' }}
       name: Build package
       shell: bash
-      run: pnpm turbo --concurrency=2 --filter './packages/${{inputs.packages-only}}' build
+      run: pnpm turbo --concurrency=2 --filter './packages/${{inputs.packages-only}}' ${{ inputs.write-cache == 'true' && '--cache=local:rw' || '--cache=local:r' }} build
+    - if: ${{ inputs.write-cache == 'true' }}
+      name: Save Turborepo cache
+      uses: actions/cache/save@1bd1e32a3bdc45362d1e726936510720a7c30a57
+      with:
+        path: .turbo
+        key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
