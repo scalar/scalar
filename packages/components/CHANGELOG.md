@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.6
+
+### Patch Changes
+
+- 23daedd: feat(components): create ScalarHeader component
+- Updated dependencies [23daedd]
+  - @scalar/themes@0.9.56
+  - @scalar/code-highlight@0.0.18
+  - @scalar/use-hooks@0.1.9
+
 ## 0.13.5
 
 ### Patch Changes

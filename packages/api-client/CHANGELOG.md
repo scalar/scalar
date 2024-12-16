@@ -1,5 +1,19 @@
 # @scalar/api-client
 
+## 2.2.13
+
+### Patch Changes
+
+- 23daedd: feat(components): create ScalarHeader component
+- Updated dependencies [23daedd]
+  - @scalar/components@0.13.6
+  - @scalar/themes@0.9.56
+  - @scalar/use-codemirror@0.11.50
+  - @scalar/oas-utils@0.2.89
+  - @scalar/use-hooks@0.1.9
+  - @scalar/import@0.2.8
+  - @scalar/postman-to-openapi@0.1.12
+
 ## 2.2.12
 
 ### Patch Changes

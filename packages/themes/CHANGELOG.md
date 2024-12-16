@@ -1,5 +1,11 @@
 # @scalar/themes
 
+## 0.9.56
+
+### Patch Changes
+
+- 23daedd: feat(components): create ScalarHeader component
+
 ## 0.9.55
 
 ### Patch Changes
