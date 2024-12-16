@@ -424,8 +424,6 @@ const themeStyleTag = computed(
           name="footer" />
       </div>
     </template>
-    <!-- REST API Client Overlay -->
-    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal :configuration="configuration" />
   </div>
   <ScalarToasts />
