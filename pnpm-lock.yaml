@@ -918,9 +918,12 @@ importers:
       random-words:
         specifier: ^2.0.1
         version: 2.0.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
       react-dom:
         specifier: ^18.3.1
-        version: 18.3.1(react@19.0.0)
+        version: 18.3.1(react@18.3.1)
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
