@@ -1618,7 +1618,7 @@ importers:
         specifier: workspace:*
         version: link:../types
       react:
-        specifier: ^18
+        specifier: ^18.0.0
         version: 18.3.1
     devDependencies:
       '@scalar/api-reference':
