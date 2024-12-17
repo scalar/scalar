@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.2
+
+### Patch Changes
+
+- 3791738: fix(openapi-parser): correct schema upgrade for "format: binary"
+
 ## 0.10.1
 
 ### Patch Changes

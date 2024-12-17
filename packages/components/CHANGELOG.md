@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.9
+
+### Patch Changes
+
+- 33c8393: style: increases search input gap
+
 ## 0.13.8
 
 ### Patch Changes
