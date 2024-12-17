@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.16
+
+### Patch Changes
+
+- 875a04a: fix: path params missing from client
+
 ## 2.2.15
 
 ### Patch Changes
