@@ -120,7 +120,7 @@ const updateRequestNameHandler = (event: Event) => {
         title="Query Parameters" />
       <RequestBody
         v-show="
-          activeRequest &&
+          activeRequest?.method &&
           (activeSection === 'All' || activeSection === 'Body') &&
           canMethodHaveBody(activeRequest.method)
         "
