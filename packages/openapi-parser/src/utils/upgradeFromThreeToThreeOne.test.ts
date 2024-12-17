@@ -388,4 +388,62 @@ describe('upgradeFromThreeToThreeOne', () => {
       expect(result.$schema).toBe('http://json-schema.org/draft-07/schema#')
     })
   })
+
+  describe('binary format handling with oneOf', () => {
+    it('correctly handles format: binary in oneOf schemas', async () => {
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/images/edits': {
+            post: {
+              requestBody: {
+                required: true,
+                content: {
+                  'multipart/form-data': {
+                    schema: {
+                      type: 'object',
+                      required: ['model', 'prompt'],
+                      properties: {
+                        model: {
+                          type: 'string',
+                          enum: ['Kolors'],
+                        },
+                        image: {
+                          oneOf: [
+                            {
+                              type: 'string',
+                              format: 'binary',
+                            },
+                            {
+                              type: 'string',
+                            },
+                          ],
+                        },
+                        prompt: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(
+        result.paths['/images/edits'].post.requestBody.content[
+          'multipart/form-data'
+        ].schema.properties.image.oneOf[0],
+      ).toEqual({
+        type: 'string',
+        contentMediaType: 'application/octet-stream',
+      })
+    })
+  })
 })

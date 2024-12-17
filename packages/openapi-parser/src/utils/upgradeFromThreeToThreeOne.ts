@@ -115,7 +115,7 @@ export function upgradeFromThreeToThreeOne(
     if (schema.type === 'string' && schema.format === 'binary') {
       return {
         type: 'string',
-        contentEncoding: 'application/octet-stream',
+        contentMediaType: 'application/octet-stream',
       }
     }
 
