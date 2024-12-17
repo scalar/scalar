@@ -271,35 +271,15 @@ export const createApiClient = ({
       }
     },
     /** Update the currently selected server via URL */
-    updateServer: (serverUrl: string, variables?: Record<string, string>) => {
+    updateServer: (serverUrl: string) => {
       const server = Object.values(servers).find((s) => s.url === serverUrl)
-      if (!server || !activeCollection.value) return
 
-      collectionMutators.edit(
-        activeCollection.value.uid,
-        'selectedServerUid',
-        server.uid,
-      )
-
-      if (!variables) return
-
-      // Iterate through the variables
-      const variableEntries = Object.entries(variables).map(([key, value]) => ({
-        key,
-        value,
-        enabled: true,
-      }))
-
-      // Iterate through the requests and adds the variable values to the path parameters
-      activeCollection?.value?.requests.forEach((request) => {
-        const foundRequest = requests[request]
-        if (!foundRequest) return
-        requestExampleMutators.edit(
-          foundRequest.examples[0],
-          'parameters.path',
-          variableEntries,
+      if (server && activeCollection.value)
+        collectionMutators.edit(
+          activeCollection.value?.uid,
+          'selectedServerUid',
+          server.uid,
         )
-      })
     },
     /** Update the currently selected server via URL */
     onUpdateServer: (callback: (url: string) => void) => {

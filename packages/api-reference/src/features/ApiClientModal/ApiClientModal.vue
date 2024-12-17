@@ -38,9 +38,7 @@ onMounted(async () => {
 // Update the server on select
 watch(server, (newServer) => {
   const { originalUrl } = getUrlFromServerState(newServer)
-  if (originalUrl && client.value) {
-    client.value.updateServer(originalUrl, server.variables)
-  }
+  if (originalUrl && client.value) client.value.updateServer(originalUrl)
 })
 
 // Update the config on change
