@@ -178,7 +178,7 @@ watch(
             <div
               class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-context p-2 text-xxs leading-5 z-10 text-c-1">
               <div class="flex items-center text-c-2">
-                <span>Clear all non required parameters</span>
+                <span>Clear optional parameters</span>
               </div>
             </div>
           </template>
