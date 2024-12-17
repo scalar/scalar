@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.4.108
+
+### Patch Changes
+
+- 776dac0: chore: bump next.js peerDependencies fr fr
+
 ## 0.4.107
 
 ### Patch Changes
