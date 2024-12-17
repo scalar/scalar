@@ -115,6 +115,48 @@ export const useCodeMirror = (
 } => {
   const codeMirror: Ref<EditorView | null> = ref(null)
 
+  /** Set the codemirror content value */
+  const setCodeMirrorContent = (newValue = '') => {
+    if (!codeMirror.value) return
+
+    // No need to set the CodeMirror content if nothing has changed
+    if (codeMirror.value.state.doc.toString() === newValue) return
+
+    codeMirror.value.dispatch({
+      changes: {
+        from: 0,
+        to: codeMirror.value.state.doc.length,
+        insert: newValue,
+      },
+      selection: {
+        anchor: Math.min(
+          codeMirror.value.state.selection.main.anchor,
+          newValue.length,
+        ),
+      },
+    })
+  }
+
+  // All options except provider
+  const extensionConfig = computed(() => ({
+    onChange: params.onChange,
+    onBlur: params.onBlur,
+    onFocus: params.onFocus,
+    disableTabIndent: toValue(params.disableTabIndent),
+    language: toValue(params.language),
+    classes: toValue(params.classes),
+    readOnly: toValue(params.readOnly),
+    lineNumbers: toValue(params.lineNumbers),
+    withVariables: toValue(params.withVariables),
+    forceFoldGutter: toValue(params.forceFoldGutter),
+    disableEnter: toValue(params.disableEnter),
+    disableCloseBrackets: toValue(params.disableCloseBrackets),
+    withoutTheme: toValue(params.withoutTheme),
+    lint: toValue(params.lint),
+    additionalExtensions: toValue(params.extensions),
+    placeholder: toValue(params.placeholder),
+  }))
+
   // Unmounts CodeMirror if it’s mounted already, and mounts CodeMirror, if the given ref exists.
   watch(
     params.codeMirrorRef,
@@ -148,26 +190,6 @@ export const useCodeMirror = (
   }
 
   // ---------------------------------------------------------------------------
-
-  // All options except provider
-  const extensionConfig = computed(() => ({
-    onChange: params.onChange,
-    onBlur: params.onBlur,
-    onFocus: params.onFocus,
-    disableTabIndent: toValue(params.disableTabIndent),
-    language: toValue(params.language),
-    classes: toValue(params.classes),
-    readOnly: toValue(params.readOnly),
-    lineNumbers: toValue(params.lineNumbers),
-    withVariables: toValue(params.withVariables),
-    forceFoldGutter: toValue(params.forceFoldGutter),
-    disableEnter: toValue(params.disableEnter),
-    disableCloseBrackets: toValue(params.disableCloseBrackets),
-    withoutTheme: toValue(params.withoutTheme),
-    lint: toValue(params.lint),
-    additionalExtensions: toValue(params.extensions),
-    placeholder: toValue(params.placeholder),
-  }))
 
   // Provider must be watched separately because we need to restart codemirror if the provider changes
   watch(
@@ -204,28 +226,6 @@ export const useCodeMirror = (
   )
 
   // ---------------------------------------------------------------------------
-
-  /** Set the codemirror content value */
-  const setCodeMirrorContent = (newValue = '') => {
-    if (!codeMirror.value) return
-
-    // No need to set the CodeMirror content if nothing has changed
-    if (codeMirror.value.state.doc.toString() === newValue) return
-
-    codeMirror.value.dispatch({
-      changes: {
-        from: 0,
-        to: codeMirror.value.state.doc.length,
-        insert: newValue,
-      },
-      selection: {
-        anchor: Math.min(
-          codeMirror.value.state.selection.main.anchor,
-          newValue.length,
-        ),
-      },
-    })
-  }
 
   // Keep the content in sync when the content is managed externally
   watch(
@@ -385,7 +385,9 @@ function getCodeMirrorExtensions({
   }
 
   // Line numbers
-  if (lineNumbers) extensions.push(lineNumbersExtension())
+  if (lineNumbers) {
+    extensions.push(lineNumbersExtension())
+  }
 
   if (forceFoldGutter) {
     extensions.push(
