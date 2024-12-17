@@ -207,6 +207,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
     permissions:
       contents: write
       id-token: write
@@ -457,6 +460,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    concurrency:
+      group: aspnetcore-publish
+      cancel-in-progress: false
     needs: [aspnetcore-build-test]
 
     steps:
