@@ -2,6 +2,7 @@
 import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
+import { useLayout } from '@/hooks'
 import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
@@ -23,9 +24,9 @@ import RequestSidebar from './RequestSidebar.vue'
 defineEmits<{
   (e: 'newTab', item: { name: string; uid: string }): void
 }>()
-
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
+const { layout } = useLayout()
 const {
   activeCollection,
   activeExample,
@@ -55,10 +56,11 @@ const router = useRouter()
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
 )
-
 /** Show / hide the sidebar when we resize the screen */
 const { mediaQueries } = useBreakpoints()
-watch(mediaQueries.md, (isMedium) => (showSideBar.value = isMedium))
+watch(mediaQueries.xl, (isXL) => (showSideBar.value = isXL), {
+  immediate: layout !== 'modal',
+})
 
 /**
  * Selected scheme UIDs
@@ -181,6 +183,10 @@ function handleCurlImport(curl: string) {
   parsedCurl.value = importCurlCommand(curl)
   modalState.show()
 }
+function hello(show: boolean) {
+  console.log('hello', show)
+  showSideBar.value = show
+}
 </script>
 <template>
   <div
@@ -188,27 +194,31 @@ function handleCurlImport(curl: string) {
     :class="{
       '!mr-0 !mb-0 !border-0': isReadOnly,
     }">
-    <RequestSubpageHeader
-      v-model="showSideBar"
-      :isReadonly="isReadOnly"
-      @hideModal="() => modalState.hide()"
-      @importCurl="handleCurlImport" />
-    <ViewLayout>
+    <div class="flex h-full">
       <RequestSidebar
         :isReadonly="isReadOnly"
         :showSidebar="showSideBar"
         @newTab="$emit('newTab', $event)"
-        @update:showSidebar="(show) => (showSideBar = show)" />
-      <!-- TODO possible loading state -->
-      <ViewLayoutContent
-        v-if="activeExample"
-        class="flex-1"
-        :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
-        <RequestSection
-          :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
-        <ResponseSection :response="activeHistoryEntry?.response" />
-      </ViewLayoutContent>
-    </ViewLayout>
+        @update:showSidebar="hello" />
+      <div class="flex flex-1 flex-col h-full">
+        <RequestSubpageHeader
+          v-model="showSideBar"
+          :isReadonly="isReadOnly"
+          @hideModal="() => modalState.hide()"
+          @importCurl="handleCurlImport" />
+        <ViewLayout>
+          <!-- TODO possible loading state -->
+          <ViewLayoutContent
+            v-if="activeExample"
+            class="flex-1"
+            :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
+            <RequestSection
+              :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+            <ResponseSection :response="activeHistoryEntry?.response" />
+          </ViewLayoutContent>
+        </ViewLayout>
+      </div>
+    </div>
   </div>
   <ImportCurlModal
     v-if="parsedCurl"

@@ -17,7 +17,7 @@ withDefaults(
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="focus-within:bg-b-2 ui-not-open:hover:bg-b-2 focus-within:text-c-1 text-c-2 rounded request-item ui-not-open:bg-transparent ui-open:[&:not(:last-child)]:mb-2.5 ui-not-open:mb-[0.5px]"
+    class="bg-b-2 focus-within:text-c-1 text-c-2 request-item border-b-1/2"
     :defaultOpen="defaultOpen">
     <div class="flex items-center">
       <DisclosureButton
@@ -32,7 +32,7 @@ withDefaults(
             :open="open" />
           <span
             v-if="!open && itemCount"
-            class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full font-semibold">
+            class="bg-b-2 text-c-2 text-3xs inline-flex h-4 w-4 items-center justify-center rounded-full font-semibold border-1/2">
             {{ itemCount }}
           </span>
         </div>

@@ -9,8 +9,6 @@ import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
-import { WorkspaceDropdown } from './components'
-
 defineProps<{
   modelValue: boolean
   isReadonly: boolean
@@ -34,22 +32,25 @@ const { currentRoute } = useRouter()
   <div
     class="lg:min-h-client-header flex items-center w-full justify-center p-2 pt-2 lg:pt-1 lg:p-1 flex-wrap t-app__top-container border-b-1/2">
     <div
-      class="flex flex-row items-center gap-1 lg:px-2 lg:mb-0 lg:mb-0 mb-2 lg:flex-1 w-6/12">
+      class="flex flex-row items-center gap-1 lg:px-2 lg:mb-0 mb-2 lg:flex-1 w-6/12">
       <SidebarToggle
-        class="gitbook-hidden"
+        class="gitbook-hidden ml-1"
         :class="[
-          'xl:hidden',
+          { hidden: modelValue },
           { 'xl:!flex': !modelValue },
           { '!flex': layout === 'modal' },
+          { '!hidden': layout === 'modal' && modelValue },
         ]"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)" />
-      <WorkspaceDropdown v-if="!isReadonly" />
+      <!-- todo: only show this env selectorin modal -->
+      <EnvironmentSelector
+        v-if="!isReadonly"
+        class="hidden" />
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
       class="flex flex-row items-center gap-1 lg:px-2 lg:mb-0 mb-2 lg:flex-1 justify-end w-6/12">
-      <EnvironmentSelector v-if="!isReadonly" />
       <OpenApiClientButton
         v-if="isReadonly && activeCollection?.documentUrl && !hideClientButton"
         buttonSource="modal"

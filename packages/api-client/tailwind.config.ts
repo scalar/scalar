@@ -47,7 +47,7 @@ export default {
       },
       spacing: {
         /** Client headers including the address bar and the section headers */
-        'client-header': '52px',
+        'client-header': '48px',
       },
       zIndex: {
         // Numeric indexes

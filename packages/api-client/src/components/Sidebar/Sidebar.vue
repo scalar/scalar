@@ -63,18 +63,18 @@ const startDrag = (event: MouseEvent) => {
   <aside
     v-show="props.showSideBar"
     ref="sidebarRef"
-    class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit"
+    class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit leading-3"
     :class="{ dragging: isDragging }"
-    :style="{ width: breakpoints.md ? sidebarWidth : '100%' }">
+    :style="{ width: breakpoints.lg ? sidebarWidth : '100%' }">
     <slot name="header" />
     <div
       v-if="!isReadOnly && title"
-      class="min-h-12 xl:min-h-client-header flex items-center justify-between border-b-1/2 px-3 py-1.5 md:px-4 md:py-2.5 text-sm">
+      class="min-h-12 xl:min-h-client-header flex items-center justify-between px-3 py-1.5 md:px-4 md:py-2.5 text-sm">
       <h2 class="font-medium m-0 text-sm whitespace-nowrap">
         {{ title }}
       </h2>
       <slot
-        v-if="!breakpoints.md"
+        v-if="!breakpoints.lg"
         name="button" />
     </div>
     <div
@@ -84,7 +84,7 @@ const startDrag = (event: MouseEvent) => {
       }">
       <slot name="content" />
     </div>
-    <template v-if="breakpoints.md">
+    <template v-if="breakpoints.lg">
       <div
         class="relative z-10 pt-0 md:px-2.5 md:pb-2.5 sticky bottom-0 w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
         <slot name="button" />

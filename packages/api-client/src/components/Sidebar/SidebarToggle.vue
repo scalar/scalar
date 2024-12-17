@@ -9,12 +9,12 @@ defineEmits<{
 </script>
 <template>
   <button
-    class="text-c-1 hover:bg-b-2 active:text-c-1 p-2 rounded"
+    class="text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded-lg"
     type="button"
     @click="$emit('update:modelValue', !modelValue)">
     <span class="sr-only">{{ modelValue ? 'Hide' : 'Show' }} sidebar</span>
     <svg
-      class="size-3.5"
+      class="size-4"
       fill="none"
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg">
