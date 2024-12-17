@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.8
+
+### Patch Changes
+
+- 8adfeea: chore(components): ScalarMenu component cleanup
+- Updated dependencies [6407b2b]
+- Updated dependencies [071f6c7]
+  - @scalar/code-highlight@0.0.19
+  - @scalar/themes@0.9.58
+  - @scalar/use-hooks@0.1.11
+
 ## 0.13.7
 
 ### Patch Changes

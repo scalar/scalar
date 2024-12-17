@@ -1,5 +1,13 @@
 # @scalar/use-hooks
 
+## 0.1.11
+
+### Patch Changes
+
+- 071f6c7: feat: make it work in SSG environments
+- Updated dependencies [6407b2b]
+  - @scalar/themes@0.9.58
+
 ## 0.1.10
 
 ### Patch Changes

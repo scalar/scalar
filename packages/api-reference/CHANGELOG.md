@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.25.88
+
+### Patch Changes
+
+- 6407b2b: feat(api-reference): extend font weights for links and sidebar items
+- c4f15d2: fix: workspace store uses deprecated proxy attribute
+- 071f6c7: feat: make it work in SSG environments
+- 071f6c7: chore: remove RenderedReference export
+- Updated dependencies [6407b2b]
+- Updated dependencies [071f6c7]
+- Updated dependencies [8adfeea]
+  - @scalar/code-highlight@0.0.19
+  - @scalar/themes@0.9.58
+  - @scalar/api-client@2.2.17
+  - @scalar/use-hooks@0.1.11
+  - @scalar/components@0.13.8
+  - @scalar/oas-utils@0.2.91
+
 ## 1.25.87
 
 ### Patch Changes
