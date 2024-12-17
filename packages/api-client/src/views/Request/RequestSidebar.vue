@@ -193,7 +193,6 @@ const handleClearDrafts = () => {
 const isSearchVisible = ref(false)
 
 const toggleSearch = () => {
-<<<<<<< HEAD
   // Simply toggle the visibility
   isSearchVisible.value = !isSearchVisible.value
 
@@ -207,17 +206,6 @@ const toggleSearch = () => {
     nextTick(() => {
       searchInputRef.value?.focus()
     })
-=======
-  isSearchVisible.value = !isSearchVisible.value
-  if (isSearchVisible.value) {
-    // Use nextTick to ensure the input is mounted before focusing
-    nextTick(() => {
-      searchInputRef.value?.focus()
-    })
-  } else {
-    // Clear search text when toggling off
-    searchText.value = ''
->>>>>>> 8d85b716d (style(api-client): update styles of api client for new nav / embeds)
   }
 }
 </script>
