@@ -85,7 +85,7 @@ importers:
         version: 12.3.2(typescript@5.6.2)
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2)
+        version: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -1963,8 +1963,8 @@ importers:
         specifier: ^1.10.3
         version: 1.10.3
       '@todesktop/cli':
-        specifier: ^1.11.0
-        version: 1.11.0(@types/react@18.3.3)
+        specifier: ^1.11.1
+        version: 1.11.1(@types/react@18.3.3)
       '@types/node':
         specifier: ^20.14.10
         version: 20.14.10
@@ -7221,8 +7221,8 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@todesktop/cli@1.11.0':
-    resolution: {integrity: sha512-BYxvnaUc+xrxjEnokMebxY72GqIVd1kEdX4O46hH1ZeKo4LdrE8eFt3yVuOY+uYzFukzr9Rm1+pHvX+VzogcFg==}
+  '@todesktop/cli@1.11.1':
+    resolution: {integrity: sha512-sXvcYJYhgEs7p96ClPiZNqFXvm8dT6vWCf4z20d6o0GXo6SeePuusnGGTlZeLcwElWTYEHbvAT2Qo41/U/nNcg==}
     engines: {node: '>=12'}
     hasBin: true
 
@@ -25204,7 +25204,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 9.3.4
 
-  '@todesktop/cli@1.11.0(@types/react@18.3.3)':
+  '@todesktop/cli@1.11.1(@types/react@18.3.3)':
     dependencies:
       '@sentry/node': 8.38.0
       ajv: 8.17.1
@@ -31926,7 +31926,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.14.10
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -34738,7 +34738,7 @@ snapshots:
       yaml: 2.4.5
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)
 
   postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)):
     dependencies:
@@ -34746,7 +34746,7 @@ snapshots:
       yaml: 2.4.5
     optionalDependencies:
       postcss: 8.4.47
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2)
 
   postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1):
     dependencies:
@@ -37551,7 +37551,7 @@ snapshots:
       '@swc/core': 1.5.29(@swc/helpers@0.5.5)
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.5))(@types/node@20.14.10)(typescript@5.6.2):
+  ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.14.10)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11
