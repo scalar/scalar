@@ -32,7 +32,7 @@ const { currentRoute } = useRouter()
   <div
     class="lg:min-h-client-header flex items-center w-full justify-center p-2 pt-2 lg:pt-1 lg:p-1 flex-wrap t-app__top-container border-b-1/2">
     <div
-      class="flex flex-row items-center gap-1 lg:px-2 lg:mb-0 mb-2 lg:flex-1 w-6/12">
+      class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-2 lg:flex-1 w-6/12">
       <SidebarToggle
         class="gitbook-hidden ml-1"
         :class="[
@@ -50,7 +50,7 @@ const { currentRoute } = useRouter()
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
-      class="flex flex-row items-center gap-1 lg:px-2 lg:mb-0 mb-2 lg:flex-1 justify-end w-6/12">
+      class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-2 lg:flex-1 justify-end w-6/12">
       <OpenApiClientButton
         v-if="isReadonly && activeCollection?.documentUrl && !hideClientButton"
         buttonSource="modal"

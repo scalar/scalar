@@ -193,6 +193,7 @@ const handleClearDrafts = () => {
 const isSearchVisible = ref(false)
 
 const toggleSearch = () => {
+<<<<<<< HEAD
   // Simply toggle the visibility
   isSearchVisible.value = !isSearchVisible.value
 
@@ -206,6 +207,17 @@ const toggleSearch = () => {
     nextTick(() => {
       searchInputRef.value?.focus()
     })
+=======
+  isSearchVisible.value = !isSearchVisible.value
+  if (isSearchVisible.value) {
+    // Use nextTick to ensure the input is mounted before focusing
+    nextTick(() => {
+      searchInputRef.value?.focus()
+    })
+  } else {
+    // Clear search text when toggling off
+    searchText.value = ''
+>>>>>>> 8d85b716d (style(api-client): update styles of api client for new nav / embeds)
   }
 }
 </script>
@@ -243,7 +255,7 @@ const toggleSearch = () => {
         </button>
       </div>
       <div
-        v-show="isSearchVisible"
+        v-show="isSearchVisible || searchText"
         class="search-button-fade sticky px-3 py-2.5 z-10 pt-0 top-[48px] focus-within:z-20"
         role="search">
         <ScalarSearchInput
@@ -252,6 +264,7 @@ const toggleSearch = () => {
           :aria-activedescendant="selectedResultId"
           :aria-controls="searchResultsId"
           sidebar
+          @blur="isSearchVisible = searchText.length > 0"
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
