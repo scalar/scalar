@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ScalarIcon, useModal } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
-import { useEventListener, useMagicKeys } from '@vueuse/core'
+import { onBeforeUnmount, onMounted } from 'vue'
 
 import { isMacOs } from '../../helpers'
 import { useApiClient } from '../ApiClientModal'
@@ -20,24 +20,23 @@ const props = withDefaults(
 const modalState = useModal()
 const { client } = useApiClient()
 
-const keys = useMagicKeys({
-  passive: false,
-  onEventFired(e) {
-    // Remove default behaviour for keypress
-    if (!isMacOs() && e.ctrlKey && e.key === props.searchHotKey) {
-      e.preventDefault()
-      e.stopPropagation()
-    }
-  },
-})
-
-useEventListener(document, 'keydown', (event) => {
-  if ((isMacOs() ? keys.meta.value : keys.ctrl.value) && event.key === 'k') {
-    if (!client.value?.modalState.open) {
-      modalState.open ? modalState.hide() : modalState.show()
-    }
+const handleHotKey = (e: KeyboardEvent) => {
+  if (
+    (isMacOs() ? e.metaKey : e.ctrlKey) &&
+    e.key === props.searchHotKey &&
+    !client.value?.modalState.open
+  ) {
+    e.preventDefault()
+    e.stopPropagation()
+    modalState.open ? modalState.hide() : modalState.show()
   }
-})
+}
+
+// Handle keyboard shortcuts
+// TODO: we can move this to the hotkey event bus but we would need to set up a custom key from the searchHotKey config
+// and make sure it works correctly inside the references first
+onMounted(() => window.addEventListener('keydown', handleHotKey))
+onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
 </script>
 <template>
   <button

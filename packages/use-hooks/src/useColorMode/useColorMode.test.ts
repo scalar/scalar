@@ -188,4 +188,30 @@ describe('useColorMode', () => {
     expect(document.body.classList.contains('dark-mode')).toBe(true)
     expect(document.body.classList.contains('light-mode')).toBe(false)
   })
+
+  it('works in SSG environment without window/document', () => {
+    const originalWindow = global.window
+    const originalDocument = global.document
+
+    // Mock SSG environment by removing window/document
+    // @ts-expect-error
+    delete global.window
+    // @ts-expect-error
+    delete global.document
+
+    const { colorMode, darkLightMode, setColorMode, toggleColorMode } =
+      useColorMode()
+
+    // Should default to light mode in SSG
+    expect(colorMode.value).toBe('system')
+    expect(darkLightMode.value).toBe('light')
+
+    // Methods should not throw without window/document
+    expect(() => setColorMode('dark')).not.toThrow()
+    expect(() => toggleColorMode()).not.toThrow()
+
+    // Restore window/document/localStorage
+    global.window = originalWindow
+    global.document = originalDocument
+  })
 })

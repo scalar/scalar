@@ -155,7 +155,6 @@ onMounted(() => {
 
   // This is what updates the hash ref from hash changes
   window.onhashchange = () => {
-    console.log('CHANGED TO: ', getReferenceHash())
     scrollToSection(getReferenceHash())
   }
   // Handle back for path routing
@@ -425,8 +424,6 @@ const themeStyleTag = computed(
           name="footer" />
       </div>
     </template>
-    <!-- REST API Client Overlay -->
-    <!-- Fonts are fetched by @scalar/api-reference already, we can safely set `withDefaultFonts: false` -->
     <ApiClientModal :configuration="configuration" />
   </div>
   <ScalarToasts />

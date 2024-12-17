@@ -33,8 +33,6 @@ const customCss = computed(() => {
   return migrateThemeVariables(props.configuration?.customCss)
 })
 
-watch(customCss, () => console.log(customCss.value))
-
 // Set defaults as needed on the provided configuration
 const configuration = computed<ReferenceConfiguration>(() => ({
   spec: {
