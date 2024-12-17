@@ -15,12 +15,23 @@ npm install @scalar/use-codemirror
 
 ```vue
 <script setup>
-import { CodeMirror } from '@scalar/use-codemirror'
+import { useCodeMirror } from '@scalar/use-codemirror'
+import { ref } from 'vue'
+
+const editor = ref(null)
+
+const { codeMirror, setCodeMirrorContent } = useCodeMirror({
+  codeMirrorRef: editor,
+  content: '{ "foo": "bar" }',
+  language: 'json',
+  lineNumbers: true,
+  onChange: (value) => {
+    console.log('Content changed:', value)
+  },
+})
 </script>
 
-<CodeMirror
-  class="my-custom-class"
-  content="const foobar = true"
-  readOnly
-  @change="(value) => …" />
+<template>
+  <div ref="editor" />
+</template>
 ```

@@ -11,7 +11,5 @@ export {
   WidgetType,
 } from '@codemirror/view'
 
-export { CodeMirror } from './components/CodeMirror'
-export { useDropdown } from './hooks/useDropdown'
 export * from './hooks'
 export * from './types'
