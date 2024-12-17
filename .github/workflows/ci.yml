@@ -207,6 +207,9 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    # Avoid running this job in parallel:
+    # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
+    # npm publish also shouldn’t happen in parallel.
     concurrency:
       group: npm-publish
       cancel-in-progress: false
@@ -460,6 +463,7 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    # We don’t want to run `nuget push` (publishing to NuGet) in parallel.
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
