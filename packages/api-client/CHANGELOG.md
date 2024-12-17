@@ -1,16 +1,5 @@
 # @scalar/api-client
 
-## 2.2.17
-
-### Patch Changes
-
-- 071f6c7: feat: make it work in SSG environments
-- Updated dependencies [071f6c7]
-- Updated dependencies [8adfeea]
-  - @scalar/use-hooks@0.1.11
-  - @scalar/components@0.13.8
-  - @scalar/use-codemirror@0.11.52
-
 ## 2.2.16
 
 ### Patch Changes
