@@ -1,18 +1,5 @@
 # @scalar/api-reference
 
-## 1.25.88
-
-### Patch Changes
-
-- c4f15d2: fix: workspace store uses deprecated proxy attribute
-- 071f6c7: feat: make it work in SSG environments
-- 071f6c7: chore: remove RenderedReference export
-- Updated dependencies [071f6c7]
-- Updated dependencies [8adfeea]
-  - @scalar/api-client@2.2.17
-  - @scalar/use-hooks@0.1.11
-  - @scalar/components@0.13.8
-
 ## 1.25.87
 
 ### Patch Changes
