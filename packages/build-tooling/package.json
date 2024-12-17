@@ -59,7 +59,7 @@
     "vitest": "^1.6.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.10",
     "@types/picomatch": "^2.3.3"
   }
 }

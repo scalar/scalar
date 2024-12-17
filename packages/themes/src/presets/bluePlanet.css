@@ -151,7 +151,11 @@
       rgba(0, 0, 0, 0)
     ),
     radial-gradient(2px 2px at 40px 70px, var(--star-color), rgba(0, 0, 0, 0)),
-    radial-gradient(2px 2px at 50px 160px, var(--star-color3), rgba(0, 0, 0, 0)),
+    radial-gradient(
+      2px 2px at 50px 160px,
+      var(--star-color3),
+      rgba(0, 0, 0, 0)
+    ),
     radial-gradient(2px 2px at 90px 40px, var(--star-color), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 130px 80px, var(--star-color), rgba(0, 0, 0, 0)),
     radial-gradient(
