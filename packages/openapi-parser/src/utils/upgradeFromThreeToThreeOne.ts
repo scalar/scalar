@@ -99,7 +99,10 @@ export function upgradeFromThreeToThreeOne(
   // Uploading a binary file in a POST request
   specification = traverse(specification, (schema) => {
     if (schema.type === 'string' && schema.format === 'binary') {
-      return undefined
+      return {
+        type: 'string',
+        contentEncoding: 'application/octet-stream',
+      }
     }
 
     return schema
