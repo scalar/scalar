@@ -1635,10 +1635,13 @@ importers:
         version: 4.3.1(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
       next:
         specifier: ^14.2.10
-        version: 14.2.18(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@18.3.1(react@19.0.0))(react@19.0.0)
+        version: 14.2.18(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
       react-dom:
         specifier: ^18.3.1
-        version: 18.3.1(react@19.0.0)
+        version: 18.3.1(react@18.3.1)
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
