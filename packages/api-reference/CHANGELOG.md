@@ -1,5 +1,20 @@
 # @scalar/api-reference
 
+## 1.25.89
+
+### Patch Changes
+
+- 3c7d7dd: fix: reverts sets server variables values in client
+- Updated dependencies [3c7d7dd]
+- Updated dependencies [33c8393]
+- Updated dependencies [3791738]
+- Updated dependencies [33c8393]
+- Updated dependencies [66905d2]
+  - @scalar/api-client@2.2.18
+  - @scalar/components@0.13.9
+  - @scalar/openapi-parser@0.10.2
+  - @scalar/oas-utils@0.2.91
+
 ## 1.25.88
 
 ### Patch Changes

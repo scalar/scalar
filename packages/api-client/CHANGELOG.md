@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.2.18
+
+### Patch Changes
+
+- 3c7d7dd: fix: reverts sets server variables values in client
+- 33c8393: style: fixes spacing and padding inconcistensies
+- 66905d2: fix: adds active request safety check for request body
+- Updated dependencies [33c8393]
+- Updated dependencies [3791738]
+  - @scalar/components@0.13.9
+  - @scalar/openapi-parser@0.10.2
+  - @scalar/use-codemirror@0.11.53
+  - @scalar/import@0.2.11
+  - @scalar/oas-utils@0.2.91
+
 ## 2.2.17
 
 ### Patch Changes
