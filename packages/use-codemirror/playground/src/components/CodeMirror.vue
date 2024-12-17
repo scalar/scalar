@@ -76,6 +76,7 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   <div class="codemirror-container">
     <div class="codemirror-menu">
       <button
+        :class="{ 'is-active': lineNumbers }"
         type="button"
         @click="lineNumbers = !lineNumbers">
         lineNumbers
@@ -123,6 +124,7 @@ button {
   border: none;
   border-radius: 4px;
   background: #f0f0f0;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
   cursor: pointer;
 }
 
@@ -135,10 +137,12 @@ button.is-active {
   height: 100vh;
   width: 100%;
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .codemirror {
-  height: 100%;
+  flex-grow: 1;
   width: 100%;
   background: #1e1e1e;
   color: #d4d4d4;
