@@ -1,4 +1,4 @@
-# Scalar useCodeMirror()
+# CodeMirror Hook for Vue
 
 [![Version](https://img.shields.io/npm/v/%40scalar/use-codemirror)](https://www.npmjs.com/package/@scalar/use-codemirror)
 [![Downloads](https://img.shields.io/npm/dm/%40scalar/use-codemirror)](https://www.npmjs.com/package/@scalar/use-codemirror)
@@ -35,3 +35,11 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   <div ref="editor" />
 </template>
 ```
+
+## Community
+
+We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>
+
+## License
+
+The source code in this repository is licensed under [MIT](https://github.com/scalar/scalar/blob/main/LICENSE).
