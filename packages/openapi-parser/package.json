@@ -73,7 +73,7 @@
     "@scalar/build-tooling": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/types": "workspace:*",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.10",
     "glob": "^10.3.10",
     "json-to-ast": "^2.1.0",
     "just-diff": "^6.0.2",

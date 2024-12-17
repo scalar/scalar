@@ -70,7 +70,7 @@
     "@storybook/vue3": "^8.0.8",
     "@storybook/vue3-vite": "^8.0.8",
     "@types/jsdom": "^21.1.3",
-    "@types/node": "^20.14.10",
+    "@types/node": "^20.17.10",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/test-utils": "^2.4.1",
     "autoprefixer": "^10.4.19",

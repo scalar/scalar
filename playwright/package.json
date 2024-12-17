@@ -11,6 +11,6 @@
   },
   "main": "index.js",
   "devDependencies": {
-    "@playwright/test": "^1.47.2"
+    "@playwright/test": "^1.49.1"
   }
 }
