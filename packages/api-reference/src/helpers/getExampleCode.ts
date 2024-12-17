@@ -13,12 +13,22 @@ export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
  * Returns a code example for given Request
  */
 export async function getExampleCode<T extends SnippetzTargetId>(
+  /** JS request object */
   request: Request,
   target: TargetId | string,
   client: ClientId<T> | string,
+  /** The original path before variable replacement */
+  originalPath?: string,
 ) {
   // Convert request to HarRequest
   const harRequest = await convertRequestToHarRequest(request)
+
+  // Bring back the pathParameter variables in the URL
+  if (originalPath) {
+    const url = new URL(request.url)
+    url.pathname = originalPath
+    harRequest.url = decodeURIComponent(url.toString())
+  }
 
   // TODO: Fix this, use js (instead of javascript) everywhere
   const snippetzTargetKey = target?.replace(
