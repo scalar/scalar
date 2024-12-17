@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.19
+
+### Patch Changes
+
+- 6407b2b: feat(api-reference): extend font weights for links and sidebar items
+
 ## 0.0.18
 
 ### Patch Changes
