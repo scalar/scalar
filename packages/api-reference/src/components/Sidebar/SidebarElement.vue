@@ -190,6 +190,9 @@ const onAnchorClick = async (ev: Event) => {
     var(--scalar-background-accent)
   );
 }
+.active_page.sidebar-heading p {
+  font-weight: var(--scalar-sidebar-font-weight-active, var(--scalar-semibold));
+}
 .active_page.sidebar-heading:hover .sidebar-heading-link-title {
   color: var(--scalar-sidebar-color-active, var(--scalar-color-accent));
 }
@@ -225,6 +228,7 @@ const onAnchorClick = async (ev: Event) => {
   height: fit-content;
   display: flex;
   align-items: center;
+  font-weight: var(--scalar-sidebar-font-weight, var(--scalar-semibold));
 }
 .sidebar-heading p:empty {
   display: none;

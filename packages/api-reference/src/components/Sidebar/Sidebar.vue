@@ -183,6 +183,8 @@ onMounted(() => {
 <style scoped>
 .sidebar {
   --scalar-sidebar-indent-base: 12px;
+  --scalar-sidebar-font-weight-active: var(--scalar-semibold);
+  --scalar-sidebar-font-weight: var(--scalar-semibold);
 }
 .sidebar {
   flex: 1;
