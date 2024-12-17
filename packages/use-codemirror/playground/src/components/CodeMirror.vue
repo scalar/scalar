@@ -5,17 +5,67 @@ import { useCodeMirror } from '../../../src/hooks/useCodeMirror'
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 
+const lineNumbers = ref<boolean>(true)
+const readOnly = ref<boolean>(false)
+const lint = ref<boolean>(true)
+const disableTabIndent = ref<boolean>(false)
+const forceFoldGutter = ref<boolean>(false)
+
 const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   codeMirrorRef,
   content: JSON.stringify(
     {
-      foo: 'bar',
+      users: [
+        {
+          id: 1,
+          name: 'John Doe',
+          email: 'john@example.com',
+          address: {
+            street: '123 Main St',
+            city: 'Boston',
+            state: 'MA',
+            zip: '02108',
+          },
+          orders: [
+            {
+              orderId: 'ORD-001',
+              items: [
+                {
+                  productId: 'P100',
+                  name: 'Widget',
+                  quantity: 2,
+                  price: 29.99,
+                },
+                {
+                  productId: 'P200',
+                  name: 'Gadget',
+                  quantity: 1,
+                  price: 49.99,
+                },
+              ],
+              total: 109.97,
+            },
+          ],
+        },
+      ],
+      metadata: {
+        version: '1.0',
+        generated: '2023-12-25T12:00:00Z',
+        settings: {
+          currency: 'USD',
+          timezone: 'America/New_York',
+        },
+      },
     },
     null,
     2,
   ),
   language: 'json',
-  lineNumbers: true,
+  lineNumbers,
+  readOnly,
+  lint,
+  disableTabIndent,
+  forceFoldGutter,
   onChange: (value) => {
     console.log('Content changed:', value)
   },
@@ -24,6 +74,37 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
 
 <template>
   <div class="codemirror-container">
+    <div class="codemirror-menu">
+      <button
+        type="button"
+        @click="lineNumbers = !lineNumbers">
+        lineNumbers
+      </button>
+      <button
+        :class="{ 'is-active': readOnly }"
+        type="button"
+        @click="readOnly = !readOnly">
+        readOnly
+      </button>
+      <button
+        :class="{ 'is-active': lint }"
+        type="button"
+        @click="lint = !lint">
+        lint
+      </button>
+      <button
+        :class="{ 'is-active': disableTabIndent }"
+        type="button"
+        @click="disableTabIndent = !disableTabIndent">
+        disableTabIndent
+      </button>
+      <button
+        :class="{ 'is-active': forceFoldGutter }"
+        type="button"
+        @click="forceFoldGutter = !forceFoldGutter">
+        forceFoldGutter
+      </button>
+    </div>
     <div
       ref="codeMirrorRef"
       class="codemirror" />
@@ -31,6 +112,25 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
 </template>
 
 <style scoped>
+.codemirror-menu {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  padding: 0.5rem 0.5rem;
+  border: none;
+  border-radius: 4px;
+  background: #f0f0f0;
+  cursor: pointer;
+}
+
+button.is-active {
+  background: #007bff;
+  color: #fff;
+}
+
 .codemirror-container {
   height: 100vh;
   width: 100%;
@@ -62,8 +162,9 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
 
 :deep(.cm-gutters) {
   background: #1e1e1e;
-  border-right: 1px solid #404040;
   padding: 0 8px;
+  color: #858585;
+  font-size: 12px;
 }
 
 :deep(.cm-lineNumbers) {
