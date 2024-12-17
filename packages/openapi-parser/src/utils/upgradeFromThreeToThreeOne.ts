@@ -76,19 +76,29 @@ export function upgradeFromThreeToThreeOne(
   })
 
   // Multipart file uploads with a binary file
-  specification = traverse(specification, (schema) => {
+  specification = traverse(specification, (schema, path) => {
     if (schema.type === 'object' && schema.properties !== undefined) {
-      // Types
-      const entries: [string, any][] = Object.entries(schema.properties)
+      // Check if this is a multipart request body schema
+      const parentPath = path.slice(0, -1)
+      const isMultipart = parentPath.some((segment, index) => {
+        return (
+          segment === 'content' && path[index + 1] === 'multipart/form-data'
+        )
+      })
 
-      for (const [_, value] of entries) {
-        if (
-          typeof value === 'object' &&
-          value.type === 'string' &&
-          value.format === 'binary'
-        ) {
-          value.contentEncoding = 'application/octet-stream'
-          delete value.format
+      if (isMultipart) {
+        // Types
+        const entries: [string, any][] = Object.entries(schema.properties)
+
+        for (const [_, value] of entries) {
+          if (
+            typeof value === 'object' &&
+            value.type === 'string' &&
+            value.format === 'binary'
+          ) {
+            value.contentMediaType = 'application/octet-stream'
+            delete value.format
+          }
         }
       }
     }
@@ -97,9 +107,16 @@ export function upgradeFromThreeToThreeOne(
   })
 
   // Uploading a binary file in a POST request
-  specification = traverse(specification, (schema) => {
+  specification = traverse(specification, (schema, path) => {
+    if (path.includes('content') && path.includes('application/octet-stream')) {
+      return {}
+    }
+
     if (schema.type === 'string' && schema.format === 'binary') {
-      return undefined
+      return {
+        type: 'string',
+        contentMediaType: 'application/octet-stream',
+      }
     }
 
     return schema

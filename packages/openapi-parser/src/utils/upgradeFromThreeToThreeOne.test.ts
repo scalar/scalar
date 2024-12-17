@@ -254,8 +254,8 @@ describe('upgradeFromThreeToThreeOne', () => {
     })
   })
 
-  describe('describing File Upload Payloads ', () => {
-    it('remove schema for file uploads', async () => {
+  describe('describing File Upload Payloads', () => {
+    it('removes schema for binary file uploads', async () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -263,8 +263,8 @@ describe('upgradeFromThreeToThreeOne', () => {
           version: '1.0.0',
         },
         paths: {
-          '/test': {
-            get: {
+          '/upload': {
+            post: {
               requestBody: {
                 content: {
                   'application/octet-stream': {
@@ -281,13 +281,13 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/test'].get.requestBody.content[
+        result.paths['/upload'].post.requestBody.content[
           'application/octet-stream'
         ],
       ).toEqual({})
     })
 
-    it('migrates base64 format to contentEncoding', async () => {
+    it('migrates base64 format to contentEncoding for image uploads', async () => {
       const result = upgradeFromThreeToThreeOne({
         openapi: '3.0.0',
         info: {
@@ -295,11 +295,11 @@ describe('upgradeFromThreeToThreeOne', () => {
           version: '1.0.0',
         },
         paths: {
-          '/test': {
-            get: {
+          '/upload': {
+            post: {
               requestBody: {
                 content: {
-                  'application/octet-stream': {
+                  'image/png': {
                     schema: {
                       type: 'string',
                       format: 'base64',
@@ -313,9 +313,7 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/test'].get.requestBody.content[
-          'application/octet-stream'
-        ],
+        result.paths['/upload'].post.requestBody.content['image/png'],
       ).toEqual({
         schema: {
           type: 'string',
@@ -332,14 +330,17 @@ describe('upgradeFromThreeToThreeOne', () => {
           version: '1.0.0',
         },
         paths: {
-          '/test': {
-            get: {
+          '/upload': {
+            post: {
               requestBody: {
                 content: {
                   'multipart/form-data': {
                     schema: {
                       type: 'object',
                       properties: {
+                        orderId: {
+                          type: 'integer',
+                        },
                         fileName: {
                           type: 'string',
                           format: 'binary',
@@ -355,14 +356,17 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(
-        result.paths['/test'].get.requestBody.content['multipart/form-data'],
+        result.paths['/upload'].post.requestBody.content['multipart/form-data'],
       ).toEqual({
         schema: {
           type: 'object',
           properties: {
+            orderId: {
+              type: 'integer',
+            },
             fileName: {
               type: 'string',
-              contentEncoding: 'application/octet-stream',
+              contentMediaType: 'application/octet-stream',
             },
           },
         },
@@ -382,6 +386,64 @@ describe('upgradeFromThreeToThreeOne', () => {
       })
 
       expect(result.$schema).toBe('http://json-schema.org/draft-07/schema#')
+    })
+  })
+
+  describe('binary format handling with oneOf', () => {
+    it('correctly handles format: binary in oneOf schemas', async () => {
+      const result = upgradeFromThreeToThreeOne({
+        openapi: '3.0.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/images/edits': {
+            post: {
+              requestBody: {
+                required: true,
+                content: {
+                  'multipart/form-data': {
+                    schema: {
+                      type: 'object',
+                      required: ['model', 'prompt'],
+                      properties: {
+                        model: {
+                          type: 'string',
+                          enum: ['Kolors'],
+                        },
+                        image: {
+                          oneOf: [
+                            {
+                              type: 'string',
+                              format: 'binary',
+                            },
+                            {
+                              type: 'string',
+                            },
+                          ],
+                        },
+                        prompt: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(
+        result.paths['/images/edits'].post.requestBody.content[
+          'multipart/form-data'
+        ].schema.properties.image.oneOf[0],
+      ).toEqual({
+        type: 'string',
+        contentMediaType: 'application/octet-stream',
+      })
     })
   })
 })
