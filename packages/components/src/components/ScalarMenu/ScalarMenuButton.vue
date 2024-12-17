@@ -7,8 +7,8 @@ defineProps<{
 }>()
 </script>
 <template>
-  <ScalarHeaderButton class="px-2">
-    <div class="h-5 w-auto">
+  <ScalarHeaderButton class="gap-0.5 px-2">
+    <div class="size-5">
       <slot><ScalarIcon icon="Logo" /></slot>
     </div>
     <span class="sr-only">
@@ -17,6 +17,6 @@ defineProps<{
     <ScalarIcon
       class="text-c-3 group-hover/button:text-c-1"
       :icon="open ? 'ChevronUp' : 'ChevronDown'"
-      size="sm" />
+      size="md" />
   </ScalarHeaderButton>
 </template>
