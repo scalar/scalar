@@ -1,5 +1,11 @@
 # @scalar/use-hooks
 
+## 0.1.11
+
+### Patch Changes
+
+- 071f6c7: feat: make it work in SSG environments
+
 ## 0.1.10
 
 ### Patch Changes
