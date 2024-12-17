@@ -4,6 +4,7 @@ import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import { type Icon, ScalarIcon } from '@scalar/components'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed } from 'vue'
 
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
@@ -49,11 +50,14 @@ const authIndicator = computed(() => {
 
 /** Currently selected auth schemes on the collection */
 const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids.map((uid) => {
-    const scheme = securitySchemes[uid ?? '']
-    if (!scheme) return undefined
-    return displaySchemeFormatter(scheme)
-  }),
+  selectedSecuritySchemeUids
+    .map((uid) => {
+      const scheme = securitySchemes[uid ?? '']
+      if (!scheme) return undefined
+
+      return displaySchemeFormatter(scheme)
+    })
+    .filter(isDefined),
 )
 </script>
 <template>
