@@ -1,5 +1,6 @@
 import { OperationBlock } from '@/blocks/components/OperationBlock'
 import { ERRORS, WARNINGS } from '@/blocks/constants'
+import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import { createApp } from 'vue'
 
 import type { StoreContext } from './createStore'
@@ -50,10 +51,16 @@ export function createOperationBlock(options: CreateOperationBlockOptions) {
     targetElement.classList.add('scalar-app')
     targetElement.classList.add('scalar-api-reference')
 
+    // TODO: This should not be necessary
+    document.body.classList.add('light-mode')
+
     const app = createApp(OperationBlock, {
       store: options.store,
       location: options.location,
     })
+
+    // TODO: Add API Client modal?
+    app.provide(HIDE_TEST_REQUEST_BUTTON_SYMBOL, () => true)
 
     app.mount(targetElement)
   }

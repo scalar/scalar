@@ -4,6 +4,11 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
+<<<<<<< HEAD
+=======
+import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
+import { createHash, ssrState } from '@scalar/oas-utils/helpers'
+>>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 import type {
   Collection,
   Operation,
@@ -25,16 +30,33 @@ import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
+<<<<<<< HEAD
 const { transformedOperation, operation, collection, server } = defineProps<{
   operation: Operation
   server: Server | undefined
   collection: Collection
+=======
+const { operation, request } = defineProps<{
+  operation: StoreRequest
+  request: Request | null
+  /** Array of strings to obscure in the code block */
+  secretCredentials: string[]
+>>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
   /** Show a simplified card if no example are available */
   fallback?: boolean
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
 
+<<<<<<< HEAD
+=======
+const ssrHash = createHash(
+  operation.path + operation.method + operation.operationId,
+)
+const ssrStateKey =
+  `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
+
+>>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
 
@@ -49,14 +71,25 @@ const {
 const id = useId()
 
 const customRequestExamples = computed(() => {
-  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+  // TODO: Get custom examples from the store
 
+<<<<<<< HEAD
   for (const key of keys) {
     if (transformedOperation.information?.[key]) {
       const examples = [...transformedOperation.information[key]]
       return examples
     }
   }
+=======
+  // const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+
+  // for (const key of keys) {
+  //   if (operation.information?.[key]) {
+  //     const examples = [...operation.information[key]]
+  //     return examples
+  //   }
+  // }
+>>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 
   return []
 })
@@ -142,17 +175,21 @@ const generatedCode = computed<string>(() => {
 
 /** Code language of the snippet */
 const language = computed(() => {
-  const key =
-    // Specified language
-    localHttpClient.value?.targetKey === 'customExamples'
-      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext')
-      : // Or language for the globally selected HTTP client
-        httpClient.targetKey
+  // TODO: Deal with custom code examples
+  // const key =
+  //   // Specified language
+  //   localHttpClient.value?.targetKey === 'customExamples'
+  //     ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+  //       'plaintext')
+  //     : // Or language for the globally selected HTTP client
+  //       httpClient.targetKey
+
+  const key = httpClient.targetKey
 
   // Normalize language
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'Objective-C') return 'objc'
+  // TODO: I think we can delete this.
+  // if (key === 'Objective-C') return 'objc'
 
   return key
 })
@@ -196,18 +233,19 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
-    entries.unshift({
-      value: 'customExamples',
-      label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => ({
-        value: JSON.stringify({
-          targetKey: 'customExamples',
-          clientKey: index,
-        }),
-        label: example.label ?? example.lang ?? `Example #${index + 1}`,
-      })),
-    })
+  // TODO: Custom code examples
+  // if (customRequestExamples.value.length)
+  //   entries.unshift({
+  //     value: 'customExamples',
+  //     label: 'Examples',
+  //     options: customRequestExamples.value.map((example, index) => ({
+  //       value: JSON.stringify({
+  //         targetKey: 'customExamples',
+  //         clientKey: index,
+  //       }),
+  //       label: example.label ?? example.lang ?? `Example #${index + 1}`,
+  //     })),
+  //   })
 
   return entries
 })
@@ -244,18 +282,18 @@ function updateHttpClient(value: string) {
           :modelValue="JSON.stringify(localHttpClient)"
           :options="options"
           @update:modelValue="updateHttpClient">
-          <template v-if="localHttpClient.targetKey === 'customExamples'">
+          <!-- <template v-if="localHttpClient.targetKey === 'customExamples'">
             <ScreenReader>Selected Example:</ScreenReader>
             {{
               customRequestExamples[localHttpClient.clientKey].label ??
               'Example'
             }}
           </template>
-          <template v-else>
-            <ScreenReader>Selected HTTP client:</ScreenReader>
-            {{ httpTargetTitle }}
-            {{ httpClientTitle }}
-          </template>
+          <template v-else> -->
+          <ScreenReader>Selected HTTP client:</ScreenReader>
+          {{ httpTargetTitle }}
+          {{ httpClientTitle }}
+          <!-- </template> -->
         </TextSelect>
       </template>
     </CardHeader>
@@ -285,9 +323,13 @@ function updateHttpClient(value: string) {
         <ExamplePicker
           class="request-example-selector"
           :examples="
+<<<<<<< HEAD
             transformedOperation.information?.requestBody?.content?.[
               'application/json'
             ]?.examples ?? []
+=======
+            operation.requestBody?.content?.['application/json']?.examples ?? []
+>>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
           "
           @update:modelValue="
             (value) => (
