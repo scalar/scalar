@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
 import { ScalarCodeBlock } from '@scalar/components'
+import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
@@ -31,7 +32,7 @@ import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const { operation, request } = defineProps<{
-  operation: TransformedOperation
+  operation: StoreRequest
   request: Request | null
   /** Array of strings to obscure in the code block */
   secretCredentials: string[]
@@ -40,7 +41,7 @@ const { operation, request } = defineProps<{
 }>()
 
 const ssrHash = createHash(
-  operation.path + operation.httpVerb + operation.operationId,
+  operation.path + operation.method + operation.operationId,
 )
 const ssrStateKey =
   `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
@@ -58,14 +59,16 @@ const {
 const id = useId()
 
 const customRequestExamples = computed(() => {
-  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+  // TODO: Get custom examples from the store
 
-  for (const key of keys) {
-    if (operation.information?.[key]) {
-      const examples = [...operation.information[key]]
-      return examples
-    }
-  }
+  // const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+
+  // for (const key of keys) {
+  //   if (operation.information?.[key]) {
+  //     const examples = [...operation.information[key]]
+  //     return examples
+  //   }
+  // }
 
   return []
 })
@@ -102,18 +105,18 @@ watch(httpClient, () => {
 const hasMultipleExamples = computed<boolean>(
   () =>
     Object.keys(
-      operation.information?.requestBody?.content?.['application/json']
-        ?.examples ?? {},
+      operation.requestBody?.content?.['application/json']?.examples ?? {},
     ).length > 1,
 )
 
 const generateSnippet = async () => {
+  // TODO: Deal with custom code examples
   // Use the selected custom example
-  if (localHttpClient.value.targetKey === 'customExamples') {
-    return (
-      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
-    )
-  }
+  // if (localHttpClient.value.targetKey === 'customExamples') {
+  //   return (
+  //     customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
+  //   )
+  // }
   if (!request) return ''
 
   const clientKey = httpClient.clientKey
@@ -138,17 +141,21 @@ onServerPrefetch(async () => {
 
 /** Code language of the snippet */
 const language = computed(() => {
-  const key =
-    // Specified language
-    localHttpClient.value?.targetKey === 'customExamples'
-      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext')
-      : // Or language for the globally selected HTTP client
-        httpClient.targetKey
+  // TODO: Deal with custom code examples
+  // const key =
+  //   // Specified language
+  //   localHttpClient.value?.targetKey === 'customExamples'
+  //     ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+  //       'plaintext')
+  //     : // Or language for the globally selected HTTP client
+  //       httpClient.targetKey
+
+  const key = httpClient.targetKey
 
   // Normalize language
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'Objective-C') return 'objc'
+  // TODO: I think we can delete this.
+  // if (key === 'Objective-C') return 'objc'
 
   return key
 })
@@ -175,18 +182,19 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
-    entries.unshift({
-      value: 'customExamples',
-      label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => ({
-        value: JSON.stringify({
-          targetKey: 'customExamples',
-          clientKey: index,
-        }),
-        label: example.label ?? example.lang ?? `Example #${index + 1}`,
-      })),
-    })
+  // TODO: Custom code examples
+  // if (customRequestExamples.value.length)
+  //   entries.unshift({
+  //     value: 'customExamples',
+  //     label: 'Examples',
+  //     options: customRequestExamples.value.map((example, index) => ({
+  //       value: JSON.stringify({
+  //         targetKey: 'customExamples',
+  //         clientKey: index,
+  //       }),
+  //       label: example.label ?? example.lang ?? `Example #${index + 1}`,
+  //     })),
+  //   })
 
   return entries
 })
@@ -213,7 +221,7 @@ function updateHttpClient(value: string) {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.httpVerb" />
+          :method="operation.method" />
         <slot name="header" />
       </div>
       <template #actions>
@@ -223,18 +231,18 @@ function updateHttpClient(value: string) {
           :modelValue="JSON.stringify(localHttpClient)"
           :options="options"
           @update:modelValue="updateHttpClient">
-          <template v-if="localHttpClient.targetKey === 'customExamples'">
+          <!-- <template v-if="localHttpClient.targetKey === 'customExamples'">
             <ScreenReader>Selected Example:</ScreenReader>
             {{
               customRequestExamples[localHttpClient.clientKey].label ??
               'Example'
             }}
           </template>
-          <template v-else>
-            <ScreenReader>Selected HTTP client:</ScreenReader>
-            {{ httpTargetTitle }}
-            {{ httpClientTitle }}
-          </template>
+          <template v-else> -->
+          <ScreenReader>Selected HTTP client:</ScreenReader>
+          {{ httpTargetTitle }}
+          {{ httpClientTitle }}
+          <!-- </template> -->
         </TextSelect>
       </template>
     </CardHeader>
@@ -264,8 +272,7 @@ function updateHttpClient(value: string) {
         <ExamplePicker
           class="request-example-selector"
           :examples="
-            operation.information?.requestBody?.content?.['application/json']
-              ?.examples ?? []
+            operation.requestBody?.content?.['application/json']?.examples ?? []
           "
           @update:modelValue="
             (value) => (
@@ -285,7 +292,7 @@ function updateHttpClient(value: string) {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.httpVerb" />
+          :method="operation.method" />
         <slot name="header" />
       </div>
       <slot name="footer" />
