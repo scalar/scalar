@@ -1,4 +1,5 @@
 import type { BlockProps } from '@/blocks/types'
+import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import { computed } from 'vue'
 
 /** TODO: Write comment */
@@ -12,9 +13,8 @@ export function useBlockProps(props: BlockProps) {
     )
 
     return collectionRequests.find((request) => {
-      // TODO: We could use proper helpers from the parser here.
       const specifiedMethod = props.location.split('/')[2]
-      const specifiedPath = props.location.split('/')[3].replace(/~1/g, '/')
+      const specifiedPath = unescapeJsonPointer(props.location.split('/')[3])
 
       return (
         request.method === specifiedMethod && request.path === specifiedPath
