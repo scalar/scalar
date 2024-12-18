@@ -34,6 +34,7 @@ const {
   activeRequest,
   activeWorkspace,
   activeServer,
+  activeWorkspaceCollections,
 } = useActiveEntities()
 const {
   cookies,
@@ -47,9 +48,14 @@ const {
   events,
 } = workspaceContext
 
+// Extend the RequestPayload type to include url
+type ExtendedRequestPayload = RequestPayload & {
+  url?: string
+}
+
 const showSideBar = ref(!isReadOnly)
 const requestAbortController = ref<AbortController>()
-const parsedCurl = ref<RequestPayload>()
+const parsedCurl = ref<ExtendedRequestPayload>()
 const selectedServerUid = ref('')
 const router = useRouter()
 
@@ -141,10 +147,25 @@ useOpenApiWatcher()
  */
 onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 
-function createRequestFromCurl({ requestName }: { requestName: string }) {
+function createRequestFromCurl({
+  requestName,
+  collectionUid,
+}: {
+  requestName: string
+  collectionUid: string
+}) {
   if (!parsedCurl.value) return
 
-  if (parsedCurl.value.servers) {
+  const collection = activeWorkspaceCollections.value.find(
+    (c) => c.uid === collectionUid,
+  )
+
+  if (!collection) return
+
+  const isDrafts = collection?.info?.title === 'Drafts'
+
+  // Prevent adding servers to drafts
+  if (!isDrafts && parsedCurl.value.servers) {
     // Find existing server to avoid duplication
     const existingServer = Object.values(servers).find(
       (s) => s.url === parsedCurl?.value?.servers?.[0],
@@ -154,21 +175,22 @@ function createRequestFromCurl({ requestName }: { requestName: string }) {
     } else {
       selectedServerUid.value = serverMutators.add(
         { url: parsedCurl.value.servers[0] },
-        activeWorkspace.value.collections[0],
+        collection.uid,
       ).uid
     }
   }
 
+  // Add the request and use the url if it's a draft as a path
   const newRequest = requestMutators.add(
     {
       summary: requestName,
-      path: parsedCurl?.value?.path,
+      path: isDrafts ? parsedCurl?.value?.url : parsedCurl?.value?.path,
       method: parsedCurl?.value?.method,
       parameters: parsedCurl?.value?.parameters,
-      selectedServerUid: selectedServerUid.value,
+      selectedServerUid: isDrafts ? undefined : selectedServerUid.value,
       requestBody: parsedCurl?.value?.requestBody,
     },
-    activeWorkspace.value.collections[0],
+    collection.uid,
   )
 
   if (newRequest) {
@@ -222,6 +244,7 @@ function hello(show: boolean) {
   </div>
   <ImportCurlModal
     v-if="parsedCurl"
+    :collectionUid="activeCollection?.uid ?? ''"
     :parsedCurl="parsedCurl"
     :state="modalState"
     @close="modalState.hide()"
