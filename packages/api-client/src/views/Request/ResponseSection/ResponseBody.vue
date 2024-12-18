@@ -75,7 +75,7 @@ const dataUrl = computed<string>(() => {
     </template>
     <div
       v-if="data"
-      class="max-h-[calc(100%-32px)] border-1/2 flex flex-col rounded bg-b-1 overflow-hidden">
+      class="max-h-[calc(100%-32px)] border-t-1/2 flex flex-col bg-b-1 overflow-hidden">
       <div class="flex justify-between items-center border-b-1/2 px-3 py-1.5">
         <span class="text-xxs leading-3 font-code">
           {{ mimeType.essence }}

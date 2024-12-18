@@ -43,7 +43,7 @@ const selectedEnvironment = computed(() => {
   return (
     environment?.uid ||
     collection?.['x-scalar-active-environment'] ||
-    'No Environment'
+    'Environment'
   )
 })
 
@@ -81,14 +81,11 @@ onMounted(() => {
   <div>
     <ScalarDropdown placement="bottom-end">
       <ScalarButton
-        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 text-c-1 w-fit"
+        class="font-normal h-auto justify-start py-1.5 px-1.5 pl-2 text-c-1 hover:bg-b-2 w-fit"
         fullWidth
         variant="ghost">
         <h2 class="font-medium m-0 flex gap-1.5 items-center whitespace-nowrap">
           {{ selectedEnvironment }}
-          <ScalarIcon
-            icon="ChevronDown"
-            size="md" />
         </h2>
       </ScalarButton>
       <!-- Workspace list -->
