@@ -3,6 +3,7 @@ packages:
   - 'packages/*'
   - 'packages/api-reference/docker'
   - 'packages/express-api-reference/playground'
+  - 'packages/fastify-api-reference/playground'
   - 'packages/snippetz/playground'
   - 'playwright'
   - 'projects/*'
