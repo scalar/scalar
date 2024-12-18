@@ -1,4 +1,6 @@
 // import { getLocation, createStore, createOperationBlock } from '@scalar/api-reference/blocks'
+import { toRaw } from 'vue'
+
 import {
   createOperationBlock,
   createStore,
@@ -24,7 +26,7 @@ const operationBlock = createOperationBlock({
   location: getLocation('GET', '/planets/1'),
 })
 
-operationBlock.mount('#scalar-api-reference')
+// operationBlock.mount('#scalar-api-reference')
 
 // // OperationBlock.vue
 // // Doesn’t have markup
