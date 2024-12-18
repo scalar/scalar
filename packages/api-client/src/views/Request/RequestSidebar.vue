@@ -222,7 +222,7 @@ const toggleSearch = () => {
       #header>
     </template>
     <template #content>
-      <div class="flex items-center h-[48px] px-3 top-0 bg-b-1 sticky z-20">
+      <div class="flex items-center h-12 px-3 top-0 bg-b-1 sticky z-20">
         <SidebarToggle
           class="xl:hidden"
           :class="[{ '!flex': layout === 'modal' }]"
@@ -246,7 +246,7 @@ const toggleSearch = () => {
       </div>
       <div
         v-show="isSearchVisible"
-        class="search-button-fade sticky px-3 py-2.5 z-10 pt-0 top-[48px] focus-within:z-20"
+        class="search-button-fade sticky px-3 py-2.5 z-10 pt-0 top-12 focus-within:z-20"
         role="search">
         <ScalarSearchInput
           ref="searchInputRef"
