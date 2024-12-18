@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Scalar API Reference</title>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --scalar-custom-header-height: 50px;
+        color-scheme: light dark;
+        font-family: sans-serif;
+      }
+      html {
+        max-height: 100dvh;
+      }
+      body {
+        margin: 0;
+      }
+      .custom-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        height: var(--scalar-custom-header-height);
+        padding: 0 18px;
+        position: sticky;
+        justify-content: space-between;
+        top: 0;
+        z-index: 100;
+
+        color: light-dark(#111, #eee);
+        background-color: light-dark(#eee, #111);
+        border-bottom: 0.5px solid light-dark(#111, #eee);
+      }
+      button {
+        background: red !important;
+        border-radius: 6px;
+        padding: 6px 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="custom-header">
+      <b>Leaky Styles with Custom Element</b>
+      <button><code>button { background: red !important; }</code></button>
+    </header>
+    <scalar-api-reference></scalar-api-reference>
+    <script src="/api-reference/component.js"></script>
+    <script>
+      document.querySelector('scalar-api-reference').configuration = {
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+        },
+      }
+    </script>
+  </body>
+</html>
