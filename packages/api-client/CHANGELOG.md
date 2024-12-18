@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.19
+
+### Patch Changes
+
+- 53d99b7: style(api-client): add enviornment / workspace to sidebar
+
 ## 2.2.18
 
 ### Patch Changes

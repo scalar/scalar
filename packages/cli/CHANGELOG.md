@@ -1,5 +1,11 @@
 # @scalar/cli
 
+## 0.2.273
+
+### Patch Changes
+
+- @scalar/api-reference@1.25.90
+
 ## 0.2.272
 
 ### Patch Changes
