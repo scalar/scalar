@@ -18,15 +18,17 @@ const { operation } = useBlockProps(props)
 
 <template>
   <!-- TODO: Add an empty state/loading state component -->
-  <div v-if="operation">
+  <div
+    v-if="operation"
+    class="p-4 flex gap-4 flex-col">
     <!-- TODO: Remove markup and styling -->
-    <div class="border rounded p-4 m-4">
+    <div class="border rounded p-4">
       <OperationDetails :operation="operation" />
     </div>
-    <div class="border rounded p-4 m-4">
+    <div>
       <CodeExamplesBlock v-bind="$props" />
     </div>
-    <div class="border rounded p-4 m-4">
+    <div class="border rounded p-4">
       <ExampleResponsesBlock v-bind="$props" />
     </div>
   </div>
