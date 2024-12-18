@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
@@ -18,8 +19,7 @@ import ExampleResponse from './ExampleResponse.vue'
 /**
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
  */
-
-const props = defineProps<{ operation: TransformedOperation }>()
+const props = defineProps<{ operation: StoreRequest }>()
 
 const id = useId()
 
@@ -29,7 +29,7 @@ const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() =>
-  Object.keys(props?.operation?.information?.responses ?? {}).sort(),
+  Object.keys(props?.operation?.responses ?? {}).sort(),
 )
 
 const hasMultipleExamples = computed<boolean>(
@@ -44,7 +44,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.information?.responses?.[currentStatusCode]
+  return props.operation.responses?.[currentStatusCode]
 })
 
 const currentJsonResponse = computed(() => {
