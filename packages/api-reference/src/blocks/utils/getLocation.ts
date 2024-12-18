@@ -1,4 +1,6 @@
+import { ERRORS } from '@/blocks/constants'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 
 /**
  * Encodes a location string with paths
@@ -8,7 +10,14 @@ import { escapeJsonPointer } from '@scalar/openapi-parser'
  *
  * '#/paths/get/~1planets~1{foo}'
  */
-export function getLocation(method: string, path: string): `#/paths/${string}` {
+export function getLocation(
+  method: Lowercase<OpenAPI.HttpMethods> | Uppercase<OpenAPI.HttpMethods>,
+  path: string,
+): `#/paths/${string}` {
+  if (!path.trim()) {
+    throw new Error(ERRORS.EMPTY_PATH)
+  }
+
   const escapedJsonPath = escapeJsonPointer(path)
 
   return `#/paths/${method.toLowerCase()}/${escapedJsonPath}`
