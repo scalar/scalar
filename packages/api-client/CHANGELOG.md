@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.2.20
+
+### Patch Changes
+
+- Updated dependencies [90529fc]
+  - @scalar/draggable@0.1.8
+
 ## 2.2.19
 
 ### Patch Changes

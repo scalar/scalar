@@ -1,5 +1,15 @@
 # @scalar/nextjs-api-reference
 
+## 0.5.0
+
+### Minor Changes
+
+- 63350ce: chore: react 19 upgrade minor bump
+
+### Patch Changes
+
+- 90529fc: chore: upgrade to react 19
+
 ## 0.4.108
 
 ### Patch Changes

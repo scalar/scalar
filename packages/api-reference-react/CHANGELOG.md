@@ -1,5 +1,16 @@
 # @scalar/api-reference-react
 
+## 0.4.0
+
+### Minor Changes
+
+- 63350ce: chore: react 19 upgrade minor bump
+
+### Patch Changes
+
+- 90529fc: chore: upgrade to react 19
+  - @scalar/api-reference@1.25.91
+
 ## 0.3.166
 
 ### Patch Changes

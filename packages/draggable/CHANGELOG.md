@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.8
+
+### Patch Changes
+
+- 90529fc: chore: upgrade to react 19
+
 ## 0.1.7
 
 ### Patch Changes
