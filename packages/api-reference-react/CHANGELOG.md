@@ -1,5 +1,12 @@
 # @scalar/api-reference-react
 
+## 0.3.166
+
+### Patch Changes
+
+- 0dfab46: chore: remove api-reference-react peerDependencies
+  - @scalar/api-reference@1.25.90
+
 ## 0.3.165
 
 ### Patch Changes
