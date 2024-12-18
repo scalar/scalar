@@ -1,5 +1,16 @@
 # @scalar/api-client-react
 
+## 1.1.0
+
+### Minor Changes
+
+- 63350ce: chore: react 19 upgrade minor bump
+
+### Patch Changes
+
+- 90529fc: chore: upgrade to react 19
+  - @scalar/api-client@2.2.20
+
 ## 1.0.110
 
 ### Patch Changes

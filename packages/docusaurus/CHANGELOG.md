@@ -1,5 +1,14 @@
 # @scalar/docusaurus
 
+## 0.4.169
+
+### Patch Changes
+
+- 90529fc: chore: upgrade to react 19
+- Updated dependencies [63350ce]
+- Updated dependencies [90529fc]
+  - @scalar/api-reference-react@0.4.0
+
 ## 0.4.168
 
 ### Patch Changes
