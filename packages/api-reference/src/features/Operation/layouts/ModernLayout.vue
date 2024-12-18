@@ -24,12 +24,12 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { defineProps } from 'vue'
+import { computed, defineProps } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { operation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -37,9 +37,12 @@ defineProps<{
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
+
+const title = computed(() => operation.summary || operation.path || '')
 </script>
 <template>
   <Section
+    v-if="operation"
     :id="id"
     :label="transformedOperation.name">
     <SectionContent>
@@ -54,7 +57,7 @@ defineProps<{
         ">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
-            {{ transformedOperation.name }}
+            {{ title }}
           </Anchor>
         </SectionHeader>
       </div>
@@ -79,9 +82,8 @@ defineProps<{
                 :transformedOperation="transformedOperation">
                 <template #header>
                   <OperationPath
-                    class="example-path"
-                    :deprecated="transformedOperation.information?.deprecated"
-                    :path="transformedOperation.path" />
+                    :deprecated="operation.deprecated"
+                    :path="operation.path" />
                 </template>
                 <template #footer>
                   <TestRequestButton :operation="operation" />
