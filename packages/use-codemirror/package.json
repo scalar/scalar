@@ -28,7 +28,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "dist/index.js",
