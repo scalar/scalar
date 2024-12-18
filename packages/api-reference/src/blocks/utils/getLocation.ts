@@ -1,3 +1,5 @@
+import { escapeJsonPointer } from '@scalar/openapi-parser'
+
 /**
  * Encodes a location string with paths
  *
@@ -7,9 +9,7 @@
  * '#/paths/get/~1planets~1{foo}'
  */
 export function getLocation(method: string, path: string): `#/paths/${string}` {
-  // TODO: We could use proper helpers from the parser here.
+  const escapedJsonPath = escapeJsonPointer(path)
 
-  const encodedPath = path.replace(/\//g, '~1')
-
-  return `#/paths/${method.toLowerCase()}/${encodedPath}`
+  return `#/paths/${method.toLowerCase()}/${escapedJsonPath}`
 }
