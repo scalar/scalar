@@ -1416,6 +1416,9 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../build-tooling
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -8328,6 +8331,7 @@ packages:
 
   acorn-import-assertions@1.9.0:
     resolution: {integrity: sha512-cmMwop9x+8KFhxvKrKfPYmN6/pKTYYHBqLa0DfvVZcKMJWNyWLnaqND7dx/qn66R7ewM1UX5XMaDVP5wlVTaVA==}
+    deprecated: package has been renamed to acorn-import-attributes
     peerDependencies:
       acorn: ^8
 
