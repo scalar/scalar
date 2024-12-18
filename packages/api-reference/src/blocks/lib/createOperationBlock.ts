@@ -1,6 +1,5 @@
-import OperationBlock from '@/blocks/components/OperationBlock.vue'
+import { OperationBlock } from '@/blocks/components/OperationBlock'
 import { ERRORS, WARNINGS } from '@/blocks/constants'
-import { WORKSPACE_SYMBOL } from '@scalar/api-client/store'
 import { createApp } from 'vue'
 
 import type { StoreContext } from './createStore'
@@ -8,7 +7,7 @@ import type { StoreContext } from './createStore'
 export type CreateOperationBlockOptions = {
   element?: HTMLElement | Element | string | null
   store: StoreContext
-  location: `#/${string}`
+  location: `#/paths/${string}`
 }
 
 /**
@@ -47,8 +46,9 @@ export function createOperationBlock(options: CreateOperationBlockOptions) {
       document.body.appendChild(targetElement)
     }
 
-    // TODO: Implement
-    // targetElement.textContent = 'TODO: Operation Block Content'
+    // TODO: Check whether we can simplify this or streamline the names (should be client not app, right?)
+    targetElement.classList.add('scalar-app')
+    targetElement.classList.add('scalar-api-reference')
 
     const app = createApp(OperationBlock, {
       store: options.store,
