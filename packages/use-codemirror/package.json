@@ -21,19 +21,33 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "dev": "vite",
+    "build": "scalar-build-rollup",
+    "dev": "vite .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "dist/index.js",
   "exports": {
-    "import": "./dist/index.js"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./themes": {
+      "import": "./dist/themes/index.js",
+      "types": "./dist/themes/index.d.ts",
+      "default": "./dist/themes/index.js"
+    },
+    "./hooks": {
+      "import": "./dist/hooks/index.js",
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
+    }
   },
   "files": [
     "dist",
@@ -45,23 +59,23 @@
     "yjs": "^13.6.0"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.12.0",
-    "@codemirror/commands": "^6.3.3",
-    "@codemirror/lang-css": "^6.2.1",
+    "@codemirror/autocomplete": "^6.18.3",
+    "@codemirror/commands": "^6.7.1",
+    "@codemirror/lang-css": "^6.3.1",
     "@codemirror/lang-html": "^6.4.8",
     "@codemirror/lang-json": "^6.0.0",
     "@codemirror/lang-xml": "^6.0.0",
-    "@codemirror/lang-yaml": "^6.0.0",
-    "@codemirror/language": "^6.10.1",
-    "@codemirror/lint": "^6.8.1",
-    "@codemirror/state": "^6.4.0",
-    "@codemirror/view": "^6.23.1",
-    "@lezer/common": "^1.2.1",
-    "@lezer/highlight": "^1.2.0",
-    "@lezer/lr": "^1.4.0",
-    "@replit/codemirror-css-color-picker": "^6.1.0",
+    "@codemirror/lang-yaml": "^6.1.2",
+    "@codemirror/language": "^6.10.7",
+    "@codemirror/lint": "^6.8.4",
+    "@codemirror/state": "^6.5.0",
+    "@codemirror/view": "^6.35.3",
+    "@lezer/common": "^1.2.3",
+    "@lezer/highlight": "^1.2.1",
+    "@lezer/lr": "^1.4.2",
+    "@replit/codemirror-css-color-picker": "^6.3.0",
     "@scalar/components": "workspace:*",
-    "@uiw/codemirror-themes": "^4.21.21",
+    "@uiw/codemirror-themes": "^4.23.7",
     "codemirror": "^6.0.0",
     "vue": "^3.5.12"
   },

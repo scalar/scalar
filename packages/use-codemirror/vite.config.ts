@@ -1,12 +1,12 @@
-import { createViteBuildOptions } from '@scalar/build-tooling'
+import { alias } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   plugins: [vue()],
-  build: createViteBuildOptions({
-    entry: ['src/index.ts'],
-  }),
+  resolve: {
+    alias: alias(import.meta.url),
+  },
   test: {
     coverage: {
       enabled: true,
