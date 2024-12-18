@@ -19,6 +19,11 @@ This plugin provides an easy way to render a beautiful API reference based on an
 npm install @scalar/nextjs-api-reference
 ```
 
+## Compatibility
+
+This package is compatible with Next.js 15 and is untested on Next.js 14. If you want guaranteed Next.js 14 support
+please use version `0.4.106` of this package.
+
 ## Usage
 
 If you have a OpenAPI/Swagger file already, you can pass a URL to the plugin in an API [Route](https://nextjs.org/docs/app/building-your-application/routing/route-handlers):
