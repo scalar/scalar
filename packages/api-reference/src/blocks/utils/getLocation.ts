@@ -13,7 +13,7 @@ import type { OpenAPI } from '@scalar/openapi-types'
 export function getLocation(
   method: Lowercase<OpenAPI.HttpMethods> | Uppercase<OpenAPI.HttpMethods>,
   path: string,
-): `#/paths/${string}` {
+): `#/paths/${string}/${string}` {
   if (!path.trim()) {
     throw new Error(ERRORS.EMPTY_PATH)
   }
