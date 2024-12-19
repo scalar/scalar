@@ -60,7 +60,7 @@ const selected = computed<ScalarListboxOption | undefined>({
 
 <style scoped>
 .url-select {
-  padding: 0 9px !important; /* fix for non tailwind padding */
+  padding: 0 12px !important; /* fix for non tailwind padding */
   max-height: 32px;
   min-height: 32px;
   color: var(--scalar-color-1);

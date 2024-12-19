@@ -35,7 +35,6 @@ const emit = defineEmits<{
 defineOptions({ inheritAttrs: false })
 
 const mask = ref(true)
-const query = ref('')
 const interactingWithDropdown = ref(false)
 
 const handleBlur = () => {
@@ -51,18 +50,6 @@ const inputType = computed(() =>
       : 'text'
     : (props.type ?? 'text'),
 )
-
-const handleSelect = (value: string) => {
-  emit('update:modelValue', value)
-}
-
-const handleDropdownMouseDown = () => {
-  interactingWithDropdown.value = true
-}
-
-const handleDropdownMouseUp = () => {
-  interactingWithDropdown.value = false
-}
 </script>
 <template>
   <DataTableCell
@@ -70,8 +57,8 @@ const handleDropdownMouseUp = () => {
     :class="containerClass">
     <div
       v-if="$slots.default"
-      class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
-      <slot />
+      class="text-c-1 flex items-center pl-3 pr-0">
+      <slot />:
     </div>
     <div class="row-1 overflow-x-auto">
       <template v-if="props.enum && props.enum.length">
@@ -131,7 +118,7 @@ const handleDropdownMouseUp = () => {
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="-ml-.5 mr-1 h-6 w-6 self-center p-1.5"
+      class="-ml-.5 mr-0.75 h-6 w-6 self-center p-1.5"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

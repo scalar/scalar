@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useActiveEntities } from '@scalar/api-client/store'
-import { RequestAuthDataTable } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
+import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Server, Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -66,8 +66,8 @@ const introCardsSlot = computed(() =>
               :defaultServerUrl="baseServerURL"
               :servers="props.servers"
               :specification="parsedSpec" />
-            <div class="scalar-client p-[9px] border-y-1/2">
-              <RequestAuthDataTable
+            <div class="scalar-client introduction-card-item">
+              <RequestAuth
                 layout="reference"
                 :selectedSecuritySchemeUids="
                   activeCollection?.selectedSecuritySchemeUids ?? []
@@ -133,14 +133,14 @@ const introCardsSlot = computed(() =>
 .introduction-card {
   display: flex;
   flex-direction: column;
-  padding-top: 3px;
   background: var(--scalar-background-1);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-radius: var(--scalar-radius-lg);
 }
 .introduction-card-item {
-  padding: 9px;
   display: flex;
+  overflow: hidden;
+  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  border-radius: var(--scalar-radius-lg);
+  margin-bottom: 12px;
   flex-direction: column;
   justify-content: start;
 }
@@ -153,8 +153,8 @@ const introCardsSlot = computed(() =>
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-.introduction-card-item:last-of-type {
-  border-bottom: none;
+.introduction-card-item :deep(.request-item) {
+  border-bottom: 0;
 }
 .introduction-card-title {
   font-weight: var(--scalar-semibold);
