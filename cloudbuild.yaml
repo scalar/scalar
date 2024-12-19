@@ -105,7 +105,7 @@ steps:
         '-t',
         'gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}',
         '-f',
-        './examples/fastify-api-reference/Dockerfile',
+        './packages/fastify-api-reference/Dockerfile',
         '.',
       ]
   - name: 'gcr.io/cloud-builders/docker'
