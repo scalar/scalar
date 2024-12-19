@@ -14,12 +14,101 @@ const app = Express()
  *     responses:
  *       200:
  *         description: Returns a mysterious string.
+ *         content:
+ *           text/plain:
+ *             schema:
+ *               type: string
+ *               example: Hello World!
  */
 app.get('/foobar', (req, res) => {
   res.send('Hello World!')
 })
 
-const OpenApiSpecification = swaggerJsdoc({
+/**
+ * @openapi
+ * /hello:
+ *   post:
+ *     description: Send a personalized greeting.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: John
+ *     responses:
+ *       200:
+ *         description: Returns a personalized greeting.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Hello, John!
+ */
+app.post('/hello', (req, res) => {
+  const { name } = req.body
+  res.json({ message: `Hello, ${name}!` })
+})
+
+/**
+ * @openapi
+ * /goodbye:
+ *   delete:
+ *     description: Delete a user session.
+ *     parameters:
+ *       - in: query
+ *         name: sessionId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Confirms session deletion.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: Session 1234567890 deleted.
+ */
+app.delete('/goodbye', (req, res) => {
+  const { sessionId } = req.query
+  res.json({ status: `Session ${sessionId} deleted.` })
+})
+
+/**
+ * @openapi
+ * /status:
+ *   get:
+ *     description: Get the server status.
+ *     responses:
+ *       200:
+ *         description: Returns the server status.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: Server is running smoothly!
+ *                 uptime:
+ *                   type: number
+ *                   example: 123.456
+ */
+app.get('/status', (req, res) => {
+  res.json({ status: 'Server is running smoothly!', uptime: process.uptime() })
+})
+
+const ApiDefinition = swaggerJsdoc({
   failOnErrors: true,
   definition: {
     openapi: '3.1.0',
@@ -30,16 +119,16 @@ const OpenApiSpecification = swaggerJsdoc({
       version: '1.0.0',
     },
   },
-  // Files containing annotations
-  apis: ['./src/*.ts'],
+  // Update the path to include the current file
+  apis: ['./playground/index.ts'],
 })
 
 // Serve the OpenAPI specification
-app.get('/openapi.json', (req, res) => {
-  res.json(OpenApiSpecification)
+app.get('/openapi.json', (_, res) => {
+  res.json(ApiDefinition)
 })
 
-// Serve the API Reference
+// Serve the Scalar API Reference
 app.use(
   '/',
   apiReference({
@@ -52,6 +141,7 @@ app.use(
 // Listen
 const PORT = Number(process.env.PORT) || 5055
 const HOST = process.env.HOST || '0.0.0.0'
+
 app.listen(PORT, HOST, () => {
   console.log(`💻 Express listening on http://${HOST}:${PORT}`)
 })
