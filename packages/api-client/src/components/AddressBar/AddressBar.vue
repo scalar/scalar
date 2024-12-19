@@ -135,7 +135,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 <template>
   <div
     v-if="activeRequest && activeExample"
-    class="order-last lg:order-none lg:w-auto w-full">
+    class="scalar-address-bar order-last lg:order-none lg:w-auto w-full">
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <Listbox

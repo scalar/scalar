@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
-import EnvironmentSelector from '@/components/EnvironmentSelector/EnvironmentSelector.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
@@ -41,10 +40,6 @@ const { currentRoute } = useRouter()
         ]"
         :modelValue="modelValue"
         @update:modelValue="$emit('update:modelValue', $event)" />
-      <!-- todo: only show this env selectorin modal -->
-      <EnvironmentSelector
-        v-if="!isReadOnly"
-        class="hidden" />
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div

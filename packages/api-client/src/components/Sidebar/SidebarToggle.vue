@@ -9,7 +9,7 @@ defineEmits<{
 </script>
 <template>
   <button
-    class="text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded-lg"
+    class="scalar-sidebar-toggle text-c-3 hover:bg-b-2 active:text-c-1 p-2 rounded-lg"
     type="button"
     @click="$emit('update:modelValue', !modelValue)">
     <span class="sr-only">{{ modelValue ? 'Hide' : 'Show' }} sidebar</span>

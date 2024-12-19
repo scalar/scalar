@@ -206,11 +206,12 @@ export const createWorkspaceStore = ({
     events,
     sidebarWidth,
     setSidebarWidth,
+    proxyUrl,
     // ---------------------------------------------------------------------------
     // CONFIGURATION "PROPS"
+    // TODO: move these to their own store
     isReadOnly,
     hideClientButton,
-    proxyUrl,
     showSidebar,
     // ---------------------------------------------------------------------------
     // METHODS
