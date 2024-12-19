@@ -75,7 +75,7 @@ const title = computed(
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses
-                :operation="operation"
+                :responses="operation.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>

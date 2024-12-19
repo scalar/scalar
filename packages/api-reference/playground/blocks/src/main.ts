@@ -8,8 +8,8 @@ import {
 import '../../../src/blocks/assets/style.css'
 
 const { store } = createStore({
-  // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-  url: 'https://petstore.swagger.io/v2/swagger.json',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  // url: 'https://petstore.swagger.io/v2/swagger.json',
   theme: 'purple',
   // content: JSON.stringify({
   //   openapi: '3.0.0',
@@ -46,11 +46,11 @@ const operationBlock = createOperationBlock({
   // element: '#scalar-api-reference',
   store,
   // location: getLocation('GET', '/planets/{planetId}'),
-  // location: getLocation('POST', '/planets'),
+  location: getLocation('POST', '/planets'),
   // location: getLocation('POST', '/user/signup'),
   // location: getLocation('POST', '/pet/{petId}/uploadImage'),
   // location: getLocation('GET', '/pet/findByStatus'),
-  location: getLocation('DELETE', '/pet/{petId}'),
+  // location: getLocation('DELETE', '/pet/{petId}'),
 })
 
 // Mount it after initialization with just a selector string …

@@ -96,7 +96,7 @@ const title = computed(
             :operation="operation" />
         </div>
       </div>
-      <ExampleResponses :operation="operation" />
+      <ExampleResponses :responses="operation.responses" />
       <ExampleRequest
         v-if="request && secretCredentials"
         :operation="operation"
