@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { useOperation } from '@/hooks'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import { useParameters } from '@/hooks'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 
 import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{
-  operation: TransformedOperation
+  operation: RequestEntity
 }>()
 
-const { parameterMap } = useOperation(props.operation)
+const { parameterMap } = useParameters(props.operation)
 </script>
 <template>
   <!-- Path parameters-->
