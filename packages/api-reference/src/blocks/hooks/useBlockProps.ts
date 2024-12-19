@@ -4,6 +4,7 @@ import type {
   Request as RequestEntity,
 } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
+import type { ThemeId } from '@scalar/themes'
 import { type ComputedRef, computed } from 'vue'
 
 // TODO: Move this type to a shared location
@@ -36,6 +37,7 @@ export type BlockProps = {
  */
 export function useBlockProps({ store, location }: BlockProps): {
   operation: ComputedRef<RequestEntity | undefined>
+  theme: ComputedRef<ThemeId>
 } {
   // Just pick first collection for now
   const collection = computed(() => {
@@ -79,7 +81,12 @@ export function useBlockProps({ store, location }: BlockProps): {
     return result
   })
 
+  const theme = computed(() => {
+    return Object.values(props.store.workspaces)[0].themeId
+  })
+
   return {
     operation,
+    theme,
   }
 }

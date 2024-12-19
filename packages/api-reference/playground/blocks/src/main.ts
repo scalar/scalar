@@ -9,6 +9,7 @@ import '../../../src/blocks/assets/style.css'
 
 const { store } = createStore({
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  theme: 'purple',
   // content: JSON.stringify({
   //   openapi: '3.0.0',
   //   info: {

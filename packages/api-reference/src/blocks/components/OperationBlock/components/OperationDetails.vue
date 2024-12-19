@@ -7,7 +7,7 @@ import type { Request } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const props = defineProps<{
-  operation: Request
+  operation?: Request
 }>()
 
 const title = computed(
@@ -16,14 +16,16 @@ const title = computed(
 </script>
 
 <template>
-  <SectionHeader :level="3">
-    {{ title }}
-  </SectionHeader>
-  <div class="operation-details">
-    <ScalarMarkdown
-      :value="operation.description"
-      withImages />
-    <OperationParameters :operation="operation" />
-    <OperationResponses :operation="operation" />
-  </div>
+  <template v-if="operation">
+    <SectionHeader :level="3">
+      {{ title }}
+    </SectionHeader>
+    <div class="operation-details">
+      <ScalarMarkdown
+        :value="operation.description"
+        withImages />
+      <OperationParameters :operation="operation" />
+      <OperationResponses :operation="operation" />
+    </div>
+  </template>
 </template>

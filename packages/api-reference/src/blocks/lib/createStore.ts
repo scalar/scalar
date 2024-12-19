@@ -1,9 +1,13 @@
 import { createWorkspaceStore } from '@scalar/api-client/store'
 import { workspaceSchema } from '@scalar/oas-utils/entities'
+import type { ThemeId } from '@scalar/themes'
 
-export type CreateStoreOptions =
+export type CreateStoreOptions = (
   | { url: string; content?: never }
   | { content: string; url?: never }
+) & {
+  theme?: ThemeId
+}
 
 // TODO: Shouldn’t this be exposed by @scalar/api-client?
 export type StoreContext = ReturnType<typeof createWorkspaceStore>
@@ -31,7 +35,8 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     isReadOnly: true,
     // TODO: Make this configurable
     proxyUrl: 'https://proxy.scalar.com',
-    themeId: 'kepler',
+    // TODO: I don’t know why this exists, we need to pass the theme to workspaceSchema.parse anyway
+    themeId: options.theme ?? 'default',
     useLocalStorage: false,
     hideClientButton: false,
   })
@@ -48,6 +53,7 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     name: 'Workspace',
     isReadOnly: true,
     proxyUrl: 'https://proxy.scalar.com',
+    themeId: options.theme ?? 'default',
   })
 
   store.workspaceMutators.rawAdd(workspace)
