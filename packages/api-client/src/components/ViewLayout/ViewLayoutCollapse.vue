@@ -19,13 +19,13 @@ withDefaults(
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="bg-b-2 focus-within:text-c-1 text-c-2 request-item border-b-1/2"
+    class="focus-within:text-c-1 text-c-2 request-item border-b-1/2"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference'">
-    <div class="flex items-center">
+    <div class="bg-b-2 flex items-center">
       <DisclosureButton
         :class="[
-          'group hover:text-c-1 flex flex-1 items-center gap-2.5 overflow-hidden py-1.5 text-sm font-medium px-1 md:px-1.5 xl:px-2 outline-none',
+          'group hover:text-c-1 flex flex-1 items-center gap-2.5 overflow-hidden py-1.5 text-sm font-medium max-h-8 px-1 md:px-1.5 xl:pl-2 xl:pr-0.5 outline-none',
           { '!pl-3': layout === 'reference' },
         ]"
         :disabled="layout === 'reference'">
