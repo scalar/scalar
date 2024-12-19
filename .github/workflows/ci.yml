@@ -207,6 +207,12 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    # Avoid running this job in parallel:
+    # `changesets/action` creates/updates the release branch, which shouldn’t happen in parallel.
+    # npm publish also shouldn’t happen in parallel.
+    concurrency:
+      group: npm-publish
+      cancel-in-progress: false
     permissions:
       contents: write
       id-token: write
@@ -288,18 +294,6 @@ jobs:
         env:
           TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
           TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
-      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-      #   name: Run smoke tests
-      #   run: pnpm --filter scalar-app todesktop:test:ci
-      #   env:
-      #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
-      #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
-      # - if: steps.changed-files.outputs.api_client_app_any_changed == 'true'
-      #   name: Release the app
-      #   run: pnpm --filter scalar-app todesktop:release:ci
-      #   env:
-      #     TODESKTOP_EMAIL: ${{ secrets.TODESKTOP_EMAIL }}
-      #     TODESKTOP_ACCESS_TOKEN: ${{ secrets.TODESKTOP_ACCESS_TOKEN }}
 
   stackblitz:
     if: github.head_ref == 'changeset-release/main'
@@ -469,6 +463,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
+    # We don’t want to run `nuget push` (publishing to NuGet) in parallel.
+    concurrency:
+      group: aspnetcore-publish
+      cancel-in-progress: false
     needs: [aspnetcore-build-test]
 
     steps:
