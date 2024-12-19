@@ -41,19 +41,17 @@ import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
 
 const props = defineProps<{
-  showSidebar: boolean
-  isReadonly: boolean
+  isSidebarOpen: boolean
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
-  (e: 'update:showSidebar', v: boolean): void
+  (e: 'update:isSidebarOpen', v: boolean): void
   (e: 'newTab', { name, uid }: { name: string; uid: string }): void
   (e: 'clearDrafts'): void
 }>()
 const { layout } = useLayout()
 
-console.log('layout', layout)
 const workspaceContext = useWorkspace()
 const {
   activeWorkspaceCollections,
@@ -110,11 +108,8 @@ const {
 const handleHotKey = (event?: HotKeyEvent) => {
   if (!event) return
 
-  if (event.toggleSidebar) emit('update:showSidebar', props.showSidebar)
-
-  if (event.focusRequestSearch) {
-    searchInputRef.value?.focus()
-  }
+  if (event.toggleSidebar) emit('update:isSidebarOpen', props.isSidebarOpen)
+  if (event.focusRequestSearch) searchInputRef.value?.focus()
 }
 
 onMounted(() => events.hotKeys.on(handleHotKey))
@@ -145,7 +140,7 @@ watch(
     activeWorkspaceCollections.value.map((collection) => collection.watchMode),
   (newWatchModes, oldWatchModes) => {
     newWatchModes.forEach((newWatchMode, index) => {
-      if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
+      if (!isReadOnly && newWatchMode !== oldWatchModes[index]) {
         const currentCollection = activeWorkspaceCollections.value[index]
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
         toast(message, 'info')
@@ -211,28 +206,28 @@ const toggleSearch = () => {
 </script>
 <template>
   <Sidebar
-    v-show="showSidebar"
-    :class="[showSidebar ? 'sidebar-active-width' : '']"
-    :showSidebar="showSidebar"
-    @update:showSidebar="$emit('update:showSidebar', $event)">
+    v-show="isSidebarOpen"
+    :class="[isSidebarOpen ? 'sidebar-active-width' : '']"
+    :isSidebarOpen="isSidebarOpen"
+    @update:isSidebarOpen="$emit('update:isSidebarOpen', $event)">
     <template
-      v-if="!isReadonly"
+      v-if="!isReadOnly"
       #header>
     </template>
     <template #content>
       <div class="flex items-center h-[48px] px-3 top-0 bg-b-1 sticky z-20">
         <SidebarToggle
-          class="gitbook-hidden xl:hidden"
+          class="xl:hidden"
           :class="[{ '!flex': layout === 'modal' }]"
-          :modelValue="showSidebar"
-          @update:modelValue="$emit('update:showSidebar', $event)" />
-        <WorkspaceDropdown v-if="!isReadonly" />
+          :modelValue="isSidebarOpen"
+          @update:modelValue="$emit('update:isSidebarOpen', $event)" />
+        <WorkspaceDropdown v-if="!isReadOnly" />
         <span
-          v-if="!isReadonly"
-          class="text-c-3"
-          >/</span
-        >
-        <EnvironmentSelector v-if="!isReadonly" />
+          v-if="!isReadOnly"
+          class="text-c-3">
+          /
+        </span>
+        <EnvironmentSelector v-if="!isReadOnly" />
         <button
           class="ml-auto"
           type="button"
@@ -261,7 +256,7 @@ const toggleSearch = () => {
       <div
         class="flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
         :class="{
-          'pb-14': !isReadonly,
+          'pb-14': !isReadOnly,
         }"
         @dragenter.prevent
         @dragover.prevent>
@@ -298,7 +293,7 @@ const toggleSearch = () => {
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
             :key="collection.uid"
-            :isDraggable="!isReadonly && collection.info?.title !== 'Drafts'"
+            :isDraggable="!isReadOnly && collection.info?.title !== 'Drafts'"
             :isDroppable="isDroppable"
             :menuItem="menuItem"
             :parentUids="[]"
@@ -354,7 +349,7 @@ const toggleSearch = () => {
           </div>
         </div>
         <ScalarButton
-          v-if="!isReadonly"
+          v-if="!isReadOnly"
           class="mb-1.5 w-full h-fit hidden opacity-0 p-1.5"
           :class="{
             'flex opacity-100': activeWorkspaceRequests.length <= 1,
@@ -363,7 +358,7 @@ const toggleSearch = () => {
           Import Collection
         </ScalarButton>
         <SidebarButton
-          v-if="!isReadonly"
+          v-if="!isReadOnly"
           :click="events.commandPalette.emit"
           hotkey="K">
           <template #title>Add Item</template>

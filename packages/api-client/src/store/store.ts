@@ -58,10 +58,12 @@ type CreateWorkspaceStoreOptions = {
   useLocalStorage: boolean
   /** Puts the client into read only mode, usually reservered for the modal */
   isReadOnly: boolean
-  proxyUrl: ReferenceConfiguration['proxyUrl']
+  /** Should be renamed to theme to match the references config */
   themeId: ReferenceConfiguration['theme']
-  hideClientButton: ReferenceConfiguration['hideClientButton']
-}
+} & Pick<
+  ReferenceConfiguration,
+  'proxyUrl' | 'showSidebar' | 'hideClientButton'
+>
 
 /**
  /**
@@ -73,6 +75,7 @@ type CreateWorkspaceStoreOptions = {
 export const createWorkspaceStore = ({
   useLocalStorage = true,
   isReadOnly = false,
+  showSidebar = true,
   proxyUrl,
   themeId,
   hideClientButton,
@@ -201,11 +204,15 @@ export const createWorkspaceStore = ({
     securitySchemes,
     modalState,
     events,
-    proxyUrl,
     sidebarWidth,
     setSidebarWidth,
+    proxyUrl,
+    // ---------------------------------------------------------------------------
+    // CONFIGURATION "PROPS"
+    // TODO: move these to their own store
     isReadOnly,
     hideClientButton,
+    showSidebar,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,
