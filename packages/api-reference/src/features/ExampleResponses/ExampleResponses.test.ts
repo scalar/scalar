@@ -319,4 +319,55 @@ describe('ExampleResponses', () => {
     // Since we can’t test clipboard directly in jsdom, we can verify the click handler was called
     expect(wrapper.emitted()).toBeDefined()
   })
+
+  it('toggles between schema and example view', async () => {
+    const wrapper = mount(ExampleResponses, {
+      props: {
+        responses: {
+          '200': {
+            description: 'OK',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: {
+                      type: 'string',
+                      example: 'Foobar',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+
+    // Find the schema toggle checkbox
+    const schemaToggle = wrapper.find('.scalar-card-checkbox-input')
+    expect(schemaToggle.exists()).toBe(true)
+
+    // Initially should show example
+    expect(wrapper.text()).toContain('"message": "Foobar"')
+    expect(wrapper.text()).not.toContain('type')
+    expect(wrapper.text()).not.toContain('properties')
+
+    // Toggle schema view
+    await schemaToggle.setValue(true)
+
+    // Should now show schema
+    expect(wrapper.text()).toContain('type')
+    expect(wrapper.text()).toContain('object')
+    expect(wrapper.text()).toContain('properties')
+    expect(wrapper.text()).not.toContain('"message": "Foobar"')
+
+    // Toggle back to example view
+    await schemaToggle.setValue(false)
+
+    // Should show example again
+    expect(wrapper.text()).toContain('"message": "Foobar"')
+    expect(wrapper.text()).not.toContain('type')
+    expect(wrapper.text()).not.toContain('properties')
+  })
 })
