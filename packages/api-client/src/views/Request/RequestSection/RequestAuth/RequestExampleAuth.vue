@@ -188,6 +188,14 @@ const getReferenceClass = (className = '') =>
           :scheme="scheme" />
       </template>
     </template>
+
+    <!-- Open ID Connect -->
+    <template v-else-if="scheme.type === 'openIdConnect'">
+      <div
+        class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center bg-b-1">
+        Coming soon
+      </div>
+    </template>
   </template>
 </template>
 
