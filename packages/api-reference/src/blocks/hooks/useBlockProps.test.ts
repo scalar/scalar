@@ -23,7 +23,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeDefined()
@@ -39,7 +39,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: {},
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
@@ -49,7 +49,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: { requests: {} },
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
@@ -59,7 +59,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: { collections: {} },
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
@@ -84,7 +84,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toEqual({
@@ -113,7 +113,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
@@ -138,7 +138,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
@@ -163,7 +163,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test~1with~1slashes',
+      location: '#/paths/test~1with~1slashes/get',
     })
 
     expect(operation.value).toEqual({
@@ -192,7 +192,7 @@ describe('useBlockProps', () => {
     const { operation } = useBlockProps({
       // @ts-expect-error
       store: mockStore,
-      location: '#/paths/get/test',
+      location: '#/paths/test/get',
     })
 
     expect(operation.value).toBeUndefined()
