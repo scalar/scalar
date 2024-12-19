@@ -9,28 +9,16 @@ import { type BlockProps, useBlockProps } from '@/blocks/hooks/useBlockProps'
 import OperationPath from '@/components/OperationPath.vue'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { computed } from 'vue'
 
 const props = defineProps<BlockProps>()
 
-const { operation, theme, serverUrl } = useBlockProps(props)
-
-const request = computed(
-  () =>
-    new Request(`${serverUrl.value}${operation.value?.path}`, {
-      method: operation.value?.method?.toUpperCase() ?? 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    }),
-)
+const { operation, theme, request } = useBlockProps(props)
 </script>
 
 <template>
   <ThemeStyles :theme="theme" />
   <ExampleRequest
-    v-if="operation"
+    v-if="operation && request"
     fallback
     :operation="operation"
     :request="request"
