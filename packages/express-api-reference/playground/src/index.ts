@@ -1,7 +1,7 @@
+import { apiReference } from '@scalar/express-api-reference'
 import Express from 'express'
+import path from 'path'
 import swaggerJsdoc from 'swagger-jsdoc'
-
-import { apiReference } from '../src'
 
 // Initialize Express
 const app = Express()
@@ -119,8 +119,9 @@ const ApiDefinition = swaggerJsdoc({
       version: '1.0.0',
     },
   },
+  // TODO: Make this path work in Docker
   // Update the path to include the current file
-  apis: ['./playground/index.ts'],
+  apis: [path.join(__dirname, './index.ts')],
 })
 
 // Serve the OpenAPI specification
