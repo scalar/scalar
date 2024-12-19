@@ -102,6 +102,11 @@ const executeRequest = async () => {
     e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
 
   const globalCookies = activeWorkspace.value.cookies.map((c) => cookies[c])
+  // Sets server to non drafts request only
+  const server =
+    activeCollection.value?.info?.title === 'Drafts'
+      ? undefined
+      : activeServer.value
 
   const [error, requestOperation] = createRequestOperation({
     request: activeRequest.value,
@@ -112,7 +117,7 @@ const executeRequest = async () => {
     globalCookies,
     status: events.requestStatus,
     securitySchemes: securitySchemes,
-    server: activeServer.value,
+    server: server,
   })
 
   // Error from createRequestOperation
