@@ -25,12 +25,8 @@ const { operation } = useBlockProps(props)
     <div class="border rounded p-4">
       <OperationDetails :operation="operation" />
     </div>
-    <div>
-      <CodeExamplesBlock v-bind="$props" />
-    </div>
-    <div class="border rounded p-4">
-      <ExampleResponsesBlock v-bind="$props" />
-    </div>
+    <CodeExamplesBlock v-bind="$props" />
+    <ExampleResponsesBlock v-bind="$props" />
   </div>
   <div v-else>
     <p>No operation found.</p>
