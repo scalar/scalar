@@ -92,7 +92,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
           class="client-libraries-icon"
           :icon="getIconByLanguageKey(client.targetKey)" />
       </div>
-      <span>{{ getTargetTitle(client) }}</span>
+      <span class="client-libraries-text">{{ getTargetTitle(client) }}</span>
     </button>
 
     <label
@@ -164,7 +164,8 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
       </div>
       <span
         v-if="availableTargets.length"
-        aria-hidden="true">
+        aria-hidden="true"
+        class="client-libraries-text">
         More
       </span>
     </label>
@@ -191,6 +192,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   padding: 8px 2px;
   gap: 6px;
   color: var(--scalar-color-3);
+  border-bottom: 1px solid transparent;
   user-select: none;
 }
 .client-libraries:first-child {
@@ -257,7 +259,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 }
 .client-libraries__active {
   color: var(--scalar-color-1);
-  border-bottom: var(--scalar-border-width) solid var(--scalar-color-1);
+  border-bottom: 1px solid var(--scalar-color-1);
 }
 @keyframes codeloader {
   0% {
@@ -267,12 +269,14 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
     transform: rotate(1turn);
   }
 }
-.client-libraries span {
+.client-libraries .client-libraries-text:last-of-type {
   font-size: var(--scalar-mini);
   font-weight: var(--scalar-semibold);
   position: relative;
+  display: flex;
+  align-items: center;
 }
-.client-libraries__active span {
+.client-libraries__active .client-libraries-text {
   color: var(--scalar-color-1);
 }
 .client-libraries__select select {
@@ -293,11 +297,6 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
 .client-libraries__select:has(select:focus-visible) {
   border-radius: var(--scalar-radius);
   box-shadow: inset 0 0 0 1px var(--scalar-color-accent);
-}
-.client-libraries__select span {
-  position: relative;
-  display: flex;
-  align-items: center;
 }
 @media screen and (max-width: 600px) {
   .references-classic .client-libraries {
