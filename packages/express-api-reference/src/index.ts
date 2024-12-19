@@ -1,1 +1,1 @@
-export * from './expressApiReference'
+export * from './apiReference'

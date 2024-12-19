@@ -6,7 +6,7 @@ export type ApiReferenceOptions = ReferenceConfiguration & {
 }
 
 /**
- * The custom theme CSS for the API Reference.
+ * The custom theme CSS for the Express theme.
  */
 export const customThemeCSS = `
 /* basic theme */
@@ -105,9 +105,9 @@ export const customThemeCSS = `
 `
 
 /**
- * The HTML to load the @scalar/api-reference package.
+ * The script tags to load the @scalar/api-reference package from the CDN.
  */
-export const ApiReference = (configuration: ApiReferenceOptions) => {
+export const getScriptTags = (configuration: ApiReferenceOptions) => {
   const defaultConfiguration: Partial<ReferenceConfiguration> = {
     _integration: 'express',
   }
@@ -133,7 +133,7 @@ export const ApiReference = (configuration: ApiReferenceOptions) => {
 }
 
 /**
- * The HTML template to render the API Reference.
+ * The route handler to render the API Reference.
  */
 export function apiReference(options: ApiReferenceOptions) {
   return (req: Request, res: Response) => {
@@ -151,7 +151,7 @@ export function apiReference(options: ApiReferenceOptions) {
       </style>
     </head>
     <body>
-      ${ApiReference(options)}
+      ${getScriptTags(options)}
     </body>
   </html>
 `)
