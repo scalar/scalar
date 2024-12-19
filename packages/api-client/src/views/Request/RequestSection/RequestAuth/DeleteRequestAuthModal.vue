@@ -9,13 +9,14 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'delete'): void
 }>()
 
 const { securitySchemeMutators } = useWorkspace()
 
 const deleteScheme = () => {
   if (props.scheme?.id) securitySchemeMutators.delete(props.scheme.id)
-  emit('close')
+  emit('delete')
 }
 </script>
 <template>

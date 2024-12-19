@@ -154,29 +154,27 @@ const getReferenceClass = (className = '') =>
       <DataTableRow>
         <div
           v-if="Object.keys(scheme.flows).length > 1"
-          class="min-h-8 min-w-8 flex text-sm border-t-1/2 last:border-r-0 p-0 m-0 relative row"
+          class="min-h-8 flex text-sm"
           :class="{
             'border-1/2 border-b-0 rounded-t bg-b-2': layout === 'reference',
           }">
-          <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
-            Flow
-          </div>
-          <div class="flex flex-wrap px-2 items-center gap-1 py-1">
+          <div
+            class="flex border-t h-8 gap-2.5 px-3 max-w-full overflow-x-auto">
             <button
               v-for="(_, key, ind) in scheme?.flows"
               :key="key"
-              class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
+              class="py-1 rounded text-sm relative before:absolute before:rounded before:bg-b-3 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium"
               :class="{
-                'bg-b-3':
+                '!text-c-1 !border-current !rounded-none':
                   layout === 'client' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
-                'bg-b-1':
+                '!text-c-1 !border-current !rounded-none opacity-100':
                   layout === 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
               }"
               type="button"
               @click="activeFlow = key">
-              {{ key }}
+              <span class="z-10 relative">{{ key }}</span>
             </button>
           </div>
         </div>

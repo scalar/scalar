@@ -13,8 +13,8 @@ import {
 } from '@/views/Request/consts'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import {
-  ScalarButton,
-  ScalarComboboxMultiselect,
+  type ScalarButton,
+  type ScalarComboboxMultiselect,
   ScalarIcon,
   ScalarIconButton,
   useModal,
@@ -198,99 +198,53 @@ function handleDeleteScheme(option: { id: string; label: string }) {
   selectedScheme.value = option
   deleteSchemeModal.show()
 }
+
+// Add new ref for active tab
+const activeAuthIndex = ref(0)
+
+// Modify computed properties to handle single active auth
+const activeAuth = computed(() => {
+  return selectedSecuritySchemeUids[activeAuthIndex.value] || null
+})
 </script>
 <template>
   <form>
+    <div
+      v-if="selectedSecuritySchemeUids.length > 1"
+      class="flex border-t h-8 gap-2.5 px-3 max-w-full overflow-x-auto">
+      <button
+        v-for="(schemeUid, index) in selectedSecuritySchemeUids"
+        :key="schemeUid"
+        class="py-1 rounded text-sm relative before:absolute before:rounded before:bg-b-3 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium"
+        :class="[
+          activeAuthIndex === index
+            ? 'text-c-1 border-current border-b rounded-none'
+            : 'text-c-2 border-b border-transparent',
+        ]"
+        type="button"
+        @click="activeAuthIndex = index">
+        <span class="z-10 relative">{{
+          displaySchemeFormatter(securitySchemes[schemeUid]).label
+        }}</span>
+      </button>
+    </div>
+
     <DataTable
+      v-if="activeAuth"
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
       :columns="['']">
-      <DataTableRow>
-        <DataTableHeader
-          class="relative col-span-full cursor-pointer py-0 px-0 flex items-center"
-          :class="layout === 'reference' && 'border-0 min-h-0 mb-1.5'">
-          <ScalarComboboxMultiselect
-            ref="comboboxRef"
-            class="text-xs w-full"
-            fullWidth
-            :isDeletable="!isReadOnly"
-            :modelValue="selectedAuth"
-            multiple
-            :options="schemeOptions"
-            resize
-            style="margin-left: 120px"
-            :teleport="`#${teleportId}`"
-            @delete="handleDeleteScheme"
-            @update:modelValue="updateSelectedAuth">
-            <ScalarButton
-              ref="comboboxButtonRef"
-              class="h-auto py-0 px-0 text-c-2 hover:text-c-1 font-normal justify-start -outline-offset-2"
-              fullWidth
-              variant="ghost">
-              <!-- Client only -->
-              <template v-if="layout === 'client'">
-                <div
-                  class="text-c-1 h-8 flex min-w-[94px] items-center pr-0 pl-2">
-                  Auth Type
-                </div>
-                <div
-                  v-if="selectedAuth.length"
-                  class="flex relative scroll-timeline-x w-full">
-                  <div class="fade-left"></div>
-                  <div class="flex flex-1 gap-0.25 mr-1.5 items-center">
-                    <span
-                      v-for="auth in selectedAuth"
-                      :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit pr-0.5 !bg-b-2 text-c-1">
-                      {{ auth.label }}
-                      <ScalarIconButton
-                        class="cursor-pointer -ml-0.5 text-c-3 hover:text-c-1 rounded-full"
-                        icon="Close"
-                        :label="`Remove ${auth.label}`"
-                        size="xs"
-                        @click.stop="unselectAuth(auth.id)"
-                        @keydown.enter.stop="unselectAuth(auth.id)" />
-                    </span>
-                  </div>
-                  <div class="fade-right"></div>
-                </div>
-                <div
-                  v-else
-                  class="pl-2">
-                  None
-                </div>
-              </template>
-
-              <!-- For references -->
-              <div
-                v-else
-                class="text-c-3 uppercase font-medium">
-                Authentication
-              </div>
-
-              <ScalarIcon
-                class="min-w-3 mr-2.5"
-                :class="{
-                  'ml-auto': layout === 'client',
-                  'ml-1': layout === 'reference',
-                }"
-                icon="ChevronDown"
-                size="xs" />
-            </ScalarButton>
-          </ScalarComboboxMultiselect>
-        </DataTableHeader>
-        <DataTableRow v-if="layout === 'reference'">
-          <div
-            v-if="!selectedAuth.length"
-            class="border-1/2 flex items-center min-h-8 min-w-8 px-2 rounded text-sm">
-            None
-          </div>
-        </DataTableRow>
-      </DataTableRow>
       <RequestExampleAuth
         :layout="layout"
-        :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+        :selectedSecuritySchemeUids="[activeAuth]" />
     </DataTable>
+
+    <div
+      v-if="!selectedSecuritySchemeUids.length"
+      class="text-c-3 px-4 text-sm border-t-1/2 min-h-16 justify-center flex items-center bg-b-1">
+      No authentication selected
+    </div>
+
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"
