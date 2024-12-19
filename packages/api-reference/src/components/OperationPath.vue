@@ -13,7 +13,7 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
 </script>
 <template>
   <span
-    class="operation-path"
+    class="example-path operation-path"
     :class="{ deprecated: deprecated }">
     <template
       v-for="(part, i) in pathParts"

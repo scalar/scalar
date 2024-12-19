@@ -7,6 +7,7 @@ export type CreateStoreOptions = (
   | { content: string; url?: never }
 ) & {
   theme?: ThemeId
+  proxyUrl?: string
 }
 
 // TODO: Shouldn’t this be exposed by @scalar/api-client?
@@ -33,10 +34,10 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
   // Create the store
   const store = createWorkspaceStore({
     isReadOnly: true,
-    // TODO: Make this configurable
-    proxyUrl: 'https://proxy.scalar.com',
+    proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
     // TODO: I don’t know why this exists, we need to pass the theme to workspaceSchema.parse anyway
     themeId: options.theme ?? 'default',
+    // TODO: Make everything configurable
     useLocalStorage: false,
     hideClientButton: false,
   })
@@ -52,7 +53,7 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     uid: 'default',
     name: 'Workspace',
     isReadOnly: true,
-    proxyUrl: 'https://proxy.scalar.com',
+    proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
     themeId: options.theme ?? 'default',
   })
 
@@ -65,7 +66,7 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     store.importSpecFromUrl(url, 'default', {
       shouldLoad: true,
       setCollectionSecurity: true,
-      proxyUrl: 'https://proxy.scalar.com',
+      proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
     })
   }
 
