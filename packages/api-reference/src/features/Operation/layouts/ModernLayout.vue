@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { getLocation } from '@/blocks'
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import OperationPath from '@/components/OperationPath.vue'
@@ -14,41 +12,22 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { WORKSPACE_SYMBOL } from '@scalar/api-client/store'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/types'
-import { computed, inject } from 'vue'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const {
-  id,
-  request,
-  secretCredentials,
-  operation: transformedOperation,
-} = defineProps<{
+const props = defineProps<{
   id?: string
-  operation: TransformedOperation | null
+  operation?: RequestEntity | null
   request: Request | null
   secretCredentials: string[]
 }>()
 
-const store = inject(WORKSPACE_SYMBOL)
-
-// TODO: Take the store as a prop, not a transformed operation
-const { operation } = useBlockProps({
-  // @ts-expect-error TODO: fix this
-  store,
-  location: getLocation(
-    // @ts-expect-error TODO: fix this (has CONNECT method?)
-    transformedOperation?.httpVerb ?? 'get',
-    transformedOperation?.path ?? '',
-  ),
-})
-
 const title = computed(
-  () => operation.value?.summary || operation.value?.path || '',
+  () => props.operation?.summary || props.operation?.path || '',
 )
 </script>
 <template>

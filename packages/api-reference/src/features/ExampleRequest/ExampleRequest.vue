@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
 import { ScalarCodeBlock } from '@scalar/components'
-import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { createHash, ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
@@ -32,7 +32,7 @@ import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const { operation, request } = defineProps<{
-  operation: StoreRequest
+  operation: RequestEntity
   request: Request | null
   /** Array of strings to obscure in the code block */
   secretCredentials: string[]
