@@ -153,6 +153,9 @@ const introCardsSlot = computed(() =>
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
+.introduction-card-item :deep(.request-item) {
+  border-bottom: 0;
+}
 .introduction-card-title {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-mini);

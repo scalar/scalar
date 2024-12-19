@@ -211,12 +211,13 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
         <!-- Authentication indicator -->
         <div
           v-if="authIndicator"
-          class="flex items-center gap-1 text-c-1">
+          class="flex items-center gap-1 text-c-3 text-xs"
+          :class="{ 'text-c-1': authIndicator.text === 'Required' }">
           {{ authIndicator.text }}
         </div>
         <!-- Move combobox back inside title but wrap in div that stops propagation -->
         <div
-          class="ml-auto hover:bg-b-3 rounded pl-2"
+          class="ml-auto hover:bg-b-3 rounded"
           @click.stop>
           <ScalarComboboxMultiselect
             ref="comboboxRef"
@@ -231,7 +232,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
             @update:modelValue="updateSelectedAuth">
             <ScalarButton
               ref="comboboxButtonRef"
-              class="h-auto py-0 px-0 text-c-1 hover:text-c-1 font-normal justify-start -outline-offset-2"
+              class="h-auto pl-2 pr-0 py-1 text-c-1 hover:text-c-1 font-normal justify-start -outline-offset-2"
               fullWidth
               variant="ghost">
               <div class="text-c-1">
@@ -246,7 +247,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
               <ScalarIcon
                 class="min-w-3 mr-1.5 ml-2"
                 icon="ChevronDown"
-                size="xs" />
+                size="sm" />
             </ScalarButton>
           </ScalarComboboxMultiselect>
           <div :id="teleportId" />
