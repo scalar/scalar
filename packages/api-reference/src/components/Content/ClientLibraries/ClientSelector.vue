@@ -176,9 +176,9 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   display: flex;
   justify-content: center;
   overflow: hidden;
-  background-color: var(--scalar-background-2);
-  border-radius: var(--scalar-radius) var(--scalar-radius) 0 0;
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  padding: 0 12px;
+  background-color: var(--scalar-background-1);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .client-libraries {
   display: flex;
@@ -202,7 +202,7 @@ const checkIfClientIsFeatured = (client: HttpClientState) =>
   position: absolute;
   width: calc(100% - 4px);
   height: calc(100% - 4px);
-  background: var(--scalar-background-3);
+  background: var(--scalar-background-2);
   left: 2px;
   top: 2px;
   z-index: 0;
