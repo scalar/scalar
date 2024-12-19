@@ -219,7 +219,7 @@ steps:
         '-t',
         'gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}',
         '-f',
-        './examples/express-api-reference/Dockerfile',
+        './packages/express-api-reference/Dockerfile',
         '.',
       ]
   - name: 'gcr.io/cloud-builders/docker'
