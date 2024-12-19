@@ -9,6 +9,8 @@ name: CI
 #
 # Note: GitHub Actions doesn’t run workflows triggered by bot accounts.
 # We keep the ignore rule for clarity, but the bot’s PR would be skipped anyway.
+#
+# ⚠️ That could become a problem if we filter for specific files in the trigger.
 on:
   push:
     branches:
