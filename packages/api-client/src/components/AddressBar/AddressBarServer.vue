@@ -22,10 +22,15 @@ const requestServerOptions = computed(() =>
 )
 
 const collectionServerOptions = computed(() =>
-  activeCollection.value?.servers?.map((serverUid: string) => ({
-    id: serverUid,
-    label: servers[serverUid]?.url ?? 'Unknown server',
-  })),
+  // Filters out servers already present in the request
+  activeCollection.value?.servers
+    ?.filter(
+      (serverUid: string) => !activeRequest.value?.servers?.includes(serverUid),
+    )
+    .map((serverUid: string) => ({
+      id: serverUid,
+      label: servers[serverUid]?.url ?? 'Unknown server',
+    })),
 )
 
 /** If we have both request and collection servers we show the labels */
@@ -73,8 +78,8 @@ const serverUrlWithoutTrailingSlash = computed(() => {
       <!-- Request -->
       <div
         v-if="showDropdownLabels"
-        class="text-xxs text-c-2 ml-8">
-        Request Servers
+        class="text-xxs text-c-2 px-2.5 py-1">
+        Request
       </div>
       <AddressBarServerItem
         v-for="serverOption in requestServerOptions"
@@ -84,7 +89,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 
       <template v-if="showDropdownLabels">
         <ScalarDropdownDivider />
-        <div class="text-xxs text-c-2 ml-8">Collection Servers</div>
+        <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
       </template>
 
       <!-- Collection -->
