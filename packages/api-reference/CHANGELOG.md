@@ -1,5 +1,17 @@
 # @scalar/api-reference
 
+## 1.25.92
+
+### Patch Changes
+
+- fd80d43: fix(api-reference): correct `hash.value` encoding to ensure scrolling
+- 47d1d82: feat: add debounce to client config update to improve perf
+- Updated dependencies [9b3a053]
+- Updated dependencies [46ebb44]
+- Updated dependencies [d4b17f5]
+  - @scalar/api-client@2.2.21
+  - @scalar/components@0.13.10
+
 ## 1.25.91
 
 ### Patch Changes

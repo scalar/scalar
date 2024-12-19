@@ -1,5 +1,14 @@
 # @scalar/use-codemirror
 
+## 0.11.54
+
+### Patch Changes
+
+- ec44fe1: refactor: make useCodeMirror testable
+- ec44fe1: chore: remove CodeMirror component
+- Updated dependencies [46ebb44]
+  - @scalar/components@0.13.10
+
 ## 0.11.53
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.10
+
+### Patch Changes
+
+- 46ebb44: fix(components): fix menu logo size
+
 ## 0.13.9
 
 ### Patch Changes
