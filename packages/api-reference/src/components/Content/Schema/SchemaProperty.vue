@@ -107,6 +107,12 @@ const remainingEnumValues = computed(() =>
         #name>
         {{ name }}
       </template>
+      <template
+        v-if="value?.example"
+        #example>
+        Example:
+        {{ value.example }}
+      </template>
     </SchemaPropertyHeading>
     <!-- Description -->
     <div
