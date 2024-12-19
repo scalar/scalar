@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 
 import { useResponses } from '../hooks/useResponses'
 import ParameterList from './ParameterList.vue'
 
 const props = withDefaults(
   defineProps<{
-    operation: TransformedOperation
+    operation: RequestEntity
     collapsableItems?: boolean
   }>(),
   {

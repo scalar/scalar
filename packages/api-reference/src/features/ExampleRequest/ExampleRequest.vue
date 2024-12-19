@@ -4,11 +4,6 @@ import { useWorkspace } from '@scalar/api-client/store'
 import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
-<<<<<<< HEAD
-=======
-import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
->>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 import type {
   Collection,
   Operation,
@@ -30,33 +25,20 @@ import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-<<<<<<< HEAD
-const { transformedOperation, operation, collection, server } = defineProps<{
-  operation: Operation
-  server: Server | undefined
-  collection: Collection
-=======
-const { operation, request } = defineProps<{
-  operation: StoreRequest
-  request: Request | null
-  /** Array of strings to obscure in the code block */
-  secretCredentials: string[]
->>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
-  /** Show a simplified card if no example are available */
-  fallback?: boolean
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
-}>()
+const { transformedOperation, operation, collection, server, request } =
+  defineProps<{
+    operation: Operation
+    server: Server | undefined
+    collection: Collection
+    request: Request | null
+    /** Array of strings to obscure in the code block */
+    secretCredentials: string[]
+    /** Show a simplified card if no example are available */
+    fallback?: boolean
+    /** @deprecated Use `operation` instead */
+    transformedOperation: TransformedOperation
+  }>()
 
-<<<<<<< HEAD
-=======
-const ssrHash = createHash(
-  operation.path + operation.method + operation.operationId,
-)
-const ssrStateKey =
-  `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
-
->>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
 
@@ -73,14 +55,12 @@ const id = useId()
 const customRequestExamples = computed(() => {
   // TODO: Get custom examples from the store
 
-<<<<<<< HEAD
   for (const key of keys) {
     if (transformedOperation.information?.[key]) {
       const examples = [...transformedOperation.information[key]]
       return examples
     }
   }
-=======
   // const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   // for (const key of keys) {
@@ -89,7 +69,6 @@ const customRequestExamples = computed(() => {
   //     return examples
   //   }
   // }
->>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
 
   return []
 })
@@ -193,23 +172,6 @@ const language = computed(() => {
 
   return key
 })
-
-/**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() =>
-  Object.values(securitySchemes).flatMap((scheme) => {
-    if (scheme.type === 'apiKey') return scheme.value
-    if (scheme?.type === 'http')
-      return [
-        scheme.token,
-        scheme.password,
-        btoa(`${scheme.username}:${scheme.password}`),
-      ]
-    if (scheme.type === 'oauth2')
-      return Object.values(scheme.flows).map((flow) => flow.token)
-
-    return []
-  }),
-)
 
 type TextSelectOptions = InstanceType<typeof TextSelect>['$props']['options']
 
@@ -323,13 +285,7 @@ function updateHttpClient(value: string) {
         <ExamplePicker
           class="request-example-selector"
           :examples="
-<<<<<<< HEAD
-            transformedOperation.information?.requestBody?.content?.[
-              'application/json'
-            ]?.examples ?? []
-=======
             operation.requestBody?.content?.['application/json']?.examples ?? []
->>>>>>> e0bd8d933 (feat: add more stuff to the code examples block)
           "
           @update:modelValue="
             (value) => (

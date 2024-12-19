@@ -1,18 +1,14 @@
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPI } from '@scalar/openapi-types'
-import type {
-  RequestBodyMimeTypes,
-  TransformedOperation,
-} from '@scalar/types/legacy'
+import type { RequestBodyMimeTypes } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
 /**
  * Generates the responses for the request from the parameters in the OpenAPI document
  */
-export function useResponses(operation: TransformedOperation) {
+export function useResponses(operation: RequestEntity) {
   const r = computed(() => {
-    if (!operation.information) return []
-
-    const { responses } = operation.information
+    const { responses } = operation
 
     const res: {
       name: string

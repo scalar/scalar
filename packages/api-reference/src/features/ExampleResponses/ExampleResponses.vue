@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import type { Request as StoreRequest } from '@scalar/oas-utils/entities/spec'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
@@ -19,7 +19,7 @@ import ExampleResponse from './ExampleResponse.vue'
 /**
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
  */
-const props = defineProps<{ operation: StoreRequest }>()
+const props = defineProps<{ operation: RequestEntity }>()
 
 const id = useId()
 
