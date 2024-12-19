@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.22
+
+### Patch Changes
+
+- 4619a8c: fix: showSidebar config option for client
+
 ## 2.2.21
 
 ### Patch Changes
