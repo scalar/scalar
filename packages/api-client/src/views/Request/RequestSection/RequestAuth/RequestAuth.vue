@@ -2,17 +2,25 @@
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import {
+  ADD_AUTH_OPTIONS,
+  type SecuritySchemeGroup,
+  type SecuritySchemeOption,
+} from '@/views/Request/consts'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import {
   type Icon,
-  type ScalarButton,
-  type ScalarComboboxMultiselect,
+  ScalarButton,
+  type ScalarButton as ScalarButtonType,
+  ScalarComboboxMultiselect,
+  type ScalarComboboxMultiselect as ScalarComboboxMultiselectType,
   ScalarIcon,
-  ScalarIconButton,
   useModal,
 } from '@scalar/components'
+import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
+import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const { selectedSecuritySchemeUids } = defineProps<{
@@ -20,11 +28,20 @@ const { selectedSecuritySchemeUids } = defineProps<{
   title: string
 }>()
 
+const emit = defineEmits<{
+  'update:selectedSecuritySchemeUids': [string[]]
+}>()
 const { activeCollection, activeRequest } = useActiveEntities()
-const { isReadOnly, securitySchemes } = useWorkspace()
+const {
+  isReadOnly,
+  securitySchemes,
+  securitySchemeMutators,
+  requestMutators,
+  collectionMutators,
+} = useWorkspace()
 
-const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
-const comboboxButtonRef = ref<typeof ScalarButton | null>(null)
+const comboboxRef = ref<typeof ScalarComboboxMultiselectType | null>(null)
+const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
@@ -53,7 +70,7 @@ const authIndicator = computed(() => {
   const nameKey =
     filteredRequirements.length === 1
       ? Object.keys(filteredRequirements[0])[0]
-      : 'Authentication'
+      : ''
   const text = `${nameKey} ${requiredText}`
 
   return { icon, text }
@@ -64,6 +81,110 @@ const selectedAuth = computed(() =>
   selectedSecuritySchemeUids.map((uid) =>
     displaySchemeFormatter(securitySchemes[uid]),
   ),
+)
+
+/** A local div to teleport the combobox to */
+const teleportId = `combobox-${nanoid()}`
+
+/** Update the selected auth types */
+function updateSelectedAuth(entries: SecuritySchemeOption[]) {
+  if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
+
+  const addNewOption = entries.find((e) => e.payload)
+  const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
+
+  // Adding new auth
+  if (addNewOption?.payload) {
+    // Create new scheme
+    const scheme = securitySchemeMutators.add(
+      addNewOption.payload,
+      activeCollection.value.uid,
+    )
+    if (scheme) _entries.push(scheme.uid)
+  }
+
+  editSelectedSchemeUids(_entries)
+  emit('update:selectedSecuritySchemeUids', _entries)
+}
+
+const editSelectedSchemeUids = (uids: string[]) => {
+  if (!activeCollection.value || !activeRequest.value) return
+
+  // Set as selected on the collection for the modal
+  if (isReadOnly) {
+    collectionMutators.edit(
+      activeCollection.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
+  }
+  // Set as selected on request
+  else {
+    requestMutators.edit(
+      activeRequest.value.uid,
+      'selectedSecuritySchemeUids',
+      uids,
+    )
+  }
+}
+
+function handleDeleteScheme(option: { id: string; label: string }) {
+  selectedScheme.value = option
+  deleteSchemeModal.show()
+}
+
+const unselectAuth = (unSelectUid?: string) => {
+  const newUids = selectedSecuritySchemeUids.filter(
+    (uid) => uid !== unSelectUid,
+  )
+  editSelectedSchemeUids(newUids)
+  emit('update:selectedSecuritySchemeUids', newUids)
+  comboboxButtonRef.value?.$el.focus()
+  deleteSchemeModal.hide()
+}
+
+const availableSchemes = computed(() => {
+  const base = activeCollection.value?.securitySchemes
+  return (base ?? []).map((s) => securitySchemes[s]).filter((s) => s)
+})
+
+const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
+  () => {
+    const _availableSchemes = [...availableSchemes.value]
+    const requiredSchemes = [] as typeof _availableSchemes
+
+    securityRequirements.value.filteredRequirements.forEach((r) => {
+      const i = _availableSchemes.findIndex(
+        (s) => s.nameKey === Object.keys(r)[0],
+      )
+      if (i > -1) {
+        requiredSchemes.push(_availableSchemes[i])
+        _availableSchemes.splice(i, 1)
+      }
+    })
+
+    const availableFormatted = _availableSchemes.map((s) =>
+      displaySchemeFormatter(s),
+    )
+    const requiredFormatted = requiredSchemes.map((s) =>
+      displaySchemeFormatter(s),
+    )
+
+    const options = [
+      { label: 'Required authentication', options: requiredFormatted },
+      { label: 'Available authentication', options: availableFormatted },
+    ]
+
+    if (isReadOnly)
+      return requiredFormatted.length ? options : availableFormatted
+
+    options.push({
+      label: 'Add new authentication',
+      options: ADD_AUTH_OPTIONS,
+    })
+
+    return options
+  },
 )
 </script>
 <template>
@@ -77,17 +198,56 @@ const selectedAuth = computed(() =>
         <!-- Authentication indicator -->
         <div
           v-if="authIndicator"
-          class="flex items-center gap-1 text-c-3">
+          class="flex items-center gap-1 text-c-1">
           {{ authIndicator.text }}
-          <ScalarIcon
-            class="text-c-3"
-            :icon="authIndicator.icon"
-            size="xs" />
+        </div>
+        <!-- Move combobox back inside title but wrap in div that stops propagation -->
+        <div
+          class="ml-auto hover:bg-b-3 rounded pl-2"
+          @click.stop>
+          <ScalarComboboxMultiselect
+            ref="comboboxRef"
+            class="text-xs w-full"
+            fullWidth
+            :isDeletable="!isReadOnly"
+            :modelValue="selectedAuth"
+            multiple
+            :options="schemeOptions"
+            resize
+            :teleport="`#${teleportId}`"
+            @delete="handleDeleteScheme"
+            @update:modelValue="updateSelectedAuth">
+            <ScalarButton
+              ref="comboboxButtonRef"
+              class="h-auto py-0 px-0 text-c-1 hover:text-c-1 font-normal justify-start -outline-offset-2"
+              fullWidth
+              variant="ghost">
+              <div class="text-c-1">
+                {{
+                  selectedAuth.length === 0
+                    ? 'Auth Type'
+                    : selectedAuth.length === 1
+                      ? selectedAuth[0].label
+                      : 'Multiple'
+                }}
+              </div>
+              <ScalarIcon
+                class="min-w-3 mr-1.5 ml-2"
+                icon="ChevronDown"
+                size="xs" />
+            </ScalarButton>
+          </ScalarComboboxMultiselect>
+          <div :id="teleportId" />
         </div>
       </div>
     </template>
     <RequestAuthDataTable
       :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+    <DeleteRequestAuthModal
+      :scheme="selectedScheme"
+      :state="deleteSchemeModal"
+      @close="deleteSchemeModal.hide()"
+      @delete="unselectAuth(selectedScheme?.id)" />
   </ViewLayoutCollapse>
 </template>
 <style scoped>
