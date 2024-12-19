@@ -8,6 +8,7 @@ import { useActiveEntities } from '@/store/active-entities'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import {
+  type DragEndEvent,
   Draggable,
   type DraggableProps,
   type DraggingItem,
@@ -16,6 +17,8 @@ import {
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+
+import type { SidebarMenuEvent } from './types'
 
 const props = withDefaults(
   defineProps<{
@@ -76,8 +79,6 @@ const item = computed<SidebarItem>(() => {
   const requestExample = requestExamples[props.uid]
   const parentUid = props.parentUids[0]
 
-  if (!parentUid) return {} as SidebarItem
-
   if (collection)
     return {
       title: collection.info?.title ?? 'Unknown title',
@@ -95,7 +96,7 @@ const item = computed<SidebarItem>(() => {
       },
       delete: () => {
         if (!activeWorkspace.value) return
-        return collectionMutators.delete(collection, activeWorkspace.value)
+        collectionMutators.delete(collection, activeWorkspace.value)
       },
     }
 
@@ -108,7 +109,9 @@ const item = computed<SidebarItem>(() => {
       warning:
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
-      delete: () => tagMutators.delete(tag, parentUid),
+      delete: () => {
+        if (parentUid) tagMutators.delete(tag, parentUid)
+      },
     }
 
   if (request)
@@ -128,7 +131,9 @@ const item = computed<SidebarItem>(() => {
       children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
-      delete: () => requestMutators.delete(request, parentUid),
+      delete: () => {
+        if (parentUid) requestMutators.delete(request, parentUid)
+      },
     }
 
   if (requestExample)
@@ -150,7 +155,9 @@ const item = computed<SidebarItem>(() => {
       children: [],
       edit: (name: string) =>
         requestExampleMutators.edit(requestExample.uid, 'name', name),
-      delete: () => requestExampleMutators.delete(requestExample),
+      delete: () => {
+        if (parentUid) requestExampleMutators.delete(requestExample)
+      },
     }
 
   return {} as SidebarItem
@@ -293,7 +300,7 @@ const hasDraftRequests = computed(() => {
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
       :parentIds="parentUids"
-      @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
+      @onDragEnd="(...args: [DragEndEvent]) => $emit('onDragEnd', ...args)">
       <!-- Request -->
       <RouterLink
         v-if="item.link"
@@ -329,7 +336,7 @@ const hasDraftRequests = computed(() => {
                 type="button"
                 variant="ghost"
                 @click.stop.prevent="
-                  (ev) =>
+                  (ev: MouseEvent) =>
                     $emit('openMenu', {
                       item,
                       parentUids,
@@ -398,7 +405,7 @@ const hasDraftRequests = computed(() => {
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
-                  (ev) =>
+                  (ev: MouseEvent) =>
                     $emit('openMenu', {
                       item,
                       parentUids,
@@ -461,9 +468,9 @@ const hasDraftRequests = computed(() => {
           :menuItem="menuItem"
           :parentUids="[...parentUids, uid]"
           :uid="childUid"
-          @newTab="(name, uid) => $emit('newTab', name, uid)"
-          @onDragEnd="(...args) => $emit('onDragEnd', ...args)"
-          @openMenu="(item) => $emit('openMenu', item)" />
+          @newTab="(name: string, uid: string) => $emit('newTab', name, uid)"
+          @onDragEnd="(...args: [DragEndEvent]) => $emit('onDragEnd', ...args)"
+          @openMenu="(item: SidebarMenuEvent) => $emit('openMenu', item)" />
         <ScalarButton
           v-if="item.children.length === 0"
           class="mb-[.5px] flex gap-1.5 h-8 text-c-1 py-0 justify-start text-xs w-full hover:bg-b-2"
