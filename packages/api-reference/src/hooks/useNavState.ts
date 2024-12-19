@@ -72,7 +72,9 @@ const updateHash = () => {
   hash.value = pathRouting.value
     ? getPathRoutingId(window.location.pathname)
     : // Must remove the prefix from the hash as the internal hash value should be pure
-      window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length)
+      decodeURIComponent(window.location.hash.replace(/^#/, '')).slice(
+        hashPrefix.value.length,
+      )
 }
 
 const replaceUrlState = (
