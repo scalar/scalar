@@ -35,7 +35,6 @@ const emit = defineEmits<{
 defineOptions({ inheritAttrs: false })
 
 const mask = ref(true)
-const query = ref('')
 const interactingWithDropdown = ref(false)
 
 const handleBlur = () => {
@@ -51,18 +50,6 @@ const inputType = computed(() =>
       : 'text'
     : (props.type ?? 'text'),
 )
-
-const handleSelect = (value: string) => {
-  emit('update:modelValue', value)
-}
-
-const handleDropdownMouseDown = () => {
-  interactingWithDropdown.value = true
-}
-
-const handleDropdownMouseUp = () => {
-  interactingWithDropdown.value = false
-}
 </script>
 <template>
   <DataTableCell
