@@ -11,6 +11,7 @@ export type ParamMap = {
 
 /**
  * This hook is used to generate the parameters for the request from the parameters in the swagger file
+ * @deprecated TODO: REMOVE, use the store instead
  */
 export function useParameters(operation: RequestEntity) {
   const parameterMap = computed(() => {
