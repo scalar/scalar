@@ -20,5 +20,5 @@ export function getLocation(
 
   const escapedJsonPath = escapeJsonPointer(path)
 
-  return `#/paths/${method.toLowerCase()}/${escapedJsonPath}`
+  return `#/paths/${escapedJsonPath}/${method.toLowerCase()}`
 }

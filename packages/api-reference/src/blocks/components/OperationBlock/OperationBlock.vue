@@ -6,8 +6,7 @@
  */
 import { CodeExamplesBlock } from '@/blocks/components/CodeExamplesBlock'
 import { ExampleResponsesBlock } from '@/blocks/components/ExampleResponsesBlock'
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
-import type { BlockProps } from '@/blocks/types'
+import { type BlockProps, useBlockProps } from '@/blocks/hooks/useBlockProps'
 
 import OperationDetails from './components/OperationDetails.vue'
 

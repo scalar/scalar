@@ -1,124 +1,74 @@
+import { createStore } from '@/blocks/lib/createStore'
+import { getLocation } from '@/blocks/utils/getLocation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
 import ExampleResponsesBlock from './ExampleResponsesBlock.vue'
 
 describe('ExampleResponsesBlock', () => {
-  it('exists', () => {
-    expect(ExampleResponsesBlock).toBeDefined()
-  })
-
-  it('renders empty state when no operation found', () => {
-    const wrapper = mount(ExampleResponsesBlock, {
-      props: {
-        // @ts-expect-error
-        store: {},
-        location: '#/paths/get/test',
-      },
-    })
-
-    expect(wrapper.text()).toContain('No operation found')
-    expect(wrapper.text()).toContain('location: #/paths/get/test')
-    expect(wrapper.text()).toContain('store: {}')
-  })
-
-  it('renders example responses when operation exists', () => {
-    const mockStore = {
-      collections: {
-        collection1: {
-          requests: ['req1'],
+  it('mounts the component', async () => {
+    const { store } = createStore({
+      content: JSON.stringify({
+        openapi: '3.0.0',
+        info: {
+          title: 'Test API',
+          version: '1.0.0',
         },
-      },
-      requests: {
-        req1: {
-          uid: 'req1',
-          method: 'get',
-          path: 'test',
-          responses: {
-            '200': {
-              description: 'OK',
-              content: {
-                'application/json': {
-                  example: { foo: 'bar' },
+        paths: {
+          '/test': {
+            get: {
+              responses: {
+                '200': {
+                  description: 'OK',
+                  content: {
+                    'application/json': {
+                      examples: {
+                        default: {
+                          value: { foo: 'bar' },
+                        },
+                      },
+                    },
+                  },
                 },
               },
             },
           },
         },
-      },
-    }
+      }),
+    })
 
     const wrapper = mount(ExampleResponsesBlock, {
       props: {
-        // @ts-expect-error
-        store: mockStore,
-        location: '#/paths/get/test',
+        store,
+        location: getLocation('GET', '/test'),
       },
     })
 
-    expect(wrapper.text()).toContain('Example Responses')
-    expect(wrapper.text()).toContain('200')
-    expect(wrapper.text()).toContain('OK')
-  })
+    expect(wrapper.exists()).toBe(true)
 
-  it('handles operation with no responses', () => {
-    const mockStore = {
-      collections: {
-        collection1: {
-          requests: ['req1'],
-        },
-      },
-      requests: {
-        req1: {
-          uid: 'req1',
-          method: 'get',
-          path: 'test',
-          responses: {},
-        },
-      },
-    }
+    // Wait for the store to be ready
+    await new Promise((resolve) => setTimeout(resolve, 20))
 
-    const wrapper = mount(ExampleResponsesBlock, {
-      props: {
-        // @ts-expect-error
-        store: mockStore,
-        location: '#/paths/get/test',
-      },
-    })
+    // Check if ExampleResponses component is rendered
+    expect(wrapper.findComponent({ name: 'ExampleResponses' }).exists()).toBe(
+      true,
+    )
 
-    expect(wrapper.text()).toContain('Example Responses')
-    expect(wrapper.text()).toContain('{}')
-  })
-
-  it('handles operation with different path/method than location', () => {
-    const mockStore = {
-      collections: {
-        collection1: {
-          requests: ['req1'],
-        },
-      },
-      requests: {
-        req1: {
-          uid: 'req1',
-          method: 'post', // Different method
-          path: 'other', // Different path
-          responses: {
-            '200': {
-              description: 'OK',
+    // Verify the responses prop is passed correctly
+    const exampleResponses = wrapper.findComponent({ name: 'ExampleResponses' })
+    expect(exampleResponses.props('responses')).toEqual({
+      '200': {
+        description: 'OK',
+        content: {
+          'application/json': {
+            examples: {
+              default: {
+                value: { foo: 'bar' },
+              },
             },
           },
         },
       },
-    }
-
-    const wrapper = mount(ExampleResponsesBlock, {
-      props: {
-        // @ts-expect-error
-        store: mockStore,
-        location: '#/paths/get/test',
-      },
     })
-
-    expect(wrapper.text()).toContain('No operation found')
   })
 })

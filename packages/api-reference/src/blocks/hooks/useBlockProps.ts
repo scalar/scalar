@@ -1,7 +1,14 @@
-import type { BlockProps } from '@/blocks/types'
+import type { StoreContext } from '@/blocks/lib/createStore'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import { type ComputedRef, computed } from 'vue'
+
+export type BlockProps = {
+  store: StoreContext
+  location: string
+  // TODO: Allow to pick a collection
+  // TODO: Add collection prop
+}
 
 /** TODO: Write comment */
 export function useBlockProps(props: BlockProps): {
@@ -20,8 +27,8 @@ export function useBlockProps(props: BlockProps): {
     )
 
     return collectionRequests.find((request) => {
-      const specifiedMethod = props.location.split('/')[2]
-      const specifiedPath = unescapeJsonPointer(props.location.split('/')[3])
+      const specifiedMethod = props.location.split('/')[3]
+      const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
 
       return (
         request.method === specifiedMethod && request.path === specifiedPath
