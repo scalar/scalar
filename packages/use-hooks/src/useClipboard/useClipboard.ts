@@ -11,7 +11,7 @@ export function useClipboard(opts: UseClipboardOptions = {}) {
 
   async function copyToClipboard(value: string) {
     try {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard?.writeText(value)
       notify('Copied to the clipboard')
     } catch (e) {
       const error = e as Error
