@@ -14,9 +14,9 @@ const { operation } = useBlockProps(props)
 </script>
 
 <template>
-  <div v-if="operation">
-    <ExampleResponses :operation="operation" />
-  </div>
+  <ExampleResponses
+    v-if="operation"
+    :responses="operation.responses" />
   <div v-else>
     <p>No operation found.</p>
     <p>location: {{ location }}</p>
