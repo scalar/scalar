@@ -1,5 +1,10 @@
 import type { StoreContext } from '@/blocks/lib/createStore'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import { createRequestOperation } from '@scalar/api-client/libs'
+import type {
+  Collection,
+  Request as RequestEntity,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
 import type { ThemeId } from '@scalar/themes'
 import { type ComputedRef, computed } from 'vue'
@@ -8,25 +13,28 @@ export type BlockProps = {
   store: StoreContext
   location: string
   // TODO: Allow to pick a collection
-  // TODO: Add collection prop
 }
 
 /** TODO: Write comment */
 export function useBlockProps(props: BlockProps): {
-  operation: ComputedRef<Request | undefined>
+  collection: ComputedRef<Collection | undefined>
+  server: ComputedRef<Server | undefined>
+  operation: ComputedRef<RequestEntity | undefined>
+  request: ComputedRef<Request | undefined>
   theme: ComputedRef<ThemeId>
-  serverUrl: ComputedRef<string | undefined>
 } {
-  const operation = computed<Request | undefined>(() => {
+  // TODO: Use optional collection prop to determine which operation to display
+  const collection = computed(() => {
+    return Object.values(props.store.collections)[0]
+  })
+
+  const operation = computed<RequestEntity | undefined>(() => {
     if (!props.store?.collections || !props.store.requests) {
       return undefined
     }
 
-    // TODO: Use optional collection prop to determine which operation to display
-    const firstCollection = Object.values(props.store.collections)[0]
-
     const collectionRequests = Object.values(props.store.requests).filter(
-      (request) => firstCollection.requests.includes(request.uid),
+      (request) => collection.value.requests.includes(request.uid),
     )
 
     return collectionRequests.find((request) => {
@@ -43,16 +51,37 @@ export function useBlockProps(props: BlockProps): {
     return Object.values(props.store.workspaces)[0].themeId
   })
 
-  const serverUrl = computed(() => {
-    const firstCollection = Object.values(props.store.collections)[0]
-    const firstServer = props.store.servers[firstCollection.servers[0]]
+  const server = computed(() => {
+    return props.store.servers[collection.value.servers[0]]
+  })
 
-    return firstServer?.url
+  // TODO: Make this dynamic
+  const request = computed(() => {
+    if (!operation.value) return undefined
+
+    const firstExampleUid = operation.value.examples?.[0]
+    const firstExample = props.store.requestExamples[firstExampleUid]
+    console.log('foo', firstExample)
+
+    if (!firstExample) return undefined
+
+    const [error, requestOperation] = createRequestOperation({
+      request: operation.value,
+      example: firstExample,
+      environment: {},
+      globalCookies: [],
+      securitySchemes: {}, // Add required securitySchemes property
+      server: server.value,
+    })
+
+    return requestOperation?.request
   })
 
   return {
+    collection,
+    server,
     operation,
+    request,
     theme,
-    serverUrl,
   }
 }
