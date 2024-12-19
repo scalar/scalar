@@ -15,6 +15,7 @@ export type BlockProps = {
 export function useBlockProps(props: BlockProps): {
   operation: ComputedRef<Request | undefined>
   theme: ComputedRef<ThemeId>
+  serverUrl: ComputedRef<string | undefined>
 } {
   const operation = computed<Request | undefined>(() => {
     if (!props.store?.collections || !props.store.requests) {
@@ -42,8 +43,16 @@ export function useBlockProps(props: BlockProps): {
     return Object.values(props.store.workspaces)[0].themeId
   })
 
+  const serverUrl = computed(() => {
+    const firstCollection = Object.values(props.store.collections)[0]
+    const firstServer = props.store.servers[firstCollection.servers[0]]
+
+    return firstServer?.url
+  })
+
   return {
     operation,
     theme,
+    serverUrl,
   }
 }
