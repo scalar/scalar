@@ -1,6 +1,7 @@
 import type { StoreContext } from '@/blocks/lib/createStore'
 import type { Request } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
+import type { ThemeId } from '@scalar/themes'
 import { type ComputedRef, computed } from 'vue'
 
 export type BlockProps = {
@@ -13,6 +14,7 @@ export type BlockProps = {
 /** TODO: Write comment */
 export function useBlockProps(props: BlockProps): {
   operation: ComputedRef<Request | undefined>
+  theme: ComputedRef<ThemeId>
 } {
   const operation = computed<Request | undefined>(() => {
     if (!props.store?.collections || !props.store.requests) {
@@ -36,7 +38,12 @@ export function useBlockProps(props: BlockProps): {
     })
   })
 
+  const theme = computed(() => {
+    return Object.values(props.store.workspaces)[0].themeId
+  })
+
   return {
     operation,
+    theme,
   }
 }

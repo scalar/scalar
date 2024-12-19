@@ -4,6 +4,7 @@
  * It should do the data wrangling and compose other components.
  * It should not have markup or CSS.
  */
+import ThemeStyles from '@/blocks/components/ThemeStyles.vue'
 import { type BlockProps, useBlockProps } from '@/blocks/hooks/useBlockProps'
 import OperationPath from '@/components/OperationPath.vue'
 import { ExampleRequest } from '@/features/ExampleRequest'
@@ -11,7 +12,7 @@ import { TestRequestButton } from '@/features/TestRequestButton'
 
 const props = defineProps<BlockProps>()
 
-const { operation } = useBlockProps(props)
+const { operation, theme } = useBlockProps(props)
 
 const request = new Request(`https://api.example.com${operation.value?.path}`, {
   method: operation.value?.method?.toUpperCase() ?? 'GET',
@@ -23,6 +24,7 @@ const request = new Request(`https://api.example.com${operation.value?.path}`, {
 </script>
 
 <template>
+  <ThemeStyles :theme="theme" />
   <div v-if="operation">
     <ExampleRequest
       fallback
