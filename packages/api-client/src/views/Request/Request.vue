@@ -205,10 +205,6 @@ function handleCurlImport(curl: string) {
   parsedCurl.value = importCurlCommand(curl)
   modalState.show()
 }
-function hello(show: boolean) {
-  console.log('hello', show)
-  showSideBar.value = show
-}
 </script>
 <template>
   <div
@@ -221,7 +217,7 @@ function hello(show: boolean) {
         :isReadonly="isReadOnly"
         :showSidebar="showSideBar"
         @newTab="$emit('newTab', $event)"
-        @update:showSidebar="hello" />
+        @update:showSidebar="(show) => (showSideBar = show)" />
       <div class="flex flex-1 flex-col h-full">
         <RequestSubpageHeader
           v-model="showSideBar"
