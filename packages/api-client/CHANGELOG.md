@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.2.21
+
+### Patch Changes
+
+- 9b3a053: feat: adds collection to import curl modal
+- d4b17f5: feat: updates request params clear action
+- Updated dependencies [ec44fe1]
+- Updated dependencies [ec44fe1]
+  - @scalar/use-codemirror@0.11.54
+
 ## 2.2.20
 
 ### Patch Changes
