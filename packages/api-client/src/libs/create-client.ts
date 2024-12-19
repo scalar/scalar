@@ -382,7 +382,7 @@ export const createApiClient = ({
       if (!example) return
 
       requestExampleMutators.edit(
-        request.examples[0],
+        request.examples[0] ?? '',
         'body.raw.value',
         prettyPrintJson(example.value),
       )
