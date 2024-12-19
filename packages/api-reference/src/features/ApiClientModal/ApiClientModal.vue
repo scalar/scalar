@@ -2,6 +2,7 @@
 import { getUrlFromServerState, useExampleStore, useServerStore } from '#legacy'
 import type { ClientConfiguration } from '@scalar/api-client/libs'
 import { useWorkspace } from '@scalar/api-client/store'
+import { watchDebounced } from '@vueuse/core'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import { useApiClient } from './useApiClient'
@@ -42,10 +43,11 @@ watch(server, (newServer) => {
 })
 
 // Update the config on change
-watch(
+// We temporarily just debounce this but we should switch to the diff from live sync for updates
+watchDebounced(
   () => configuration,
   (_config) => _config && client.value?.updateConfig(_config),
-  { deep: true },
+  { deep: true, debounce: 300 },
 )
 
 watch(selectedExampleKey, (newKey) => {
