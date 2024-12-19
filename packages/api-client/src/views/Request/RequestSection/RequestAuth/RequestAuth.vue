@@ -13,13 +13,11 @@ import {
   ScalarButton,
   type ScalarButton as ScalarButtonType,
   ScalarComboboxMultiselect,
-  type ScalarComboboxMultiselect as ScalarComboboxMultiselectType,
   ScalarIcon,
   useModal,
 } from '@scalar/components'
 import { type SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -42,7 +40,6 @@ const {
   collectionMutators,
 } = useWorkspace()
 
-const comboboxRef = ref<typeof ScalarComboboxMultiselectType | null>(null)
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
@@ -91,9 +88,6 @@ const selectedAuth = computed(() =>
     })
     .filter(isDefined),
 )
-
-/** A local div to teleport the combobox to */
-const teleportId = `combobox-${nanoid()}`
 
 /** Update the selected auth types */
 function updateSelectedAuth(entries: SecuritySchemeOption[]) {
@@ -205,53 +199,47 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
     class="group/params"
     :itemCount="selectedAuth.length">
     <template #title>
-      <div class="flex flex-1 gap-1 items-center justify-between">
-        {{ title }}
-
+      <div class="inline-flex gap-1 items-center">
+        <span>{{ title }}</span>
         <!-- Authentication indicator -->
-        <div
+        <span
           v-if="authIndicator"
-          class="flex items-center gap-1 text-c-3 text-xs"
+          class="text-c-3 text-xs"
           :class="{ 'text-c-1': authIndicator.text === 'Required' }">
           {{ authIndicator.text }}
-        </div>
-        <!-- Move combobox back inside title but wrap in div that stops propagation -->
-        <div
-          class="ml-auto hover:bg-b-3 rounded"
-          @click.stop>
-          <ScalarComboboxMultiselect
-            ref="comboboxRef"
-            class="text-xs !w-[300px]"
-            :isDeletable="!isReadOnly"
-            :modelValue="selectedAuth"
-            multiple
-            :options="schemeOptions"
-            resize
-            :teleport="`#${teleportId}`"
-            @delete="handleDeleteScheme"
-            @update:modelValue="updateSelectedAuth">
-            <ScalarButton
-              ref="comboboxButtonRef"
-              class="h-auto pl-2 pr-0 py-1 text-c-1 hover:text-c-1 font-normal justify-start -outline-offset-2"
-              fullWidth
-              variant="ghost">
-              <div class="text-c-1">
-                {{
-                  selectedAuth.length === 0
-                    ? 'Auth Type'
-                    : selectedAuth.length === 1
-                      ? selectedAuth[0].label
-                      : 'Multiple'
-                }}
-              </div>
-              <ScalarIcon
-                class="min-w-3 mr-1.5 ml-2"
-                icon="ChevronDown"
-                size="sm" />
-            </ScalarButton>
-          </ScalarComboboxMultiselect>
-          <div :id="teleportId" />
-        </div>
+        </span>
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex flex-1 -mx-1">
+        <ScalarComboboxMultiselect
+          class="text-xs w-72"
+          :isDeletable="!isReadOnly"
+          :modelValue="selectedAuth"
+          multiple
+          :options="schemeOptions"
+          @delete="handleDeleteScheme"
+          @update:modelValue="updateSelectedAuth">
+          <ScalarButton
+            ref="comboboxButtonRef"
+            class="h-auto px-1.5 py-0.75 hover:bg-b-3 text-c-1 hover:text-c-1 font-normal"
+            fullWidth
+            variant="ghost">
+            <div class="text-c-1">
+              {{
+                selectedAuth.length === 0
+                  ? 'Auth Type'
+                  : selectedAuth.length === 1
+                    ? selectedAuth[0].label
+                    : 'Multiple'
+              }}
+            </div>
+            <ScalarIcon
+              class="ml-1 shrink-0"
+              icon="ChevronDown"
+              size="sm" />
+          </ScalarButton>
+        </ScalarComboboxMultiselect>
       </div>
     </template>
     <RequestAuthDataTable
