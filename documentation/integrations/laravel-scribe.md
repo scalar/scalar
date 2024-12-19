@@ -102,4 +102,4 @@ Rad, isn’t it? Congrats, you’ve just set up Laravel Scribe.
 
 Everytime you update your API, you can run `php artisan scribe:generate` to update your OpenAPI file (… and your API reference). Tedious, right? No worries, you can add [`vite-plugin-watch`](https://github.com/lepikhinb/vite-plugin-watch) to your Vite configuration to automate this.
 
-It might be worse to add `php artisan scribe:generate` to your CI, too.
+It might be worth to add `php artisan scribe:generate` to your CI, too.
