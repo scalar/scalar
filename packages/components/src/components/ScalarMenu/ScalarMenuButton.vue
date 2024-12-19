@@ -8,7 +8,7 @@ defineProps<{
 </script>
 <template>
   <ScalarHeaderButton class="gap-0.5 px-2">
-    <div class="size-5">
+    <div class="h-5 w-auto">
       <slot><ScalarIcon icon="Logo" /></slot>
     </div>
     <span class="sr-only">
