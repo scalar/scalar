@@ -13,28 +13,34 @@ import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { id, operation, request, secretCredentials } = defineProps<{
+const props = defineProps<{
   id?: string
-  operation: TransformedOperation
+  operation?: RequestEntity | null
   request: Request | null
   secretCredentials: string[]
 }>()
+
+const title = computed(
+  () => props.operation?.summary || props.operation?.path || '',
+)
 </script>
 <template>
   <Section
+    v-if="operation"
     :id="id"
-    :label="operation.name">
+    :label="title">
     <SectionContent>
-      <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
-      <div :class="operation.information?.deprecated ? 'deprecated' : ''">
+      <Badge v-if="operation.deprecated"> Deprecated </Badge>
+      <div :class="operation.deprecated ? 'deprecated' : ''">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
-            {{ operation.name }}
+            {{ title }}
           </Anchor>
         </SectionHeader>
       </div>
@@ -59,7 +65,7 @@ const { id, operation, request, secretCredentials } = defineProps<{
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="operation.information?.deprecated"
+                    :deprecated="operation.deprecated"
                     :path="operation.path" />
                 </template>
                 <template #footer>
