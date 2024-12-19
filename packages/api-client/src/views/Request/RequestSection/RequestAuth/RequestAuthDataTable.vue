@@ -1,25 +1,8 @@
 <script setup lang="ts">
-import {
-  DataTable,
-  DataTableHeader,
-  DataTableRow,
-} from '@/components/DataTable'
+import { DataTable } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import {
-  ADD_AUTH_OPTIONS,
-  type SecuritySchemeGroup,
-  type SecuritySchemeOption,
-} from '@/views/Request/consts'
 import { displaySchemeFormatter } from '@/views/Request/libs'
-import {
-  type ScalarButton,
-  type ScalarComboboxMultiselect,
-  ScalarIcon,
-  ScalarIconButton,
-  useModal,
-} from '@scalar/components'
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { useModal } from '@scalar/components'
 import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
@@ -31,173 +14,13 @@ const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
   layout?: 'client' | 'reference'
 }>()
 
-const { activeCollection, activeRequest } = useActiveEntities()
-const {
-  collectionMutators,
-  isReadOnly,
-  requestMutators,
-  securitySchemes,
-  securitySchemeMutators,
-} = useWorkspace()
+const { securitySchemes } = useWorkspace()
 
-const comboboxRef = ref<typeof ScalarComboboxMultiselect | null>(null)
-const comboboxButtonRef = ref<typeof ScalarButton | null>(null)
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
 /** A local div to teleport the combobox to (rather than `body` which we don't control) */
 const teleportId = `combobox-${nanoid()}`
-
-/** Security requirements for the request */
-const securityRequirements = computed(() => {
-  const requirements =
-    (layout === 'client'
-      ? (activeRequest.value?.security ?? activeCollection.value?.security)
-      : activeCollection.value?.security) ?? []
-
-  /** Filter out empty objects */
-  const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
-
-  return { filteredRequirements, requirements }
-})
-
-/**
- * Available schemes that can be selected by a requestExample
- *
- * Any utilized auth must have a scheme object at the collection or request level
- * In readonly mode we will use operation level schemes if they are provided
- * Otherwise we only use collection level schemes
- *
- * Currently we just filter out empty object for optional but when we add required security we shall handle it!
- */
-const availableSchemes = computed(() => {
-  // TODO: these are commented out for now until we decide how to handle request level requirements
-  /** With optional ({}) filtered out */
-  // const requestSecurity = activeRequest.value?.security?.filter(
-  //   (s) => Object.keys(s).length,
-  // )
-  // const base =
-  //   isReadOnly.value && requestSecurity?.length
-  //     ? requestSecurity.map((s) => {
-  //         const nameKey = Object.keys(s)[0]
-  //         return (
-  //           Object.values(securitySchemes).find((ss) => ss.nameKey === nameKey)
-  //             ?.uid ?? ''
-  //         )
-  //       })
-  //     : activeCollection.value?.securitySchemes
-
-  const base = activeCollection.value?.securitySchemes
-  return (base ?? []).map((s) => securitySchemes[s]).filter(isDefined)
-})
-
-/** Display formatted options for a user to select from */
-const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
-  () => {
-    const _availableSchemes = [...availableSchemes.value]
-    const requiredSchemes = [] as typeof _availableSchemes
-
-    // Move some availableSchemes into requiredSchemes
-    securityRequirements.value.filteredRequirements.forEach((r) => {
-      const i = _availableSchemes.findIndex(
-        (s) => s.nameKey === Object.keys(r)[0],
-      )
-      if (i > -1 && _availableSchemes[i]) {
-        requiredSchemes.push(_availableSchemes[i])
-        _availableSchemes.splice(i, 1)
-      }
-    })
-
-    const availableFormatted = _availableSchemes.map((s) =>
-      displaySchemeFormatter(s),
-    )
-    const requiredFormatted = requiredSchemes.map((s) =>
-      displaySchemeFormatter(s),
-    )
-
-    const options = [
-      { label: 'Required authentication', options: requiredFormatted },
-      { label: 'Available authentication', options: availableFormatted },
-    ]
-
-    // Read only mode we don't want to add new auth
-    if (isReadOnly)
-      return requiredFormatted.length ? options : availableFormatted
-
-    options.push({
-      label: 'Add new authentication',
-      options: ADD_AUTH_OPTIONS,
-    })
-
-    return options
-  },
-)
-
-/** Ensure to update the correct mutator with the selected scheme UIDs */
-const editSelectedSchemeUids = (uids: string[]) => {
-  if (!activeCollection.value || !activeRequest.value) return
-
-  // Set as selected on the collection for the modal
-  if (isReadOnly) {
-    collectionMutators.edit(
-      activeCollection.value.uid,
-      'selectedSecuritySchemeUids',
-      uids,
-    )
-  }
-  // Set as selected on request
-  else {
-    requestMutators.edit(
-      activeRequest.value.uid,
-      'selectedSecuritySchemeUids',
-      uids,
-    )
-  }
-}
-
-/** Currently selected auth schemes on the collection */
-const selectedAuth = computed(() =>
-  selectedSecuritySchemeUids
-    .map((uid) => {
-      const scheme = securitySchemes[uid ?? '']
-      if (!scheme) return undefined
-      return displaySchemeFormatter(scheme)
-    })
-    .filter(isDefined),
-)
-
-/** Update the selected auth types */
-function updateSelectedAuth(entries: SecuritySchemeOption[]) {
-  if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
-
-  const addNewOption = entries.find((e) => e.payload)
-  const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
-
-  // Adding new auth
-  if (addNewOption?.payload) {
-    // Create new scheme
-    const scheme = securitySchemeMutators.add(
-      addNewOption.payload,
-      activeCollection.value.uid,
-    )
-    if (scheme) _entries.push(scheme.uid)
-  }
-
-  editSelectedSchemeUids(_entries)
-}
-
-/** Remove a single auth type from an example */
-const unselectAuth = (unSelectUid: string) => {
-  editSelectedSchemeUids(
-    selectedSecuritySchemeUids.filter((uid) => uid !== unSelectUid),
-  )
-  comboboxButtonRef.value?.$el.focus()
-}
-
-function handleDeleteScheme(option: { id: string; label: string }) {
-  selectedScheme.value = option
-  deleteSchemeModal.show()
-}
 
 // Add new ref for active tab
 const activeAuthIndex = ref(0)

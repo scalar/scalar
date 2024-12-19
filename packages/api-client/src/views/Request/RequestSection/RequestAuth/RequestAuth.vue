@@ -220,8 +220,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
           @click.stop>
           <ScalarComboboxMultiselect
             ref="comboboxRef"
-            class="text-xs w-full"
-            fullWidth
+            class="text-xs !w-[300px]"
             :isDeletable="!isReadOnly"
             :modelValue="selectedAuth"
             multiple
