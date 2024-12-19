@@ -170,22 +170,6 @@ importers:
         specifier: ^3.6.0
         version: 3.6.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
-  examples/fastify-api-reference:
-    dependencies:
-      '@fastify/swagger':
-        specifier: ^8.10.1
-        version: 8.14.0
-      '@scalar/fastify-api-reference':
-        specifier: workspace:*
-        version: link:../../packages/fastify-api-reference
-      fastify:
-        specifier: ^4.26.2
-        version: 4.28.0
-    devDependencies:
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-
   examples/nestjs-api-reference-express:
     dependencies:
       '@nestjs/common':
@@ -1455,6 +1439,25 @@ importers:
       yaml:
         specifier: ^2.4.5
         version: 2.4.5
+
+  packages/fastify-api-reference/playground:
+    dependencies:
+      '@fastify/swagger':
+        specifier: ^8.10.1
+        version: 8.14.0
+      '@scalar/fastify-api-reference':
+        specifier: workspace:*
+        version: link:..
+      fastify:
+        specifier: ^4.26.2
+        version: 4.28.0
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../build-tooling
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/fetch:
     dependencies:
