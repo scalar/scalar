@@ -6,6 +6,7 @@
  */
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import type { BlockProps } from '@/blocks/types'
+import { ExampleResponses } from '@/features/ExampleResponses'
 
 const props = defineProps<BlockProps>()
 
@@ -14,8 +15,7 @@ const { operation } = useBlockProps(props)
 
 <template>
   <div v-if="operation">
-    <h2 class="font-bold">Example Responses</h2>
-    {{ operation.responses }}
+    <ExampleResponses :operation="operation" />
   </div>
   <div v-else>
     <p>No operation found.</p>
