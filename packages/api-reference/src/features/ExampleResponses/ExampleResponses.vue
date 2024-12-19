@@ -54,7 +54,9 @@ const currentJsonResponse = computed(() => {
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
+    normalizedContent?.['application/xml'] ??
     normalizedContent?.['text/plain'] ??
+    normalizedContent?.['text/html'] ??
     // Swagger 2.0
     currentResponse.value
   )
