@@ -162,7 +162,7 @@ const getReferenceClass = (className = '') =>
             <button
               v-for="(_, key, ind) in scheme?.flows"
               :key="key"
-              class="py-1 text-sm border-b-1/2 border-transparent relative before:absolute before:rounded before:bg-b-3 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium text-c-2"
+              class="py-1 text-sm border-b-1/2 border-transparent relative before:absolute before:rounded before:bg-b-2 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium text-c-3"
               :class="{
                 '!text-c-1 !border-current !rounded-none':
                   layout === 'client' &&
