@@ -164,10 +164,10 @@ const getReferenceClass = (className = '') =>
               :key="key"
               class="py-1 text-sm border-b-1/2 border-transparent relative before:absolute before:rounded before:bg-b-2 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium text-c-3"
               :class="{
-                '!text-c-1 !border-current !rounded-none':
+                '!text-c-1 !border-current border-b-[1px] !rounded-none':
                   layout === 'client' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
-                '!text-c-1 !border-current !rounded-none opacity-100':
+                '!text-c-1 !border-current border-b-[1px] !rounded-none opacity-100':
                   layout === 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
               }"
