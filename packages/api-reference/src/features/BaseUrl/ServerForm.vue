@@ -84,24 +84,20 @@ function updateVariable(name: string, value: string) {
 .server-form-title {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-mini);
-  color: var(--scalar-color-3);
-  text-transform: uppercase;
+  color: var(--scalar-color-1);
+  background: var(--scalar-background-2);
+  padding: 9px 12px;
   display: block;
 }
 .server-form {
-  margin-top: 6px;
 }
 .server-form-container {
-  border-radius: var(--scalar-radius);
-  background: var(--scalar-background-2);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
+  background: var(--scalar-background-1);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
 .description {
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-top: 0;
-  border-bottom-left-radius: var(--scalar-radius);
-  border-bottom-right-radius: var(--scalar-radius);
-  padding: 3px 9px;
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
+  padding: 9px 12px;
   font-size: var(--scalar-small);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color-3);
@@ -110,7 +106,7 @@ function updateVariable(name: string, value: string) {
   font-size: var(--scalar-micro);
   font-weight: var(--scalar-semibold);
   color: var(--scalar-color--1);
-  padding: 4px 0;
+  padding: 0 0;
   display: block;
 }
 .description :deep(.markdown > *:first-child) {
