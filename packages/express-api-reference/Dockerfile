@@ -24,8 +24,8 @@ RUN chown node:node /app
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/packages/express-api-reference /app/packages/express-api-reference
 
-WORKDIR /app/packages/express-api-reference/playground/dist
+WORKDIR /app/packages/express-api-reference/playground
 
 # dumb-init runs as PID 1 and ensures all signals are forwarded
 # to the spawned node process (ensures the server shuts down gracefully)
-CMD ["dumb-init", "node", "index.js"]
+CMD ["dumb-init", "node", "dist/index.js"]
