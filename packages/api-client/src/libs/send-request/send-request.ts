@@ -14,12 +14,12 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import {
+  REGEX,
   canMethodHaveBody,
   concatenateUrlAndPath,
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import { REGEX } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
 

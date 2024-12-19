@@ -5,6 +5,7 @@ import OperationResponses from './OperationResponses.vue'
 import RequestBody from './RequestBody.vue'
 
 defineProps<{
+  // TODO: Do we have webhooks in the store?
   webhook: TransformedOperation
 }>()
 </script>
@@ -16,7 +17,7 @@ defineProps<{
       :requestBody="webhook.information?.requestBody">
       <template #title>Payload</template>
     </RequestBody>
-    <OperationResponses :operation="webhook" />
+    <OperationResponses :responses="webhook.responses" />
   </template>
 </template>
 <style scoped>
