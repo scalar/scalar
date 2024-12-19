@@ -44,8 +44,8 @@ const operationBlock = createOperationBlock({
   // If passed, the block will mount to the element during initialization.
   // element: '#scalar-api-reference',
   store,
-  location: getLocation('GET', '/planets/{planetId}'),
-  // location: getLocation('GET', '/test'),
+  // location: getLocation('GET', '/planets/{planetId}'),
+  location: getLocation('POST', '/planets'),
 })
 
 // Mount it after initialization with just a selector string …
