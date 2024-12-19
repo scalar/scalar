@@ -158,7 +158,7 @@ const getReferenceClass = (className = '') =>
           :class="{
             'border-1/2 border-b-0 rounded-t bg-b-2': layout === 'reference',
           }">
-          <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
+          <div class="text-c-1 flex min-w-[94px] items-center pl-3 pr-0">
             Flow
           </div>
           <div class="flex flex-wrap px-2 items-center gap-1 py-1">

@@ -225,7 +225,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               <!-- Client only -->
               <template v-if="layout === 'client'">
                 <div
-                  class="text-c-1 h-8 flex min-w-[94px] items-center pr-0 pl-2">
+                  class="text-c-1 h-8 flex min-w-[94px] items-center pr-0 pl-3">
                   Auth Type
                 </div>
                 <div
@@ -264,13 +264,13 @@ function handleDeleteScheme(option: { id: string; label: string }) {
               </div>
 
               <ScalarIcon
-                class="min-w-3 mr-2.5"
+                class="min-w-4 mr-3"
                 :class="{
                   'ml-auto': layout === 'client',
                   'ml-1': layout === 'reference',
                 }"
                 icon="ChevronDown"
-                size="xs" />
+                size="sm" />
             </ScalarButton>
           </ScalarComboboxMultiselect>
         </DataTableHeader>
