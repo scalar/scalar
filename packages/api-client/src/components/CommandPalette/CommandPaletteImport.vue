@@ -62,10 +62,10 @@ const { open: openSpecFileDialog } = useFileDialog({
           if (isPostmanCollection(text)) {
             await importSpecFile(
               await convertPostmanToOpenApi(text),
-              activeWorkspace.value.uid,
+              activeWorkspace.value?.uid ?? '',
             )
           } else {
-            await importSpecFile(text, activeWorkspace.value.uid)
+            await importSpecFile(text, activeWorkspace.value?.uid ?? '')
           }
           toast('Import successful', 'info')
           emits('close')
@@ -100,9 +100,9 @@ async function importCollection() {
     if (isInputUrl.value) {
       const [error] = await importSpecFromUrl(
         inputContent.value,
-        activeWorkspace.value.uid,
+        activeWorkspace.value?.uid ?? '',
         {
-          proxyUrl: activeWorkspace.value.proxyUrl,
+          proxyUrl: activeWorkspace.value?.proxyUrl,
           watchMode: watchMode.value,
         },
       )
@@ -120,11 +120,14 @@ async function importCollection() {
       if (isPostmanCollection(inputContent.value)) {
         await importSpecFile(
           await convertPostmanToOpenApi(inputContent.value),
-          activeWorkspace.value.uid,
+          activeWorkspace.value?.uid ?? '',
         )
         toast('Successfully converted Postman collection', 'info')
       } else {
-        await importSpecFile(inputContent.value, activeWorkspace.value.uid)
+        await importSpecFile(
+          inputContent.value,
+          activeWorkspace.value?.uid ?? '',
+        )
       }
     } else {
       toast('Import failed: Invalid URL or OpenAPI document', 'error')

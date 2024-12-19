@@ -41,7 +41,7 @@ export function extendedSecurityDataFactory({
     securitySchemeMutators.add(scheme)
 
     // Add to collection dictionary
-    if (collectionUid) {
+    if (collectionUid && collections[collectionUid]) {
       collectionMutators.edit(collectionUid, 'securitySchemes', [
         ...collections[collectionUid].securitySchemes,
         scheme.uid,
@@ -70,7 +70,7 @@ export function extendedSecurityDataFactory({
         requestMutators.edit(
           r.uid,
           'security',
-          requests[r.uid].security?.filter(
+          requests[r.uid]?.security?.filter(
             (s) => !Object.keys(s).includes(schemeUid),
           ),
         )

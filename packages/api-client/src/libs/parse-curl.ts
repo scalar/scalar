@@ -137,10 +137,12 @@ function parseQueryParameters(url: string) {
     const params = paramsString.split('&')
     params.forEach((param) => {
       const [key, value] = param.split('=')
-      const decodedKey = decodeURIComponent(key.trim())
-      const decodedValue = value ? decodeURIComponent(value.trim()) : ''
+      if (key) {
+        const decodedKey = decodeURIComponent(key.trim())
+        const decodedValue = value ? decodeURIComponent(value.trim()) : ''
 
-      queryParameters.push({ key: decodedKey, value: decodedValue })
+        queryParameters.push({ key: decodedKey, value: decodedValue })
+      }
     })
   }
 
@@ -151,6 +153,9 @@ function parseQueryParameters(url: string) {
 function parseContentType(arg: string, result: any) {
   const header = arg.replace(/['"]/g, '').split(/:(.+)/)
   result.headers = result.headers || {}
+
+  if (!header[0]) return
+
   if (header[1] !== undefined) {
     result.headers[header[0].trim()] = header[1].trim()
   } else {

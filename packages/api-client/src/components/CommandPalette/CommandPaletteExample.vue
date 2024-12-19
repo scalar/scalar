@@ -9,8 +9,9 @@ import {
   ScalarIcon,
 } from '@scalar/components'
 import type { Request } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import CommandActionForm from './CommandActionForm.vue'
@@ -33,7 +34,7 @@ const { requests, requestExampleMutators } = useWorkspace()
 const { toast } = useToasts()
 
 const exampleName = ref('')
-const selectedRequest = ref(
+const selectedRequest = ref<Request | undefined>(
   // Ensure we pre-select the correct request
   requests[props.metaData?.itemUid ?? ''] ?? activeRequest.value,
 )
@@ -47,6 +48,12 @@ const handleSubmit = () => {
     toast('Please enter a name before creating an example.', 'error')
     return
   }
+
+  if (!selectedRequest.value) {
+    toast('Please select a request before creating an example.', 'error')
+    return
+  }
+
   const example = requestExampleMutators.add(
     selectedRequest.value,
     exampleName.value,
@@ -55,13 +62,19 @@ const handleSubmit = () => {
 
   // Route to new request example
   push(
-    `/workspace/${activeWorkspace.value.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
+    `/workspace/${activeWorkspace.value?.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
   )
   emits('close')
 }
+
+/** Requests for the active workspace */
+const visibleRequests = computed<Request[]>(() =>
+  activeWorkspaceRequests.value.map((uid) => requests?.[uid]).filter(isDefined),
+)
 </script>
 <template>
   <CommandActionForm
+    v-if="selectedRequest"
     :disabled="!exampleName.trim()"
     @submit="handleSubmit">
     <CommandActionInput
@@ -89,12 +102,12 @@ const handleSubmit = () => {
         <template #items>
           <div class="max-h-40 custom-scroll">
             <ScalarDropdownItem
-              v-for="uid in activeWorkspaceRequests"
-              :key="uid"
+              v-for="request in visibleRequests"
+              :key="request.uid"
               class="flex h-7 w-full items-center justify-between px-1 pr-[26px]"
-              @click="handleSelect(requests[uid])">
-              {{ requests[uid].summary }}
-              <HttpMethod :method="requests[uid].method" />
+              @click="handleSelect(request)">
+              {{ request.summary }}
+              <HttpMethod :method="request.method" />
             </ScalarDropdownItem>
           </div>
         </template>

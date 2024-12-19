@@ -1,6 +1,7 @@
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -50,7 +51,8 @@ export function useSearch() {
       description: request.description ?? '',
       httpVerb: request.method,
       path: request.path,
-      link: `/workspace/${activeWorkspace.value.uid}/request/${request.uid}`,
+      // TODO: Use router instead
+      link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
     }))
     fuse.setCollection(fuseDataArray.value)
   }
@@ -90,17 +92,23 @@ export function useSearch() {
 
   const selectSearchResult = () => {
     if (selectedSearchResult.value >= 0) {
-      onSearchResultClick(
-        searchResultsWithPlaceholderResults.value[selectedSearchResult.value],
-      )
+      const selectedResult =
+        searchResultsWithPlaceholderResults.value[selectedSearchResult.value]
+      if (selectedResult) {
+        onSearchResultClick(selectedResult)
+      }
     }
   }
+
+  const validRequests = computed(() =>
+    activeWorkspaceRequests.value.map((uid) => requests[uid]).filter(isDefined),
+  )
 
   // Populate our fuseDataArray with the request items
   watch(
     activeWorkspaceRequests,
-    (newRequests) => {
-      populateFuseDataArray(newRequests.map((uid) => requests[uid]))
+    () => {
+      populateFuseDataArray(validRequests.value)
     },
     { immediate: true },
   )

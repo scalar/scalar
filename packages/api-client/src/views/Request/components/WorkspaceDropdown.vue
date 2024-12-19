@@ -22,7 +22,7 @@ const { workspaces, workspaceMutators, events } = useWorkspace()
 const { push } = useRouter()
 
 const updateSelected = (uid: string) => {
-  if (uid === activeWorkspace.value.uid) return
+  if (uid === activeWorkspace.value?.uid) return
 
   push({
     name: 'workspace',
@@ -43,7 +43,10 @@ const editModal = useModal()
 const deleteModal = useModal()
 
 const openRenameModal = (uid: string) => {
-  tempName.value = workspaces[uid].name
+  const workspace = workspaces[uid]
+  if (!workspace) return
+
+  tempName.value = workspace.name
   tempUid.value = uid
   editModal.show()
 }
@@ -58,14 +61,17 @@ const handleWorkspaceEdit = (name: string) => {
 }
 
 const openDeleteModal = (uid: string) => {
-  tempName.value = workspaces[uid].name
+  const workspace = workspaces[uid]
+  if (!workspace) return
+
+  tempName.value = workspace.name
   tempUid.value = uid
   deleteModal.show()
 }
 
 const deleteWorkspace = async () => {
   if (!isLastWorkspace.value) {
-    const deletedActiveWorkspace = activeWorkspace.value.uid === tempUid.value
+    const deletedActiveWorkspace = activeWorkspace.value?.uid === tempUid.value
     const currentWorkspaces = { ...workspaces }
     delete currentWorkspaces[tempUid.value]
 
@@ -98,7 +104,7 @@ const deleteWorkspace = async () => {
           variant="ghost">
           <div class="font-bold m-0 flex gap-1.5 items-center">
             <h2 class="line-clamp-1 text-left">
-              {{ activeWorkspace.name }}
+              {{ activeWorkspace?.name }}
             </h2>
           </div>
         </ScalarButton>
@@ -110,7 +116,7 @@ const deleteWorkspace = async () => {
             :key="uid"
             class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
             @click.stop="updateSelected(uid)">
-            <ScalarListboxCheckbox :selected="activeWorkspace.uid === uid" />
+            <ScalarListboxCheckbox :selected="activeWorkspace?.uid === uid" />
             <span class="text-ellipsis overflow-hidden">{{
               workspace.name
             }}</span>

@@ -16,6 +16,7 @@ import {
   ScalarModal,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -61,19 +62,19 @@ const handleItemDelete = () => {
   if (!activeWorkspaceRequests.value.length) {
     const { request } = createInitialRequest()
     const draftCollection = activeWorkspaceCollections.value.find(
-      (collection) => collection.info?.title === 'Drafts',
+      (collection: Collection) => collection.info?.title === 'Drafts',
     )
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
     }
   }
 
   if (
     activeRouterParams.value[PathId.Request] === props.menuItem.item?.entity.uid
   )
-    replace(`/workspace/${activeWorkspace.value.uid}/request/default`)
+    replace(`/workspace/${activeWorkspace.value?.uid}/request/default`)
 
   if (
     activeRouterParams.value[PathId.Examples] ===
@@ -83,7 +84,7 @@ const handleItemDelete = () => {
 
   if (activeWorkspaceCollections.value[0]) {
     const firstRequest = activeWorkspaceCollections.value[0].requests[0]
-    replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+    replace(`/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`)
   }
 
   deleteModal.hide()

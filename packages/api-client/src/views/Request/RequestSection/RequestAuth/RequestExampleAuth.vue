@@ -34,7 +34,7 @@ const generateLabel = (scheme: SecurityScheme) => {
     const firstFlow = Object.values(scheme.flows ?? {})[0]
 
     return `${capitalize(scheme.nameKey)}: ${
-      activeFlow.value ? activeFlow.value : firstFlow.type
+      activeFlow.value ? activeFlow.value : (firstFlow?.type ?? '')
     }`
   }
 
@@ -67,7 +67,7 @@ const getReferenceClass = (className = '') =>
   <!-- Loop over for multiple auth selection -->
   <template
     v-for="({ scheme }, index) in security"
-    :key="scheme.uid">
+    :key="scheme?.uid">
     <!-- Header -->
     <DataTableRow
       v-if="security.length > 1"
@@ -79,12 +79,12 @@ const getReferenceClass = (className = '') =>
             `bg-b-1 rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
           )
         ">
-        {{ generateLabel(scheme) }}
+        {{ generateLabel(scheme!) }}
       </DataTableCell>
     </DataTableRow>
 
     <!-- HTTP -->
-    <template v-if="scheme.type === 'http'">
+    <template v-if="scheme?.type === 'http'">
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
@@ -98,7 +98,7 @@ const getReferenceClass = (className = '') =>
       </DataTableRow>
 
       <!-- HTTP Basic -->
-      <template v-else-if="scheme.scheme === 'basic'">
+      <template v-else-if="scheme?.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
             class="text-c-2"
@@ -128,7 +128,7 @@ const getReferenceClass = (className = '') =>
     </template>
 
     <!-- API Key -->
-    <template v-else-if="scheme.type === 'apiKey'">
+    <template v-else-if="scheme?.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
           :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
@@ -150,7 +150,7 @@ const getReferenceClass = (className = '') =>
     </template>
 
     <!-- OAuth 2 -->
-    <template v-else-if="scheme.type === 'oauth2'">
+    <template v-else-if="scheme?.type === 'oauth2'">
       <DataTableRow>
         <div
           v-if="Object.keys(scheme.flows).length > 1"
@@ -163,7 +163,7 @@ const getReferenceClass = (className = '') =>
           </div>
           <div class="flex flex-wrap px-2 items-center gap-1 py-1">
             <button
-              v-for="(_, key, ind) in scheme.flows"
+              v-for="(_, key, ind) in scheme?.flows"
               :key="key"
               class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
               :class="{
@@ -182,7 +182,7 @@ const getReferenceClass = (className = '') =>
         </div>
       </DataTableRow>
       <template
-        v-for="(flow, key, ind) in scheme.flows"
+        v-for="(flow, key, ind) in scheme?.flows"
         :key="key">
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"

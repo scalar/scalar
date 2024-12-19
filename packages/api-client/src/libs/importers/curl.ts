@@ -35,7 +35,9 @@ function parseData(data: string): Record<string, any> {
     const result: Record<string, string> = {}
     data.split('&').forEach((pair) => {
       const [key, value] = pair.split('=')
-      result[decodeURIComponent(key)] = decodeURIComponent(value)
+      if (key && value) {
+        result[decodeURIComponent(key)] = decodeURIComponent(value)
+      }
     })
     return result
   }

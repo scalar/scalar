@@ -9,6 +9,7 @@ import { type ComputedRef, computed } from 'vue'
 import { getUrlFromServerState } from '../../../legacy/helpers/getUrlFromServerState'
 
 const { server: serverState } = useServerStore()
+
 /** Builds a request object for the code sniipet, as well as the security credentials to obfuscate */
 export const useRequestExample = ({
   operation,
@@ -23,7 +24,7 @@ export const useRequestExample = ({
   requests: WorkspaceStore['requests']
   requestExamples: WorkspaceStore['requestExamples']
   securitySchemes: WorkspaceStore['securitySchemes']
-  server: ComputedRef<Server>
+  server: ComputedRef<Server | undefined>
 }) => {
   /** Grab a spec request from an operation */
   const request = computed(() =>

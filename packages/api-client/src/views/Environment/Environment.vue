@@ -113,7 +113,7 @@ function handleEnvironmentUpdate(raw: string) {
 
     if (currentEnvironmentId.value === 'default') {
       workspaceMutators.edit(
-        activeWorkspace.value.uid,
+        activeWorkspace.value?.uid ?? '',
         'environments',
         updatedValue,
       )
@@ -126,14 +126,16 @@ function handleEnvironmentUpdate(raw: string) {
           currentEnvironmentId.value ?? ''
         ]
       ) {
-        collection['x-scalar-environments'][
-          currentEnvironmentId.value ?? ''
-        ].variables = updatedValue
-        collectionMutators.edit(
-          collection.uid,
-          'x-scalar-environments',
-          collection['x-scalar-environments'],
-        )
+        const environment =
+          collection['x-scalar-environments'][currentEnvironmentId.value ?? '']
+        if (environment) {
+          environment.variables = updatedValue
+          collectionMutators.edit(
+            collection.uid,
+            'x-scalar-environments',
+            collection['x-scalar-environments'],
+          )
+        }
       }
     }
   }
@@ -198,6 +200,9 @@ function removeCollectionEnvironment(environmentName: string) {
       remainingCollectionEnvironments[
         remainingCollectionEnvironments.length - 1
       ]
+
+    if (!lastCollectionEnvironment) return
+
     const currentCollection = activeWorkspaceCollections.value.find(
       (collection) =>
         Object.keys(collection['x-scalar-environments'] || {}).includes(
@@ -232,7 +237,7 @@ const getEnvironmentName = () => {
 
 const getEnvironmentValue = () => {
   return currentEnvironmentId.value === 'default'
-    ? JSON.stringify(activeWorkspace.value.environments, null, 2)
+    ? JSON.stringify(activeWorkspace.value?.environments, null, 2)
     : JSON.stringify(
         activeWorkspaceCollections.value.find(
           (collection) =>
@@ -326,15 +331,17 @@ function handleRename(newName: string) {
       ) {
         const env =
           collection['x-scalar-environments'][selectedEnvironmentId.value ?? '']
-        delete collection['x-scalar-environments'][
-          selectedEnvironmentId.value ?? ''
-        ]
-        collection['x-scalar-environments'][newName] = env
-        collectionMutators.edit(
-          collection.uid,
-          'x-scalar-environments',
-          collection['x-scalar-environments'],
-        )
+        if (env) {
+          delete collection['x-scalar-environments'][
+            selectedEnvironmentId.value ?? ''
+          ]
+          collection['x-scalar-environments'][newName] = env
+          collectionMutators.edit(
+            collection.uid,
+            'x-scalar-environments',
+            collection['x-scalar-environments'],
+          )
+        }
       }
     })
   }

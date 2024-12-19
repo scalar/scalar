@@ -24,6 +24,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import {
   computed,
@@ -132,7 +133,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
     item.watchMode = !item.watchMode
     const currentCollection = activeWorkspaceCollections.value.find(
-      (collection) => collection.uid === item.entity.uid,
+      (collection: Collection) => collection.uid === item.entity.uid,
     )
     if (currentCollection) {
       currentCollection.watchMode = item.watchMode
@@ -142,14 +143,20 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
 
 watch(
   () =>
-    activeWorkspaceCollections.value.map((collection) => collection.watchMode),
-  (newWatchModes, oldWatchModes) => {
-    newWatchModes.forEach((newWatchMode, index) => {
-      if (!props.isReadonly && newWatchMode !== oldWatchModes[index]) {
-        const currentCollection = activeWorkspaceCollections.value[index]
-        const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
-        toast(message, 'info')
-      }
+    activeWorkspaceCollections.value.map(
+      (collection: Collection) => collection.watchMode,
+    ),
+  (newValues: boolean[], oldValues: boolean[]) => {
+    newValues.forEach((newValue: boolean, index: number) => {
+      if (props.isReadonly) return
+      if (newValue === oldValues[index]) return
+
+      const currentCollection = activeWorkspaceCollections.value[index]
+
+      if (!currentCollection) return
+      const message = `${currentCollection.info?.title}: Watch Mode ${newValue ? 'enabled' : 'disabled'}`
+
+      toast(message, 'info')
     })
   },
 )
@@ -162,12 +169,15 @@ const selectedResultId = computed(() => {
 
 const handleClearDrafts = () => {
   const draftCollection = activeWorkspaceCollections.value.find(
-    (collection) => collection.info?.title === 'Drafts',
+    (collection: Collection) => collection.info?.title === 'Drafts',
   )
 
   if (draftCollection) {
-    draftCollection.requests.forEach((requestUid) => {
-      requestMutators.delete(requests[requestUid], draftCollection.uid)
+    draftCollection.requests.forEach((requestUid: string) => {
+      const request = requests[requestUid]
+      if (request) {
+        requestMutators.delete(request, draftCollection.uid)
+      }
     })
   }
 
@@ -178,14 +188,18 @@ const handleClearDrafts = () => {
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+      // TODO: Use named routes instead
+      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
     }
   } else {
     const firstCollection = activeWorkspaceCollections.value[0]
     const firstRequest = firstCollection?.requests[0]
 
     if (firstRequest) {
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+      // TODO: Use named routes instead
+      replace(
+        `/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`,
+      )
     }
   }
 }

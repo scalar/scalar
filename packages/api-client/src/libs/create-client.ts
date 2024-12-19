@@ -222,13 +222,13 @@ export const createApiClient = ({
    */
   const updateSpec = async (spec: SpecConfiguration) => {
     if (spec?.url) {
-      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
+      await importSpecFromUrl(spec.url, activeWorkspace.value?.uid ?? '', {
         proxyUrl: configuration?.proxyUrl,
         setCollectionSecurity: true,
         ...configuration,
       })
     } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
+      await importSpecFile(spec?.content, activeWorkspace.value?.uid ?? '', {
         setCollectionSecurity: true,
         ...configuration,
       })
@@ -265,7 +265,11 @@ export const createApiClient = ({
         store.serverMutators.reset()
         store.tagMutators.reset()
 
-        workspaceMutators.edit(activeWorkspace.value.uid, 'collections', [])
+        workspaceMutators.edit(
+          activeWorkspace.value?.uid ?? '',
+          'collections',
+          [],
+        )
 
         updateSpec(newConfig.spec)
       }
@@ -377,7 +381,7 @@ export const createApiClient = ({
       if (!example) return
 
       requestExampleMutators.edit(
-        request.examples[0],
+        request.examples[0] ?? '',
         'body.raw.value',
         prettyPrintJson(example.value),
       )

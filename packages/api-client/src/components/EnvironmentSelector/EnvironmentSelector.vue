@@ -20,12 +20,13 @@ const { isReadOnly, collectionMutators } = useWorkspace()
 const router = useRouter()
 
 const updateSelected = (uid: string) => {
-  if (activeCollection.value) {
+  if (activeCollection.value && activeWorkspace.value) {
     collectionMutators.edit(
       activeCollection.value.uid,
       'x-scalar-active-environment',
       uid,
     )
+
     activeWorkspace.value.activeEnvironmentId = uid
   }
 }
@@ -33,7 +34,7 @@ const createNewEnvironment = () =>
   router.push({
     name: 'environment',
     params: {
-      environment: activeWorkspace.value.uid,
+      environment: activeWorkspace.value?.uid,
     },
   })
 
@@ -61,10 +62,10 @@ const availableEnvironments = computed(() => {
 
 const setInitialEnvironment = (collection: Collection) => {
   const activeEnv = collection['x-scalar-active-environment']
-  if (activeEnv && activeCollection.value) {
+  if (activeEnv && activeCollection.value && activeWorkspace.value) {
     activeCollection.value['x-scalar-active-environment'] = activeEnv
     activeWorkspace.value.activeEnvironmentId = activeEnv
-  } else {
+  } else if (activeWorkspace.value) {
     activeWorkspace.value.activeEnvironmentId = ''
   }
 }
@@ -108,7 +109,7 @@ onMounted(() => {
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
-              activeEnvironment.uid === '' &&
+              activeEnvironment?.uid === '' &&
               activeCollection?.['x-scalar-active-environment'] === ''
                 ? 'bg-c-accent text-b-1'
                 : 'group-hover/item:shadow-border text-transparent'

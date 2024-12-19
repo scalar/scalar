@@ -13,7 +13,7 @@ import {
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
+import { isDefined, isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import {
   type Path,
   type PathValue,
@@ -47,6 +47,8 @@ export const combineRenameDiffs = (
     const current = diff[i]
     const next = diff[i + 1]
 
+    if (!current) continue
+
     // Prefix the paths when nested
     if (pathPrefix.length) {
       current.path = [...pathPrefix, ...current.path]
@@ -59,9 +61,11 @@ export const combineRenameDiffs = (
     }
 
     if (current.type === 'REMOVE' && next?.type === 'CREATE') {
-      const [, currPath, currMethod] = current.path as string[]
-      const [, nextPath, nextMethod] = next.path as string[]
-      const nestedPrefix = ['paths', nextPath]
+      const [, currPath, currMethod] = current.path
+      const [, nextPath, nextMethod] = next.path
+      const nestedPrefix = ['paths', nextPath].filter(
+        (p) => typeof p === 'string',
+      )
 
       // Handle path rename
       if (currPath !== nextPath) {
@@ -74,7 +78,12 @@ export const combineRenameDiffs = (
       }
 
       // Handle method rename
-      if (currMethod && nextMethod && currMethod !== nextMethod) {
+      if (
+        currMethod &&
+        typeof nextMethod === 'string' &&
+        currMethod !== nextMethod &&
+        nextPath
+      ) {
         combined.push({
           type: 'CHANGE',
           path: ['paths', nextPath, 'method'],
@@ -129,7 +138,7 @@ export const findResource = <T>(
 ): T | null => {
   for (const uid of arr) {
     const resource = resources[uid]
-    if (condition(resource)) return resource
+    if (resource && condition(resource)) return resource
   }
   return null
 }
@@ -310,7 +319,7 @@ const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
   request?.examples.forEach((exampleUid) => {
     const newExample = createExampleFromRequest(
       request,
-      requestExamples[exampleUid].name,
+      requestExamples[exampleUid]?.name ?? 'Default',
     )
     if (newExample)
       requestExampleMutators.set({
@@ -341,7 +350,7 @@ export const mutateRequestDiff = (
   // Path has changed
   if (path === 'path' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
-      if (requests[uid].path === diff.oldValue) {
+      if (requests[uid]?.path === diff.oldValue) {
         requestMutators.edit(uid, 'path', diff.value)
       }
     })
@@ -350,8 +359,8 @@ export const mutateRequestDiff = (
   else if (method === 'method' && diff.type === 'CHANGE') {
     activeCollection.value.requests.forEach((uid) => {
       if (
-        requests[uid].method === diff.oldValue &&
-        requests[uid].path === path
+        requests[uid]?.method === diff.oldValue &&
+        requests[uid]?.path === path
       ) {
         requestMutators.edit(uid, 'method', diff.value)
       }
@@ -389,7 +398,8 @@ export const mutateRequestDiff = (
   // Add
   else if (diff.type === 'CREATE') {
     // In some cases value goes { method: operation }
-    const [[_method, _operation]] = Object.entries(diff.value)
+    const [firstEntry] = Object.entries(diff.value ?? {})
+    const [_method, _operation] = firstEntry ?? []
 
     const operation: OpenAPIV3_1.OperationObject<{
       tags?: string[]
@@ -421,6 +431,8 @@ export const mutateRequestDiff = (
         // Handle the case of {} for optional
         if (_keys.length) {
           const [key] = Object.keys(s)
+          if (!key) return s
+
           return {
             [key]: s[key],
           }
@@ -478,6 +490,8 @@ export const mutateServerDiff = (
   // Edit: update properties
   if (keys?.length) {
     const serverUid = activeCollection.value.servers[index]
+    if (!serverUid) return false
+
     const server = servers[serverUid]
     const parsed = parseDiff(serverSchema, { ...diff, path: keys })
 
@@ -520,6 +534,8 @@ export const mutateTagDiff = (
 
   if (keys?.length) {
     const tagUid = activeCollection.value.tags[index]
+    if (!tagUid) return false
+
     const tag = tags[tagUid]
     const parsed = parseDiff(tagSchema, { ...diff, path: keys })
 
@@ -530,6 +546,8 @@ export const mutateTagDiff = (
   // Delete whole object
   else if (diff.type === 'REMOVE') {
     const tagUid = activeCollection.value.tags[index]
+    if (!tagUid) return false
+
     const tag = tags[tagUid]
     if (!tag) return false
 
@@ -604,8 +622,12 @@ export const mutateSecuritySchemeDiff = (
   // Edit update properties
   if (keys?.length) {
     // Narrows the schema and path based on type of security scheme
-    const schema = narrowUnionSchema(securitySchemeSchema, 'type', scheme?.type)
-    if (!schema) return false
+    const schema = narrowUnionSchema(
+      securitySchemeSchema,
+      'type',
+      scheme?.type ?? '',
+    )
+    if (!schema || !scheme) return false
     const parsed = parseDiff(schema, { ...diff, path: keys })
     if (!parsed) return false
 

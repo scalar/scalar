@@ -39,10 +39,13 @@ export function extendedCollectionDataFactory({
 }: StoreContext) {
   const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
     const collection = collectionSchema.parse(payload)
-    workspaceMutators.edit(workspaceUid, 'collections', [
-      ...workspaces[workspaceUid].collections,
-      collection.uid,
-    ])
+    const workspace = workspaces[workspaceUid]
+    if (workspace) {
+      workspaceMutators.edit(workspaceUid, 'collections', [
+        ...workspace.collections,
+        collection.uid,
+      ])
+    }
     collectionMutators.add(collection)
 
     return collection

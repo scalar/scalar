@@ -50,20 +50,26 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   const currentParams = params.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
-    updatedParams[rowIdx] = { ...updatedParams[rowIdx], [field]: value }
+    updatedParams[rowIdx] = {
+      ...updatedParams[rowIdx],
+      [field]: value || '',
+      value: updatedParams[rowIdx]?.value || '',
+      key: updatedParams[rowIdx]?.key || '',
+      enabled: updatedParams[rowIdx]?.enabled ?? false,
+    }
 
     /** enable row key or value is filled */
     if (
-      updatedParams[rowIdx].key !== '' ||
-      updatedParams[rowIdx].value !== ''
+      updatedParams[rowIdx]?.key !== '' ||
+      updatedParams[rowIdx]?.value !== ''
     ) {
-      updatedParams[rowIdx].enabled = true
+      updatedParams[rowIdx]!.enabled = true
     }
 
     /** check key and value input state */
     if (
-      updatedParams[rowIdx].key === '' &&
-      updatedParams[rowIdx].value === ''
+      updatedParams[rowIdx]?.key === '' &&
+      updatedParams[rowIdx]?.value === ''
     ) {
       /** remove if empty */
       updatedParams.splice(rowIdx, 1)
@@ -133,7 +139,7 @@ function defaultRow() {
   } else if (params.value.length >= 1) {
     /** ensure we always have a trailing empty row */
     const lastParam = params.value[params.value.length - 1]
-    if (lastParam.key !== '' && lastParam.value !== '') {
+    if (lastParam?.key !== '' && lastParam?.value !== '') {
       addRow()
     }
   }
