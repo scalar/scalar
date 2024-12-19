@@ -17,6 +17,10 @@ const { collectionMutators, requestMutators } = useWorkspace()
 /** Update the currently selected server on the collection or request */
 const updateSelectedServer = (serverUid: string) => {
   if (props.type === 'collection' && activeCollection.value) {
+    // Clear the selected server on the request so that the collection can be updated
+    if (activeRequest.value?.servers?.length) {
+      activeRequest.value.selectedServerUid = ''
+    }
     collectionMutators.edit(
       activeCollection.value.uid,
       'selectedServerUid',
