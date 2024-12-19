@@ -3,7 +3,6 @@ import { DataTable } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import { useModal } from '@scalar/components'
-import { nanoid } from 'nanoid'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
@@ -19,9 +18,6 @@ const { securitySchemes } = useWorkspace()
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
 
-/** A local div to teleport the combobox to (rather than `body` which we don't control) */
-const teleportId = `combobox-${nanoid()}`
-
 // Add new ref for active tab
 const activeAuthIndex = ref(0)
 
@@ -34,22 +30,26 @@ const activeAuth = computed(() => {
   <form>
     <div
       v-if="selectedSecuritySchemeUids.length > 1"
-      class="flex border-t h-8 gap-2.5 px-3 max-w-full overflow-x-auto">
-      <button
+      class="flex gap-y-1 px-1 flex-wrap overflow-hidden">
+      <div
         v-for="(schemeUid, index) in selectedSecuritySchemeUids"
         :key="schemeUid"
-        class="py-1 text-sm relative before:absolute before:rounded before:bg-b-2 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium"
-        :class="[
-          activeAuthIndex === index
-            ? 'text-c-1 border-current border-b-[1px] rounded-none'
-            : 'text-c-3 border-b-[1px] border-transparent',
-        ]"
-        type="button"
-        @click="activeAuthIndex = index">
-        <span class="z-10 relative">{{
-          displaySchemeFormatter(securitySchemes[schemeUid]).label
-        }}</span>
-      </button>
+        class="flex relative h-8 z-1 py-1 px-1.25 cursor-pointer -mb-[var(--scalar-border-width)]"
+        :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
+        <button
+          class="text-sm text-inherit rounded bg-transparent hover:bg-b-2 px-1"
+          type="button"
+          @click="activeAuthIndex = index">
+          <span class="whitespace-nowrap font-medium">{{
+            displaySchemeFormatter(securitySchemes[schemeUid]).label
+          }}</span>
+        </button>
+        <div
+          class="absolute bottom-0 z-0 -inset-x-96 h-[var(--scalar-border-width)] bg-border" />
+        <div
+          v-if="activeAuthIndex === index"
+          class="absolute bottom-[var(--scalar-border-width)] z-1 inset-x-1 h-px bg-current" />
+      </div>
     </div>
 
     <DataTable
@@ -72,7 +72,6 @@ const activeAuth = computed(() => {
       :scheme="selectedScheme"
       :state="deleteSchemeModal"
       @close="deleteSchemeModal.hide()" />
-    <div :id="teleportId" />
   </form>
 </template>
 <style scoped>

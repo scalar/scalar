@@ -32,7 +32,7 @@ withDefaults(
         <ScalarIcon
           v-if="layout !== 'reference'"
           :class="[
-            'text-c-3 group-hover:text-c-1 group-focus-visible:outline ui-open:rotate-90 ui-not-open:rotate-0 rounded-[1px] outline-offset-2',
+            'text-c-3 group-hover:text-c-1 group-focus-visible:outline ui-open:rotate-90 ui-not-open:rotate-0 rounded-px outline-offset-2',
           ]"
           icon="ChevronRight"
           size="md" />
@@ -47,7 +47,6 @@ withDefaults(
           </span>
         </div>
       </DisclosureButton>
-
       <div
         v-if="$slots.actions"
         class="ui-not-open:invisible flex items-center gap-2 pr-2">
