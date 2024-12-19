@@ -49,7 +49,7 @@ export function useBlockProps({ store, location }: BlockProps): {
   operation: ComputedRef<RequestEntity | undefined>
 =======
   store: StoreContext
-  location: string
+  location: `#/paths/${string}/${string}`
   // TODO: Allow to pick a collection
 }
 
@@ -133,10 +133,10 @@ export function useBlockProps(props: BlockProps): {
 
     const firstExampleUid = operation.value.examples?.[0]
     const firstExample = props.store.requestExamples[firstExampleUid]
-    console.log('foo', firstExample)
 
     if (!firstExample) return undefined
 
+    // TODO: Error handling
     const [error, requestOperation] = createRequestOperation({
       request: operation.value,
       example: firstExample,

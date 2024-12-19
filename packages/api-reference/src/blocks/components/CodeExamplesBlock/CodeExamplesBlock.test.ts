@@ -1,104 +1,74 @@
+import { createStore } from '@/blocks/lib/createStore'
+import { getLocation } from '@/blocks/utils/getLocation'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import CodeExamplesBlock from './CodeExamplesBlock.vue'
+import { CodeExamplesBlock } from './index'
 
 describe('CodeExamplesBlock', () => {
-  it('exists', () => {
-    expect(CodeExamplesBlock).toBeDefined()
-  })
-
-  it('renders empty state when no operation found', () => {
-    const wrapper = mount(CodeExamplesBlock, {
-      props: {
-        // @ts-expect-error
-        store: {},
-        location: '#/paths/get/test',
+  it('renders correctly with the given API definition', async () => {
+    const apiDefinition = {
+      openapi: '3.0.0',
+      info: {
+        title: 'Example API',
+        version: '1.0.0',
       },
-    })
-
-    expect(wrapper.text()).toContain('No operation found')
-    expect(wrapper.text()).toContain('location: #/paths/get/test')
-    expect(wrapper.text()).toContain('store: {}')
-  })
-
-  it('renders code examples when operation exists', () => {
-    const mockStore = {
-      collections: {
-        collection1: {
-          requests: ['req1'],
+      servers: [
+        {
+          url: 'https://api.example.com',
         },
-      },
-      requests: {
-        req1: {
-          uid: 'req1',
-          method: 'get',
-          path: 'test',
-        },
-      },
-    }
-
-    const wrapper = mount(CodeExamplesBlock, {
-      props: {
-        // @ts-expect-error
-        store: mockStore,
-        location: '#/paths/get/test',
-      },
-    })
-
-    expect(wrapper.text()).toContain('Code Examples')
-    expect(wrapper.text()).toContain('get')
-    expect(wrapper.text()).toContain('test')
-  })
-
-  it('handles operation with different path/method than location', () => {
-    const mockStore = {
-      collections: {
-        collection1: {
-          requests: ['req1'],
-        },
-      },
-      requests: {
-        req1: {
-          uid: 'req1',
-          method: 'post', // Different method
-          path: 'other', // Different path
+      ],
+      paths: {
+        '/foobar': {
+          get: {
+            summary: 'Get example data',
+            description: 'Returns example data',
+            deprecated: false,
+            operationId: 'getExample',
+            responses: {
+              '200': {
+                description: 'Successful response',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        message: {
+                          type: 'string',
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     }
 
+    const { store } = createStore({
+      content: JSON.stringify(apiDefinition),
+    })
+
     const wrapper = mount(CodeExamplesBlock, {
       props: {
-        // @ts-expect-error
-        store: mockStore,
-        location: '#/paths/get/test',
+        store,
+        location: getLocation('GET', '/foobar'),
       },
     })
 
-    expect(wrapper.text()).toContain('No operation found')
-  })
+    // Wait for the store to be ready
+    await new Promise((resolve) => setTimeout(resolve, 20))
 
-  it('handles store with no collections', () => {
-    const wrapper = mount(CodeExamplesBlock, {
-      props: {
-        // @ts-expect-error
-        store: { requests: {} },
-        location: '#/paths/get/test',
-      },
-    })
+    // header
+    const requestHeader = wrapper.find('.request-header')
+    expect(requestHeader.exists()).toBe(true)
+    expect(requestHeader.text()).toBe('GET/foobar')
 
-    expect(wrapper.text()).toContain('No operation found')
-  })
-
-  it('handles store with no requests', () => {
-    const wrapper = mount(CodeExamplesBlock, {
-      props: {
-        // @ts-expect-error
-        store: { collections: {} },
-        location: '#/paths/get/test',
-      },
-    })
-
-    expect(wrapper.text()).toContain('No operation found')
+    // code
+    const codeblockPre = wrapper.find('.scalar-codeblock-pre')
+    expect(codeblockPre.exists()).toBe(true)
+    expect(codeblockPre.text()).toBe('curl https://api.example.com/foobar')
   })
 })
