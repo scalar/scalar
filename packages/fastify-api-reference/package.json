@@ -23,7 +23,8 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
+    "build:playground": "cd playground && pnpm build",
+    "dev": "cd playground && pnpm dev",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
