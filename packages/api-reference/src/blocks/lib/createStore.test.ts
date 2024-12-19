@@ -23,10 +23,35 @@ describe('createStore', () => {
     )
   })
 
-  it('returns store and add function', () => {
+  it('returns store and add functions', () => {
     const result = createStore({ url: 'https://example.com/openapi.json' })
     expect(result).toHaveProperty('store')
-    expect(result).toHaveProperty('add')
-    expect(typeof result.add).toBe('function')
+    expect(result).toHaveProperty('addUrl')
+    expect(typeof result.addUrl).toBe('function')
+    expect(result).toHaveProperty('addContent')
+    expect(typeof result.addContent).toBe('function')
+  })
+
+  it('accepts content directly', async () => {
+    const content = JSON.stringify({
+      openapi: '3.0.0',
+      info: {
+        title: 'Test API',
+        version: '1.0.0',
+      },
+      paths: {},
+    })
+
+    const result = createStore({ content })
+    expect(result).toHaveProperty('store')
+    expect(result).toHaveProperty('addContent')
+    expect(typeof result.addContent).toBe('function')
+
+    // TODO: Use a hook or something to wait for the store to be ready
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    expect(Object.values(result.store.collections)[0]?.info?.title).toBe(
+      'Test API',
+    )
   })
 })

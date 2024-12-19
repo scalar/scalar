@@ -1,9 +1,9 @@
 import { createWorkspaceStore } from '@scalar/api-client/store'
 import { workspaceSchema } from '@scalar/oas-utils/entities'
 
-export type CreateStoreOptions = {
-  url: string
-}
+export type CreateStoreOptions =
+  | { url: string; content?: never }
+  | { content: string; url?: never }
 
 // TODO: Shouldn’t this be exposed by @scalar/api-client?
 export type StoreContext = ReturnType<typeof createWorkspaceStore>
@@ -13,7 +13,8 @@ export type StoreContext = ReturnType<typeof createWorkspaceStore>
  */
 export type StoreReturn = {
   store: StoreContext
-  add: (url: string) => void
+  addUrl: (url: string) => void
+  addContent: (content: string) => void
 }
 
 /**
@@ -52,9 +53,9 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
   store.workspaceMutators.rawAdd(workspace)
 
   /**
-   * Add an API definition to the store
+   * Add an API definition URL to the store
    */
-  const add = (url: string) => {
+  const addUrl = (url: string) => {
     store.importSpecFromUrl(url, 'default', {
       shouldLoad: true,
       setCollectionSecurity: true,
@@ -62,13 +63,29 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     })
   }
 
+  /**
+   * Add an API definition to the store
+   */
+  const addContent = (content: string) => {
+    store.importSpecFile(content, 'default', {
+      shouldLoad: true,
+      setCollectionSecurity: true,
+    })
+  }
+
   // If an API definition URL is provided, add it to the store
   if (options.url) {
-    add(options.url)
+    addUrl(options.url)
+  }
+
+  // If an API definition content is provided, add it to the store
+  if (options.content) {
+    addContent(options.content)
   }
 
   return {
     store,
-    add,
+    addUrl,
+    addContent,
   }
 }

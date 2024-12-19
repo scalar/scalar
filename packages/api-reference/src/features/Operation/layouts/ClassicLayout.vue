@@ -39,8 +39,6 @@ defineProps<{
   transformedOperation: TransformedOperation
 }>()
 
-const { copyToClipboard } = useClipboard()
-const config = useConfig()
 const props = defineProps<{
   id?: string
   operation?: Operation
@@ -48,6 +46,8 @@ const props = defineProps<{
   secretCredentials?: string[]
 }>()
 
+const { copyToClipboard } = useClipboard()
+const config = useConfig()
 const title = computed(
   () => props.operation?.summary || props.operation?.path || '',
 )

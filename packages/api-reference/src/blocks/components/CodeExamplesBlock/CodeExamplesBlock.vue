@@ -4,8 +4,7 @@
  * It should do the data wrangling and compose other components.
  * It should not have markup or CSS.
  */
-import { useBlockProps } from '@/blocks/hooks/useBlockProps'
-import type { BlockProps } from '@/blocks/types'
+import { type BlockProps, useBlockProps } from '@/blocks/hooks/useBlockProps'
 import OperationPath from '@/components/OperationPath.vue'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { TestRequestButton } from '@/features/TestRequestButton'

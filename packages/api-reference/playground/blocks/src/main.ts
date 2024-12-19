@@ -9,6 +9,26 @@ import '../../../src/blocks/assets/style.css'
 
 const { store } = createStore({
   url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+  // content: JSON.stringify({
+  //   openapi: '3.0.0',
+  //   info: {
+  //     title: 'Test API',
+  //     version: '1.0.0',
+  //   },
+  //   paths: {
+  //     '/test': {
+  //       get: {
+  //         summary: 'Test summary',
+  //         description: 'Test description',
+  //         responses: {
+  //           '200': {
+  //             description: 'OK',
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // }),
 })
 
 // TODO: Support for multiple API definitions
@@ -24,6 +44,7 @@ const operationBlock = createOperationBlock({
   // element: '#scalar-api-reference',
   store,
   location: getLocation('GET', '/planets/{planetId}'),
+  // location: getLocation('GET', '/test'),
 })
 
 // Mount it after initialization with just a selector string …
