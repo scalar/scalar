@@ -52,7 +52,7 @@ function setScope(id: string, checked: boolean) {
         <DisclosureButton
           v-slot="{ open }"
           :class="[
-            'group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto px-3 hover:text-c-1 cursor-pointer',
+            'group/scopes-accordion flex items-center text-left min-h-8 gap-1.5 h-auto pl-3 pr-2 hover:text-c-1 cursor-pointer',
             (flow?.selectedScopes?.length || 0) > 0 ? 'text-c-1' : 'text-c-3',
           ]">
           <div class="flex-1">
@@ -63,11 +63,11 @@ function setScope(id: string, checked: boolean) {
           <ScalarIcon
             class="text-c-3 group-hover/scopes-accordion:text-c-2"
             :icon="open ? 'ChevronDown' : 'ChevronRight'"
-            size="xs" />
+            size="sm" />
         </DisclosureButton>
         <DisclosurePanel as="template">
           <table
-            class="grid auto-rows-auto border-t-1/2"
+            class="grid auto-rows-auto"
             :style="{ gridTemplateColumns: '1fr auto' }">
             <DataTableRow
               v-for="{ id, label, description } in scopes"

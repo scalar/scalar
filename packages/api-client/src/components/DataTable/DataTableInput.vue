@@ -118,7 +118,7 @@ const inputType = computed(() =>
     <slot name="icon" />
     <ScalarIconButton
       v-if="type === 'password'"
-      class="-ml-.5 mr-1 h-6 w-6 self-center p-1.5"
+      class="-ml-.5 mr-0.75 h-6 w-6 self-center p-1.5"
       :icon="mask ? 'Show' : 'Hide'"
       :label="mask ? 'Show Password' : 'Hide Password'"
       @click="mask = !mask" />

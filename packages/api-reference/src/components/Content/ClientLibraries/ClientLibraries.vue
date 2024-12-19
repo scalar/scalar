@@ -39,6 +39,8 @@ const { availableTargets, httpTargetTitle, httpClientTitle } =
   color: var(--scalar-color-1);
   padding: 9px 12px;
   background-color: var(--scalar-background-2);
-  display: block;
+  display: flex;
+  align-items: center;
+  max-height: 32px;
 }
 </style>
