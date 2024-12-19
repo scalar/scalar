@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const isVariable = (part: string) => part.startsWith('{') && part.endsWith('}')
 
-// Split on the path variables
+// Split where there are variables
 const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
 </script>
 <template>
@@ -18,18 +18,28 @@ const pathParts = computed<string[]>(() => props.path.split(/({[^}]+})/))
     <template
       v-for="(part, i) in pathParts"
       :key="i">
-      <em v-if="isVariable(part)">{{ part }}</em>
+      <span
+        v-if="isVariable(part)"
+        class="variable"
+        v-text="part" />
       <template v-else>{{ part }}</template>
     </template>
   </span>
 </template>
+
 <style scoped>
 .operation-path {
   overflow: hidden;
-  word-wrap: break-word;
+  font-family: var(--scalar-font-code);
   font-weight: var(--scalar-semibold);
+  word-wrap: break-word;
   line-break: anywhere;
 }
+
+.variable {
+  color: var(--scalar-color-1);
+}
+
 .deprecated {
   text-decoration: line-through;
 }
