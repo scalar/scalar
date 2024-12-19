@@ -11,7 +11,7 @@ import { type ComputedRef, computed } from 'vue'
 
 export type BlockProps = {
   store: StoreContext
-  location: string
+  location: `#/paths/${string}/${string}`
   // TODO: Allow to pick a collection
 }
 
@@ -61,10 +61,10 @@ export function useBlockProps(props: BlockProps): {
 
     const firstExampleUid = operation.value.examples?.[0]
     const firstExample = props.store.requestExamples[firstExampleUid]
-    console.log('foo', firstExample)
 
     if (!firstExample) return undefined
 
+    // TODO: Error handling
     const [error, requestOperation] = createRequestOperation({
       request: operation.value,
       example: firstExample,
