@@ -1,5 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,8 +42,12 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         content.ReplaceLineEndings().Should().Match(expected);
     }
 
+
 #if CI_RUN
     [Fact]
+#else
+    [Fact(Skip = "Only run on CI")]
+#endif
     public async Task MapScalarApiReference_ShouldReturnStandaloneApiReference_WhenRequested()
     {
         // Arrange
@@ -56,7 +62,6 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var content = await response.Content.ReadAsStringAsync();
         content.ReplaceLineEndings().Should().Contain(expected);
     }
-#endif
 
 
     [Fact]
@@ -81,16 +86,17 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     {
         // Arrange
         const string cdnUrl = "/local-script.js";
+        const string documentName = "v1";
         var client = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services =>
             {
-                services.Configure<ScalarOptions>(options => options.CdnUrl = cdnUrl);
+                services.Configure<ScalarOptions>(documentName, options => options.CdnUrl = cdnUrl);
             });
         }).CreateClient();
 
         // Act
-        var index = await client.GetAsync("/scalar/v1");
+        var index = await client.GetAsync($"/scalar/{documentName}");
         var standalone = await client.GetAsync($"/scalar/{ScalarEndpointRouteBuilderExtensions.ScalarJavaScriptFile}");
 
         // Assert
@@ -110,7 +116,9 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         {
             builder.ConfigureTestServices(services =>
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 services.Configure<ScalarOptions>(options => options.EndpointPathPrefix = "/custom-path/{documentName}");
+#pragma warning restore CS0618 // Type or member is obsolete
             });
         }).CreateClient();
 
@@ -122,14 +130,35 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     }
 
     [Fact]
+    public async Task MapScalarApiReference_ShouldHandleCustomPattern_WhenSpecified()
+    {
+        // Arrange
+        var client = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints => endpoints.MapScalarApiReference("/api-reference/{documentName}"));
+            });
+        }).CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/api-reference/v1");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
     public void MapScalarApiReference_ShouldThrowException_WhenDocumentNameNotSpecified()
     {
         // Arrange
         var tmpFactory = factory.WithWebHostBuilder(builder =>
         {
-            builder.ConfigureTestServices(services =>
+            builder.Configure(options =>
             {
-                services.Configure<ScalarOptions>(options => options.EndpointPathPrefix = "/custom-path");
+                options.UseRouting();
+                options.UseEndpoints(endpoints => endpoints.MapScalarApiReference("/api-reference"));
             });
         });
 
@@ -137,6 +166,6 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var act = () => tmpFactory.CreateClient(); // CreateClient starts the app
 
         // Assert
-        act.Should().Throw<ArgumentException>().WithMessage("'EndpointPathPrefix' must define '{documentName}'.");
+        act.Should().Throw<ArgumentException>().WithMessage("'pattern' must define '{documentName}'.");
     }
 }
