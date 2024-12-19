@@ -6,10 +6,10 @@ import { ref } from 'vue'
 const props = withDefaults(
   defineProps<{
     title?: string
-    showSideBar?: boolean
+    isSidebarOpen?: boolean
   }>(),
   {
-    showSideBar: true,
+    isSidebarOpen: true,
   },
 )
 const { isReadOnly, sidebarWidth, setSidebarWidth } = useWorkspace()
@@ -61,7 +61,7 @@ const startDrag = (event: MouseEvent) => {
 </script>
 <template>
   <aside
-    v-show="props.showSideBar"
+    v-show="props.isSidebarOpen"
     ref="sidebarRef"
     class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit leading-3"
     :class="{ dragging: isDragging }"

@@ -127,6 +127,7 @@ export const createApiClient = ({
       isReadOnly,
       proxyUrl: configuration.proxyUrl,
       themeId: configuration.themeId,
+      showSidebar: configuration.showSidebar,
       hideClientButton: configuration.hideClientButton,
       useLocalStorage: persistData,
     })

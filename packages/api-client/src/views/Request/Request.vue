@@ -41,6 +41,7 @@ const {
   isReadOnly,
   modalState,
   requestHistory,
+  showSidebar,
   securitySchemes,
   requestMutators,
   serverMutators,
@@ -53,7 +54,7 @@ type ExtendedRequestPayload = RequestPayload & {
   url?: string
 }
 
-const showSideBar = ref(!isReadOnly)
+const isSidebarOpen = ref(!isReadOnly)
 const requestAbortController = ref<AbortController>()
 const parsedCurl = ref<ExtendedRequestPayload>()
 const selectedServerUid = ref('')
@@ -64,7 +65,7 @@ const activeHistoryEntry = computed(() =>
 )
 /** Show / hide the sidebar when we resize the screen */
 const { mediaQueries } = useBreakpoints()
-watch(mediaQueries.xl, (isXL) => (showSideBar.value = isXL), {
+watch(mediaQueries.xl, (isXL) => (isSidebarOpen.value = isXL), {
   immediate: layout !== 'modal',
 })
 
@@ -205,10 +206,6 @@ function handleCurlImport(curl: string) {
   parsedCurl.value = importCurlCommand(curl)
   modalState.show()
 }
-function hello(show: boolean) {
-  console.log('hello', show)
-  showSideBar.value = show
-}
 </script>
 <template>
   <div
@@ -218,14 +215,13 @@ function hello(show: boolean) {
     }">
     <div class="flex h-full">
       <RequestSidebar
-        :isReadonly="isReadOnly"
-        :showSidebar="showSideBar"
+        v-if="showSidebar"
+        :isSidebarOpen="isSidebarOpen"
         @newTab="$emit('newTab', $event)"
-        @update:showSidebar="hello" />
+        @update:isSidebarOpen="(val) => (isSidebarOpen = val)" />
       <div class="flex flex-1 flex-col h-full">
         <RequestSubpageHeader
-          v-model="showSideBar"
-          :isReadonly="isReadOnly"
+          v-model="isSidebarOpen"
           @hideModal="() => modalState.hide()"
           @importCurl="handleCurlImport" />
         <ViewLayout>
@@ -233,7 +229,7 @@ function hello(show: boolean) {
           <ViewLayoutContent
             v-if="activeExample"
             class="flex-1"
-            :class="[showSideBar ? 'sidebar-active-hide-layout' : '']">
+            :class="[isSidebarOpen ? 'sidebar-active-hide-layout' : '']">
             <RequestSection
               :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
             <ResponseSection :response="activeHistoryEntry?.response" />

@@ -11,7 +11,6 @@ import { useRouter } from 'vue-router'
 
 defineProps<{
   modelValue: boolean
-  isReadonly: boolean
 }>()
 
 defineEmits<{
@@ -21,9 +20,7 @@ defineEmits<{
 }>()
 
 const { activeCollection } = useActiveEntities()
-const workspaceContext = useWorkspace()
-
-const { hideClientButton } = workspaceContext
+const { isReadOnly, hideClientButton, showSidebar } = useWorkspace()
 
 const { layout } = useLayout()
 const { currentRoute } = useRouter()
@@ -34,7 +31,8 @@ const { currentRoute } = useRouter()
     <div
       class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-2 lg:flex-1 w-6/12">
       <SidebarToggle
-        class="gitbook-hidden ml-1"
+        v-if="showSidebar"
+        class="ml-1"
         :class="[
           { hidden: modelValue },
           { 'xl:!flex': !modelValue },
@@ -45,14 +43,14 @@ const { currentRoute } = useRouter()
         @update:modelValue="$emit('update:modelValue', $event)" />
       <!-- todo: only show this env selectorin modal -->
       <EnvironmentSelector
-        v-if="!isReadonly"
+        v-if="!isReadOnly"
         class="hidden" />
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
       class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-2 lg:flex-1 justify-end w-6/12">
       <OpenApiClientButton
-        v-if="isReadonly && activeCollection?.documentUrl && !hideClientButton"
+        v-if="isReadOnly && activeCollection?.documentUrl && !hideClientButton"
         buttonSource="modal"
         class="!w-fit lg:-mr-1"
         :integration="activeCollection?.integration"
@@ -62,7 +60,7 @@ const { currentRoute } = useRouter()
         :url="activeCollection?.documentUrl" />
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
-        v-if="isReadonly"
+        v-if="isReadOnly"
         class="app-exit-button p-2 rounded-full fixed right-2 top-2 gitbook-hidden"
         type="button"
         @click="$emit('hideModal')">
@@ -74,7 +72,7 @@ const { currentRoute } = useRouter()
       </button>
       <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
       <button
-        v-if="isReadonly"
+        v-if="isReadOnly"
         class="text-c-1 hover:bg-b-2 active:text-c-1 p-2 rounded -mr-1.5 gitbook-show"
         type="button"
         @click="$emit('hideModal')">
