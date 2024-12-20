@@ -201,7 +201,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
         <!-- Authentication indicator -->
         <span
           v-if="authIndicator"
-          class="text-c-3 text-xs"
+          class="text-c-3 text-xs leading-[normal]"
           :class="{ 'text-c-1': authIndicator.text === 'Required' }">
           {{ authIndicator.text }}
         </span>
