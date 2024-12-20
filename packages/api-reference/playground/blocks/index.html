@@ -6,11 +6,61 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0" />
     <title>Scalar Blocks</title>
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <div id="app">
-      <!-- This is where we’ll render our embeds -->
+    <script
+      data-scalar-collection="scalar-galaxy"
+      data-scalar-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
+    <script
+      data-scalar-collection="petstore"
+      data-scalar-url="https://petstore.swagger.io/v2/swagger.json"></script>
+    <script
+      data-scalar-collection="outline"
+      data-scalar-url="https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.json"></script>
+
+    <div class="columns-3 p-4 bg-black">
+      <div class="column">
+        <div class="break-inside-avoid mb-4 flex flex-col gap-4">
+          <div
+            data-scalar-operation
+            data-scalar-collection="scalar-galaxy"
+            data-scalar-location="GET /planets/{planetId}"></div>
+          <div
+            data-scalar-operation
+            data-scalar-collection="scalar-galaxy"
+            data-scalar-location="POST /user/signup"></div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="break-inside-avoid mb-4 flex flex-col gap-4">
+          <div
+            data-scalar-operation
+            data-scalar-collection="petstore"
+            data-scalar-location="GET /pet/{petId}"></div>
+          <div
+            data-scalar-operation
+            data-scalar-collection="petstore"
+            data-scalar-location="POST /pet"></div>
+        </div>
+      </div>
+      <div class="column">
+        <div class="break-inside-avoid mb-4 flex flex-col gap-4">
+          <div
+            data-scalar-operation
+            data-scalar-collection="outline"
+            data-scalar-location="POST /attachments.create"></div>
+          <div
+            data-scalar-operation
+            data-scalar-collection="outline"
+            data-scalar-location="POST /collections.documents"></div>
+        </div>
+      </div>
     </div>
+
+    <!-- <div id="app"> -->
+    <!-- This is where we’ll render our embeds -->
+    <!-- </div> -->
     <script
       type="module"
       src="./src/main.ts"></script>
