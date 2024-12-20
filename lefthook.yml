@@ -10,4 +10,4 @@ pre-commit:
       glob: '*.{js,ts,jsx,tsx,vue}'
       run: 'pnpm eslint {staged_files} --fix && git add {staged_files}'
     cloudbuild:
-      run: 'pnpm scripts:generate-cloudbuild'
+      run: 'pnpm scripts:generate-cloudbuild && git add cloudbuild.json'
