@@ -8,6 +8,7 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -49,20 +50,22 @@ export const createActiveEntitiesStore = ({
   const activeWorkspace = computed(() => {
     const workspace =
       workspaces[activeRouterParams.value[PathId.Workspace]] ??
-      workspaces[Object.keys(workspaces)[0]]
+      workspaces[Object.keys(workspaces)[0] ?? '']
 
     return workspace
   })
 
   /** Ordered list of the active workspace's collections with drafts last */
-  const activeWorkspaceCollections = computed(() =>
-    activeWorkspace.value?.collections
-      .map((uid) => collections[uid])
-      .sort((a, b) => {
-        if (a.info?.title === 'Drafts') return 1
-        if (b.info?.title === 'Drafts') return -1
-        return 0
-      }),
+  const activeWorkspaceCollections = computed(
+    () =>
+      activeWorkspace.value?.collections
+        .map((uid) => collections[uid])
+        .filter(isDefined)
+        .sort((a, b) => {
+          if (a.info?.title === 'Drafts') return 1
+          if (b.info?.title === 'Drafts') return -1
+          return 0
+        }) ?? [],
   )
 
   /** Simplified list of servers in the workspace for displaying */
@@ -73,43 +76,49 @@ export const createActiveEntitiesStore = ({
   )
 
   /** Simplified list of requests in the workspace for displaying */
-  const activeWorkspaceRequests = computed(() =>
-    activeWorkspaceCollections.value?.flatMap(
-      (collection) => collection.requests,
-    ),
+  const activeWorkspaceRequests = computed(
+    () =>
+      activeWorkspaceCollections.value?.flatMap(
+        (collection) => collection.requests,
+      ) ?? [],
   )
 
   /** The currently selected environment */
   const activeEnvironment = computed(() => {
-    if (!activeWorkspace.value.activeEnvironmentId) {
+    if (!activeWorkspace.value?.activeEnvironmentId) {
       return {
         uid: '',
         color: '#0082D0',
         name: 'No Environment',
-        value: JSON.stringify(activeWorkspace.value.environments, null, 2),
+        value: JSON.stringify(activeWorkspace.value?.environments, null, 2),
       }
     }
 
     const activeEnvironmentCollection = activeWorkspaceCollections.value.find(
       (c) =>
-        c['x-scalar-environments']?.[activeWorkspace.value.activeEnvironmentId],
+        c['x-scalar-environments']?.[
+          activeWorkspace.value?.activeEnvironmentId ?? ''
+        ],
     )
 
-    if (activeEnvironmentCollection) {
+    if (
+      activeEnvironmentCollection &&
+      activeWorkspace.value?.activeEnvironmentId
+    ) {
       return {
         uid: activeWorkspace.value.activeEnvironmentId,
         name: activeWorkspace.value.activeEnvironmentId,
         value: JSON.stringify(
           activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value.activeEnvironmentId
-          ].variables,
+            activeWorkspace.value?.activeEnvironmentId
+          ]?.variables,
           null,
           2,
         ),
         color:
           activeEnvironmentCollection['x-scalar-environments']?.[
-            activeWorkspace.value.activeEnvironmentId
-          ].color || '#0082D0',
+            activeWorkspace.value?.activeEnvironmentId
+          ]?.color || '#0082D0',
         isDefault: false,
       }
     }
@@ -131,12 +140,11 @@ export const createActiveEntitiesStore = ({
     const key = activeRouterParams.value[PathId.Request]
 
     // Can use this fallback to get an active request
-    // TODO: Do we really need this? We have to handle undefined anyways
     const collection =
       collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value?.collections[0]]
+      collections[activeWorkspace.value?.collections[0] ?? '']
 
-    return requests[key] || requests[collection?.requests[0]]
+    return requests[key] || requests[collection?.requests[0] ?? '']
   })
 
   /** Grabs the currently active example using the path param */
@@ -162,7 +170,7 @@ export const createActiveEntitiesStore = ({
       )
 
     const fallbackUid =
-      activeWorkspace.value?.collections[0] ?? collections[0]?.uid
+      activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
 
     return collections[fallbackUid]
   })
@@ -171,9 +179,10 @@ export const createActiveEntitiesStore = ({
   const activeServer = computed(
     () =>
       servers[
-        activeRequest.value?.selectedServerUid ||
+        (activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
-          (Object.keys(servers ?? {})[0] ?? '')
+          activeCollection.value?.servers[0]) ??
+          ''
       ],
   )
 
@@ -187,7 +196,7 @@ export const createActiveEntitiesStore = ({
    * will be populated into the environment on spec loading
    */
   const activeEnvVariables = computed<EnvVariable[]>(() => {
-    const globalEnvironment = activeWorkspace.value.environments
+    const globalEnvironment = activeWorkspace.value?.environments ?? {}
     const collectionEnvironment = activeEnvironment.value.uid
       ? JSON.parse(activeEnvironment.value.value)
       : {}

@@ -31,7 +31,7 @@ const { activate: activateFocusTrap, deactivate: deactivateFocusTrap } =
 
 /** Handles the hotkey events as well as custom config */
 const handleKeyDown = (ev: KeyboardEvent) =>
-  handleHotKeyDown(ev, events.hotKeys, activeWorkspace.value.hotKeyConfig)
+  handleHotKeyDown(ev, events.hotKeys, activeWorkspace.value?.hotKeyConfig)
 
 watch(
   () => modalState.open,

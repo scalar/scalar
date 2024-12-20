@@ -31,6 +31,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
   const parameters = activeExample.value.parameters[props.paramKey]
   const oldKey = parameters[rowIdx]?.key
+  if (!oldKey) return
 
   /** Change variable in path as well */
   if (field === 'key') {
@@ -105,7 +106,7 @@ const handlePathVariableUpdate = (url: string) => {
 watch(
   () => activeRequest.value,
   (newURL) => {
-    if (newURL) {
+    if (newURL && activeServer.value?.url) {
       handlePathVariableUpdate(activeServer.value?.url)
     }
   },
@@ -114,7 +115,7 @@ watch(
 watch(
   () => activeServer.value?.url,
   (newServerUrl, oldServerUrl) => {
-    if (newServerUrl !== oldServerUrl) {
+    if (newServerUrl && newServerUrl !== oldServerUrl) {
       handlePathVariableUpdate(newServerUrl)
     }
   },

@@ -265,7 +265,9 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="showDropdown && props.withVariables && !isReadOnly"
+    v-if="
+      showDropdown && props.withVariables && !isReadOnly && activeEnvironment
+    "
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :envVariables="activeEnvVariables"

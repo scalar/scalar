@@ -62,6 +62,8 @@ export function extendedServerDataFactory({
 
   /** Delete a server */
   const deleteServer = (serverUid: string, collectionUid: string) => {
+    if (!collections[collectionUid]) return
+
     // Remove from parent collection
     collectionMutators.edit(
       collectionUid,

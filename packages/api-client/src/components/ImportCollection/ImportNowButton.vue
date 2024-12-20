@@ -29,9 +29,9 @@ async function importCollection() {
       if (isUrl(props.source)) {
         const [error, collection] = await importSpecFromUrl(
           props.source,
-          activeWorkspace.value.uid,
+          activeWorkspace.value?.uid ?? '',
           {
-            proxyUrl: activeWorkspace.value.proxyUrl,
+            proxyUrl: activeWorkspace.value?.proxyUrl,
             watchMode: props.watchMode,
           },
         )
@@ -39,7 +39,7 @@ async function importCollection() {
       } else {
         const collection = await importSpecFile(
           props.source,
-          activeWorkspace.value.uid,
+          activeWorkspace.value?.uid ?? '',
         )
         redirectToFirstRequestInCollection(collection)
       }
@@ -63,7 +63,7 @@ function redirectToFirstRequestInCollection(collection?: Collection) {
   router.push({
     name: 'request',
     params: {
-      workspace: activeWorkspace.value.uid,
+      workspace: activeWorkspace.value?.uid,
       request: collection?.requests[0],
     },
   })

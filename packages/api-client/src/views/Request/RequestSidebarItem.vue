@@ -90,8 +90,10 @@ const item = computed<SidebarItem>(() => {
         collectionMutators.edit(collection.uid, 'info.title', name)
         if (icon) collectionMutators.edit(collection.uid, 'x-scalar-icon', icon)
       },
-      delete: () =>
-        collectionMutators.delete(collection, activeWorkspace.value),
+      delete: () => {
+        if (activeWorkspace.value)
+          collectionMutators.delete(collection, activeWorkspace.value)
+      },
     }
 
   if (tag)
@@ -103,7 +105,9 @@ const item = computed<SidebarItem>(() => {
       warning:
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
-      delete: () => tagMutators.delete(tag, props.parentUids[0]),
+      delete: () => {
+        if (props.parentUids[0]) tagMutators.delete(tag, props.parentUids[0])
+      },
     }
 
   if (request)
@@ -112,7 +116,7 @@ const item = computed<SidebarItem>(() => {
       link: {
         name: 'request',
         params: {
-          workspace: activeWorkspace.value.uid,
+          workspace: activeWorkspace.value?.uid,
           request: request.uid,
         },
       },
@@ -123,29 +127,47 @@ const item = computed<SidebarItem>(() => {
       children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
-      delete: () => requestMutators.delete(request, props.parentUids[0]),
+      delete: () => {
+        if (props.parentUids[0]) {
+          requestMutators.delete(request, props.parentUids[0])
+        }
+      },
     }
 
-  return {
-    title: requestExample.name,
-    link: {
-      name: 'request.examples',
-      params: {
-        workspace: activeWorkspace.value.uid,
-        request: requestExample.requestUid,
-        examples: requestExample.uid,
+  if (requestExample)
+    return {
+      title: requestExample.name,
+      link: {
+        name: 'request.examples',
+        params: {
+          workspace: activeWorkspace.value?.uid,
+          request: requestExample.requestUid,
+          examples: requestExample.uid,
+        },
       },
+      method: requests[requestExample.requestUid]?.method,
+      entity: requestExample,
+      resourceTitle: 'Example',
+      warning:
+        'This cannot be undone. You’re about to delete the example from the request.',
+      children: [],
+      edit: (name: string) =>
+        requestExampleMutators.edit(requestExample.uid, 'name', name),
+      delete: () => requestExampleMutators.delete(requestExample),
+    }
+
+  // Catch all item which we should never see
+  return {
+    title: 'Unknown',
+    entity: {
+      uid: '',
+      type: 'unknown',
     },
-    method: requests[requestExample.requestUid]?.method,
-    entity: requestExample,
-    resourceTitle: 'Example',
-    warning:
-      'This cannot be undone. You’re about to delete the example from the request.',
+    resourceTitle: 'Unknown',
     children: [],
-    edit: (name: string) =>
-      requestExampleMutators.edit(requestExample.uid, 'name', name),
-    delete: () => requestExampleMutators.delete(requestExample),
-  }
+    edit: () => {},
+    delete: () => {},
+  } satisfies SidebarItem
 })
 
 /** Checks to see if it is a draft collection with the title of Drafts */

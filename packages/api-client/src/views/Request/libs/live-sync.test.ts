@@ -787,7 +787,7 @@ describe('mutateServerDiff', () => {
     const diff: Difference = {
       type: 'REMOVE',
       path: ['servers', 2, 'variables'],
-      oldValue: mockServers.server3.variables,
+      oldValue: mockServers.server3?.variables,
     }
 
     const result = mutateServerDiff(diff, mockActiveEntities, mockStore)
@@ -1349,7 +1349,7 @@ describe('mutateRequestDiff', () => {
       'request1uid',
       'parameters',
       [
-        ...(mockRequests.request1uid.parameters ?? []),
+        ...(mockRequests.request1uid?.parameters ?? []),
         {
           name: 'highroller',
           in: 'query',
@@ -1380,8 +1380,8 @@ describe('mutateRequestDiff', () => {
     expect(mockStore.requestMutators.edit).toHaveBeenCalledWith(
       'request1uid',
       'parameters',
-      mockRequests.request1uid.parameters?.filter(
-        (_, i) => i !== mockRequests.request1uid.parameters!.length - 1,
+      mockRequests.request1uid?.parameters?.filter(
+        (_, i) => i !== (mockRequests.request1uid?.parameters?.length ?? 0) - 1,
       ),
     )
   })

@@ -23,7 +23,7 @@ const { toast } = useToasts()
 const workspaceName = ref('')
 
 const updateSelected = (uid: string) => {
-  if (uid === activeWorkspace.value.uid) return
+  if (uid === activeWorkspace.value?.uid) return
 
   push({
     name: 'workspace',
@@ -65,7 +65,7 @@ const handleCreateWorkspace = () => {
         variant="ghost">
         <div class="font-medium m-0 text-sm flex gap-1 items-center">
           <h2 class="line-clamp-1 text-left w-[calc(100%-10px)] text-xs">
-            {{ activeWorkspace.name }}
+            {{ activeWorkspace?.name }}
           </h2>
           <ScalarIcon
             icon="ChevronDown"
@@ -83,7 +83,7 @@ const handleCreateWorkspace = () => {
           <div
             class="flex items-center justify-center rounded-full p-[3px] w-4 h-4"
             :class="
-              activeWorkspace.uid === uid
+              activeWorkspace?.uid === uid
                 ? 'bg-c-accent text-b-1'
                 : 'group-hover/item:shadow-border text-transparent'
             ">

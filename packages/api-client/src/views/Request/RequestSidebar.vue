@@ -142,6 +142,8 @@ watch(
     newWatchModes.forEach((newWatchMode, index) => {
       if (!isReadOnly && newWatchMode !== oldWatchModes[index]) {
         const currentCollection = activeWorkspaceCollections.value[index]
+        if (!currentCollection) return
+
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
         toast(message, 'info')
       }
@@ -162,7 +164,9 @@ const handleClearDrafts = () => {
 
   if (draftCollection) {
     draftCollection.requests.forEach((requestUid) => {
-      requestMutators.delete(requests[requestUid], draftCollection.uid)
+      if (requests[requestUid]) {
+        requestMutators.delete(requests[requestUid], draftCollection.uid)
+      }
     })
   }
 
@@ -173,14 +177,18 @@ const handleClearDrafts = () => {
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${request.uid}`)
+      // TODO: Use named routes instead
+      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
     }
   } else {
     const firstCollection = activeWorkspaceCollections.value[0]
     const firstRequest = firstCollection?.requests[0]
 
     if (firstRequest) {
-      replace(`/workspace/${activeWorkspace.value.uid}/request/${firstRequest}`)
+      // TODO: Use named routes instead
+      replace(
+        `/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`,
+      )
     }
   }
 }

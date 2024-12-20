@@ -40,7 +40,7 @@ export function extendedTagDataFactory({
   const addTag = (payload: TagPayload, collectionUid: string) => {
     const collection = collections[collectionUid]
     const tag = schemaModel(payload, tagSchema, false)
-    if (!tag) return console.error('INVALID TAG DATA', payload)
+    if (!tag || !collection) return console.error('INVALID TAG DATA', payload)
 
     // Add to collection tags
     collectionMutators.edit(collectionUid, 'tags', [
@@ -62,6 +62,8 @@ export function extendedTagDataFactory({
   const deleteTag = (tag: Tag, collectionUid: string) => {
     const collection = collections[collectionUid]
 
+    if (!collection) return
+
     // Remove from collection tags
     collectionMutators.edit(
       collectionUid,
@@ -79,6 +81,8 @@ export function extendedTagDataFactory({
     // Loop on each child, just requests for now but will add other tags
     tag.children.forEach((childUid) => {
       const request = requests[childUid]
+      if (!request) return
+
       const filteredTags = request.tags?.filter(
         (tagName) => tagName !== tag.name,
       )

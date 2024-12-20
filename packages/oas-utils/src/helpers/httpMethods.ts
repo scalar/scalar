@@ -82,5 +82,7 @@ export const getHttpMethodInfo = (methodName: string) => {
 }
 
 /** Type guard which takes in a string and returns true if it is in fact an HTTPMethod */
-export const isHttpMethod = (method: string): method is RequestMethod =>
-  requestMethods.includes(method as RequestMethod)
+export const isHttpMethod = (
+  method?: string | undefined,
+): method is RequestMethod =>
+  method ? requestMethods.includes(method as RequestMethod) : false
