@@ -3,21 +3,11 @@ name: CI
 # This workflow runs on:
 # 1. Push events to the main branch
 # 2. Pull request events
-#
-# We explicitly ignore the 'changeset-release/main' branch in both cases
-# because this branch is created by our release workflow.
-#
-# Note: GitHub Actions doesn’t run workflows triggered by bot accounts.
-# We keep the ignore rule for clarity, but the bot’s PR would be skipped anyway.
-#
-# ⚠️ That could become a problem if we filter for specific files in the trigger.
 on:
   push:
     branches:
       - main
   pull_request:
-    branches-ignore:
-      - changeset-release/main
 
 jobs:
   harden_security:
