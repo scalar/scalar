@@ -3,7 +3,7 @@ import fs from 'node:fs/promises'
 /**
  * Generate the appropriate cloudbuild.json file
  * https://cloud.google.com/build/docs/build-config-file-schema#json
- * @param {string} inputPath - The path to the serviceEnv.json file
+ * @param {string} inputPath - The path to the environment variables file
  * @param {string} outputPath - The path to the output cloudbuild.json file
  */
 export default async function generateCloudBuild(
@@ -115,4 +115,4 @@ export default async function generateCloudBuild(
   )
 }
 
-generateCloudBuild()
+await generateCloudBuild()
