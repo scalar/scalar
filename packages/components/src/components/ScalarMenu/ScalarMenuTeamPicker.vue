@@ -36,7 +36,7 @@ const { cx } = useBindCx()
       <ScalarButton
         class="h-auto px-2.5 py-1 text-xs leading shadow-none"
         variant="outlined">
-        {{ team?.label }}
+        <div class="truncate">{{ team?.label }}</div>
         <ScalarIcon
           class="ml-auto text-c-2"
           icon="ChevronDown"

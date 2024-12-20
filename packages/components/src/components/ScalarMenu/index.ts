@@ -1,4 +1,5 @@
 export { default as ScalarMenu } from './ScalarMenu.vue'
+export { default as ScalarMenuButton } from './ScalarMenuButton.vue'
 export { default as ScalarMenuSection } from './ScalarMenuSection.vue'
 export { default as ScalarMenuLink } from './ScalarMenuLink.vue'
 export { default as ScalarMenuProduct } from './ScalarMenuProduct.vue'
