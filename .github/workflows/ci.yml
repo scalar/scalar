@@ -15,8 +15,6 @@ on:
   push:
     branches:
       - main
-    branches-ignore:
-      - changeset-release/main
   pull_request:
     branches-ignore:
       - changeset-release/main
