@@ -42,15 +42,24 @@ app.UseStaticFiles();
 
 app.MapOpenApi();
 
-app.MapScalarApiReference(options =>
-{
+Action<ScalarOptions> configureOptions = options => 
     options
         .WithCdnUrl("https://cdn.jsdelivr.net/npm/@scalar/api-reference")
-        .WithTheme(ScalarTheme.Mars)
         .WithFavicon("/favicon.png")
         .WithPreferredScheme(AuthConstants.ApiKey)
         .WithApiKeyAuthentication(x => x.Token = "my-api-key")
         .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+
+app.MapScalarApiReference(options =>
+{
+    configureOptions(options);
+    options.WithTheme(ScalarTheme.Mars);
+});
+
+app.MapScalarApiReference("/reference/{documentName}", options =>
+{
+    configureOptions(options);
+    options.WithTheme(ScalarTheme.Purple);
 });
 
 app.MapBookEndpoints();
