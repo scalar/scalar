@@ -6,19 +6,16 @@ import type { OpenAPI } from '@scalar/openapi-types'
  * Encodes a location string with paths
  *
  * @example
- * getLocation('GET', '/planets/1')
+ * getLocation(['paths', 'get', '/planets/{foo}'])
  *
- * '#/paths/get/~1planets~1{foo}'
+ * '#/paths/~1planets~1{foo}/get'
  */
-export function getLocation(
-  method: Lowercase<OpenAPI.HttpMethods> | Uppercase<OpenAPI.HttpMethods>,
-  path: string,
-): `#/paths/${string}/${string}` {
-  if (!path.trim()) {
-    throw new Error(ERRORS.EMPTY_PATH)
-  }
-
-  const escapedJsonPath = escapeJsonPointer(path)
-
-  return `#/paths/${escapedJsonPath}/${method.toLowerCase()}`
+export function getLocation(path: string[]) {
+  return [
+    '#',
+    ...path
+      .map((p) => p.trim())
+      .filter(Boolean)
+      .map(escapeJsonPointer),
+  ].join('/') as `#/${string}`
 }
