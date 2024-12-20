@@ -267,6 +267,7 @@ watch(
       setCollectionSecurity: true,
       ...props.configuration,
     }),
+  { immediate: true },
 )
 
 provide(WORKSPACE_SYMBOL, workspaceStore)
