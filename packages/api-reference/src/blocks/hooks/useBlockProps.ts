@@ -32,6 +32,7 @@ export type BlockProps = {
 
 /** TODO: Write comment */
 export function useBlockProps(props: BlockProps): {
+  schema: ComputedRef<any>
   collection: ComputedRef<Collection | undefined>
   server: ComputedRef<Server | undefined>
   operation: ComputedRef<RequestEntity | undefined>
@@ -56,6 +57,7 @@ export function useBlockProps(props: BlockProps): {
 
     // TODO: Fix this for pointers other than #/paths/path/get
     const result = collectionRequests.find((request) => {
+      // TODO: This is not very reliable
       const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
       const specifiedMethod = props.location.split('/')[3]
 
@@ -112,7 +114,16 @@ export function useBlockProps(props: BlockProps): {
     return Object.values(props.store.workspaces)[0].themeId
   })
 
+  const schema = computed(() => {
+    // TODO: This is not very reliable
+    const schemaName = props.location.split('/')[3]
+
+    // @ts-expect-error TODO: Fix this
+    return collection.value?.components?.schemas?.[schemaName]
+  })
+
   return {
+    schema,
     collection,
     server,
     operation,
