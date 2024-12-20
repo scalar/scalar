@@ -1,16 +1,16 @@
-import { OperationBlock } from '@/blocks/components/OperationBlock'
+import { CodeExamplesBlock } from '@/blocks/components/CodeExamplesBlock'
 import { type CreateBlockOptions, createBlock } from '@/blocks/lib/createBlock'
 
 /**
- * Creates a operation embed
+ * Creates a new code examples embed
  *
  * @example
- * createOperationBlock({
+ * createCodeExampleBlock({
  *   element: document.getElementById('scalar-api-reference'),
  *   store: createStore({ url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json' }),
  *   location: getLocation(['paths', '/planets/1', 'get'])
  * })
  */
-export function createOperationBlock(options: CreateBlockOptions) {
-  return createBlock(OperationBlock, options)
+export function createCodeExamplesBlock(options: CreateBlockOptions) {
+  return createBlock(CodeExamplesBlock, options)
 }

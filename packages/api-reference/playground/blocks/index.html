@@ -9,49 +9,53 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    <script
-      data-scalar-collection="scalar-galaxy"
-      data-scalar-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
-    <script
-      data-scalar-collection="petstore"
-      data-scalar-url="https://petstore.swagger.io/v2/swagger.json"></script>
-    <script
-      data-scalar-collection="outline"
-      data-scalar-url="https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.json"></script>
-
     <div class="columns-3 p-4 bg-black">
       <div class="column">
         <div class="break-inside-avoid mb-4 flex flex-col gap-4">
-          <div
-            data-scalar-operation
+          <script
+            data-scalar-collection="scalar-galaxy"
+            data-scalar-url="https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json"></script>
+          <!-- <div
+            data-scalar-block="operation"
             data-scalar-collection="scalar-galaxy"
             data-scalar-location="get /planets/{planetId}"></div>
           <div
-            data-scalar-operation
+            data-scalar-block="operation"
             data-scalar-collection="scalar-galaxy"
-            data-scalar-location="post /user/signup"></div>
+            data-scalar-location="post /user/signup"></div> -->
+          me:
+          <div
+            data-scalar-block="code-examples"
+            data-scalar-collection="scalar-galaxy"
+            data-scalar-location="get /me"></div>
         </div>
       </div>
       <div class="column">
         <div class="break-inside-avoid mb-4 flex flex-col gap-4">
+          <script
+            data-scalar-collection="petstore"
+            data-scalar-url="https://petstore.swagger.io/v2/swagger.json"></script>
           <div
-            data-scalar-operation
+            data-scalar-block="operation"
             data-scalar-collection="petstore"
             data-scalar-location="get /pet/{petId}"></div>
           <div
-            data-scalar-operation
+            data-scalar-block="operation"
             data-scalar-collection="petstore"
             data-scalar-location="post /pet"></div>
         </div>
       </div>
       <div class="column">
         <div class="break-inside-avoid mb-4 flex flex-col gap-4">
+          <script
+            data-scalar-collection="outline"
+            data-scalar-url="https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.json"></script>
           <div
-            data-scalar-operation
+            data-scalar-block="operation"
             data-scalar-collection="outline"
             data-scalar-location="post /attachments.create"></div>
           <div
-            data-scalar-operation
+            data-scalar-block="operation"
             data-scalar-collection="outline"
             data-scalar-location="post /collections.documents"></div>
         </div>
