@@ -3,7 +3,7 @@ import { DataTable } from '@/components/DataTable'
 import { useWorkspace } from '@/store'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import { useModal } from '@scalar/components'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
@@ -25,6 +25,15 @@ const activeAuthIndex = ref(0)
 const activeAuth = computed(() => {
   return selectedSecuritySchemeUids[activeAuthIndex.value] || null
 })
+
+watch(
+  () => selectedSecuritySchemeUids,
+  (newUids) => {
+    if (!newUids[activeAuthIndex.value]) {
+      activeAuthIndex.value = Math.max(0, activeAuthIndex.value - 1)
+    }
+  },
+)
 </script>
 <template>
   <form>
