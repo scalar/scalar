@@ -25,6 +25,8 @@
     "build": "scalar-build-vite",
     "build:playground": "cd playground && pnpm build",
     "dev": "cd playground && pnpm dev",
+    "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t fastify-api-reference -f Dockerfile .",
+    "docker:run": "docker run -p 5053:5053 fastify-api-reference",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
