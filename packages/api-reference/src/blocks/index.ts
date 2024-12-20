@@ -1,6 +1,7 @@
 export * from './lib/createBlock'
-export * from './lib/createOperationBlock'
 export * from './lib/createCodeExamplesBlock'
+export * from './lib/createOperationBlock'
+export * from './lib/createSchemaBlock'
 export * from './lib/createStore'
 
 export * from './components/OperationBlock'

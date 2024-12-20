@@ -1,6 +1,7 @@
 import {
   createCodeExamplesBlock,
   createOperationBlock,
+  createSchemaBlock,
   createStore,
   getLocation,
 } from '../../../src/blocks'
@@ -59,6 +60,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Mount the code example block to the div
           codeExampleBlock.mount(div)
+        } else if (block === 'schema') {
+          const schemaBlock = createSchemaBlock({
+            store,
+            location: locationValue,
+            collection: collectionName,
+          })
+
+          schemaBlock.mount(div)
         } else {
           console.error(`Unknown block type: data-scalar-block="${block}"`)
         }

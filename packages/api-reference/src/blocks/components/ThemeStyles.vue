@@ -1,4 +1,7 @@
 <script lang="ts" setup>
+/**
+ * TODO: This should put the styles in the head of the document?
+ */
 import { type ThemeId, getThemeStyles } from '@scalar/themes'
 import { computed } from 'vue'
 
