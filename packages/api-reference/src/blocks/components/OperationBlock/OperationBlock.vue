@@ -18,13 +18,11 @@ const { operation, theme } = useBlockProps(props)
 
 <template>
   <ThemeStyles :theme="theme" />
-  <div class="p-6">
-    <div class="flex flex-col gap-4">
-      <div class="border rounded p-4">
-        <OperationDetails :operation="operation" />
-      </div>
-      <CodeExamplesBlock v-bind="$props" />
-      <ExampleResponsesBlock v-bind="$props" />
+  <div class="flex flex-col gap-2">
+    <div class="border rounded-xl p-4 bg-white">
+      <OperationDetails :operation="operation" />
     </div>
+    <CodeExamplesBlock v-bind="$props" />
+    <ExampleResponsesBlock v-bind="$props" />
   </div>
 </template>
