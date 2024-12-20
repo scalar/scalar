@@ -142,6 +142,8 @@ watch(
     newWatchModes.forEach((newWatchMode, index) => {
       if (!isReadOnly && newWatchMode !== oldWatchModes[index]) {
         const currentCollection = activeWorkspaceCollections.value[index]
+        if (!currentCollection) return
+
         const message = `${currentCollection.info?.title}: Watch Mode ${newWatchMode ? 'enabled' : 'disabled'}`
         toast(message, 'info')
       }
@@ -162,7 +164,9 @@ const handleClearDrafts = () => {
 
   if (draftCollection) {
     draftCollection.requests.forEach((requestUid) => {
-      requestMutators.delete(requests[requestUid], draftCollection.uid)
+      if (requests[requestUid]) {
+        requestMutators.delete(requests[requestUid], draftCollection.uid)
+      }
     })
   }
 
