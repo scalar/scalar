@@ -15,12 +15,12 @@ export type AddCollectionOptions =
   | {
       url: string
       content?: never
-      name: string
+      name?: string
     }
   | {
       url?: never
       content: string
-      name: string
+      name?: string
     }
 
 // TODO: Shouldn’t this be exposed by @scalar/api-client?
@@ -57,12 +57,6 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
   })
 
   // Create an empty workspace in the store
-  // store.workspaceMutators.add({
-  //   uid: 'default',
-  //   name: 'Workspace',
-  //   proxyUrl: 'https://proxy.scalar.com',
-  // })
-
   const workspace = workspaceSchema.parse({
     uid: 'default',
     name: 'Workspace',
