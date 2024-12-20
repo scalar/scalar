@@ -1,5 +1,15 @@
 # @scalar/api-reference
 
+## 1.25.94
+
+### Patch Changes
+
+- 02b4201: fix(api-client): strict TS config (enable noUncheckedIndexedAccess)
+- 9cf76af: fix: add immediete to load the workspace store
+- Updated dependencies [02b4201]
+  - @scalar/api-client@2.2.23
+  - @scalar/oas-utils@0.2.92
+
 ## 1.25.93
 
 ### Patch Changes

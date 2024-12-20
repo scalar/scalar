@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.92
+
+### Patch Changes
+
+- 02b4201: fix(api-client): strict TS config (enable noUncheckedIndexedAccess)
+
 ## 0.2.91
 
 ### Patch Changes
