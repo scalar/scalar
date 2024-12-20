@@ -15,14 +15,12 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "dev": "nodemon --exec \"vite-node src/index.ts\" --watch src --ext ts --quiet",
-    "format": "scalar-format-js",
+    "build": "tsc --p tsconfig.json && tsc-alias -p tsconfig.json",
+    "dev": "nodemon --exec \"vite-node src/index.ts\" --ext ts --quiet --watch ../../packages/fastify-api-reference --watch ./",
+    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/fastify-api-reference/Dockerfile .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
   "dependencies": {
@@ -31,14 +29,6 @@
     "fastify": "^4.26.2"
   },
   "devDependencies": {
-    "@scalar/build-tooling": "workspace:*",
     "vite": "^5.4.10"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
   }
 }

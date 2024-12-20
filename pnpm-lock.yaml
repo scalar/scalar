@@ -170,6 +170,22 @@ importers:
         specifier: ^3.6.0
         version: 3.6.1(@swc/core@1.5.29(@swc/helpers@0.5.15))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
+  examples/fastify-api-reference:
+    dependencies:
+      '@fastify/swagger':
+        specifier: ^8.10.1
+        version: 8.14.0
+      '@scalar/fastify-api-reference':
+        specifier: workspace:*
+        version: link:../../packages/fastify-api-reference
+      fastify:
+        specifier: ^4.26.2
+        version: 4.28.0
+    devDependencies:
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
   examples/nestjs-api-reference-express:
     dependencies:
       '@nestjs/common':
@@ -1400,9 +1416,6 @@ importers:
       '@scalar/api-reference':
         specifier: workspace:*
         version: link:../api-reference
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
       '@scalar/openapi-parser':
         specifier: workspace:*
         version: link:../openapi-parser
@@ -1439,25 +1452,6 @@ importers:
       yaml:
         specifier: ^2.4.5
         version: 2.4.5
-
-  packages/fastify-api-reference/playground:
-    dependencies:
-      '@fastify/swagger':
-        specifier: ^8.10.1
-        version: 8.14.0
-      '@scalar/fastify-api-reference':
-        specifier: workspace:*
-        version: link:..
-      fastify:
-        specifier: ^4.26.2
-        version: 4.28.0
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../../build-tooling
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/fetch:
     dependencies:
@@ -8334,7 +8328,6 @@ packages:
 
   acorn-import-assertions@1.9.0:
     resolution: {integrity: sha512-cmMwop9x+8KFhxvKrKfPYmN6/pKTYYHBqLa0DfvVZcKMJWNyWLnaqND7dx/qn66R7ewM1UX5XMaDVP5wlVTaVA==}
-    deprecated: package has been renamed to acorn-import-attributes
     peerDependencies:
       acorn: ^8
 

@@ -1,3 +1,4 @@
+import path from 'path'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
