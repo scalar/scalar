@@ -9,6 +9,7 @@ export type CreateOperationBlockOptions = {
   element?: HTMLElement | Element | string | null
   store: StoreContext
   location: `#/paths/${string}`
+  collection?: string
 }
 
 /**
@@ -57,6 +58,7 @@ export function createOperationBlock(options: CreateOperationBlockOptions) {
     const app = createApp(OperationBlock, {
       store: options.store,
       location: options.location,
+      collection: options.collection,
     })
 
     // TODO: Add API Client modal?

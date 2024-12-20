@@ -7,8 +7,8 @@ import {
 // TODO: import '@scalar/blocks/style.css'
 import '../../../src/blocks/assets/style.css'
 
-const { store } = createStore({
-  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+const { store, add, addCollection } = createStore({
+  // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   // url: 'https://petstore.swagger.io/v2/swagger.json',
   theme: 'purple',
   // content: JSON.stringify({
@@ -33,6 +33,11 @@ const { store } = createStore({
   // }),
 })
 
+addCollection({
+  name: 'scalar-galaxy',
+  url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+})
+
 // TODO: Support for multiple API definitions
 // const store = createStore([
 //     {
@@ -47,6 +52,7 @@ const operationBlock = createOperationBlock({
   store,
   // location: getLocation('GET', '/planets/{planetId}'),
   location: getLocation('POST', '/planets'),
+  collection: 'scalar-galaxy',
   // location: getLocation('POST', '/user/signup'),
   // location: getLocation('POST', '/pet/{petId}/uploadImage'),
   // location: getLocation('GET', '/pet/findByStatus'),

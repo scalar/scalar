@@ -24,9 +24,7 @@ const title = computed(
       <ScalarMarkdown
         :value="operation.description"
         withImages />
-      <OperationParameters
-        :parameters="operation.parameters"
-        :requestBody="operation.requestBody" />
+      <OperationParameters :operation="operation" />
       <OperationResponses :operation="operation" />
     </div>
   </template>
