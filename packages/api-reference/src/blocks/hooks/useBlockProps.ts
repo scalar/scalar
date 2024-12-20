@@ -1,4 +1,5 @@
 import type { StoreContext } from '@/blocks/lib/createStore'
+import { getLocation } from '@/blocks/utils/getLocation'
 import { createRequestOperation } from '@scalar/api-client/libs'
 import type {
   Collection,
@@ -54,7 +55,7 @@ export function useBlockProps(props: BlockProps): {
     )
 
     // TODO: Fix this for pointers other than #/paths/path/get
-    return collectionRequests.find((request) => {
+    const result = collectionRequests.find((request) => {
       const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
       const specifiedMethod = props.location.split('/')[3]
 
@@ -62,10 +63,21 @@ export function useBlockProps(props: BlockProps): {
         request.method === specifiedMethod && request.path === specifiedPath
       )
     })
-  })
 
-  const theme = computed(() => {
-    return Object.values(props.store.workspaces)[0].themeId
+    // if (Object.values(collectionRequests).length > 0 && !result) {
+    //   console.error(
+    //     `No operation found for location ${props.location} in collection ${props.collection}.`,
+    //   )
+    //   console.table(
+    //     Object.values(collectionRequests).map((r) => ({
+    //       path: r.path,
+    //       method: r.method,
+    //       location: getLocation(['paths', r.path, r.method]),
+    //     })),
+    //   )
+    // }
+
+    return result
   })
 
   const server = computed(() => {
@@ -94,6 +106,10 @@ export function useBlockProps(props: BlockProps): {
     })
 
     return requestOperation?.request
+  })
+
+  const theme = computed(() => {
+    return Object.values(props.store.workspaces)[0].themeId
   })
 
   return {
