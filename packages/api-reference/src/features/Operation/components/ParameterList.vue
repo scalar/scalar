@@ -5,7 +5,7 @@ import ParameterListItem from './ParameterListItem.vue'
 
 withDefaults(
   defineProps<{
-    parameters?: RequestEntity['parameters']
+    parameters?: RequestEntity['parameters'] | RequestEntity['responses']
     showChildren?: boolean
     collapsableItems?: boolean
   }>(),
