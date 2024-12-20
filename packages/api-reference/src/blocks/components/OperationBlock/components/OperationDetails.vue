@@ -25,7 +25,7 @@ const title = computed(
         :value="operation.description"
         withImages />
       <OperationParameters :operation="operation" />
-      <OperationResponses :operation="operation" />
+      <OperationResponses :responses="operation.responses" />
     </div>
   </template>
 </template>

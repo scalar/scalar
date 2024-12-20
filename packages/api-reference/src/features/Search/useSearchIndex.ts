@@ -8,7 +8,7 @@ import { extractRequestBody } from '../../helpers/specHelpers'
 import {
   type ParamMap,
   useNavState,
-  useParameters,
+  useOperation,
   useSidebar,
 } from '../../hooks'
 
@@ -136,7 +136,7 @@ export function useSearchIndex({
 
         if (tag.operations) {
           tag.operations.forEach((operation) => {
-            const { parameterMap } = useParameters(operation)
+            const { parameterMap } = useOperation(operation)
             const bodyData = extractRequestBody(operation) || parameterMap.value
             let body = null
             if (typeof bodyData !== 'boolean') {
