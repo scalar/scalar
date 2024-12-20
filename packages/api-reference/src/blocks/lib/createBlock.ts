@@ -54,9 +54,8 @@ export function createBlock(
     // TODO: Check whether we can simplify this or streamline the names (should be client not app, right?)
     targetElement.classList.add('scalar-app')
     targetElement.classList.add('scalar-api-reference')
-
     // TODO: This should not be necessary
-    document.body.classList.add('light-mode')
+    targetElement.classList.add('light-mode')
 
     const app = createApp(component, {
       store: options.store,
