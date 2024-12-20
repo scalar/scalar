@@ -73,8 +73,6 @@ export const useRequestExample = ({
     }
   })
 
-  console.log('SERVER URL', serverUrl.value)
-
   /** The request object to use for the code snippet */
   const httpRequest = computed(() => {
     /** Just grab the first example for now */
