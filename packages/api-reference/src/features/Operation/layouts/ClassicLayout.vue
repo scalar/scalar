@@ -93,7 +93,7 @@ const title = computed(
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :operation="operation" />
+            :responses="operation.responses" />
         </div>
       </div>
       <ExampleResponses :responses="operation.responses" />

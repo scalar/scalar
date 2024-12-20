@@ -12,7 +12,9 @@ import ParameterHeaders from './ParameterHeaders.vue'
 
 const props = withDefaults(
   defineProps<{
-    parameter: NonNullable<RequestEntity['parameters']>[number]
+    parameter:
+      | NonNullable<RequestEntity['parameters']>[number]
+      | NonNullable<RequestEntity['responses']>[number]
     showChildren?: boolean
     collapsableItems?: boolean
   }>(),
