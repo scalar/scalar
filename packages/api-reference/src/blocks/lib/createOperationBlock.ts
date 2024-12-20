@@ -8,7 +8,7 @@ import type { StoreContext } from './createStore'
 export type CreateOperationBlockOptions = {
   element?: HTMLElement | Element | string | null
   store: StoreContext
-  location: `#/paths/${string}`
+  location: `#/${string}`
   collection?: string
 }
 
@@ -19,7 +19,7 @@ export type CreateOperationBlockOptions = {
  * createOperationBlock({
  *   element: document.getElementById('scalar-api-reference'),
  *   store: createStore({ url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json' }),
- *   location: getLocation('GET', '/planets/1')
+ *   location: getLocation(['paths', '/planets/1', 'get'])
  * })
  */
 export function createOperationBlock(options: CreateOperationBlockOptions) {

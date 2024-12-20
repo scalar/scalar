@@ -22,7 +22,7 @@ export type BlockProps = {
    * #/paths/test/get
    * ```
    */
-  location: `#/paths/${string}/${string}`
+  location: `#/${string}`
   /**
    * The name of the collection to use
    */
@@ -53,9 +53,10 @@ export function useBlockProps(props: BlockProps): {
       (request) => collection.value?.requests.includes(request.uid),
     )
 
+    // TODO: Fix this for pointers other than #/paths/path/get
     return collectionRequests.find((request) => {
-      const specifiedMethod = props.location.split('/')[3]
       const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
+      const specifiedMethod = props.location.split('/')[3]
 
       return (
         request.method === specifiedMethod && request.path === specifiedPath

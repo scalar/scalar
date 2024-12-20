@@ -45,11 +45,11 @@ const store = inject(WORKSPACE_SYMBOL)
 const { operation } = useBlockProps({
   // @ts-expect-error TODO: fix this
   store,
-  location: getLocation(
-    // @ts-expect-error TODO: fix this (has CONNECT method?)
+  location: getLocation([
+    'paths',
     transformedOperation?.httpVerb ?? 'get',
     transformedOperation?.path ?? '',
-  ),
+  ]),
 })
 </script>
 

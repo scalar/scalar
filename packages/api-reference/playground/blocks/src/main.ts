@@ -36,7 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // Create operation block for each operation
           const operationBlock = createOperationBlock({
             store,
-            location: getLocation(...(location?.split(' ') ?? [])),
+            location: getLocation([
+              'paths',
+              ...(location?.split(' ').reverse() ?? []),
+            ]),
             collection: collectionName,
           })
 
