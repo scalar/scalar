@@ -1,6 +1,5 @@
 import { ERRORS } from '@/blocks/constants'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
-import type { OpenAPI } from '@scalar/openapi-types'
 
 /**
  * Encodes a location string with paths
