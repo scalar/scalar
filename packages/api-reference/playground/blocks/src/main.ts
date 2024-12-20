@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const block = div.getAttribute('data-scalar-block')
 
         const location = getLocation([
-          ...(block === 'operation' ? ['paths'] : []),
+          'paths',
           ...(locationValue?.split(' ').reverse() ?? []),
         ])
 
@@ -51,7 +51,6 @@ document.addEventListener('DOMContentLoaded', () => {
           // Mount the operation block to the div
           operationBlock.mount(div)
         } else if (block === 'code-examples') {
-          console.log('code-examples', div)
           const codeExampleBlock = createCodeExamplesBlock({
             store,
             location,
