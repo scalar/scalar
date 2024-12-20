@@ -11,6 +11,18 @@ export type CreateStoreOptions = (
   proxyUrl?: string
 }
 
+export type AddCollectionOptions =
+  | {
+      url: string
+      content?: never
+      name: string
+    }
+  | {
+      url?: never
+      content: string
+      name: string
+    }
+
 // TODO: Shouldn’t this be exposed by @scalar/api-client?
 export type StoreContext = ReturnType<typeof createWorkspaceStore>
 
@@ -21,7 +33,7 @@ export type StoreReturn = {
   store: StoreContext
   addUrl: (url: string) => void
   addContent: (content: string) => void
-  addCollection: ({ url, name }: { url: string; name: string }) => void
+  addCollection: ({ url, content, name }: AddCollectionOptions) => void
 }
 
 /**
@@ -84,10 +96,13 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     })
   }
 
-  const addCollection = ({ url, name }: { url: string; name: string }) => {
-    // TODO: Add support for content?
+  const addCollection = ({ url, content, name }: AddCollectionOptions) => {
     if (url) {
       addUrl(url, name)
+    }
+
+    if (content) {
+      addContent(content, name)
     }
   }
 
