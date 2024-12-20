@@ -5,6 +5,7 @@ import type { ThemeId } from '@scalar/themes'
 export type CreateStoreOptions = (
   | { url: string; content?: never }
   | { content: string; url?: never }
+  | { url?: never; content?: never }
 ) & {
   theme?: ThemeId
   proxyUrl?: string
@@ -20,6 +21,7 @@ export type StoreReturn = {
   store: StoreContext
   addUrl: (url: string) => void
   addContent: (content: string) => void
+  addCollection: ({ url, name }: { url: string; name: string }) => void
 }
 
 /**
@@ -62,22 +64,31 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
   /**
    * Add an API definition URL to the store
    */
-  const addUrl = (url: string) => {
+  const addUrl = (url: string, name?: string) => {
     store.importSpecFromUrl(url, 'default', {
       shouldLoad: true,
       setCollectionSecurity: true,
       proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
+      name: name ?? 'default',
     })
   }
 
   /**
    * Add an API definition to the store
    */
-  const addContent = (content: string) => {
+  const addContent = (content: string, name?: string) => {
     store.importSpecFile(content, 'default', {
       shouldLoad: true,
       setCollectionSecurity: true,
+      name: name ?? 'default',
     })
+  }
+
+  const addCollection = ({ url, name }: { url: string; name: string }) => {
+    // TODO: Add support for content?
+    if (url) {
+      addUrl(url, name)
+    }
   }
 
   // If an API definition URL is provided, add it to the store
@@ -94,5 +105,6 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     store,
     addUrl,
     addContent,
+    addCollection,
   }
 }

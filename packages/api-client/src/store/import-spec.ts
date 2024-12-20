@@ -1,5 +1,6 @@
 import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import {
   type ImportSpecToWorkspaceArgs,
@@ -16,7 +17,8 @@ export const specDictionary: Record<
 > = {}
 
 type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
-  Pick<ReferenceConfiguration, 'servers'>
+  Pick<ReferenceConfiguration, 'servers'> &
+  Pick<Collection, 'name'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -83,6 +85,7 @@ export function importSpecFileFactory({
     workspaceUid: string,
     {
       proxyUrl,
+      name,
       ...options
     }: Omit<ImportSpecFileArgs, 'documentUrl'> &
       Pick<ReferenceConfiguration, 'proxyUrl'> = {},
@@ -94,6 +97,7 @@ export function importSpecFileFactory({
         null,
         await importSpecFile(spec, workspaceUid, {
           documentUrl: url,
+          name,
           ...options,
         }),
       ]
