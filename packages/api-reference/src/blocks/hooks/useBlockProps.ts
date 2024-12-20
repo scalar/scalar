@@ -10,9 +10,23 @@ import type { ThemeId } from '@scalar/themes'
 import { type ComputedRef, computed } from 'vue'
 
 export type BlockProps = {
+  /**
+   * The store created by `createStore`
+   */
   store: StoreContext
+  /**
+   * The JSON pointer to the operation to use
+   *
+   * @example
+   * ```
+   * #/paths/test/get
+   * ```
+   */
   location: `#/paths/${string}/${string}`
-  // TODO: Allow to pick a collection
+  /**
+   * The name of the collection to use
+   */
+  collection?: string
 }
 
 /** TODO: Write comment */
@@ -25,7 +39,9 @@ export function useBlockProps(props: BlockProps): {
 } {
   // TODO: Use optional collection prop to determine which operation to display
   const collection = computed(() => {
-    return Object.values(props.store.collections)[0]
+    return Object.values(props.store.collections).find(
+      ({ name }) => name === props.collection ?? 'default',
+    )
   })
 
   const operation = computed<RequestEntity | undefined>(() => {
@@ -34,7 +50,7 @@ export function useBlockProps(props: BlockProps): {
     }
 
     const collectionRequests = Object.values(props.store.requests).filter(
-      (request) => collection.value.requests.includes(request.uid),
+      (request) => collection.value?.requests.includes(request.uid),
     )
 
     return collectionRequests.find((request) => {
@@ -52,7 +68,9 @@ export function useBlockProps(props: BlockProps): {
   })
 
   const server = computed(() => {
-    return props.store.servers[collection.value.servers[0]]
+    return (
+      props.store.servers[collection.value?.servers?.[0] ?? ''] ?? undefined
+    )
   })
 
   // TODO: Make this dynamic
