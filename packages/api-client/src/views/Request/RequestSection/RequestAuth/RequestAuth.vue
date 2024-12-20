@@ -16,16 +16,16 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
-import { type SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
-const { selectedSecuritySchemeUids } = defineProps<{
+const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
   selectedSecuritySchemeUids: string[]
   title: string
+  layout?: 'client' | 'reference'
 }>()
 
 const emit = defineEmits<{
@@ -51,7 +51,7 @@ const securityRequirements = computed(() => {
 
   /** Filter out empty objects */
   const filteredRequirements = requirements.filter(
-    (r: SecurityScheme) => Object.keys(r).length,
+    (r: Record<string, string[]>) => Object.keys(r).length,
   )
 
   return { filteredRequirements, requirements }
@@ -70,7 +70,7 @@ const authIndicator = computed(() => {
   const requiredText = isOptional ? 'Optional' : 'Required'
   const nameKey =
     filteredRequirements.length === 1
-      ? Object.keys(filteredRequirements[0])[0]
+      ? Object.keys(filteredRequirements[0] || {})[0]
       : ''
   const text = `${nameKey} ${requiredText}`
 
@@ -148,9 +148,7 @@ const unselectAuth = (unSelectUid?: string) => {
 
 const availableSchemes = computed(() => {
   const base = activeCollection.value?.securitySchemes
-  return (base ?? [])
-    .map((s: string) => securitySchemes[s])
-    .filter((s: SecurityScheme) => s)
+  return (base ?? []).map((s: string) => securitySchemes[s]).filter((s) => s)
 })
 
 const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
@@ -158,24 +156,22 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
     const _availableSchemes = [...availableSchemes.value]
     const requiredSchemes = [] as typeof _availableSchemes
 
-    securityRequirements.value.filteredRequirements.forEach(
-      (r: SecurityScheme) => {
-        const i = _availableSchemes.findIndex(
-          (s) => s.nameKey === Object.keys(r)[0],
-        )
-        if (i > -1) {
-          requiredSchemes.push(_availableSchemes[i])
-          _availableSchemes.splice(i, 1)
-        }
-      },
-    )
+    securityRequirements.value.filteredRequirements.forEach((r) => {
+      const i = _availableSchemes.findIndex(
+        (s) => s?.nameKey === Object.keys(r)[0],
+      )
+      if (i > -1) {
+        requiredSchemes.push(_availableSchemes[i])
+        _availableSchemes.splice(i, 1)
+      }
+    })
 
-    const availableFormatted = _availableSchemes.map((s) =>
-      displaySchemeFormatter(s),
-    )
-    const requiredFormatted = requiredSchemes.map((s) =>
-      displaySchemeFormatter(s),
-    )
+    const availableFormatted = _availableSchemes
+      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
+      .filter(isDefined)
+    const requiredFormatted = requiredSchemes
+      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
+      .filter(isDefined)
 
     const options = [
       { label: 'Required authentication', options: requiredFormatted },
@@ -197,7 +193,8 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="selectedAuth.length">
+    :itemCount="selectedAuth.length"
+    :layout="layout">
     <template #title>
       <div class="inline-flex gap-1 items-center">
         <span>{{ title }}</span>
@@ -230,7 +227,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
                 selectedAuth.length === 0
                   ? 'Auth Type'
                   : selectedAuth.length === 1
-                    ? selectedAuth[0].label
+                    ? selectedAuth[0]?.label
                     : 'Multiple'
               }}
             </div>
@@ -243,6 +240,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       </div>
     </template>
     <RequestAuthDataTable
+      :layout="layout"
       :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
