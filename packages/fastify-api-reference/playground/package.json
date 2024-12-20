@@ -17,7 +17,6 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "dev": "nodemon --exec \"vite-node src/index.ts\" --watch src --ext ts --quiet",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/fastify-api-reference/Dockerfile .",
     "format": "scalar-format-js",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
