@@ -1,7 +1,5 @@
 import fastifySwagger from '@fastify/swagger'
-import fastifyApiReference, {
-  type FastifyApiReferenceOptions,
-} from '@scalar/fastify-api-reference'
+import fastifyApiReference from '@scalar/fastify-api-reference'
 import Fastify from 'fastify'
 
 // Init Fastify
@@ -21,7 +19,7 @@ await fastify.register(fastifySwagger, {
       securitySchemes: {
         apiKey: {
           type: 'apiKey',
-          name: 'apiKey',
+          name: 'X-Api-Key',
           in: 'header',
         },
       },
@@ -35,7 +33,7 @@ fastify.put<{ Body: { name: string } }>(
   {
     schema: {
       description: 'Greet a user',
-      tags: ['user'],
+      tags: ['Authentication'],
       summary: 'Replies with a nice greeting',
       body: {
         type: 'object',
@@ -52,7 +50,7 @@ fastify.put<{ Body: { name: string } }>(
           description: 'Successful response',
           type: 'object',
           properties: {
-            greeting: { type: 'string' },
+            greeting: { type: 'string', examples: ['Hello Marc'] },
           },
         },
       },
@@ -63,10 +61,111 @@ fastify.put<{ Body: { name: string } }>(
   },
 )
 
+// Add a POST route
+fastify.post<{ Body: { username: string; email: string } }>(
+  '/register',
+  {
+    schema: {
+      description: 'Register a new user',
+      tags: ['Authentication'],
+      summary: 'Creates a new user account',
+      body: {
+        type: 'object',
+        properties: {
+          username: { type: 'string', examples: ['marc'] },
+          email: {
+            type: 'string',
+            format: 'email',
+            examples: ['marc@scalar.com'],
+          },
+        },
+        required: ['username', 'email'],
+      },
+      response: {
+        201: {
+          description: 'User created successfully',
+          type: 'object',
+          properties: {
+            userId: { type: 'string', examples: ['12345'] },
+          },
+        },
+      },
+    },
+  },
+  (req, reply) => {
+    // Simulate user creation
+    const userId = '12345' // This would be generated dynamically
+    reply.code(201).send({ userId })
+  },
+)
+
+// Add a GET route
+fastify.get<{ Querystring: { userId: string } }>(
+  '/user',
+  {
+    schema: {
+      description: 'Get user details',
+      tags: ['Authentication'],
+      summary: 'Fetches details of a user by ID',
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string', examples: ['12345'] },
+        },
+        required: ['userId'],
+      },
+      response: {
+        200: {
+          description: 'User details retrieved successfully',
+          type: 'object',
+          properties: {
+            username: { type: 'string', examples: ['marc'] },
+            email: { type: 'string', examples: ['marc@scalar.com'] },
+          },
+        },
+      },
+    },
+  },
+  (req, reply) => {
+    // Simulate fetching user details
+    const user = { username: 'marc', email: 'marc@scalar.com' }
+    reply.code(200).send(user)
+  },
+)
+
+// Add a DELETE route
+fastify.delete<{ Querystring: { userId: string } }>(
+  '/user',
+  {
+    schema: {
+      description: 'Delete a user',
+      tags: ['Authentication'],
+      summary: 'Deletes a user by ID',
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string', examples: ['12345'] },
+        },
+        required: ['userId'],
+      },
+      response: {
+        204: {
+          description: 'User deleted successfully',
+          type: 'null',
+        },
+      },
+    },
+  },
+  (req, reply) => {
+    // Simulate user deletion
+    reply.code(204).send()
+  },
+)
+
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/',
-} satisfies FastifyApiReferenceOptions)
+})
 
 const PORT = Number(process.env.PORT) || 5053
 const HOST = process.env.HOST || '0.0.0.0'
