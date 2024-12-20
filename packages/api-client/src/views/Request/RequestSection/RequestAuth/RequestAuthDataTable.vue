@@ -30,25 +30,27 @@ const activeAuth = computed(() => {
   <form>
     <div
       v-if="selectedSecuritySchemeUids.length > 1"
-      class="flex gap-y-1 px-1 flex-wrap overflow-hidden">
+      class="border-t flex px-3 flex-wrap gap-x-2.5 overflow-hidden">
       <div
         v-for="(schemeUid, index) in selectedSecuritySchemeUids"
         :key="schemeUid"
-        class="flex relative h-8 z-1 py-1 px-1.25 cursor-pointer -mb-[var(--scalar-border-width)]"
+        class="flex relative h-8 z-1 cursor-pointer -mb-[var(--scalar-border-width)]"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
-          class="text-sm text-inherit rounded bg-transparent hover:bg-b-2 px-1"
+          class="py-1 text-sm border-b-[1px] border-transparent relative before:absolute before:rounded before:bg-b-2 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium text-c-3"
           type="button"
           @click="activeAuthIndex = index">
-          <span class="whitespace-nowrap font-medium">{{
-            displaySchemeFormatter(securitySchemes[schemeUid]).label
+          <span class="whitespace-nowrap font-medium z-10 relative">{{
+            securitySchemes[schemeUid]
+              ? displaySchemeFormatter(securitySchemes[schemeUid]).label
+              : ''
           }}</span>
         </button>
         <div
           class="absolute bottom-0 z-0 -inset-x-96 h-[var(--scalar-border-width)] bg-border" />
         <div
           v-if="activeAuthIndex === index"
-          class="absolute bottom-[var(--scalar-border-width)] z-1 inset-x-1 h-px bg-current" />
+          class="absolute bottom-[var(--scalar-border-width)] z-1 inset-x-1 h-px bg-current left-1/2 -translate-x-1/2 w-full" />
       </div>
     </div>
 
@@ -64,7 +66,7 @@ const activeAuth = computed(() => {
 
     <div
       v-if="!selectedSecuritySchemeUids.length"
-      class="text-c-3 px-4 text-sm border-t-1/2 min-h-16 justify-center flex items-center bg-b-1">
+      class="text-c-3 px-4 text-sm border-t min-h-16 justify-center flex items-center bg-b-1">
       No authentication selected
     </div>
 

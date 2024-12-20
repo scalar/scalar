@@ -49,7 +49,7 @@ withDefaults(
       </DisclosureButton>
       <div
         v-if="$slots.actions"
-        class="ui-not-open:invisible flex items-center gap-2 pr-2">
+        class="ui-not-open:invisible flex items-center gap-2 pr-1.5">
         <slot
           name="actions"
           :open="open" />
