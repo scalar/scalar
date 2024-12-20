@@ -1,5 +1,8 @@
 name: CI
 
+# This workflow runs on:
+# 1. Push events to the main branch
+# 2. Pull request events
 on:
   push:
     branches:
@@ -216,7 +219,7 @@ jobs:
     permissions:
       contents: write
       id-token: write
-    needs: [build, test]
+    needs: [harden_security, build, format, types, test]
     strategy:
       matrix:
         node-version: [20]
@@ -467,7 +470,7 @@ jobs:
     concurrency:
       group: aspnetcore-publish
       cancel-in-progress: false
-    needs: [aspnetcore-build-test]
+    needs: [harden_security, build, format, types, test, aspnetcore-build-test]
 
     steps:
       - name: Checkout repository
