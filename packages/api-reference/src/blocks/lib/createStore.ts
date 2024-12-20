@@ -47,13 +47,18 @@ export type StoreReturn = {
 export function createStore(options: CreateStoreOptions): StoreReturn {
   // Create the store
   const store = createWorkspaceStore({
+    // We never want to enable those:
     isReadOnly: true,
-    proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
-    // TODO: I don’t know why this exists, we need to pass the theme to workspaceSchema.parse anyway
-    themeId: options.theme ?? 'default',
-    // TODO: Make everything configurable
     useLocalStorage: false,
+    // TODO: Make those configurable:
     hideClientButton: false,
+    showSidebar: false,
+    // TODO: I don’t know why this exists, we need to pass the theme to workspaceSchema.parse anyway:
+    proxyUrl:
+      typeof options.proxyUrl !== 'undefined'
+        ? options.proxyUrl
+        : 'https://proxy.scalar.com',
+    themeId: options.theme ?? 'default',
   })
 
   // Create an empty workspace in the store
@@ -63,6 +68,10 @@ export function createStore(options: CreateStoreOptions): StoreReturn {
     isReadOnly: true,
     proxyUrl: options.proxyUrl ?? 'https://proxy.scalar.com',
     themeId: options.theme ?? 'default',
+    // TODO: Make those configurable:
+    environments: {},
+    hotKeyConfig: {},
+    activeEnvironmentId: 'default',
   })
 
   store.workspaceMutators.rawAdd(workspace)
