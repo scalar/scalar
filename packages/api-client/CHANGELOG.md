@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.2.23
+
+### Patch Changes
+
+- 02b4201: fix(api-client): strict TS config (enable noUncheckedIndexedAccess)
+- Updated dependencies [02b4201]
+  - @scalar/oas-utils@0.2.92
+  - @scalar/import@0.2.12
+  - @scalar/postman-to-openapi@0.1.15
+
 ## 2.2.22
 
 ### Patch Changes
