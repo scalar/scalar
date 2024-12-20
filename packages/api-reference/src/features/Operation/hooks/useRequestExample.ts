@@ -58,12 +58,18 @@ export const useRequestExample = ({
     }
   })
 
+  // Generate a request from operation server or fallback to global server URL
+  const serverUrl = computed(() => {
+    const operationServer = operation.information?.servers?.[0]
+    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
+    return modifiedUrl
+  })
+
   const serverWithVariables = computed(() => {
     const operationServer = server.value
-    const { modifiedUrl } = getUrlFromServerState(serverState, operationServer)
     return {
       uid: operationServer?.uid || '',
-      url: modifiedUrl || '',
+      url: serverUrl.value || '',
     }
   })
 
