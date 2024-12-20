@@ -1,4 +1,5 @@
 import {
+  createCodeExamplesBlock,
   createOperationBlock,
   createStore,
   getLocation,
@@ -30,21 +31,37 @@ document.addEventListener('DOMContentLoaded', () => {
       )
 
       operationDivs.forEach((div) => {
-        const location = div.getAttribute('data-scalar-location')
+        const locationValue = div.getAttribute('data-scalar-location')
 
-        if (location) {
+        const block = div.getAttribute('data-scalar-block')
+
+        const location = getLocation([
+          ...(block === 'operation' ? ['paths'] : []),
+          ...(locationValue?.split(' ').reverse() ?? []),
+        ])
+
+        if (locationValue && block === 'operation') {
           // Create operation block for each operation
           const operationBlock = createOperationBlock({
             store,
-            location: getLocation([
-              'paths',
-              ...(location?.split(' ').reverse() ?? []),
-            ]),
+            location,
             collection: collectionName,
           })
 
           // Mount the operation block to the div
           operationBlock.mount(div)
+        } else if (block === 'code-examples') {
+          console.log('code-examples', div)
+          const codeExampleBlock = createCodeExamplesBlock({
+            store,
+            location,
+            collection: collectionName,
+          })
+
+          // Mount the code example block to the div
+          codeExampleBlock.mount(div)
+        } else {
+          console.error(`Unknown block type: data-scalar-block="${block}"`)
         }
       })
     }
