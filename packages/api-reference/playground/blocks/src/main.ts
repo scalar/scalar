@@ -1,12 +1,63 @@
-// TODO: import { getLocation, createStore, createOperationBlock } from '@scalar/api-reference/blocks'
 import {
   createOperationBlock,
   createStore,
   getLocation,
 } from '../../../src/blocks'
-// TODO: import '@scalar/blocks/style.css'
 import '../../../src/blocks/assets/style.css'
 
+document.addEventListener('DOMContentLoaded', () => {
+  // Get all script tags with data-scalar attributes
+  const scriptTags = document.querySelectorAll('script[data-scalar-collection]')
+
+  scriptTags.forEach((script) => {
+    const collectionName = script.getAttribute('data-scalar-collection')
+    const url = script.getAttribute('data-scalar-url')
+
+    if (collectionName && url) {
+      // Create store for each collection
+      const { store, addCollection } = createStore({
+        theme: 'purple',
+      })
+
+      addCollection({
+        name: collectionName,
+        url: url,
+      })
+
+      // Get all divs with data-scalar-operation attributes
+      const operationDivs = document.querySelectorAll(
+        `div[data-scalar-collection="${collectionName}"]`,
+      )
+
+      operationDivs.forEach((div) => {
+        const location = div.getAttribute('data-scalar-location')
+
+        if (location) {
+          // Create operation block for each operation
+          const operationBlock = createOperationBlock({
+            store,
+            location: getLocation(...(location?.split(' ') ?? [])),
+            collection: collectionName,
+          })
+
+          // Mount the operation block to the div
+          operationBlock.mount(div)
+        }
+      })
+    }
+  })
+})
+
+// TODO: import { getLocation, createStore, createOperationBlock } from '@scalar/api-reference/blocks'
+// import {
+//   createOperationBlock,
+//   createStore,
+//   getLocation,
+// } from '../../../src/blocks'
+// TODO: import '@scalar/blocks/style.css'
+// import '../../../src/blocks/assets/style.css'
+
+/*
 const { store, add, addCollection } = createStore({
   // url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
   // url: 'https://petstore.swagger.io/v2/swagger.json',
@@ -63,3 +114,4 @@ const operationBlock = createOperationBlock({
 operationBlock.mount('#scalar-api-reference')
 // or a DOM element:
 // operationBlock.mount(document.getElementById('scalar-api-reference'))
+*/
