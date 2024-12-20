@@ -42,7 +42,7 @@ export function useBlockProps(props: BlockProps): {
   // TODO: Use optional collection prop to determine which operation to display
   const collection = computed(() => {
     return Object.values(props.store.collections).find(
-      ({ name }) => name === props.collection ?? 'default',
+      ({ name }) => name === (props.collection ?? 'default'),
     )
   })
 
