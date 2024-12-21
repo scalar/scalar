@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.93
+
+### Patch Changes
+
+- ca2d98b: chore: adds drafts server migration
+
 ## 0.2.92
 
 ### Patch Changes
