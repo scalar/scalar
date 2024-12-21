@@ -66,4 +66,29 @@ describe('getExampleCode', () => {
 
     expect(result).toBe('')
   })
+
+  it('shows the escaped variables in the url', async () => {
+    const result = await getExampleCode(
+      new Request('https://example.com/users/{userId}', {
+        method: 'POST',
+      }),
+      'javascript',
+      'fetch',
+    )
+
+    expect(result).toContain('https://example.com/users/%7BuserId%7D')
+  })
+
+  it('shows the original path before variable replacement', async () => {
+    const result = await getExampleCode(
+      new Request('https://example.com/users/{userId}', {
+        method: 'POST',
+      }),
+      'javascript',
+      'fetch',
+      '/users/{userId}',
+    )
+
+    expect(result).toContain('https://example.com/users/{userId}')
+  })
 })
