@@ -261,6 +261,7 @@ const workspaceStore = createWorkspaceStore({
 watch(
   () => props.rawSpec,
   (spec) =>
+    spec &&
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
       documentUrl: props.configuration.spec?.url,
