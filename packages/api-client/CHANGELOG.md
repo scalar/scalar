@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.2.24
+
+### Patch Changes
+
+- 6890d7e: style: updates address bar server ui for multi server type
+- ca2d98b: fix: sets active server on send request for non draft request only
+- 6890d7e: fix: updates selected server logic on collection server selection
+- Updated dependencies [ca2d98b]
+  - @scalar/oas-utils@0.2.93
+  - @scalar/import@0.2.13
+  - @scalar/postman-to-openapi@0.1.16
+
 ## 2.2.23
 
 ### Patch Changes

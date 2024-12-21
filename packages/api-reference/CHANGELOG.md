@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.25.95
+
+### Patch Changes
+
+- 6890d7e: fix: fix(api-reference): sets request server in request example hook
+- bc8f883: fix: ensure spec exists before trying to create store
+- Updated dependencies [6890d7e]
+- Updated dependencies [ca2d98b]
+- Updated dependencies [ca2d98b]
+- Updated dependencies [6890d7e]
+  - @scalar/api-client@2.2.24
+  - @scalar/oas-utils@0.2.93
+
 ## 1.25.94
 
 ### Patch Changes
