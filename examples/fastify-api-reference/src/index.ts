@@ -67,15 +67,14 @@ fastify.get(
   '/hidden',
   {
     schema: {
-      'description': 'Hidden route',
-      'tags': ['user'],
-      'summary': 'A route which should not be visible',
-      'response': {
+      description: 'Hidden route',
+      tags: ['user'],
+      summary: 'A route which should not be visible',
+      response: {
         204: {
           type: 'null',
         },
       },
-      'x-private': true,
     },
   },
   (_, reply) => {
@@ -87,10 +86,14 @@ fastify.get(
 await fastify.register(fastifyApiReference, {
   routePrefix: '/',
   processSpec: (spec, request) => {
-    if (request.query.private === 'true') {
+    const privateSpec = request.query.private === 'true'
+    if (privateSpec) {
       return spec
     } else {
-      return spec.filter((schema) => !schema?.['x-private'])
+      return spec.map((s) => {
+        delete s.paths['/hidden']
+        return s
+      })
     }
   },
 } satisfies FastifyApiReferenceOptions)
