@@ -3,6 +3,7 @@ import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI } from '@scalar/types/legacy'
 import type {
   FastifyBaseLogger,
+  FastifyRequest,
   FastifyTypeProviderDefault,
   RawServerDefault,
 } from 'fastify'
@@ -12,6 +13,8 @@ import { slug } from 'github-slugger'
 import type {
   FastifyApiReferenceHooksOptions,
   FastifyApiReferenceOptions,
+  LoadedSpec,
+  ProcessedSpec,
 } from './types'
 import { getJavaScriptFile } from './utils'
 
@@ -234,12 +237,13 @@ const fastifyApiReference = fp<
     const getLoadedSpecIfAvailable = () => {
       return openapi().load(specSource.get(), { plugins: [fetchUrls()] })
     }
-    const getSpecFilenameSlug = async (
-      loadedSpec: ReturnType<typeof getLoadedSpecIfAvailable>,
-    ) => {
+    const getSpecFilenameSlug = async (loadedSpec: ProcessedSpec) => {
       const spec = await loadedSpec?.get()
       // Same GitHub Slugger and default file name as in `@scalar/api-reference`, when generating the download
       return slug(spec?.specification?.info?.title ?? 'spec')
+    }
+    const processSpec = (spec: LoadedSpec, request: FastifyRequest) => {
+      return options.processSpec?.(spec, request) ?? spec
     }
 
     const openApiSpecUrlJson = `${getRoutePrefix(options.routePrefix)}${getOpenApiDocumentEndpoints(options.openApiDocumentEndpoints).json}`
@@ -249,8 +253,8 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
-      async handler(_, reply) {
-        const spec = getLoadedSpecIfAvailable()
+      async handler(request, reply) {
+        const spec = await processSpec(getLoadedSpecIfAvailable(), request)
         const filename: string = await getSpecFilenameSlug(spec)
         const json = JSON.parse(await spec.toJson()) // parsing minifies the JSON
         return reply
@@ -269,8 +273,8 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
-      async handler(_, reply) {
-        const spec = getLoadedSpecIfAvailable()
+      async handler(request, reply) {
+        const spec = await processSpec(getLoadedSpecIfAvailable(), request)
         const filename: string = await getSpecFilenameSlug(spec)
         const yaml = await spec.toYaml()
         return reply
@@ -296,8 +300,13 @@ const fastifyApiReference = fp<
         // @ts-ignore We don't know whether @fastify/swagger is loaded.
         schema: schemaToHideRoute,
         ...hooks,
-        handler(_, reply) {
-          return reply.redirect(getRoutePrefix(options.routePrefix) + '/', 302)
+        handler(request, reply) {
+          let redirectUrl = getRoutePrefix(options.routePrefix) + '/'
+          // Keep query params on redirect
+          if (request.url.includes('?')) {
+            redirectUrl += request.url.substring(request.url.indexOf('?'))
+          }
+          return reply.redirect(redirectUrl, 302)
         },
       })
     }
@@ -310,12 +319,20 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
-      handler(_, reply) {
+      handler(request, reply) {
         // Redirect if it’s the route without a slash
-        const currentUrl = new URL(_.url, `${_.protocol}://${_.hostname}`)
+        const currentUrl = new URL(
+          request.url,
+          `${request.protocol}://${request.hostname}`,
+        )
 
         if (!currentUrl.pathname.endsWith('/')) {
-          return reply.redirect(`${currentUrl.pathname}/`, 301)
+          let redirectUrl = `${currentUrl.pathname}/`
+          // Keep query params on redirect
+          if (request.url.includes('?')) {
+            redirectUrl += request.url.substring(request.url.indexOf('?'))
+          }
+          return reply.redirect(redirectUrl, 301)
         }
 
         /**
@@ -341,6 +358,11 @@ const fastifyApiReference = fp<
             ...configuration,
             customCss: defaultCss,
           }
+        }
+
+        // Pass on query params to spec
+        if (configuration?.spec?.url && currentUrl.searchParams.size > 0) {
+          configuration.spec.url += `?${currentUrl.searchParams.toString()}`
         }
 
         return reply

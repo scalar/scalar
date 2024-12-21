@@ -1,5 +1,13 @@
+import type { openapi } from '@scalar/openapi-parser'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
-import type { onRequestHookHandler, preHandlerHookHandler } from 'fastify'
+import type {
+  FastifyRequest,
+  onRequestHookHandler,
+  preHandlerHookHandler,
+} from 'fastify'
+
+export type LoadedSpec = ReturnType<ReturnType<typeof openapi>['load']>
+export type ProcessedSpec = Pick<LoadedSpec, 'get' | 'toJson' | 'toYaml'>
 
 export type FastifyApiReferenceOptions = {
   /**
@@ -58,6 +66,17 @@ export type FastifyApiReferenceOptions = {
    * The hooks for the API Reference.
    */
   hooks?: FastifyApiReferenceHooksOptions
+  /**
+   * Allow to process the specification before it’s rendered out.
+   *
+   * @param spec The loaded spec.
+   * @param request The fastify request objec.
+   * @returns The modified spec.
+   */
+  processSpec?: (
+    spec: LoadedSpec,
+    request: FastifyRequest<any, any, any, any, any, any, any, any>,
+  ) => ProcessedSpec | Promise<ProcessedSpec>
 }
 
 export type FastifyApiReferenceHooksOptions = Partial<{
