@@ -39,6 +39,7 @@ import {
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
   INTEGRATION_SYMBOL,
   OPENAPI_DOCUMENT_URL_SYMBOL,
+  createEmptySpecification,
   downloadSpecBus,
   downloadSpecFile,
   sleep,
@@ -261,6 +262,7 @@ const workspaceStore = createWorkspaceStore({
 watch(
   () => props.rawSpec,
   (spec) =>
+    spec &&
     workspaceStore.importSpecFile(spec, 'default', {
       shouldLoad: false,
       documentUrl: props.configuration.spec?.url,
