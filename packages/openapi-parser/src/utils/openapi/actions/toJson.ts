@@ -1,5 +1,4 @@
 import type { Queue, Task } from '../../../types'
-import { getEntrypoint } from '../../getEntrypoint'
 import { toJson as toJsonUtility } from '../../toJson'
 import { workThroughQueue } from '../utils/workThroughQueue'
 
@@ -9,7 +8,7 @@ import { workThroughQueue } from '../utils/workThroughQueue'
 export async function toJson<T extends Task[]>(
   queue: Queue<T>,
 ): Promise<string | undefined> {
-  const { filesystem } = await workThroughQueue(queue)
+  const { specification } = await workThroughQueue(queue)
 
-  return toJsonUtility(getEntrypoint(filesystem).specification)
+  return toJsonUtility(specification)
 }

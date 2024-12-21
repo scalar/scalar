@@ -1,5 +1,4 @@
 import type { Queue, Task } from '../../../types'
-import { getEntrypoint } from '../../getEntrypoint'
 import { toYaml as toYamlUtility } from '../../toYaml'
 import { workThroughQueue } from '../utils/workThroughQueue'
 
@@ -9,7 +8,7 @@ import { workThroughQueue } from '../utils/workThroughQueue'
 export async function toYaml<T extends Task[]>(
   queue: Queue<T>,
 ): Promise<string> {
-  const { filesystem } = await workThroughQueue(queue)
+  const { specification } = await workThroughQueue(queue)
 
-  return toYamlUtility(getEntrypoint(filesystem).specification)
+  return toYamlUtility(specification)
 }
