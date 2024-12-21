@@ -39,7 +39,6 @@ import {
   HIDE_TEST_REQUEST_BUTTON_SYMBOL,
   INTEGRATION_SYMBOL,
   OPENAPI_DOCUMENT_URL_SYMBOL,
-  createEmptySpecification,
   downloadSpecBus,
   downloadSpecFile,
   sleep,
