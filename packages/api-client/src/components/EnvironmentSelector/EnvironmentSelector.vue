@@ -70,12 +70,13 @@ const setInitialEnvironment = (collection: Collection) => {
   }
 }
 
-watch(activeCollection, (newCollection) => {
-  setInitialEnvironment(newCollection as Collection)
-})
+watch(
+  activeCollection,
+  (newCollection) => newCollection && setInitialEnvironment(newCollection),
+)
 
 onMounted(() => {
-  setInitialEnvironment(activeCollection.value as Collection)
+  activeCollection.value && setInitialEnvironment(activeCollection.value)
 })
 </script>
 <template>
