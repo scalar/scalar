@@ -27,7 +27,6 @@ export const migrate_v_2_4_0 = (
         }
       })
     }
-    prev[c.uid] = c
     return prev
   }, {})
 
