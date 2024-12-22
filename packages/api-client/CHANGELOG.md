@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.2.26
+
+### Patch Changes
+
+- Updated dependencies [a36fada]
+  - @scalar/oas-utils@0.2.94
+  - @scalar/import@0.2.14
+  - @scalar/postman-to-openapi@0.1.17
+
 ## 2.2.25
 
 ### Patch Changes

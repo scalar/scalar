@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.94
+
+### Patch Changes
+
+- a36fada: fix: returns non drafts collections without changes in 2.4.0 migration
+
 ## 0.2.93
 
 ### Patch Changes
