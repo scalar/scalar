@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.25
+
+### Patch Changes
+
+- 00feb3e: fix: params not saving or sending
+
 ## 2.2.24
 
 ### Patch Changes
