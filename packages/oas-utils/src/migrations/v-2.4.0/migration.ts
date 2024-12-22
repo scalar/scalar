@@ -28,10 +28,8 @@ export const migrate_v_2_4_0 = (
       })
     }
 
-    return {
-      ...prev,
-      [c.uid]: c,
-    }
+    prev[c.uid] = c
+    return prev
   }, {})
 
   return {
