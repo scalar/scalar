@@ -27,7 +27,11 @@ export const migrate_v_2_4_0 = (
         }
       })
     }
-    return prev
+
+    return {
+      ...prev,
+      [c.uid]: c,
+    }
   }, {})
 
   return {
