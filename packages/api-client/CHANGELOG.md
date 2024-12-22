@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.2.27
+
+### Patch Changes
+
+- 3156ecd: fix: revert migration change from earlier
+- Updated dependencies [3156ecd]
+  - @scalar/oas-utils@0.2.95
+  - @scalar/import@0.2.15
+  - @scalar/postman-to-openapi@0.1.18
+
 ## 2.2.26
 
 ### Patch Changes
