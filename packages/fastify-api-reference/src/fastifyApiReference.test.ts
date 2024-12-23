@@ -4,7 +4,7 @@ import FastifyBasicAuth, {
 import fastifySwagger from '@fastify/swagger'
 import type { OpenAPI } from '@scalar/types/legacy'
 import Fastify from 'fastify'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import YAML from 'yaml'
 
 import fastifyApiReference from './index'
@@ -412,5 +412,60 @@ describe('fastifyApiReference', () => {
       },
     })
     expect(response.status).toBe(200)
+  })
+
+  describe('query params passing', () => {
+    let address: string
+    beforeAll(async () => {
+      const fastify = Fastify({
+        logger: false,
+      })
+
+      await fastify.register(fastifyApiReference, {
+        routePrefix: '/reference',
+        configuration: {
+          spec: { url: '/openapi.json' },
+        },
+      })
+
+      address = await fastify.listen({ port: 0 })
+    })
+
+    it('passes reference URL with trailing slash', async () => {
+      const response = await fetch(`${address}/reference/?foo=bar`)
+      expect(response.status).toBe(200)
+      expect(await response.text()).toContain('/openapi.json?foo=bar')
+    })
+
+    it('passes reference URL with redirect', async () => {
+      const response = await fetch(`${address}/reference?foo=bar`, {
+        redirect: 'manual',
+      })
+      expect(response.status).toBe(302)
+      expect(response.headers.get('location')).toBe('/reference/?foo=bar')
+    })
+  })
+
+  it('calls `processSpec` hook', async () => {
+    const fastify = Fastify({
+      logger: false,
+    })
+
+    const processSpec = vi.fn()
+
+    await fastify.register(fastifyApiReference, {
+      routePrefix: '/reference',
+      configuration: {
+        spec: { url: '/openapi.json' },
+      },
+      processSpec,
+    })
+
+    const address = await fastify.listen({ port: 0 })
+
+    const response = await fetch(`${address}/reference/openapi.json`)
+    expect(response.status).toBe(200)
+
+    expect(processSpec).toHaveBeenCalledTimes(1)
   })
 })
