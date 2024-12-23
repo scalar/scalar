@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.95
+
+### Patch Changes
+
+- 3156ecd: fix: revert migration change from earlier
+
 ## 0.2.94
 
 ### Patch Changes
