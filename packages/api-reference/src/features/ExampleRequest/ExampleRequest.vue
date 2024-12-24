@@ -119,7 +119,9 @@ const generateSnippet = async () => {
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (await getExampleCode(request, targetKey, clientKey)) ?? ''
+  return (
+    (await getExampleCode(request, targetKey, clientKey, operation.path)) ?? ''
+  )
 }
 
 const generatedCode = asyncComputed<string>(async () => {
