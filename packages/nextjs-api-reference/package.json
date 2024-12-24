@@ -56,7 +56,6 @@
     "vite-plugin-dts": "^4.3.0"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
     "next": "^15.0.0"
   }
 }
