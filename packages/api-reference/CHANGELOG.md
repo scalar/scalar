@@ -1,5 +1,14 @@
 # @scalar/api-reference
 
+## 1.25.99
+
+### Patch Changes
+
+- Updated dependencies [4f6ebab]
+- Updated dependencies [794ae62]
+  - @scalar/api-client@2.2.28
+  - @scalar/components@0.13.11
+
 ## 1.25.98
 
 ### Patch Changes

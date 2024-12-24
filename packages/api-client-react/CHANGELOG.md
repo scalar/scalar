@@ -1,5 +1,12 @@
 # @scalar/api-client-react
 
+## 1.1.8
+
+### Patch Changes
+
+- Updated dependencies [4f6ebab]
+  - @scalar/api-client@2.2.28
+
 ## 1.1.7
 
 ### Patch Changes
