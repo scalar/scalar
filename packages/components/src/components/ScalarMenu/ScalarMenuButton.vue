@@ -1,21 +1,33 @@
 <script setup lang="ts">
+import type {
+  ScalarMenuButtonProps,
+  ScalarMenuButtonSlots,
+} from '@/components/ScalarMenu/types'
+
 import { ScalarHeaderButton } from '../ScalarHeader'
 import { ScalarIcon } from '../ScalarIcon'
 
-defineProps<{
-  open?: boolean
-}>()
+defineProps<ScalarMenuButtonProps>()
+
+defineSlots<ScalarMenuButtonSlots>()
 </script>
 <template>
   <ScalarHeaderButton class="gap-0.5 px-2">
     <div class="h-5 w-auto">
-      <slot><ScalarIcon icon="Logo" /></slot>
+      <slot name="logo">
+        <ScalarIcon icon="Logo" />
+      </slot>
+    </div>
+    <div
+      v-if="$slots.label"
+      class="ml-0.75 truncate">
+      <slot name="label" />
     </div>
     <span class="sr-only">
-      <slot name="label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
+      <slot name="sr-label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
     </span>
     <ScalarIcon
-      class="text-c-3 group-hover/button:text-c-1"
+      class="shrink-0 text-c-3 group-hover/button:text-c-1"
       :icon="open ? 'ChevronUp' : 'ChevronDown'"
       size="md" />
   </ScalarHeaderButton>

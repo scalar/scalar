@@ -4,26 +4,26 @@ import { ScalarPopover } from '../ScalarPopover'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
+import type {
+  ScalarMenuButtonProps,
+  ScalarMenuButtonSlots,
+  ScalarMenuSlotProps,
+} from './types'
 
 defineProps<ScalarFloatingOptions>()
 
-type ButtonSlotProps = { open: boolean }
-type MenuSlotProps = { close: () => void }
-
-defineSlots<{
-  /** Overrides the menu button */
-  button?: (p: ButtonSlotProps) => any
-  /** Overrides the logo in the menu button */
-  logo?: () => any
-  /** Overrides the label in the menu button */
-  label?: () => any
-  /** Overrides the products list */
-  products?: (p: MenuSlotProps) => any
-  /** Adds items the profile section (e.g. a team picker) */
-  profile?: (p: MenuSlotProps) => any
-  /** Overrides the resources section */
-  sections?: (p: MenuSlotProps) => any
-}>()
+defineSlots<
+  {
+    /** Overrides the entire menu button */
+    button?: (p: ScalarMenuButtonProps) => any
+    /** Overrides the products list */
+    products?: (p: ScalarMenuSlotProps) => any
+    /** Adds items the profile section (e.g. a team picker) */
+    profile?: (p: ScalarMenuSlotProps) => any
+    /** Overrides the resources section */
+    sections?: (p: ScalarMenuSlotProps) => any
+  } & ScalarMenuButtonSlots
+>()
 </script>
 <template>
   <ScalarPopover
@@ -35,14 +35,23 @@ defineSlots<{
       <slot
         name="button"
         :open="open">
-        <ScalarMenuButton :open="open">
-          <template v-if="$slots.logo">
+        <ScalarMenuButton
+          class="min-w-0"
+          :open="open">
+          <template
+            v-if="$slots.logo"
+            #logo>
             <slot name="logo" />
           </template>
           <template
             v-if="$slots.label"
             #label>
             <slot name="label" />
+          </template>
+          <template
+            v-if="$slots['sr-label']"
+            #sr-label>
+            <slot name="sr-label" />
           </template>
         </ScalarMenuButton>
       </slot>
