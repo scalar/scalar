@@ -1,5 +1,14 @@
 # @scalar/api-client
 
+## 2.2.28
+
+### Patch Changes
+
+- 4f6ebab: fix: runtime error with radix tooltip
+- Updated dependencies [794ae62]
+  - @scalar/components@0.13.11
+  - @scalar/use-codemirror@0.11.55
+
 ## 2.2.27
 
 ### Patch Changes

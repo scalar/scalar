@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.11
+
+### Patch Changes
+
+- 794ae62: fix(components): fix menu that is two words
+
 ## 0.13.10
 
 ### Patch Changes
