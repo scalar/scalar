@@ -2,6 +2,7 @@ import type { CommandChain, Merge, Queue, Task } from '../../../types'
 import { dereference } from '../../dereference'
 import { filter } from '../../filter'
 import { load } from '../../load'
+import { map } from '../../map'
 import { upgrade } from '../../upgrade'
 import { validate } from '../../validate'
 
@@ -37,7 +38,7 @@ export async function workThroughQueue<T extends Task[]>(
       } as Merge<typeof result, Awaited<typeof load>>
     }
 
-    // validate
+    // filter
     else if (name === 'filter') {
       result = {
         ...result,
@@ -46,6 +47,17 @@ export async function workThroughQueue<T extends Task[]>(
           options as Commands['filter']['task']['options'],
         ),
       } as Merge<typeof result, ReturnType<typeof filter>>
+    }
+
+    // map
+    else if (name === 'map') {
+      result = {
+        ...result,
+        ...map(
+          currentSpecification,
+          options as Commands['map']['task']['options'],
+        ),
+      }
     }
 
     // dereference

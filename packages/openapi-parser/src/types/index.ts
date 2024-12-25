@@ -38,6 +38,10 @@ export type FilterResult = {
   specification: AnyObject
 }
 
+export type MapResult = {
+  specification: AnyObject
+}
+
 export type DetailsResult = {
   version: OpenApiVersion
   specificationType: string

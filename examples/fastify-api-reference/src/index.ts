@@ -63,9 +63,39 @@ fastify.put<{ Body: { name: string } }>(
   },
 )
 
+fastify.get(
+  '/hidden',
+  {
+    schema: {
+      description: 'Hidden route',
+      tags: ['user'],
+      summary: 'A route which should not be visible',
+      response: {
+        204: {
+          type: 'null',
+        },
+      },
+    },
+  },
+  (_, reply) => {
+    reply.code(204).send()
+  },
+)
+
 // Add the plugin
 await fastify.register(fastifyApiReference, {
   routePrefix: '/',
+  processSpec: (spec, request) => {
+    const privateSpec = request.query.private === 'true'
+    if (privateSpec) {
+      return spec
+    } else {
+      return spec.map((s) => {
+        delete s.paths['/hidden']
+        return s
+      })
+    }
+  },
 } satisfies FastifyApiReferenceOptions)
 
 const PORT = Number(process.env.PORT) || 5053

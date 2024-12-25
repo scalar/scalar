@@ -249,4 +249,132 @@ describe('workThroughQueue', () => {
       ],
     })
   })
+
+  it('filters a specification', async () => {
+    const result = await workThroughQueue({
+      input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/public': {
+            get: {
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+          '/private': {
+            get: {
+              'responses': { 200: { description: 'OK' } },
+              'x-internal': true,
+            },
+          },
+        },
+      },
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+      tasks: [
+        {
+          name: 'load',
+        },
+        {
+          name: 'filter',
+          options: (schema) => !schema?.['x-internal'],
+        },
+      ],
+    })
+
+    expect(result.specification).toStrictEqual({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/public': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+        '/private': {
+          get: undefined,
+        },
+      },
+    })
+  })
+
+  it('maps a specification', async () => {
+    const result = await workThroughQueue({
+      input: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {
+          '/public': {
+            get: {
+              responses: { 200: { description: 'OK' } },
+            },
+          },
+          '/private': {
+            get: {
+              'responses': { 200: { description: 'OK' } },
+              'x-internal': true,
+            },
+          },
+        },
+      },
+      specification: {
+        openapi: '3.1.0',
+        info: {
+          title: 'Hello World',
+          version: '1.0.0',
+        },
+        paths: {},
+      },
+      tasks: [
+        {
+          name: 'load',
+        },
+        {
+          name: 'map',
+          options: (schema) => {
+            delete schema.paths['/private']
+            return schema
+          },
+        },
+      ],
+    })
+
+    expect(result.specification).toStrictEqual({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/public': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+              },
+            },
+          },
+        },
+      },
+    })
+  })
 })

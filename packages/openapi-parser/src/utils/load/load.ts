@@ -101,6 +101,9 @@ export async function load(
     }
   }
 
+  // Deep-clone to prevent side-effects when the queue modifies the content
+  content = structuredClone(content)
+
   let filesystem = makeFilesystem(content, {
     filename: options?.filename ?? null,
   })

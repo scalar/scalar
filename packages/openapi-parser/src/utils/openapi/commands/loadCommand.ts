@@ -16,6 +16,7 @@ import { toYaml } from '../actions/toYaml'
 import { queueTask } from '../utils/queueTask'
 import { dereferenceCommand } from './dereferenceCommand'
 import { filterCommand } from './filterCommand'
+import { mapCommand } from './mapCommand'
 import { upgradeCommand } from './upgradeCommand'
 import { validateCommand } from './validateCommand'
 
@@ -64,6 +65,8 @@ export function loadCommand<T extends Task[]>(
     files: () => files(queue),
     filter: (callback: (specification: AnyObject) => boolean) =>
       filterCommand(queue, callback),
+    map: (callback: (specification: AnyObject) => AnyObject) =>
+      mapCommand(queue, callback),
     get: () => get(queue),
     upgrade: () => upgradeCommand(queue),
     toJson: () => toJson(queue),

@@ -427,4 +427,20 @@ describe('load', async () => {
       })
     }).rejects.toThrowError('Can’t resolve external reference: INVALID')
   })
+
+  it('creates clone of supplied object', async () => {
+    const data = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {},
+    }
+    const { specification } = await load(data)
+
+    data.info.title = 'Changed'
+
+    expect(specification.info.title).toBe('Hello World')
+  })
 })
