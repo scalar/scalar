@@ -52,6 +52,10 @@ We wrote a [detailed integration guide for Fastify](https://github.com/scalar/sc
 
 The fastify plugin takes our universal configuration object, [read more about configuration](https://github.com/scalar/scalar/tree/main/documentation/configuration.md) in the core package README.
 
+## Advanced
+
+You can use the `processSpec` hook in the configuration to modify your spec on the fly before sending it out, e.g. by checking for a specific query parameter.
+
 ## Themes
 
 By default, we’re using a custom Fastify theme and it’s beautiful. But you can choose [one of our other themes](https://github.com/scalar/scalar/tree/main/packages/themes), too:

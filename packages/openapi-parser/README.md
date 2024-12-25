@@ -80,7 +80,7 @@ const { schema, errors } = await dereference(specification, {
 ### Modify an OpenAPI document
 
 ```ts
-import { filter } from '@scalar/openapi-parser'
+import { filter, map } from '@scalar/openapi-parser'
 
 const specification = `{
   "openapi": "3.1.0",
@@ -92,6 +92,11 @@ const specification = `{
 }`
 
 const { specification } = filter(specification, (schema) => !schema?.['x-internal'])
+
+const { specification2 } = map(specification, (schema) => {
+  delete schema.paths['/hidden']
+  return schema
+}
 ```
 
 ### Upgrade your OpenAPI document
