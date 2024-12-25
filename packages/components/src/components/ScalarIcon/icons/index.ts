@@ -93,6 +93,7 @@ export const ICONS = [
   'programming-language-clojure',
   'programming-language-csharp',
   'programming-language-css3',
+  'programming-language-dart',
   'programming-language-go',
   'programming-language-html5',
   'programming-language-http',
