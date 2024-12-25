@@ -40,6 +40,7 @@ export type AvailableClients = [
   'shell/httpie',
   'shell/wget',
   'swift/nsurlsession',
+  'dart/http',
 ]
 
 /** Programming language */

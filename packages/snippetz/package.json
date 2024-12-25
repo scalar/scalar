@@ -210,6 +210,11 @@
       "import": "./dist/plugins/c/libcurl/index.js",
       "types": "./dist/plugins/c/libcurl/index.d.ts",
       "default": "./dist/plugins/c/libcurl/index.js"
+    },
+    "./plugins/dart/http": {
+      "import": "./dist/plugins/dart/http/index.js",
+      "types": "./dist/plugins/dart/http/index.d.ts",
+      "default": "./dist/plugins/dart/http/index.js"
     }
   },
   "files": [
