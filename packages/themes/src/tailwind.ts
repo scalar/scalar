@@ -12,13 +12,17 @@ export default {
       md: 'var(--scalar-radius)',
       lg: 'var(--scalar-radius-lg)',
       xl: 'var(--scalar-radius-xl)',
+      px: '1px',
       full: '9999px',
       none: '0px',
     },
     borderWidth: {
       'DEFAULT': 'var(--scalar-border-width)',
-      '1/2': 'calc(var(--scalar-border-width) / 2)',
       '0': '0',
+      '1/2': 'calc(var(--scalar-border-width) / 2)',
+      '1': 'var(--scalar-border-width)',
+      '2': 'calc(var(--scalar-border-width) * 2)',
+      '4': 'calc(var(--scalar-border-width) * 4)',
     },
     boxShadow: {
       'DEFAULT': 'var(--scalar-shadow-1)',
