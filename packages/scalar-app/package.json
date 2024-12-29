@@ -22,6 +22,7 @@
     "preview": "electron-vite preview",
     "test": "vitest",
     "todesktop:build": "todesktop build",
+    "todesktop:build:ci": "todesktop build --async",
     "todesktop:release": "todesktop release",
     "todesktop:release:ci": "todesktop release --latest --force",
     "todesktop:test": "todesktop smoke-test",
