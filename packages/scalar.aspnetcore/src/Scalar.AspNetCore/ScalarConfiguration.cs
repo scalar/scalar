@@ -30,7 +30,7 @@ internal sealed class ScalarConfiguration
 
     public required IEnumerable<ScalarServer>? Servers { get; init; }
     
-    public required IDictionary<string, string>? Metadata { get; init; }
+    public required IDictionary<string, string>? MetaData { get; init; }
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }
 
@@ -57,6 +57,8 @@ internal sealed class ScalarConfiguration
     public required string? Integration { get; init; }
 
     public required bool HideClientButton { get; init; }
+
+    public required IEnumerable<string> Urls { get; init; }
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
