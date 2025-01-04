@@ -44,23 +44,16 @@
       "import": "./dist/legacy/index.js",
       "types": "./dist/legacy/index.d.ts",
       "default": "./dist/legacy/index.js"
-    },
-    "./external": {
-      "import": "./dist/external/index.js",
-      "types": "./dist/external/index.d.ts",
-      "default": "./dist/external/index.js"
     }
   },
   "files": [
     "dist",
     "CHANGELOG.md"
   ],
-  "dependencies": {
-    "@scalar/openapi-types": "workspace:*",
-    "@unhead/schema": "^1.11.11"
-  },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*"
+    "@scalar/openapi-types": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
+    "@unhead/schema": "^1.11.11"
   }
 }

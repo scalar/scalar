@@ -4,9 +4,8 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-types'
+import type { HarRequest, TargetId } from '@scalar/snippetz'
 import type { UseSeoMetaInput } from '@unhead/schema'
-
-import type { HarRequest, TargetId } from '../external'
 
 /**
  * This re-export is needed due to a typescript issue
@@ -47,24 +46,9 @@ export type PathRouting = {
   basePath: string
 }
 
-export type ThemeId =
-  | 'alternate'
-  | 'default'
-  | 'moon'
-  | 'purple'
-  | 'solarized'
-  | 'bluePlanet'
-  | 'deepSpace'
-  | 'saturn'
-  | 'kepler'
-  | 'elysiajs'
-  | 'fastify'
-  | 'mars'
-  | 'none'
-
 export type ReferenceConfiguration = {
-  /** A string to use one of the color presets */
-  theme?: ThemeId
+  /** A string to use one of the color presets. TODO: Should be replaced with the enum */
+  theme?: string
   /** The layout to use for the references */
   layout?: 'modern' | 'classic'
   /** The Swagger/OpenAPI spec to render */

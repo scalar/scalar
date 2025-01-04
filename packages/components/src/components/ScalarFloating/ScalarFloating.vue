@@ -97,7 +97,6 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     <slot />
   </div>
   <ScalarTeleport
-    v-if="$slots.floating"
     :disabled="!teleport"
     :to="typeof teleport === 'string' ? teleport : undefined">
     <div

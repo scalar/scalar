@@ -1,5 +1,4 @@
 import { serve } from '@hono/node-server'
-import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import fs from 'fs/promises'
 
@@ -23,18 +22,6 @@ const app = await createMockServer({
     console.log(`${context.req.method} ${context.req.url}`)
   },
 })
-
-// Load the middleware
-app.get(
-  '/',
-  apiReference({
-    spec: {
-      // Served by createMockServer
-      url: '/openapi.yaml',
-    },
-    pageTitle: 'Scalar Galaxy Spec',
-  }),
-)
 
 // Read the OpenAPI document on every request
 app.get('/_fresh/openapi.yaml', async (c) => {

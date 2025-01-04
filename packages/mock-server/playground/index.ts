@@ -1,5 +1,4 @@
 import { serve } from '@hono/node-server'
-import { apiReference } from '@scalar/hono-api-reference'
 import fs from 'fs/promises'
 
 import { createMockServer } from '../src/createMockServer'
@@ -27,18 +26,6 @@ const app = await createMockServer({
     console.log(`${context.req.method} ${context.req.url}`)
   },
 })
-
-// Render the API reference
-app.get(
-  '/',
-  apiReference({
-    pageTitle: 'Scalar Galaxy',
-    spec: {
-      url: '/openapi.yaml',
-    },
-    baseServerURL: `http://localhost:${port}`,
-  }),
-)
 
 // Start the server
 serve(

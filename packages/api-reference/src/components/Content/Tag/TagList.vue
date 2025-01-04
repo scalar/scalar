@@ -19,7 +19,7 @@ const { getOperationId, getTagId, hash } = useNavState()
 const { collapsedSidebarItems } = useSidebar()
 const { requests, requestExamples, securitySchemes } = useWorkspace()
 
-const tagLayout = computed<typeof Tag>(() =>
+const tagLayout = computed(() =>
   props.layout === 'classic' ? TagAccordion : Tag,
 )
 

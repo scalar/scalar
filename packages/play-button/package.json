@@ -18,15 +18,14 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build": "scalar-build-vite",
     "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "dist/index.js",

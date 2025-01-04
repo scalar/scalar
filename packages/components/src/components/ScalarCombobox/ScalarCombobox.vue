@@ -23,7 +23,7 @@ defineEmits<{
   (e: 'update:modelValue', v: Option): void
 }>()
 
-defineSlots<{
+const slots = defineSlots<{
   /** The reference element for the combobox */
   default(props: SlotProps): Slot
   /** A slot for contents before the combobox options */
@@ -49,16 +49,12 @@ defineSlots<{
         :options="options"
         :placeholder="placeholder"
         @update:modelValue="(v) => (close(), $emit('update:modelValue', v[0]))">
-        <template
-          v-if="$slots.before"
-          #before>
+        <template #before>
           <slot
             name="before"
             :open="open" />
         </template>
-        <template
-          v-if="$slots.after"
-          #after>
+        <template #after>
           <slot
             name="after"
             :open="open" />

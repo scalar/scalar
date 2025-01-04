@@ -34,7 +34,9 @@ import type {
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
+import type { ThemeId } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import type { ThemeConfig } from 'tailwindcss/types/config'
 import { type InjectionKey, inject, reactive, ref, toRaw } from 'vue'
 
 export type UpdateScheme = <P extends Path<SecurityScheme>>(
@@ -166,7 +168,7 @@ export const createWorkspaceStore = ({
   // Set some defaults on all workspaces
   Object.keys(workspaces).forEach((uid) => {
     if (proxyUrl) workspaceMutators.edit(uid, 'proxyUrl', proxyUrl)
-    if (themeId) workspaceMutators.edit(uid, 'themeId', themeId)
+    if (themeId) workspaceMutators.edit(uid, 'themeId', themeId as ThemeId)
   })
 
   /**

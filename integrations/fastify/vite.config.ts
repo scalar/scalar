@@ -11,7 +11,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: '../api-reference/dist/browser/standalone.js',
+          src: '../../packages/api-reference/dist/browser/standalone.js',
           dest: './js',
         },
       ],

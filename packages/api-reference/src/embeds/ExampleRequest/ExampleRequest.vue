@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { useServerStore } from '#legacy'
 import OperationPath from '@/components/OperationPath.vue'
-import { ExampleRequest } from '@/features/ExampleRequest'
+import { ExampleRequest as Example } from '@/features/ExampleRequest'
 import { useRequestExample } from '@/features/Operation/hooks/useRequestExample'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
@@ -39,7 +39,7 @@ const { request, secretCredentials } = useRequestExample({
 </script>
 <template>
   <div class="scalar-app">
-    <ExampleRequest
+    <Example
       :operation="operation"
       :request="request"
       :secretCredentials="secretCredentials">
@@ -52,6 +52,6 @@ const { request, secretCredentials } = useRequestExample({
       <template #footer>
         <TestRequestButton :operation="operation" />
       </template>
-    </ExampleRequest>
+    </Example>
   </div>
 </template>

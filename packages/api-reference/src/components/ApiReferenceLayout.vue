@@ -321,7 +321,7 @@ useDeprecationWarnings(props.configuration)
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(props.configuration.theme, {
+  ${getThemeStyles(props.configuration.theme as ThemeId, {
     fonts: props.configuration.withDefaultFonts,
   })}</style>`,
 )
@@ -405,7 +405,7 @@ const themeStyleTag = computed(
             v-if="configuration?.isEditable"
             #empty-state>
             <GettingStarted
-              :theme="configuration?.theme || 'default'"
+              :theme="(configuration?.theme as ThemeId) || 'default'"
               @changeTheme="$emit('changeTheme', $event)"
               @linkSwaggerFile="$emit('linkSwaggerFile')"
               @loadSwaggerFile="$emit('loadSwaggerFile')"
@@ -418,8 +418,9 @@ const themeStyleTag = computed(
           </template>
         </Content>
       </section>
+      <!-- Boolean cast is used as Vue thinks $slots.footer is contstant. Needs testing -->
       <div
-        v-if="$slots.footer"
+        v-if="Boolean($slots.footer)"
         class="references-footer">
         <slot
           v-bind="referenceSlotProps"
