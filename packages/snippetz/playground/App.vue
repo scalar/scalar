@@ -2,7 +2,7 @@
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { ref } from 'vue'
 
-import CodeExample from './components/CodeExample.vue'
+import CodeExample from './CodeExample.vue'
 
 const { plugins } = snippetz()
 
