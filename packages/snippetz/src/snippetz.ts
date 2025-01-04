@@ -5,13 +5,22 @@ import type { ClientId, HarRequest, TargetId } from '@/types'
  * Generate code examples for HAR requests
  */
 export function snippetz() {
+  function findPlugin<T extends TargetId>(
+    target: T | string,
+    client: ClientId<T> | string,
+  ) {
+    return clients
+      .find(({ key }) => key === target)
+      ?.clients.find((plugin) => plugin.client === client)
+  }
+
   return {
     print<T extends TargetId>(
       target: T,
       client: ClientId<T>,
       request: Partial<HarRequest>,
     ) {
-      return this.findPlugin(target, client)?.generate(request)
+      return findPlugin(target, client)?.generate(request)
     },
     clients() {
       return clients
@@ -24,19 +33,12 @@ export function snippetz() {
         })),
       )
     },
-    findPlugin<T extends TargetId>(
-      target: T | string,
-      client: ClientId<T> | string,
-    ) {
-      return clients
-        .find(({ key }) => key === target)
-        ?.clients.find((plugin) => plugin.client === client)
-    },
+    findPlugin,
     hasPlugin<T extends TargetId>(
       target: T | string,
       client: ClientId<T> | string,
     ) {
-      return Boolean(this.findPlugin(target, client))
+      return Boolean(findPlugin(target, client))
     },
   }
 }
