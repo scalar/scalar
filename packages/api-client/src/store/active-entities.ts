@@ -9,7 +9,7 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { type InjectionKey, computed, inject } from 'vue'
+import { type ComputedRef, type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
@@ -22,6 +22,10 @@ type CreateActiveEntitiesStoreParams = {
   servers: Record<string, Server>
   workspaces: Record<string, Workspace>
   router?: Router
+  /** Override the active request  */
+  activeRequestOverride?: ComputedRef<Request | undefined>
+  /** Override the active request example  */
+  activeExampleOverride?: ComputedRef<RequestExample | undefined>
 }
 
 type EnvVariable = {
@@ -42,6 +46,8 @@ export const createActiveEntitiesStore = ({
   router,
   servers,
   workspaces,
+  activeRequestOverride,
+  activeExampleOverride,
 }: CreateActiveEntitiesStoreParams) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
@@ -136,26 +142,30 @@ export const createActiveEntitiesStore = ({
    *
    * undefined must be handled as we may have no requests
    */
-  const activeRequest = computed<Request | undefined>(() => {
-    const key = activeRouterParams.value[PathId.Request]
+  const activeRequest =
+    activeRequestOverride ??
+    computed(() => {
+      const key = activeRouterParams.value[PathId.Request]
 
-    // Can use this fallback to get an active request
-    const collection =
-      collections[activeRouterParams.value.collection] ||
-      collections[activeWorkspace.value?.collections[0] ?? '']
+      // Can use this fallback to get an active request
+      const collection =
+        collections[activeRouterParams.value.collection] ||
+        collections[activeWorkspace.value?.collections[0] ?? '']
 
-    return requests[key] || requests[collection?.requests[0] ?? '']
-  })
+      return requests[key] || requests[collection?.requests[0] ?? '']
+    })
 
   /** Grabs the currently active example using the path param */
-  const activeExample = computed<RequestExample | undefined>(() => {
-    const key =
-      activeRouterParams.value[PathId.Examples] === 'default'
-        ? activeRequest.value?.examples[0] || ''
-        : activeRouterParams.value[PathId.Examples]
+  const activeExample =
+    activeExampleOverride ??
+    computed(() => {
+      const key =
+        activeRouterParams.value[PathId.Examples] === 'default'
+          ? activeRequest.value?.examples[0] || ''
+          : activeRouterParams.value[PathId.Examples]
 
-    return requestExamples[key]
-  })
+      return requestExamples[key]
+    })
 
   /**
    * First collection that the active request is in
@@ -187,7 +197,7 @@ export const createActiveEntitiesStore = ({
   )
 
   /** Cookie associated with the current route */
-  const activeCookieId = computed<string | undefined>(
+  const activeCookieId = computed(
     () => activeRouterParams.value[PathId.Cookies],
   )
 
