@@ -47,6 +47,13 @@ export type PathRouting = {
   basePath: string
 }
 
+/**
+ * This is a duplicate of the ThemeId type from @scalar/themes
+ *
+ * TODO: Remove this once we have a better way to share types between packages.
+ *
+ * @see https://github.com/scalar/scalar/blob/main/packages/themes/src/index.ts
+ */
 export type ThemeId =
   | 'alternate'
   | 'default'
