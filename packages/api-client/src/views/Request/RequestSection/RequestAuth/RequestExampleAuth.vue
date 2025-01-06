@@ -53,15 +53,6 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
-
-/**
- * A hacky way to override the styling on the references side,
- * not ideal but doesn't touch the original styling
- */
-const getReferenceClass = (className = '') =>
-  layout === 'reference'
-    ? `bg-b-2 border-l-1/2 last:border-r-1/2 group-last:border-b-border ${className}`
-    : ''
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
@@ -75,9 +66,7 @@ const getReferenceClass = (className = '') =>
       <DataTableCell
         class="text-c-3 pl-2 font-medium flex items-center"
         :class="
-          getReferenceClass(
-            `bg-b-1 rounded-t border-t-1/2 ${index !== 0 ? 'mt-2' : ''}`,
-          )
+          layout === 'reference' && `border-t ${index !== 0 ? 'mt-2' : ''}`
         ">
         {{ generateLabel(scheme!) }}
       </DataTableCell>
@@ -88,7 +77,7 @@ const getReferenceClass = (className = '') =>
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded border-1/2')"
+          :containerClass="layout === 'reference' && 'border-t'"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -103,9 +92,7 @@ const getReferenceClass = (className = '') =>
           <RequestAuthDataTableInput
             class="text-c-2"
             :containerClass="
-              getReferenceClass(
-                'auth-blend-required bg-b-2 rounded-t border-t-1/2',
-              )
+              layout === 'reference' && 'auth-blend-required border-t'
             "
             :modelValue="scheme.username"
             placeholder="janedoe"
@@ -116,7 +103,6 @@ const getReferenceClass = (className = '') =>
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
-            :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -131,7 +117,7 @@ const getReferenceClass = (className = '') =>
     <template v-else-if="scheme?.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded-t border-t-1/2')"
+          :containerClass="layout === 'reference' && 'border-t'"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
@@ -140,7 +126,6 @@ const getReferenceClass = (className = '') =>
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
-          :containerClass="getReferenceClass('bg-b-2 rounded-b border-b-1/2')"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
@@ -154,29 +139,23 @@ const getReferenceClass = (className = '') =>
       <DataTableRow>
         <div
           v-if="Object.keys(scheme.flows).length > 1"
-          class="min-h-8 min-w-8 flex text-sm border-t-1/2 last:border-r-0 p-0 m-0 relative row"
-          :class="{
-            'border-1/2 border-b-0 rounded-t bg-b-2': layout === 'reference',
-          }">
-          <div class="text-c-1 flex min-w-[94px] items-center pl-2 pr-0">
-            Flow
-          </div>
-          <div class="flex flex-wrap px-2 items-center gap-1 py-1">
+          class="border-t min-h-8 flex text-sm">
+          <div class="flex h-8 gap-2.5 px-3 max-w-full overflow-x-auto">
             <button
               v-for="(_, key, ind) in scheme?.flows"
               :key="key"
-              class="h-6 scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium text-xs scalar-button-outlined border border-solid border-border text-c-1 hover:bg-b-2 p-0 px-2"
+              class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium text-c-3"
               :class="{
-                'bg-b-3':
+                '!text-c-1 !border-current border-b-[1px] !rounded-none':
                   layout === 'client' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
-                'bg-b-1':
+                '!text-c-1 !border-current border-b-[1px] !rounded-none opacity-100':
                   layout === 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
               }"
               type="button"
               @click="activeFlow = key">
-              {{ key }}
+              <span class="z-10 relative">{{ key }}</span>
             </button>
           </div>
         </div>
@@ -190,6 +169,14 @@ const getReferenceClass = (className = '') =>
           :layout="layout"
           :scheme="scheme" />
       </template>
+    </template>
+
+    <!-- Open ID Connect -->
+    <template v-else-if="scheme?.type === 'openIdConnect'">
+      <div
+        class="border-t text-c-3 px-4 text-sm min-h-16 justify-center flex items-center bg-b-1">
+        Coming soon
+      </div>
     </template>
   </template>
 </template>

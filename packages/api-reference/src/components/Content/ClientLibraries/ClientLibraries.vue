@@ -29,18 +29,18 @@ const { availableTargets, httpTargetTitle, httpClientTitle } =
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  background: var(--scalar-background-2);
-  border-radius: 0 0 var(--scalar-radius) var(--scalar-radius);
-  border: var(--scalar-border-width) solid var(--scalar-border-color);
-  border-top: none;
+  background: var(--scalar-background-1);
+  border-top: var(--scalar-border-width) solid var(--scalar-border-color);
   min-height: fit-content;
 }
 .client-libraries-heading {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-mini);
-  color: var(--scalar-color-3);
-  text-transform: uppercase;
-  margin-bottom: 6px;
-  display: block;
+  color: var(--scalar-color-1);
+  padding: 9px 12px;
+  background-color: var(--scalar-background-2);
+  display: flex;
+  align-items: center;
+  max-height: 32px;
 }
 </style>
