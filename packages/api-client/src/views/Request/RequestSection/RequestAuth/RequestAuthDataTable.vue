@@ -16,7 +16,7 @@ const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
 const { securitySchemes } = useWorkspace()
 
 const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
+const selectedScheme = ref<{ id: string; label: string } | null>(null)
 
 // Add new ref for active tab
 const activeAuthIndex = ref(0)

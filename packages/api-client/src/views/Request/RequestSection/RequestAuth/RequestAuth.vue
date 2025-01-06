@@ -42,7 +42,7 @@ const {
 
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | undefined>(undefined)
+const selectedScheme = ref<{ id: string; label: string } | null>(null)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
