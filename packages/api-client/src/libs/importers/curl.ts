@@ -1,5 +1,6 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
 import type {
+  Request,
   RequestMethod,
   RequestParameterPayload,
 } from '@scalar/oas-utils/entities/spec'
@@ -104,4 +105,40 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
     }),
     parameters,
   }
+}
+
+/** Convert path string like '/planets/{planetId}' to regex pattern /\/planets/([^/]+)/ */
+export const pathToRegex = (path: string) => {
+  const regxStr =
+    '^' + // start anchor
+    path
+      .replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // escape special regex chars
+      .replace(/\\\{([^}]+)\\\}/g, '([^/]+)') + // replace {param} with capture group
+    '$' // end anchor
+
+  return new RegExp(regxStr)
+}
+
+/**
+ * Takes in a curl string and an array of requests and tries to match via method + path including
+ * path params via regex
+ */
+export const matchCurlToRequest = (
+  curlCommand: string,
+  requests: Request[],
+) => {
+  const { method = 'get', url } = parseCurlCommand(curlCommand)
+  const escapedPath = new URL(url).pathname
+  const path = decodeURIComponent(escapedPath)
+
+  return requests.find((r) => {
+    if (r.method !== method) return false
+    if (r.path === path) return true
+
+    const regex = pathToRegex(r.path)
+    const match = path.match(regex)
+    if (match) return true
+
+    return false
+  })
 }
