@@ -106,10 +106,10 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     const updatedParams = [...currentParams]
     updatedParams[rowIdx] = {
       ...updatedParams[rowIdx],
-      [field]: value || '',
       value: updatedParams[rowIdx]?.value || '',
       key: updatedParams[rowIdx]?.key || '',
       enabled: updatedParams[rowIdx]?.enabled ?? false,
+      [field]: value || '',
     }
 
     /** enable row key or value is filled */
