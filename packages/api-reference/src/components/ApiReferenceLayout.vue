@@ -321,7 +321,7 @@ useDeprecationWarnings(props.configuration)
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(props.configuration.theme satisfies ThemeId, {
+  ${getThemeStyles(props.configuration.theme satisfies ThemeId | undefined, {
     fonts: props.configuration.withDefaultFonts,
   })}</style>`,
 )
