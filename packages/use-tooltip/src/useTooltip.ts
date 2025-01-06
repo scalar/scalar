@@ -3,6 +3,9 @@ import { ref, shallowRef, watchEffect } from 'vue'
 
 import { isMacOS } from './isMacOS'
 
+/**
+ * A Vue hook to use a tooltip for a specific element.
+ */
 export function useTooltip(props: Partial<Props> = {}) {
   const elementRef = shallowRef<HTMLElement | null>(null)
 
@@ -28,8 +31,6 @@ export function useTooltip(props: Partial<Props> = {}) {
   return elementRef
 }
 
-// ---------------------------------------------------------------------------
-
 /** Mocked tagged template string to support lit-html syntax highlighting */
 function html(strings: any, ...values: any) {
   let str = ''
@@ -47,8 +48,6 @@ function css(strings: any, ...values: any) {
   })
   return str
 }
-
-// ---------------------------------------------------------------------------
 
 /** Tooltip content for keyboard shortcuts */
 export function keyboardShortcutTooltip(keys: string, title?: string) {
