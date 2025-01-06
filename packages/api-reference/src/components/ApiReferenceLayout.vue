@@ -419,7 +419,7 @@ const themeStyleTag = computed(
         </Content>
       </section>
       <div
-        v-if="$slots.footer"
+        v-if="Boolean($slots.footer)"
         class="references-footer">
         <slot
           v-bind="referenceSlotProps"
