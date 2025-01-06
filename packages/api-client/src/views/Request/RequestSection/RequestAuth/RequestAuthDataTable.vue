@@ -46,7 +46,7 @@ watch(
         class="flex relative h-8 z-1 cursor-pointer -mb-[var(--scalar-border-width)]"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
-          class="py-1 text-sm border-b-[1px] border-transparent relative before:absolute before:rounded before:bg-b-2 before:opacity-0 hover:before:opacity-100 before:h-[calc(100%-4px)] before:w-[calc(100%+8px)] before:z-1 before:top-0.5 before:left-[-4px] cursor-pointer font-medium text-c-3"
+          class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium"
           type="button"
           @click="activeAuthIndex = index">
           <span class="whitespace-nowrap font-medium z-10 relative">{{
