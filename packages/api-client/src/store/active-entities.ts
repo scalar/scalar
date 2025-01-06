@@ -46,6 +46,7 @@ export const createActiveEntitiesStore = ({
   router,
   servers,
   workspaces,
+  // TODO: these are temporary until we allow providing each entity individually
   activeRequestOverride,
   activeExampleOverride,
 }: CreateActiveEntitiesStoreParams) => {
