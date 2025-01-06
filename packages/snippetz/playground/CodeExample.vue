@@ -50,11 +50,11 @@ const snippet = print('${props.target}', '${props.client}', request)
   <div class="code-block">
     <h2>Configuration</h2>
     <div
-      class="js-input"
+      class="code"
       v-html="highlightedExample" />
     <h2>Output</h2>
     <div
-      class="js-output"
+      class="output"
       v-html="output" />
   </div>
 </template>
@@ -64,19 +64,22 @@ const snippet = print('${props.target}', '${props.client}', request)
   display: flex;
   gap: 1rem;
   flex-direction: column;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--scalar-background-accent);
+  padding-bottom: 3rem;
 }
 
-.js-input,
-.js-output {
+.code,
+.output {
   flex: 1;
   padding: 1rem;
   border: 1px solid var(--scalar-background-accent);
   border-radius: var(--scalar-radius-lg);
+  /** scrollbar */
+  overflow-y: auto;
+  line-height: 1.4;
 }
 
 h2 {
-  font-weight: 600;
+  font-weight: normal;
+  font-size: 1rem;
 }
 </style>
