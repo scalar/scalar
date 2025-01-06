@@ -26,5 +26,17 @@ export default defineConfig({
       enabled: true,
       reporter: 'text',
     },
+    /**
+     * Allow vitest to actually import CSS files for testing
+     * @see https://vitest.dev/config/#css
+     */
+    css: {
+      include: /.\/.+/,
+    },
+    deps: {
+      web: {
+        transformCss: false,
+      },
+    },
   },
 })
