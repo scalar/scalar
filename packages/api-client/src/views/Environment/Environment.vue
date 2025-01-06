@@ -381,25 +381,28 @@ function handleRename(newName: string) {
                 class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                 type="button"
                 @click="toggleSidebarFolder(collection.uid)">
-                <LibraryIcon
-                  class="text-sidebar-c-2 size-3.5 stroke-[2.25] group-hover:hidden"
-                  :src="
-                    collection['x-scalar-icon'] || 'interface-content-folder'
-                  " />
-                <ScalarIcon
-                  class="text-c-3 hidden text-sm group-hover:block"
-                  :class="{
-                    'rotate-90': collapsedSidebarFolders[collection.uid],
-                  }"
-                  icon="ChevronRight"
-                  size="sm"
-                  thickness="2.5" />
+                <span class="flex h-5 items-center justify-center max-w-[14px]">
+                  <LibraryIcon
+                    class="min-w-3.5 text-sidebar-c-2 size-3.5 stroke-2 group-hover:hidden"
+                    :src="
+                      collection['x-scalar-icon'] || 'interface-content-folder'
+                    " />
+                  <div
+                    :class="{
+                      'rotate-90': collapsedSidebarFolders[collection.uid],
+                    }">
+                    <ScalarIcon
+                      class="text-c-3 hidden text-sm group-hover:block"
+                      icon="ChevronRight"
+                      size="md" />
+                  </div>
+                </span>
                 {{ collection.info?.title ?? '' }}
               </button>
               <div
                 v-show="showChildren(collection.uid)"
                 :class="{
-                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_1.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] flex flex-col gap-px mb-[.5px] last:mb-0 relative':
+                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative':
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length > 0,
                 }">
