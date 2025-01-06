@@ -1,5 +1,3 @@
-import type { ThemeId } from '@scalar/types/legacy'
-
 import defaultFonts from './fonts.css?inline'
 import alternateTheme from './presets/alternate.css?inline'
 import bluePlanetTheme from './presets/bluePlanet.css?inline'
@@ -38,7 +36,20 @@ export type IntegrationThemeId = 'elysiajs' | 'fastify'
 /**
  * Available theme IDs as a type.
  */
-export type { ThemeId }
+export type ThemeId =
+  | 'alternate'
+  | 'default'
+  | 'moon'
+  | 'purple'
+  | 'solarized'
+  | 'bluePlanet'
+  | 'deepSpace'
+  | 'saturn'
+  | 'kepler'
+  | 'elysiajs'
+  | 'fastify'
+  | 'mars'
+  | 'none'
 
 /**
  * User readable theme names / labels
