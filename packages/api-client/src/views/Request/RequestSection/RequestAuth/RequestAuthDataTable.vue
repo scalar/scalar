@@ -241,7 +241,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
                     <span
                       v-for="auth in selectedAuth"
                       :key="auth.id"
-                      class="cm-pill flex items-center mx-0 h-fit pr-0.5 !bg-b-2 text-c-1">
+                      class="flex items-center mx-0 h-fit pr-0.5 bg-b-2 text-c-1 px-2.25 rounded-full">
                       {{ auth.label }}
                       <ScalarIconButton
                         class="cursor-pointer -ml-0.5 text-c-3 hover:text-c-1 rounded-full"
