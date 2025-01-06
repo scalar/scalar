@@ -1,4 +1,4 @@
-import type { HarRequest } from '@scalar/snippetz/types'
+import type { HarRequest } from '@scalar/snippetz'
 import type { ThemeId } from '@scalar/themes'
 import type {
   ContentType,

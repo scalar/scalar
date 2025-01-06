@@ -2,7 +2,7 @@
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { ref } from 'vue'
 
-import CodeExample from './components/CodeExample.vue'
+import CodeExample from './CodeExample.vue'
 
 const { plugins } = snippetz()
 
@@ -128,9 +128,20 @@ h2 {
   font-size: 1.2rem;
   margin: 2rem 0;
 }
+
+h1::before,
+h2::before {
+  content: '#';
+  display: inline-block;
+  width: 1.3rem;
+  margin-left: -1.3rem;
+  color: var(--scalar-color-3);
+}
+
 .badges {
   display: flex;
   gap: 4px;
+  margin-bottom: 2rem;
 }
 .introduction {
   margin-bottom: 2rem;

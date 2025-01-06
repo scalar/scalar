@@ -64,26 +64,6 @@ const snippet = snippetz().hasPlugin('node', 'undici')
 // true
 ```
 
-### Lean usage
-
-You can also just use one specific plugin to keep your bundle size small.
-
-```ts
-import { nodeUndici } from '@scalar/snippetz/plugins/node/undici'
-
-const result = nodeUndici.generate({
-  url: 'https://example.com',
-})
-
-console.log(source)
-
-// import { request } from 'undici'
-
-// const { statusCode, body } = await request(
-//   'url': 'https://example.com',
-// )
-```
-
 ## Community
 
 We are API nerds. You too? Let’s chat on Discord: <https://discord.gg/scalar>

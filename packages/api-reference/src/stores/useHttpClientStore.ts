@@ -1,6 +1,6 @@
 import { objectMerge } from '@scalar/oas-utils/helpers'
 import { snippetz } from '@scalar/snippetz'
-import type { Target, TargetId } from '@scalar/snippetz/types'
+import type { Target, TargetId } from '@scalar/snippetz'
 import type { HiddenClients } from '@scalar/types/legacy'
 import { type Ref, computed, reactive, readonly, ref } from 'vue'
 

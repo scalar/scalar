@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ScalarIcon } from '@scalar/components'
-import type { Target, TargetId } from '@scalar/snippetz/types'
+import type { Target, TargetId } from '@scalar/snippetz'
 import { ref } from 'vue'
 
 import { type HttpClientState, useHttpClientStore } from '../../../stores'
