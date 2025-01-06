@@ -321,7 +321,7 @@ useDeprecationWarnings(props.configuration)
 
 const themeStyleTag = computed(
   () => `<style>
-  ${getThemeStyles(props.configuration.theme, {
+  ${getThemeStyles(props.configuration.theme satisfies ThemeId, {
     fonts: props.configuration.withDefaultFonts,
   })}</style>`,
 )
@@ -405,7 +405,7 @@ const themeStyleTag = computed(
             v-if="configuration?.isEditable"
             #empty-state>
             <GettingStarted
-              :theme="configuration?.theme || 'default'"
+              :theme="(configuration?.theme as ThemeId) || 'default'"
               @changeTheme="$emit('changeTheme', $event)"
               @linkSwaggerFile="$emit('linkSwaggerFile')"
               @loadSwaggerFile="$emit('loadSwaggerFile')"
