@@ -163,7 +163,6 @@ watch(
     <template #actions>
       <div
         class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100 request-meta-buttons">
-        <!-- TODO fix this DOC-2740 -->
         <ScalarTooltip
           v-if="params.length > 1"
           side="right"
