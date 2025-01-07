@@ -13,8 +13,8 @@ export const pathToRegex = (path: string) => {
 }
 
 /**
- * Takes in a curl string and an array of requests and tries to match via method + path including
- * path params via regex
+ * Takes a path and method and returns the request that matches the path and method while taking
+ * path params into account by converting to a regex
  */
 export const findRequestByPathMethod = (
   path: string,
