@@ -116,32 +116,34 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           <SidebarList>
             <div
               v-for="(paths, domain) in groupedCookies"
-              :key="domain">
+              :key="domain"
+              class="flex flex-col gap-px">
               <button
-                class="flex font-medium gap-1.5 items-center px-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded text-left text-sm p-1.5 focus-visible:z-10 hover:bg-sidebar-active-b indent-padding-left"
                 type="button"
                 @click="toggleSidebarFolder(domain)">
                 <ScalarIcon
-                  class="text-c-3"
+                  class="h-5 -ml-px text-c-3 w-4"
                   :class="{
                     'rotate-90': collapsedSidebarFolders[domain],
                   }"
                   icon="ChevronRight"
                   size="md" />
-                {{ domain }}
+                <span>{{ domain }}</span>
               </button>
               <div
                 v-show="showChildren(domain)"
-                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1rem_-_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                 <div
                   v-for="(cookieList, path) in paths"
-                  :key="path">
+                  :key="path"
+                  class="flex flex-col gap-px">
                   <button
-                    class="flex font-medium gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
+                    class="flex gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                     type="button"
                     @click="toggleSidebarFolder(domain + path)">
                     <ScalarIcon
-                      class="text-c-3"
+                      class="-ml-px text-c-3"
                       :class="{
                         'rotate-90': collapsedSidebarFolders[domain + path],
                       }"
@@ -151,7 +153,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                   </button>
                   <div
                     v-show="showChildren(domain + path)"
-                    class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1.75rem_-_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
+                    class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1.75rem_-1px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
                     <SidebarListElement
                       v-for="cookie in cookieList"
                       :key="cookie.uid"
