@@ -143,8 +143,13 @@ watch(
       (collection: Collection) => collection.watchMode,
     ),
   (newWatchModes, oldWatchModes) => {
-    newWatchModes.forEach((newWatchMode, index) => {
-      if (!isReadOnly && newWatchMode !== oldWatchModes[index]) {
+    newWatchModes.forEach((newWatchMode: boolean, index: number) => {
+      if (
+        !isReadOnly &&
+        newWatchMode !== oldWatchModes[index] &&
+        activeWorkspaceCollections.value[index]?.info?.title !== 'Drafts' &&
+        activeWorkspaceCollections.value[index]
+      ) {
         const currentCollection = activeWorkspaceCollections.value[index]
         if (!currentCollection) return
 
