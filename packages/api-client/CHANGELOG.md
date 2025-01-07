@@ -1,5 +1,22 @@
 # @scalar/api-client
 
+## 2.2.29
+
+### Patch Changes
+
+- 4a2b0a4: fix: allows request sidebar search toggle
+- b291406: fix(api-client): redesign auth
+- b291406: style: adds data table and server auth component fixtures
+- 46dce72: Fix multipart form body keys not being updated correctly
+- 58a2049: style: fixes sidebar item consistency in different views
+- Updated dependencies [66bc910]
+- Updated dependencies [fa15b79]
+  - @scalar/use-toasts@0.7.8
+  - @scalar/use-tooltip@1.0.5
+  - @scalar/components@0.13.12
+  - @scalar/use-hooks@0.1.12
+  - @scalar/use-codemirror@0.11.56
+
 ## 2.2.28
 
 ### Patch Changes

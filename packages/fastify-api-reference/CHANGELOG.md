@@ -1,5 +1,11 @@
 # @scalar/fastify-api-reference
 
+## 1.25.100
+
+### Patch Changes
+
+- 940ce0e: chore(fastify-api-reference): move example to package playground
+
 ## 1.25.99
 
 ## 1.25.98

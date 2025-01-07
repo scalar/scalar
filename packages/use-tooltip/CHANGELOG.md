@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.5
+
+### Patch Changes
+
+- fa15b79: chore: replace Vite with rollup
+
 ## 1.0.4
 
 ### Patch Changes
