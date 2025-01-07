@@ -329,7 +329,7 @@ importers:
         version: link:../../packages/api-reference-react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nextjs-api-reference
+        version: link:../../integrations/nextjs-api-reference
       next:
         specifier: ^15.1.1
         version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1633,7 +1633,7 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
-  packages/nextjs-api-reference:
+  integrations/nextjs-api-reference:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
