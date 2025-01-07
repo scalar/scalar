@@ -53,4 +53,40 @@ describe('parseCurlCommand', () => {
     const result = parseCurlCommand(curlCommand)
     expect(result.headers).toHaveProperty('Cookie', 'name=value')
   })
+
+  it('parses multiple query parameters from URL correctly', () => {
+    const curlCommand = "curl 'http://httpbin.org/get?name=value1&age=value2'"
+    const result = parseCurlCommand(curlCommand)
+    expect(result.queryParameters).toStrictEqual([
+      { key: 'name', value: 'value1' },
+      { key: 'age', value: 'value2' },
+    ])
+  })
+
+  it('parses query parameters with -G and -d flags correctly', () => {
+    const curlCommand =
+      'curl -G -d "name=value1" -d "age=value2" http://httpbin.org/get'
+    const result = parseCurlCommand(curlCommand)
+    expect(result.queryParameters).toStrictEqual([
+      { key: 'name', value: 'value1' },
+      { key: 'age', value: 'value2' },
+    ])
+  })
+
+  it('parses query parameters from body data correctly', () => {
+    const curlCommand = "curl -d 'name=value1&age=value2' https://example.com"
+    const result = parseCurlCommand(curlCommand)
+    expect(result.queryParameters).toStrictEqual([
+      { key: 'name', value: 'value1' },
+      { key: 'age', value: 'value2' },
+    ])
+  })
+
+  it('parses single query parameter from body data correctly', () => {
+    const curlCommand = "curl --data 'name=value1' https://example.com"
+    const result = parseCurlCommand(curlCommand)
+    expect(result.queryParameters).toStrictEqual([
+      { key: 'name', value: 'value1' },
+    ])
+  })
 })

@@ -17,7 +17,7 @@ export function parseCurlCommand(curlCommand: string) {
     method?: RequestMethod
     headers?: Record<string, string>
     body?: string
-    queryParameters?: Record<string, string>
+    queryParameters?: Array<{ key: string; value: string }>
     servers?: string[]
   } = { url: '' }
 
@@ -25,34 +25,14 @@ export function parseCurlCommand(curlCommand: string) {
   let arg = iterator.next().value
 
   while (arg) {
-    if (typeof arg === 'object' && 'op' in arg) {
-      if (arg.op === '&') {
-        // Extract query parameters
-        const nextArg = iterator.next().value
-        if (typeof nextArg === 'string') {
-          const queryParametersArray = parseQueryParameters(`?${nextArg}`)
-          const queryParameters = queryParametersArray.reduce(
-            (acc, { key, value }) => {
-              acc[key] = value
-              return acc
-            },
-            {} as Record<string, string>,
-          )
-          result.queryParameters = {
-            ...result.queryParameters,
-            ...queryParameters,
-          }
-        }
-      }
-      arg = iterator.next().value
-      continue
-    }
-
     if (arg === '-X' || arg === '--request') {
+      // Extract method e.g curl -X POST
       parseMethod(iterator as Iterator<string>, result)
     } else if (arg === '--url') {
+      // Extract URL e.g curl https://example.com
       parseUrl(iterator as Iterator<string>, result)
     } else if (arg === '-H' || arg === '--header') {
+      // Extract headers e.g -H 'Content-Type: application/json'
       parseHeader(iterator as Iterator<string>, result)
     } else if (
       arg === '--data' ||
@@ -65,23 +45,35 @@ export function parseCurlCommand(curlCommand: string) {
       const nextArg = iterator.next().value
       if (typeof nextArg === 'string') {
         result.body = nextArg
+        // Parse query parameters from body if URL is not present
+        if (!result.url || curlCommand.includes('-G')) {
+          const newQueryParams = parseQueryParameters(`?${nextArg}`)
+          result.queryParameters = result.queryParameters
+            ? [...result.queryParameters, ...newQueryParams]
+            : newQueryParams
+        }
       }
     } else if (
       typeof arg === 'string' &&
       !result.url &&
       (arg.startsWith('http') || arg.startsWith('www.'))
     ) {
+      // Extract URL e.g curl https://example.com
       parseUrl([arg][Symbol.iterator]() as Iterator<string>, result)
     } else if (arg === '-P') {
+      // Extract path variables e.g -P 'foo=bar'
       parsePathVariables(iterator as Iterator<string>, result)
     } else if (
       typeof arg === 'string' &&
       arg.toLowerCase().includes('content-type')
     ) {
+      // Extract Content-Type header e.g -H 'Content-Type: application/json'
       parseContentType(arg, result)
     } else if (arg === '-u' || arg === '--user') {
+      // Extract Authorization header e.g -u 'username:password'
       parseAuth(iterator as Iterator<string>, result)
     } else if (arg === '-b' || arg === '--cookie') {
+      // Extract Cookie header e.g -b 'foo=bar'
       parseCookie(iterator as Iterator<string>, result)
     }
     arg = iterator.next().value
@@ -102,8 +94,11 @@ function parseUrl(iterator: Iterator<string>, result: any) {
   result.path = url.pathname !== '/' ? url.pathname : ''
   result.url = result.servers[0] + result.path
 
-  // Extract query parameters
-  result.queryParameters = parseQueryParameters(url.search)
+  // Merge existing query parameters with those from the URL
+  const urlQueryParameters = parseQueryParameters(url.search)
+  result.queryParameters = result.queryParameters
+    ? [...result.queryParameters, ...urlQueryParameters]
+    : urlQueryParameters
 }
 
 /** Get the headers from a curl command */
