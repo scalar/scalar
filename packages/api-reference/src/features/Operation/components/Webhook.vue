@@ -17,7 +17,7 @@ defineProps<{
       :requestBody="webhook.information?.requestBody">
       <template #title>Payload</template>
     </RequestBody>
-    <OperationResponses :responses="webhook.responses" />
+    <OperationResponses :responses="webhook.information?.responses" />
   </template>
 </template>
 <style scoped>
