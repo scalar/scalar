@@ -1,5 +1,13 @@
 # @scalar/components
 
+## 0.13.12
+
+### Patch Changes
+
+- Updated dependencies [66bc910]
+  - @scalar/use-toasts@0.7.8
+  - @scalar/use-hooks@0.1.12
+
 ## 0.13.11
 
 ### Patch Changes

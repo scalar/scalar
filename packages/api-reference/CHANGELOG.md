@@ -1,5 +1,23 @@
 # @scalar/api-reference
 
+## 1.25.100
+
+### Patch Changes
+
+- b291406: fix(api-client): redesign auth
+- b291406: style: adds data table and server auth component fixtures
+- c37fb70: style: displays property example in schemadisplays property example in schema
+- Updated dependencies [4a2b0a4]
+- Updated dependencies [b291406]
+- Updated dependencies [66bc910]
+- Updated dependencies [b291406]
+- Updated dependencies [46dce72]
+- Updated dependencies [58a2049]
+  - @scalar/api-client@2.2.29
+  - @scalar/use-toasts@0.7.8
+  - @scalar/components@0.13.12
+  - @scalar/use-hooks@0.1.12
+
 ## 1.25.99
 
 ### Patch Changes

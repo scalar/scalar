@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.8
+
+### Patch Changes
+
+- 66bc910: chore: update build process
+
 ## 0.7.7
 
 ### Patch Changes
