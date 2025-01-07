@@ -2219,6 +2219,9 @@ importers:
       '@vitest/coverage-v8':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2))
+      '@vue/test-utils':
+        specifier: ^2.4.1
+        version: 2.4.6
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
