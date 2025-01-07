@@ -44,7 +44,7 @@
 /packages/code-highlight @geoffgscott
 /packages/fastify-api-reference @hanspagel
 /packages/nuxt @amritk
-/packages/scalar_fastapi @marclave
+/integrations/scalar_fastapi @marclave
 /packages/void-server @hanspagel
 
 # Testing
