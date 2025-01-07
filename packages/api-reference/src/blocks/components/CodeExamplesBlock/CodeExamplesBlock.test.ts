@@ -54,7 +54,7 @@ describe('CodeExamplesBlock', () => {
     const wrapper = mount(CodeExamplesBlock, {
       props: {
         store,
-        location: getLocation('GET', '/foobar'),
+        location: getLocation(['paths', '/foobar', 'get']),
       },
     })
 
