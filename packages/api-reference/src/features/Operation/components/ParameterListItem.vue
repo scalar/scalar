@@ -128,7 +128,7 @@ const shouldCollapse = computed<boolean>(() => {
   overflow: hidden;
 }
 .parameter-item-trigger-open .parameter-item-type {
-  white-space: normal;
+  white-space: pre-line;
 }
 /* Match font size of markdown for property-detail-value since first child within accordian is displayed as if it were in the markdown section */
 .parameter-item-trigger
