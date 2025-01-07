@@ -60,8 +60,8 @@ describe('findRequestByPathMethod', () => {
     const encodedPath = new URL(url).pathname
     const path = decodeURIComponent(encodedPath)
 
-    const result = findRequestByPathMethod(path, method, [mockRequest])
-    expect(result).toEqual(mockRequest)
+    const { request } = findRequestByPathMethod(path, method, [mockRequest])
+    expect(request).toEqual(mockRequest)
   })
 
   it('should match a request with the path params replaced', () => {
@@ -70,7 +70,31 @@ describe('findRequestByPathMethod', () => {
     const encodedPath = new URL(url).pathname
     const path = decodeURIComponent(encodedPath)
 
-    const result = findRequestByPathMethod(path, method, [mockRequest])
-    expect(result).toEqual(mockRequest)
+    const { request, pathParams } = findRequestByPathMethod(path, method, [
+      mockRequest,
+    ])
+    expect(request).toEqual(mockRequest)
+    expect(pathParams).toEqual([{ key: 'planetId', value: '1' }])
+  })
+
+  it('should match a request and return path parameter values', () => {
+    const _mockRequest = {
+      ...mockRequest,
+      path: '/planets/{planetId}/galaxies/{galaxyId}',
+    }
+    const curlCommand =
+      'curl https://galaxy.scalar.com/planets/earth/galaxies/milky-way'
+    const { method = 'get', url } = parseCurlCommand(curlCommand)
+    const encodedPath = new URL(url).pathname
+    const path = decodeURIComponent(encodedPath)
+
+    const { request, pathParams } = findRequestByPathMethod(path, method, [
+      _mockRequest,
+    ])
+    expect(request).toEqual(_mockRequest)
+    expect(pathParams).toEqual([
+      { key: 'planetId', value: 'earth' },
+      { key: 'galaxyId', value: 'milky-way' },
+    ])
   })
 })
