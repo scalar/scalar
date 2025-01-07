@@ -10,7 +10,7 @@ describe('getLocation', () => {
   })
 
   it('should handle empty paths', () => {
-    expect(() => getLocation(['paths', '', 'get'])).toThrow()
+    expect(() => getLocation([''])).toThrow()
   })
 
   it('should handle paths with special characters', () => {

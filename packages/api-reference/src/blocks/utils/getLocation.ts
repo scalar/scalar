@@ -10,11 +10,17 @@ import { escapeJsonPointer } from '@scalar/openapi-parser'
  * '#/paths/~1planets~1{foo}/get'
  */
 export function getLocation(path: string[]) {
-  return [
+  const pointer = [
     '#',
     ...path
       .map((p) => p.trim())
       .filter(Boolean)
       .map(escapeJsonPointer),
-  ].join('/') as `#/${string}`
+  ].join('/')
+
+  if (pointer === '#') {
+    throw new Error(ERRORS.EMPTY_PATH)
+  }
+
+  return pointer as `#/${string}`
 }
