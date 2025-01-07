@@ -71,7 +71,8 @@ function close() {
     </DropdownMenu.Trigger>
     <DropdownMenu.Content
       align="start"
-      :as="ScalarDropdownMenu">
+      :as="ScalarDropdownMenu"
+      :sideOffset="5">
       <!-- Menu content -->
       <!-- Base Product List (can be overridden by slot) -->
       <slot

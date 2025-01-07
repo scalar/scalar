@@ -4,14 +4,12 @@ import type { Component } from 'vue'
 
 import { ScalarDropdownButton } from '../ScalarDropdown'
 
-const { is = 'a' } = defineProps<{
+const { is = DropdownMenu.Item } = defineProps<{
   is?: string | Component
 }>()
 </script>
 <template>
-  <DropdownMenu.Item asChild>
-    <ScalarDropdownButton :is="is">
-      <slot />
-    </ScalarDropdownButton>
-  </DropdownMenu.Item>
+  <ScalarDropdownButton :is="is">
+    <slot />
+  </ScalarDropdownButton>
 </template>
