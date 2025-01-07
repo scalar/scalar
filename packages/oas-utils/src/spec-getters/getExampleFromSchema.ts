@@ -202,6 +202,31 @@ export const getExampleFromSchema = (
       }
     }
 
+    // Pattern properties (regex)
+    if (schema.patternProperties !== undefined) {
+      for (const pattern in schema.patternProperties) {
+        if (
+          Object.prototype.hasOwnProperty.call(
+            schema.patternProperties,
+            pattern,
+          )
+        ) {
+          const property = schema.patternProperties[pattern]
+
+          // Use the regex pattern as an example key
+          const exampleKey = pattern
+
+          response[exampleKey] = getExampleFromSchema(
+            property,
+            options,
+            level + 1,
+            schema,
+            exampleKey,
+          )
+        }
+      }
+    }
+
     // Additional properties
     if (schema.additionalProperties !== undefined) {
       const anyTypeIsValid =
