@@ -405,7 +405,7 @@ const themeStyleTag = computed(
             v-if="configuration?.isEditable"
             #empty-state>
             <GettingStarted
-              :theme="(configuration?.theme as ThemeId) || 'default'"
+              :theme="configuration?.theme || 'default'"
               @changeTheme="$emit('changeTheme', $event)"
               @linkSwaggerFile="$emit('linkSwaggerFile')"
               @loadSwaggerFile="$emit('loadSwaggerFile')"
