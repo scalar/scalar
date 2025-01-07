@@ -1,5 +1,4 @@
 import type { StoreContext } from '@/blocks/lib/createStore'
-import { getLocation } from '@/blocks/utils/getLocation'
 import { createRequestOperation } from '@scalar/api-client/libs'
 import type {
   Collection,
@@ -26,11 +25,15 @@ export type BlockProps = {
   location: `#/${string}`
   /**
    * The name of the collection to use
+   *
+   * @default 'default'
    */
   collection?: string
 }
 
-/** TODO: Write comment */
+/**
+ * Provides computed properties for the block, based on the standardized interface of the `createStore` function.
+ */
 export function useBlockProps(props: BlockProps): {
   schema: ComputedRef<any>
   collection: ComputedRef<Collection | undefined>
@@ -97,13 +100,15 @@ export function useBlockProps(props: BlockProps): {
 
     if (!firstExample) return undefined
 
-    // TODO: Error handling
-    const [error, requestOperation] = createRequestOperation({
+    const [_, requestOperation] = createRequestOperation({
       request: operation.value,
       example: firstExample,
+      // TODO: Add environment
       environment: {},
+      // TODO: Add cookies
       globalCookies: [],
-      securitySchemes: {}, // Add required securitySchemes property
+      // TODO: Add securitySchemes
+      securitySchemes: {},
       server: server.value,
     })
 
@@ -115,11 +120,12 @@ export function useBlockProps(props: BlockProps): {
   })
 
   const schema = computed(() => {
-    // TODO: This is not very reliable
     const schemaName = props.location.split('/')[3]
+    const schemas = collection.value?.components?.schemas ?? {}
 
-    // @ts-expect-error TODO: Fix this
-    return collection.value?.components?.schemas?.[schemaName]
+    return typeof schemas === 'object' && schemaName in schemas
+      ? schemas[schemaName as keyof typeof schemas]
+      : undefined
   })
 
   return {

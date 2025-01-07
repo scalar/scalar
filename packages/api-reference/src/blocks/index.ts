@@ -9,5 +9,3 @@ export * from './components/CodeExamplesBlock'
 export * from './components/ExampleResponsesBlock'
 
 export * from './utils/getLocation'
-
-export * from './types'
