@@ -1,5 +1,6 @@
 export * from './create-client'
 export * from './formatters'
+export { findRequestByPathMethod } from './find-request'
 export * from './errors'
 export * from './hot-keys'
 export * from './event-bus'
