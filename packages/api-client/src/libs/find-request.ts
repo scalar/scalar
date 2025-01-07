@@ -14,7 +14,7 @@ export const pathToRegex = (path: string) => {
 
 /**
  * Takes a path and method and returns the request that matches the path and method while taking
- * path params into account by converting to a regex.
+ * path params into account by converting to a regex. Will also return the path params if they exist
  *
  * @example path can be /planets/{planetId} OR /planets/1
  */
@@ -22,14 +22,28 @@ export const findRequestByPathMethod = (
   path: string,
   method: string,
   requests: Request[],
-) =>
-  requests.find((r) => {
+) => {
+  let pathParams: { key: string; value: string }[] = []
+
+  const request = requests.find((r) => {
     if (r.method.toLowerCase() !== method.toLowerCase()) return false
     if (r.path === path) return true
 
     const regex = pathToRegex(r.path)
     const match = path.match(regex)
-    if (match) return true
+
+    // Extract path params from the match
+    if (match) {
+      pathParams = match.slice(1).flatMap((value, index) => {
+        const key = r.path.split('{')[index + 1]?.split('}')[0]
+        if (!key) return []
+        return [{ key, value }]
+      })
+      return true
+    }
 
     return false
   })
+
+  return { request, pathParams }
+}
