@@ -17,7 +17,7 @@ export function parseCurlCommand(curlCommand: string) {
     method?: RequestMethod
     headers?: Record<string, string>
     body?: string
-    queryParameters?: Record<string, string>
+    queryParameters?: { key: string; value: string }[]
     servers?: string[]
   } = { url: '' }
 
@@ -26,24 +26,27 @@ export function parseCurlCommand(curlCommand: string) {
 
   while (arg) {
     if (typeof arg === 'object' && 'op' in arg) {
-      if (arg.op === '&') {
-        // Extract query parameters
-        const nextArg = iterator.next().value
-        if (typeof nextArg === 'string') {
-          const queryParametersArray = parseQueryParameters(`?${nextArg}`)
-          const queryParameters = queryParametersArray.reduce(
-            (acc, { key, value }) => {
-              acc[key] = value
-              return acc
-            },
-            {} as Record<string, string>,
-          )
-          result.queryParameters = {
-            ...result.queryParameters,
-            ...queryParameters,
-          }
-        }
-      }
+      // Does this do anything?
+      // if (arg.op === '&') {
+      //   // Extract query parameters
+      //   const nextArg = iterator.next().value
+      //   if (typeof nextArg === 'string') {
+      //     const queryParametersArray = parseQueryParameters(`?${nextArg}`)
+      //     const queryParameters = queryParametersArray.reduce(
+      //       (acc, { key, value }) => {
+      //         acc[key] = value
+      //         return acc
+      //       },
+      //       {} as Record<string, string>,
+      //     )
+      //     result.queryParameters = {
+      //       ...result.queryParameters,
+      //       ...queryParameters,
+      //     }
+
+      //     console.log('queryParameters', queryParameters)
+      //   }
+      // }
       arg = iterator.next().value
       continue
     }
