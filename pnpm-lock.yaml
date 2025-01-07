@@ -149,7 +149,7 @@ importers:
         version: 3.0.1(@types/react@19.0.1)(react@19.0.0)
       '@scalar/docusaurus':
         specifier: workspace:*
-        version: link:../../packages/docusaurus
+        version: link:../../integrations/docusaurus
       clsx:
         specifier: ^2.0.0
         version: 2.1.1
@@ -189,7 +189,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nestjs-api-reference
+        version: link:../../integrations/nestjs-api-reference
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -262,7 +262,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nestjs-api-reference
+        version: link:../../integrations/nestjs-api-reference
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -488,6 +488,37 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
+  integrations/docusaurus:
+    dependencies:
+      '@scalar/api-reference-react':
+        specifier: workspace:*
+        version: link:../../packages/api-reference-react
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+    devDependencies:
+      '@docusaurus/types':
+        specifier: ^3.6.0
+        version: 3.6.1(@swc/core@1.5.29)(react-dom@19.0.0(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+      postcss:
+        specifier: ^8.4.38
+        version: 8.4.47
+      postcss-cli:
+        specifier: ^11.0.0
+        version: 11.0.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1)
+      postcss-nesting:
+        specifier: ^12.1.5
+        version: 12.1.5(postcss@8.4.47)
+
   integrations/express-api-reference:
     dependencies:
       '@scalar/types':
@@ -540,6 +571,34 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
+  integrations/nestjs-api-reference:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+    devDependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      express:
+        specifier: ^4.21.1
+        version: 4.21.1
+      fastify:
+        specifier: ^4.26.2
+        version: 4.28.0
+      tsup:
+        specifier: ^7.2.0
+        version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2))(typescript@5.6.2)
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   integrations/nuxt:
     dependencies:
@@ -1310,37 +1369,6 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  packages/docusaurus:
-    dependencies:
-      '@scalar/api-reference-react':
-        specifier: workspace:*
-        version: link:../api-reference-react
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-    devDependencies:
-      '@docusaurus/types':
-        specifier: ^3.6.0
-        version: 3.6.1(@swc/core@1.5.29)(react-dom@19.0.0(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.0.1
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.0.2(@types/react@19.0.1)
-      path:
-        specifier: ^0.12.7
-        version: 0.12.7
-      postcss:
-        specifier: ^8.4.38
-        version: 8.4.39
-      postcss-cli:
-        specifier: ^11.0.0
-        version: 11.0.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1)
-      postcss-nesting:
-        specifier: ^12.1.5
-        version: 12.1.5(postcss@8.4.39)
-
   packages/draggable:
     dependencies:
       vue:
@@ -1604,34 +1632,6 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-
-  packages/nestjs-api-reference:
-    dependencies:
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      express:
-        specifier: ^4.21.1
-        version: 4.21.1
-      fastify:
-        specifier: ^4.26.2
-        version: 4.28.0
-      tsup:
-        specifier: ^7.2.0
-        version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2))(typescript@5.6.2)
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/nextjs-api-reference:
     dependencies:
@@ -14846,10 +14846,6 @@ packages:
     resolution: {integrity: sha512-UMz42UD0UY0EApS0ZL9o1XnLhSTtvvvLe5Dc2H2O56fvRZi+KulDyf5ctDhhtYJBGKStV2FL1fy6253cmLgqVQ==}
     engines: {node: '>=4'}
 
-  postcss-selector-parser@6.1.1:
-    resolution: {integrity: sha512-b4dlw/9V8A71rLIDsSwVmak9z2DuBUB7CA1/wSdelNEzqsjoSPeADTWNO09lpH49Diy3/JIZ2bSPB1dI3LJCHg==}
-    engines: {node: '>=4'}
-
   postcss-selector-parser@6.1.2:
     resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
     engines: {node: '>=4'}
@@ -20647,13 +20643,13 @@ snapshots:
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
 
-  '@csstools/selector-resolve-nested@1.1.0(postcss-selector-parser@6.1.1)':
+  '@csstools/selector-resolve-nested@1.1.0(postcss-selector-parser@6.1.2)':
     dependencies:
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
-  '@csstools/selector-specificity@3.1.1(postcss-selector-parser@6.1.1)':
+  '@csstools/selector-specificity@3.1.1(postcss-selector-parser@6.1.2)':
     dependencies:
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   '@discoveryjs/json-ext@0.5.7': {}
 
@@ -29821,7 +29817,7 @@ snapshots:
       globals: 13.24.0
       natural-compare: 1.4.0
       nth-check: 2.1.1
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
       semver: 7.6.3
       vue-eslint-parser: 9.4.3(eslint@8.57.0)
       xml-name-validator: 4.0.0
@@ -34889,7 +34885,7 @@ snapshots:
   postcss-calc@10.0.0(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
   postcss-calc@10.0.2(postcss@8.4.47):
@@ -34901,20 +34897,20 @@ snapshots:
   postcss-calc@9.0.1(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
-  postcss-cli@11.0.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1):
+  postcss-cli@11.0.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1):
     dependencies:
       chokidar: 3.6.0
       dependency-graph: 0.11.0
       fs-extra: 11.2.0
       get-stdin: 9.0.0
       globby: 14.0.2
-      picocolors: 1.0.1
-      postcss: 8.4.39
-      postcss-load-config: 5.1.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1)
-      postcss-reporter: 7.1.0(postcss@8.4.39)
+      picocolors: 1.1.0
+      postcss: 8.4.47
+      postcss-load-config: 5.1.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1)
+      postcss-reporter: 7.1.0(postcss@8.4.47)
       pretty-hrtime: 1.0.3
       read-cache: 1.0.0
       slash: 5.1.0
@@ -34972,7 +34968,7 @@ snapshots:
   postcss-discard-comments@7.0.1(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-discard-comments@7.0.3(postcss@8.4.47):
     dependencies:
@@ -35010,7 +35006,7 @@ snapshots:
   postcss-discard-unused@6.0.5(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-import@15.1.0(postcss@8.4.39):
     dependencies:
@@ -35040,13 +35036,13 @@ snapshots:
       postcss: 8.4.47
       ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
 
-  postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1):
+  postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.4.47)(tsx@4.19.1):
     dependencies:
       lilconfig: 3.1.2
       yaml: 2.6.0
     optionalDependencies:
       jiti: 2.4.0
-      postcss: 8.4.39
+      postcss: 8.4.47
       tsx: 4.19.1
 
   postcss-loader@7.3.4(postcss@8.4.47)(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29)):
@@ -35089,7 +35085,7 @@ snapshots:
       caniuse-api: 3.0.0
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-merge-rules@7.0.2(postcss@8.4.47):
     dependencies:
@@ -35097,7 +35093,7 @@ snapshots:
       caniuse-api: 3.0.0
       cssnano-utils: 5.0.0(postcss@8.4.47)
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-merge-rules@7.0.4(postcss@8.4.47):
     dependencies:
@@ -35155,13 +35151,13 @@ snapshots:
   postcss-minify-selectors@6.0.4(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-minify-selectors@7.0.2(postcss@8.4.47):
     dependencies:
       cssesc: 3.0.0
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-minify-selectors@7.0.4(postcss@8.4.47):
     dependencies:
@@ -35177,13 +35173,13 @@ snapshots:
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.47)
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
       postcss-value-parser: 4.2.0
 
   postcss-modules-scope@3.2.0(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-modules-values@4.0.0(postcss@8.4.47):
     dependencies:
@@ -35205,12 +35201,12 @@ snapshots:
       postcss: 8.4.47
       postcss-selector-parser: 6.1.0
 
-  postcss-nesting@12.1.5(postcss@8.4.39):
+  postcss-nesting@12.1.5(postcss@8.4.47):
     dependencies:
-      '@csstools/selector-resolve-nested': 1.1.0(postcss-selector-parser@6.1.1)
-      '@csstools/selector-specificity': 3.1.1(postcss-selector-parser@6.1.1)
-      postcss: 8.4.39
-      postcss-selector-parser: 6.1.1
+      '@csstools/selector-resolve-nested': 1.1.0(postcss-selector-parser@6.1.2)
+      '@csstools/selector-specificity': 3.1.1(postcss-selector-parser@6.1.2)
+      postcss: 8.4.47
+      postcss-selector-parser: 6.1.2
 
   postcss-normalize-charset@6.0.2(postcss@8.4.47):
     dependencies:
@@ -35357,18 +35353,13 @@ snapshots:
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
-  postcss-reporter@7.1.0(postcss@8.4.39):
+  postcss-reporter@7.1.0(postcss@8.4.47):
     dependencies:
       picocolors: 1.1.0
-      postcss: 8.4.39
+      postcss: 8.4.47
       thenby: 1.3.4
 
   postcss-selector-parser@6.1.0:
-    dependencies:
-      cssesc: 3.0.0
-      util-deprecate: 1.0.2
-
-  postcss-selector-parser@6.1.1:
     dependencies:
       cssesc: 3.0.0
       util-deprecate: 1.0.2
@@ -35398,12 +35389,12 @@ snapshots:
   postcss-unique-selectors@6.0.4(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-unique-selectors@7.0.1(postcss@8.4.47):
     dependencies:
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   postcss-unique-selectors@7.0.3(postcss@8.4.47):
     dependencies:
@@ -35431,8 +35422,8 @@ snapshots:
   postcss@8.4.39:
     dependencies:
       nanoid: 3.3.7
-      picocolors: 1.0.1
-      source-map-js: 1.2.0
+      picocolors: 1.1.0
+      source-map-js: 1.2.1
 
   postcss@8.4.47:
     dependencies:
@@ -37318,13 +37309,13 @@ snapshots:
     dependencies:
       browserslist: 4.23.2
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   stylehacks@7.0.2(postcss@8.4.47):
     dependencies:
       browserslist: 4.23.2
       postcss: 8.4.47
-      postcss-selector-parser: 6.1.1
+      postcss-selector-parser: 6.1.2
 
   stylehacks@7.0.4(postcss@8.4.47):
     dependencies:
@@ -38479,7 +38470,7 @@ snapshots:
   update-browserslist-db@1.1.0(browserslist@4.23.2):
     dependencies:
       browserslist: 4.23.2
-      escalade: 3.1.2
+      escalade: 3.2.0
       picocolors: 1.1.0
 
   update-browserslist-db@1.1.1(browserslist@4.24.2):
@@ -39675,7 +39666,7 @@ snapshots:
   yargs@17.7.2:
     dependencies:
       cliui: 8.0.1
-      escalade: 3.1.2
+      escalade: 3.2.0
       get-caller-file: 2.0.5
       require-directory: 2.1.1
       string-width: 4.2.3

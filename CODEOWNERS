@@ -30,7 +30,7 @@
 /packages/play-button @marclave
 # /packages/use-modal
 /packages/build-watch @geoffgscott
-/packages/nestjs-api-reference @marclave
+/integrations/nestjs-api-reference @marclave
 /packages/scalar.aspnetcore @marclave @hanspagel
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
