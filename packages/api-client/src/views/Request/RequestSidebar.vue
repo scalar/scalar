@@ -77,6 +77,7 @@ const searchResultsId = useId()
 const { toast } = useToasts()
 /** The currently selected sidebarMenuItem for the context menu */
 const menuItem = reactive<SidebarMenuItem>({ open: false })
+const isSearchVisible = ref(false)
 
 /** Watch to see if activeRequest changes and ensure we open any folders */
 watch(
@@ -193,8 +194,6 @@ const handleClearDrafts = () => {
   }
 }
 
-const isSearchVisible = ref(false)
-
 const toggleSearch = () => {
   // Simply toggle the visibility
   isSearchVisible.value = !isSearchVisible.value
@@ -246,7 +245,7 @@ const toggleSearch = () => {
         </button>
       </div>
       <div
-        v-show="isSearchVisible || searchText"
+        v-show="isSearchVisible"
         class="search-button-fade sticky px-3 py-2.5 z-10 pt-0 top-[48px] focus-within:z-20"
         role="search">
         <ScalarSearchInput
@@ -255,7 +254,6 @@ const toggleSearch = () => {
           :aria-activedescendant="selectedResultId"
           :aria-controls="searchResultsId"
           sidebar
-          @blur="isSearchVisible = searchText.length > 0"
           @input="fuseSearch"
           @keydown.down.stop="navigateSearchResults('down')"
           @keydown.enter.stop="selectSearchResult()"
