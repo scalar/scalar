@@ -9,7 +9,7 @@ The easiest way to render a modern and beautiful API reference based on your Dja
 ## Installation
 
 ```bash
-pip install git+https://github.com/scalar/scalar.git#subdirectory=packages/scalar_django_ninja
+pip install git+https://github.com/scalar/scalar.git#subdirectory=integrations/scalar_django_ninja
 ```
 
 ## Usage

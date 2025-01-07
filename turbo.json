@@ -27,5 +27,6 @@
       "dependsOn": ["^build"]
     },
     "types:check": {}
-  }
+  },
+  "ui": "tui"
 }
