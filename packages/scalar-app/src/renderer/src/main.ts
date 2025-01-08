@@ -78,6 +78,12 @@ async function drop(e: DragEvent) {
   // Check if the user dropped an URL
   if (e.dataTransfer?.getData('text/uri-list')) {
     const url = e.dataTransfer.getData('text/uri-list')
+    const appOrigin = window.location.origin
+
+    // Prevents self importation that is causing collection creation
+    if (url.startsWith(appOrigin)) {
+      return
+    }
 
     if (url) {
       client.store.importSpecFromUrl(url, 'default')
