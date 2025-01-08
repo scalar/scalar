@@ -76,7 +76,7 @@ const updateRequestNameHandler = (event: Event) => {
         <input
           v-if="!isReadOnly"
           id="requestname"
-          class="text-c-1 rounded pointer-events-auto relative w-full pl-2 -ml-0.5 md:-ml-1 xl:-ml-2 has-[:focus-visible]:outline h-8 group-hover-input has-[:focus-visible]:outline z-10"
+          class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 has-[:focus-visible]:outline h-8 group-hover-input has-[:focus-visible]:outline z-10"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />

@@ -44,7 +44,7 @@ const selectedEnvironment = computed(() => {
   return (
     environment?.uid ||
     collection?.['x-scalar-active-environment'] ||
-    'Environment'
+    'No Environment'
   )
 })
 

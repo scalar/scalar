@@ -26,7 +26,7 @@ const findHeaderInfo = (name: string) => {
     <template #title>Headers</template>
     <div
       v-if="headers.length"
-      class="border-t-1/2 border-b-1/20 max-h-[calc(100%-32px)] overflow-y-auto">
+      class="border-t-1/2 border-b-1/2 max-h-[calc(100%-32px)] overflow-y-auto">
       <DataTable
         class="!border-0 !mx-0"
         :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
