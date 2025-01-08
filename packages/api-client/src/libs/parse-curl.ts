@@ -42,8 +42,6 @@ export function parseCurlCommand(curlCommand: string) {
             ...result.queryParameters,
             ...queryParameters,
           }
-
-          console.log('queryParameters', queryParameters)
         }
       }
       arg = iterator.next().value
