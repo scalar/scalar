@@ -62,7 +62,7 @@ export function useBlockProps(props: BlockProps): {
     const result = collectionRequests.find((request) => {
       // TODO: This is not very reliable
       const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
-      const specifiedMethod = props.location.split('/')[3]
+      const specifiedMethod = props.location.split('/')[3].toLocaleLowerCase()
 
       return (
         request.method === specifiedMethod && request.path === specifiedPath

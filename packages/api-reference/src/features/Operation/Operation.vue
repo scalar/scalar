@@ -6,6 +6,7 @@ import {
   type WorkspaceStore,
   useActiveEntities,
 } from '@scalar/api-client/store'
+import type { OpenAPI } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { inject } from 'vue'
 
@@ -47,8 +48,9 @@ const { operation } = useBlockProps({
   store,
   location: getLocation([
     'paths',
-    transformedOperation?.httpVerb ?? 'get',
     transformedOperation?.path ?? '',
+    // TODO: I can’t find 'CONNECT' in the Swagger 2.0/OpenAPI 3.x specifications. @hanspagel
+    (transformedOperation?.httpVerb as OpenAPI.HttpMethods) ?? 'get',
   ]),
 })
 </script>
