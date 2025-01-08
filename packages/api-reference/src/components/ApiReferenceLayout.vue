@@ -260,6 +260,7 @@ watch(
       shouldLoad: false,
       documentUrl: props.configuration.spec?.url,
       setCollectionSecurity: true,
+      name: 'default',
       ...props.configuration,
     }),
   { immediate: true },
