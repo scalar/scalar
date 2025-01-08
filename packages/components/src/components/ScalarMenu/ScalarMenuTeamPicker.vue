@@ -9,11 +9,12 @@ import {
   ScalarListboxCheckbox,
   type ScalarListboxOption,
 } from '../..'
-import { ScalarMenuLink } from './'
+import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
+import ScalarMenuTeamProfile from './ScalarMenuTeamProfile.vue'
 
 const props = defineProps<{
-  team?: ScalarListboxOption | undefined
-  teams: ScalarListboxOption[]
+  team?: ScalarMenuTeamOption | undefined
+  teams: ScalarMenuTeamOption[]
 }>()
 
 const emit = defineEmits<{
@@ -31,25 +32,32 @@ defineOptions({ inheritAttrs: false })
   <DropdownMenu.Sub>
     <ScalarMenuLink
       :is="DropdownMenu.SubTrigger"
+      icon="Users"
       v-bind="$attrs">
       <div>Change team</div>
       <ScalarIcon
-        class="ml-auto text-c-2"
+        class="ml-auto text-c-2 -mr-0.25"
         icon="ChevronRight"
         size="sm" />
     </ScalarMenuLink>
     <DropdownMenu.Portal>
-      <DropdownMenu.SubContent>
-        <ScalarDropdownMenu>
-          <ScalarDropdownButton
-            v-for="t in teams"
-            :key="t.id"
-            class="group/item"
-            @click="model = t">
-            <ScalarListboxCheckbox :selected="t.id === model?.id" />
-            {{ t.label }}
-          </ScalarDropdownButton>
-        </ScalarDropdownMenu>
+      <DropdownMenu.SubContent
+        :as="ScalarDropdownMenu"
+        class="max-h-radix-popper"
+        :sideOffset="3">
+        <ScalarDropdownButton
+          v-for="t in teams"
+          :key="t.id"
+          class="group/item"
+          @click="model = t">
+          <ScalarMenuTeamProfile
+            class="-ml-0.75 flex-1 min-w-0"
+            :label="t.label"
+            :src="t.src" />
+          <ScalarListboxCheckbox
+            class="ml-auto"
+            :selected="t.id === model?.id" />
+        </ScalarDropdownButton>
       </DropdownMenu.SubContent>
     </DropdownMenu.Portal>
   </DropdownMenu.Sub>

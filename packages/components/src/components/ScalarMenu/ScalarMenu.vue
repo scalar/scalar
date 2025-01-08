@@ -2,9 +2,7 @@
 import { DropdownMenu } from 'radix-vue/namespaced'
 import { ref } from 'vue'
 
-import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarDropdownMenu } from '../ScalarDropdown'
-import type { ScalarFloatingOptions } from '../ScalarFloating'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
@@ -13,9 +11,6 @@ import type {
   ScalarMenuButtonSlots,
   ScalarMenuSlotProps,
 } from './types'
-
-// eslint-disable-next-line vue/no-unused-properties
-defineProps<ScalarFloatingOptions>()
 
 defineSlots<
   {
@@ -31,7 +26,6 @@ defineSlots<
 >()
 
 defineOptions({ inheritAttrs: false })
-const { cx } = useBindCx()
 
 /** Whether the menu is open */
 const open = ref(false)
@@ -61,18 +55,15 @@ function close() {
             #label>
             <slot name="label" />
           </template>
-          <template
-            v-if="$slots['sr-label']"
-            #sr-label>
-            <slot name="sr-label" />
-          </template>
         </ScalarMenuButton>
       </slot>
     </DropdownMenu.Trigger>
     <DropdownMenu.Content
       align="start"
       :as="ScalarDropdownMenu"
-      :sideOffset="5">
+      class="max-h-radix-popper"
+      :sideOffset="5"
+      v-bind="$attrs">
       <!-- Menu content -->
       <!-- Base Product List (can be overridden by slot) -->
       <slot

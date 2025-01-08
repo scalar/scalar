@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
-import { type Icon, ScalarIcon } from '../../'
+import type { Icon } from '../../'
 import { cva } from '../../cva'
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarMenuLink } from './'
@@ -28,12 +28,10 @@ const variants = cva({
 <template>
   <ScalarMenuLink
     :is="is"
+    :icon="icon"
+    strong
     target="_blank"
     v-bind="cx(variants({ selected }))">
-    <ScalarIcon
-      :icon="icon"
-      size="xs"
-      thickness="2.5" />
-    <span class="font-medium"><slot /></span>
+    <slot />
   </ScalarMenuLink>
 </template>
