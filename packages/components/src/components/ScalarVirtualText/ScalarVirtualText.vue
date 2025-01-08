@@ -94,12 +94,12 @@ watchEffect(() => {
 <template>
   <div
     ref="containerRef"
-    class="scalar-virtual-text relative min-h-[200px] overflow-auto"
+    class="scalar-virtual-text overflow-auto"
     :class="containerClass"
     @scroll="handleScroll">
     <code
       ref="contentRef"
-      class="scalar-virtual-text-content absolute"
+      class="scalar-virtual-text-content"
       :class="contentClass"
       :style="contentStyle">
       <div
