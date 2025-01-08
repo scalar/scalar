@@ -1035,4 +1035,40 @@ describe('getExampleFromSchema', () => {
       },
     })
   })
+
+  it('handles patternProperties', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        patternProperties: {
+          '^(.*)$': {
+            type: 'object',
+            properties: {
+              dataId: {
+                type: 'string',
+              },
+              link: {
+                anyOf: [
+                  {
+                    format: 'uri',
+                    type: 'string',
+                    example: 'https://example.com',
+                  },
+                  {
+                    type: 'null',
+                  },
+                ],
+              },
+            },
+            required: ['dataId', 'link'],
+          },
+        },
+      }),
+    ).toStrictEqual({
+      '^(.*)$': {
+        dataId: '',
+        link: 'https://example.com',
+      },
+    })
+  })
 })
