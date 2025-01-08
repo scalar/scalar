@@ -13,5 +13,5 @@ export const LAYOUT_SYMBOL = Symbol() as InjectionKey<ClientLayout>
  * @see {@link createApiClient}
  */
 export const useLayout = () => ({
-  layout: inject(LAYOUT_SYMBOL) ?? 'desktop',
+  layout: inject(LAYOUT_SYMBOL, 'desktop'),
 })
