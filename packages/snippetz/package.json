@@ -191,6 +191,11 @@
       "types": "./dist/plugins/go/native/index.d.ts",
       "default": "./dist/plugins/go/native/index.js"
     },
+    "./plugins/dart/http": {
+      "import": "./dist/plugins/dart/http/index.js",
+      "types": "./dist/plugins/dart/http/index.d.ts",
+      "default": "./dist/plugins/dart/http/index.js"
+    },
     "./plugins/csharp/restsharp": {
       "import": "./dist/plugins/csharp/restsharp/index.js",
       "types": "./dist/plugins/csharp/restsharp/index.d.ts",
