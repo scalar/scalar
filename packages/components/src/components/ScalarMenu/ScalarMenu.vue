@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import type { ScalarFloatingOptions } from '../ScalarFloating'
-import { ScalarPopover } from '../ScalarPopover'
+import { DropdownMenu } from 'radix-vue/namespaced'
+import { ref } from 'vue'
+
+import { ScalarDropdownMenu } from '../ScalarDropdown'
 import ScalarMenuButton from './ScalarMenuButton.vue'
 import ScalarMenuProducts from './ScalarMenuProducts.vue'
 import ScalarMenuResources from './ScalarMenuResources.vue'
@@ -9,8 +11,6 @@ import type {
   ScalarMenuButtonSlots,
   ScalarMenuSlotProps,
 } from './types'
-
-defineProps<ScalarFloatingOptions>()
 
 defineSlots<
   {
@@ -24,14 +24,21 @@ defineSlots<
     sections?: (p: ScalarMenuSlotProps) => any
   } & ScalarMenuButtonSlots
 >()
+
+defineOptions({ inheritAttrs: false })
+
+/** Whether the menu is open */
+const open = ref(false)
+
+/** Close the menu */
+function close() {
+  open.value = false
+}
 </script>
 <template>
-  <ScalarPopover
-    v-bind="$props"
-    class="max-h-[inherit] w-[280px] max-w-[inherit]"
-    :placement="placement ?? 'bottom-start'">
-    <!-- Logo Button to open the popover -->
-    <template #default="{ open }">
+  <DropdownMenu.Root v-model:open="open">
+    <DropdownMenu.Trigger asChild>
+      <!-- Logo Button to open the popover -->
       <slot
         name="button"
         :open="open">
@@ -48,32 +55,30 @@ defineSlots<
             #label>
             <slot name="label" />
           </template>
-          <template
-            v-if="$slots['sr-label']"
-            #sr-label>
-            <slot name="sr-label" />
-          </template>
         </ScalarMenuButton>
       </slot>
-    </template>
-    <!-- Popover content -->
-    <template #popover="{ close }">
-      <div class="custom-scroll flex flex-col gap-3 p-2.25">
-        <!-- Base Product List (can be overridden by slot) -->
-        <slot
-          :close="close"
-          name="products">
-          <ScalarMenuProducts />
-        </slot>
-        <slot
-          :close="close"
-          name="profile" />
-        <slot
-          :close="close"
-          name="sections">
-          <ScalarMenuResources />
-        </slot>
-      </div>
-    </template>
-  </ScalarPopover>
+    </DropdownMenu.Trigger>
+    <DropdownMenu.Content
+      align="start"
+      :as="ScalarDropdownMenu"
+      class="max-h-radix-popper"
+      :sideOffset="5"
+      v-bind="$attrs">
+      <!-- Menu content -->
+      <!-- Base Product List (can be overridden by slot) -->
+      <slot
+        :close="close"
+        name="products">
+        <ScalarMenuProducts />
+      </slot>
+      <slot
+        :close="close"
+        name="profile" />
+      <slot
+        :close="close"
+        name="sections">
+        <ScalarMenuResources />
+      </slot>
+    </DropdownMenu.Content>
+  </DropdownMenu.Root>
 </template>

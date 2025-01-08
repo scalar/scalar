@@ -26,6 +26,10 @@ export default {
         'screen-md': '640px',
         'screen-lg': '800px',
         'screen-xl': '1000px',
+        'radix-popper': 'calc(var(--radix-popper-available-width) - 8px)',
+      },
+      maxHeight: {
+        'radix-popper': 'calc(var(--radix-popper-available-height) - 8px)',
       },
       zIndex: {
         // Contextual overlays like dropdowns, popovers, tooltips

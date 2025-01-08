@@ -18,13 +18,8 @@ defineSlots<ScalarMenuButtonSlots>()
         <ScalarIcon icon="Logo" />
       </slot>
     </div>
-    <div
-      v-if="$slots.label"
-      class="ml-0.75 truncate">
-      <slot name="label" />
-    </div>
     <span class="sr-only">
-      <slot name="sr-label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
+      <slot name="label">{{ open ? 'Close Menu' : 'Open Menu' }}</slot>
     </span>
     <ScalarIcon
       class="shrink-0 text-c-3 group-hover/button:text-c-1"

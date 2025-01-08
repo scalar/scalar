@@ -1,0 +1,35 @@
+<script setup lang="ts">
+import { ScalarIcon, useBindCx } from '../..'
+
+defineProps<{
+  src?: string
+  label?: string
+}>()
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
+</script>
+<template>
+  <div v-bind="cx('flex h-full items-center gap-1')">
+    <img
+      v-if="src"
+      class="size-5 rounded"
+      :src="src" />
+    <div
+      v-else
+      class="flex items-center justify-center text-3xs font-medium text-c-3 size-5 bg-b-3 rounded">
+      <template v-if="label && label.length > 0">
+        {{ label[0] }}
+      </template>
+      <ScalarIcon
+        v-else
+        icon="Users"
+        size="xs" />
+    </div>
+    <div
+      v-if="label && label.length > 0"
+      class="flex-1 truncate">
+      {{ label }}
+    </div>
+  </div>
+</template>

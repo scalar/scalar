@@ -1,17 +1,20 @@
 <script setup lang="ts">
+import { DropdownMenu } from 'radix-vue/namespaced'
 import { computed } from 'vue'
 
 import {
-  ScalarButton,
+  ScalarDropdownButton,
+  ScalarDropdownMenu,
   ScalarIcon,
-  ScalarListbox,
+  ScalarListboxCheckbox,
   type ScalarListboxOption,
 } from '../..'
-import { useBindCx } from '../../hooks/useBindCx'
+import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
+import ScalarMenuTeamProfile from './ScalarMenuTeamProfile.vue'
 
 const props = defineProps<{
-  team?: ScalarListboxOption | undefined
-  teams: ScalarListboxOption[]
+  team?: ScalarMenuTeamOption | undefined
+  teams: ScalarMenuTeamOption[]
 }>()
 
 const emit = defineEmits<{
@@ -24,24 +27,38 @@ const model = computed<ScalarListboxOption | undefined>({
 })
 
 defineOptions({ inheritAttrs: false })
-const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('flex flex-col pb-px')">
-    <ScalarListbox
-      v-model="model"
-      :options="teams"
-      placement="bottom-end"
-      resize>
-      <ScalarButton
-        class="h-auto px-2.5 py-1 text-xs leading shadow-none"
-        variant="outlined">
-        <div class="truncate">{{ team?.label }}</div>
-        <ScalarIcon
-          class="ml-auto text-c-2"
-          icon="ChevronDown"
-          size="sm" />
-      </ScalarButton>
-    </ScalarListbox>
-  </div>
+  <DropdownMenu.Sub>
+    <ScalarMenuLink
+      :is="DropdownMenu.SubTrigger"
+      icon="UserSwitch"
+      v-bind="$attrs">
+      <div>Change team</div>
+      <ScalarIcon
+        class="ml-auto text-c-2 -mr-0.25"
+        icon="ChevronRight"
+        size="sm" />
+    </ScalarMenuLink>
+    <DropdownMenu.Portal>
+      <DropdownMenu.SubContent
+        :as="ScalarDropdownMenu"
+        class="max-h-radix-popper"
+        :sideOffset="3">
+        <ScalarDropdownButton
+          v-for="t in teams"
+          :key="t.id"
+          class="group/item"
+          @click="model = t">
+          <ScalarMenuTeamProfile
+            class="-ml-0.75 flex-1 min-w-0"
+            :label="t.label"
+            :src="t.src" />
+          <ScalarListboxCheckbox
+            class="ml-auto"
+            :selected="t.id === model?.id" />
+        </ScalarDropdownButton>
+      </DropdownMenu.SubContent>
+    </DropdownMenu.Portal>
+  </DropdownMenu.Sub>
 </template>

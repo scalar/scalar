@@ -137,6 +137,7 @@ export default {
       spacing: {
         px: '1px',
         header: '48px',
+        border: 'var(--scalar-border-width)',
       },
     },
   },

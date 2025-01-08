@@ -17,23 +17,21 @@
 export default {}
 </script>
 <script setup lang="ts">
+import type { Component } from 'vue'
 import { cva, cx } from '../../cva'
 
-defineProps<{
+const { is = 'button' } = defineProps<{
+  is?: string | Component
   active?: boolean
   disabled?: boolean
-}>()
-
-defineEmits<{
-  (e: 'click', event: MouseEvent): void
 }>()
 
 const variants = cva({
   base: [
     // Layout
-    'h-8 min-w-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-left',
+    'flex h-8 min-w-0 items-center gap-1.5 rounded px-2.5 py-1.5 text-left',
     // Text / background style
-    'truncate text-sm text-c-1',
+    'truncate  no-underline text-sm text-c-1',
     // Interaction
     'cursor-pointer hover:bg-b-2 hover:text-c-1',
   ],
@@ -44,13 +42,13 @@ const variants = cva({
 })
 </script>
 <template>
-  <button
+  <component
+    :is="is"
     class="item"
     :class="cx('scalar-dropdown-item', variants({ active, disabled }))"
-    type="button"
-    @click="($event) => $emit('click', $event)">
+    :type="is === 'button' ? 'button' : undefined">
     <slot />
-  </button>
+  </component>
 </template>
 <style scoped>
 .dark-mode .scalar-dropdown-item:hover {
