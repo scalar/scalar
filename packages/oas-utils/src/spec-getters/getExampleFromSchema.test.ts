@@ -1071,4 +1071,13 @@ describe('getExampleFromSchema', () => {
       },
     })
   })
+
+  it('handles objects in examples and returns them as an array', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'array',
+        example: ['example 1', 'example 2'],
+      }),
+    ).toMatchObject(['example 1', 'example 2'])
+  })
 })

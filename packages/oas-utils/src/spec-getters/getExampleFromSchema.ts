@@ -132,9 +132,12 @@ export const getExampleFromSchema = (
     }
   }
 
-  // Use the first example, if there’s an array
+  // Use the first example, if there’s an array, and handle objects
   if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    return cache(schema, schema.examples[0])
+    const firstExample = schema.examples[0]
+    return typeof firstExample === 'object'
+      ? cache(schema, Object.values(firstExample))
+      : cache(schema, firstExample)
   }
 
   // Use an example, if there’s one
