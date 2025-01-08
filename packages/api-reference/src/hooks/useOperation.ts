@@ -5,6 +5,7 @@ export type ParamMap = {
   path: Parameter[]
   query: Parameter[]
   header: Parameter[]
+  cookie: Parameter[]
   body: Parameter[]
   formData: Parameter[]
 }
@@ -18,6 +19,7 @@ export function useOperation(operation: TransformedOperation) {
       path: [],
       query: [],
       header: [],
+      cookie: [],
       body: [],
       formData: [],
     }
@@ -30,6 +32,8 @@ export function useOperation(operation: TransformedOperation) {
           map.query.push(parameter)
         } else if (parameter.in === 'header') {
           map.header.push(parameter)
+        } else if (parameter.in === 'cookie') {
+          map.cookie.push(parameter)
         } else if (parameter.in === 'body') {
           map.body.push(parameter)
         } else if (parameter.in === 'formData') {
@@ -48,6 +52,8 @@ export function useOperation(operation: TransformedOperation) {
           map.query.push(parameter)
         } else if (parameter.in === 'header') {
           map.header.push(parameter)
+        } else if (parameter.in === 'cookie') {
+          map.cookie.push(parameter)
         } else if (parameter.in === 'body') {
           map.body.push(parameter)
         } else if (parameter.in === 'formData') {

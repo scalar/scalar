@@ -27,6 +27,11 @@ const { parameterMap } = useOperation(props.operation)
     <template #title>Headers</template>
   </ParameterList>
 
+  <!-- Cookies -->
+  <ParameterList :parameters="parameterMap.cookie">
+    <template #title>Cookies</template>
+  </ParameterList>
+
   <!-- Body parameters -->
   <ParameterList
     :parameters="parameterMap.body"
