@@ -20,7 +20,7 @@ const textContent = computed(() => formatJsonOrYamlString(props.content))
     </div>
     <ScalarVirtualText
       containerClass="custom-scroll scalar-code-block border-1/2 rounded-b flex flex-1"
-      contentClass="language-plaintext whitespace-pre font-code text-base inline-block"
+      contentClass="language-plaintext whitespace-pre font-code text-base"
       :lineHeight="20"
       :text="textContent" />
   </ViewLayoutCollapse>
