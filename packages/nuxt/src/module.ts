@@ -75,7 +75,11 @@ export default defineNuxtModule<ModuleOptions>({
 
     // Also check for Nitro OpenAPI auto generation
     _nuxt.hook('nitro:config', (config) => {
-      if (config.experimental?.openAPI) isOpenApiEnabled = true
+      if (config.experimental?.openAPI) {
+        isOpenApiEnabled = true
+        config.openAPI ||= {}
+        config.openAPI.production ||= 'prerender'
+      }
     })
 
     // Load the component so it can be used directly
