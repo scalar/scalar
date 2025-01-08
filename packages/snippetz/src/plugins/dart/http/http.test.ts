@@ -180,7 +180,7 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    'Authorization': 'Basic ' + base64Encode(utf8.encode('user:pass')),
+    "Authorization": "Basic " + base64Encode(utf8.encode('user:pass')),
   };
 
   final response = await http.get(Uri.parse("https://example.com"), headers: headers);
@@ -260,7 +260,7 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    'Authorization': 'Basic ' + base64Encode(utf8.encode('user@example.com:pass:word!')),
+    "Authorization": "Basic " + base64Encode(utf8.encode('user@example.com:pass:word!')),
   };
 
   final response = await http.get(Uri.parse("https://example.com"), headers: headers);
