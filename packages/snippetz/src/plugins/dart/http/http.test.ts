@@ -11,7 +11,7 @@ describe('dartHttp', () => {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -25,7 +25,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.post(Uri.parse("https://example.com"));
+  final response = await http.post(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -45,10 +45,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -62,7 +62,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -89,12 +89,12 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   final body = r'{"hello":"world"}';
 
-  final response = await http.post(Uri.parse("https://example.com"), headers: headers, body: body);
+  final response = await http.post(Uri.parse('https://example.com'), headers: headers, body: body);
   print(response.body);
 }`)
   })
@@ -117,7 +117,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com?foo=bar&bar=foo"));
+  final response = await http.get(Uri.parse('https://example.com?foo=bar&bar=foo'));
   print(response.body);
 }`)
   })
@@ -141,10 +141,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Cookie": "foo=bar; bar=foo",
+    'Cookie': 'foo=bar; bar=foo',
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -158,7 +158,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -180,10 +180,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Authorization": "Basic " + base64Encode(utf8.encode('user:pass')),
+    'Authorization': 'Basic ' + base64Encode(utf8.encode('user:pass')),
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -196,7 +196,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -217,7 +217,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -238,7 +238,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -260,10 +260,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Authorization": "Basic " + base64Encode(utf8.encode('user@example.com:pass:word!')),
+    'Authorization': 'Basic ' + base64Encode(utf8.encode('user@example.com:pass:word!')),
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -281,7 +281,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -313,7 +313,7 @@ void main() async {
     'field': 'value',
   };
 
-  final response = await http.post(Uri.parse("https://example.com"), body: body);
+  final response = await http.post(Uri.parse('https://example.com'), body: body);
   print(response.body);
 }`)
   })
@@ -338,7 +338,7 @@ void main() async {
 void main() async {
   final body = 'special%20chars!%40%23=value';
 
-  final response = await http.post(Uri.parse("https://example.com"), body: body);
+  final response = await http.post(Uri.parse('https://example.com'), body: body);
   print(response.body);
 }`)
   })
@@ -358,7 +358,7 @@ void main() async {
 void main() async {
   final body = 'binary content';
 
-  final response = await http.post(Uri.parse("https://example.com"), body: body);
+  final response = await http.post(Uri.parse('https://example.com'), body: body);
   print(response.body);
 }`)
   })
@@ -378,10 +378,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Accept-Encoding": "gzip, deflate",
+    'Accept-Encoding': 'gzip, deflate',
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -394,7 +394,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com/path with spaces/[brackets]"));
+  final response = await http.get(Uri.parse('https://example.com/path with spaces/[brackets]'));
   print(response.body);
 }`)
   })
@@ -417,7 +417,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()"));
+  final response = await http.get(Uri.parse('https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()'));
   print(response.body);
 }`)
   })
@@ -430,7 +430,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse(""));
+  final response = await http.get(Uri.parse(''));
   print(response.body);
 }`)
   })
@@ -443,7 +443,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com/${'a'.repeat(2000)}"));
+  final response = await http.get(Uri.parse('https://example.com/${'a'.repeat(2000)}'));
   print(response.body);
 }`)
   })
@@ -461,10 +461,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "X-Custom": "value2",
+    'X-Custom': 'value2',
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -478,7 +478,7 @@ void main() async {
     expect(result).toBe(`import 'package:http/http.dart' as http;
 
 void main() async {
-  final response = await http.get(Uri.parse("https://example.com"));
+  final response = await http.get(Uri.parse('https://example.com'));
   print(response.body);
 }`)
   })
@@ -505,7 +505,7 @@ void main() async {
     'file': '',
   };
 
-  final response = await http.post(Uri.parse("https://example.com"), body: body);
+  final response = await http.post(Uri.parse('https://example.com'), body: body);
   print(response.body);
 }`)
   })
@@ -535,12 +535,12 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   final body = r'{"key":"\\"quotes\\" and \\\\backslashes\\\\","nested":{"array":["item1",null,null]}}';
 
-  final response = await http.post(Uri.parse("https://example.com"), headers: headers, body: body);
+  final response = await http.post(Uri.parse('https://example.com'), headers: headers, body: body);
   print(response.body);
 }`)
   })
@@ -560,10 +560,10 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Cookie": "special%3Bcookie=value%20with%20spaces",
+    'Cookie': 'special%3Bcookie=value%20with%20spaces',
   };
 
-  final response = await http.get(Uri.parse("https://example.com"), headers: headers);
+  final response = await http.get(Uri.parse('https://example.com'), headers: headers);
   print(response.body);
 }`)
   })
@@ -594,12 +594,12 @@ void main() async {
 
 void main() async {
   final headers = <String,String>{
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   };
 
   final body = r'{"nested":{"array":[1,2,3],"object":{"foo":"bar"}},"simple":"value"}';
 
-  final response = await http.post(Uri.parse("https://example.com"), headers: headers, body: body);
+  final response = await http.post(Uri.parse('https://example.com'), headers: headers, body: body);
   print(response.body);
 }`)
   })

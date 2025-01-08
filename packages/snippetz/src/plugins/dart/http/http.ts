@@ -55,7 +55,7 @@ export const dartHttp: Plugin = {
       if (username && password) {
         const credentials = `${username}:${password}`
         headers['Authorization'] =
-          `"Basic " + base64Encode(utf8.encode('${credentials}'))`
+          `'Basic ' + base64Encode(utf8.encode('${credentials}'))`
       }
     }
 
@@ -67,9 +67,9 @@ export const dartHttp: Plugin = {
       code += `  final headers = <String,String>{\n`
       for (const [key, value] of Object.entries(headers)) {
         if (value.includes('utf8.encode')) {
-          code += `    "${key}": ${value},\n`
+          code += `    '${key}': ${value},\n`
         } else {
-          code += `    "${key}": "${value}",\n`
+          code += `    '${key}': '${value}',\n`
         }
       }
       code += `  };\n\n`
@@ -123,7 +123,7 @@ export const dartHttp: Plugin = {
     const headersPart =
       Object.keys(headers).length > 0 ? ', headers: headers' : ''
     const bodyPart = body ? ', body: body' : ''
-    code += `  final response = await http.${method}(Uri.parse("${url}")${headersPart}${bodyPart});\n`
+    code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
     code += `  print(response.body);\n`
     code += `}`
 
