@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.30
+
+### Patch Changes
+
+- 1785304: feat: export extra packages and add findRequest lib
+
 ## 2.2.29
 
 ### Patch Changes
