@@ -58,7 +58,7 @@ type ActiveSections = (typeof sections)[number]
 const activeSection = ref<ActiveSections>('All')
 
 /** Threshold for virtualizing response bodies in bytes */
-const VIRTUALIZATION_THRESHOLD = 1_000 // TODO: Change back to 200_000
+const VIRTUALIZATION_THRESHOLD = 200_000
 const shouldVirtualize = computed(() => {
   if (!props.response) return false
 
