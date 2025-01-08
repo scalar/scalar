@@ -24,6 +24,7 @@ import {
   ScalarSearchResultList,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import {
   computed,
@@ -86,7 +87,7 @@ watch(
     if (!request) return
 
     // Ensure the sidebar folders are open
-    findRequestParents(request).forEach((uid) =>
+    findRequestParents(request).forEach((uid: string) =>
       setCollapsedSidebarFolder(uid, true),
     )
   },
@@ -128,7 +129,7 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
   if (item?.documentUrl) {
     item.watchMode = !item.watchMode
     const currentCollection = activeWorkspaceCollections.value.find(
-      (collection) => collection.uid === item.entity.uid,
+      (collection: Collection) => collection.uid === item.entity.uid,
     )
     if (currentCollection) {
       currentCollection.watchMode = item.watchMode
@@ -138,10 +139,17 @@ const handleToggleWatchMode = (item?: SidebarItem) => {
 
 watch(
   () =>
-    activeWorkspaceCollections.value.map((collection) => collection.watchMode),
+    activeWorkspaceCollections.value.map(
+      (collection: Collection) => collection.watchMode,
+    ),
   (newWatchModes, oldWatchModes) => {
-    newWatchModes.forEach((newWatchMode, index) => {
-      if (!isReadOnly && newWatchMode !== oldWatchModes[index]) {
+    newWatchModes.forEach((newWatchMode: boolean, index: number) => {
+      if (
+        !isReadOnly &&
+        newWatchMode !== oldWatchModes[index] &&
+        activeWorkspaceCollections.value[index]?.info?.title !== 'Drafts' &&
+        activeWorkspaceCollections.value[index]
+      ) {
         const currentCollection = activeWorkspaceCollections.value[index]
         if (!currentCollection) return
 
@@ -160,11 +168,11 @@ const selectedResultId = computed(() => {
 
 const handleClearDrafts = () => {
   const draftCollection = activeWorkspaceCollections.value.find(
-    (collection) => collection.info?.title === 'Drafts',
+    (collection: Collection) => collection.info?.title === 'Drafts',
   )
 
   if (draftCollection) {
-    draftCollection.requests.forEach((requestUid) => {
+    draftCollection.requests.forEach((requestUid: string) => {
       if (requests[requestUid]) {
         requestMutators.delete(requests[requestUid], draftCollection.uid)
       }
