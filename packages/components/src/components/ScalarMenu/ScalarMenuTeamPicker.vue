@@ -32,7 +32,7 @@ defineOptions({ inheritAttrs: false })
   <DropdownMenu.Sub>
     <ScalarMenuLink
       :is="DropdownMenu.SubTrigger"
-      icon="Users"
+      icon="UserSwitch"
       v-bind="$attrs">
       <div>Change team</div>
       <ScalarIcon
