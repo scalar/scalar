@@ -19,7 +19,7 @@ const content =
       ? toRaw(props.configuration.spec.content)
       : props.configuration.spec?.url
         ? await $fetch<string>(props.configuration.spec?.url)
-        : await $fetch<string>('/_nitro/openapi.json')
+        : await $fetch<string>('/_openapi.json')
 
 // Check for empty spec
 if (!content)
