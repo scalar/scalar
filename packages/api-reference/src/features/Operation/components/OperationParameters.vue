@@ -5,7 +5,7 @@ import ParameterList from './ParameterList.vue'
 import RequestBody from './RequestBody.vue'
 
 const props = defineProps<{
-  operation?: RequestEntity
+  operation?: Pick<RequestEntity, 'parameters' | 'requestBody'>
 }>()
 
 const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
@@ -13,26 +13,25 @@ const filterParameters = (where: 'path' | 'query' | 'header' | 'cookie') =>
   []
 </script>
 <template>
-  <!-- Path operation-->
-  <ParameterList :operation="filterParameters('path')">
+  <!-- Path -->
+  <ParameterList :parameters="filterParameters('path')">
     <template #title>Path Parameters</template>
   </ParameterList>
 
-  <!-- Query operation -->
-  <ParameterList :operation="filterParameters('query')">
+  <!-- Query -->
+  <ParameterList :parameters="filterParameters('query')">
     <template #title>Query Parameters</template>
   </ParameterList>
 
   <!-- Headers -->
-  <ParameterList :operation="filterParameters('header')">
+  <ParameterList :parameters="filterParameters('header')">
     <template #title>Headers</template>
   </ParameterList>
 
-  <!-- Form data -->
-  <!-- TODO: How does formdata work in OpenAPI 3.1 again? -->
-  <!-- <ParameterList :operation="parameterMap.formData">
-    <template #title>Form Data</template>
-  </ParameterList> -->
+  <!-- Cookies -->
+  <ParameterList :parameters="filterParameters('cookie')">
+    <template #title>Cookies</template>
+  </ParameterList>
 
   <!-- Request body -->
   <RequestBody
