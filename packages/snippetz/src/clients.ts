@@ -58,6 +58,12 @@ export const clients: Target[] = [
     clients: [clojureCljhttp],
   },
   {
+    key: 'dart',
+    title: 'Dart',
+    default: 'http',
+    clients: [dartHttp],
+  },
+  {
     key: 'go',
     title: 'Go',
     default: 'native',
@@ -146,11 +152,5 @@ export const clients: Target[] = [
     title: 'Swift',
     default: 'nsurlsession',
     clients: [swiftNsurlsession],
-  },
-  {
-    key: 'dart',
-    title: 'Dart',
-    default: 'http',
-    clients: [dartHttp],
   },
 ]

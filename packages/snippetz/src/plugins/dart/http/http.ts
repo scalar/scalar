@@ -96,7 +96,7 @@ export const dartHttp: Plugin = {
         normalizedRequest.postData.mimeType ===
         'application/x-www-form-urlencoded'
       ) {
-        body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`).join('&') || ''}';\n\n`
+        body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`).join('&') || ''}';\n\n`
       } else if (
         normalizedRequest.postData.mimeType === 'multipart/form-data'
       ) {
