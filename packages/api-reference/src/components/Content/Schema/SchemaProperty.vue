@@ -99,7 +99,7 @@ const remainingEnumValues = computed(() =>
     ]">
     <SchemaPropertyHeading
       :additional="additional"
-      :enum="getEnumFromValue(value).length > 1"
+      :enum="getEnumFromValue(value).length > 0"
       :required="required"
       :value="value">
       <template
@@ -156,7 +156,7 @@ const remainingEnumValues = computed(() =>
     </template>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(value)?.length > 1"
+      v-if="getEnumFromValue(value)?.length > 0"
       class="property-enum">
       <template v-if="value?.['x-enumDescriptions']">
         <div class="property-list">
