@@ -1,0 +1,52 @@
+[
+  {
+    "name": "next-js",
+    "cloudBuildName": "_SERVICE_NEXT_JS",
+    "dockerPath": "./examples/nextjs-api-reference/Dockerfile"
+  },
+  {
+    "name": "react-js",
+    "cloudBuildName": "_SERVICE_REACT_JS",
+    "dockerPath": "./examples/react/Dockerfile"
+  },
+  {
+    "name": "fastify",
+    "cloudBuildName": "_SERVICE_FASTIFY",
+    "dockerPath": "./examples/fastify-api-reference/Dockerfile"
+  },
+  {
+    "name": "hono",
+    "cloudBuildName": "_SERVICE_HONO",
+    "dockerPath": "./packages/hono-api-reference/Dockerfile"
+  },
+  {
+    "name": "nest-js-express",
+    "cloudBuildName": "_SERVICE_NEST_JS_EXPRESS",
+    "dockerPath": "./examples/nestjs-api-reference-express/Dockerfile"
+  },
+  {
+    "name": "express-js",
+    "cloudBuildName": "_SERVICE_EXPRESS",
+    "dockerPath": "./examples/express-api-reference/Dockerfile"
+  },
+  {
+    "name": "nest-js-fastify",
+    "cloudBuildName": "_SERVICE_NEST_JS_FASTIFY",
+    "dockerPath": "./examples/nestjs-api-reference-fastify/Dockerfile"
+  },
+  {
+    "name": "void-server",
+    "cloudBuildName": "_SERVICE_VOID_SERVER",
+    "dockerPath": "./packages/void-server/Dockerfile"
+  },
+  {
+    "name": "galaxy",
+    "cloudBuildName": "_SERVICE_GALAXY",
+    "dockerPath": "./packages/galaxy/Dockerfile"
+  },
+  {
+    "name": "snippetz",
+    "cloudBuildName": "_SERVICE_SNIPPETZ",
+    "dockerPath": "./packages/snippetz/Dockerfile"
+  }
+]
