@@ -23,6 +23,19 @@ import { createEmptySpecification } from '../helpers'
 
 type AnyObject = Record<string, any>
 
+const OPENAPI_HIDE_ENTITY = [
+  'x-internal',
+  'x-scalar-ignore',
+  'x-speakeasy-ignore',
+]
+
+/**
+ * Hide entities from the reference entirely.
+ */
+function shouldHideEntity(entity: UnknownObject): boolean {
+  return OPENAPI_HIDE_ENTITY.some((attr) => entity?.[attr] === true)
+}
+
 /**
  * Parse the given specification and return a super custom transformed specification.
  *
@@ -125,11 +138,11 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
     ).forEach((httpVerb) => {
       const originalWebhook =
         (schema.webhooks?.[name][httpVerb] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
-          'x-internal'?: boolean
+          [key in typeof OPENAPI_HIDE_ENTITY[number]]?: boolean
         })
 
       // Filter out webhooks marked as internal
-      if (originalWebhook?.['x-internal'] === true) {
+      if (shouldHideEntity(originalWebhook)) {
         return
       }
 
@@ -170,8 +183,15 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       }
 
       // Filter out operations marked as internal
-      if (operation['x-internal'] === true) {
+      if (shouldHideEntity(operation)) {
         return
+      }
+
+      // Hide operations where a tag is marked as internal
+      if (Array.isArray(operation.tags)) {
+        operation.tags = operation.tags?.filter(
+          (tag: UnknownObject) => !shouldHideEntity(tag),
+        )
       }
 
       // Transform the operation
@@ -220,10 +240,15 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         operation.tags.forEach((operationTag: string) => {
           // Try to find the tag in the schema
           const indexOfExistingTag = schema.tags?.findIndex(
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
-            (tag: SwaggerTag) => tag.name === operationTag,
+            (tag: UnknownObject) => tag.name === operationTag,
           )
 
+          // If existing tag has `x-internal` set to true, skip it and remove it from the array and from the operation
+          // if (schema.tags?.[indexOfExistingTag]?.['x-internal'] === true) {
+          //   operation.tags.splice(indexOfExistingTag, 1)
+          //   newOperation?.information?.tags?.splice(indexOfExistingTag, 1)
+          //   indexOfExistingTag = -1
+          // }
           // Create tag if it doesn’t exist yet
           if (indexOfExistingTag === -1) {
             schema.tags?.push({
@@ -247,6 +272,11 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
+
+      // Remove tags with `x-internal` set to true
+      schema.tags = schema.tags?.filter(
+        (tag: UnknownObject) => !shouldHideEntity(tag),
+      )
     })
   })
 
