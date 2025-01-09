@@ -12,7 +12,7 @@
   {
     "name": "fastify",
     "cloudBuildName": "_SERVICE_FASTIFY",
-    "dockerPath": "./examples/fastify-api-reference/Dockerfile"
+    "dockerPath": "./packages/fastify-api-reference/Dockerfile"
   },
   {
     "name": "hono",
@@ -27,7 +27,7 @@
   {
     "name": "express-js",
     "cloudBuildName": "_SERVICE_EXPRESS",
-    "dockerPath": "./examples/express-api-reference/Dockerfile"
+    "dockerPath": "./packages/express-api-reference/Dockerfile"
   },
   {
     "name": "nest-js-fastify",

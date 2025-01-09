@@ -137,7 +137,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}",
         "-f",
-        "./examples/fastify-api-reference/Dockerfile",
+        "./packages/fastify-api-reference/Dockerfile",
         "."
       ]
     },
@@ -287,7 +287,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}",
         "-f",
-        "./examples/express-api-reference/Dockerfile",
+        "./packages/express-api-reference/Dockerfile",
         "."
       ]
     },
