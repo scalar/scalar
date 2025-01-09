@@ -288,16 +288,25 @@ const hasDraftRequests = computed(() => {
     item.value.children.length > 0
   )
 })
+
+/**
+ * Check if the item should be shown.
+ * This is used to hide items that are marked as hidden/internal.
+ */
+const shouldShowItem = computed(() => {
+  const request = requests[props.uid]
+  if (request) return shouldShowEntity({ request })
+
+  const tag = tags[props.uid]
+  if (tag) return shouldShowEntity({ tag })
+
+  return true
+})
 </script>
 
 <template>
   <li
-    v-if="
-      shouldShowEntity({
-        request: requests[uid],
-        tag: tags[uid],
-      })
-    "
+    v-if="shouldShowItem"
     class="relative flex flex-row"
     :class="[
       (isReadOnly && parentUids.length > 1) ||
