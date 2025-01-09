@@ -1,7 +1,7 @@
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
-import { isDefined, shouldShowEntity } from '@scalar/oas-utils/helpers'
+import { isDefined, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -51,7 +51,7 @@ export function useSearch() {
   const populateFuseDataArray = (items: Request[]) => {
     fuseDataArray.value = items
       // Check if the request is marked has hidden/internal
-      .filter((request) => shouldShowEntity({ request }))
+      .filter((request) => shouldIgnoreEntity(request))
       // Check if the request is in a tag that is marked has hidden/internal
       .filter((request) => {
         // Find the collection for the request
@@ -60,13 +60,15 @@ export function useSearch() {
             activeWorkspaceCollection.requests.includes(request.uid),
         )
 
-        return Boolean(
+        const hasIgnoredTags = Boolean(
           collection?.tags
             .map((uid) => tags[uid])
             .filter(isDefined)
             .filter((tag) => request.tags?.includes(tag.name))
-            .filter((tag) => shouldShowEntity({ tag })).length,
+            .filter((tag) => shouldIgnoreEntity(tag)).length,
         )
+
+        return !hasIgnoredTags
       })
       .map((request: Request) => ({
         id: request.uid,

@@ -127,6 +127,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         schema.webhooks?.[name][httpVerb] as OpenAPIV3_1.PathItemObject[typeof httpVerb]
 
       // Filter out webhooks marked as internal
+      // @ts-expect-error TODO: Fix this
       if (shouldIgnoreEntity(originalWebhook)) {
         return
       }
@@ -168,14 +169,14 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       }
 
       // Filter out operations marked as internal
-      if (shouldHideEntity(operation)) {
+      if (shouldIgnoreEntity(operation)) {
         return
       }
 
       // Hide operations where a tag is marked as internal
       if (Array.isArray(operation.tags)) {
         operation.tags = operation.tags?.filter(
-          (tag: UnknownObject) => !shouldHideEntity(tag),
+          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
         )
       }
 
@@ -260,7 +261,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
       // Remove tags with `x-internal` set to true
       schema.tags = schema.tags?.filter(
-        (tag: UnknownObject) => !shouldHideEntity(tag),
+        (tag: UnknownObject) => !shouldIgnoreEntity(tag),
       )
     })
   })
