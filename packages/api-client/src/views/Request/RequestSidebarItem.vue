@@ -14,7 +14,7 @@ import {
   type HoveredItem,
 } from '@scalar/draggable'
 import type { Request } from '@scalar/oas-utils/entities/spec'
-import { shouldShowEntity } from '@scalar/oas-utils/helpers'
+import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -295,10 +295,10 @@ const hasDraftRequests = computed(() => {
  */
 const shouldShowItem = computed(() => {
   const request = requests[props.uid]
-  if (request) return shouldShowEntity({ request })
+  if (request) return !shouldIgnoreEntity(request)
 
   const tag = tags[props.uid]
-  if (tag) return shouldShowEntity({ tag })
+  if (tag) return !shouldIgnoreEntity(tag)
 
   return true
 })
