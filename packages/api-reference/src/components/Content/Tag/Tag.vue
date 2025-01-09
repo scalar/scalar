@@ -19,9 +19,13 @@ const contentsRef = ref<HTMLElement>()
 const { collapsedSidebarItems } = useSidebar()
 const { getTagId } = useNavState()
 
+const moreThanOneTag = computed(
+  () => props.spec.tags?.length && props.spec.tags?.length > 1,
+)
+
 const moreThanOneDefaultTag = computed(
   () =>
-    props.spec.tags?.length !== 1 ||
+    moreThanOneTag.value ||
     props.tag?.name !== 'default' ||
     props.tag?.description !== '',
 )
@@ -41,7 +45,7 @@ async function focusContents() {
       :isCollapsed="!collapsedSidebarItems[getTagId(tag)]"
       :tag="tag" />
     <ShowMoreButton
-      v-if="!collapsedSidebarItems[getTagId(tag)] && tag.operations?.length > 1"
+      v-if="!collapsedSidebarItems[getTagId(tag)] && moreThanOneTag"
       :id="id ?? ''"
       :aria-label="`Show all ${tag['x-displayName'] ?? tag.name} endpoints`"
       @click="focusContents" />
