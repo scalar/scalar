@@ -110,9 +110,9 @@ paths:
         - planets
 ```
 
-## x-internal
+## x-scalar-ignore
 
-You can hide operations from the reference with `x-internal`.
+You can hide operations and webhooks from the reference with `x-scalar-ignore`.
 
 ```diff
 openapi: 3.1.0
@@ -125,7 +125,7 @@ paths:
       summary: Get all planets
     post:
       summary: Create a new planet
-+      x-internal: true
++      x-scalar-ignore: true
 ```
 
 Or to hide a tag and the operations under it:
@@ -137,7 +137,7 @@ info:
   version: '1.0'
 tags:
   - name: planets
-+    x-internal: true
++    x-scalar-ignore: true
 paths:
   '/planets':
     get:
@@ -150,7 +150,7 @@ paths:
         - planets
 ```
 
-Aliases: `x-internal`, `x-speakeasy-ignore`
+Aliases: `x-internal`
 
 ## x-additionalPropertiesName
 

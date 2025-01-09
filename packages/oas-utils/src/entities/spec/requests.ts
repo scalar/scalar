@@ -99,6 +99,9 @@ export const oasRequestSchema = z.object({
   'responses': z.record(z.string(), z.any()).optional(),
   /** xScalar examples */
   'x-scalar-examples': z.record(z.string(), xScalarExampleSchema).optional(),
+  /** Hide operations */
+  'x-internal': z.boolean().optional(),
+  'x-scalar-ignore': z.boolean().optional(),
 }) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
 
 /**

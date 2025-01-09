@@ -13,7 +13,7 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import type { Request, Tag } from '@scalar/oas-utils/entities/spec'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -287,10 +287,36 @@ const hasDraftRequests = computed(() => {
     item.value.children.length > 0
   )
 })
+
+/**
+ * Check if an entity should be ignored
+ */
+const shouldIgnore = (entity: Tag | Request) => {
+  return entity?.['x-internal'] !== true && entity?.['x-scalar-ignore'] !== true
+}
+
+/**
+ * Check if an entity should be hidden
+ */
+const shouldShow = computed(() => {
+  const tag = tags[props.uid]
+  const request = requests[props.uid]
+
+  if (tag) {
+    return shouldIgnore(tag)
+  }
+
+  if (request) {
+    return shouldIgnore(request)
+  }
+
+  return true
+})
 </script>
 
 <template>
   <li
+    v-if="shouldShow"
     class="relative flex flex-row"
     :class="[
       (isReadOnly && parentUids.length > 1) ||

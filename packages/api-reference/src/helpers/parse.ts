@@ -23,11 +23,7 @@ import { createEmptySpecification } from '../helpers'
 
 type AnyObject = Record<string, any>
 
-const OPENAPI_HIDE_ENTITY = [
-  'x-internal',
-  'x-scalar-ignore',
-  'x-speakeasy-ignore',
-]
+const OPENAPI_HIDE_ENTITY = ['x-internal', 'x-scalar-ignore']
 
 /**
  * Hide entities from the reference entirely.
