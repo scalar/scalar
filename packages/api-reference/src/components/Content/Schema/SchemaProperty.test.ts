@@ -232,4 +232,17 @@ describe('SchemaProperty sub-schema', () => {
     const enumValues = wrapper.findAll('.property-enum-value')
     expect(enumValues).toHaveLength(3)
   })
+
+  it('shows enum value when there is only one', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          enum: ['a'],
+        },
+      },
+    })
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    expect(enumValues).toHaveLength(1)
+  })
 })
