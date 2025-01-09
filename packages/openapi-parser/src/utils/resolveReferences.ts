@@ -29,12 +29,12 @@ export type ResolveReferencesResult = {
 }
 
 export type ResolveReferencesOptions = ThrowOnErrorOption & {
+  /**
+   * Fired when dereferenced a schema.
+   *
+   * Note that for object schemas, its properties may not be dereferenced when the hook is called.
+   */
   onDereference?: (data: { schema: AnyObject; ref: string }) => void
-}
-
-// TODO: Exists already, clean up
-type DereferenceResult = {
-  errors: ErrorObject[]
 }
 
 /**
@@ -48,13 +48,8 @@ export function resolveReferences(
   // Fallback to the entrypoint
   file?: FilesystemEntry,
   // Errors that occurred during the process
-  errors?: ErrorObject[],
+  errors: ErrorObject[] = [],
 ): ResolveReferencesResult {
-  // Initialize errors
-  if (errors === undefined) {
-    errors = []
-  }
-
   // Detach from input
   const clonedInput = structuredClone(input)
 
@@ -64,11 +59,16 @@ export function resolveReferences(
   // Get the main file
   const entrypoint = getEntrypoint(filesystem)
 
+  const finalInput = file?.specification ?? entrypoint.specification
+
   // Recursively resolve all references
-  resolve(
-    file?.specification ?? entrypoint.specification,
+  dereference(
+    finalInput,
     filesystem,
     file ?? entrypoint,
+    new WeakSet(),
+    errors,
+    options,
   )
 
   // Remove duplicats (according to message) from errors
@@ -83,72 +83,82 @@ export function resolveReferences(
   // Return the resolved specification
   return {
     valid: errors.length === 0,
-    errors: errors,
-    schema: (file ?? getEntrypoint(filesystem))
-      .specification as OpenAPI.Document,
+    errors,
+    schema: finalInput as OpenAPI.Document,
+  }
+}
+
+/**
+ * Resolves the circular reference to an object and deletes the $ref properties (in-place).
+ */
+function dereference(
+  schema: AnyObject,
+  filesystem: Filesystem,
+  entrypoint: FilesystemEntry,
+  // references to resolved object
+  resolvedSchemas: WeakSet<object>,
+  // error output
+  errors: ErrorObject[],
+
+  options?: ResolveReferencesOptions,
+): void {
+  if (schema === null || resolvedSchemas.has(schema)) return
+  resolvedSchemas.add(schema)
+
+  function resolveExternal(externalFile: FilesystemEntry) {
+    dereference(
+      externalFile.specification,
+      filesystem,
+      externalFile,
+      resolvedSchemas,
+      errors,
+      options,
+    )
+
+    return externalFile
   }
 
-  /**
-   * Resolves the circular reference to an object and deletes the $ref properties.
-   */
-  function resolve(
-    schema: AnyObject,
-    resolveFilesystem: Filesystem,
-    resolveFile: FilesystemEntry,
-    // references to resolved object
-    resolved: WeakSet<object> = new WeakSet(),
-  ): DereferenceResult {
-    let result: DereferenceResult = { errors: [] }
+  while (schema.$ref !== undefined) {
+    // Find the referenced content
+    const resolved = resolveUri(
+      schema.$ref,
+      options,
+      entrypoint,
+      filesystem,
+      resolveExternal,
+      errors,
+    )
 
-    if (schema === null || resolved.has(schema)) return result
-    resolved.add(schema)
+    // invalid
+    if (typeof resolved !== 'object' || resolved === null) break
+    const dereferencedRef = schema.$ref
 
-    function resolveExternal(externalFile: FilesystemEntry) {
-      resolve(
-        externalFile.specification,
-        resolveFilesystem,
-        externalFile,
-        resolved,
-      )
+    // Get rid of the reference
+    delete schema.$ref
 
-      return externalFile
+    for (const key of Object.keys(resolved)) {
+      if (schema[key] === undefined) {
+        schema[key] = resolved[key]
+      }
     }
 
-    // Ignore parts without a reference
-    while (schema.$ref !== undefined) {
-      // Find the referenced content
-      const target = resolveUri(
-        schema.$ref,
-        options,
-        resolveFile,
-        resolveFilesystem,
-        resolveExternal,
+    if (dereferencedRef) {
+      options?.onDereference?.({ schema, ref: dereferencedRef })
+    }
+  }
+
+  // Iterate over the whole object
+  for (const value of Object.values(schema)) {
+    if (typeof value === 'object' && value !== null) {
+      dereference(
+        value,
+        filesystem,
+        entrypoint,
+        resolvedSchemas,
         errors,
+        options,
       )
-
-      // invalid
-      if (typeof target !== 'object' || target === null) break
-
-      options?.onDereference?.({ schema, ref: schema.$ref })
-
-      // Get rid of the reference
-      delete schema.$ref
-
-      for (const key of Object.keys(target)) {
-        if (schema[key] === undefined) {
-          schema[key] = target[key]
-        }
-      }
     }
-
-    // Iterate over the whole object
-    for (const value of Object.values(schema)) {
-      if (typeof value === 'object' && value !== null) {
-        result = resolve(value, resolveFilesystem, resolveFile, resolved)
-      }
-    }
-
-    return result
   }
 }
 
@@ -168,8 +178,9 @@ function resolveUri(
 
   // a function to resolve references in external file
   resolve: (file: FilesystemEntry) => FilesystemEntry,
-  errors?: ErrorObject[],
-) {
+
+  errors: ErrorObject[],
+): AnyObject | undefined {
   // Ignore invalid URIs
   if (typeof uri !== 'string') {
     if (options?.throwOnError) {
