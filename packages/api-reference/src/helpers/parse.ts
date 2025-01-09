@@ -7,7 +7,7 @@ import {
   normalizeRequestMethod,
   validRequestMethods,
 } from '#legacy'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type {
@@ -22,15 +22,6 @@ import type { UnknownObject } from '@scalar/types/utils'
 import { createEmptySpecification } from '../helpers'
 
 type AnyObject = Record<string, any>
-
-const OPENAPI_HIDE_ENTITY = ['x-internal', 'x-scalar-ignore']
-
-/**
- * Hide entities from the reference entirely.
- */
-function shouldHideEntity(entity: UnknownObject): boolean {
-  return OPENAPI_HIDE_ENTITY.some((attr) => entity?.[attr] === true)
-}
 
 /**
  * Parse the given specification and return a super custom transformed specification.
@@ -133,12 +124,10 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        (schema.webhooks?.[name][httpVerb] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
-          [key in typeof OPENAPI_HIDE_ENTITY[number]]?: boolean
-        })
+        schema.webhooks?.[name][httpVerb] as OpenAPIV3_1.PathItemObject[typeof httpVerb]
 
       // Filter out webhooks marked as internal
-      if (shouldHideEntity(originalWebhook)) {
+      if (shouldIgnoreEntity(originalWebhook)) {
         return
       }
 
