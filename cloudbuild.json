@@ -15,13 +15,20 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-base",
-      "waitFor": ["build-base"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}"]
+      "waitFor": [
+        "build-base"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_BASE_BUILDER}"
+      ]
     },
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-next-js",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -37,14 +44,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-next-js",
-      "waitFor": ["build-next-js"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}"]
+      "waitFor": [
+        "build-next-js"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-next-js",
       "entrypoint": "gcloud",
-      "waitFor": ["push-next-js"],
+      "waitFor": [
+        "push-next-js"
+      ],
       "args": [
         "run",
         "deploy",
@@ -62,7 +76,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-react-js",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -78,14 +94,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-react-js",
-      "waitFor": ["build-react-js"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_REACT_JS}"]
+      "waitFor": [
+        "build-react-js"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_REACT_JS}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-react-js",
       "entrypoint": "gcloud",
-      "waitFor": ["push-react-js"],
+      "waitFor": [
+        "push-react-js"
+      ],
       "args": [
         "run",
         "deploy",
@@ -103,7 +126,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-fastify",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -119,14 +144,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-fastify",
-      "waitFor": ["build-fastify"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}"]
+      "waitFor": [
+        "build-fastify"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_FASTIFY}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-fastify",
       "entrypoint": "gcloud",
-      "waitFor": ["push-fastify"],
+      "waitFor": [
+        "push-fastify"
+      ],
       "args": [
         "run",
         "deploy",
@@ -144,7 +176,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-hono",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -160,14 +194,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-hono",
-      "waitFor": ["build-hono"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}"]
+      "waitFor": [
+        "build-hono"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-hono",
       "entrypoint": "gcloud",
-      "waitFor": ["push-hono"],
+      "waitFor": [
+        "push-hono"
+      ],
       "args": [
         "run",
         "deploy",
@@ -185,7 +226,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-nest-js-express",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -201,14 +244,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-nest-js-express",
-      "waitFor": ["build-nest-js-express"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_EXPRESS}"]
+      "waitFor": [
+        "build-nest-js-express"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_EXPRESS}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-nest-js-express",
       "entrypoint": "gcloud",
-      "waitFor": ["push-nest-js-express"],
+      "waitFor": [
+        "push-nest-js-express"
+      ],
       "args": [
         "run",
         "deploy",
@@ -226,7 +276,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-express-js",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -242,14 +294,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-express-js",
-      "waitFor": ["build-express-js"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}"]
+      "waitFor": [
+        "build-express-js"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_EXPRESS}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-express-js",
       "entrypoint": "gcloud",
-      "waitFor": ["push-express-js"],
+      "waitFor": [
+        "push-express-js"
+      ],
       "args": [
         "run",
         "deploy",
@@ -267,7 +326,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-nest-js-fastify",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -283,14 +344,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-nest-js-fastify",
-      "waitFor": ["build-nest-js-fastify"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}"]
+      "waitFor": [
+        "build-nest-js-fastify"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-nest-js-fastify",
       "entrypoint": "gcloud",
-      "waitFor": ["push-nest-js-fastify"],
+      "waitFor": [
+        "push-nest-js-fastify"
+      ],
       "args": [
         "run",
         "deploy",
@@ -308,7 +376,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-void-server",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -324,14 +394,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-void-server",
-      "waitFor": ["build-void-server"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_VOID_SERVER}"]
+      "waitFor": [
+        "build-void-server"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_VOID_SERVER}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-void-server",
       "entrypoint": "gcloud",
-      "waitFor": ["push-void-server"],
+      "waitFor": [
+        "push-void-server"
+      ],
       "args": [
         "run",
         "deploy",
@@ -349,7 +426,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-galaxy",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -365,14 +444,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-galaxy",
-      "waitFor": ["build-galaxy"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}"]
+      "waitFor": [
+        "build-galaxy"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_GALAXY}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-galaxy",
       "entrypoint": "gcloud",
-      "waitFor": ["push-galaxy"],
+      "waitFor": [
+        "push-galaxy"
+      ],
       "args": [
         "run",
         "deploy",
@@ -390,7 +476,9 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "build-snippetz",
-      "waitFor": ["push-base"],
+      "waitFor": [
+        "push-base"
+      ],
       "args": [
         "buildx",
         "build",
@@ -406,14 +494,21 @@
     {
       "name": "gcr.io/cloud-builders/docker",
       "id": "push-snippetz",
-      "waitFor": ["build-snippetz"],
-      "args": ["push", "gcr.io/${_PROJECT_ID}/${_SERVICE_SNIPPETZ}"]
+      "waitFor": [
+        "build-snippetz"
+      ],
+      "args": [
+        "push",
+        "gcr.io/${_PROJECT_ID}/${_SERVICE_SNIPPETZ}"
+      ]
     },
     {
       "name": "gcr.io/google.com/cloudsdktool/cloud-sdk",
       "id": "deploy-snippetz",
       "entrypoint": "gcloud",
-      "waitFor": ["push-snippetz"],
+      "waitFor": [
+        "push-snippetz"
+      ],
       "args": [
         "run",
         "deploy",
