@@ -341,10 +341,10 @@ const handleFileUploadFormData = async (rowIdx: number) => {
         const currentParams = formParams.value
         const updatedParams = [...currentParams]
         updatedParams[rowIdx] = {
+          key: file.name,
           ...updatedParams[rowIdx],
           file,
           value: file.name,
-          key: file.name,
           enabled: true,
         }
         requestExampleMutators.edit(
