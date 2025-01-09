@@ -128,6 +128,30 @@ paths:
 +      x-internal: true
 ```
 
+Or to hide a tag and the operations under it:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: '1.0'
+tags:
+  - name: planets
++    x-internal: true
+paths:
+  '/planets':
+    get:
+      summary: Get all planets
+      tags:
+        - planets
+    post:
+      summary: Create a new planet
+      tags:
+        - planets
+```
+
+Aliases: `x-internal`, `x-speakeasy-ignore`
+
 ## x-additionalPropertiesName
 
 You can add a custom attribute name to `additionalProperties` with `x-additionalPropertiesName`.
