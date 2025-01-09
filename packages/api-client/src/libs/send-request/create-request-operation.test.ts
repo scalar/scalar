@@ -386,7 +386,34 @@ describe('create-request-operation', () => {
     expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
   })
 
-  it('should ignore query parameters with empty values', async () => {
+  it('should ignore query parameters with empty values that are not enabled', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: {
+          url: VOID_URL,
+        },
+        requestExamplePayload: {
+          parameters: {
+            query: [
+              {
+                key: 'foo',
+                value: '',
+                enabled: false,
+              },
+            ],
+          },
+        },
+      }),
+    )
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
+  })
+
+  it('should maintain query parameters with empty values that are enabled', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
         serverPayload: {
@@ -410,7 +437,9 @@ describe('create-request-operation', () => {
     const [requestError, result] = await requestOperation.sendRequest()
 
     expect(requestError).toBe(null)
-    expect(JSON.parse(result?.response.data as string).query).toStrictEqual({})
+    expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
+      foo: '',
+    })
   })
 
   it('works with no content', async () => {
