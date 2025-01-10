@@ -74,6 +74,8 @@ npm install @scalar/api-reference-react
 ```
 
 ```tsx
+'use client'
+
 import { ApiReferenceReact } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
 
