@@ -133,10 +133,14 @@ export const getExampleFromSchema = (
   }
 
   // Use the first example, if there’s an key value object with multiple examples
-  if (schema.examples && typeof schema.examples === 'object') {
-    const firstExample = Object.values(schema.examples)[0]
-
-    return cache(schema, firstExample)
+  if (schema.examples) {
+    if (schema.type === 'array') {
+      return cache(schema, Object.values(schema.examples[0]))
+    }
+    if (typeof schema.examples === 'object') {
+      const firstExample = Object.values(schema.examples)[0]
+      return cache(schema, firstExample)
+    }
   }
 
   // Use an example, if there’s one
@@ -276,6 +280,15 @@ export const getExampleFromSchema = (
 
   // Array
   if (schema.type === 'array' || schema.items !== undefined) {
+    if (schema.examples) {
+      if (schema.type === 'array') {
+        return cache(schema, Object.values(schema.examples[0]))
+      }
+      if (typeof schema.examples === 'object') {
+        const firstExample = Object.values(schema.examples)[0]
+        return cache(schema, firstExample)
+      }
+    }
     const itemsXmlTagName = schema?.items?.xml?.name
     const wrapItems = !!(options?.xml && schema.xml?.wrapped && itemsXmlTagName)
 
