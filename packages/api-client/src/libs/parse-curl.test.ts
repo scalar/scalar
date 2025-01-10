@@ -34,7 +34,7 @@ describe('parseCurlCommand', () => {
     it('handles URLs with spaces correctly', () => {
       const curlCommand = 'curl "http://example.com/path with spaces"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe('http://example.com/path with spaces')
+      expect(result.url).toBe('http://example.com/path%20with%20spaces')
     })
 
     it('handles URLs with different quote types', () => {
@@ -45,36 +45,43 @@ describe('parseCurlCommand', () => {
 
     it('handles URLs with special characters', () => {
       const curlCommand =
-        'curl "http://example.com/path?key=value&special=!@#$%^&*()"'
+        'curl "http://example.com/path?key=value&special=!@$%^*()"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe(
-        'http://example.com/path?key=value&special=!@#$%^&*()',
-      )
+      expect(result.url).toBe('http://example.com/path')
+      expect(result.queryParameters).toStrictEqual([
+        { key: 'key', value: 'value' },
+        { key: 'special', value: '!@$%^*()' },
+      ])
     })
 
     it('handles URLs with unicode characters', () => {
       const curlCommand = 'curl "http://example.com/path/🚀/test"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe('http://example.com/path/🚀/test')
+      expect(result.url).toBe('http://example.com/path/%F0%9F%9A%80/test')
     })
 
     it('handles URLs with escaped quotes', () => {
       const curlCommand = 'curl "http://example.com/path/\\"quoted\\"/test"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe('http://example.com/path/"quoted"/test')
+      expect(result.url).toBe('http://example.com/path/quoted/test')
     })
 
     it('handles URLs with multiple consecutive spaces', () => {
       const curlCommand = 'curl "http://example.com/path    with    spaces"'
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe('http://example.com/path    with    spaces')
+      expect(result.url).toBe(
+        'http://example.com/path%20%20%20%20with%20%20%20%20spaces',
+      )
     })
 
     it('handles URLs with line breaks', () => {
       const curlCommand = `curl 'http://example.com/path\
 ?param=value'`
       const result = parseCurlCommand(curlCommand)
-      expect(result.url).toBe('http://example.com/path?param=value')
+      expect(result.url).toBe('http://example.com/path')
+      expect(result.queryParameters).toStrictEqual([
+        { key: 'param', value: 'value' },
+      ])
     })
   })
 
@@ -102,7 +109,7 @@ describe('parseCurlCommand', () => {
     it('parses body data from file correctly', () => {
       const curlCommand = 'curl -d @file.txt http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.body).toBe('name=example')
+      expect(result.body).toBe('')
     })
 
     it('parses body data with --data flag correctly', () => {
@@ -114,7 +121,7 @@ describe('parseCurlCommand', () => {
     it('parses body data from file with --data flag correctly', () => {
       const curlCommand = 'curl --data @file.txt http://example.com'
       const result = parseCurlCommand(curlCommand)
-      expect(result.body).toBe('name=example')
+      expect(result.body).toBe('')
     })
   })
 

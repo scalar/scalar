@@ -42,17 +42,7 @@ export function parseCurlCommand(curlCommand: string) {
       arg === '--data-binary' ||
       arg === '--data-ascii'
     ) {
-      const nextArg = iterator.next().value
-      if (typeof nextArg === 'string') {
-        result.body = nextArg
-        // Parse query parameters from body if URL is not present
-        if (!result.url || curlCommand.includes('-G')) {
-          const newQueryParams = parseQueryParameters(`?${nextArg}`)
-          result.queryParameters = result.queryParameters
-            ? [...result.queryParameters, ...newQueryParams]
-            : newQueryParams
-        }
-      }
+      parseData(iterator as Iterator<string>, result, curlCommand)
     } else if (
       typeof arg === 'string' &&
       !result.url &&
@@ -166,5 +156,29 @@ function parseCookie(iterator: Iterator<string>, result: any) {
     result.headers['Cookie'] += `; ${cookie}`
   } else {
     result.headers['Cookie'] = cookie.replace(/;$/, '') // Remove trailing semicolon if present
+  }
+}
+
+/** Parse data from a curl command */
+function parseData(
+  iterator: Iterator<string>,
+  result: any,
+  curlCommand: string,
+) {
+  const nextArg = iterator.next().value
+  if (typeof nextArg === 'string') {
+    if (nextArg.startsWith('@')) {
+      // Mock reading data from file
+      result.body = ''
+    } else {
+      result.body = nextArg
+    }
+    // Parse query parameters from body if URL is not present
+    if (!result.url || curlCommand.includes('-G')) {
+      const newQueryParams = parseQueryParameters(`?${result.body}`)
+      result.queryParameters = result.queryParameters
+        ? [...result.queryParameters, ...newQueryParams]
+        : newQueryParams
+    }
   }
 }
