@@ -278,6 +278,20 @@ describe('create-request-operation', () => {
     })
   })
 
+  it('creates query parameters from the url', async () => {
+    const [error, requestOperation] = createRequestOperation(
+      createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        requestPayload: {
+          path: '/path?test=query',
+        },
+      }),
+    )
+    if (error) throw error
+
+    expect(requestOperation.request.url).toBe(`${VOID_URL}/path?test=query`)
+  })
+
   it('returns the request object with an uppercase method', async () => {
     const [error, requestOperation] = createRequestOperation(
       createRequestPayload({
