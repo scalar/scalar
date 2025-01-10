@@ -86,6 +86,12 @@ const visibleEnumValues = computed(() =>
 const remainingEnumValues = computed(() =>
   getEnumFromValue(props.value).slice(initialEnumCount.value),
 )
+
+const formatExample = (example: string) => {
+  return Array.isArray(example)
+    ? `[${example.map((item) => `"${item.trim()}"`).join(', ')}]`
+    : example
+}
 </script>
 <template>
   <div
@@ -131,7 +137,7 @@ const remainingEnumValues = computed(() =>
       class="property-example custom-scroll">
       <span class="property-example-label">Example</span>
       <code class="property-example-value">{{
-        value.example || value?.items.example
+        formatExample(value.example || value?.items.example)
       }}</code>
     </div>
     <template
@@ -337,7 +343,6 @@ const remainingEnumValues = computed(() =>
 .property-example-value {
   all: unset;
   font-family: var(--scalar-font-code);
-  white-space: pre;
   padding: 6px;
   border-top: var(--scalar-border-width) solid var(--scalar-border-color);
 }
@@ -368,7 +373,6 @@ const remainingEnumValues = computed(() =>
 }
 
 .property--compact .property-example {
-  align-items: center;
   background: transparent;
   border: none;
   display: flex;
@@ -377,13 +381,13 @@ const remainingEnumValues = computed(() =>
 }
 .property--compact .property-example-label,
 .property--compact .property-example-value {
-  padding: 0;
+  padding: 3px 0 0 0;
 }
 .property--compact .property-example-value {
   background: var(--scalar-background-2);
   border-top: 0;
   border-radius: var(--scalar-radius);
-  padding: 2px 6px;
+  padding: 3px 4px;
 }
 .property-list {
   border: var(--scalar-border-width) solid var(--scalar-border-color);

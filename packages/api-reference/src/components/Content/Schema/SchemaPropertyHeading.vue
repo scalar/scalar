@@ -135,11 +135,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       required
     </div>
   </div>
-  <div
-    v-if="$slots.example"
-    class="property-example">
-    <slot name="example" />
-  </div>
 </template>
 <style scoped>
 .property-heading {
@@ -167,11 +162,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
   font-weight: var(--scalar-semibold);
   font-size: var(--scalar-font-size-3);
   display: flex;
-}
-
-.property-example {
-  margin-top: 8px;
-  font-size: var(--scalar-mini);
 }
 
 .property-additional {
