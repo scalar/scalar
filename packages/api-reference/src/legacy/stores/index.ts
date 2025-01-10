@@ -1,2 +1,1 @@
-export * from './useServerStore'
-export * from './useExampleStore'
+export { useExampleStore } from './useExampleStore'

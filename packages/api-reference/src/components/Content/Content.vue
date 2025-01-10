@@ -2,10 +2,9 @@
 import { useActiveEntities } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Server, Spec } from '@scalar/types/legacy'
+import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
 import { ClientLibraries } from './ClientLibraries'
@@ -19,8 +18,6 @@ const props = withDefaults(
   defineProps<{
     parsedSpec: Spec
     layout?: 'modern' | 'classic'
-    baseServerURL?: string
-    servers?: Server[]
   }>(),
   {
     layout: 'modern',
@@ -61,11 +58,7 @@ const introCardsSlot = computed(() =>
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': layout === 'classic' }">
-            <BaseUrl
-              class="introduction-card-item"
-              :defaultServerUrl="baseServerURL"
-              :servers="props.servers"
-              :specification="parsedSpec" />
+            <!-- <ServerForm class="introduction-card-item" /> -->
             <div class="scalar-client introduction-card-item">
               <RequestAuth
                 layout="reference"
