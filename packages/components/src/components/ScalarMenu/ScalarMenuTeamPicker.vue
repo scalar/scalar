@@ -7,7 +7,6 @@ import {
   ScalarDropdownMenu,
   ScalarIcon,
   ScalarListboxCheckbox,
-  type ScalarListboxOption,
 } from '../..'
 import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
 import ScalarMenuTeamProfile from './ScalarMenuTeamProfile.vue'
@@ -18,12 +17,17 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:team', value: ScalarListboxOption | undefined): void
+  (e: 'update:team', value: ScalarMenuTeamOption | undefined): void
 }>()
 
-const model = computed<ScalarListboxOption | undefined>({
-  get: () => props.team,
-  set: (v) => emit('update:team', v),
+/** A model that tracks the team id */
+const model = computed<string | undefined>({
+  get: () => props.team?.id,
+  set: (v) =>
+    emit(
+      'update:team',
+      props.teams.find((t) => t.id === v),
+    ),
 })
 
 defineOptions({ inheritAttrs: false })
@@ -45,19 +49,24 @@ defineOptions({ inheritAttrs: false })
         :as="ScalarDropdownMenu"
         class="max-h-radix-popper"
         :sideOffset="3">
-        <ScalarDropdownButton
-          v-for="t in teams"
-          :key="t.id"
-          class="group/item"
-          @click="model = t">
-          <ScalarMenuTeamProfile
-            class="-ml-0.75 flex-1 min-w-0"
-            :label="t.label"
-            :src="t.src" />
-          <ScalarListboxCheckbox
-            class="ml-auto"
-            :selected="t.id === model?.id" />
-        </ScalarDropdownButton>
+        <DropdownMenu.RadioGroup
+          v-model="model"
+          as="template">
+          <DropdownMenu.RadioItem
+            v-for="t in teams"
+            :key="t.id"
+            :as="ScalarDropdownButton"
+            class="group/item"
+            :value="t.id">
+            <ScalarMenuTeamProfile
+              class="-ml-0.75 flex-1 min-w-0"
+              :label="t.label"
+              :src="t.src" />
+            <ScalarListboxCheckbox
+              class="ml-auto"
+              :selected="t.id === model" />
+          </DropdownMenu.RadioItem>
+        </DropdownMenu.RadioGroup>
       </DropdownMenu.SubContent>
     </DropdownMenu.Portal>
   </DropdownMenu.Sub>
