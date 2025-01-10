@@ -12,12 +12,17 @@ import { ScalarMenuLink, type ScalarMenuTeamOption } from './'
 import ScalarMenuTeamProfile from './ScalarMenuTeamProfile.vue'
 
 const props = defineProps<{
+  /** The currently selected team */
   team?: ScalarMenuTeamOption | undefined
+  /** The list of teams to choose from */
   teams: ScalarMenuTeamOption[]
 }>()
 
 const emit = defineEmits<{
+  /** Emitted when the selected team changes */
   (e: 'update:team', value: ScalarMenuTeamOption | undefined): void
+  /** Emitted when the user clicks the "Create new team" button */
+  (e: 'add'): void
 }>()
 
 /** A model that tracks the team id */
@@ -67,6 +72,15 @@ defineOptions({ inheritAttrs: false })
               :selected="t.id === model" />
           </DropdownMenu.RadioItem>
         </DropdownMenu.RadioGroup>
+        <DropdownMenu.Item
+          :as="ScalarDropdownButton"
+          @click="emit('add')">
+          <ScalarIcon
+            class="bg-b-3 -ml-0.75 rounded p-0.75 size-5 text-c-3"
+            icon="Add"
+            thickness="1.75" />
+          Create new team
+        </DropdownMenu.Item>
       </DropdownMenu.SubContent>
     </DropdownMenu.Portal>
   </DropdownMenu.Sub>

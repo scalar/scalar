@@ -57,11 +57,14 @@ export const TeamPicker: Story = {
         },
         {
           label: 'C Team',
+          src: 'https://picsum.photos/seed/3/100',
           id: 'team-c',
         },
       ]
       const team = ref(teams[0])
-      return { args, teams, team }
+      const handleAddTeam = () => alert('Add team!')
+
+      return { args, teams, team, handleAddTeam }
     },
     template: `
 <ScalarMenu v-bind="args">
@@ -71,7 +74,7 @@ export const TeamPicker: Story = {
   <template #sections>
     <ScalarMenuSection>
       <template #title>Account</template>
-      <ScalarMenuTeamPicker :teams="teams" v-model:team="team" />
+      <ScalarMenuTeamPicker :teams="teams" v-model:team="team" @add="handleAddTeam" />
       <ScalarMenuLink icon="Cog" >Settings</ScalarMenuLink>
       <ScalarMenuLink icon="Leave">Logout</ScalarMenuLink>
     </ScalarMenuSection>
