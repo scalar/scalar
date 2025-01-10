@@ -1,5 +1,6 @@
 export * from './lib/createBlock'
 export * from './lib/createCodeExamplesBlock'
+export * from './lib/createExampleResponsesBlock'
 export * from './lib/createOperationBlock'
 export * from './lib/createSchemaBlock'
 export * from './lib/createStore'
