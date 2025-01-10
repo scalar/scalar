@@ -145,10 +145,12 @@ export const getExampleFromSchema = (
     // if `example: ['foo', 'bar']` is passed for strings and others
     const isObjectOrArray = ['object', 'array'].includes(schema.type)
 
-    if (isObjectOrArray && typeof schema.example === 'object') {
+    if (!isObjectOrArray && typeof schema.example === 'object') {
       const firstExample = Object.values(schema.example)[0]
       return cache(schema, firstExample)
     }
+
+    return cache(schema, schema.example)
   }
 
   // Use a default value, if there’s one
