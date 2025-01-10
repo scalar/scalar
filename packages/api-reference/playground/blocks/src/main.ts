@@ -1,5 +1,6 @@
 import {
   createCodeExamplesBlock,
+  createExampleResponsesBlock,
   createOperationBlock,
   createSchemaBlock,
   createStore,
@@ -60,6 +61,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Mount the code example block to the div
           codeExampleBlock.mount(div)
+        } else if (block === 'example-responses') {
+          const exampleResponsesBlock = createExampleResponsesBlock({
+            store,
+            location,
+            collection: collectionName,
+          })
+
+          // Mount the code example block to the div
+          exampleResponsesBlock.mount(div)
         } else if (block === 'schema') {
           const schemaBlock = createSchemaBlock({
             store,
