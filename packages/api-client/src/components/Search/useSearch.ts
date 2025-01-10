@@ -50,6 +50,7 @@ export function useSearch() {
 
   const populateFuseDataArray = (items: Request[]) => {
     fuseDataArray.value = items
+      // TODO: We should probably filter in the store or somewhere else.
       // Check if the request is marked has hidden/internal
       .filter((request) => shouldIgnoreEntity(request))
       // Check if the request is in a tag that is marked has hidden/internal
@@ -125,7 +126,6 @@ export function useSearch() {
     }
   }
 
-  // TODO: Filter here instead of in populateFuseDataArray
   const validRequests = computed(() =>
     activeWorkspaceRequests.value.map((uid) => requests[uid]).filter(isDefined),
   )

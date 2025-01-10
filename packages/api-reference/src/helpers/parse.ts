@@ -229,12 +229,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
             (tag: UnknownObject) => tag.name === operationTag,
           )
 
-          // If existing tag has `x-internal` set to true, skip it and remove it from the array and from the operation
-          // if (schema.tags?.[indexOfExistingTag]?.['x-internal'] === true) {
-          //   operation.tags.splice(indexOfExistingTag, 1)
-          //   newOperation?.information?.tags?.splice(indexOfExistingTag, 1)
-          //   indexOfExistingTag = -1
-          // }
           // Create tag if it doesn’t exist yet
           if (indexOfExistingTag === -1) {
             schema.tags?.push({
