@@ -1,5 +1,6 @@
 import { nanoidSchema } from '@/entities/shared'
-import { z } from 'zod'
+import type { OpenAPIV3_1 } from '@scalar/openapi-types'
+import { type ZodSchema, z } from 'zod'
 
 /**
  * Server Variable Object
@@ -43,6 +44,21 @@ export const oasServerVariableSchema = z
     return true
   })
 
+/** Extended schema for server variables */
+const extendedServerVariableSchema = z.object({
+  /** The value of the variable */
+  value: z.string().optional().default(''),
+})
+
+const serverVariableSchema = oasServerVariableSchema.merge(
+  extendedServerVariableSchema,
+) as ZodSchema<
+  Omit<OpenAPIV3_1.ServerVariableObject, 'enum'> & {
+    enum?: [string, ...string[]]
+    value?: string
+  }
+>
+
 /**
  * Server Object
  *
@@ -63,8 +79,8 @@ export const oasServerSchema = z.object({
    */
   description: z.string().optional(),
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
-  variables: z.record(z.string(), oasServerVariableSchema).optional(),
-})
+  variables: z.record(z.string(), serverVariableSchema).optional(),
+}) satisfies ZodSchema<OpenAPIV3_1.ServerObject>
 
 export const serverSchema = oasServerSchema.extend({
   uid: nanoidSchema,
