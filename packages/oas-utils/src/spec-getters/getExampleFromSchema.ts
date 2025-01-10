@@ -132,15 +132,15 @@ export const getExampleFromSchema = (
     }
   }
 
-  // Use the first example, if there’s an array, and handle objects
-  if (Array.isArray(schema.examples) && schema.examples.length > 0) {
-    const firstExample = schema.examples[0]
-    return typeof firstExample === 'object'
-      ? cache(schema, Object.values(firstExample))
-      : cache(schema, firstExample)
+  // Use the first example, if there’s an key value object with multiple examples
+  if (schema.examples && typeof schema.examples === 'object') {
+    const firstExample = Object.values(schema.examples)[0]
+
+    return cache(schema, firstExample)
   }
 
   // Use an example, if there’s one
+  // Deprecated in OpenAPI 3.1
   if (schema.example !== undefined) {
     return cache(schema, schema.example)
   }
@@ -150,7 +150,7 @@ export const getExampleFromSchema = (
     return cache(schema, schema.default)
   }
 
-  // enum: [ 'available', 'pending', 'sold' ]
+  // enum: ['available', 'pending', 'sold']
   if (Array.isArray(schema.enum) && schema.enum.length > 0) {
     return cache(schema, schema.enum[0])
   }

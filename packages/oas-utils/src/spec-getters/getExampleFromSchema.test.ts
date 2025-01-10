@@ -1072,12 +1072,69 @@ describe('getExampleFromSchema', () => {
     })
   })
 
-  it('handles objects in examples and returns them as an array', () => {
+  it('handles multiple examples for a string type', () => {
     expect(
       getExampleFromSchema({
-        type: 'array',
-        example: ['example 1', 'example 2'],
+        type: 'string',
+        examples: {
+          example1: 'example string 1',
+          example2: 'example string 2',
+        },
       }),
-    ).toMatchObject(['example 1', 'example 2'])
+    ).toBe('example string 1') // first example
+  })
+
+  it('handles multiple examples for a number type', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'number',
+        examples: {
+          example1: 42,
+          example2: 100,
+        },
+      }),
+    ).toBe(42) // first example
+  })
+
+  it('handles single example for an object type', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        example: { key: 'value' },
+      }),
+    ).toMatchObject({ key: 'value' })
+  })
+
+  it('handles multiple examples for an object type', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'object',
+        examples: {
+          example1: { key1: 'value1' },
+          example2: { key2: 'value2' },
+        },
+      }),
+    ).toMatchObject({ key1: 'value1' }) // first example
+  })
+
+  it('handles single example for a boolean type', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'boolean',
+        example: true,
+      }),
+    ).toBe(true)
+  })
+
+  it('handles multiple examples for a boolean type', () => {
+    expect(
+      getExampleFromSchema({
+        type: 'boolean',
+        examples: {
+          example1: true,
+          example2: false,
+        },
+      }),
+    ).toBe(true) // first example
   })
 })
