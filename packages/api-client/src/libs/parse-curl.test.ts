@@ -104,6 +104,18 @@ describe('parseCurlCommand', () => {
       const result = parseCurlCommand(curlCommand)
       expect(result.body).toBe('name=example')
     })
+
+    it('parses body data with --data flag correctly', () => {
+      const curlCommand = 'curl --data "name=example" http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.body).toBe('name=example')
+    })
+
+    it('parses body data from file with --data flag correctly', () => {
+      const curlCommand = 'curl --data @file.txt http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.body).toBe('name=example')
+    })
   })
 
   describe('query parameters', () => {
@@ -310,6 +322,25 @@ describe('parseCurlCommand', () => {
         'X-Long': longValue,
       })
     })
+
+    it('parses headers with --header flag correctly', () => {
+      const curlCommand =
+        'curl --header "Content-Type: application/json" http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.headers).toStrictEqual({
+        'Content-Type': 'application/json',
+      })
+    })
+
+    it('parses multiple headers with --header flag correctly', () => {
+      const curlCommand =
+        'curl --header "Content-Type: application/json" --header "Accept: */*" http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.headers).toStrictEqual({
+        'Content-Type': 'application/json',
+        'Accept': '*/*',
+      })
+    })
   })
 
   describe('authentication', () => {
@@ -433,6 +464,22 @@ describe('parseCurlCommand', () => {
     it('handles multiple cookie parameters correctly', () => {
       const curlCommand =
         'curl -b "name1=value1" -b "name2=value2" http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.headers).toHaveProperty(
+        'Cookie',
+        'name1=value1; name2=value2',
+      )
+    })
+
+    it('parses cookies with --cookie flag correctly', () => {
+      const curlCommand = 'curl --cookie "name=value" http://example.com'
+      const result = parseCurlCommand(curlCommand)
+      expect(result.headers).toHaveProperty('Cookie', 'name=value')
+    })
+
+    it('handles multiple cookies with --cookie flag correctly', () => {
+      const curlCommand =
+        'curl --cookie "name1=value1; name2=value2" http://example.com'
       const result = parseCurlCommand(curlCommand)
       expect(result.headers).toHaveProperty(
         'Cookie',
