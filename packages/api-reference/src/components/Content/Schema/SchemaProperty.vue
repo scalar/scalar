@@ -74,7 +74,7 @@ const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
   return value?.enum || value?.items?.enum || []
 }
 
-const rules = ['oneOf', 'anyOf', 'allOf', 'not']
+const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
 
 // These helpers manage how enum values are displayed:
 //
@@ -89,6 +89,65 @@ const visibleEnumValues = computed(() =>
 const remainingEnumValues = computed(() =>
   getEnumFromValue(props.value).slice(initialEnumCount.value),
 )
+
+/**
+ * Optimize the value by removing nulls from discriminators.
+ */
+const sanitizedValue = computed(() => {
+  // Clone the value to avoid mutating the original value
+  let newValue = props.value
+
+  if (!newValue) {
+    return newValue
+  }
+
+  // Find the discriminator type
+  const discriminatorType = discriminators.find(
+    (r) => newValue?.[r] || newValue?.items?.[r],
+  )
+
+  // If there’s no discriminator type, return the original value
+  if (!discriminatorType) {
+    return newValue
+  }
+
+  // Ignore the 'not' discriminator type
+  if (discriminatorType === 'not') {
+    return newValue
+  }
+
+  // Get the schemas for the discriminator type
+  const schemas =
+    newValue?.[discriminatorType] || newValue?.items?.[discriminatorType]
+
+  // If there’s an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
+  if (schemas.some((schema: any) => schema.type === 'null')) {
+    newValue.nullable = true
+  }
+
+  // Remove objects with type 'null' from the schemas
+  const newSchemas = schemas.filter((schema: any) => !(schema.type === 'null'))
+
+  // If there’s only one schema, overwrite the original value with the schema
+  // Skip it for arrays for now, need to handle that specifically.
+  if (newSchemas.length === 1 && newValue?.[discriminatorType]) {
+    newValue = { ...newValue, ...newSchemas[0] }
+
+    // Delete the original discriminator type
+    delete newValue?.[discriminatorType]
+
+    return newValue
+  }
+
+  // Overwrite the original schemas with the new schemas
+  if (newValue?.[discriminatorType]?.length > 1) {
+    newValue[discriminatorType] = newSchemas
+  } else if (newValue?.items?.[discriminatorType]?.length > 1) {
+    newValue.items[discriminatorType] = newSchemas
+  }
+
+  return newValue
+})
 </script>
 <template>
   <div
@@ -104,7 +163,7 @@ const remainingEnumValues = computed(() =>
       :additional="additional"
       :enum="getEnumFromValue(value).length > 0"
       :required="required"
-      :value="value">
+      :value="sanitizedValue">
       <template
         v-if="name"
         #name>
@@ -232,29 +291,30 @@ const remainingEnumValues = computed(() =>
           :value="value.items" />
       </div>
     </template>
-    <!-- oneOf -->
+    <!-- Discriminators -->
     <template
-      v-for="rule in rules"
-      :key="rule">
+      v-for="discriminator in discriminators"
+      :key="discriminator">
       <!-- Property -->
       <div
-        v-if="value?.[rule]"
+        v-if="sanitizedValue?.[discriminator]"
         class="property-rule">
         <template
-          v-for="(schema, index) in value[rule]"
+          v-for="(schema, index) in sanitizedValue[discriminator]"
           :key="index">
           <Schema
             :compact="compact"
             :level="level + 1"
+            :noncollapsible="value?.[discriminator].length === 1"
             :value="schema" />
         </template>
       </div>
       <!-- Arrays -->
       <div
-        v-if="value?.items?.[rule] && level < 3"
+        v-if="value?.items?.[discriminator] && level < 3"
         class="property-rule">
         <Schema
-          v-for="(schema, index) in value.items[rule]"
+          v-for="(schema, index) in value.items[discriminator]"
           :key="index"
           :compact="compact"
           :level="level + 1"
