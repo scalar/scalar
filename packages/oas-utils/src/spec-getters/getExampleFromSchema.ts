@@ -142,6 +142,15 @@ export const getExampleFromSchema = (
   // Use an example, if there’s one
   // Deprecated in OpenAPI 3.1
   if (schema.example !== undefined) {
+    // `example: ['foo', 'bar']` for strings and others
+    if (
+      typeof schema.example === 'object' &&
+      !['object', 'array'].includes(schema.type)
+    ) {
+      const firstExample = Object.values(schema.example)[0]
+      return cache(schema, firstExample)
+    }
+
     return cache(schema, schema.example)
   }
 

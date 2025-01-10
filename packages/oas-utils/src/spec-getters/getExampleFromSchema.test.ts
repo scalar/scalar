@@ -1065,7 +1065,6 @@ describe('getExampleFromSchema', () => {
       ).toMatchObject(10)
     })
 
-    // Yeah, specification says object, but you know how it is.
     it('uses first example, if multiple are configured', () => {
       expect(
         getExampleFromSchema({
@@ -1098,13 +1097,22 @@ describe('getExampleFromSchema', () => {
       ).toBe(42) // first example
     })
 
-    it('handles single example for an array type', () => {
+    it('handles example array for an array type', () => {
       expect(
         getExampleFromSchema({
           type: 'array',
           example: ['foo', 'bar'],
         }),
       ).toMatchObject(['foo', 'bar'])
+    })
+
+    it('handles example array for a string type', () => {
+      expect(
+        getExampleFromSchema({
+          type: 'string',
+          example: ['Portfolio1', 'Portfolio2'],
+        }),
+      ).toMatchObject('Portfolio1')
     })
 
     it('handles single example for an object type', () => {
