@@ -49,6 +49,7 @@ const inputHotkeys = [
  */
 export const DEFAULT_HOTKEYS: HotKeyConfig = {
   Escape: { event: 'closeModal' },
+  Enter: { event: 'executeRequest', modifiers: ['default'] },
   b: { event: 'toggleSidebar', modifiers: ['default'] },
   k: { event: 'openCommandPalette', modifiers: ['default'] },
 }
