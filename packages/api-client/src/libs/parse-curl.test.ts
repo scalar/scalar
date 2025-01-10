@@ -164,7 +164,7 @@ describe('parseCurlCommand', () => {
     })
 
     it('parses empty query parameters gracefully', () => {
-      const curlCommand = 'curl http://example.com?name=example&age'
+      const curlCommand = 'curl "http://example.com?name=example&age"'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'name', value: 'example' },
@@ -204,7 +204,7 @@ describe('parseCurlCommand', () => {
 
     it('handles query parameters with symbols correctly', () => {
       const curlCommand =
-        'curl "http://example.com?range=>10&price=$100&discount=20%"'
+        'curl "http://example.com?range=>10&price=\\$100&discount=20%"'
       const result = parseCurlCommand(curlCommand)
       expect(result.queryParameters).toStrictEqual([
         { key: 'range', value: '>10' },
