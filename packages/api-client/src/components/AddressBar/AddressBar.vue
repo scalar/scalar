@@ -30,7 +30,7 @@ const keys = useMagicKeys()
 const executeKey = computed(() =>
   isMacOS() ? keys.meta_enter : keys.ctrl_enter,
 )
-whenever(executeKey, () => events.executeRequest.emit())
+whenever(executeKey.value, () => events.executeRequest.emit())
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
