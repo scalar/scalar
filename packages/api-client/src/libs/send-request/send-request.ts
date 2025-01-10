@@ -14,12 +14,12 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import {
+  REGEX,
   canMethodHaveBody,
   concatenateUrlAndPath,
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import { REGEX } from '@scalar/oas-utils/helpers'
 import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
 
@@ -70,8 +70,8 @@ export function createFetchQueryParams(
 ) {
   const params = new URLSearchParams()
   example.parameters.query.forEach((p) => {
-    if (p.enabled && p.value)
-      params.append(p.key, replaceTemplateVariables(p.value, env))
+    if (p.enabled)
+      params.append(p.key, replaceTemplateVariables(p.value ?? '', env))
   })
 
   return params
