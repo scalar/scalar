@@ -343,8 +343,8 @@ const handleFileUploadFormData = async (rowIdx: number) => {
         updatedParams[rowIdx] = {
           ...updatedParams[rowIdx],
           file,
-          value: file.name,
-          key: file.name,
+          value: updatedParams[rowIdx]?.value || file.name,
+          key: updatedParams[rowIdx]?.key || file.name,
           enabled: true,
         }
         requestExampleMutators.edit(
