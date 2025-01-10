@@ -145,6 +145,8 @@ const itemCount = computed(
   () => params.value.filter((param) => param.key || param.value).length,
 )
 
+const showTooltip = computed(() => params.value.length > 1)
+
 watch(
   () => activeExample.value,
   (newVal, oldVal) => {
@@ -164,7 +166,7 @@ watch(
       <div
         class="text-c-2 flex whitespace-nowrap opacity-0 group-hover/params:opacity-100 has-[:focus-visible]:opacity-100 request-meta-buttons">
         <ScalarTooltip
-          v-if="params.length > 1"
+          v-if="showTooltip"
           side="right"
           :sideOffset="12">
           <template #trigger>
