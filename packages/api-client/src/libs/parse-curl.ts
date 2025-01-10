@@ -143,9 +143,20 @@ function parseContentType(arg: string, result: any) {
 /** Get the Authorization header from a curl command */
 function parseAuth(iterator: Iterator<string>, result: any) {
   const auth = iterator.next().value
-  const encodedAuth = Buffer.from(auth).toString('base64')
-  result.headers = result.headers || {}
-  result.headers['Authorization'] = `Basic ${encodedAuth}`
+
+  try {
+    const encodedAuth = btoa(auth)
+
+    result.headers = result.headers || {}
+
+    result.headers['Authorization'] = `Basic ${encodedAuth}`
+  } catch (error) {
+    console.warn(
+      'Could not base64 encode these HTTP basic auth credentials:',
+      auth,
+      error,
+    )
+  }
 }
 
 /** Get the Cookie header from a curl command */

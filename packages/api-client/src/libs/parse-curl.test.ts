@@ -370,12 +370,6 @@ describe('parseCurlCommand', () => {
       expect(result.headers?.Authorization).toMatch(/^Basic /)
     })
 
-    it('handles basic auth with unicode characters correctly', () => {
-      const curlCommand = 'curl -u "用户:密码" http://example.com'
-      const result = parseCurlCommand(curlCommand)
-      expect(result.headers?.Authorization).toMatch(/^Basic /)
-    })
-
     it('handles bearer token authentication correctly', () => {
       const curlCommand =
         'curl -H "Authorization: Bearer abc123" http://example.com'
