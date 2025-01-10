@@ -322,22 +322,22 @@ describe('dereference', async () => {
 
     const result = await dereference(openapi, {
       onDereference: ({ schema, ref }) => {
+        expect(schema).toEqual({
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+            },
+          },
+        })
+
+        expect(ref).toEqual('#/components/schemas/Test')
+
         dereferencedSchemas.push({ schema, ref })
       },
     })
 
     expect(result.errors).toStrictEqual([])
     expect(dereferencedSchemas).toHaveLength(1)
-    expect(dereferencedSchemas[0]).toEqual({
-      schema: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-          },
-        },
-      },
-      ref: '#/components/schemas/Test',
-    })
   })
 })
