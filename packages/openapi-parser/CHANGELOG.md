@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.3
+
+### Patch Changes
+
+- 8dce84f: Call `onDereference` after dereference process
+
 ## 0.10.2
 
 ### Patch Changes

@@ -1,5 +1,26 @@
 # scalar-app
 
+## 0.1.125
+
+### Patch Changes
+
+- 6ded421: fix: prevents self importation on drag
+- Updated dependencies [731b037]
+- Updated dependencies [5b26c75]
+- Updated dependencies [eb50f99]
+- Updated dependencies [b92b160]
+- Updated dependencies [e77e959]
+- Updated dependencies [30ae0df]
+- Updated dependencies [e17ac68]
+- Updated dependencies [ff3bdca]
+- Updated dependencies [197b7e1]
+- Updated dependencies [ee22e40]
+- Updated dependencies [7b4ab2c]
+  - @scalar/api-client@2.2.31
+  - @scalar/components@0.13.13
+  - @scalar/themes@0.9.59
+  - @scalar/import@0.2.16
+
 ## 0.1.124
 
 ### Patch Changes

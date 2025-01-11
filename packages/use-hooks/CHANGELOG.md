@@ -1,5 +1,12 @@
 # @scalar/use-hooks
 
+## 0.1.13
+
+### Patch Changes
+
+- Updated dependencies [7b4ab2c]
+  - @scalar/themes@0.9.59
+
 ## 0.1.12
 
 ### Patch Changes

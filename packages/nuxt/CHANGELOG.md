@@ -1,5 +1,27 @@
 # @scalar/nuxt
 
+## 0.2.180
+
+### Patch Changes
+
+- 36ab5b8: fix OpenAPI integration
+- Updated dependencies [731b037]
+- Updated dependencies [5b26c75]
+- Updated dependencies [eb50f99]
+- Updated dependencies [b92b160]
+- Updated dependencies [9e2e8be]
+- Updated dependencies [e77e959]
+- Updated dependencies [30ae0df]
+- Updated dependencies [273e927]
+- Updated dependencies [ff3bdca]
+- Updated dependencies [0642732]
+- Updated dependencies [197b7e1]
+- Updated dependencies [ee22e40]
+- Updated dependencies [58d5f6c]
+  - @scalar/api-client@2.2.31
+  - @scalar/api-reference@1.25.102
+  - @scalar/types@0.0.25
+
 ## 0.2.179
 
 ### Patch Changes

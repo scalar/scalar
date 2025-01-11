@@ -1,5 +1,32 @@
 # @scalar/api-client
 
+## 2.2.31
+
+### Patch Changes
+
+- 731b037: Fix uploading file in multipart form overwrites key already set
+- 5b26c75: fix: updates parse curl query parameters extraction
+- eb50f99: fix: fixtures layout and utility usages
+- b92b160: Fixed UI breaking when response body is too above threshold
+- e77e959: fix: allows enabled empty query params and omits disabled ones
+- 30ae0df: fix: displays request params clear button if params only
+- ff3bdca: feat: extracts tooltip display condition in function
+- 197b7e1: fix: prevents displaying watch toast on drafts and item deletion
+- ee22e40: fix: ctrl enter key on linux
+- Updated dependencies [e17ac68]
+- Updated dependencies [cf0e7b1]
+- Updated dependencies [8dce84f]
+- Updated dependencies [7b4ab2c]
+  - @scalar/components@0.13.13
+  - @scalar/oas-utils@0.2.96
+  - @scalar/openapi-parser@0.10.3
+  - @scalar/themes@0.9.59
+  - @scalar/use-codemirror@0.11.57
+  - @scalar/import@0.2.16
+  - @scalar/postman-to-openapi@0.1.19
+  - @scalar/types@0.0.25
+  - @scalar/use-hooks@0.1.13
+
 ## 2.2.30
 
 ### Patch Changes

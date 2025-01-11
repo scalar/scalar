@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.10
+
+### Patch Changes
+
+- fdd1de7: feat(snippetz): add dart/http
+
 ## 0.2.9
 
 ### Patch Changes

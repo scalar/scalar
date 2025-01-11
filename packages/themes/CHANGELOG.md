@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.9.59
+
+### Patch Changes
+
+- 7b4ab2c: feat(components): make ScalarMenu into a dropdown
+  - @scalar/types@0.0.25
+
 ## 0.9.58
 
 ### Patch Changes
