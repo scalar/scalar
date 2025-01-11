@@ -375,11 +375,11 @@ export const createRequestOperation = ({
       }
 
       // Combines all query params
-      combinedURL.search = new URLSearchParams([
-        ...serverURL.searchParams,
-        ...pathURL.searchParams,
-        ...urlParams,
-      ]).toString()
+      const searchParams = server?.url
+        ? [...serverURL.searchParams, ...pathURL.searchParams, ...urlParams]
+        : [...pathURL.searchParams, ...urlParams]
+
+      combinedURL.search = new URLSearchParams(searchParams).toString()
 
       url = combinedURL.toString()
     }

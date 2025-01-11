@@ -350,37 +350,72 @@ describe('create-request-operation', () => {
     })
   })
 
-  it('merges query parameters', async () => {
-    const [error, requestOperation] = createRequestOperation(
-      createRequestPayload({
-        serverPayload: {
-          url: `${VOID_URL}/api?orange=apple`,
-        },
-        requestPayload: {
-          path: '?example=parameter',
-        },
-        requestExamplePayload: {
-          parameters: {
-            query: [
-              {
-                key: 'foo',
-                value: 'bar',
-                enabled: true,
-              },
-            ],
+  describe('merges query parameters', () => {
+    it('with server url', async () => {
+      const [error, requestOperation] = createRequestOperation(
+        createRequestPayload({
+          serverPayload: {
+            url: `${VOID_URL}/api?orange=apple`,
           },
-        },
-      }),
-    )
-    if (error) throw error
+          requestPayload: {
+            path: '?example=parameter',
+          },
+          requestExamplePayload: {
+            parameters: {
+              query: [
+                {
+                  key: 'foo',
+                  value: 'bar',
+                  enabled: true,
+                },
+              ],
+            },
+          },
+        }),
+      )
+      if (error) throw error
 
-    const [requestError, result] = await requestOperation.sendRequest()
+      const [requestError, result] = await requestOperation.sendRequest()
 
-    expect(requestError).toBe(null)
-    expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
-      example: 'parameter',
-      foo: 'bar',
-      orange: 'apple',
+      expect(requestError).toBe(null)
+      expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
+        example: 'parameter',
+        foo: 'bar',
+        orange: 'apple',
+      })
+    })
+
+    it('without server url', async () => {
+      const [error, requestOperation] = createRequestOperation(
+        createRequestPayload({
+          serverPayload: {
+            url: '',
+          },
+          requestPayload: {
+            path: `${VOID_URL}/?example=parameter`,
+          },
+          requestExamplePayload: {
+            parameters: {
+              query: [
+                {
+                  key: 'foo',
+                  value: 'bar',
+                  enabled: true,
+                },
+              ],
+            },
+          },
+        }),
+      )
+      if (error) throw error
+
+      const [requestError, result] = await requestOperation.sendRequest()
+
+      expect(requestError).toBe(null)
+      expect(JSON.parse(result?.response.data as string).query).toStrictEqual({
+        example: 'parameter',
+        foo: 'bar',
+      })
     })
   })
 
