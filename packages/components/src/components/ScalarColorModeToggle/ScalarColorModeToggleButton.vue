@@ -25,7 +25,6 @@ const model = defineModel<boolean>()
 </script>
 <template>
   <button
-    aria-label="Toggle dark mode"
     :aria-pressed="model"
     type="button"
     v-bind="

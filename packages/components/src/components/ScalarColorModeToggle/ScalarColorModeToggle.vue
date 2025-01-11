@@ -1,5 +1,6 @@
 <script lang="ts">
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
+import { computed } from 'vue'
 
 import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
 import ScalarColorModeToggleIcon from './ScalarColorModeToggleIcon.vue'
@@ -25,13 +26,19 @@ const { variant = 'switch' } = defineProps<{
 }>()
 
 const { isDarkMode, toggleColorMode, darkLightMode } = useColorMode()
+
+const ariaLabel = computed<string>(() =>
+  isDarkMode.value ? 'Set light mode' : 'Set dark mode',
+)
 </script>
 <template>
   <ScalarColorModeToggleButton
     v-if="variant === 'switch'"
-    v-model="isDarkMode" />
+    v-model="isDarkMode"
+    :aria-label="ariaLabel" />
   <ScalarColorModeToggleIcon
     v-else
+    :aria-label="ariaLabel"
     :mode="darkLightMode"
     @click="toggleColorMode" />
 </template>
