@@ -11,9 +11,17 @@
  */
 export default {}
 </script>
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useBindCx } from '../../hooks/useBindCx'
+
+defineOptions({ inheritAttrs: false })
+const { cx } = useBindCx()
+</script>
 <template>
-  <aside class="flex flex-col border-r w-72">
+  <aside
+    v-bind="
+      cx('flex flex-col border-r bg-sidebar-b-1 border-sidebar-border w-72')
+    ">
     <slot />
   </aside>
 </template>
