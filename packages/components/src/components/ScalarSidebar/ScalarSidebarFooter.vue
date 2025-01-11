@@ -7,7 +7,13 @@
  *
  * @example
  *   <ScalarSidebarFooter>
- *     <!-- Sidebar content -->
+ *     <!-- Footer content at the top of the footer -->
+ *     <template #description>
+ *       <!-- Replaces the Powered by Scalar link -->
+ *     </template>
+ *     <template #toggle>
+ *       <!-- Replaces the color mode toggle -->
+ *     </template>
  *   </ScalarSidebarFooter>
  */
 export default {}
