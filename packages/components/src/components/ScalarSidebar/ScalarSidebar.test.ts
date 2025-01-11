@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import ScalarSidebar from './ScalarSidebar.vue'
 
-describe('ScalarColorModeToggle', () => {
+describe('ScalarSidebar', () => {
   it('renders correctly', () => {
     const wrapper = mount(ScalarSidebar)
     expect(wrapper.exists()).toBe(true)
