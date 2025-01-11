@@ -18,11 +18,11 @@ import { ScalarColorModeToggle } from '../ScalarColorModeToggle'
 
 defineSlots<{
   /** Footer content at the top of the footer */
-  'default': () => any
+  default: () => any
   /** Replaces the Powered by Scalar link */
-  'powered-by': () => any
+  description: () => any
   /** Replaces the color mode toggle */
-  'toggle': () => any
+  toggle: () => any
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -32,14 +32,16 @@ const { cx } = useBindCx()
   <div v-bind="cx('flex flex-col gap-3 p-3 border-t')">
     <slot />
     <div class="flex items-center">
-      <slot name="powered-by">
-        <a
-          class="flex items-center no-underline hover:underline text-sidebar-c-2 flex-1 min-w-0"
-          href="https://www.scalar.com"
-          target="_blank">
-          Powered by Scalar
-        </a>
-      </slot>
+      <div class="flex-1 min-w-0 flex items-center text-sm text-sidebar-c-2">
+        <slot name="description">
+          <a
+            class="no-underline hover:underline"
+            href="https://www.scalar.com"
+            target="_blank">
+            Powered by Scalar
+          </a>
+        </slot>
+      </div>
       <slot name="toggle">
         <ScalarColorModeToggle />
       </slot>

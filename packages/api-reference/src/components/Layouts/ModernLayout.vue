@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { OpenApiClientButton } from '@scalar/api-client/components'
+import {
+  ScalarColorModeToggleButton,
+  ScalarSidebarFooter,
+} from '@scalar/components'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { watch } from 'vue'
 
@@ -7,7 +11,6 @@ import { SearchButton } from '../../features/Search'
 import { useNavState, useSidebar } from '../../hooks'
 import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '../../types'
 import ApiReferenceLayout from '../ApiReferenceLayout.vue'
-import { DarkModeToggle } from '../DarkModeToggle'
 import MobileHeader from '../MobileHeader.vue'
 
 const props = defineProps<ReferenceLayoutProps>()
@@ -65,18 +68,22 @@ watch(hash, (newHash, oldHash) => {
       </div>
     </template>
     <template #sidebar-end>
-      <div class="darklight-reference">
+      <ScalarSidebarFooter class="darklight-reference">
         <OpenApiClientButton
           v-if="!props.configuration.hideClientButton"
           buttonSource="sidebar"
           :integration="configuration._integration"
           :isDevelopment="isDevelopment"
           :url="configuration.spec?.url" />
-        <DarkModeToggle
-          :hideDarkModeToggle="configuration.hideDarkModeToggle"
-          :isDarkMode="isDark"
-          @toggleDarkMode="$emit('toggleDarkMode')" />
-      </div>
+        <!-- Override the dark mode toggle slot to hide it -->
+        <template #toggle>
+          <ScalarColorModeToggleButton
+            v-if="!props.configuration.hideDarkModeToggle"
+            :modelValue="isDark"
+            @update:modelValue="$emit('toggleDarkMode')" />
+          <span v-else />
+        </template>
+      </ScalarSidebarFooter>
     </template>
   </ApiReferenceLayout>
 </template>
@@ -96,11 +103,5 @@ watch(hash, (newHash, oldHash) => {
 .darklight-reference {
   width: 100%;
   margin-top: auto;
-  border-top: var(--scalar-border-width) solid
-    var(--scalar-sidebar-border-color, var(--scalar-border-color));
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 </style>

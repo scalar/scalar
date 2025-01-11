@@ -2,6 +2,7 @@
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
 import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
+import ScalarColorModeToggleIcon from './ScalarColorModeToggleIcon.vue'
 
 /**
  * Scalar Color Mode Toggle component
@@ -15,8 +16,22 @@ import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
 export default {}
 </script>
 <script lang="ts" setup>
-const { isDarkMode } = useColorMode()
+const { variant = 'switch' } = defineProps<{
+  /**
+   * The style of the toggle.
+   * @default 'switch'
+   */
+  variant?: 'switch' | 'icon'
+}>()
+
+const { isDarkMode, toggleColorMode, darkLightMode } = useColorMode()
 </script>
 <template>
-  <ScalarColorModeToggleButton v-model="isDarkMode" />
+  <ScalarColorModeToggleButton
+    v-if="variant === 'switch'"
+    v-model="isDarkMode" />
+  <ScalarColorModeToggleIcon
+    v-else
+    :mode="darkLightMode"
+    @click="toggleColorMode" />
 </template>
