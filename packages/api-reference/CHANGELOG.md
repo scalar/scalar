@@ -1,5 +1,37 @@
 # @scalar/api-reference
 
+## 1.25.102
+
+### Patch Changes
+
+- 9e2e8be: fix: cookie parameters don’t show up
+- 273e927: fix: removes schema example duplication
+- 0642732: fix: adds collabsibility to one endpoint non default tag
+- 58d5f6c: fix: shows enum value when there is only one
+- Updated dependencies [731b037]
+- Updated dependencies [5b26c75]
+- Updated dependencies [eb50f99]
+- Updated dependencies [b92b160]
+- Updated dependencies [e77e959]
+- Updated dependencies [30ae0df]
+- Updated dependencies [e17ac68]
+- Updated dependencies [ff3bdca]
+- Updated dependencies [cf0e7b1]
+- Updated dependencies [fdd1de7]
+- Updated dependencies [8dce84f]
+- Updated dependencies [197b7e1]
+- Updated dependencies [ee22e40]
+- Updated dependencies [7b4ab2c]
+  - @scalar/api-client@2.2.31
+  - @scalar/components@0.13.13
+  - @scalar/oas-utils@0.2.96
+  - @scalar/snippetz@0.2.10
+  - @scalar/openapi-parser@0.10.3
+  - @scalar/themes@0.9.59
+  - @scalar/types@0.0.25
+  - @scalar/code-highlight@0.0.19
+  - @scalar/use-hooks@0.1.13
+
 ## 1.25.101
 
 ### Patch Changes

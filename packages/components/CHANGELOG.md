@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.13
+
+### Patch Changes
+
+- e17ac68: feat(components): add create team button to team picker
+- 7b4ab2c: feat(components): make ScalarMenu into a dropdown
+- Updated dependencies [7b4ab2c]
+  - @scalar/themes@0.9.59
+  - @scalar/code-highlight@0.0.19
+  - @scalar/use-hooks@0.1.13
+
 ## 0.13.12
 
 ### Patch Changes

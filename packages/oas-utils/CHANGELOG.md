@@ -1,5 +1,14 @@
 # @scalar/oas-utils
 
+## 0.2.96
+
+### Patch Changes
+
+- cf0e7b1: feat: generate examples for objects with patternProperties
+- Updated dependencies [7b4ab2c]
+  - @scalar/themes@0.9.59
+  - @scalar/types@0.0.25
+
 ## 0.2.95
 
 ### Patch Changes
