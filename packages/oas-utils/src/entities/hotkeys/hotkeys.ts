@@ -2,21 +2,22 @@
  * Array of all of the events that we support
  */
 export const HOTKEY_EVENT_NAMES = [
-  'closeModal',
-  'navigateSearchResultsDown',
-  'selectSearchResult',
-  'navigateSearchResultsUp',
-  'openCommandPalette',
-  'createNew',
-  'toggleSidebar',
   'addTopNav',
+  'closeModal',
   'closeTopNav',
+  'createNew',
+  'executeRequest',
+  'focusAddressBar',
+  'focusRequestSearch',
+  'jumpToLastTab',
+  'jumpToTab',
+  'navigateSearchResultsDown',
+  'navigateSearchResultsUp',
   'navigateTopNavLeft',
   'navigateTopNavRight',
-  'focusAddressBar',
-  'jumpToTab',
-  'jumpToLastTab',
-  'focusRequestSearch',
+  'openCommandPalette',
+  'selectSearchResult',
+  'toggleSidebar',
 ] as const
 export type HotkeyEventName = (typeof HOTKEY_EVENT_NAMES)[number]
 

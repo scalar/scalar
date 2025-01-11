@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { Listbox } from '@headlessui/vue'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
-import { isMacOS } from '@scalar/use-tooltip'
-import { useMagicKeys, whenever } from '@vueuse/core'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -25,12 +22,6 @@ const { isReadOnly, requestMutators, requestHistory, events } = useWorkspace()
 
 const selectedRequest = ref(requestHistory[0])
 const addressBarRef = ref<typeof CodeInput | null>(null)
-
-const keys = useMagicKeys()
-const executeKey = computed(() =>
-  isMacOS() ? keys.meta_enter : keys.ctrl_enter,
-)
-whenever(executeKey, () => events.executeRequest.emit())
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
@@ -114,6 +105,12 @@ function handleExecuteRequest() {
   events.executeRequest.emit()
 }
 
+/** Handle hotkeys */
+events.hotKeys.on((event) => {
+  if (event?.focusAddressBar) addressBarRef.value?.focus()
+  if (event?.executeRequest) handleExecuteRequest()
+})
+
 /**
  * TODO: Should we handle query params here somehow?
  */
@@ -122,16 +119,6 @@ function updateRequestPath(url: string) {
 
   requestMutators.edit(activeRequest.value.uid, 'path', url)
 }
-
-/** Handle hotkeys */
-function handleHotKey(event?: HotKeyEvent) {
-  if (event?.focusAddressBar) {
-    addressBarRef.value?.focus()
-  }
-}
-
-onMounted(() => events.hotKeys.on(handleHotKey))
-onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
   <div
