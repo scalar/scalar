@@ -1,6 +1,8 @@
 <script lang="ts">
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
+import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
+
 /**
  * Scalar Color Mode Toggle component
  *
@@ -13,12 +15,6 @@ import { useColorMode } from '@scalar/use-hooks/useColorMode'
 export default {}
 </script>
 <script lang="ts" setup>
-import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
-
-defineSlots<{
-  default: (props: ReturnType<typeof useColorMode>) => any
-}>()
-
 const { isDarkMode } = useColorMode()
 </script>
 <template>
