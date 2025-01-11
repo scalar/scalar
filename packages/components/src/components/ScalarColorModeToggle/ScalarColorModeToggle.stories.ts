@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import DarkModeToggle from './DarkModeToggle.vue'
 import ScalarColorModeToggle from './ScalarColorModeToggle.vue'
+import ScalarColorModeToggleButton from './ScalarColorModeToggleButton.vue'
 
 const meta: Meta<typeof ScalarColorModeToggle> = {
   component: ScalarColorModeToggle,
@@ -14,15 +14,9 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-export const Old: Story = {
-  render: (args) => ({
-    components: { DarkModeToggle },
-    setup() {
-      const isDarkMode = ref(false)
-      return { args, isDarkMode }
-    },
-    template: `
-<DarkModeToggle v-bind="args" :isDarkMode="isDarkMode" @toggleDarkMode="isDarkMode = !isDarkMode" />
-    `,
+export const ButtonOnly: Story = {
+  render: () => ({
+    components: { ScalarColorModeToggleButton },
+    template: `<ScalarColorModeToggleButton />`,
   }),
 }

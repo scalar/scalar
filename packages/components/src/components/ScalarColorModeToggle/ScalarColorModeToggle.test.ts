@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
-import ScalarColorModeToggle from './ScalarColorModeToggle.vue'
+import ScalarColorModeToggle from './ScalarColorModeToggleButton.vue'
 
 describe('ScalarColorModeToggle', () => {
   it('renders correctly', () => {
