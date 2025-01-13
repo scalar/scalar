@@ -45,3 +45,23 @@ This package exports its Tailwind styles using CSS cascade layers to avoid any c
 - `scalar-base`: reset and normalize
 - `scalar-components`: complex component styles
 - `scalar-utilities`: utility styles like `flex`
+
+## Contributing
+
+All pull requests should include the following checklist:
+
+```md
+## Component Checklist
+
+- [ ] Exported from `@scalar/components`
+- [ ] Has JSDocs for all:
+  - [ ] Components (with examples)
+  - [ ] Props
+  - [ ] Slots
+  - [ ] Emits
+  - [ ] Functions
+  - [ ] Types
+- [ ] Allows overriding of Tailwind classes where applicable (see useBindCx)
+- [ ] Has stories showcasing any applicable variants
+- [ ] Has unit tests covering any applicable interactions
+```
