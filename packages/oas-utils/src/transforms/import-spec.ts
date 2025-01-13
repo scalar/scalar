@@ -42,7 +42,7 @@ export const parseSchema = async (
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
     return {
-      schema: {} as OpenAPIV3.Document | OpenAPIV3_1.Document,
+      schema: {} as OpenAPIV3_1.Document,
       errors: [],
     }
   }
@@ -78,9 +78,7 @@ export const parseSchema = async (
      * Temporary fix for the parser returning an empty array
      * TODO: remove this once the parser is fixed
      */
-    schema: (Array.isArray(schema) ? {} : schema) as
-      | OpenAPIV3.Document
-      | OpenAPIV3_1.Document,
+    schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
     errors: [...loadErrors, ...derefErrors],
   }
 }
