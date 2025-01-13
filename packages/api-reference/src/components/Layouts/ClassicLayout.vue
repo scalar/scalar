@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import ApiReferenceLayout from '@/components/ApiReferenceLayout.vue'
 import ClassicHeader from '@/components/ClassicHeader.vue'
-import { DarkModeIconToggle } from '@/components/DarkModeToggle'
 import { SearchButton } from '@/features/Search'
 import type { ReferenceLayoutProps, ReferenceLayoutSlots } from '@/types'
+import { ScalarColorModeToggleIcon } from '@scalar/components'
 import { computed } from 'vue'
 
 const props = defineProps<ReferenceLayoutProps>()
@@ -40,10 +40,13 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
           :searchHotKey="config.searchHotKey"
           :spec="spec" />
         <template #dark-mode-toggle>
-          <DarkModeIconToggle
+          <ScalarColorModeToggleIcon
             v-if="!props.configuration.hideDarkModeToggle"
-            :isDarkMode="isDark"
-            @toggleDarkMode="$emit('toggleDarkMode')" />
+            class="text-c-2 hover:text-c-1"
+            :mode="isDark ? 'dark' : 'light'"
+            style="transform: scale(1.4)"
+            variant="icon"
+            @click="$emit('toggleDarkMode')" />
         </template>
       </ClassicHeader>
     </template>

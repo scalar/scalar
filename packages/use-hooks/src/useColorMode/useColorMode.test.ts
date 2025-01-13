@@ -88,6 +88,36 @@ describe('useColorMode', () => {
     expect(localStorage.getItem('colorMode')).toBe('dark')
   })
 
+  it('allows setting colorMode via the computed ref', () => {
+    const { colorMode } = useColorMode()
+
+    colorMode.value = 'dark'
+    expect(colorMode.value).toBe('dark')
+
+    colorMode.value = 'light'
+    expect(colorMode.value).toBe('light')
+  })
+
+  it.each(['light', 'dark'] as const)(
+    'isDarkMode is computed correctly when colorMode is %s',
+    (mode) => {
+      const { isDarkMode, setColorMode } = useColorMode()
+
+      setColorMode(mode)
+      expect(isDarkMode.value).toBe(mode === 'dark')
+    },
+  )
+
+  it('allows setting isDarkMode via the computed ref', () => {
+    const { isDarkMode } = useColorMode()
+
+    isDarkMode.value = true
+    expect(isDarkMode.value).toBe(true)
+
+    isDarkMode.value = false
+    expect(isDarkMode.value).toBe(false)
+  })
+
   it.each(['light', 'dark'] as const)(
     'detects system %s mode preference',
     (mode) => {
@@ -213,5 +243,16 @@ describe('useColorMode', () => {
     // Restore window/document/localStorage
     global.window = originalWindow
     global.document = originalDocument
+  })
+
+  it('handles missing matchMedia gracefully', () => {
+    const originalMatchMedia = window.matchMedia
+    // @ts-expect-error - Intentionally removing matchMedia
+    delete window.matchMedia
+
+    const { darkLightMode } = useColorMode()
+    expect(darkLightMode.value).toBe('dark') // Should default to dark when matchMedia is unavailable
+
+    window.matchMedia = originalMatchMedia
   })
 })

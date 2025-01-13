@@ -81,6 +81,19 @@ export default {
         btn: 'var(--scalar-button-1-hover)',
       },
 
+      // Sidebar Colors
+      sidebar: {
+        b: {
+          1: 'var(--scalar-sidebar-background-1, var(--scalar-background-1))',
+        },
+        c: {
+          1: 'var(--scalar-sidebar-color-1, var(--scalar-color-1))',
+          2: 'var(--scalar-sidebar-color-2, var(--scalar-color-2))',
+        },
+        border:
+          'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
+      },
+
       // Utility Colors
       backdrop: 'rgba(0, 0, 0, 0.22)', // Overlay Backdrops
       backdropdark: 'rgba(0, 0, 0, 0.45)', // Overlay Backdrops

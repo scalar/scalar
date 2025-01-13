@@ -43,11 +43,19 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
       : 'light'
   }
 
-  /** The computed dark/light mode with system preference applied */
-  const darkLightMode = computed<DarkLightMode>(() => {
-    return colorMode.value === 'system'
-      ? getSystemModePreference()
-      : colorMode.value
+  /** Writable computed ref for dark/light mode with system preference applied */
+  const darkLightMode = computed<DarkLightMode>({
+    get: () =>
+      colorMode.value === 'system'
+        ? getSystemModePreference()
+        : colorMode.value,
+    set: setColorMode,
+  })
+
+  /** Writable computed ref for whether the current color mode is dark */
+  const isDarkMode = computed<boolean>({
+    get: () => darkLightMode.value === 'dark',
+    set: (value) => setColorMode(value ? 'dark' : 'light'),
   })
 
   /** Applies the appropriate color mode class to the body. */
@@ -97,10 +105,20 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   })
 
   return {
-    colorMode: computed(() => colorMode.value),
+    /** The current color mode (writable). */
+    colorMode: computed({
+      get: () => colorMode.value,
+      set: setColorMode,
+    }),
+    /** The computed dark/light mode (writable). */
     darkLightMode,
+    /** Whether the current color mode is dark (writable). */
+    isDarkMode,
+    /** Toggles the color mode between light and dark. */
     toggleColorMode,
+    /** Sets the color mode to the specified value. */
     setColorMode,
+    /** Gets the system mode preference. */
     getSystemModePreference,
   }
 }
