@@ -135,12 +135,12 @@ export async function importSpecToWorkspace(
       tags: Tag[]
       securitySchemes: SecurityScheme[]
     }
-  | { error: true; importWarnings: string[] }
+  | { error: true; importWarnings: string[]; collection: undefined }
 > {
   const { schema, errors } = await parseSchema(spec, { shouldLoad })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
-  if (!schema) return { importWarnings, error: true }
+  if (!schema) return { importWarnings, error: true, collection: undefined }
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const start = performance.now()

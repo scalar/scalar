@@ -29,8 +29,8 @@ export const oasContactSchema = z.object({
   name: z.string().optional(),
   /** The URL pointing to the contact information. This MUST be in the form of a URL. */
   url: z.string().optional(),
-  /** The email address of the contact person/organization. This MUST be in the form of an email address. */
-  email: z.string().email().optional(),
+  /** The email address of the contact person/organization. */
+  email: z.string().optional(),
 })
 
 /**
@@ -42,7 +42,7 @@ export const oasContactSchema = z.object({
  */
 export const oasInfoSchema = z.object({
   /** REQUIRED. The title of the API. */
-  title: z.string().optional().default('API'),
+  title: z.string().catch('API'),
   /** A short summary of the API. */
   summary: z.string().optional(),
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
@@ -57,7 +57,7 @@ export const oasInfoSchema = z.object({
    * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
    * Specification version or the API implementation version).
    */
-  version: z.string().optional().default('1.0'),
+  version: z.string().catch('1.0'),
 })
 
 /**
