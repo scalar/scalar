@@ -34,13 +34,12 @@ export function optimizeValueForDisplay(value: UnknownObject | undefined) {
   }
 
   // If there’s an object with type 'null' in the anyOf, oneOf, allOf, mark the property as nullable
-
-  if (schemas?.some((schema: any) => schema.type === 'null')) {
+  if (schemas.some((schema: any) => schema.type === 'null')) {
     newValue.nullable = true
   }
 
   // Remove objects with type 'null' from the schemas
-  const newSchemas = schemas?.filter((schema: any) => !(schema.type === 'null'))
+  const newSchemas = schemas.filter((schema: any) => !(schema.type === 'null'))
 
   // If there’s only one schema, overwrite the original value with the schema
   // Skip it for arrays for now, need to handle that specifically.
