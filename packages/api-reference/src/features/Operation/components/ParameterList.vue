@@ -8,10 +8,12 @@ withDefaults(
     parameters?: Parameter[]
     showChildren?: boolean
     collapsableItems?: boolean
+    withExamples?: boolean
   }>(),
   {
     showChildren: false,
     collapsableItems: false,
+    withExamples: true,
   },
 )
 </script>
@@ -28,7 +30,8 @@ withDefaults(
         :key="item.name"
         :collapsableItems="collapsableItems"
         :parameter="item"
-        :showChildren="showChildren" />
+        :showChildren="showChildren"
+        :withExamples="withExamples" />
     </ul>
   </div>
 </template>

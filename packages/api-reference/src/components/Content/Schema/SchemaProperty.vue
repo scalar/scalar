@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
@@ -15,11 +16,13 @@ const props = withDefaults(
     compact?: boolean
     description?: string
     additional?: boolean
+    withExamples?: boolean
   }>(),
   {
     level: 0,
     required: false,
     compact: false,
+    withExamples: true,
   },
 )
 
@@ -86,12 +89,6 @@ const visibleEnumValues = computed(() =>
 const remainingEnumValues = computed(() =>
   getEnumFromValue(props.value).slice(initialEnumCount.value),
 )
-
-const formatExample = (example: string) => {
-  return Array.isArray(example)
-    ? `[${example.map((item) => `"${item.trim()}"`).join(', ')}]`
-    : example
-}
 </script>
 <template>
   <div
@@ -133,7 +130,7 @@ const formatExample = (example: string) => {
     </div>
     <!-- Example -->
     <div
-      v-if="value?.example || value?.items?.example"
+      v-if="withExamples && (value?.example || value?.items?.example)"
       class="property-example custom-scroll">
       <span class="property-example-label">Example</span>
       <code class="property-example-value">{{
