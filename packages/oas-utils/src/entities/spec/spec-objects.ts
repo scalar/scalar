@@ -40,29 +40,25 @@ export const oasContactSchema = z.object({
  *
  * @see https://spec.openapis.org/oas/latest.html#info-object
  */
-export const oasInfoSchema = z
-  .object({
-    /** REQUIRED. The title of the API. */
-    title: z.string().catch('API'),
-    /** A short summary of the API. */
-    summary: z.string().optional(),
-    /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
-    description: z.string().optional(),
-    /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
-    termsOfService: z.string().optional(),
-    /** The contact information for the exposed API. */
-    contact: oasContactSchema.optional(),
-    /** The license information for the exposed API. */
-    license: oasLicenseSchema.optional(),
-    /**
-     * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
-     * Specification version or the API implementation version).
-     */
-    version: z.string().optional().catch('1.0'),
-  })
-  .catch({
-    title: 'API',
-  })
+export const oasInfoSchema = z.object({
+  /** REQUIRED. The title of the API. */
+  title: z.string().catch('API'),
+  /** A short summary of the API. */
+  summary: z.string().optional(),
+  /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
+  description: z.string().optional(),
+  /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
+  termsOfService: z.string().optional(),
+  /** The contact information for the exposed API. */
+  contact: oasContactSchema.optional(),
+  /** The license information for the exposed API. */
+  license: oasLicenseSchema.optional(),
+  /**
+   * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
+   * Specification version or the API implementation version).
+   */
+  version: z.string().optional().catch('1.0'),
+})
 
 /**
  * External Documentation
