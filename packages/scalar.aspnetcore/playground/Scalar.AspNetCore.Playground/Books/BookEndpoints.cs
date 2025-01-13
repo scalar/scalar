@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Scalar.AspNetCore.Playground.Books;
@@ -6,8 +7,16 @@ internal static class BookEndpoints
 {
     internal static void MapBookEndpoints(this IEndpointRouteBuilder builder)
     {
-        var books = builder.MapGroup("/books")
+        var apiVersionSet = builder.NewApiVersionSet()
+            .HasApiVersion(new ApiVersion(1))
+            .HasApiVersion(new ApiVersion(2))
+            .Build();
+        
+        var books = builder.MapGroup("v{version:apiVersion}/books")
             .WithTags("bookstore")
+            .WithApiVersionSet(apiVersionSet)
+            .MapToApiVersion(1)
+            .MapToApiVersion(2)
             .RequireAuthorization();
 
         books

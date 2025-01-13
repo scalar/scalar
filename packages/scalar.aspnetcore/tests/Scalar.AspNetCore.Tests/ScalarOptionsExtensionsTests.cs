@@ -9,6 +9,7 @@ public class ScalarOptionsExtensionsTests
         var options = new ScalarOptions();
 
         // Act
+#pragma warning disable CS0618 // Type or member is obsolete
         options
             .WithTitle("My title")
             .WithEndpointPrefix("/docs/{documentName}")
@@ -50,11 +51,17 @@ public class ScalarOptionsExtensionsTests
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
             .WithFavicon("/favicon.png")
             .WithDotNetFlag(false)
-            .WithClientButton(false);
+            .WithClientButton(false)
+            .WithDocumentNamesProvider(_ => Task.FromResult<IEnumerable<string>>(["v1"]))
+            .AddHeadContent("<meta name=\"foo\" content=\"bar\"/>")
+            .AddHeadContent("<meta name=\"bar\" content=\"foo\"/>")
+            .AddHeaderContent("<h1>foo</h1>")
+            .AddHeaderContent("<h2>bar</h2>");
 
         // Assert
         options.Title.Should().Be("My title");
         options.EndpointPathPrefix.Should().Be("/docs/{documentName}");
+#pragma warning restore CS0618 // Type or member is obsolete
         options.HideModels.Should().BeTrue();
         options.HideDownloadButton.Should().BeTrue();
         options.HideTestRequestButton.Should().BeTrue();
@@ -72,7 +79,7 @@ public class ScalarOptionsExtensionsTests
         options.Authentication!.Http!.Basic!.Username.Should().Contain("my-username");
         options.Authentication!.Http!.Basic!.Password.Should().Contain("my-password");
         options.Authentication!.Http!.Bearer!.Token.Should().Contain("my-bearer-token");
-        options.OpenApiRoutePattern.Should().Be("/swagger/{documentName}");
+        options.OpenApiRoutePattern.Should().Be("swagger/{documentName}");
         options.CdnUrl.Should().Be("http://localhost:8080");
         options.DefaultFonts.Should().BeFalse();
         options.DefaultOpenAllTags.Should().BeTrue();
@@ -90,5 +97,8 @@ public class ScalarOptionsExtensionsTests
         options.Favicon.Should().Be("/favicon.png");
         options.DotNetFlag.Should().BeFalse();
         options.HideClientButton.Should().BeTrue();
+        options.DocumentNamesProvider.Should().NotBeNull();
+        options.HeadContent.Should().Be("<meta name=\"foo\" content=\"bar\"/><meta name=\"bar\" content=\"foo\"/>");
+        options.HeaderContent.Should().Be("<h1>foo</h1><h2>bar</h2>");
     }
 }

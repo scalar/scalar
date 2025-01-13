@@ -6,11 +6,15 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.MapScalarApiReference();
-}
+app.MapOpenApi();
+
+app.MapScalarApiReference();
+
+app.MapScalarApiReference("/api-reference");
+
+#pragma warning disable CS0618 // Type or member is obsolete
+app.MapScalarApiReference(options => options.WithEndpointPrefix("/legacy/{documentName}"));
+#pragma warning restore CS0618 // Type or member is obsolete
 
 app.Run();
 

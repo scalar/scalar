@@ -29,8 +29,8 @@ internal sealed class ScalarConfiguration
     public required string? SearchHotKey { get; init; }
 
     public required IEnumerable<ScalarServer>? Servers { get; init; }
-    
-    public required IDictionary<string, string>? Metadata { get; init; }
+
+    public required IDictionary<string, string>? MetaData { get; init; }
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }
 
@@ -51,12 +51,16 @@ internal sealed class ScalarConfiguration
     public required string? Layout { get; init; }
 
     public required string? Favicon { get; init; }
-    
+
     [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
     [JsonPropertyName("_integration")]
     public required string? Integration { get; init; }
 
     public required bool HideClientButton { get; init; }
+
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents</remarks>
+    [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+    internal IEnumerable<string> Documents { get; init; } = null!;
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
