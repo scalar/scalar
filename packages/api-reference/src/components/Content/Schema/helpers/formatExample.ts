@@ -1,7 +1,7 @@
 /**
  * Converts an example value to a string that can be displayed in the UI.
  */
-export function formatExample(example: unknown) {
+export function formatExample(example: unknown): string {
   if (Array.isArray(example)) {
     return `[${example
       .map((item) => {
@@ -26,5 +26,9 @@ export function formatExample(example: unknown) {
       .join(', ')}]`
   }
 
-  return example
+  if (!example) {
+    return ''
+  }
+
+  return example.toString().trim()
 }
