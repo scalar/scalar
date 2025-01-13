@@ -14,10 +14,12 @@ const props = withDefaults(
     parameter: Parameter
     showChildren?: boolean
     collapsableItems?: boolean
+    withExamples?: boolean
   }>(),
   {
     showChildren: false,
     collapsableItems: false,
+    withExamples: true,
   },
 )
 
@@ -87,7 +89,8 @@ const shouldCollapse = computed<boolean>(() => {
             parameter.content
               ? parameter.content?.[selectedContentType]?.schema
               : parameter.schema
-          " />
+          "
+          :withExamples="withExamples" />
       </DisclosurePanel>
     </Disclosure>
   </li>

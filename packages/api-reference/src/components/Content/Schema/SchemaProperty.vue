@@ -16,11 +16,13 @@ const props = withDefaults(
     compact?: boolean
     description?: string
     additional?: boolean
+    withExamples?: boolean
   }>(),
   {
     level: 0,
     required: false,
     compact: false,
+    withExamples: true,
   },
 )
 
@@ -128,7 +130,7 @@ const remainingEnumValues = computed(() =>
     </div>
     <!-- Example -->
     <div
-      v-if="value?.example || value?.items?.example"
+      v-if="withExamples && (value?.example || value?.items?.example)"
       class="property-example custom-scroll">
       <span class="property-example-label">Example</span>
       <code class="property-example-value">{{
