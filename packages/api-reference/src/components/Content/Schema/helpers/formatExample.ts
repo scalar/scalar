@@ -1,7 +1,7 @@
 /**
  * Converts an example value to a string that can be displayed in the UI.
  */
-export function formatExample(example: any) {
+export function formatExample(example: unknown) {
   if (Array.isArray(example)) {
     return `[${example
       .map((item) => {
