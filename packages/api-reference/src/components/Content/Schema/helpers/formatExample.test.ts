@@ -57,20 +57,20 @@ describe('formatExample', () => {
   })
 
   it('handles non-string/non-array input', () => {
-    const input = 123 as any
+    const input = 123
     const result = formatExample(input)
-    expect(result).toBe(123)
+    expect(result).toBe('123')
   })
 
   it('handles undefined input', () => {
-    const input = undefined as any
+    const input = undefined
     const result = formatExample(input)
-    expect(result).toBe(undefined)
+    expect(result).toBe('undefined')
   })
 
   it('handles null input', () => {
-    const input = null as any
+    const input = null
     const result = formatExample(input)
-    expect(result).toBe(null)
+    expect(result).toBe('null')
   })
 })
