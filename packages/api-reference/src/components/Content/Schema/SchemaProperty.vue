@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
@@ -86,12 +87,6 @@ const visibleEnumValues = computed(() =>
 const remainingEnumValues = computed(() =>
   getEnumFromValue(props.value).slice(initialEnumCount.value),
 )
-
-const formatExample = (example: string) => {
-  return Array.isArray(example)
-    ? `[${example.map((item) => `"${item.trim()}"`).join(', ')}]`
-    : example
-}
 </script>
 <template>
   <div
