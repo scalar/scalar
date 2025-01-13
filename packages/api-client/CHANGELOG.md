@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.32
+
+### Patch Changes
+
+- d3199be: fix: duplicate query params
+
 ## 2.2.31
 
 ### Patch Changes
