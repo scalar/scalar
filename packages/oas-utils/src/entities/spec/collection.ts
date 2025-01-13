@@ -18,7 +18,9 @@ export const oasCollectionSchema = z.object({
     .optional()
     .default('3.1.0'),
   'jsonSchemaDialect': z.string().optional(),
-  'info': oasInfoSchema,
+  'info': oasInfoSchema.catch({
+    title: 'API',
+  }),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
