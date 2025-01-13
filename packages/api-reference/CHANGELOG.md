@@ -1,5 +1,13 @@
 # @scalar/api-reference
 
+## 1.25.103
+
+### Patch Changes
+
+- f9f5bdb: feat: remove examples from responses
+- Updated dependencies [d3199be]
+  - @scalar/api-client@2.2.32
+
 ## 1.25.102
 
 ### Patch Changes
