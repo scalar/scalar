@@ -27,9 +27,10 @@
   "scripts": {
     "analyze:default": "pnpm dlx vite-bundle-visualizer",
     "analyze:standalone": "pnpm dlx vite-bundle-visualizer -c vite.standalone.config.ts",
-    "build": "pnpm build:default && pnpm build:standalone && pnpm types:build && tsc-alias -p tsconfig.build.json",
+    "build": "pnpm build:default && pnpm build:standalone && pnpm build:component && pnpm types:build && tsc-alias -p tsconfig.build.json",
     "build:default": "vite build",
     "build:standalone": "vite build -c vite.standalone.config.ts",
+    "build:component": "vite build -c vite.component.config.ts",
     "dev": "vite",
     "dev:standalone": "vite -c vite.standalone.config.ts",
     "lint:check": "eslint .",
@@ -48,6 +49,7 @@
   "exports": {
     ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
+    "./component.js": "./dist/webComponent/component.js",
     "./browser/standalone.js": "./dist/browser/standalone.js"
   },
   "files": [

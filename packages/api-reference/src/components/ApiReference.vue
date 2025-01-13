@@ -63,23 +63,27 @@ const favicon = computed(() => configuration.value.favicon)
 useFavicon(favicon)
 </script>
 <template>
-  <!-- Inject any custom CSS directly into a style tag -->
-  <component
-    :is="'style'"
-    v-if="configuration?.customCss">
-    {{ configuration.customCss }}
-  </component>
-  <Layouts
-    :configuration="configuration"
-    :isDark="darkLightMode === 'dark'"
-    :parsedSpec="parsedSpec"
-    :rawSpec="rawSpec"
-    @toggleDarkMode="() => toggleColorMode()"
-    @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
-    <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
-  </Layouts>
+  <div
+    class="contents"
+    :class="darkLightMode === 'dark' ? 'dark-mode' : 'light-mode'">
+    <!-- Inject any custom CSS directly into a style tag -->
+    <component
+      :is="'style'"
+      v-if="configuration?.customCss">
+      {{ configuration.customCss }}
+    </component>
+    <Layouts
+      :configuration="configuration"
+      :isDark="darkLightMode === 'dark'"
+      :parsedSpec="parsedSpec"
+      :rawSpec="rawSpec"
+      @toggleDarkMode="() => toggleColorMode()"
+      @updateContent="$emit('updateContent', $event)">
+      <template #footer><slot name="footer" /></template>
+      <!-- Expose the content end slot as a slot for the footer -->
+      <template #content-end><slot name="footer" /></template>
+    </Layouts>
+  </div>
 </template>
 <style>
 @layer scalar-base {

@@ -310,7 +310,7 @@ function updateHttpClient(value: string) {
   padding-left: 12px;
   padding-right: 9px;
 }
-.request-card-footer {
+.request-card-footer.request-card-footer {
   display: flex;
   justify-content: flex-end;
   padding: 6px;
