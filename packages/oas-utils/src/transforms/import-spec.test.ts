@@ -189,6 +189,116 @@ describe('importSpecToWorkspace', () => {
     })
   })
 
+  describe('info', () => {
+    it('handles missing info object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        // Missing info object
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'API',
+      })
+    })
+
+    it('handles wrong format for info.title', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          title: 123,
+        },
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'API',
+      })
+    })
+
+    it('handles wrong format for info.version', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          title: 'My API',
+          version: 123,
+        },
+      })
+
+      expect(result.error).toBe(false)
+      expect(result.collection?.info).toEqual({
+        title: 'My API',
+        version: '1.0',
+      })
+    })
+
+    describe('contact', () => {
+      it('leaves invalid email in contact object as is', async () => {
+        const result = await importSpecToWorkspace({
+          openapi: '3.1.0',
+          info: {
+            contact: {
+              name: 'John Doe',
+              url: 'not-actually-an-url',
+              email: 'invalid @ email.com',
+            },
+          },
+        })
+
+        expect(result.error).toBe(false)
+        expect(result.collection?.info?.contact).toEqual({
+          name: 'John Doe',
+          url: 'not-actually-an-url',
+          email: 'invalid @ email.com',
+        })
+      })
+    })
+
+    it('throws away the contact if it’s not even strings', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 123,
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual(undefined)
+    })
+
+    it('deals with incomeplete contact object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 'John Doe',
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual({
+        name: 'John Doe',
+      })
+    })
+
+    it('ignores additional properties in the contact object', async () => {
+      const result = await importSpecToWorkspace({
+        openapi: '3.1.0',
+        info: {
+          contact: {
+            name: 'John Doe',
+            extra: 'extra',
+          },
+        },
+      })
+
+      expect(result.collection?.info?.contact).toEqual({
+        name: 'John Doe',
+      })
+    })
+  })
+
   describe('tags', () => {
     it('creates missing tag definitions', async () => {
       const specWithUndefinedTags = {
