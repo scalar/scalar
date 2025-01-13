@@ -26,7 +26,7 @@ export function formatExample(example: unknown): string {
       .join(', ')}]`
   }
 
-  if (!example) {
+  if (example === null || example === undefined) {
     return ''
   }
 
