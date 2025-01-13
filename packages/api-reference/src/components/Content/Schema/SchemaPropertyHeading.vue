@@ -15,7 +15,7 @@ withDefaults(
   },
 )
 
-const rules = ['oneOf', 'anyOf', 'allOf', 'not']
+const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
 
 const flattenDefaultValue = (value: Record<string, any>) => {
   return Array.isArray(value?.default) && value.default.length === 1
@@ -53,7 +53,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
     </div>
     <template v-else-if="value?.type">
       <SchemaPropertyDetail>
-        <!-- prettier-ignore -->
         <template v-if="value?.items?.type">
           {{ value.type }}
           {{ value.items.type }}[]
@@ -114,6 +113,12 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         {{ flattenDefaultValue(value) }}
       </SchemaPropertyDetail>
     </template>
+    <template v-else>
+      <!-- Shows only when a discriminator is used (so value?.type is undefined) -->
+      <SchemaPropertyDetail v-if="value?.nullable === true">
+        nullable
+      </SchemaPropertyDetail>
+    </template>
     <div
       v-if="value?.writeOnly"
       class="property-write-only">
@@ -125,9 +130,14 @@ const flattenDefaultValue = (value: Record<string, any>) => {
       read-only
     </div>
     <template
-      v-for="rule in rules.filter((r) => value?.[r] || value?.items?.[r])"
-      :key="rule">
-      <Badge>{{ rule }}</Badge>
+      v-for="discriminator in discriminators.filter(
+        (r) => value?.[r] || value?.items?.[r],
+      )"
+      :key="discriminator">
+      <!-- Only show anyOf, oneOf, allOf if there are more than one schema -->
+      <template v-if="value?.[discriminator]?.length > 1">
+        <Badge>{{ discriminator }}</Badge>
+      </template>
     </template>
     <div
       v-if="required"
