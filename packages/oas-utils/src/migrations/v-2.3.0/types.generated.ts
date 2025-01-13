@@ -414,7 +414,7 @@ export namespace v_2_3_0 {
     variables?:
       | {
           [x: string]: {
-            enum?: string[] | undefined
+            enum?: [string, ...string[]] | undefined
             default: string
             description?: string | undefined
           }
