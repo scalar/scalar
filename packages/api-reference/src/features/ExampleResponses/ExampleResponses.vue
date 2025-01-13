@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
-import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { computed, ref, useId } from 'vue'
 
@@ -18,8 +18,7 @@ import ExampleResponse from './ExampleResponse.vue'
 /**
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
  */
-
-const props = defineProps<{ operation: TransformedOperation }>()
+const props = defineProps<{ responses: RequestEntity['responses'] }>()
 
 const id = useId()
 
@@ -29,7 +28,7 @@ const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
 const orderedStatusCodes = computed(() =>
-  Object.keys(props?.operation?.information?.responses ?? {}).sort(),
+  Object.keys(props?.responses ?? {}).sort(),
 )
 
 const hasMultipleExamples = computed<boolean>(
@@ -44,7 +43,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.information?.responses?.[currentStatusCode]
+  return props.responses?.[currentStatusCode]
 })
 
 const currentJsonResponse = computed(() => {
@@ -55,7 +54,9 @@ const currentJsonResponse = computed(() => {
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
+    normalizedContent?.['application/xml'] ??
     normalizedContent?.['text/plain'] ??
+    normalizedContent?.['text/html'] ??
     // Swagger 2.0
     currentResponse.value
   )

@@ -1,9 +1,14 @@
 <script lang="ts" setup>
+import { getLocation } from '@/blocks'
+import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import {
+  WORKSPACE_SYMBOL,
   type WorkspaceStore,
   useActiveEntities,
 } from '@scalar/api-client/store'
+import type { OpenAPI } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { inject } from 'vue'
 
 import { useRequestExample } from './hooks/useRequestExample'
 import ClassicLayout from './layouts/ClassicLayout.vue'
@@ -12,7 +17,7 @@ import ModernLayout from './layouts/ModernLayout.vue'
 const {
   id,
   layout = 'modern',
-  operation,
+  operation: transformedOperation,
   requests,
   requestExamples,
   securitySchemes,
@@ -27,12 +32,26 @@ const {
 
 const { activeCollection, activeServer } = useActiveEntities()
 const { request, secretCredentials } = useRequestExample({
-  operation,
+  operation: transformedOperation,
   collection: activeCollection,
   requests,
   requestExamples,
   securitySchemes,
   server: activeServer,
+})
+
+const store = inject(WORKSPACE_SYMBOL)
+
+// TODO: Take the store as a prop, not a transformed operation
+const { operation } = useBlockProps({
+  // @ts-expect-error TODO: fix this
+  store,
+  location: getLocation([
+    'paths',
+    transformedOperation?.path ?? '',
+    // TODO: I can’t find 'CONNECT' in the Swagger 2.0/OpenAPI 3.x specifications. @hanspagel
+    (transformedOperation?.httpVerb as OpenAPI.HttpMethods) ?? 'get',
+  ]),
 })
 </script>
 
