@@ -7,7 +7,7 @@ import {
   normalizeRequestMethod,
   validRequestMethods,
 } from '#legacy'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type {
@@ -124,12 +124,11 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        (schema.webhooks?.[name][httpVerb] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
-          'x-internal'?: boolean
-        })
+        schema.webhooks?.[name][httpVerb] as OpenAPIV3_1.PathItemObject[typeof httpVerb]
 
       // Filter out webhooks marked as internal
-      if (originalWebhook?.['x-internal'] === true) {
+      // @ts-expect-error TODO: Fix this
+      if (shouldIgnoreEntity(originalWebhook)) {
         return
       }
 
@@ -170,8 +169,15 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       }
 
       // Filter out operations marked as internal
-      if (operation['x-internal'] === true) {
+      if (shouldIgnoreEntity(operation)) {
         return
+      }
+
+      // Hide operations where a tag is marked as internal
+      if (Array.isArray(operation.tags)) {
+        operation.tags = operation.tags?.filter(
+          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+        )
       }
 
       // Transform the operation
@@ -220,8 +226,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         operation.tags.forEach((operationTag: string) => {
           // Try to find the tag in the schema
           const indexOfExistingTag = schema.tags?.findIndex(
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
-            (tag: SwaggerTag) => tag.name === operationTag,
+            (tag: UnknownObject) => tag.name === operationTag,
           )
 
           // Create tag if it doesn’t exist yet
@@ -247,6 +252,11 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
+
+      // Remove tags with `x-internal` set to true
+      schema.tags = schema.tags?.filter(
+        (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+      )
     })
   })
 

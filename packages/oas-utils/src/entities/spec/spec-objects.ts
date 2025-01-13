@@ -103,6 +103,9 @@ export const oasTagSchema = z.object({
   /** Additional external documentation for this tag. */
   'externalDocs': oasExternalDocumentationSchema.optional(),
   'x-scalar-children': xScalarNestedSchema.default([]).optional(),
+  /** Hide collections */
+  'x-internal': z.boolean().optional(),
+  'x-scalar-ignore': z.boolean().optional(),
 })
 
 export const tagSchema = oasTagSchema.extend({

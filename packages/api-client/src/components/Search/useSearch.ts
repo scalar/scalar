@@ -1,7 +1,7 @@
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
-import { isDefined } from '@scalar/oas-utils/helpers'
+import { isDefined, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import Fuse, { type FuseResult } from 'fuse.js'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
@@ -12,8 +12,12 @@ import { useRouter } from 'vue-router'
  */
 export function useSearch() {
   const router = useRouter()
-  const { activeWorkspace, activeWorkspaceRequests } = useActiveEntities()
-  const { requests } = useWorkspace()
+  const {
+    activeWorkspace,
+    activeWorkspaceRequests,
+    activeWorkspaceCollections,
+  } = useActiveEntities()
+  const { requests, tags } = useWorkspace()
 
   type FuseData = {
     title: string
@@ -45,15 +49,37 @@ export function useSearch() {
   }
 
   const populateFuseDataArray = (items: Request[]) => {
-    fuseDataArray.value = items.map((request: Request) => ({
-      id: request.uid,
-      title: request.summary ?? request.method,
-      description: request.description ?? '',
-      httpVerb: request.method,
-      path: request.path,
-      // TODO: Use router instead
-      link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
-    }))
+    fuseDataArray.value = items
+      // TODO: We should probably filter in the store or somewhere else.
+      // Check if the request is marked has hidden/internal
+      .filter((request) => shouldIgnoreEntity(request))
+      // Check if the request is in a tag that is marked has hidden/internal
+      .filter((request) => {
+        // Find the collection for the request
+        const collection = activeWorkspaceCollections.value?.find(
+          (activeWorkspaceCollection) =>
+            activeWorkspaceCollection.requests.includes(request.uid),
+        )
+
+        const hasIgnoredTags = Boolean(
+          collection?.tags
+            .map((uid) => tags[uid])
+            .filter(isDefined)
+            .filter((tag) => request.tags?.includes(tag.name))
+            .filter((tag) => shouldIgnoreEntity(tag)).length,
+        )
+
+        return !hasIgnoredTags
+      })
+      .map((request: Request) => ({
+        id: request.uid,
+        title: request.summary ?? request.method,
+        description: request.description ?? '',
+        httpVerb: request.method,
+        path: request.path,
+        // TODO: Use router instead
+        link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
+      }))
     fuse.setCollection(fuseDataArray.value)
   }
 
