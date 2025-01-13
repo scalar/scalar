@@ -364,20 +364,22 @@ export const createRequestOperation = ({
       const serverURL = new URL(base)
       /** We create a separate path URL to grab the path params */
       const pathURL = new URL(pathString, serverURL.origin)
+      /** Now we remove the query params from the path to ensure there's no duplicate query params */
+      const pathname = pathString.split('?')[0] ?? ''
 
       /** Finally we combine the two but make sure that we keep the path from server */
       const combinedURL = new URL(serverURL)
       if (server?.url) {
-        if (serverURL.pathname === '/') combinedURL.pathname = pathString
-        else combinedURL.pathname = serverURL.pathname + pathString
+        if (serverURL.pathname === '/') combinedURL.pathname = pathname
+        else combinedURL.pathname = serverURL.pathname + pathname
       }
 
       // Combines all query params
-      combinedURL.search = new URLSearchParams([
-        ...serverURL.searchParams,
-        ...pathURL.searchParams,
-        ...urlParams,
-      ]).toString()
+      const searchParams = server?.url
+        ? [...serverURL.searchParams, ...pathURL.searchParams, ...urlParams]
+        : [...pathURL.searchParams, ...urlParams]
+
+      combinedURL.search = new URLSearchParams(searchParams).toString()
 
       url = combinedURL.toString()
     }
