@@ -104,7 +104,7 @@ And see it in action here:
 
 If you don't have the SDK installed or want to run the playground under a subpath, you can use Docker Compose:
 
-1. Run Docker Compose: `docker-compose up --build`
+1. Run Docker Compose: `docker compose up --build`
 2. Open this URL in the browser: <http://localhost:8080/api/scalar/>
 
 ## Community
