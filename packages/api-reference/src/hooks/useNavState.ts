@@ -1,8 +1,9 @@
 import { joinWithSlash } from '@/helpers'
+import { useConfig } from '@/hooks/useConfig'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import type { PathRouting } from '../types'
 
@@ -33,29 +34,6 @@ const getPathRoutingId = (pathName: string) => {
 
   const reggy = new RegExp('^' + pathRouting.value?.basePath + '/?')
   return decodeURIComponent(pathName.replace(reggy, ''))
-}
-
-const getWebhookId = (name?: string, httpVerb?: string) => {
-  if (!name) {
-    return 'webhooks'
-  }
-
-  return `webhook/${httpVerb}/${slug(name)}`
-}
-
-const getModelId = (name?: string) => {
-  if (!name) {
-    return 'models'
-  }
-
-  return `model/${slug(name)}`
-}
-
-const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
-  `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
-
-const getTagId = ({ name }: Tag) => {
-  return `tag/${slug(name)}`
 }
 
 // Grabs the sectionId of the hash to open the section before scrolling
@@ -131,40 +109,74 @@ const getReferenceHash = () => {
  * isIntersectionEnabled is a hack to prevent intersection observer from triggering
  * when clicking on sidebar links or going backwards
  */
-export const useNavState = () => ({
-  hash,
-  /** Sets the prefix for the hash */
-  setHashPrefix: (prefix: string) => {
-    hashPrefix.value = prefix
-  },
-  /**
-   * Gets the full hash with the prefix
-   * @param hashTarget The hash to target with the return
-   * @returns The full hash
-   */
-  getFullHash,
-  /**
-   * Gets the hashed url with the prefix
-   * @param replacementHash The hash to replace the current hash with
-   * @param url The url to get the hashed url from
-   * @returns The hashed url
-   */
-  getHashedUrl,
-  /**
-   * Replaces the URL state with the new url and hash
-   * Replacement is used so that hash changes don't trigger the url hash watcher and cause a scroll
-   */
-  replaceUrlState,
-  /** Gets the portion of the hash used by the references */
-  getReferenceHash,
-  getWebhookId,
-  getModelId,
-  getHeadingId,
-  getOperationId,
-  getPathRoutingId,
-  getSectionId,
-  getTagId,
-  isIntersectionEnabled,
-  pathRouting,
-  updateHash,
-})
+export const useNavState = () => {
+  const config = useConfig()
+  watch(
+    () => config,
+    (newConfig) => {
+      console.log('config changed', newConfig)
+    },
+  )
+
+  const getModelId = (name?: string) => {
+    if (!name) return 'models'
+    if (config?.customModelId) return `model/${config.customModelId(name)}`
+    return `model/${slug(name)}`
+  }
+
+  const getTagId = (tag: Tag) => {
+    if (config?.customTagId) return `tag/${config.customTagId(tag)}`
+    return `tag/${slug(tag.name)}`
+  }
+
+  const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
+    if (config?.customOperationId)
+      return `${getTagId(parentTag)}/${config.customOperationId(operation)}`
+    return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
+  }
+
+  const getWebhookId = (name?: string, httpVerb?: string) => {
+    if (!name) return 'webhooks'
+    if (config?.customWebhookId)
+      return `webhook/${config.customWebhookId(name, httpVerb)}`
+    return `webhook/${httpVerb}/${slug(name)}`
+  }
+
+  return {
+    hash,
+    /** Sets the prefix for the hash */
+    setHashPrefix: (prefix: string) => {
+      hashPrefix.value = prefix
+    },
+    /**
+     * Gets the full hash with the prefix
+     * @param hashTarget The hash to target with the return
+     * @returns The full hash
+     */
+    getFullHash,
+    /**
+     * Gets the hashed url with the prefix
+     * @param replacementHash The hash to replace the current hash with
+     * @param url The url to get the hashed url from
+     * @returns The hashed url
+     */
+    getHashedUrl,
+    /**
+     * Replaces the URL state with the new url and hash
+     * Replacement is used so that hash changes don't trigger the url hash watcher and cause a scroll
+     */
+    replaceUrlState,
+    /** Gets the portion of the hash used by the references */
+    getReferenceHash,
+    getWebhookId,
+    getModelId,
+    getHeadingId,
+    getOperationId,
+    getPathRoutingId,
+    getSectionId,
+    getTagId,
+    isIntersectionEnabled,
+    pathRouting,
+    updateHash,
+  }
+}

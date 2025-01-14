@@ -6,7 +6,7 @@ import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
+import { useConfig } from '@/hooks/useConfig'
 import {
   ScalarIcon,
   ScalarIconButton,
@@ -15,7 +15,6 @@ import {
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { inject } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
@@ -30,7 +29,7 @@ defineProps<{
 }>()
 
 const { copyToClipboard } = useClipboard()
-const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
+const config = useConfig()
 </script>
 <template>
   <SectionAccordion
@@ -64,7 +63,7 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
         v-if="active"
         :operation="operation" />
       <ScalarIcon
-        v-else-if="!getHideTestRequestButton?.()"
+        v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint"
         icon="Play"
         thickness="1.75px" />
