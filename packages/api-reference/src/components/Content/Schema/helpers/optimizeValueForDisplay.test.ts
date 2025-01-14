@@ -28,7 +28,7 @@ describe('optimizeValueForDisplay', () => {
       oneOf: [{ type: 'string' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      oneOf: [{ type: 'string' }],
+      type: 'string',
       nullable: true,
     })
   })
@@ -81,7 +81,7 @@ describe('optimizeValueForDisplay', () => {
       allOf: [{ type: 'string' }, { type: 'null' }],
     }
     expect(optimizeValueForDisplay(input)).toEqual({
-      allOf: [{ type: 'string' }],
+      type: 'string',
       nullable: true,
     })
   })
