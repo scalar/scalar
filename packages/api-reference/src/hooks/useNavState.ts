@@ -3,7 +3,7 @@ import { useConfig } from '@/hooks/useConfig'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 
 import type { PathRouting } from '../types'
 
@@ -111,12 +111,6 @@ const getReferenceHash = () => {
  */
 export const useNavState = () => {
   const config = useConfig()
-  watch(
-    () => config,
-    (newConfig) => {
-      console.log('config changed', newConfig)
-    },
-  )
 
   const getModelId = (name?: string) => {
     if (!name) return 'models'

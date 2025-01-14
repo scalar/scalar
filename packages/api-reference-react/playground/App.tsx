@@ -44,8 +44,6 @@ function App() {
   return (
     <ApiReferenceReact
       configuration={{
-        customOperationHash: (operation, tag) =>
-          `tagsasdasdasdasd/${tag.name}-asdasdas${operation.operationId}`,
         spec: {
           content: galaxySpec,
         },
