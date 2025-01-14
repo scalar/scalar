@@ -1,23 +1,13 @@
+version: '3.8'
+
 services:
   caddy:
     image: caddy:latest
     ports:
       - '8080:8080'
-    configs:
-      - source: caddyfile
-        target: /etc/caddy/Caddyfile
-    attach: false
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
   api:
     build:
       context: .
-      no_cache: true
       dockerfile: playground/Scalar.AspNetCore.Playground/Dockerfile
-
-configs:
-  caddyfile:
-    content: |
-      :8080
-      handle_path /api/* {
-          reverse_proxy api:8080
-      }
-      respond "Bad Gateway" 502
