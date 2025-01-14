@@ -8,7 +8,7 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
@@ -30,9 +30,10 @@ const showChildren = (key: string) => {
   return collapsedSidebarFolders[key]
 }
 
-function openCommandPaletteServer() {
+function openCommandPaletteServer(collectionId?: string) {
   events.commandPalette.emit({
     commandName: 'Add Server',
+    metaData: { parentUid: collectionId },
   })
 }
 
@@ -115,6 +116,17 @@ function handleDelete(uid: string) {
                   }"
                   @click="handleNavigation($event, serverUid, collection.uid)"
                   @delete="handleDelete" />
+                <ScalarButton
+                  v-if="Object.keys(collection['servers'] || {}).length === 0"
+                  class="mb-[.5px] flex gap-1.5 h-8 text-c-1 pl-6 py-0 justify-start text-xs w-full hover:bg-b-2"
+                  variant="ghost"
+                  @click="openCommandPaletteServer(collection.uid)">
+                  <ScalarIcon
+                    class="ml-0.5 h-2.5 w-2.5"
+                    icon="Add"
+                    thickness="3" />
+                  <span>Add Server</span>
+                </ScalarButton>
               </div>
             </div>
           </SidebarList>
