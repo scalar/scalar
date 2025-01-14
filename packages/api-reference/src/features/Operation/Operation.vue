@@ -55,6 +55,7 @@ const { operation: requestEntity } = useBlockProps({
       :id="id"
       :operation="operation"
       :request="request"
+      :requestEntity="requestEntity"
       :secretCredentials="secretCredentials" />
   </template>
   <template v-else>
@@ -62,6 +63,7 @@ const { operation: requestEntity } = useBlockProps({
       :id="id"
       :operation="operation"
       :request="request"
+      :requestEntity="requestEntity"
       :secretCredentials="secretCredentials" />
   </template>
 </template>

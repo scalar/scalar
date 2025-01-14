@@ -12,15 +12,17 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { id, operation, request, secretCredentials } = defineProps<{
+const props = defineProps<{
   id?: string
+  requestEntity?: RequestEntity
   operation: TransformedOperation
   request: Request | null
   secretCredentials: string[]
@@ -28,9 +30,14 @@ const { id, operation, request, secretCredentials } = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
+
+const title = computed(
+  () => props.requestEntity?.summary || props.requestEntity?.path || '',
+)
 </script>
 <template>
   <SectionAccordion
+    v-if="requestEntity"
     :id="id"
     class="reference-endpoint"
     transparent>
@@ -39,7 +46,7 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
-            :method="operation.httpVerb"
+            :method="requestEntity.method"
             short />
           <Anchor
             :id="id ?? ''"
@@ -47,10 +54,10 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
             <div class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="operation.information?.deprecated"
-                  :path="operation.path" />
+                  :deprecated="requestEntity.deprecated"
+                  :path="requestEntity.path" />
               </div>
-              <div class="endpoint-label-name">{{ operation.name }}</div>
+              <div class="endpoint-label-name">{{ title }}</div>
             </div>
           </Anchor>
         </div>
