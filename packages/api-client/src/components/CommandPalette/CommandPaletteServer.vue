@@ -93,7 +93,7 @@ const redirectToCreateCollection = () => {
         </ScalarButton>
         <ScalarButton
           v-else
-          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2 w-fit"
           variant="outlined"
           @click="redirectToCreateCollection">
           <span class="text-c-1">Create Collection</span>
