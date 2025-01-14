@@ -46,6 +46,7 @@ export default {
         },
       },
       spacing: {
+        '1/2': '.5px',
         /** Client headers including the address bar and the section headers */
         'client-header': '48px',
       },

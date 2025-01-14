@@ -302,7 +302,7 @@ const hasDraftRequests = computed(() => {
       :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
-      class="flex flex-1 flex-col gap-[.5px] text-sm"
+      class="flex flex-1 flex-col gap-1/2 text-sm"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"

@@ -69,7 +69,7 @@ function handleDelete(uid: string) {
             <div
               v-for="collection in collections"
               :key="collection.uid"
-              class="flex flex-col gap-px">
+              class="flex flex-col gap-1/2">
               <button
                 class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                 type="button"
@@ -99,7 +99,7 @@ function handleDelete(uid: string) {
               <div
                 v-show="showChildren(collection.uid)"
                 :class="{
-                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] flex flex-col gap-px mb-[.5px] last:mb-0 relative':
+                  'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] flex flex-col gap-1/2 mb-[.5px] last:mb-0 relative':
                     Object.keys(collection['servers'] || {}).length > 0,
                 }">
                 <SidebarListElement

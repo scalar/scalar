@@ -124,7 +124,7 @@ onClickOutside(
       :style="dropdownStyle">
       <ul
         v-if="filteredVariables.length"
-        class="flex flex-col gap-px">
+        class="flex flex-col gap-1/2">
         <template
           v-for="(item, index) in filteredVariables"
           :key="item.key">
