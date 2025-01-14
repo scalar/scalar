@@ -1,6 +1,11 @@
 import { describe, expectTypeOf, it } from 'vitest'
 
-import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from './index'
+import type {
+  OpenAPI,
+  OpenAPIV2,
+  OpenAPIV3,
+  OpenAPIV3_1,
+} from './openapi-types'
 
 describe('OpenAPI', () => {
   it('has a generic type', () => {
@@ -58,5 +63,18 @@ describe('OpenAPI', () => {
 
     expectTypeOf(specification['random-attribute']).toEqualTypeOf<any>()
     expectTypeOf(specification['x-custom']).toEqualTypeOf<boolean | undefined>()
+  })
+
+  it('has a HttpMethod type', () => {
+    const validMethod: OpenAPI.HttpMethod = 'GET'
+    const anotherValidMethod: Lowercase<OpenAPI.HttpMethod> = 'get'
+
+    expectTypeOf(validMethod).toMatchTypeOf<OpenAPI.HttpMethod>()
+    expectTypeOf(anotherValidMethod).toMatchTypeOf<
+      Lowercase<OpenAPI.HttpMethod>
+    >()
+
+    // @ts-expect-error name is a string
+    assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
   })
 })
