@@ -72,6 +72,11 @@ export namespace OpenAPI {
     | OpenAPIV2.SchemaObject
     | OpenAPIV3.SchemaObject
     | OpenAPIV3_1.SchemaObject
+
+  export type HttpMethods =
+    | OpenAPIV3_1.HttpMethods
+    | OpenAPIV3.HttpMethods
+    | OpenAPIV2.HttpMethods
 }
 
 export namespace OpenAPIV3_1 {
