@@ -25,6 +25,7 @@
     "eslint-plugin-vue": "^9.21.1",
     "lefthook": "^1.9.2",
     "nodemon": "^3.1.9",
+    "pkg-pr-new": "^0.0.39",
     "prettier": "^3.4.2",
     "remark-cli": "^12.0.1",
     "remark-lint-no-dead-urls": "^1.1.0",
