@@ -114,25 +114,33 @@ export const useNavState = () => {
 
   const getModelId = (name?: string) => {
     if (!name) return 'models'
-    if (config?.customModelId) return `model/${config.customModelId(name)}`
+
+    if (typeof config?.customModelId === 'function') {
+      return `model/${config.customModelId(name)}`
+    }
     return `model/${slug(name)}`
   }
 
   const getTagId = (tag: Tag) => {
-    if (config?.customTagId) return `tag/${config.customTagId(tag)}`
+    if (typeof config?.customTagId === 'function') {
+      return `tag/${config.customTagId(tag)}`
+    }
     return `tag/${slug(tag.name)}`
   }
 
   const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
-    if (config?.customOperationId)
+    if (typeof config?.customOperationId === 'function') {
       return `${getTagId(parentTag)}/${config.customOperationId(operation)}`
+    }
     return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
   }
 
   const getWebhookId = (name?: string, httpVerb?: string) => {
     if (!name) return 'webhooks'
-    if (config?.customWebhookId)
+
+    if (typeof config?.customWebhookId === 'function') {
       return `webhook/${config.customWebhookId(name, httpVerb)}`
+    }
     return `webhook/${httpVerb}/${slug(name)}`
   }
 
