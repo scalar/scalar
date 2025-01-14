@@ -96,6 +96,18 @@ function handleDelete(uid: string) {
                   class="break-all line-clamp-1 font-medium text-left w-full"
                   >{{ collection.info?.title ?? '' }}</span
                 >
+                <ScalarButton
+                  class="hidden group-hover:block px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                  size="sm"
+                  variant="ghost"
+                  @click.stop.prevent="
+                    openCommandPaletteServer(collection.uid)
+                  ">
+                  <ScalarIcon
+                    icon="Add"
+                    size="md"
+                    thickness="2" />
+                </ScalarButton>
               </button>
               <div
                 v-show="showChildren(collection.uid)"
