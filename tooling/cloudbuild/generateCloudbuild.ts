@@ -97,7 +97,7 @@ export default async function generateCloudBuild(
   })
 
   const options = {
-    machineType: 'E2_HIGHCPU_8',
+    machineType: 'E2_HIGHCPU_32',
     logging: 'CLOUD_LOGGING_ONLY',
   }
 
