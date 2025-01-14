@@ -1,0 +1,4 @@
+@import '@scalar/components/style.css';
+@import '@scalar/themes/style.css';
+@import '../../assets/tailwind.css';
+@import '@scalar/api-client/style.css';

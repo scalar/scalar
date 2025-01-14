@@ -89,10 +89,8 @@ export type ImportSpecToWorkspaceArgs = Pick<
   CollectionPayload,
   'documentUrl' | 'watchMode'
 > &
-  Pick<
-    ReferenceConfiguration,
-    'authentication' | 'baseServerURL' | 'servers'
-  > & {
+  Pick<ReferenceConfiguration, 'authentication' | 'baseServerURL' | 'servers'> &
+  Pick<Collection, 'name'> & {
     /** Sets the preferred security scheme on the collection instead of the requests */
     setCollectionSecurity?: boolean
     /** Call the load step from the parser */
@@ -122,6 +120,7 @@ export async function importSpecToWorkspace(
     setCollectionSecurity = false,
     shouldLoad,
     watchMode = false,
+    name,
   }: ImportSpecToWorkspaceArgs = {},
 ): Promise<
   | {
@@ -312,14 +311,14 @@ export async function importSpecToWorkspace(
 
       // Set the initially selected security scheme
       if (securityRequirements.length && !setCollectionSecurity) {
-        const name =
+        const securitySchemeName =
           authentication?.preferredSecurityScheme &&
           securityRequirements.includes(
             authentication.preferredSecurityScheme ?? '',
           )
             ? authentication.preferredSecurityScheme
             : securityRequirements[0]
-        const uid = securitySchemeMap[name]
+        const uid = securitySchemeMap[securitySchemeName]
         selectedSecuritySchemeUids = [uid]
       }
 
@@ -380,7 +379,9 @@ export async function importSpecToWorkspace(
   tags.forEach((t) => tagNames.delete(t.name))
 
   // Add an entry for any tags that are used but do not have a definition
-  tagNames.forEach((name) => name && tags.push(tagSchema.parse({ name })))
+  tagNames.forEach(
+    (tagName) => tagName && tags.push(tagSchema.parse({ name: tagName })),
+  )
 
   // Tag name to UID map
   const tagMap: Record<string, Tag> = {}
@@ -445,6 +446,7 @@ export async function importSpecToWorkspace(
 
   const collection = collectionSchema.parse({
     ...schema,
+    name,
     watchMode,
     documentUrl,
     requests: requests.map((r) => r.uid),

@@ -3,11 +3,11 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/ApiClientModal'
 import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import { ScalarIcon } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { inject } from 'vue'
 
 defineProps<{
-  operation: TransformedOperation
+  operation: Request
 }>()
 
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
@@ -17,19 +17,19 @@ const { client } = useApiClient()
   <button
     v-if="getHideTestRequestButton?.() !== true"
     class="show-api-client-button"
-    :method="operation.httpVerb"
+    :method="operation.method"
     type="button"
     @click.stop="
       client?.open({
         path: operation.path,
-        method: operation.httpVerb,
+        method: operation.method,
       })
     ">
     <ScalarIcon
       icon="Play"
       size="sm" />
     <span>Test Request</span>
-    <ScreenReader>({{ operation.httpVerb }} {{ operation.path }})</ScreenReader>
+    <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
   </button>
   <template v-else>&nbsp;</template>
 </template>
