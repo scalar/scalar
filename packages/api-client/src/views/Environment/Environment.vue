@@ -291,8 +291,8 @@ const handleNavigation = (
   collectionId?: string,
 ) => {
   const path = collectionId
-    ? `/workspace/${activeWorkspace.value.uid}/environment/${collectionId}/${uid}`
-    : `/workspace/${activeWorkspace.value.uid}/environment/${uid}`
+    ? `/workspace/${activeWorkspace?.value?.uid}/environment/${collectionId}/${uid}`
+    : `/workspace/${activeWorkspace?.value?.uid}/environment/${uid}`
   if (event.metaKey) {
     window.open(path, '_blank')
   } else {
@@ -468,7 +468,7 @@ function handleRename(newName: string) {
         </template>
         <CodeInput
           v-if="currentEnvironmentId"
-          class="pl-px pr-2 md:px-4 py-2"
+          class="border-t pl-px pr-2 md:px-4 py-2"
           isCopyable
           language="json"
           lineNumbers

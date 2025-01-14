@@ -13,7 +13,7 @@ const { cx } = useBindCx()
     v-bind="
       cx(
         scroll ? 'overflow-x-auto custom-scroll' : 'overflow-visible',
-        'scalar-data-table border-t-1/2 bg-b-1',
+        'scalar-data-table bg-b-1',
       )
     ">
     <table
