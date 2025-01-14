@@ -119,7 +119,7 @@ export function useModal() {
         </div>
         <DialogDescription
           v-else
-          :class="cx(bodyClass, body({ size, variant }))">
+          :class="cx(body({ size, variant }), bodyClass)">
           <slot />
         </DialogDescription>
       </DialogPanel>
