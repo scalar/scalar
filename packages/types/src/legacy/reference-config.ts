@@ -410,6 +410,12 @@ export type Schema = {
   properties?: Record<string, Schema>
 }
 
+/**
+ * This is a very strange and custom way to represent the operation object.
+ * It’s the outcome of the `parse` helper.
+ *
+ * @deprecated This is evil. Stop using it. We’ll transition to use the new store.
+ */
 export type TransformedOperation = Operation & {
   pathParameters?: Parameter[]
 }
