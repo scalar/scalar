@@ -1,5 +1,9 @@
 <script lang="ts" setup>
 import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
+import {
+  discriminators,
+  optimizeValueForDisplay,
+} from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import { computed } from 'vue'
@@ -74,8 +78,6 @@ const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
   return value?.enum || value?.items?.enum || []
 }
 
-const rules = ['oneOf', 'anyOf', 'allOf', 'not']
-
 // These helpers manage how enum values are displayed:
 //
 // - For enums with 9 or fewer values, all values are shown.
@@ -89,6 +91,9 @@ const visibleEnumValues = computed(() =>
 const remainingEnumValues = computed(() =>
   getEnumFromValue(props.value).slice(initialEnumCount.value),
 )
+
+/** Simplified discriminators with `null` type. */
+const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
 </script>
 <template>
   <div
@@ -104,7 +109,7 @@ const remainingEnumValues = computed(() =>
       :additional="additional"
       :enum="getEnumFromValue(value).length > 0"
       :required="required"
-      :value="value">
+      :value="optimizedValue">
       <template
         v-if="name"
         #name>
@@ -232,29 +237,30 @@ const remainingEnumValues = computed(() =>
           :value="value.items" />
       </div>
     </template>
-    <!-- oneOf -->
+    <!-- Discriminators -->
     <template
-      v-for="rule in rules"
-      :key="rule">
+      v-for="discriminator in discriminators"
+      :key="discriminator">
       <!-- Property -->
       <div
-        v-if="value?.[rule]"
+        v-if="optimizedValue?.[discriminator]"
         class="property-rule">
         <template
-          v-for="(schema, index) in value[rule]"
+          v-for="(schema, index) in optimizedValue[discriminator]"
           :key="index">
           <Schema
             :compact="compact"
             :level="level + 1"
+            :noncollapsible="value?.[discriminator].length === 1"
             :value="schema" />
         </template>
       </div>
       <!-- Arrays -->
       <div
-        v-if="value?.items?.[rule] && level < 3"
+        v-if="value?.items?.[discriminator] && level < 3"
         class="property-rule">
         <Schema
-          v-for="(schema, index) in value.items[rule]"
+          v-for="(schema, index) in value.items[discriminator]"
           :key="index"
           :compact="compact"
           :level="level + 1"
