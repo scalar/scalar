@@ -38,10 +38,8 @@ const formattedSpecTitle = computed(() => {
     <Section class="introduction-section">
       <SectionContent :loading="!info.description && !info.title">
         <div class="badges">
-          <Badge v-if="info.version">
-            {{ info.version }}
-          </Badge>
-          <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
+          <Badge v-if="info.version">v{{ info.version }}</Badge>
+          <Badge v-if="specVersion">OAS {{ specVersion }}</Badge>
         </div>
         <SectionHeader
           :level="1"
