@@ -101,7 +101,7 @@ const redirectToCreateCollection = () => {
 
 <template>
   <ScalarModal
-    bodyClass="!border-t-0 !rounded-t-lg"
+    bodyClass="border-t-0 rounded-t-lg"
     size="xs"
     :state="state">
     <CommandActionForm
