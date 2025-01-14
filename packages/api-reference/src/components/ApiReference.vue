@@ -17,7 +17,7 @@ defineEmits<{
   (e: 'updateContent', value: string): void
 }>()
 
-const { setColorMode, toggleColorMode, darkLightMode } = useColorMode({
+const { toggleColorMode, isDarkMode } = useColorMode({
   initialColorMode: props.configuration?.darkMode ? 'dark' : undefined,
   overrideColorMode: props.configuration?.forceDarkModeState,
 })
@@ -25,7 +25,7 @@ const { setColorMode, toggleColorMode, darkLightMode } = useColorMode({
 /** Update the dark mode state when props change */
 watch(
   () => props.configuration?.darkMode,
-  (isDark) => setColorMode(isDark ? 'dark' : 'light'),
+  (isDark) => (isDarkMode.value = !!isDark),
 )
 
 const customCss = computed(() => {
@@ -71,7 +71,7 @@ useFavicon(favicon)
   </component>
   <Layouts
     :configuration="configuration"
-    :isDark="darkLightMode === 'dark'"
+    :isDark="isDarkMode"
     :parsedSpec="parsedSpec"
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleColorMode()"

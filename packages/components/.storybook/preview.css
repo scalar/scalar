@@ -64,3 +64,15 @@ body.sb-show-main,
   color: var(--scalar-color-2);
   border-color: var(--scalar-border-color);
 }
+
+:where(#storybook-root) .placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 8px;
+  text-align: center;
+  color: var(--scalar-color-2);
+  outline: 1px dashed var(--scalar-color-3);
+  outline-offset: -4px;
+}
