@@ -1,5 +1,6 @@
 import { ERRORS } from '@/blocks/constants'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
+import type { OpenAPI } from '@scalar/openapi-types'
 
 // import type { OpenAPI } from '@scalar/openapi-types'
 
@@ -11,10 +12,8 @@ import { escapeJsonPointer } from '@scalar/openapi-parser'
  * ['components', 'schemas', 'Planet]
  */
 type ValidOpenApiPaths =
-  // TODO: Add this
-  // | ['paths', string, OpenAPI.HttpMethods | Uppercase<OpenAPI.HttpMethods>]
-  // TODO: Instead of this:
-  ['paths', string, string] | ['components', 'schemas', string]
+  | ['paths', string, Lowercase<OpenAPI.HttpMethod>]
+  | ['components', 'schemas', string]
 
 /**
  * Encodes a location string with paths
