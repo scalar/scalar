@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/hono-api-reference"
+    "directory": "integrations/hono-api-reference"
   },
   "version": "0.5.167",
   "engines": {

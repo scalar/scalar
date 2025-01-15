@@ -330,7 +330,7 @@ jobs:
           ./integrations/docusaurus
           ./integrations/express-api-reference
           ./packages/fastify-api-reference
-          ./packages/hono-api-reference
+          ./integrations/hono-api-reference
           ./integrations/nestjs-api-reference
           ./integrations/nextjs-api-reference
           ./packages/nuxt

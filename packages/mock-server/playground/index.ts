@@ -1,7 +1,7 @@
 import { serve } from '@hono/node-server'
-import { apiReference } from '@scalar/hono-api-reference'
 import fs from 'fs/promises'
 
+import { apiReference } from '../../../integrations/hono-api-reference/src'
 import { createMockServer } from '../src/createMockServer'
 
 const port = process.env.PORT || 5052

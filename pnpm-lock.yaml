@@ -1434,7 +1434,7 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
-  packages/hono-api-reference:
+  integrations/hono-api-reference:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
