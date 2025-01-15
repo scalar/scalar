@@ -116,7 +116,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Django Ninja](packages/scalar_django_ninja/README.md)
 - [Docusaurus](integrations/docusaurus/README.md)
 - [Express](integrations/express-api-reference/README.md)
-- [FastAPI](packages/scalar_fastapi/README.md)
+- [FastAPI](integrations/scalar_fastapi/README.md)
 - [Fastify](packages/fastify-api-reference/README.md)
 - [Go](documentation/integrations/go.md)
 - [Hono](packages/hono-api-reference/README.md)
