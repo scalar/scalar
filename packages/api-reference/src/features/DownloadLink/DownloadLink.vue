@@ -11,8 +11,14 @@ const props = defineProps<{
   specTitle?: string
 }>()
 
-const getHideDownloadButtonSymbol = inject(HIDE_DOWNLOAD_BUTTON_SYMBOL)
-const getOpenApiDocumentUrlSymbol = inject(OPENAPI_DOCUMENT_URL_SYMBOL)
+const getHideDownloadButtonSymbol = inject(
+  HIDE_DOWNLOAD_BUTTON_SYMBOL,
+  () => true,
+)
+const getOpenApiDocumentUrlSymbol = inject(
+  OPENAPI_DOCUMENT_URL_SYMBOL,
+  () => undefined,
+)
 
 // id is retrieved at the layout level
 const handleDownloadClick = () => {
