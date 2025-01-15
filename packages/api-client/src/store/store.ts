@@ -60,6 +60,8 @@ type CreateWorkspaceStoreOptions = {
   isReadOnly: boolean
   /** Should be renamed to theme to match the references config */
   themeId: ReferenceConfiguration['theme']
+  /** Specifies the integration being used. This is primarily for internal purposes and should not be manually set. */
+  integration: ReferenceConfiguration['_integration']
 } & Pick<
   ReferenceConfiguration,
   'proxyUrl' | 'showSidebar' | 'hideClientButton'
@@ -79,6 +81,7 @@ export const createWorkspaceStore = ({
   proxyUrl,
   themeId,
   hideClientButton,
+  integration,
 }: CreateWorkspaceStoreOptions) => {
   // ---------------------------------------------------------------------------
   // Initialize all storage objects
@@ -213,6 +216,7 @@ export const createWorkspaceStore = ({
     isReadOnly,
     hideClientButton,
     showSidebar,
+    integration,
     // ---------------------------------------------------------------------------
     // METHODS
     importSpecFile,

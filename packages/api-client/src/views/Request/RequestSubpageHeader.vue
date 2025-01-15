@@ -19,7 +19,8 @@ defineEmits<{
 }>()
 
 const { activeCollection } = useActiveEntities()
-const { isReadOnly, hideClientButton, showSidebar } = useWorkspace()
+const { isReadOnly, hideClientButton, showSidebar, integration } =
+  useWorkspace()
 
 const { layout } = useLayout()
 const { currentRoute } = useRouter()
@@ -48,7 +49,7 @@ const { currentRoute } = useRouter()
         v-if="isReadOnly && activeCollection?.documentUrl && !hideClientButton"
         buttonSource="modal"
         class="!w-fit lg:-mr-1"
-        :integration="activeCollection?.integration"
+        :integration="integration || activeCollection?.integration"
         :source="
           currentRoute.query.source === 'gitbook' ? 'gitbook' : 'api-reference'
         "
