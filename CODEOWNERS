@@ -37,7 +37,7 @@
 /packages/api-client-react @amritk
 /packages/cli @hanspagel
 /integrations/express-api-reference @hanspagel
-/packages/nextjs-api-reference @amritk
+/integrations/nextjs-api-reference @amritk
 /packages/scalar_django_ninja @marclave
 # /packages/use-tooltip
 /packages/api-reference @hanspagel

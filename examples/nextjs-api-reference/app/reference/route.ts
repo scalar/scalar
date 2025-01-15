@@ -1,4 +1,4 @@
-import { ApiReference } from '@scalar/nextjs-api-reference'
+import { ApiReference } from '../../../../integrations/nextjs-api-reference/dist'
 
 const config = {
   spec: {
