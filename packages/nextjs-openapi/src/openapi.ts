@@ -1,3 +1,4 @@
+import { ApiReference } from '@scalar/nextjs-api-reference'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { sync } from 'fast-glob'
 import { readFileSync } from 'fs'
@@ -12,7 +13,6 @@ import {
   createSourceFile,
 } from 'typescript'
 
-import { ApiReference } from '../../../integrations/nextjs-api-reference/dist'
 import { getPathSchema } from './path'
 
 /**
