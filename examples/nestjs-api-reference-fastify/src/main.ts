@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { apiReference } from '@scalar/nestjs-api-reference';
+import { apiReference } from '../../../integrations/nestjs-api-reference/dist';
 import {
   FastifyAdapter,
   NestFastifyApplication,

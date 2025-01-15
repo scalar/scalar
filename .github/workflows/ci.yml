@@ -331,8 +331,8 @@ jobs:
           ./integrations/express-api-reference
           ./packages/fastify-api-reference
           ./packages/hono-api-reference
-          ./packages/nestjs-api-reference
-          ./packages/nextjs-api-reference
+          ./integrations/nestjs-api-reference
+          ./integrations/nextjs-api-reference
           ./packages/nuxt
           ./packages/themes
 

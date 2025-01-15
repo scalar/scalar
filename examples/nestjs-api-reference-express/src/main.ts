@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
-import { apiReference } from '@scalar/nestjs-api-reference';
+import { apiReference } from '../../../integrations/nestjs-api-reference/dist';
 
 const PORT = Number(process.env.PORT || 5056);
 const HOST = process.env.HOST || '0.0.0.0';
