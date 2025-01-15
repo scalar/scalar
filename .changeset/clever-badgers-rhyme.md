@@ -3,4 +3,4 @@
 '@scalar/types': patch
 ---
 
-feat: render the operation title from the new store
+feat: render the operation description from the new store
