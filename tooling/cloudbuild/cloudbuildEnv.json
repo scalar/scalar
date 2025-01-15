@@ -27,7 +27,7 @@
   {
     "name": "express-js",
     "cloudBuildName": "_SERVICE_EXPRESS",
-    "dockerPath": "./packages/express-api-reference/Dockerfile"
+    "dockerPath": "./integrations/express-api-reference/Dockerfile"
   },
   {
     "name": "nest-js-fastify",

@@ -328,7 +328,7 @@ jobs:
           ./packages/api-reference-react
           ./packages/components
           ./packages/docusaurus
-          ./packages/express-api-reference
+          ./integrations/express-api-reference
           ./packages/fastify-api-reference
           ./packages/hono-api-reference
           ./packages/nestjs-api-reference

@@ -1,8 +1,9 @@
 packages:
   - 'examples/*'
+  - 'integrations/*'
+  - 'integrations/express-api-reference/playground'
   - 'packages/*'
   - 'packages/api-reference/docker'
-  - 'packages/express-api-reference/playground'
   - 'packages/fastify-api-reference/playground'
   - 'packages/snippetz/playground'
   - 'playwright'

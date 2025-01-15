@@ -36,7 +36,7 @@
 # /packages/use-toasts
 /packages/api-client-react @amritk
 /packages/cli @hanspagel
-/packages/express-api-reference @hanspagel
+/integrations/express-api-reference @hanspagel
 /packages/nextjs-api-reference @amritk
 /packages/scalar_django_ninja @marclave
 # /packages/use-tooltip
