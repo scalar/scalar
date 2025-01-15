@@ -41,11 +41,21 @@ const { request, secretCredentials } = useRequestExample({
 
 const store = inject(WORKSPACE_SYMBOL)
 
-// TODO: Take the store as a prop, not a transformed operation
+/**
+ * Resolve the matching operation from the store
+ *
+ * TODO: In the future, we won’t need this.
+ *
+ * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
+ * instead of using the super custom transformed `parsedSpec` that we’re using now.
+ */
 const { operation: requestEntity } = useBlockProps({
-  // @ts-expect-error TODO: Deal with a potential undefined store
   store,
-  location: getLocation(['paths', operation.path, operation.httpVerb]),
+  location: getLocation([
+    'paths',
+    operation.path,
+    operation.httpVerb.toLowerCase(),
+  ]),
 })
 </script>
 

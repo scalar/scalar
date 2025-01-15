@@ -23,6 +23,7 @@ import OperationResponses from '../components/OperationResponses.vue'
 const props = defineProps<{
   id?: string
   requestEntity?: RequestEntity
+  /** @deprecated Use `requestEntity` instead */
   operation: TransformedOperation
   request: Request | null
   secretCredentials: string[]
