@@ -31,7 +31,7 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 </script>
 <template>
-  <div class="relative col-1 flex-center gap-6 p-2 capitalize">
+  <div class="border-t relative col-1 flex-center gap-6 p-2 capitalize">
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
       :class="{

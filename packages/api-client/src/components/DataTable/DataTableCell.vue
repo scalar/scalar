@@ -17,7 +17,7 @@ const { cx } = useBindCx()
     :is="is"
     v-bind="
       cx(
-        'max-h-8 min-h-8 min-w-8 border-l-0 group-[:not(:first-child)]:border-t-1/2 border-b-0 border-r-1/2 flex text-sm last:border-r-0 group-last:border-b-transparent p-0 m-0 relative',
+        'max-h-8 min-h-8 min-w-8 border-l-0 border-t border-b-0 border-r flex text-sm last:border-r-0 group-last:border-b-transparent p-0 m-0 relative',
       )
     "
     role="cell">

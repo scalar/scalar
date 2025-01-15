@@ -117,7 +117,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             <div
               v-for="(paths, domain) in groupedCookies"
               :key="domain"
-              class="flex flex-col gap-px">
+              class="flex flex-col gap-1/2">
               <button
                 class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded text-left text-sm p-1.5 focus-visible:z-10 hover:bg-sidebar-active-b indent-padding-left"
                 type="button"
@@ -137,7 +137,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
                 <div
                   v-for="(cookieList, path) in paths"
                   :key="path"
-                  class="flex flex-col gap-px">
+                  class="flex flex-col gap-1/2">
                   <button
                     class="flex gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                     type="button"

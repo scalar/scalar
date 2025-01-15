@@ -192,13 +192,18 @@ export const routes = [
         path: 'servers',
         redirect: (to) => ({
           name: 'servers',
-          params: { ...to.params, servers: 'default' },
+          params: {
+            ...to.params,
+            collectionId: 'default',
+            servers: 'default',
+          },
         }),
       },
       {
         name: 'servers',
-        path: `servers/:${PathId.Servers}`,
+        path: `servers/:collectionId/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
+        props: true,
       },
       {
         name: 'settings.default',
@@ -207,11 +212,6 @@ export const routes = [
           name: 'settings',
           params: { ...to.params, settings: 'general' },
         }),
-      },
-      {
-        name: 'settings',
-        path: `settings/:${PathId.Settings}`,
-        component: () => import('@/views/Settings/Settings.vue'),
       },
     ],
   },

@@ -41,7 +41,7 @@ const updateCookie = (key: any, value: any) => {
     <template #title>
       <div class="flex items-center pointer-events-none">
         <label
-          class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
+          class="absolute border-b w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
           for="cookiename"></label>
         <input
           id="cookiename"

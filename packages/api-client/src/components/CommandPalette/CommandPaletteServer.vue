@@ -13,6 +13,13 @@ import { computed, ref } from 'vue'
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
+const props = defineProps<{
+  metaData?: {
+    itemUid?: string
+    parentUid?: string
+  }
+}>()
+
 const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
@@ -38,9 +45,15 @@ const collections = computed(() =>
 
 /** Currently selected collection with a reasonable default */
 const selectedCollection = ref<ScalarComboboxOption | undefined>(
-  collections.value.find(
-    (collection) => collection.id === activeCollection.value?.uid,
-  ),
+  props.metaData
+    ? collections.value.find(
+        (collection) =>
+          collection.id === props.metaData?.itemUid ||
+          collection.id === props.metaData?.parentUid,
+      )
+    : collections.value.find(
+        (collection) => collection.id === activeCollection.value?.uid,
+      ),
 )
 
 const handleSubmit = () => {
@@ -93,7 +106,7 @@ const redirectToCreateCollection = () => {
         </ScalarButton>
         <ScalarButton
           v-else
-          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2 w-fit"
           variant="outlined"
           @click="redirectToCreateCollection">
           <span class="text-c-1">Create Collection</span>
