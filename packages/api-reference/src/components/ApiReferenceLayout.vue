@@ -256,6 +256,7 @@ const workspaceStore = createWorkspaceStore({
   themeId: props.configuration.theme,
   useLocalStorage: false,
   hideClientButton: props.configuration.hideClientButton,
+  integration: props.configuration._integration,
 })
 // Populate the workspace store
 watch(

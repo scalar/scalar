@@ -42,6 +42,7 @@ export type ClientConfiguration = {
   | 'authentication'
   | 'baseServerURL'
   | 'hideClientButton'
+  | '_integration'
 >
 
 export type OpenClientPayload = {
@@ -129,6 +130,7 @@ export const createApiClient = ({
       themeId: configuration.themeId,
       showSidebar: configuration.showSidebar,
       hideClientButton: configuration.hideClientButton,
+      integration: configuration._integration,
       useLocalStorage: persistData,
     })
 
