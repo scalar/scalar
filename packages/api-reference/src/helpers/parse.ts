@@ -16,7 +16,7 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
+import type { Spec, Webhook } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '../helpers'
@@ -116,20 +116,39 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   }
 
   // Webhooks
-  const newWebhooks: Record<string, any> = {}
+  const newWebhooks: AnyObject = {}
 
   Object.keys(schema.webhooks ?? {}).forEach((name) => {
     // prettier-ignore
     ;(
-      Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
+      Object.keys(schema.webhooks?.[name] ?? {}) as string[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        schema.webhooks?.[name][httpVerb] as OpenAPIV3_1.PathItemObject[typeof httpVerb]
+        schema.webhooks?.[name][httpVerb]
 
       // Filter out webhooks marked as internal
-      // @ts-expect-error TODO: Fix this
-      if (shouldIgnoreEntity(originalWebhook)) {
+      if (!originalWebhook || shouldIgnoreEntity(originalWebhook)) {
         return
+      }
+
+      if (Array.isArray(originalWebhook.tags)) {
+        // Resolve the whole tag object
+        const resolvedTags = originalWebhook.tags
+          ?.map((tag: string) => schema.tags?.find((t: UnknownObject) => t.name === tag))
+
+        // Filter out tags marked as internal
+        originalWebhook.tags = resolvedTags?.filter(
+          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+        )
+
+        if (
+          resolvedTags?.some(
+            (tag: UnknownObject) => shouldIgnoreEntity(tag),
+          )
+        ) {
+          // Skip this webhook if it has tags marked as internal
+          return
+        }
       }
 
       if (newWebhooks[name] === undefined) {
@@ -152,6 +171,13 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
     })
   })
 
+  Object.keys(schema.components?.schemas ?? {}).forEach((name) => {
+    // Delete all schemas where `shouldIgnoreEntity` returns true
+    if (shouldIgnoreEntity(schema.components?.schemas?.[name])) {
+      delete schema.components?.schemas?.[name]
+    }
+  })
+
   /**
    * { '/pet': { … } }
    */
@@ -171,13 +197,6 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       // Filter out operations marked as internal
       if (shouldIgnoreEntity(operation)) {
         return
-      }
-
-      // Hide operations where a tag is marked as internal
-      if (Array.isArray(operation.tags)) {
-        operation.tags = operation.tags?.filter(
-          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
-        )
       }
 
       // Transform the operation
