@@ -38,7 +38,7 @@
 /packages/cli @hanspagel
 /integrations/express-api-reference @hanspagel
 /integrations/nextjs-api-reference @amritk
-/packages/scalar_django_ninja @marclave
+/integrations/scalar_django_ninja @marclave
 # /packages/use-tooltip
 /packages/api-reference @hanspagel
 /packages/code-highlight @geoffgscott

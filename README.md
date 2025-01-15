@@ -113,7 +113,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [.NET](packages/scalar.aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django](https://github.com/m1guer/django-scalar)
-- [Django Ninja](packages/scalar_django_ninja/README.md)
+- [Django Ninja](integrations/scalar_django_ninja/README.md)
 - [Docusaurus](integrations/docusaurus/README.md)
 - [Express](integrations/express-api-reference/README.md)
 - [FastAPI](integrations/scalar_fastapi/README.md)
