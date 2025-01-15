@@ -371,6 +371,12 @@ export type Header = {
   value: string
 }
 
+export enum XScalarStability {
+  Deprecated = 'deprecated',
+  Experimental = 'experimental',
+  Stable = 'stable'
+}
+
 export type Information = {
   'description'?: string
   'operationId'?: string | number
@@ -386,6 +392,7 @@ export type Information = {
    * Scalar
    */
   'x-custom-examples'?: CustomRequestExample[]
+  'x-scalar-stability'?: XScalarStability
   /**
    * Redocly, current
    */

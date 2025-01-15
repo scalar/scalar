@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { defineProps } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import OperationPath from '@/components/OperationPath.vue'
@@ -18,6 +19,7 @@ import type { TransformedOperation } from '@scalar/types/legacy'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
+import { isOperationDeprecated, getOperationStability, getOperationStabilityColor } from '@/helpers/operation'
 
 defineProps<{
   id?: string
@@ -27,14 +29,15 @@ defineProps<{
   request: Request | null
   secretCredentials: string[]
 }>()
+
 </script>
 <template>
   <Section
     :id="id"
     :label="operation.name">
     <SectionContent>
-      <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
-      <div :class="operation.information?.deprecated ? 'deprecated' : ''">
+      <Badge v-if="getOperationStability(operation)" :color="getOperationStabilityColor(operation)"> {{ getOperationStability(operation) }} </Badge>
+      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
             {{ operation.name }}

@@ -173,3 +173,21 @@ components:
 +        x-additionalPropertiesName: anyCustomAttribute
         type: string
 ```
+
+## x-scalar-stability
+
+You can show the stability of an endpoint by settings the `x-scalar-stability` to either `stable`, `experimental` or `deprecated`. The native `deprecated` property will take precedence.
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: '1.0'
+paths:
+  '/planets':
+    get:
+      summary: Get all planets
+    post:
+      summary: Create a new planet
++      x-scalar-stability: 'experimental'
+```
