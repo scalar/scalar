@@ -15,12 +15,11 @@ import { TestRequestButton } from '@/features/TestRequestButton'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { computed } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const props = defineProps<{
+defineProps<{
   id?: string
   /** @deprecated Use `requestEntity` instead */
   operation: TransformedOperation
@@ -32,7 +31,7 @@ const props = defineProps<{
 <template>
   <Section
     :id="id"
-    :label="title">
+    :label="operation.name">
     <SectionContent>
       <Badge v-if="operation.information?.deprecated"> Deprecated </Badge>
       <div :class="operation.information?.deprecated ? 'deprecated' : ''">
