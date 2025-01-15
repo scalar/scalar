@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
-import GithubSlugger from 'github-slugger'
+import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
@@ -23,25 +23,40 @@ const props = defineProps<{
   parsedSpec: Spec
 }>()
 
-const slugger = new GithubSlugger()
-
-const specVersion = computed(() => {
-  return props.parsedSpec.openapi ?? props.parsedSpec.swagger ?? ''
+/**
+ * Get the OpenAPI/Swagger specification version from the API definition.
+ */
+const oasVersion = computed(() => {
+  return props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? ''
 })
 
-const formattedSpecTitle = computed(() => {
-  return slugger.slug(props.info.title ?? '')
+/**
+ * Format the title to be displayed in the badge.
+ *
+ * TODO: We should move this logic to the DownloadLink component
+ */
+const slugger = new GitHubSlugger()
+const filenameFromTitle = computed(() => slugger.slug(props.info?.title ?? ''))
+
+/** Format the version number to be displayed in the badge */
+const version = computed(() => {
+  // Prefix the version with “v” if the first character is a number, don’t prefix if it’s not.
+  // Don’t output anything when version is not a string.
+  return typeof props.info?.version === 'string'
+    ? props.info.version.toString().match(/^\d/)
+      ? `v${props.info.version}`
+      : props.info.version
+    : undefined
 })
 </script>
 <template>
   <SectionContainer>
-    <Section class="introduction-section">
-      <SectionContent :loading="!info.description && !info.title">
+    <!-- If the #after slot is used, we need to add a gap to the section. -->
+    <Section class="gap-12">
+      <SectionContent :loading="!info?.description && !info?.title">
         <div class="badges">
-          <Badge v-if="info.version">
-            {{ info.version }}
-          </Badge>
-          <Badge v-if="specVersion"> OAS {{ specVersion }}</Badge>
+          <Badge v-if="version">{{ version }}</Badge>
+          <Badge v-if="oasVersion">OAS {{ oasVersion }}</Badge>
         </div>
         <SectionHeader
           :level="1"
@@ -49,7 +64,7 @@ const formattedSpecTitle = computed(() => {
           tight>
           {{ info.title }}
         </SectionHeader>
-        <DownloadLink :specTitle="formattedSpecTitle" />
+        <DownloadLink :specTitle="filenameFromTitle" />
         <SectionColumns>
           <SectionColumn>
             <Description :value="info.description" />
@@ -66,31 +81,9 @@ const formattedSpecTitle = computed(() => {
   </SectionContainer>
 </template>
 <style scoped>
-.heading {
-  margin-top: 0px !important;
-  word-wrap: break-word;
-}
-.loading {
-  background: var(--scalar-background-3);
-  animation: loading-skeleton 1.5s infinite alternate;
-  border-radius: var(--scalar-radius-lg);
-}
-.badges {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 3px;
-}
-.heading.loading {
-  width: 80%;
-}
-.introduction-section {
-  gap: 48px;
-}
 .sticky-cards {
   display: flex;
   flex-direction: column;
-
   position: sticky;
   top: calc(var(--refs-header-height) + 24px);
 }
