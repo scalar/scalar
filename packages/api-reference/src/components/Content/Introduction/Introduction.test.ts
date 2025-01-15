@@ -112,6 +112,27 @@ describe('Introduction', () => {
     })
 
     expect(wrapper.html()).not.toContain('vbeta')
+    expect(wrapper.html()).toContain('beta')
+  })
+
+  it('doesn’t prefix version with v when version is already prefixed', () => {
+    const example = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        description: '',
+        version: 'v1.0.0',
+      },
+    } satisfies Spec
+
+    const wrapper = mount(Introduction, {
+      props: {
+        parsedSpec: example,
+        info: example.info,
+      },
+    })
+
+    expect(wrapper.html()).toContain('v1.0.0')
   })
 
   it('doesn’t output the version if something is wrong with the version', () => {

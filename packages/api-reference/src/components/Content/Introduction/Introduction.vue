@@ -42,11 +42,11 @@ const filenameFromTitle = computed(() => slugger.slug(props.info?.title ?? ''))
 const version = computed(() => {
   // Prefix the version with “v” if the first character is a number, don’t prefix if it’s not.
   // Don’t output anything when version is not a string.
-  return props.info?.version
-    ? `v${props.info.version.toString().match(/^\d/)?.input}`
-    : typeof props.info?.version === 'string'
-      ? props.info.version
-      : undefined
+  return typeof props.info?.version === 'string'
+    ? props.info.version.toString().match(/^\d/)
+      ? `v${props.info.version}`
+      : props.info.version
+    : undefined
 })
 </script>
 <template>
