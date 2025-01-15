@@ -38,7 +38,6 @@ const title = computed(
 </script>
 <template>
   <SectionAccordion
-    v-if="requestEntity"
     :id="id"
     class="reference-endpoint"
     transparent>
@@ -47,7 +46,7 @@ const title = computed(
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
-            :method="requestEntity.method"
+            :method="operation.httpVerb"
             short />
           <Anchor
             :id="id ?? ''"
@@ -55,8 +54,8 @@ const title = computed(
             <div class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="requestEntity.deprecated"
-                  :path="requestEntity.path" />
+                  :deprecated="operation.information?.deprecated"
+                  :path="operation.path" />
               </div>
               <div class="endpoint-label-name">{{ title }}</div>
             </div>
