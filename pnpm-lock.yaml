@@ -152,7 +152,7 @@ importers:
         version: 3.0.1(@types/react@19.0.1)(react@19.0.0)
       '@scalar/docusaurus':
         specifier: workspace:*
-        version: link:../../packages/docusaurus
+        version: link:../../integrations/docusaurus
       clsx:
         specifier: ^2.0.0
         version: 2.1.1
@@ -1217,7 +1217,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  packages/docusaurus:
+  integrations/docusaurus:
     dependencies:
       '@scalar/api-reference-react':
         specifier: workspace:*

@@ -114,7 +114,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django](https://github.com/m1guer/django-scalar)
 - [Django Ninja](packages/scalar_django_ninja/README.md)
-- [Docusaurus](packages/docusaurus/README.md)
+- [Docusaurus](integrations/docusaurus/README.md)
 - [Express](integrations/express-api-reference/README.md)
 - [FastAPI](packages/scalar_fastapi/README.md)
 - [Fastify](packages/fastify-api-reference/README.md)

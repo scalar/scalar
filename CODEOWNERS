@@ -20,7 +20,7 @@
 /packages/themes @hwkr @cameronrohani
 /packages/scalar-app @hanspagel
 /packages/api-reference-react @amritk
-/packages/docusaurus @amritk
+/integrations/docusaurus @amritk
 /packages/hono-api-reference @hanspagel
 # /packages/object-utils
 # /packages/use-codemirror

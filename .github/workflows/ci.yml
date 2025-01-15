@@ -327,7 +327,7 @@ jobs:
           ./packages/api-reference
           ./packages/api-reference-react
           ./packages/components
-          ./packages/docusaurus
+          ./integrations/docusaurus
           ./integrations/express-api-reference
           ./packages/fastify-api-reference
           ./packages/hono-api-reference
