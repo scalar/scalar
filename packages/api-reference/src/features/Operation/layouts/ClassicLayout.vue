@@ -31,10 +31,6 @@ const props = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
-
-const title = computed(
-  () => props.requestEntity?.summary || props.requestEntity?.path || '',
-)
 </script>
 <template>
   <SectionAccordion
@@ -57,7 +53,7 @@ const title = computed(
                   :deprecated="operation.information?.deprecated"
                   :path="operation.path" />
               </div>
-              <div class="endpoint-label-name">{{ title }}</div>
+              <div class="endpoint-label-name">{{ operation.name }}</div>
             </div>
           </Anchor>
         </div>
@@ -81,10 +77,10 @@ const title = computed(
         @click.stop="copyToClipboard(operation.path)" />
     </template>
     <template
-      v-if="operation.description"
+      v-if="requestEntity?.description"
       #description>
       <ScalarMarkdown
-        :value="operation.description"
+        :value="requestEntity?.description"
         withImages />
     </template>
     <div class="endpoint-content">

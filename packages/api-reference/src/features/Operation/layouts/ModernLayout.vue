@@ -28,10 +28,6 @@ const props = defineProps<{
   request: Request | null
   secretCredentials: string[]
 }>()
-
-const title = computed(
-  () => props.requestEntity?.summary || props.requestEntity?.path || '',
-)
 </script>
 <template>
   <Section
@@ -42,7 +38,7 @@ const title = computed(
       <div :class="operation.information?.deprecated ? 'deprecated' : ''">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
-            {{ title }}
+            {{ operation.name }}
           </Anchor>
         </SectionHeader>
       </div>
@@ -50,7 +46,7 @@ const title = computed(
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="operation.information?.description"
+              :value="requestEntity?.description"
               withImages />
             <OperationParameters :operation="operation" />
             <OperationResponses :operation="operation" />
