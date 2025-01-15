@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  caddy:
+    image: caddy:latest
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile
+  api:
+    build:
+      context: .
+      dockerfile: playground/Scalar.AspNetCore.Playground/Dockerfile

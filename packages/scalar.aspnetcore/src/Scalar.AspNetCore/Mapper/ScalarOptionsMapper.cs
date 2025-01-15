@@ -2,6 +2,8 @@ namespace Scalar.AspNetCore;
 
 internal static class ScalarOptionsMapper
 {
+    private const string DocumentName = "{documentName}";
+
     internal static readonly Dictionary<ScalarTarget, ScalarClient[]> ClientOptions = new()
     {
         { ScalarTarget.C, [ScalarClient.Libcurl] },
@@ -26,6 +28,7 @@ internal static class ScalarOptionsMapper
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
     {
+        var documentUrls = options.DocumentNames.Select(name => options.OpenApiRoutePattern.Replace(DocumentName, name));
         return new ScalarConfiguration
         {
             Proxy = options.ProxyUrl,
@@ -44,7 +47,7 @@ internal static class ScalarOptionsMapper
             CustomCss = options.CustomCss,
             SearchHotKey = options.SearchHotKey,
             Servers = options.Servers,
-            Metadata = options.Metadata,
+            MetaData = options.Metadata,
             Authentication = options.Authentication,
             TagSorter = options.TagSorter?.ToStringFast(),
             OperationsSorter = options.OperationSorter?.ToStringFast(),
@@ -55,7 +58,8 @@ internal static class ScalarOptionsMapper
                 TargetKey = options.DefaultHttpClient.Key.ToStringFast()
             },
             Integration = options.DotNetFlag ? "dotnet" : null,
-            HideClientButton = options.HideClientButton
+            HideClientButton = options.HideClientButton,
+            Documents = documentUrls
         };
     }
 

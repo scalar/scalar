@@ -1,0 +1,7 @@
+:8080
+
+handle_path /api/* {
+    reverse_proxy api:8080
+}
+
+respond "Bad Gateway" 502

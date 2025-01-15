@@ -14,7 +14,7 @@ public enum OperationSorter
     /// </summary>
     [Description("alpha")]
     Alpha,
-    
+
     /// <summary>
     /// Sort operations by method.
     /// </summary>
