@@ -35,12 +35,11 @@ const title = computed(
 </script>
 <template>
   <Section
-    v-if="requestEntity"
     :id="id"
     :label="title">
     <SectionContent>
-      <Badge v-if="requestEntity.deprecated"> Deprecated </Badge>
-      <div :class="requestEntity.deprecated ? 'deprecated' : ''">
+      <Badge v-if="operation?.information?.deprecated"> Deprecated </Badge>
+      <div :class="operation?.information?.deprecated ? 'deprecated' : ''">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
             {{ title }}
@@ -51,7 +50,7 @@ const title = computed(
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="requestEntity.description"
+              :value="operation?.information?.description"
               withImages />
             <OperationParameters :operation="operation" />
             <OperationResponses :operation="operation" />
@@ -68,8 +67,8 @@ const title = computed(
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="requestEntity.deprecated"
-                    :path="requestEntity.path" />
+                    :deprecated="operation?.information?.deprecated"
+                    :path="operation?.path" />
                 </template>
                 <template #footer>
                   <TestRequestButton :operation="operation" />
