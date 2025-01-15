@@ -1,8 +1,7 @@
 import { serve } from '@hono/node-server'
+import { apiReference } from '@scalar/hono-api-reference'
 import { createMockServer } from '@scalar/mock-server'
 import fs from 'fs/promises'
-
-import { apiReference } from '../../../integrations/hono-api-reference/src'
 
 const specification = await readOpenApiDocumentFromDisk()
 
