@@ -1,6 +1,8 @@
+using System.Reflection;
 using APIWeaver;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace Scalar.AspNetCore.Playground.Extensions;
@@ -22,7 +24,17 @@ internal static class ServiceCollectionExtensions
             options.SubstituteApiVersionInUrl = true;
         });
 
-        string[] versions = ["v1", "v2"];
+        var controllerTypes = Assembly.GetExecutingAssembly()
+            .GetTypes()
+            .Where(t => typeof(ControllerBase).IsAssignableFrom(t) && !t.IsAbstract);
+        
+        var versions = controllerTypes
+            .SelectMany(type => type.GetCustomAttributes<ApiVersionAttribute>())
+            .SelectMany(attr => attr.Versions)
+            .Distinct()
+            .OrderBy(version => version)
+            .Select(a => $"v{a.MajorVersion}")
+            .ToList();
 
         foreach (var version in versions)
         {
