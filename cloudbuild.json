@@ -187,7 +187,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_HONO}",
         "-f",
-        "./packages/hono-api-reference/Dockerfile",
+        "./integrations/hono-api-reference/Dockerfile",
         "."
       ]
     },

@@ -21,7 +21,7 @@
 /packages/scalar-app @hanspagel
 /packages/api-reference-react @amritk
 /integrations/docusaurus @amritk
-/packages/hono-api-reference @hanspagel
+/integrations/hono-api-reference @hanspagel
 # /packages/object-utils
 # /packages/use-codemirror
 /packages/build-tooling @geoffgscott

@@ -119,7 +119,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [FastAPI](integrations/scalar_fastapi/README.md)
 - [Fastify](packages/fastify-api-reference/README.md)
 - [Go](documentation/integrations/go.md)
-- [Hono](packages/hono-api-reference/README.md)
+- [Hono](integrations/hono-api-reference/README.md)
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
 - [NestJS](integrations/nestjs-api-reference/README.md)
 - [Next.js](integrations/nextjs-api-reference/README.md)
