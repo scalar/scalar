@@ -15,12 +15,12 @@ import {
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, inject } from 'vue'
+import { inject } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const props = defineProps<{
+defineProps<{
   id?: string
   requestEntity?: RequestEntity
   /** @deprecated Use `requestEntity` instead */
