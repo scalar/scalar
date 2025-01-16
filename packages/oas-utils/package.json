@@ -50,6 +50,11 @@
       "types": "./dist/migrations/index.d.ts",
       "default": "./dist/migrations/index.js"
     },
+    "./migrations/v-2.5.0": {
+      "import": "./dist/migrations/v-2.5.0/index.js",
+      "types": "./dist/migrations/v-2.5.0/index.d.ts",
+      "default": "./dist/migrations/v-2.5.0/index.js"
+    },
     "./migrations/v-2.4.0": {
       "import": "./dist/migrations/v-2.4.0/index.js",
       "types": "./dist/migrations/v-2.4.0/index.d.ts",
