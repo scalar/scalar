@@ -11,6 +11,7 @@
     "nuxt": "^3.12.4"
   },
   "devDependencies": {
-    "@scalar/api-client": "workspace:*"
+    "@scalar/api-client": "workspace:*",
+    "@scalar/nuxt": "workspace:*"
   }
 }
