@@ -1,7 +1,7 @@
+import { isOperationDeprecated } from '@/helpers/operation'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
-import { isOperationDeprecated } from '@/helpers/operation'
 import { computed, reactive, ref, watch } from 'vue'
 
 import { lazyBus } from '../components/Content/Lazy/lazyBus'

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
 import { Anchor } from '@/components/Anchor'
 import { Badge } from '@/components/Badge'
 import OperationPath from '@/components/OperationPath.vue'
@@ -13,13 +12,18 @@ import {
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
+import {
+  getOperationStability,
+  getOperationStabilityColor,
+  isOperationDeprecated,
+} from '@/helpers/operation'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
+import { defineProps } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
-import { isOperationDeprecated, getOperationStability, getOperationStabilityColor } from '@/helpers/operation'
 
 defineProps<{
   id?: string
@@ -29,14 +33,17 @@ defineProps<{
   request: Request | null
   secretCredentials: string[]
 }>()
-
 </script>
 <template>
   <Section
     :id="id"
     :label="operation.name">
     <SectionContent>
-      <Badge v-if="getOperationStability(operation)" :color="getOperationStabilityColor(operation)"> {{ getOperationStability(operation) }} </Badge>
+      <Badge
+        v-if="getOperationStability(operation)"
+        :color="getOperationStabilityColor(operation)">
+        {{ getOperationStability(operation) }}
+      </Badge>
       <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
