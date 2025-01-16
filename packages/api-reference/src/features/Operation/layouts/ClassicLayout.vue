@@ -86,7 +86,7 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
-          <OperationParameters :operation="operation" />
+          <OperationParameters :operation="requestEntity" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses

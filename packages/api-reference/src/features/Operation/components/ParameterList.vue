@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { Parameter } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 
 import ParameterListItem from './ParameterListItem.vue'
 
 withDefaults(
   defineProps<{
-    parameters?: Parameter[]
+    parameters?: RequestEntity['parameters'] | RequestEntity['responses']
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean

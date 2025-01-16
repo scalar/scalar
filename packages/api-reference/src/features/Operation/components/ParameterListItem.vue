@@ -3,7 +3,8 @@ import { SchemaProperty } from '@/components/Content/Schema'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ContentType, Parameter } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -11,7 +12,9 @@ import ParameterHeaders from './ParameterHeaders.vue'
 
 const props = withDefaults(
   defineProps<{
-    parameter: Parameter
+    parameter:
+      | NonNullable<RequestEntity['parameters']>[number]
+      | NonNullable<RequestEntity['responses']>[number]
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean

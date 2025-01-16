@@ -47,7 +47,7 @@ defineProps<{
             <ScalarMarkdown
               :value="requestEntity?.description"
               withImages />
-            <OperationParameters :operation="operation" />
+            <OperationParameters :operation="requestEntity" />
             <OperationResponses :operation="operation" />
           </div>
         </SectionColumn>
