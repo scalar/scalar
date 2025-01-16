@@ -62,12 +62,12 @@ const webhooksFiltered = computed(() => {
             v-for="httpVerb in Object.keys(
               webhooks?.[name],
             ) as OpenAPIV3_1.HttpMethods[]"
-            :id="getWebhookId(name, httpVerb)"
+            :id="getWebhookId({ name, method: httpVerb })"
             :key="httpVerb"
             isLazy>
             <CompactSection
               v-if="webhooks?.[name]"
-              :id="getWebhookId(name, httpVerb)"
+              :id="getWebhookId({ name, method: httpVerb })"
               class="webhooks-list-item"
               :label="name">
               <template #heading>

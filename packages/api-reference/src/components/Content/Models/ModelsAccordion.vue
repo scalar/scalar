@@ -41,12 +41,12 @@ const { getModelId } = useNavState()
     </template>
     <SectionAccordion
       v-for="{ name, schema } in models"
-      :id="getModelId(name)"
+      :id="getModelId({ name })"
       :key="name"
       :label="name">
       <template #title>
         <Anchor
-          :id="getModelId(name)"
+          :id="getModelId({ name })"
           class="reference-models-anchor">
           <SchemaHeading
             class="reference-models-label"

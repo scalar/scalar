@@ -220,7 +220,7 @@ const items = computed(() => {
             show: true,
             children: Object.keys(getModels(parsedSpec.value) ?? {}).map(
               (name) => {
-                const id = getModelId(name)
+                const id = getModelId({ name })
                 titlesById[id] = name
 
                 return {
@@ -244,7 +244,7 @@ const items = computed(() => {
           show: true,
           children: Object.keys(parsedSpec.value?.webhooks ?? {})
             .map((name) => {
-              const id = getWebhookId(name)
+              const id = getWebhookId({ name })
               titlesById[id] = name
 
               return (
@@ -253,7 +253,7 @@ const items = computed(() => {
                 ) as OpenAPIV3_1.HttpMethods[]
               ).map((httpVerb) => {
                 return {
-                  id: getWebhookId(name, httpVerb),
+                  id: getWebhookId({ name, method: httpVerb }),
                   title: parsedSpec.value?.webhooks?.[name][httpVerb]?.name,
                   httpVerb: httpVerb as string,
                   show: true,

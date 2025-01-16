@@ -181,9 +181,6 @@ export type ReferenceConfiguration = {
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
-   * @example
-   * (heading) => `heading/${heading.slug}`
-   *
    * @default
    * (heading: Heading) => `description/${heading.slug}`
    */
@@ -194,15 +191,10 @@ export type ReferenceConfiguration = {
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
-   * @example
-   * (name) => `${name}-model`
-   *
-   * which would give the full hash of `/model/test-model`
-   *
    * @default
-   * (name) => `model/${slug(name)}`
+   * (model) => `model/${slug(model.name)}`
    */
-  generateModelSlug?: (name: string) => string
+  generateModelSlug?: (model: { name: string }) => string
   /**
    * If you want to customize the tag portion of the hash you can pass in a function that receives the tag
    * and returns a string ID. This will then be used to generate the url hash.
@@ -224,32 +216,25 @@ export type ReferenceConfiguration = {
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
-   * @example
-   * (operation) => `${operation.path}-${operation.operationId}-`
-   *
-   * which would give the full hash of `/tag/tag-name/path-operationId`
-   *
    * @default
-   * (operation) => `${operation.httpVerb}${operation.path}`
+   * (operation) => `${operation.method}${operation.path}`
    */
-  generateOperationSlug?: (
-    operation: Information & TransformedOperation,
-  ) => string
+  generateOperationSlug?: (operation: {
+    path: string
+    operationId: string | undefined
+    method: string
+    summary: string | undefined
+  }) => string
   /**
    * If you want to customize the webhook portion of the hash you can pass in a function that receives the webhook name
    * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
-   * @example
-   * (name, httpVerb) => `webhook/1-${name}-${httpVerb}`
-   *
-   * which would give the full hash of `/webhook/1-test-get`
-   *
    * @default
-   * (name, httpVerb) => `webhook/${httpVerb}/${slug(name)}`
+   * (webhook) => `webhook/${webhook.method}/${slug(webhook.name)}`
    */
-  generateWebhookSlug?: (name: string, httpVerb?: string) => string
+  generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
   /**
    * The baseServerURL is used when the spec servers are relative paths and we are using SSR.
    * On the client we can grab the window.location.origin but on the server we need

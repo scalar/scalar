@@ -1,5 +1,6 @@
 import { joinWithSlash } from '@/helpers'
 import { useConfig } from '@/hooks/useConfig'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
@@ -112,13 +113,13 @@ export const useNavState = () => {
     return ''
   }
 
-  const getModelId = (name?: string) => {
-    if (!name) return 'models'
+  const getModelId = (model?: { name: string }) => {
+    if (!model?.name) return 'models'
 
     if (typeof config?.generateModelSlug === 'function') {
-      return `model/${config.generateModelSlug(name)}`
+      return `model/${config.generateModelSlug(model)}`
     }
-    return `model/${slug(name)}`
+    return `model/${slug(model.name)}`
   }
 
   const getTagId = (tag: Tag) => {
@@ -130,18 +131,23 @@ export const useNavState = () => {
 
   const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
     if (typeof config?.generateOperationSlug === 'function') {
-      return `${getTagId(parentTag)}/${config.generateOperationSlug(operation)}`
+      return `${getTagId(parentTag)}/${config.generateOperationSlug({
+        path: operation.path,
+        operationId: operation.operationId,
+        method: operation.httpVerb,
+        summary: operation.information?.summary,
+      })}`
     }
     return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
   }
 
-  const getWebhookId = (name?: string, httpVerb?: string) => {
-    if (!name) return 'webhooks'
+  const getWebhookId = (webhook?: { name: string; method?: string }) => {
+    if (!webhook?.name) return 'webhooks'
 
     if (typeof config?.generateWebhookSlug === 'function') {
-      return `webhook/${config.generateWebhookSlug(name, httpVerb)}`
+      return `webhook/${config.generateWebhookSlug(webhook)}`
     }
-    return `webhook/${httpVerb}/${slug(name)}`
+    return `webhook/${webhook.method}/${slug(webhook.name)}`
   }
 
   return {
