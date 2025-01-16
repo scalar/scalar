@@ -377,17 +377,17 @@ jobs:
           # 1) Go to https://dash.cloudflare.com/profile/api-tokens
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      - if: github.ref != 'refs/heads/main' && steps.deploy-client.outputs.deployment-url
+      - if: github.ref != 'refs/heads/main' && steps.deploy-client-staging.outputs.deployment-url
         name: Add Cloudflare Preview URL to the PR
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         with:
           message: |
             **Cloudflare Preview for the API Client**
 
-            ${{ steps.deploy-client.outputs.deployment-url }}
+            ${{ steps.deploy-client-staging.outputs.deployment-url }}
           comment_tag: 'cloudflare-preview'
-      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
-        name: Check for new NuGet package version
+      - if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'RELEASING:')
+        name: Check for new @scalar/api-client version
         id: client-version
         uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
         with:
