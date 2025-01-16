@@ -2,14 +2,14 @@ import { ERRORS } from '@/blocks/constants'
 import { escapeJsonPointer } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 
-// import type { OpenAPI } from '@scalar/openapi-types'
-
 /**
- * OpenAPI paths that we support.
+ * Pass an array of strings to get a valid OpenAPI pointer.
+ *
+ * Works with any path, but is typed to allow the paths that we support.
  *
  * @example
- * ['paths', '/planets/{foo}', 'get']
- * ['components', 'schemas', 'Planet]
+ * ['paths', '/planets/{foo}', 'get'] > '#/paths/~1planets~1{foo}/get'
+ * ['components', 'schemas', 'Planet] > '#/components/schemas/Planet'
  */
 type ValidOpenApiPaths =
   | ['paths', string, Lowercase<OpenAPI.HttpMethod> | string]

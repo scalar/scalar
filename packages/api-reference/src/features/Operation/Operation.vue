@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { getLocation } from '@/blocks/helpers/getLocation'
+import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
 import {
   WORKSPACE_SYMBOL,
@@ -51,7 +51,7 @@ const store = inject(WORKSPACE_SYMBOL)
  */
 const { operation: requestEntity } = useBlockProps({
   store,
-  location: getLocation([
+  location: getPointer([
     'paths',
     operation.path,
     operation.httpVerb.toLowerCase(),
