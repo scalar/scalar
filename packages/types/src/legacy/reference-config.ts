@@ -374,7 +374,7 @@ export type Header = {
 export enum XScalarStability {
   Deprecated = 'deprecated',
   Experimental = 'experimental',
-  Stable = 'stable'
+  Stable = 'stable',
 }
 
 export type Information = {
