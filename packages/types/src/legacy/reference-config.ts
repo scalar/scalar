@@ -490,6 +490,11 @@ export type TagGroup = {
 
 export type Definitions = OpenAPIV2.DefinitionsObject
 
+/**
+ * Webhook (after our super custom transformation process)
+ *
+ * @deprecated Let’s get rid of those super custom transformed entities and use the store instead.
+ */
 export type Webhooks = Record<
   string,
   Record<
@@ -499,6 +504,17 @@ export type Webhooks = Record<
     }
   >
 >
+
+/**
+ * The native OpenAPI Webhook object, but with the x-internal and x-scalar-ignore properties
+ */
+export type Webhook = (
+  | OpenAPIV3.OperationObject
+  | OpenAPIV3_1.OperationObject
+) & {
+  'x-internal'?: boolean
+  'x-scalar-ignore'?: boolean
+}
 
 export type Spec = {
   'tags'?: Tag[]

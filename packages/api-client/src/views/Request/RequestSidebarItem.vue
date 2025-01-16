@@ -14,6 +14,7 @@ import {
   type HoveredItem,
 } from '@scalar/draggable'
 import type { Request } from '@scalar/oas-utils/entities/spec'
+import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
@@ -287,10 +288,25 @@ const hasDraftRequests = computed(() => {
     item.value.children.length > 0
   )
 })
+
+/**
+ * Check if the item should be shown.
+ * This is used to hide items that are marked as hidden/internal.
+ */
+const shouldShowItem = computed(() => {
+  const request = requests[props.uid]
+  if (request) return !shouldIgnoreEntity(request)
+
+  const tag = tags[props.uid]
+  if (tag) return !shouldIgnoreEntity(tag)
+
+  return true
+})
 </script>
 
 <template>
   <li
+    v-if="shouldShowItem"
     class="relative flex flex-row"
     :class="[
       (isReadOnly && parentUids.length > 1) ||

@@ -7,7 +7,7 @@ import {
   normalizeRequestMethod,
   validRequestMethods,
 } from '#legacy'
-import { redirectToProxy } from '@scalar/oas-utils/helpers'
+import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type {
@@ -16,7 +16,7 @@ import type {
   OpenAPIV3,
   OpenAPIV3_1,
 } from '@scalar/openapi-types'
-import type { Spec } from '@scalar/types/legacy'
+import type { Spec, Webhook } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '../helpers'
@@ -116,21 +116,39 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   }
 
   // Webhooks
-  const newWebhooks: Record<string, any> = {}
+  const newWebhooks: AnyObject = {}
 
   Object.keys(schema.webhooks ?? {}).forEach((name) => {
     // prettier-ignore
     ;(
-      Object.keys(schema.webhooks?.[name] ?? {}) as OpenAPIV3_1.HttpMethods[]
+      Object.keys(schema.webhooks?.[name] ?? {}) as string[]
     ).forEach((httpVerb) => {
       const originalWebhook =
-        (schema.webhooks?.[name][httpVerb] as (OpenAPIV3_1.PathItemObject[typeof httpVerb]) & {
-          'x-internal'?: boolean
-        })
+        schema.webhooks?.[name][httpVerb]
 
       // Filter out webhooks marked as internal
-      if (originalWebhook?.['x-internal'] === true) {
+      if (!originalWebhook || shouldIgnoreEntity(originalWebhook)) {
         return
+      }
+
+      if (Array.isArray(originalWebhook.tags)) {
+        // Resolve the whole tag object
+        const resolvedTags = originalWebhook.tags
+          ?.map((tag: string) => schema.tags?.find((t: UnknownObject) => t.name === tag))
+
+        // Filter out tags marked as internal
+        originalWebhook.tags = resolvedTags?.filter(
+          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+        )
+
+        if (
+          resolvedTags?.some(
+            (tag: UnknownObject) => shouldIgnoreEntity(tag),
+          )
+        ) {
+          // Skip this webhook if it has tags marked as internal
+          return
+        }
       }
 
       if (newWebhooks[name] === undefined) {
@@ -153,6 +171,13 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
     })
   })
 
+  Object.keys(schema.components?.schemas ?? {}).forEach((name) => {
+    // Delete all schemas where `shouldIgnoreEntity` returns true
+    if (shouldIgnoreEntity(schema.components?.schemas?.[name])) {
+      delete schema.components?.schemas?.[name]
+    }
+  })
+
   /**
    * { '/pet': { … } }
    */
@@ -170,7 +195,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       }
 
       // Filter out operations marked as internal
-      if (operation['x-internal'] === true) {
+      if (shouldIgnoreEntity(operation)) {
         return
       }
 
@@ -220,8 +245,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
         operation.tags.forEach((operationTag: string) => {
           // Try to find the tag in the schema
           const indexOfExistingTag = schema.tags?.findIndex(
-            // @ts-expect-error TODO: The types are just screwed, needs refactoring
-            (tag: SwaggerTag) => tag.name === operationTag,
+            (tag: UnknownObject) => tag.name === operationTag,
           )
 
           // Create tag if it doesn’t exist yet
@@ -247,6 +271,11 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
+
+      // Remove tags with `x-internal` set to true
+      schema.tags = schema.tags?.filter(
+        (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+      )
     })
   })
 
