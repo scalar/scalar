@@ -116,7 +116,7 @@ const { codeMirror, setCodeMirrorContent } = useCodeMirror({
   display: flex;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  font-size: 14px;
+  font-size: var(--scalar-small);
 }
 
 button {
