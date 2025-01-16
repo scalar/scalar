@@ -367,7 +367,7 @@ jobs:
         id: deploy-client
         uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
         with:
-          command: pages deploy dist --project-name=client
+          command: pages deploy dist --project-name=client-staging
           workingDirectory: projects/client-scalar-com
           # 1) Log in to the Cloudflare dashboard.
           # 2) Select Workers & Pages.
@@ -377,7 +377,6 @@ jobs:
           # 1) Go to https://dash.cloudflare.com/profile/api-tokens
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          environment: staging
       - if: github.ref != 'refs/heads/main' && steps.deploy-client.outputs.deployment-url
         name: Add Cloudflare Preview URL to the PR
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
