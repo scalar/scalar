@@ -13,14 +13,17 @@ import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { id, operation, request, secretCredentials } = defineProps<{
+defineProps<{
   id?: string
+  /** @deprecated Use `requestEntity` instead */
   operation: TransformedOperation
+  requestEntity?: RequestEntity
   request: Request | null
   secretCredentials: string[]
 }>()
@@ -42,7 +45,7 @@ const { id, operation, request, secretCredentials } = defineProps<{
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="operation.description"
+              :value="requestEntity?.description"
               withImages />
             <OperationParameters :operation="operation" />
             <OperationResponses :operation="operation" />
