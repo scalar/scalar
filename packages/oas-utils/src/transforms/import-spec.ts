@@ -401,10 +401,22 @@ export async function importSpecToWorkspace(
     // if (request['x-scalar-examples']) return
 
     // Create the initial example
-    const example = createExampleFromRequest(request, 'Default Example')
+    keysOf(request.requestBody?.content).forEach((mimeType) => {
+      const currentRequest = {
+        ...request,
+        requestBody: {
+          ...request.requestBody,
+          content: {
+            [mimeType]: request.requestBody.content[mimeType],
+          },
+        },
+      }
+      // Create the initial example
+      const example = createExampleFromRequest(currentRequest, mimeType)
 
-    examples.push(example)
-    request.examples.push(example.uid)
+      examples.push(example)
+      request.examples.push(example.uid)
+    })
   })
 
   // ---------------------------------------------------------------------------
