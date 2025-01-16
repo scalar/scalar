@@ -42,6 +42,66 @@ describe('createMockServer', () => {
     })
   })
 
+  it('GET /foobar -> omits writeOnly properties in responses', async () => {
+    const specification = {
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0.0',
+      },
+      paths: {
+        '/foobar': {
+          get: {
+            responses: {
+              '200': {
+                description: 'OK',
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'object',
+                      properties: {
+                        id: {
+                          type: 'integer',
+                          format: 'int64',
+                          readOnly: true,
+                          example: 1,
+                        },
+                        visible: {
+                          type: 'boolean',
+                          example: true,
+                        },
+                        password: {
+                          type: 'string',
+                          writeOnly: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    }
+
+    const server = await createMockServer({
+      specification,
+    })
+
+    const response = await server.request('/foobar')
+
+    expect(response.status).toBe(200)
+
+    const data = await response.json()
+
+    expect(data).not.toHaveProperty('password')
+    expect(data).toStrictEqual({
+      id: 1,
+      visible: true,
+    })
+  })
+
   it('GET /foobar -> return HTML if accepted', async () => {
     const specification = {
       openapi: '3.1.0',
