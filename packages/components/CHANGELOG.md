@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.14
+
+### Patch Changes
+
+- 2ad0407: fix: updates scalar modal body class specificity
+- e866487: feat(components): create dark light toggle components
+- Updated dependencies [e866487]
+  - @scalar/use-hooks@0.1.14
+  - @scalar/themes@0.9.60
+  - @scalar/code-highlight@0.0.19
+
 ## 0.13.13
 
 ### Patch Changes

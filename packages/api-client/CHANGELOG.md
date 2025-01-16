@@ -1,5 +1,35 @@
 # @scalar/api-client
 
+## 2.2.33
+
+### Patch Changes
+
+- 2ad0407: fix: updates scalar modal body class specificity
+- ace02fe: fix: favors configuration integration in open client modal button
+- 6d03777: feat: adds server page
+- 6d03777: fix: global sidebar and misc overhaul
+- 08ac264: fix: adds back setting route
+- aff72f7: fix: all cookies are deleted
+- cb09e76: fix: sets integration theme id fallback
+- 2ad0407: fix: updates workspace modal style in import collection
+- Updated dependencies [2ad0407]
+- Updated dependencies [60cd6f1]
+- Updated dependencies [60cd6f1]
+- Updated dependencies [e866487]
+- Updated dependencies [7df4472]
+- Updated dependencies [13333e6]
+- Updated dependencies [64df4fc]
+  - @scalar/components@0.13.14
+  - @scalar/types@0.0.26
+  - @scalar/use-hooks@0.1.14
+  - @scalar/themes@0.9.60
+  - @scalar/oas-utils@0.2.97
+  - @scalar/openapi-types@0.1.6
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/use-codemirror@0.11.58
+  - @scalar/import@0.2.17
+  - @scalar/postman-to-openapi@0.1.20
+
 ## 2.2.32
 
 ### Patch Changes

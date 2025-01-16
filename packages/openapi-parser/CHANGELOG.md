@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.4
+
+### Patch Changes
+
+- 64df4fc: fix: example arrays are transformed to objects
+
 ## 0.10.3
 
 ### Patch Changes

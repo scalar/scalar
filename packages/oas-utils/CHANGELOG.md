@@ -1,5 +1,18 @@
 # @scalar/oas-utils
 
+## 0.2.97
+
+### Patch Changes
+
+- 7df4472: fix: generate types for past migrations, add tests and docs
+- Updated dependencies [60cd6f1]
+- Updated dependencies [60cd6f1]
+- Updated dependencies [e866487]
+- Updated dependencies [13333e6]
+  - @scalar/types@0.0.26
+  - @scalar/themes@0.9.60
+  - @scalar/openapi-types@0.1.6
+
 ## 0.2.96
 
 ### Patch Changes
