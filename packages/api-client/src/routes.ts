@@ -213,6 +213,11 @@ export const routes = [
           params: { ...to.params, settings: 'general' },
         }),
       },
+      {
+        name: 'settings',
+        path: `settings/:${PathId.Settings}`,
+        component: () => import('@/views/Settings/Settings.vue'),
+      },
     ],
   },
 ] satisfies RouteRecordRaw[]
