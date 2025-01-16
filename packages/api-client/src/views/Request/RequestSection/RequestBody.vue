@@ -9,6 +9,7 @@ import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
+import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
@@ -21,7 +22,8 @@ defineProps<{
 }>()
 
 const { activeRequest, activeExample } = useActiveEntities()
-const { requestExampleMutators } = useWorkspace()
+const { requestMutators, requestExampleMutators, requestExamples } =
+  useWorkspace()
 
 /** use-codemirror package to be udpated accordingly */
 const contentTypeToLanguageMap = {
@@ -87,7 +89,25 @@ const selectedContentType = computed({
       (opt) => opt.id === activeExampleContentType.value,
     ) ?? contentTypeOptions[contentTypeOptions.length - 1],
   set: (opt) => {
-    if (opt?.id) updateActiveBody(opt.id)
+    if (opt?.id) {
+      if (!activeRequest.value || !requestExamples) return
+
+      const examples = requestExamples
+        ? Object.values(requestExamples).filter((example: RequestExample) => {
+            return example.requestUid === activeRequest.value?.uid
+          })
+        : []
+
+      const matchingExample = examples?.find((example: RequestExample) => {
+        return example.body.raw?.encoding === opt.id
+      })
+
+      if (matchingExample) {
+        updateRequestExample(matchingExample.uid)
+      } else {
+        updateActiveBody(opt.id)
+      }
+    }
   },
 })
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
@@ -223,6 +243,16 @@ const updateRequestBody = (value: string) => {
   if (!activeRequest.value || !activeExample.value) return
 
   requestExampleMutators.edit(activeExample.value.uid, 'body.raw.value', value)
+}
+
+const updateRequestExample = (exampleUid: string) => {
+  if (!activeRequest.value) return
+
+  requestMutators.edit(
+    activeRequest.value.uid,
+    'selectedExampleUid',
+    exampleUid,
+  )
 }
 
 /** Take the select option and return bodyType with encoding and header */
