@@ -1,15 +1,5 @@
-<script setup lang="ts">
-import { defineProps } from 'vue'
-
-const { color } = defineProps<{
-  color?: string
-}>()
-</script>
-
 <template>
-  <div
-    class="badge"
-    :class="color">
+  <div class="badge">
     <slot />
   </div>
 </template>
@@ -24,17 +14,5 @@ const { color } = defineProps<{
   font-weight: var(--scalar-semibold);
   display: inline-block;
   text-transform: uppercase;
-}
-
-.green {
-  color: var(--scalar-color-green);
-}
-
-.orange {
-  color: var(--scalar-color-orange);
-}
-
-.red {
-  color: var(--scalar-color-red);
 }
 </style>

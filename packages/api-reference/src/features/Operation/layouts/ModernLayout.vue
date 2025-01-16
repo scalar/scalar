@@ -41,7 +41,7 @@ defineProps<{
     <SectionContent>
       <Badge
         v-if="getOperationStability(operation)"
-        :color="getOperationStabilityColor(operation)">
+        :class="getOperationStabilityColor(operation)">
         {{ getOperationStability(operation) }}
       </Badge>
       <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">

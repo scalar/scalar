@@ -61,7 +61,7 @@ const config = useConfig()
               <div class="endpoint-label-name">{{ operation.name }}</div>
               <Badge
                 v-if="getOperationStability(operation)"
-                :color="getOperationStabilityColor(operation)">
+                :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
             </div>
