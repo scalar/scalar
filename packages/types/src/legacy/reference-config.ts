@@ -176,6 +176,19 @@ export type ReferenceConfiguration = {
    */
   pathRouting?: PathRouting
   /**
+   * If you want to customize the heading portion of the hash you can pass in a function that receives the heading
+   * and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @example
+   * (heading) => `heading/${heading.slug}`
+   *
+   * @default
+   * (heading: Heading) => `description/${heading.slug}`
+   */
+  generateHeadingSlug?: (heading: Heading) => string
+  /**
    * If you want to customize the model portion of the hash you can pass in a function that receives the model name
    * and returns a string ID. This will then be used to generate the url hash.
    *
@@ -186,9 +199,10 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `/model/test-model`
    *
-   * @default undefined
+   * @default
+   * (name) => `model/${slug(name)}`
    */
-  customModelId?: (name: string) => string
+  generateModelSlug?: (name: string) => string
   /**
    * If you want to customize the tag portion of the hash you can pass in a function that receives the tag
    * and returns a string ID. This will then be used to generate the url hash.
@@ -200,9 +214,10 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `/tag/1-tag-name-2`
    *
-   * @default undefined
+   * @default
+   * (tag) => `tag/${slug(tag.name)}`
    */
-  customTagId?: (tag: Tag) => string
+  generateTagSlug?: (tag: Tag) => string
   /**
    * If you want to customize the operation portion of the hash you can pass in a function that receives the operation
    * and returns a string ID. This will then be used to generate the url hash.
@@ -214,9 +229,12 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `/tag/tag-name/path-operationId`
    *
-   * @default undefined
+   * @default
+   * (operation) => `${operation.httpVerb}${operation.path}`
    */
-  customOperationId?: (operation: TransformedOperation) => string
+  generateOperationSlug?: (
+    operation: Information & TransformedOperation,
+  ) => string
   /**
    * If you want to customize the webhook portion of the hash you can pass in a function that receives the webhook name
    * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash.
@@ -228,9 +246,10 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `/webhook/1-test-get`
    *
-   * @default undefined
+   * @default
+   * (name, httpVerb) => `webhook/${httpVerb}/${slug(name)}`
    */
-  customWebhookId?: (name: string, httpVerb?: string) => string
+  generateWebhookSlug?: (name: string, httpVerb?: string) => string
   /**
    * The baseServerURL is used when the spec servers are relative paths and we are using SSR.
    * On the client we can grab the window.location.origin but on the server we need
