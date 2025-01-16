@@ -1,5 +1,5 @@
 ---
-'@scalarapi/api-reference': patch
+'@scalarapi/api-reference': minor
 ---
 
 chore: trigger initial release
