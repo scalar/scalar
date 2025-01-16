@@ -72,6 +72,7 @@ export function mockAnyResponse(
       ? getExampleFromSchema(acceptedResponse.schema, {
           emptyString: '…',
           variables: c.req.param(),
+          mode: 'read',
         })
       : null
 
