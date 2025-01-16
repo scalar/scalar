@@ -328,11 +328,11 @@ jobs:
           ./packages/api-reference-react
           ./packages/components
           ./integrations/docusaurus
-          ./integrations/express-api-reference
+          ./integrations/express
           ./packages/fastify-api-reference
-          ./integrations/hono-api-reference
-          ./integrations/nestjs-api-reference
-          ./integrations/nextjs-api-reference
+          ./integrations/hono
+          ./integrations/nestjs
+          ./integrations/nextjs
           ./packages/nuxt
           ./packages/themes
 

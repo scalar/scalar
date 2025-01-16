@@ -192,7 +192,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/nestjs-api-reference
+        version: link:../../integrations/nestjs
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -265,7 +265,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/nestjs-api-reference
+        version: link:../../integrations/nestjs
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -332,7 +332,7 @@ importers:
         version: link:../../packages/api-reference-react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/nextjs-api-reference
+        version: link:../../integrations/nextjs
       next:
         specifier: ^15.1.1
         version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -522,7 +522,7 @@ importers:
         specifier: ^12.1.5
         version: 12.1.5(postcss@8.4.39)
 
-  integrations/express-api-reference:
+  integrations/express:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
@@ -550,7 +550,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  integrations/express-api-reference/playground:
+  integrations/express/playground:
     dependencies:
       '@scalar/express-api-reference':
         specifier: workspace:*
@@ -575,7 +575,7 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
-  integrations/hono-api-reference:
+  integrations/hono:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
@@ -600,7 +600,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  integrations/nestjs-api-reference:
+  integrations/nestjs:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
@@ -628,7 +628,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  integrations/nextjs-api-reference:
+  integrations/nextjs:
     dependencies:
       '@scalar/types':
         specifier: workspace:*
@@ -1513,7 +1513,7 @@ importers:
         version: link:../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/hono-api-reference
+        version: link:../../integrations/hono
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server
@@ -1591,7 +1591,7 @@ importers:
         version: link:../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/hono-api-reference
+        version: link:../../integrations/hono
       '@types/node':
         specifier: ^20.17.10
         version: 20.17.10
@@ -1603,7 +1603,7 @@ importers:
     dependencies:
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
-        version: link:../../integrations/nextjs-api-reference
+        version: link:../../integrations/nextjs
       '@scalar/ts-to-openapi':
         specifier: workspace:*
         version: link:../ts-to-openapi

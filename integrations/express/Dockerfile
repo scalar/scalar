@@ -2,11 +2,9 @@ ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS builder
 WORKDIR /app
 
-ENV BUILD_PLAYGROUND=1
-
 # Install dumb-init - minimal process init system
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
-RUN pnpm --filter @scalar/hono-api-reference build
+RUN pnpm --filter @scalar/express-api-reference build:playground
 
 FROM node:20-bullseye-slim AS runner
 # Copy from the previous stage to keep this image minimal
@@ -24,10 +22,10 @@ RUN chown node:node /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/integrations/hono-api-reference /app/integrations/hono-api-reference
+COPY --from=builder /app/integrations/express /app/integrations/express
 
-WORKDIR /app/integrations/hono-api-reference
+WORKDIR /app/integrations/express/playground
 
 # dumb-init runs as PID 1 and ensures all signals are forwarded
 # to the spawned node process (ensures the server shuts down gracefully)
-CMD ["dumb-init", "node", "dist/playground/index.js"]
+CMD ["dumb-init", "node", "dist/index.js"]
