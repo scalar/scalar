@@ -46,7 +46,9 @@ const version = computed(() => {
     ? props.info.version.toString().match(/^\d/)
       ? `v${props.info.version}`
       : props.info.version
-    : undefined
+    : typeof props.info?.version === 'number'
+      ? `v${props.info.version}`
+      : undefined
 })
 </script>
 <template>

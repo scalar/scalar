@@ -135,6 +135,29 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('v1.0.0')
   })
 
+  it('prefixes version with v when version is a number', () => {
+    const example = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Test API',
+        description: '',
+        // @ts-expect-error testing invalid type
+        version: 1,
+      },
+    } satisfies Spec
+
+    const wrapper = mount(Introduction, {
+      props: {
+        // @ts-expect-error testing invalid type
+        parsedSpec: example,
+        // @ts-expect-error testing invalid type
+        info: example.info,
+      },
+    })
+
+    expect(wrapper.html()).toContain('v1')
+  })
+
   it('doesn’t output the version if something is wrong with the version', () => {
     const example = {
       openapi: '3.1.1',
@@ -178,7 +201,7 @@ describe('Introduction', () => {
     expect(wrapper.html()).toContain('OAS 3.0.0')
   })
 
-  it('shows OpenAPI version badge for Swagger spec', () => {
+  it('shows OpenAPI version badge for version 2.0', () => {
     const example = {
       swagger: '2.0',
       info: {
