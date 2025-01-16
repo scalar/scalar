@@ -29,8 +29,8 @@ export function getOperationStability(
  */
 export function getOperationStabilityColor(operation: Operation): string {
   const stability = getOperationStability(operation)
-  if (stability === XScalarStability.Deprecated) return 'red'
-  if (stability === XScalarStability.Experimental) return 'orange'
-  if (stability === XScalarStability.Stable) return 'green'
+  if (stability === XScalarStability.Deprecated) return 'text-red'
+  if (stability === XScalarStability.Experimental) return 'text-orange'
+  if (stability === XScalarStability.Stable) return 'text-green'
   return ''
 }

@@ -62,7 +62,7 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
               <div class="endpoint-label-name">{{ operation.name }}</div>
               <Badge
                 v-if="getOperationStability(operation)"
-                :color="getOperationStabilityColor(operation)">
+                :class="getOperationStabilityColor(operation)">
                 {{ getOperationStability(operation) }}
               </Badge>
             </div>
