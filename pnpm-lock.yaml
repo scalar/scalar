@@ -88,7 +88,7 @@ importers:
         version: 12.4.0(typescript@5.6.2)
       ts-node:
         specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
+        version: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
       tsc-alias:
         specifier: ^1.8.10
         version: 1.8.10
@@ -2106,12 +2106,12 @@ importers:
       '@scalar/components':
         specifier: workspace:*
         version: link:../components
-      '@uiw/codemirror-themes':
-        specifier: ^4.23.7
-        version: 4.23.7(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)
       codemirror:
         specifier: ^6.0.0
         version: 6.0.1(@lezer/common@1.2.3)
+      style-mod:
+        specifier: ^4.1.2
+        version: 4.1.2
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
@@ -2126,6 +2126,9 @@ importers:
       '@scalar/build-tooling':
         specifier: workspace:*
         version: link:../build-tooling
+      '@scalar/themes':
+        specifier: workspace:*
+        version: link:../themes
       '@vitejs/plugin-vue':
         specifier: ^5.0.4
         version: 5.0.5(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue@3.5.12(typescript@5.6.2))
@@ -7889,13 +7892,6 @@ packages:
   '@typescript-eslint/visitor-keys@7.16.0':
     resolution: {integrity: sha512-rMo01uPy9C7XxG7AFsxa8zLnWXTF8N3PYclekWSrurvhwiw1eW88mrKiAYe6s53AUY57nTRz8dJsuuXdkAhzCg==}
     engines: {node: ^18.18.0 || >=20.0.0}
-
-  '@uiw/codemirror-themes@4.23.7':
-    resolution: {integrity: sha512-UNf1XOx1hG9OmJnrtT86PxKcdcwhaNhbrcD+nsk8WxRJ3n5c8nH6euDvgVPdVLPwbizsaQcZTILACgA/FjRpVg==}
-    peerDependencies:
-      '@codemirror/language': '>=6.0.0'
-      '@codemirror/state': '>=6.0.0'
-      '@codemirror/view': '>=6.0.0'
 
   '@ungap/structured-clone@1.2.0':
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
@@ -26333,12 +26329,6 @@ snapshots:
       '@typescript-eslint/types': 7.16.0
       eslint-visitor-keys: 3.4.3
 
-  '@uiw/codemirror-themes@4.23.7(@codemirror/language@6.10.7)(@codemirror/state@6.5.0)(@codemirror/view@6.35.3)':
-    dependencies:
-      '@codemirror/language': 6.10.7
-      '@codemirror/state': 6.5.0
-      '@codemirror/view': 6.35.3
-
   '@ungap/structured-clone@1.2.0': {}
 
   '@unhead/dom@1.11.11':
@@ -31547,7 +31537,7 @@ snapshots:
   http-proxy-agent@7.0.2:
     dependencies:
       agent-base: 7.1.1(supports-color@9.4.0)
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -31600,7 +31590,7 @@ snapshots:
   https-proxy-agent@7.0.5:
     dependencies:
       agent-base: 7.1.1(supports-color@9.4.0)
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -32361,7 +32351,7 @@ snapshots:
       strip-json-comments: 3.1.1
     optionalDependencies:
       '@types/node': 20.17.10
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -35185,7 +35175,7 @@ snapshots:
       yaml: 2.6.0
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
 
   postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
@@ -35193,7 +35183,7 @@ snapshots:
       yaml: 2.6.0
     optionalDependencies:
       postcss: 8.4.47
-      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
 
   postcss-load-config@5.1.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1):
     dependencies:
@@ -38066,7 +38056,7 @@ snapshots:
       '@swc/core': 1.5.29(@swc/helpers@0.5.15)
     optional: true
 
-  ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2):
+  ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       '@tsconfig/node10': 1.0.11

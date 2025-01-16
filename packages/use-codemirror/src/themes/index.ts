@@ -1,7 +1,8 @@
 import { tags as t } from '@lezer/highlight'
-import { createTheme } from '@uiw/codemirror-themes'
 
-export const customTheme = createTheme({
+import { createCodeMirrorTheme } from './createCodeMirrorTheme'
+
+export const customTheme = createCodeMirrorTheme({
   theme: 'light',
   settings: {
     background: 'var(--scalar-background-2)',
