@@ -26,9 +26,9 @@ const props = defineProps<{
 /**
  * Get the OpenAPI/Swagger specification version from the API definition.
  */
-const oasVersion = computed(() => {
-  return props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? ''
-})
+const oasVersion = computed(
+  () => props.parsedSpec?.openapi ?? props.parsedSpec?.swagger ?? '',
+)
 
 /**
  * Format the title to be displayed in the badge.
@@ -46,7 +46,9 @@ const version = computed(() => {
     ? props.info.version.toString().match(/^\d/)
       ? `v${props.info.version}`
       : props.info.version
-    : undefined
+    : typeof props.info?.version === 'number'
+      ? `v${props.info.version}`
+      : undefined
 })
 </script>
 <template>
