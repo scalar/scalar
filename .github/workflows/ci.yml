@@ -363,8 +363,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
-        name: Deploy to client.scalar.com
-        id: deploy-client
+        name: Deploy to client.staging.scalar.com (staging)
+        id: deploy-client-staging
         uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
         with:
           command: pages deploy dist --project-name=client-staging
@@ -386,6 +386,29 @@ jobs:
 
             ${{ steps.deploy-client.outputs.deployment-url }}
           comment_tag: 'cloudflare-preview'
+      - if: startsWith(github.event.head_commit.message, 'RELEASING:')
+        name: Check for new NuGet package version
+        id: client-version
+        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        with:
+          files_yaml: |
+            api_client:
+              - packages/api-client/**
+      - if: steps.client-version.outputs.api_client_any_changed == 'true'
+        name: Deploy to client.scalar.com (production)
+        id: deploy-client-production
+        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
+        with:
+          command: pages deploy dist --project-name=client
+          workingDirectory: projects/client-scalar-com
+          # 1) Log in to the Cloudflare dashboard.
+          # 2) Select Workers & Pages.
+          # 3) See the Account ID in the right sidebar.
+          # Read more: https://developers.cloudflare.com/fundamentals/setup/find-account-and-zone-ids/
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # 1) Go to https://dash.cloudflare.com/profile/api-tokens
+          # 2) Create a token with the following permissions:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   deploy-examples:
     # Skip for forks and bot PRs
