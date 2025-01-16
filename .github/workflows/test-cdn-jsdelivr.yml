@@ -38,25 +38,17 @@ jobs:
         run: pnpm --filter @scalar-examples/cdn-api-reference dev &
       - name: Run E2E tests (jsdelivr)
         run: |
-          CI=1 pnpm test:e2e:jsdelivr | tee output.log
-          if grep -q -e "Error: A snapshot doesn't exist at" -e "Screenshot comparison failed" output.log; then
-            echo "Playwright tests failed due to a snapshot issue."
-            echo "SNAPSHOT_DIFFERENCES=true" >> $GITHUB_ENV
-            exit 1
-          elif grep -q "failed" output.log; then
-            echo "Playwright tests failed due to a non-snapshot issue."
-            exit 1
-          fi
+          CI=1 pnpm test:e2e:jsdelivr
       - uses: actions/upload-artifact@184d73b71b93c222403b2e7f1ffebe4508014249
         id: artifact-upload
-        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' }}
+        if: ${{ failure() }}
         with:
           name: playwright-report
           path: ./playwright/test-results/
-          retention-days: 7
+          retention-days: 5
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
-        if: ${{ failure() && env.SNAPSHOT_DIFFERENCES == 'true' && github.event_name == 'pull_request'}}
+        if: ${{ failure() && github.event_name == 'pull_request'}}
         with:
           message: |
             ### Playwright visual snapshot differences were detected.
