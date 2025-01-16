@@ -717,6 +717,9 @@ importers:
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../../../packages/api-client
+      '@scalar/nuxt':
+        specifier: workspace:*
+        version: link:..
 
   packages/api-client:
     dependencies:
