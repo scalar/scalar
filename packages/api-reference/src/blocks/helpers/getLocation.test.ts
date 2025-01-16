@@ -1,44 +1,55 @@
 import { describe, expect, it } from 'vitest'
 
-import { getLocation } from './getLocation'
+import { getPointer } from './getPointer'
 
-describe('getLocation', () => {
+describe('getPointer', () => {
   it('should return the correct location', () => {
-    expect(getLocation(['paths', '/planets/{planetId}', 'get'])).toBe(
+    expect(getPointer(['paths', '/planets/{planetId}', 'get'])).toBe(
       '#/paths/~1planets~1{planetId}/get',
     )
   })
 
   it('should handle empty paths', () => {
     // @ts-expect-error testing invalid input
-    expect(() => getLocation([''])).toThrow()
+    expect(() => getPointer([''])).toThrow()
   })
 
   it('should handle paths with special characters', () => {
-    expect(getLocation(['paths', '/users/~/settings', 'post'])).toBe(
+    expect(getPointer(['paths', '/users/~/settings', 'post'])).toBe(
       '#/paths/~1users~1~0~1settings/post',
     )
   })
 
   it('converts method to lowercase', () => {
-    expect(getLocation(['paths', '/users', 'post'])).toBe(
-      '#/paths/~1users/post',
-    )
-    expect(getLocation(['paths', '/users', 'get'])).toBe('#/paths/~1users/get')
-    expect(getLocation(['paths', '/users', 'delete'])).toBe(
+    expect(getPointer(['paths', '/users', 'post'])).toBe('#/paths/~1users/post')
+    expect(getPointer(['paths', '/users', 'get'])).toBe('#/paths/~1users/get')
+    expect(getPointer(['paths', '/users', 'delete'])).toBe(
       '#/paths/~1users/delete',
     )
   })
 
   it('handles multiple path parameters', () => {
-    expect(
-      getLocation(['paths', '/users/{userId}/posts/{postId}', 'get']),
-    ).toBe('#/paths/~1users~1{userId}~1posts~1{postId}/get')
+    expect(getPointer(['paths', '/users/{userId}/posts/{postId}', 'get'])).toBe(
+      '#/paths/~1users~1{userId}~1posts~1{postId}/get',
+    )
   })
 
   it('escapes forward slashes', () => {
-    expect(getLocation(['paths', '/path/with/many/slashes', 'get'])).toBe(
+    expect(getPointer(['paths', '/path/with/many/slashes', 'get'])).toBe(
       '#/paths/~1path~1with~1many~1slashes/get',
     )
+  })
+
+  it('allows certain paths to be returned as strings', () => {
+    expect(getPointer(['components', 'schemas', 'Planet'])).toBe(
+      '#/components/schemas/Planet',
+    )
+
+    expect(getPointer(['paths', '/planets/{planetId}', 'get'])).toBe(
+      '#/paths/~1planets~1{planetId}/get',
+    )
+
+    /** @ts-expect-error testing invalid input */
+    expect(getPointer(['fantasy'])).toBe('#/fantasy')
   })
 })

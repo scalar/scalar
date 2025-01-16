@@ -19,18 +19,17 @@ type ValidOpenApiPaths =
  * Encodes a location string with paths
  *
  * @example
- * getLocation(['paths', '/planets/{foo}', 'get'])
+ * getPointer(['paths', '/planets/{foo}', 'get'])
  *
  * '#/paths/~1planets~1{foo}/get'
  */
-export function getLocation(path: ValidOpenApiPaths) {
-  const pointer = [
-    '#',
-    ...path
-      .map((p) => p.trim())
-      .filter(Boolean)
-      .map(escapeJsonPointer),
-  ].join('/')
+export function getPointer(path: ValidOpenApiPaths) {
+  path.unshift('#')
+
+  const pointer = path
+    .map((p) => escapeJsonPointer(p.trim()))
+    .filter(Boolean)
+    .join('/')
 
   if (pointer === '#') {
     throw new Error(ERRORS.EMPTY_PATH)
