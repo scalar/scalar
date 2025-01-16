@@ -87,9 +87,9 @@ paths:
         - pl4n3t5
 ```
 
-## x-tagGroup
+## x-tagGroups
 
-You can group your tags with `x-tagGroup`.
+You can group your tags with `x-tagGroups`.
 
 ```diff
 openapi: 3.1.0
