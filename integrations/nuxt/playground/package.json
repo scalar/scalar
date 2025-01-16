@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "my-module-playground",
+  "name": "@scalar-examples/nuxt-playground",
   "type": "module",
   "scripts": {
     "dev": "nuxi dev",
