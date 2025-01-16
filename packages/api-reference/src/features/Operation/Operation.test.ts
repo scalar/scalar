@@ -23,7 +23,7 @@ function createTransformedOperation(
     ...operation,
     httpVerb: requestMethod,
     path: path,
-    /** @ts-expect-error */
+    // @ts-expect-error
     information: operation,
   }
 }
@@ -80,10 +80,7 @@ vi.mock('@scalar/api-client/store', () => ({
   }),
 }))
 
-// TODO: We need to mock up a store here to test those components.
-// Ideally we’d get rid of the inject/provide pattern inside that component,
-// to make testing easier. But we’re not there yet.
-describe.skip('Operation', () => {
+describe('Operation', () => {
   it('renders the modern layout by default', async () => {
     const operationComponent = mount(Operation, {
       props: {

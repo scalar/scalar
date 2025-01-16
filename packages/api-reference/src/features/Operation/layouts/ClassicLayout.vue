@@ -12,7 +12,6 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { inject } from 'vue'
@@ -20,10 +19,8 @@ import { inject } from 'vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { id, operation, request, secretCredentials } = defineProps<{
   id?: string
-  requestEntity?: RequestEntity
-  /** @deprecated Use `requestEntity` instead */
   operation: TransformedOperation
   request: Request | null
   secretCredentials: string[]
@@ -77,10 +74,10 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
         @click.stop="copyToClipboard(operation.path)" />
     </template>
     <template
-      v-if="requestEntity?.description"
+      v-if="operation.description"
       #description>
       <ScalarMarkdown
-        :value="requestEntity?.description"
+        :value="operation.description"
         withImages />
     </template>
     <div class="endpoint-content">

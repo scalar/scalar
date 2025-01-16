@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { OpenAPI } from '@scalar/openapi-types'
 import { type Component, computed } from 'vue'
 
 import { requestMethodAbbreviations, requestMethodColors } from './constants'
@@ -13,33 +12,20 @@ const props = defineProps<{
   /** Whether or not to abbreviated the slot content */
   short?: boolean
   /** The HTTP method to show */
-  method: OpenAPI.HttpMethod | string
+  method: string
 }>()
 
 /** A trimmed and uppercase version of the method */
 const normalized = computed(() => props.method.trim().toUpperCase())
 
-/**
- * The abbreviated version of the method
- *
- * @example
- * ```
- * GET -> GET
- * DELETE -> DEL
- * PATCH -> PATCH
- * ```
- */
 const abbreviated = computed<string>(() => {
   if (isRequestMethod(normalized.value))
     return requestMethodAbbreviations[normalized.value]
-
   return normalized.value.slice(0, 4)
 })
-
 const color = computed<string>(() => {
   if (isRequestMethod(normalized.value))
     return requestMethodColors[normalized.value]
-
   return 'var(--scalar-color-ghost)'
 })
 </script>
