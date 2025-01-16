@@ -162,6 +162,42 @@ describe('OperationParameters', () => {
       expect(wrapper.text()).toContain('name')
       expect(wrapper.text()).toContain('age')
     })
+
+    it('renders request body with readOnly and writeOnly properties', async () => {
+      const wrapper = mount(OperationParameters, {
+        props: {
+          operation: {
+            requestBody: {
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    properties: {
+                      regularProperty: {
+                        type: 'string',
+                      },
+                      readOnlyProperty: {
+                        type: 'string',
+                        readOnly: true,
+                      },
+                      writeOnlyProperty: {
+                        type: 'string',
+                        writeOnly: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      })
+
+      expect(wrapper.text()).toContain('Body')
+      expect(wrapper.text()).toContain('regularProperty')
+      expect(wrapper.text()).not.toContain('readOnlyProperty')
+      expect(wrapper.text()).toContain('writeOnlyProperty')
+    })
   })
 
   describe('form data', () => {

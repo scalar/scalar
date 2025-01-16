@@ -4,24 +4,24 @@ import { ScalarMarkdown } from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
-const prop = defineProps<{ requestBody?: RequestBody }>()
+const props = defineProps<{ requestBody?: RequestBody }>()
 
 const contentTypes = computed(() => {
-  if (prop.requestBody?.content) {
-    return Object.keys(prop.requestBody.content)
+  if (props.requestBody?.content) {
+    return Object.keys(props.requestBody.content)
   }
   return []
 })
 
 const selectedContentType = ref<ContentType>('application/json')
-if (prop.requestBody?.content) {
+if (props.requestBody?.content) {
   if (contentTypes.value.length > 0) {
     selectedContentType.value = contentTypes.value[0] as ContentType
   }
 }
 </script>
 <template>
-  <div v-if="prop?.requestBody">
+  <div v-if="requestBody">
     <div class="request-body-title">
       <slot name="title" />
       <div
@@ -29,10 +29,10 @@ if (prop.requestBody?.content) {
         :class="{ 'request-body-title-no-select': contentTypes.length <= 1 }">
         <span>{{ selectedContentType }}</span>
         <select
-          v-if="prop?.requestBody && contentTypes.length > 1"
+          v-if="requestBody && contentTypes.length > 1"
           v-model="selectedContentType">
           <option
-            v-for="(_, key) in prop.requestBody?.content"
+            v-for="(_, key) in requestBody?.content"
             :key="key"
             :value="key">
             {{ key }}
@@ -40,18 +40,19 @@ if (prop.requestBody?.content) {
         </select>
       </div>
       <div
-        v-if="prop?.requestBody.description"
+        v-if="requestBody.description"
         class="request-body-description">
-        <ScalarMarkdown :value="prop.requestBody.description" />
+        <ScalarMarkdown :value="requestBody.description" />
       </div>
     </div>
     <div
-      v-if="prop?.requestBody.content?.[selectedContentType]"
+      v-if="requestBody.content?.[selectedContentType]"
       class="request-body-schema">
       <Schema
         compact
+        mode="write"
         noncollapsible
-        :value="prop?.requestBody.content?.[selectedContentType]?.schema" />
+        :value="requestBody.content?.[selectedContentType]?.schema" />
     </div>
   </div>
 </template>

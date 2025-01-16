@@ -44,9 +44,22 @@ if (props.parameter.content) {
 const shouldCollapse = computed<boolean>(() => {
   return !!(props.collapsableItems && props.parameter.content)
 })
+
+/**
+ * We’re showing request data, read-only parameters should not be shown.
+ */
+const shouldShowParameter = computed(() => {
+  if (props.parameter.readOnly === true) {
+    return false
+  }
+
+  return true
+})
 </script>
 <template>
-  <li class="parameter-item">
+  <li
+    v-if="shouldShowParameter"
+    class="parameter-item">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"

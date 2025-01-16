@@ -26,6 +26,7 @@ const props = withDefaults(
     /** Shows a toggle to hide/show children */
     noncollapsible?: boolean
     hideHeading?: boolean
+    mode?: 'read' | 'write'
   }>(),
   { level: 0 },
 )
@@ -38,10 +39,34 @@ const shouldShowToggle = computed(() => {
 // Prevent click action if noncollapsible
 const handleClick = (e: MouseEvent) =>
   props.noncollapsible && e.stopPropagation()
+
+/**
+ * Hide read-only/write-only attributes if a specific mode is set.
+ */
+const showValue = computed(() => {
+  if (typeof props.value !== 'object') {
+    return false
+  }
+
+  if (Object.keys(props.value).length === 0) {
+    return false
+  }
+
+  if (props.mode === 'write') {
+    return !props.value.readOnly
+  }
+
+  if (props.mode === 'read') {
+    return !props.value.writeOnly
+  }
+
+  return false
+})
 </script>
+
 <template>
   <Disclosure
-    v-if="typeof value === 'object' && Object.keys(value).length"
+    v-if="typeof value === 'object' && showValue"
     v-slot="{ open }"
     :defaultOpen="noncollapsible">
     <div
@@ -89,6 +114,7 @@ const handleClick = (e: MouseEvent) =>
               icon="Add"
               size="sm" />
             <SchemaHeading
+              :mode="mode"
               :name="(value?.title ?? name) as string"
               :value="value" />
           </template>
@@ -101,6 +127,7 @@ const handleClick = (e: MouseEvent) =>
                 :key="property"
                 :compact="compact"
                 :level="level"
+                :mode="mode"
                 :name="property"
                 :required="
                   value.required?.includes(property) ||
@@ -122,6 +149,7 @@ const handleClick = (e: MouseEvent) =>
                 additional
                 :compact="compact"
                 :level="level"
+                :mode="mode"
                 noncollapsible
                 :value="{
                   type: 'anything',
@@ -135,6 +163,7 @@ const handleClick = (e: MouseEvent) =>
                 additional
                 :compact="compact"
                 :level="level"
+                :mode="mode"
                 noncollapsible
                 :value="value.additionalProperties" />
             </template>
@@ -143,6 +172,7 @@ const handleClick = (e: MouseEvent) =>
             <SchemaProperty
               :compact="compact"
               :level="level"
+              :mode="mode"
               :name="(value as OpenAPIV2.SchemaObject).name"
               :value="value" />
           </template>
