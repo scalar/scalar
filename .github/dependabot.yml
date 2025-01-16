@@ -23,7 +23,7 @@ updates:
       - dependency-name: 'vite'
       - dependency-name: 'vitest'
   - package-ecosystem: npm
-    directory: /packages/scalar-app
+    directory: /projects/scalar-app
     schedule:
       interval: weekly
     allow:
