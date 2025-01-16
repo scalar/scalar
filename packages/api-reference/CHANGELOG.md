@@ -1,5 +1,38 @@
 # @scalar/api-reference
 
+## 1.25.104
+
+### Patch Changes
+
+- ace02fe: fix: favors configuration integration in open client modal button
+- 60cd6f1: feat: render the operation description from the new store
+- 39df543: feat: flatten discriminators containing null
+- e866487: feat(components): create dark light toggle components
+- d2b1525: feat: version prefix
+- Updated dependencies [2ad0407]
+- Updated dependencies [ace02fe]
+- Updated dependencies [60cd6f1]
+- Updated dependencies [60cd6f1]
+- Updated dependencies [e866487]
+- Updated dependencies [6d03777]
+- Updated dependencies [6d03777]
+- Updated dependencies [7df4472]
+- Updated dependencies [13333e6]
+- Updated dependencies [64df4fc]
+- Updated dependencies [08ac264]
+- Updated dependencies [aff72f7]
+- Updated dependencies [cb09e76]
+- Updated dependencies [2ad0407]
+  - @scalar/api-client@2.2.33
+  - @scalar/components@0.13.14
+  - @scalar/types@0.0.26
+  - @scalar/use-hooks@0.1.14
+  - @scalar/themes@0.9.60
+  - @scalar/oas-utils@0.2.97
+  - @scalar/openapi-types@0.1.6
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/code-highlight@0.0.19
+
 ## 1.25.103
 
 ### Patch Changes

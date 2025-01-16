@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.0.26
+
+### Patch Changes
+
+- 60cd6f1: feat: render the operation description from the new store
+- 60cd6f1: chore: deprecated the TransformedOperation type
+- Updated dependencies [13333e6]
+  - @scalar/openapi-types@0.1.6
+
 ## 0.0.25
 
 ### Patch Changes
