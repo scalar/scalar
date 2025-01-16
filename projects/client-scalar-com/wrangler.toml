@@ -1,0 +1,5 @@
+name = "client"
+route = "client.scalar.com"
+
+[env.staging]
+route = "client.staging.scalar.com"

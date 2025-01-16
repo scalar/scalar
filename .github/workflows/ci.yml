@@ -377,6 +377,7 @@ jobs:
           # 1) Go to https://dash.cloudflare.com/profile/api-tokens
           # 2) Create a token with the following permissions:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          environment: staging
       - if: github.ref != 'refs/heads/main' && steps.deploy-client.outputs.deployment-url
         name: Add Cloudflare Preview URL to the PR
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
