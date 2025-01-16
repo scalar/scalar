@@ -21,7 +21,7 @@
 /packages/scalar-app @hanspagel
 /packages/api-reference-react @amritk
 /integrations/docusaurus @amritk
-/integrations/hono-api-reference @hanspagel
+/integrations/hono @hanspagel
 # /packages/object-utils
 # /packages/use-codemirror
 /packages/build-tooling @geoffgscott
@@ -30,14 +30,14 @@
 /packages/play-button @marclave
 # /packages/use-modal
 /packages/build-watch @geoffgscott
-/integrations/nestjs-api-reference @marclave
+/integrations/nestjs @marclave
 /packages/scalar.aspnetcore @marclave @hanspagel
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk
 /packages/cli @hanspagel
-/integrations/express-api-reference @hanspagel
-/integrations/nextjs-api-reference @amritk
+/integrations/express @hanspagel
+/integrations/nextjs @amritk
 /integrations/scalar_django_ninja @marclave
 # /packages/use-tooltip
 /packages/api-reference @hanspagel

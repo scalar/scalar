@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/hono-api-reference",
-  "description": "A middleware for using the Scalar API reference in Hono",
+  "name": "@scalar/express-api-reference",
+  "description": "A middleware for using the Scalar API reference with Express",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,26 +8,27 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "integrations/hono-api-reference"
+    "directory": "integrations/express"
   },
-  "version": "0.5.167",
+  "version": "0.4.175",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
-    "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
-    "docker:run": "docker run -t scalar-hono-reference",
+    "build:playground": "cd playground && pnpm build",
+    "dev": "cd playground && pnpm dev",
+    "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
+    "docker:run": "docker run -p 5055:5055 express-api-reference",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "test": "vitest",
+    "test": "vitest run",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -43,14 +44,12 @@
     "@scalar/types": "workspace:*"
   },
   "devDependencies": {
-    "@hono/node-server": "^1.11.0",
-    "@hono/zod-openapi": "^0.8.6",
+    "@scalar/api-reference": "workspace:*",
     "@scalar/build-tooling": "workspace:*",
-    "hono": "^4.6.5",
-    "vite": "^5.4.10",
+    "@types/express": "^4.17.21",
+    "@types/supertest": "^2.0.12",
+    "express": "^4.21.1",
+    "supertest": "^6.3.3",
     "vitest": "^1.6.0"
-  },
-  "peerDependencies": {
-    "hono": "^4.0.0"
   }
 }

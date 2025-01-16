@@ -17,7 +17,7 @@
   {
     "name": "hono",
     "cloudBuildName": "_SERVICE_HONO",
-    "dockerPath": "./integrations/hono-api-reference/Dockerfile"
+    "dockerPath": "./integrations/hono/Dockerfile"
   },
   {
     "name": "nest-js-express",
@@ -27,7 +27,7 @@
   {
     "name": "express-js",
     "cloudBuildName": "_SERVICE_EXPRESS",
-    "dockerPath": "./integrations/express-api-reference/Dockerfile"
+    "dockerPath": "./integrations/express/Dockerfile"
   },
   {
     "name": "nest-js-fastify",

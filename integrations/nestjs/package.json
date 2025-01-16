@@ -1,6 +1,6 @@
 {
-  "name": "@scalar/express-api-reference",
-  "description": "A middleware for using the Scalar API reference with Express",
+  "name": "@scalar/nestjs-api-reference",
+  "description": "A middleware for using the Scalar API reference with NestJS",
   "license": "MIT",
   "author": "Scalar (https://github.com/scalar)",
   "homepage": "https://github.com/scalar/scalar",
@@ -8,32 +8,32 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "integrations/express-api-reference"
+    "directory": "integrations/nestjs"
   },
-  "version": "0.4.175",
+  "version": "0.3.176",
   "engines": {
     "node": ">=18"
   },
   "scripts": {
-    "build": "scalar-build-rollup",
-    "build:playground": "cd playground && pnpm build",
-    "dev": "cd playground && pnpm dev",
-    "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
-    "docker:run": "docker run -p 5055:5055 express-api-reference",
+    "build": "tsup ./src/index.ts --format esm,cjs --dts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest run",
-    "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "tsc --noEmit"
   },
   "type": "module",
   "main": "dist/index.cjs",
   "types": "dist/index.d.cts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     }
   },
   "files": [
@@ -45,11 +45,11 @@
   },
   "devDependencies": {
     "@scalar/api-reference": "workspace:*",
-    "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
-    "@types/supertest": "^2.0.12",
     "express": "^4.21.1",
-    "supertest": "^6.3.3",
+    "fastify": "^4.26.2",
+    "tsup": "^7.2.0",
+    "vite": "^5.4.10",
     "vitest": "^1.6.0"
   }
 }
