@@ -333,7 +333,7 @@ jobs:
           ./integrations/hono
           ./integrations/nestjs
           ./integrations/nextjs
-          ./packages/nuxt
+          ./integrations/nuxt
           ./packages/themes
 
   deploy-api-client:

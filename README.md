@@ -123,7 +123,7 @@ And there’s an ever-growing list of plugins and integrations:
 - [Laravel Scribe](documentation/integrations/laravel-scribe.md)
 - [NestJS](integrations/nestjs/README.md)
 - [Next.js](integrations/nextjs/README.md)
-- [Nuxt](packages/nuxt/README.md)
+- [Nuxt](integrations/nuxt/README.md)
 - [React](packages/api-reference-react/README.md)
 - [Ruby on Rails](https://github.com/dmytroshevchuk/scalar_ruby)
 - [Rust](documentation/integrations/rust.md)

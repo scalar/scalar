@@ -1633,7 +1633,7 @@ importers:
         specifier: ^12.1.3
         version: 12.1.3
 
-  packages/nuxt:
+  integrations/nuxt:
     dependencies:
       '@nuxt/kit':
         specifier: ^3.12.3
@@ -1676,7 +1676,7 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2)
 
-  packages/nuxt/playground:
+  integrations/nuxt/playground:
     dependencies:
       nuxt:
         specifier: ^3.12.4

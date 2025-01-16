@@ -43,7 +43,7 @@
 /packages/api-reference @hanspagel
 /packages/code-highlight @geoffgscott
 /packages/fastify-api-reference @hanspagel
-/packages/nuxt @amritk
+/integrations/nuxt @amritk
 /integrations/scalar_fastapi @marclave
 /packages/void-server @hanspagel
 
