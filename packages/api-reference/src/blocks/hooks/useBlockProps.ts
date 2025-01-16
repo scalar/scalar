@@ -62,7 +62,7 @@ export function useBlockProps({ store, location }: BlockProps): {
     // Check whether we’re using the correct location
     if (!location.startsWith('#/paths/')) {
       throw new Error(
-        'Invalid location, try using #/paths/$YOUR_ENDPOINT/$HTTP_METHOD',
+        `Invalid location, try using #/paths/$YOUR_ENDPOINT/$HTTP_METHOD. You can use the getPointer helper to generate a valid location: getPointer(['paths', '/planets/{planetId}', 'get'])`,
       )
     }
 
