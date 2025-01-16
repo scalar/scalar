@@ -121,8 +121,11 @@ export function setRequestCookies({
     secure: true,
   } as const
 
-  const allCookies = Cookies.get()
-  Object.keys(allCookies).forEach((c) => Cookies.remove(c))
+  // TODO: I think this was added to remove previously added cookies,
+  // but it shouldn’t remove cookies that are not added by us.
+  // As a quick fix, to not break existing functionality, we’ll comment this out.
+  // const allCookies = Cookies.get()
+  // Object.keys(allCookies).forEach((c) => Cookies.remove(c))
 
   example.parameters.cookies.forEach((c) => {
     if (c.enabled) Cookies.set(c.key, replaceTemplateVariables(c.value, env))
