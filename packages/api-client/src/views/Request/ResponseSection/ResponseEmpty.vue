@@ -104,9 +104,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <button
         class="flex items-center gap-1.5"
         type="button"
-        @click="
-          events.executeRequest.emit({ requestUid: activeRequest.value?.uid })
-        ">
+        @click="events.executeRequest.emit()">
         Send Request
         <ScalarHotkey hotkey="↵" />
       </button>
