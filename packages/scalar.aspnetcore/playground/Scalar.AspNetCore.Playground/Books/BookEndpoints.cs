@@ -21,7 +21,7 @@ internal static class BookEndpoints
 
         books
             .MapGet("/", ([FromServices] BookStore bookStore) => bookStore.GetAll())
-            .Produces<Book[]>();
+            .Produces<IEnumerable<Book>>();
 
         books
             .MapGet("/{bookId:guid}", ([FromServices] BookStore bookStore, Guid bookId) =>

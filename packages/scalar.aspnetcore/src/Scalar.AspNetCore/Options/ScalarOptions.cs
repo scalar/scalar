@@ -16,7 +16,7 @@ public sealed class ScalarOptions
     /// </summary>
     /// <value>A function that returns an <see cref="IEnumerable{T}" /> of document names.</value>
     /// <remarks>This feature will be public once we support multiple OpenAPI documents. If this property is set, the <see cref="DocumentNames" /> property will be ignored.</remarks>
-    internal Func<HttpContext, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
+    internal Func<HttpContext, CancellationToken, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
 
     /// <summary>
     /// Metadata title.

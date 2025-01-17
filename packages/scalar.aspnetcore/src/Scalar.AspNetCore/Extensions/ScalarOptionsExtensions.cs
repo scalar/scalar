@@ -65,7 +65,19 @@ public static class ScalarOptionsExtensions
     /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
     internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, IEnumerable<string>> provider)
     {
-        options.DocumentNamesProvider = context => Task.FromResult(provider(context));
+        options.DocumentNamesProvider = (context, _) => Task.FromResult(provider(context));
+        return options;
+    }
+    
+    /// <summary>
+    /// Sets a async document names provider.
+    /// </summary>
+    /// <param name="options"><see cref="ScalarOptions" />.</param>
+    /// <param name="provider">The async function to provide document names.</param>
+    /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
+    internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, CancellationToken, Task<IEnumerable<string>>> provider)
+    {
+        options.DocumentNamesProvider = provider;
         return options;
     }
 
@@ -77,7 +89,7 @@ public static class ScalarOptionsExtensions
     /// <remarks>This feature will be public once we support multiple OpenAPI documents.</remarks>
     internal static ScalarOptions WithDocumentNamesProvider(this ScalarOptions options, Func<HttpContext, Task<IEnumerable<string>>> provider)
     {
-        options.DocumentNamesProvider = provider;
+        options.DocumentNamesProvider = (context, _) => provider.Invoke(context);
         return options;
     }
 
