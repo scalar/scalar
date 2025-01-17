@@ -15,7 +15,7 @@ const props = withDefaults(
     /** Class for the wrapping cell because attrs is bound to the input */
     containerClass?: VueClassProp
     required?: boolean
-    modelValue: string | number | boolean
+    modelValue: string | number
     /** Allows adding a custom value to the enum dropdown, defaults to true */
     canAddCustomEnumValue?: boolean
     readOnly?: boolean
@@ -67,11 +67,6 @@ const inputType = computed(() =>
           :canAddCustomValue="canAddCustomEnumValue"
           :modelValue="props.modelValue"
           :value="props.enum"
-          @update:modelValue="emit('update:modelValue', $event)" />
-      </template>
-      <template v-else-if="props.type === 'boolean'">
-        <DataTableCheckbox
-          :modelValue="props.modelValue"
           @update:modelValue="emit('update:modelValue', $event)" />
       </template>
       <template v-else>
