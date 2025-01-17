@@ -272,7 +272,7 @@ paths:
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/NewUser'
+              '$ref': '#/components/schemas/User'
             examples:
               Marc:
                 value:
@@ -483,51 +483,21 @@ components:
           schema:
             '$ref': '#/components/schemas/Error'
   schemas:
-    NewUser:
-      type: object
-      required:
-        - name
-        - email
-        - password
-      properties:
-        name:
-          type: string
-          examples:
-            - Hans
-            - Brynn
-        email:
-          type: string
-          format: email
-          examples:
-            - hans@scalar.com
-            - brynn@scalar.com
-        password:
-          type: string
-          minLength: 8
-          examples:
-            - i-love-scalar
-            - scalar-is-cool
     User:
-      type: object
-      required:
-        - id
-        - name
-        - email
-      properties:
-        id:
-          type: integer
-          format: int64
-          examples:
-            - 1
-        name:
-          type: string
-          examples:
-            - Marc
-        email:
-          type: string
-          format: email
-          examples:
-            - marc@scalar.com
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int64
+              readOnly: true
+              examples:
+                - 1
+            name:
+              type: string
+              examples:
+                - Marc
+        - $ref: '#/components/schemas/Credentials'
     Credentials:
       type: object
       required:
@@ -541,6 +511,7 @@ components:
             - marc@scalar.com
         password:
           type: string
+          writeOnly: true
           examples:
             - i-love-scalar
     Token:
@@ -559,6 +530,7 @@ components:
         id:
           type: integer
           format: int64
+          readOnly: true
           examples:
             - 1
           x-variable: planetId
