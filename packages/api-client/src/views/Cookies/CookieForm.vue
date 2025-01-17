@@ -19,9 +19,11 @@ const fields = [
 const activeCookie = computed<Cookie>(
   () =>
     cookies[activeCookieId.value as string] || {
-      value: '',
       uid: '',
       name: '',
+      value: '',
+      domain: '',
+      path: '',
     },
 )
 const updateCookie = (key: any, value: any) => {
