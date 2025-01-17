@@ -1,7 +1,10 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
-import { setRequestCookies } from '@/libs/send-request/set-request-cookies'
+import {
+  getCookieHeader,
+  setRequestCookies,
+} from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
@@ -248,8 +251,6 @@ export const createRequestOperation = ({
           cookieParams.push({
             name: scheme.name,
             value,
-            sameSite: 'None',
-            secure: true,
             path: '/',
             uid: scheme.name,
           })
@@ -311,13 +312,30 @@ export const createRequestOperation = ({
       url = combinedURL.toString()
     }
 
-    // Add custom header for the proxy
-    if (shouldUseProxy(proxyUrl, url)) {
-      headers['X-Scalar-Cookie'] = getCookieHeader(cookieParams)
-    }
-    // or stick to the original header (which might be removed by the browser)
-    else {
-      headers['Cookie'] = getCookieHeader(cookieParams)
+    /** Cookie header */
+    const cookieHeader = getCookieHeader(cookieParams, headers['Cookie'])
+
+    if (cookieHeader) {
+      // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
+      if (shouldUseProxy(proxyUrl, url)) {
+        console.warn(
+          'We’re using a `X-Scalar-Cookie` custom header to the request. The proxy will forward this as a `Cookie` header. We do this to avoid the browser omitting the `Cookie` header for cross-origin requests for security reasons.',
+        )
+
+        headers['X-Scalar-Cookie'] = cookieHeader
+      }
+      // or stick to the original header (which might be removed by the browser)
+      else {
+        console.warn(
+          `We’re trying to add a Cookie header, but browsers often omit them for cross-origin requests for various security reasons. If it’s not working, that’s probably why. Here are the requirements for it to work:
+
+          - The browser URL must be on the same domain as the server URL.
+          - The connection must be made over HTTPS.
+          `,
+        )
+
+        headers['Cookie'] = cookieHeader
+      }
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])

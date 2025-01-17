@@ -141,6 +141,19 @@ export const matchesDomain = (
 /**
  * Generate a cookie header from the cookie params
  */
-export const getCookieHeader = (cookieParams: Cookie[]): string => {
-  return cookieParams.map((c) => `${c.name}=${c.value}`).join('; ')
+export const getCookieHeader = (
+  cookieParams: Cookie[],
+  originalCookieHeader?: string,
+): string => {
+  // Generate the cookie header from the cookie params
+  const cookieHeader = cookieParams
+    .map((c) => `${c.name}=${c.value}`)
+    .join('; ')
+
+  // Merge with the original cookie header
+  if (originalCookieHeader) {
+    return `${originalCookieHeader}; ${cookieHeader}`.trim()
+  }
+
+  return cookieHeader.trim()
 }

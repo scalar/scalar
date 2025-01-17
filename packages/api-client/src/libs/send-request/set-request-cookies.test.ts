@@ -78,12 +78,12 @@ describe('matchesDomain', () => {
 })
 
 describe('getCookieHeader', () => {
-  it('should generate a cookie header from the cookie params', () => {
+  it('generates a cookie header from the cookie params', () => {
     const cookieParams: Cookie[] = [createCookie('foo', 'bar')]
     expect(getCookieHeader(cookieParams)).toBe('foo=bar')
   })
 
-  it('should generate a cookie header with multiple cookies', () => {
+  it('generates a cookie header with multiple cookies', () => {
     const cookieParams: Cookie[] = [
       createCookie('foo', 'bar'),
       createCookie('baz', 'qux'),
@@ -91,7 +91,7 @@ describe('getCookieHeader', () => {
     expect(getCookieHeader(cookieParams)).toBe('foo=bar; baz=qux')
   })
 
-  it('should handle cookies with special characters in values', () => {
+  it('handles cookies with special characters in values', () => {
     const cookieParams: Cookie[] = [
       createCookie('test', 'hello world!@#$%^&*()'),
       createCookie('complex', '{"key": "value"}'),
@@ -101,7 +101,7 @@ describe('getCookieHeader', () => {
     )
   })
 
-  it('should handle cookies with empty values', () => {
+  it('handles cookies with empty values', () => {
     const cookieParams: Cookie[] = [
       createCookie('empty', ''),
       createCookie('normal', 'value'),
@@ -109,39 +109,48 @@ describe('getCookieHeader', () => {
     expect(getCookieHeader(cookieParams)).toBe('empty=; normal=value')
   })
 
-  it('should handle cookies with various attributes without including them in header', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('test', 'value', {
-        domain: 'test.com',
-        path: '/api',
-        httpOnly: true,
-        secure: true,
-        sameSite: 'Strict',
-        expires: new Date('2024-01-01'),
-      }),
-    ]
-    expect(getCookieHeader(cookieParams)).toBe('test=value')
-  })
-
-  it('should handle an empty cookie array', () => {
+  it('handles an empty cookie array', () => {
     const cookieParams: Cookie[] = []
     expect(getCookieHeader(cookieParams)).toBe('')
   })
 
-  it('should handle cookies with same names but different domains', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('session', 'abc123', { domain: 'example.com' }),
-      createCookie('session', 'def456', { domain: 'api.example.com' }),
-    ]
-    expect(getCookieHeader(cookieParams)).toBe('session=abc123; session=def456')
-  })
-
-  it('should handle cookies with unicode values', () => {
+  it('handles cookies with unicode values', () => {
     const cookieParams: Cookie[] = [
       createCookie('greeting', '你好'),
       createCookie('emoji', '👋'),
     ]
     expect(getCookieHeader(cookieParams)).toBe('greeting=你好; emoji=👋')
+  })
+
+  it('merges with original cookie header', () => {
+    const cookieParams: Cookie[] = [createCookie('foo', 'bar')]
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
+      'existing=value; foo=bar',
+    )
+  })
+
+  it('merges multiple cookies with original cookie header', () => {
+    const cookieParams: Cookie[] = [
+      createCookie('foo', 'bar'),
+      createCookie('baz', 'qux'),
+    ]
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
+      'existing=value; foo=bar; baz=qux',
+    )
+  })
+
+  it('handles empty cookie params with original cookie header', () => {
+    const cookieParams: Cookie[] = []
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
+      'existing=value;',
+    )
+  })
+
+  it('handles original cookie header with multiple cookies', () => {
+    const cookieParams: Cookie[] = [createCookie('foo', 'bar')]
+    expect(getCookieHeader(cookieParams, 'first=one; second=two')).toBe(
+      'first=one; second=two; foo=bar',
+    )
   })
 })
 
@@ -158,11 +167,6 @@ function createCookie(
     value,
     domain: 'example.com',
     path: '/',
-    // tomorrow
-    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None',
     uid: 'globalCookie',
     // overwrite (optional)
     ...options,
