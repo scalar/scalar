@@ -19,6 +19,7 @@ in browser environments.
 - Health check endpoint at `/ping`
 - Configurable port via environment variable (`PORT`)
 - Preserves original request headers and body (except `Origin` header)
+- Forwards `X-Scalar-Cookie` as `Cookie` header to circumvent the browser’s cookie policy
 - Forwards all HTTP methods (GET, POST, PUT, DELETE, PATCH)
 - Zero external dependencies (only using Go standard libraries)
 
