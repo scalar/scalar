@@ -1,5 +1,11 @@
 # @scalar/use-codemirror
 
+## 0.11.59
+
+### Patch Changes
+
+- 7f3aa9c: refactor: remove @uiw/codemirror-themes
+
 ## 0.11.58
 
 ### Patch Changes
