@@ -213,23 +213,22 @@ export default {
 }
 </script>
 <template>
-  <template v-if="props.disabled">
+  <template v-if="disabled">
     <div class="flex items-center justify-center p-2">
-      <span class="text-c-2 text-xs font-code">{{ modelValue }}</span>
+      <span class="text-c-2 text-sm">{{ modelValue }}</span>
     </div>
   </template>
   <template v-else-if="props.enum && props.enum.length">
     <DataTableInputSelect
       :default="props.default"
-      :modelValue="props.modelValue"
+      :modelValue="modelValue"
       :value="props.enum"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
-  <template
-    v-else-if="props.type === 'boolean' || props.type?.includes('boolean')">
+  <template v-else-if="type === 'boolean' || type?.includes('boolean')">
     <DataTableInputSelect
       :default="props.default"
-      :modelValue="props.modelValue"
+      :modelValue="modelValue"
       :value="booleanOptions"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
@@ -251,8 +250,9 @@ export default {
         <button
           class="copy-button"
           type="button"
-          @click="copyToClipboard(prettyPrintJson(props.modelValue))">
+          @click="copyToClipboard(prettyPrintJson(modelValue))">
           <span class="sr-only">Copy content</span>
+
           <ScalarIcon
             icon="Clipboard"
             size="md" />
@@ -272,9 +272,7 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="
-      showDropdown && props.withVariables && !isReadOnly && activeEnvironment
-    "
+    v-if="showDropdown && withVariables && !isReadOnly && activeEnvironment"
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :envVariables="activeEnvVariables"

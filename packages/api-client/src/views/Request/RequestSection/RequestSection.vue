@@ -83,6 +83,12 @@ const activeWorkspaceCookies = computed(() =>
     .map((cookie) => ({
       key: cookie.name,
       value: cookie.value,
+      route: {
+        name: 'cookies',
+        params: {
+          cookies: cookie.uid,
+        },
+      },
       enabled: true,
     })),
 )
