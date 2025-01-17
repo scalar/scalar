@@ -33,21 +33,41 @@ export function setRequestCookies({
   env: object
   globalCookies: Cookie[]
   serverUrl: string
-  proxyUrl?: string
+  proxyUrl: string
 }): {
   cookieParams: Cookie[]
 } {
   const cookieParams: Cookie[] = []
 
-  // Handle domain with or without leading dot
+  const isUsingTheProxy = shouldUseProxy(proxyUrl, serverUrl)
+
+  // Try to add the target domain with a wildcard dot
   const defaultDomain = determineCookieDomain(
-    // TODO: Should we do this in the parent function? We have this logic there anyway.
-    proxyUrl && shouldUseProxy(proxyUrl, serverUrl)
-      ? proxyUrl
-      : (serverUrl ?? 'http://localhost'),
+    isUsingTheProxy ? proxyUrl : (serverUrl ?? 'http://localhost'),
   )
 
-  // Process local cookies
+  // Add global cookies that match the current domain
+  globalCookies.forEach((c) => {
+    const { name, value, domain: configuredHostname, ...params } = c
+
+    if (!matchesDomain(serverUrl, configuredHostname)) {
+      return
+    }
+
+    cookieParams.push({
+      uid: name,
+      name,
+      value,
+      domain: configuredHostname,
+      path: params.path,
+      expires: params.expires ?? undefined,
+      httpOnly: params.httpOnly,
+      secure: params.secure,
+      sameSite: params.sameSite,
+    })
+  })
+
+  // Add local cookies
   example.parameters.cookies.forEach((c) => {
     if (c.enabled) {
       cookieParams.push({
@@ -62,32 +82,6 @@ export function setRequestCookies({
     }
   })
 
-  // Process global cookies
-  globalCookies.forEach((c) => {
-    const { name, value, ...params } = c
-
-    // // We only attach global cookies relevant to the current domain
-    // const hasDomainMatch =
-    //   params.domain === defaultDomain ||
-    //   (params.domain?.startsWith('.') && domain.endsWith(params.domain ?? ''))
-
-    // if (hasDomainMatch) {
-    cookieParams.push({
-      uid: name,
-      name,
-      value,
-      // TODO: What’s with params.domain?
-      domain: defaultDomain,
-      path: params.path,
-      // expires: params.expires ? new Date(params.expires) : undefined,
-      // httpOnly: params.httpOnly,
-      secure: params.secure,
-      // TODO: What’s with params.sameSite?
-      sameSite: defaultSameSite,
-    })
-    // }
-  })
-
   return {
     cookieParams,
   }
@@ -100,8 +94,46 @@ export function setRequestCookies({
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
  */
 const determineCookieDomain = (url: string) => {
-  return 'localhost:5065'
-  // const domain = new URL(url).hostname
-  // // TODO: Can’t prefix IPs
-  // return domain.startsWith('.') ? domain : `.${domain}`
+  const hostname = new URL(url).hostname
+
+  // If it’s an IP, just return it
+  if (hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
+    return hostname
+  }
+
+  // If it’s IPv6, just return it
+  if (hostname.match(/^[a-fA-F0-9:]+$/)) {
+    return hostname
+  }
+
+  // If it’s a hostname, return it with a dot
+  return hostname.startsWith('.') ? hostname : `.${hostname}`
+}
+
+/**
+ * Matches, when:
+ * - Isn’t scoped to a domain, or
+ * - matches the current host, or
+ * - or ends with the current host, or
+ * - matches the current host with a wildcard.
+ */
+export const matchesDomain = (
+  givenUrl?: string,
+  configuredHostname?: string,
+) => {
+  if (!givenUrl || !configuredHostname) return true
+
+  try {
+    const givenHostname = new URL(givenUrl).hostname
+
+    return (
+      !configuredHostname ||
+      configuredHostname === givenHostname ||
+      (configuredHostname.startsWith('.') &&
+        givenHostname?.endsWith(configuredHostname)) ||
+      configuredHostname === `.${givenHostname}`
+    )
+  } catch {
+    return false
+  }
 }

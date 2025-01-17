@@ -8,7 +8,7 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useActiveEntities, useWorkspace } from '@/store'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
@@ -83,6 +83,8 @@ const handleNavigation = (event: MouseEvent, uid: string) => {
 onMounted(() => events.hotKeys.on(handleHotKey))
 /** Unbind keyboard shortcuts */
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
+
+const hasCookies = computed(() => Object.keys(cookies).length > 0)
 </script>
 <template>
   <ViewLayout>
@@ -119,11 +121,9 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     </Sidebar>
 
     <ViewLayoutContent class="flex-1">
-      <template v-if="Object.keys(cookies).length > 0">
-        <div class="w-50">
-          {{ cookies }}
-          <CookieForm />
-        </div>
+      <template v-if="hasCookies">
+        <CookieForm />
+        <!--  Untested and disabled for now. -->
         <!-- <CookieRaw /> -->
       </template>
     </ViewLayoutContent>

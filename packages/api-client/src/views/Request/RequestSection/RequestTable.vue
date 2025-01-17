@@ -4,7 +4,7 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
@@ -16,9 +16,15 @@ const props = withDefaults(
     /** Hide the enabled column */
     isEnabledHidden?: boolean
     showUploadButton?: boolean
-    global?: boolean
+    isGlobal?: boolean
+    isReadOnly?: boolean
   }>(),
-  { isEnabledHidden: false, showUploadButton: false, global: false },
+  {
+    isEnabledHidden: false,
+    showUploadButton: false,
+    isGlobal: false,
+    isReadOnly: false,
+  },
 )
 
 const emit = defineEmits<{
@@ -70,10 +76,6 @@ const flattenValue = (item: RequestExampleParameter) => {
     ? item.default[0]
     : item.default
 }
-
-const isReadOnly = computed(() => {
-  return props.global
-})
 </script>
 <template>
   <DataTable
@@ -83,18 +85,35 @@ const isReadOnly = computed(() => {
       v-for="(item, idx) in items"
       :key="idx">
       <label class="contents">
-        <template v-if="isReadOnly">
-          <span class="sr-only">Global</span>
-          <div class="flex-center">
-            <!-- TODO: Add a tooltip -->
-            <!-- TODO: Make fields read-only -->
-            <ScalarIcon
-              icon="Globe"
-              size="xs" />
+        <template v-if="isGlobal">
+          <div class="!border-r-1/2 border-t-1/2 flex-center text-c-2">
+            <span class="sr-only">Global</span>
+            <ScalarTooltip
+              as="div"
+              class="z-[10001]"
+              side="top">
+              <template #trigger>
+                <ScalarIcon
+                  icon="Globe"
+                  size="xs" />
+              </template>
+              <template #content>
+                <div
+                  class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                  <div class="flex items-center text-c-2">
+                    <span class="text-pretty">
+                      Global cookies are shared across the whole workspace.
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </ScalarTooltip>
           </div>
         </template>
         <template v-else>
-          <span class="sr-only">Row Enabled</span>
+          <span class="sr-only">
+            Row {{ item.enabled ? 'Enabled' : 'Disabled' }}
+          </span>
           <DataTableCheckbox
             v-if="!isEnabledHidden"
             class="!border-r-1/2"
@@ -105,6 +124,7 @@ const isReadOnly = computed(() => {
       <DataTableCell>
         <CodeInput
           disableCloseBrackets
+          :disabled="isReadOnly"
           disableEnter
           disableTabIndent
           :modelValue="item.key"
@@ -124,6 +144,7 @@ const isReadOnly = computed(() => {
           }"
           :default="item.default"
           disableCloseBrackets
+          :disabled="isReadOnly"
           disableEnter
           disableTabIndent
           :enum="item.enum"

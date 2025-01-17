@@ -20,6 +20,7 @@ import { useActiveEntities } from '@/store/active-entities'
 const props = withDefaults(
   defineProps<{
     colorPicker?: boolean
+    disabled?: boolean
     modelValue: string | number
     error?: boolean
     emitOnBlur?: boolean
@@ -50,6 +51,7 @@ const props = withDefaults(
     nullable: false,
     withVariables: true,
     isCopyable: false,
+    disabled: false,
   },
 )
 const emit = defineEmits<{
@@ -211,7 +213,12 @@ export default {
 }
 </script>
 <template>
-  <template v-if="props.enum && props.enum.length">
+  <template v-if="props.disabled">
+    <div class="flex items-center justify-center p-2">
+      <span class="text-c-2 text-xs font-code">{{ modelValue }}</span>
+    </div>
+  </template>
+  <template v-else-if="props.enum && props.enum.length">
     <DataTableInputSelect
       :default="props.default"
       :modelValue="props.modelValue"
