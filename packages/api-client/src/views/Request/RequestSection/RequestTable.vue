@@ -73,7 +73,7 @@ const flattenValue = (item: RequestExampleParameter) => {
     :columns="columns">
     <DataTableRow
       v-for="(item, idx) in items"
-      :key="idx">
+      :key="item.key">
       <label class="contents">
         <span class="sr-only">Row Enabled</span>
         <DataTableCheckbox
