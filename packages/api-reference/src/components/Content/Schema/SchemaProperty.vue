@@ -21,7 +21,6 @@ const props = withDefaults(
     description?: string
     additional?: boolean
     withExamples?: boolean
-    mode?: 'read' | 'write'
   }>(),
   {
     level: 0,
@@ -95,25 +94,9 @@ const remainingEnumValues = computed(() =>
 
 /** Simplified discriminators with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
-
-/**
- * Whether the property should be shown, when a specific mode is selected.
- */
-const shouldShowProperty = computed(() => {
-  if (props.mode === 'read') {
-    return props.value?.writeOnly !== true
-  }
-
-  if (props.mode === 'write') {
-    return props.value?.readOnly !== true
-  }
-
-  return true
-})
 </script>
 <template>
   <div
-    v-if="shouldShowProperty"
     class="property"
     :class="[
       `property--level-${level}`,

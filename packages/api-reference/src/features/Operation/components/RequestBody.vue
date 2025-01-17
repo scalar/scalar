@@ -50,7 +50,6 @@ if (props.requestBody?.content) {
       class="request-body-schema">
       <Schema
         compact
-        mode="write"
         noncollapsible
         :value="requestBody.content?.[selectedContentType]?.schema" />
     </div>

@@ -1,9 +1,7 @@
 <script lang="ts" setup>
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
-import { computed } from 'vue'
 
-const props = defineProps<{
-  mode?: 'read' | 'write'
+defineProps<{
   value:
     | OpenAPIV2.DefinitionsObject
     | OpenAPIV3.SchemaObject
@@ -14,22 +12,10 @@ const props = defineProps<{
     | OpenAPIV3_1.NonArraySchemaObject
   name?: string
 }>()
-
-const shouldShowHeading = computed(() => {
-  if (props.mode === 'read') {
-    return !props.value.writeOnly
-  }
-
-  if (props.mode === 'write') {
-    return !props.value.readOnly
-  }
-
-  return true
-})
 </script>
 <template>
   <span
-    v-if="typeof value === 'object' && shouldShowHeading"
+    v-if="typeof value === 'object'"
     class="schema-type">
     <span
       class="schema-type-icon"
