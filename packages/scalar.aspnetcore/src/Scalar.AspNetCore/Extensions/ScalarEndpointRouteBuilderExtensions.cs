@@ -20,6 +20,7 @@ public static class ScalarEndpointRouteBuilderExtensions
     private const string LegacyPattern = $"/scalar/{DocumentName}";
     private const string DefaultEndpointPrefix = "/scalar";
     internal const string ScalarJavaScriptFile = "scalar.js";
+    internal const string ScalarJavaScriptHelperFile = "scalar.aspnetcore.js";
 
     private static readonly EmbeddedFileProvider FileProvider = new(typeof(ScalarEndpointRouteBuilderExtensions).Assembly, "ScalarStaticAssets");
 
@@ -125,7 +126,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         // Handle static assets
         scalarEndpointGroup.MapStaticAssetsEndpoint();
 
-        return scalarEndpointGroup.MapGet("/{documentName?}", async (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName) =>
+        return scalarEndpointGroup.MapGet("/{documentName?}", async (HttpContext httpContext, IOptionsSnapshot<ScalarOptions> optionsSnapshot, string? documentName, CancellationToken cancellationToken) =>
         {
             // Redirect to the trailing slash if the path does not end with a slash but only when the document name is not provided
             var path = httpContext.Request.Path;
@@ -154,7 +155,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             else if (options.DocumentNamesProvider is not null)
             {
                 options.DocumentNames.Clear();
-                var documentNames = await options.DocumentNamesProvider.Invoke(httpContext);
+                var documentNames = await options.DocumentNamesProvider.Invoke(httpContext, cancellationToken);
                 options.AddDocument(documentNames);
             }
             // If no document names or provider are provided, fallback to the default document name
@@ -182,7 +183,7 @@ public static class ScalarEndpointRouteBuilderExtensions
                   <body>
                       {{options.HeaderContent}}
                       <script id="api-reference"></script>
-                      <script src="scalar.aspnetcore.js"></script>
+                      <script src="{{ScalarJavaScriptHelperFile}}"></script>
                       <script>
                           const basePath = getBasePath('{{httpContext.Request.Path}}');
                           console.log(basePath)
@@ -203,20 +204,24 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// </summary>
     private static void MapStaticAssetsEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(@"{path:regex(^scalar.*\.js$)}", (string path, HttpContext httpContext) =>
+        endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext));
+        endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext));
+    }
+
+    private static IResult HandleStaticAsset(string file, HttpContext httpContext)
+    {
+        httpContext.Response.Headers.CacheControl = "no-cache";
+        var resourceFile = FileProvider.GetFileInfo(file);
+        if (!resourceFile.Exists)
         {
-            httpContext.Response.Headers.CacheControl = "no-cache";
-            var resourceFile = FileProvider.GetFileInfo(path);
-            if (!resourceFile.Exists)
-            {
-                // Return 404 if the file does not exist. This should not happen due to the regex.
-                return Results.NotFound();
-            }
+            // Return 404 if the file does not exist. This should not happen due to the regex.
+            return Results.NotFound();
+        }
 
-            var etag = $"\"{resourceFile.LastModified.Ticks}\"";
+        var etag = $"\"{resourceFile.LastModified.Ticks}\"";
 
-            var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
-            return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
-        });
+        var ifNoneMatch = httpContext.Request.Headers.IfNoneMatch.ToString();
+        return ifNoneMatch == etag ? Results.StatusCode(StatusCodes.Status304NotModified) : Results.Stream(resourceFile.CreateReadStream(), MediaTypeNames.Text.JavaScript, entityTag: new EntityTagHeaderValue(etag));
+
     }
 }

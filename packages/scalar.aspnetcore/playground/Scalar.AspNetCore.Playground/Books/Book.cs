@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Scalar.AspNetCore.Playground.Books;
 
 internal sealed class Book
@@ -10,3 +12,7 @@ internal sealed class Book
 
     public required int Pages { get; set; }
 }
+
+[JsonSerializable(typeof(IEnumerable<Book>))]
+[JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+internal sealed partial class BookSerializerContext : JsonSerializerContext;

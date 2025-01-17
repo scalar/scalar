@@ -1,6 +1,6 @@
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateSlimBuilder(args);
 
 builder.Services.AddOpenApi();
 

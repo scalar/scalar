@@ -4,8 +4,13 @@ using Scalar.AspNetCore.Playground;
 using Scalar.AspNetCore.Playground.Books;
 using Scalar.AspNetCore.Playground.Extensions;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateSlimBuilder(args);
 builder.Services.AddSingleton<BookStore>();
+
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.TypeInfoResolverChain.Add(BookSerializerContext.Default);
+});
 
 builder.Services.AddApiWeaver(options =>
 {
