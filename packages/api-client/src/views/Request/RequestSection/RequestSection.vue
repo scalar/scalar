@@ -89,7 +89,6 @@ const activeWorkspaceCookies = computed(() =>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
     <template #title>
-      url: {{ activeServer?.url }} path: {{ activeRequest?.path }}
       <div
         class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
