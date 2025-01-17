@@ -38,13 +38,13 @@
 /packages/cli @hanspagel
 /integrations/express @hanspagel
 /integrations/nextjs @amritk
-/integrations/scalar_django_ninja @marclave
+/integrations/django-ninja @marclave
 # /packages/use-tooltip
 /packages/api-reference @hanspagel
 /packages/code-highlight @geoffgscott
 /packages/fastify-api-reference @hanspagel
 /integrations/nuxt @amritk
-/integrations/scalar_fastapi @marclave
+/integrations/fastapi @marclave
 /packages/void-server @hanspagel
 
 # Testing
