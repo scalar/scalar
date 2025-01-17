@@ -8,14 +8,28 @@ import { computed } from 'vue'
 const { activeCookieId } = useActiveEntities()
 const { cookies, cookieMutators } = useWorkspace()
 
-const options = [
-  { label: 'Key', key: 'key', placeholder: 'Username' },
-  { label: 'Value', key: 'value', placeholder: '123' },
-  { label: 'Domain', key: 'domain', placeholder: 'scalar.com' },
+const fields = [
+  { label: 'Name', key: 'name', placeholder: 'session_id' },
+  { label: 'Value', key: 'value', placeholder: 'my-cookie-session-id' },
+  { label: 'Domain', key: 'domain', placeholder: 'example.com' },
   { label: 'Path', key: 'path', placeholder: '/' },
-  { label: 'Expires', key: 'expires', placeholder: 'Tomorrow' },
-  { label: 'Secure', key: 'secure', placeholder: 'True/False' },
-  { label: 'HttpOnly', key: 'httpOnly', placeholder: 'True/False' },
+  {
+    label: 'Expires',
+    key: 'expires',
+    placeholder: new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString(),
+  },
+  {
+    label: 'Secure',
+    key: 'secure',
+    placeholder: 'True/False',
+    type: 'boolean',
+  },
+  {
+    label: 'HttpOnly',
+    key: 'httpOnly',
+    placeholder: 'True/False',
+    type: 'boolean',
+  },
 ]
 
 const activeCookie = computed<Cookie>(
@@ -37,7 +51,7 @@ const updateCookie = (key: any, value: any) => {
   <Form
     :data="activeCookie"
     :onUpdate="updateCookie"
-    :options="options">
+    :options="fields">
     <template #title>
       <div class="flex items-center pointer-events-none">
         <label

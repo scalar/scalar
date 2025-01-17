@@ -11,14 +11,15 @@ import { computed } from 'vue'
 import { hasItemProperties } from '../libs/request'
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     items?: RequestExampleParameter[]
     /** Disable the checkbox */
     hasCheckboxDisabled?: boolean
     showUploadButton?: boolean
+    global?: boolean
   }>(),
-  { hasCheckboxDisabled: false, showUploadButton: false },
+  { hasCheckboxDisabled: false, showUploadButton: false, global: false },
 )
 
 const emit = defineEmits<{
@@ -66,6 +67,10 @@ const flattenValue = (item: RequestExampleParameter) => {
     ? item.default[0]
     : item.default
 }
+
+const isReadOnly = computed(() => {
+  return props.global
+})
 </script>
 <template>
   <DataTable
@@ -75,12 +80,24 @@ const flattenValue = (item: RequestExampleParameter) => {
       v-for="(item, idx) in items"
       :key="item.key">
       <label class="contents">
-        <span class="sr-only">Row Enabled</span>
-        <DataTableCheckbox
-          class="!border-r-1/2"
-          :disabled="hasCheckboxDisabled"
-          :modelValue="item.enabled"
-          @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        <template v-if="isReadOnly">
+          <span class="sr-only">Global</span>
+          <div class="flex-center">
+            <!-- TODO: Add a tooltip -->
+            <!-- TODO: Make fields read-only -->
+            <ScalarIcon
+              icon="Globe"
+              size="xs" />
+          </div>
+        </template>
+        <template v-else>
+          <span class="sr-only">Row Enabled</span>
+          <DataTableCheckbox
+            class="!border-r-1/2"
+            :disabled="hasCheckboxDisabled"
+            :modelValue="item.enabled"
+            @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        </template>
       </label>
       <DataTableCell>
         <CodeInput

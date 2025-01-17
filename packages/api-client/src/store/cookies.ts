@@ -13,18 +13,18 @@ export function createStoreCookies(useLocalStorage: boolean) {
     useLocalStorage && LS_KEYS.COOKIE,
   )
 
-  cookieMutators.add(
-    cookieSchema.parse({
-      uid: 'default',
-      name: 'Cookie',
-      value: '',
-      domain: '',
-      path: '/',
-      secure: false,
-      httpOnly: false,
-      sameSite: 'None',
-    }),
-  )
+  // cookieMutators.add(
+  //   cookieSchema.parse({
+  //     uid: 'default',
+  //     name: 'Cookie',
+  //     value: '',
+  //     domain: '',
+  //     path: '/',
+  //     secure: false,
+  //     httpOnly: false,
+  //     sameSite: 'None',
+  //   }),
+  // )
 
   return {
     cookies,
