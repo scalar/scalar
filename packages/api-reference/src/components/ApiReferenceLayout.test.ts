@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { parse } from '@/helpers'
 import { renderToString } from '@vue/server-renderer'
 import { describe, expect, it, vi } from 'vitest'
