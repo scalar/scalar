@@ -33,7 +33,7 @@ export function setRequestCookies({
   env: object
   globalCookies: Cookie[]
   serverUrl: string
-  proxyUrl: string
+  proxyUrl?: string
 }): {
   cookieParams: Cookie[]
 } {
@@ -43,7 +43,7 @@ export function setRequestCookies({
 
   // Try to add the target domain with a wildcard dot
   const defaultDomain = determineCookieDomain(
-    isUsingTheProxy ? proxyUrl : (serverUrl ?? 'http://localhost'),
+    isUsingTheProxy ? (proxyUrl as string) : (serverUrl ?? 'http://localhost'),
   )
 
   // Add global cookies that match the current domain
@@ -136,4 +136,11 @@ export const matchesDomain = (
   } catch {
     return false
   }
+}
+
+/**
+ * Generate a cookie header from the cookie params
+ */
+export const getCookieHeader = (cookieParams: Cookie[]): string => {
+  return cookieParams.map((c) => `${c.name}=${c.value}`).join('; ')
 }
