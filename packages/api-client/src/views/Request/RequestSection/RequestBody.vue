@@ -480,7 +480,7 @@ const selectedExample = computed({
             :options="contentTypeOptions"
             teleport>
             <ScalarButton
-              class="flex gap-1.5 h-full px-2 text-c-2 font-normal hover:text-c-1 w-fit"
+              class="flex gap-1.5 h-full px-3 text-c-2 font-normal hover:text-c-1 w-fit"
               fullWidth
               variant="ghost">
               <span>{{ selectedContentType?.label }}</span>
@@ -515,10 +515,11 @@ const selectedExample = computed({
           </div>
         </template>
         <template v-else-if="selectedContentType?.id === 'binaryFile'">
-          <div class="flex items-center justify-center p-1.5 overflow-hidden">
+          <div
+            class="border-t flex items-center justify-center p-1.5 overflow-hidden">
             <template v-if="activeExample?.body.binary">
               <span
-                class="text-c-2 text-xs w-full border rounded p-1 max-w-full overflow-hidden whitespace-nowrap">
+                class="text-c-2 text-xs w-full border rounded py-1 px-1.5 max-w-full overflow-hidden whitespace-nowrap">
                 {{ (activeExample?.body.binary as File).name }}
               </span>
               <ScalarButton
@@ -574,7 +575,7 @@ const selectedExample = computed({
         <template v-else>
           <!-- TODO: remove this as type hack when we add syntax highligting -->
           <CodeInput
-            class="border-t-1/2"
+            class="border-t-1/2 px-1"
             content=""
             :language="codeInputLanguage as CodeMirrorLanguage"
             lineNumbers
