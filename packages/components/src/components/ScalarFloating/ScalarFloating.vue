@@ -37,15 +37,19 @@ const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
 const targetRef = computed(() => {
-  // If target is a string (id), try to find it in the document
-  if (typeof props.target === 'string') {
-    const target = document.getElementById(props.target)
-    if (target) return target
-    else
-      console.warn(`ScalarFloating: Target with id="${props.target}" not found`)
+  if (typeof window !== 'undefined') {
+    // If target is a string (id), try to find it in the document
+    if (typeof props.target === 'string') {
+      const target = document.getElementById(props.target)
+      if (target) return target
+      else
+        console.warn(
+          `ScalarFloating: Target with id="${props.target}" not found`,
+        )
+    }
+    // If target is an HTMLElement, return it
+    else if (props.target instanceof HTMLElement) return props.target
   }
-  // If target is an HTMLElement, return it
-  else if (props.target instanceof HTMLElement) return props.target
   // Fallback to div wrapper if no child element is provided
   if (wrapperRef.value)
     return wrapperRef.value.children?.[0] || wrapperRef.value
