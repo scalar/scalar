@@ -1,5 +1,13 @@
 # @scalar/api-client
 
+## 2.2.34
+
+### Patch Changes
+
+- ac86150: feat: add active request uid for isolation of request being sent
+- Updated dependencies [7f3aa9c]
+  - @scalar/use-codemirror@0.11.59
+
 ## 2.2.33
 
 ### Patch Changes

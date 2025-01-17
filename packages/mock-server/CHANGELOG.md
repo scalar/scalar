@@ -1,5 +1,11 @@
 # @scalar/mock-server
 
+## 0.2.104
+
+### Patch Changes
+
+- c93e719: fix: returns writeOnly attributes
+
 ## 0.2.103
 
 ### Patch Changes
