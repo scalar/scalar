@@ -32,8 +32,8 @@ const findHeaderInfo = (name: string) => {
         :columns="['minmax(auto, min-content)', 'minmax(50%, 1fr)']"
         scroll>
         <DataTableRow
-          v-for="(item, idx) in headers"
-          :key="idx"
+          v-for="item in headers"
+          :key="item.name"
           class="text-c-1">
           <DataTableText class="sticky left-0 z-1 bg-b-1 max-w-48">
             <template v-if="typeof findHeaderInfo(item.name)?.url === 'string'">

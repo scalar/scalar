@@ -25,7 +25,7 @@ defineProps<{
         :columns="['']">
         <DataTableRow
           v-for="(option, index) in options"
-          :key="index"
+          :key="option.key"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
             :modelValue="String(data[option.key] ?? '')"
