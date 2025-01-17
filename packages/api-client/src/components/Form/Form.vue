@@ -10,7 +10,6 @@ defineProps<{
     key: string
     label: string
     placeholder: string
-    type?: 'boolean' | 'string'
   }[]
   data: Record<string, any>
   onUpdate: (key: string, value: any) => void
@@ -35,7 +34,6 @@ defineProps<{
           <DataTableInput
             :modelValue="data[option.key]"
             :placeholder="option.placeholder"
-            :type="option.type"
             @update:modelValue="onUpdate(option.key, $event)">
             {{ option.label }}
           </DataTableInput>
