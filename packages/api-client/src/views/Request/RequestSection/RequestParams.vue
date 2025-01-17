@@ -13,9 +13,14 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 const props = defineProps<{
   title: string
   paramKey: keyof RequestExample['parameters']
+  readOnlyEntries?: {
+    key: string
+    value: string
+    enabled: boolean
+  }[]
 }>()
 
-const { activeRequest, activeExample, activeWorkspace } = useActiveEntities()
+const { activeRequest, activeExample } = useActiveEntities()
 const { requestExampleMutators } = useWorkspace()
 
 const params = computed(
@@ -156,6 +161,10 @@ watch(
   },
   { immediate: true },
 )
+
+const hasReadOnlyEntries = computed(
+  () => (props.readOnlyEntries ?? []).length > 0,
+)
 </script>
 <template>
   <ViewLayoutCollapse
@@ -191,18 +200,15 @@ watch(
       </div>
     </template>
     <div ref="tableWrapperRef">
-      <!-- {{ activeWorkspace?.cookies }} -->
+      <!-- Read-only entries pinned to the top -->
       <RequestTable
+        v-if="hasReadOnlyEntries"
         class="flex-1"
         :columns="['32px', '', '']"
-        global
-        :items="[
-          {
-            key: 'globalCOokie',
-            value: 'foobar',
-            enabled: true,
-          },
-        ]" />
+        isGlobal
+        isReadOnly
+        :items="readOnlyEntries" />
+      <!-- Dynamic entries -->
       <RequestTable
         class="flex-1"
         :columns="['32px', '', '']"

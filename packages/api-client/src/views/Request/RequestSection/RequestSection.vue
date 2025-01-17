@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
-import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
+import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
@@ -15,8 +16,9 @@ defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
-const { isReadOnly, requestMutators } = useWorkspace()
+const { activeRequest, activeExample, activeWorkspace, activeServer } =
+  useActiveEntities()
+const { isReadOnly, requestMutators, cookies } = useWorkspace()
 
 const sections = computed(() => {
   const allSections = new Set([
@@ -63,10 +65,31 @@ const updateRequestNameHandler = (event: Event) => {
   const target = event.target as HTMLInputElement
   requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
 }
+
+/**
+ * Add the global cookies as static entries to the cookies section
+ */
+const activeWorkspaceCookies = computed(() =>
+  (activeWorkspace.value?.cookies ?? [])
+    .map((uid) => cookies[uid])
+    .filter(isDefined)
+    .filter((cookie) =>
+      matchesDomain(
+        activeServer?.value?.url || activeRequest.value?.path,
+        cookie.domain,
+      ),
+    )
+    .map((cookie) => ({
+      key: cookie.name,
+      value: cookie.value,
+      enabled: true,
+    })),
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
     <template #title>
+      url: {{ activeServer?.url }} path: {{ activeRequest?.path }}
       <div
         class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
@@ -107,9 +130,10 @@ const updateRequestNameHandler = (event: Event) => {
         title="Variables" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
-        globalParamKey="globalCookies"
         paramKey="cookies"
-        title="Cookies" />
+        :readOnlyEntries="activeWorkspaceCookies"
+        title="Cookies"
+        workspaceParamKey="cookies" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Headers'"
         paramKey="headers"

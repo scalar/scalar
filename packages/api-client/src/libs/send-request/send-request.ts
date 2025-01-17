@@ -232,18 +232,6 @@ export const createRequestOperation = ({
       proxyUrl,
     })
 
-    console.log('globalCookies', globalCookies)
-    console.log('COOKIES', ...cookieParams)
-
-    // TODO: Only add custom header or original header, depending on whether the proxy is used
-    // TODO: Add other properties to the cookie
-
-    const cookieHeaders = cookieParams.map((c) => `${c.name}=${c.value}`)
-    headers['Cookie'] = cookieHeaders.join('; ')
-    headers['X-Scalar-Cookie'] = cookieHeaders.join('; ')
-
-    console.log('HEADERS', headers)
-
     // Populate all forms of auth to the request segments
     selectedSecuritySchemeUids?.forEach((uid) => {
       const scheme = securitySchemes[uid]
@@ -257,11 +245,14 @@ export const createRequestOperation = ({
         if (scheme.in === 'header') headers[scheme.name] = value
         if (scheme.in === 'query') urlParams.append(scheme.name, value)
         if (scheme.in === 'cookie') {
-          // TODO:
-          console.log('auth cookie', scheme.name, value)
-          // Cookies.set(scheme.name, value)
-          // Not sure if this one works yet
-          // Cookies.set(exampleAuth.name, value, cookieParams)
+          cookieParams.push({
+            name: scheme.name,
+            value,
+            sameSite: 'None',
+            secure: true,
+            path: '/',
+            uid: scheme.name,
+          })
         }
       }
 
@@ -318,6 +309,20 @@ export const createRequestOperation = ({
       combinedURL.search = new URLSearchParams(searchParams).toString()
 
       url = combinedURL.toString()
+    }
+
+    // TODO: Only add custom header or original header, depending on whether the proxy is used
+    // TODO: Add other properties to the cookie
+
+    const cookieHeaders = cookieParams.map((c) => `${c.name}=${c.value}`)
+
+    // Add custom header for the proxy
+    if (shouldUseProxy(proxyUrl, url)) {
+      headers['X-Scalar-Cookie'] = cookieHeaders.join('; ')
+    }
+    // or stick to the original header (which might be removed by the browser)
+    else {
+      headers['Cookie'] = cookieHeaders.join('; ')
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
