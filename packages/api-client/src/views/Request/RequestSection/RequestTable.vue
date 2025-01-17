@@ -13,7 +13,7 @@ import RequestTableTooltip from './RequestTableTooltip.vue'
 
 const props = withDefaults(
   defineProps<{
-    items?: RequestExampleParameter[] & { route?: RouteLocationRaw }
+    items?: (RequestExampleParameter & { route?: RouteLocationRaw })[]
     /** Hide the enabled column */
     isEnabledHidden?: boolean
     showUploadButton?: boolean
@@ -89,7 +89,7 @@ const flattenValue = (item: RequestExampleParameter) => {
         <template v-if="isGlobal">
           <RouterLink
             class="!border-r-1/2 border-t-1/2 text-c-2 flex justify-center items-center"
-            :to="item.route">
+            :to="item.route ?? {}">
             <span class="sr-only">Global</span>
             <ScalarTooltip
               as="div"
