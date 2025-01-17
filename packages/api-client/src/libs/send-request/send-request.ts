@@ -1,6 +1,7 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
+import { setRequestCookies } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
@@ -20,7 +21,6 @@ import {
   isRelativePath,
   shouldUseProxy,
 } from '@scalar/oas-utils/helpers'
-import Cookies from 'js-cookie'
 import MimeTypeParser from 'whatwg-mimetype'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
@@ -75,87 +75,6 @@ export function createFetchQueryParams(
   })
 
   return params
-}
-
-/** Set all cookie params and workspace level cookies that are applicable */
-export function setRequestCookies({
-  example,
-  env,
-  globalCookies,
-  domain,
-  proxyUrl,
-}: {
-  example: RequestExample
-  env: object
-  globalCookies: Cookie[]
-  domain: string
-  proxyUrl?: string
-}) {
-  let _domain: string | undefined
-
-  try {
-    _domain = new URL(proxyUrl || domain).host
-  } catch (e) {
-    if (typeof window !== 'undefined') _domain = window.location.host
-  }
-
-  /**
-   * Cross-origin cookies are hard.
-   *
-   * - Axios needs to have `withCredentials: true`
-   * - We can only send cookies to the same domain (client.scalar.com -> proxy.scalar.com)
-   * - Subdomains are okay.
-   * - The target URL must have https.
-   * - The proxy needs to have a few headers:
-   *   1) Access-Control-Allow-Credentials: true
-   *   2) Access-Control-Allow-Origin: client.scalar.com (not *)
-   *
-   * Everything else is just omitted.
-   */
-  const cookieParams = {
-    // Must point all cookies to the proxy and let it sort them out
-    domain: _domain,
-    // Means that the browser sends the cookie with both cross-site and same-site requests.
-    sameSite: 'None',
-    // The Secure attribute must also be set when setting SameSite=None.
-    secure: true,
-  } as const
-
-  // TODO: I think this was added to remove previously added cookies,
-  // but it shouldn’t remove cookies that are not added by us.
-  // As a quick fix, to not break existing functionality, we’ll comment this out.
-  // const allCookies = Cookies.get()
-  // Object.keys(allCookies).forEach((c) => Cookies.remove(c))
-
-  example.parameters.cookies.forEach((c) => {
-    if (c.enabled) Cookies.set(c.key, replaceTemplateVariables(c.value, env))
-  })
-
-  globalCookies.forEach((c) => {
-    const { name: key, value, ...params } = c
-
-    // We only attach global cookies relevant to the current domain
-    // Subdomains are matched as well
-    const hasDomainMatch =
-      params.domain === domain ||
-      (params.domain?.startsWith('.') && domain.endsWith(params.domain ?? ''))
-
-    if (hasDomainMatch) {
-      Cookies.set(key, value, {
-        /** Override the domain with the proxy value */
-        domain: _domain,
-        // TODO: path cookies probably don't worth with the proxy
-        path: params.path,
-        expires: params.expires ? new Date(params.expires) : undefined,
-        httpOnly: params.httpOnly,
-        secure: params.secure,
-      })
-    }
-  })
-
-  return {
-    cookieParams,
-  }
 }
 
 /**
@@ -305,13 +224,25 @@ export const createRequestOperation = ({
     const urlParams = createFetchQueryParams(example, env)
     const headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
-    setRequestCookies({
+    const { cookieParams } = setRequestCookies({
       example,
       env,
       globalCookies,
-      domain: url,
+      serverUrl: url,
       proxyUrl,
     })
+
+    console.log('globalCookies', globalCookies)
+    console.log('COOKIES', ...cookieParams)
+
+    // TODO: Only add custom header or original header, depending on whether the proxy is used
+    // TODO: Add other properties to the cookie
+
+    const cookieHeaders = cookieParams.map((c) => `${c.name}=${c.value}`)
+    headers['Cookie'] = cookieHeaders.join('; ')
+    headers['X-Scalar-Cookie'] = cookieHeaders.join('; ')
+
+    console.log('HEADERS', headers)
 
     // Populate all forms of auth to the request segments
     selectedSecuritySchemeUids?.forEach((uid) => {
@@ -326,7 +257,9 @@ export const createRequestOperation = ({
         if (scheme.in === 'header') headers[scheme.name] = value
         if (scheme.in === 'query') urlParams.append(scheme.name, value)
         if (scheme.in === 'cookie') {
-          Cookies.set(scheme.name, value)
+          // TODO:
+          console.log('auth cookie', scheme.name, value)
+          // Cookies.set(scheme.name, value)
           // Not sure if this one works yet
           // Cookies.set(exampleAuth.name, value, cookieParams)
         }
