@@ -98,7 +98,8 @@ export function setRequestCookies({
  * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies
  */
 const determineCookieDomain = (url: string) => {
-  const hostname = new URL(url).hostname
+  const hostname = new URL(url.startsWith('http') ? url : `http://${url}`)
+    .hostname
 
   // If it’s an IP, just return it
   if (hostname.match(/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/)) {
@@ -128,7 +129,9 @@ export const matchesDomain = (
   if (!givenUrl || !configuredHostname) return true
 
   try {
-    const givenHostname = new URL(givenUrl).hostname
+    const givenHostname = new URL(
+      givenUrl.startsWith('http') ? givenUrl : `http://${givenUrl}`,
+    ).hostname
 
     return (
       !configuredHostname ||
