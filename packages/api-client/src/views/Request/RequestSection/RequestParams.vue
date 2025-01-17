@@ -9,6 +9,7 @@ import {
   requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 
 const props = defineProps<{
   title: string
@@ -17,6 +18,7 @@ const props = defineProps<{
     key: string
     value: string
     enabled: boolean
+    route: RouteLocationRaw
   }[]
 }>()
 

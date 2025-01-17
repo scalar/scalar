@@ -7,12 +7,13 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
 const props = withDefaults(
   defineProps<{
-    items?: RequestExampleParameter[]
+    items?: RequestExampleParameter[] & { route?: RouteLocationRaw }
     /** Hide the enabled column */
     isEnabledHidden?: boolean
     showUploadButton?: boolean
@@ -86,7 +87,9 @@ const flattenValue = (item: RequestExampleParameter) => {
       :key="idx">
       <label class="contents">
         <template v-if="isGlobal">
-          <div class="!border-r-1/2 border-t-1/2 flex-center text-c-2">
+          <RouterLink
+            class="!border-r-1/2 border-t-1/2 text-c-2 flex justify-center items-center"
+            :to="item.route">
             <span class="sr-only">Global</span>
             <ScalarTooltip
               as="div"
@@ -108,7 +111,7 @@ const flattenValue = (item: RequestExampleParameter) => {
                 </div>
               </template>
             </ScalarTooltip>
-          </div>
+          </RouterLink>
         </template>
         <template v-else>
           <span class="sr-only">
