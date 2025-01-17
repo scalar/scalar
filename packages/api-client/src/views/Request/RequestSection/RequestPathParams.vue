@@ -139,6 +139,8 @@ watch(
     <RequestTable
       v-if="params.length"
       class="flex-1"
+      :columns="['32px', '', '']"
+      hasCheckboxDisabled
       :items="params"
       @updateRow="updateRow" />
   </ViewLayoutCollapse>

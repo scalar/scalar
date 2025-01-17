@@ -19,7 +19,7 @@ defineEmits<{
 }>()
 
 const variants = cva({
-  base: 'w-8 h-8 flex items-center justify-center text-border peer-checked:text-c-2 pointer-events-none absolute',
+  base: 'w-8 h-8 flex items-center justify-center text-border peer-checked:text-c-1 pointer-events-none absolute',
   variants: {
     align: {
       left: 'left-0',
@@ -32,13 +32,17 @@ const variants = cva({
   <DataTableCell class="group/cell relative flex min-w-8">
     <input
       :checked="modelValue"
-      class="peer absolute inset-0 opacity-0 cursor-pointer"
+      class="peer absolute inset-0 opacity-0 disabled:cursor-default cursor-pointer"
       :disabled="disabled"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
     <div :class="variants({ align })">
       <div
-        class="absolute opacity-0 group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100 group-has-[:focus-visible]/cell:border-c-accent border-[1px] rounded size-3/4 m-auto" />
+        class="absolute opacity-0 border-[1px] rounded size-3/4 m-auto"
+        :class="
+          !disabled &&
+          'group-hover/cell:opacity-100 group-has-[:focus-visible]/cell:opacity-100 group-has-[:focus-visible]/cell:border-c-accent'
+        " />
       <ScalarIcon
         icon="Checkmark"
         size="xs"

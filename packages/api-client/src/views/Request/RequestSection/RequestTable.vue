@@ -10,14 +10,14 @@ import { computed } from 'vue'
 
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     items?: RequestExampleParameter[]
-    /** Hide the enabled column */
-    isEnabledHidden?: boolean
+    /** Disable the checkbox */
+    hasCheckboxDisabled?: boolean
     showUploadButton?: boolean
   }>(),
-  { isEnabledHidden: false, showUploadButton: false },
+  { hasCheckboxDisabled: false, showUploadButton: false },
 )
 
 const emit = defineEmits<{
@@ -31,7 +31,7 @@ const emit = defineEmits<{
   (e: 'removeFile', idx: number): void
 }>()
 
-const columns = props.isEnabledHidden ? ['', ''] : ['', '', '36px']
+const columns = ['', '', '36px']
 
 const handleSelectVariable = (
   idx: number,
@@ -80,8 +80,8 @@ const flattenValue = (item: RequestExampleParameter) => {
       <label class="contents">
         <span class="sr-only">Row Enabled</span>
         <DataTableCheckbox
-          v-if="!isEnabledHidden"
           class="!border-r-1/2"
+          :disabled="hasCheckboxDisabled"
           :modelValue="item.enabled"
           @update:modelValue="(v) => emit('toggleRow', idx, v)" />
       </label>
