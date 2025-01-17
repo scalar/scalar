@@ -203,7 +203,7 @@ paths:
         This endpoint was used to delete planets. Unfortunately, that caused
         a lot of trouble for planets with life. So, this endpoint is now deprecated
         and should not be used anymore.
-      deprecated: true
+      x-scalar-stability: experimental
       parameters:
         - '$ref': '#/components/parameters/planetId'
       responses:
