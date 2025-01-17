@@ -23,49 +23,54 @@ describe('setRequestCookies', () => {
     })
 
     // Global
-    const globalCookies: Cookie[] = [createCookie('globalCookie', 'bar')]
+    const globalCookies: Cookie[] = [
+      createCookie('globalCookie', 'bar', {
+        domain: 'example.com',
+      }),
+    ]
 
     const { cookieParams } = setRequestCookies({
       example,
       env: {},
       globalCookies,
       serverUrl: 'https://example.com/v1',
+      proxyUrl: '',
     })
 
     expect(cookieParams).toMatchObject([
       {
-        name: 'localCookie',
-        value: 'foo',
-      },
-      {
         name: 'globalCookie',
         value: 'bar',
+        domain: 'example.com',
+      },
+      {
+        name: 'localCookie',
+        value: 'foo',
+        domain: '.example.com',
       },
     ])
-
-    console.log(cookieParams)
   })
 })
 
 describe('matchesDomain', () => {
   it('should match the current host', () => {
-    expect(matchesDomain('example.com', 'example.com')).toBe(true)
+    expect(matchesDomain('https://example.com', 'example.com')).toBe(true)
   })
 
   it('should match the current host with a wildcard', () => {
-    expect(matchesDomain('example.com', '.example.com')).toBe(true)
+    expect(matchesDomain('https://example.com', '.example.com')).toBe(true)
   })
 
   it('should not match the current host', () => {
-    expect(matchesDomain('example.com', 'scalar.com')).toBe(false)
+    expect(matchesDomain('https://example.com', 'scalar.com')).toBe(false)
   })
 
   it('should match the current host with a wildcard', () => {
-    expect(matchesDomain('void.scalar.com', '.scalar.com')).toBe(true)
+    expect(matchesDomain('https://void.scalar.com', '.scalar.com')).toBe(true)
   })
 
   it('shouldn’t match the current host without a wildcard', () => {
-    expect(matchesDomain('void.scalar.com', 'scalar.com')).toBe(false)
+    expect(matchesDomain('https://void.scalar.com', 'scalar.com')).toBe(false)
   })
 })
 
