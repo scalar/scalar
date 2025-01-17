@@ -10,7 +10,7 @@ export function createStoreEvents() {
      * Event bus to execute requests, usually triggered by the send button in the address bar
      * OR the keyboard shortcut
      */
-    executeRequest: createEventBus(),
+    executeRequest: createEventBus<{ requestUid?: string }>(),
     /**
      * Event bus to cancel requests, usually triggered by response loading overlay
      */
