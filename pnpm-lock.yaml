@@ -556,9 +556,6 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
-      js-cookie:
-        specifier: ^3.0.5
-        version: 3.0.5
       microdiff:
         specifier: ^1.4.0
         version: 1.4.0
@@ -596,9 +593,6 @@ importers:
       '@scalar/galaxy':
         specifier: workspace:*
         version: link:../galaxy
-      '@types/js-cookie':
-        specifier: ^3.0.6
-        version: 3.0.6
       '@types/shell-quote':
         specifier: ^1.7.5
         version: 1.7.5
@@ -7536,9 +7530,6 @@ packages:
 
   '@types/jest@29.5.12':
     resolution: {integrity: sha512-eDC8bTvT/QhYdxJAulQikueigY5AsdBRH2yDKW3yveW7svY3+DzN84/2NUgkw10RTiJbWqZrTtoGVdYlvFJdLw==}
-
-  '@types/js-cookie@3.0.6':
-    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/jsdom@21.1.7':
     resolution: {integrity: sha512-yOriVnggzrnQ3a9OKOCxaVuSug3w3/SbOj5i7VwXWZEyUNl3bLF9V3MfxGbZKuwqJOQyRfqXyROBB1CoZLFWzA==}
@@ -25872,8 +25863,6 @@ snapshots:
     dependencies:
       expect: 29.7.0
       pretty-format: 29.7.0
-
-  '@types/js-cookie@3.0.6': {}
 
   '@types/jsdom@21.1.7':
     dependencies:

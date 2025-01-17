@@ -15,7 +15,7 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
+const { activeRequest, activeExample, activeWorkspace } = useActiveEntities()
 const { requestExampleMutators } = useWorkspace()
 
 const params = computed(
@@ -181,7 +181,7 @@ watch(
           </template>
           <template #content>
             <div
-              class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-context p-2 text-xxs leading-5 z-10 text-c-1">
+              class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 p-2 text-xxs leading-5 z-10 text-c-1">
               <div class="flex items-center text-c-2">
                 <span>Clear optional parameters</span>
               </div>
@@ -191,6 +191,18 @@ watch(
       </div>
     </template>
     <div ref="tableWrapperRef">
+      <!-- {{ activeWorkspace?.cookies }} -->
+      <RequestTable
+        class="flex-1"
+        :columns="['32px', '', '']"
+        global
+        :items="[
+          {
+            key: 'globalCOokie',
+            value: 'foobar',
+            enabled: true,
+          },
+        ]" />
       <RequestTable
         class="flex-1"
         :columns="['32px', '', '']"

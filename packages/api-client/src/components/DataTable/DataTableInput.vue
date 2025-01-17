@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
@@ -14,7 +15,7 @@ const props = withDefaults(
     /** Class for the wrapping cell because attrs is bound to the input */
     containerClass?: VueClassProp
     required?: boolean
-    modelValue: string | number
+    modelValue: string | number | boolean
     /** Allows adding a custom value to the enum dropdown, defaults to true */
     canAddCustomEnumValue?: boolean
     readOnly?: boolean
@@ -66,6 +67,11 @@ const inputType = computed(() =>
           :canAddCustomValue="canAddCustomEnumValue"
           :modelValue="props.modelValue"
           :value="props.enum"
+          @update:modelValue="emit('update:modelValue', $event)" />
+      </template>
+      <template v-else-if="props.type === 'boolean'">
+        <DataTableCheckbox
+          :modelValue="props.modelValue"
           @update:modelValue="emit('update:modelValue', $event)" />
       </template>
       <template v-else>

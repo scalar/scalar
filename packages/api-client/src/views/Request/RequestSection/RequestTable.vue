@@ -16,8 +16,9 @@ const props = withDefaults(
     /** Hide the enabled column */
     isEnabledHidden?: boolean
     showUploadButton?: boolean
+    global?: boolean
   }>(),
-  { isEnabledHidden: false, showUploadButton: false },
+  { isEnabledHidden: false, showUploadButton: false, global: false },
 )
 
 const emit = defineEmits<{
@@ -69,6 +70,10 @@ const flattenValue = (item: RequestExampleParameter) => {
     ? item.default[0]
     : item.default
 }
+
+const isReadOnly = computed(() => {
+  return props.global
+})
 </script>
 <template>
   <DataTable
@@ -78,12 +83,24 @@ const flattenValue = (item: RequestExampleParameter) => {
       v-for="(item, idx) in items"
       :key="idx">
       <label class="contents">
-        <span class="sr-only">Row Enabled</span>
-        <DataTableCheckbox
-          v-if="!isEnabledHidden"
-          class="!border-r-1/2"
-          :modelValue="item.enabled"
-          @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        <template v-if="isReadOnly">
+          <span class="sr-only">Global</span>
+          <div class="flex-center">
+            <!-- TODO: Add a tooltip -->
+            <!-- TODO: Make fields read-only -->
+            <ScalarIcon
+              icon="Globe"
+              size="xs" />
+          </div>
+        </template>
+        <template v-else>
+          <span class="sr-only">Row Enabled</span>
+          <DataTableCheckbox
+            v-if="!isEnabledHidden"
+            class="!border-r-1/2"
+            :modelValue="item.enabled"
+            @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        </template>
       </label>
       <DataTableCell>
         <CodeInput
