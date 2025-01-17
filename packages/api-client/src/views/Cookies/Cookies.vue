@@ -32,14 +32,19 @@ const addCookieHandler = () => {
   // Store cookie
   cookieMutators.add(cookie)
 
-  // Add cookie to workspace
+  // Attach cookie to workspace
   workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
     ...(activeWorkspace.value?.cookies ?? []),
     cookie.uid,
   ])
 
-  // TODO: Use named routes
-  router.push(cookie.uid)
+  // Redirect to the new cookie
+  router.push({
+    name: 'cookies',
+    params: {
+      cookies: cookie.uid,
+    },
+  })
 }
 
 const removeCookie = (uid: string) => {

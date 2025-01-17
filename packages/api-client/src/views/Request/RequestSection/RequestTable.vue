@@ -14,8 +14,8 @@ import RequestTableTooltip from './RequestTableTooltip.vue'
 
 withDefaults(
   defineProps<{
-    items?: RequestExampleParameter[] & { route?: RouteLocationRaw }
-    /** Disable the checkbox */
+    items?: (RequestExampleParameter & { route?: RouteLocationRaw })[]
+    /** Hide the enabled column */
     hasCheckboxDisabled?: boolean
     showUploadButton?: boolean
     isGlobal?: boolean
@@ -86,7 +86,7 @@ const flattenValue = (item: RequestExampleParameter) => {
         <template v-if="isGlobal">
           <RouterLink
             class="!border-r-1/2 border-t-1/2 text-c-2 flex justify-center items-center"
-            :to="item.route">
+            :to="item.route ?? {}">
             <span class="sr-only">Global</span>
             <ScalarTooltip
               as="div"

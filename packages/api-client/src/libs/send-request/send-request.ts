@@ -313,7 +313,10 @@ export const createRequestOperation = ({
     }
 
     /** Cookie header */
-    const cookieHeader = getCookieHeader(cookieParams, headers['Cookie'])
+    const cookieHeader = replaceTemplateVariables(
+      getCookieHeader(cookieParams, headers['Cookie']),
+      env,
+    )
 
     if (cookieHeader) {
       // Add a custom header for the proxy (that’s then forwarded as `Cookie`)
