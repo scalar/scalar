@@ -296,8 +296,8 @@ const updateActiveBody = (type: Content) => {
       encoding,
       value: activeExample.value.body.formData?.value ?? [],
     })
-  // Remove raw if no encoding
-  else if (!encoding) {
+  // Remove raw if no encoding and not binary
+  else if (!encoding && activeBody !== 'binary') {
     const { raw: deleteMe, ...body } = activeExample.value.body
     requestExampleMutators.edit(activeExample.value.uid, 'body', body)
   }
@@ -364,6 +364,7 @@ function removeBinaryFile() {
   if (!activeRequest.value || !activeExample.value) return
   requestExampleMutators.edit(activeExample.value.uid, 'body.binary', undefined)
 }
+
 function handleRemoveFileFormData(rowIdx: number) {
   if (!activeRequest.value || !activeExample.value) return
   const currentParams = formParams.value
