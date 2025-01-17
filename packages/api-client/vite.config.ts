@@ -24,6 +24,12 @@ export default defineConfig({
   },
   server: {
     port: 5065,
+    /**
+     * We proxy requests to void.scalar.com to test same-domain cookies.
+     */
+    proxy: {
+      '/void': 'https://void.scalar.com',
+    },
   },
   build: createViteBuildOptions({
     entry: await findEntryPoints({ allowCss: true }),
