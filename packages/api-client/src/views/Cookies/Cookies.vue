@@ -27,9 +27,6 @@ const addCookieHandler = () => {
     value: '',
     domain: '',
     path: '/',
-    secure: true,
-    httpOnly: false,
-    sameSite: 'None',
   })
 
   // Store cookie

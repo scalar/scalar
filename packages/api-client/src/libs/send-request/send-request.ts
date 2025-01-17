@@ -311,18 +311,13 @@ export const createRequestOperation = ({
       url = combinedURL.toString()
     }
 
-    // TODO: Only add custom header or original header, depending on whether the proxy is used
-    // TODO: Add other properties to the cookie
-
-    const cookieHeaders = cookieParams.map((c) => `${c.name}=${c.value}`)
-
     // Add custom header for the proxy
     if (shouldUseProxy(proxyUrl, url)) {
-      headers['X-Scalar-Cookie'] = cookieHeaders.join('; ')
+      headers['X-Scalar-Cookie'] = getCookieHeader(cookieParams)
     }
     // or stick to the original header (which might be removed by the browser)
     else {
-      headers['Cookie'] = cookieHeaders.join('; ')
+      headers['Cookie'] = getCookieHeader(cookieParams)
     }
 
     const proxyPath = new URLSearchParams([['scalar_url', url.toString()]])
