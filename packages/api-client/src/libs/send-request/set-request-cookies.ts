@@ -54,32 +54,36 @@ export function setRequestCookies({
       return
     }
 
+    if (!name) {
+      return
+    }
+
     cookieParams.push({
       uid: name,
       name,
       value,
       domain: configuredHostname,
       path: params.path,
-      expires: params.expires ?? undefined,
-      httpOnly: params.httpOnly,
-      secure: params.secure,
-      sameSite: params.sameSite,
     })
   })
 
   // Add local cookies
   example.parameters.cookies.forEach((c) => {
-    if (c.enabled) {
-      cookieParams.push({
-        uid: c.key,
-        name: c.key,
-        value: replaceTemplateVariables(c.value, env),
-        domain: defaultDomain,
-        path: defaultPath,
-        secure: true,
-        sameSite: defaultSameSite,
-      })
+    if (!c.enabled) {
+      return
     }
+
+    if (!c.key) {
+      return
+    }
+
+    cookieParams.push({
+      uid: c.key,
+      name: c.key,
+      value: replaceTemplateVariables(c.value, env),
+      domain: defaultDomain,
+      path: defaultPath,
+    })
   })
 
   return {
@@ -120,7 +124,7 @@ const determineCookieDomain = (url: string) => {
 export const matchesDomain = (
   givenUrl?: string,
   configuredHostname?: string,
-) => {
+): boolean => {
   if (!givenUrl || !configuredHostname) return true
 
   try {

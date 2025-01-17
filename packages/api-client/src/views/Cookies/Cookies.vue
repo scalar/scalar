@@ -16,7 +16,7 @@ import CookieForm from './CookieForm.vue'
 // import CookieRaw from './CookieRaw.vue'
 
 const { cookies, cookieMutators, events, workspaceMutators } = useWorkspace()
-const { activeWorkspace } = useActiveEntities()
+const { activeWorkspace, activeCookieId } = useActiveEntities()
 const router = useRouter()
 const route = useRoute()
 
@@ -44,9 +44,17 @@ const addCookieHandler = () => {
 
 const removeCookie = (uid: string) => {
   cookieMutators.delete(uid)
+
+  // Delete cookie from workspace
+  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
+    ...(activeWorkspace.value?.cookies ?? []).filter((c) => c !== uid),
+  ])
+
+  // Navigate to the last cookie
   const remainingCookies: Cookie[] = Object.values(cookies).filter(
     (cookie) => (cookie as Cookie).uid !== uid,
   ) as Cookie[]
+
   if (remainingCookies.length > 1) {
     const lastCookie = remainingCookies[remainingCookies.length - 1]
     if (lastCookie) {
@@ -81,7 +89,13 @@ onMounted(() => events.hotKeys.on(handleHotKey))
 /** Unbind keyboard shortcuts */
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
 
-const hasCookies = computed(() => Object.keys(cookies).length > 0)
+const activeCookie = computed<Cookie | undefined>(
+  () => cookies[activeCookieId.value],
+)
+
+const hasCookies = computed(
+  () => Object.keys(cookies).length > 0 && activeCookie.value,
+)
 </script>
 <template>
   <ViewLayout>

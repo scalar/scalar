@@ -198,8 +198,10 @@ export const createActiveEntitiesStore = ({
   )
 
   /** Cookie associated with the current route */
-  const activeCookieId = computed(
-    () => activeRouterParams.value[PathId.Cookies],
+  const activeCookieId = computed(() =>
+    activeRouterParams.value[PathId.Cookies] === 'default'
+      ? (activeWorkspace.value?.cookies[0] ?? 'default')
+      : activeRouterParams.value[PathId.Cookies],
   )
 
   /**

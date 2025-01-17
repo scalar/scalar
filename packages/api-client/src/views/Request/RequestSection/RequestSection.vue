@@ -73,6 +73,7 @@ const activeWorkspaceCookies = computed(() =>
   (activeWorkspace.value?.cookies ?? [])
     .map((uid) => cookies[uid])
     .filter(isDefined)
+    .filter((cookie) => cookie.name)
     .filter((cookie) =>
       matchesDomain(
         activeServer?.value?.url || activeRequest.value?.path,
