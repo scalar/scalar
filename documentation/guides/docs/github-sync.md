@@ -1,14 +1,16 @@
-# Markdown Sync
+# GitHub Sync
 
-The Scalar Markdown Sync allows you to automatically publish a bunch of Markdown files as a beautiful documentation website.
+Scalar GitHub Sync allows you to automatically publish your markdown files as a beautiful documentation website.
 
 ## Getting started
 
-The following guide takes you from zero to deployed documentation in just a few minutes:
+The following guide takes you from zero to deployed documentation in just a few minutes ✨
 
-### Configure your repository
+### Set up docs your repository
 
-Use your existing [GitHub](https://github.com/) repository, or create a new one.
+Use your existing [GitHub](https://github.com/) repository, or create a new one from our [template repository](https://github.com/scalar/docs-template). If you're using the template repository, you can skip to "Configuration".
+
+#### Add some content
 
 If you have a few Markdown files already, that’s awesome. Otherwise, just create a new `docs` folder and add at least one [Markdown file](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax):
 
@@ -26,10 +28,13 @@ That should be enough to prepare your content. Time to configure your project, l
 touch scalar.config.json
 ```
 
-And now, add the content below. Note: You want to modify the custom domain. The one in the example is already taken. :) Your deployment will be available at `https://<subdomain>.apidocumentation.com`.
+#### Configuration
+
+Add the content below to your `scalar.config.json` file. Note: You want to modify the subdomain. The one in the example is already taken. 😉 Your docs site will be available at `https://<subdomain>.apidocumentation.com`.
 
 ```json
 {
+  "$schema": "https://cdn.scalar.com/schema/scalar-config.json",
   "subdomain": "my-awesome-documentation",
   "guides": [
     {
@@ -50,19 +55,17 @@ Make sure to commit and push the changes to your repository.
 
 ### Connect your repository to Scalar
 
-Create a free Scalar account here: https://docs.scalar.com/register
+Create a free Scalar account here: https://dashboard.scalar.com/register
 
-Once signed in, click on “Projects” in the top left corner and then on “Link GitHub Account”. You’ll be redirected to GitHub, where you can connect your account. After connecting your account, you’ll be redirected back to Scalar.
+Once signed in, click on “Link GitHub Account”. You’ll be redirected to GitHub, where you can connect your account. After connecting your account, you’ll be redirected back to Scalar.
 
-Click on “Projects” again, then on “New GitHub Project” to set up your project.
+Find your repository and click on “Link Repository”.
 
 ### Publish changes
 
-To publish your site for the first time, click on “Projects”, select your project and then click on the “Deployments” button. This opens a modal where you can click “Publish Project”.
+To publish your site for the first time, click on “Publish". Now sit back and relax, your documentation is being generated for you and deployed to our super fast edge servers, this will take a few minutes.
 
-Your documentation is now generated for you and deployed to our super fast edge servers, this will take a few minutes.
-
-Once done, you’ll see a message in the “Deployments” modal linking to your new documentation site. Congratulations, you’ve made it!
+Once done, you’ll see "Deployment Live" in the right hand column and a link to your new documentation site. Congratulations, you’ve made it!
 
 ## Advanced configuration
 
@@ -87,7 +90,7 @@ That’s it. :) The next time your documentation is published, it’ll include a
 
 ### Deploy on merge
 
-You can use the UI on https://docs.scalar.com or the Scalar configuration file to enable _Publish on Merge_, which – you might have guessed it — publishes your documentation when a branch is merged into the default branch (`main`):
+You can use the UI on https://dashboard.scalar.com or the Scalar configuration file to enable _Publish on Merge_, which – you might have guessed it — publishes your documentation when a branch is merged into the default branch (`main`):
 
 ```json
 {
@@ -133,7 +136,3 @@ Head to your domain name provider (Namecheap, GoDaddy, …) and add the followin
 | Type    | Host                                         | Value            |
 | ------- | -------------------------------------------- | ---------------- |
 | `CNAME` | `docs` (if the domain is `docs.example.com`) | `dns.scalar.com` |
-
-## Support
-
-If you have any questions or face any issues, [join our Discord](https://discord.gg/scalar) or reach out to <marc@scalar.com>
