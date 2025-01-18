@@ -75,7 +75,7 @@ export const authorizeOauth2 = async (
 
     // OAuth2 flows with a login popup
     else {
-      const state = (Math.random() + 1).toString(36).substring(7)
+      const state = (Math.random() + 1).toString(36).substring(2, 10)
       const url = new URL(flow.authorizationUrl)
 
       /** Special PKCE state */
