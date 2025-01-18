@@ -36,7 +36,7 @@ watch(
 )
 </script>
 <template>
-  <form>
+  <form @submit.prevent>
     <div
       v-if="selectedSecuritySchemeUids.length > 1"
       class="border-t flex px-3 flex-wrap gap-x-2.5 overflow-hidden">
