@@ -7,7 +7,10 @@ import {
   type SecuritySchemeGroup,
   type SecuritySchemeOption,
 } from '@/views/Request/consts'
-import { displaySchemeFormatter } from '@/views/Request/libs'
+import {
+  displaySchemeFormatter,
+  getSecurityRequirements,
+} from '@/views/Request/libs'
 import {
   type Icon,
   ScalarButton,
@@ -46,13 +49,13 @@ const selectedScheme = ref<{ id: string; label: string } | null>(null)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
-  const requirements =
-    activeRequest.value?.security ?? activeCollection.value?.security ?? []
+  const requirements = getSecurityRequirements(
+    activeRequest.value,
+    activeCollection.value,
+  )
 
   /** Filter out empty objects */
-  const filteredRequirements = requirements.filter(
-    (r: Record<string, string[]>) => Object.keys(r).length,
-  )
+  const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
 
   return { filteredRequirements, requirements }
 })

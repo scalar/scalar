@@ -222,10 +222,10 @@ export type Oauth2FlowPayload = NonNullable<
  *
  * @see https://spec.openapis.org/oas/latest.html#security-requirement-object
  */
-export const oasSecurityRequirementSchema = z.record(
-  z.string(),
-  z.array(z.string()).optional().default([]),
-)
+export const oasSecurityRequirementSchema = z.union([
+  z.record(z.string(), z.array(z.string()).optional().default([])),
+  z.record(z.never()),
+])
 
 /** OAS Compliant security schemes */
 export const oasSecuritySchemeSchema = z.union([
