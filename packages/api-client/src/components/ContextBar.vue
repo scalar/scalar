@@ -114,7 +114,7 @@ const model = computed<string>({
 .filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
   transition-delay: 0.35s;
 }
-.filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
+.filter-hover:hover .filter-hover-item:nth-last-of-type(8) {
   transition-delay: 0.4s;
 }
 .filter-hover:hover .filter-hover-item,
