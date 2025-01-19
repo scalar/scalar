@@ -15,7 +15,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "pnpm typegen:icons && pnpm build-only",
+    "build": "pnpm typegen:icons && pnpm build:storybook && pnpm build-only",
     "build-only": "scalar-build-vite",
     "build:storybook": "storybook build",
     "dev": "storybook dev -p 5100 --ci",

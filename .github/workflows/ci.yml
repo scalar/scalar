@@ -450,6 +450,61 @@ jobs:
             https://${{env.DEPLOY_ID}}--scalar-deploy-preview.netlify.app
           comment_tag: 'netlify-preview'
 
+  deploy-components:
+    # Skip for forks and bot PRs
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && !contains(github.actor, '[bot]')
+    needs: [build]
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Check which files were touched
+        id: changed-files
+        uses: tj-actions/changed-files@4edd678ac3f81e2dc578756871e4d00c19191daf
+        with:
+          files_yaml: |
+            components:
+              - packages/components/**
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Generate new DEPLOY_ID
+        run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Build
+        uses: ./.github/actions/build
+        with:
+          node-version: ${{ matrix.node-version }}
+        env:
+          DEPLOY_ID: ${{ env.DEPLOY_ID }}
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Install Netlify CLI
+        run: pnpm install -g netlify
+      - name: Deploy to Netlify
+        run: |
+          netlify deploy --dir "./packages/components/storybook-static" \
+            --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
+            --site ${{ vars.NETLIFY_SITE_ID_COMPONENTS }} \
+            --auth ${{ secrets.NETLIFY_AUTH_TOKEN }} \
+            --filter @scalar/components \
+            --alias=${{env.DEPLOY_ID}}
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Add Netlify Preview URL to the PR
+        uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
+        with:
+          message: |
+            **Preview Storybook**
+
+            https://${{env.DEPLOY_ID}}--scalar-components.netlify.app
+          comment_tag: 'netlify-preview'
+
   aspnetcore-build-test:
     runs-on: ubuntu-22.04
     timeout-minutes: 10

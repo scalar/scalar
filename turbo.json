@@ -3,7 +3,7 @@
   "tasks": {
     "lint:fix": {},
     "build": {
-      "outputs": ["dist/**"],
+      "outputs": ["dist/**", "storybook-static/**"],
       "dependsOn": ["^build"]
     },
     "dev": {
