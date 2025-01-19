@@ -125,7 +125,10 @@ const item = computed<SidebarItem>(() => {
       entity: request,
       resourceTitle: 'Request',
       warning: 'This cannot be undone. You’re about to delete the request.',
-      children: request.examples.slice(1),
+      children: request.examples.slice(1).filter((exampleUid) => {
+        const example = requestExamples[exampleUid]
+        return example && example.source === 'user'
+      }),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
       delete: () => {
@@ -193,14 +196,20 @@ const paddingOffset = computed(() => {
 
 /**
  * Show folders if they are open,
- * show examples if there are more than one and the request is active
+ * show examples if there are more than one that has user example and the request is active
  */
-const showChildren = computed(
-  () =>
+const showChildren = computed(() => {
+  return (
     collapsedSidebarFolders[props.uid] ||
     (activeRequest.value?.uid === props.uid &&
-      (item.value.entity as Request).examples.length > 1),
-)
+      item.value.entity.type === 'request' &&
+      (item.value.entity as Request).examples.length > 1 &&
+      (item.value.entity as Request).examples.some((exampleUid) => {
+        const example = requestExamples[exampleUid]
+        return example && example.source === 'user'
+      }))
+  )
+})
 
 /** Since we have exact routing, we should check if the default request is active */
 const isDefaultActive = computed(
@@ -486,11 +495,11 @@ const shouldShowItem = computed(() => {
         <RequestSidebarItem
           v-for="childUid in item.children"
           :key="childUid"
-          :isDraggable="!requestExamples[childUid]"
+          :isDraggable="!requestExamples[childUid || '']"
           :isDroppable="_isDroppable"
           :menuItem="menuItem"
           :parentUids="[...parentUids, uid]"
-          :uid="childUid"
+          :uid="childUid || ''"
           @newTab="(name, uid) => $emit('newTab', name, uid)"
           @onDragEnd="(...args) => $emit('onDragEnd', ...args)"
           @openMenu="(item) => $emit('openMenu', item)" />

@@ -43,7 +43,7 @@ export function extendedExampleDataFactory({
         request.examples.some((uid) => requestExamples[uid]?.name === t),
       )
 
-    const example = createExampleFromRequest(request, name)
+    const example = createExampleFromRequest(request, name, 'user')
 
     // Add the example to the store
     requestExampleMutators.add(example)
