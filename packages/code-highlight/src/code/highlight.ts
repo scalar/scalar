@@ -9,6 +9,9 @@ import { visit } from 'unist-util-visit'
 
 import { codeBlockLinesPlugin } from './line-numbers'
 
+/**
+ * Syntax highlights a code string using the `rehype-highlight` library.
+ */
 export function syntaxHighlight(
   codeString: string,
   options: {
