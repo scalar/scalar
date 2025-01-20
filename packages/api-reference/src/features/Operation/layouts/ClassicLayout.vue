@@ -1,12 +1,18 @@
 <script setup lang="ts">
 import { Anchor } from '@/components/Anchor'
+import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
 import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
 import { TestRequestButton } from '@/features/TestRequestButton'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
+import {
+  HIDE_TEST_REQUEST_BUTTON_SYMBOL,
+  getOperationStability,
+  getOperationStabilityColor,
+  isOperationDeprecated,
+} from '@/helpers'
 import {
   ScalarIcon,
   ScalarIconButton,
@@ -50,10 +56,15 @@ const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
             <div class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="operation.information?.deprecated"
+                  :deprecated="isOperationDeprecated(operation)"
                   :path="operation.path" />
               </div>
               <div class="endpoint-label-name">{{ operation.name }}</div>
+              <Badge
+                v-if="getOperationStability(operation)"
+                :class="getOperationStabilityColor(operation)">
+                {{ getOperationStability(operation) }}
+              </Badge>
             </div>
           </Anchor>
         </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isOperationDeprecated } from '@/helpers/operation'
 import { ScalarMarkdown } from '@scalar/components'
 import type { Tag, TransformedOperation } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -69,7 +70,7 @@ const scrollHandler = async (operation: TransformedOperation) => {
                       <span
                         class="endpoint-path"
                         :class="{
-                          deprecated: operation.information?.deprecated,
+                          deprecated: isOperationDeprecated(operation),
                         }">
                         {{ operation.path }}
                       </span>
