@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/hono-api-reference"
   },
-  "version": "0.5.166",
+  "version": "0.5.167",
   "engines": {
     "node": ">=18"
   },
