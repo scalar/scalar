@@ -8,7 +8,7 @@ The following guide takes you from zero to deployed documentation in just a few 
 
 ### Set up docs your repository
 
-Use your existing [GitHub](https://github.com/) repository, or create a new one from our [template repository](https://github.com/scalar/docs-template). If you're using the template repository, you can skip to "Configuration".
+Use your existing [GitHub](https://github.com/) repository, or create a new one from our [template repository](https://github.com/scalar/starter). If you're using the template repository, you can skip to "Configuration".
 
 #### Add some content
 
