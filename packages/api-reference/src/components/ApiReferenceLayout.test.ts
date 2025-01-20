@@ -36,6 +36,10 @@ describe('ApiReferenceLayout', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {})
 
+    const consoleWarnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => {})
+
     const definition = await fetch(
       'https://raw.githubusercontent.com/github/rest-api-description/refs/heads/main/descriptions/api.github.com/api.github.com.json',
     ).then((res) => res.json())
@@ -58,6 +62,13 @@ describe('ApiReferenceLayout', () => {
 
     // Restore the original console.error
     consoleErrorSpy.mockRestore()
+
+    // Check if console.warn was called
+    // TODO: In the future, we should fix the warnings.
+    // expect(consoleWarnSpy).not.toHaveBeenCalled()
+
+    // Restore the original console.warn
+    consoleWarnSpy.mockRestore()
 
     // Verify it renders the title in the HTML output
     expect(html).toContain(`GitHub's v3 REST API.`)
