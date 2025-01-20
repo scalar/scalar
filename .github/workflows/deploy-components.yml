@@ -1,4 +1,4 @@
-name: Deploy Scalar examples
+name: Deploy Scalar storybook
 
 on:
   push:
