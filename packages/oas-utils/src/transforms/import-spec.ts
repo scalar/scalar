@@ -42,7 +42,7 @@ export const parseSchema = async (
     console.warn('[@scalar/oas-utils] Empty OpenAPI document provided.')
 
     return {
-      schema: {} as OpenAPIV3.Document | OpenAPIV3_1.Document,
+      schema: {} as OpenAPIV3_1.Document,
       errors: [],
     }
   }
@@ -78,9 +78,7 @@ export const parseSchema = async (
      * Temporary fix for the parser returning an empty array
      * TODO: remove this once the parser is fixed
      */
-    schema: (Array.isArray(schema) ? {} : schema) as
-      | OpenAPIV3.Document
-      | OpenAPIV3_1.Document,
+    schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
     errors: [...loadErrors, ...derefErrors],
   }
 }
@@ -134,12 +132,12 @@ export async function importSpecToWorkspace(
       tags: Tag[]
       securitySchemes: SecurityScheme[]
     }
-  | { error: true; importWarnings: string[] }
+  | { error: true; importWarnings: string[]; collection: undefined }
 > {
   const { schema, errors } = await parseSchema(spec, { shouldLoad })
   const importWarnings: string[] = [...errors.map((e) => e.message)]
 
-  if (!schema) return { importWarnings, error: true }
+  if (!schema) return { importWarnings, error: true, collection: undefined }
   // ---------------------------------------------------------------------------
   // Some entities will be broken out as individual lists for modification in the workspace
   const start = performance.now()
