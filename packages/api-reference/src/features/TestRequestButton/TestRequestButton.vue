@@ -4,17 +4,23 @@ import { useApiClient } from '@/features/ApiClientModal'
 import { useConfig } from '@/hooks/useConfig'
 import { ScalarIcon } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
 
-defineProps<{
+const { operation } = defineProps<{
   operation?: RequestEntity
 }>()
 
 const { client } = useApiClient()
 const config = useConfig()
+
+const isButtonVisible = computed(() => {
+  return config?.hideTestRequestButton !== true
+})
 </script>
 <template>
+  <!-- Render the Test Request Button -->
   <button
-    v-if="config?.hideTestRequestButton !== true && operation"
+    v-if="operation && isButtonVisible"
     class="show-api-client-button"
     :method="operation.method"
     type="button"
@@ -29,6 +35,7 @@ const config = useConfig()
     <span>Test Request</span>
     <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
   </button>
+  <!-- Render whitespace, so the container doesn’t collapse -->
   <template v-else>&nbsp;</template>
 </template>
 <style scoped>
