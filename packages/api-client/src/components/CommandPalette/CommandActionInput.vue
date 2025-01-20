@@ -4,6 +4,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 const props = defineProps<{
   modelValue?: string
   placeholder?: string
+  autofocus?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -14,7 +15,13 @@ const emit = defineEmits<{
 defineOptions({ inheritAttrs: false })
 
 const input = ref<HTMLInputElement | null>(null)
-onMounted(() => nextTick(() => input.value?.focus()))
+onMounted(() =>
+  nextTick(() => {
+    if (!props.autofocus) {
+      input.value?.focus()
+    }
+  }),
+)
 
 const model = computed<string>({
   get: () => props.modelValue ?? '',

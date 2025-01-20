@@ -8,6 +8,7 @@ import {
   createExampleFromRequest,
   requestExampleSchema,
   requestSchema,
+  securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
@@ -655,6 +656,56 @@ describe('create-request-operation', () => {
       method: 'GET',
       path: '/me',
       body: '',
+    })
+  })
+
+  it('sends cookies', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+        proxyUrl: PROXY_URL,
+        requestExamplePayload: {
+          parameters: {
+            cookies: [
+              {
+                key: 'cookie',
+                value: 'custom-value',
+                enabled: true,
+              },
+            ],
+            headers: [
+              {
+                key: 'Cookie',
+                value: 'cookie-header=example-value;',
+                enabled: true,
+              },
+            ],
+          },
+        },
+      }),
+      securitySchemes: {
+        'api-key': securitySchemeSchema.parse({
+          uid: 'api-key',
+          type: 'apiKey',
+          nameKey: 'api_key',
+          name: 'auth-cookie',
+          in: 'cookie',
+          value: 'super-secret-token',
+          description: 'API key',
+        }),
+      },
+      selectedSecuritySchemeUids: ['api-key'],
+    })
+
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(JSON.parse(result?.response.data as string)?.cookies).toStrictEqual({
+      'cookie': 'custom-value',
+      'auth-cookie': 'super-secret-token',
+      'cookie-header': 'example-value',
     })
   })
 })

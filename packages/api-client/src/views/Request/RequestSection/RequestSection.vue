@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
-import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
+import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
@@ -15,8 +16,9 @@ defineProps<{
   selectedSecuritySchemeUids: string[]
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
-const { isReadOnly, requestMutators } = useWorkspace()
+const { activeRequest, activeExample, activeWorkspace, activeServer } =
+  useActiveEntities()
+const { isReadOnly, requestMutators, cookies } = useWorkspace()
 
 const sections = computed(() => {
   const allSections = new Set([
@@ -63,6 +65,33 @@ const updateRequestNameHandler = (event: Event) => {
   const target = event.target as HTMLInputElement
   requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
 }
+
+/**
+ * Add the global cookies as static entries to the cookies section
+ */
+const activeWorkspaceCookies = computed(() =>
+  (activeWorkspace.value?.cookies ?? [])
+    .map((uid) => cookies[uid])
+    .filter(isDefined)
+    .filter((cookie) => cookie.name)
+    .filter((cookie) =>
+      matchesDomain(
+        activeServer?.value?.url || activeRequest.value?.path,
+        cookie.domain,
+      ),
+    )
+    .map((cookie) => ({
+      key: cookie.name,
+      value: cookie.value,
+      route: {
+        name: 'cookies',
+        params: {
+          cookies: cookie.uid,
+        },
+      },
+      enabled: true,
+    })),
+)
 </script>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
@@ -76,7 +105,7 @@ const updateRequestNameHandler = (event: Event) => {
         <input
           v-if="!isReadOnly"
           id="requestname"
-          class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 has-[:focus-visible]:outline h-8 group-hover-input has-[:focus-visible]:outline z-10"
+          class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 h-8 group-hover-input has-[:focus-visible]:outline z-10"
           placeholder="Request Name"
           :value="activeRequest?.summary"
           @input="updateRequestNameHandler" />
@@ -108,7 +137,9 @@ const updateRequestNameHandler = (event: Event) => {
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
         paramKey="cookies"
-        title="Cookies" />
+        :readOnlyEntries="activeWorkspaceCookies"
+        title="Cookies"
+        workspaceParamKey="cookies" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Headers'"
         paramKey="headers"

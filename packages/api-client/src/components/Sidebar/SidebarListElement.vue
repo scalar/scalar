@@ -107,10 +107,7 @@ const handleRename = (id: string) => {
   @apply bg-b-2 text-c-1;
 }
 .empty-variable-name:empty:before {
-  content: 'No Name';
+  content: 'Untitled';
   color: var(--scalar-color-3);
-}
-.cookie > a {
-  @apply pl-10;
 }
 </style>

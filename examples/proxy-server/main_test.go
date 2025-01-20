@@ -434,4 +434,34 @@ func TestProxyBehavior(t *testing.T) {
 			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
 		}
 	})
+
+	t.Run("Forwards X-Scalar-Cookie as Cookie header", func(t *testing.T) {
+		// Create a test server that checks for the Cookie header
+		targetServer := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
+			// Check that Cookie header is set
+			expectedCookie := "session_id=abc123"
+			if cookie := r.Header.Get("Cookie"); cookie != expectedCookie {
+				t.Errorf("Expected Cookie header to be '%s', got '%s'", expectedCookie, cookie)
+			}
+			// Check that X-Scalar-Cookie header is removed
+			if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
+				t.Errorf("X-Scalar-Cookie header should have been removed, but got: %s", xScalarCookie)
+			}
+			w.Write([]byte("success"))
+		})
+		defer targetServer.server.Close()
+
+		// Create a request with X-Scalar-Cookie header
+		req := httptest.NewRequest(http.MethodGet, "/?scalar_url="+targetServer.url, nil)
+		req.Header.Set("X-Scalar-Cookie", "session_id=abc123")
+		w := httptest.NewRecorder()
+
+		// Call the handler
+		proxyServer.handleRequest(w, req)
+
+		// Check response
+		if w.Code != http.StatusOK {
+			t.Errorf("Expected status code %d, got %d", http.StatusOK, w.Code)
+		}
+	})
 }
