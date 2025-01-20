@@ -311,6 +311,96 @@ For OpenAuth2 it’s more looking like this:
 }
 ```
 
+#### generateHeadingSlug?: (heading: Heading) => string
+
+Customize how heading URLs are generated. This function receives the heading and returns a string ID that controls the entire URL hash.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Default behavior - results in hash: #description/heading-slug
+{
+  generateHeadingSlug: (heading) => `#description/${heading.slug}`
+}
+
+// Custom example
+{
+  generateHeadingSlug: (heading) => `#custom-section/${heading.slug}`
+}
+```
+
+#### generateModelSlug?: (model: { name: string }) => string
+
+Customize how model URLs are generated. This function receives the model object and returns a string ID. Note that `model/` will automatically be prepended to the result.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Default behavior - results in hash: #model/model-name
+{
+  generateModelSlug: (model) => slug(model.name)
+}
+
+// Custom example - results in hash: #model/custom-prefix-model-name
+{
+  generateModelSlug: (model) => `custom-prefix-${model.name.toLowerCase()}`
+}
+```
+
+#### generateTagSlug?: (tag: Tag) => string
+
+Customize how tag URLs are generated. This function receives the tag object and returns a string ID. Note that `tag/` will automatically be prepended to the result.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Default behavior - results in hash: #tag/tag-name
+{
+  generateTagSlug: (tag) => slug(tag.name)
+}
+
+// Custom example - results in hash: #tag/v1-tag-name
+{
+  generateTagSlug: (tag) => `v1-${tag.name.toLowerCase()}`
+}
+```
+
+#### generateOperationSlug?: (operation: Operation) => string
+
+Customize how operation URLs are generated. This function receives the operation object containing `path`, `operationId`, `method`, and `summary`. Note that `tag/tag-name/` will automatically be prepended to the result.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+```js
+// Default behavior - results in hash: #tag/tag-name/post-path
+{
+  generateOperationSlug: (operation) => `${operation.method}${operation.path}`
+}
+
+// Custom example - results in hash: #tag/tag-name/v1-post-users
+{
+  generateOperationSlug: (operation) =>
+    `v1-${operation.method.toLowerCase()}-${operation.path.replace('/', '-')}`
+}
+```
+
+#### generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
+
+Customize how webhook URLs are generated. This function receives the webhook object containing the name and an optional HTTP method. Note that `webhook/` will automatically be prepended to the result.
+
+> Note: This must be passed through JavaScript, setting a data attribute will not work.
+
+````js
+// Default behavior - results in hash: #webhook/webhook-name
+{
+  generateWebhookSlug: (webhook) => slug(webhook.name)
+}
+
+// Custom example - results in hash: #webhook/v1-post-user-created
+{
+  generateWebhookSlug: (webhook) => `v1-${webhook.method?.toLowerCase()}-${webhook.name}`
+}
+
 #### withDefaultFonts?: boolean
 
 By default we’re using Inter and JetBrains Mono, served by Google Fonts. If you use a different font or just don’t want to use Google Fonts, pass `withDefaultFonts: false` to the configuration.
@@ -319,7 +409,7 @@ By default we’re using Inter and JetBrains Mono, served by Google Fonts. If yo
 {
   withDefaultFonts: false
 }
-```
+````
 
 #### defaultOpenAllTags?: boolean
 

@@ -177,47 +177,52 @@ export type ReferenceConfiguration = {
   pathRouting?: PathRouting
   /**
    * If you want to customize the heading portion of the hash you can pass in a function that receives the heading
-   * and returns a string ID. This will then be used to generate the url hash.
+   * and returns a string ID. This will then be used to generate the url hash. You control the whole hash with this
+   * function.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
    * @default
-   * (heading: Heading) => `description/${heading.slug}`
+   * (heading: Heading) => `#description/${heading.slug}`
    */
   generateHeadingSlug?: (heading: Heading) => string
   /**
    * If you want to customize the model portion of the hash you can pass in a function that receives the model name
-   * and returns a string ID. This will then be used to generate the url hash.
+   * and returns a string ID. This will then be used to generate the url hash. model/ will get prepended to the result
+   * of this function as seen far below.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
    * @default
-   * (model) => `model/${slug(model.name)}`
+   * (model) => slug(model.name)
+   *
+   * which would give the full hash of `#model/${slug(model.name)}`
    */
   generateModelSlug?: (model: { name: string }) => string
   /**
    * If you want to customize the tag portion of the hash you can pass in a function that receives the tag
-   * and returns a string ID. This will then be used to generate the url hash.
+   * and returns a string ID. This will then be used to generate the url hash. tag/ will get prepended to the result
+   * of this function as seen far below.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
-   * @example
-   * (tag) => `tag/1-${tag.name}-2`
-   *
-   * which would give the full hash of `/tag/1-tag-name-2`
-   *
    * @default
-   * (tag) => `tag/${slug(tag.name)}`
+   * (tag) => slug(tag.name)
+   *
+   * which would give the full hash of `#tag/tag-name`
    */
   generateTagSlug?: (tag: Tag) => string
   /**
    * If you want to customize the operation portion of the hash you can pass in a function that receives the operation
-   * and returns a string ID. This will then be used to generate the url hash.
+   * and returns a string ID. This will then be used to generate the url hash. tag/slug(tag.name) will get prepended to
+   * the result of this function as seen far below.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
    * @default
    * (operation) => `${operation.method}${operation.path}`
+   *
+   * which would give the full hash of `#tag/tag-name/post-path`
    */
   generateOperationSlug?: (operation: {
     path: string
@@ -227,12 +232,15 @@ export type ReferenceConfiguration = {
   }) => string
   /**
    * If you want to customize the webhook portion of the hash you can pass in a function that receives the webhook name
-   * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash.
+   * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash. webhook/ will get
+   * prepended to the result of this function as seen far below.
    *
    * Note: you must pass this function through js, setting a data attribute will not work!
    *
    * @default
-   * (webhook) => `webhook/${webhook.method}/${slug(webhook.name)}`
+   * (webhook) => slug(webhook.name)
+   *
+   * which would give the full hash of `#webhook/webhook-name`
    */
   generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
   /**
