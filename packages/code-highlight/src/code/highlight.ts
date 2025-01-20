@@ -9,6 +9,9 @@ import { visit } from 'unist-util-visit'
 
 import { codeBlockLinesPlugin } from './line-numbers'
 
+/**
+ * Syntax highlights a code string using the `rehype-highlight` library.
+ */
 export function syntaxHighlight(
   codeString: string,
   options: {
@@ -57,9 +60,12 @@ export function syntaxHighlight(
 
   // Replace any credentials with a wrapper element
   return credentials.length
-    ? htmlString.replace(
-        new RegExp(credentials.join('|'), 'g'),
-        (m) => `<span class="credentials">${m}</span>`,
+    ? credentials.reduce(
+        (acc, credential) =>
+          acc
+            .split(credential)
+            .join(`<span class="credentials">${credential}</span>`),
+        htmlString,
       )
     : htmlString
 }
