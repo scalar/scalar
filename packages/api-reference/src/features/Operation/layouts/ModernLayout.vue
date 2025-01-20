@@ -66,7 +66,7 @@ defineProps<{
                     :path="operation.path" />
                 </template>
                 <template #footer>
-                  <TestRequestButton :operation="operation" />
+                  <TestRequestButton :operation="requestEntity" />
                 </template>
               </ExampleRequest>
             </ScalarErrorBoundary>

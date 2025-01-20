@@ -9,10 +9,7 @@ import {
   type WorkspaceStore,
   createWorkspaceStore,
 } from '@/store/store'
-import type {
-  RequestMethod,
-  SecurityScheme,
-} from '@scalar/oas-utils/entities/spec'
+import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import {
   LS_KEYS,
@@ -22,10 +19,10 @@ import {
 import { DATA_VERSION, DATA_VERSION_LS_LEY } from '@scalar/oas-utils/migrations'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import type {
+  OpenAPI,
   ReferenceConfiguration,
   SpecConfiguration,
 } from '@scalar/types/legacy'
-import type { LiteralUnion } from 'type-fest'
 import { type Component, createApp, watch } from 'vue'
 import type { Router } from 'vue-router'
 
@@ -45,9 +42,18 @@ export type ClientConfiguration = {
   | '_integration'
 >
 
-export type OpenClientPayload = {
-  path: string
-  method: LiteralUnion<RequestMethod | Lowercase<RequestMethod>, string>
+export type OpenClientPayload = (
+  | {
+      path: string
+      method: OpenAPI.HttpMethod | Lowercase<OpenAPI.HttpMethod>
+      requestUid?: never
+    }
+  | {
+      path?: never
+      method?: never
+      requestUid: string
+    }
+) & {
   _source?: 'api-reference' | 'gitbook'
 }
 
@@ -318,47 +324,58 @@ export const createApiClient = ({
     /** Route to a method + path */
     route: (
       /** The first request you would like to display */
-      params: OpenClientPayload,
+      { requestUid, method, path, _source }: OpenClientPayload,
     ) => {
-      // Initial route
-      const request = Object.values(requests).find(
-        ({ path, method }) =>
-          path === params.path &&
-          method.toUpperCase() === params.method.toUpperCase(),
-      )
-      if (request)
+      // Find the request from path + method
+      const resolvedRequestUid =
+        requestUid ||
+        Object.values(requests).find((item) =>
+          item.path && item.method
+            ? // The given operation
+              item.path === path &&
+              item.method.toUpperCase() === method.toUpperCase()
+            : // Or the first request
+              true,
+        )?.uid
+
+      // Redirect to the request
+      if (resolvedRequestUid)
         router.push({
           name: 'request',
+          query: _source ? { source: _source } : undefined,
           params: {
             workspace: 'default',
-            request: request.uid,
+            request: resolvedRequestUid,
           },
         })
     },
 
     /** Open the API client modal and optionally route to a request */
-    open: (payload?: OpenClientPayload) => {
+    open: ({ path, method, requestUid, _source }: OpenClientPayload) => {
       // Find the request from path + method
-      if (payload) {
-        const _request = Object.values(requests).find(({ path, method }) =>
-          payload
+      const resolvedRequestUid =
+        requestUid ||
+        Object.values(requests).find((item) =>
+          item.path && item.method
             ? // The given operation
-              path === payload.path &&
-              method.toUpperCase() === payload.method.toUpperCase()
+              item.path === path &&
+              item.method.toUpperCase() === method.toUpperCase()
             : // Or the first request
               true,
-        )
-        if (_request)
-          router.push({
-            name: 'request',
-            query: payload._source ? { source: payload._source } : undefined,
-            params: {
-              workspace: 'default',
-              request: _request.uid,
-            },
-          })
-      }
+        )?.uid
 
+      // Redirect to the request
+      if (resolvedRequestUid)
+        router.push({
+          name: 'request',
+          query: _source ? { source: _source } : undefined,
+          params: {
+            workspace: 'default',
+            request: resolvedRequestUid,
+          },
+        })
+
+      // Open the modal
       modalState.open = true
     },
     /** Mount the references to a given element */
