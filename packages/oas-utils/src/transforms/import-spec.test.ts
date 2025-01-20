@@ -56,6 +56,15 @@ describe('importSpecToWorkspace', () => {
       expect(request.parameters?.map((p) => p.name)).toContain('filter')
     })
 
+    it('should set the default security requirements correctly', async () => {
+      const { security, ...rest } = galaxy
+
+      const res = await importSpecToWorkspace(rest)
+      if (res.error) throw res.error
+
+      expect(res.collection.security).toEqual([])
+    })
+
     it('handles requests in the order defined in the OpenAPI document', async () => {
       const res = await importSpecToWorkspace(galaxy)
       if (res.error) throw res.error
