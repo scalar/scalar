@@ -80,7 +80,7 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
       class="bg-b-1 border-t custom-scroll max-h-[300px] rounded-b-lg p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
       <ListboxOption
         v-for="(entry, index) in history"
-        :key="index"
+        :key="entry.timestamp"
         class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
         :value="index"
         @click="handleHistoryClick(entry)">

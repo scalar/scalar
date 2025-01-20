@@ -17,8 +17,8 @@ defineProps<{
         class="flex-1"
         :columns="['', '']">
         <DataTableRow
-          v-for="(item, idx) in cookies"
-          :key="idx">
+          v-for="item in cookies"
+          :key="item.name">
           <DataTableText :text="item.name" />
           <DataTableText :text="item.value" />
         </DataTableRow>

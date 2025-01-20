@@ -246,8 +246,8 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
         v-if="optimizedValue?.[discriminator]"
         class="property-rule">
         <template
-          v-for="(schema, index) in optimizedValue[discriminator]"
-          :key="index">
+          v-for="schema in optimizedValue[discriminator]"
+          :key="schema.id">
           <Schema
             :compact="compact"
             :level="level + 1"
@@ -260,8 +260,8 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
         v-if="value?.items?.[discriminator] && level < 3"
         class="property-rule">
         <Schema
-          v-for="(schema, index) in value.items[discriminator]"
-          :key="index"
+          v-for="schema in value.items[discriminator]"
+          :key="schema.id"
           :compact="compact"
           :level="level + 1"
           :value="schema" />

@@ -8,6 +8,7 @@ import { ScalarButton, ScalarIcon } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
+import { hasItemProperties } from '../libs/request'
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
 withDefaults(
@@ -45,10 +46,6 @@ const handleFileUpload = (idx: number) => {
   emit('uploadFile', idx)
 }
 
-const showTooltip = (item: RequestExampleParameter) => {
-  return !!(item.description || item.type || item.default || item.format)
-}
-
 const valueOutOfRange = (item: RequestExampleParameter) => {
   return computed(() => {
     if (item.type === 'integer' && item.value !== undefined) {
@@ -76,7 +73,7 @@ const flattenValue = (item: RequestExampleParameter) => {
     :columns="columns">
     <DataTableRow
       v-for="(item, idx) in items"
-      :key="idx">
+      :key="item.key">
       <label class="contents">
         <span class="sr-only">Row Enabled</span>
         <DataTableCheckbox
@@ -103,7 +100,7 @@ const flattenValue = (item: RequestExampleParameter) => {
       <DataTableCell>
         <CodeInput
           :class="{
-            'pr-6': showTooltip(item),
+            'pr-6': hasItemProperties(item),
           }"
           :default="item.default"
           disableCloseBrackets
@@ -129,7 +126,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           </template>
           <template #icon>
             <RequestTableTooltip
-              v-if="showTooltip(item)"
+              v-if="hasItemProperties(item)"
               :item="{ ...item, default: flattenValue(item) }" />
           </template>
         </CodeInput>
