@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
 import {
@@ -34,15 +35,7 @@ import {
 } from 'vue'
 
 import { ApiClientModal } from '../features/ApiClientModal'
-import {
-  HIDE_DOWNLOAD_BUTTON_SYMBOL,
-  HIDE_TEST_REQUEST_BUTTON_SYMBOL,
-  INTEGRATION_SYMBOL,
-  OPENAPI_DOCUMENT_URL_SYMBOL,
-  downloadSpecBus,
-  downloadSpecFile,
-  sleep,
-} from '../helpers'
+import { downloadSpecBus, downloadSpecFile, sleep } from '../helpers'
 import { useDeprecationWarnings, useNavState, useSidebar } from '../hooks'
 import type {
   ReferenceLayoutProps,
@@ -278,20 +271,8 @@ provide(WORKSPACE_SYMBOL, workspaceStore)
 const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 
-provide(
-  HIDE_DOWNLOAD_BUTTON_SYMBOL,
-  () => props.configuration.hideDownloadButton,
-)
-provide(
-  HIDE_TEST_REQUEST_BUTTON_SYMBOL,
-  () => props.configuration.hideTestRequestButton,
-)
-provide(OPENAPI_DOCUMENT_URL_SYMBOL, () => props.configuration.spec?.url)
-provide(INTEGRATION_SYMBOL, () =>
-  props.configuration._integration !== null
-    ? props.configuration._integration
-    : 'vue',
-)
+// Provide the configuration
+provide(CONFIGURATION_SYMBOL, props.configuration)
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE

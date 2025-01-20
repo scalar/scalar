@@ -59,11 +59,11 @@ const models = computed(() => {
         :class="{ 'models-list-truncated': !showAllModels }">
         <Lazy
           v-for="name in models"
-          :id="getModelId(name)"
+          :id="getModelId({ name })"
           :key="name"
           isLazy>
           <CompactSection
-            :id="getModelId(name)"
+            :id="getModelId({ name })"
             class="models-list-item"
             :label="name">
             <template #heading>

@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/ApiClientModal'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
+import { useConfig } from '@/hooks/useConfig'
 import { ScalarIcon } from '@scalar/components'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { inject } from 'vue'
 
 defineProps<{
   operation: TransformedOperation
 }>()
 
-const getHideTestRequestButton = inject(HIDE_TEST_REQUEST_BUTTON_SYMBOL)
 const { client } = useApiClient()
+const config = useConfig()
 </script>
 <template>
   <button
-    v-if="getHideTestRequestButton?.() !== true"
+    v-if="config?.hideTestRequestButton !== true"
     class="show-api-client-button"
     :method="operation.httpVerb"
     type="button"

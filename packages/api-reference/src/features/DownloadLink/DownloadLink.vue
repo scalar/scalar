@@ -1,24 +1,13 @@
 <script lang="ts" setup>
-import { inject } from 'vue'
+import { useConfig } from '@/hooks/useConfig'
 
-import {
-  HIDE_DOWNLOAD_BUTTON_SYMBOL,
-  OPENAPI_DOCUMENT_URL_SYMBOL,
-  downloadSpecBus,
-} from '../../helpers'
+import { downloadSpecBus } from '../../helpers'
 
 const props = defineProps<{
   specTitle?: string
 }>()
 
-const getHideDownloadButtonSymbol = inject(
-  HIDE_DOWNLOAD_BUTTON_SYMBOL,
-  () => true,
-)
-const getOpenApiDocumentUrlSymbol = inject(
-  OPENAPI_DOCUMENT_URL_SYMBOL,
-  () => undefined,
-)
+const config = useConfig()
 
 // id is retrieved at the layout level
 const handleDownloadClick = () => {
@@ -27,13 +16,13 @@ const handleDownloadClick = () => {
 </script>
 <template>
   <div class="download">
-    <template v-if="!getHideDownloadButtonSymbol?.()">
+    <template v-if="!config?.hideDownloadButton">
       <!-- Direct URL -->
-      <template v-if="getOpenApiDocumentUrlSymbol?.()">
+      <template v-if="config?.spec?.url">
         <a
           class="download-button"
           download
-          :href="getOpenApiDocumentUrlSymbol?.()"
+          :href="config?.spec?.url"
           target="_blank">
           Download OpenAPI Document
         </a>

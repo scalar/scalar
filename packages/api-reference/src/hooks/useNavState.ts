@@ -1,4 +1,6 @@
 import { joinWithSlash } from '@/helpers'
+import { useConfig } from '@/hooks/useConfig'
+import type { Request } from '@scalar/oas-utils/entities/spec'
 import { ssrState } from '@scalar/oas-utils/helpers'
 import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
@@ -17,45 +19,11 @@ const pathRouting = ref<PathRouting | undefined>()
 // To disable the intersection observer on click
 const isIntersectionEnabled = ref(false)
 
-/**
- * ID creation methods
- */
-const getHeadingId = (heading: Heading) => {
-  if (heading.slug) {
-    return `description/${heading.slug}`
-  }
-
-  return ''
-}
-
 const getPathRoutingId = (pathName: string) => {
   if (!pathRouting.value) return ''
 
   const reggy = new RegExp('^' + pathRouting.value?.basePath + '/?')
   return decodeURIComponent(pathName.replace(reggy, ''))
-}
-
-const getWebhookId = (name?: string, httpVerb?: string) => {
-  if (!name) {
-    return 'webhooks'
-  }
-
-  return `webhook/${httpVerb}/${slug(name)}`
-}
-
-const getModelId = (name?: string) => {
-  if (!name) {
-    return 'models'
-  }
-
-  return `model/${slug(name)}`
-}
-
-const getOperationId = (operation: TransformedOperation, parentTag: Tag) =>
-  `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
-
-const getTagId = ({ name }: Tag) => {
-  return `tag/${slug(name)}`
 }
 
 // Grabs the sectionId of the hash to open the section before scrolling
@@ -118,11 +86,10 @@ const getFullHash = (hashTarget: string = hash.value) => {
  *
  * @returns The hash without the prefix
  */
-const getReferenceHash = () => {
-  return decodeURIComponent(
+const getReferenceHash = () =>
+  decodeURIComponent(
     window.location.hash.replace(/^#/, '').slice(hashPrefix.value.length),
   )
-}
 
 /**
  * Hook which provides reactive hash state from the URL
@@ -131,40 +98,93 @@ const getReferenceHash = () => {
  * isIntersectionEnabled is a hack to prevent intersection observer from triggering
  * when clicking on sidebar links or going backwards
  */
-export const useNavState = () => ({
-  hash,
-  /** Sets the prefix for the hash */
-  setHashPrefix: (prefix: string) => {
-    hashPrefix.value = prefix
-  },
+export const useNavState = () => {
+  const config = useConfig()
+
   /**
-   * Gets the full hash with the prefix
-   * @param hashTarget The hash to target with the return
-   * @returns The full hash
+   * ID creation methods
    */
-  getFullHash,
-  /**
-   * Gets the hashed url with the prefix
-   * @param replacementHash The hash to replace the current hash with
-   * @param url The url to get the hashed url from
-   * @returns The hashed url
-   */
-  getHashedUrl,
-  /**
-   * Replaces the URL state with the new url and hash
-   * Replacement is used so that hash changes don't trigger the url hash watcher and cause a scroll
-   */
-  replaceUrlState,
-  /** Gets the portion of the hash used by the references */
-  getReferenceHash,
-  getWebhookId,
-  getModelId,
-  getHeadingId,
-  getOperationId,
-  getPathRoutingId,
-  getSectionId,
-  getTagId,
-  isIntersectionEnabled,
-  pathRouting,
-  updateHash,
-})
+  const getHeadingId = (heading: Heading) => {
+    if (typeof config?.generateHeadingSlug === 'function') {
+      return `${config.generateHeadingSlug(heading)}`
+    }
+
+    if (heading.slug) return `description/${heading.slug}`
+    return ''
+  }
+
+  const getModelId = (model?: { name: string }) => {
+    if (!model?.name) return 'models'
+
+    if (typeof config?.generateModelSlug === 'function') {
+      return `model/${config.generateModelSlug(model)}`
+    }
+    return `model/${slug(model.name)}`
+  }
+
+  const getTagId = (tag: Tag) => {
+    if (typeof config?.generateTagSlug === 'function') {
+      return `tag/${config.generateTagSlug(tag)}`
+    }
+    return `tag/${slug(tag.name)}`
+  }
+
+  const getOperationId = (operation: TransformedOperation, parentTag: Tag) => {
+    if (typeof config?.generateOperationSlug === 'function') {
+      return `${getTagId(parentTag)}/${config.generateOperationSlug({
+        path: operation.path,
+        operationId: operation.operationId,
+        method: operation.httpVerb,
+        summary: operation.information?.summary,
+      })}`
+    }
+    return `${getTagId(parentTag)}/${operation.httpVerb}${operation.path}`
+  }
+
+  const getWebhookId = (webhook?: { name: string; method?: string }) => {
+    if (!webhook?.name) return 'webhooks'
+
+    if (typeof config?.generateWebhookSlug === 'function') {
+      return `webhook/${config.generateWebhookSlug(webhook)}`
+    }
+    return `webhook/${webhook.method}/${slug(webhook.name)}`
+  }
+
+  return {
+    hash,
+    /** Sets the prefix for the hash */
+    setHashPrefix: (prefix: string) => {
+      hashPrefix.value = prefix
+    },
+    /**
+     * Gets the full hash with the prefix
+     * @param hashTarget The hash to target with the return
+     * @returns The full hash
+     */
+    getFullHash,
+    /**
+     * Gets the hashed url with the prefix
+     * @param replacementHash The hash to replace the current hash with
+     * @param url The url to get the hashed url from
+     * @returns The hashed url
+     */
+    getHashedUrl,
+    /**
+     * Replaces the URL state with the new url and hash
+     * Replacement is used so that hash changes don't trigger the url hash watcher and cause a scroll
+     */
+    replaceUrlState,
+    /** Gets the portion of the hash used by the references */
+    getReferenceHash,
+    getWebhookId,
+    getModelId,
+    getHeadingId,
+    getOperationId,
+    getPathRoutingId,
+    getSectionId,
+    getTagId,
+    isIntersectionEnabled,
+    pathRouting,
+    updateHash,
+  }
+}

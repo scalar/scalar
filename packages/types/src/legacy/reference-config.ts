@@ -176,6 +176,66 @@ export type ReferenceConfiguration = {
    */
   pathRouting?: PathRouting
   /**
+   * If you want to customize the heading portion of the hash you can pass in a function that receives the heading
+   * and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @default
+   * (heading: Heading) => `description/${heading.slug}`
+   */
+  generateHeadingSlug?: (heading: Heading) => string
+  /**
+   * If you want to customize the model portion of the hash you can pass in a function that receives the model name
+   * and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @default
+   * (model) => `model/${slug(model.name)}`
+   */
+  generateModelSlug?: (model: { name: string }) => string
+  /**
+   * If you want to customize the tag portion of the hash you can pass in a function that receives the tag
+   * and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @example
+   * (tag) => `tag/1-${tag.name}-2`
+   *
+   * which would give the full hash of `/tag/1-tag-name-2`
+   *
+   * @default
+   * (tag) => `tag/${slug(tag.name)}`
+   */
+  generateTagSlug?: (tag: Tag) => string
+  /**
+   * If you want to customize the operation portion of the hash you can pass in a function that receives the operation
+   * and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @default
+   * (operation) => `${operation.method}${operation.path}`
+   */
+  generateOperationSlug?: (operation: {
+    path: string
+    operationId: string | undefined
+    method: string
+    summary: string | undefined
+  }) => string
+  /**
+   * If you want to customize the webhook portion of the hash you can pass in a function that receives the webhook name
+   * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @default
+   * (webhook) => `webhook/${webhook.method}/${slug(webhook.name)}`
+   */
+  generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
+  /**
    * The baseServerURL is used when the spec servers are relative paths and we are using SSR.
    * On the client we can grab the window.location.origin but on the server we need
    * to use this prop.

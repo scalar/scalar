@@ -178,7 +178,7 @@ export function useSearchIndex({
             webhookData.push({
               type: 'webhook',
               title: `Webhook: ${webhooks[name][httpVerb]?.name}`,
-              href: `#${getWebhookId(name, httpVerb)}`,
+              href: `#${getWebhookId({ name, method: httpVerb })}`,
               description: name,
               httpVerb,
               tag: name,
@@ -199,7 +199,7 @@ export function useSearchIndex({
           modelData.push({
             type: 'model',
             title: 'Model',
-            href: `#${getModelId(k)}`,
+            href: `#${getModelId({ name: k })}`,
             description: (schemas[k] as any).title ?? k,
             tag: k,
             body: '',
