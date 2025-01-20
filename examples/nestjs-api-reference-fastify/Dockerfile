@@ -16,7 +16,7 @@ COPY packages/components ./packages/components
 COPY packages/themes ./packages/themes
 COPY packages/oas-utils ./packages/oas-utils
 COPY packages/build-tooling ./packages/build-tooling
-COPY packages/nestjs-api-reference ./packages/nestjs-api-reference
+COPY integrations/nestjs ./integrations/nestjs
 COPY examples/nestjs-api-reference-fastify ./examples/nestjs-api-reference-fastify
 
 # Mount the cache where pnpm expects it and build the main package
@@ -41,7 +41,7 @@ RUN chown node:node /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/packages/nestjs-api-reference /app/packages/nestjs-api-reference
+COPY --from=builder /app/integrations/nestjs /app/integrations/nestjs
 COPY --from=builder /app/examples/nestjs-api-reference-fastify /app/examples/nestjs-api-reference-fastify
 
 WORKDIR /app/examples/nestjs-api-reference-fastify

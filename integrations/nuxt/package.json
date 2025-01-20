@@ -8,7 +8,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/nuxt"
+    "directory": "integrations/nuxt"
   },
   "keywords": [
     "api",
@@ -28,7 +28,7 @@
     "build": "pnpm dev:prepare && nuxt-module-build build",
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
-    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test:watch": "vitest watch",

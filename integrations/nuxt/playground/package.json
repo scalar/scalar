@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "@scalar-examples/nuxt-playground",
+  "type": "module",
+  "scripts": {
+    "dev": "nuxi dev",
+    "build": "nuxi prepare && nuxi build",
+    "generate": "nuxi generate"
+  },
+  "dependencies": {
+    "nuxt": "^3.12.4"
+  },
+  "devDependencies": {
+    "@scalar/api-client": "workspace:*",
+    "@scalar/nuxt": "workspace:*"
+  }
+}

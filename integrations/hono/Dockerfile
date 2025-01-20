@@ -24,9 +24,9 @@ RUN chown node:node /app
 
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
-COPY --from=builder /app/packages/hono-api-reference /app/packages/hono-api-reference
+COPY --from=builder /app/integrations/hono /app/integrations/hono
 
-WORKDIR /app/packages/hono-api-reference
+WORKDIR /app/integrations/hono
 
 # dumb-init runs as PID 1 and ensures all signals are forwarded
 # to the spawned node process (ensures the server shuts down gracefully)
