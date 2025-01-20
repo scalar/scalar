@@ -70,8 +70,13 @@ export function createFetchQueryParams(
 ) {
   const params = new URLSearchParams()
   example.parameters.query.forEach((p) => {
-    if (p.enabled)
-      params.append(p.key, replaceTemplateVariables(p.value ?? '', env))
+    if (p.enabled) {
+      const values =
+        p.type === 'array'
+          ? replaceTemplateVariables(p.value ?? '', env).split(',')
+          : [replaceTemplateVariables(p.value ?? '', env)]
+      values.forEach((value) => params.append(p.key, value.trim()))
+    }
   })
 
   return params
