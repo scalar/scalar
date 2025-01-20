@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.15
+
+### Patch Changes
+
+- 97d8981: feat(components): host storybook on netlify
+- 1bee104: fix: ScalarFloating breaks SSG/SSR environments
+- Updated dependencies [109e320]
+  - @scalar/code-highlight@0.0.20
+  - @scalar/themes@0.9.61
+  - @scalar/use-hooks@0.1.15
+
 ## 0.13.14
 
 ### Patch Changes

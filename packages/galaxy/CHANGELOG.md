@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.17
+
+### Patch Changes
+
+- 0462003: feat: add readOnly/writeOnly attributes
+
 ## 0.2.16
 
 ### Patch Changes
