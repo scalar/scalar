@@ -1,5 +1,32 @@
 # @scalar/api-reference
 
+## 1.25.106
+
+### Patch Changes
+
+- 5501ee3: feat: render operation parameters from the store
+- 6062a69: fix: only first entry in hidden tag is hidden from the reference
+- 1bee104: fix: SSG/SSR builds break
+- b552db5: feat: add url customization functions for references
+- Updated dependencies [97d8981]
+- Updated dependencies [1bee104]
+- Updated dependencies [f9668c5]
+- Updated dependencies [109e320]
+- Updated dependencies [b552db5]
+- Updated dependencies [f9668c5]
+- Updated dependencies [b968e0f]
+- Updated dependencies [b968e0f]
+- Updated dependencies [406eb48]
+- Updated dependencies [f1f8de9]
+  - @scalar/components@0.13.15
+  - @scalar/api-client@2.2.35
+  - @scalar/code-highlight@0.0.20
+  - @scalar/types@0.0.27
+  - @scalar/oas-utils@0.2.98
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/themes@0.9.61
+  - @scalar/use-hooks@0.1.15
+
 ## 1.25.105
 
 ### Patch Changes

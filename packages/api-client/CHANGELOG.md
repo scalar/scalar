@@ -1,5 +1,28 @@
 # @scalar/api-client
 
+## 2.2.35
+
+### Patch Changes
+
+- f9668c5: feat: updates checkbox style and display in path params
+- f9668c5: fix: handles path variable on request path change
+- b968e0f: fix: prevents raw removal when binary
+- b968e0f: fix: updates request body style
+- 406eb48: Increase OAuth state parameter to 8 characters for increased entropy
+- f1f8de9: fix: prevent hitting enter in auth from refreshing page
+- Updated dependencies [97d8981]
+- Updated dependencies [1bee104]
+- Updated dependencies [b552db5]
+  - @scalar/components@0.13.15
+  - @scalar/types@0.0.27
+  - @scalar/use-codemirror@0.11.60
+  - @scalar/oas-utils@0.2.98
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/themes@0.9.61
+  - @scalar/import@0.2.18
+  - @scalar/postman-to-openapi@0.1.21
+  - @scalar/use-hooks@0.1.15
+
 ## 2.2.34
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/code-highlight
 
+## 0.0.20
+
+### Patch Changes
+
+- 109e320: fix: removes regex for highlight credentials
+
 ## 0.0.19
 
 ### Patch Changes

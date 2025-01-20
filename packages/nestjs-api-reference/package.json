@@ -10,7 +10,7 @@
     "url": "git+https://github.com/scalar/scalar.git",
     "directory": "packages/nestjs-api-reference"
   },
-  "version": "0.3.175",
+  "version": "0.3.176",
   "engines": {
     "node": ">=18"
   },
