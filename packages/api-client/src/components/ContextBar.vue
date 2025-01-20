@@ -114,9 +114,6 @@ const model = computed<string>({
 .filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
   transition-delay: 0.35s;
 }
-.filter-hover:hover .filter-hover-item:nth-last-of-type(7) {
-  transition-delay: 0.4s;
-}
 .filter-hover:hover .filter-hover-item,
 .filter-hover:has(:focus-visible) .filter-hover-item {
   opacity: 1;
