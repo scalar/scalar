@@ -36,7 +36,7 @@ jobs:
         run: pnpm --filter components build:storybook
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Deploy to netlify
+      - name: Deploy Storybook to Netlify (Production)
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
