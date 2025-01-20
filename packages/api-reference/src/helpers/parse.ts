@@ -10,13 +10,8 @@ import {
 import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
-import type {
-  OpenAPI,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@scalar/openapi-types'
-import type { Spec, Webhook } from '@scalar/types/legacy'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
+import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
 
 import { createEmptySpecification } from '../helpers'
@@ -271,13 +266,13 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           schema.tags[tagIndex].operations.push(newOperation)
         })
       }
-
-      // Remove tags with `x-internal` set to true
-      schema.tags = schema.tags?.filter(
-        (tag: UnknownObject) => !shouldIgnoreEntity(tag),
-      )
     })
   })
+
+  // Remove tags with `x-internal` set to true
+  schema.tags = schema.tags?.filter(
+    (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+  )
 
   const returnedResult = {
     ...schema,
