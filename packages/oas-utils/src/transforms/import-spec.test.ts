@@ -363,6 +363,30 @@ describe('importSpecToWorkspace', () => {
       expect(res.requests[0].security).toEqual([{}])
     })
 
+    it('imports path-level parameters', async () => {
+      const example = {
+        paths: {
+          '/foobar': {
+            get: {
+              // operation-level parameter
+              parameters: [{ name: 'bar', in: 'path' }],
+            },
+            // path-level parameter
+            parameters: [{ name: 'foo', in: 'path' }],
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(example)
+
+      if (res.error) throw res.error
+
+      expect(res.requests[0].parameters).toMatchObject([
+        { name: 'foo', in: 'path' },
+        { name: 'bar', in: 'path' },
+      ])
+    })
+
     it('prefers operation level security over global security', async () => {
       const specWithGlobalAndOperationSecurity = {
         ...galaxy,

@@ -3,7 +3,8 @@ import { SchemaProperty } from '@/components/Content/Schema'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
-import type { ContentType, Parameter } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
@@ -11,7 +12,9 @@ import ParameterHeaders from './ParameterHeaders.vue'
 
 const props = withDefaults(
   defineProps<{
-    parameter: Parameter
+    parameter:
+      | NonNullable<RequestEntity['parameters']>[number]
+      | NonNullable<RequestEntity['responses']>[number]
     showChildren?: boolean
     collapsableItems?: boolean
     withExamples?: boolean
@@ -41,9 +44,22 @@ if (props.parameter.content) {
 const shouldCollapse = computed<boolean>(() => {
   return !!(props.collapsableItems && props.parameter.content)
 })
+
+/**
+ * We’re showing request data, read-only parameters should not be shown.
+ */
+const shouldShowParameter = computed(() => {
+  if (props.parameter.readOnly === true) {
+    return false
+  }
+
+  return true
+})
 </script>
 <template>
-  <li class="parameter-item">
+  <li
+    v-if="shouldShowParameter"
+    class="parameter-item">
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
