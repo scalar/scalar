@@ -3,10 +3,10 @@ import ScreenReader from '@/components/ScreenReader.vue'
 import { useApiClient } from '@/features/ApiClientModal'
 import { useConfig } from '@/hooks/useConfig'
 import { ScalarIcon } from '@scalar/components'
-import type { TransformedOperation } from '@scalar/types/legacy'
+import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 
 defineProps<{
-  operation: TransformedOperation
+  operation?: RequestEntity
 }>()
 
 const { client } = useApiClient()
@@ -14,21 +14,20 @@ const config = useConfig()
 </script>
 <template>
   <button
-    v-if="config?.hideTestRequestButton !== true"
+    v-if="config?.hideTestRequestButton !== true && operation"
     class="show-api-client-button"
-    :method="operation.httpVerb"
+    :method="operation.method"
     type="button"
     @click.stop="
       client?.open({
-        path: operation.path,
-        method: operation.httpVerb,
+        requestUid: operation.uid,
       })
     ">
     <ScalarIcon
       icon="Play"
       size="sm" />
     <span>Test Request</span>
-    <ScreenReader>({{ operation.httpVerb }} {{ operation.path }})</ScreenReader>
+    <ScreenReader>({{ operation.method }} {{ operation.path }})</ScreenReader>
   </button>
   <template v-else>&nbsp;</template>
 </template>

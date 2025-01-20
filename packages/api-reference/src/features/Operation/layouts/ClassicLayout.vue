@@ -61,7 +61,7 @@ const config = useConfig()
     <template #actions="{ active }">
       <TestRequestButton
         v-if="active"
-        :operation="operation" />
+        :operation="requestEntity" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint"
