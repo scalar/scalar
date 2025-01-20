@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.27
+
+### Patch Changes
+
+- b552db5: feat: add url customization functions for references
+
 ## 0.0.26
 
 ### Patch Changes
