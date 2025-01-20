@@ -7,11 +7,13 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { HotKeyEvent } from '@/libs'
 import { useActiveEntities, useWorkspace } from '@/store'
+import { useModal } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
+import CookieModal from './CookieModal.vue'
 
 // import CookieRaw from './CookieRaw.vue'
 
@@ -19,13 +21,17 @@ const { cookies, cookieMutators, events, workspaceMutators } = useWorkspace()
 const { activeWorkspace, activeCookieId } = useActiveEntities()
 const router = useRouter()
 const route = useRoute()
+const cookieModal = useModal()
 
-const addCookieHandler = () => {
-  // Create cookie
+const addCookieHandler = (cookieData: {
+  name: string
+  value: string
+  domain: string
+}) => {
   const cookie = cookieSchema.parse({
-    name: '',
-    value: '',
-    domain: '',
+    name: cookieData.name,
+    value: cookieData.value,
+    domain: cookieData.domain,
     path: '/',
   })
 
@@ -73,9 +79,13 @@ const removeCookie = (uid: string) => {
   }
 }
 
+const openCookieModal = () => {
+  cookieModal.show()
+}
+
 const handleHotKey = (event?: HotKeyEvent) => {
   if (event?.createNew && route.name === 'cookies') {
-    addCookieHandler()
+    openCookieModal()
   }
 }
 
@@ -129,7 +139,7 @@ const hasCookies = computed(
       </template>
       <template #button>
         <SidebarButton
-          :click="addCookieHandler"
+          :click="openCookieModal"
           hotkey="N">
           <template #title>Add Cookie</template>
         </SidebarButton>
@@ -143,5 +153,10 @@ const hasCookies = computed(
         <!-- <CookieRaw /> -->
       </template>
     </ViewLayoutContent>
+
+    <CookieModal
+      :state="cookieModal"
+      @cancel="cookieModal.hide()"
+      @submit="addCookieHandler" />
   </ViewLayout>
 </template>
