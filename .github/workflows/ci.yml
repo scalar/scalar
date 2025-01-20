@@ -492,7 +492,7 @@ jobs:
         run: pnpm --filter components build:storybook
 
       - if: steps.changed-files.outputs.components_any_changed == 'true'
-        name: Deploy to Netlify
+        name: Deploy Storybook to Netlify (Preview)
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
