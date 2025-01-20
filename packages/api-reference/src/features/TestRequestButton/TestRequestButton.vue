@@ -7,7 +7,7 @@ import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
 
 const { operation } = defineProps<{
-  operation?: RequestEntity
+  operation?: Pick<RequestEntity, 'method' | 'path' | 'uid'>
 }>()
 
 const { client } = useApiClient()
@@ -16,6 +16,14 @@ const config = useConfig()
 const isButtonVisible = computed(() => {
   return config?.hideTestRequestButton !== true
 })
+
+const handleClick = () => {
+  if (operation && client?.value?.open) {
+    client.value.open({
+      requestUid: operation.uid,
+    })
+  }
+}
 </script>
 <template>
   <!-- Render the Test Request Button -->
@@ -24,11 +32,7 @@ const isButtonVisible = computed(() => {
     class="show-api-client-button"
     :method="operation.method"
     type="button"
-    @click.stop="
-      client?.open({
-        requestUid: operation.uid,
-      })
-    ">
+    @click.stop="handleClick">
     <ScalarIcon
       icon="Play"
       size="sm" />
