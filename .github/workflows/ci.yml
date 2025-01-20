@@ -514,7 +514,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25
+        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852
         with:
           dotnet-version: 9.x
 
@@ -571,7 +571,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
-        uses: actions/setup-dotnet@3e891b0cb619bf60e2c25674b222b8940e2c1c25
+        uses: actions/setup-dotnet@87b7050bc53ea08284295505d98d2aa94301e852
         with:
           dotnet-version: 9.x
 
