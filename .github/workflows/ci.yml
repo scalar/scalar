@@ -486,7 +486,13 @@ jobs:
       - if: steps.changed-files.outputs.components_any_changed == 'true'
         name: Install Netlify CLI
         run: pnpm install -g netlify
-      - name: Deploy to Netlify
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Build storybook
+        run: pnpm --filter components build:storybook
+
+      - if: steps.changed-files.outputs.components_any_changed == 'true'
+        name: Deploy Storybook to Netlify (Preview)
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \

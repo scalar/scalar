@@ -1,4 +1,4 @@
-name: Deploy Scalar examples
+name: Deploy Storybook
 
 on:
   push:
@@ -29,12 +29,14 @@ jobs:
       - name: Generate Run UUID
         run: echo "DEPLOY_ID=$(uuidgen)" >> "$GITHUB_ENV" && echo $DEPLOY_ID
       - name: Install dependencies
-        run: pnpm --filter components install
-      - name: Build
-        run: cd packages/components && pnpm build:storybook
+        run: pnpm --filter components... install
+      - name: Build components and dependencies
+        run: pnpm --filter components... build
+      - name: Build storybook
+        run: pnpm --filter components build:storybook
         env:
           DEPLOY_ID: ${{ env.DEPLOY_ID }}
-      - name: Deploy to netlify
+      - name: Deploy Storybook to Netlify (Production)
         run: |
           netlify deploy --dir "./packages/components/storybook-static" \
             --message "Deployed from GitHub (${{ env.DEPLOY_ID }})" \
