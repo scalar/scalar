@@ -4,19 +4,17 @@ import { ScalarMarkdown } from '@scalar/components'
 import type { ContentType, RequestBody } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
 
-const props = defineProps<{ requestBody?: RequestBody }>()
+const { requestBody } = defineProps<{ requestBody?: RequestBody }>()
 
-const contentTypes = computed(() => {
-  if (props.requestBody?.content) {
-    return Object.keys(props.requestBody.content)
-  }
-  return []
-})
+const availableContentTypes = computed(() =>
+  Object.keys(requestBody?.content ?? {}),
+)
 
 const selectedContentType = ref<ContentType>('application/json')
-if (props.requestBody?.content) {
-  if (contentTypes.value.length > 0) {
-    selectedContentType.value = contentTypes.value[0] as ContentType
+
+if (requestBody?.content) {
+  if (availableContentTypes.value.length > 0) {
+    selectedContentType.value = availableContentTypes.value[0] as ContentType
   }
 }
 </script>
@@ -26,10 +24,12 @@ if (props.requestBody?.content) {
       <slot name="title" />
       <div
         class="request-body-title-select"
-        :class="{ 'request-body-title-no-select': contentTypes.length <= 1 }">
+        :class="{
+          'request-body-title-no-select': availableContentTypes.length <= 1,
+        }">
         <span>{{ selectedContentType }}</span>
         <select
-          v-if="requestBody && contentTypes.length > 1"
+          v-if="requestBody && availableContentTypes.length > 1"
           v-model="selectedContentType">
           <option
             v-for="(_, key) in requestBody?.content"
