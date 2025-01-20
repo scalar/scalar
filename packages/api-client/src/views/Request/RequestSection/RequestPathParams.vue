@@ -120,6 +120,15 @@ watch(
     }
   },
 )
+
+watch(
+  () => activeRequest.value?.path,
+  (newURL) => {
+    if (newURL) {
+      handlePathVariableUpdate(newURL)
+    }
+  },
+)
 </script>
 <template>
   <ViewLayoutCollapse :itemCount="params.length">
@@ -130,7 +139,8 @@ watch(
     <RequestTable
       v-if="params.length"
       class="flex-1"
-      isEnabledHidden
+      :columns="['32px', '', '']"
+      hasCheckboxDisabled
       :items="params"
       @updateRow="updateRow" />
   </ViewLayoutCollapse>
