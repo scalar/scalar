@@ -365,7 +365,7 @@ jobs:
       - if: steps.changed-files.outputs.api_client_any_changed == 'true'
         name: Deploy to client.staging.scalar.com (staging)
         id: deploy-client-staging
-        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
+        uses: cloudflare/wrangler-action@7a5f8bbdfeedcde38e6777a50fe685f89259d4ca
         with:
           command: pages deploy dist --project-name=client-staging
           workingDirectory: projects/client-scalar-com
@@ -397,7 +397,7 @@ jobs:
       - if: steps.client-version.outputs.api_client_any_changed == 'true'
         name: Deploy to client.scalar.com (production)
         id: deploy-client-production
-        uses: cloudflare/wrangler-action@6d58852c35a27e6034745c5d0bc373d739014f7f
+        uses: cloudflare/wrangler-action@7a5f8bbdfeedcde38e6777a50fe685f89259d4ca
         with:
           command: pages deploy dist --project-name=client
           workingDirectory: projects/client-scalar-com
