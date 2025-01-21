@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -12,7 +13,9 @@ import { computed, watch } from 'vue'
 import AddressBarServerItem from './AddressBarServerItem.vue'
 
 const { activeRequest, activeCollection, activeServer } = useActiveEntities()
-const { isReadOnly, servers, collectionMutators, events } = useWorkspace()
+const { servers, collectionMutators, events } = useWorkspace()
+
+const { layout } = useLayout()
 
 const requestServerOptions = computed(() =>
   activeRequest.value?.servers?.map((serverUid: string) => ({
@@ -103,7 +106,7 @@ const serverUrlWithoutTrailingSlash = computed(() => {
             type="collection" />
         </div>
         <!-- Add Server -->
-        <template v-if="!isReadOnly">
+        <template v-if="layout !== 'modal'">
           <div
             class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
             @click="handleAddServer">
