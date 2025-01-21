@@ -26,5 +26,6 @@ examples/docusaurus/**/*.mdx
 packages/nuxt/src/runtime/plugins/hydrateClient.d.mts
 packages/openapi-parser/tests/**/*.yaml
 packages/snippetz/src/httpsnippet-lite/**/*
+packages/components/storybook-static/**/*
 
 cloudbuild.json
