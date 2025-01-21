@@ -373,10 +373,8 @@ const themeStyleTag = computed(
         :aria-label="`Open API Documentation for ${parsedSpec.info?.title}`"
         class="references-rendered">
         <Content
-          :baseServerURL="configuration.baseServerURL"
           :layout="configuration.layout"
-          :parsedSpec="parsedSpec"
-          :servers="configuration.servers">
+          :parsedSpec="parsedSpec">
           <template #start>
             <slot
               v-bind="referenceSlotProps"
