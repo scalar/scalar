@@ -204,8 +204,8 @@ public static class ScalarEndpointRouteBuilderExtensions
     /// </summary>
     private static void MapStaticAssetsEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext));
-        endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext));
+        endpoints.MapGet(ScalarJavaScriptFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptFile, httpContext)).AllowAnonymous();
+        endpoints.MapGet(ScalarJavaScriptHelperFile, static (HttpContext httpContext) => HandleStaticAsset(ScalarJavaScriptHelperFile, httpContext)).AllowAnonymous();
     }
 
     private static IResult HandleStaticAsset(string file, HttpContext httpContext)
