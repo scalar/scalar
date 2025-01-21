@@ -34,7 +34,7 @@
     "@scalar/api-client": "workspace:*",
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.4.10",
-    "vitest": "^1.6.0",
+    "vitest": "^3.0.3",
     "wrangler": "^3.62.0"
   }
 }

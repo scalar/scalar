@@ -35,12 +35,12 @@
     "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
-    "turbo": "^2.1.2",
+    "turbo": "^2.3.3",
     "typescript": "^5.7.3",
     "vite-node": "^2.1.1",
-    "vitest": "^1.6.0",
-    "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^2.1.10"
+    "vitest": "^3.0.3",
+    "vue-eslint-parser": "^9.4.3",
+    "vue-tsc": "^2.2.0"
   },
   "scripts": {
     "build": "turbo build",

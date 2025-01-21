@@ -43,13 +43,12 @@
   ],
   "module": "dist/index.js",
   "dependencies": {
+    "@scalar/build-tooling": "workspace:*",
     "vue": "^3.5.12"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "vite": "^5.4.10",
-    "vite-plugin-dts": "^4.3.0",
-    "vite-svg-loader": "^5.1.0",
     "vue": "^3.5.12"
   }
 }
