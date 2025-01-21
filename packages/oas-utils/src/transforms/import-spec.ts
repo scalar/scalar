@@ -471,7 +471,6 @@ export function getServersFromOpenApiDocument(
         // Validate the server against the schema
         const parsedSchema = serverSchema.parse(server)
 
-        console.log()
 
         // Prepend with the base server URL (if the given URL is relative)
         if (parsedSchema?.url?.startsWith('/')) {
