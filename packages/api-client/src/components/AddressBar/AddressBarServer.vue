@@ -2,11 +2,12 @@
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
-  ScalarDropdown,
-  ScalarDropdownDivider,
-  ScalarDropdownItem,
-  ScalarIcon,
-} from '@scalar/components'
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue'
+import { ScalarDropdownDivider, ScalarIcon } from '@scalar/components'
 import { computed, watch } from 'vue'
 
 import AddressBarServerItem from './AddressBarServerItem.vue'
@@ -65,45 +66,48 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 })
 </script>
 <template>
-  <ScalarDropdown
-    class="w-max"
-    teleport>
-    <button
-      class="font-code lg:text-sm text-xs whitespace-nowrap border border-b-3 border-solid rounded px-1.5 py-0.5 text-c-2 -outline-offset-1"
+  <Listbox v-slot="{ open }">
+    <ListboxButton
+      class="menu font-code lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 py-0.5 text-c-2"
       type="button">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
-    </button>
-    <template #items>
-      <!-- Request -->
-      <div
-        v-if="showDropdownLabels"
-        class="text-xxs text-c-2 px-2.5 py-1">
-        Request
-      </div>
-      <AddressBarServerItem
-        v-for="serverOption in requestServerOptions"
-        :key="serverOption.id"
-        :serverOption="serverOption"
-        type="request" />
+    </ListboxButton>
 
-      <template v-if="showDropdownLabels">
-        <ScalarDropdownDivider />
-        <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
-      </template>
-
-      <!-- Collection -->
-      <AddressBarServerItem
-        v-for="serverOption in collectionServerOptions"
-        :key="serverOption.id"
-        :serverOption="serverOption"
-        type="collection" />
-      <!-- Add Server -->
-      <template v-if="!isReadOnly">
-        <ScalarDropdownDivider />
-        <ScalarDropdownItem>
+    <!-- Menu shadow and placement-->
+    <div
+      :class="[
+        'absolute left-0 top-[calc(100%-0.5px)] w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
+        { 'before:shadow-border-1/2 open': open },
+      ]">
+      <ListboxOptions
+        class="addressbar-bg-states border-t custom-scroll flex flex-col gap-1 max-h-[300px] p-0.75">
+        <!-- Request -->
+        <ListboxOption
+          v-for="serverOption in requestServerOptions"
+          :key="serverOption.id"
+          class="contents text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2">
+          <AddressBarServerItem
+            :serverOption="serverOption"
+            type="request" />
+        </ListboxOption>
+        <template v-if="showDropdownLabels">
+          <ScalarDropdownDivider />
+          <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
+        </template>
+        <!-- Collection -->
+        <ListboxOption
+          v-for="serverOption in collectionServerOptions"
+          :key="serverOption.id"
+          class="contents text-sm *:rounded-none first:*:rounded-l-lg last:*:rounded-r-lg *:flex text-c-2">
+          <AddressBarServerItem
+            :serverOption="serverOption"
+            type="collection" />
+        </ListboxOption>
+        <!-- Add Server -->
+        <template v-if="!isReadOnly">
           <div
-            class="font-code text-xxs flex items-center gap-1.5"
+            class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
             @click="handleAddServer">
             <div class="flex items-center justify-center h-4 w-4">
               <ScalarIcon
@@ -112,8 +116,29 @@ const serverUrlWithoutTrailingSlash = computed(() => {
             </div>
             <span>Add Server</span>
           </div>
-        </ScalarDropdownItem>
-      </template>
-    </template>
-  </ScalarDropdown>
+        </template>
+      </ListboxOptions>
+
+      <!-- Backdrop for the dropdown -->
+      <div class="absolute inset-0 -z-1 rounded bg-b-1 brightness-lifted" />
+    </div>
+  </Listbox>
 </template>
+
+<style scoped>
+.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
+  --scalar-background-1: var(--scalar-background-1);
+}
+.addressbar-bg-states {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.addressbar-bg-states:has(.cm-focused) {
+  background: var(--scalar-background-1);
+  border-color: var(--scalar-border-color);
+  outline: 1px solid var(--scalar-color-accent);
+}
+</style>

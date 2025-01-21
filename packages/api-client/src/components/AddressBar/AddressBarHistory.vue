@@ -78,12 +78,12 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
     <!-- History shadow and placement-->
     <div
       :class="[
-        'absolute bg-white left-0 top-8 w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
-        { 'before:shadow-border-1/2': open },
+        'absolute bg-b-1 left-0 top-[calc(100%-0.5px)] w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
+        { 'before:shadow-border-1/2 open': open },
       ]">
       <!-- History Item -->
       <ListboxOptions
-        class="bg-b-1 border-t custom-scroll max-h-[300px] p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
+        class="address-bg-states border-t custom-scroll max-h-[300px] p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
         <ListboxOption
           v-for="(entry, index) in history"
           :key="entry.timestamp"
@@ -117,5 +117,20 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
 }
 .addressbar-history-button:focus-within {
   background: var(--scalar-background-2);
+}
+.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
+  --scalar-background-1: var(--scalar-background-1);
+}
+.addressbar-bg-states {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.addressbar-bg-states:has(.cm-focused) {
+  background: var(--scalar-background-1);
+  border-color: var(--scalar-border-color);
+  outline: 1px solid var(--scalar-color-accent);
 }
 </style>
