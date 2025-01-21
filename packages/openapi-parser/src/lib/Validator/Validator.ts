@@ -165,6 +165,7 @@ export class Validator {
 
     // Register formats
     // https://ajv.js.org/packages/ajv-formats.html#formats
+    // @ts-expect-error ajv-formats is not well typed
     addFormats(ajv)
 
     // OpenAPI 3.1 uses media-range format
