@@ -1,4 +1,4 @@
-import type { AnyObject } from '../types'
+import type { AnyObject } from '../types/index.js'
 
 /**
  * Recursively traverses the specification and applies the transform function to each node.

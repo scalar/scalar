@@ -1,4 +1,4 @@
-import type { AnyObject } from '../../../types'
+import type { AnyObject } from '../../../types/index.js'
 
 export const DEFAULT_OPENAPI_VERSION = '3.1.1'
 

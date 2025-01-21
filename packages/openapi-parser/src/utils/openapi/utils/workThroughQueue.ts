@@ -1,9 +1,9 @@
-import type { CommandChain, Merge, Queue, Task } from '../../../types'
-import { dereference } from '../../dereference'
-import { filter } from '../../filter'
-import { load } from '../../load'
-import { upgrade } from '../../upgrade'
-import { validate } from '../../validate'
+import type { CommandChain, Merge, Queue, Task } from '../../../types/index.js'
+import { dereference } from '../../dereference.js'
+import { filter } from '../../filter.js'
+import { load } from '../../load/load.js'
+import { upgrade } from '../../upgrade.js'
+import { validate } from '../../validate.js'
 
 /**
  * Takes a queue of tasks and works through them

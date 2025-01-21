@@ -1,14 +1,14 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import type { AnyObject } from '../../types'
-import { addInfoObject } from './utils/addInfoObject'
-import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion'
-import { addMissingTags } from './utils/addMissingTags'
-import { normalizeSecuritySchemes } from './utils/normalizeSecuritySchemes'
-import { rejectSwaggerDocuments } from './utils/rejectSwaggerDocuments'
+import type { AnyObject } from '../../types/index.js'
+import { addInfoObject } from './utils/addInfoObject.js'
+import { addLatestOpenApiVersion } from './utils/addLatestOpenApiVersion.js'
+import { addMissingTags } from './utils/addMissingTags.js'
+import { normalizeSecuritySchemes } from './utils/normalizeSecuritySchemes.js'
+import { rejectSwaggerDocuments } from './utils/rejectSwaggerDocuments.js'
 
-export { DEFAULT_OPENAPI_VERSION } from './utils/addLatestOpenApiVersion'
-export { DEFAULT_TITLE, DEFAULT_VERSION } from './utils/addInfoObject'
+export { DEFAULT_OPENAPI_VERSION } from './utils/addLatestOpenApiVersion.js'
+export { DEFAULT_TITLE, DEFAULT_VERSION } from './utils/addInfoObject.js'
 
 /**
  * Make an OpenAPI document a valid and clean OpenAPI document

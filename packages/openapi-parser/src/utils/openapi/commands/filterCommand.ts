@@ -1,13 +1,13 @@
-import type { FilterResult, Queue, Task } from '../../../types'
-import type { DereferenceOptions } from '../../dereference'
-import type { FilterCallback } from '../../filter'
-import { details } from '../actions/details'
-import { files } from '../actions/files'
-import { get } from '../actions/get'
-import { toJson } from '../actions/toJson'
-import { toYaml } from '../actions/toYaml'
-import { queueTask } from '../utils/queueTask'
-import { dereferenceCommand } from './dereferenceCommand'
+import type { FilterResult, Queue, Task } from '../../../types/index.js'
+import type { DereferenceOptions } from '../../dereference.js'
+import type { FilterCallback } from '../../filter.js'
+import { details } from '../actions/details.js'
+import { files } from '../actions/files.js'
+import { get } from '../actions/get.js'
+import { toJson } from '../actions/toJson.js'
+import { toYaml } from '../actions/toYaml.js'
+import { queueTask } from '../utils/queueTask.js'
+import { dereferenceCommand } from './dereferenceCommand.js'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

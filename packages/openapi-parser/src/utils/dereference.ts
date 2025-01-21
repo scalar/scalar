@@ -2,14 +2,14 @@ import type {
   AnyApiDefinitionFormat,
   DereferenceResult,
   Filesystem,
-} from '../types'
-import { details } from './details'
-import { getEntrypoint } from './getEntrypoint'
-import { makeFilesystem } from './makeFilesystem'
+} from '../types/index.js'
+import { details } from './details.js'
+import { getEntrypoint } from './getEntrypoint.js'
+import { makeFilesystem } from './makeFilesystem.js'
 import {
   type ResolveReferencesOptions,
   resolveReferences,
-} from './resolveReferences'
+} from './resolveReferences.js'
 
 export type DereferenceOptions = ResolveReferencesOptions
 

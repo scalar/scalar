@@ -7,16 +7,16 @@ import {
   OpenApiSpecifications,
   type OpenApiVersion,
   OpenApiVersions,
-} from '../../configuration'
+} from '../../configuration/index.js'
 import type {
   AnyObject,
   Filesystem,
   ThrowOnErrorOption,
   ValidateResult,
-} from '../../types'
-import { details as getOpenApiVersion } from '../../utils/details'
-import { resolveReferences } from '../../utils/resolveReferences'
-import { transformErrors } from '../../utils/transformErrors'
+} from '../../types/index.js'
+import { details as getOpenApiVersion } from '../../utils/details.js'
+import { resolveReferences } from '../../utils/resolveReferences.js'
+import { transformErrors } from '../../utils/transformErrors.js'
 
 /**
  * Configure available JSON Schema versions
