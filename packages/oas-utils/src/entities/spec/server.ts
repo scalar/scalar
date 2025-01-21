@@ -21,8 +21,7 @@ export const oasServerVariableSchema = z.object({
    * Note this behavior is different than the Schema Object’s treatment of default values, because in those cases
    * parameter values are optional. If the enum is defined, the value MUST exist in the enum’s values.
    */
-  default: z.string().optional().default('default'),
-  /** An optional description for the server variable. CommonMark syntax MAY be used for rich text representation. */
+  default: z.string().optional(),
   description: z.string().optional(),
 }) as ZodSchema<
   Omit<OpenAPIV3_1.ServerVariableObject, 'enum'> & {
