@@ -26,6 +26,13 @@ export type ClientInfo = {
   description: string
 }
 
+/**
+ * Alias for the OpenAPI 3.1 ServerObject type
+ *
+ * @deprecated Use OpenAPIV3_1.ServerObject instead
+ */
+export type Server = OpenAPIV3_1.ServerObject
+
 export type TargetInfo = {
   key: TargetId
   title: string
