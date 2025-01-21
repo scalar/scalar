@@ -1,7 +1,6 @@
+import { nanoidSchema } from '@/entities/shared'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
-
-import { nanoidSchema } from '../shared'
 
 /**
  * Server variables
