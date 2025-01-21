@@ -3,13 +3,10 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import {
-  ADD_AUTH_OPTIONS,
-  type SecuritySchemeGroup,
-  type SecuritySchemeOption,
-} from '@/views/Request/consts'
+import type { SecuritySchemeOption } from '@/views/Request/consts'
 import {
   displaySchemeFormatter,
+  getSchemeOptions,
   getSecurityRequirements,
 } from '@/views/Request/libs'
 import {
@@ -158,48 +155,14 @@ const unselectAuth = (unSelectUid?: string) => {
   deleteSchemeModal.hide()
 }
 
-const availableSchemes = computed(() => {
-  const base = activeCollection.value?.securitySchemes
-  return (base ?? []).map((s: string) => securitySchemes[s]).filter((s) => s)
-})
-
-const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
-  () => {
-    const _availableSchemes = [...availableSchemes.value]
-    const requiredSchemes = [] as typeof _availableSchemes
-
-    securityRequirements.value.filteredRequirements.forEach((r) => {
-      const i = _availableSchemes.findIndex(
-        (s) => s?.nameKey === Object.keys(r)[0],
-      )
-      if (i > -1) {
-        requiredSchemes.push(_availableSchemes[i])
-        _availableSchemes.splice(i, 1)
-      }
-    })
-
-    const availableFormatted = _availableSchemes
-      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
-      .filter(isDefined)
-    const requiredFormatted = requiredSchemes
-      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
-      .filter(isDefined)
-
-    const options = [
-      { label: 'Required authentication', options: requiredFormatted },
-      { label: 'Available authentication', options: availableFormatted },
-    ]
-
-    if (layout === 'modal' || layout === 'reference')
-      return requiredFormatted.length ? options : availableFormatted
-
-    options.push({
-      label: 'Add new authentication',
-      options: ADD_AUTH_OPTIONS,
-    })
-
-    return options
-  },
+/** Options for the security scheme dropdown */
+const schemeOptions = computed(() =>
+  getSchemeOptions(
+    securityRequirements.value.filteredRequirements,
+    activeCollection.value?.securitySchemes ?? [],
+    securitySchemes,
+    layout === 'client',
+  ),
 )
 </script>
 <template>
