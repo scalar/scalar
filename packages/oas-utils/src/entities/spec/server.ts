@@ -25,9 +25,22 @@ export const oasServerVariableSchema = z
      */
     description: z.string().optional(),
   })
-  .refine((data) => !data.enum || data.enum.includes(data.default ?? ''), {
-    message: 'Default value must be one of the enum values if enum is defined',
-    path: ['default'],
+  .refine((data) => {
+    // Set default to the first enum value if invalid
+    if (
+      Array.isArray(data.enum) &&
+      !data.enum.includes(data.default ?? '') &&
+      data.enum.length > 0
+    ) {
+      data.default = data.enum[0]
+    }
+
+    if (Array.isArray(data.enum) && data.enum.length === 0) {
+      delete data.enum
+    }
+
+    // Always return true since we’ve modified the data to be valid
+    return true
   })
 
 /**
@@ -49,7 +62,7 @@ export const oasServerSchema = z.object({
    * representation.
    */
   description: z.string().optional(),
-  /** A map between a variable name and its value. The value is used for substitution in the server’s URL template. */
+  /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
   variables: z.record(z.string(), oasServerVariableSchema).optional().catch({}),
 })
 

@@ -37,9 +37,30 @@ describe('serverSchema', () => {
           default: 'dev',
           description: 'Environment selection',
         },
+        username: {
+          // invalid enum
+          enum: [],
+          default: 'demo',
+          description: 'Username selection',
+        },
       },
     }
-    expect(serverSchema.parse(server)).toMatchObject(server)
+
+    expect(serverSchema.parse(server)).toStrictEqual({
+      uid: expect.any(String),
+      url: 'https://{environment}.example.com',
+      variables: {
+        environment: {
+          enum: ['dev', 'staging', 'prod'],
+          default: 'dev',
+          description: 'Environment selection',
+        },
+        username: {
+          default: 'demo',
+          description: 'Username selection',
+        },
+      },
+    })
   })
 
   it('fails when URL is missing', () => {
@@ -58,9 +79,17 @@ describe('serverSchema', () => {
         },
       },
     }
-    expect(() => serverSchema.parse(server)).toThrow(
-      'Default value must be one of the enum values if enum is defined',
-    )
+
+    expect(serverSchema.parse(server)).toMatchObject({
+      url: 'https://{environment}.example.com',
+      variables: {
+        environment: {
+          enum: ['dev', 'staging', 'prod'],
+          default: 'dev',
+          description: 'Environment selection',
+        },
+      },
+    })
   })
 
   it('validates server with relative URL', () => {
