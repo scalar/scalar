@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { BaseUrl } from '@/features/BaseUrl'
 import { useActiveEntities } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
+import { ServerForm } from '@scalar/api-client/views/Servers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
@@ -58,7 +60,7 @@ const introCardsSlot = computed(() =>
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': layout === 'classic' }">
-            <!-- <ServerForm class="introduction-card-item" /> -->
+            <BaseUrl />
             <div class="scalar-client introduction-card-item">
               <RequestAuth
                 layout="reference"
