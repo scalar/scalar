@@ -56,7 +56,7 @@ defineOptions({ inheritAttrs: false })
         :sideOffset="3">
         <DropdownMenu.RadioGroup
           v-model="model"
-          as="template">
+          class="contents">
           <DropdownMenu.RadioItem
             v-for="t in teams"
             :key="t.id"
