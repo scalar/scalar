@@ -166,19 +166,26 @@ Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k)
 }
 ```
 
+#### baseServerURL?: string
+
+If you want to prefix all relative servers with a base URL, you can do so here.
+
+```js
+{
+  baseServerURL: 'https://scalar.com'
+}
+```
+
 #### servers?: Server[]
 
-List of servers to override the openapi spec servers
-
-@default undefined
-@example [{ url: 'https://api.scalar.com', description: 'Production server' }]
+Pass a list of servers to override the servers in your OpenAPI document.
 
 ```js
 {
   servers: [
     {
       url: 'https://api.scalar.com',
-      description: 'Production server',
+      description: 'Production',
     },
   ]
 }
