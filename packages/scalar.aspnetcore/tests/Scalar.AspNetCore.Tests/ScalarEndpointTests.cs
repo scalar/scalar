@@ -201,6 +201,33 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
     }
     
     [Fact]
+    public async Task MapScalarApiReference_ShouldReturn401_WhenAuthenticationRequired()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/auth/scalar");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+    }
+    
+    [Fact]
+    public async Task MapScalarApiReference_ShouldReturn200_WhenAuthenticated()
+    {
+        // Arrange
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add("X-Api-Key", "my-api-key");
+
+        // Act
+        var response = await client.GetAsync("/auth/scalar");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+    
+    [Fact]
     public async Task MapScalarApiReference_ShouldNotCauseOptionsConflict_WhenMultipleEndpointsAreDefined()
     {
         // Arrange
