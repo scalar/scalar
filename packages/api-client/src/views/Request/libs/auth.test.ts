@@ -1,7 +1,15 @@
+import {
+  ADD_AUTH_OPTIONS,
+  type SecuritySchemeGroup,
+} from '@/views/Request/consts'
 import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { displaySchemeFormatter, getSecurityRequirements } from './auth'
+import {
+  displaySchemeFormatter,
+  getSchemeOptions,
+  getSecurityRequirements,
+} from './auth'
 
 describe('auth utilities', () => {
   describe('displaySchemeFormatter', () => {
@@ -104,6 +112,162 @@ describe('auth utilities', () => {
       expect(getSecurityRequirements(request, collection)).toEqual([
         { basic: [], apiKey: [] },
       ])
+    })
+  })
+})
+
+describe('getSchemeOptions', () => {
+  const securitySchemes = {
+    apiKeyUid: {
+      type: 'apiKey',
+      nameKey: 'apiKey',
+      uid: 'apiKeyUid',
+    },
+    basicUid: {
+      type: 'http',
+      nameKey: 'basic',
+      uid: 'basicUid',
+    },
+    oauth2Uid: {
+      type: 'oauth2',
+      nameKey: 'oauth2',
+      uid: 'oauth2Uid',
+    },
+  } as const
+  const collectionSchemeUids = Object.values(securitySchemes).map((s) => s.uid)
+
+  it('returns flat list when readonly and theres no required schemes', () => {
+    const filteredRequirements: Record<string, string[]>[] = []
+    const result = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+      true,
+    )
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(result[0]).toMatchObject({
+      id: 'apiKeyUid',
+      label: 'apiKey',
+    })
+  })
+
+  it('returns 2 grouped options when there are required + available and readonly', () => {
+    const filteredRequirements = [{ apiKey: [] }]
+    const result = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+      true,
+    )
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(2)
+    expect(result[0]).toMatchObject({
+      label: 'Required authentication',
+      options: [{ id: 'apiKeyUid', label: 'apiKey' }],
+    })
+    expect(result[1]).toMatchObject({
+      label: 'Available authentication',
+      options: [
+        { id: 'basicUid', label: 'basic' },
+        { id: 'oauth2Uid', label: 'oauth2' },
+      ],
+    })
+  })
+
+  it('returns 3 grouped options when there are required + available + add new', () => {
+    const filteredRequirements = [{ apiKey: [] }]
+    const result = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+    )
+
+    expect(Array.isArray(result)).toBe(true)
+    expect(result).toHaveLength(3)
+    expect(result[0]).toMatchObject({
+      label: 'Required authentication',
+      options: [{ id: 'apiKeyUid', label: 'apiKey' }],
+    })
+    expect(result[1]).toMatchObject({
+      label: 'Available authentication',
+      options: [
+        { id: 'basicUid', label: 'basic' },
+        { id: 'oauth2Uid', label: 'oauth2' },
+      ],
+    })
+    expect(result[2]).toMatchObject({
+      label: 'Add new authentication',
+      options: ADD_AUTH_OPTIONS,
+    })
+  })
+
+  it('includes "Add new authentication" group only when not readonly', () => {
+    const filteredRequirements: Record<string, string[]>[] = []
+
+    const readonlyResult = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+      true,
+    )
+    const editableResult = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+      false,
+    )
+
+    expect(readonlyResult).not.toContainEqual(
+      expect.objectContaining({
+        label: 'Add new authentication',
+      }),
+    )
+
+    expect(editableResult[2]).toMatchObject({
+      label: 'Add new authentication',
+      options: ADD_AUTH_OPTIONS,
+    })
+  })
+
+  it('handles empty filtered requirements when not readonly', () => {
+    const filteredRequirements: Record<string, string[]>[] = []
+    const result = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+    )
+
+    expect(result).toHaveLength(3)
+    expect((result[0] as SecuritySchemeGroup).options).toHaveLength(0)
+    expect(result[2]).toMatchObject({
+      label: 'Add new authentication',
+      options: expect.any(Array),
+    })
+  })
+
+  it('handles complex security requirements', () => {
+    const filteredRequirements = [{ apiKey: [], basic: [] }]
+    const result = getSchemeOptions(
+      filteredRequirements,
+      collectionSchemeUids,
+      securitySchemes,
+      false,
+    )
+
+    expect(result[0]).toMatchObject({
+      label: 'Required authentication',
+      options: [{ id: 'apiKeyUid,basicUid', label: 'apiKey & basic' }],
+    })
+    expect(result[1]).toMatchObject({
+      label: 'Available authentication',
+      options: [
+        { id: 'apiKeyUid', label: 'apiKey' },
+        { id: 'basicUid', label: 'basic' },
+        { id: 'oauth2Uid', label: 'oauth2' },
+      ],
     })
   })
 })
