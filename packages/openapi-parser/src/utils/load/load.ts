@@ -1,4 +1,4 @@
-import { ERRORS } from '../../configuration'
+import { ERRORS } from '../../configuration/index.js'
 import type {
   AnyApiDefinitionFormat,
   AnyObject,
@@ -6,11 +6,11 @@ import type {
   Filesystem,
   LoadResult,
   ThrowOnErrorOption,
-} from '../../types'
-import { getEntrypoint } from '../getEntrypoint'
-import { getListOfReferences } from '../getListOfReferences'
-import { makeFilesystem } from '../makeFilesystem'
-import { normalize } from '../normalize'
+} from '../../types/index.js'
+import { getEntrypoint } from '../getEntrypoint.js'
+import { getListOfReferences } from '../getListOfReferences.js'
+import { makeFilesystem } from '../makeFilesystem.js'
+import { normalize } from '../normalize.js'
 
 export type LoadPlugin = {
   check: (value?: any) => boolean

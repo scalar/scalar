@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   isSchemaPath,
   upgradeFromThreeToThreeOne,
-} from './upgradeFromThreeToThreeOne'
+} from './upgradeFromThreeToThreeOne.js'
 
 describe('isSchemaPath', () => {
   it('correctly identifies schema paths', () => {

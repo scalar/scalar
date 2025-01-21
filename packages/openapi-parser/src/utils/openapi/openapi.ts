@@ -1,6 +1,10 @@
-import type { AnyApiDefinitionFormat, OpenApiOptions, Queue } from '../../types'
-import type { LoadOptions } from '../load'
-import { loadCommand } from './commands/loadCommand'
+import type {
+  AnyApiDefinitionFormat,
+  OpenApiOptions,
+  Queue,
+} from '../../types/index.js'
+import type { LoadOptions } from '../load/load.js'
+import { loadCommand } from './commands/loadCommand.js'
 
 /**
  * Creates a fluent OpenAPI pipeline

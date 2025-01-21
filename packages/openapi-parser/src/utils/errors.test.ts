@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from './validate'
+import { validate } from './validate.js'
 
 describe('errors', () => {
   it('info required', async () => {
