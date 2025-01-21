@@ -161,9 +161,6 @@ func (ps *ProxyServer) executeProxyRequest(w http.ResponseWriter, r *http.Reques
 
 	// Redirect X-Scalar-Cookie header as Cookie header
 	if xScalarCookie := r.Header.Get("X-Scalar-Cookie"); xScalarCookie != "" {
-		// Log the cookie
-		log.Println("X-Scalar-Cookie", xScalarCookie)
-
 		// Set the cookie
 		outreq.Header.Set("Cookie", xScalarCookie)
 		// Remove the X-Scalar-Cookie header
