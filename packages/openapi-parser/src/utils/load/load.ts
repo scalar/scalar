@@ -1,7 +1,6 @@
 import { ERRORS } from '../../configuration'
 import type {
   AnyApiDefinitionFormat,
-  AnyObject,
   ErrorObject,
   Filesystem,
   LoadResult,
@@ -50,38 +49,7 @@ export async function load(
     }
   }
 
-  // Check whether the value is an URL or file path
-  const plugin = options?.plugins?.find((thisPlugin) => thisPlugin.check(value))
-
-  let content: AnyObject
-
-  if (plugin) {
-    try {
-      content = normalize(await plugin.get(value))
-    } catch (error) {
-      if (options?.throwOnError) {
-        throw new Error(
-          ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', value as string),
-        )
-      }
-
-      errors.push({
-        code: 'EXTERNAL_REFERENCE_NOT_FOUND',
-        message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace(
-          '%s',
-          value as string,
-        ),
-      })
-
-      return {
-        specification: null,
-        filesystem: [],
-        errors,
-      }
-    }
-  } else {
-    content = normalize(value)
-  }
+  const content = normalize(value)
 
   // No content
   if (content === undefined) {
