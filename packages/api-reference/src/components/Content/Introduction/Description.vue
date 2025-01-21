@@ -76,8 +76,8 @@ const transformHeading = (node: Record<string, any>) => {
     v-if="value"
     class="introduction-description">
     <template
-      v-for="(section, index) in sections"
-      :key="index">
+      v-for="section in sections"
+      :key="section.id">
       <!-- headings -->
       <template v-if="section.id">
         <IntersectionObserver

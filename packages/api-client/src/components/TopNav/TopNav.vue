@@ -207,7 +207,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       <template v-else>
         <TopNavItem
           v-for="(topNavItem, index) in topNavItems"
-          :key="index"
+          :key="topNavItem.path"
           :active="index === activeNavItemIdxValue"
           :hotkey="(index + 1).toString()"
           :icon="topNavItem.icon"

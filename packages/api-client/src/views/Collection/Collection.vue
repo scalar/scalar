@@ -35,8 +35,8 @@ const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
               </DataTableHeader>
             </DataTableRow>
             <DataTableRow
-              v-for="(item, idx) in data"
-              :key="idx">
+              v-for="item in data"
+              :key="item.key">
               <DataTableCheckbox v-model="item.enabled" />
               <DataTableInput
                 v-model="item.key"

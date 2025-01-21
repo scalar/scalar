@@ -73,8 +73,8 @@ watch(url, (newUrl) => {
     <div>
       <select v-model="url">
         <option
-          v-for="(example, index) in urls"
-          :key="index"
+          v-for="example in urls"
+          :key="example.url"
           :value="example.url">
           {{ example.name }}
         </option>
