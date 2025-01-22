@@ -1,2 +1,2 @@
-export * from './Validator.js'
-export * from '../../utils/resolveReferences.js'
+export * from './Validator.ts'
+export * from '../../utils/resolveReferences.ts'

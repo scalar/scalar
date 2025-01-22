@@ -1,4 +1,4 @@
-import prettify from './helpers.js'
+import prettify from './helpers.ts'
 
 type BetterAjvErrorsOptions = {
   indent?: number

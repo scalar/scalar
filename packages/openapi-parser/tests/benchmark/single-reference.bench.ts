@@ -1,7 +1,7 @@
 import { bench, describe, expect } from 'vitest'
 
-import { resolveNew } from './utils/resolveNew.js'
-import { resolveOld } from './utils/resolveOld.js'
+import { resolveNew } from './utils/resolveNew.ts'
+import { resolveOld } from './utils/resolveOld.ts'
 
 describe('single reference', () => {
   const specification = {

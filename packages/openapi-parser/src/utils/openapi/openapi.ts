@@ -2,9 +2,9 @@ import type {
   AnyApiDefinitionFormat,
   OpenApiOptions,
   Queue,
-} from '../../types/index.js'
-import type { LoadOptions } from '../load/load.js'
-import { loadCommand } from './commands/loadCommand.js'
+} from '../../types/index.ts'
+import type { LoadOptions } from '../load/load.ts'
+import { loadCommand } from './commands/loadCommand.ts'
 
 /**
  * Creates a fluent OpenAPI pipeline

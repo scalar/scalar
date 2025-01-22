@@ -1,4 +1,4 @@
-import type { AnyObject } from '../../../types/index.js'
+import type { AnyObject } from '../../../types/index.ts'
 
 export const addMissingTags = (definition: AnyObject) => {
   if (!definition.paths) {

@@ -1,7 +1,7 @@
-import type { Queue, Task } from '../../../types/index.js'
-import { getEntrypoint } from '../../getEntrypoint.js'
-import { toYaml as toYamlUtility } from '../../toYaml.js'
-import { workThroughQueue } from '../utils/workThroughQueue.js'
+import type { Queue, Task } from '../../../types/index.ts'
+import { getEntrypoint } from '../../getEntrypoint.ts'
+import { toYaml as toYamlUtility } from '../../toYaml.ts'
+import { workThroughQueue } from '../utils/workThroughQueue.ts'
 
 /**
  * Run the chained tasks and return the results

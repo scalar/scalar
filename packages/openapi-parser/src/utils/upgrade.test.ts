@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { makeFilesystem } from './makeFilesystem.js'
-import { upgrade } from './upgrade.js'
+import { makeFilesystem } from './makeFilesystem.ts'
+import { upgrade } from './upgrade.ts'
 
 describe('upgrade', () => {
   it('upgrades documents from Swagger 2.0 to OpenAPI 3.1', async () => {

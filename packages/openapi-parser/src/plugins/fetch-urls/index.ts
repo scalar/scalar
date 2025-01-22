@@ -1,1 +1,1 @@
-export * from './fetchUrls.js'
+export * from './fetchUrls.ts'

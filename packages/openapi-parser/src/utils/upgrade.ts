@@ -1,10 +1,10 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 
-import type { AnyObject, Filesystem, UpgradeResult } from '../types/index.js'
-import { getEntrypoint } from './getEntrypoint.js'
-import { makeFilesystem } from './makeFilesystem.js'
-import { upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne.js'
-import { upgradeFromTwoToThree } from './upgradeFromTwoToThree.js'
+import type { AnyObject, Filesystem, UpgradeResult } from '../types/index.ts'
+import { getEntrypoint } from './getEntrypoint.ts'
+import { makeFilesystem } from './makeFilesystem.ts'
+import { upgradeFromThreeToThreeOne } from './upgradeFromThreeToThreeOne.ts'
+import { upgradeFromTwoToThree } from './upgradeFromTwoToThree.ts'
 
 /**
  * Upgrade specification to OpenAPI 3.1.0
