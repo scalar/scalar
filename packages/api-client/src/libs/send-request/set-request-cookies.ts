@@ -11,15 +11,6 @@ import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 const defaultPath = '/'
 
 /**
- * The SameSite attribute lets servers specify whether/when cookies are sent with cross-site requests.
- *
- * None specifies that cookies are sent on both originating and cross-site requests.
- *
- * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies#controlling_third-party_cookies_with_samesite
- */
-const defaultSameSite = 'None'
-
-/**
  * Set all cookie params and workspace level cookies that are applicable
  */
 export function setRequestCookies({
@@ -129,16 +120,23 @@ export const matchesDomain = (
   if (!givenUrl || !configuredHostname) return true
 
   try {
-    const givenHostname = new URL(
-      givenUrl.startsWith('http') ? givenUrl : `http://${givenUrl}`,
-    ).hostname
+    // Add protocol if not present
+    const urlWithProtocol = givenUrl.startsWith('http')
+      ? givenUrl
+      : `http://${givenUrl}`
+
+    // Get just the hostname
+    const givenHostname = new URL(urlWithProtocol).hostname
+
+    // Let’s see if the configured hostname matches the given hostname in some way
+    const noHostnameConfigured = !configuredHostname
+    const hostnameMatches = configuredHostname === givenHostname
+    const hostnameMatchesWithWildcard =
+      configuredHostname.startsWith('.') &&
+      givenHostname?.endsWith(configuredHostname)
 
     return (
-      !configuredHostname ||
-      configuredHostname === givenHostname ||
-      (configuredHostname.startsWith('.') &&
-        givenHostname?.endsWith(configuredHostname)) ||
-      configuredHostname === `.${givenHostname}`
+      noHostnameConfigured || hostnameMatches || hostnameMatchesWithWildcard
     )
   } catch {
     return false
