@@ -17,10 +17,29 @@ type DisplayScheme = {
 }
 
 /** Format a scheme object into a display object */
-export const displaySchemeFormatter = (s: DisplayScheme) => ({
+export const formatScheme = (s: DisplayScheme) => ({
   id: s.uid,
   label: s.type === 'openIdConnect' ? `${s.nameKey} (coming soon)` : s.nameKey,
 })
+
+/** Formats complex security schemes */
+export const formatComplexScheme = (
+  uids: string[],
+  securitySchemes: Record<string, DisplayScheme>,
+) =>
+  formatScheme(
+    uids.reduce(
+      (acc, uid, index) => {
+        const scheme = securitySchemes[uid]
+        if (scheme) {
+          acc.nameKey += `${index > 0 ? ' & ' : ''}${scheme.nameKey}`
+          acc.uid += `${index > 0 ? ',' : ''}${scheme.uid}`
+        }
+        return acc
+      },
+      { type: 'complex', nameKey: '', uid: '' },
+    ),
+  )
 
 /** Compute what the security requirements should be for a request */
 export const getSecurityRequirements = (
@@ -73,24 +92,13 @@ export const getSchemeOptions = (
 
         // Complex auth
         if (keys.length > 1) {
-          return displaySchemeFormatter(
-            keys.reduce(
-              (acc, k, index) => {
-                const scheme = schemeDict[k]
-                if (scheme) {
-                  acc.nameKey += `${index > 0 ? ' & ' : ''}${scheme.nameKey}`
-                  acc.uid += `${index > 0 ? ',' : ''}${scheme.uid}`
-                }
-                return acc
-              },
-              { type: 'complex', nameKey: '', uid: '' },
-            ),
-          )
+          const uids = keys.map((k) => schemeDict[k]?.uid).filter(isDefined)
+          return formatComplexScheme(uids, securitySchemes)
         }
         // Simple auth
         else if (keys[0]) {
           const scheme = schemeDict[keys[0]]
-          if (scheme) return displaySchemeFormatter(scheme)
+          if (scheme) return formatScheme(scheme)
         }
 
         return []
@@ -102,7 +110,7 @@ export const getSchemeOptions = (
       .filter((uid) => !requiredFormatted.some((r) => r.id === uid))
       .map((uid) => {
         const scheme = securitySchemes[uid]
-        if (scheme) return displaySchemeFormatter(scheme)
+        if (scheme) return formatScheme(scheme)
         return null
       })
       .filter(isDefined)
