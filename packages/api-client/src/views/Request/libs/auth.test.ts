@@ -6,13 +6,32 @@ import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import {
-  displaySchemeFormatter,
+  formatComplexScheme,
+  formatScheme,
   getSchemeOptions,
   getSecurityRequirements,
 } from './auth'
 
+const securitySchemes = {
+  apiKeyUid: {
+    type: 'apiKey',
+    nameKey: 'apiKey',
+    uid: 'apiKeyUid',
+  },
+  basicUid: {
+    type: 'http',
+    nameKey: 'basic',
+    uid: 'basicUid',
+  },
+  oauth2Uid: {
+    type: 'oauth2',
+    nameKey: 'oauth2',
+    uid: 'oauth2Uid',
+  },
+} as const
+
 describe('auth utilities', () => {
-  describe('displaySchemeFormatter', () => {
+  describe('formatScheme', () => {
     it('formats regular security scheme', () => {
       const scheme = {
         uid: 'auth1',
@@ -20,7 +39,7 @@ describe('auth utilities', () => {
         nameKey: 'Basic Auth',
       } as const
 
-      expect(displaySchemeFormatter(scheme)).toEqual({
+      expect(formatScheme(scheme)).toEqual({
         id: 'auth1',
         label: 'Basic Auth',
       })
@@ -33,9 +52,36 @@ describe('auth utilities', () => {
         nameKey: 'OAuth',
       } as const
 
-      expect(displaySchemeFormatter(scheme)).toEqual({
+      expect(formatScheme(scheme)).toEqual({
         id: 'auth2',
         label: 'OAuth (coming soon)',
+      })
+    })
+  })
+
+  describe('formatComplexScheme', () => {
+    it('combines multiple schemes into a single complex scheme', () => {
+      expect(
+        formatComplexScheme(['apiKeyUid', 'oauth2Uid'], securitySchemes),
+      ).toEqual({
+        id: 'apiKeyUid,oauth2Uid',
+        label: 'apiKey & oauth2',
+      })
+    })
+
+    it('handles missing schemes gracefully', () => {
+      expect(
+        formatComplexScheme(['apiKeyUid', 'missing'], securitySchemes),
+      ).toEqual({
+        id: 'apiKeyUid',
+        label: 'apiKey',
+      })
+    })
+
+    it('returns empty complex scheme when no valid schemes provided', () => {
+      expect(formatComplexScheme(['missing1', 'missing2'], {})).toEqual({
+        id: '',
+        label: '',
       })
     })
   })
@@ -117,23 +163,6 @@ describe('auth utilities', () => {
 })
 
 describe('getSchemeOptions', () => {
-  const securitySchemes = {
-    apiKeyUid: {
-      type: 'apiKey',
-      nameKey: 'apiKey',
-      uid: 'apiKeyUid',
-    },
-    basicUid: {
-      type: 'http',
-      nameKey: 'basic',
-      uid: 'basicUid',
-    },
-    oauth2Uid: {
-      type: 'oauth2',
-      nameKey: 'oauth2',
-      uid: 'oauth2Uid',
-    },
-  } as const
   const collectionSchemeUids = Object.values(securitySchemes).map((s) => s.uid)
 
   it('returns flat list when readonly and theres no required schemes', () => {

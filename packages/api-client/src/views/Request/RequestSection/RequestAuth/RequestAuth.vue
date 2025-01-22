@@ -5,7 +5,8 @@ import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
 import {
-  displaySchemeFormatter,
+  formatComplexScheme,
+  formatScheme,
   getSchemeOptions,
   getSecurityRequirements,
 } from '@/views/Request/libs'
@@ -87,13 +88,17 @@ const authIndicator = computed(() => {
 })
 
 /** Currently selected auth schemes on the collection */
-const selectedAuth = computed(() =>
+const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
     .map((uid) => {
+      const uidsArr = uid.split(',')
+      if (uidsArr.length > 1) {
+        return formatComplexScheme(uidsArr, securitySchemes)
+      }
+
       const scheme = securitySchemes[uid ?? '']
       if (!scheme) return undefined
-
-      return displaySchemeFormatter(scheme)
+      return formatScheme(scheme)
     })
     .filter(isDefined),
 )
@@ -186,7 +191,7 @@ const schemeOptions = computed(() =>
         <ScalarComboboxMultiselect
           class="text-xs w-72"
           :isDeletable="layout !== 'modal' && layout !== 'reference'"
-          :modelValue="selectedAuth"
+          :modelValue="selectedSchemeOptions"
           multiple
           :options="schemeOptions"
           @delete="handleDeleteScheme"
@@ -198,10 +203,10 @@ const schemeOptions = computed(() =>
             variant="ghost">
             <div class="text-c-1">
               {{
-                selectedAuth.length === 0
+                selectedSchemeOptions.length === 0
                   ? 'Auth Type'
-                  : selectedAuth.length === 1
-                    ? selectedAuth[0]?.label
+                  : selectedSchemeOptions.length === 1
+                    ? selectedSchemeOptions[0]?.label
                     : 'Multiple'
               }}
             </div>
@@ -215,7 +220,7 @@ const schemeOptions = computed(() =>
     </template>
     <RequestAuthDataTable
       :layout="layout"
-      :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+      :selectedSchemeOptions="selectedSchemeOptions" />
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"
