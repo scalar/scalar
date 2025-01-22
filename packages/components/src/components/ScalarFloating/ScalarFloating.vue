@@ -21,14 +21,14 @@ defineSlots<{
   /** The reference element for the element in the #floating slot */
   default(): Slot
   /** The floating element */
-  floating(props: {
+  floating?: (props: {
     /** The width of the reference element if `resize` is true and placement is on the y axis */
     width?: string
     /** The height of the reference element if `resize` is true and placement is on the x axis */
     height?: string
     /** The middleware data return by Floating UI */
     data?: MiddlewareData
-  }): Slot
+  }) => Slot
 }>()
 
 defineOptions({ inheritAttrs: false })

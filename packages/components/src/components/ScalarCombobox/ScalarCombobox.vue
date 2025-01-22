@@ -27,9 +27,9 @@ defineSlots<{
   /** The reference element for the combobox */
   default(props: SlotProps): Slot
   /** A slot for contents before the combobox options */
-  before(props: SlotProps): Slot
+  before?: (props: SlotProps) => Slot
   /** A slot for contents after the combobox options */
-  after(props: SlotProps): Slot
+  after?: (props: SlotProps) => Slot
 }>()
 </script>
 <template>

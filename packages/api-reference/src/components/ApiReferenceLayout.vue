@@ -65,7 +65,7 @@ defineOptions({
 })
 
 defineSlots<{
-  [x in ReferenceLayoutSlot]: (props: ReferenceSlotProps) => any
+  [x in ReferenceLayoutSlot]?: (props: ReferenceSlotProps) => any
 }>()
 
 const isLargeScreen = useMediaQuery('(min-width: 1150px)')
