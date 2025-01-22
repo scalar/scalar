@@ -54,7 +54,7 @@ const version = computed(() => {
 <template>
   <SectionContainer>
     <!-- If the #after slot is used, we need to add a gap to the section. -->
-    <Section class="gap-12">
+    <Section class="introduction-section gap-12">
       <SectionContent :loading="!info?.description && !info?.title">
         <div class="badges">
           <Badge v-if="version">{{ version }}</Badge>
