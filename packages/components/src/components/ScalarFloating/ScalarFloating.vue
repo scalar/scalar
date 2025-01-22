@@ -4,7 +4,7 @@ import {
   type MiddlewareData,
   autoUpdate,
   flip,
-  offset,
+  offset as offsetMiddleware,
   shift,
   size,
   useFloating,
@@ -15,7 +15,14 @@ import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
 import { useResizeWithTarget } from './useResizeWithTarget'
 
-const props = defineProps<FloatingOptions>()
+const {
+  placement = 'bottom',
+  offset = 5,
+  resize = false,
+  middleware = [],
+  target,
+  teleport,
+} = defineProps<FloatingOptions>()
 
 defineSlots<{
   /** The reference element for the element in the #floating slot */
@@ -39,16 +46,13 @@ const wrapperRef: Ref<HTMLElement | null> = ref(null)
 const targetRef = computed(() => {
   if (typeof window !== 'undefined') {
     // If target is a string (id), try to find it in the document
-    if (typeof props.target === 'string') {
-      const target = document.getElementById(props.target)
-      if (target) return target
-      else
-        console.warn(
-          `ScalarFloating: Target with id="${props.target}" not found`,
-        )
+    if (typeof target === 'string') {
+      const t = document.getElementById(target)
+      if (t) return t
+      else console.warn(`ScalarFloating: Target with id="${target}" not found`)
     }
     // If target is an HTMLElement, return it
-    else if (props.target instanceof HTMLElement) return props.target
+    else if (target instanceof HTMLElement) return target
   }
   // Fallback to div wrapper if no child element is provided
   if (wrapperRef.value)
@@ -58,26 +62,21 @@ const targetRef = computed(() => {
 })
 
 const targetSize = useResizeWithTarget(targetRef, {
-  enabled: computed(() => props.resize),
+  enabled: computed(() => resize),
 })
 
 const targetWidth = computed(() =>
-  getSideAxis(props.placement || 'bottom') === 'y'
-    ? targetSize.width.value
-    : undefined,
+  getSideAxis(placement) === 'y' ? targetSize.width.value : undefined,
 )
 
 const targetHeight = computed(() =>
-  getSideAxis(props.placement || 'bottom') === 'x'
-    ? targetSize.height.value
-    : undefined,
+  getSideAxis(placement) === 'x' ? targetSize.height.value : undefined,
 )
-
 const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
-  placement: computed(() => props.placement),
+  placement: computed(() => placement),
   whileElementsMounted: autoUpdate,
   middleware: computed(() => [
-    offset(5),
+    offsetMiddleware(offset),
     flip(),
     shift(),
     size({
@@ -90,7 +89,7 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
         })
       },
     }),
-    ...(props.middleware ?? []),
+    ...middleware,
   ]),
 })
 </script>
@@ -106,7 +105,7 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     :to="typeof teleport === 'string' ? teleport : undefined">
     <div
       ref="floatingRef"
-      class="relative z-overlay"
+      class="relative z-context"
       :style="floatingStyles">
       <slot
         :data="middlewareData"
