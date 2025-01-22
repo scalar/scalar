@@ -1,5 +1,11 @@
 # @scalar/nextjs-api-reference
 
+## 0.5.3
+
+### Patch Changes
+
+- 0261b6f: chore: move to new integrations/ folder
+
 ## 0.5.2
 
 ### Patch Changes

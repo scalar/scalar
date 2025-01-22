@@ -1,5 +1,11 @@
 # @scalar/hono-api-reference
 
+## 0.5.168
+
+### Patch Changes
+
+- 0261b6f: chore: move to new integrations/ folder
+
 ## 0.5.167
 
 ### Patch Changes

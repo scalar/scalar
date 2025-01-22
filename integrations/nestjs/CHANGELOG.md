@@ -1,5 +1,11 @@
 # @scalar/nestjs-api-reference
 
+## 0.3.177
+
+### Patch Changes
+
+- 0261b6f: chore: move to new integrations/ folder
+
 ## 0.3.176
 
 ### Patch Changes

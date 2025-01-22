@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.11.61
+
+### Patch Changes
+
+- Updated dependencies [aac6c86]
+  - @scalar/components@0.13.16
+
 ## 0.11.60
 
 ### Patch Changes
