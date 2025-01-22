@@ -327,13 +327,13 @@ jobs:
           ./packages/api-reference
           ./packages/api-reference-react
           ./packages/components
-          ./packages/docusaurus
-          ./packages/express-api-reference
+          ./integrations/docusaurus
+          ./integrations/express
           ./packages/fastify-api-reference
-          ./packages/hono-api-reference
-          ./packages/nestjs-api-reference
-          ./packages/nextjs-api-reference
-          ./packages/nuxt
+          ./integrations/hono
+          ./integrations/nestjs
+          ./integrations/nextjs
+          ./integrations/nuxt
           ./packages/themes
 
   deploy-api-client:

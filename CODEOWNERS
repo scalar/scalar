@@ -20,8 +20,8 @@
 /packages/themes @hwkr @cameronrohani
 /packages/scalar-app @hanspagel
 /packages/api-reference-react @amritk
-/packages/docusaurus @amritk
-/packages/hono-api-reference @hanspagel
+/integrations/docusaurus @amritk
+/integrations/hono @hanspagel
 # /packages/object-utils
 # /packages/use-codemirror
 /packages/build-tooling @geoffgscott
@@ -30,21 +30,21 @@
 /packages/play-button @marclave
 # /packages/use-modal
 /packages/build-watch @geoffgscott
-/packages/nestjs-api-reference @marclave
+/integrations/nestjs @marclave
 /packages/scalar.aspnetcore @marclave @hanspagel
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk
 /packages/cli @hanspagel
-/packages/express-api-reference @hanspagel
-/packages/nextjs-api-reference @amritk
-/packages/scalar_django_ninja @marclave
+/integrations/express @hanspagel
+/integrations/nextjs @amritk
+/integrations/django-ninja @marclave
 # /packages/use-tooltip
 /packages/api-reference @hanspagel
 /packages/code-highlight @geoffgscott
 /packages/fastify-api-reference @hanspagel
-/packages/nuxt @amritk
-/packages/scalar_fastapi @marclave
+/integrations/nuxt @amritk
+/integrations/fastapi @marclave
 /packages/void-server @hanspagel
 
 # Testing
