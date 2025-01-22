@@ -53,6 +53,35 @@ describe('Introduction', () => {
     expect(wrapper.find('.loading').exists()).toBe(true)
   })
 
+  /**
+   * We use the .introduction-section class for theming widely
+   * so we need to make sure it's there
+   */
+  it('exposes the .introduction-section class for theming', () => {
+    const example = {
+      openapi: '3.1.1',
+      info: {
+        title: 'Hello World',
+        description: 'Example description',
+        version: '1.0.0',
+      },
+    } satisfies Spec
+
+    const wrapper = mount(Introduction, {
+      props: {
+        parsedSpec: example,
+        info: example.info,
+      },
+    })
+
+    const section = wrapper.get('.introduction-section')
+
+    expect(section.html()).toContain('Hello World')
+    expect(section.html()).toContain('Example description')
+    expect(section.html()).toContain('v1.0.0')
+    expect(section.html()).toContain('OAS 3.1.1')
+  })
+
   it('generates filename from title', () => {
     const example = {
       openapi: '3.1.1',
