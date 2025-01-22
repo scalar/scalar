@@ -1,4 +1,4 @@
-import { bench, describe } from 'vitest'
+import { bench, describe, expect } from 'vitest'
 
 import { resolveNew } from './utils/resolveNew.js'
 import { resolveOld } from './utils/resolveOld.js'
