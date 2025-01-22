@@ -18,7 +18,6 @@ export default {}
 </script>
 <script setup lang="ts">
 import { Menu, MenuButton, MenuItems } from '@headlessui/vue'
-import type { Slot } from 'vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
@@ -31,12 +30,12 @@ defineSlots<{
   default(props: {
     /** Whether or not the dropdown is open */
     open: boolean
-  }): Slot
+  }): any
   /** The list of dropdown items */
   items(props: {
     /** Whether or not the dropdown is open */
     open: boolean
-  }): Slot
+  }): any
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -45,11 +44,8 @@ const { cx } = useBindCx()
 <template>
   <Menu v-slot="{ open }">
     <ScalarFloating
-      :middleware="middleware"
-      :placement="placement ?? 'bottom-start'"
-      :resize="resize"
-      :target="target"
-      :teleport="teleport">
+      v-bind="$props"
+      :placement="placement ?? 'bottom-start'">
       <MenuButton as="template">
         <slot :open="open" />
       </MenuButton>
