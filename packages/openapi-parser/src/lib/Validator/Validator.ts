@@ -1,22 +1,22 @@
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
-import Ajv2020 from 'ajv/dist/2020.js'
+import Ajv2020 from 'ajv/dist/2020.ts'
 
 import {
   ERRORS,
   OpenApiSpecifications,
   type OpenApiVersion,
   OpenApiVersions,
-} from '../../configuration/index.js'
+} from '../../configuration/index.ts'
 import type {
   AnyObject,
   Filesystem,
   ThrowOnErrorOption,
   ValidateResult,
-} from '../../types/index.js'
-import { details as getOpenApiVersion } from '../../utils/details.js'
-import { resolveReferences } from '../../utils/resolveReferences.js'
-import { transformErrors } from '../../utils/transformErrors.js'
+} from '../../types/index.ts'
+import { details as getOpenApiVersion } from '../../utils/details.ts'
+import { resolveReferences } from '../../utils/resolveReferences.ts'
+import { transformErrors } from '../../utils/transformErrors.ts'
 
 /**
  * Configure available JSON Schema versions

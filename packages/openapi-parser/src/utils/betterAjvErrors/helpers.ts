@@ -8,7 +8,7 @@ import {
   isEnumError,
   isRequiredError,
   notUndefined,
-} from './utils.js'
+} from './utils.ts'
 import {
   AdditionalPropValidationError,
   DefaultValidationError,

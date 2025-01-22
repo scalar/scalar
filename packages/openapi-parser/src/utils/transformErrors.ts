@@ -1,5 +1,5 @@
-import type { AnyObject } from '../types/index.js'
-import { betterAjvErrors } from './betterAjvErrors/index.js'
+import type { AnyObject } from '../types/index.ts'
+import { betterAjvErrors } from './betterAjvErrors/index.ts'
 
 /**
  * Transforms ajv errors, finds the positions in the schema and returns an enriched format.

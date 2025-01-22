@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { getEntrypoint } from './getEntrypoint.js'
-import { makeFilesystem } from './makeFilesystem.js'
+import { getEntrypoint } from './getEntrypoint.ts'
+import { makeFilesystem } from './makeFilesystem.ts'
 
 describe('getEntrypoint', () => {
   it('keeps the object reference', () => {

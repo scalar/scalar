@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { traverse } from './traverse.js'
+import { traverse } from './traverse.ts'
 
 describe('traverse', () => {
   it('applies transform function to a flat object', () => {

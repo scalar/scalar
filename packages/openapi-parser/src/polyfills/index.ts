@@ -1,1 +1,1 @@
-export * as path from './path.js'
+export * as path from './path.ts'

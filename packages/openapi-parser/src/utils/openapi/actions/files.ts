@@ -1,5 +1,5 @@
-import type { Filesystem, Queue, Task } from '../../../types/index.js'
-import { workThroughQueue } from '../utils/workThroughQueue.js'
+import type { Filesystem, Queue, Task } from '../../../types/index.ts'
+import { workThroughQueue } from '../utils/workThroughQueue.ts'
 
 /**
  * Run the chained tasks and return just the filesystem

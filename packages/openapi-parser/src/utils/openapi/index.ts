@@ -1,1 +1,1 @@
-export * from './openapi.js'
+export * from './openapi.ts'

@@ -1,11 +1,11 @@
-import type { DereferenceResult, Queue, Task } from '../../../types/index.js'
-import type { DereferenceOptions } from '../../dereference.js'
-import { details } from '../actions/details.js'
-import { files } from '../actions/files.js'
-import { get } from '../actions/get.js'
-import { toJson } from '../actions/toJson.js'
-import { toYaml } from '../actions/toYaml.js'
-import { queueTask } from '../utils/queueTask.js'
+import type { DereferenceResult, Queue, Task } from '../../../types/index.ts'
+import type { DereferenceOptions } from '../../dereference.ts'
+import { details } from '../actions/details.ts'
+import { files } from '../actions/files.ts'
+import { get } from '../actions/get.ts'
+import { toJson } from '../actions/toJson.ts'
+import { toYaml } from '../actions/toYaml.ts'
+import { queueTask } from '../utils/queueTask.ts'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

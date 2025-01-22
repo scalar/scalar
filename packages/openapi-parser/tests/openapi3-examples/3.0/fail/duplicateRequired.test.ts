@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src/index.js'
+import { validate } from '../../../../src/index.ts'
 import duplicateRequired from './duplicateRequired.yaml?raw'
 
 describe.todo('duplicateRequired', () => {

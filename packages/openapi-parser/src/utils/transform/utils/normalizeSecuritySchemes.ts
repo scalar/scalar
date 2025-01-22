@@ -1,4 +1,4 @@
-import type { AnyObject } from '../../../types/index.js'
+import type { AnyObject } from '../../../types/index.ts'
 
 export const normalizeSecuritySchemes = (definition: AnyObject) => {
   if (!definition.components?.securitySchemes) {
