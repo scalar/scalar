@@ -17,7 +17,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/scalar");
+        var response = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
 
         // Assert
         const string expected = $$"""
@@ -46,10 +46,10 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                   </html>
                                   """;
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.ReplaceLineEndings().Should().Match(expected);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldRedirectToTrailingSlash_WhenRequestedWithoutTrailingSlash()
     {
@@ -60,7 +60,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         });
 
         // Act
-        var response = await client.GetAsync("/scalar");
+        var response = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
@@ -79,17 +79,17 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync(assetUrl);
+        var response = await client.GetAsync(assetUrl, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         response.Headers.CacheControl.Should().NotBeNull();
         response.Headers.CacheControl!.NoCache.Should().BeTrue();
         response.Headers.ETag.Should().NotBeNull();
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.ReplaceLineEndings().Should().Contain(expectedContent);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldReturn304_WhenETagIsEqual()
     {
@@ -98,17 +98,17 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync(assetUrl);
+        var response = await client.GetAsync(assetUrl, TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var etag = response.Headers.ETag;
         etag.Should().NotBeNull();
-        
+
         // Act
         client.DefaultRequestHeaders.IfNoneMatch.Add(etag!);
-        response = await client.GetAsync(assetUrl);
-        
+        response = await client.GetAsync(assetUrl, TestContext.Current.CancellationToken);
+
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }
@@ -121,11 +121,11 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/scalar");
+        var response = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.ReplaceLineEndings().Should().Contain("/openapi/v1.json");
     }
 
@@ -136,14 +136,14 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/scalar/v3");
+        var response = await client.GetAsync("/scalar/v3", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.ReplaceLineEndings().Should().Contain("/openapi/v3.json").And.NotContain("/openapi/v1.json");
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldUseDocumentProvider_WhenSpecified()
     {
@@ -157,14 +157,14 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         }).CreateClient();
 
         // Act
-        var response = await client.GetAsync("/scalar/");
+        var response = await client.GetAsync("/scalar/", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var content = await response.Content.ReadAsStringAsync();
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         content.ReplaceLineEndings().Should().Contain("/openapi/v2.json").And.NotContain("/openapi/v1.json");
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldUseCustomCdn_WhenRequested()
     {
@@ -179,11 +179,11 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         }).CreateClient();
 
         // Act
-        var index = await client.GetAsync($"/scalar");
+        var index = await client.GetAsync($"/scalar", TestContext.Current.CancellationToken);
 
         // Assert
         index.StatusCode.Should().Be(HttpStatusCode.OK);
-        var indexContent = await index.Content.ReadAsStringAsync();
+        var indexContent = await index.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         indexContent.ReplaceLineEndings().Should().Contain($"<script src=\"{cdnUrl}\"></script>");
     }
 
@@ -194,12 +194,12 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/api-reference");
+        var response = await client.GetAsync("/api-reference", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldReturn401_WhenAuthenticationRequired()
     {
@@ -239,7 +239,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                 options.UseRouting();
                 options.UseEndpoints(endpoints =>
                 {
-                    endpoints.MapScalarApiReference( (o, _) => o.WithTheme(ScalarTheme.Purple));
+                    endpoints.MapScalarApiReference((o, _) => o.WithTheme(ScalarTheme.Purple));
                     endpoints.MapScalarApiReference("/bar", o => o.WithTheme(ScalarTheme.Alternate));
                 });
             });
@@ -247,16 +247,16 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = localFactory.CreateClient();
 
         // Act
-        var scalarResponse = await client.GetAsync("/scalar");
-        var barResponse = await client.GetAsync("/bar");
+        var scalarResponse = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+        var barResponse = await client.GetAsync("/bar", TestContext.Current.CancellationToken);
 
         // Assert
         scalarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         barResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        
+
         localFactory.Services.GetRequiredService<IOptions<ScalarOptions>>().Value.Theme.Should().Be(ScalarTheme.Mars);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldHandleLegacyEndpointPathPrefix_WhenSpecified()
     {
@@ -264,7 +264,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/legacy");
+        var response = await client.GetAsync("/legacy", TestContext.Current.CancellationToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
