@@ -88,4 +88,6 @@ Here are all the prefixes you need to know:
 
 ## Styles and CSS Layers
 
-The Scalar packages use CSS cascade layers extensively to manage the priority of exported styles and to make it easy to override themes and component styles in projects consuming those packages. A load order for layers isn't specified by default because the contents layers have minimal overlap.
+The Scalar packages use CSS cascade layers extensively to manage the priority of exported styles and to make it easy to override themes and component styles in projects consuming those packages.
+
+For more information see the [@scalar/themes](./packages/themes/) package.
