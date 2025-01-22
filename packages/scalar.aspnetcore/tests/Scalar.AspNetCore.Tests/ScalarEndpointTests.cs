@@ -27,10 +27,10 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                       <title>Scalar API Reference</title>
                                       <meta charset="utf-8" />
                                       <meta name="viewport" content="width=device-width, initial-scale=1" />
-                                      
+
                                   </head>
                                   <body>
-                                      
+
                                       <script id="api-reference"></script>
                                       <script src="scalar.aspnetcore.js"></script>
                                       <script>
@@ -212,7 +212,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldReturn200_WhenAuthenticated()
     {
@@ -226,7 +226,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
-    
+
     [Fact]
     public async Task MapScalarApiReference_ShouldNotCauseOptionsConflict_WhenMultipleEndpointsAreDefined()
     {
