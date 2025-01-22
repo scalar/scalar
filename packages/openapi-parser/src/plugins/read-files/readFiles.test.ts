@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { readFiles } from '.'
+import { readFiles } from './readFiles.js'
 
 describe('readFiles', async () => {
   it('returns true for a filename', async () => {

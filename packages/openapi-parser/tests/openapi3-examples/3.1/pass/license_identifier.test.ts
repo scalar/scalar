@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.js'
 import license_identifier from './license_identifier.yaml?raw'
 
 describe('license_identifier', () => {

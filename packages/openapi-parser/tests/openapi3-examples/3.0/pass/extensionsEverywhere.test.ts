@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.js'
 import extensionsEverywhere from './extensionsEverywhere.yaml?raw'
 
 describe('extensionsEverywhere', () => {

@@ -2,11 +2,11 @@
 import path from 'node:path'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { fetchUrls } from '../src/plugins/fetch-urls/fetchUrls'
-import { readFiles } from '../src/plugins/read-files/readFiles'
-import { dereference } from '../src/utils/dereference'
-import { load } from '../src/utils/load'
-import { validate } from '../src/utils/validate'
+import { fetchUrls } from '../src/plugins/fetch-urls/fetchUrls.js'
+import { readFiles } from '../src/plugins/read-files/readFiles.js'
+import { dereference } from '../src/utils/dereference.js'
+import { load } from '../src/utils/load/load.js'
+import { validate } from '../src/utils/validate.js'
 
 global.fetch = vi.fn()
 
