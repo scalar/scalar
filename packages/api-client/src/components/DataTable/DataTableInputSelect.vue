@@ -115,7 +115,7 @@ const initialValue = computed(() => {
           </ScalarDropdownItem>
 
           <template v-if="canAddCustomValue">
-            <ScalarDropdownDivider />
+            <ScalarDropdownDivider v-if="options.length" />
             <ScalarDropdownItem
               class="flex items-center gap-1.5"
               @click="addingCustomValue = true">
