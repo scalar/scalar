@@ -11,11 +11,11 @@ import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
 import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
 import { pillPlugin, backspaceCommand } from './codeVariableWidget'
 import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
-import { useWorkspace } from '@/store'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import { useActiveEntities } from '@/store/active-entities'
+import { useLayout } from '@/hooks'
 
 const props = withDefaults(
   defineProps<{
@@ -76,8 +76,7 @@ const dropdownRef = ref<InstanceType<
 
 const { activeEnvVariables, activeEnvironment, activeWorkspace } =
   useActiveEntities()
-const { isReadOnly } = useWorkspace()
-
+const { layout } = useLayout()
 const { copyToClipboard } = useClipboard()
 
 // ---------------------------------------------------------------------------
@@ -131,7 +130,7 @@ extensions.push(
     environment: activeEnvironment.value,
     envVariables: activeEnvVariables.value,
     workspace: activeWorkspace.value,
-    isReadOnly,
+    isReadOnly: layout === 'modal',
   }),
   backspaceCommand,
 )
@@ -281,7 +280,9 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="showDropdown && withVariables && !isReadOnly && activeEnvironment"
+    v-if="
+      showDropdown && withVariables && layout !== 'modal' && activeEnvironment
+    "
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
     :envVariables="activeEnvVariables"

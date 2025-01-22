@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -18,7 +19,8 @@ defineProps<{
 
 const { activeRequest, activeExample, activeWorkspace, activeServer } =
   useActiveEntities()
-const { isReadOnly, requestMutators, cookies } = useWorkspace()
+const { requestMutators, cookies } = useWorkspace()
+const { layout } = useLayout()
 
 const sections = computed(() => {
   const allSections = new Set([
@@ -42,7 +44,7 @@ const sections = computed(() => {
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () => isReadOnly && activeRequest.value?.security?.length === 0,
+  () => layout === 'modal' && activeRequest.value?.security?.length === 0,
 )
 
 type ActiveSections = (typeof sections.value)[number]
@@ -99,11 +101,11 @@ const activeWorkspaceCookies = computed(() =>
       <div
         class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
         <label
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
           for="requestname" />
         <input
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           id="requestname"
           class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 h-8 group-hover-input has-[:focus-visible]:outline z-10"
           placeholder="Request Name"

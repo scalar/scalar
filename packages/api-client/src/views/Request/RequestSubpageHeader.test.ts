@@ -44,6 +44,13 @@ const mockActiveEntities = {
   activeWorkspace: ref({}),
 }
 
+// Mock useLayout
+vi.mock('@/hooks', () => ({
+  useLayout: () => ({
+    layout: 'modal',
+  }),
+}))
+
 describe('RequestSubpageHeader', () => {
   const createWrapper = (options = {}) => {
     return mount(RequestSubpageHeader, {
@@ -78,10 +85,17 @@ describe('RequestSubpageHeader', () => {
     expect(wrapper.find('.scalar-sidebar-toggle').exists()).toBe(false)
   })
 
-  it('shows OpenApiClientButton when in readonly mode with document URL', async () => {
+  it('shows OpenApiClientButton when layout is modal and document URL is present', async () => {
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
-      isReadOnly: true,
+      hideClientButton: false,
+    })
+    mockUseActiveEntities.mockReturnValue({
+      ...mockActiveEntities,
+      activeCollection: ref({
+        documentUrl: 'https://example.com',
+        integration: 'test',
+      }),
     })
     const wrapper = createWrapper()
 
@@ -98,7 +112,6 @@ describe('RequestSubpageHeader', () => {
   it('emits hideModal when close button is clicked', async () => {
     mockUseWorkspace.mockReturnValue({
       ...mockWorkspace,
-      isReadOnly: true,
     })
     const wrapper = createWrapper()
 

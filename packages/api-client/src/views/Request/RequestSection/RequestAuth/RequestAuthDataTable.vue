@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DataTable } from '@/components/DataTable'
+import type { ClientLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { displaySchemeFormatter } from '@/views/Request/libs'
 import { useModal } from '@scalar/components'
@@ -10,11 +11,10 @@ import RequestExampleAuth from './RequestExampleAuth.vue'
 
 const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
   selectedSecuritySchemeUids: string[]
-  layout?: 'client' | 'reference'
+  layout?: 'client' | 'reference' | ClientLayout
 }>()
 
 const { securitySchemes } = useWorkspace()
-
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | null>(null)
 
@@ -68,9 +68,7 @@ watch(
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
       :columns="['']">
-      <RequestExampleAuth
-        :layout="layout"
-        :selectedSecuritySchemeUids="[activeAuth]" />
+      <RequestExampleAuth :selectedSecuritySchemeUids="[activeAuth]" />
     </DataTable>
 
     <div

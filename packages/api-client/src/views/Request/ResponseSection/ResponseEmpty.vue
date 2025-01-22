@@ -11,7 +11,7 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const { activeWorkspaceRequests } = useActiveEntities()
-const { isReadOnly, events } = useWorkspace()
+const { events } = useWorkspace()
 const route = useRoute()
 const { layout } = useLayout()
 
@@ -39,7 +39,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
           activeWorkspaceRequests.length <= 1 && layout !== 'modal',
       }">
       <div
-        v-if="!isReadOnly"
+        v-if="layout !== 'modal'"
         class="scalar-version-number">
         Scalar App V{{ packageVersion }} Beta
         <div class="mt-2">
