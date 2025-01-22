@@ -50,6 +50,7 @@ describe('findRequestByPathMethod', () => {
     selectedSecuritySchemeUids: [],
     selectedServerUid: '',
     servers: [],
+    selectedExampleUid: '',
     examples: [],
     responses: {},
   } satisfies Request

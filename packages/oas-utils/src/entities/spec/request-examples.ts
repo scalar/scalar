@@ -190,6 +190,7 @@ export const requestExampleSchema = z.object({
     .default({}),
   /** TODO: Should this be deprecated? */
   serverVariables: z.record(z.string(), z.array(z.string())).optional(),
+  source: z.enum(['user']).optional(),
 })
 
 export type RequestExample = z.infer<typeof requestExampleSchema>
@@ -344,6 +345,7 @@ export function createParamInstance(param: RequestParameter) {
 export function createExampleFromRequest(
   request: Request,
   name: string,
+  source?: string,
   server?: Server,
 ): RequestExample {
   // ---------------------------------------------------------------------------
@@ -443,6 +445,7 @@ export function createExampleFromRequest(
       name,
       body,
       serverVariables,
+      source,
     },
     requestExampleSchema,
     false,

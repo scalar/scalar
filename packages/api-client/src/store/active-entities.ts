@@ -162,7 +162,9 @@ export const createActiveEntitiesStore = ({
     computed(() => {
       const key =
         activeRouterParams.value[PathId.Examples] === 'default'
-          ? activeRequest.value?.examples[0] || ''
+          ? activeRequest.value?.selectedExampleUid ||
+            activeRequest.value?.examples[0] ||
+            ''
           : activeRouterParams.value[PathId.Examples]
 
       return requestExamples[key]
