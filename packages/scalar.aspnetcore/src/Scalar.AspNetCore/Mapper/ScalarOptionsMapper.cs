@@ -11,8 +11,8 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.CSharp, [ScalarClient.HttpClient, ScalarClient.RestSharp] },
         { ScalarTarget.Http, [ScalarClient.Http11] },
         { ScalarTarget.Java, [ScalarClient.AsyncHttp, ScalarClient.NetHttp, ScalarClient.OkHttp, ScalarClient.Unirest] },
-        { ScalarTarget.JavaScript, [ScalarClient.Xhr, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.JQuery] },
-        { ScalarTarget.Node, [ScalarClient.Undici, ScalarClient.Native, ScalarClient.Request, ScalarClient.Unirest, ScalarClient.Axios, ScalarClient.Fetch] },
+        { ScalarTarget.JavaScript, [ScalarClient.Xhr, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.JQuery, ScalarClient.OFetch] },
+        { ScalarTarget.Node, [ScalarClient.Undici, ScalarClient.Native, ScalarClient.Request, ScalarClient.Unirest, ScalarClient.Axios, ScalarClient.Fetch, ScalarClient.OFetch] },
         { ScalarTarget.ObjC, [ScalarClient.Nsurlsession] },
         { ScalarTarget.OCaml, [ScalarClient.CoHttp] },
         { ScalarTarget.Php, [ScalarClient.Curl, ScalarClient.Guzzle, ScalarClient.Http1, ScalarClient.Http2] },
@@ -23,7 +23,8 @@ internal static class ScalarOptionsMapper
         { ScalarTarget.Shell, [ScalarClient.Curl, ScalarClient.Httpie, ScalarClient.Wget] },
         { ScalarTarget.Swift, [ScalarClient.Nsurlsession] },
         { ScalarTarget.Go, [ScalarClient.Native] },
-        { ScalarTarget.Kotlin, [ScalarClient.OkHttp] }
+        { ScalarTarget.Kotlin, [ScalarClient.OkHttp] },
+        { ScalarTarget.Dart , [ScalarClient.Http]}
     };
 
     internal static ScalarConfiguration ToScalarConfiguration(this ScalarOptions options)
@@ -51,7 +52,7 @@ internal static class ScalarOptionsMapper
             Authentication = options.Authentication,
             TagSorter = options.TagSorter?.ToStringFast(),
             OperationsSorter = options.OperationSorter?.ToStringFast(),
-            HiddenClients = GetHiddenClients(options),
+            HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {
                 ClientKey = options.DefaultHttpClient.Value.ToStringFast(),
@@ -75,11 +76,6 @@ internal static class ScalarOptionsMapper
 
     private static Dictionary<ScalarTarget, ScalarClient[]>? ProcessOptions(ScalarOptions options)
     {
-        if (options.HiddenClients)
-        {
-            return ClientOptions;
-        }
-
         if (options.EnabledTargets.Length == 0 && options.EnabledClients.Length == 0)
         {
             return null;

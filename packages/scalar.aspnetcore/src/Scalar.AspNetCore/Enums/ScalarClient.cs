@@ -26,6 +26,12 @@ public enum ScalarClient
     /// </summary>
     [Description("httpclient")]
     HttpClient,
+    
+    /// <summary>
+    /// Http client.
+    /// </summary>
+    [Description("http")]
+    Http,
 
     /// <summary>
     /// RestSharp client.
@@ -181,5 +187,11 @@ public enum ScalarClient
     /// Wget client.
     /// </summary>
     [Description("wget")]
-    Wget
+    Wget,
+    
+    /// <summary>
+    /// OFetch client.
+    /// </summary>
+    [Description("ofetch")]
+    OFetch
 }

@@ -28,6 +28,12 @@ public enum ScalarTarget
     CSharp,
 
     /// <summary>
+    /// Dart programming language.
+    /// </summary>
+    [Description("dart")]
+    Dart,
+    
+    /// <summary>
     /// Go programming language.
     /// </summary>
     [Description("go")]
@@ -74,7 +80,7 @@ public enum ScalarTarget
     /// </summary>
     [Description("ocaml")]
     OCaml,
-
+    
     /// <summary>
     /// PHP programming language.
     /// </summary>

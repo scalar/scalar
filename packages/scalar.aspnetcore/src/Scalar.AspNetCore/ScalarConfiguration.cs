@@ -34,7 +34,10 @@ internal sealed class ScalarConfiguration
 
     public required DefaultHttpClient? DefaultHttpClient { get; init; }
 
-    public required IDictionary<string, IEnumerable<string>>? HiddenClients { get; init; }
+    /// <remarks>
+    /// This could be a dictionary of <see cref="ScalarTarget"/> and <see cref="ScalarClient"/> arrays or a boolean if all clients are hidden.
+    /// </remarks>
+    public required object? HiddenClients { get; init; }
 
     public required ScalarAuthenticationOptions? Authentication { get; init; }
 
@@ -64,5 +67,6 @@ internal sealed class ScalarConfiguration
 }
 
 [JsonSerializable(typeof(ScalarConfiguration))]
+[JsonSerializable(typeof(Dictionary<string, IEnumerable<string>>))] // Type of hidden clients
 [JsonSourceGenerationOptions(DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 internal sealed partial class ScalarConfigurationSerializerContext : JsonSerializerContext;
