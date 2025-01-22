@@ -2,7 +2,7 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 import { defineConfig } from 'vitest/config'
 
 import pkg from './package.json'
-import { nodeExternals } from './vite-plugins/nodeExternals.js'
+import { nodeExternals } from './vite-plugins/nodeExternals.ts'
 
 export default defineConfig({
   plugins: [
@@ -10,7 +10,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: '../api-reference/dist/browser/standalone.js',
+          src: '../api-reference/dist/browser/standalone.ts',
           dest: './js',
         },
       ],

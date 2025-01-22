@@ -4,6 +4,7 @@
     "outDir": "dist/",
     "declaration": true,
     "declarationMap": true,
+    "noEmit": false,
     "emitDeclarationOnly": true
   },
   "include": ["src/index.ts"],

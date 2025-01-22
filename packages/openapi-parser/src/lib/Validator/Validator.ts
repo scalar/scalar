@@ -1,6 +1,6 @@
 import Ajv04 from 'ajv-draft-04'
 import addFormats from 'ajv-formats'
-import Ajv2020 from 'ajv/dist/2020.ts'
+import Ajv2020 from 'ajv/dist/2020.js'
 
 import {
   ERRORS,
