@@ -12,8 +12,8 @@ import { slug } from 'github-slugger'
 import type {
   FastifyApiReferenceHooksOptions,
   FastifyApiReferenceOptions,
-} from './types.js'
-import { getJavaScriptFile } from './utils/getJavaScriptFile.js'
+} from './types.ts'
+import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route
@@ -35,7 +35,7 @@ const getOpenApiDocumentEndpoints = (
   return { json, yaml }
 }
 
-const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
+const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.ts'
 
 const getJavaScriptUrl = (routePrefix?: string) =>
   `${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(

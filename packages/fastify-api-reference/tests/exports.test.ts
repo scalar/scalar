@@ -8,7 +8,7 @@ describe('exports', () => {
         logger: false,
       })
 
-      fastify.register(import('../dist/index.js'), {
+      fastify.register(import('../dist/index.ts'), {
         routePrefix: '/foobar',
         configuration: {
           spec: { url: '/openapi.json' },

@@ -1,2 +1,2 @@
-export { default } from './fastifyApiReference.js'
-export * from './types.js'
+export { default } from './fastifyApiReference.ts'
+export * from './types.ts'

@@ -7,7 +7,7 @@ import Fastify from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
-import fastifyApiReference from './index.js'
+import fastifyApiReference from './index.ts'
 
 const authOptions: FastifyBasicAuthOptions = {
   validate(username, password, req, reply, done) {
@@ -263,7 +263,7 @@ describe('fastifyApiReference', () => {
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('js/scalar.js')
+    expect(await response.text()).toContain('js/scalar.ts')
   })
 
   describe('has the spec URL', () => {
