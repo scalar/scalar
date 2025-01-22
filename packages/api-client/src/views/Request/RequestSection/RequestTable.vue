@@ -81,7 +81,7 @@ const flattenValue = (item: RequestExampleParameter) => {
     :columns="columns">
     <DataTableRow
       v-for="(item, idx) in items"
-      :key="item.key">
+      :key="idx">
       <label class="contents">
         <template v-if="isGlobal">
           <RouterLink
