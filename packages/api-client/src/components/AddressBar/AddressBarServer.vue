@@ -66,7 +66,6 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarPopover
-    backdropClass="border-none rounded-none shadow-none brightness-lifted"
     class="dark:bg-b-1 bg-b-2 border border-t-0 -top-1.25 min-w-full rounded-b-lg relative w-full"
     placement="top-start"
     resize
