@@ -131,12 +131,18 @@ export const matchesDomain = (
     // Let’s see if the configured hostname matches the given hostname in some way
     const noHostnameConfigured = !configuredHostname
     const hostnameMatches = configuredHostname === givenHostname
-    const hostnameMatchesWithWildcard =
+    const domainMatchesWildcard =
+      configuredHostname.startsWith('.') &&
+      configuredHostname === `.${givenHostname}`
+    const subdomainMatchesWildcard =
       configuredHostname.startsWith('.') &&
       givenHostname?.endsWith(configuredHostname)
 
     return (
-      noHostnameConfigured || hostnameMatches || hostnameMatchesWithWildcard
+      noHostnameConfigured ||
+      hostnameMatches ||
+      subdomainMatchesWildcard ||
+      domainMatchesWildcard
     )
   } catch {
     return false
