@@ -78,12 +78,12 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
     <!-- History shadow and placement-->
     <div
       :class="[
-        'absolute bg-b-1 left-0 top-[calc(100%-0.5px)] w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
+        'absolute bg-b-1 left-0 top-full w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-[calc(100%-4px)] before:h-[calc(100%+34.5px)] before:w-full before:rounded-lg before:pt-2 z-context',
         { 'before:shadow-border-1/2 open': open },
       ]">
       <!-- History Item -->
       <ListboxOptions
-        class="address-bg-states border-t custom-scroll max-h-[300px] p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
+        class="address-bg-states custom-scroll max-h-[300px] p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
         <ListboxOption
           v-for="(entry, index) in history"
           :key="entry.timestamp"

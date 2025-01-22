@@ -121,13 +121,14 @@ function updateRequestPath(url: string) {
 <template>
   <div
     v-if="activeRequest && activeExample"
+    id="address-bar"
     class="scalar-address-bar order-last lg:order-none lg:w-auto w-full">
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <div
-        class="addressbar-bg-states text-xxs relative flex w-full xl:min-w-[720px] overflow-hidden xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg border p-0.75 has-[.open]:border-transparent has-[.open]:overflow-visible has-[.open]:rounded-b-none">
+        class="addressbar-bg-states group text-xxs relative flex w-full xl:min-w-[720px] xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last overflow-hidden lg:order-none flex-1 flex-row items-stretch rounded-lg p-0.75 has-[button[aria-expanded=true]]:overflow-visible has-[button[aria-expanded=true]]:rounded-b-none has-[button[aria-expanded=true]]:dark:bg-b-1">
         <div
-          class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
+          class="border rounded-lg group-has-[button[aria-expanded=true]]:rounded-b-none pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
           <div
             class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full z-context"
             :class="getBackgroundColor()"

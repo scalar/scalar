@@ -3,7 +3,6 @@ import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import { computed } from 'vue'
 
 const props = defineProps<{
   serverOption: { id: string; label: string }
@@ -63,42 +62,48 @@ const updateServerVariable = (key: string, value: string) => {
 
 <template>
   <div
-    class="flex flex-col group/item whitespace-nowrap text-ellipsis overflow-hidden w-full"
+    class="min-h-fit flex flex-col group/item whitespace-nowrap text-ellipsis overflow-hidden relative w-full"
     :class="
-      isSelectedServer(serverOption.id) ? 'border' : 'border border-transparent'
+      isSelectedServer(serverOption.id)
+        ? `before:content-[''] before:absolute before:inset-0 before:bg-b-1 before:brightness-lifted z-overlay border`
+        : 'border border-transparent'
     "
     @click="handleClick($event, serverOption.id)">
-    <div
-      class="cursor-pointer flex items-center gap-1.5 min-h-8 px-1.5"
-      :class="isSelectedServer(serverOption.id) ? 'bg-b-1' : 'hover:bg-b-2'">
+    <div class="z-context">
       <div
-        class="flex size-4 items-center justify-center p-0.75 text-b-1 rounded-full"
+        class="cursor-pointer flex items-center gap-1.5 min-h-8 px-1.5"
         :class="
-          isSelectedServer(serverOption.id)
-            ? 'bg-c-accent text-b-1'
-            : 'shadow-border text-transparent'
+          isSelectedServer(serverOption.id) ? 'text-c-1' : 'hover:bg-b-2'
         ">
-        <ScalarIcon
-          icon="Checkmark"
-          size="xs"
-          thickness="2.5" />
+        <div
+          class="flex size-4 items-center justify-center p-0.75 text-b-1 rounded-full"
+          :class="
+            isSelectedServer(serverOption.id)
+              ? 'bg-c-accent text-b-1'
+              : 'shadow-border text-transparent'
+          ">
+          <ScalarIcon
+            icon="Checkmark"
+            size="xs"
+            thickness="2.5" />
+        </div>
+        <span class="whitespace-nowrap text-ellipsis overflow-hidden">
+          {{ serverOption.label }}
+        </span>
       </div>
-      <span class="whitespace-nowrap text-ellipsis overflow-hidden">
-        {{ serverOption.label }}
-      </span>
-    </div>
 
-    <!-- Server variables -->
-    <div
-      v-if="isSelectedServer(serverOption.id) && activeServer?.variables"
-      class="bg-b-1 border-t divide divide-y *:pl-4">
-      <ServerVariablesForm
-        :variables="activeServer?.variables"
-        @update:variable="updateServerVariable" />
-      <!-- Description -->
-      <div v-if="activeServer?.description">
-        <div class="description px-3 py-1.5 text-c-3">
-          <ScalarMarkdown :value="activeServer.description" />
+      <!-- Server variables -->
+      <div
+        v-if="isSelectedServer(serverOption.id) && activeServer?.variables"
+        class="border-t divide divide-y *:pl-4">
+        <ServerVariablesForm
+          :variables="activeServer?.variables"
+          @update:variable="updateServerVariable" />
+        <!-- Description -->
+        <div v-if="activeServer?.description">
+          <div class="description px-3 py-1.5 text-c-3">
+            <ScalarMarkdown :value="activeServer.description" />
+          </div>
         </div>
       </div>
     </div>

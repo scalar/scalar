@@ -23,6 +23,7 @@ const { cx } = useBindCx()
       <template #floating="{ width, height }">
         <PopoverPanel
           v-slot="{ close }"
+          :middleware="middleware"
           :style="{ width, height }"
           v-bind="cx('relative flex flex-col p-0.75')">
           <slot
