@@ -1,1 +1,1 @@
-export * from './utility-types.js'
+export * from './utility-types.ts'

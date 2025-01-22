@@ -1,1 +1,1 @@
-export * from './legacy/index.js'
+export * from './legacy/index.ts'
