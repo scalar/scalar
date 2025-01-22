@@ -135,7 +135,7 @@ const contentMapping: Record<BodyEncoding, BodyMime> = {
 export const exampleRequestBodySchema = z.object({
   raw: z
     .object({
-      encoding: z.enum(exampleRequestBodyEncoding).default('json'),
+      encoding: z.enum(exampleRequestBodyEncoding),
       value: z.string().default(''),
     })
     .optional(),
@@ -157,7 +157,7 @@ export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
 
 /** Schema for the OAS serialization of request example bodies */
 export const xScalarExampleBodySchema = z.object({
-  encoding: z.enum(exampleBodyMime).default('application/json'),
+  encoding: z.enum(exampleBodyMime),
   /**
    * Body content as an object with a separately specified encoding or a simple pre-encoded string value
    *
@@ -375,10 +375,6 @@ export function createExampleFromRequest(
   // Handle request body defaulting for various content type encodings
   const body: ExampleRequestBody = {
     activeBody: 'raw',
-    raw: {
-      encoding: 'json',
-      value: '',
-    },
   }
 
   if (request.requestBody) {
