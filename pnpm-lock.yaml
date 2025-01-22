@@ -192,7 +192,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nestjs-api-reference
+        version: link:../../integrations/nestjs
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -265,7 +265,7 @@ importers:
         version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
       '@scalar/nestjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nestjs-api-reference
+        version: link:../../integrations/nestjs
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -332,7 +332,7 @@ importers:
         version: link:../../packages/api-reference-react
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
-        version: link:../../packages/nextjs-api-reference
+        version: link:../../integrations/nextjs
       next:
         specifier: ^15.1.1
         version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -490,6 +490,236 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
+  integrations/docusaurus:
+    dependencies:
+      '@scalar/api-reference-react':
+        specifier: workspace:*
+        version: link:../../packages/api-reference-react
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+    devDependencies:
+      '@docusaurus/types':
+        specifier: ^3.6.0
+        version: 3.6.1(@swc/core@1.5.29)(react-dom@19.0.0(react@18.3.1))(react@18.3.1)
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
+      path:
+        specifier: ^0.12.7
+        version: 0.12.7
+      postcss:
+        specifier: ^8.4.38
+        version: 8.4.39
+      postcss-cli:
+        specifier: ^11.0.0
+        version: 11.0.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1)
+      postcss-nesting:
+        specifier: ^12.1.5
+        version: 12.1.5(postcss@8.4.39)
+
+  integrations/express:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+    devDependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      '@types/supertest':
+        specifier: ^2.0.12
+        version: 2.0.16
+      express:
+        specifier: ^4.21.1
+        version: 4.21.1
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  integrations/express/playground:
+    dependencies:
+      '@scalar/express-api-reference':
+        specifier: workspace:*
+        version: link:..
+      express:
+        specifier: ^4.21.1
+        version: 4.21.1
+      swagger-jsdoc:
+        specifier: ^6.2.8
+        version: 6.2.8(openapi-types@12.1.3)
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../../packages/build-tooling
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      '@types/swagger-jsdoc':
+        specifier: ^6.0.3
+        version: 6.0.4
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+
+  integrations/hono:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+    devDependencies:
+      '@hono/node-server':
+        specifier: ^1.11.0
+        version: 1.11.3
+      '@hono/zod-openapi':
+        specifier: ^0.8.6
+        version: 0.8.6(hono@4.6.5)(zod@3.23.8)
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
+      hono:
+        specifier: ^4.6.5
+        version: 4.6.5
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  integrations/nestjs:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+    devDependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      express:
+        specifier: ^4.21.1
+        version: 4.21.1
+      fastify:
+        specifier: ^4.26.2
+        version: 4.28.0
+      tsup:
+        specifier: ^7.2.0
+        version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2))(typescript@5.6.2)
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  integrations/nextjs:
+    dependencies:
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+    devDependencies:
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.4
+        version: 4.3.4(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
+      next:
+        specifier: ^15.1.1
+        version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
+      vite-plugin-dts:
+        specifier: ^4.3.0
+        version: 4.3.0(@types/node@20.17.10)(rollup@4.24.4)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
+
+  integrations/nuxt:
+    dependencies:
+      '@nuxt/kit':
+        specifier: ^3.12.3
+        version: 3.12.3(magicast@0.3.5)(rollup@4.24.4)
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@scalar/api-reference':
+        specifier: workspace:*
+        version: link:../../packages/api-reference
+      '@scalar/types':
+        specifier: workspace:*
+        version: link:../../packages/types
+    devDependencies:
+      '@nuxt/devtools':
+        specifier: ^1.3.9
+        version: 1.3.9(rollup@4.24.4)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
+      '@nuxt/eslint-config':
+        specifier: ^0.3.13
+        version: 0.3.13(eslint@8.57.0)(typescript@5.6.2)
+      '@nuxt/module-builder':
+        specifier: ^0.8.1
+        version: 0.8.1(@nuxt/kit@3.12.3(magicast@0.3.5)(rollup@4.24.4))(nuxi@3.15.0)(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
+      '@nuxt/schema':
+        specifier: ^3.12.3
+        version: 3.12.3(rollup@4.24.4)
+      '@nuxt/test-utils':
+        specifier: ^3.13.1
+        version: 3.13.1(@jest/globals@29.7.0)(@playwright/test@1.49.1)(@vue/test-utils@2.4.6)(h3@1.13.0)(jsdom@24.1.0)(magicast@0.3.5)(nitropack@2.10.4(encoding@0.1.13)(typescript@5.6.2))(playwright-core@1.49.1)(rollup@4.24.4)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vitest@1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2))(vue-router@4.4.5(vue@3.5.12(typescript@5.6.2)))(vue@3.5.12(typescript@5.6.2))
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
+      changelogen:
+        specifier: ^0.5.5
+        version: 0.5.5(magicast@0.3.5)
+      nuxt:
+        specifier: ^3.12.4
+        version: 3.14.159(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.31.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue-tsc@2.1.10(typescript@5.6.2))
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2)
+
+  integrations/nuxt/playground:
+    dependencies:
+      nuxt:
+        specifier: ^3.12.4
+        version: 3.14.159(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.31.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue-tsc@2.1.10(typescript@5.6.2))
+    devDependencies:
+      '@scalar/api-client':
+        specifier: workspace:*
+        version: link:../../../packages/api-client
+      '@scalar/nuxt':
+        specifier: workspace:*
+        version: link:..
 
   packages/api-client:
     dependencies:
@@ -1217,37 +1447,6 @@ importers:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
-  integrations/docusaurus:
-    dependencies:
-      '@scalar/api-reference-react':
-        specifier: workspace:*
-        version: link:../api-reference-react
-      react:
-        specifier: ^18.0.0
-        version: 18.3.1
-    devDependencies:
-      '@docusaurus/types':
-        specifier: ^3.6.0
-        version: 3.6.1(@swc/core@1.5.29)(react-dom@19.0.0(react@18.3.1))(react@18.3.1)
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.0.1
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.0.2(@types/react@19.0.1)
-      path:
-        specifier: ^0.12.7
-        version: 0.12.7
-      postcss:
-        specifier: ^8.4.38
-        version: 8.4.39
-      postcss-cli:
-        specifier: ^11.0.0
-        version: 11.0.0(jiti@2.4.0)(postcss@8.4.39)(tsx@4.19.1)
-      postcss-nesting:
-        specifier: ^12.1.5
-        version: 12.1.5(postcss@8.4.39)
-
   packages/draggable:
     dependencies:
       vue:
@@ -1266,59 +1465,6 @@ importers:
       vite-svg-loader:
         specifier: ^5.1.0
         version: 5.1.0(vue@3.5.12(typescript@5.6.2))
-
-  integrations/express-api-reference:
-    dependencies:
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      '@types/supertest':
-        specifier: ^2.0.12
-        version: 2.0.16
-      express:
-        specifier: ^4.21.1
-        version: 4.21.1
-      supertest:
-        specifier: ^6.3.3
-        version: 6.3.4
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
-
-  integrations/express-api-reference/playground:
-    dependencies:
-      '@scalar/express-api-reference':
-        specifier: workspace:*
-        version: link:..
-      express:
-        specifier: ^4.21.1
-        version: 4.21.1
-      swagger-jsdoc:
-        specifier: ^6.2.8
-        version: 6.2.8(openapi-types@12.1.3)
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../../build-tooling
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      '@types/swagger-jsdoc':
-        specifier: ^6.0.3
-        version: 6.0.4
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   packages/fastify-api-reference:
     dependencies:
@@ -1423,7 +1569,7 @@ importers:
         version: link:../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../hono-api-reference
+        version: link:../../integrations/hono
       '@scalar/mock-server':
         specifier: workspace:*
         version: link:../mock-server
@@ -1433,31 +1579,6 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-
-  integrations/hono-api-reference:
-    dependencies:
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@hono/node-server':
-        specifier: ^1.11.0
-        version: 1.11.3
-      '@hono/zod-openapi':
-        specifier: ^0.8.6
-        version: 0.8.6(hono@4.6.5)(zod@3.23.8)
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../build-tooling
-      hono:
-        specifier: ^4.6.5
-        version: 4.6.5
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
 
   packages/icons:
     dependencies:
@@ -1526,84 +1647,19 @@ importers:
         version: link:../build-tooling
       '@scalar/hono-api-reference':
         specifier: workspace:*
-        version: link:../hono-api-reference
+        version: link:../../integrations/hono
       '@types/node':
         specifier: ^20.17.10
         version: 20.17.10
       vite:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-
-  packages/nestjs-api-reference:
-    dependencies:
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@types/express':
-        specifier: ^4.17.21
-        version: 4.17.21
-      express:
-        specifier: ^4.21.1
-        version: 4.21.1
-      fastify:
-        specifier: ^4.26.2
-        version: 4.28.0
-      tsup:
-        specifier: ^7.2.0
-        version: 7.3.0(@swc/core@1.5.29)(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2))(typescript@5.6.2)
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
-
-  packages/nextjs-api-reference:
-    dependencies:
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-      react:
-        specifier: ^19.0.0
-        version: 19.0.0
-    devDependencies:
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@types/node':
-        specifier: ^20.17.10
-        version: 20.17.10
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.0.1
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.0.2(@types/react@19.0.1)
-      '@vitejs/plugin-react':
-        specifier: ^4.3.4
-        version: 4.3.4(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
-      next:
-        specifier: ^15.1.1
-        version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.0.0)
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-      vite-plugin-dts:
-        specifier: ^4.3.0
-        version: 4.3.0(@types/node@20.17.10)(rollup@4.24.4)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
 
   packages/nextjs-openapi:
     dependencies:
       '@scalar/nextjs-api-reference':
         specifier: workspace:*
-        version: link:../nextjs-api-reference
+        version: link:../../integrations/nextjs
       '@scalar/ts-to-openapi':
         specifier: workspace:*
         version: link:../ts-to-openapi
@@ -1632,55 +1688,6 @@ importers:
       openapi-types:
         specifier: ^12.1.3
         version: 12.1.3
-
-  integrations/nuxt:
-    dependencies:
-      '@nuxt/kit':
-        specifier: ^3.12.3
-        version: 3.12.3(magicast@0.3.5)(rollup@4.24.4)
-      '@scalar/api-client':
-        specifier: workspace:*
-        version: link:../api-client
-      '@scalar/api-reference':
-        specifier: workspace:*
-        version: link:../api-reference
-      '@scalar/types':
-        specifier: workspace:*
-        version: link:../types
-    devDependencies:
-      '@nuxt/devtools':
-        specifier: ^1.3.9
-        version: 1.3.9(rollup@4.24.4)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
-      '@nuxt/eslint-config':
-        specifier: ^0.3.13
-        version: 0.3.13(eslint@8.57.0)(typescript@5.6.2)
-      '@nuxt/module-builder':
-        specifier: ^0.8.1
-        version: 0.8.1(@nuxt/kit@3.12.3(magicast@0.3.5)(rollup@4.24.4))(nuxi@3.15.0)(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
-      '@nuxt/schema':
-        specifier: ^3.12.3
-        version: 3.12.3(rollup@4.24.4)
-      '@nuxt/test-utils':
-        specifier: ^3.13.1
-        version: 3.13.1(@jest/globals@29.7.0)(@playwright/test@1.49.1)(@vue/test-utils@2.4.6)(h3@1.13.0)(jsdom@24.1.0)(magicast@0.3.5)(nitropack@2.10.4(encoding@0.1.13)(typescript@5.6.2))(playwright-core@1.49.1)(rollup@4.24.4)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vitest@1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2))(vue-router@4.4.5(vue@3.5.12(typescript@5.6.2)))(vue@3.5.12(typescript@5.6.2))
-      '@types/node':
-        specifier: ^20.17.10
-        version: 20.17.10
-      changelogen:
-        specifier: ^0.5.5
-        version: 0.5.5(magicast@0.3.5)
-      nuxt:
-        specifier: ^3.12.4
-        version: 3.14.159(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.31.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue-tsc@2.1.10(typescript@5.6.2))
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.17.10)(jsdom@24.1.0)(terser@5.31.2)
-
-  integrations/nuxt/playground:
-    dependencies:
-      nuxt:
-        specifier: ^3.12.4
-        version: 3.14.159(@parcel/watcher@2.4.1)(@types/node@20.17.10)(encoding@0.1.13)(eslint@8.57.0)(ioredis@5.4.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.24.4)(terser@5.31.2)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))(vue-tsc@2.1.10(typescript@5.6.2))
 
   packages/oas-utils:
     dependencies:
@@ -15183,10 +15190,6 @@ packages:
     resolution: {integrity: sha512-MvjoMCJwEarSbUYk5O+nmoSzSutSsTwF85zcHPQ9OrlFoZOYIjaqBAJIqIXjptyD5vThxGq52Xu/MaJzRkIk4Q==}
     engines: {node: '>=0.6'}
 
-  qs@6.12.1:
-    resolution: {integrity: sha512-zWmv4RSuB9r2mYQw3zxQuHWeU+42aKi1wWig/j4ele4ygELZ7PEO6MM7rim9oAQH2A5MWfsAVf/jPvTPgCbvUQ==}
-    engines: {node: '>=0.6'}
-
   qs@6.13.0:
     resolution: {integrity: sha512-+38qI9SOr8tfZ4QmJNplMUxqjbe7LKvvZgWdExBOmd+egZTtjLB67Gu0HRX3u/XOq7UU2Nx6nsjvS16Z9uwfpg==}
     engines: {node: '>=0.6'}
@@ -18525,7 +18528,7 @@ snapshots:
       '@babel/traverse': 7.24.7
       '@babel/types': 7.24.7
       convert-source-map: 2.0.0
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -18565,7 +18568,7 @@ snapshots:
       '@babel/traverse': 7.25.9
       '@babel/types': 7.26.0
       convert-source-map: 2.0.0
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -20889,7 +20892,7 @@ snapshots:
       cssnano-preset-advanced: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-sort-media-queries: 5.2.0(postcss@8.4.47)
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@docusaurus/logger@3.6.1':
     dependencies:
@@ -21523,7 +21526,7 @@ snapshots:
 
   '@emnapi/runtime@1.3.1':
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
     optional: true
 
   '@emotion/use-insertion-effect-with-fallbacks@1.0.1(react@18.3.1)':
@@ -21533,7 +21536,7 @@ snapshots:
   '@es-joy/jsdoccomment@0.43.1':
     dependencies:
       '@types/eslint': 8.56.10
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@typescript-eslint/types': 7.13.0
       comment-parser: 1.4.1
       esquery: 1.5.0
@@ -22064,7 +22067,7 @@ snapshots:
     dependencies:
       '@fastify/error': 3.4.1
       fastify-plugin: 4.5.1
-      path-to-regexp: 6.2.2
+      path-to-regexp: 6.3.0
       reusify: 1.0.4
 
   '@fastify/reply-from@9.8.0':
@@ -22791,7 +22794,7 @@ snapshots:
   '@jridgewell/trace-mapping@0.3.9':
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   '@js-sdsl/ordered-map@4.4.2': {}
 
@@ -24350,7 +24353,7 @@ snapshots:
 
   '@rollup/plugin-commonjs@25.0.8(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.3(rollup@3.29.4)
       commondir: 1.0.1
       estree-walker: 2.0.2
       glob: 8.1.0
@@ -24393,7 +24396,7 @@ snapshots:
 
   '@rollup/plugin-node-resolve@15.2.3(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.3(rollup@3.29.4)
       '@types/resolve': 1.20.2
       deepmerge: 4.3.1
       is-builtin-module: 3.2.1
@@ -24414,7 +24417,7 @@ snapshots:
 
   '@rollup/plugin-replace@5.0.7(rollup@3.29.4)':
     dependencies:
-      '@rollup/pluginutils': 5.1.0(rollup@3.29.4)
+      '@rollup/pluginutils': 5.1.3(rollup@3.29.4)
       magic-string: 0.30.12
     optionalDependencies:
       rollup: 3.29.4
@@ -24488,6 +24491,14 @@ snapshots:
       picomatch: 2.3.1
     optionalDependencies:
       rollup: 4.24.4
+
+  '@rollup/pluginutils@5.1.3(rollup@3.29.4)':
+    dependencies:
+      '@types/estree': 1.0.6
+      estree-walker: 2.0.2
+      picomatch: 4.0.2
+    optionalDependencies:
+      rollup: 3.29.4
 
   '@rollup/pluginutils@5.1.3(rollup@4.24.4)':
     dependencies:
@@ -24890,7 +24901,7 @@ snapshots:
       express: 4.21.1
       find-cache-dir: 3.3.2
       fs-extra: 11.2.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       ts-dedent: 2.2.0
       vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
     optionalDependencies:
@@ -24969,7 +24980,7 @@ snapshots:
       '@storybook/node-logger': 8.1.9
       '@storybook/types': 8.1.9
       '@types/cross-spawn': 6.0.6
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       globby: 14.0.2
       jscodeshift: 0.15.2(@babel/preset-env@7.24.7(@babel/core@7.24.8))
       lodash: 4.17.21
@@ -25195,7 +25206,7 @@ snapshots:
       dequal: 2.0.3
       lodash: 4.17.21
       memoizerific: 1.11.3
-      qs: 6.12.1
+      qs: 6.13.0
       tiny-invariant: 1.3.3
       ts-dedent: 2.2.0
       util-deprecate: 1.0.2
@@ -25307,7 +25318,7 @@ snapshots:
   '@stylistic/eslint-plugin-js@2.3.0(eslint@8.57.0)':
     dependencies:
       '@types/eslint': 8.56.10
-      acorn: 8.12.1
+      acorn: 8.14.0
       eslint: 8.57.0
       eslint-visitor-keys: 4.0.0
       espree: 10.1.0
@@ -25513,7 +25524,7 @@ snapshots:
   '@swc/helpers@0.5.5':
     dependencies:
       '@swc/counter': 0.1.3
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@swc/types@0.1.8':
     dependencies:
@@ -25756,11 +25767,11 @@ snapshots:
   '@types/eslint-scope@3.7.7':
     dependencies:
       '@types/eslint': 8.56.10
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
 
   '@types/eslint@8.56.10':
     dependencies:
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@types/json-schema': 7.0.15
 
   '@types/estree-jsx@1.0.5':
@@ -26203,7 +26214,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
@@ -26218,7 +26229,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 6.21.0
       '@typescript-eslint/visitor-keys': 6.21.0
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
@@ -26446,7 +26457,7 @@ snapshots:
 
   '@vitest/snapshot@1.6.0':
     dependencies:
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       pretty-format: 29.7.0
 
@@ -26652,7 +26663,7 @@ snapshots:
       '@vue/compiler-ssr': 3.4.31
       '@vue/shared': 3.4.31
       estree-walker: 2.0.2
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       postcss: 8.4.47
       source-map-js: 1.2.1
 
@@ -26779,8 +26790,8 @@ snapshots:
   '@vue/language-core@2.0.21(typescript@5.6.2)':
     dependencies:
       '@volar/language-core': 2.3.0
-      '@vue/compiler-dom': 3.5.12
-      '@vue/shared': 3.5.12
+      '@vue/compiler-dom': 3.5.13
+      '@vue/shared': 3.5.13
       computeds: 0.0.1
       minimatch: 9.0.5
       path-browserify: 1.0.1
@@ -27024,17 +27035,9 @@ snapshots:
     dependencies:
       acorn: 8.12.0
 
-  acorn-import-attributes@1.9.5(acorn@8.12.1):
-    dependencies:
-      acorn: 8.12.1
-
   acorn-import-attributes@1.9.5(acorn@8.14.0):
     dependencies:
       acorn: 8.14.0
-
-  acorn-jsx@5.3.2(acorn@8.12.1):
-    dependencies:
-      acorn: 8.12.1
 
   acorn-jsx@5.3.2(acorn@8.14.0):
     dependencies:
@@ -27042,7 +27045,7 @@ snapshots:
 
   acorn-walk@8.3.3:
     dependencies:
-      acorn: 8.12.1
+      acorn: 8.14.0
 
   acorn@7.4.1: {}
 
@@ -27387,7 +27390,7 @@ snapshots:
 
   ast-types@0.16.1:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   ast-walker-scope@0.6.2:
     dependencies:
@@ -27979,7 +27982,7 @@ snapshots:
   camel-case@4.1.2:
     dependencies:
       pascal-case: 3.1.2
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   camelcase-css@2.0.1: {}
 
@@ -28010,7 +28013,7 @@ snapshots:
   capnp-ts@0.7.0:
     dependencies:
       debug: 4.4.0(supports-color@9.4.0)
-      tslib: 2.6.3
+      tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
@@ -29980,8 +29983,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.12.1
-      acorn-jsx: 5.3.2(acorn@8.12.1)
+      acorn: 8.14.0
+      acorn-jsx: 5.3.2(acorn@8.14.0)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -30090,7 +30093,7 @@ snapshots:
 
   execa@5.1.1:
     dependencies:
-      cross-spawn: 7.0.3
+      cross-spawn: 7.0.6
       get-stream: 6.0.1
       human-signals: 2.1.0
       is-stream: 2.0.1
@@ -32988,8 +32991,8 @@ snapshots:
 
   local-pkg@0.5.0:
     dependencies:
-      mlly: 1.7.1
-      pkg-types: 1.1.3
+      mlly: 1.7.3
+      pkg-types: 1.2.1
 
   locate-path@3.0.0:
     dependencies:
@@ -33120,7 +33123,7 @@ snapshots:
   magic-regexp@0.8.0:
     dependencies:
       estree-walker: 3.0.3
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       regexp-tree: 0.1.27
       type-level-regexp: 0.1.17
@@ -33145,7 +33148,7 @@ snapshots:
 
   magic-string@0.30.5:
     dependencies:
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
 
   magicast@0.3.4:
     dependencies:
@@ -33801,7 +33804,7 @@ snapshots:
   miniflare@3.20240701.0:
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
-      acorn: 8.12.1
+      acorn: 8.14.0
       acorn-walk: 8.3.3
       capnp-ts: 0.7.0
       exit-hook: 2.2.1
@@ -33898,10 +33901,10 @@ snapshots:
       fs-extra: 11.2.0
       globby: 14.0.2
       jiti: 1.21.6
-      mlly: 1.7.1
+      mlly: 1.7.3
       mri: 1.2.0
       pathe: 1.1.2
-      pkg-types: 1.1.3
+      pkg-types: 1.2.1
       postcss: 8.4.47
       postcss-nested: 6.0.1(postcss@8.4.47)
       semver: 7.6.3
@@ -34698,7 +34701,7 @@ snapshots:
   param-case@3.0.4:
     dependencies:
       dot-case: 3.0.4
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   parent-module@1.0.1:
     dependencies:
@@ -34941,7 +34944,7 @@ snapshots:
   pkg-types@1.1.1:
     dependencies:
       confbox: 0.1.7
-      mlly: 1.7.1
+      mlly: 1.7.3
       pathe: 1.1.2
 
   pkg-types@1.1.3:
@@ -35793,10 +35796,6 @@ snapshots:
     dependencies:
       side-channel: 1.0.6
 
-  qs@6.12.1:
-    dependencies:
-      side-channel: 1.0.6
-
   qs@6.13.0:
     dependencies:
       side-channel: 1.0.6
@@ -36175,7 +36174,7 @@ snapshots:
       esprima: 4.0.1
       source-map: 0.6.1
       tiny-invariant: 1.3.3
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   rechoir@0.6.2:
     dependencies:
@@ -37486,13 +37485,13 @@ snapshots:
     dependencies:
       component-emitter: 1.3.1
       cookiejar: 2.1.4
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       fast-safe-stringify: 2.1.1
       form-data: 4.0.0
       formidable: 2.1.2
       methods: 1.1.2
       mime: 2.6.0
-      qs: 6.12.1
+      qs: 6.13.0
       semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
@@ -38077,7 +38076,7 @@ snapshots:
       bundle-require: 4.2.1(esbuild@0.19.12)
       cac: 6.7.14
       chokidar: 3.6.0
-      debug: 4.3.5
+      debug: 4.4.0(supports-color@9.4.0)
       esbuild: 0.19.12
       execa: 5.1.1
       globby: 11.1.0
@@ -38256,7 +38255,7 @@ snapshots:
       globby: 13.2.2
       hookable: 5.5.3
       jiti: 1.21.6
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mkdist: 1.5.3(typescript@5.6.2)(vue-tsc@2.1.10(typescript@5.6.2))
       mlly: 1.7.1
       pathe: 1.1.2
@@ -38279,7 +38278,7 @@ snapshots:
     dependencies:
       acorn: 8.12.1
       estree-walker: 3.0.3
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       unplugin: 1.11.0
 
   undefsafe@2.0.5: {}
@@ -38421,7 +38420,7 @@ snapshots:
       estree-walker: 3.0.3
       fast-glob: 3.3.2
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       mlly: 1.7.1
       pathe: 1.1.2
       pkg-types: 1.1.3
@@ -38900,7 +38899,7 @@ snapshots:
   vite-plugin-inspect@0.8.7(@nuxt/kit@3.14.159(magicast@0.3.5)(rollup@4.24.4))(rollup@4.24.4)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2)):
     dependencies:
       '@antfu/utils': 0.7.10
-      '@rollup/pluginutils': 5.1.0(rollup@4.24.4)
+      '@rollup/pluginutils': 5.1.3(rollup@4.24.4)
       debug: 4.4.0(supports-color@9.4.0)
       error-stack-parser-es: 0.1.5
       fs-extra: 11.2.0
@@ -38941,7 +38940,7 @@ snapshots:
       '@vue/babel-plugin-jsx': 1.2.2(@babel/core@7.24.8)
       '@vue/compiler-dom': 3.5.12
       kolorist: 1.8.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
     transitivePeerDependencies:
       - supports-color
@@ -38954,7 +38953,7 @@ snapshots:
       '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.24.8)
       '@babel/plugin-transform-typescript': 7.24.8(@babel/core@7.24.8)
       '@vue/babel-plugin-jsx': 1.2.2(@babel/core@7.24.8)
-      '@vue/compiler-dom': 3.5.12
+      '@vue/compiler-dom': 3.5.13
       kolorist: 1.8.0
       magic-string: 0.30.12
       vite: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
@@ -39039,10 +39038,10 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.3
       chai: 4.4.1
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -39074,10 +39073,10 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.3
       chai: 4.4.1
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -39109,10 +39108,10 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.3
       chai: 4.4.1
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -39144,10 +39143,10 @@ snapshots:
       '@vitest/utils': 1.6.0
       acorn-walk: 8.3.3
       chai: 4.4.1
-      debug: 4.3.7(supports-color@5.5.0)
+      debug: 4.4.0(supports-color@9.4.0)
       execa: 8.0.1
       local-pkg: 0.5.0
-      magic-string: 0.30.10
+      magic-string: 0.30.12
       pathe: 1.1.2
       picocolors: 1.1.0
       std-env: 3.7.0
@@ -39459,8 +39458,8 @@ snapshots:
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.12.1
-      acorn-import-attributes: 1.9.5(acorn@8.12.1)
+      acorn: 8.14.0
+      acorn-import-attributes: 1.9.5(acorn@8.14.0)
       browserslist: 4.23.2
       chrome-trace-event: 1.0.4
       enhanced-resolve: 5.17.0
