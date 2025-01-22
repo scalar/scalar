@@ -26,14 +26,14 @@
   "type": "module",
   "dependencies": {
     "@scalar/express-api-reference": "workspace:*",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/swagger-jsdoc": "^6.0.3",
-    "vite": "^5.4.10"
+    "vite": "^5.4.12"
   },
   "exports": {
     ".": {
