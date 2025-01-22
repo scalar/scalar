@@ -1,8 +1,8 @@
-import { bench, describe, expect } from 'vitest'
+import { bench, describe } from 'vitest'
 
 import specification from './examples/petstore.json'
-import { resolveNew } from './utils/resolveNew'
-import { resolveOld } from './utils/resolveOld'
+import { resolveNew } from './utils/resolveNew.js'
+import { resolveOld } from './utils/resolveOld.js'
 
 describe('petstore', () => {
   bench('@apidevtools/swagger-parser', async () => {

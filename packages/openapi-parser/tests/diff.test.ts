@@ -2,8 +2,8 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { diff } from 'just-diff'
 import { describe, expect, test } from 'vitest'
 
-import { type AnyObject, normalize, openapi } from '../src'
-import { downloadFileToMemory } from './utils/downloadFileGcp'
+import { type AnyObject, normalize, openapi } from '../src/index.js'
+import { downloadFileToMemory } from './utils/downloadFileGcp.js'
 
 const bucketName = 'scalar-test-fixtures'
 
