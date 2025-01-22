@@ -5,44 +5,67 @@ import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
-import { useWorkspace } from '@/store'
-import { ScalarIcon } from '@scalar/components'
+import { useActiveEntities, useWorkspace } from '@/store'
+import { useModal } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
-import CookieRaw from './CookieRaw.vue'
+import CookieModal from './CookieModal.vue'
 
-const { cookies, cookieMutators, events } = useWorkspace()
-const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
+// import CookieRaw from './CookieRaw.vue'
+
+const { cookies, cookieMutators, events, workspaceMutators } = useWorkspace()
+const { activeWorkspace, activeCookieId } = useActiveEntities()
 const router = useRouter()
 const route = useRoute()
+const cookieModal = useModal()
 
-const addCookieHandler = () => {
-  const cookieIndex = Object.keys(cookies).length
-
+const addCookieHandler = (cookieData: {
+  name: string
+  value: string
+  domain: string
+}) => {
   const cookie = cookieSchema.parse({
-    name: `Cookie ${cookieIndex}`,
-    value: '',
-    domain: 'example.com',
+    name: cookieData.name,
+    value: cookieData.value,
+    domain: cookieData.domain,
     path: '/',
-    secure: false,
-    httpOnly: false,
-    sameSite: 'None',
   })
 
+  // Store cookie
   cookieMutators.add(cookie)
-  router.push(cookie.uid)
+
+  // Attach cookie to workspace
+  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
+    ...(activeWorkspace.value?.cookies ?? []),
+    cookie.uid,
+  ])
+
+  // Redirect to the new cookie
+  router.push({
+    name: 'cookies',
+    params: {
+      cookies: cookie.uid,
+    },
+  })
 }
 
 const removeCookie = (uid: string) => {
   cookieMutators.delete(uid)
+
+  // Delete cookie from workspace
+  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
+    ...(activeWorkspace.value?.cookies ?? []).filter((c) => c !== uid),
+  ])
+
+  // Navigate to the last cookie
   const remainingCookies: Cookie[] = Object.values(cookies).filter(
     (cookie) => (cookie as Cookie).uid !== uid,
   ) as Cookie[]
+
   if (remainingCookies.length > 1) {
     const lastCookie = remainingCookies[remainingCookies.length - 1]
     if (lastCookie) {
@@ -56,57 +79,52 @@ const removeCookie = (uid: string) => {
   }
 }
 
-const groupedCookies = computed(() => {
-  const groups: Record<string, Record<string, Cookie[]>> = {}
-  Object.values(cookies).forEach((cookie) => {
-    const domain = cookie.domain ?? ''
-    const path = cookie.path ?? ''
-    if (!groups[domain]) {
-      groups[domain] = {}
-    }
-    if (!groups[domain][path]) {
-      groups[domain][path] = []
-    }
-    groups[domain][path].push(cookie)
-  })
-  return groups
-})
-
-const showChildren = (key: string) => {
-  return collapsedSidebarFolders[key]
+const openCookieModal = () => {
+  cookieModal.show()
 }
 
 const handleHotKey = (event?: HotKeyEvent) => {
   if (event?.createNew && route.name === 'cookies') {
-    addCookieHandler()
+    openCookieModal()
   }
 }
 
+/**
+ * Navigate to specific cookies
+ */
 const handleNavigation = (event: MouseEvent, uid: string) => {
-  const path = `/workspace/default/cookies/${uid}`
-  if (event.metaKey) {
-    window.open(path, '_blank')
-  } else {
-    router.push({ path })
+  const to = {
+    name: 'cookies',
+    params: {
+      workspace: activeWorkspace.value?.uid ?? 'default',
+      cookies: uid,
+    },
   }
+
+  // Open in new tab if meta key is pressed
+  if (event.metaKey) {
+    const path = router.resolve(to).href
+
+    window.open(path, '_blank')
+
+    return
+  }
+
+  router.push(to)
 }
 
-/** Initialize collapsedSidebarFolders to be open by default */
-onMounted(() => {
-  const domains = Object.keys(groupedCookies.value)
-  const allPaths = Object.entries(groupedCookies.value).flatMap(
-    ([domain, paths]) => Object.keys(paths).map((path) => domain + path),
-  )
-  domains.forEach((domain) => {
-    collapsedSidebarFolders[domain] = true
-  })
-  allPaths.forEach((path) => {
-    collapsedSidebarFolders[path] = true
-  })
-  events.hotKeys.on(handleHotKey)
-})
-
+/** Bind keyboard shortcuts */
+onMounted(() => events.hotKeys.on(handleHotKey))
+/** Unbind keyboard shortcuts */
 onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
+
+const activeCookie = computed<Cookie | undefined>(
+  () => cookies[activeCookieId.value],
+)
+
+const hasCookies = computed(
+  () => Object.keys(cookies).length > 0 && activeCookie.value,
+)
 </script>
 <template>
   <ViewLayout>
@@ -115,56 +133,19 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
         <div class="flex-1">
           <SidebarList>
             <div
-              v-for="(paths, domain) in groupedCookies"
-              :key="domain"
+              v-for="cookie in Object.values(cookies)"
+              :key="cookie.uid"
               class="flex flex-col gap-1/2">
-              <button
-                class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded text-left text-sm p-1.5 focus-visible:z-10 hover:bg-sidebar-active-b indent-padding-left"
-                type="button"
-                @click="toggleSidebarFolder(domain)">
-                <ScalarIcon
-                  class="h-5 -ml-px text-c-3 w-4"
-                  :class="{
-                    'rotate-90': collapsedSidebarFolders[domain],
-                  }"
-                  icon="ChevronRight"
-                  size="md" />
-                <span>{{ domain }}</span>
-              </button>
-              <div
-                v-show="showChildren(domain)"
-                class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-3 before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
-                <div
-                  v-for="(cookieList, path) in paths"
-                  :key="path"
-                  class="flex flex-col gap-1/2">
-                  <button
-                    class="flex gap-1.5 items-center pl-5 pr-2 py-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
-                    type="button"
-                    @click="toggleSidebarFolder(domain + path)">
-                    <ScalarIcon
-                      class="-ml-px text-c-3"
-                      :class="{
-                        'rotate-90': collapsedSidebarFolders[domain + path],
-                      }"
-                      icon="ChevronRight"
-                      size="md" />
-                    {{ path }}
-                  </button>
-                  <div
-                    v-show="showChildren(domain + path)"
-                    class="before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(1.75rem_-1px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 relative">
-                    <SidebarListElement
-                      v-for="cookie in cookieList"
-                      :key="cookie.uid"
-                      class="cookie text-xs"
-                      type="cookies"
-                      :variable="{ name: cookie.name, uid: cookie.uid }"
-                      :warningMessage="`Are you sure you want to delete this cookie?`"
-                      @click.prevent="handleNavigation($event, cookie.uid)"
-                      @delete="removeCookie(cookie.uid)" />
-                  </div>
-                </div>
+              <div class="mb-[.5px] last:mb-0 relative">
+                <SidebarListElement
+                  :key="cookie.uid"
+                  class="text-xs"
+                  isDeletable
+                  type="cookies"
+                  :variable="{ name: cookie.name, uid: cookie.uid }"
+                  :warningMessage="`Are you sure you want to delete this cookie?`"
+                  @click.prevent="handleNavigation($event, cookie.uid)"
+                  @delete="removeCookie(cookie.uid)" />
               </div>
             </div>
           </SidebarList>
@@ -172,7 +153,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       </template>
       <template #button>
         <SidebarButton
-          :click="addCookieHandler"
+          :click="openCookieModal"
           hotkey="N">
           <template #title>Add Cookie</template>
         </SidebarButton>
@@ -180,8 +161,16 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     </Sidebar>
 
     <ViewLayoutContent class="flex-1">
-      <CookieForm />
-      <CookieRaw />
+      <template v-if="hasCookies">
+        <CookieForm />
+        <!--  Untested and disabled for now. -->
+        <!-- <CookieRaw /> -->
+      </template>
     </ViewLayoutContent>
+
+    <CookieModal
+      :state="cookieModal"
+      @cancel="cookieModal.hide()"
+      @submit="addCookieHandler" />
   </ViewLayout>
 </template>

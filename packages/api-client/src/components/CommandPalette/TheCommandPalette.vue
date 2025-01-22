@@ -90,12 +90,12 @@ const availableCommands = [
       {
         name: 'Add Environment',
         icon: 'Brackets',
-        path: 'environment',
+        path: 'environment.default',
       },
       {
         name: 'Add Cookie',
         icon: 'Cookie',
-        path: 'cookies',
+        path: 'cookies.default',
       },
     ],
   },
@@ -161,6 +161,7 @@ const executeCommand = (
         workspace: activeWorkspace.value?.uid,
       },
     })
+
     closeHandler()
   }
 

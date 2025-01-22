@@ -4,21 +4,29 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
 import { computed } from 'vue'
+import type { RouteLocationRaw } from 'vue-router'
 
 import { hasItemProperties } from '../libs/request'
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
 withDefaults(
   defineProps<{
-    items?: RequestExampleParameter[]
-    /** Disable the checkbox */
+    items?: (RequestExampleParameter & { route?: RouteLocationRaw })[]
+    /** Hide the enabled column */
     hasCheckboxDisabled?: boolean
     showUploadButton?: boolean
+    isGlobal?: boolean
+    isReadOnly?: boolean
   }>(),
-  { hasCheckboxDisabled: false, showUploadButton: false },
+  {
+    hasCheckboxDisabled: false,
+    showUploadButton: false,
+    isGlobal: false,
+    isReadOnly: false,
+  },
 )
 
 const emit = defineEmits<{
@@ -75,16 +83,47 @@ const flattenValue = (item: RequestExampleParameter) => {
       v-for="(item, idx) in items"
       :key="item.key">
       <label class="contents">
-        <span class="sr-only">Row Enabled</span>
-        <DataTableCheckbox
-          class="!border-r-1/2"
-          :disabled="hasCheckboxDisabled"
-          :modelValue="item.enabled"
-          @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        <template v-if="isGlobal">
+          <RouterLink
+            class="!border-r-1/2 border-t-1/2 text-c-2 flex justify-center items-center"
+            :to="item.route ?? {}">
+            <span class="sr-only">Global</span>
+            <ScalarTooltip
+              as="div"
+              side="top">
+              <template #trigger>
+                <ScalarIcon
+                  icon="Globe"
+                  size="xs" />
+              </template>
+              <template #content>
+                <div
+                  class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
+                  <div class="flex items-center text-c-2">
+                    <span class="text-pretty">
+                      Global cookies are shared across the whole workspace.
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </ScalarTooltip>
+          </RouterLink>
+        </template>
+        <template v-else>
+          <span class="sr-only">
+            Row {{ item.enabled ? 'Enabled' : 'Disabled' }}
+          </span>
+          <DataTableCheckbox
+            class="!border-r-1/2"
+            :disabled="hasCheckboxDisabled"
+            :modelValue="item.enabled"
+            @update:modelValue="(v) => emit('toggleRow', idx, v)" />
+        </template>
       </label>
       <DataTableCell>
         <CodeInput
           disableCloseBrackets
+          :disabled="isReadOnly"
           disableEnter
           disableTabIndent
           :modelValue="item.key"
@@ -104,6 +143,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           }"
           :default="item.default"
           disableCloseBrackets
+          :disabled="isReadOnly"
           disableEnter
           disableTabIndent
           :enum="item.enum"

@@ -196,7 +196,6 @@
     "@vueuse/integrations": "^11.2.0",
     "focus-trap": "^7",
     "fuse.js": "^7.0.0",
-    "js-cookie": "^3.0.5",
     "microdiff": "^1.4.0",
     "nanoid": "^5.0.7",
     "pretty-bytes": "^6.1.1",
@@ -211,7 +210,6 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "@scalar/galaxy": "workspace:*",
-    "@types/js-cookie": "^3.0.6",
     "@types/shell-quote": "^1.7.5",
     "@types/whatwg-mimetype": "^3.0.2",
     "@vitejs/plugin-vue": "^5.0.4",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
