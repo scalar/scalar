@@ -318,9 +318,9 @@ const updateActiveBody = (type: Content) => {
       headers.splice(contentTypeIdx, 1)
     }
   }
-  // Add header if doesn't
+  // Add header if doesn't have one
   else if (header)
-    headers.unshift({
+    headers.push({
       key: 'Content-Type',
       value: header,
       enabled: true,

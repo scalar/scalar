@@ -29,7 +29,7 @@ defineProps<{
         :columns="['']">
         <DataTableRow
           v-for="(option, index) in options"
-          :key="option.key"
+          :key="index"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
             :modelValue="data[option.key]"
