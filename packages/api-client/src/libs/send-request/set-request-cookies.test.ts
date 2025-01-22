@@ -60,7 +60,7 @@ describe('matchesDomain', () => {
     expect(matchesDomain('https://example.com', 'example.com')).toBe(true)
   })
 
-  it('should match the current host with a wildcard', () => {
+  it('should match the current domain with a configured wildcard', () => {
     expect(matchesDomain('https://example.com', '.example.com')).toBe(true)
   })
 
@@ -68,7 +68,7 @@ describe('matchesDomain', () => {
     expect(matchesDomain('https://example.com', 'scalar.com')).toBe(false)
   })
 
-  it('should match the current host with a wildcard', () => {
+  it('should match the subdomain with a configured wildcard', () => {
     expect(matchesDomain('https://void.scalar.com', '.scalar.com')).toBe(true)
   })
 
