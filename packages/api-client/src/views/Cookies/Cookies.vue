@@ -89,14 +89,28 @@ const handleHotKey = (event?: HotKeyEvent) => {
   }
 }
 
+/**
+ * Navigate to specific cookies
+ */
 const handleNavigation = (event: MouseEvent, uid: string) => {
-  // TODO: Use named routes
-  const path = `/workspace/default/cookies/${uid}`
-  if (event.metaKey) {
-    window.open(path, '_blank')
-  } else {
-    router.push({ path })
+  const to = {
+    name: 'cookies',
+    params: {
+      workspace: activeWorkspace.value?.uid ?? 'default',
+      cookies: uid,
+    },
   }
+
+  // Open in new tab if meta key is pressed
+  if (event.metaKey) {
+    const path = router.resolve(to).href
+
+    window.open(path, '_blank')
+
+    return
+  }
+
+  router.push(to)
 }
 
 /** Bind keyboard shortcuts */
