@@ -39,7 +39,6 @@ const {
 } = useActiveEntities()
 const {
   cookies,
-  isReadOnly,
   modalState,
   requestHistory,
   showSidebar,
@@ -55,7 +54,7 @@ type ExtendedRequestPayload = RequestPayload & {
   url?: string
 }
 
-const isSidebarOpen = ref(!isReadOnly)
+const isSidebarOpen = ref(layout !== 'modal')
 const requestAbortController = ref<AbortController>()
 const parsedCurl = ref<ExtendedRequestPayload>()
 const selectedServerUid = ref('')
@@ -80,7 +79,7 @@ watch(mediaQueries.xl, (isXL) => (isSidebarOpen.value = isXL), {
  */
 const selectedSecuritySchemeUids = computed(
   () =>
-    (isReadOnly
+    (layout === 'modal'
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
@@ -220,7 +219,7 @@ function handleCurlImport(curl: string) {
   <div
     class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative z-0 overflow-hidden"
     :class="{
-      '!mr-0 !mb-0 !border-0': isReadOnly,
+      '!mr-0 !mb-0 !border-0': layout === 'modal',
     }">
     <div class="flex h-full">
       <RequestSidebar

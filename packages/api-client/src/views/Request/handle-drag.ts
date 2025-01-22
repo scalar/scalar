@@ -1,3 +1,4 @@
+import { useLayout } from '@/hooks'
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
@@ -8,12 +9,13 @@ export function dragHandlerFactory(
   {
     collections,
     collectionMutators,
-    isReadOnly,
     tags,
     tagMutators,
     workspaceMutators,
   }: WorkspaceStore,
 ) {
+  const { layout } = useLayout()
+
   /** Mutate tag OR collection */
   function mutateTagOrCollection(uid: string, childUids: string[]) {
     if (collections[uid]) collectionMutators.edit(uid, 'children', childUids)
@@ -97,7 +99,7 @@ export function dragHandlerFactory(
     hoveredItem: HoveredItem,
   ) => {
     // Cannot drop in read only mode
-    if (isReadOnly) return false
+    if (layout === 'modal') return false
     // Cannot drop requests/folders into a workspace
     if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
     // Collections cannot drop over Drafts

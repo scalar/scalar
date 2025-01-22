@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
@@ -8,12 +9,12 @@ import { capitalize, computed, ref } from 'vue'
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
+const { selectedSecuritySchemeUids } = defineProps<{
   selectedSecuritySchemeUids: string[]
-  layout?: 'client' | 'reference'
 }>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
+const { layout } = useLayout()
 
 const security = computed(() =>
   selectedSecuritySchemeUids.map((uid) => ({
@@ -62,12 +63,10 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <!-- Header -->
     <DataTableRow
       v-if="security.length > 1"
-      :class="{ 'request-example-references-header': layout === 'reference' }">
+      :class="{ 'request-example-references-header': layout === 'modal' }">
       <DataTableCell
         class="text-c-3 pl-2 font-medium flex items-center"
-        :class="
-          layout === 'reference' && `border-t ${index !== 0 ? 'mt-2' : ''}`
-        ">
+        :class="layout === 'modal' && `border-t ${index !== 0 ? 'mt-2' : ''}`">
         {{ generateLabel(scheme!) }}
       </DataTableCell>
     </DataTableRow>
@@ -77,7 +76,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
-          :containerClass="layout === 'reference' && 'border-t'"
+          :containerClass="layout === 'modal' && 'border-t'"
           :modelValue="scheme.token"
           placeholder="Token"
           type="password"
@@ -92,7 +91,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
           <RequestAuthDataTableInput
             class="text-c-2"
             :containerClass="
-              layout === 'reference' && 'auth-blend-required border-t'
+              layout === 'modal' && 'auth-blend-required border-t'
             "
             :modelValue="scheme.username"
             placeholder="janedoe"
@@ -117,7 +116,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <template v-else-if="scheme?.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
-          :containerClass="layout === 'reference' && 'border-t'"
+          :containerClass="layout === 'modal' && 'border-t'"
           :modelValue="scheme.name"
           placeholder="api-key"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'name', v)">
@@ -147,10 +146,10 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
               class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium text-c-3"
               :class="{
                 '!text-c-1 !border-current border-b-[1px] !rounded-none':
-                  layout === 'client' &&
+                  layout !== 'modal' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
                 '!text-c-1 !border-current border-b-[1px] !rounded-none opacity-100':
-                  layout === 'reference' &&
+                  layout === 'modal' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
               }"
               type="button"
@@ -166,7 +165,6 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"
           :flow="flow!"
-          :layout="layout"
           :scheme="scheme" />
       </template>
     </template>

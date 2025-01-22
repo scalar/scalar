@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -15,7 +16,8 @@ import { useRouter } from 'vue-router'
 
 const { activeCollection, activeWorkspace, activeEnvironment } =
   useActiveEntities()
-const { isReadOnly, collectionMutators } = useWorkspace()
+const { collectionMutators } = useWorkspace()
+const { layout } = useLayout()
 
 const router = useRouter()
 
@@ -125,7 +127,7 @@ onMounted(() => {
         <ScalarDropdownDivider />
         <!-- Manage environments -->
         <ScalarDropdownItem
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           class="flex items-center gap-1.5"
           @click="createNewEnvironment">
           <div class="flex items-center justify-center h-4 w-4">

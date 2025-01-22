@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -19,7 +20,9 @@ const id = useId()
 
 const { activeRequest, activeExample, activeServer, activeCollection } =
   useActiveEntities()
-const { isReadOnly, requestMutators, events } = useWorkspace()
+const { requestMutators, events } = useWorkspace()
+
+const { layout } = useLayout()
 
 const addressBarRef = ref<typeof CodeInput | null>(null)
 
@@ -138,7 +141,7 @@ function updateRequestPath(url: string) {
         </div>
         <div class="flex gap-1 z-context-plus">
           <HttpMethod
-            :isEditable="!isReadOnly"
+            :isEditable="layout !== 'modal'"
             isSquare
             :method="activeRequest.method"
             teleport
@@ -159,7 +162,7 @@ function updateRequestPath(url: string) {
             aria-label="Path"
             class="outline-none"
             disableCloseBrackets
-            :disabled="isReadOnly"
+            :disabled="layout === 'modal'"
             disableEnter
             disableTabIndent
             :emitOnBlur="false"

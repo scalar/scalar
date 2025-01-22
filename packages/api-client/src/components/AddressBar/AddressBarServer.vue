@@ -20,7 +20,6 @@ defineProps<{
 
 const { activeRequest, activeCollection, activeServer } = useActiveEntities()
 const { servers, collectionMutators, events } = useWorkspace()
-
 const { layout } = useLayout()
 
 const requestServerOptions = computed(() =>
