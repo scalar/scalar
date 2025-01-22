@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.99
+
+### Patch Changes
+
+- c803e2d: feat: cookies 🍪
+
 ## 0.2.98
 
 ### Patch Changes

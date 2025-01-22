@@ -1,5 +1,13 @@
 # @scalar/aspnetcore
 
+## 2.0.3
+
+### Patch Changes
+
+- d843313: fix: anonymous assets endpoint
+- Updated dependencies [a871c83]
+  - @scalar/api-reference@1.25.107
+
 ## 2.0.2
 
 ### Patch Changes

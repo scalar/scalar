@@ -1,5 +1,18 @@
 # @scalar/api-reference
 
+## 1.25.107
+
+### Patch Changes
+
+- a871c83: fix(api-reference): add .introduction-section class to Introduction
+- Updated dependencies [ca381b6]
+- Updated dependencies [c803e2d]
+- Updated dependencies [aac6c86]
+- Updated dependencies [ca381b6]
+  - @scalar/api-client@2.2.36
+  - @scalar/oas-utils@0.2.99
+  - @scalar/components@0.13.16
+
 ## 1.25.106
 
 ### Patch Changes

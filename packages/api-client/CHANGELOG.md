@@ -1,5 +1,20 @@
 # @scalar/api-client
 
+## 2.2.36
+
+### Patch Changes
+
+- ca381b6: fix: avoids index as a key in list rendering
+- c803e2d: feat: cookies 🍪
+- ca381b6: fix: updates param tooltip function and style
+- Updated dependencies [c803e2d]
+- Updated dependencies [aac6c86]
+  - @scalar/oas-utils@0.2.99
+  - @scalar/components@0.13.16
+  - @scalar/import@0.2.19
+  - @scalar/postman-to-openapi@0.1.22
+  - @scalar/use-codemirror@0.11.61
+
 ## 2.2.35
 
 ### Patch Changes

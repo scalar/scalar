@@ -1,5 +1,12 @@
 # @scalar/docusaurus
 
+## 0.4.185
+
+### Patch Changes
+
+- 0261b6f: chore: move to new integrations/ folder
+  - @scalar/api-reference-react@0.4.16
+
 ## 0.4.184
 
 ### Patch Changes

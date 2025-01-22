@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.16
+
+### Patch Changes
+
+- aac6c86: fix(components): improve ScalarMenu team picker a11y
+
 ## 0.13.15
 
 ### Patch Changes

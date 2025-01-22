@@ -1,5 +1,13 @@
 # @scalar/nextjs-openapi
 
+## 0.0.30
+
+### Patch Changes
+
+- 0261b6f: chore: move to new integrations/ folder
+- Updated dependencies [0261b6f]
+  - @scalar/nextjs-api-reference@0.5.3
+
 ## 0.0.29
 
 ### Patch Changes
