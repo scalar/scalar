@@ -90,7 +90,6 @@ const flattenValue = (item: RequestExampleParameter) => {
             <span class="sr-only">Global</span>
             <ScalarTooltip
               as="div"
-              class="z-[10001]"
               side="top">
               <template #trigger>
                 <ScalarIcon
