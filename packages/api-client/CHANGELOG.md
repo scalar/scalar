@@ -1,5 +1,12 @@
 # @scalar/api-client
 
+## 2.2.37
+
+### Patch Changes
+
+- 9276103: fix: add back in using index as a key in a couple places
+- de6cd98: feat: adds query parameters array support
+
 ## 2.2.36
 
 ### Patch Changes
