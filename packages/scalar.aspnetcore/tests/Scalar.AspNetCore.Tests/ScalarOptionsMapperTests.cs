@@ -94,7 +94,7 @@ public class ScalarOptionsMapperTests
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
         configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp.ToStringFast());
         configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient.ToStringFast());
-        configuration.HiddenClients.Should().ContainKeys(ScalarOptionsMapper.ClientOptions.Keys.Select(x => x.ToStringFast()));
+        ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
         configuration.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
         configuration.Authentication.ApiKey.Should().NotBeNull();
@@ -124,16 +124,16 @@ public class ScalarOptionsMapperTests
     }
 
     [Fact]
-    public void GetHiddenClients_ShouldReturnAllClients_WhenHiddenClientsIsTrue()
+    public void GetHiddenClients_ShouldReturnTrue_WhenHiddenClientsIsTrue()
     {
         // Arrange
         var options = new ScalarOptions { HiddenClients = true };
 
         // Act
-        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+        var hiddenClients = (bool) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
-        hiddenClients.Should().ContainKeys(ScalarOptionsMapper.ClientOptions.Keys.Select(x => x.ToStringFast()));
+        hiddenClients.Should().BeTrue();
     }
 
     [Fact]
@@ -143,7 +143,7 @@ public class ScalarOptionsMapperTests
         var options = new ScalarOptions { EnabledTargets = [ScalarTarget.CSharp] };
 
         // Act
-        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
@@ -157,7 +157,7 @@ public class ScalarOptionsMapperTests
         var options = new ScalarOptions { EnabledClients = [ScalarClient.HttpClient, ScalarClient.Python3] };
 
         // Act
-        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
@@ -174,7 +174,7 @@ public class ScalarOptionsMapperTests
         var options = new ScalarOptions { EnabledClients = [ScalarClient.OkHttp] }; // All Kotlin clients are enabled
 
         // Act
-        var hiddenClients = options.ToScalarConfiguration().HiddenClients;
+        var hiddenClients = (IDictionary<string, IEnumerable<string>>) options.ToScalarConfiguration().HiddenClients!;
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);

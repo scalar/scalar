@@ -165,7 +165,7 @@ public static class ScalarEndpointRouteBuilderExtensions
             }
 
             var configuration = options.ToScalarConfiguration();
-            var serializedConfiguration = JsonSerializer.Serialize(configuration, ScalarConfigurationSerializerContext.Default.ScalarConfiguration);
+            var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
             // Workaround. Once we support multiple OpenAPI documents, we must update this.
             var documentUrl = configuration.Documents.First();
