@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 2.0.4
+
+### Patch Changes
+
+- 77ebe60: fix: HiddenClients behavior and add missing clients and targets
+  - @scalar/api-reference@1.25.108
+
 ## 2.0.3
 
 ### Patch Changes
