@@ -63,7 +63,7 @@ export const oasServerSchema = z.object({
    */
   description: z.string().optional(),
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
-  variables: z.record(z.string(), oasServerVariableSchema).optional().catch({}),
+  variables: z.record(z.string(), oasServerVariableSchema).optional(),
 })
 
 export const serverSchema = oasServerSchema.extend({
