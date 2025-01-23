@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   ScalarButton,
+  ScalarComboboxMultiselect,
   ScalarDropdown,
   ScalarDropdownDivider,
   ScalarDropdownItem,
@@ -14,6 +15,7 @@ const props = withDefaults(
     value?: string[]
     default?: string | number
     canAddCustomValue?: boolean
+    type?: string
   }>(),
   { canAddCustomValue: true },
 )
@@ -65,11 +67,51 @@ watch(addingCustomValue, (newValue) => {
 const initialValue = computed(() => {
   return props.modelValue !== undefined ? props.modelValue : props.default
 })
+
+/** Currently selected array example values */
+const selectedArrayOptions = computed(() => {
+  const selectedValues = new Set(props.modelValue.toString().split(', '))
+  return options.value
+    .filter((option) => selectedValues.has(option))
+    .map((option) => ({ id: option, label: option, value: option }))
+})
+
+/** Options for the array type */
+const arrayOptions = computed(() =>
+  options.value.map((option) => ({ id: option, label: option, value: option })),
+)
+
+/** Update the model value when the selected options change */
+const updateSelectedOptions = (selectedOptions: any) => {
+  const selectedValues = selectedOptions.map((option: any) => option.value)
+  emit('update:modelValue', selectedValues.join(', '))
+}
 </script>
 
 <template>
-  <div class="w-full">
-    <template v-if="addingCustomValue">
+  <div
+    class="pr-4 w-full has-[:focus-visible]:outline has-[:focus-visible]:rounded-[4px] -outline-offset-1">
+    <template v-if="type === 'array'">
+      <ScalarComboboxMultiselect
+        :modelValue="selectedArrayOptions"
+        :options="arrayOptions"
+        @update:modelValue="updateSelectedOptions">
+        <ScalarButton
+          class="gap-1.5 font-normal h-full justify-start px-2 py-1.5 custom-scroll pr-6 outline-none"
+          fullWidth
+          variant="ghost">
+          <span class="text-c-1 whitespace-nowrap">{{
+            selectedArrayOptions.length > 0
+              ? selectedArrayOptions.map((option) => option.label).join(', ')
+              : 'Select a value'
+          }}</span>
+          <ScalarIcon
+            icon="ChevronDown"
+            size="md" />
+        </ScalarButton>
+      </ScalarComboboxMultiselect>
+    </template>
+    <template v-else-if="addingCustomValue">
       <input
         ref="inputRef"
         v-model="customValue"
@@ -84,7 +126,7 @@ const initialValue = computed(() => {
         resize
         :value="initialValue">
         <ScalarButton
-          class="gap-1.5 font-normal h-full justify-start px-2 py-1.5"
+          class="gap-1.5 font-normal h-full justify-start px-2 py-1.5 outline-none"
           fullWidth
           variant="ghost">
           <span class="text-c-1">{{ initialValue || 'Select a value' }}</span>

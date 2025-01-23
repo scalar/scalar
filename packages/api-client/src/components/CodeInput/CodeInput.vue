@@ -222,6 +222,7 @@ export default {
     <DataTableInputSelect
       :default="props.default"
       :modelValue="modelValue"
+      :type="type"
       :value="props.enum"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
@@ -237,7 +238,7 @@ export default {
       :id="uid"
       v-bind="$attrs"
       ref="codeMirrorRef"
-      class="peer font-code w-full whitespace-nowrap overflow-hidden text-xs leading-[1.44] relative has-[:focus-visible]:outline has-[:focus-visible]:rounded-[4px] -outline-offset-2"
+      class="peer font-code w-full whitespace-nowrap overflow-hidden text-xs leading-[1.44] relative has-[:focus-visible]:outline has-[:focus-visible]:rounded-[4px] -outline-offset-1"
       :class="{
         'flow-code-input--error': error,
       }"
