@@ -28,9 +28,7 @@ const { cx } = useBindCx()
 <template>
   <div
     v-bind="
-      cx(
-        'absolute inset-0 -z-1 rounded border bg-b-1 shadow-lg brightness-lifted',
-      )
+      cx('absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted')
     ">
     <slot />
   </div>

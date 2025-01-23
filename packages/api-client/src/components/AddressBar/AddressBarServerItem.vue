@@ -78,7 +78,7 @@ const updateServerVariable = (key: string, value: string) => {
     <div
       v-if="isExpanded"
       :id="formId"
-      class="border-t divide divide-y *:pl-4">
+      class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b">
       <ServerVariablesForm
         :variables="activeServer?.variables"
         @update:variable="updateServerVariable" />
