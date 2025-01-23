@@ -80,7 +80,13 @@ export namespace OpenAPI {
 }
 
 export namespace OpenAPIV3_1 {
-  type Modify<T, R> = Omit<T, keyof R> & R
+  type Modify<T, R> = {
+    [P in keyof (T & R)]: P extends keyof R
+      ? R[P]
+      : P extends keyof T
+        ? T[P]
+        : never
+  }
 
   type PathsWebhooksComponents<T = {}> = {
     paths?: PathsObject<T>

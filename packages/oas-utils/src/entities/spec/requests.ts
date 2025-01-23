@@ -102,7 +102,7 @@ export const oasRequestSchema = z.object({
   /** Hide operations */
   'x-internal': z.boolean().optional(),
   'x-scalar-ignore': z.boolean().optional(),
-}) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
+})
 
 /**
  * Extended properties added to the spec definition for client usage
