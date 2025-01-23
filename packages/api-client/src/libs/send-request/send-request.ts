@@ -240,8 +240,13 @@ export const createRequestOperation = ({
       proxyUrl,
     })
 
+    // Complex auth, we can just split out the uids into the array now
+    const splitSecuritySchemeUids = selectedSecuritySchemeUids.flatMap((uid) =>
+      uid.split(','),
+    )
+
     // Populate all forms of auth to the request segments
-    selectedSecuritySchemeUids?.forEach((uid) => {
+    splitSecuritySchemeUids?.forEach((uid) => {
       const scheme = securitySchemes[uid]
       if (!scheme) return
 
