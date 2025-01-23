@@ -43,6 +43,10 @@ describe('serverSchema', () => {
           default: 'demo',
           description: 'Username selection',
         },
+        version: {
+          enum: ['v1', 'v2'],
+          description: 'Version selection',
+        },
       },
     }
 
@@ -52,12 +56,20 @@ describe('serverSchema', () => {
       variables: {
         environment: {
           enum: ['dev', 'staging', 'prod'],
+          // kept
           default: 'dev',
           description: 'Environment selection',
         },
         username: {
+          // enum omitted
           default: 'demo',
           description: 'Username selection',
+        },
+        version: {
+          enum: ['v1', 'v2'],
+          // added
+          default: 'v1',
+          description: 'Version selection',
         },
       },
     })
