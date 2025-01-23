@@ -10,8 +10,6 @@ runs:
     #   with:
     #     name: playwright-report
     #     path: playwright/test-results/
-    - name: Display structure of downloaded files
-      run: ls -R playwright/test-results/
     - uses: oven-sh/setup-bun@v2
     - name: Update snapshots
       run: bun scripts/update-snapshots.ts
