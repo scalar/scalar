@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { Operation } from '@/features/Operation'
-import { getRequest } from '@/helpers/get-request'
-import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { useWorkspace } from '@scalar/api-client/store'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
   Spec,
@@ -213,11 +212,12 @@ onMounted(() => {
 .references-loading-top-spacer {
   top: -1px;
 }
-@media (min-width: 1001px) {
+/* This doesn't seem to work but leaving here in case we need it */
+/* @media (min-width: 1001px) {
   .references-loading-top-spacer {
-    top: calc(var(--refs-header-height) - 1px);
+    top: calc(var(--scalar-custom-header-height, --refs-header-height) - 1px);
   }
-}
+} */
 .references-loading-hidden-tag .section-container > .section:first-child {
   display: none;
 }
