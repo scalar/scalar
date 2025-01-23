@@ -74,6 +74,7 @@ export default {
         ghost: 'var(--scalar-color-ghost)',
         disabled: 'var(--scalar-color-disabled)',
         btn: 'var(--scalar-button-1-color)',
+        danger: 'var(--scalar-danger-color)',
       },
 
       // Hover Colors

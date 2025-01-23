@@ -56,6 +56,12 @@
   --scalar-button-1: rgba(0, 0, 0, 1);
   --scalar-button-1-hover: rgba(0, 0, 0, 0.8);
   --scalar-button-1-color: rgba(255, 255, 255, 0.9);
+
+  --scalar-danger-color: color-mix(
+    in srgb,
+    var(--scalar-color-red),
+    var(--scalar-color-1) 20%
+  );
 }
 .dark-mode {
   --scalar-color-green: #00b648;
@@ -68,4 +74,10 @@
   --scalar-button-1: rgba(255, 255, 255, 1);
   --scalar-button-1-hover: rgba(255, 255, 255, 0.9);
   --scalar-button-1-color: black;
+
+  --scalar-danger-color: color-mix(
+    in srgb,
+    var(--scalar-color-red),
+    var(--scalar-background-1) 20%
+  );
 }

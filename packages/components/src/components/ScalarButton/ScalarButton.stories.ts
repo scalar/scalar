@@ -41,6 +41,18 @@ export const FullWidth: Story = { args: { fullWidth: true } }
 
 export const Ghost: Story = { args: { variant: 'ghost' } }
 
+export const Danger: Story = {
+  args: { variant: 'danger' },
+
+  render: (args) => ({
+    components: { ScalarButton },
+    setup() {
+      return { args }
+    },
+    template: `<ScalarButton v-bind="args">Delete</ScalarButton>`,
+  }),
+}
+
 export const Disabled: Story = { args: { disabled: true } }
 
 export const Loading: Story = {
