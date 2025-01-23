@@ -147,6 +147,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           disableEnter
           disableTabIndent
           :enum="item.enum"
+          :examples="item.examples"
           :max="item.maximum"
           :min="item.minimum"
           :modelValue="item.value"

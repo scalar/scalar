@@ -28,6 +28,7 @@ export const requestExampleParametersSchema = z.object({
   description: z.string().optional(),
   required: z.boolean().optional(),
   enum: z.array(z.string()).optional(),
+  examples: z.array(z.string()).optional(),
   type: z.string().optional(),
   format: z.string().optional(),
   minimum: z.number().optional(),
@@ -315,6 +316,12 @@ export function createParamInstance(param: RequestParameter) {
         ? schema.items.enum.map(String)
         : schema?.enum
 
+  // Handle non-string examples
+  const parseExamples =
+    schema?.examples && schema?.type !== 'string'
+      ? schema.examples?.map(String)
+      : schema?.examples
+
   // safe parse the example
   const example = schemaModel(
     {
@@ -326,6 +333,7 @@ export function createParamInstance(param: RequestParameter) {
       /** Initialized all required properties to enabled */
       enabled: !!param.required,
       enum: parseEnum,
+      examples: parseExamples,
     },
     requestExampleParametersSchema,
     false,

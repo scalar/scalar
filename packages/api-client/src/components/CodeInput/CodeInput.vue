@@ -35,6 +35,7 @@ const props = withDefaults(
     disableEnter?: boolean
     disableCloseBrackets?: boolean
     enum?: string[]
+    examples?: string[]
     type?: string
     nullable?: boolean
     withVariables?: boolean
@@ -230,6 +231,13 @@ export default {
       :default="props.default"
       :modelValue="modelValue"
       :value="booleanOptions"
+      @update:modelValue="emit('update:modelValue', $event)" />
+  </template>
+  <template v-else-if="props.examples && props.examples.length">
+    <DataTableInputSelect
+      :default="props.default"
+      :modelValue="props.modelValue"
+      :value="props.examples"
       @update:modelValue="emit('update:modelValue', $event)" />
   </template>
   <template v-else>
