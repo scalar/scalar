@@ -178,7 +178,7 @@ function updateRequestPath(url: string) {
           <div class="fade-right"></div>
         </div>
 
-        <AddressBarHistory />
+        <AddressBarHistory :target="id" />
         <ScalarButton
           class="relative h-auto shrink-0 z-context-plus overflow-hidden pl-2 pr-2.5 py-1 font-bold"
           :disabled="isRequesting"
