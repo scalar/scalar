@@ -46,7 +46,7 @@ jobs:
           name: playwright-report
           path: ./playwright/test-results/
           retention-days: 5
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@4bc047ad259df6fc24a6c9b0f9a0cb08cf17fbe5
         if: ${{ failure() }}
       - name: Update snapshot files
         if: ${{ failure() }}
@@ -54,7 +54,7 @@ jobs:
         run: bun scripts/update-snapshots.ts
       - name: Create Pull Request
         if: ${{ failure() }}
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f
         with:
           commit-message: 'test: update CDN API Reference snapshots'
           committer: Tom Mastromonaco <peter-evans@users.noreply.github.com>
@@ -63,6 +63,7 @@ jobs:
             Please review the changes to the API Reference UI.
           title: 'test: update CDN API Reference snapshots'
           branch: test-update-cdn-api-reference-snapshots
+          base: main
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         if: ${{ failure() && github.event_name == 'pull_request'}}
