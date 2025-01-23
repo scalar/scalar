@@ -80,7 +80,7 @@ const { cx } = useBindCx()
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">
             <!-- Options list -->
-            <ListboxOptions class="flex flex-col p-0.75">
+            <ListboxOptions class="flex flex-col gap-0.75 p-0.75">
               <ScalarListboxOption
                 v-for="option in options"
                 :key="option.id"
