@@ -9,7 +9,6 @@ on:
       - 'playwright/tests/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
-  push:
 jobs:
   test:
     runs-on: ubuntu-22.04
