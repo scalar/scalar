@@ -56,9 +56,11 @@ export default {
         20: '20',
         50: '50',
         // Contextual overlays like dropdowns, popovers, tooltips
-        context: '1000',
+        'context': '1000',
+        // Just above context
+        'context-plus': '1001',
         // Full screen overlays / modals
-        overlay: '10000',
+        'overlay': '10000',
       },
     },
   },

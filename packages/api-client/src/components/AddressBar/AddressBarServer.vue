@@ -5,12 +5,18 @@ import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdownDivider,
+  ScalarFloatingBackdrop,
   ScalarIcon,
   ScalarPopover,
 } from '@scalar/components'
 import { computed, watch } from 'vue'
 
 import AddressBarServerItem from './AddressBarServerItem.vue'
+
+defineProps<{
+  /** The id of the target to use for the popover (e.g. address bar) */
+  target: string
+}>()
 
 const { activeRequest, activeCollection, activeServer } = useActiveEntities()
 const { servers, collectionMutators, events } = useWorkspace()
@@ -69,46 +75,41 @@ const serverUrlWithoutTrailingSlash = computed(() => {
 </script>
 <template>
   <ScalarPopover
-    class="dark:bg-b-1 bg-b-2 border border-t-0 -top-1.25 min-w-full rounded-b-lg relative w-full"
+    class="max-h-[inherit] p-0"
+    :offset="0"
     placement="top-start"
     resize
-    target="address-bar">
+    :target="target">
     <ScalarButton
-      class="font-code lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 py-0.5 h-7 text-c-2"
+      class="font-code z-context-plus lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 py-0.5 h-7 text-c-2 hover:bg-b-2"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
     </ScalarButton>
-    <template #popover="{ close }">
-      <div class="menu custom-scroll flex flex-col gap-1 max-h-[300px]">
+    <template #popover>
+      <div
+        class="custom-scroll flex border-t p-1 flex-col gap-1 max-h-[inherit]">
         <!-- Request -->
-        <div
+        <AddressBarServerItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
-          class="text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2"
-          @click="close">
-          <AddressBarServerItem
-            :serverOption="serverOption"
-            type="request" />
-        </div>
+          :serverOption="serverOption"
+          type="request" />
         <template v-if="showDropdownLabels">
           <ScalarDropdownDivider />
           <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
         </template>
         <!-- Collection -->
-        <div
+        <AddressBarServerItem
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
-          class="contents text-sm *:rounded-none first:*:rounded-l-lg last:*:rounded-r-lg *:flex text-c-2"
-          @click="close">
-          <AddressBarServerItem
-            :serverOption="serverOption"
-            type="collection" />
-        </div>
+          :serverOption="serverOption"
+          type="collection" />
         <!-- Add Server -->
         <template v-if="layout !== 'modal'">
-          <div
+          <button
             class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
+            type="button"
             @click="handleAddServer">
             <div class="flex items-center justify-center h-4 w-4">
               <ScalarIcon
@@ -116,9 +117,13 @@ const serverUrlWithoutTrailingSlash = computed(() => {
                 size="sm" />
             </div>
             <span>Add Server</span>
-          </div>
+          </button>
         </template>
       </div>
+    </template>
+    <template #backdrop>
+      <ScalarFloatingBackdrop
+        class="-top-[--scalar-address-bar-height] rounded-lg" />
     </template>
   </ScalarPopover>
 </template>
