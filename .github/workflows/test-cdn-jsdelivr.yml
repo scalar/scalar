@@ -9,7 +9,6 @@ on:
       - 'playwright/tests/**'
       - 'examples/cdn-api-reference/**'
       - '.github/workflows/test-cdn-jsdelivr.yml'
-  push:
 jobs:
   test:
     runs-on: ubuntu-22.04
@@ -57,7 +56,7 @@ jobs:
         uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f
         with:
           commit-message: 'test: update CDN API Reference snapshots'
-          committer: Tom Mastromonaco <peter-evans@users.noreply.github.com>
+          committer: Tom Mastromonaco <tom@scalar.com>
           body: |
             This PR updates the CDN API Reference snapshots for the jsdelivr test.
             Please review the changes to the API Reference UI.
