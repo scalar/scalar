@@ -259,7 +259,7 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      const operation = path[method]
+      const operation: OpenAPIV3_1.OperationObject = path[method]
       const operationServers = serverSchema
         .array()
         .parse(operation.servers ?? [])
@@ -281,7 +281,8 @@ export async function importSpecToWorkspace(
         []
       ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
         const keys = Object.keys(s)
-        if (keys.length) return keys[0]
+        if (keys.length > 1) return keys.join(',')
+        else if (keys.length) return keys[0]
         else return []
       })
 
@@ -296,7 +297,13 @@ export async function importSpecToWorkspace(
           )
             ? authentication.preferredSecurityScheme
             : securityRequirements[0]
-        const uid = securitySchemeMap[name]
+
+        // We split to check for complex auth
+        const uid = name
+          .split(',')
+          .map((k: string) => securitySchemeMap[k])
+          .filter(isDefined)
+          .join(',')
         selectedSecuritySchemeUids = [uid]
       }
 
