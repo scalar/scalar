@@ -24,7 +24,7 @@ import {
   narrowUnionSchema,
   parseDiff,
   traverseZodSchema,
-} from './live-sync'
+} from './watch-mode'
 
 const mockRequests: Record<`request${number}uid`, Request> = {
   request1uid: {

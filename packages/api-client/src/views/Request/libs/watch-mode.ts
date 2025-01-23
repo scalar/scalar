@@ -13,7 +13,7 @@ import {
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
+import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import {
   type Path,
   type PathValue,

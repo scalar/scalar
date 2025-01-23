@@ -8,7 +8,7 @@ import {
   mutateSecuritySchemeDiff,
   mutateServerDiff,
   mutateTagDiff,
-} from '@/views/Request/libs/live-sync'
+} from '@/views/Request/libs/watch-mode'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
 import { parseSchema } from '@scalar/oas-utils/transforms'
 import { useToasts } from '@scalar/use-toasts'
@@ -16,11 +16,11 @@ import { useTimeoutPoll } from '@vueuse/core'
 import microdiff, { type Difference } from 'microdiff'
 import { watch } from 'vue'
 
-/** Live Sync polling timeout, every 5 seconds */
-const POLLING_INTERVAL = 5 * 1000
+/** Timeout for the watch mode polling */
+const POLLING_INTERVAL = 5 * 1000 // 5 seconds
 
 /** Pause for 60 seconds after an error */
-const ERROR_TIMEOUT = 60 * 1000
+const ERROR_TIMEOUT = 60 * 1000 // 60 seconds
 
 /**
  * Hook which handles polling the documentUrl for changes then attempts to merge what is new

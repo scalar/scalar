@@ -66,7 +66,12 @@ export const extendedCollectionSchema = z.object({
   tags: nanoidSchema.array().default([]),
   /** List of requests without tags and top level tag "folders" */
   children: nanoidSchema.array().default([]),
-  /** A link to where this document is stored, useful for live sync and possibly git sync down the line */
+  /**
+   * A link to where this document is stored
+   *
+   * - Used for watch mode
+   * - Possibly useful for Git sync down the line
+   */
   documentUrl: z.string().optional(),
   /**
    * Enables polling of OpenAPI document urls
