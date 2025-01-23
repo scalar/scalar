@@ -12,6 +12,7 @@ runs:
     #     path: playwright/test-results/
     - uses: oven-sh/setup-bun@v2
     - name: Update snapshots
+      shell: bash
       run: bun scripts/update-snapshots.ts
     - name: Create Pull Request
       uses: peter-evans/create-pull-request@v5
