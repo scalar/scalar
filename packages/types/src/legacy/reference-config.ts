@@ -26,6 +26,13 @@ export type ClientInfo = {
   description: string
 }
 
+/**
+ * Alias for the OpenAPI 3.1 ServerObject type
+ *
+ * @deprecated Use OpenAPIV3_1.ServerObject instead
+ */
+export type Server = OpenAPIV3_1.ServerObject
+
 export type TargetInfo = {
   key: TargetId
   title: string
@@ -258,7 +265,7 @@ export type ReferenceConfiguration = {
    * @default undefined
    * @example [{ url: 'https://api.scalar.com', description: 'Production server' }]
    */
-  servers?: Server[]
+  servers?: OpenAPIV3_1.ServerObject[]
   /**
    * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
    *
@@ -325,8 +332,6 @@ export type ReferenceConfiguration = {
   hideClientButton?: boolean
 }
 
-export type Server = OpenAPIV3.ServerObject | OpenAPIV3_1.ServerObject
-
 export type BaseParameter = {
   name: string
   description?: string | null
@@ -376,7 +381,7 @@ export type Information = {
   'summary'?: string
   'tags'?: string[]
   'deprecated'?: boolean
-  'servers'?: Server[]
+  'servers'?: OpenAPIV3_1.ServerObject[]
   /**
    * Scalar
    */
@@ -407,7 +412,7 @@ export type Operation = {
   name?: string
   description?: string
   information?: Information
-  servers?: Server[]
+  servers?: OpenAPIV3_1.ServerObject[]
 }
 
 /**

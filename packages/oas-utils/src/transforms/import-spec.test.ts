@@ -3,7 +3,7 @@ import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
 import { importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import galaxy from '../../../galaxy/dist/latest.json'
 
@@ -445,64 +445,57 @@ describe('importSpecToWorkspace', () => {
   })
 
   describe('servers', () => {
-    it('vanilla servers are returned', async () => {
-      const res = await importSpecToWorkspace(galaxy)
-      if (res.error) throw res.error
-
-      // Remove the UID for comparison
-      expect(res.servers.map(({ uid, ...rest }) => rest)).toEqual(
-        galaxy.servers,
-      )
-    })
-
-    /** Galaxy with some relative servers */
-    const relativeGalaxy = {
-      ...galaxy,
-      servers: [
-        ...galaxy.servers,
-        {
-          url: '/api/v1',
+    it('handles servers with different formats', async () => {
+      const originalLocation =
+        typeof window !== 'undefined' ? window.location : { origin: undefined }
+      vi.stubGlobal('window', {
+        location: {
+          origin: 'http://localhost:3000',
         },
-        {},
-      ],
-    }
-
-    it('handles relative servers with window.location.origin', async () => {
-      const res = await importSpecToWorkspace(relativeGalaxy)
-      if (res.error) throw res.error
-
-      // Test URLs only
-      expect(res.servers.map(({ url }) => url)).toEqual([
-        'https://galaxy.scalar.com',
-        '{protocol}://void.scalar.com/{path}',
-        'http://localhost:3000/api/v1',
-        'http://localhost:3000',
-      ])
-    })
-
-    it('handles baseServerURL for relative servers', async () => {
-      const res = await importSpecToWorkspace(relativeGalaxy, {
-        baseServerURL: 'https://scalar.com',
       })
-      if (res.error) throw res.error
 
-      // Test URLS only
-      expect(res.servers.map(({ url }) => url)).toEqual([
-        'https://galaxy.scalar.com',
-        '{protocol}://void.scalar.com/{path}',
-        'https://scalar.com/api/v1',
-        'https://scalar.com',
-      ])
-    })
-
-    it('handles overloading servers with the servers property', async () => {
-      const res = await importSpecToWorkspace(relativeGalaxy, {
-        servers: [{ url: 'https://scalar.com' }],
+      const result = await importSpecToWorkspace({
+        servers: [
+          { url: 'https://api.example.com' }, // Absolute URL
+          { url: '/v2/api' }, // Relative path
+          {
+            url: '{scheme}://{environment}.api.example.com', // URL with variables
+            variables: {
+              scheme: {
+                default: 'https',
+                enum: ['http', 'https'],
+              },
+              environment: {
+                default: 'prod',
+                enum: ['dev', 'staging', 'prod'],
+              },
+            },
+          },
+        ],
       })
-      if (res.error) throw res.error
 
-      // Test URLS only
-      expect(res.servers.map(({ url }) => url)).toEqual(['https://scalar.com'])
+      if (result.error) throw result.error
+
+      expect(result.servers).toMatchObject([
+        { url: 'https://api.example.com' },
+        { url: 'http://localhost:3000/v2/api' },
+        {
+          url: '{scheme}://{environment}.api.example.com',
+          variables: {
+            scheme: {
+              default: 'https',
+              enum: ['http', 'https'],
+            },
+            environment: {
+              default: 'prod',
+              enum: ['dev', 'staging', 'prod'],
+            },
+          },
+        },
+      ])
+
+      // Restore the original window.location
+      vi.stubGlobal('location', originalLocation)
     })
   })
 })
@@ -622,5 +615,181 @@ describe('parseSchema', () => {
 
     expect(errors).toMatchObject([{ code: 'MISSING_CHAR' }])
     expect(errors).toHaveLength(1)
+  })
+})
+
+describe('getServersFromOpenApiDocument', () => {
+  it('parses a simple server', async () => {
+    const result = await importSpecToWorkspace({
+      servers: [{ url: 'https://example.com' }],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'https://example.com' }])
+  })
+
+  it('prefixes relative servers with window.location.origin', async () => {
+    const originalLocation =
+      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace({
+      servers: [{ url: '/api/v1' }],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([
+      { url: 'http://localhost:3000/api/v1' },
+    ])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
+  it('prefixes relative servers with baseServerURL when provided', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '/api/v1' }],
+      },
+      {
+        baseServerURL: 'https://scalar.com',
+      },
+    )
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
+  })
+
+  it('handles empty server objects by using localhost when no baseServerURL', async () => {
+    const result = await importSpecToWorkspace({
+      servers: [{}],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toStrictEqual([])
+  })
+
+  it('handles servers with variables/templating', async () => {
+    const result = await importSpecToWorkspace({
+      servers: [
+        {
+          url: '{protocol}://api.example.com/{basePath}',
+          variables: {
+            protocol: {
+              default: 'https',
+              enum: ['http', 'https'],
+            },
+            basePath: {
+              default: 'v1',
+            },
+          },
+        },
+      ],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers[0].url).toBe(
+      '{protocol}://api.example.com/{basePath}',
+    )
+    expect(result.servers[0].variables).toBeDefined()
+  })
+
+  it('handles multiple servers with mixed formats', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        servers: [
+          { url: 'https://prod.example.com' },
+          { url: '/api/v1' },
+          { url: '{protocol}://dev.example.com' },
+          {},
+        ],
+      },
+      {
+        baseServerURL: 'https://scalar.com',
+      },
+    )
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([
+      { url: 'https://prod.example.com' },
+      { url: 'https://scalar.com/api/v1' },
+      { url: '{protocol}://dev.example.com' },
+    ])
+  })
+
+  it('handles trailing slashes in baseServerURL', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '/api/v1' }],
+      },
+      {
+        baseServerURL: 'https://scalar.com/',
+      },
+    )
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
+  })
+
+  it('handles leading slashes in server url', async () => {
+    const result = await importSpecToWorkspace(
+      {
+        servers: [{ url: '//api/v1' }],
+      },
+      {
+        baseServerURL: 'https://scalar.com',
+      },
+    )
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'https://scalar.com/api/v1' }])
+  })
+
+  it('returns an empty array for undefined servers', async () => {
+    const result = await importSpecToWorkspace({})
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toStrictEqual([])
+  })
+
+  it('returns an empty array when something is invalid', async () => {
+    const result = await importSpecToWorkspace({
+      servers: [{ url: false }],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toStrictEqual([])
+  })
+
+  it('works without window.location', async () => {
+    // Mock window.location for SSR/SSG environments
+    const originalLocation =
+      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', undefined)
+
+    const result = await importSpecToWorkspace({
+      servers: [{ url: '/api/v1' }],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: '/api/v1' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
   })
 })

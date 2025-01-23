@@ -184,7 +184,7 @@ function createRequestFromCurl({
       selectedServerUid.value = existingServer.uid
     } else {
       selectedServerUid.value = serverMutators.add(
-        { url: parsedCurl.value.servers[0] },
+        { url: parsedCurl.value.servers[0] ?? '/' },
         collection.uid,
       ).uid
     }

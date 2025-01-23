@@ -43,7 +43,7 @@ watch(server, (newServer) => {
 })
 
 // Update the config on change
-// We temporarily just debounce this but we should switch to the diff from live sync for updates
+// We temporarily just debounce this but we should switch to the diff from watch mode for updates
 watchDebounced(
   () => configuration,
   (_config) => _config && client.value?.updateConfig(_config),

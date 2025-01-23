@@ -33,7 +33,9 @@ export const createRequestPayload = (
   metaRequestPayload: MetaRequestPayload = {},
 ) => {
   const request = requestSchema.parse(metaRequestPayload.requestPayload ?? {})
-  const server = serverSchema.parse(metaRequestPayload.serverPayload ?? {})
+  const server = metaRequestPayload.serverPayload
+    ? serverSchema.parse(metaRequestPayload.serverPayload)
+    : undefined
   let example = createExampleFromRequest(request, 'example')
 
   // Overwrite any example properties

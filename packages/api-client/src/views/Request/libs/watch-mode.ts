@@ -13,7 +13,7 @@ import {
   serverSchema,
   tagSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
+import { isHttpMethod, schemaModel } from '@scalar/oas-utils/helpers'
 import {
   type Path,
   type PathValue,
@@ -147,6 +147,7 @@ export const findResource = <T>(
 const unwrapSchema = (schema: ZodSchema): ZodSchema => {
   if (schema instanceof z.ZodOptional) return unwrapSchema(schema.unwrap())
   if (schema instanceof z.ZodDefault) return unwrapSchema(schema._def.innerType)
+  if (schema instanceof z.ZodEffects) return unwrapSchema(schema._def.schema)
   return schema
 }
 
