@@ -292,7 +292,7 @@ export namespace OpenAPIV3_1 {
 
   export type SecurityRequirementObject = OpenAPIV3.SecurityRequirementObject
 
-  export type ComponentsObject = Modify<
+  export type ComponentsObject = Merge<
     OpenAPIV3.ComponentsObject,
     {
       schemas?: Record<string, SchemaObject>
