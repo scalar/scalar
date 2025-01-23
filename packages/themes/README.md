@@ -20,12 +20,18 @@ Any styles added outside of these layers will override all the styles in the lay
 
 ## Scoping
 
-Because many Scalar applications are embedded into other websites the reset is scoped to the `scalar-app` class. This means you need to add this class to the root element of your application where you want the theme to apply.
+Because many Scalar applications are embedded into other websites the reset is scoped to the `scalar-app` class. This means you need to add this class to the root element of your application where you want the theme to apply. If you are using the themes in a standalone application, you can just add this class to the `body` element.
 
 ```html
 <body class="scalar-app">
   <!-- Your application content -->
 </body>
+```
+
+## Installation
+
+```bash
+pnpm i @scalar/themes
 ```
 
 ### Usage via CSS Import (Basic)

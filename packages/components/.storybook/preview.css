@@ -65,6 +65,10 @@ body.sb-show-main,
   border-color: var(--scalar-border-color);
 }
 
+:where(#storybook-docs) .sb-hide {
+  display: none;
+}
+
 :where(#storybook-root) .placeholder {
   display: flex;
   align-items: center;
