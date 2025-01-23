@@ -46,6 +46,9 @@ jobs:
           name: playwright-report
           path: ./playwright/test-results/
           retention-days: 5
+      - name: Update snapshots
+        if: ${{ failure() }}
+        uses: ./.github/actions/update-snapshots
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         if: ${{ failure() && github.event_name == 'pull_request'}}
@@ -55,23 +58,3 @@ jobs:
             View the [Playwright report](${{ steps.artifact-upload.outputs.artifact-url }}) to review the visual differences.
             Inspect the changes and commit the updated snapshots if they are satisfactory.
             If a **snapshot-diff.png** is not provided, the snapshots are different sizes.
-      # - name: Download Playwright report
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: playwright-report
-      #     path: playwright/test-results/
-      - name: Display structure of downloaded files
-        run: ls -R playwright/test-results/
-      - uses: oven-sh/setup-bun@v2
-      - name: Update snapshots
-        run: bun scripts/update-snapshots.ts
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: 'test: update CDN API Reference snapshots'
-          committer: Tom Mastromonaco <peter-evans@users.noreply.github.com>
-          body: |
-            This PR updates the CDN API Reference snapshots for the jsdelivr test.
-            Please review the changes to the API Reference UI.
-          title: 'test: update CDN API Reference snapshots'
-          branch: test-update-cdn-api-reference-snapshots
