@@ -65,7 +65,7 @@ describe('OpenAPI', () => {
       ],
     }
     expectTypeOf(operation.security).toEqualTypeOf<
-      OpenAPIV3_1.SecurityRequirementObject[]
+      OpenAPIV3_1.SecurityRequirementObject[] | undefined
     >()
   })
 

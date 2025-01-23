@@ -1,3 +1,5 @@
+import type { Merge } from 'type-fest'
+
 /* eslint-disable @typescript-eslint/no-namespace */
 /* eslint-disable @typescript-eslint/ban-types */
 /**
@@ -79,8 +81,6 @@ export namespace OpenAPI {
     | OpenAPIV3_1.HttpMethods
 }
 
-export type Modify<T, R> = Omit<T, keyof R> & R
-
 export namespace OpenAPIV3_1 {
   type PathsWebhooksComponents<T = {}> = {
     paths?: PathsObject<T>
@@ -88,7 +88,7 @@ export namespace OpenAPIV3_1 {
     components?: ComponentsObject
   }
 
-  export type Document<T = {}> = Modify<
+  export type Document<T = {}> = Merge<
     Omit<OpenAPIV3.Document<T>, 'paths' | 'components'>,
     {
       /**
@@ -112,7 +112,7 @@ export namespace OpenAPIV3_1 {
       AnyOtherAttribute
   >
 
-  export type InfoObject = Modify<
+  export type InfoObject = Merge<
     OpenAPIV3.InfoObject,
     {
       summary?: string
@@ -122,14 +122,14 @@ export namespace OpenAPIV3_1 {
 
   export type ContactObject = OpenAPIV3.ContactObject
 
-  export type LicenseObject = Modify<
+  export type LicenseObject = Merge<
     OpenAPIV3.LicenseObject,
     {
       identifier?: string
     }
   >
 
-  export type ServerObject = Modify<
+  export type ServerObject = Merge<
     OpenAPIV3.ServerObject,
     {
       url?: string
@@ -138,7 +138,7 @@ export namespace OpenAPIV3_1 {
     }
   >
 
-  export type ServerVariableObject = Modify<
+  export type ServerVariableObject = Merge<
     OpenAPIV3.ServerVariableObject,
     {
       enum?: [string, ...string[]]
@@ -152,7 +152,7 @@ export namespace OpenAPIV3_1 {
 
   export type HttpMethods = OpenAPIV3.HttpMethods
 
-  export type PathItemObject<T = {}> = Modify<
+  export type PathItemObject<T = {}> = Merge<
     OpenAPIV3.PathItemObject<T>,
     {
       servers?: ServerObject[]
@@ -162,7 +162,7 @@ export namespace OpenAPIV3_1 {
     [method in HttpMethods]?: OperationObject<T>
   }
 
-  export type OperationObject<T = {}> = Modify<
+  export type OperationObject<T = {}> = Merge<
     OpenAPIV3.OperationObject<T>,
     {
       parameters?: (ReferenceObject | ParameterObject)[]
@@ -216,7 +216,7 @@ export namespace OpenAPIV3_1 {
     items?: ReferenceObject | SchemaObject
   } & BaseSchemaObject
 
-  export type BaseSchemaObject = Modify<
+  export type BaseSchemaObject = Merge<
     Omit<OpenAPIV3.BaseSchemaObject, 'nullable'>,
     {
       examples?: OpenAPIV3.BaseSchemaObject['example'][]
@@ -243,7 +243,7 @@ export namespace OpenAPIV3_1 {
 
   export type XMLObject = OpenAPIV3.XMLObject
 
-  export type ReferenceObject = Modify<
+  export type ReferenceObject = Merge<
     OpenAPIV3.ReferenceObject,
     {
       summary?: string
@@ -253,7 +253,7 @@ export namespace OpenAPIV3_1 {
 
   export type ExampleObject = OpenAPIV3.ExampleObject
 
-  export type MediaTypeObject = Modify<
+  export type MediaTypeObject = Merge<
     OpenAPIV3.MediaTypeObject,
     {
       schema?: SchemaObject | ReferenceObject
@@ -263,7 +263,7 @@ export namespace OpenAPIV3_1 {
 
   export type EncodingObject = OpenAPIV3.EncodingObject
 
-  export type RequestBodyObject = Modify<
+  export type RequestBodyObject = Merge<
     OpenAPIV3.RequestBodyObject,
     {
       content?: { [media: string]: MediaTypeObject }
@@ -272,7 +272,7 @@ export namespace OpenAPIV3_1 {
 
   export type ResponsesObject = Record<string, ReferenceObject | ResponseObject>
 
-  export type ResponseObject = Modify<
+  export type ResponseObject = Merge<
     OpenAPIV3.ResponseObject,
     {
       headers?: { [header: string]: ReferenceObject | HeaderObject }
@@ -281,7 +281,7 @@ export namespace OpenAPIV3_1 {
     }
   >
 
-  export type LinkObject = Modify<
+  export type LinkObject = Merge<
     OpenAPIV3.LinkObject,
     {
       server?: ServerObject
