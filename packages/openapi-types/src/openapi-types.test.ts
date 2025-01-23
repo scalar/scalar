@@ -1,4 +1,4 @@
-import { describe, expectTypeOf, it } from 'vitest'
+import { assertType, describe, expectTypeOf, it } from 'vitest'
 
 import type {
   OpenAPI,
@@ -56,6 +56,20 @@ describe('OpenAPI', () => {
     expectTypeOf(specification).toMatchTypeOf<OpenAPIV3_1.Document>()
   })
 
+  it('ensures the operation object has security properties', () => {
+    const operation = {
+      security: [
+        {
+          apiKey: ['apiKey'],
+        },
+      ],
+    } satisfies OpenAPIV3.OperationObject
+
+    operation.security
+
+    expectTypeOf(operation).toEqualTypeOf<OpenAPIV3.OperationObject>()
+  })
+
   it('types a custom extension', () => {
     const specification: OpenAPI.Document<{
       'x-custom'?: boolean
@@ -74,7 +88,6 @@ describe('OpenAPI', () => {
       Lowercase<OpenAPI.HttpMethod>
     >()
 
-    // @ts-expect-error name is a string
     assertType('NOT_A_METHOD' as OpenAPI.HttpMethod)
   })
 })

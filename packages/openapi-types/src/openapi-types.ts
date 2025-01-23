@@ -79,15 +79,9 @@ export namespace OpenAPI {
     | OpenAPIV3_1.HttpMethods
 }
 
-export namespace OpenAPIV3_1 {
-  type Modify<T, R> = {
-    [P in keyof (T & R)]: P extends keyof R
-      ? R[P]
-      : P extends keyof T
-        ? T[P]
-        : never
-  }
+export type Modify<T, R> = Omit<T, keyof R> & R
 
+export namespace OpenAPIV3_1 {
   type PathsWebhooksComponents<T = {}> = {
     paths?: PathsObject<T>
     webhooks?: Record<string, PathItemObject | ReferenceObject>
