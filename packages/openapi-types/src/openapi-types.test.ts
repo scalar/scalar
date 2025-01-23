@@ -57,17 +57,16 @@ describe('OpenAPI', () => {
   })
 
   it('ensures the operation object has security properties', () => {
-    const operation = {
+    const operation: OpenAPIV3_1.OperationObject = {
       security: [
         {
           apiKey: ['apiKey'],
         },
       ],
-    } satisfies OpenAPIV3.OperationObject
-
-    operation.security
-
-    expectTypeOf(operation).toEqualTypeOf<OpenAPIV3.OperationObject>()
+    }
+    expectTypeOf(operation.security).toEqualTypeOf<
+      OpenAPIV3_1.SecurityRequirementObject[]
+    >()
   })
 
   it('types a custom extension', () => {
