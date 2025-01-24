@@ -35,7 +35,7 @@ const getOpenApiDocumentEndpoints = (
   return { json, yaml }
 }
 
-const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.ts'
+const RELATIVE_JAVASCRIPT_PATH = 'js/scalar.js'
 
 const getJavaScriptUrl = (routePrefix?: string) =>
   `${getRoutePrefix(routePrefix)}/${RELATIVE_JAVASCRIPT_PATH}`.replace(
