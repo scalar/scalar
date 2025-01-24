@@ -5,10 +5,13 @@ import {
   ListboxLabel,
   ListboxOptions,
 } from '@headlessui/vue'
-import type { Slot } from 'vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
-import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import {
+  ScalarFloating,
+  ScalarFloatingBackdrop,
+  type ScalarFloatingOptions,
+} from '../ScalarFloating'
 import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
 
@@ -40,7 +43,7 @@ defineSlots<{
   default(props: {
     /** Whether or not the listbox is open */
     open: boolean
-  }): Slot
+  }): any
 }>()
 
 defineOptions({ inheritAttrs: false })
@@ -58,11 +61,8 @@ const { cx } = useBindCx()
       {{ label }}
     </ListboxLabel>
     <ScalarFloating
-      :middleware="middleware"
-      :placement="placement ?? 'bottom-start'"
-      :resize="resize"
-      :target="target"
-      :teleport="teleport">
+      v-bind="$props"
+      :placement="placement ?? 'bottom-start'">
       <ListboxButton
         :id="id"
         as="template"
@@ -74,9 +74,7 @@ const { cx } = useBindCx()
         <div
           v-if="open"
           :style="{ width }"
-          v-bind="
-            cx('relative flex max-h-[inherit] w-40 rounded border text-sm')
-          ">
+          v-bind="cx('relative flex max-h-[inherit] w-40 rounded text-sm')">
           <!-- Scroll container -->
           <div class="custom-scroll min-h-0 flex-1">
             <!-- Options list -->
@@ -88,8 +86,7 @@ const { cx } = useBindCx()
                 :style="multiple ? 'checkbox' : 'radio'" />
             </ListboxOptions>
           </div>
-          <div
-            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-md brightness-lifted" />
+          <ScalarFloatingBackdrop />
         </div>
       </template>
     </ScalarFloating>

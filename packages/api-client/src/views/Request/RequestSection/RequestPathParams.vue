@@ -12,7 +12,7 @@ const props = defineProps<{
   paramKey: keyof RequestExample['parameters']
 }>()
 
-const { activeRequest, activeExample, activeServer } = useActiveEntities()
+const { activeRequest, activeExample } = useActiveEntities()
 const { requestMutators, requestExampleMutators } = useWorkspace()
 
 const params = computed(() => {
@@ -21,7 +21,7 @@ const params = computed(() => {
 
   return example.parameters[props.paramKey].map((param) => ({
     ...param,
-    enum: param.enum || example.serverVariables?.[param.key],
+    enum: param.enum,
   }))
 })
 
@@ -102,24 +102,6 @@ const handlePathVariableUpdate = (url: string) => {
     setPathVariable(url)
   }
 }
-
-watch(
-  () => activeRequest.value,
-  (newURL) => {
-    if (newURL && activeServer.value?.url) {
-      handlePathVariableUpdate(activeServer.value?.url)
-    }
-  },
-)
-
-watch(
-  () => activeServer.value?.url,
-  (newServerUrl, oldServerUrl) => {
-    if (newServerUrl && newServerUrl !== oldServerUrl) {
-      handlePathVariableUpdate(newServerUrl)
-    }
-  },
-)
 
 watch(
   () => activeRequest.value?.path,

@@ -2,24 +2,36 @@
 import { formatMs } from '@/libs/formatters'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ListboxButton, ListboxOption, ListboxOptions } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import {
+  Listbox,
+  ListboxButton,
+  ListboxOption,
+  ListboxOptions,
+} from '@headlessui/vue'
+import {
+  ScalarFloating,
+  ScalarFloatingBackdrop,
+  ScalarIcon,
+} from '@scalar/components'
 import type { RequestEvent } from '@scalar/oas-utils/entities/spec'
 import { httpStatusCodes } from '@scalar/oas-utils/helpers'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import { getStatusCodeColor } from './httpStatusCodeColors'
 
 defineProps<{
-  open: boolean
+  /** The id of the target to use for the popover (e.g. address bar) */
+  target: string
 }>()
 
 const { activeRequest } = useActiveEntities()
 const { requestHistory, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
+
+const selectedRequest = ref(requestHistory[0])
 
 /** Use a local copy to prevent mutation of the reactive object */
 const history = computed(() =>
@@ -59,50 +71,60 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
 }
 </script>
 <template>
-  <!-- History -->
-  <ListboxButton
-    v-if="history?.length"
-    class="addressbar-history-button mr-1 rounded-lg p-1.5 text-c-3 focus:text-c-1">
-    <ScalarIcon
-      icon="History"
-      size="sm"
-      thickness="2.25" />
-  </ListboxButton>
-
-  <!-- History shadow and placement-->
-  <div
-    :class="[
-      'absolute bg-white left-0 top-8 w-full rounded-lg before:pointer-events-none before:absolute before:left-0 before:-top-8 before:h-[calc(100%+32px)] before:w-full before:rounded-lg z-context',
-      { 'before:shadow-lg': open },
-    ]">
-    <!-- History Item -->
-    <ListboxOptions
-      class="bg-b-1 border-t custom-scroll max-h-[300px] rounded-b-lg p-[3px] grid grid-cols-[44px,1fr,repeat(3,auto)] items-center">
-      <ListboxOption
-        v-for="(entry, index) in history"
-        :key="entry.timestamp"
-        class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
-        :value="index"
-        @click="handleHistoryClick(entry)">
-        <HttpMethod
-          v-if="entry.response.method"
-          class="text-[11px]"
-          :method="entry.response.method" />
-        <div class="min-w-0">
-          <div class="min-w-0 truncate text-c-1">
-            {{ entry.response.path }}
-          </div>
-        </div>
-        <div>{{ formatMs(entry.response.duration) }}</div>
-        <div :class="[getStatusCodeColor(entry.response.status).color]">
-          {{ entry.response.status }}
-        </div>
-        <div>
-          {{ httpStatusCodes[entry.response.status]?.name }}
-        </div>
-      </ListboxOption>
-    </ListboxOptions>
-  </div>
+  <Listbox
+    v-slot="{ open }"
+    v-model="selectedRequest">
+    <ScalarFloating
+      :offset="0"
+      resize
+      :target="target">
+      <!-- History -->
+      <ListboxButton
+        v-if="history?.length"
+        class="addressbar-history-button z-context-plus mr-1 rounded-lg p-1.5 text-c-3 focus:text-c-1">
+        <ScalarIcon
+          icon="History"
+          size="sm"
+          thickness="2.25" />
+        <span class="sr-only">Request History</span>
+      </ListboxButton>
+      <!-- History shadow and placement-->
+      <template
+        v-if="open"
+        #floating="{ width }">
+        <!-- History Item -->
+        <ListboxOptions
+          class="address-bg-states border-t custom-scroll max-h-[inherit] p-0.75 grid grid-cols-[44px,1fr,repeat(3,auto)] items-center"
+          :style="{ width }">
+          <ListboxOption
+            v-for="(entry, index) in history"
+            :key="entry.timestamp"
+            class="contents font-code text-sm *:rounded-none first:*:rounded-l last:*:rounded-r *:h-8 *:ui-active:bg-b-2 *:flex *:items-center *:cursor-pointer *:px-1.5 text-c-2 font-medium"
+            :value="index"
+            @click="handleHistoryClick(entry)">
+            <HttpMethod
+              v-if="entry.response.method"
+              class="text-[11px]"
+              :method="entry.response.method" />
+            <div class="min-w-0">
+              <div class="min-w-0 truncate text-c-1">
+                {{ entry.response.path }}
+              </div>
+            </div>
+            <div>{{ formatMs(entry.response.duration) }}</div>
+            <div :class="[getStatusCodeColor(entry.response.status).color]">
+              {{ entry.response.status }}
+            </div>
+            <div>
+              {{ httpStatusCodes[entry.response.status]?.name }}
+            </div>
+          </ListboxOption>
+        </ListboxOptions>
+        <ScalarFloatingBackdrop
+          class="-top-[--scalar-address-bar-height] rounded-lg" />
+      </template>
+    </ScalarFloating>
+  </Listbox>
 </template>
 <style scoped>
 .addressbar-history-button:hover {
@@ -110,5 +132,20 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
 }
 .addressbar-history-button:focus-within {
   background: var(--scalar-background-2);
+}
+.addressbar-bg-states:has(.cm-focused) .codemirror-bg-switcher {
+  --scalar-background-1: var(--scalar-background-1);
+}
+.addressbar-bg-states {
+  background: color-mix(
+    in srgb,
+    var(--scalar-background-1),
+    var(--scalar-background-2)
+  );
+}
+.addressbar-bg-states:has(.cm-focused) {
+  background: var(--scalar-background-1);
+  border-color: var(--scalar-border-color);
+  outline: 1px solid var(--scalar-color-accent);
 }
 </style>

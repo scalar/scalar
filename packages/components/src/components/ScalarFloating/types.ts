@@ -1,4 +1,4 @@
-import type { Middleware, Placement } from '@floating-ui/vue'
+import type { Middleware, OffsetOptions, Placement } from '@floating-ui/vue'
 
 import { ScalarTeleportRoot } from '../ScalarTeleport'
 
@@ -11,6 +11,13 @@ export type FloatingOptions = {
    * @see https://floating-ui.com/docs/computePosition#placement
    */
   placement?: Placement
+  /**
+   * The offset of the floating element relative to its reference element.
+   * @default 5 (5px)
+   *
+   * @see https://floating-ui.com/docs/offset
+   */
+  offset?: OffsetOptions
   /**
    * Whether or not track the reference element's width
    * If enabled it will set `width` slot prop of the floating slot

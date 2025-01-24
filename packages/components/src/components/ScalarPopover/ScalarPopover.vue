@@ -2,7 +2,11 @@
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
-import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import {
+  ScalarFloating,
+  ScalarFloatingBackdrop,
+  type ScalarFloatingOptions,
+} from '../ScalarFloating'
 import type { Slots } from './types'
 
 defineProps<ScalarFloatingOptions>()
@@ -29,8 +33,11 @@ const { cx } = useBindCx()
             :close="() => close()"
             name="popover"
             :open="open" />
-          <div
-            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
+          <slot
+            name="backdrop"
+            :open="open">
+            <ScalarFloatingBackdrop />
+          </slot>
         </PopoverPanel>
       </template>
     </ScalarFloating>

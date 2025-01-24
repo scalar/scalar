@@ -60,8 +60,8 @@
   --scalar-button-1-color: black;
 
   --scalar-shadow-1: 0 1px 3px 0 rgb(0, 0, 0, 0.1);
-  --scalar-shadow-2: rgba(15, 15, 15, 0.2) 0px 3px 6px,
-    rgba(15, 15, 15, 0.4) 0px 9px 24px, 0 0 0 1px var(--scalar-border-color);
+  --scalar-shadow-2: inset 0 0 0 0.5px var(--scalar-border-color),
+    rgba(15, 15, 15, 0.2) 0px 3px 6px, rgba(15, 15, 15, 0.4) 0px 9px 24px;
 
   --scalar-lifted-brightness: 1.45;
   --scalar-backdrop-brightness: 0.5;
