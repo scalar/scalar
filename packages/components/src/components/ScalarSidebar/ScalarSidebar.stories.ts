@@ -31,6 +31,26 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
+export const WithNavItems: Story = {
+  render: (args) => ({
+    components: { ScalarSidebar, ScalarSidebarFooter },
+    setup() {
+      return { args }
+    },
+    template: `
+<div class="flex h-screen">
+  <ScalarSidebar>
+    <div class="placeholder flex-1">Sidebar content</div>
+    <ScalarSidebarFooter v-bind="args">
+      <span class="placeholder">Footer content</span>
+    </ScalarSidebarFooter>
+  </ScalarSidebar>
+  <div class="placeholder flex-1">Main content</div>
+</div>
+`,
+  }),
+}
+
 export const WithFooter: Story = {
   render: (args) => ({
     components: { ScalarSidebar, ScalarSidebarFooter },
