@@ -6,7 +6,7 @@ import ScalarMenuSection from './ScalarMenuSection.vue'
   <ScalarMenuSection>
     <template #title>Resources</template>
     <ScalarMenuLink
-      href="mailto:marc@scalar.com"
+      href="mailto:support@scalar.com"
       icon="Email"
       target="_blank">
       Sales & Support
