@@ -324,13 +324,15 @@ export const createApiClient = ({
     /** Route to a method + path */
     route: (
       /** The first request you would like to display */
-      { requestUid, method, path, _source }: OpenClientPayload,
+      payload?: OpenClientPayload,
     ) => {
+      const { requestUid, method, path, _source } = payload ?? {}
+
       // Find the request from path + method
       const resolvedRequestUid =
         requestUid ||
         Object.values(requests).find((item) =>
-          item.path && item.method
+          path && method && item.path && item.method
             ? // The given operation
               item.path === path &&
               item.method.toUpperCase() === method.toUpperCase()
@@ -351,12 +353,14 @@ export const createApiClient = ({
     },
 
     /** Open the API client modal and optionally route to a request */
-    open: ({ path, method, requestUid, _source }: OpenClientPayload) => {
+    open: (payload?: OpenClientPayload) => {
+      const { path, method, requestUid, _source } = payload ?? {}
+
       // Find the request from path + method
       const resolvedRequestUid =
         requestUid ||
         Object.values(requests).find((item) =>
-          item.path && item.method
+          path && method && item.path && item.method
             ? // The given operation
               item.path === path &&
               item.method.toUpperCase() === method.toUpperCase()
