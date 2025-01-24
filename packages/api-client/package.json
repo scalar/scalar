@@ -138,6 +138,11 @@
       "types": "./dist/components/Sidebar/index.d.ts",
       "default": "./dist/components/Sidebar/index.js"
     },
+    "./components/Server": {
+      "import": "./dist/components/Server/index.js",
+      "types": "./dist/components/Server/index.d.ts",
+      "default": "./dist/components/Server/index.js"
+    },
     "./components/ImportCollection": {
       "import": "./dist/components/ImportCollection/index.js",
       "types": "./dist/components/ImportCollection/index.d.ts",

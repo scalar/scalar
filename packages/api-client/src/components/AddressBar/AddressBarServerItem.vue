@@ -8,12 +8,17 @@ import { computed, useId } from 'vue'
 const props = defineProps<{
   serverOption: { id: string; label: string }
   type: 'collection' | 'request'
+  layout?: 'client' | 'reference'
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:variable', key: string, value: string): void
 }>()
 
 const formId = useId()
 
 const { activeCollection, activeRequest, activeServer } = useActiveEntities()
-const { collectionMutators, requestMutators, serverMutators } = useWorkspace()
+const { collectionMutators, requestMutators } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
 const updateSelectedServer = (serverUid: string) => {
@@ -50,12 +55,7 @@ const hasVariables = computed(
 const isExpanded = computed(() => isSelectedServer.value && hasVariables.value)
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!activeServer.value) return
-
-  const variables = activeServer.value.variables || {}
-  variables[key] = { ...variables[key], default: value }
-
-  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+  emit('update:variable', key, value)
 }
 </script>
 <template>
@@ -76,7 +76,7 @@ const updateServerVariable = (key: string, value: string) => {
     </button>
     <!-- Server variables -->
     <div
-      v-if="isExpanded"
+      v-if="isExpanded && layout !== 'reference'"
       :id="formId"
       class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b">
       <ServerVariablesForm

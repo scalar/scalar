@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLayout } from '@/hooks'
+import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -16,11 +16,12 @@ import AddressBarServerItem from './AddressBarServerItem.vue'
 defineProps<{
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
+  /** The layout of the popover */
+  layout?: 'client' | 'reference'
 }>()
 
 const { activeRequest, activeCollection, activeServer } = useActiveEntities()
-const { servers, collectionMutators, events } = useWorkspace()
-const { layout } = useLayout()
+const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
   activeRequest.value?.servers?.map((serverUid: string) => ({
@@ -71,6 +72,15 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   }
   return activeServer.value?.url || ''
 })
+
+const updateServerVariable = (key: string, value: string) => {
+  if (!activeServer.value) return
+
+  const variables = activeServer.value.variables || {}
+  variables[key] = { ...variables[key], default: value }
+
+  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+}
 </script>
 <template>
   <ScalarPopover
@@ -81,7 +91,13 @@ const serverUrlWithoutTrailingSlash = computed(() => {
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="font-code z-context-plus lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 h-6.5 text-c-2 hover:bg-b-2"
+      class="z-context-plus lg:text-sm text-xs whitespace-nowrap px-1.5 h-6.5"
+      :class="[
+        layout !== 'reference' &&
+          'border hover:bg-b-2 font-code ml-0.75 rounded text-c-2',
+        layout === 'reference' &&
+          'justify-start px-3 py-1.5 rounded-b-lg text-c-1 w-full',
+      ]"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
@@ -93,8 +109,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         <AddressBarServerItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
+          :layout="layout"
           :serverOption="serverOption"
-          type="request" />
+          type="request"
+          @update:variable="updateServerVariable" />
         <template v-if="showDropdownLabels">
           <ScalarDropdownDivider />
           <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
@@ -103,10 +121,12 @@ const serverUrlWithoutTrailingSlash = computed(() => {
         <AddressBarServerItem
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
+          :layout="layout"
           :serverOption="serverOption"
-          type="collection" />
+          type="collection"
+          @update:variable="updateServerVariable" />
         <!-- Add Server -->
-        <template v-if="layout !== 'modal'">
+        <template v-if="layout !== 'reference'">
           <button
             class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
             type="button"
@@ -120,6 +140,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
           </button>
         </template>
       </div>
+      <ServerVariablesForm
+        v-if="layout !== 'reference'"
+        :variables="activeServer?.variables"
+        @update:variable="updateServerVariable" />
     </template>
     <template #backdrop>
       <ScalarFloatingBackdrop
