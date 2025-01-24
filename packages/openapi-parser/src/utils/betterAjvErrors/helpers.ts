@@ -8,7 +8,7 @@ import {
   isEnumError,
   isRequiredError,
   notUndefined,
-} from './utils'
+} from './utils.ts'
 import {
   AdditionalPropValidationError,
   DefaultValidationError,
@@ -16,7 +16,7 @@ import {
   PatternValidationError,
   RequiredValidationError,
   UnevaluatedPropValidationError,
-} from './validation-errors/index'
+} from './validation-errors/index.js'
 
 const JSON_POINTERS_REGEX = /\/[\w_-]+(\/\d+)?/g
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.ts'
 import deprecated3 from './deprecated3.yaml?raw'
 
 describe.todo('deprecated3', () => {

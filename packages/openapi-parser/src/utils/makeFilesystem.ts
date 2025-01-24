@@ -1,7 +1,7 @@
-import type { AnyObject, Filesystem, FilesystemEntry } from '../types'
-import { getListOfReferences } from './getListOfReferences'
-import { isFilesystem } from './isFilesystem'
-import { normalize } from './normalize'
+import type { AnyObject, Filesystem, FilesystemEntry } from '../types/index.ts'
+import { getListOfReferences } from './getListOfReferences.ts'
+import { isFilesystem } from './isFilesystem.ts'
+import { normalize } from './normalize.ts'
 
 export function makeFilesystem(
   value: string | AnyObject | Filesystem,

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../../src'
+import { validate } from '../../../../../src/index.ts'
 import apiWithExamples from './api-with-examples.yaml?raw'
 
 // TODO: The example is in the `fail` folder, but I don’t know why it’s supposed to fail.

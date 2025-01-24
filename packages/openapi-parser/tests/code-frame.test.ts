@@ -3,7 +3,7 @@ import { codeFrameColumns } from '@babel/code-frame'
 import parse from 'json-to-ast'
 import { describe, it } from 'vitest'
 
-import { toJson } from '../src'
+import { toJson } from '../src/index.ts'
 
 const example = {
   openapi: '3.1.0',

@@ -2,7 +2,7 @@ import HttpProxy from '@fastify/http-proxy'
 import Fastify from 'fastify'
 import { describe, expect, it } from 'vitest'
 
-import Scalar from './index'
+import Scalar from './index.ts'
 
 describe('fastifyApiReference', () => {
   it('returns 200 OK for the HTML', async () => {

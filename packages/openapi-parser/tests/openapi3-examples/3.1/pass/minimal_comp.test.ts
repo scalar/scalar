@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.ts'
 import minimal_comp from './minimal_comp.yaml?raw'
 
 describe('minimal_comp', () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getSegmentsFromPath } from './getSegmentsFromPath'
+import { getSegmentsFromPath } from './getSegmentsFromPath.ts'
 
 describe('getSegmentsFromPath', () => {
   it('returns path segments', () => {

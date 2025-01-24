@@ -6,7 +6,7 @@ import type {
 } from '@scalar/openapi-types'
 import type { UseSeoMetaInput } from '@unhead/schema'
 
-import type { HarRequest, TargetId } from '../external'
+import type { HarRequest, TargetId } from '../external/index.ts'
 
 /**
  * This re-export is needed due to a typescript issue

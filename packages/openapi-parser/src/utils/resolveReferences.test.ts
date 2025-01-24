@@ -6,10 +6,10 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
-import { load } from '.'
-import { readFiles } from '../plugins/read-files/readFiles'
-import type { AnyObject } from '../types'
-import { resolveReferences } from './resolveReferences'
+import { readFiles } from '../plugins/read-files/readFiles.ts'
+import type { AnyObject } from '../types/index.ts'
+import { load } from './load/load.ts'
+import { resolveReferences } from './resolveReferences.ts'
 
 const EXAMPLE_FILE = path.join(
   new URL(import.meta.url).pathname,
