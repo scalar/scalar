@@ -1,5 +1,27 @@
 # scalar-app
 
+## 0.1.132
+
+### Patch Changes
+
+- 917214a: chore: update Scalar support email
+- Updated dependencies [12e7232]
+- Updated dependencies [974234f]
+- Updated dependencies [776a4e2]
+- Updated dependencies [6400bfc]
+- Updated dependencies [8665004]
+- Updated dependencies [4f12fe4]
+- Updated dependencies [6400bfc]
+- Updated dependencies [5ab0663]
+- Updated dependencies [5ab0663]
+- Updated dependencies [917214a]
+- Updated dependencies [776a4e2]
+- Updated dependencies [42b58bf]
+  - @scalar/api-client@2.2.38
+  - @scalar/themes@0.9.62
+  - @scalar/components@0.13.17
+  - @scalar/import@0.2.20
+
 ## 0.1.131
 
 ### Patch Changes
