@@ -94,7 +94,12 @@ const handleClick = (e: MouseEvent) =>
           </template>
         </DisclosureButton>
         <DisclosurePanel :static="noncollapsible">
-          <template v-if="value.properties || value.additionalProperties">
+          <template
+            v-if="
+              value.properties ||
+              value.additionalProperties ||
+              value.patternProperties
+            ">
             <template v-if="value.properties">
               <SchemaProperty
                 v-for="property in Object.keys(value?.properties)"
@@ -107,6 +112,16 @@ const handleClick = (e: MouseEvent) =>
                   value.properties?.[property]?.required === true
                 "
                 :value="value.properties?.[property]" />
+            </template>
+            <template v-if="value.patternProperties">
+              <SchemaProperty
+                v-for="property in Object.keys(value?.patternProperties)"
+                :key="property"
+                :compact="compact"
+                :level="level"
+                :name="property"
+                pattern
+                :value="value.patternProperties?.[property]" />
             </template>
             <template v-if="value.additionalProperties">
               <!--

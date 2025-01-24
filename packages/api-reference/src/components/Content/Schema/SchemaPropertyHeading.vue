@@ -8,6 +8,7 @@ withDefaults(
     enum?: boolean
     required?: boolean
     additional?: boolean
+    pattern?: boolean
   }>(),
   {
     level: 0,
@@ -26,9 +27,17 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 <template>
   <div class="property-heading">
     <div
+      v-if="pattern"
+      class="property-pattern">
+      <Badge>pattern</Badge>
+    </div>
+    <div
       v-if="$slots.name"
       class="property-name">
-      <slot name="name" />
+      <slot
+        v-if="!pattern"
+        name="name" />
+      <template v-else>&sol;<slot name="name" />&sol;</template>
     </div>
     <div
       v-if="additional"
