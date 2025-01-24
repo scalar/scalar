@@ -68,6 +68,7 @@ const handleRename = (id: string) => {
       class="h-8 text-c-2 hover:bg-b-2 group relative block flex items-center gap-1.5 rounded py-1 pr-1.5 font-medium no-underline"
       :class="[variable.color ? 'pl-1' : 'pl-1.5']"
       exactActiveClass="active-link"
+      role="button"
       :to="
         collectionId
           ? `/workspace/${activeWorkspace?.uid}/${type}/${collectionId}/${variable.uid}`

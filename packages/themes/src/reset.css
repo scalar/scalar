@@ -102,6 +102,12 @@
     border-radius: var(--scalar-radius);
   }
 
+  /** Set outline offset for buttons */
+  button:focus-visible,
+  [role='button']:focus-visible {
+    outline-offset: -1px;
+  }
+
   /** Set the default cursor for buttons. */
   button,
   [role='button'] {
