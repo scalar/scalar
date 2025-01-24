@@ -96,12 +96,7 @@ export type ApiClient = Omit<
    */
   store: Omit<
     WorkspaceStore,
-    | 'isReadOnly'
-    | 'router'
-    | 'events'
-    | 'sidebarWidth'
-    | 'proxyUrl'
-    | 'requestHistory'
+    'router' | 'events' | 'sidebarWidth' | 'proxyUrl' | 'requestHistory'
   >
 }
 
@@ -125,7 +120,6 @@ export const createApiClient = ({
   const store =
     _store ||
     createWorkspaceStore({
-      isReadOnly,
       proxyUrl: configuration.proxyUrl,
       themeId: configuration.themeId,
       showSidebar: configuration.showSidebar,

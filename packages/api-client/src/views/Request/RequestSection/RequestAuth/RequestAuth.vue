@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -22,10 +23,9 @@ import { computed, ref } from 'vue'
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
-const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
+const { selectedSecuritySchemeUids } = defineProps<{
   selectedSecuritySchemeUids: string[]
   title: string
-  layout?: 'client' | 'reference'
 }>()
 
 const emit = defineEmits<{
@@ -33,12 +33,12 @@ const emit = defineEmits<{
 }>()
 const { activeCollection, activeRequest } = useActiveEntities()
 const {
-  isReadOnly,
   securitySchemes,
   securitySchemeMutators,
   requestMutators,
   collectionMutators,
 } = useWorkspace()
+const { layout } = useLayout()
 
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
@@ -114,7 +114,7 @@ const editSelectedSchemeUids = (uids: string[]) => {
   if (!activeCollection.value || !activeRequest.value) return
 
   // Set as selected on the collection for the modal
-  if (isReadOnly) {
+  if (layout === 'modal') {
     collectionMutators.edit(
       activeCollection.value.uid,
       'selectedSecuritySchemeUids',
@@ -178,7 +178,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       { label: 'Available authentication', options: availableFormatted },
     ]
 
-    if (isReadOnly)
+    if (layout === 'modal')
       return requiredFormatted.length ? options : availableFormatted
 
     options.push({
@@ -193,8 +193,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="selectedAuth.length"
-    :layout="layout">
+    :itemCount="selectedAuth.length">
     <template #title>
       <div class="inline-flex gap-1 items-center">
         <span>{{ title }}</span>
@@ -211,7 +210,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       <div class="flex flex-1 -mx-1">
         <ScalarComboboxMultiselect
           class="text-xs w-72"
-          :isDeletable="!isReadOnly"
+          :isDeletable="layout !== 'modal'"
           :modelValue="selectedAuth"
           multiple
           :options="schemeOptions"
@@ -240,7 +239,6 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
       </div>
     </template>
     <RequestAuthDataTable
-      :layout="layout"
       :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
