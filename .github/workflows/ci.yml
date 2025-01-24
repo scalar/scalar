@@ -531,19 +531,19 @@ jobs:
           packages-only: 'api-reference'
 
       - name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: pnpm prepare:build
 
       - name: Restore dependencies
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: dotnet restore
 
       - name: Build solution
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: dotnet build -c Release --no-restore
 
       - name: Test solution
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: dotnet test -c Release --no-build
 
   aspnetcore-publish:
@@ -573,7 +573,7 @@ jobs:
         with:
           files_yaml: |
             aspnetcore_package:
-              - packages/scalar.aspnetcore/package.json
+              - integrations/aspnetcore/package.json
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Setup .NET
@@ -583,7 +583,7 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Extract version from package.json
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "VERSION=$VERSION" >> $GITHUB_ENV
@@ -597,20 +597,20 @@ jobs:
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Copy JavaScript asset from @scalar/api-reference
-        working-directory: packages/scalar.aspnetcore
+        working-directory: integrations/aspnetcore
         run: pnpm prepare:build
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Restore dependencies
-        working-directory: packages/scalar.aspnetcore/src/Scalar.AspNetCore
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
         run: dotnet restore
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Pack Scalar.AspNetCore
-        working-directory: packages/scalar.aspnetcore/src/Scalar.AspNetCore
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
         run: dotnet pack -c Release --no-restore --output nupkgs /p:Version=$VERSION
 
       - if: steps.changed-files.outputs.aspnetcore_package_any_changed == 'true'
         name: Publish Scalar.AspNetCore
-        working-directory: packages/scalar.aspnetcore/src/Scalar.AspNetCore
+        working-directory: integrations/aspnetcore/src/Scalar.AspNetCore
         run: dotnet nuget push nupkgs/*.nupkg -k ${{ secrets.NUGET_TOKEN }} -s https://api.nuget.org/v3/index.json

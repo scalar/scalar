@@ -12,7 +12,7 @@ updates:
     # This will disable updates, but still create PRs for security updates.
     open-pull-requests-limit: 0
   - package-ecosystem: 'nuget'
-    directory: '/packages/scalar.aspnetcore'
+    directory: '/integrations/aspnetcore'
     schedule:
       interval: 'weekly'
     # This will disable updates, but still create PRs for security updates.

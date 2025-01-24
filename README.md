@@ -110,7 +110,7 @@ And there’s an ever-growing list of plugins and integrations:
 ### Integrations
 
 - [HTML](documentation/integrations/html.md) (works everywhere)
-- [.NET](packages/scalar.aspnetcore/README.md)
+- [.NET](integrations/aspnetcore/README.md)
 - [AdonisJS](documentation/integrations/adonisjs.md)
 - [Django](https://github.com/m1guer/django-scalar)
 - [Django Ninja](integrations/django-ninja/README.md)

@@ -31,7 +31,7 @@
 # /packages/use-modal
 /packages/build-watch @geoffgscott
 /integrations/nestjs @marclave
-/packages/scalar.aspnetcore @marclave @hanspagel
+/integrations/aspnetcore @marclave @hanspagel
 /packages/use-hooks @hwkr @hanspagel
 # /packages/use-toasts
 /packages/api-client-react @amritk
