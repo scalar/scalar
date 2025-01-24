@@ -197,7 +197,7 @@ describe('authentication', () => {
           token: 'xxxx',
         },
       },
-      selectedSecuritySchemeUids: ['bearer-auth,api-key'],
+      selectedSecuritySchemeUids: [['bearer-auth', 'api-key']],
     })
     if (error) throw error
 

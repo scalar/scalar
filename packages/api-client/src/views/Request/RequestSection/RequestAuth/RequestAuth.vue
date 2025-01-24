@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useLayout } from '@/hooks'
+import { type ClientLayout, useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
@@ -18,6 +18,7 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
@@ -27,15 +28,17 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   selectedSecuritySchemeUids,
   title,
-  layout: propLayout,
+  layout: propLayout = 'client',
 } = defineProps<{
-  selectedSecuritySchemeUids: string[]
+  selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids']
   title: string
-  layout?: 'client' | 'reference'
+  layout?: 'client' | 'reference' | ClientLayout
 }>()
 
 const emit = defineEmits<{
-  'update:selectedSecuritySchemeUids': [string[]]
+  'update:selectedSecuritySchemeUids': [
+    Collection['selectedSecuritySchemeUids'],
+  ]
 }>()
 
 const { layout: hookLayout } = useLayout()
@@ -90,13 +93,12 @@ const authIndicator = computed(() => {
 /** Currently selected auth schemes on the collection */
 const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
-    .map((uid) => {
-      const uidsArr = uid.split(',')
-      if (uidsArr.length > 1) {
-        return formatComplexScheme(uidsArr, securitySchemes)
+    .map((s) => {
+      if (Array.isArray(s)) {
+        return formatComplexScheme(s, securitySchemes)
       }
 
-      const scheme = securitySchemes[uid ?? '']
+      const scheme = securitySchemes[s ?? '']
       if (!scheme) return undefined
       return formatScheme(scheme)
     })
@@ -150,6 +152,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
   deleteSchemeModal.show()
 }
 
+// TODO do this section
 const unselectAuth = (unSelectUid?: string) => {
   const newUids = selectedSecuritySchemeUids.filter(
     (uid) => uid !== unSelectUid,

@@ -10,7 +10,7 @@ import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   /** Renamed due to conflict with the global Request class */
-  Request as HarRequest,
+  Request as RequestEntity,
   RequestExample,
   RequestMethod,
   ResponseInstance,
@@ -181,9 +181,9 @@ export const createRequestOperation = ({
   environment,
   globalCookies,
 }: {
-  request: HarRequest
+  request: RequestEntity
   example: RequestExample
-  selectedSecuritySchemeUids?: string[]
+  selectedSecuritySchemeUids?: RequestEntity['selectedSecuritySchemeUids']
   proxyUrl?: string
   status?: EventBus<RequestStatus>
   environment: object | undefined
@@ -240,13 +240,11 @@ export const createRequestOperation = ({
       proxyUrl,
     })
 
-    // Complex auth, we can just split out the uids into the array now
-    const splitSecuritySchemeUids = selectedSecuritySchemeUids.flatMap((uid) =>
-      uid.split(','),
-    )
+    // We flatten the array of arrays for complex auth
+    const flatSelectedSecuritySchemeUids = selectedSecuritySchemeUids.flat()
 
     // Populate all forms of auth to the request segments
-    splitSecuritySchemeUids?.forEach((uid) => {
+    flatSelectedSecuritySchemeUids?.forEach((uid) => {
       const scheme = securitySchemes[uid]
       if (!scheme) return
 

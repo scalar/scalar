@@ -55,7 +55,10 @@ export const extendedCollectionSchema = z.object({
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
   /** List of currently selected security scheme UIDs, these can be overridden per request */
-  selectedSecuritySchemeUids: nanoidSchema.array().default([]),
+  selectedSecuritySchemeUids: z
+    .union([nanoidSchema, nanoidSchema.array()])
+    .array()
+    .default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /** UIDs which refer to servers on the workspace base */

@@ -125,7 +125,10 @@ const extendedRequestSchema = z.object({
   /** List of example UIDs associated with the request */
   examples: nanoidSchema.array().default([]),
   /** List of security scheme UIDs associated with the request */
-  selectedSecuritySchemeUids: nanoidSchema.array().default([]),
+  selectedSecuritySchemeUids: z
+    .union([nanoidSchema, nanoidSchema.array()])
+    .array()
+    .default([]),
 })
 
 /** Unified request schema for client usage */
