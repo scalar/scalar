@@ -17,6 +17,7 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
@@ -24,13 +25,15 @@ import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
-  selectedSecuritySchemeUids: string[]
+  selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids']
   title: string
   layout?: 'client' | 'reference'
 }>()
 
 const emit = defineEmits<{
-  'update:selectedSecuritySchemeUids': [string[]]
+  'update:selectedSecuritySchemeUids': [
+    Collection['selectedSecuritySchemeUids'],
+  ]
 }>()
 const { activeCollection, activeRequest } = useActiveEntities()
 const {
@@ -81,13 +84,12 @@ const authIndicator = computed(() => {
 /** Currently selected auth schemes on the collection */
 const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
-    .map((uid) => {
-      const uidsArr = uid.split(',')
-      if (uidsArr.length > 1) {
-        return formatComplexScheme(uidsArr, securitySchemes)
+    .map((s) => {
+      if (Array.isArray(s)) {
+        return formatComplexScheme(s, securitySchemes)
       }
 
-      const scheme = securitySchemes[uid ?? '']
+      const scheme = securitySchemes[s ?? '']
       if (!scheme) return undefined
       return formatScheme(scheme)
     })
@@ -141,6 +143,7 @@ function handleDeleteScheme(option: { id: string; label: string }) {
   deleteSchemeModal.show()
 }
 
+// TODO do this section
 const unselectAuth = (unSelectUid?: string) => {
   const newUids = selectedSecuritySchemeUids.filter(
     (uid) => uid !== unSelectUid,
