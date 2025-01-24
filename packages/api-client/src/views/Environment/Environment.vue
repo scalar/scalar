@@ -373,7 +373,7 @@ function handleRename(newName: string) {
                 icon: 'Globe',
                 isDefault: true,
               }" />
-            <div
+            <li
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
               class="flex flex-col gap-0.25">
@@ -445,7 +445,7 @@ function handleRename(newName: string) {
                   <span>Add Environment</span>
                 </ScalarButton>
               </div>
-            </div>
+            </li>
           </SidebarList>
         </div>
       </template>
