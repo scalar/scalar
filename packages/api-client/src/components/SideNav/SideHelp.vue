@@ -51,7 +51,7 @@ import SideNavLink from './SideNavLink.vue'
       </a>
       <a
         class="no-underline block"
-        href="mailto:marc@scalar.com"
+        href="mailto:support@scalar.com"
         target="_blank">
         <ScalarDropdownItem class="flex items-center gap-1.5 w-full">
           <div class="flex items-center justify-center">

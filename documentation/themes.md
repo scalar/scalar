@@ -12,7 +12,7 @@ You don’t like the color scheme? We’ve prepared some themes for you:
 > The `default` theme is … the default theme.
 > If you want to make sure **no** theme is applied, pass `none`.
 
-Wow, still nothing that fits your brand? Reach out to <marc@scalar.com> and we’ll make you a custom theme, just for you.
+Wow, still nothing that fits your brand? Reach out to <support@scalar.com> and we’ll make you a custom theme, just for you.
 
 ## Layouts
 
