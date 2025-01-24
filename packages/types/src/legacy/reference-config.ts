@@ -260,7 +260,7 @@ export type ReferenceConfiguration = {
    */
   baseServerURL?: string
   /**
-   * List of servers to override the openapi spec servers
+   * List of servers to override the servers in the given OpenAPI document
    *
    * @default undefined
    * @example [{ url: 'https://api.scalar.com', description: 'Production server' }]

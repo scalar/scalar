@@ -1,49 +1,34 @@
 <script lang="ts" setup>
-import { useServerStore } from '#legacy'
-import type { Server, Spec } from '@scalar/types/legacy'
-import { computed, toRef } from 'vue'
+import { AddressBarServer } from '@scalar/api-client/components/AddressBar'
+import { ServerVariablesForm } from '@scalar/api-client/components/Server'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { useId } from 'vue'
 
-import ServerForm from './ServerForm.vue'
-import type { ServerVariableValues } from './types'
-
-const props = defineProps<{
-  /**
-   * The specification to get the servers from
-   */
-  specification?: Spec
-  /**
-   * The fallback server URL to use if no servers are found in the specification
-   */
-  defaultServerUrl?: string
-  /**
-   * Overwrite the list of servers
-   */
-  servers?: Server[]
+defineProps<{
+  layout: 'client' | 'reference'
+  target: string
 }>()
 
-const specification = toRef(props.specification)
-const defaultServerUrl = toRef(props.defaultServerUrl)
-const servers = toRef(props.servers)
+const { activeServer } = useActiveEntities()
+const { serverMutators } = useWorkspace()
 
-const { server: serverState, setServer } = useServerStore({
-  specification,
-  defaultServerUrl,
-  servers,
-})
+const updateServerVariable = (key: string, value: string) => {
+  if (!activeServer.value) return
 
-const selected = computed<number>({
-  get: () => serverState.selectedServer || 0,
-  set: (i) => setServer({ selectedServer: i }),
-})
+  const variables = activeServer.value.variables || {}
+  variables[key] = { ...variables[key], default: value }
 
-const variables = computed<ServerVariableValues>({
-  get: () => serverState.variables,
-  set: (v) => setServer({ variables: v }),
-})
+  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+}
 </script>
 <template>
-  <ServerForm
-    v-model:selected="selected"
-    v-model:variables="variables"
-    :servers="serverState.servers as Server[]" />
+  <label class="bg-b-2 flex items-center h-8 px-3 py-2.5 text-sm">Server</label>
+  <div class="border-t text-sm">
+    <AddressBarServer
+      :layout="layout"
+      :target="target" />
+    <ServerVariablesForm
+      :variables="activeServer?.variables"
+      @update:variable="updateServerVariable" />
+  </div>
 </template>
