@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.100
+
+### Patch Changes
+
+- 12e7232: feat: adds parameter examples support
+- f1f39b0: refactor: better handle servers
+- Updated dependencies [776a4e2]
+- Updated dependencies [4f12fe4]
+- Updated dependencies [f1f39b0]
+  - @scalar/themes@0.9.62
+  - @scalar/types@0.0.28
+
 ## 0.2.99
 
 ### Patch Changes

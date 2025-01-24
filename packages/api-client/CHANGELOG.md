@@ -1,5 +1,35 @@
 # @scalar/api-client
 
+## 2.2.38
+
+### Patch Changes
+
+- 12e7232: feat: adds parameter examples support
+- 974234f: fix: server variable type mismatch
+- 6400bfc: feat: revamps address bar server menu
+- 6400bfc: feat: removes server from request variables table
+- 5ab0663: feat: adds request example array multiselect
+- 917214a: chore: update Scalar support email
+- 42b58bf: fix: updates address bar ui
+- Updated dependencies [12e7232]
+- Updated dependencies [776a4e2]
+- Updated dependencies [8665004]
+- Updated dependencies [4f12fe4]
+- Updated dependencies [5ab0663]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [917214a]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [776a4e2]
+  - @scalar/oas-utils@0.2.100
+  - @scalar/themes@0.9.62
+  - @scalar/components@0.13.17
+  - @scalar/types@0.0.28
+  - @scalar/import@0.2.20
+  - @scalar/postman-to-openapi@0.1.23
+  - @scalar/use-codemirror@0.11.62
+  - @scalar/use-hooks@0.1.16
+  - @scalar/openapi-parser@0.10.4
+
 ## 2.2.37
 
 ### Patch Changes

@@ -1,5 +1,33 @@
 # @scalar/api-reference
 
+## 1.25.109
+
+### Patch Changes
+
+- 09dee7e: fix: jumping on initial load for big specs
+- Updated dependencies [12e7232]
+- Updated dependencies [974234f]
+- Updated dependencies [776a4e2]
+- Updated dependencies [6400bfc]
+- Updated dependencies [8665004]
+- Updated dependencies [4f12fe4]
+- Updated dependencies [6400bfc]
+- Updated dependencies [5ab0663]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [5ab0663]
+- Updated dependencies [917214a]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [776a4e2]
+- Updated dependencies [42b58bf]
+  - @scalar/api-client@2.2.38
+  - @scalar/oas-utils@0.2.100
+  - @scalar/themes@0.9.62
+  - @scalar/components@0.13.17
+  - @scalar/types@0.0.28
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.16
+  - @scalar/openapi-parser@0.10.4
+
 ## 1.25.108
 
 ### Patch Changes
