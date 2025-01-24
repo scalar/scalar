@@ -263,7 +263,7 @@ describe('fastifyApiReference', () => {
 
     const address = await fastify.listen({ port: 0 })
     const response = await fetch(`${address}/reference`)
-    expect(await response.text()).toContain('js/scalar.ts')
+    expect(await response.text()).toContain('js/scalar.js')
   })
 
   describe('has the spec URL', () => {
