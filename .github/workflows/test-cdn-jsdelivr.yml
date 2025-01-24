@@ -46,6 +46,22 @@ jobs:
           name: playwright-report
           path: ./playwright/test-results/
           retention-days: 5
+      - name: Update snapshot files
+        if: ${{ failure() && github.event_name != 'pull_request'}}
+        run: pnpm vite-node scripts/update-snapshots.ts
+      - name: Create Pull Request
+        if: ${{ failure() && github.event_name != 'pull_request' }}
+        uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f
+        with:
+          commit-message: 'test: update CDN API Reference snapshots'
+          committer: Tom Mastromonaco <tom@scalar.com>
+          body: |
+            This PR was automatically created to update the snapshots for the CDN build hosted on jsdelivr.
+
+            Please look at the screenshots to review the changes.
+          title: 'test(api-reference): update CDN snapshots'
+          branch: update-cdn-snapshots-${{ github.run_id }}
+          base: main
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         if: ${{ failure() && github.event_name == 'pull_request'}}
@@ -55,3 +71,6 @@ jobs:
             View the [Playwright report](${{ steps.artifact-upload.outputs.artifact-url }}) to review the visual differences.
             Inspect the changes and commit the updated snapshots if they are satisfactory.
             If a **snapshot-diff.png** is not provided, the snapshots are different sizes.
+          comment-tag: playwright-report
+          mode: upsert
+          create-if-not-exists: true
