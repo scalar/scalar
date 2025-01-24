@@ -128,7 +128,7 @@ function updateRequestPath(url: string) {
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <div
-        class="addressbar-bg-states group text-xxs relative flex w-full xl:min-w-[720px] xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last lg:order-none flex-1 flex-row items-stretch rounded-lg p-0.75">
+        class="addressbar-bg-states group text-xxs relative flex w-full xl:min-w-[720px] xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last lg:order-none flex-1 flex-row items-stretch rounded-lg p-0.75 max-w-[calc(100dvw-24px)]">
         <div
           class="border rounded-lg pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
           <div
