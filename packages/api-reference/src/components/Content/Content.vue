@@ -2,10 +2,9 @@
 import { BaseUrl } from '@/features/BaseUrl'
 import { useActiveEntities } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
-import { ServerForm } from '@scalar/api-client/views/Servers'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
-import { computed } from 'vue'
+import { computed, useId } from 'vue'
 
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
@@ -28,6 +27,7 @@ const props = withDefaults(
 
 const { hideModels } = useSidebar()
 const { activeCollection } = useActiveEntities()
+const id = useId()
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -60,7 +60,14 @@ const introCardsSlot = computed(() =>
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': layout === 'classic' }">
-            <BaseUrl />
+            <div
+              v-if="activeCollection?.servers?.length"
+              :id="id"
+              class="scalar-client introduction-card-item [--scalar-address-bar-height:0px]">
+              <BaseUrl
+                layout="reference"
+                :target="id" />
+            </div>
             <div class="scalar-client introduction-card-item">
               <RequestAuth
                 layout="reference"
