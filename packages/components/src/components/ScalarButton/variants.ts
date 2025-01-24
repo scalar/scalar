@@ -22,7 +22,7 @@ export const styles: Record<string, Record<string, any>> = {
 }
 
 export const variants = cva({
-  base: 'scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium',
+  base: 'scalar-button scalar-row cursor-pointer items-center justify-center rounded font-medium -outline-offset-1',
   variants: {
     disabled: {
       true: 'bg-background-2 text-color-3 shadow-none',

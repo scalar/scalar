@@ -7,12 +7,12 @@ defineProps<{ item: RequestExampleParameter }>()
 <template>
   <ScalarTooltip
     align="start"
-    class="w-full"
+    class="w-full pr-px"
     :delay="0"
     side="left"
-    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0">
+    triggerClass="before:absolute before:content-[''] before:bg-gradient-to-r before:from-transparent before:to-b-1 before:min-h-[calc(100%-4px)] before:pointer-events-none before:right-[23px] before:top-0.5 before:w-3 absolute h-full right-0 -outline-offset-1">
     <template #trigger>
-      <div class="pl-1 pr-1.5 py-[9px]">
+      <div class="bg-b-1 pl-1 pr-1.5 mr-0.25">
         <ScalarIcon
           class="text-c-3 group-hover/info:text-c-1"
           icon="Info"
