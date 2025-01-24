@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "packages/scalar.aspnetcore"
+    "directory": "integrations/aspnetcore"
   },
   "version": "2.0.4",
   "private": true,

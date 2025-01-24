@@ -1,14 +1,14 @@
 # Scalar .NET API Reference Integration
 
-[![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore)](https://www.nuget.org/packages/Scalar.AspNetCore)
-[![Downloads](https://img.shields.io/nuget/dt/Scalar.AspNetCore)](https://www.nuget.org/packages/Scalar.AspNetCore)
+[![Version](https://img.shields.io/nuget/v/Scalar.AspNetCore)](https://www.nuget.org/integrations/aspnetcore)
+[![Downloads](https://img.shields.io/nuget/dt/Scalar.AspNetCore)](https://www.nuget.org/integrations/aspnetcore)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
 This .NET package `Scalar.AspNetCore` provides an easy way to render beautiful API references based on OpenAPI/Swagger documents.
 
 Made possible by the wonderful work of [@captainsafia](https://github.com/captainsafia) on [building the integration and docs written](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/using-openapi-documents?view=aspnetcore-9.0#use-scalar-for-interactive-api-documentation) for the Scalar & .NET integration. Thanks to [@xC0dex](https://github.com/xC0dex) for making it awesome.
 
-![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/packages/scalar.aspnetcore/dotnet.jpg)
+![dotnet](https://raw.githubusercontent.com/scalar/scalar/refs/heads/main/integrations/aspnetcore/dotnet.jpg)
 
 ## Migration Guide
 
@@ -90,7 +90,7 @@ For a full configuration guide and examples, including OAuth integration and cus
 ### Local
 
 1. Download [.NET 9.0](https://dotnet.microsoft.com/en-us/download/dotnet/9.0)
-2. Jump to the package folder: `cd packages/scalar.aspnetcore`
+2. Jump to the package folder: `cd integrations/aspnetcore`
 3. Do a fresh build: `dotnet build`
 4. Run the tests: `dotnet test`
 
