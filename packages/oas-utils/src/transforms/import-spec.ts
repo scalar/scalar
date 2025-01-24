@@ -275,18 +275,17 @@ export async function importSpecToWorkspace(
         operation
 
       // Grab the security requirements for this operation
-      const securityRequirements = (
+      const securityRequirements: Collection['selectedSecuritySchemeUids'] = (
         operationSecurity ??
         (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
         []
-      ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
+      ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
         const keys = Object.keys(s)
-        if (keys.length > 1) return keys.join(',')
-        else if (keys.length) return keys[0]
-        else return []
+        return keys.length === 1 ? keys[0] : keys
       })
 
-      let selectedSecuritySchemeUids: string[] = []
+      let selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids'] =
+        []
 
       // Set the initially selected security scheme
       if (securityRequirements.length && !setCollectionSecurity) {
@@ -298,13 +297,11 @@ export async function importSpecToWorkspace(
             ? authentication.preferredSecurityScheme
             : securityRequirements[0]
 
-        // We split to check for complex auth
-        const uid = name
-          .split(',')
-          .map((k: string) => securitySchemeMap[k])
-          .filter(isDefined)
-          .join(',')
-        selectedSecuritySchemeUids = [uid]
+        const uids = Array.isArray(name)
+          ? name.map((k) => securitySchemeMap[k])
+          : securitySchemeMap[name]
+
+        selectedSecuritySchemeUids = [uids]
       }
 
       const requestPayload: RequestPayload = {

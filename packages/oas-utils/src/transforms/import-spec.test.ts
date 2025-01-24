@@ -471,7 +471,10 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       const selectedSecuritySchemeUids = [
-        `${findSchemeUidByKey('apiKeyHeader', res.securitySchemes)},${findSchemeUidByKey('basicAuth', res.securitySchemes)}`,
+        [
+          findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
+          findSchemeUidByKey('basicAuth', res.securitySchemes),
+        ],
       ]
       expect(res.requests[0].selectedSecuritySchemeUids).toEqual(
         selectedSecuritySchemeUids,
