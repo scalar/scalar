@@ -9,7 +9,7 @@ import {
   size,
   useFloating,
 } from '@floating-ui/vue'
-import { type Ref, type Slot, computed, ref } from 'vue'
+import { type Ref, type Slot, computed, onMounted, ref } from 'vue'
 
 import { ScalarTeleport } from '../ScalarTeleport'
 import type { FloatingOptions } from './types'
@@ -42,24 +42,27 @@ defineOptions({ inheritAttrs: false })
 
 const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
+const targetRef = ref<HTMLElement | undefined>(undefined)
 
-const targetRef = computed(() => {
+function setTargetRef() {
   if (typeof window !== 'undefined') {
     // If target is a string (id), try to find it in the document
     if (typeof target === 'string') {
       const t = document.getElementById(target)
-      if (t) return t
+      if (t) targetRef.value = t
       else console.warn(`ScalarFloating: Target with id="${target}" not found`)
     }
     // If target is an HTMLElement, return it
-    else if (target instanceof HTMLElement) return target
+    else if (target instanceof HTMLElement) {
+      targetRef.value = target
+    }
   }
   // Fallback to div wrapper if no child element is provided
-  if (wrapperRef.value)
-    return wrapperRef.value.children?.[0] || wrapperRef.value
-  // Return undefined if nothing is found
-  return undefined
-})
+  if (!targetRef.value && wrapperRef.value) {
+    targetRef.value =
+      (wrapperRef.value.children?.[0] as HTMLElement) || wrapperRef.value
+  }
+}
 
 const targetSize = useResizeWithTarget(targetRef, {
   enabled: computed(() => resize),
@@ -91,6 +94,10 @@ const { floatingStyles, middlewareData } = useFloating(targetRef, floatingRef, {
     }),
     ...middleware,
   ]),
+})
+
+onMounted(() => {
+  setTargetRef()
 })
 </script>
 <template>
