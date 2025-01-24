@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -8,6 +7,8 @@ import {
   ScalarFloatingBackdrop,
   ScalarIcon,
   ScalarPopover,
+  cva,
+  cx,
 } from '@scalar/components'
 import { computed, watch } from 'vue'
 
@@ -81,30 +82,43 @@ const updateServerVariable = (key: string, value: string) => {
 
   serverMutators.edit(activeServer.value.uid, 'variables', variables)
 }
+
+// Define variants for the button
+const buttonVariants = cva({
+  base: 'gap-0.75 z-context-plus lg:text-sm text-xs whitespace-nowrap px-1.5 h-6.5',
+  variants: {
+    reference: {
+      true: '!font-normal justify-start px-3 py-1.5 rounded-b-lg text-c-1 w-full',
+      false: 'border hover:bg-b-2 font-code ml-0.75 rounded text-c-2',
+    },
+  },
+})
 </script>
 <template>
   <ScalarPopover
     class="max-h-[inherit] p-0 text-sm"
-    :offset="0"
+    :offset="layout === 'reference' ? 6 : 0"
     placement="bottom-start"
     resize
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="z-context-plus lg:text-sm text-xs whitespace-nowrap px-1.5 h-6.5"
-      :class="[
-        layout !== 'reference' &&
-          'border hover:bg-b-2 font-code ml-0.75 rounded text-c-2',
-        layout === 'reference' &&
-          'justify-start px-3 py-1.5 rounded-b-lg text-c-1 w-full',
-      ]"
+      :class="cx(buttonVariants({ reference: layout === 'reference' }))"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
+
+      <ScalarIcon
+        v-if="layout === 'reference'"
+        class="text-c-2"
+        icon="ChevronDown"
+        size="sm" />
     </ScalarButton>
-    <template #popover>
+    <template #popover="{ close }">
       <div
-        class="custom-scroll flex border-t p-1 flex-col gap-1 max-h-[inherit]">
+        class="custom-scroll flex p-1 flex-col gap-1 max-h-[inherit]"
+        :class="layout !== 'reference' && 'border-t'"
+        @click="close">
         <!-- Request -->
         <AddressBarServerItem
           v-for="serverOption in requestServerOptions"
@@ -140,10 +154,6 @@ const updateServerVariable = (key: string, value: string) => {
           </button>
         </template>
       </div>
-      <ServerVariablesForm
-        v-if="layout !== 'reference'"
-        :variables="activeServer?.variables"
-        @update:variable="updateServerVariable" />
     </template>
     <template #backdrop>
       <ScalarFloatingBackdrop
