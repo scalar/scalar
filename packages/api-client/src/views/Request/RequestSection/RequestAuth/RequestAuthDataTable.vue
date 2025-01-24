@@ -1,19 +1,15 @@
 <script setup lang="ts">
 import { DataTable } from '@/components/DataTable'
-import { useWorkspace } from '@/store'
-import { displaySchemeFormatter } from '@/views/Request/libs'
 import { useModal } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestExampleAuth from './RequestExampleAuth.vue'
 
-const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
-  selectedSecuritySchemeUids: string[]
+const { selectedSchemeOptions = [], layout = 'client' } = defineProps<{
+  selectedSchemeOptions: { id: string; label: string }[]
   layout?: 'client' | 'reference'
 }>()
-
-const { securitySchemes } = useWorkspace()
 
 const deleteSchemeModal = useModal()
 const selectedScheme = ref<{ id: string; label: string } | null>(null)
@@ -21,15 +17,19 @@ const selectedScheme = ref<{ id: string; label: string } | null>(null)
 // Add new ref for active tab
 const activeAuthIndex = ref(0)
 
-// Modify computed properties to handle single active auth
-const activeAuth = computed(() => {
-  return selectedSecuritySchemeUids[activeAuthIndex.value] || null
+// Return currently selected schemes including complex auth
+const activeScheme = computed(() => {
+  const option = selectedSchemeOptions[activeAuthIndex.value]
+  if (!option) return []
+
+  const keys = option?.id.split(',')
+  return keys.length > 1 ? keys : [option.id]
 })
 
 watch(
-  () => selectedSecuritySchemeUids,
-  (newUids) => {
-    if (!newUids[activeAuthIndex.value]) {
+  () => selectedSchemeOptions,
+  (newOptions) => {
+    if (!newOptions[activeAuthIndex.value]) {
       activeAuthIndex.value = Math.max(0, activeAuthIndex.value - 1)
     }
   },
@@ -38,11 +38,11 @@ watch(
 <template>
   <form @submit.prevent>
     <div
-      v-if="selectedSecuritySchemeUids.length > 1"
+      v-if="selectedSchemeOptions.length > 1"
       class="border-t flex px-3 flex-wrap gap-x-2.5 overflow-hidden">
       <div
-        v-for="(schemeUid, index) in selectedSecuritySchemeUids"
-        :key="schemeUid"
+        v-for="(option, index) in selectedSchemeOptions"
+        :key="option.id"
         class="flex relative h-8 z-1 cursor-pointer -mb-[var(--scalar-border-width)]"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
@@ -50,9 +50,7 @@ watch(
           type="button"
           @click="activeAuthIndex = index">
           <span class="whitespace-nowrap font-medium z-10 relative">{{
-            securitySchemes[schemeUid]
-              ? displaySchemeFormatter(securitySchemes[schemeUid]).label
-              : ''
+            option.label
           }}</span>
         </button>
         <div
@@ -64,17 +62,17 @@ watch(
     </div>
 
     <DataTable
-      v-if="activeAuth"
+      v-if="activeScheme.length"
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
       :columns="['']">
       <RequestExampleAuth
         :layout="layout"
-        :selectedSecuritySchemeUids="[activeAuth]" />
+        :selectedSecuritySchemeUids="activeScheme" />
     </DataTable>
 
     <div
-      v-if="!selectedSecuritySchemeUids.length"
+      v-else
       class="text-c-3 px-4 text-sm border-t min-h-16 justify-center flex items-center bg-b-1">
       No authentication selected
     </div>

@@ -259,7 +259,7 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      const operation = path[method]
+      const operation: OpenAPIV3_1.OperationObject = path[method]
       const operationServers = serverSchema
         .array()
         .parse(operation.servers ?? [])
@@ -275,17 +275,17 @@ export async function importSpecToWorkspace(
         operation
 
       // Grab the security requirements for this operation
-      const securityRequirements = (
+      const securityRequirements: Collection['selectedSecuritySchemeUids'] = (
         operationSecurity ??
         (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
         []
-      ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
+      ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
         const keys = Object.keys(s)
-        if (keys.length) return keys[0]
-        else return []
+        return keys.length === 1 ? keys[0] : keys
       })
 
-      let selectedSecuritySchemeUids: string[] = []
+      let selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids'] =
+        []
 
       // Set the initially selected security scheme
       if (securityRequirements.length && !setCollectionSecurity) {
@@ -296,8 +296,12 @@ export async function importSpecToWorkspace(
           )
             ? authentication.preferredSecurityScheme
             : securityRequirements[0]
-        const uid = securitySchemeMap[name]
-        selectedSecuritySchemeUids = [uid]
+
+        const uids = Array.isArray(name)
+          ? name.map((k) => securitySchemeMap[k])
+          : securitySchemeMap[name]
+
+        selectedSecuritySchemeUids = [uids]
       }
 
       const requestPayload: RequestPayload = {
