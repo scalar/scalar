@@ -132,7 +132,7 @@ const hasCookies = computed(
       <template #content>
         <div class="flex-1">
           <SidebarList>
-            <div
+            <li
               v-for="cookie in Object.values(cookies)"
               :key="cookie.uid"
               class="flex flex-col gap-1/2">
@@ -147,7 +147,7 @@ const hasCookies = computed(
                   @click.prevent="handleNavigation($event, cookie.uid)"
                   @delete="removeCookie(cookie.uid)" />
               </div>
-            </div>
+            </li>
           </SidebarList>
         </div>
       </template>

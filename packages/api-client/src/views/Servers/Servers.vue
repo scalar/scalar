@@ -67,7 +67,7 @@ function handleDelete(uid: string) {
       <template #content>
         <div class="flex-1">
           <SidebarList>
-            <div
+            <li
               v-for="collection in collections"
               :key="collection.uid"
               class="flex flex-col gap-1/2">
@@ -140,7 +140,7 @@ function handleDelete(uid: string) {
                   <span>Add Server</span>
                 </ScalarButton>
               </div>
-            </div>
+            </li>
           </SidebarList>
         </div>
       </template>
