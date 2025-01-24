@@ -77,9 +77,10 @@ const serverUrlWithoutTrailingSlash = computed(() => {
   <ScalarPopover
     class="max-h-[inherit] p-0 text-sm"
     :offset="0"
-    placement="top-start"
+    placement="bottom-start"
     resize
-    :target="target">
+    :target="target"
+    :teleport="`#${target}`">
     <ScalarButton
       class="font-code z-context-plus lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 h-6.5 text-c-2 hover:bg-b-2"
       variant="ghost">

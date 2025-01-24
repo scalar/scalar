@@ -215,7 +215,7 @@ export default {
 </script>
 <template>
   <template v-if="disabled">
-    <div class="flex items-center justify-center p-2">
+    <div class="flex items-center justify-center px-1">
       <span class="text-c-2 text-sm">{{ modelValue }}</span>
     </div>
   </template>

@@ -124,7 +124,7 @@ function updateRequestPath(url: string) {
   <div
     v-if="activeRequest && activeExample"
     :id="id"
-    class="scalar-address-bar order-last lg:order-none lg:w-auto w-full [--scalar-address-bar-height:34px] h-[--scalar-address-bar-height]">
+    class="scalar-address-bar order-last lg:order-none lg:w-auto w-full [--scalar-address-bar-height:32px] h-[--scalar-address-bar-height]">
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <div
@@ -145,19 +145,19 @@ function updateRequestPath(url: string) {
             @change="updateRequestMethod" />
         </div>
 
-        <!-- Servers -->
-        <AddressBarServers
-          v-if="activeCollection?.servers?.length"
-          :target="id" />
-
         <div
           class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full">
+          <!-- Servers -->
+          <AddressBarServers
+            v-if="activeCollection?.servers?.length"
+            :target="id" />
+
           <div class="fade-left"></div>
           <!-- Path + URL + env vars -->
           <CodeInput
             ref="addressBarRef"
             aria-label="Path"
-            class="outline-none"
+            class="outline-none min-w-fit"
             disableCloseBrackets
             :disabled="isReadOnly"
             disableEnter
@@ -218,7 +218,7 @@ function updateRequestPath(url: string) {
   -ms-overflow-style: none; /* IE and Edge */
 }
 .scroll-timeline-x-hidden {
-  overflow: hidden;
+  overflow-x: auto;
 }
 .scroll-timeline-x-hidden :deep(.cm-scroller) {
   scrollbar-width: none;
