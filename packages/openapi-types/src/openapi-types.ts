@@ -228,6 +228,9 @@ export namespace OpenAPIV3_1 {
       properties?: {
         [name: string]: ReferenceObject | SchemaObject
       }
+      patternProperties?: {
+        [name: string]: ReferenceObject | SchemaObject
+      }
       allOf?: (ReferenceObject | SchemaObject)[]
       oneOf?: (ReferenceObject | SchemaObject)[]
       anyOf?: (ReferenceObject | SchemaObject)[]
@@ -484,6 +487,9 @@ export namespace OpenAPIV3 {
     required?: string[]
     enum?: any[]
     properties?: {
+      [name: string]: ReferenceObject | SchemaObject
+    }
+    patternProperties?: {
       [name: string]: ReferenceObject | SchemaObject
     }
     allOf?: (ReferenceObject | SchemaObject)[]
