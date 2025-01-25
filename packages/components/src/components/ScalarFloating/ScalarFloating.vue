@@ -44,7 +44,7 @@ const floatingRef: Ref<HTMLElement | null> = ref(null)
 const wrapperRef: Ref<HTMLElement | null> = ref(null)
 
 const targetRef = computed(() => {
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && wrapperRef.value) {
     // If target is a string (id), try to find it in the document
     if (typeof target === 'string') {
       const t = document.getElementById(target)
@@ -53,10 +53,9 @@ const targetRef = computed(() => {
     }
     // If target is an HTMLElement, return it
     else if (target instanceof HTMLElement) return target
-  }
-  // Fallback to div wrapper if no child element is provided
-  if (wrapperRef.value)
+    // Fallback to div wrapper if no child element is provided
     return wrapperRef.value.children?.[0] || wrapperRef.value
+  }
   // Return undefined if nothing is found
   return undefined
 })
