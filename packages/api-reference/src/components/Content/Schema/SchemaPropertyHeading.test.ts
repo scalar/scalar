@@ -63,7 +63,7 @@ describe('SchemaPropertyHeading', () => {
   it('renders pattern badge', async () => {
     const wrapper = mount(SchemaPropertyHeading, {
       props: {
-        pattern: true
+        pattern: true,
       },
     })
 
