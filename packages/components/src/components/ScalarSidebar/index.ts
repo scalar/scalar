@@ -1,2 +1,7 @@
 export { default as ScalarSidebar } from './ScalarSidebar.vue'
 export { default as ScalarSidebarFooter } from './ScalarSidebarFooter.vue'
+export { default as ScalarSidebarButton } from './ScalarSidebarButton.vue'
+export { default as ScalarSidebarGroup } from './ScalarSidebarGroup.vue'
+export { default as ScalarSidebarGroupToggle } from './ScalarSidebarGroupToggle.vue'
+export { default as ScalarSidebarItem } from './ScalarSidebarItem.vue'
+export { default as ScalarSidebarItems } from './ScalarSidebarItems.vue'
