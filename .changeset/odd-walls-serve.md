@@ -1,6 +1,6 @@
 ---
 '@scalar/api-reference': patch
-'@scalar/types': minor
+'@scalar/types': patch
 ---
 
 feat: add support for stability
