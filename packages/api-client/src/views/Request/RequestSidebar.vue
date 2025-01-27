@@ -60,7 +60,7 @@ const {
   activeWorkspaceRequests,
   activeWorkspace,
 } = useActiveEntities()
-const { findRequestParents, isReadOnly, events, requestMutators, requests } =
+const { findRequestParents, events, requestMutators, requests } =
   workspaceContext
 
 const { handleDragEnd, isDroppable } = dragHandlerFactory(
@@ -145,7 +145,7 @@ watch(
   (newWatchModes, oldWatchModes) => {
     newWatchModes.forEach((newWatchMode: boolean, index: number) => {
       if (
-        !isReadOnly &&
+        layout !== 'modal' &&
         newWatchMode !== oldWatchModes[index] &&
         activeWorkspaceCollections.value[index]?.info?.title !== 'Drafts' &&
         activeWorkspaceCollections.value[index]
@@ -226,7 +226,7 @@ const toggleSearch = () => {
     :isSidebarOpen="isSidebarOpen"
     @update:isSidebarOpen="$emit('update:isSidebarOpen', $event)">
     <template
-      v-if="!isReadOnly"
+      v-if="layout !== 'modal'"
       #header>
     </template>
     <template #content>
@@ -236,13 +236,13 @@ const toggleSearch = () => {
           :class="[{ '!flex': layout === 'modal' }]"
           :modelValue="isSidebarOpen"
           @update:modelValue="$emit('update:isSidebarOpen', $event)" />
-        <WorkspaceDropdown v-if="!isReadOnly" />
+        <WorkspaceDropdown v-if="layout !== 'modal'" />
         <span
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           class="text-c-3">
           /
         </span>
-        <EnvironmentSelector v-if="!isReadOnly" />
+        <EnvironmentSelector v-if="layout !== 'modal'" />
         <button
           class="ml-auto"
           type="button"
@@ -270,7 +270,7 @@ const toggleSearch = () => {
       <div
         class="gap-1/2 flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
         :class="{
-          'pb-14': !isReadOnly,
+          'pb-14': layout !== 'modal',
         }"
         @dragenter.prevent
         @dragover.prevent>
@@ -307,7 +307,9 @@ const toggleSearch = () => {
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
             :key="collection.uid"
-            :isDraggable="!isReadOnly && collection.info?.title !== 'Drafts'"
+            :isDraggable="
+              layout !== 'modal' && collection.info?.title !== 'Drafts'
+            "
             :isDroppable="isDroppable"
             :menuItem="menuItem"
             :parentUids="[]"
@@ -363,7 +365,7 @@ const toggleSearch = () => {
           </div>
         </div>
         <ScalarButton
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           class="mb-1.5 w-full h-fit hidden opacity-0 p-1.5"
           :class="{
             'flex opacity-100': activeWorkspaceRequests.length <= 1,
@@ -372,7 +374,7 @@ const toggleSearch = () => {
           Import Collection
         </ScalarButton>
         <SidebarButton
-          v-if="!isReadOnly"
+          v-if="layout !== 'modal'"
           :click="events.commandPalette.emit"
           hotkey="K">
           <template #title>Add Item</template>
@@ -383,7 +385,7 @@ const toggleSearch = () => {
 
   <!-- Menu -->
   <RequestSidebarItemMenu
-    v-if="!isReadOnly && menuItem"
+    v-if="layout !== 'modal' && menuItem"
     :menuItem="menuItem"
     @clearDrafts="handleClearDrafts"
     @closeMenu="menuItem.open = false"

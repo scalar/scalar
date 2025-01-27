@@ -147,7 +147,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
               class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium text-c-3"
               :class="{
                 '!text-c-1 !border-current border-b-[1px] !rounded-none':
-                  layout === 'client' &&
+                  layout !== 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
                 '!text-c-1 !border-current border-b-[1px] !rounded-none opacity-100':
                   layout === 'reference' &&

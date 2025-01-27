@@ -1,7 +1,6 @@
 /* eslint-disable vue/one-component-per-file */
 import { parseEnvVariables } from '@/libs'
 import { type EnvVariables, getEnvColor } from '@/libs/env-helpers'
-import type { WorkspaceStore } from '@/store'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
@@ -17,8 +16,6 @@ import {
 } from '@scalar/use-codemirror'
 import { createApp, defineComponent, h } from 'vue'
 
-type IsReadOnly = WorkspaceStore['isReadOnly']
-
 /**
  * Displays the value of a variable of the active environment in a pill
  */
@@ -27,14 +24,14 @@ class PillWidget extends WidgetType {
   environment?: Environment
   envVariables?: EnvVariables
   workspace?: Workspace
-  isReadOnly?: IsReadOnly
+  isReadOnly?: boolean
 
   constructor(
     private variableName: string,
     environment?: Environment,
     envVariables?: EnvVariables,
     workspace?: Workspace,
-    isReadOnly?: IsReadOnly,
+    isReadOnly?: boolean,
   ) {
     super()
     this.variableName = variableName
@@ -154,7 +151,7 @@ export const pillPlugin = (props: {
   environment?: Environment
   envVariables?: EnvVariables
   workspace?: Workspace
-  isReadOnly?: IsReadOnly
+  isReadOnly?: boolean
 }) =>
   ViewPlugin.fromClass(
     class {

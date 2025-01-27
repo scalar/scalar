@@ -244,7 +244,6 @@ provideUseId(() => {
 
 // Create the workspace store and provide it
 const workspaceStore = createWorkspaceStore({
-  isReadOnly: true,
   proxyUrl: props.configuration.proxyUrl || props.configuration.proxy,
   themeId: props.configuration.theme,
   useLocalStorage: false,
