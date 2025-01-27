@@ -215,7 +215,7 @@ export default {
 <template>
   <template v-if="disabled">
     <div class="flex items-center justify-center px-1">
-      <span class="text-c-2 text-sm">{{ modelValue }}</span>
+      <span class="text-c-1 text-sm font-code">{{ modelValue }}</span>
     </div>
   </template>
   <template v-else-if="props.enum && props.enum.length">
