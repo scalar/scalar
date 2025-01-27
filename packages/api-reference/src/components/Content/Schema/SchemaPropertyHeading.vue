@@ -27,11 +27,6 @@ const flattenDefaultValue = (value: Record<string, any>) => {
 <template>
   <div class="property-heading">
     <div
-      v-if="pattern"
-      class="property-pattern">
-      <Badge>pattern</Badge>
-    </div>
-    <div
       v-if="$slots.name"
       class="property-name">
       <slot
@@ -46,6 +41,11 @@ const flattenDefaultValue = (value: Record<string, any>) => {
         {{ value['x-additionalPropertiesName'] }}
       </template>
       <template v-else>additional properties</template>
+    </div>
+    <div
+      v-if="pattern"
+      class="property-pattern">
+      <Badge>pattern</Badge>
     </div>
     <div
       v-if="value?.deprecated"
