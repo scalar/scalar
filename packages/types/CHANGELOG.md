@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.0.28
+
+### Patch Changes
+
+- 702c386: feat: add support for stability
+- f1f39b0: feat: rewmove custom Server type
+
 ## 0.0.27
 
 ### Patch Changes
