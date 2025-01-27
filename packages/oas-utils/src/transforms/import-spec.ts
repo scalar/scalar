@@ -84,6 +84,25 @@ export const parseSchema = async (
   }
 }
 
+/** Converts selected security requirements to uids */
+export const getSelectedSecuritySchemeUids = (
+  securityRequirements: Collection['selectedSecuritySchemeUids'],
+  authentication: { preferredSecurityScheme?: string | null } | undefined,
+  securitySchemeMap: Record<string, string>,
+): Collection['selectedSecuritySchemeUids'] => {
+  const name =
+    authentication?.preferredSecurityScheme &&
+    securityRequirements.includes(authentication.preferredSecurityScheme)
+      ? authentication.preferredSecurityScheme
+      : securityRequirements[0]
+
+  const uids = Array.isArray(name)
+    ? name.map((k) => securitySchemeMap[k])
+    : securitySchemeMap[name]
+
+  return [uids]
+}
+
 export type ImportSpecToWorkspaceArgs = Pick<
   CollectionPayload,
   'documentUrl' | 'watchMode'
@@ -284,25 +303,15 @@ export async function importSpecToWorkspace(
         return keys.length === 1 ? keys[0] : keys
       })
 
-      let selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids'] =
-        []
-
       // Set the initially selected security scheme
-      if (securityRequirements.length && !setCollectionSecurity) {
-        const name =
-          authentication?.preferredSecurityScheme &&
-          securityRequirements.includes(
-            authentication.preferredSecurityScheme ?? '',
-          )
-            ? authentication.preferredSecurityScheme
-            : securityRequirements[0]
-
-        const uids = Array.isArray(name)
-          ? name.map((k) => securitySchemeMap[k])
-          : securitySchemeMap[name]
-
-        selectedSecuritySchemeUids = [uids]
-      }
+      const selectedSecuritySchemeUids =
+        securityRequirements.length && !setCollectionSecurity
+          ? getSelectedSecuritySchemeUids(
+              securityRequirements,
+              authentication,
+              securitySchemeMap,
+            )
+          : []
 
       const requestPayload: RequestPayload = {
         ...operationWithoutSecurity,
@@ -413,16 +422,25 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
-  const securityKeys = Object.keys(schema.security?.[0] ?? security ?? {})
-  let selectedSecuritySchemeUids: string[] = []
 
-  /** Selected security scheme UIDs for the collection, defaults to the first key */
-  if (setCollectionSecurity && securityKeys.length) {
-    const preferred = authentication?.preferredSecurityScheme || securityKeys[0]
-    const uid = securitySchemeMap[preferred]
+  // Grab the security requirements for this operation
+  const securityRequirements: Collection['selectedSecuritySchemeUids'] = (
+    (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
+    Object.keys(security ?? {})
+  ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
+    const keys = Object.keys(s)
+    return keys.length === 1 ? keys[0] : keys
+  })
 
-    selectedSecuritySchemeUids = [uid]
-  }
+  // Set the initially selected security scheme
+  const selectedSecuritySchemeUids =
+    securityRequirements.length && setCollectionSecurity
+      ? getSelectedSecuritySchemeUids(
+          securityRequirements,
+          authentication,
+          securitySchemeMap,
+        )
+      : []
 
   const collection = collectionSchema.parse({
     ...schema,
