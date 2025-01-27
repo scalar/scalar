@@ -111,7 +111,10 @@ if (!specUrlElement && !specElement && !specScriptTag) {
         if (specifiedOperation) {
           open({
             path: specifiedOperation.path,
-            method: specifiedOperation.httpVerb,
+            method: specifiedOperation.httpVerb.toLowerCase() as Exclude<
+              Lowercase<typeof specifiedOperation.httpVerb>,
+              'connect' | 'trace'
+            >,
           })
         } else {
           const firstOperation = parsedSpec.tags?.[0]?.operations?.[0]
@@ -119,7 +122,10 @@ if (!specUrlElement && !specElement && !specScriptTag) {
           if (firstOperation) {
             open({
               path: firstOperation.path,
-              method: firstOperation.httpVerb,
+              method: firstOperation.httpVerb.toLowerCase() as Exclude<
+                Lowercase<typeof firstOperation.httpVerb>,
+                'connect' | 'trace'
+              >,
             })
           }
         }
