@@ -158,16 +158,40 @@ function createWindow(): void {
                       await todesktop.autoUpdater?.checkForUpdates()
 
                     if (result?.updateInfo) {
-                      console.log('Update:', result.updateInfo.version)
-                      todesktop.autoUpdater?.restartAndInstall()
+                      console.log(
+                        'Update Available:',
+                        result.updateInfo.version,
+                      )
+                      const { response } = await dialog.showMessageBox({
+                        type: 'info',
+                        message: 'Update available',
+                        detail: `A new version of Scalar is available. \nYou can restart and update your application now or doing it later.`,
+                        buttons: ['Restart and Install', 'Later'],
+                        defaultId: 0,
+                      })
+
+                      if (response === 0) {
+                        todesktop.autoUpdater?.restartAndInstall()
+                      }
                     } else {
                       console.log('No updates available')
-                      dialog.showMessageBox({
+                      const { response } = await dialog.showMessageBox({
                         type: 'info',
-                        title: 'No Updates Available',
-                        message: 'You are currently using the latest version.',
-                        detail: app.getVersion(),
+                        message: 'No Update Available',
+                        detail: `You are already using the latest version of Scalar. \n\nExperiencing any issues? \nTry reloading your tabs and check again. If an issue persists, please submit a ticket.`,
+                        buttons: ['Ok', 'Submit Ticket', 'Reload All Tabs'],
+                        defaultId: 0,
                       })
+
+                      if (response === 2) {
+                        BrowserWindow.getAllWindows().forEach((window) => {
+                          window.reload()
+                        })
+                      } else if (response === 1) {
+                        shell.openExternal(
+                          'https://github.com/scalar/scalar/issues/new?template=BUG-REPORT.yml',
+                        )
+                      }
                     }
                   } catch (e) {
                     console.log('Update check failed:', e)
@@ -354,7 +378,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-// In this file you can include the rest of your app"s specific main process
+// In this file you can include the rest of your app’s specific main process
 // code. You can also put them in separate files and require them here.
 
 /**
