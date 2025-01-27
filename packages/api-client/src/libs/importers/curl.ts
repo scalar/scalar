@@ -58,7 +58,7 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
   const contentType =
     body?.includes('=') && !body.startsWith('{')
       ? 'application/x-www-form-urlencoded'
-      : headers['Content-Type'] || 'application/json'
+      : headers['Content-Type'] || ''
   const requestBody = body ? parseData(body) : {}
 
   // Create parameters following request schema

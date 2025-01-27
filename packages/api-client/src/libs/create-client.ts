@@ -372,7 +372,7 @@ export const createApiClient = ({
       if (!request) return
 
       const contentType =
-        Object.keys(request.requestBody?.content || {})[0] || 'application/json'
+        Object.keys(request.requestBody?.content || {})[0] || ''
       const example =
         request.requestBody?.content?.[contentType]?.examples[exampleKey]
       if (!example) return
