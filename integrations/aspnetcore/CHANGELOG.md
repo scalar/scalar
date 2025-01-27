@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.0.5
+
+### Patch Changes
+
+- Updated dependencies [09dee7e]
+- Updated dependencies [702c386]
+- Updated dependencies [a4ec7fa]
+  - @scalar/api-reference@1.25.109
+
 ## 2.0.4
 
 ### Patch Changes

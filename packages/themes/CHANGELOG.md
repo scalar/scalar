@@ -1,5 +1,16 @@
 # @scalar/themes
 
+## 0.9.62
+
+### Patch Changes
+
+- 776a4e2: docs(themes): update themes readme
+- 2ed681b: feat: adds reset outline offset for button
+- 4f12fe4: feat(themes): add scalar danger color
+- Updated dependencies [702c386]
+- Updated dependencies [f1f39b0]
+  - @scalar/types@0.0.28
+
 ## 0.9.61
 
 ### Patch Changes

@@ -1,5 +1,22 @@
 # @scalar/components
 
+## 0.13.17
+
+### Patch Changes
+
+- 8b5d905: fix: updates floating target ref function
+- 8665004: fix: removes listbox margin
+- 4f12fe4: feat(themes): add scalar danger color
+- 5ab0663: fix: updates button base variant outline offset
+- 917214a: chore: update Scalar support email
+- 776a4e2: docs(components): update components readme
+- Updated dependencies [776a4e2]
+- Updated dependencies [2ed681b]
+- Updated dependencies [4f12fe4]
+  - @scalar/themes@0.9.62
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.16
+
 ## 0.13.16
 
 ### Patch Changes
