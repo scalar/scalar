@@ -59,4 +59,15 @@ describe('SchemaPropertyHeading', () => {
     expect(constElement.text()).toContain('const:')
     expect(constElement.text()).toContain('example')
   })
+
+  it('renders pattern badge', async () => {
+    const wrapper = mount(SchemaPropertyHeading, {
+      props: {
+        pattern: true,
+      },
+    })
+
+    const constElement = wrapper.find('.property-pattern')
+    expect(constElement.text()).toContain('pattern')
+  })
 })
