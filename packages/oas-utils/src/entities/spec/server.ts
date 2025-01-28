@@ -9,22 +9,28 @@ import { type ZodSchema, z } from 'zod'
  *
  * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#server-variable-object
  */
-export const oasServerVariableSchema = z
-  .object({
-    /**
-     * An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.
-     */
-    enum: z.array(z.string()).optional(),
-    /**
-     * REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied.
-     * Note this behavior is different than the Schema Object’s treatment of default values, because in those cases
-     * parameter values are optional. If the enum is defined, the value MUST exist in the enum’s values.
-     */
-    default: z.string().optional(),
-    /**
-     * An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.
-     */
-    description: z.string().optional(),
+export const oasServerVariableSchema = z.object({
+  /**
+   * An enumeration of string values to be used if the substitution options are from a limited set. The array MUST NOT be empty.
+   */
+  enum: z.array(z.string()).optional(),
+  /**
+   * REQUIRED. The default value to use for substitution, which SHALL be sent if an alternate value is not supplied.
+   * Note this behavior is different than the Schema Object's treatment of default values, because in those cases
+   * parameter values are optional. If the enum is defined, the value MUST exist in the enum's values.
+   */
+  default: z.string().optional(),
+  /**
+   * An optional description for the server variable. CommonMark syntax MAY be used for rich text representation.
+   */
+  description: z.string().optional(),
+})
+
+/** Extended schema for server variables */
+const extendedServerVariableSchema = oasServerVariableSchema
+  .extend({
+    /** The value of the variable */
+    value: z.string().optional(),
   })
   .refine((data) => {
     // Set default to the first enum value if invalid
@@ -42,17 +48,7 @@ export const oasServerVariableSchema = z
 
     // Always return true since we’ve modified the data to be valid
     return true
-  })
-
-/** Extended schema for server variables */
-const extendedServerVariableSchema = z.object({
-  /** The value of the variable */
-  value: z.string().optional().default(''),
-})
-
-const serverVariableSchema = oasServerVariableSchema.merge(
-  extendedServerVariableSchema,
-) as ZodSchema<
+  }) as ZodSchema<
   Omit<OpenAPIV3_1.ServerVariableObject, 'enum'> & {
     enum?: [string, ...string[]]
     value?: string
@@ -79,7 +75,7 @@ export const oasServerSchema = z.object({
    */
   description: z.string().optional(),
   /** A map between a variable name and its value. The value is used for substitution in the server's URL template. */
-  variables: z.record(z.string(), serverVariableSchema).optional(),
+  variables: z.record(z.string(), extendedServerVariableSchema).optional(),
 }) satisfies ZodSchema<OpenAPIV3_1.ServerObject>
 
 export const serverSchema = oasServerSchema.extend({
