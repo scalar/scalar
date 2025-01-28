@@ -172,6 +172,43 @@ describe('authentication', () => {
     ).toEqual('Bearer YOUR_SECRET_TOKEN')
   })
 
+  it('handles complex auth', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+      }),
+      securitySchemes: {
+        'api-key': {
+          type: 'apiKey',
+          name: 'api_key',
+          in: 'query',
+          value: 'xxxx',
+          uid: 'api-key',
+          nameKey: 'api_key',
+        },
+        'bearer-auth': {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'Bearer',
+          username: '',
+          password: '',
+          uid: 'bearer-auth',
+          nameKey: 'Authorization',
+          token: 'xxxx',
+        },
+      },
+      selectedSecuritySchemeUids: [['bearer-auth', 'api-key']],
+    })
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    const parsed = JSON.parse(result?.response.data as string)
+    expect(parsed.headers.authorization).toEqual('Bearer xxxx')
+    expect(parsed.query.api_key).toEqual('xxxx')
+  })
+
   it('adds oauth2 token header', async () => {
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({

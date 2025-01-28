@@ -8,15 +8,15 @@ import { capitalize, computed, ref } from 'vue'
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
-  selectedSecuritySchemeUids: string[]
+const { securitySchemeUids, layout = 'client' } = defineProps<{
+  securitySchemeUids: string[]
   layout?: 'client' | 'reference'
 }>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
 const security = computed(() =>
-  selectedSecuritySchemeUids.map((uid) => ({
+  securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
   })),
 )

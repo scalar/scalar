@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { useLayout } from '@/hooks'
+import { type ClientLayout, useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import type { SecuritySchemeOption } from '@/views/Request/consts'
 import {
-  ADD_AUTH_OPTIONS,
-  type SecuritySchemeGroup,
-  type SecuritySchemeOption,
-} from '@/views/Request/consts'
-import { displaySchemeFormatter } from '@/views/Request/libs'
+  formatComplexScheme,
+  formatScheme,
+  getSchemeOptions,
+  getSecurityRequirements,
+} from '@/views/Request/libs'
 import {
   type Icon,
   ScalarButton,
@@ -17,6 +18,7 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
@@ -26,15 +28,15 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 const {
   selectedSecuritySchemeUids,
   title,
-  layout: propLayout,
+  layout: propLayout = 'client',
 } = defineProps<{
-  selectedSecuritySchemeUids: string[]
+  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   title: string
-  layout?: 'client' | 'reference'
+  layout?: 'client' | 'reference' | ClientLayout
 }>()
 
 const emit = defineEmits<{
-  'update:selectedSecuritySchemeUids': [string[]]
+  'update:selectedSecuritySchemeUids': SelectedSecuritySchemeUids
 }>()
 
 const { layout: hookLayout } = useLayout()
@@ -55,13 +57,13 @@ const selectedScheme = ref<{ id: string; label: string } | null>(null)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
-  const requirements =
-    activeRequest.value?.security ?? activeCollection.value?.security ?? []
+  const requirements = getSecurityRequirements(
+    activeRequest.value,
+    activeCollection.value,
+  )
 
   /** Filter out empty objects */
-  const filteredRequirements = requirements.filter(
-    (r: Record<string, string[]>) => Object.keys(r).length,
-  )
+  const filteredRequirements = requirements.filter((r) => Object.keys(r).length)
 
   return { filteredRequirements, requirements }
 })
@@ -86,14 +88,18 @@ const authIndicator = computed(() => {
   return { icon, text }
 })
 
-/** Currently selected auth schemes on the collection */
-const selectedAuth = computed(() =>
+/**
+ * Currently selected auth schemes on the collection, we store complex auth joined by a comma to represent the array
+ * in the string
+ */
+const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
-    .map((uid) => {
-      const scheme = securitySchemes[uid ?? '']
-      if (!scheme) return undefined
+    .map((s) => {
+      if (Array.isArray(s)) return formatComplexScheme(s, securitySchemes)
 
-      return displaySchemeFormatter(scheme)
+      const scheme = securitySchemes[s ?? '']
+      if (!scheme) return undefined
+      return formatScheme(scheme)
     })
     .filter(isDefined),
 )
@@ -103,7 +109,12 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
 
   const addNewOption = entries.find((e) => e.payload)
-  const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
+  const _entries = entries
+    .filter((e) => !e.payload)
+    .map(({ id }) => {
+      const arr = id.nhuyu(',')
+      return arr.length > 1 ? arr : id
+    })
 
   // Adding new auth
   if (addNewOption?.payload) {
@@ -119,7 +130,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   emit('update:selectedSecuritySchemeUids', _entries)
 }
 
-const editSelectedSchemeUids = (uids: string[]) => {
+const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   if (!activeCollection.value || !activeRequest.value) return
 
   // Set as selected on the collection for the modal
@@ -145,64 +156,41 @@ function handleDeleteScheme(option: { id: string; label: string }) {
   deleteSchemeModal.show()
 }
 
+// TODO do this section
 const unselectAuth = (unSelectUid?: string) => {
-  const newUids = selectedSecuritySchemeUids.filter(
-    (uid) => uid !== unSelectUid,
-  )
+  if (!unSelectUid) return
+
+  const newUids = selectedSecuritySchemeUids.filter((uid) => {
+    const arr = unSelectUid.split(',')
+
+    // Handle complex auth
+    if (arr.length > 1 && Array.isArray(uid)) {
+      if (arr.length === uid.length) return uid.every((u) => !arr.includes(u))
+    }
+
+    // Standard string auth
+    return uid !== unSelectUid
+  })
   editSelectedSchemeUids(newUids)
   emit('update:selectedSecuritySchemeUids', newUids)
   comboboxButtonRef.value?.$el.focus()
   deleteSchemeModal.hide()
 }
 
-const availableSchemes = computed(() => {
-  const base = activeCollection.value?.securitySchemes
-  return (base ?? []).map((s: string) => securitySchemes[s]).filter((s) => s)
-})
-
-const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
-  () => {
-    const _availableSchemes = [...availableSchemes.value]
-    const requiredSchemes = [] as typeof _availableSchemes
-
-    securityRequirements.value.filteredRequirements.forEach((r) => {
-      const i = _availableSchemes.findIndex(
-        (s) => s?.nameKey === Object.keys(r)[0],
-      )
-      if (i > -1) {
-        requiredSchemes.push(_availableSchemes[i])
-        _availableSchemes.splice(i, 1)
-      }
-    })
-
-    const availableFormatted = _availableSchemes
-      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
-      .filter(isDefined)
-    const requiredFormatted = requiredSchemes
-      .map((s) => (s ? displaySchemeFormatter(s) : undefined))
-      .filter(isDefined)
-
-    const options = [
-      { label: 'Required authentication', options: requiredFormatted },
-      { label: 'Available authentication', options: availableFormatted },
-    ]
-
-    if (layout === 'modal' || layout === 'reference')
-      return requiredFormatted.length ? options : availableFormatted
-
-    options.push({
-      label: 'Add new authentication',
-      options: ADD_AUTH_OPTIONS,
-    })
-
-    return options
-  },
+/** Options for the security scheme dropdown */
+const schemeOptions = computed(() =>
+  getSchemeOptions(
+    securityRequirements.value.filteredRequirements,
+    activeCollection.value?.securitySchemes ?? [],
+    securitySchemes,
+    layout === 'client',
+  ),
 )
 </script>
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="selectedAuth.length">
+    :itemCount="selectedSchemeOptions.length">
     <template #title>
       <div class="inline-flex gap-1 items-center">
         <span>{{ title }}</span>
@@ -220,7 +208,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
         <ScalarComboboxMultiselect
           class="text-xs w-72"
           :isDeletable="layout !== 'modal' && layout !== 'reference'"
-          :modelValue="selectedAuth"
+          :modelValue="selectedSchemeOptions"
           multiple
           :options="schemeOptions"
           @delete="handleDeleteScheme"
@@ -232,10 +220,10 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
             variant="ghost">
             <div class="text-c-1">
               {{
-                selectedAuth.length === 0
+                selectedSchemeOptions.length === 0
                   ? 'Auth Type'
-                  : selectedAuth.length === 1
-                    ? selectedAuth[0]?.label
+                  : selectedSchemeOptions.length === 1
+                    ? selectedSchemeOptions[0]?.label
                     : 'Multiple'
               }}
             </div>
@@ -249,7 +237,7 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
     </template>
     <RequestAuthDataTable
       :layout="layout"
-      :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
+      :selectedSchemeOptions="selectedSchemeOptions" />
     <DeleteRequestAuthModal
       :scheme="selectedScheme"
       :state="deleteSchemeModal"

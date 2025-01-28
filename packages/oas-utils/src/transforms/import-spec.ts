@@ -1,3 +1,4 @@
+import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility'
 import {
   type Collection,
   type CollectionPayload,
@@ -82,6 +83,25 @@ export const parseSchema = async (
     schema: (Array.isArray(schema) ? {} : schema) as OpenAPIV3_1.Document,
     errors: [...loadErrors, ...derefErrors],
   }
+}
+
+/** Converts selected security requirements to uids */
+export const getSelectedSecuritySchemeUids = (
+  securityRequirements: SelectedSecuritySchemeUids,
+  authentication: { preferredSecurityScheme?: string | null } | undefined,
+  securitySchemeMap: Record<string, string>,
+): SelectedSecuritySchemeUids => {
+  const name =
+    authentication?.preferredSecurityScheme &&
+    securityRequirements.includes(authentication.preferredSecurityScheme)
+      ? authentication.preferredSecurityScheme
+      : securityRequirements[0]
+
+  const uids = Array.isArray(name)
+    ? name.map((k) => securitySchemeMap[k])
+    : securitySchemeMap[name]
+
+  return [uids]
 }
 
 export type ImportSpecToWorkspaceArgs = Pick<
@@ -259,7 +279,7 @@ export async function importSpecToWorkspace(
     const methods = Object.keys(path).filter(isHttpMethod)
 
     methods.forEach((method) => {
-      const operation = path[method]
+      const operation: OpenAPIV3_1.OperationObject = path[method]
       const operationServers = serverSchema
         .array()
         .parse(operation.servers ?? [])
@@ -275,30 +295,24 @@ export async function importSpecToWorkspace(
         operation
 
       // Grab the security requirements for this operation
-      const securityRequirements = (
+      const securityRequirements: SelectedSecuritySchemeUids = (
         operationSecurity ??
         (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
         []
-      ).flatMap((s: OpenAPIV3_1.SecurityRequirementObject) => {
+      ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
         const keys = Object.keys(s)
-        if (keys.length) return keys[0]
-        else return []
+        return keys.length === 1 ? keys[0] : keys
       })
 
-      let selectedSecuritySchemeUids: string[] = []
-
       // Set the initially selected security scheme
-      if (securityRequirements.length && !setCollectionSecurity) {
-        const name =
-          authentication?.preferredSecurityScheme &&
-          securityRequirements.includes(
-            authentication.preferredSecurityScheme ?? '',
-          )
-            ? authentication.preferredSecurityScheme
-            : securityRequirements[0]
-        const uid = securitySchemeMap[name]
-        selectedSecuritySchemeUids = [uid]
-      }
+      const selectedSecuritySchemeUids =
+        securityRequirements.length && !setCollectionSecurity
+          ? getSelectedSecuritySchemeUids(
+              securityRequirements,
+              authentication,
+              securitySchemeMap,
+            )
+          : []
 
       const requestPayload: RequestPayload = {
         ...operationWithoutSecurity,
@@ -409,16 +423,25 @@ export async function importSpecToWorkspace(
 
   // ---------------------------------------------------------------------------
   // Generate Collection
-  const securityKeys = Object.keys(schema.security?.[0] ?? security ?? {})
-  let selectedSecuritySchemeUids: string[] = []
 
-  /** Selected security scheme UIDs for the collection, defaults to the first key */
-  if (setCollectionSecurity && securityKeys.length) {
-    const preferred = authentication?.preferredSecurityScheme || securityKeys[0]
-    const uid = securitySchemeMap[preferred]
+  // Grab the security requirements for this operation
+  const securityRequirements: SelectedSecuritySchemeUids = (
+    (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
+    Object.keys(security ?? {})
+  ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
+    const keys = Object.keys(s)
+    return keys.length === 1 ? keys[0] : keys
+  })
 
-    selectedSecuritySchemeUids = [uid]
-  }
+  // Set the initially selected security scheme
+  const selectedSecuritySchemeUids =
+    securityRequirements.length && setCollectionSecurity
+      ? getSelectedSecuritySchemeUids(
+          securityRequirements,
+          authentication,
+          securitySchemeMap,
+        )
+      : []
 
   const collection = collectionSchema.parse({
     ...schema,
