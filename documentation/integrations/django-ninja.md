@@ -1,4 +1,4 @@
-# How to set up a Django Ninja API Reference with Scalar
+# Scalar API Reference for Django Ninja
 
 Django Ninja is a simple way to create an API for Django and Scalar provides an easy way to generate a reference document and client for that API.
 
