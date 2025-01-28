@@ -382,7 +382,7 @@ export async function importSpecToWorkspace(
 
   // Add the request UIDs to the tag children (or collection root)
   requests.forEach((r) => {
-    if (r.tags) {
+    if (r.tags?.length) {
       r.tags.forEach((t) => {
         tagMap[t].children.push(r.uid)
       })
