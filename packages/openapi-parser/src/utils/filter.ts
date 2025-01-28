@@ -1,7 +1,11 @@
-import type { AnyApiDefinitionFormat, AnyObject, FilterResult } from '../types'
-import { getEntrypoint } from './getEntrypoint'
-import { makeFilesystem } from './makeFilesystem'
-import { traverse } from './traverse'
+import type {
+  AnyApiDefinitionFormat,
+  AnyObject,
+  FilterResult,
+} from '../types/index.ts'
+import { getEntrypoint } from './getEntrypoint.ts'
+import { makeFilesystem } from './makeFilesystem.ts'
+import { traverse } from './traverse.ts'
 
 export type FilterCallback = (schema: AnyObject) => boolean
 

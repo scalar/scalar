@@ -2,8 +2,8 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { stringify } from 'yaml'
 
-import { readFiles } from '../../plugins/read-files/readFiles'
-import { openapi } from './openapi'
+import { readFiles } from '../../plugins/read-files/readFiles.ts'
+import { openapi } from './openapi.ts'
 
 const example = {
   openapi: '3.1.0',

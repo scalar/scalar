@@ -7,7 +7,7 @@ import Fastify from 'fastify'
 import { beforeEach, describe, expect, it } from 'vitest'
 import YAML from 'yaml'
 
-import fastifyApiReference from './index'
+import fastifyApiReference from './index.ts'
 
 const authOptions: FastifyBasicAuthOptions = {
   validate(username, password, req, reply, done) {

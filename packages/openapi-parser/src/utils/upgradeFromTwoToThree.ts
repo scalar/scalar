@@ -1,7 +1,7 @@
 import type { OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { UnknownObject } from '@scalar/types/utils'
 
-import { traverse } from './traverse'
+import { traverse } from './traverse.ts'
 
 /**
  * Upgrade Swagger 2.0 to OpenAPI 3.0

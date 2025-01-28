@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { upgradeFromTwoToThree } from './upgradeFromTwoToThree'
+import { upgradeFromTwoToThree } from './upgradeFromTwoToThree.ts'
 
 describe('upgradeFromTwoToThree', () => {
   it('changes the version to from 3.0.0 to 3.1.0', async () => {

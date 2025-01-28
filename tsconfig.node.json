@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    /**
+     * @see https://www.totaltypescript.com/tsconfig-cheat-sheet#transpiling-with-typescript
+     */
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    /**
+     * @see https://www.totaltypescript.com/tsconfig-cheat-sheet#not-running-in-the-dom
+     */
+    // "lib": ["es2022"]
+    "allowImportingTsExtensions": true,
+    "noEmit": true
+  }
+}

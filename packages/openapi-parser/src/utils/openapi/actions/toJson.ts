@@ -1,7 +1,7 @@
-import type { Queue, Task } from '../../../types'
-import { getEntrypoint } from '../../getEntrypoint'
-import { toJson as toJsonUtility } from '../../toJson'
-import { workThroughQueue } from '../utils/workThroughQueue'
+import type { Queue, Task } from '../../../types/index.ts'
+import { getEntrypoint } from '../../getEntrypoint.ts'
+import { toJson as toJsonUtility } from '../../toJson.ts'
+import { workThroughQueue } from '../utils/workThroughQueue.ts'
 
 /**
  * Run the chained tasks and return the results

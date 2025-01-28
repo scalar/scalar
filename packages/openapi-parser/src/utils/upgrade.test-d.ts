@@ -1,7 +1,7 @@
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { describe, expectTypeOf, it } from 'vitest'
 
-import { upgrade } from './index'
+import { upgrade } from './upgrade.ts'
 
 describe('OpenAPI', () => {
   it('narrows it down to OpenAPI 3.1', () => {
