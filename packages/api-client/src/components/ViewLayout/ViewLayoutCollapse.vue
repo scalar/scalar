@@ -19,7 +19,8 @@ withDefaults(
   <Disclosure
     v-slot="{ open }"
     as="div"
-    class="focus-within:text-c-1 text-c-2 request-item border-b first:border-t"
+    class="focus-within:text-c-1 text-c-2 request-item border-b"
+    :class="{ 'first:border-t': layout === 'client' }"
     :defaultOpen="defaultOpen"
     :static="layout === 'reference'">
     <div class="bg-b-2 flex items-center">
