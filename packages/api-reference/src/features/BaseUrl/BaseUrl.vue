@@ -2,16 +2,17 @@
 import { AddressBarServer } from '@scalar/api-client/components/AddressBar'
 import { ServerVariablesForm } from '@scalar/api-client/components/Server'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
+import { ScalarMarkdown } from '@scalar/components'
 import { useId } from 'vue'
 
 defineProps<{
   layout: 'client' | 'reference'
-  target: string
 }>()
 
 const { activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
+const id = useId()
 const updateServerVariable = (key: string, value: string) => {
   if (!activeServer.value) return
 
@@ -22,13 +23,20 @@ const updateServerVariable = (key: string, value: string) => {
 }
 </script>
 <template>
-  <label class="bg-b-2 flex items-center h-8 px-3 py-2.5 text-sm">Server</label>
-  <div class="border-t text-sm">
+  <label class="bg-b-2 flex font-medium items-center h-8 px-3 py-2.5 text-sm"
+    >Server</label
+  >
+  <div :id="id">
     <AddressBarServer
       :layout="layout"
-      :target="target" />
-    <ServerVariablesForm
-      :variables="activeServer?.variables"
-      @update:variable="updateServerVariable" />
+      :target="id" />
   </div>
+  <ServerVariablesForm
+    :variables="activeServer?.variables"
+    @update:variable="updateServerVariable" />
+  <!-- Description -->
+  <ScalarMarkdown
+    v-if="activeServer?.description"
+    class="px-3 py-1.5 text-c-3"
+    :value="activeServer.description" />
 </template>
