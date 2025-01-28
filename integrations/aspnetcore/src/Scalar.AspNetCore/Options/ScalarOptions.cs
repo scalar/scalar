@@ -19,9 +19,10 @@ public sealed class ScalarOptions
     internal Func<HttpContext, CancellationToken, Task<IEnumerable<string>>>? DocumentNamesProvider { get; set; }
 
     /// <summary>
-    /// Metadata title.
+    /// Gets or sets the title of the HTML document.
     /// </summary>
     /// <value>The default value is <c>'Scalar API Reference'</c>.</value>
+    /// <remarks>Use the <c>{documentName}</c> placeholder to include the document name in the title.</remarks>
     public string? Title { get; set; } = "Scalar API Reference";
 
     /// <summary>
