@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.39
+
+### Patch Changes
+
+- 8d4ab54: fix: some missed layout changes
+
 ## 2.2.38
 
 ### Patch Changes
