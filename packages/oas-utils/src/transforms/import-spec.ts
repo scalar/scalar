@@ -1,3 +1,4 @@
+import type { SelectedSecuritySchemeUids } from '@/entities/shared/utility'
 import {
   type Collection,
   type CollectionPayload,
@@ -86,10 +87,10 @@ export const parseSchema = async (
 
 /** Converts selected security requirements to uids */
 export const getSelectedSecuritySchemeUids = (
-  securityRequirements: Collection['selectedSecuritySchemeUids'],
+  securityRequirements: SelectedSecuritySchemeUids,
   authentication: { preferredSecurityScheme?: string | null } | undefined,
   securitySchemeMap: Record<string, string>,
-): Collection['selectedSecuritySchemeUids'] => {
+): SelectedSecuritySchemeUids => {
   const name =
     authentication?.preferredSecurityScheme &&
     securityRequirements.includes(authentication.preferredSecurityScheme)
@@ -294,7 +295,7 @@ export async function importSpecToWorkspace(
         operation
 
       // Grab the security requirements for this operation
-      const securityRequirements: Collection['selectedSecuritySchemeUids'] = (
+      const securityRequirements: SelectedSecuritySchemeUids = (
         operationSecurity ??
         (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
         []
@@ -424,7 +425,7 @@ export async function importSpecToWorkspace(
   // Generate Collection
 
   // Grab the security requirements for this operation
-  const securityRequirements: Collection['selectedSecuritySchemeUids'] = (
+  const securityRequirements: SelectedSecuritySchemeUids = (
     (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
     Object.keys(security ?? {})
   ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {

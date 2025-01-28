@@ -3,6 +3,7 @@ import { getRequest } from '@/helpers/get-request'
 import { createRequestOperation } from '@scalar/api-client/libs'
 import type { WorkspaceStore } from '@scalar/api-client/store'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { type ComputedRef, computed } from 'vue'
 
@@ -116,20 +117,23 @@ export const useRequestExample = ({
   /** Generates an array of secrets we want to hide in the code block */
   const secretCredentials = computed(
     () =>
-      selectedSecuritySchemeUids.value?.flatMap((uid) => {
-        const scheme = securitySchemes[uid]
-        if (scheme?.type === 'apiKey') return scheme.value
-        if (scheme?.type === 'http')
-          return [
-            scheme.token,
-            scheme.password,
-            btoa(`${scheme.username}:${scheme.password}`),
-          ]
-        if (scheme?.type === 'oauth2')
-          return Object.values(scheme.flows).map((flow) => flow.token)
+      selectedSecuritySchemeUids.value
+        ?.flat()
+        .map((uid) => {
+          const scheme = securitySchemes[uid]
+          if (scheme?.type === 'apiKey') return scheme.value
+          if (scheme?.type === 'http')
+            return [
+              scheme.token,
+              scheme.password,
+              btoa(`${scheme.username}:${scheme.password}`),
+            ]
+          if (scheme?.type === 'oauth2')
+            return Object.values(scheme.flows).map((flow) => flow.token)
 
-        return []
-      }) ?? [],
+          return null
+        })
+        .filter(isDefined) ?? [],
   )
 
   return { request: httpRequest, secretCredentials }

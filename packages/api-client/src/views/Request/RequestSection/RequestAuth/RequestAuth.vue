@@ -18,7 +18,7 @@ import {
   ScalarIcon,
   useModal,
 } from '@scalar/components'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 
@@ -30,15 +30,13 @@ const {
   title,
   layout: propLayout = 'client',
 } = defineProps<{
-  selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids']
+  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   title: string
   layout?: 'client' | 'reference' | ClientLayout
 }>()
 
 const emit = defineEmits<{
-  'update:selectedSecuritySchemeUids': [
-    Collection['selectedSecuritySchemeUids'],
-  ]
+  'update:selectedSecuritySchemeUids': SelectedSecuritySchemeUids
 }>()
 
 const { layout: hookLayout } = useLayout()
@@ -94,9 +92,7 @@ const authIndicator = computed(() => {
 const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
     .map((s) => {
-      if (Array.isArray(s)) {
-        return formatComplexScheme(s, securitySchemes)
-      }
+      if (Array.isArray(s)) return formatComplexScheme(s, securitySchemes)
 
       const scheme = securitySchemes[s ?? '']
       if (!scheme) return undefined
@@ -126,7 +122,7 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   emit('update:selectedSecuritySchemeUids', _entries)
 }
 
-const editSelectedSchemeUids = (uids: string[]) => {
+const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   if (!activeCollection.value || !activeRequest.value) return
 
   // Set as selected on the collection for the modal

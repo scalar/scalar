@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { DataTable } from '@/components/DataTable'
 import type { ClientLayout } from '@/hooks'
-import { useWorkspace } from '@/store'
-import { displaySchemeFormatter } from '@/views/Request/libs'
 import { useModal } from '@scalar/components'
 import { computed, ref, watch } from 'vue'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
-import RequestExampleAuth from './RequestExampleAuth.vue'
+import RequestAuthTab from './RequestAuthTab.vue'
 
 const { selectedSchemeOptions = [], layout = 'client' } = defineProps<{
   selectedSchemeOptions: { id: string; label: string }[]
@@ -40,6 +38,7 @@ watch(
 </script>
 <template>
   <form @submit.prevent>
+    requestauthdatatable.vue
     <div
       v-if="selectedSchemeOptions.length > 1"
       class="border-t flex px-3 flex-wrap gap-x-2.5 overflow-hidden">
@@ -69,7 +68,7 @@ watch(
       class="flex-1"
       :class="layout === 'reference' && 'border-0'"
       :columns="['']">
-      <RequestExampleAuth :selectedSecuritySchemeUids="activeScheme" />
+      <RequestAuthTab :securitySchemeUids="activeScheme" />
     </DataTable>
 
     <div
