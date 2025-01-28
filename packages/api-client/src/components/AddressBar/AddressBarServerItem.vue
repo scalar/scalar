@@ -8,15 +8,24 @@ import { computed, useId } from 'vue'
 const props = defineProps<{
   serverOption: { id: string; label: string }
   type: 'collection' | 'request'
+  layout?: 'client' | 'reference'
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:variable', key: string, value: string): void
 }>()
 
 const formId = useId()
 
 const { activeCollection, activeRequest, activeServer } = useActiveEntities()
-const { collectionMutators, requestMutators, serverMutators } = useWorkspace()
+const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
-const updateSelectedServer = (serverUid: string) => {
+const updateSelectedServer = (serverUid: string, event?: Event) => {
+  if (hasVariables(serverUid) && props.layout !== 'reference') {
+    event?.stopPropagation()
+  }
+
   if (props.type === 'collection' && activeCollection.value) {
     // Clear the selected server on the request so that the collection can be updated
     if (activeRequest.value?.servers?.length) {
@@ -41,21 +50,20 @@ const isSelectedServer = computed(
   () => activeServer.value?.uid === props.serverOption.id,
 )
 
-const hasVariables = computed(
-  () =>
-    activeServer.value?.variables &&
-    Object.keys(activeServer.value.variables).length > 0,
+const hasVariables = (serverUid: string) => {
+  if (!serverUid) return false
+
+  const server = servers[serverUid]
+
+  return Object.keys(server?.variables ?? {}).length > 0
+}
+
+const isExpanded = computed(
+  () => isSelectedServer.value && hasVariables(activeServer.value?.uid ?? ''),
 )
 
-const isExpanded = computed(() => isSelectedServer.value && hasVariables.value)
-
 const updateServerVariable = (key: string, value: string) => {
-  if (!activeServer.value) return
-
-  const variables = activeServer.value.variables || {}
-  variables[key] = { ...variables[key], default: value }
-
-  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+  emit('update:variable', key, value)
 }
 </script>
 <template>
@@ -68,7 +76,7 @@ const updateServerVariable = (key: string, value: string) => {
       class="cursor-pointer rounded flex items-center gap-1.5 min-h-8 px-1.5"
       :class="isSelectedServer ? 'text-c-1 bg-b-2' : 'hover:bg-b-2'"
       type="button"
-      @click.stop="updateSelectedServer(serverOption.id)">
+      @click="(e) => updateSelectedServer(serverOption.id, e)">
       <ScalarListboxCheckbox :selected="isSelectedServer" />
       <span class="whitespace-nowrap text-ellipsis overflow-hidden">
         {{ serverOption.label }}
@@ -76,9 +84,10 @@ const updateServerVariable = (key: string, value: string) => {
     </button>
     <!-- Server variables -->
     <div
-      v-if="isExpanded"
+      v-if="isExpanded && layout !== 'reference'"
       :id="formId"
-      class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b">
+      class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b"
+      @click.stop>
       <ServerVariablesForm
         :variables="activeServer?.variables"
         @update:variable="updateServerVariable" />
