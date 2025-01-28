@@ -256,6 +256,30 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
 
         localFactory.Services.GetRequiredService<IOptions<ScalarOptions>>().Value.Theme.Should().Be(ScalarTheme.Mars);
     }
+    
+    [Fact]
+    public async Task MapScalarApiReference_ShouldReplaceDocumentNamePlaceholder_WhenOnlyOneDocumentWasAdded()
+    {
+        // Arrange
+        var localFactory = factory.WithWebHostBuilder(builder =>
+        {
+            builder.Configure(options =>
+            {
+                options.UseRouting();
+                options.UseEndpoints(endpoints => endpoints.MapScalarApiReference(o => o.Title = "Scalar API Reference | {documentName}")
+                );
+            });
+        });
+        var client = localFactory.CreateClient();
+
+        // Act
+        var response = await client.GetAsync("/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.ReplaceLineEndings().Should().Contain("<title>Scalar API Reference | v1</title>");
+    }
 
     [Fact]
     public async Task MapScalarApiReference_ShouldHandleLegacyEndpointPathPrefix_WhenSpecified()

@@ -167,6 +167,8 @@ public static class ScalarEndpointRouteBuilderExtensions
             var configuration = options.ToScalarConfiguration();
             var serializedConfiguration = JsonSerializer.Serialize(configuration, typeof(ScalarConfiguration), ScalarConfigurationSerializerContext.Default);
 
+            var title = options.DocumentNames.Count == 1 ? options.Title?.Replace(DocumentName, options.DocumentNames[0]) : options.Title;
+            
             // Workaround. Once we support multiple OpenAPI documents, we must update this.
             var documentUrl = configuration.Documents.First();
 
@@ -175,7 +177,7 @@ public static class ScalarEndpointRouteBuilderExtensions
                   <!doctype html>
                   <html>
                   <head>
-                      <title>{{options.Title}}</title>
+                      <title>{{title}}</title>
                       <meta charset="utf-8" />
                       <meta name="viewport" content="width=device-width, initial-scale=1" />
                       {{options.HeadContent}}
