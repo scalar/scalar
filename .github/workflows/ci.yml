@@ -258,6 +258,16 @@ jobs:
           # Select packages: @scalar
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  bust-cdn-cache:
+    needs: [npm-publish]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Bust CDN cache
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d
+        with:
+          url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
+          method: 'GET'
+
   todesktop-build:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
