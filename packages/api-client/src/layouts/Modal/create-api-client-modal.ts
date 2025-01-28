@@ -18,12 +18,15 @@ export const createApiClientModal = async ({
   'el' | 'configuration' | 'mountOnInitialize' | 'store'
 >) => {
   // Default sidebar to closed in the modal
-  configuration.showSidebar = false
+  const _configuration = {
+    ...configuration,
+    showSidebar: false,
+  }
 
   const client = createApiClient({
     el,
     appComponent: ApiClientModal,
-    configuration: configuration,
+    configuration: _configuration,
     persistData: false,
     isReadOnly: true,
     store,
