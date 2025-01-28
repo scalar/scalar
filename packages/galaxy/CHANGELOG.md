@@ -1,5 +1,11 @@
 # @scalar/galaxy
 
+## 0.2.18
+
+### Patch Changes
+
+- 702c386: feat: mark deletePlanet as experimental
+
 ## 0.2.17
 
 ### Patch Changes

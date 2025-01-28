@@ -1,5 +1,43 @@
 # @scalar/api-reference
 
+## 1.25.109
+
+### Patch Changes
+
+- 09dee7e: fix: jumping on initial load for big specs
+- 702c386: feat: add support for stability
+- a4ec7fa: refactor: use request entity for TestRequestButton
+- Updated dependencies [7a18a2d]
+- Updated dependencies [12e7232]
+- Updated dependencies [8b5d905]
+- Updated dependencies [b0d5511]
+- Updated dependencies [974234f]
+- Updated dependencies [776a4e2]
+- Updated dependencies [2ed681b]
+- Updated dependencies [6400bfc]
+- Updated dependencies [8665004]
+- Updated dependencies [4f12fe4]
+- Updated dependencies [702c386]
+- Updated dependencies [901970f]
+- Updated dependencies [6400bfc]
+- Updated dependencies [a4ec7fa]
+- Updated dependencies [5ab0663]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [5ab0663]
+- Updated dependencies [917214a]
+- Updated dependencies [f1f39b0]
+- Updated dependencies [776a4e2]
+- Updated dependencies [42b58bf]
+- Updated dependencies [2ed681b]
+  - @scalar/api-client@2.2.38
+  - @scalar/oas-utils@0.2.100
+  - @scalar/components@0.13.17
+  - @scalar/themes@0.9.62
+  - @scalar/types@0.0.28
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.16
+  - @scalar/openapi-parser@0.10.4
+
 ## 1.25.108
 
 ### Patch Changes
