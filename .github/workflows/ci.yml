@@ -263,7 +263,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Deploy Stage
-        uses: fjogeleit/http-request-action@v1
+        uses: fjogeleit/http-request-action@23ad54bcd1178fcff6a0d17538fa09de3a7f0a4d
         with:
           url: 'https://purge.jsdelivr.net/npm/@scalar/api-reference'
           method: 'GET'
