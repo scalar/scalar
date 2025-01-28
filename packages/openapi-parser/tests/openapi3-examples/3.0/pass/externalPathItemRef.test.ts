@@ -10,7 +10,8 @@ const EXAMPLE_FILE = path.join(
 )
 
 describe('externalPathItemRef', () => {
-  it('passes', async () => {
+  // TODO: We don’t want this behaviour in the new parser.
+  it.skip('passes', async () => {
     const { filesystem } = await load(EXAMPLE_FILE, {
       plugins: [readFiles()],
     })
