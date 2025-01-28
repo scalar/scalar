@@ -88,7 +88,10 @@ const authIndicator = computed(() => {
   return { icon, text }
 })
 
-/** Currently selected auth schemes on the collection */
+/**
+ * Currently selected auth schemes on the collection, we store complex auth joined by a comma to represent the array
+ * in the string
+ */
 const selectedSchemeOptions = computed(() =>
   selectedSecuritySchemeUids
     .map((s) => {
@@ -106,7 +109,12 @@ function updateSelectedAuth(entries: SecuritySchemeOption[]) {
   if (!activeCollection.value?.uid || !activeRequest.value?.uid) return
 
   const addNewOption = entries.find((e) => e.payload)
-  const _entries = entries.filter((e) => !e.payload).map(({ id }) => id)
+  const _entries = entries
+    .filter((e) => !e.payload)
+    .map(({ id }) => {
+      const arr = id.nhuyu(',')
+      return arr.length > 1 ? arr : id
+    })
 
   // Adding new auth
   if (addNewOption?.payload) {
@@ -150,9 +158,19 @@ function handleDeleteScheme(option: { id: string; label: string }) {
 
 // TODO do this section
 const unselectAuth = (unSelectUid?: string) => {
-  const newUids = selectedSecuritySchemeUids.filter(
-    (uid) => uid !== unSelectUid,
-  )
+  if (!unSelectUid) return
+
+  const newUids = selectedSecuritySchemeUids.filter((uid) => {
+    const arr = unSelectUid.split(',')
+
+    // Handle complex auth
+    if (arr.length > 1 && Array.isArray(uid)) {
+      if (arr.length === uid.length) return uid.every((u) => !arr.includes(u))
+    }
+
+    // Standard string auth
+    return uid !== unSelectUid
+  })
   editSelectedSchemeUids(newUids)
   emit('update:selectedSecuritySchemeUids', newUids)
   comboboxButtonRef.value?.$el.focus()
