@@ -1,5 +1,13 @@
 # @scalar/play-button
 
+## 0.2.187
+
+### Patch Changes
+
+- Updated dependencies [6636051]
+  - @scalar/api-client@2.2.40
+  - @scalar/api-reference@1.25.111
+
 ## 0.2.186
 
 ### Patch Changes

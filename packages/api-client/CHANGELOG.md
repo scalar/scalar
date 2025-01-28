@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.40
+
+### Patch Changes
+
+- 6636051: Add requests to the children of collections, so they'll be shown in the client
+
 ## 2.2.39
 
 ### Patch Changes
