@@ -319,12 +319,23 @@ const updateActiveBody = (type: Content) => {
     }
   }
   // Add header if doesn't have one
-  else if (header)
-    headers.push({
-      key: 'Content-Type',
-      value: header,
-      enabled: true,
-    })
+  else if (header) {
+    const lastHeader = headers[headers.length - 1]
+    // Add header before last if empty to prevent empty row duplication
+    if (lastHeader && lastHeader.key === '' && lastHeader.value === '') {
+      headers.splice(headers.length - 1, 0, {
+        key: 'Content-Type',
+        value: header,
+        enabled: true,
+      })
+    } else {
+      headers.push({
+        key: 'Content-Type',
+        value: header,
+        enabled: true,
+      })
+    }
+  }
 
   requestExampleMutators.edit(
     activeExample.value.uid,
