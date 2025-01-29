@@ -60,8 +60,9 @@ jobs:
 
             Please look at the screenshots to review the changes.
           title: 'test(api-reference): update CDN snapshots'
-          branch: update-cdn-snapshots-${{ github.run_id }}
+          branch: update-cdn-snapshots
           base: main
+          delete-branch: true
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         if: ${{ failure() && github.event_name == 'pull_request'}}
