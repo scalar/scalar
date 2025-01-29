@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { BaseUrl } from '@/features/BaseUrl'
 import { useActiveEntities } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
-import type { Server, Spec } from '@scalar/types/legacy'
+import type { Spec } from '@scalar/types/legacy'
 import { computed } from 'vue'
 
-import { BaseUrl } from '../../features/BaseUrl'
 import { getModels, hasModels } from '../../helpers'
 import { useSidebar } from '../../hooks'
 import { ClientLibraries } from './ClientLibraries'
@@ -19,8 +19,6 @@ const props = withDefaults(
   defineProps<{
     parsedSpec: Spec
     layout?: 'modern' | 'classic'
-    baseServerURL?: string
-    servers?: Server[]
   }>(),
   {
     layout: 'modern',
@@ -61,11 +59,11 @@ const introCardsSlot = computed(() =>
           <div
             class="introduction-card"
             :class="{ 'introduction-card-row': layout === 'classic' }">
-            <BaseUrl
-              class="introduction-card-item"
-              :defaultServerUrl="baseServerURL"
-              :servers="props.servers"
-              :specification="parsedSpec" />
+            <div
+              v-if="activeCollection?.servers?.length"
+              class="scalar-client introduction-card-item [--scalar-address-bar-height:0px] divide-y text-sm">
+              <BaseUrl layout="reference" />
+            </div>
             <div class="scalar-client introduction-card-item">
               <RequestAuth
                 layout="reference"

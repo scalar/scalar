@@ -43,6 +43,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./views/Servers": {
+      "import": "./dist/views/Servers/index.js",
+      "types": "./dist/views/Servers/index.d.ts",
+      "default": "./dist/views/Servers/index.js"
+    },
     "./views/Request/types": {
       "import": "./dist/views/Request/types/index.js",
       "types": "./dist/views/Request/types/index.d.ts",
@@ -132,6 +137,11 @@
       "import": "./dist/components/Sidebar/index.js",
       "types": "./dist/components/Sidebar/index.d.ts",
       "default": "./dist/components/Sidebar/index.js"
+    },
+    "./components/Server": {
+      "import": "./dist/components/Server/index.js",
+      "types": "./dist/components/Server/index.d.ts",
+      "default": "./dist/components/Server/index.js"
     },
     "./components/ImportCollection": {
       "import": "./dist/components/ImportCollection/index.js",

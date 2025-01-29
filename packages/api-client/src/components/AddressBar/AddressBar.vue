@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import { ServerDropdown } from '@/components/Server'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
@@ -10,7 +11,6 @@ import { ref, useId, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
-import AddressBarServers from './AddressBarServer.vue'
 
 defineEmits<{
   (e: 'importCurl', value: string): void
@@ -151,8 +151,11 @@ function updateRequestPath(url: string) {
         <div
           class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full">
           <!-- Servers -->
-          <AddressBarServers
+          <ServerDropdown
             v-if="activeCollection?.servers?.length"
+            :collection="activeCollection"
+            :operation="activeRequest"
+            :server="activeServer"
             :target="id" />
 
           <div class="fade-left"></div>

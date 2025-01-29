@@ -1,3 +1,1 @@
-import AddressBar from './AddressBar.vue'
-
-export { AddressBar }
+export { default as AddressBar } from './AddressBar.vue'

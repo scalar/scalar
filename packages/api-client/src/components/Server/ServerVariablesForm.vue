@@ -42,7 +42,7 @@ const getVariable = (name: string) => {
         <template v-if="variables?.[name]?.enum?.length">
           <ServerVariablesSelect
             :controls="controls"
-            :enum="variables[name]?.enum?.map((v) => String(v)) ?? []"
+            :enum="variables[name]?.enum?.map((v) => `${v}`) ?? []"
             :label="name"
             :value="getVariable(name)"
             @change="(s) => setVariable(name, s)" />

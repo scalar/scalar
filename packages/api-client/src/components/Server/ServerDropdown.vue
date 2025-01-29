@@ -1,29 +1,37 @@
 <script setup lang="ts">
-import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdownDivider,
   ScalarFloatingBackdrop,
   ScalarIcon,
   ScalarPopover,
+  cva,
+  cx,
 } from '@scalar/components'
+import type {
+  Collection,
+  Request as Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { computed, watch } from 'vue'
 
-import AddressBarServerItem from './AddressBarServerItem.vue'
+import ServerDropdownItem from './ServerDropdownItem.vue'
 
-defineProps<{
+const { target, layout, collection, operation, server } = defineProps<{
+  collection: Collection
+  operation?: Operation
+  server: Server | undefined
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
+  /** The layout of the popover */
+  layout?: 'client' | 'reference'
 }>()
 
-const { activeRequest, activeCollection, activeServer } = useActiveEntities()
-const { servers, collectionMutators, events } = useWorkspace()
-const { layout } = useLayout()
+const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
-  activeRequest.value?.servers?.map((serverUid: string) => ({
+  operation?.servers?.map((serverUid: string) => ({
     id: serverUid,
     label: servers[serverUid]?.url ?? 'Unknown server',
   })),
@@ -31,10 +39,8 @@ const requestServerOptions = computed(() =>
 
 const collectionServerOptions = computed(() =>
   // Filters out servers already present in the request
-  activeCollection.value?.servers
-    ?.filter(
-      (serverUid: string) => !activeRequest.value?.servers?.includes(serverUid),
-    )
+  collection?.servers
+    ?.filter((serverUid: string) => !operation?.servers?.includes(serverUid))
     .map((serverUid: string) => ({
       id: serverUid,
       label: servers[serverUid]?.url ?? 'Unknown server',
@@ -48,8 +54,12 @@ const showDropdownLabels = computed(
 )
 
 // Ensure we always have a selected server
-watch([activeCollection, activeRequest], ([collection, request]) => {
-  if (!collection || collection.selectedServerUid || request?.selectedServerUid)
+watch([() => collection, () => operation], ([newCollection, newOperation]) => {
+  if (
+    !newCollection ||
+    newCollection.selectedServerUid ||
+    newOperation?.selectedServerUid
+  )
     return
 
   const firstServer = collection.servers?.[0]
@@ -66,47 +76,85 @@ const handleAddServer = () =>
   })
 
 const serverUrlWithoutTrailingSlash = computed(() => {
-  if (activeServer.value?.url?.endsWith('/')) {
-    return activeServer.value.url.slice(0, -1)
+  if (server?.url?.endsWith('/')) {
+    return server.url.slice(0, -1)
   }
-  return activeServer.value?.url || ''
+  return server?.url || ''
+})
+
+const updateServerVariable = (key: string, value: string) => {
+  if (!server) return
+
+  const variables = server.variables || {}
+  variables[key] = { ...variables[key], default: value }
+
+  serverMutators.edit(server.uid, 'variables', variables)
+}
+
+// Define variants for the button
+const buttonVariants = cva({
+  base: 'gap-0.75 z-context-plus lg:text-sm text-xs whitespace-nowrap px-1.5 h-6.5',
+  variants: {
+    reference: {
+      true: '!font-normal justify-start px-3 py-1.5 rounded-b-lg text-c-1 w-full',
+      false: 'border hover:bg-b-2 font-code ml-0.75 rounded text-c-2',
+    },
+  },
 })
 </script>
 <template>
   <ScalarPopover
     class="max-h-[inherit] p-0 text-sm"
-    :offset="0"
+    :offset="layout === 'reference' ? 6 : 0"
     placement="bottom-start"
     resize
     :target="target"
     :teleport="`#${target}`">
     <ScalarButton
-      class="font-code z-context-plus lg:text-sm text-xs whitespace-nowrap border ml-0.75 rounded px-1.5 h-6.5 text-c-2 hover:bg-b-2"
+      :class="cx(buttonVariants({ reference: layout === 'reference' }))"
       variant="ghost">
       <span class="sr-only">Server:</span>
       {{ serverUrlWithoutTrailingSlash }}
+
+      <ScalarIcon
+        v-if="layout === 'reference'"
+        class="text-c-2"
+        icon="ChevronDown"
+        size="sm" />
     </ScalarButton>
-    <template #popover>
+    <template #popover="{ close }">
       <div
-        class="custom-scroll flex border-t p-1 flex-col gap-1 max-h-[inherit]">
+        class="custom-scroll flex p-1 flex-col gap-1 max-h-[inherit]"
+        :class="layout !== 'reference' && 'border-t'"
+        @click="close">
         <!-- Request -->
-        <AddressBarServerItem
+        <ServerDropdownItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
+          :collection="collection"
+          :layout="layout"
+          :operation="operation"
+          :server="server"
           :serverOption="serverOption"
-          type="request" />
+          type="request"
+          @update:variable="updateServerVariable" />
         <template v-if="showDropdownLabels">
           <ScalarDropdownDivider />
           <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
         </template>
         <!-- Collection -->
-        <AddressBarServerItem
+        <ServerDropdownItem
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
+          :collection="collection"
+          :layout="layout"
+          :operation="operation"
+          :server="server"
           :serverOption="serverOption"
-          type="collection" />
+          type="collection"
+          @update:variable="updateServerVariable" />
         <!-- Add Server -->
-        <template v-if="layout !== 'modal'">
+        <template v-if="layout !== 'reference'">
           <button
             class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
             type="button"
