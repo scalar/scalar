@@ -85,12 +85,12 @@ const handleCreateWorkspace = () => {
             :class="
               activeWorkspace?.uid === uid
                 ? 'bg-c-accent text-b-1'
-                : 'group-hover/item:shadow-border text-transparent'
+                : 'shadow-border text-transparent'
             ">
             <ScalarIcon
               class="size-2.5"
               icon="Checkmark"
-              thickness="3.5" />
+              thickness="3" />
           </div>
           <span class="text-ellipsis overflow-hidden">{{
             workspace.name

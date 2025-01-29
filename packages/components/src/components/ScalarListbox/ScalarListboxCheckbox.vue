@@ -11,15 +11,14 @@ defineProps<{
   <div
     class="flex size-4 items-center justify-center p-0.75"
     :class="[
-      selected
-        ? 'bg-c-accent text-b-1'
-        : 'text-transparent group-hover/item:shadow-border',
+      selected ? 'bg-c-accent text-b-1' : 'text-transparent shadow-border',
       style === 'checkbox' ? 'rounded' : 'rounded-full',
     ]">
     <!-- Icon needs help to be optically centered (╥﹏╥) -->
     <ScalarIcon
-      class="relative top-[0.5px] size-2.5"
+      v-if="selected"
+      class="relative top-[0.5px] size-3"
       icon="Checkmark"
-      thickness="2.5" />
+      thickness="3" />
   </div>
 </template>

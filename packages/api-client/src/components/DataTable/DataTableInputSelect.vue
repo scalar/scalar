@@ -146,12 +146,12 @@ const updateSelectedOptions = (selectedOptions: any) => {
               :class="
                 isSelected(option)
                   ? 'bg-c-accent text-b-1'
-                  : 'group-hover/item:shadow-border text-transparent'
+                  : 'shadow-border text-transparent'
               ">
               <ScalarIcon
                 class="size-2.5"
                 icon="Checkmark"
-                thickness="3.5" />
+                thickness="3" />
             </div>
             {{ option }}
           </ScalarDropdownItem>
