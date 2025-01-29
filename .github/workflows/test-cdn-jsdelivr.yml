@@ -54,7 +54,6 @@ jobs:
         uses: peter-evans/create-pull-request@67ccf781d68cd99b580ae25a5c18a1cc84ffff1f
         with:
           commit-message: 'test: update CDN API Reference snapshots'
-          committer: Tom Mastromonaco <tom@scalar.com>
           body: |
             This PR was automatically created to update the snapshots for the CDN build hosted on jsdelivr.
 
@@ -63,6 +62,7 @@ jobs:
           branch: update-cdn-snapshots
           base: main
           delete-branch: true
+          reviewers: amritk, antlio, cameronrohani, geoffgscott, hanspagel, marclave
       - name: Comment on PR with report link
         uses: thollander/actions-comment-pull-request@fabd468d3a1a0b97feee5f6b9e499eab0dd903f6
         if: ${{ failure() && github.event_name == 'pull_request'}}
