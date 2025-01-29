@@ -1,19 +1,29 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, cva, cx } from '@scalar/components'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 
 const { colorMode, setColorMode } = useColorMode()
+
+const buttonStyles = cva({
+  base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
+  variants: {
+    active: {
+      true: 'bg-primary text-c-1 hover:bg-inherit',
+      false: 'bg-b-1',
+    },
+  },
+})
 </script>
 <template>
   <div class="flex flex-col gap-2">
     <ScalarButton
-      :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        colorMode === 'system' ? 'bg-b-2 text-c-1' : 'bg-b-1',
-      ]"
+      :class="cx(buttonStyles({ active: colorMode === 'system' }))"
       @click="setColorMode('system')">
       <div
-        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+        :class="{
+          'bg-c-accent border-transparent text-b-1': colorMode === 'system',
+        }">
         <ScalarIcon
           v-if="colorMode === 'system'"
           icon="Checkmark"
@@ -23,13 +33,13 @@ const { colorMode, setColorMode } = useColorMode()
       System Preference (default)
     </ScalarButton>
     <ScalarButton
-      :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
-        colorMode === 'light' ? 'bg-b-2 text-c-1' : 'bg-b-1',
-      ]"
+      :class="cx(buttonStyles({ active: colorMode === 'light' }))"
       @click="setColorMode('light')">
       <div
-        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+        :class="{
+          'bg-c-accent border-transparent text-b-1': colorMode === 'light',
+        }">
         <ScalarIcon
           v-if="colorMode === 'light'"
           icon="Checkmark"
@@ -39,13 +49,13 @@ const { colorMode, setColorMode } = useColorMode()
       Light Mode Always
     </ScalarButton>
     <ScalarButton
-      :class="[
-        'w-full shadow-none text-c-1 justify-start pl-2 gap-2 mb-8 border-1/2',
-        colorMode === 'dark' ? 'bg-b-2 text-c-1' : 'bg-b-1',
-      ]"
+      :class="cx(buttonStyles({ active: colorMode === 'dark' }))"
       @click="setColorMode('dark')">
       <div
-        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+        class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+        :class="{
+          'bg-c-accent border-transparent text-b-1': colorMode === 'dark',
+        }">
         <ScalarIcon
           v-if="colorMode === 'dark'"
           icon="Checkmark"
