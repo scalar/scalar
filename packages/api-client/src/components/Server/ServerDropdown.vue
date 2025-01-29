@@ -12,7 +12,7 @@ import {
 } from '@scalar/components'
 import { computed, watch } from 'vue'
 
-import AddressBarServerItem from './AddressBarServerItem.vue'
+import ServerDropdownItem from './ServerDropdownItem.vue'
 
 defineProps<{
   /** The id of the target to use for the popover (e.g. address bar) */
@@ -120,7 +120,7 @@ const buttonVariants = cva({
         :class="layout !== 'reference' && 'border-t'"
         @click="close">
         <!-- Request -->
-        <AddressBarServerItem
+        <ServerDropdownItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
           :layout="layout"
@@ -132,7 +132,7 @@ const buttonVariants = cva({
           <div class="text-xxs text-c-2 px-2.5 py-1">Collection</div>
         </template>
         <!-- Collection -->
-        <AddressBarServerItem
+        <ServerDropdownItem
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
           :layout="layout"

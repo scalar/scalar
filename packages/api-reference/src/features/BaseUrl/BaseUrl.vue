@@ -1,6 +1,8 @@
 <script lang="ts" setup>
-import { AddressBarServer } from '@scalar/api-client/components/AddressBar'
-import { ServerVariablesForm } from '@scalar/api-client/components/Server'
+import {
+  ServerDropdown,
+  ServerVariablesForm,
+} from '@scalar/api-client/components/Server'
 import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarMarkdown } from '@scalar/components'
 import { useId } from 'vue'
@@ -23,11 +25,11 @@ const updateServerVariable = (key: string, value: string) => {
 }
 </script>
 <template>
-  <label class="bg-b-2 flex font-medium items-center h-8 px-3 py-2.5 text-sm"
-    >Server</label
-  >
+  <label class="bg-b-2 flex font-medium items-center h-8 px-3 py-2.5 text-sm">
+    Server
+  </label>
   <div :id="id">
-    <AddressBarServer
+    <ServerDropdown
       :layout="layout"
       :target="id" />
   </div>
