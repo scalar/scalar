@@ -2,7 +2,7 @@
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
+import { ScalarButton, ScalarIcon, cva, cx } from '@scalar/components'
 import {
   type IntegrationThemeId,
   type ThemeId,
@@ -59,6 +59,16 @@ const getThemeColors = (
 const changeTheme = (themeId: ThemeId) => {
   workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'themeId', themeId)
 }
+
+const buttonStyles = cva({
+  base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
+  variants: {
+    active: {
+      true: 'bg-primary text-c-1 hover:bg-inherit',
+      false: 'bg-b-1 hover:bg-b-2',
+    },
+  },
+})
 </script>
 <template>
   <div class="bg-b-1 w-full h-full overflow-auto">
@@ -94,15 +104,12 @@ const changeTheme = (themeId: ThemeId) => {
           <div class="flex flex-col gap-2">
             <!-- Default proxy -->
             <ScalarButton
-              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              :class="{
-                'bg-b-2 text-c-1':
-                  activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
-              }"
-              :variant="
-                activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL
-                  ? 'primary'
-                  : 'secondary'
+              :class="
+                cx(
+                  buttonStyles({
+                    active: activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
+                  }),
+                )
               "
               @click="
                 workspaceMutators.edit(
@@ -112,7 +119,11 @@ const changeTheme = (themeId: ThemeId) => {
                 )
               ">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                :class="{
+                  'bg-c-accent border-transparent text-b-1':
+                    activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
+                }">
                 <ScalarIcon
                   v-if="activeWorkspace.proxyUrl === DEFAULT_PROXY_URL"
                   icon="Checkmark"
@@ -125,8 +136,13 @@ const changeTheme = (themeId: ThemeId) => {
             <!-- Custom proxy (only if configured) -->
             <ScalarButton
               v-if="proxyUrl && proxyUrl !== DEFAULT_PROXY_URL"
-              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              variant="primary"
+              :class="
+                cx(
+                  buttonStyles({
+                    active: activeWorkspace?.proxyUrl === proxyUrl,
+                  }),
+                )
+              "
               @click="
                 workspaceMutators.edit(
                   activeWorkspace?.uid ?? '',
@@ -135,7 +151,11 @@ const changeTheme = (themeId: ThemeId) => {
                 )
               ">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                :class="{
+                  'bg-c-accent border-transparent text-b-1':
+                    activeWorkspace?.proxyUrl === proxyUrl,
+                }">
                 <ScalarIcon
                   v-if="activeWorkspace.proxyUrl === proxyUrl"
                   icon="Checkmark"
@@ -147,9 +167,7 @@ const changeTheme = (themeId: ThemeId) => {
 
             <!-- No proxy -->
             <ScalarButton
-              class="w-full shadow-none text-c-1 justify-start pl-2 gap-2 bg-b-1 border-1/2"
-              :class="{ 'bg-b-2 text-c-1': !activeWorkspace?.proxyUrl }"
-              :variant="!activeWorkspace?.proxyUrl ? 'primary' : 'secondary'"
+              :class="cx(buttonStyles({ active: !activeWorkspace?.proxyUrl }))"
               @click="
                 workspaceMutators.edit(
                   activeWorkspace?.uid ?? '',
@@ -158,7 +176,11 @@ const changeTheme = (themeId: ThemeId) => {
                 )
               ">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
+                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                :class="
+                  !activeWorkspace?.proxyUrl &&
+                  'bg-c-accent border-transparent text-b-1'
+                ">
                 <ScalarIcon
                   v-if="!activeWorkspace?.proxyUrl"
                   icon="Checkmark"
@@ -182,26 +204,26 @@ const changeTheme = (themeId: ThemeId) => {
               <ScalarButton
                 v-for="themeId in themeIds"
                 :key="themeId"
-                class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
-                :class="[
-                  activeWorkspace?.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
-                ]"
-                variant="ghost"
+                :class="
+                  cx(
+                    buttonStyles({
+                      active: activeWorkspace?.themeId === themeId,
+                    }),
+                  )
+                "
                 @click="changeTheme(themeId)">
                 <div class="flex items-center gap-2">
                   <div
-                    class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-c-3"
+                    class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
                     :class="{
-                      'bg-primary': activeWorkspace?.themeId === themeId,
+                      'bg-c-accent border-transparent text-b-1':
+                        activeWorkspace?.themeId === themeId,
                     }">
-                    <div
-                      class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
-                      <ScalarIcon
-                        v-if="activeWorkspace?.themeId === themeId"
-                        icon="Checkmark"
-                        size="xs"
-                        thickness="3.5" />
-                    </div>
+                    <ScalarIcon
+                      v-if="activeWorkspace?.themeId === themeId"
+                      icon="Checkmark"
+                      size="xs"
+                      thickness="3.5" />
                   </div>
                   {{ themeLabels[themeId] }}
                 </div>
@@ -242,26 +264,26 @@ const changeTheme = (themeId: ThemeId) => {
             <ScalarButton
               v-for="themeId in integrationThemeIds"
               :key="themeId"
-              class="px-2 flex items-center justify-between gap-2 text-c-1 border-1/2"
-              :class="[
-                activeWorkspace?.themeId === themeId ? 'bg-b-2' : 'bg-b-1',
-              ]"
-              variant="ghost"
+              :class="
+                cx(
+                  buttonStyles({
+                    active: activeWorkspace?.themeId === themeId,
+                  }),
+                )
+              "
               @click="changeTheme(themeId)">
               <div class="flex items-center gap-2">
                 <div
-                  class="flex items-center justify-center w-5 h-5 rounded-full border-2 border-c-3"
+                  class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
                   :class="{
-                    'bg-primary': activeWorkspace?.themeId === themeId,
+                    'bg-c-accent border-transparent text-b-1':
+                      activeWorkspace?.themeId === themeId,
                   }">
-                  <div
-                    class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1">
-                    <ScalarIcon
-                      v-if="activeWorkspace?.themeId === themeId"
-                      icon="Checkmark"
-                      size="xs"
-                      thickness="3.5" />
-                  </div>
+                  <ScalarIcon
+                    v-if="activeWorkspace?.themeId === themeId"
+                    icon="Checkmark"
+                    size="xs"
+                    thickness="3.5" />
                 </div>
                 {{ themeLabels[themeId] }}
               </div>
