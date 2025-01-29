@@ -11,7 +11,7 @@ defineProps<{
   layout: 'client' | 'reference'
 }>()
 
-const { activeServer } = useActiveEntities()
+const { activeCollection, activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
 const id = useId()
@@ -30,7 +30,10 @@ const updateServerVariable = (key: string, value: string) => {
   </label>
   <div :id="id">
     <ServerDropdown
+      v-if="activeCollection?.servers?.length"
+      :collection="activeCollection"
       :layout="layout"
+      :server="activeServer"
       :target="id" />
   </div>
   <ServerVariablesForm

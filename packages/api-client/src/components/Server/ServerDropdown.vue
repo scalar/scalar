@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdownDivider,
@@ -10,22 +9,29 @@ import {
   cva,
   cx,
 } from '@scalar/components'
+import type {
+  Collection,
+  Request as Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { computed, watch } from 'vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
-defineProps<{
+const { target, layout, collection, operation, server } = defineProps<{
+  collection: Collection
+  operation?: Operation
+  server: Server | undefined
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
   /** The layout of the popover */
   layout?: 'client' | 'reference'
 }>()
 
-const { activeRequest, activeCollection, activeServer } = useActiveEntities()
 const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
-  activeRequest.value?.servers?.map((serverUid: string) => ({
+  operation?.servers?.map((serverUid: string) => ({
     id: serverUid,
     label: servers[serverUid]?.url ?? 'Unknown server',
   })),
@@ -33,10 +39,8 @@ const requestServerOptions = computed(() =>
 
 const collectionServerOptions = computed(() =>
   // Filters out servers already present in the request
-  activeCollection.value?.servers
-    ?.filter(
-      (serverUid: string) => !activeRequest.value?.servers?.includes(serverUid),
-    )
+  collection?.servers
+    ?.filter((serverUid: string) => !operation?.servers?.includes(serverUid))
     .map((serverUid: string) => ({
       id: serverUid,
       label: servers[serverUid]?.url ?? 'Unknown server',
@@ -50,8 +54,12 @@ const showDropdownLabels = computed(
 )
 
 // Ensure we always have a selected server
-watch([activeCollection, activeRequest], ([collection, request]) => {
-  if (!collection || collection.selectedServerUid || request?.selectedServerUid)
+watch([() => collection, () => operation], ([newCollection, newOperation]) => {
+  if (
+    !newCollection ||
+    newCollection.selectedServerUid ||
+    newOperation?.selectedServerUid
+  )
     return
 
   const firstServer = collection.servers?.[0]
@@ -68,19 +76,19 @@ const handleAddServer = () =>
   })
 
 const serverUrlWithoutTrailingSlash = computed(() => {
-  if (activeServer.value?.url?.endsWith('/')) {
-    return activeServer.value.url.slice(0, -1)
+  if (server?.url?.endsWith('/')) {
+    return server.url.slice(0, -1)
   }
-  return activeServer.value?.url || ''
+  return server?.url || ''
 })
 
 const updateServerVariable = (key: string, value: string) => {
-  if (!activeServer.value) return
+  if (!server) return
 
-  const variables = activeServer.value.variables || {}
+  const variables = server.variables || {}
   variables[key] = { ...variables[key], default: value }
 
-  serverMutators.edit(activeServer.value.uid, 'variables', variables)
+  serverMutators.edit(server.uid, 'variables', variables)
 }
 
 // Define variants for the button
@@ -123,7 +131,10 @@ const buttonVariants = cva({
         <ServerDropdownItem
           v-for="serverOption in requestServerOptions"
           :key="serverOption.id"
+          :collection="collection"
           :layout="layout"
+          :operation="operation"
+          :server="server"
           :serverOption="serverOption"
           type="request"
           @update:variable="updateServerVariable" />
@@ -135,7 +146,10 @@ const buttonVariants = cva({
         <ServerDropdownItem
           v-for="serverOption in collectionServerOptions"
           :key="serverOption.id"
+          :collection="collection"
           :layout="layout"
+          :operation="operation"
+          :server="server"
           :serverOption="serverOption"
           type="collection"
           @update:variable="updateServerVariable" />

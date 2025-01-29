@@ -153,6 +153,9 @@ function updateRequestPath(url: string) {
           <!-- Servers -->
           <ServerDropdown
             v-if="activeCollection?.servers?.length"
+            :collection="activeCollection"
+            :operation="activeRequest"
+            :server="activeServer"
             :target="id" />
 
           <div class="fade-left"></div>

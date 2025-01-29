@@ -1,11 +1,18 @@
 <script setup lang="ts">
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { ScalarListboxCheckbox, ScalarMarkdown } from '@scalar/components'
+import type {
+  Collection,
+  Request as Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { computed, useId } from 'vue'
 
 const props = defineProps<{
+  collection: Collection
+  operation: Operation | undefined
+  server: Server | undefined
   serverOption: { id: string; label: string }
   type: 'collection' | 'request'
   layout?: 'client' | 'reference'
@@ -17,7 +24,6 @@ const emit = defineEmits<{
 
 const formId = useId()
 
-const { activeCollection, activeRequest, activeServer } = useActiveEntities()
 const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
@@ -26,28 +32,27 @@ const updateSelectedServer = (serverUid: string, event?: Event) => {
     event?.stopPropagation()
   }
 
-  if (props.type === 'collection' && activeCollection.value) {
+  // Set selected server on Collection
+  if (props.type === 'collection' && props.collection) {
     // Clear the selected server on the request so that the collection can be updated
-    if (activeRequest.value?.servers?.length) {
-      activeRequest.value.selectedServerUid = ''
+    if (props.operation?.servers?.length) {
+      requestMutators.edit(props.operation.uid, 'selectedServerUid', '')
     }
     collectionMutators.edit(
-      activeCollection.value.uid,
+      props.collection.uid,
       'selectedServerUid',
       serverUid,
     )
-  } else if (props.type === 'request' && activeRequest.value) {
-    requestMutators.edit(
-      activeRequest.value.uid,
-      'selectedServerUid',
-      serverUid,
-    )
+  }
+  // Set on the operation
+  else if (props.type === 'request' && props.operation) {
+    requestMutators.edit(props.operation.uid, 'selectedServerUid', serverUid)
   }
 }
 
 /** Set server checkbox in the dropdown */
 const isSelectedServer = computed(
-  () => activeServer.value?.uid === props.serverOption.id,
+  () => props.server?.uid === props.serverOption.id,
 )
 
 const hasVariables = (serverUid: string) => {
@@ -59,7 +64,7 @@ const hasVariables = (serverUid: string) => {
 }
 
 const isExpanded = computed(
-  () => isSelectedServer.value && hasVariables(activeServer.value?.uid ?? ''),
+  () => isSelectedServer.value && hasVariables(props.server?.uid ?? ''),
 )
 
 const updateServerVariable = (key: string, value: string) => {
@@ -89,12 +94,12 @@ const updateServerVariable = (key: string, value: string) => {
       class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b"
       @click.stop>
       <ServerVariablesForm
-        :variables="activeServer?.variables"
+        :variables="server?.variables"
         @update:variable="updateServerVariable" />
       <!-- Description -->
-      <div v-if="activeServer?.description">
+      <div v-if="server?.description">
         <div class="description px-3 py-1.5 text-c-3">
-          <ScalarMarkdown :value="activeServer.description" />
+          <ScalarMarkdown :value="server.description" />
         </div>
       </div>
     </div>
