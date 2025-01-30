@@ -26,7 +26,7 @@ const props = withDefaults(
 )
 
 const { hideModels } = useSidebar()
-const { activeCollection } = useActiveEntities()
+const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -66,11 +66,15 @@ const introCardsSlot = computed(() =>
             </div>
             <div class="scalar-client introduction-card-item">
               <RequestAuth
+                v-if="activeCollection && activeWorkspace"
+                :collection="activeCollection"
                 layout="reference"
                 :selectedSecuritySchemeUids="
                   activeCollection?.selectedSecuritySchemeUids ?? []
                 "
-                title="Authentication" />
+                :server="activeServer"
+                title="Authentication"
+                :workspace="activeWorkspace" />
             </div>
             <ClientLibraries class="introduction-card-item" />
           </div>

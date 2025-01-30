@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store'
+import { useWorkspace } from '@/store/store'
 import { ScalarButton, ScalarModal } from '@scalar/components'
 
 const props = defineProps<{

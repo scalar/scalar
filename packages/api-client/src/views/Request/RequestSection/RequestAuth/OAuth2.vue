@@ -1,28 +1,31 @@
 <script setup lang="ts">
 import { DataTableRow } from '@/components/DataTable'
-import { type UpdateScheme, useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
+import { type UpdateScheme, useWorkspace } from '@/store/store'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
 import {
+  type Collection,
   type Oauth2Flow,
   type SecuritySchemeOauth2,
+  type Server,
   pkceOptions,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useToasts } from '@scalar/use-toasts'
 
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, flow } = defineProps<{
+const { scheme, flow, collection, server, workspace } = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
+  collection: Collection
+  server: Server | undefined
+  workspace: Workspace
 }>()
 
 const loadingState = useLoadingState()
 const { toast } = useToasts()
-
-const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
 const { securitySchemeMutators } = useWorkspace()
 
 /** Update the current scheme */
@@ -31,18 +34,18 @@ const updateScheme: UpdateScheme = (path, value) =>
 
 /** Authorize the user using specified flow */
 const handleAuthorize = async () => {
-  if (loadingState.isLoading || !activeCollection.value?.uid) return
+  if (loadingState.isLoading || !collection?.uid) return
   loadingState.startLoading()
 
-  if (!activeServer.value) {
+  if (!server) {
     toast('No server selected', 'error')
     return
   }
 
   const [error, accessToken] = await authorizeOauth2(
     flow,
-    activeServer.value,
-    activeWorkspace.value?.proxyUrl,
+    server,
+    workspace?.proxyUrl,
   ).finally(() => loadingState.stopLoading())
 
   if (accessToken) updateScheme(`flows.${flow.type}.token`, accessToken)

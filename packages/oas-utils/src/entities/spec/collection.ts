@@ -1,4 +1,7 @@
-import { nanoidSchema } from '@/entities/shared'
+import {
+  nanoidSchema,
+  selectedSecuritySchemeUidSchema,
+} from '@/entities/shared/utility'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -55,7 +58,7 @@ export const extendedCollectionSchema = z.object({
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
   /** List of currently selected security scheme UIDs, these can be overridden per request */
-  selectedSecuritySchemeUids: nanoidSchema.array().default([]),
+  selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /** UIDs which refer to servers on the workspace base */

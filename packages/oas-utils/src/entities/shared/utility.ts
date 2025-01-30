@@ -10,3 +10,13 @@ export const nanoidSchema = z
 
 /** UID format for objects */
 export type Nanoid = z.infer<typeof nanoidSchema>
+
+/** Schema for selectedSecuritySchemeUids */
+export const selectedSecuritySchemeUidSchema = z
+  .union([nanoidSchema, nanoidSchema.array()])
+  .array()
+  .default([])
+
+export type SelectedSecuritySchemeUids = z.infer<
+  typeof selectedSecuritySchemeUidSchema
+>

@@ -8,17 +8,23 @@ import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
 
 defineProps<{
-  selectedSecuritySchemeUids: string[]
+  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
 }>()
 
-const { activeRequest, activeExample, activeWorkspace, activeServer } =
-  useActiveEntities()
+const {
+  activeRequest,
+  activeCollection,
+  activeExample,
+  activeWorkspace,
+  activeServer,
+} = useActiveEntities()
 const { requestMutators, cookies } = useWorkspace()
 const { layout } = useLayout()
 
@@ -124,12 +130,17 @@ const activeWorkspaceCookies = computed(() =>
     </template>
     <div class="request-section-content custom-scroll flex flex-1 flex-col">
       <RequestAuth
+        v-if="activeCollection && activeWorkspace"
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
+        :collection="activeCollection"
         layout="client"
+        :operation="activeRequest"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
-        title="Authentication" />
+        :server="activeServer"
+        title="Authentication"
+        :workspace="activeWorkspace" />
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Variables') &&

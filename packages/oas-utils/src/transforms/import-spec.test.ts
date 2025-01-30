@@ -1,13 +1,95 @@
 /** @vitest-environment jsdom */
-import type { SecuritySchemeOauth2 } from '@/entities/spec/security'
-import { importSpecToWorkspace, parseSchema } from '@/transforms/import-spec'
+import type {
+  SecurityScheme,
+  SecuritySchemeOauth2,
+} from '@/entities/spec/security'
+import {
+  getSelectedSecuritySchemeUids,
+  importSpecToWorkspace,
+  parseSchema,
+} from '@/transforms/import-spec'
 import circular from '@test/fixtures/basic-circular-spec.json'
 import modifiedPetStoreExample from '@test/fixtures/petstore-tls.json'
 import { describe, expect, it, vi } from 'vitest'
 
 import galaxy from '../../../galaxy/dist/latest.json'
 
+describe('getSelectedSecuritySchemeUids', () => {
+  const securitySchemeMap = {
+    'basic-auth': 'basic-uid',
+    'api-key': 'apikey-uid',
+    'oauth2': 'oauth-uid',
+  }
+
+  it('should return first security requirement when no preferred scheme is provided', () => {
+    const securityRequirements = ['basic-auth', 'api-key']
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      undefined,
+      securitySchemeMap,
+    )
+    expect(result).toEqual(['basic-uid'])
+  })
+
+  it('should use preferred security scheme when available and valid', () => {
+    const securityRequirements = ['basic-auth', 'api-key']
+    const authentication = { preferredSecurityScheme: 'api-key' }
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      authentication,
+      securitySchemeMap,
+    )
+    expect(result).toEqual(['apikey-uid'])
+  })
+
+  it('should fallback to first requirement when preferred scheme is not in requirements', () => {
+    const securityRequirements = ['basic-auth', 'api-key']
+    const authentication = { preferredSecurityScheme: 'oauth2' }
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      authentication,
+      securitySchemeMap,
+    )
+    expect(result).toEqual(['basic-uid'])
+  })
+
+  it('should handle array-type security requirements', () => {
+    const securityRequirements = [['basic-auth', 'api-key']]
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      undefined,
+      securitySchemeMap,
+    )
+    expect(result).toEqual([['basic-uid', 'apikey-uid']])
+  })
+
+  it('should handle empty security requirements', () => {
+    const securityRequirements: string[] = []
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      undefined,
+      securitySchemeMap,
+    )
+    expect(result).toEqual([undefined])
+  })
+
+  it('should handle undefined preferred scheme', () => {
+    const securityRequirements = ['basic-auth']
+    const authentication = { preferredSecurityScheme: undefined }
+    const result = getSelectedSecuritySchemeUids(
+      securityRequirements,
+      authentication,
+      securitySchemeMap,
+    )
+    expect(result).toEqual(['basic-uid'])
+  })
+})
+
 describe('importSpecToWorkspace', () => {
+  // Little helper
+  const findSchemeUidByKey = (key: string, securitySchemes: SecurityScheme[]) =>
+    securitySchemes.find((s) => s.nameKey === key)?.uid
+
   describe('basics', () => {
     it('handles circular references', async () => {
       const res = await importSpecToWorkspace(circular)
@@ -441,6 +523,130 @@ describe('importSpecToWorkspace', () => {
         .authorizationCode
       expect(flow?.['x-scalar-client-id']).toBe('test-client')
       expect(flow?.selectedScopes).toEqual(['read:account'])
+    })
+
+    it('handles an optional security scheme and sets selected security accordingly', async () => {
+      const specWithAndSecurity = {
+        ...galaxy,
+        paths: {
+          '/test': {
+            get: {
+              security: [{}],
+              operationId: 'testOperation',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithAndSecurity)
+      if (res.error) throw res.error
+      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([])
+    })
+  })
+
+  describe('complex security', () => {
+    it('handles AND security requirements', async () => {
+      const specWithAndSecurity = {
+        ...galaxy,
+        security: [{ apiKeyHeader: [], basicAuth: [] }],
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOperation',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithAndSecurity)
+      if (res.error) throw res.error
+
+      const selectedSecuritySchemeUids = [
+        [
+          findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
+          findSchemeUidByKey('basicAuth', res.securitySchemes),
+        ],
+      ]
+      expect(res.requests[0].selectedSecuritySchemeUids).toEqual(
+        selectedSecuritySchemeUids,
+      )
+    })
+
+    it('handles AND security requirements with setCollectionSecurity', async () => {
+      const specWithAndSecurity = {
+        ...galaxy,
+        security: [{ apiKeyHeader: [], basicAuth: [] }, { bearerAuth: [] }],
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOperation',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithAndSecurity, {
+        setCollectionSecurity: true,
+      })
+      if (res.error) throw res.error
+
+      const selectedSecuritySchemeUids = [
+        [
+          findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
+          findSchemeUidByKey('basicAuth', res.securitySchemes),
+        ],
+      ]
+
+      expect(res.collection.selectedSecuritySchemeUids).toEqual(
+        selectedSecuritySchemeUids,
+      )
+    })
+
+    it('selects the first required scheme as selected', async () => {
+      const specWithOrSecurity = {
+        ...galaxy,
+        security: [{ apiKeyHeader: [] }, { basicAuth: [] }], // Either one
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOperation',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithOrSecurity)
+      if (res.error) throw res.error
+
+      // Check that the request inherits both options
+      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
+        findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
+      ])
+    })
+
+    it('handles empty security requirement in combination', async () => {
+      const specWithOptionalAndRequired = {
+        ...galaxy,
+        security: [
+          { apiKeyHeader: [] },
+          {}, // Optional - no auth required
+        ],
+        paths: {
+          '/test': {
+            get: {
+              operationId: 'testOperation',
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithOptionalAndRequired)
+      if (res.error) throw res.error
+
+      // Check that both the security requirement and the optional empty object are preserved
+      expect(res.requests[0].selectedSecuritySchemeUids).toEqual([
+        findSchemeUidByKey('apiKeyHeader', res.securitySchemes),
+      ])
     })
   })
 

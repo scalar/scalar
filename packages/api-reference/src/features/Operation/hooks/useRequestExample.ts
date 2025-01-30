@@ -96,7 +96,7 @@ export const useRequestExample = ({
   /** Generates an array of secrets we want to hide in the code block */
   const secretCredentials = computed(
     () =>
-      selectedSecuritySchemeUids.value?.flatMap((uid) => {
+      selectedSecuritySchemeUids.value?.flat().flatMap((uid) => {
         const scheme = securitySchemes[uid]
         if (scheme?.type === 'apiKey') return scheme.value
         if (scheme?.type === 'http')
