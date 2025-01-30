@@ -1,3 +1,5 @@
+import { ServerVariablesForm } from '@/components/Server'
+import { type ClientLayout, useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'
 import { PopoverPanel } from '@headlessui/vue'
 import {
@@ -6,31 +8,29 @@ import {
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  type Mock,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest'
 
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
 // Mock the useWorkspace composable
 vi.mock('@/store/store', () => ({
-  useWorkspace: vi.fn(() => ({
-    servers: {
-      'server-1': { uid: 'server-1', url: 'https://scalar.com' },
-      'server-2': { uid: 'server-2', url: 'https://staging.scalar.com' },
-    },
-    collectionMutators: {
-      edit: vi.fn(),
-    },
-    events: {
-      commandPalette: {
-        emit: vi.fn(),
-      },
-    },
-    serverMutators: {
-      edit: vi.fn(),
-    },
-  })),
+  useWorkspace: vi.fn(),
 }))
+
+// Mock the useLayout hook
+vi.mock('@/hooks/useLayout', () => ({
+  useLayout: vi.fn(),
+}))
+const mockUseLayout = useLayout as Mock<[], ReturnType<typeof useLayout>>
 
 describe('ServerDropdown', () => {
   const defaultProps = {
@@ -38,23 +38,55 @@ describe('ServerDropdown', () => {
       uid: 'collection-1',
       servers: ['server-1', 'server-2'],
     }),
+    layout: 'reference',
     server: serverSchema.parse({
       uid: 'server-1',
       url: 'https://scalar.com',
     }),
     target: 'server-dropdown-test-id',
-  }
+  } as const
 
   beforeEach(() => {
     // create teleport target
     const el = document.createElement('div')
     el.id = 'server-dropdown-test-id'
     document.body.appendChild(el)
+
+    // Mock the useWorkspace hook
+    ;(useWorkspace as Mock).mockReturnValue({
+      servers: {
+        'server-1': {
+          uid: 'server-1',
+          url: 'https://scalar.com',
+          variables: {
+            version: { default: 'v1' },
+          },
+        },
+        'server-2': { uid: 'server-2', url: 'https://staging.scalar.com' },
+      },
+      collectionMutators: {
+        edit: vi.fn(),
+      },
+      events: {
+        commandPalette: {
+          emit: vi.fn(),
+        },
+      },
+      serverMutators: {
+        edit: vi.fn(),
+      },
+    })
+
+    // Mock the useLayout hook
+    mockUseLayout.mockReturnValue({
+      layout: 'web',
+    })
   })
 
   afterEach(() => {
     // clean up
     document.body.innerHTML = ''
+    vi.clearAllMocks()
   })
 
   it('renders the server URL correctly', () => {
@@ -85,13 +117,7 @@ describe('ServerDropdown', () => {
       attrs: {
         id: 'server-dropdown-test-id',
       },
-      props: {
-        ...defaultProps,
-        server: {
-          uid: 'server-1',
-          url: 'https://scalar.com/',
-        },
-      },
+      props: defaultProps,
     })
 
     const dropdownButton = wrapper
@@ -126,98 +152,127 @@ describe('ServerDropdown', () => {
     expect(popover.text()).toContain('Collection')
   })
 
-  // it('shows "Add Server" button when not in reference layout', () => {
-  //   const wrapper = mount(ServerDropdown, {
-  //     props: defaultProps,
-  //     global: {
-  //       stubs: {
-  //         ScalarPopover: true,
-  //         ScalarButton: true,
-  //         ScalarIcon: true,
-  //         ScalarFloatingBackdrop: true,
-  //         ServerDropdownItem: true,
-  //       },
-  //     },
-  //   })
+  it('shows "Add Server" button when not in modal client layout', async () => {
+    mockUseLayout.mockReturnValue({
+      layout: 'web',
+    })
+    const wrapper = mount(ServerDropdown, {
+      props: defaultProps,
+    })
 
-  //   expect(wrapper.text()).toContain('Add Server')
-  // })
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
 
-  // it('does not show "Add Server" button in reference layout', () => {
-  //   const wrapper = mount(ServerDropdown, {
-  //     props: {
-  //       ...defaultProps,
-  //       layout: 'reference',
-  //     },
-  //     global: {
-  //       stubs: {
-  //         ScalarPopover: true,
-  //         ScalarButton: true,
-  //         ScalarIcon: true,
-  //         ScalarFloatingBackdrop: true,
-  //         ServerDropdownItem: true,
-  //       },
-  //     },
-  //   })
+    const popover = wrapper.findComponent(PopoverPanel)
+    expect(popover.text()).toContain('Add Server')
+  })
 
-  //   expect(wrapper.text()).not.toContain('Add Server')
-  // })
+  it('does not show "Add Server" button in the modal client layout', async () => {
+    mockUseLayout.mockReturnValue({
+      layout: 'modal',
+    })
 
-  // it('emits command palette event when clicking "Add Server"', async () => {
-  //   const wrapper = mount(ServerDropdown, {
-  //     props: defaultProps,
-  //     global: {
-  //       stubs: {
-  //         ScalarPopover: true,
-  //         ScalarButton: true,
-  //         ScalarIcon: true,
-  //         ScalarFloatingBackdrop: true,
-  //         ServerDropdownItem: true,
-  //       },
-  //     },
-  //   })
+    const wrapper = mount(ServerDropdown, {
+      props: defaultProps,
+    })
 
-  //   const addServerButton = wrapper.find('button')
-  //   await addServerButton.trigger('click')
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
 
-  //   const workspace = useWorkspace()
-  //   expect(workspace.events.commandPalette.emit).toHaveBeenCalledWith({
-  //     commandName: 'Add Server',
-  //   })
-  // })
+    const popover = wrapper.findComponent(PopoverPanel)
+    expect(popover.text()).not.toContain('Add Server')
+  })
 
-  // it('updates server variables correctly', async () => {
-  //   const wrapper = mount(ServerDropdown, {
-  //     props: {
-  //       ...defaultProps,
-  //       server: {
-  //         uid: 'server-1',
-  //         url: 'https://scalar.com',
-  //         variables: {
-  //           version: { default: 'v1' },
-  //         },
-  //       },
-  //     },
-  //     global: {
-  //       stubs: {
-  //         ScalarPopover: true,
-  //         ScalarButton: true,
-  //         ScalarIcon: true,
-  //         ScalarFloatingBackdrop: true,
-  //         ServerDropdownItem: true,
-  //       },
-  //     },
-  //   })
+  it('emits command palette event when clicking "Add Server"', async () => {
+    const wrapper = mount(ServerDropdown, {
+      props: defaultProps,
+    })
 
-  //   await wrapper.vm.updateServerVariable('version', 'v2')
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
 
-  //   const workspace = useWorkspace()
-  //   expect(workspace.serverMutators.edit).toHaveBeenCalledWith(
-  //     'server-1',
-  //     'variables',
-  //     {
-  //       version: { default: 'v2' },
-  //     },
-  //   )
-  // })
+    const popover = wrapper.findComponent(PopoverPanel)
+    const addServerButton = popover
+      .findAll('button')
+      .filter((node) => node.text() === 'Add Server')
+      .at(0)
+    await addServerButton?.trigger('click')
+    const workspace = useWorkspace()
+
+    expect(workspace.events.commandPalette.emit).toHaveBeenCalledWith({
+      commandName: 'Add Server',
+    })
+  })
+
+  it('updates the selected server', async () => {
+    const wrapper = mount(ServerDropdown, {
+      props: defaultProps,
+    })
+
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
+
+    await wrapper
+      .findAllComponents(ServerDropdownItem)
+      .filter((node) => node.text() === 'https://staging.scalar.com')
+      .at(0)
+      ?.find('button')
+      ?.trigger('click')
+
+    const workspace = useWorkspace()
+    expect(workspace.collectionMutators.edit).toHaveBeenCalledWith(
+      'collection-1',
+      'selectedServerUid',
+      'server-2',
+    )
+  })
+
+  it('updates server variables correctly', async () => {
+    const wrapper = mount(ServerDropdown, {
+      props: {
+        ...defaultProps,
+        layout: 'client',
+        server: {
+          uid: 'server-1',
+          url: 'https://scalar.com',
+          variables: {
+            version: { default: 'v1' },
+          },
+        },
+      },
+    })
+
+    const dropdownButton = wrapper
+      .findAll('button')
+      .filter((node) => node.text() === 'Server: https://scalar.com')
+      .at(0)
+    await dropdownButton?.trigger('click')
+
+    wrapper
+      .findAllComponents(ServerDropdownItem)
+      .at(0)
+      ?.find('input')
+      ?.setValue('v2')
+
+    const workspace = useWorkspace()
+    expect(workspace.serverMutators.edit).toHaveBeenCalledWith(
+      'server-1',
+      'variables',
+      {
+        version: { default: 'v2' },
+      },
+    )
+  })
 })
