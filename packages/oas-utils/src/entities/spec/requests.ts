@@ -1,7 +1,10 @@
+import {
+  nanoidSchema,
+  selectedSecuritySchemeUidSchema,
+} from '@/entities/shared/utility'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
-import { nanoidSchema } from '../shared'
 import { oasParameterSchema } from './parameters'
 import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
@@ -125,7 +128,7 @@ const extendedRequestSchema = z.object({
   /** List of example UIDs associated with the request */
   examples: nanoidSchema.array().default([]),
   /** List of security scheme UIDs associated with the request */
-  selectedSecuritySchemeUids: nanoidSchema.array().default([]),
+  selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
 /** Unified request schema for client usage */
@@ -135,3 +138,7 @@ export const requestSchema = oasRequestSchema
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>
+
+// Alias these types as request conflicts with built in
+export type Operation = Request
+export type OperationPayload = RequestPayload

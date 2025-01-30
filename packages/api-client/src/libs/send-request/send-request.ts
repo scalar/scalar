@@ -9,8 +9,7 @@ import { replaceTemplateVariables } from '@/libs/string-template'
 import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
-  /** Renamed due to conflict with the global Request class */
-  Request as HarRequest,
+  Operation,
   RequestExample,
   RequestMethod,
   ResponseInstance,
@@ -171,25 +170,25 @@ const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 
 /** Execute the request */
 export const createRequestOperation = ({
-  request,
+  environment,
   example,
-  server,
+  globalCookies,
+  proxyUrl,
+  request,
   securitySchemes,
   selectedSecuritySchemeUids = [],
-  proxyUrl,
+  server,
   status,
-  environment,
-  globalCookies,
 }: {
-  request: HarRequest
-  example: RequestExample
-  selectedSecuritySchemeUids?: string[]
-  proxyUrl?: string
-  status?: EventBus<RequestStatus>
   environment: object | undefined
-  server?: Server
-  securitySchemes: Record<string, SecurityScheme>
+  example: RequestExample
   globalCookies: Cookie[]
+  proxyUrl?: string
+  request: Operation
+  securitySchemes: Record<string, SecurityScheme>
+  selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
+  server?: Server
+  status?: EventBus<RequestStatus>
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -240,8 +239,11 @@ export const createRequestOperation = ({
       proxyUrl,
     })
 
+    // We flatten the array of arrays for complex auth
+    const flatSelectedSecuritySchemeUids = selectedSecuritySchemeUids.flat()
+
     // Populate all forms of auth to the request segments
-    selectedSecuritySchemeUids?.forEach((uid) => {
+    flatSelectedSecuritySchemeUids?.forEach((uid) => {
       const scheme = securitySchemes[uid]
       if (!scheme) return
 

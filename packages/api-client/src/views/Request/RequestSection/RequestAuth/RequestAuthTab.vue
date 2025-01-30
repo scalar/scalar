@@ -1,22 +1,31 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
-import { useWorkspace } from '@/store'
-import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import { useWorkspace } from '@/store/store'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type {
+  Collection,
+  SecurityScheme,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed, ref } from 'vue'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids, layout } = defineProps<{
-  selectedSecuritySchemeUids: string[]
-  layout: 'client' | 'reference'
-}>()
+const { collection, layout, securitySchemeUids, server, workspace } =
+  defineProps<{
+    collection: Collection
+    layout: 'client' | 'reference'
+    securitySchemeUids: string[]
+    server: Server | undefined
+    workspace: Workspace
+  }>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
 const security = computed(() =>
-  selectedSecuritySchemeUids.map((uid) => ({
+  securitySchemeUids.map((uid) => ({
     scheme: securitySchemes[uid],
   })),
 )
@@ -167,8 +176,11 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         :key="key">
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"
+          :collection="collection"
           :flow="flow!"
-          :scheme="scheme" />
+          :scheme="scheme"
+          :server="server"
+          :workspace="workspace" />
       </template>
     </template>
 
