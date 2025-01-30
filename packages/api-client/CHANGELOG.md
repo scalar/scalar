@@ -1,5 +1,11 @@
 # @scalar/api-client
 
+## 2.2.42
+
+### Patch Changes
+
+- aa6ff86: fix(api-client): set modal z-index via scoped style
+
 ## 2.2.41
 
 ### Patch Changes
