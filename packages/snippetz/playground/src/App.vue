@@ -130,6 +130,7 @@ h2 {
 }
 .badges {
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
 }
 .introduction {
@@ -147,7 +148,7 @@ h2 {
 .client {
   background: transparent;
   font-size: 1rem;
-  border: 2px solid #343a40;
+  border: 1px solid #2d2d2d;
   display: inline-block;
   padding: 6px 12px;
   border-radius: 6px;
@@ -155,6 +156,6 @@ h2 {
   cursor: pointer;
 }
 .client--selected {
-  background: #343a40;
+  background-color: #2d2d2d;
 }
 </style>
