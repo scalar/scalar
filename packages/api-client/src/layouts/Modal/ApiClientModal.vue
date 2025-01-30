@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
   <div
     v-show="modalState.open"
     class="scalar scalar-app">
-    <div class="scalar-container z-overlay">
+    <div class="scalar-container">
       <div
         :id="id"
         ref="client"
@@ -172,6 +172,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  @apply z-overlay;
 }
 
 .scalar .url-form-input {
