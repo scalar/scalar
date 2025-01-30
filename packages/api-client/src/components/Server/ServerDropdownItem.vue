@@ -15,7 +15,7 @@ const props = defineProps<{
   server: Server | undefined
   serverOption: { id: string; label: string }
   type: 'collection' | 'request'
-  layout?: 'client' | 'reference'
+  layout: 'client' | 'reference'
 }>()
 
 const emit = defineEmits<{
@@ -89,7 +89,7 @@ const updateServerVariable = (key: string, value: string) => {
     </button>
     <!-- Server variables -->
     <div
-      v-if="isExpanded && layout !== 'reference'"
+      v-if="isExpanded && props.layout !== 'reference'"
       :id="formId"
       class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b"
       @click.stop>

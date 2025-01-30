@@ -8,9 +8,9 @@ import { capitalize, computed, ref } from 'vue'
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { selectedSecuritySchemeUids, layout = 'client' } = defineProps<{
+const { selectedSecuritySchemeUids, layout } = defineProps<{
   selectedSecuritySchemeUids: string[]
-  layout?: 'client' | 'reference'
+  layout: 'client' | 'reference'
 }>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
@@ -62,7 +62,9 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <!-- Header -->
     <DataTableRow
       v-if="security.length > 1"
-      :class="{ 'request-example-references-header': layout === 'reference' }">
+      :class="{
+        'request-example-references-header': layout === 'reference',
+      }">
       <DataTableCell
         class="text-c-3 pl-2 font-medium flex items-center"
         :class="
@@ -166,7 +168,6 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"
           :flow="flow!"
-          :layout="layout"
           :scheme="scheme" />
       </template>
     </template>

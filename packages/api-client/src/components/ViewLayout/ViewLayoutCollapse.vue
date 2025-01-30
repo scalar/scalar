@@ -2,18 +2,15 @@
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { ScalarIcon } from '@scalar/components'
 
-withDefaults(
-  defineProps<{
-    defaultOpen?: boolean
-    itemCount?: number
-    layout?: 'client' | 'reference'
-  }>(),
-  {
-    defaultOpen: true,
-    itemCount: 0,
-    layout: 'client',
-  },
-)
+const {
+  defaultOpen = true,
+  itemCount = 0,
+  layout = 'client',
+} = defineProps<{
+  defaultOpen?: boolean
+  itemCount?: number
+  layout?: 'client' | 'reference'
+}>()
 </script>
 <template>
   <Disclosure

@@ -2,6 +2,7 @@
 import { CONFIGURATION_SYMBOL } from '@/hooks/useConfig'
 import { useHttpClientStore } from '@/stores/useHttpClientStore'
 import { provideUseId } from '@headlessui/vue'
+import { LAYOUT_SYMBOL } from '@scalar/api-client/hooks'
 import {
   ACTIVE_ENTITIES_SYMBOL,
   WORKSPACE_SYMBOL,
@@ -269,6 +270,9 @@ provide(WORKSPACE_SYMBOL, workspaceStore)
 // Same for the active entities store
 const activeEntitiesStore = createActiveEntitiesStore(workspaceStore)
 provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
+
+// Provide the client layout
+provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
 provide(CONFIGURATION_SYMBOL, props.configuration)

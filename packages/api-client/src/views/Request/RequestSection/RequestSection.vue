@@ -127,6 +127,7 @@ const activeWorkspaceCookies = computed(() =>
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
+        layout="client"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
         title="Authentication" />
       <RequestPathParams
