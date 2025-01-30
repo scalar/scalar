@@ -62,7 +62,7 @@ const introCardsSlot = computed(() =>
             <div
               v-if="activeCollection?.servers?.length"
               class="scalar-client introduction-card-item [--scalar-address-bar-height:0px] divide-y text-sm">
-              <BaseUrl layout="reference" />
+              <BaseUrl />
             </div>
             <div class="scalar-client introduction-card-item">
               <RequestAuth

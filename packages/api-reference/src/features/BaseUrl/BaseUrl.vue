@@ -7,10 +7,6 @@ import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { ScalarMarkdown } from '@scalar/components'
 import { useId } from 'vue'
 
-defineProps<{
-  layout: 'client' | 'reference'
-}>()
-
 const { activeCollection, activeServer } = useActiveEntities()
 const { serverMutators } = useWorkspace()
 
@@ -32,7 +28,7 @@ const updateServerVariable = (key: string, value: string) => {
     <ServerDropdown
       v-if="activeCollection?.servers?.length"
       :collection="activeCollection"
-      :layout="layout"
+      layout="reference"
       :server="activeServer"
       :target="id" />
   </div>

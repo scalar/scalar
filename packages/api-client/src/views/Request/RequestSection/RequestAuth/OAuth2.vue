@@ -14,14 +14,9 @@ import { useToasts } from '@scalar/use-toasts'
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const {
-  scheme,
-  flow,
-  layout = 'client',
-} = defineProps<{
+const { scheme, flow } = defineProps<{
   scheme: SecuritySchemeOauth2
   flow: Oauth2Flow
-  layout?: 'client' | 'reference'
 }>()
 
 const loadingState = useLoadingState()
@@ -194,7 +189,6 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="Object.keys(flow.scopes ?? {}).length">
       <OAuthScopesInput
         :flow="flow"
-        :layout="layout"
         :updateScheme="updateScheme" />
     </DataTableRow>
 

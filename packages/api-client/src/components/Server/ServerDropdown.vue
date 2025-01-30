@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store'
+import { useLayout } from '@/hooks/useLayout'
+import { useWorkspace } from '@/store/store'
 import {
   ScalarButton,
   ScalarDropdownDivider,
@@ -18,16 +19,16 @@ import { computed, watch } from 'vue'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
-const { target, layout, collection, operation, server } = defineProps<{
+const { target, collection, layout, operation, server } = defineProps<{
   collection: Collection
   operation?: Operation
   server: Server | undefined
+  layout: 'client' | 'reference'
   /** The id of the target to use for the popover (e.g. address bar) */
   target: string
-  /** The layout of the popover */
-  layout?: 'client' | 'reference'
 }>()
 
+const { layout: clientLayout } = useLayout()
 const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
@@ -154,7 +155,7 @@ const buttonVariants = cva({
           type="collection"
           @update:variable="updateServerVariable" />
         <!-- Add Server -->
-        <template v-if="layout !== 'reference'">
+        <template v-if="clientLayout !== 'modal'">
           <button
             class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
             type="button"
