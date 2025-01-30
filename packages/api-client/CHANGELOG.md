@@ -1,5 +1,26 @@
 # @scalar/api-client
 
+## 2.2.41
+
+### Patch Changes
+
+- be34e7d: feat: adds client server state usage in reference
+- 4e6f0eb: fix: updates settings checkbox ui
+- 42d08d7: fix: updates dropdown checkbox ui
+- 2edbab2: fix: ensure add server button does not show on the references client server dropdown
+- Updated dependencies [be34e7d]
+- Updated dependencies [51f3177]
+- Updated dependencies [42d08d7]
+  - @scalar/oas-utils@0.2.101
+  - @scalar/types@0.0.29
+  - @scalar/themes@0.9.63
+  - @scalar/components@0.13.18
+  - @scalar/import@0.2.21
+  - @scalar/postman-to-openapi@0.1.24
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/use-codemirror@0.11.63
+  - @scalar/use-hooks@0.1.17
+
 ## 2.2.40
 
 ### Patch Changes

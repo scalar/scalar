@@ -1,5 +1,14 @@
 # @scalar/aspnetcore
 
+## 2.0.8
+
+### Patch Changes
+
+- 3eac1cf: feature: Support {documentName} placeholder in title
+- Updated dependencies [be34e7d]
+- Updated dependencies [2edbab2]
+  - @scalar/api-reference@1.25.112
+
 ## 2.0.7
 
 ### Patch Changes

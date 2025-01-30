@@ -1,5 +1,13 @@
 # @scalar/themes
 
+## 0.9.63
+
+### Patch Changes
+
+- 51f3177: fix: removes inset from box shadow variable
+- Updated dependencies [be34e7d]
+  - @scalar/types@0.0.29
+
 ## 0.9.62
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.101
+
+### Patch Changes
+
+- be34e7d: feat: adds value to server variables schema
+- Updated dependencies [be34e7d]
+- Updated dependencies [51f3177]
+  - @scalar/types@0.0.29
+  - @scalar/themes@0.9.63
+
 ## 0.2.100
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.29
+
+### Patch Changes
+
+- be34e7d: feat: adds value to server variables schema
+
 ## 0.0.28
 
 ### Patch Changes

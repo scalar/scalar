@@ -1,5 +1,27 @@
 # @scalar/api-reference
 
+## 1.25.112
+
+### Patch Changes
+
+- be34e7d: feat: adds client server state usage in reference
+- 2edbab2: fix: ensure add server button does not show on the references client server dropdown
+- Updated dependencies [be34e7d]
+- Updated dependencies [be34e7d]
+- Updated dependencies [4e6f0eb]
+- Updated dependencies [51f3177]
+- Updated dependencies [42d08d7]
+- Updated dependencies [42d08d7]
+- Updated dependencies [2edbab2]
+  - @scalar/oas-utils@0.2.101
+  - @scalar/types@0.0.29
+  - @scalar/api-client@2.2.41
+  - @scalar/themes@0.9.63
+  - @scalar/components@0.13.18
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.17
+
 ## 1.25.111
 
 ### Patch Changes
