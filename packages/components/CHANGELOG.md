@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.18
+
+### Patch Changes
+
+- 42d08d7: fix: sets border on inactive checkbox state
+- Updated dependencies [51f3177]
+  - @scalar/themes@0.9.63
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.17
+
 ## 0.13.17
 
 ### Patch Changes
