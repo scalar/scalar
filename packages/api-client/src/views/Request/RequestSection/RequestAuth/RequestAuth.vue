@@ -195,7 +195,8 @@ const schemeOptions = computed<SecuritySchemeOption[] | SecuritySchemeGroup[]>(
 <template>
   <ViewLayoutCollapse
     class="group/params"
-    :itemCount="selectedAuth.length">
+    :itemCount="selectedAuth.length"
+    :layout="layout">
     <template #title>
       <div class="inline-flex gap-1 items-center">
         <span>{{ title }}</span>
