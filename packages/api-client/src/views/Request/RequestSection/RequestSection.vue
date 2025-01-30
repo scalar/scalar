@@ -13,6 +13,7 @@ import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
+import RequestPreview from './RequestPreview.vue'
 
 defineProps<{
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
@@ -128,7 +129,8 @@ const activeWorkspaceCookies = computed(() =>
         :sections="sections"
         @setActiveSection="activeSection = $event" />
     </template>
-    <div class="request-section-content custom-scroll flex flex-1 flex-col">
+    <div
+      class="request-section-content custom-scroll flex flex-1 flex-col relative">
       <RequestAuth
         v-if="
           activeCollection &&
@@ -173,6 +175,7 @@ const activeWorkspaceCookies = computed(() =>
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
+      <RequestPreview />
     </div>
   </ViewLayoutSection>
 </template>
