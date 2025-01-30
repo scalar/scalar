@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
-import { useWorkspace } from '@/store'
+import { useWorkspace } from '@/store/store'
 import { ScalarListboxCheckbox, ScalarMarkdown } from '@scalar/components'
 import type {
   Collection,
