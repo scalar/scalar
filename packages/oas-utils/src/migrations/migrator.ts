@@ -5,11 +5,12 @@ import {
 import { semverLessThan } from '@/migrations/semver'
 import { migrate_v_2_1_0 } from '@/migrations/v-2.1.0'
 import { migrate_v_2_2_0 } from '@/migrations/v-2.2.0'
-import { migrate_v_2_3_0, type v_2_3_0 } from '@/migrations/v-2.3.0'
-import { migrate_v_2_4_0, type v_2_4_0 } from '@/migrations/v-2.4.0'
+import { migrate_v_2_3_0 } from '@/migrations/v-2.3.0'
+import { migrate_v_2_4_0 } from '@/migrations/v-2.4.0'
+import { migrate_v_2_5_0, type v_2_5_0 } from '@/migrations/v-2.5.0'
 
 /** Handles all data migrations per entity */
-export const migrator = (): v_2_4_0.DataArray => {
+export const migrator = (): v_2_5_0.DataArray => {
   const dataVersion = getLocalStorageVersion()
   console.info('Data version: ' + dataVersion)
 
@@ -34,6 +35,8 @@ export const migrator = (): v_2_4_0.DataArray => {
   if (semverLessThan(dataVersion, '2.3.0')) data = migrate_v_2_3_0(data)
   // 2.3.0 -> 2.4.0 migration
   if (semverLessThan(dataVersion, '2.4.0')) data = migrate_v_2_4_0(data)
+  // 2.4.0 -> 2.5.0 migration
+  if (semverLessThan(dataVersion, '2.5.0')) data = migrate_v_2_5_0(data)
 
   // Convert to data array
   data = {
@@ -46,7 +49,7 @@ export const migrator = (): v_2_4_0.DataArray => {
     servers: Object.values(data.servers),
     tags: Object.values(data.tags),
     workspaces: Object.values(data.workspaces),
-  } satisfies v_2_4_0.DataArray
+  } satisfies v_2_5_0.DataArray
 
   return data
 }
