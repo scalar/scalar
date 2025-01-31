@@ -12,7 +12,7 @@ public class ScalarOptionsMapperTests
         var configuration = options.ToScalarConfiguration();
 
         // Assert
-        configuration.Proxy.Should().BeNull();
+        configuration.ProxyUrl.Should().BeNull();
         configuration.ShowSidebar.Should().BeTrue();
         configuration.HideModels.Should().BeFalse();
         configuration.HideDownloadButton.Should().BeFalse();
@@ -80,7 +80,7 @@ public class ScalarOptionsMapperTests
         var configuration = options.ToScalarConfiguration();
 
         // Assert
-        configuration.Proxy.Should().Be("http://localhost:8080");
+        configuration.ProxyUrl.Should().Be("http://localhost:8080");
         configuration.ShowSidebar.Should().BeFalse();
         configuration.HideModels.Should().BeTrue();
         configuration.HideDownloadButton.Should().BeTrue();
