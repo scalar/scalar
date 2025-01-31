@@ -179,6 +179,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids = [],
   server,
   status,
+  isReadOnly,
 }: {
   environment: object | undefined
   example: RequestExample
@@ -189,6 +190,7 @@ export const createRequestOperation = ({
   selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
   server?: Server
   status?: EventBus<RequestStatus>
+  isReadOnly?: boolean
 }): ErrorResponse<{
   controller: AbortController
   sendRequest: () => SendRequestResponse
@@ -241,52 +243,56 @@ export const createRequestOperation = ({
 
     // We flatten the array of arrays for complex auth
     const flatSelectedSecuritySchemeUids = selectedSecuritySchemeUids.flat()
+    // Handle auth schemes based on request security for reference
+    if (!isReadOnly || request.security) {
+      // Populate all forms of auth to the request segments
+      flatSelectedSecuritySchemeUids?.forEach((uid) => {
+        const scheme = securitySchemes[uid]
+        if (!scheme) return
 
-    // Populate all forms of auth to the request segments
-    flatSelectedSecuritySchemeUids?.forEach((uid) => {
-      const scheme = securitySchemes[uid]
-      if (!scheme) return
+        // Scheme type and example value type should always match
+        if (scheme.type === 'apiKey') {
+          const value =
+            replaceTemplateVariables(scheme.value, env) ||
+            EMPTY_TOKEN_PLACEHOLDER
 
-      // Scheme type and example value type should always match
-      if (scheme.type === 'apiKey') {
-        const value =
-          replaceTemplateVariables(scheme.value, env) || EMPTY_TOKEN_PLACEHOLDER
-
-        if (scheme.in === 'header') headers[scheme.name] = value
-        if (scheme.in === 'query') urlParams.append(scheme.name, value)
-        if (scheme.in === 'cookie') {
-          cookieParams.push({
-            name: scheme.name,
-            value,
-            path: '/',
-            uid: scheme.name,
-          })
+          if (scheme.in === 'header') headers[scheme.name] = value
+          if (scheme.in === 'query') urlParams.append(scheme.name, value)
+          if (scheme.in === 'cookie') {
+            cookieParams.push({
+              name: scheme.name,
+              value,
+              path: '/',
+              uid: scheme.name,
+            })
+          }
         }
-      }
 
-      if (scheme.type === 'http') {
-        if (scheme.scheme === 'basic') {
-          const username = replaceTemplateVariables(scheme.username, env)
-          const password = replaceTemplateVariables(scheme.password, env)
-          const value = `${username}:${password}`
+        if (scheme.type === 'http') {
+          if (scheme.scheme === 'basic') {
+            const username = replaceTemplateVariables(scheme.username, env)
+            const password = replaceTemplateVariables(scheme.password, env)
+            const value = `${username}:${password}`
+
+            headers['Authorization'] =
+              `Basic ${value === ':' ? 'username:password' : btoa(value)}`
+          } else {
+            const value = replaceTemplateVariables(scheme.token, env)
+            headers['Authorization'] =
+              `Bearer ${value || EMPTY_TOKEN_PLACEHOLDER}`
+          }
+        }
+
+        // For OAuth we take the token from the first flow
+        if (scheme.type === 'oauth2') {
+          const flows = Object.values(scheme.flows)
+          const token = flows.find((f) => f.token)?.token
 
           headers['Authorization'] =
-            `Basic ${value === ':' ? 'username:password' : btoa(value)}`
-        } else {
-          const value = replaceTemplateVariables(scheme.token, env)
-          headers['Authorization'] =
-            `Bearer ${value || EMPTY_TOKEN_PLACEHOLDER}`
+            `Bearer ${token || EMPTY_TOKEN_PLACEHOLDER}`
         }
-      }
-
-      // For OAuth we take the token from the first flow
-      if (scheme.type === 'oauth2') {
-        const flows = Object.values(scheme.flows)
-        const token = flows.find((f) => f.token)?.token
-
-        headers['Authorization'] = `Bearer ${token || EMPTY_TOKEN_PLACEHOLDER}`
-      }
-    })
+      })
+    }
 
     // Extract and merge all query params
     if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {

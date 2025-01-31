@@ -244,4 +244,38 @@ describe('authentication', () => {
       authorization: 'Bearer oauth-token',
     })
   })
+
+  it('does not add Authorization header when security is not required in reference layout', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+      }),
+      isReadOnly: true,
+      securitySchemes: {
+        'bearer-auth': {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'Bearer',
+          username: '',
+          password: '',
+          uid: 'bearer-auth',
+          nameKey: 'Authorization',
+          token: 'xxxx',
+        },
+      },
+      selectedSecuritySchemeUids: ['bearer-auth'],
+      request: {
+        ...createRequestPayload({}).request,
+        security: undefined,
+      },
+    })
+    if (error) throw error
+
+    const [requestError, result] = await requestOperation.sendRequest()
+
+    expect(requestError).toBe(null)
+    expect(
+      JSON.parse(result?.response.data as string).headers,
+    ).not.toHaveProperty('authorization')
+  })
 })

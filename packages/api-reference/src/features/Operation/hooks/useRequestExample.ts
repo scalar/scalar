@@ -70,6 +70,7 @@ export const useRequestExample = ({
       environment: {},
       // TODO: cookies if we want em
       globalCookies: [],
+      isReadOnly: true,
     })
 
     if (error) {
