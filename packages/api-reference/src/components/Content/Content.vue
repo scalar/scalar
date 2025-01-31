@@ -67,7 +67,9 @@ const introCardsSlot = computed(() =>
             </div>
             <div
               v-if="
-                activeCollection && activeWorkspace && securitySchemes.length
+                activeCollection &&
+                activeWorkspace &&
+                Object.keys(securitySchemes ?? {}).length
               "
               class="scalar-client introduction-card-item">
               <RequestAuth
