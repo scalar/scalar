@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BaseUrl } from '@/features/BaseUrl'
-import { useActiveEntities } from '@scalar/api-client/store'
+import { useActiveEntities, useWorkspace } from '@scalar/api-client/store'
 import { RequestAuth } from '@scalar/api-client/views/Request/RequestSection/RequestAuth'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Spec } from '@scalar/types/legacy'
@@ -26,6 +26,7 @@ const props = withDefaults(
 )
 
 const { hideModels } = useSidebar()
+const { securitySchemes } = useWorkspace()
 const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
 
 const introCardsSlot = computed(() =>
@@ -64,9 +65,12 @@ const introCardsSlot = computed(() =>
               class="scalar-client introduction-card-item [--scalar-address-bar-height:0px] divide-y text-sm">
               <BaseUrl />
             </div>
-            <div class="scalar-client introduction-card-item">
+            <div
+              v-if="
+                activeCollection && activeWorkspace && securitySchemes.length
+              "
+              class="scalar-client introduction-card-item">
               <RequestAuth
-                v-if="activeCollection && activeWorkspace"
                 :collection="activeCollection"
                 layout="reference"
                 :selectedSecuritySchemeUids="
