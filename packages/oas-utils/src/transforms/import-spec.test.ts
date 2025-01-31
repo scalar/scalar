@@ -542,6 +542,16 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
       expect(res.requests[0].selectedSecuritySchemeUids).toEqual([])
     })
+
+    it('sets the correct selectedSecuritySchemeUids when theres no collection security requirement', async () => {
+      const { security, ...noSecurity } = galaxy
+      const res = await importSpecToWorkspace(noSecurity, {
+        setCollectionSecurity: true,
+      })
+      if (res.error) throw res.error
+
+      expect(res.collection.selectedSecuritySchemeUids).toEqual([])
+    })
   })
 
   describe('complex security', () => {

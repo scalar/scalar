@@ -427,8 +427,7 @@ export async function importSpecToWorkspace(
 
   // Grab the security requirements for this operation
   const securityRequirements: SelectedSecuritySchemeUids = (
-    (schema.security as OpenAPIV3_1.SecurityRequirementObject[]) ??
-    Object.keys(security ?? {})
+    schema.security ?? []
   ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
     const keys = Object.keys(s)
     return keys.length > 1 ? keys : keys[0]
