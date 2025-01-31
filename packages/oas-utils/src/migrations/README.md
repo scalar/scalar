@@ -13,3 +13,4 @@ To generate a new migration:
 3. Rename the types to the new version number in `types.generated.ts` and `index.ts`.
 4. Update the data-version.ts file to the new version number.
 5. Add a test for the new migration in `migration.test.ts`.
+6. Update the migrator.ts file to include the new migration.

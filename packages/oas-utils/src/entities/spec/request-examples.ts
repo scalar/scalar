@@ -184,7 +184,9 @@ export const requestExampleSchema = z.object({
     .object({
       path: requestExampleParametersSchema.array().default([]),
       query: requestExampleParametersSchema.array().default([]),
-      headers: requestExampleParametersSchema.array().default([]),
+      headers: requestExampleParametersSchema
+        .array()
+        .default([{ key: 'Accept', value: '*/*', enabled: true }]),
       cookies: requestExampleParametersSchema.array().default([]),
     })
     .optional()
@@ -365,7 +367,7 @@ export function createExampleFromRequest(
     cookie: [],
     // deprecated TODO: add zod transform to remove
     header: [],
-    headers: [],
+    headers: [{ key: 'Accept', value: '*/*', enabled: true }],
   }
 
   // Populated the separated params
