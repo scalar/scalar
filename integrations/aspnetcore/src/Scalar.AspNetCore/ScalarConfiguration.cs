@@ -8,7 +8,7 @@ namespace Scalar.AspNetCore;
 /// </summary>
 internal sealed class ScalarConfiguration
 {
-    public required string? Proxy { get; init; }
+    public required string? ProxyUrl { get; init; }
 
     public required bool? ShowSidebar { get; init; }
 

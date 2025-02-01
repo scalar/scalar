@@ -32,7 +32,7 @@ internal static class ScalarOptionsMapper
         var documentUrls = options.DocumentNames.Select(name => options.OpenApiRoutePattern.Replace(DocumentName, name));
         return new ScalarConfiguration
         {
-            Proxy = options.ProxyUrl,
+            ProxyUrl = options.ProxyUrl,
             Theme = options.Theme.ToStringFast(),
             Layout = options.Layout.ToStringFast(),
             Favicon = options.Favicon,
