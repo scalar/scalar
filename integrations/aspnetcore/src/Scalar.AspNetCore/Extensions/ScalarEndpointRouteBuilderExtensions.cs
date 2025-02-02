@@ -216,7 +216,7 @@ public static class ScalarEndpointRouteBuilderExtensions
         var resourceFile = FileProvider.GetFileInfo(file);
         if (!resourceFile.Exists)
         {
-            // Return 404 if the file does not exist. This should not happen due to the regex.
+            // Return 404 if the file does not exist. This should not happen because the file is embedded.
             return Results.NotFound();
         }
 
