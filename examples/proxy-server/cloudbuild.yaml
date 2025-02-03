@@ -28,6 +28,8 @@ steps:
         '--execution-environment=gen2',
         '--cpu=$_CPU',
         '--memory=$_MEMORY',
+        '--concurrency=$_CONCURRENCY',
+        '--min-instances=$_MIN_INSTANCES',
         '--service-account=$_SERVICE_ACCOUNT',
       ]
 options:
