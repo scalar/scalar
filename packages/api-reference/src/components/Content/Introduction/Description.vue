@@ -4,7 +4,6 @@ import { ScalarMarkdown } from '@scalar/components'
 import GithubSlugger from 'github-slugger'
 import { computed } from 'vue'
 
-import { joinWithSlash } from '../../../helpers'
 import { useNavState } from '../../../hooks'
 import IntersectionObserver from '../../IntersectionObserver.vue'
 
@@ -45,7 +44,8 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
+  useNavState()
 
 function handleScroll(headingId = '') {
   if (!isIntersectionEnabled.value) return
@@ -81,7 +81,7 @@ const transformHeading = (node: Record<string, any>) => {
       <!-- headings -->
       <template v-if="section.id">
         <IntersectionObserver
-          :id="section.id"
+          :id="getFullHash(section.id)"
           class="introduction-description-heading"
           @intersecting="() => handleScroll(section.id)">
           <ScalarMarkdown
