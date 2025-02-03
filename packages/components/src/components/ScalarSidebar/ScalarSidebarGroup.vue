@@ -22,6 +22,7 @@ import type { Component } from 'vue'
 import { useBindCx } from '../../hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
+import { useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<{
   is?: Component | string
@@ -38,6 +39,8 @@ defineSlots<{
   items?: () => any
 }>()
 
+const { level } = useSidebarGroups({ increment: true })
+
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
@@ -49,6 +52,7 @@ const { cx } = useBindCx()
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
+        :indent="level"
         @click="open = !open">
         <template #icon>
           <ScalarSidebarGroupToggle :open="open" />
@@ -59,7 +63,7 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col pl-3')">
+      v-bind="cx('flex flex-col')">
       <slot
         name="items"
         :open="open" />

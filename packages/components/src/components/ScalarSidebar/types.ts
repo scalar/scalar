@@ -1,6 +1,7 @@
 import type { Component } from 'vue'
 
 import type { Icon } from '../ScalarIcon'
+import type { SidebarGroupLevel } from './useSidebarGroups'
 
 /** Scalar Sidebar Item Props */
 export type ScalarSidebarItemProps = {
@@ -11,6 +12,8 @@ export type ScalarSidebarItemProps = {
   /** Wether or not the item is selected */
   selected?: boolean
   disabled?: boolean
+  /** The level of the sidebar group */
+  indent?: SidebarGroupLevel
 }
 
 /** Scalar Sidebar Item Slots */
