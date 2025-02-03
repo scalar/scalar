@@ -25,7 +25,7 @@ const {
   activeWorkspace,
   activeServer,
 } = useActiveEntities()
-const { requestMutators, cookies } = useWorkspace()
+const { requestMutators, cookies, securitySchemes } = useWorkspace()
 const { layout } = useLayout()
 
 const sections = computed(() => {
@@ -130,7 +130,11 @@ const activeWorkspaceCookies = computed(() =>
     </template>
     <div class="request-section-content custom-scroll flex flex-1 flex-col">
       <RequestAuth
-        v-if="activeCollection && activeWorkspace"
+        v-if="
+          activeCollection &&
+          activeWorkspace &&
+          (layout !== 'modal' || Object.keys(securitySchemes ?? {}).length)
+        "
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
