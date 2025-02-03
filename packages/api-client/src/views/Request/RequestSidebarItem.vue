@@ -6,7 +6,12 @@ import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
-import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarIcon,
+  ScalarSidebarGroupToggle,
+  ScalarTooltip,
+} from '@scalar/components'
 import {
   Draggable,
   type DraggableProps,
@@ -394,15 +399,9 @@ const shouldShowItem = computed(() => {
         @click="toggleSidebarFolder(item.entity.uid)">
         <span class="flex h-5 items-center justify-center max-w-[14px]">
           <slot name="leftIcon">
-            <div
-              :class="{
-                'rotate-90': collapsedSidebarFolders[item.entity.uid],
-              }">
-              <ScalarIcon
-                class="text-c-3 text-sm"
-                icon="ChevronRight"
-                size="md" />
-            </div>
+            <ScalarSidebarGroupToggle
+              class="text-c-3 shrink-0"
+              :open="collapsedSidebarFolders[item.entity.uid]" />
           </slot>
           &hairsp;
         </span>

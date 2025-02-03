@@ -23,7 +23,8 @@ import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import type { ScalarSidebarItemProps, ScalarSidebarItemSlots } from './types'
 
 defineProps<ScalarSidebarItemProps>()
-defineSlots<ScalarSidebarItemSlots>()
+// We need to expose the slots here or we get a type error :(
+const slots = defineSlots<ScalarSidebarItemSlots>()
 
 defineOptions({ inheritAttrs: false })
 </script>
@@ -32,7 +33,7 @@ defineOptions({ inheritAttrs: false })
     <ScalarSidebarButton v-bind="{ ...$attrs, ...$props }">
       <!-- Pass through all the slots -->
       <template
-        v-for="(_, name) in $slots"
+        v-for="(_, name) in slots"
         #[name]>
         <slot :name="name" />
       </template>
