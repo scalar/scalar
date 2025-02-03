@@ -17,11 +17,12 @@ steps:
     entrypoint: gcloud
     args:
       [
+        'beta',
         'run',
         'deploy',
         '$_SERVICE_GO_PROXY',
         '--image=gcr.io/${_PROJECT_ID}/${_SERVICE_GO_PROXY}',
-        '--region=$_REGION',
+        '--regions=$_REGIONS',
         '--platform=managed',
         '--allow-unauthenticated',
         '--execution-environment=gen2',
