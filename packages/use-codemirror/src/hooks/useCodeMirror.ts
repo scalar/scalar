@@ -397,7 +397,7 @@ function getCodeMirrorExtensions({
           icon.classList.add('cm-foldMarker')
           const vnode = h(ScalarIcon, {
             icon: open ? 'ChevronDown' : 'ChevronRight',
-            size: 'xs',
+            size: 'md',
           })
           render(vnode, icon)
           return icon
@@ -417,7 +417,7 @@ function getCodeMirrorExtensions({
             icon.classList.add('cm-foldMarker')
             const vnode = h(ScalarIcon, {
               icon: open ? 'ChevronDown' : 'ChevronRight',
-              size: 'xs',
+              size: 'md',
             })
             render(vnode, icon)
             return icon
