@@ -78,7 +78,7 @@ const transformHeading = (node: Record<string, any>) => {
     <template
       v-for="section in sections"
       :key="section.id">
-      <!-- headings -->
+      <!-- Headings -->
       <template v-if="section.id">
         <IntersectionObserver
           :id="getFullHash(section.id)"
@@ -90,7 +90,7 @@ const transformHeading = (node: Record<string, any>) => {
             :value="section.content" />
         </IntersectionObserver>
       </template>
-      <!-- everything else -->
+      <!-- Everything else -->
       <template v-else>
         <ScalarMarkdown
           :value="section.content"
