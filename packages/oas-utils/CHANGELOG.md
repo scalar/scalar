@@ -1,5 +1,18 @@
 # @scalar/oas-utils
 
+## 0.2.102
+
+### Patch Changes
+
+- a34f834: feat: adds accept header by default
+- ef98b9c: fix: setting initial security with no requirements
+- a34f834: feat: adds v-2.5.0 accept header migration
+- ebdf762: feat: add back complex security requirements
+- Updated dependencies [f9bf5f1]
+  - @scalar/openapi-types@0.1.7
+  - @scalar/types@0.0.30
+  - @scalar/themes@0.9.64
+
 ## 0.2.101
 
 ### Patch Changes

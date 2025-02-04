@@ -1,5 +1,32 @@
 # @scalar/api-reference
 
+## 1.25.114
+
+### Patch Changes
+
+- 2497761: fix: updates format example helper
+- d1325d0: fix: hide auth in references when there's no schemes in the spec
+- db3cf68: fix: include has prefix in heading ids
+- f9bf5f1: feat(api-reference): implement rendering of `patternProperties`
+- Updated dependencies [a34f834]
+- Updated dependencies [26abf12]
+- Updated dependencies [ef98b9c]
+- Updated dependencies [a34f834]
+- Updated dependencies [9c43ed7]
+- Updated dependencies [26abf12]
+- Updated dependencies [ebdf762]
+- Updated dependencies [f9bf5f1]
+  - @scalar/api-client@2.2.43
+  - @scalar/oas-utils@0.2.102
+  - @scalar/snippetz@0.2.11
+  - @scalar/openapi-types@0.1.7
+  - @scalar/types@0.0.30
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/themes@0.9.64
+  - @scalar/code-highlight@0.0.20
+  - @scalar/components@0.13.19
+  - @scalar/use-hooks@0.1.18
+
 ## 1.25.113
 
 ### Patch Changes
