@@ -5,7 +5,7 @@ export function formatExample(example: unknown): string | number {
   if (Array.isArray(example)) {
     return `[${example
       .map((item) => {
-        if (typeof item === 'string' || typeof item === 'number') {
+        if (typeof item === 'string') {
           return `"${item.toString().trim()}"`
         }
 

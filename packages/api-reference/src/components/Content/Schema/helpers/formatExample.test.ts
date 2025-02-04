@@ -27,9 +27,9 @@ describe('formatExample', () => {
   })
 
   it('handles array with number values', () => {
-    const input = ['123', '456.789']
+    const input = [123, 456.789]
     const result = formatExample(input)
-    expect(result).toBe('["123", "456.789"]')
+    expect(result).toBe('[123, 456.789]')
   })
 
   it('handles array with object values', () => {
@@ -72,5 +72,11 @@ describe('formatExample', () => {
     const input = null
     const result = formatExample(input)
     expect(result).toBe('null')
+  })
+
+  it('handles number input', () => {
+    const input = 123.456
+    const result = formatExample(input)
+    expect(result).toBe('123.456')
   })
 })
