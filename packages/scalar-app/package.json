@@ -39,7 +39,7 @@
     "@scalar/components": "workspace:*",
     "@scalar/import": "workspace:*",
     "@scalar/themes": "workspace:*",
-    "@todesktop/runtime": "^2.1.0",
+    "@todesktop/runtime": "^2.1.1",
     "electron-window-state": "^5.0.3",
     "fathom-client": "^3.7.2"
   },

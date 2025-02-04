@@ -1910,8 +1910,8 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@todesktop/runtime':
-        specifier: ^2.0.0
-        version: 2.0.0
+        specifier: ^2.1.1
+        version: 2.1.1
       electron-window-state:
         specifier: ^5.0.3
         version: 5.0.3
@@ -7352,8 +7352,8 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  '@todesktop/runtime@2.0.0':
-    resolution: {integrity: sha512-0a2tmWpIc/HJE/873xRMZKQNggfrYhoKYIchfN+k8RqKdzTPwTWa5ztur7GdCHLHBUaiMBPNRzF3h4kwHd1NCw==}
+  '@todesktop/runtime@2.1.1':
+    resolution: {integrity: sha512-+57M1WZ1YRlz7ueV1NkSmm4xa0RcFQ70C5Hfc3WAbD6yp+Tkw33HPqbnYTZCdnnbKubw0C+w2tBFMNfe6bpKeQ==}
 
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
@@ -12941,6 +12941,7 @@ packages:
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.isplainobject@4.0.6:
     resolution: {integrity: sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA==}
@@ -25604,7 +25605,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@todesktop/runtime@2.0.0':
+  '@todesktop/runtime@2.1.1':
     dependencies:
       del: 6.1.1
       electron-updater: 6.3.9
