@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.20
+
+### Patch Changes
+
+- 0d8b4ea: fix(components): set z-index on ScalarMenu by default
+
 ## 0.13.19
 
 ### Patch Changes
