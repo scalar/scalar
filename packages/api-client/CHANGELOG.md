@@ -1,5 +1,29 @@
 # @scalar/api-client
 
+## 2.2.43
+
+### Patch Changes
+
+- a34f834: feat: adds accept header by default
+- 9c43ed7: fix: displays request auth if security schemes only in modal
+- ebdf762: feat: add back complex security requirements
+- Updated dependencies [a34f834]
+- Updated dependencies [ef98b9c]
+- Updated dependencies [a34f834]
+- Updated dependencies [e241e7d]
+- Updated dependencies [ebdf762]
+- Updated dependencies [f9bf5f1]
+  - @scalar/oas-utils@0.2.102
+  - @scalar/use-codemirror@0.11.64
+  - @scalar/openapi-types@0.1.7
+  - @scalar/import@0.2.22
+  - @scalar/postman-to-openapi@0.1.25
+  - @scalar/types@0.0.30
+  - @scalar/openapi-parser@0.10.4
+  - @scalar/themes@0.9.64
+  - @scalar/components@0.13.19
+  - @scalar/use-hooks@0.1.18
+
 ## 2.2.42
 
 ### Patch Changes

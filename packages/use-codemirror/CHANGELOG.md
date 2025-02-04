@@ -1,5 +1,12 @@
 # @scalar/use-codemirror
 
+## 0.11.64
+
+### Patch Changes
+
+- e241e7d: chore: remove yjs
+  - @scalar/components@0.13.19
+
 ## 0.11.63
 
 ### Patch Changes
