@@ -61,7 +61,7 @@ function close() {
     <DropdownMenu.Content
       align="start"
       :as="ScalarDropdownMenu"
-      class="max-h-radix-popper"
+      class="max-h-radix-popper z-context"
       :sideOffset="5"
       v-bind="$attrs">
       <!-- Menu content -->
