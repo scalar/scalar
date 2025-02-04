@@ -93,13 +93,14 @@ const flattenValue = (item: RequestExampleParameter) => {
               side="top">
               <template #trigger>
                 <ScalarIcon
+                  class="text-c-1"
                   icon="Globe"
                   size="xs" />
               </template>
               <template #content>
                 <div
                   class="grid gap-1.5 pointer-events-none max-w-[320px] w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-                  <div class="flex items-center text-c-2">
+                  <div class="flex items-center text-c-1">
                     <span class="text-pretty">
                       Global cookies are shared across the whole workspace.
                     </span>
