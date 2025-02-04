@@ -1,12 +1,10 @@
 <script setup lang="ts">
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
+import { useNavState } from '@/hooks/useNavState'
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
-import GithubSlugger from 'github-slugger'
+import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
-
-import { joinWithSlash } from '../../../helpers'
-import { useNavState } from '../../../hooks'
-import IntersectionObserver from '../../IntersectionObserver.vue'
 
 const props = defineProps<{
   /** Markdown document */
@@ -22,7 +20,7 @@ const sections = computed(() => {
     return []
   }
 
-  const slugger = new GithubSlugger()
+  const slugger = new GitHubSlugger()
 
   const items = splitContent(props.value).map((markdown) => {
     // Get “first” (and only) heading, if available
@@ -45,7 +43,8 @@ const sections = computed(() => {
   return items
 })
 
-const { getHeadingId, isIntersectionEnabled, replaceUrlState } = useNavState()
+const { getHeadingId, getFullHash, isIntersectionEnabled, replaceUrlState } =
+  useNavState()
 
 function handleScroll(headingId = '') {
   if (!isIntersectionEnabled.value) return
@@ -53,7 +52,7 @@ function handleScroll(headingId = '') {
   replaceUrlState(headingId)
 }
 
-const slugger = new GithubSlugger()
+const slugger = new GitHubSlugger()
 
 /** Add ids to all headings */
 const transformHeading = (node: Record<string, any>) => {
@@ -78,10 +77,10 @@ const transformHeading = (node: Record<string, any>) => {
     <template
       v-for="section in sections"
       :key="section.id">
-      <!-- headings -->
+      <!-- Headings -->
       <template v-if="section.id">
         <IntersectionObserver
-          :id="section.id"
+          :id="getFullHash(section.id)"
           class="introduction-description-heading"
           @intersecting="() => handleScroll(section.id)">
           <ScalarMarkdown
@@ -90,7 +89,7 @@ const transformHeading = (node: Record<string, any>) => {
             :value="section.content" />
         </IntersectionObserver>
       </template>
-      <!-- everything else -->
+      <!-- Everything else -->
       <template v-else>
         <ScalarMarkdown
           :value="section.content"
