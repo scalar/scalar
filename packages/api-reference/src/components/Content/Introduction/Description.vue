@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import IntersectionObserver from '@/components/IntersectionObserver.vue'
+import { useNavState } from '@/hooks/useNavState'
 import { getHeadings, splitContent } from '@scalar/code-highlight/markdown'
 import { ScalarMarkdown } from '@scalar/components'
-import GithubSlugger from 'github-slugger'
+import GitHubSlugger from 'github-slugger'
 import { computed } from 'vue'
-
-import { useNavState } from '../../../hooks'
-import IntersectionObserver from '../../IntersectionObserver.vue'
 
 const props = defineProps<{
   /** Markdown document */
@@ -21,7 +20,7 @@ const sections = computed(() => {
     return []
   }
 
-  const slugger = new GithubSlugger()
+  const slugger = new GitHubSlugger()
 
   const items = splitContent(props.value).map((markdown) => {
     // Get “first” (and only) heading, if available
@@ -53,7 +52,7 @@ function handleScroll(headingId = '') {
   replaceUrlState(headingId)
 }
 
-const slugger = new GithubSlugger()
+const slugger = new GitHubSlugger()
 
 /** Add ids to all headings */
 const transformHeading = (node: Record<string, any>) => {
