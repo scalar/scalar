@@ -48,8 +48,8 @@
     "@scalar/build-tooling": "workspace:*",
     "@types/express": "^4.17.21",
     "@types/supertest": "^2.0.12",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "supertest": "^6.3.3",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   }
 }
