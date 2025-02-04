@@ -20,6 +20,7 @@ const props = withDefaults(
     compact?: boolean
     description?: string
     additional?: boolean
+    pattern?: boolean
     withExamples?: boolean
   }>(),
   {
@@ -56,6 +57,10 @@ const displayDescription = function (
   }
 
   if (value?.additionalProperties) {
+    return null
+  }
+
+  if (value?.patternProperties) {
     return null
   }
 
@@ -107,6 +112,7 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
     ]">
     <SchemaPropertyHeading
       :additional="additional"
+      :pattern="pattern"
       :enum="getEnumFromValue(value).length > 0"
       :required="required"
       :value="optimizedValue">
