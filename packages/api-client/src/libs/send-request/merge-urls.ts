@@ -1,7 +1,4 @@
-import {
-  concatenateUrlAndPath,
-  isRelativePath,
-} from '@scalar/oas-utils/helpers'
+import { isRelativePath } from '@scalar/oas-utils/helpers'
 
 import { ensureProtocol } from './ensure-protocol'
 
@@ -44,12 +41,12 @@ export const mergeSearchParams = (
 }
 
 /** Combines a base URL and a path ensuring there's only one slash between them */
-const combineUrlAndPath = (base: string, path: string) => {
-  if (!path || base === path) return base
+export const combineUrlAndPath = (url: string, path: string) => {
+  if (!path || url === path) return url.trim()
 
-  // Remove trailing slash from base and leading slash from path
-  const cleanBase = base.replace(/\/+$/, '')
-  const cleanPath = path.replace(/^\/+/, '')
+  // Remove trailing slash from url and leading slash from path
+  const cleanBase = url.replace(/\/+$/, '').trim()
+  const cleanPath = path.replace(/^\/+/, '').trim()
 
   return `${cleanBase}/${cleanPath}`
 }
@@ -68,7 +65,7 @@ export const mergeUrls = (
   if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
     /** Prefix the url with the origin if it is relative */
     const base = isRelativePath(url)
-      ? concatenateUrlAndPath(window.location.origin, url)
+      ? combineUrlAndPath(window.location.origin, url)
       : ensureProtocol(url)
 
     // Extract search params from base URL if any

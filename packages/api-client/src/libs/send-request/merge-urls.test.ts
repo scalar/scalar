@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { mergeSearchParams, mergeUrls } from './merge-urls'
+import { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls'
 
 describe('mergeSearchParams', () => {
   it('merges basic params from different sources', () => {
@@ -305,6 +305,178 @@ describe('mergeUrls', () => {
     it('handles malformed URLs gracefully', () => {
       const result = mergeUrls('http://{bad-url}', '/users')
       expect(result).toBe('http://{bad-url}/users')
+    })
+  })
+})
+
+describe.only('combineUrlAndPath', () => {
+  describe('basic path joining', () => {
+    it('combines base and path with single slash', () => {
+      expect(combineUrlAndPath('http://example.com', 'api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('returns base when paths are identical', () => {
+      expect(
+        combineUrlAndPath('http://example.com', 'http://example.com'),
+      ).toBe('http://example.com')
+    })
+
+    it('returns base when path is empty', () => {
+      expect(combineUrlAndPath('http://example.com', '')).toBe(
+        'http://example.com',
+      )
+    })
+
+    it('returns base when path is undefined', () => {
+      expect(
+        combineUrlAndPath('http://example.com', undefined as unknown as string),
+      ).toBe('http://example.com')
+    })
+  })
+
+  describe('slash handling', () => {
+    it('removes trailing slash from base', () => {
+      expect(combineUrlAndPath('http://example.com/', 'api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('removes leading slash from path', () => {
+      expect(combineUrlAndPath('http://example.com', '/api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('handles both trailing and leading slashes', () => {
+      expect(combineUrlAndPath('http://example.com/', '/api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('removes multiple trailing slashes', () => {
+      expect(combineUrlAndPath('http://example.com///', 'api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('removes multiple leading slashes', () => {
+      expect(combineUrlAndPath('http://example.com', '///api')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('handles multiple slashes in both base and path', () => {
+      expect(combineUrlAndPath('http://example.com///', '///api')).toBe(
+        'http://example.com/api',
+      )
+    })
+  })
+
+  describe('path segments', () => {
+    it('preserves multiple path segments', () => {
+      expect(combineUrlAndPath('http://example.com', 'api/v1/users')).toBe(
+        'http://example.com/api/v1/users',
+      )
+    })
+
+    it('preserves query parameters in base', () => {
+      expect(combineUrlAndPath('http://example.com?version=1', 'api')).toBe(
+        'http://example.com?version=1/api',
+      )
+    })
+
+    it('preserves query parameters in path', () => {
+      expect(combineUrlAndPath('http://example.com', 'api?version=1')).toBe(
+        'http://example.com/api?version=1',
+      )
+    })
+
+    it('preserves hash fragments', () => {
+      expect(combineUrlAndPath('http://example.com#section', 'api')).toBe(
+        'http://example.com#section/api',
+      )
+    })
+  })
+
+  describe('special cases', () => {
+    it('handles relative base paths', () => {
+      expect(combineUrlAndPath('./base', 'api')).toBe('./base/api')
+    })
+
+    it('handles parent directory references', () => {
+      expect(combineUrlAndPath('../base', 'api')).toBe('../base/api')
+    })
+
+    it('handles absolute paths', () => {
+      expect(combineUrlAndPath('/base', 'api')).toBe('/base/api')
+    })
+
+    it('removes extra spaces', () => {
+      expect(combineUrlAndPath('http://example.com ', '  api  ')).toBe(
+        'http://example.com/api',
+      )
+    })
+
+    it('handles URLs with ports', () => {
+      expect(combineUrlAndPath('http://example.com:8080', 'api')).toBe(
+        'http://example.com:8080/api',
+      )
+    })
+
+    it('handles URLs with authentication', () => {
+      expect(combineUrlAndPath('http://user:pass@example.com', 'api')).toBe(
+        'http://user:pass@example.com/api',
+      )
+    })
+  })
+
+  describe('template variables', () => {
+    it('preserves variables in base', () => {
+      expect(combineUrlAndPath('{protocol}://example.com', 'api')).toBe(
+        '{protocol}://example.com/api',
+      )
+    })
+
+    it('preserves variables in path', () => {
+      expect(combineUrlAndPath('http://example.com', '{version}/api')).toBe(
+        'http://example.com/{version}/api',
+      )
+    })
+
+    it('preserves variables in both', () => {
+      expect(combineUrlAndPath('{host}/base', '{version}/api')).toBe(
+        '{host}/base/{version}/api',
+      )
+    })
+  })
+
+  describe('edge cases', () => {
+    it('handles empty base', () => {
+      expect(combineUrlAndPath('', 'api')).toBe('/api')
+    })
+
+    it('handles both empty strings', () => {
+      expect(combineUrlAndPath('', '')).toBe('')
+    })
+
+    it('handles root paths', () => {
+      expect(combineUrlAndPath('http://example.com', '/')).toBe(
+        'http://example.com/',
+      )
+    })
+
+    it('handles special characters in paths', () => {
+      expect(combineUrlAndPath('http://example.com', 'path with spaces')).toBe(
+        'http://example.com/path with spaces',
+      )
+    })
+
+    it('preserves URL encoded characters', () => {
+      expect(
+        combineUrlAndPath('http://example.com', 'path%20with%20spaces'),
+      ).toBe('http://example.com/path%20with%20spaces')
     })
   })
 })
