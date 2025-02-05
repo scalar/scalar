@@ -309,7 +309,7 @@ describe('mergeUrls', () => {
   })
 })
 
-describe.only('combineUrlAndPath', () => {
+describe('combineUrlAndPath', () => {
   describe('basic path joining', () => {
     it('combines base and path with single slash', () => {
       expect(combineUrlAndPath('http://example.com', 'api')).toBe(
