@@ -1,7 +1,7 @@
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { createFetchBody } from './send-request'
+import { createFetchBody } from './create-fetch-body'
 
 describe('createFetchBody', () => {
   it('should handle request method in lowercase', () => {

@@ -1,3 +1,5 @@
+import { REGEX } from '@/helpers/regexHelpers'
+
 import { isLocalUrl } from './isLocalUrl'
 
 /** Redirects the request to a proxy server with a given URL. */
@@ -22,6 +24,11 @@ export function redirectToProxy(proxy?: string, url?: string): string {
 export const isRelativePath = (url: string) => {
   // Absolute URLs start with http:// or https://
   if (url.startsWith('http://') || url.startsWith('https://')) {
+    return false
+  }
+
+  // Allow other protocols such as file://
+  if (REGEX.PROTOCOL.test(url)) {
     return false
   }
 

@@ -2,6 +2,48 @@ import { describe, expect, it } from 'vitest'
 
 import { REGEX } from './regexHelpers'
 
+describe('protocolRegex', () => {
+  it('allows http://', () => {
+    const text = 'http://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('allows https://', () => {
+    const text = 'https://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('allows file://', () => {
+    const text = 'file://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('allows ftp://', () => {
+    const text = 'ftp://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('allows mailto://', () => {
+    const text = 'mailto://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('allows variables before ://', () => {
+    const text = '{protocol}://example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+  })
+
+  it('does not allow no protocol with a variable', () => {
+    const text = '{base}/api'
+    expect(text.match(REGEX.PROTOCOL)).toBeNull()
+  })
+
+  it('does not allow no protocol with no variables', () => {
+    const text = 'example.com'
+    expect(text.match(REGEX.PROTOCOL)).toBeNull()
+  })
+})
+
 describe('variableRegex', () => {
   it('matches variables with double curly braces', () => {
     const text = '{{example.com}}'

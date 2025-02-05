@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { decodeBuffer } from './send-request'
+import { decodeBuffer } from './decode-buffer'
 
 describe('decode-buffer', () => {
   it('decodes JSON content', () => {

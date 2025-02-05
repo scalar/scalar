@@ -1,6 +1,6 @@
-import { createRequestOperation } from '@/libs/send-request/send-request'
 import { describe, expect, it } from 'vitest'
 
+import { createRequestOperation } from './create-request-operation'
 import { VOID_URL, createRequestPayload } from './create-request-operation.test'
 
 describe('authentication', () => {

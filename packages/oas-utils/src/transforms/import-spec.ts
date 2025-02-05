@@ -20,7 +20,7 @@ import {
   type SecuritySchemePayload,
   securitySchemeSchema,
 } from '@/entities/spec/security'
-import { concatenateUrlAndPath, isDefined } from '@/helpers'
+import { combineUrlAndPath, isDefined } from '@/helpers'
 import { isHttpMethod } from '@/helpers/httpMethods'
 import { schemaModel } from '@/helpers/schema-model'
 import { keysOf } from '@scalar/object-utils/arrays'
@@ -498,9 +498,9 @@ export function getServersFromOpenApiDocument(
         if (parsedSchema?.url?.startsWith('/')) {
           // Use the base server URL (if provided)
           if (baseServerURL) {
-            parsedSchema.url = concatenateUrlAndPath(
-              baseServerURL?.replace(/\/$/, ''),
-              parsedSchema.url.replace(/^\//, ''),
+            parsedSchema.url = combineUrlAndPath(
+              baseServerURL,
+              parsedSchema.url,
             )
 
             return parsedSchema
@@ -508,9 +508,9 @@ export function getServersFromOpenApiDocument(
 
           // Fallback to the current window origin
           if (typeof window?.location?.origin === 'string') {
-            parsedSchema.url = concatenateUrlAndPath(
+            parsedSchema.url = combineUrlAndPath(
               window.location.origin,
-              parsedSchema.url.replace(/^\//, ''),
+              parsedSchema.url,
             )
 
             return parsedSchema

@@ -1,147 +1,26 @@
 import { ERRORS, type ErrorResponse, normalizeError } from '@/libs/errors'
 import type { EventBus } from '@/libs/event-bus'
 import { normalizeHeaders } from '@/libs/normalize-headers'
+import { createFetchBody } from '@/libs/send-request/create-fetch-body'
+import { createFetchHeaders } from '@/libs/send-request/create-fetch-headers'
+import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-params'
+import { decodeBuffer } from '@/libs/send-request/decode-buffer'
 import {
   getCookieHeader,
   setRequestCookies,
 } from '@/libs/send-request/set-request-cookies'
 import { replaceTemplateVariables } from '@/libs/string-template'
-import { textMediaTypes } from '@/views/Request/consts'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,
   RequestExample,
-  RequestMethod,
   ResponseInstance,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import {
-  REGEX,
-  canMethodHaveBody,
-  concatenateUrlAndPath,
-  isRelativePath,
-  shouldUseProxy,
-} from '@scalar/oas-utils/helpers'
-import MimeTypeParser from 'whatwg-mimetype'
+import { mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
-
-// TODO: This should return `unknown` to acknowledge we don’t know type, shouldn’t it?
-/** Decode the buffer according to its content-type */
-export function decodeBuffer(buffer: ArrayBuffer, contentType: string) {
-  const mimeType = new MimeTypeParser(contentType)
-
-  if (textMediaTypes.includes(mimeType.essence)) {
-    const decoder = new TextDecoder(mimeType.parameters.get('charset'))
-    const string = decoder.decode(buffer)
-
-    // Text
-    return string
-  }
-
-  // Binary
-  return new Blob([buffer], { type: mimeType.essence })
-}
-
-/** Populate the headers from enabled parameters */
-export function createFetchHeaders(
-  example: Pick<RequestExample, 'parameters'>,
-  env: object,
-) {
-  const headers: NonNullable<RequestInit['headers']> = {}
-
-  example.parameters.headers.forEach((h) => {
-    const lowerCaseKey = h.key.trim().toLowerCase()
-
-    // Ensure we remove the mutlipart/form-data header so fetch can properly set boundaries
-    if (
-      h.enabled &&
-      (lowerCaseKey !== 'content-type' || h.value !== 'multipart/form-data')
-    )
-      headers[lowerCaseKey] = replaceTemplateVariables(h.value, env)
-  })
-
-  return headers
-}
-
-/** Populate the query parameters from the example  */
-export function createFetchQueryParams(
-  example: Pick<RequestExample, 'parameters'>,
-  env: object,
-) {
-  const params = new URLSearchParams()
-  example.parameters.query.forEach((p) => {
-    if (p.enabled) {
-      const values =
-        p.type === 'array'
-          ? replaceTemplateVariables(p.value ?? '', env).split(',')
-          : [replaceTemplateVariables(p.value ?? '', env)]
-      values.forEach((value) => params.append(p.key, value.trim()))
-    }
-  })
-
-  return params
-}
-
-/**
- * Create the fetch request body from an example
- *
- * TODO: Should we be setting the content type headers here?
- * If so we must allow the user to override the content type header
- */
-export function createFetchBody(
-  method: RequestMethod,
-  example: RequestExample,
-  env: object,
-) {
-  if (!canMethodHaveBody(method))
-    return { body: undefined, contentType: undefined }
-
-  if (example.body.activeBody === 'formData' && example.body.formData) {
-    const contentType =
-      example.body.formData.encoding === 'form-data'
-        ? 'multipart/form-data'
-        : 'application/x-www-form-urlencoded'
-
-    const form =
-      example.body.formData.encoding === 'form-data'
-        ? new FormData()
-        : new URLSearchParams()
-
-    // Build formData
-    example.body.formData.value.forEach((entry) => {
-      if (!entry.enabled || !entry.key) return
-
-      // File upload
-      if (entry.file && form instanceof FormData)
-        form.append(entry.key, entry.file, entry.file.name)
-      // Text input with variable replacement
-      else if (entry.value !== undefined)
-        form.append(entry.key, replaceTemplateVariables(entry.value, env))
-    })
-    return { body: form, contentType }
-  }
-
-  if (example.body.activeBody === 'raw') {
-    return {
-      body: replaceTemplateVariables(example.body.raw?.value ?? '', env),
-      contentType: example.body.raw?.encoding,
-    }
-  }
-
-  if (example.body.activeBody === 'binary') {
-    return {
-      body: example.body.binary,
-      contentType: example.body.binary?.type,
-    }
-  }
-
-  return {
-    body: undefined,
-    contentType: undefined,
-  }
-}
 
 /** Response from sendRequest hoisted so we can use it as the return type for createRequestOperation */
 type SendRequestResponse = Promise<
@@ -151,19 +30,6 @@ type SendRequestResponse = Promise<
     timestamp: number
   }>
 >
-
-/** Ensure URL has a protocol prefix */
-function ensureProtocol(url: string): string {
-  if (
-    REGEX.PATH.test(url) ||
-    url.startsWith('http://') ||
-    url.startsWith('https://')
-  ) {
-    return url
-  }
-  // Default to http if no protocol is specified
-  return `http://${url}`
-}
 
 /** For the examples mostly */
 const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
@@ -288,36 +154,9 @@ export const createRequestOperation = ({
       }
     })
 
-    // Extract and merge all query params
-    if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-      /** Prefix the url with the origin if it is relative */
-      const base = isRelativePath(url)
-        ? concatenateUrlAndPath(window.location.origin, url)
-        : ensureProtocol(url)
-
-      /** We create a separate server URL to snag any search params from the server */
-      const serverURL = new URL(base)
-      /** We create a separate path URL to grab the path params */
-      const pathURL = new URL(pathString, serverURL.origin)
-      /** Now we remove the query params from the path to ensure there's no duplicate query params */
-      const pathname = pathString.split('?')[0] ?? ''
-
-      /** Finally we combine the two but make sure that we keep the path from server */
-      const combinedURL = new URL(serverURL)
-      if (server?.url) {
-        if (serverURL.pathname === '/') combinedURL.pathname = pathname
-        else combinedURL.pathname = serverURL.pathname + pathname
-      }
-
-      // Combines all query params
-      const searchParams = server?.url
-        ? [...serverURL.searchParams, ...pathURL.searchParams, ...urlParams]
-        : [...pathURL.searchParams, ...urlParams]
-
-      combinedURL.search = new URLSearchParams(searchParams).toString()
-
-      url = combinedURL.toString()
-    }
+    // Combine the url with the path and server + query params
+    url = mergeUrls(url, pathString, urlParams)
+    console.log('url', url)
 
     /** Cookie header */
     const cookieHeader = replaceTemplateVariables(
