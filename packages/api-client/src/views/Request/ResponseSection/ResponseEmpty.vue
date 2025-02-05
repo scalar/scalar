@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Computer from '@/assets/computer.ascii?raw'
-import Keycap from '@/assets/keycap.ascii?raw'
+import EmptyState from '@/components/EmptyState.vue'
 import ScalarAsciiArt from '@/components/ScalarAsciiArt.vue'
 import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
@@ -66,22 +66,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       :class="{
         '!flex opacity-100': activeWorkspaceRequests.length == 1,
       }">
-      <div class="scale-75 flex">
-        <div class="relative">
-          <ScalarHotkey
-            class="keycap-hotkey"
-            hotkey="" />
-          <ScalarAsciiArt
-            :art="Keycap"
-            class="!leading-[6px] text-c-3" />
-        </div>
-        <div class="relative -ml-12">
-          <div class="keycap-hotkey !right-[60px]">K</div>
-          <ScalarAsciiArt
-            :art="Keycap"
-            class="!leading-[6px] keycap-n" />
-        </div>
-      </div>
+      <EmptyState />
     </div>
     <div
       class="text-c-3 right-4 mt-auto flex w-full flex-col items-end gap-2 text-sm">
@@ -141,29 +126,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
   text-decoration: none;
   border: 0.5px solid var(--scalar-border-color);
 }
-.keycap-n {
-  background: -webkit-linear-gradient(
-    5deg,
-    transparent 30%,
-    var(--scalar-color-3) 50%
-  );
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
 
-.keycap-hotkey {
-  color: var(--scalar-color-1);
-  font-size: 26px;
-  position: absolute;
-  top: 32px;
-  right: 54px;
-  font-weight: 200;
-  height: 26px;
-  line-height: 26px;
-  border: none;
-  font-weight: 400;
-  font-family: var(--scalar-font);
-}
 .gitbook-show {
   display: none;
 }

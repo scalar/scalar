@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
+import EmptyState from '@/components/EmptyState.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
@@ -166,6 +167,7 @@ const hasCookies = computed(
         <!--  Untested and disabled for now. -->
         <!-- <CookieRaw /> -->
       </template>
+      <EmptyState v-else />
     </ViewLayoutContent>
 
     <CookieModal
