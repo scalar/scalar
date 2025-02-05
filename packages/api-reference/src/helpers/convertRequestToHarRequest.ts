@@ -1,3 +1,9 @@
+import { combineUrl } from '@scalar/api-client/libs'
+import type {
+  Operation,
+  RequestExample,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type { HarRequest } from '@scalar/snippetz'
 
 /**
@@ -5,17 +11,15 @@ import type { HarRequest } from '@scalar/snippetz'
  * We also Titlecase the headers
  */
 export const convertRequestToHarRequest = async (
-  request: Request,
+  operation: Operation,
+  example: RequestExample,
+  server?: Server,
 ): Promise<HarRequest> => {
-  const url = new URL(request.url)
-
-  // Prevent duplication of query string
-  const query = Array.from(url.searchParams.entries())
-  url.search = ''
+  const url = combineUrl(server?.url ?? '', operation.path, server)
 
   // Create base HAR request structure
   const harRequest: HarRequest = {
-    method: request.method.toUpperCase(),
+    method: operation.method.toUpperCase(),
     url: url.toString(),
     httpVersion: 'HTTP/1.1',
     headers: [],
@@ -24,83 +28,90 @@ export const convertRequestToHarRequest = async (
     headersSize: -1,
     bodySize: -1,
   }
+  const { cookies, headers, query } = example.parameters
 
   // Handle cookies from Cookie header
-  const cookieHeader = request.headers.get('cookie')
-  if (cookieHeader) {
-    harRequest.cookies = cookieHeader.split(';').map((cookie) => {
-      const [name, value] = cookie.trim().split('=')
-      return { name, value }
-    })
-  }
+  if (cookies.length)
+    harRequest.cookies = cookies
+      .filter((c) => c.enabled)
+      .map(({ key, value }) => ({
+        name: key,
+        value,
+      }))
 
   // Convert headers
-  if (request.headers) {
-    harRequest.headers = Array.from(request.headers.entries()).map(
-      ([name, value]) => ({
-        name: name.replace(/\b\w/g, (letter) => letter.toUpperCase()),
+  if (headers.length)
+    harRequest.headers = headers
+      .filter((h) => h.enabled)
+      .map(({ key, value }) => ({
+        name: key.replace(/\b\w/g, (letter) => letter.toUpperCase()),
         value,
-      }),
-    )
-  }
+      }))
 
   // Handle query parameters
-  try {
-    harRequest.queryString = query.map(([name, value]) => ({
-      name,
-      value,
-    }))
-
-    // Prevent duplication of query params
-    url.search = ''
-  } catch (e) {
-    // Invalid URL, leave queryString empty
-  }
+  if (query.length)
+    harRequest.queryString = query
+      .filter((q) => q.enabled)
+      .map(({ key, value }) => ({
+        name: key,
+        value,
+      }))
 
   // Handle request body if present
-  if (request.body) {
+  if (example.body) {
     try {
       const contentType =
-        request.headers.get('content-type') || 'application/json'
+        headers.find((h) => h.key.toLowerCase() === 'content-type')?.value ||
+        'application/json'
 
       // For form-data, convert to object while handling File objects
-      if (contentType.includes('multipart/form-data')) {
-        const formData = await request.formData()
+      if (example.body.activeBody === 'formData' && example.body.formData) {
         const formDataObject: Record<string, any> = {}
 
-        formData.forEach((value, key) => {
-          const isBlob = value instanceof Blob
-          const isFile = value instanceof File
-
-          if (isFile || isBlob) {
+        example.body.formData.value.forEach(({ key, value, file }) => {
+          if (file) {
             formDataObject[key] = {
               type: 'file',
               text: 'BINARY',
-              name: 'name' in value ? value.name : 'blob',
-              size: value.size,
-              mimeType: value.type || 'application/octet-stream',
+              name: key || 'blob',
+              size: file.size,
+              fileName: file.name,
+              mimeType: file.type || 'application/octet-stream',
             }
           }
           // Handle multiple values for the same key
           else {
-            const values = formData.getAll(key)
-            if (values.length > 1) {
-              formDataObject[key] = values
-            } else {
-              formDataObject[key] = values[0]
+            // If key already exists, make an array and append
+            if (formDataObject[key]) {
+              if (!Array.isArray(formDataObject[key]))
+                formDataObject[key] = [formDataObject[key]]
+
+              formDataObject[key].push(value)
+            }
+            // Otherwise just set the key
+            else {
+              formDataObject[key] = value
             }
           }
         })
 
-        harRequest.postData = {
-          mimeType: contentType,
-          text: JSON.stringify(formDataObject),
+        // Handle urlencoded form data
+        if (example.body.formData?.encoding === 'urlencoded') {
+          harRequest.postData = {
+            mimeType: contentType,
+            text: new URLSearchParams(formDataObject).toString(),
+          }
+        } else {
+          harRequest.postData = {
+            mimeType: contentType,
+            text: JSON.stringify(formDataObject),
+          }
         }
-      } else {
+      } else if (example.body.activeBody === 'raw' && example.body.raw) {
         // For other content types (JSON, plain text, url-encoded)
         harRequest.postData = {
           mimeType: contentType,
-          text: await request.text(),
+          text: example.body.raw?.value ?? '',
         }
       }
     } catch (e) {

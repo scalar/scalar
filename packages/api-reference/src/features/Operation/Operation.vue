@@ -1,45 +1,28 @@
 <script lang="ts" setup>
 import { getPointer } from '@/blocks/helpers/getPointer'
 import { useBlockProps } from '@/blocks/hooks/useBlockProps'
-import {
-  WORKSPACE_SYMBOL,
-  type WorkspaceStore,
-  useActiveEntities,
-} from '@scalar/api-client/store'
+import { useWorkspace } from '@scalar/api-client/store'
+import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { inject } from 'vue'
 
-import { useRequestExample } from './hooks/useRequestExample'
 import ClassicLayout from './layouts/ClassicLayout.vue'
 import ModernLayout from './layouts/ModernLayout.vue'
 
 const {
   id,
   layout = 'modern',
-  operation,
-  requests,
-  requestExamples,
-  securitySchemes,
+  transformedOperation,
+  collection,
+  server,
 } = defineProps<{
   id?: string
   layout?: 'modern' | 'classic'
-  operation: TransformedOperation
-  requests: WorkspaceStore['requests']
-  requestExamples: WorkspaceStore['requestExamples']
-  securitySchemes: WorkspaceStore['securitySchemes']
+  transformedOperation: TransformedOperation
+  collection: Collection | undefined
+  server: Server | undefined
 }>()
 
-const { activeCollection, activeServer } = useActiveEntities()
-const { request, secretCredentials } = useRequestExample({
-  operation,
-  collection: activeCollection,
-  requests,
-  requestExamples,
-  securitySchemes,
-  server: activeServer,
-})
-
-const store = inject(WORKSPACE_SYMBOL)
+const store = useWorkspace()
 
 /**
  * Resolve the matching operation from the store
@@ -49,31 +32,33 @@ const store = inject(WORKSPACE_SYMBOL)
  * We’ll be able to just use the request entitiy from the store directly, once we loop over those,
  * instead of using the super custom transformed `parsedSpec` that we’re using now.
  */
-const { operation: requestEntity } = useBlockProps({
+const { operation } = useBlockProps({
   store,
   location: getPointer([
     'paths',
-    operation.path,
-    operation.httpVerb.toLowerCase(),
+    transformedOperation.path,
+    transformedOperation.httpVerb.toLowerCase(),
   ]),
 })
 </script>
 
 <template>
-  <template v-if="layout === 'classic'">
-    <ClassicLayout
-      :id="id"
-      :operation="operation"
-      :request="request"
-      :requestEntity="requestEntity"
-      :secretCredentials="secretCredentials" />
-  </template>
-  <template v-else>
-    <ModernLayout
-      :id="id"
-      :operation="operation"
-      :request="request"
-      :requestEntity="requestEntity"
-      :secretCredentials="secretCredentials" />
+  <template v-if="collection && operation">
+    <template v-if="layout === 'classic'">
+      <ClassicLayout
+        :id="id"
+        :collection="collection"
+        :operation="operation"
+        :server="server"
+        :transformedOperation="transformedOperation" />
+    </template>
+    <template v-else>
+      <ModernLayout
+        :id="id"
+        :collection="collection"
+        :operation="operation"
+        :server="server"
+        :transformedOperation="transformedOperation" />
+    </template>
   </template>
 </template>
