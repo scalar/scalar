@@ -1,7 +1,7 @@
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { createFetchQueryParams } from './send-request'
+import { createFetchQueryParams } from './create-fetch-query-params'
 
 describe('createFetchQueryParams', () => {
   it('creates query paramer from an example', () => {

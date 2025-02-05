@@ -1,7 +1,7 @@
 import type { RequestExample } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
-import { createFetchHeaders } from './send-request'
+import { createFetchHeaders } from './create-fetch-headers'
 
 describe('createFetchHeaders', () => {
   it('creates headers from enabled parameters', () => {
