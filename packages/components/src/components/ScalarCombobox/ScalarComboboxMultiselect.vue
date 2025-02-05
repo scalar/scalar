@@ -39,7 +39,7 @@ defineExpose({ comboboxPopoverRef })
     <slot />
     <template #popover="{ open }">
       <ComboboxOptions
-        v-if="options && options.length"
+        v-if="options?.length"
         :isDeletable="isDeletable"
         :modelValue="modelValue"
         multiselect
