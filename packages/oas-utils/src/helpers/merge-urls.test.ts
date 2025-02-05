@@ -198,7 +198,7 @@ describe('mergeUrls', () => {
     expect(result).toBe('{protocol}://api.example.com/users')
   })
 
-  it.only('handles relative URLs', () => {
+  it('handles relative URLs', () => {
     const result = mergeUrls('/api', '/users')
     expect(result).toBe('http://localhost:3000/api/users')
   })
