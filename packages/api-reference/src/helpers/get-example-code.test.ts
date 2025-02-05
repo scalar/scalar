@@ -107,28 +107,34 @@ $.ajax(settings).done(function (response) {
     expect(result).toBe('')
   })
 
-  it('shows the escaped variables in the url', async () => {
-    const result = await getExampleCode(
-      new Request('https://example.com/users/{userId}', {
-        method: 'POST',
-      }),
-      'javascript',
-      'fetch',
-    )
-
-    expect(result).toContain('https://example.com/users/%7BuserId%7D')
-  })
-
   it('shows the original path before variable replacement', async () => {
+    server = serverSchema.parse({
+      uid: 'server-uid',
+      url: '{protocol}://void.scalar.com/{path}',
+      description: 'Responds with your request data',
+      variables: {
+        protocol: {
+          enum: ['https'],
+          default: 'https',
+        },
+        path: {
+          default: '',
+        },
+      },
+    })
+
     const result = await getExampleCode(
-      new Request('https://example.com/users/{userId}', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       'javascript',
       'fetch',
-      '/users/{userId}',
+      server,
     )
 
-    expect(result).toContain('https://example.com/users/{userId}')
+    expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users', {
+  headers: {
+    Accept: '*/*'
+  }
+})`)
   })
 })
