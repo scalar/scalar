@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import { REGEX } from './regexHelpers'
 
-describe.only('protocolRegex', () => {
+describe('protocolRegex', () => {
   it('allows http://', () => {
     const text = 'http://example.com'
     expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
