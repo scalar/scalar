@@ -1,7 +1,11 @@
 import { extractFilename } from '@/libs/extractAttachmentFilename'
 import { computed } from 'vue'
-import MIMEType from 'whatwg-mimetype'
+import MimeType from 'whatwg-mimetype'
 
+/**
+ * Processes the response body of an HTTP request.
+ * Extracts MIME type, attachment filename, and generates a data URL.
+ */
 export function useResponseBody(props: {
   data: unknown
   headers: { name: string; value: string; required: boolean }[]
@@ -13,7 +17,7 @@ export function useResponseBody(props: {
       props.headers.find(
         (header) => header.name.toLowerCase() === 'content-type',
       )?.value ?? ''
-    return new MIMEType(contentType)
+    return new MimeType(contentType)
   })
 
   const attachmentFilename = computed(() => {

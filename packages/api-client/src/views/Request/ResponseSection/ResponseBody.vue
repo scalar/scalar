@@ -1,9 +1,8 @@
 <script lang="ts" setup>
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { extractFilename } from '@/libs/extractAttachmentFilename'
+import { useResponseBody } from '@/hooks/useResponseBody'
 import { mediaTypes } from '@/views/Request/consts'
 import { computed, ref } from 'vue'
-import MIMEType from 'whatwg-mimetype'
 
 import ResponseBodyDownload from './ResponseBodyDownload.vue'
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
@@ -17,9 +16,6 @@ const props = defineProps<{
   headers: { name: string; value: string; required: boolean }[]
 }>()
 
-/** Type guard to ensure blobs are blobs */
-const isBlob = (b: any): b is Blob => b instanceof Blob
-
 /** Preview / Raw toggle */
 const toggle = ref(true)
 
@@ -30,37 +26,12 @@ const showToggle = computed(
 const showPreview = computed(() => toggle.value || !showToggle.value)
 const showRaw = computed(() => !toggle.value || !showToggle.value)
 
-const mimeType = computed(() => {
-  const contentType =
-    props.headers.find((header) => header.name.toLowerCase() === 'content-type')
-      ?.value ?? ''
-  return new MIMEType(contentType)
-})
-
-const attachmentFilename = computed(() => {
-  const value =
-    props.headers.find(
-      (header) => header.name.toLowerCase() === 'content-disposition',
-    )?.value ?? ''
-  return extractFilename(value)
+const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
+  data: props.data,
+  headers: props.headers,
 })
 
 const mediaConfig = computed(() => mediaTypes[mimeType.value.essence])
-
-const dataUrl = computed<string>(() => {
-  if (isBlob(props.data)) return URL.createObjectURL(props.data)
-  if (typeof props.data === 'string')
-    return URL.createObjectURL(
-      new Blob([props.data], { type: mimeType.value.toString() }),
-    )
-  if (props.data instanceof Object && Object.keys(props.data).length)
-    return URL.createObjectURL(
-      new Blob([JSON.stringify(props.data)], {
-        type: mimeType.value.toString(),
-      }),
-    )
-  return ''
-})
 </script>
 <template>
   <ViewLayoutCollapse class="max-h-content overflow-x-auto">

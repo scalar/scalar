@@ -150,7 +150,9 @@ const shouldVirtualize = computed(() => {
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
             v-if="shouldVirtualize"
-            :content="props.response!.data as string" />
+            :content="props.response!.data as string"
+            :data="props.response?.data"
+            :headers="responseHeaders" />
 
           <ResponseBody
             v-else
