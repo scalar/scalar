@@ -32,7 +32,6 @@
     "rollup": "^4.24.1",
     "start-server-and-test": "^2.0.9",
     "syncpack": "^12.4.0",
-    "ts-node": "^10.9.2",
     "tsc-alias": "^1.8.10",
     "tsconfig-paths": "^4.2.0",
     "turbo": "^2.1.2",
