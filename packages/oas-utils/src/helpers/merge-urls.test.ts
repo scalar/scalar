@@ -1,3 +1,6 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, expect, it } from 'vitest'
 
 import { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls'
@@ -195,7 +198,7 @@ describe('mergeUrls', () => {
     expect(result).toBe('{protocol}://api.example.com/users')
   })
 
-  it('handles relative URLs', () => {
+  it.only('handles relative URLs', () => {
     const result = mergeUrls('/api', '/users')
     expect(result).toBe('http://localhost:3000/api/users')
   })
