@@ -1,4 +1,4 @@
-import { unescapeJsonPointer } from './unescapeJsonPointer'
+import { unescapeJsonPointer } from './unescapeJsonPointer.ts'
 
 /**
  * Translate `/paths/~1test` to `['paths', '/test']`

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../../src'
+import { validate } from '../../../../../src/index.ts'
 import openapi1 from './openapi1.json'
 import openapi2 from './openapi2.json'
 import openapi3 from './openapi3.json'

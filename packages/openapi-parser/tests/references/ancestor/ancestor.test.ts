@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { normalize, resolveReferences } from '../../../src'
+import { normalize, resolveReferences } from '../../../src/index.ts'
 import specification from './specification.json'
 
 // Circular $refs to ancestor

@@ -1,15 +1,20 @@
-import type { AnyObject, Queue, Task, UpgradeResult } from '../../../types'
-import type { DereferenceOptions } from '../../dereference'
-import type { ValidateOptions } from '../../validate'
-import { details } from '../actions/details'
-import { files } from '../actions/files'
-import { get } from '../actions/get'
-import { toJson } from '../actions/toJson'
-import { toYaml } from '../actions/toYaml'
-import { queueTask } from '../utils/queueTask'
-import { dereferenceCommand } from './dereferenceCommand'
-import { filterCommand } from './filterCommand'
-import { validateCommand } from './validateCommand'
+import type {
+  AnyObject,
+  Queue,
+  Task,
+  UpgradeResult,
+} from '../../../types/index.ts'
+import type { DereferenceOptions } from '../../dereference.ts'
+import type { ValidateOptions } from '../../validate.ts'
+import { details } from '../actions/details.ts'
+import { files } from '../actions/files.ts'
+import { get } from '../actions/get.ts'
+import { toJson } from '../actions/toJson.ts'
+import { toYaml } from '../actions/toYaml.ts'
+import { queueTask } from '../utils/queueTask.ts'
+import { dereferenceCommand } from './dereferenceCommand.ts'
+import { filterCommand } from './filterCommand.ts'
+import { validateCommand } from './validateCommand.ts'
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions

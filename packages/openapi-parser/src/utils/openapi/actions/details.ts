@@ -1,7 +1,7 @@
-import type { Queue, Task } from '../../../types'
-import { details as detailsUtility } from '../../details'
-import { getEntrypoint } from '../../getEntrypoint'
-import { workThroughQueue } from '../utils/workThroughQueue'
+import type { Queue, Task } from '../../../types/index.ts'
+import { details as detailsUtility } from '../../details.ts'
+import { getEntrypoint } from '../../getEntrypoint.ts'
+import { workThroughQueue } from '../utils/workThroughQueue.ts'
 
 /**
  * Run the chained tasks and return just some basic information about the OpenAPI document

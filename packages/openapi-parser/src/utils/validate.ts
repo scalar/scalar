@@ -1,13 +1,13 @@
 import type { OpenAPI } from '@scalar/openapi-types'
 
-import { Validator } from '../lib/Validator'
+import { Validator } from '../lib/Validator/Validator.ts'
 import type {
   AnyObject,
   Filesystem,
   ThrowOnErrorOption,
   ValidateResult,
-} from '../types'
-import { makeFilesystem } from './makeFilesystem'
+} from '../types/index.ts'
+import { makeFilesystem } from './makeFilesystem.ts'
 
 export type ValidateOptions = ThrowOnErrorOption
 

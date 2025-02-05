@@ -12,8 +12,8 @@ import { slug } from 'github-slugger'
 import type {
   FastifyApiReferenceHooksOptions,
   FastifyApiReferenceOptions,
-} from './types'
-import { getJavaScriptFile } from './utils'
+} from './types.ts'
+import { getJavaScriptFile } from './utils/getJavaScriptFile.ts'
 
 // This Schema is used to hide the route from the documentation.
 // https://github.com/fastify/fastify-swagger#hide-a-route

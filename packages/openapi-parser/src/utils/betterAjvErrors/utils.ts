@@ -11,7 +11,7 @@ const isXError = (x) => (error) => error.keyword === x
 export const isRequiredError = isXError('required')
 export const isAnyOfError = isXError('anyOf')
 export const isEnumError = isXError('enum')
-export const getErrors = (node) => (node && node.errors) || []
+export const getErrors = (node) => node?.errors || []
 
 // Node
 export const getChildren = (node) => (node && getValues(node.children)) || []

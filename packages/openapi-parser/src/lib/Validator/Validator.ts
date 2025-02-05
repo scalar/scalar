@@ -7,16 +7,16 @@ import {
   OpenApiSpecifications,
   type OpenApiVersion,
   OpenApiVersions,
-} from '../../configuration'
+} from '../../configuration/index.ts'
 import type {
   AnyObject,
   Filesystem,
   ThrowOnErrorOption,
   ValidateResult,
-} from '../../types'
-import { details as getOpenApiVersion } from '../../utils/details'
-import { resolveReferences } from '../../utils/resolveReferences'
-import { transformErrors } from '../../utils/transformErrors'
+} from '../../types/index.ts'
+import { details as getOpenApiVersion } from '../../utils/details.ts'
+import { resolveReferences } from '../../utils/resolveReferences.ts'
+import { transformErrors } from '../../utils/transformErrors.ts'
 
 /**
  * Configure available JSON Schema versions
@@ -165,6 +165,7 @@ export class Validator {
 
     // Register formats
     // https://ajv.js.org/packages/ajv-formats.html#formats
+    // @ts-expect-error ajv-formats is not well typed
     addFormats(ajv)
 
     // OpenAPI 3.1 uses media-range format

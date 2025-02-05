@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { workThroughQueue } from './workThroughQueue'
+import { workThroughQueue } from './workThroughQueue.ts'
 
 describe('workThroughQueue', () => {
   it('loads a specification', async () => {

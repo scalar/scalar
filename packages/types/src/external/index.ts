@@ -1,1 +1,1 @@
-export * from './snippetz'
+export * from './snippetz.ts'

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { validate } from '../../../../src'
+import { validate } from '../../../../src/index.ts'
 import server_enum_empty from './server_enum_empty.yaml?raw'
 
 describe('server_enum_empty', () => {
