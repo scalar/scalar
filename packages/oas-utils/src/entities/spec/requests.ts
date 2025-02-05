@@ -138,7 +138,3 @@ export const requestSchema = oasRequestSchema
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>
-
-// Alias these types as request conflicts with built in
-export type Operation = Request
-export type OperationPayload = RequestPayload
