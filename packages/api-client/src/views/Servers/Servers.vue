@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Sidebar } from '@/components'
+import EmptyState from '@/components/EmptyState.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarList from '@/components/Sidebar/SidebarList.vue'
 import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
@@ -60,6 +61,8 @@ function handleDelete(uid: string) {
   if (!activeCollection?.value?.uid) return
   serverMutators.delete(uid, collectionIdParam.value)
 }
+
+const hasServers = computed(() => Object.keys(servers).length > 0)
 </script>
 <template>
   <ViewLayout>
@@ -152,8 +155,10 @@ function handleDelete(uid: string) {
     </Sidebar>
     <ViewLayoutContent class="flex-1">
       <ServerForm
+        v-if="hasServers"
         :collectionId="collectionIdParam"
         :serverUid="serverUidParam" />
+      <EmptyState v-else />
     </ViewLayoutContent>
   </ViewLayout>
 </template>

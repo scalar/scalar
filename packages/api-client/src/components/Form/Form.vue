@@ -32,7 +32,7 @@ defineProps<{
           :key="index"
           :class="{ 'border-t': index === 0 }">
           <DataTableInput
-            :modelValue="data[option.key]"
+            :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
             @update:modelValue="onUpdate(option.key, $event)">
             {{ option.label }}
