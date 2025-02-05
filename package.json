@@ -15,7 +15,6 @@
     "@typescript-eslint/parser": "^6.21.0",
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/eslint-config-typescript": "^12.0.0",
-    "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
