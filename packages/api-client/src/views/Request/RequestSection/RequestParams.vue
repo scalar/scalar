@@ -206,6 +206,9 @@ const hasReadOnlyEntries = computed(
       <RequestTable
         v-if="hasReadOnlyEntries"
         class="flex-1"
+        :class="{
+          'bg-mix-transparent bg-mix-amount-95 bg-c-3': hasReadOnlyEntries,
+        }"
         :columns="['32px', '', '']"
         isGlobal
         isReadOnly
