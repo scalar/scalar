@@ -6,5 +6,5 @@ export function ensureProtocol(url: string): string {
     return url
   }
   // Default to http if no protocol is specified
-  return `http://${url}`
+  return `http://${url.replace(/^\//, '')}`
 }
