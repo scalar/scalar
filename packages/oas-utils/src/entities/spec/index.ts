@@ -9,3 +9,9 @@ export * from './x-scalar-environments'
 
 type FetchRequest = Request
 export type { FetchRequest }
+
+export {
+  type Operation,
+  type OperationPayload,
+  operationSchema,
+} from './operation'
