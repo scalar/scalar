@@ -36,8 +36,7 @@ describe('getExampleCode', () => {
       server,
     )
 
-    expect(result).toEqual(`curl https://example.com/users \\
-  --header 'Accept: */*'`)
+    expect(result).toEqual('curl https://example.com/users')
   })
 
   it('generates a basic node/undici example (@scalar/snippetz)', async () => {
@@ -51,11 +50,7 @@ describe('getExampleCode', () => {
 
     expect(result).toEqual(`import { request } from 'undici'
 
-const { statusCode, body } = await request('https://example.com/users', {
-  headers: {
-    Accept: '*/*'
-  }
-})`)
+const { statusCode, body } = await request('https://example.com/users')`)
   })
 
   it('generates a basic javascript/jquery example (httpsnippet-lite)', async () => {
@@ -72,9 +67,7 @@ const { statusCode, body } = await request('https://example.com/users', {
   crossDomain: true,
   url: 'https://example.com/users',
   method: 'GET',
-  headers: {
-    Accept: '*/*'
-  }
+  headers: {}
 };
 
 $.ajax(settings).done(function (response) {
@@ -131,9 +124,27 @@ $.ajax(settings).done(function (response) {
       server,
     )
 
-    expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users', {
+    expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
+  })
+
+  it('should show the accept header if its not */*', async () => {
+    example.parameters.headers.push({
+      key: 'Accept',
+      value: 'application/json',
+      enabled: true,
+    })
+
+    const result = await getExampleCode(
+      operation,
+      example,
+      'javascript',
+      'fetch',
+      server,
+    )
+
+    expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
-    Accept: '*/*'
+    Accept: 'application/json'
   }
 })`)
   })

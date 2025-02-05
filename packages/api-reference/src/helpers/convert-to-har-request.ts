@@ -8,7 +8,7 @@ import type { HarRequest } from '@scalar/snippetz'
 
 /**
  * Takes in a regular request object and returns a HAR request
- * We also Titlecase the headers
+ * We also Titlecase the headers and remove accept header if it's *
  */
 export const convertToHarRequest = async (
   operation: Operation,
@@ -42,7 +42,10 @@ export const convertToHarRequest = async (
   // Convert headers
   if (headers.length)
     harRequest.headers = headers
-      .filter((h) => h.enabled)
+      .filter(
+        (h) =>
+          h.enabled && !(h.key.toLowerCase() === 'accept' && h.value === '*/*'),
+      )
       .map(({ key, value }) => ({
         name: key.replace(/\b\w/g, (letter) => letter.toUpperCase()),
         value,

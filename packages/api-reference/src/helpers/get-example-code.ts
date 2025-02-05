@@ -14,6 +14,9 @@ import { convertToHarRequest } from './convert-to-har-request'
 export type TargetId = SnippetzTargetId
 export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
 
+/** For the examples mostly */
+const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
+
 /**
  * Returns a code example for given Request
  */

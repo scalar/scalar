@@ -18,7 +18,9 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { isDefined, mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
+
+import { buildRequestSecurity } from './build-request-security'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
 
@@ -30,9 +32,6 @@ type SendRequestResponse = Promise<
     timestamp: number
   }>
 >
-
-/** For the examples mostly */
-const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 
 /** Execute the request */
 export const createRequestOperation = ({
@@ -94,10 +93,10 @@ export const createRequestOperation = ({
       })
     })
 
-    const urlParams = createFetchQueryParams(example, env)
-    const headers = createFetchHeaders(example, env)
+    const _urlParams = createFetchQueryParams(example, env)
+    const _headers = createFetchHeaders(example, env)
     const { body } = createFetchBody(request.method, example, env)
-    const { cookieParams } = setRequestCookies({
+    const { cookieParams: _cookieParams } = setRequestCookies({
       example,
       env,
       globalCookies,
@@ -107,56 +106,23 @@ export const createRequestOperation = ({
 
     // We flatten the array of arrays for complex auth
     const flatSelectedSecuritySchemeUids = selectedSecuritySchemeUids.flat()
+    const selectedSecuritySchemes = flatSelectedSecuritySchemeUids
+      .map((uid) => securitySchemes[uid])
+      .filter(isDefined)
+
+    // Grab the security headers, cookies and url params
+    const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Populate all forms of auth to the request segments
-    flatSelectedSecuritySchemeUids?.forEach((uid) => {
-      const scheme = securitySchemes[uid]
-      if (!scheme) return
-
-      // Scheme type and example value type should always match
-      if (scheme.type === 'apiKey') {
-        const value =
-          replaceTemplateVariables(scheme.value, env) || EMPTY_TOKEN_PLACEHOLDER
-
-        if (scheme.in === 'header') headers[scheme.name] = value
-        if (scheme.in === 'query') urlParams.append(scheme.name, value)
-        if (scheme.in === 'cookie') {
-          cookieParams.push({
-            name: scheme.name,
-            value,
-            path: '/',
-            uid: scheme.name,
-          })
-        }
-      }
-
-      if (scheme.type === 'http') {
-        if (scheme.scheme === 'basic') {
-          const username = replaceTemplateVariables(scheme.username, env)
-          const password = replaceTemplateVariables(scheme.password, env)
-          const value = `${username}:${password}`
-
-          headers['Authorization'] =
-            `Basic ${value === ':' ? 'username:password' : btoa(value)}`
-        } else {
-          const value = replaceTemplateVariables(scheme.token, env)
-          headers['Authorization'] =
-            `Bearer ${value || EMPTY_TOKEN_PLACEHOLDER}`
-        }
-      }
-
-      // For OAuth we take the token from the first flow
-      if (scheme.type === 'oauth2') {
-        const flows = Object.values(scheme.flows)
-        const token = flows.find((f) => f.token)?.token
-
-        headers['Authorization'] = `Bearer ${token || EMPTY_TOKEN_PLACEHOLDER}`
-      }
+    const headers = { ..._headers, ...security.headers }
+    const cookieParams = [..._cookieParams, ...security.cookies]
+    const urlParams = new URLSearchParams({
+      ..._urlParams,
+      ...security.urlParams,
     })
 
     // Combine the url with the path and server + query params
     url = mergeUrls(url, pathString, urlParams)
-    console.log('url', url)
 
     /** Cookie header */
     const cookieHeader = replaceTemplateVariables(

@@ -45,12 +45,7 @@ describe('convertToHarRequest', () => {
       method: 'GET',
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
-      headers: [
-        {
-          name: 'Accept',
-          value: '*/*',
-        },
-      ],
+      headers: [],
       queryString: [],
       cookies: [],
       headersSize: -1,
@@ -80,10 +75,6 @@ describe('convertToHarRequest', () => {
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
       headers: [
-        {
-          name: 'Accept',
-          value: '*/*',
-        },
         {
           name: 'Content-Type',
           value: 'application/json',
@@ -120,12 +111,7 @@ describe('convertToHarRequest', () => {
       method: 'GET',
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
-      headers: [
-        {
-          name: 'Accept',
-          value: '*/*',
-        },
-      ],
+      headers: [],
       queryString: [
         { name: 'page', value: '1' },
         { name: 'limit', value: '10' },
@@ -151,10 +137,28 @@ describe('convertToHarRequest', () => {
       method: 'GET',
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
-      headers: [
-        { name: 'Accept', value: '*/*' },
-        { name: 'Authorization', value: `Bearer ${testToken}` },
-      ],
+      headers: [{ name: 'Authorization', value: `Bearer ${testToken}` }],
+      queryString: [],
+      cookies: [],
+      headersSize: -1,
+      bodySize: -1,
+    })
+  })
+
+  it('shows the accept header if its not */*', async () => {
+    example.parameters.headers.push({
+      key: 'Accept',
+      value: 'application/json',
+      enabled: true,
+    })
+
+    const harRequest = await convertToHarRequest(operation, example, server)
+
+    expect(harRequest).toEqual({
+      method: 'GET',
+      url: 'https://api.example.com/users',
+      httpVersion: 'HTTP/1.1',
+      headers: [{ name: 'Accept', value: 'application/json' }],
       queryString: [],
       cookies: [],
       headersSize: -1,
@@ -182,7 +186,7 @@ describe('convertToHarRequest', () => {
       method: 'GET',
       url: 'https://api.example.com/users',
       httpVersion: 'HTTP/1.1',
-      headers: [{ name: 'Accept', value: '*/*' }],
+      headers: [],
       queryString: [],
       cookies: [
         { name: 'sessionId', value: 'abc123' },

@@ -2,6 +2,7 @@
 import { useExampleStore } from '#legacy'
 import { getExampleCode } from '@/helpers/get-example-code'
 import { useWorkspace } from '@scalar/api-client/store'
+import { getSecurityRequirements } from '@scalar/api-client/views/Request/libs'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
   Collection,
@@ -128,6 +129,10 @@ const generateSnippet = async () => {
   // TODO: Currently we just grab the first one but we should sync up the store with the example picker
   const example = requestExamples[operation.examples[0]]
   if (!example) return ''
+
+  // Get security requirements
+  const securityRequirements = getSecurityRequirements(operation, collection)
+  console.log('securityRequirements', securityRequirements)
 
   return (
     (await getExampleCode(operation, example, targetKey, clientKey, server)) ??
