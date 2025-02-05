@@ -68,6 +68,7 @@ describe('useSearch', () => {
         selectedServerUid: '',
         servers: [],
         examples: [],
+        selectedExampleUid: '',
       },
     ])
 
@@ -100,6 +101,7 @@ describe('useSearch', () => {
         selectedServerUid: '',
         servers: [],
         examples: [],
+        selectedExampleUid: '',
       },
     ])
     searchText.value = 'Request 1'
@@ -142,6 +144,7 @@ describe('useSearch', () => {
         selectedServerUid: '',
         servers: [],
         examples: [],
+        selectedExampleUid: '',
       },
       {
         'uid': 'request2',
@@ -154,6 +157,7 @@ describe('useSearch', () => {
         'servers': [],
         'examples': [],
         'x-internal': true,
+        'selectedExampleUid': '',
       },
     ])
 
