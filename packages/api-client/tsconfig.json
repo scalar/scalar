@@ -9,5 +9,11 @@
     "types": ["vite/client"],
     "noUncheckedIndexedAccess": true
   },
-  "include": ["src", "global.d.ts", "playground"]
+  "include": [
+    "src",
+    "global.d.ts",
+    "playground",
+    "../oas-utils/src/helpers/ensure-protocol.test.ts",
+    "../oas-utils/src/helpers/ensure-protocol.ts"
+  ]
 }

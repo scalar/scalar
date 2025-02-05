@@ -5,7 +5,6 @@ import { createFetchBody } from '@/libs/send-request/create-fetch-body'
 import { createFetchHeaders } from '@/libs/send-request/create-fetch-headers'
 import { createFetchQueryParams } from '@/libs/send-request/create-fetch-query-params'
 import { decodeBuffer } from '@/libs/send-request/decode-buffer'
-import { mergeUrls } from '@/libs/send-request/merge-urls'
 import {
   getCookieHeader,
   setRequestCookies,
@@ -19,7 +18,7 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { shouldUseProxy } from '@scalar/oas-utils/helpers'
+import { mergeUrls, shouldUseProxy } from '@scalar/oas-utils/helpers'
 
 export type RequestStatus = 'start' | 'stop' | 'abort'
 

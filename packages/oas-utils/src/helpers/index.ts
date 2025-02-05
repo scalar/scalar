@@ -1,6 +1,7 @@
 export { isDefined } from './is-defined'
 export { shouldIgnoreEntity } from './shouldIgnoreEntity'
-export * from './concatenateUrlAndPath'
+export { combineUrlAndPath, mergeSearchParams, mergeUrls } from './merge-urls'
+export { ensureProtocol } from './ensure-protocol'
 export * from './createHash'
 export * from './fetchSpecFromUrl'
 export * from './fetchWithProxyFallback'

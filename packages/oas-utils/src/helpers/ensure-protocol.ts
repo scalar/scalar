@@ -1,4 +1,4 @@
-import { REGEX } from '@scalar/oas-utils/helpers'
+import { REGEX } from './regexHelpers'
 
 /** Ensure URL has a protocol prefix */
 export function ensureProtocol(url: string): string {

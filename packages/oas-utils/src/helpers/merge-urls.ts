@@ -1,6 +1,5 @@
-import { isRelativePath } from '@scalar/oas-utils/helpers'
-
 import { ensureProtocol } from './ensure-protocol'
+import { isRelativePath } from './redirectToProxy'
 
 /**
  * Merges multiple URLSearchParams objects, preserving multiple values per param
