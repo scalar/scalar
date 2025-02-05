@@ -3,7 +3,11 @@ import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ref } from 'vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
-import { ScalarFloating, type ScalarFloatingOptions } from '../ScalarFloating'
+import {
+  ScalarFloating,
+  ScalarFloatingBackdrop,
+  type ScalarFloatingOptions,
+} from '../ScalarFloating'
 import type { ScalarPopoverSlots } from '../ScalarPopover'
 
 defineProps<ScalarFloatingOptions>()
@@ -43,13 +47,14 @@ defineExpose({ popoverButtonRef })
           v-slot="{ close }"
           focus
           :style="{ width }"
-          v-bind="cx('relative flex w-40 flex-col rounded border text-sm')">
+          v-bind="
+            cx('relative flex flex-col max-h-[inherit] w-40 rounded text-sm')
+          ">
           <slot
             :close="close"
             name="popover"
             :open="open" />
-          <div
-            class="absolute inset-0 -z-1 rounded bg-b-1 shadow-md brightness-lifted" />
+          <ScalarFloatingBackdrop />
         </PopoverPanel>
       </template>
     </ScalarFloating>

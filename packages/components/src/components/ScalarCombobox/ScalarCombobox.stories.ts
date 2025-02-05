@@ -2,7 +2,7 @@ import { placements } from '@floating-ui/utils'
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
-import { ScalarButton, ScalarIcon } from '../..'
+import { ScalarButton, ScalarDropdownButton, ScalarIcon } from '../..'
 import ScalarCombobox from './ScalarCombobox.vue'
 import ScalarComboboxMultiselect from './ScalarComboboxMultiselect.vue'
 import type { Option, OptionGroup } from './types'
@@ -166,6 +166,41 @@ export const MultiselectGroups: Story = {
         </span>
       </div>
     </ScalarButton>
+  </ScalarComboboxMultiselect>
+</div>
+`,
+  }),
+}
+
+export const WithSlots: Story = {
+  args: { options: groups },
+  render: (args) => ({
+    components: {
+      ScalarComboboxMultiselect,
+      ScalarButton,
+      ScalarIcon,
+      ScalarDropdownButton,
+    },
+    setup() {
+      const selected = ref<Option[]>([])
+      return { args, selected }
+    },
+    template: `
+<div class="flex justify-center w-full min-h-96">
+  <ScalarComboboxMultiselect v-model="selected" placeholder="Select cities..." v-bind="args">
+    <ScalarButton class="w-48 px-3" variant="outlined">
+      <div class="flex flex-1 items-center min-w-0">
+        <span class="inline-block truncate flex-1 min-w-0 text-left">
+        {{ selected.length }} cities selected
+        </span>
+      </div>
+    </ScalarButton>
+    <template #before>
+      <div class="placeholder">Before</div>
+    </template>
+    <template #after>
+      <div class="placeholder">After</div>
+    </template>
   </ScalarComboboxMultiselect>
 </div>
 `,
