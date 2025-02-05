@@ -499,8 +499,8 @@ export function getServersFromOpenApiDocument(
           // Use the base server URL (if provided)
           if (baseServerURL) {
             parsedSchema.url = combineUrlAndPath(
-              baseServerURL?.replace(/\/$/, ''),
-              parsedSchema.url.replace(/^\//, ''),
+              baseServerURL,
+              parsedSchema.url,
             )
 
             return parsedSchema
@@ -510,7 +510,7 @@ export function getServersFromOpenApiDocument(
           if (typeof window?.location?.origin === 'string') {
             parsedSchema.url = combineUrlAndPath(
               window.location.origin,
-              parsedSchema.url.replace(/^\//, ''),
+              parsedSchema.url,
             )
 
             return parsedSchema
