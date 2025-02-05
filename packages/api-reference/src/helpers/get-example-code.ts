@@ -9,7 +9,7 @@ import {
   snippetz,
 } from '@scalar/snippetz'
 
-import { convertRequestToHarRequest } from '../helpers/convertRequestToHarRequest'
+import { convertToHarRequest } from './convert-to-har-request'
 
 export type TargetId = SnippetzTargetId
 export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
@@ -25,11 +25,7 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   server: Server | undefined,
 ) {
   // Convert request to HarRequest
-  const harRequest = await convertRequestToHarRequest(
-    operation,
-    example,
-    server,
-  )
+  const harRequest = await convertToHarRequest(operation, example, server)
 
   // TODO: Fix this, use js (instead of javascript) everywhere
   const snippetzTargetKey = target?.replace(

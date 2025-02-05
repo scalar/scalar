@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { scrollToId, sleep } from '@/helpers'
 import {
   type Icon,
   ScalarIcon,
   ScalarSidebarGroupToggle,
 } from '@scalar/components'
+import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 
-import { joinWithSlash, scrollToId, sleep } from '../../helpers'
 import { useNavState } from '../../hooks'
 import SidebarHttpBadge from './SidebarHttpBadge.vue'
 
@@ -50,7 +51,7 @@ const handleClick = async () => {
 // Build relative URL and add hash
 const generateLink = () => {
   if (pathRouting.value) {
-    return joinWithSlash(pathRouting.value.basePath, props.item.id)
+    return combineUrlAndPath(pathRouting.value.basePath, props.item.id)
   } else if (typeof window !== 'undefined') {
     const newUrl = new URL(window.location.href)
     newUrl.hash = getFullHash(props.item.id)

@@ -1,7 +1,5 @@
-import { joinWithSlash } from '@/helpers'
 import { useConfig } from '@/hooks/useConfig'
-import type { Request } from '@scalar/oas-utils/entities/spec'
-import { ssrState } from '@scalar/oas-utils/helpers'
+import { combineUrlAndPath, ssrState } from '@scalar/oas-utils/helpers'
 import type { Heading, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { slug } from 'github-slugger'
 import { ref } from 'vue'
@@ -53,7 +51,10 @@ const replaceUrlState = (
 
   // If we are pathrouting, set path instead of hash
   if (pathRouting.value) {
-    newUrl.pathname = joinWithSlash(pathRouting.value.basePath, replacementHash)
+    newUrl.pathname = combineUrlAndPath(
+      pathRouting.value.basePath,
+      replacementHash,
+    )
   } else {
     newUrl.hash = hashPrefix.value + replacementHash
   }

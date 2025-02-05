@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
-import { getExampleCode } from '@/helpers/getExampleCode'
+import { getExampleCode } from '@/helpers/get-example-code'
 import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {

@@ -1,54 +1,94 @@
-import { describe, expect, it } from 'vitest'
+import {
+  type Operation,
+  type RequestExample,
+  type Server,
+  operationSchema,
+  requestExampleSchema,
+  serverSchema,
+} from '@scalar/oas-utils/entities/spec'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-import { getExampleCode } from './getExampleCode'
+import { getExampleCode } from './get-example-code'
 
 describe('getExampleCode', () => {
+  let operation: Operation
+  let example: RequestExample
+  let server: Server
+
+  beforeEach(() => {
+    operation = operationSchema.parse({
+      method: 'get',
+      path: '/users',
+      requestBody: undefined,
+    })
+    example = requestExampleSchema.parse({})
+    server = serverSchema.parse({
+      url: 'https://example.com',
+    })
+  })
+
   it('generates a basic shell/curl example (httpsnippet-lite)', async () => {
     const result = await getExampleCode(
-      new Request('https://example.com', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       'shell',
       'curl',
+      server,
     )
 
-    expect(result).toContain('curl https://example.com')
-    expect(result).toContain('--request POST')
+    expect(result).toEqual(`curl https://example.com/users \\
+  --header 'Accept: */*'`)
   })
 
   it('generates a basic node/undici example (@scalar/snippetz)', async () => {
     const result = await getExampleCode(
-      new Request('https://example.com', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       'node',
       'undici',
+      server,
     )
 
-    expect(result).toContain(`import { request } from 'undici'`)
-    expect(result).toContain('https://example.com')
-    expect(result).toContain(`method: 'POST'`)
+    expect(result).toEqual(`import { request } from 'undici'
+
+const { statusCode, body } = await request('https://example.com/users', {
+  headers: {
+    Accept: '*/*'
+  }
+})`)
   })
 
   it('generates a basic javascript/jquery example (httpsnippet-lite)', async () => {
     const result = await getExampleCode(
-      new Request('https://example.com', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       'javascript',
       'jquery',
+      server,
     )
 
-    expect(result).toContain('$.ajax')
+    expect(result).toEqual(`const settings = {
+  async: true,
+  crossDomain: true,
+  url: 'https://example.com/users',
+  method: 'GET',
+  headers: {
+    Accept: '*/*'
+  }
+};
+
+$.ajax(settings).done(function (response) {
+  console.log(response);
+});`)
   })
 
   it('returns an empty string if passed rubbish', async () => {
     const result = await getExampleCode(
-      new Request('https://example.com', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       'fantasy',
       'blue',
+      server,
     )
 
     expect(result).toBe('')
@@ -56,12 +96,12 @@ describe('getExampleCode', () => {
 
   it('returns an empty string if passed undefined target', async () => {
     const result = await getExampleCode(
-      new Request('https://example.com', {
-        method: 'POST',
-      }),
+      operation,
+      example,
       // @ts-expect-error passing in rubbish
       undefined,
       'blue',
+      server,
     )
 
     expect(result).toBe('')

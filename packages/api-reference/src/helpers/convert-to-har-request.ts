@@ -1,21 +1,21 @@
-import { combineUrl } from '@scalar/api-client/libs'
 import type {
   Operation,
   RequestExample,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 import type { HarRequest } from '@scalar/snippetz'
 
 /**
  * Takes in a regular request object and returns a HAR request
  * We also Titlecase the headers
  */
-export const convertRequestToHarRequest = async (
+export const convertToHarRequest = async (
   operation: Operation,
   example: RequestExample,
   server?: Server,
 ): Promise<HarRequest> => {
-  const url = combineUrl(server?.url ?? '', operation.path, server)
+  const url = combineUrlAndPath(server?.url ?? '', operation.path)
 
   // Create base HAR request structure
   const harRequest: HarRequest = {
