@@ -73,7 +73,12 @@ const activeExampleContentType = computed(() => {
     return activeExample.value.body.raw.encoding
   }
 
-  return 'none'
+  // Set content type from request if present
+  const contentType = Object.keys(
+    activeRequest.value?.requestBody?.content || {},
+  )[0]
+
+  return contentType || 'none'
 })
 /** Selected ref from options above */
 const selectedContentType = computed({
