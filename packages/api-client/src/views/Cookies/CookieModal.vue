@@ -30,11 +30,7 @@ const cookieData = ref({
 const { toast } = useToasts()
 
 const handleSubmit = () => {
-  if (
-    !cookieData.value.name ||
-    !cookieData.value.value ||
-    !cookieData.value.domain
-  ) {
+  if (!cookieData.value.name || !cookieData.value.value) {
     toast('Please fill in all fields before adding a cookie.', 'error')
     return
   }
@@ -64,7 +60,7 @@ watch(
     :state="state"
     title="Add Cookie">
     <CommandActionForm
-      :disabled="!cookieData.name || !cookieData.value || !cookieData.domain"
+      :disabled="!cookieData.name || !cookieData.value"
       @cancel="emit('cancel')"
       @submit="handleSubmit">
       <div class="flex gap-2 h-8 items-start text-sm">
