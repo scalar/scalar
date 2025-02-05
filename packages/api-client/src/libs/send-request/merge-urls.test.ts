@@ -2,31 +2,6 @@ import { describe, expect, it } from 'vitest'
 
 import { mergeSearchParams, mergeUrls } from './merge-urls'
 
-// without server url
-// =========
-// url http://127.0.0.1:5052/?example=parameter
-// path http://127.0.0.1:5052/?example=parameter
-// server { url: '', uid: 'GZJxoV1NGB_csBTM0wJmd' }
-// urlParams URLSearchParams {}
-// =========
-// http://127.0.0.1:5052/?example=parameter&example=parameter&foo=bar
-
-// works with no content
-// =========
-// url http://127.0.0.1:5052/204
-// path
-// server { url: 'http://127.0.0.1:5052/204', uid: 'TAUii7FrQenoxALK1ZEC_' }
-// urlParams URLSearchParams {}
-// =========
-
-// adds the http://
-// =========
-// url void.scalar.com/me
-// path void.scalar.com/me
-// server undefined
-// urlParams URLSearchParams {}
-// =========
-
 describe('mergeSearchParams', () => {
   it('merges basic params from different sources', () => {
     const base = new URLSearchParams('a=1&b=2')
