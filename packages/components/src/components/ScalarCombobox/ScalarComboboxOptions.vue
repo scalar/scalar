@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from 'nanoid'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 import { ScalarIcon } from '../ScalarIcon'
 import ComboboxOption from './ScalarComboboxOption.vue'
@@ -15,7 +15,6 @@ const props = defineProps<{
   options: Option[] | OptionGroup[]
   modelValue?: Option[]
   placeholder?: string
-  open?: boolean
   multiselect?: boolean
   isDeletable?: boolean
 }>()
@@ -29,7 +28,13 @@ defineSlots<Omit<ComboboxSlots, 'default'>>()
 
 defineOptions({ inheritAttrs: false })
 
-const id = nanoid()
+/** A unique ID for the combobox */
+const id = `scalar-combobox-items-${nanoid()}`
+
+/** Generate a unique ID for an option */
+function getOptionId(option: Option) {
+  return `${id}-${option.id}`
+}
 
 /** A flat list of all options */
 const options = computed<Option[]>(() =>
@@ -49,10 +54,22 @@ const query = ref<string>('')
 const active = ref<Option>(props.modelValue?.[0] ?? options.value[0])
 
 // Clear the query on open and close
-watch(
-  () => props.open,
-  () => (query.value = ''),
-)
+onMounted(async () => {
+  // Clear the query
+  query.value = ''
+
+  // Set the active option to the selected option or the first option
+  active.value = props.modelValue?.[0] ?? options.value[0]
+
+  // Scroll to the selected option
+  if (selected.value.length !== 0) {
+    setTimeout(() => {
+      document
+        ?.getElementById(getOptionId(selected.value[0]))
+        ?.scrollIntoView({ block: 'center' })
+    }, 10)
+  }
+})
 
 // Set the top option as active when searching
 watch(
@@ -97,6 +114,12 @@ function moveActive(dir: 1 | -1) {
   if (nextIdx < 0 || nextIdx > list.length - 1) return
 
   active.value = list[nextIdx]
+
+  // Scroll to the active option
+  document?.getElementById(getOptionId(active.value))?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'nearest',
+  })
 }
 </script>
 <template>
@@ -122,7 +145,7 @@ function moveActive(dir: 1 | -1) {
   <ul
     v-show="filtered.length || $slots.before || $slots.after"
     :id="id"
-    class="border-t p-0.75 custom-scroll flex-1 min-h-0">
+    class="border-t p-0.75 custom-scroll overscroll-contain flex-1 min-h-0">
     <slot name="before" />
     <template
       v-for="(group, i) in groups"
@@ -141,6 +164,7 @@ function moveActive(dir: 1 | -1) {
         :key="option.id">
         <ComboboxOption
           v-if="group.options.some((o) => o.id === option.id)"
+          :id="getOptionId(option)"
           :active="active?.id === option.id"
           :isDeletable="option.isDeletable ?? isDeletable"
           :selected="selected.some((o) => o.id === option.id)"
