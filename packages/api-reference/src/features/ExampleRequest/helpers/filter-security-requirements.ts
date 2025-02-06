@@ -5,27 +5,33 @@ import type {
 
 /**
  * Takes in selected security and filters it with the requirements
- *
- * TODOPERF: Pass in a dictionary to reduce the number of loops
  */
 export const filterSecurityRequirements = (
   securityRequirements: Collection['security'],
-  selectedSecuritySchemeUids: string[] = [],
+  selectedSecuritySchemeUids: Collection['selectedSecuritySchemeUids'] = [],
   securitySchemes: Record<string, SecurityScheme> = {},
 ): SecurityScheme[] => {
-  // We join the arrays with a comma to make it easier to compare
-  const flatNames = securityRequirements.map((requirement) =>
-    Object.keys(requirement).join(','),
+  // Create a Set of required security combinations for O(1) lookup
+  const requiredCombinations = new Set(
+    securityRequirements.map((requirement) =>
+      Object.keys(requirement).sort().join(','),
+    ),
   )
 
-  // Return a list of security schemes which are in the requirements
-  const selectedSecurityNames = selectedSecuritySchemeUids.flatMap((uids) => {
-    const key = Array.isArray(uids)
-      ? uids.map((scheme) => securitySchemes[scheme].nameKey).join(',')
-      : securitySchemes[uids].nameKey
+  // Process all schemes in a single pass
+  return selectedSecuritySchemeUids.reduce<SecurityScheme[]>((acc, uids) => {
+    // Handle both single uid and array of uids
+    const schemeUids = Array.isArray(uids) ? uids : [uids]
+    const key = schemeUids
+      .map((scheme) => securitySchemes[scheme]?.nameKey)
+      .sort()
+      .join(',')
 
-    return flatNames.includes(key) ? [securitySchemes[uids]] : []
-  })
+    // Only add schemes if their combination is required
+    if (requiredCombinations.has(key)) {
+      acc.push(...schemeUids.map((scheme) => securitySchemes[scheme]))
+    }
 
-  return selectedSecurityNames
+    return acc
+  }, [])
 }
