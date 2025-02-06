@@ -92,6 +92,10 @@ describe.skip('Operation', () => {
           summary: 'Get all planets',
         }),
         ...mockProps,
+        transformedOperation: createTransformedOperation('GET', '/planets', {
+          tags: ['Planets'],
+          summary: 'Get all planets',
+        }),
       },
     })
 
@@ -106,7 +110,7 @@ describe.skip('Operation', () => {
   it('switches to classic layout', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        operation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('GET', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
@@ -126,7 +130,7 @@ describe.skip('Operation', () => {
   it('passes props correctly', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        operation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('GET', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),
@@ -150,7 +154,7 @@ describe.skip('Operation', () => {
   it('renders operation data in HTML', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        operation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('GET', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
           description: 'Returns a list of all known planets',
@@ -172,7 +176,7 @@ describe.skip('Operation', () => {
   it.skip('renders in SSR environment', async () => {
     const operationComponent = mount(Operation, {
       props: {
-        operation: createTransformedOperation('GET', '/planets', {
+        transformedOperation: createTransformedOperation('GET', '/planets', {
           tags: ['Planets'],
           summary: 'Get all planets',
         }),

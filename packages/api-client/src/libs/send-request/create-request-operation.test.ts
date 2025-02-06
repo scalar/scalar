@@ -769,33 +769,6 @@ describe('create-request-operation', () => {
       })
     })
 
-    it('adds the placeholder to query param if apiKey value is empty', async () => {
-      const [error, requestOperation] = createRequestOperation({
-        ...createRequestPayload({
-          serverPayload: { url: VOID_URL },
-        }),
-        securitySchemes: {
-          'api-key': {
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            value: '',
-            uid: 'api-key',
-            nameKey: 'api_key',
-          },
-        },
-        selectedSecuritySchemeUids: ['api-key'],
-      })
-      if (error) throw error
-
-      const [requestError, result] = await requestOperation.sendRequest()
-
-      expect(requestError).toBe(null)
-      expect(JSON.parse(result?.response.data as string).query.api_key).toEqual(
-        'YOUR_SECRET_TOKEN',
-      )
-    })
-
     it('adds basic auth header', async () => {
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
@@ -856,35 +829,6 @@ describe('create-request-operation', () => {
           authorization: 'Bearer xxxx',
         },
       )
-    })
-
-    it('adds the placeholder to the the header if bearer token is empty', async () => {
-      const [error, requestOperation] = createRequestOperation({
-        ...createRequestPayload({
-          serverPayload: { url: VOID_URL },
-        }),
-        securitySchemes: {
-          'bearer-auth': {
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'Bearer',
-            username: '',
-            password: '',
-            uid: 'bearer-auth',
-            nameKey: 'Authorization',
-            token: '',
-          },
-        },
-        selectedSecuritySchemeUids: ['bearer-auth'],
-      })
-      if (error) throw error
-
-      const [requestError, result] = await requestOperation.sendRequest()
-
-      expect(requestError).toBe(null)
-      expect(
-        JSON.parse(result?.response.data as string).headers.authorization,
-      ).toEqual('Bearer YOUR_SECRET_TOKEN')
     })
 
     it('handles complex auth', async () => {

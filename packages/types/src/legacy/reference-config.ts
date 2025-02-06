@@ -541,7 +541,7 @@ export type CodeBlockSSRKey = `components-scalar-code-block${number}`
 export type DescriptionSectionSSRKey =
   `components-Content-Introduction-Description-sections${number}`
 export type ExampleRequestSSRKey =
-  `components-Content-Operation-Example-Request${number}`
+  `components-Content-Operation-Example-Request${string}`
 
 export type ScalarState = {
   'hash'?: string

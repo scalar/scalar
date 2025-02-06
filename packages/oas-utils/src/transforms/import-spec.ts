@@ -172,6 +172,15 @@ export async function importSpecToWorkspace(
     },
   )
 
+  // Fallback to the current window.location.origin if no servers are provided
+  if (!servers.length) {
+    const fallbackUrl = getFallbackUrl()
+
+    if (fallbackUrl) {
+      servers.push(serverSchema.parse({ url: fallbackUrl }))
+    }
+  }
+
   /**
    * List of all tag strings. For non compliant specs we may need to
    * add top level tag objects for missing tag objects
@@ -507,10 +516,12 @@ export function getServersFromOpenApiDocument(
           }
 
           // Fallback to the current window origin
-          if (typeof window?.location?.origin === 'string') {
+          const fallbackUrl = getFallbackUrl()
+
+          if (fallbackUrl) {
             parsedSchema.url = combineUrlAndPath(
-              window.location.origin,
-              parsedSchema.url,
+              fallbackUrl,
+              parsedSchema.url.replace(/^\//, ''),
             )
 
             return parsedSchema
@@ -529,4 +540,19 @@ export function getServersFromOpenApiDocument(
       }
     })
     .filter(isDefined)
+}
+
+/**
+ * Fallback to the current window.location.origin, if available
+ */
+function getFallbackUrl() {
+  if (typeof window === 'undefined') {
+    return undefined
+  }
+
+  if (typeof window?.location?.origin !== 'string') {
+    return undefined
+  }
+
+  return window.location.origin
 }

@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
+import { filterSecurityRequirements } from '@/features/ExampleRequest/helpers/filter-security-requirements'
+import { getExampleCode } from '@/helpers/get-example-code'
+import { useWorkspace } from '@scalar/api-client/store'
+import { getSecurityRequirements } from '@scalar/api-client/views/Request/libs'
 import { ScalarCodeBlock } from '@scalar/components'
-import { createHash, ssrState } from '@scalar/oas-utils/helpers'
+import type {
+  Collection,
+  Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import { isDefined, ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
   SSRState,
@@ -25,27 +34,26 @@ import {
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
-import { getExampleCode } from '../../helpers'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { operation, request } = defineProps<{
-  operation: TransformedOperation
-  request: Request | null
-  /** Array of strings to obscure in the code block */
-  secretCredentials: string[]
+const { transformedOperation, operation, collection, server } = defineProps<{
+  operation: Operation
+  server: Server | undefined
+  collection: Collection
   /** Show a simplified card if no example are available */
   fallback?: boolean
+  /** @deprecated Use `operation` instead */
+  transformedOperation: TransformedOperation
 }>()
 
-const ssrHash = createHash(
-  operation.path + operation.httpVerb + operation.operationId,
-)
+const ssrID = useId()
 const ssrStateKey =
-  `components-Content-Operation-Example-Request${ssrHash}` satisfies ExampleRequestSSRKey
+  `components-Content-Operation-Example-Request${ssrID}` satisfies ExampleRequestSSRKey
 
 const { selectedExampleKey, operationId } = useExampleStore()
+const { requestExamples, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -61,8 +69,8 @@ const customRequestExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (operation.information?.[key]) {
-      const examples = [...operation.information[key]]
+    if (transformedOperation.information?.[key]) {
+      const examples = [...transformedOperation.information[key]]
       return examples
     }
   }
@@ -102,8 +110,9 @@ watch(httpClient, () => {
 const hasMultipleExamples = computed<boolean>(
   () =>
     Object.keys(
-      operation.information?.requestBody?.content?.['application/json']
-        ?.examples ?? {},
+      transformedOperation.information?.requestBody?.content?.[
+        'application/json'
+      ]?.examples ?? {},
     ).length > 1,
 )
 
@@ -114,12 +123,31 @@ const generateSnippet = async () => {
       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
     )
   }
-  if (!request) return ''
 
   const clientKey = httpClient.clientKey
   const targetKey = httpClient.targetKey
 
-  return (await getExampleCode(request, targetKey, clientKey)) ?? ''
+  // TODO: Currently we just grab the first one but we should sync up the store with the example picker
+  const example = requestExamples[operation.examples[0]]
+  if (!example) return ''
+
+  // Ensure the selected security is in the security requirements
+  const schemes = filterSecurityRequirements(
+    operation.security || collection.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  )
+
+  return (
+    (await getExampleCode(
+      operation,
+      example,
+      targetKey,
+      clientKey,
+      server,
+      schemes,
+    )) ?? ''
+  )
 }
 
 const generatedCode = asyncComputed<string>(async () => {
@@ -152,6 +180,23 @@ const language = computed(() => {
 
   return key
 })
+
+/**  Block secrets from being shown in the code block */
+const secretCredentials = computed(() =>
+  Object.values(securitySchemes).flatMap((scheme) => {
+    if (scheme.type === 'apiKey') return scheme.value
+    if (scheme?.type === 'http')
+      return [
+        scheme.token,
+        scheme.password,
+        btoa(`${scheme.username}:${scheme.password}`),
+      ]
+    if (scheme.type === 'oauth2')
+      return Object.values(scheme.flows).map((flow) => flow.token)
+
+    return []
+  }),
+)
 
 type TextSelectOptions = InstanceType<typeof TextSelect>['$props']['options']
 
@@ -213,7 +258,7 @@ function updateHttpClient(value: string) {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.httpVerb" />
+          :method="operation.method" />
         <slot name="header" />
       </div>
       <template #actions>
@@ -264,8 +309,9 @@ function updateHttpClient(value: string) {
         <ExamplePicker
           class="request-example-selector"
           :examples="
-            operation.information?.requestBody?.content?.['application/json']
-              ?.examples ?? []
+            transformedOperation.information?.requestBody?.content?.[
+              'application/json'
+            ]?.examples ?? []
           "
           @update:modelValue="
             (value) => (
@@ -285,7 +331,7 @@ function updateHttpClient(value: string) {
         <HttpMethod
           as="span"
           class="request-method"
-          :method="operation.httpVerb" />
+          :method="operation.method" />
         <slot name="header" />
       </div>
       <slot name="footer" />

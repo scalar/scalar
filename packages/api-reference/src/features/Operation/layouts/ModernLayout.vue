@@ -18,7 +18,11 @@ import {
   isOperationDeprecated,
 } from '@/helpers/operation'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { defineProps } from 'vue'
 
@@ -27,27 +31,30 @@ import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string
-  /** @deprecated Use `requestEntity` instead */
-  operation: TransformedOperation
-  requestEntity?: RequestEntity
-  request: Request | null
-  secretCredentials: string[]
+  collection: Collection
+  server: Server | undefined
+  operation: Operation
+  /** @deprecated Use `operation` instead */
+  transformedOperation: TransformedOperation
 }>()
 </script>
 <template>
   <Section
     :id="id"
-    :label="operation.name">
+    :label="transformedOperation.name">
     <SectionContent>
       <Badge
-        v-if="getOperationStability(operation)"
-        :class="getOperationStabilityColor(operation)">
-        {{ getOperationStability(operation) }}
+        v-if="getOperationStability(transformedOperation)"
+        :class="getOperationStabilityColor(transformedOperation)">
+        {{ getOperationStability(transformedOperation) }}
       </Badge>
-      <div :class="isOperationDeprecated(operation) ? 'deprecated' : ''">
+      <div
+        :class="
+          isOperationDeprecated(transformedOperation) ? 'deprecated' : ''
+        ">
         <SectionHeader :level="3">
           <Anchor :id="id ?? ''">
-            {{ operation.name }}
+            {{ transformedOperation.name }}
           </Anchor>
         </SectionHeader>
       </div>
@@ -55,34 +62,35 @@ defineProps<{
         <SectionColumn>
           <div class="operation-details">
             <ScalarMarkdown
-              :value="requestEntity?.description"
+              :value="operation.description"
               withImages />
-            <OperationParameters :operation="requestEntity" />
-            <OperationResponses :operation="operation" />
+            <OperationParameters :operation="operation" />
+            <OperationResponses :operation="transformedOperation" />
           </div>
         </SectionColumn>
         <SectionColumn>
           <div class="examples">
             <ScalarErrorBoundary>
               <ExampleRequest
+                :collection="collection"
                 fallback
                 :operation="operation"
-                :request="request"
-                :secretCredentials="secretCredentials">
+                :server="server"
+                :transformedOperation="transformedOperation">
                 <template #header>
                   <OperationPath
                     class="example-path"
-                    :deprecated="operation.information?.deprecated"
-                    :path="operation.path" />
+                    :deprecated="transformedOperation.information?.deprecated"
+                    :path="transformedOperation.path" />
                 </template>
                 <template #footer>
-                  <TestRequestButton :operation="requestEntity" />
+                  <TestRequestButton :operation="operation" />
                 </template>
               </ExampleRequest>
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses
-                :operation="operation"
+                :operation="transformedOperation"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>

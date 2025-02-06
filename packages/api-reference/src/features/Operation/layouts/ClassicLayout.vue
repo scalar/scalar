@@ -18,7 +18,11 @@ import {
   ScalarIconButton,
   ScalarMarkdown,
 } from '@scalar/components'
-import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  Operation,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 
@@ -27,11 +31,11 @@ import OperationResponses from '../components/OperationResponses.vue'
 
 defineProps<{
   id?: string
-  requestEntity?: RequestEntity
-  /** @deprecated Use `requestEntity` instead */
-  operation: TransformedOperation
-  request: Request | null
-  secretCredentials: string[]
+  collection: Collection
+  server: Server | undefined
+  operation: Operation
+  /** @deprecated Use `operation` instead */
+  transformedOperation: TransformedOperation
 }>()
 
 const { copyToClipboard } = useClipboard()
@@ -47,7 +51,7 @@ const config = useConfig()
         <div class="operation-details">
           <HttpMethod
             class="endpoint-type"
-            :method="operation.httpVerb"
+            :method="operation.method"
             short />
           <Anchor
             :id="id ?? ''"
@@ -55,14 +59,16 @@ const config = useConfig()
             <div class="endpoint-label">
               <div class="endpoint-label-path">
                 <OperationPath
-                  :deprecated="isOperationDeprecated(operation)"
+                  :deprecated="isOperationDeprecated(transformedOperation)"
                   :path="operation.path" />
               </div>
-              <div class="endpoint-label-name">{{ operation.name }}</div>
+              <div class="endpoint-label-name">
+                {{ transformedOperation.name }}
+              </div>
               <Badge
-                v-if="getOperationStability(operation)"
-                :class="getOperationStabilityColor(operation)">
-                {{ getOperationStability(operation) }}
+                v-if="getOperationStability(transformedOperation)"
+                :class="getOperationStabilityColor(transformedOperation)">
+                {{ getOperationStability(transformedOperation) }}
               </Badge>
             </div>
           </Anchor>
@@ -72,7 +78,7 @@ const config = useConfig()
     <template #actions="{ active }">
       <TestRequestButton
         v-if="active"
-        :operation="requestEntity" />
+        :operation="operation" />
       <ScalarIcon
         v-else-if="!config?.hideTestRequestButton"
         class="endpoint-try-hint"
@@ -87,28 +93,29 @@ const config = useConfig()
         @click.stop="copyToClipboard(operation.path)" />
     </template>
     <template
-      v-if="requestEntity?.description"
+      v-if="operation?.description"
       #description>
       <ScalarMarkdown
-        :value="requestEntity?.description"
+        :value="operation?.description"
         withImages />
     </template>
     <div class="endpoint-content">
       <div class="operation-details-card">
         <div class="operation-details-card-item">
-          <OperationParameters :operation="requestEntity" />
+          <OperationParameters :operation="operation" />
         </div>
         <div class="operation-details-card-item">
           <OperationResponses
             :collapsableItems="false"
-            :operation="operation" />
+            :operation="transformedOperation" />
         </div>
       </div>
-      <ExampleResponses :operation="operation" />
+      <ExampleResponses :operation="transformedOperation" />
       <ExampleRequest
+        :collection="collection"
         :operation="operation"
-        :request="request"
-        :secretCredentials="secretCredentials" />
+        :server="server"
+        :transformedOperation="transformedOperation" />
     </div>
   </SectionAccordion>
 </template>

@@ -890,7 +890,7 @@ describe('getServersFromOpenApiDocument', () => {
 
     if (result.error) throw result.error
 
-    expect(result.servers).toStrictEqual([])
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
 
   it('handles servers with variables/templating', async () => {
@@ -978,7 +978,7 @@ describe('getServersFromOpenApiDocument', () => {
 
     if (result.error) throw result.error
 
-    expect(result.servers).toStrictEqual([])
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
 
   it('returns an empty array when something is invalid', async () => {
@@ -988,7 +988,7 @@ describe('getServersFromOpenApiDocument', () => {
 
     if (result.error) throw result.error
 
-    expect(result.servers).toStrictEqual([])
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
   })
 
   it('works without window.location', async () => {
@@ -1004,6 +1004,46 @@ describe('getServersFromOpenApiDocument', () => {
     if (result.error) throw result.error
 
     expect(result.servers).toMatchObject([{ url: '/api/v1' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
+  it('uses current window.location.origin servers is empty', async () => {
+    const originalLocation =
+      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace({
+      servers: [],
+    })
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
+
+    // Restore the original window.location
+    vi.stubGlobal('location', originalLocation)
+  })
+
+  it('uses current window.location.origin when servers is undefined', async () => {
+    const originalLocation =
+      typeof window !== 'undefined' ? window.location : { origin: undefined }
+    vi.stubGlobal('window', {
+      location: {
+        origin: 'http://localhost:3000',
+      },
+    })
+
+    const result = await importSpecToWorkspace({})
+
+    if (result.error) throw result.error
+
+    expect(result.servers).toMatchObject([{ url: 'http://localhost:3000' }])
 
     // Restore the original window.location
     vi.stubGlobal('location', originalLocation)
