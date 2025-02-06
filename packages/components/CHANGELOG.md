@@ -1,5 +1,16 @@
 # @scalar/components
 
+## 0.13.21
+
+### Patch Changes
+
+- 9f2ec32: fix(components): set z-index on ScalarMenu by default
+- 9f2ec32: fix(components): improve combobox resizing
+- 28f23d9: feat(components): create sidebar item components
+  - @scalar/themes@0.9.65
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.19
+
 ## 0.13.20
 
 ### Patch Changes

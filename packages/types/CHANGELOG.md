@@ -1,5 +1,11 @@
 # @scalar/types
 
+## 0.0.31
+
+### Patch Changes
+
+- a30e7cc: fix: package doesn’t work with `moduleResolution: NodeNext`
+
 ## 0.0.30
 
 ### Patch Changes

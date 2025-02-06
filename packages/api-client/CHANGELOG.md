@@ -1,5 +1,31 @@
 # @scalar/api-client
 
+## 2.2.45
+
+### Patch Changes
+
+- 0f5df68: chore: refactored send request with extensive test suite
+- ebde2b6: fix: sets content type from request
+- 227e8e3: feat: adds empty state
+- 0babd51: fix: sets domain input as optional in cookies
+- 28f23d9: feat(components): create sidebar item components
+- 4df540f: fix: updates request params global cookies style
+- Updated dependencies [0f5df68]
+- Updated dependencies [a30e7cc]
+- Updated dependencies [9f2ec32]
+- Updated dependencies [937f791]
+- Updated dependencies [9f2ec32]
+- Updated dependencies [28f23d9]
+  - @scalar/oas-utils@0.2.103
+  - @scalar/openapi-parser@0.10.5
+  - @scalar/types@0.0.31
+  - @scalar/components@0.13.21
+  - @scalar/import@0.2.23
+  - @scalar/postman-to-openapi@0.1.26
+  - @scalar/themes@0.9.65
+  - @scalar/use-codemirror@0.11.66
+  - @scalar/use-hooks@0.1.19
+
 ## 2.2.44
 
 ### Patch Changes

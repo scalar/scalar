@@ -1,5 +1,11 @@
 # @scalar/openapi-parser
 
+## 0.10.5
+
+### Patch Changes
+
+- a30e7cc: fix: package doesn’t work with `moduleResolution: NodeNext`
+
 ## 0.10.4
 
 ### Patch Changes
