@@ -39,11 +39,11 @@ import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
 const { transformedOperation, operation, collection, server } = defineProps<{
+  operation: Operation
   server: Server | undefined
   collection: Collection
-  fallback?: boolean
   /** Show a simplified card if no example are available */
-  operation: Operation
+  fallback?: boolean
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
