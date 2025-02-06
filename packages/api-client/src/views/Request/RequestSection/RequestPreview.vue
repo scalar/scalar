@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import DataTable from '@/components/DataTable/DataTable.vue'
-import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { getRequestData } from '@/libs/send-request/send-request'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -26,45 +24,7 @@ const { plugins, print } = snippetz()
 const selectedTarget = ref<TargetId>('node' as const)
 const selectedClient = ref<ClientId<typeof selectedTarget.value>>('undici')
 
-const requestContent = ref('')
-
-/** Get the request snippet */
-const requestSnippet = async () => {
-  if (!activeRequest.value || !activeExample.value || !activeCollection.value)
-    return ''
-
-  const environmentValue =
-    typeof activeEnvironment.value === 'object'
-      ? activeEnvironment.value.value
-      : '{}'
-  const e = safeJSON.parse(environmentValue)
-  const environment =
-    e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
-
-  const requestData = getRequestData({
-    request: activeRequest.value,
-    example: activeExample.value,
-    environment,
-    globalCookies: Object.values(cookies),
-  })
-
-  requestContent.value =
-    print(selectedTarget.value, selectedClient.value, {
-      method: requestData.method,
-      url: requestData.url,
-      headers: Object.entries(requestData.headers).map(([key, value]) => ({
-        name: key,
-        value,
-      })),
-      postData: {
-        mimeType: requestData.headers['Content-Type'] ?? 'application/json',
-        text: requestData.body ? JSON.stringify(requestData.body) : '{}',
-      },
-      cookies: requestData.cookies,
-    }) ?? ''
-
-  return requestContent.value
-}
+const requestContent = ref('CODE SNIPPET GOES HERE')
 
 /** Available plugins */
 const availablePlugins = computed(() => {
@@ -92,20 +52,6 @@ const selectedPlugin = computed({
     selectedClient.value = client
   },
 })
-
-onMounted(async () => {
-  await requestSnippet()
-})
-
-/** On request change */
-watch(requestSnippet, () => {
-  requestSnippet()
-})
-
-/** On request navigation change */
-watch(activeRequest, () => {
-  requestSnippet()
-})
 </script>
 
 <template>
@@ -114,7 +60,7 @@ watch(activeRequest, () => {
       class="group/preview -mt-0.25 w-full"
       :defaultOpen="false"
       :hasIcon="false">
-      <template #title> Code Snippet </template>
+      <template #title>Code Snippet</template>
       <template #actions>
         <div class="flex flex-1 -mx-1">
           <ScalarListbox
@@ -122,7 +68,7 @@ watch(activeRequest, () => {
             :options="availablePlugins"
             placement="bottom-end">
             <ScalarButton
-              class="flex gap-1.5 h-full px-1.5 py-0.75 text-c-2 font-normal text-c-1 w-fit"
+              class="flex gap-1.5 h-full px-1.5 py-0.75 font-normal text-c-1 w-fit"
               fullWidth
               variant="ghost">
               <span>{{ selectedTarget }}/{{ selectedClient }}</span>
