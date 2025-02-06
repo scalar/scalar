@@ -1,25 +1,33 @@
-import type {
-  Operation,
-  RequestExample,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
 import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
 import type { HarRequest } from '@scalar/snippetz'
+
+type Props = {
+  baseUrl: string | undefined
+  body?: RequestExample['body']
+  cookies: { key: string; value: string; enabled: boolean }[]
+  headers: { key: string; value: string; enabled: boolean }[]
+  query: { key: string; value: string; enabled: boolean }[]
+} & Pick<Operation, 'method' | 'path'>
 
 /**
  * Takes in a regular request object and returns a HAR request
  * We also Titlecase the headers and remove accept header if it's *
  */
-export const convertToHarRequest = async (
-  operation: Operation,
-  example: RequestExample,
-  server?: Server,
-): Promise<HarRequest> => {
-  const url = combineUrlAndPath(server?.url ?? '', operation.path)
+export const convertToHarRequest = ({
+  baseUrl = '',
+  method,
+  body,
+  path,
+  cookies,
+  headers,
+  query,
+}: Props): HarRequest => {
+  const url = combineUrlAndPath(baseUrl, path)
 
   // Create base HAR request structure
   const harRequest: HarRequest = {
-    method: operation.method.toUpperCase(),
+    method: method.toUpperCase(),
     url: url.toString(),
     httpVersion: 'HTTP/1.1',
     headers: [],
@@ -28,7 +36,6 @@ export const convertToHarRequest = async (
     headersSize: -1,
     bodySize: -1,
   }
-  const { cookies, headers, query } = example.parameters
 
   // Handle cookies from Cookie header
   if (cookies.length)
@@ -61,17 +68,17 @@ export const convertToHarRequest = async (
       }))
 
   // Handle request body if present
-  if (example.body) {
+  if (body) {
     try {
       const contentType =
         headers.find((h) => h.key.toLowerCase() === 'content-type')?.value ||
         'application/json'
 
       // For form-data, convert to object while handling File objects
-      if (example.body.activeBody === 'formData' && example.body.formData) {
+      if (body.activeBody === 'formData' && body.formData) {
         const formDataObject: Record<string, any> = {}
 
-        example.body.formData.value.forEach(({ key, value, file }) => {
+        body.formData.value.forEach(({ key, value, file }) => {
           if (file) {
             formDataObject[key] = {
               type: 'file',
@@ -99,7 +106,7 @@ export const convertToHarRequest = async (
         })
 
         // Handle urlencoded form data
-        if (example.body.formData?.encoding === 'urlencoded') {
+        if (body.formData?.encoding === 'urlencoded') {
           harRequest.postData = {
             mimeType: contentType,
             text: new URLSearchParams(formDataObject).toString(),
@@ -110,11 +117,11 @@ export const convertToHarRequest = async (
             text: JSON.stringify(formDataObject),
           }
         }
-      } else if (example.body.activeBody === 'raw' && example.body.raw) {
+      } else if (body.activeBody === 'raw' && body.raw) {
         // For other content types (JSON, plain text, url-encoded)
         harRequest.postData = {
           mimeType: contentType,
-          text: example.body.raw?.value ?? '',
+          text: body.raw?.value ?? '',
         }
       }
     } catch (e) {

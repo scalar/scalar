@@ -4,6 +4,7 @@ import {
   type Server,
   operationSchema,
   requestExampleSchema,
+  securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -145,6 +146,114 @@ $.ajax(settings).done(function (response) {
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     Accept: 'application/json'
+  }
+})`)
+  })
+
+  it('show should show the cookies', async () => {
+    example.parameters.cookies.push({
+      key: 'sessionId',
+      value: 'abc123',
+      enabled: true,
+    })
+
+    const result = await getExampleCode(
+      operation,
+      example,
+      'javascript',
+      'fetch',
+      server,
+    )
+
+    expect(result).toEqual(`fetch('https://example.com/users', {
+  headers: {
+    'Set-Cookie': 'sessionId=abc123'
+  }
+})`)
+  })
+
+  it('should show the headers', async () => {
+    example.parameters.headers.push({
+      key: 'x-scalar-token',
+      value: 'abc123',
+      enabled: true,
+    })
+
+    const result = await getExampleCode(
+      operation,
+      example,
+      'javascript',
+      'fetch',
+      server,
+    )
+
+    expect(result).toEqual(`fetch('https://example.com/users', {
+  headers: {
+    'X-Scalar-Token': 'abc123'
+  }
+})`)
+  })
+
+  it('should show the query parameters', async () => {
+    example.parameters.query.push({
+      key: 'query-param',
+      value: 'query-value',
+      enabled: true,
+    })
+
+    const result = await getExampleCode(
+      operation,
+      example,
+      'javascript',
+      'fetch',
+      server,
+    )
+
+    expect(result).toEqual(
+      `fetch('https://example.com/users?query-param=query-value')`,
+    )
+  })
+
+  it('should show the security headers, cookies and query', async () => {
+    const result = await getExampleCode(
+      operation,
+      example,
+      'javascript',
+      'fetch',
+      server,
+      [
+        securitySchemeSchema.parse({
+          name: 'x-cookie-token',
+          type: 'apiKey',
+          in: 'cookie',
+        }),
+        securitySchemeSchema.parse({
+          name: 'x-header-token',
+          type: 'apiKey',
+          in: 'header',
+          value: '22222',
+        }),
+        securitySchemeSchema.parse({
+          name: 'query-api-key',
+          type: 'apiKey',
+          in: 'query',
+          value: '33333',
+        }),
+        securitySchemeSchema.parse({
+          name: 'cookie-api-key',
+          type: 'http',
+          scheme: 'bearer',
+          token: '44444',
+        }),
+      ],
+    )
+
+    expect(result)
+      .toEqual(`fetch('https://example.com/users?query-api-key=33333', {
+  headers: {
+    'X-Header-Token': '22222',
+    Authorization: 'Bearer 44444',
+    'Set-Cookie': 'x-cookie-token=YOUR_SECRET_TOKEN'
   }
 })`)
   })

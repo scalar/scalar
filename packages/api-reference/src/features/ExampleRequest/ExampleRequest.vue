@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
+import { filterSecurityRequirements } from '@/features/ExampleRequest/helpers/filter-security-requirements'
 import { getExampleCode } from '@/helpers/get-example-code'
 import { useWorkspace } from '@scalar/api-client/store'
 import { getSecurityRequirements } from '@scalar/api-client/views/Request/libs'
@@ -130,21 +131,22 @@ const generateSnippet = async () => {
   const example = requestExamples[operation.examples[0]]
   if (!example) return ''
 
-  // Get security requirements
-  const securityRequirements = operation.security || collection.security
-
-  // Ensure the selected security schemes are in the security requirements
-  const selectedSecuritySchemes = collection.selectedSecuritySchemeUids
-    .flat()
-    .map((uid) => securitySchemes[uid])
-    .filter(isDefined)
-    .filter((scheme) => securityRequirements.includes(scheme.uid))
-
-  selectedSecuritySchemes.filter
+  // Ensure the selected security is in the security requirements
+  const schemes = filterSecurityRequirements(
+    operation.security || collection.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  )
 
   return (
-    (await getExampleCode(operation, example, targetKey, clientKey, server)) ??
-    ''
+    (await getExampleCode(
+      operation,
+      example,
+      targetKey,
+      clientKey,
+      server,
+      schemes,
+    )) ?? ''
   )
 }
 
