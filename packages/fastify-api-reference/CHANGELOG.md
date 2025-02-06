@@ -1,5 +1,13 @@
 # @scalar/fastify-api-reference
 
+## 1.25.116
+
+### Patch Changes
+
+- a30e7cc: fix: package doesn’t work with `moduleResolution: NodeNext`
+- Updated dependencies [a30e7cc]
+  - @scalar/types@0.0.31
+
 ## 1.25.115
 
 ## 1.25.114

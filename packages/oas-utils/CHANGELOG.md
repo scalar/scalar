@@ -1,5 +1,15 @@
 # @scalar/oas-utils
 
+## 0.2.103
+
+### Patch Changes
+
+- 0f5df68: chore: refactored send request with extensive test suite
+- 937f791: chore: alias request to operation
+- Updated dependencies [a30e7cc]
+  - @scalar/types@0.0.31
+  - @scalar/themes@0.9.65
+
 ## 0.2.102
 
 ### Patch Changes
