@@ -439,4 +439,16 @@ describe('convertToHarRequest', () => {
     })
     expect(harRequest.url).toEqual('{protocol}://void.scalar.com/{path}/users')
   })
+
+  it('handles no server', () => {
+    const harRequest = convertToHarRequest({
+      baseUrl: undefined,
+      method: 'get',
+      path: 'http://google.ca',
+      cookies: [],
+      query: [],
+      headers: [],
+    })
+    expect(harRequest.url).toEqual('http://google.ca')
+  })
 })

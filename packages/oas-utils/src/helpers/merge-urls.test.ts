@@ -457,7 +457,13 @@ describe('combineUrlAndPath', () => {
 
   describe('edge cases', () => {
     it('handles empty base', () => {
-      expect(combineUrlAndPath('', 'api')).toBe('/api')
+      expect(combineUrlAndPath('', 'api')).toBe('api')
+    })
+
+    it('handles no base url', () => {
+      expect(combineUrlAndPath('', 'https://example.com/api')).toBe(
+        'https://example.com/api',
+      )
     })
 
     it('handles both empty strings', () => {

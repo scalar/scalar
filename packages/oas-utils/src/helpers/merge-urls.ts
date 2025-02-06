@@ -47,6 +47,9 @@ export const combineUrlAndPath = (url: string, path: string) => {
   const cleanBase = url.replace(/\/+$/, '').trim()
   const cleanPath = path.replace(/^\/+/, '').trim()
 
+  // Ensure we add the correct slash if theres no url
+  if (!url) return cleanPath
+
   return `${cleanBase}/${cleanPath}`
 }
 
