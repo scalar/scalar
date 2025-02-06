@@ -36,6 +36,7 @@ export function extendedCollectionDataFactory({
   collections,
   collectionMutators,
   tagMutators,
+  serverMutators,
 }: StoreContext) {
   const addCollection = (payload: CollectionPayload, workspaceUid: string) => {
     const collection = collectionSchema.parse(payload)
@@ -46,6 +47,7 @@ export function extendedCollectionDataFactory({
         collection.uid,
       ])
     }
+
     collectionMutators.add(collection)
 
     return collection
@@ -79,6 +81,13 @@ export function extendedCollectionDataFactory({
       request.examples.forEach(
         (e) => requestExamples[e] && requestExampleMutators.delete(e),
       )
+    })
+
+    // Remove servers
+    collection.servers.forEach((uid) => {
+      if (uid) {
+        serverMutators.delete(uid)
+      }
     })
 
     // Remove collection from workspace
