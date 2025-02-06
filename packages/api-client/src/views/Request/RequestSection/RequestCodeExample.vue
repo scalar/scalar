@@ -39,33 +39,17 @@ const selectedSecuritySchemes = computed(() =>
 )
 
 /** Group plugins by target/language to show in a dropdown */
-const availablePlugins = computed(() => {
-  const groupedPlugins: Record<string, ScalarComboboxOption[]> = snippetz()
-    .plugins()
-    .reduce(
-      (acc, plugin) => {
-        const groupLabel = plugin.target
-
-        if (!acc[groupLabel]) {
-          acc[groupLabel] = []
-        }
-
-        acc[groupLabel].push({
-          id: `${plugin.target}/${plugin.client}`,
-          label: `${plugin.target}/${plugin.client}`,
-        })
-
-        return acc
-      },
-      {} as Record<string, ScalarComboboxOption[]>,
-    )
-
-  return Object.entries(groupedPlugins).map(([label, options]) => ({
-    id: label,
-    label,
-    options,
-  }))
-})
+const availablePlugins = computed(() =>
+  snippetz()
+    .clients()
+    .map((group) => ({
+      label: group.title,
+      options: group.clients.map((plugin) => ({
+        id: `${group.key},${plugin.client}`,
+        label: plugin.title,
+      })),
+    })),
+)
 
 /** node/undici -> node */
 const selectedTarget = computed(
