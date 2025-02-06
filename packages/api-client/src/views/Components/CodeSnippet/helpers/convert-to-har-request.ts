@@ -78,7 +78,9 @@ export const convertToHarRequest = ({
       if (body.activeBody === 'formData' && body.formData) {
         const formDataObject: Record<string, any> = {}
 
-        body.formData.value.forEach(({ key, value, file }) => {
+        body.formData.value.forEach(({ key, value, file, enabled }) => {
+          if (!enabled) return
+
           if (file) {
             formDataObject[key] = {
               type: 'file',
