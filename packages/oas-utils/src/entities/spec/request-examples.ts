@@ -38,7 +38,7 @@ export const requestExampleParametersSchema = z.object({
 })
 
 /** Convert the array of parameters to an object keyed by the parameter name */
-function parameterArrayToObject(params: RequestExampleParameter[]) {
+export function parameterArrayToObject(params: RequestExampleParameter[]) {
   return params.reduce<Record<string, string>>((map, param) => {
     map[param.key] = param.value
     return map
@@ -395,19 +395,19 @@ export function createExampleFromRequest(
       },
     })
 
-    if (requestBody?.body?.mimeType === 'application/json') {
+    if (requestBody?.mimeType === 'application/json') {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'json',
-        value: requestBody.body.text ?? JSON.stringify({}),
+        value: requestBody.text ?? JSON.stringify({}),
       }
     }
 
-    if (requestBody?.body?.mimeType === 'application/xml') {
+    if (requestBody?.mimeType === 'application/xml') {
       body.activeBody = 'raw'
       body.raw = {
         encoding: 'xml',
-        value: requestBody.body.text ?? '',
+        value: requestBody.text ?? '',
       }
     }
 
@@ -415,27 +415,39 @@ export function createExampleFromRequest(
      *  TODO: Are we loading example files from somewhere based on the spec?
      *  How are we handling the body values
      */
-    if (requestBody?.body?.mimeType === 'application/octet-stream') {
+    if (requestBody?.mimeType === 'application/octet-stream') {
       body.activeBody = 'binary'
       body.binary = undefined
     }
 
     if (
-      requestBody?.body?.mimeType === 'application/x-www-form-urlencoded' ||
-      requestBody?.body?.mimeType === 'multipart/form-data'
+      requestBody?.mimeType === 'application/x-www-form-urlencoded' ||
+      requestBody?.mimeType === 'multipart/form-data'
     ) {
       body.activeBody = 'formData'
       body.formData = {
         encoding:
-          requestBody.body.mimeType === 'application/x-www-form-urlencoded'
+          requestBody.mimeType === 'application/x-www-form-urlencoded'
             ? 'urlencoded'
             : 'form-data',
-        value: (requestBody.body.params || []).map((param) => ({
+        value: (requestBody.params || []).map((param) => ({
           key: param.name,
           value: param.value || '',
           enabled: true,
         })),
       }
+    }
+
+    // Add the content-type header if it doesn't exist
+    if (
+      requestBody?.mimeType &&
+      !parameters.headers.find((h) => h.key.toLowerCase() === 'content-type')
+    ) {
+      parameters.headers.push({
+        key: 'Content-Type',
+        value: requestBody.mimeType,
+        enabled: true,
+      })
     }
   }
 
