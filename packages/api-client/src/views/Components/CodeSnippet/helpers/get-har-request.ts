@@ -14,14 +14,17 @@ const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 /**
  * Creates a snippetz-compatible HarRequest from OpenAPI-like store entities
  */
-export function getHarRequest(props: {
+export const getHarRequest = ({
+  operation,
+  example,
+  server,
+  securitySchemes = [],
+}: {
   operation?: Operation
   example?: RequestExample
   server?: Server | undefined
   securitySchemes?: SecurityScheme[]
-}): HarRequest {
-  const { operation, example, server, securitySchemes = [] } = props
-
+}): HarRequest => {
   // Grab the security headers, cookies and url params
   const security = buildRequestSecurity(
     securitySchemes,
