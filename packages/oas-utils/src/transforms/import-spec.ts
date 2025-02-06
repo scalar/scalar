@@ -546,9 +546,13 @@ export function getServersFromOpenApiDocument(
  * Fallback to the current window.location.origin, if available
  */
 function getFallbackUrl() {
-  if (typeof window?.location?.origin === 'string') {
-    return window.location.origin
+  if (typeof window === 'undefined') {
+    return undefined
   }
 
-  return undefined
+  if (typeof window?.location?.origin !== 'string') {
+    return undefined
+  }
+
+  return window.location.origin
 }
