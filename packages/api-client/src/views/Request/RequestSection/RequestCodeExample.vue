@@ -82,7 +82,7 @@ const selectedClient = computed(
 </script>
 
 <template>
-  <div class="sticky mt-auto bottom-0 w-full">
+  <div class="w-full">
     <ViewLayoutCollapse
       class="group/preview -mt-0.25 w-full"
       :defaultOpen="true"
@@ -111,7 +111,7 @@ const selectedClient = computed(
           <div
             class="bg-b-1 border-t flex items-center justify-center overflow-hidden">
             <CodeSnippet
-              class="px-1 py-1.5 max-h-40"
+              class="px-1 py-1.5"
               :client="selectedClient"
               :example="activeExample"
               :operation="activeRequest"
