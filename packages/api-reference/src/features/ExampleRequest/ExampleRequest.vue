@@ -132,6 +132,8 @@ const generateSnippet = async () => {
 
   // Get security requirements
   const securityRequirements = getSecurityRequirements(operation, collection)
+  console.log('==========')
+  console.log('operation', operation)
   console.log('securityRequirements', securityRequirements)
 
   return (

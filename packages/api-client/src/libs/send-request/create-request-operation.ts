@@ -116,10 +116,10 @@ export const createRequestOperation = ({
     // Populate all forms of auth to the request segments
     const headers = { ..._headers, ...security.headers }
     const cookieParams = [..._cookieParams, ...security.cookies]
-    const urlParams = new URLSearchParams({
+    const urlParams = new URLSearchParams([
       ..._urlParams,
       ...security.urlParams,
-    })
+    ])
 
     // Combine the url with the path and server + query params
     url = mergeUrls(url, pathString, urlParams)
