@@ -41,15 +41,14 @@ const updateSelected = (value: string) => {
 const addCustomValue = () => {
   if (customValue.value.trim()) {
     updateSelected(customValue.value)
-    customValue.value = ''
   }
 }
 
 const handleBlur = () => {
   if (!customValue.value.trim()) {
     emit('update:modelValue', '')
-    addingCustomValue.value = false
   }
+  addingCustomValue.value = false
 }
 
 const isSelected = (value: string) => {
