@@ -102,9 +102,9 @@ function moveActive(dir: 1 | -1) {
 <template>
   <div class="relative flex">
     <ScalarIcon
-      class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-c-3"
+      class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-c-3"
       icon="Search"
-      size="sm" />
+      size="md" />
     <input
       v-model="query"
       aria-autocomplete="list"
@@ -133,7 +133,7 @@ function moveActive(dir: 1 | -1) {
           // Only show the group label if there are some results
           group.options.some((o) => filtered.some((f) => f.id === o.id))
         "
-        class="min-w-0 truncate px-2 py-1.5 text-left text-c-2">
+        class="min-w-0 truncate px-2.5 py-1.5 text-left text-c-2">
         {{ group.label }}
       </div>
       <template
