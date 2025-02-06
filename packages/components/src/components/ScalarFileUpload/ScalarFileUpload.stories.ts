@@ -6,8 +6,14 @@ const meta = {
   component: ScalarFileUpload,
   tags: ['autodocs'],
   argTypes: {
-    class: {
-      control: 'text',
+    class: { control: 'text' },
+    accept: {
+      control: 'select',
+      options: [
+        ['.jpg', '.png'],
+        ['.mp4', '.mov'],
+        ['.mp3', '.wav'],
+      ],
     },
   },
   render: (args) => ({
