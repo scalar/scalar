@@ -9,7 +9,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { ssrState } from '@scalar/oas-utils/helpers'
+import { isDefined, ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
   SSRState,
@@ -131,10 +131,16 @@ const generateSnippet = async () => {
   if (!example) return ''
 
   // Get security requirements
-  const securityRequirements = getSecurityRequirements(operation, collection)
-  console.log('==========')
-  console.log('operation', operation)
-  console.log('securityRequirements', securityRequirements)
+  const securityRequirements = operation.security || collection.security
+
+  // Ensure the selected security schemes are in the security requirements
+  const selectedSecuritySchemes = collection.selectedSecuritySchemeUids
+    .flat()
+    .map((uid) => securitySchemes[uid])
+    .filter(isDefined)
+    .filter((scheme) => securityRequirements.includes(scheme.uid))
+
+  selectedSecuritySchemes.filter
 
   return (
     (await getExampleCode(operation, example, targetKey, clientKey, server)) ??
