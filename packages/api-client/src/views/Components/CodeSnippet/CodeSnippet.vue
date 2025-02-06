@@ -9,7 +9,7 @@ import type {
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
 
-import { getHarRequest } from './get-har-request'
+import { getHarRequest } from './helpers/get-har-request'
 
 const { target, client, operation, server, example, securitySchemes } =
   defineProps<{

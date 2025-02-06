@@ -2,23 +2,24 @@
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
-import { filterSecurityRequirements } from '@/libs/filter-security-requirements'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
+import { CodeSnippet } from '@/views/Components/CodeSnippet'
 import {
   ScalarButton,
   ScalarCombobox,
   type ScalarComboboxOption,
   ScalarIcon,
 } from '@scalar/components'
-import { snippetz } from '@scalar/snippetz'
+import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed, ref } from 'vue'
 
-import CodeSnippet from './CodeSnippet.vue'
+import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
+/** The selected HTTP client to render the code snippet for */
 const selectedPlugin = ref<ScalarComboboxOption | undefined>({
-  id: 'node-undici',
-  label: 'undici',
+  id: 'js/fetch',
+  label: 'js/fetch',
 })
 
 // Get the entities from the store
@@ -37,20 +38,23 @@ const selectedSecuritySchemes = computed(() => {
   )
 })
 
-/** Available plugins */
+/** Group plugins by target/language to show in a dropdown */
 const availablePlugins = computed(() => {
   const groupedPlugins: Record<string, ScalarComboboxOption[]> = snippetz()
     .plugins()
     .reduce(
       (acc, plugin) => {
         const groupLabel = plugin.target
+
         if (!acc[groupLabel]) {
           acc[groupLabel] = []
         }
+
         acc[groupLabel].push({
-          id: `${plugin.target}-${plugin.client}`,
-          label: `${plugin.client}`,
+          id: `${plugin.target}/${plugin.client}`,
+          label: `${plugin.target}/${plugin.client}`,
         })
+
         return acc
       },
       {} as Record<string, ScalarComboboxOption[]>,
@@ -61,6 +65,18 @@ const availablePlugins = computed(() => {
     label,
     options,
   }))
+})
+
+/** node/undici -> node */
+const selectedTarget = computed(() => {
+  return selectedPlugin.value?.id.split('/')[0] as TargetId
+})
+
+/** node/undici -> undici */
+const selectedClient = computed(() => {
+  return selectedPlugin.value?.id.split('/')[1] as ClientId<
+    typeof selectedTarget.value
+  >
 })
 </script>
 
@@ -95,12 +111,12 @@ const availablePlugins = computed(() => {
             class="bg-b-1 border-t flex items-center justify-center overflow-hidden">
             <CodeSnippet
               class="px-1 py-1.5 max-h-40"
-              :client="'undici'"
+              :client="selectedClient"
               :example="activeExample"
               :operation="activeRequest"
               :securitySchemes="selectedSecuritySchemes"
               :server="activeServer"
-              :target="'node'" />
+              :target="selectedTarget" />
           </div>
         </DataTableRow>
       </DataTable>

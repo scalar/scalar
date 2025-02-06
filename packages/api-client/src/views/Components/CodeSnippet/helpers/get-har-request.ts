@@ -1,5 +1,4 @@
-import { buildRequestSecurity } from '@/libs'
-import { convertToHarRequest } from '@/libs/convert-to-har-request'
+import { buildRequestSecurity } from '@/libs/send-request/build-request-security'
 import type {
   Operation,
   RequestExample,
@@ -7,6 +6,8 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { HarRequest } from '@scalar/snippetz'
+
+import { convertToHarRequest } from './convert-to-har-request'
 
 const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 

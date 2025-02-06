@@ -13,7 +13,7 @@ import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
-import RequestPreview from './RequestPreview.vue'
+import RequestCodeExample from './RequestCodeExample.vue'
 
 defineProps<{
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
@@ -175,7 +175,7 @@ const activeWorkspaceCookies = computed(() =>
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
-      <RequestPreview />
+      <RequestCodeExample />
     </div>
   </ViewLayoutSection>
 </template>
