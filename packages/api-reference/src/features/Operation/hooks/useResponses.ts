@@ -26,7 +26,7 @@ export function useResponses(operation: TransformedOperation) {
     Object.entries(responses).forEach(([statusCode, response]) => {
       res.push({
         name: statusCode,
-        description: response.description,
+        description: response.description ?? '',
         content: response.content,
         headers: response.headers,
       })
