@@ -9,13 +9,11 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
   SSRState,
   TransformedOperation,
 } from '@scalar/types/legacy'
-import { asyncComputed } from '@vueuse/core'
 import {
   computed,
   onServerPrefetch,
@@ -115,7 +113,7 @@ const hasMultipleExamples = computed<boolean>(
     ).length > 1,
 )
 
-const generateSnippet = async () => {
+const generateSnippet = () => {
   // Use the selected custom example
   if (localHttpClient.value.targetKey === 'customExamples') {
     return (
@@ -138,25 +136,19 @@ const generateSnippet = async () => {
   )
 
   return (
-    (await getExampleCode(
-      operation,
-      example,
-      targetKey,
-      clientKey,
-      server,
-      schemes,
-    )) ?? ''
+    getExampleCode(operation, example, targetKey, clientKey, server, schemes) ??
+    ''
   )
 }
 
-const generatedCode = asyncComputed<string>(async () => {
+const generatedCode = computed<string>(() => {
   try {
-    return await generateSnippet()
+    return generateSnippet()
   } catch (error) {
     console.error('[generateSnippet]', error)
     return ''
   }
-}, ssrState[ssrStateKey] ?? '')
+})
 
 onServerPrefetch(async () => {
   const ctx = useSSRContext<SSRState>()

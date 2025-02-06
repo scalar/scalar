@@ -2,36 +2,46 @@
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
+import { filterSecurityRequirements } from '@/libs/filter-security-requirements'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
-  ScalarCodeBlock,
   ScalarCombobox,
   type ScalarComboboxOption,
   ScalarIcon,
 } from '@scalar/components'
-import { safeJSON } from '@scalar/object-utils/parse'
-import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
-import { computed, onMounted, ref, watch } from 'vue'
+import { snippetz } from '@scalar/snippetz'
+import { computed, ref } from 'vue'
 
-const { activeRequest, activeExample, activeCollection, activeEnvironment } =
-  useActiveEntities()
-const { cookies } = useWorkspace()
-
-const { plugins, print } = snippetz()
+import CodeSnippet from './CodeSnippet.vue'
 
 const selectedPlugin = ref<ScalarComboboxOption | undefined>({
   id: 'node-undici',
   label: 'undici',
 })
 
-const requestContent = ref('CODE SNIPPET GOES HERE')
+// Get the entities from the store
+const { activeRequest, activeExample, activeServer, activeCollection } =
+  useActiveEntities()
+const { securitySchemes } = useWorkspace()
+
+/**
+ * Just the relevant security schemes for the selected request
+ */
+const selectedSecuritySchemes = computed(() => {
+  return filterSecurityRequirements(
+    activeRequest.value?.security || activeCollection.value?.security || [],
+    activeCollection.value?.selectedSecuritySchemeUids,
+    securitySchemes,
+  )
+})
 
 /** Available plugins */
 const availablePlugins = computed(() => {
-  const groupedPlugins: Record<string, ScalarComboboxOption[]> =
-    plugins().reduce(
+  const groupedPlugins: Record<string, ScalarComboboxOption[]> = snippetz()
+    .plugins()
+    .reduce(
       (acc, plugin) => {
         const groupLabel = plugin.target
         if (!acc[groupLabel]) {
@@ -58,7 +68,7 @@ const availablePlugins = computed(() => {
   <div class="sticky mt-auto bottom-0 w-full">
     <ViewLayoutCollapse
       class="group/preview -mt-0.25 w-full"
-      :defaultOpen="false"
+      :defaultOpen="true"
       :hasIcon="false">
       <template #title>Code Snippet</template>
       <template #actions>
@@ -83,11 +93,14 @@ const availablePlugins = computed(() => {
         <DataTableRow>
           <div
             class="bg-b-1 border-t flex items-center justify-center overflow-hidden">
-            <ScalarCodeBlock
-              class="max-h-40 px-1 py-1.5 w-full"
-              :content="requestContent"
-              :lang="selectedPlugin?.id"
-              lineNumbers />
+            <CodeSnippet
+              class="px-1 py-1.5 max-h-40"
+              :client="'undici'"
+              :example="activeExample"
+              :operation="activeRequest"
+              :securitySchemes="selectedSecuritySchemes"
+              :server="activeServer"
+              :target="'node'" />
           </div>
         </DataTableRow>
       </DataTable>

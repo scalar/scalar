@@ -1,28 +1,19 @@
+import { convertToHarRequest } from '@/helpers/convert-to-har-request'
 import { buildRequestSecurity } from '@scalar/api-client/libs/send-request'
-import { cookieSchema } from '@scalar/oas-utils/entities/cookie'
 import type {
   Operation,
   RequestExample,
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import {
-  type ClientId as SnippetzClientId,
-  type TargetId as SnippetzTargetId,
-  snippetz,
-} from '@scalar/snippetz'
-
-import { convertToHarRequest } from './convert-to-har-request'
-
-export type TargetId = SnippetzTargetId
-export type ClientId<T extends SnippetzTargetId> = SnippetzClientId<T>
+import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 
 const EMPTY_TOKEN_PLACEHOLDER = 'YOUR_SECRET_TOKEN'
 
 /**
  * Returns a code example for given operation
  */
-export async function getExampleCode<T extends SnippetzTargetId>(
+export function getExampleCode<T extends TargetId>(
   operation: Operation,
   example: RequestExample,
   target: TargetId | string,
@@ -65,7 +56,7 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   ]
 
   // Convert request to HarRequest
-  const harRequest = await convertToHarRequest({
+  const harRequest = convertToHarRequest({
     baseUrl: server?.url,
     method: operation.method,
     path: operation.path,
@@ -76,15 +67,12 @@ export async function getExampleCode<T extends SnippetzTargetId>(
   })
 
   // TODO: Fix this, use js (instead of javascript) everywhere
-  const snippetzTargetKey = target?.replace(
-    'javascript',
-    'js',
-  ) as SnippetzTargetId
+  const snippetzTargetKey = target?.replace('javascript', 'js') as TargetId
 
   if (snippetz().hasPlugin(snippetzTargetKey, client)) {
     return snippetz().print(
       snippetzTargetKey,
-      client as SnippetzClientId<typeof target>,
+      client as ClientId<TargetId>,
       harRequest,
     )
   }
