@@ -7,9 +7,9 @@ import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarCodeBlock,
+  ScalarCombobox,
+  type ScalarComboboxOption,
   ScalarIcon,
-  ScalarListbox,
-  type ScalarListboxOption,
 } from '@scalar/components'
 import { safeJSON } from '@scalar/object-utils/parse'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
@@ -21,36 +21,36 @@ const { cookies } = useWorkspace()
 
 const { plugins, print } = snippetz()
 
-const selectedTarget = ref<TargetId>('node' as const)
-const selectedClient = ref<ClientId<typeof selectedTarget.value>>('undici')
+const selectedPlugin = ref<ScalarComboboxOption | undefined>({
+  id: 'node-undici',
+  label: 'undici',
+})
 
 const requestContent = ref('CODE SNIPPET GOES HERE')
 
 /** Available plugins */
 const availablePlugins = computed(() => {
-  return plugins().map(
-    (plugin) =>
-      ({
-        id: `${plugin.target}-${plugin.client}`,
-        label: `${plugin.target} / ${plugin.client}`,
-      }) as ScalarListboxOption,
-  )
-})
+  const groupedPlugins: Record<string, ScalarComboboxOption[]> =
+    plugins().reduce(
+      (acc, plugin) => {
+        const groupLabel = plugin.target
+        if (!acc[groupLabel]) {
+          acc[groupLabel] = []
+        }
+        acc[groupLabel].push({
+          id: `${plugin.target}-${plugin.client}`,
+          label: `${plugin.client}`,
+        })
+        return acc
+      },
+      {} as Record<string, ScalarComboboxOption[]>,
+    )
 
-/** Selected plugin */
-const selectedPlugin = computed({
-  get: () =>
-    availablePlugins.value.find((plugin) => {
-      return plugin.id === `${selectedTarget.value}-${selectedClient.value}`
-    }),
-  set: (plugin: ScalarListboxOption) => {
-    const [target, client] = plugin.id.split('-') as [
-      TargetId,
-      ClientId<TargetId>,
-    ]
-    selectedTarget.value = target
-    selectedClient.value = client
-  },
+  return Object.entries(groupedPlugins).map(([label, options]) => ({
+    id: label,
+    label,
+    options,
+  }))
 })
 </script>
 
@@ -63,7 +63,7 @@ const selectedPlugin = computed({
       <template #title>Code Snippet</template>
       <template #actions>
         <div class="flex flex-1 -mx-1">
-          <ScalarListbox
+          <ScalarCombobox
             v-model="selectedPlugin"
             :options="availablePlugins"
             placement="bottom-end">
@@ -71,12 +71,12 @@ const selectedPlugin = computed({
               class="flex gap-1.5 h-full px-1.5 py-0.75 font-normal text-c-1 w-fit"
               fullWidth
               variant="ghost">
-              <span>{{ selectedTarget }}/{{ selectedClient }}</span>
+              <span>{{ selectedPlugin?.label }}</span>
               <ScalarIcon
                 icon="ChevronDown"
                 size="md" />
             </ScalarButton>
-          </ScalarListbox>
+          </ScalarCombobox>
         </div>
       </template>
       <DataTable :columns="['']">
@@ -86,7 +86,7 @@ const selectedPlugin = computed({
             <ScalarCodeBlock
               class="max-h-40 px-1 py-1.5 w-full"
               :content="requestContent"
-              :lang="selectedTarget"
+              :lang="selectedPlugin?.id"
               lineNumbers />
           </div>
         </DataTableRow>
