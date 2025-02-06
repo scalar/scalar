@@ -3,14 +3,13 @@ import { useExampleStore } from '#legacy'
 import { filterSecurityRequirements } from '@/features/ExampleRequest/helpers/filter-security-requirements'
 import { getExampleCode } from '@/helpers/get-example-code'
 import { useWorkspace } from '@scalar/api-client/store'
-import { getSecurityRequirements } from '@scalar/api-client/views/Request/libs'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
   Collection,
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { isDefined, ssrState } from '@scalar/oas-utils/helpers'
+import { ssrState } from '@scalar/oas-utils/helpers'
 import type {
   ExampleRequestSSRKey,
   SSRState,
