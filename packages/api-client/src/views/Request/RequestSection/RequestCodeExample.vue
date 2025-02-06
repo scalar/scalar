@@ -30,13 +30,13 @@ const { securitySchemes } = useWorkspace()
 /**
  * Just the relevant security schemes for the selected request
  */
-const selectedSecuritySchemes = computed(() => {
-  return filterSecurityRequirements(
+const selectedSecuritySchemes = computed(() =>
+  filterSecurityRequirements(
     activeRequest.value?.security || activeCollection.value?.security || [],
     activeCollection.value?.selectedSecuritySchemeUids,
     securitySchemes,
-  )
-})
+  ),
+)
 
 /** Group plugins by target/language to show in a dropdown */
 const availablePlugins = computed(() => {
@@ -68,16 +68,17 @@ const availablePlugins = computed(() => {
 })
 
 /** node/undici -> node */
-const selectedTarget = computed(() => {
-  return selectedPlugin.value?.id.split('/')[0] as TargetId
-})
+const selectedTarget = computed(
+  () => selectedPlugin.value?.id.split('/')[0] as TargetId,
+)
 
 /** node/undici -> undici */
-const selectedClient = computed(() => {
-  return selectedPlugin.value?.id.split('/')[1] as ClientId<
-    typeof selectedTarget.value
-  >
-})
+const selectedClient = computed(
+  () =>
+    selectedPlugin.value?.id.split('/')[1] as ClientId<
+      typeof selectedTarget.value
+    >,
+)
 </script>
 
 <template>

@@ -2,6 +2,7 @@ import type {
   Collection,
   SecurityScheme,
 } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 
 /**
  * Takes in selected security and filters it with the requirements
@@ -29,8 +30,11 @@ export const filterSecurityRequirements = (
 
     // Only add schemes if their combination is required
     if (requiredCombinations.has(key)) {
-      // @ts-expect-error TODO: Fix this
-      acc.push(...schemeUids.map((scheme) => securitySchemes[scheme]))
+      acc.push(
+        ...schemeUids
+          .map((scheme) => securitySchemes[scheme])
+          .filter(isDefined),
+      )
     }
 
     return acc

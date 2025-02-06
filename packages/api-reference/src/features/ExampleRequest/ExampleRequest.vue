@@ -1,27 +1,16 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
-import { filterSecurityRequirements } from '@/features/ExampleRequest/helpers/filter-security-requirements'
 import { getExampleCode } from '@/helpers/get-example-code'
 import { useWorkspace } from '@scalar/api-client/store'
+import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
   Collection,
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type {
-  ExampleRequestSSRKey,
-  SSRState,
-  TransformedOperation,
-} from '@scalar/types/legacy'
-import {
-  computed,
-  onServerPrefetch,
-  ref,
-  useId,
-  useSSRContext,
-  watch,
-} from 'vue'
+import type { TransformedOperation } from '@scalar/types/legacy'
+import { computed, ref, useId, watch } from 'vue'
 
 import {
   Card,
@@ -44,10 +33,6 @@ const { transformedOperation, operation, collection, server } = defineProps<{
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
-
-const ssrID = useId()
-const ssrStateKey =
-  `components-Content-Operation-Example-Request${ssrID}` satisfies ExampleRequestSSRKey
 
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
@@ -148,11 +133,6 @@ const generatedCode = computed<string>(() => {
     console.error('[generateSnippet]', error)
     return ''
   }
-})
-
-onServerPrefetch(async () => {
-  const ctx = useSSRContext<SSRState>()
-  ctx!.payload.data[ssrStateKey] = await generateSnippet()
 })
 
 /** Code language of the snippet */
