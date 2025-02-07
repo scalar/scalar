@@ -26,7 +26,7 @@ export const httpHttp11: Plugin = {
       url = new URL(normalizedRequest.url || 'http://')
       path = url.pathname + (url.search || '')
     } catch (error) {
-      // Use the provided URL directly if parsing fails
+      // Oops, got an invalid URL, use the provided URL directly.
       path = normalizedRequest.url || '/'
     }
 
@@ -43,6 +43,7 @@ export const httpHttp11: Plugin = {
             `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`,
         )
         .join('&')
+
       // Append query string to the path
       requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
     }
@@ -52,6 +53,7 @@ export const httpHttp11: Plugin = {
 
     // Headers
     const headers = new Map()
+
     normalizedRequest.headers.forEach((header) => {
       if (headers.has(header.name)) {
         headers.set(header.name, `${headers.get(header.name)}, ${header.value}`)
@@ -79,6 +81,7 @@ export const httpHttp11: Plugin = {
             `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`,
         )
         .join('&')
+
       // Append query string to the path
       requestString =
         `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n` +
@@ -108,6 +111,7 @@ export const httpHttp11: Plugin = {
               `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`,
           )
           .join('&')
+
         requestString += `Content-Type: application/x-www-form-urlencoded\r\n\r\n${formData}`
       } else if (
         normalizedRequest.postData.mimeType === 'multipart/form-data' &&
@@ -115,6 +119,7 @@ export const httpHttp11: Plugin = {
       ) {
         const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
         requestString += `Content-Type: multipart/form-data; boundary=${boundary}\r\n\r\n`
+
         normalizedRequest.postData.params.forEach((param) => {
           if (param.fileName) {
             requestString += `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
