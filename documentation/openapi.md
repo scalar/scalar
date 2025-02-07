@@ -46,7 +46,7 @@ We provide examples for a lot of popular HTTP clients and frameworks. For someth
 openapi: 3.1.0
 info:
   title: Val Town API
-  version: '1.0'
+  version: 1.0
 paths:
   '/v1/eval':
     post:
@@ -75,7 +75,7 @@ You can overwrite tag names with `x-displayName`.
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 tags:
   - name: pl4n3t5
 +    x-displayName: planets
@@ -95,7 +95,7 @@ You can group your tags with `x-tagGroups`.
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 tags:
   - name: planets
 +x-tagGroups:
@@ -118,7 +118,7 @@ You can hide operations and webhooks from the reference with `x-scalar-ignore`.
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 paths:
   '/planets':
     get:
@@ -134,7 +134,7 @@ Or to hide a tag and the operations under it:
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 tags:
   - name: planets
 +    x-scalar-ignore: true
@@ -160,7 +160,7 @@ You can add a custom attribute name to `additionalProperties` with `x-additional
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 components:
   schemas:
     Planet:
@@ -182,7 +182,7 @@ You can show the stability of an endpoint by settings the `x-scalar-stability` t
 openapi: 3.1.0
 info:
   title: Example
-  version: '1.0'
+  version: 1.0
 paths:
   '/planets':
     get:
@@ -190,4 +190,29 @@ paths:
     post:
       summary: Create a new planet
 +      x-scalar-stability: 'experimental'
+```
+
+## x-enumDescriptions
+
+You can add a descriptions to `enum` values with `x-enumDescriptions`:
+
+```diff
+openapi: 3.1.0
+info:
+  title: Example
+  version: 1.0
+components:
+  schemas:
+    CustomerCancellationReason:
+      type: string
+      enum:
+      - missing_features
+      - too_expensive
+      - unused
+      - other
++      x-enumDescriptions:
++        missing_features: Missing features
++        too_expensive: Too expensive
++        unused: Unused
++        other: Other
 ```
