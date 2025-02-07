@@ -234,7 +234,14 @@ export const authorizeServers = async (
 
   const formData = new URLSearchParams()
   formData.set('client_id', flow['x-scalar-client-id'])
-  if (scopes) formData.set('scope', scopes)
+
+  // Only client credentials and password flows support scopes in the token request
+  if (
+    scopes &&
+    (flow.type == 'clientCredentials' || flow.type === 'password')
+  ) {
+    formData.set('scope', scopes)
+  }
 
   if (flow.clientSecret) formData.set('client_secret', flow.clientSecret)
   if ('x-scalar-redirect-uri' in flow && flow['x-scalar-redirect-uri'])

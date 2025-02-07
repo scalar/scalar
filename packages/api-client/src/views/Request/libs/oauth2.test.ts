@@ -132,7 +132,6 @@ describe('oauth2', () => {
         method: 'POST',
         body: new URLSearchParams({
           client_id: flow['x-scalar-client-id'],
-          scope: scope.join(' '),
           client_secret: flow.clientSecret,
           redirect_uri: flow['x-scalar-redirect-uri'],
           code: 'auth_code_123',
@@ -216,7 +215,6 @@ describe('oauth2', () => {
           },
           body: new URLSearchParams({
             client_id: _flow['x-scalar-client-id'],
-            scope: scope.join(' '),
             client_secret: _flow.clientSecret,
             redirect_uri: _flow['x-scalar-redirect-uri'],
             code,
@@ -327,7 +325,6 @@ describe('oauth2', () => {
           method: 'POST',
           body: new URLSearchParams({
             client_id: flow['x-scalar-client-id'],
-            scope: scope.join(' '),
             client_secret: flow.clientSecret,
             redirect_uri: flow['x-scalar-redirect-uri'],
             code: 'auth_code_123',
