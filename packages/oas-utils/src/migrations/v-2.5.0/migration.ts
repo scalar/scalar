@@ -69,8 +69,7 @@ export const migrate_v_2_5_0 = (
   >((acc, [key, workspace]) => {
     acc[key] = {
       ...workspace,
-      hiddenSnippetClients: [],
-      selectedSnippetClient: {
+      selectedHttpClient: {
         targetKey: 'shell',
         clientKey: 'curl',
       },

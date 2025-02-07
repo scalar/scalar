@@ -64,7 +64,7 @@ const snippets = computed(() => {
 
 /** The currently selected plugin */
 const selectedPlugin = computed(() => {
-  const selectedClient = activeWorkspace.value?.selectedSnippetClient
+  const selectedClient = activeWorkspace.value?.selectedHttpClient
 
   // Backups on backups
   if (!selectedClient)
@@ -85,14 +85,13 @@ const selectedPlugin = computed(() => {
 /** The currently selected target, unsafely typecast until we can extract validation fron snippetz */
 const selectedTarget = computed(
   () =>
-    (activeWorkspace.value?.selectedSnippetClient?.targetKey ??
-      'js') as TargetId,
+    (activeWorkspace.value?.selectedHttpClient?.targetKey ?? 'js') as TargetId,
 )
 
 /** The currently selected client, unsafely typecast until we can extract validation fron snippetz */
 const selectedClient = computed(
   () =>
-    (activeWorkspace.value?.selectedSnippetClient?.clientKey ??
+    (activeWorkspace.value?.selectedHttpClient?.clientKey ??
       'fetch') as ClientId<TargetId>,
 )
 
@@ -101,12 +100,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
   const [target, client] = id.split(',')
   if (!activeWorkspace.value || !target || !client) return
 
-  console.log('selectClient', {
-    target,
-    client,
-  })
-
-  workspaceMutators.edit(activeWorkspace.value.uid, 'selectedSnippetClient', {
+  workspaceMutators.edit(activeWorkspace.value.uid, 'selectedHttpClient', {
     targetKey: target,
     clientKey: client,
   })

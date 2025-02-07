@@ -47,10 +47,8 @@ export const workspaceSchema = z.object({
   proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */
   themeId: z.enum(themeIds).optional().default('default'),
-  /** Hidden HTTP clients for snippets */
-  hiddenSnippetClients: z.array(z.string()).optional().default([]),
   /** Currently selected snippet client */
-  selectedSnippetClient: z
+  selectedHttpClient: z
     .object({
       targetKey: z.string(),
       clientKey: z.string(),

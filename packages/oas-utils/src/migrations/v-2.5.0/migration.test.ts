@@ -98,7 +98,7 @@ describe('migrate_v_2_5_0', () => {
     )
   })
 
-  it('should add default hiddenSnippetClients and selectedSnippetClient to workspaces', () => {
+  it('should add default selectedHttpClient to workspaces', () => {
     const mockData: v_2_4_0.DataRecord = {
       requestExamples: {},
       collections: {},
@@ -132,8 +132,7 @@ describe('migrate_v_2_5_0', () => {
 
     // Assertions
     expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
-    expect(result.workspaces.default.hiddenSnippetClients).toEqual([])
-    expect(result.workspaces.default.selectedSnippetClient).toEqual({
+    expect(result.workspaces.default.selectedHttpClient).toEqual({
       targetKey: 'shell',
       clientKey: 'curl',
     })
