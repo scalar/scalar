@@ -1,3 +1,4 @@
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
@@ -77,8 +78,13 @@ export function useSearch() {
         description: request.description ?? '',
         httpVerb: request.method,
         path: request.path,
-        // TODO: Use router instead
-        link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
+        link: {
+          name: 'request',
+          params: {
+            [PathId.Request]: request.uid,
+            [PathId.Workspace]: activeWorkspace.value?.uid,
+          },
+        },
       }))
     fuse.setCollection(fuseDataArray.value)
   }
