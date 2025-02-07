@@ -176,6 +176,11 @@ const activeWorkspaceCookies = computed(() =>
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
+
+      <!-- Spacer -->
+      <div class="flex flex-grow" />
+
+      <!-- Code Snippet -->
       <ScalarErrorBoundary>
         <RequestCodeExample />
       </ScalarErrorBoundary>
