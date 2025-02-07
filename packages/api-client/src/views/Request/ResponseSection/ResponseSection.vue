@@ -149,8 +149,10 @@ const shouldVirtualize = computed(() => {
         <template v-if="activeSection === 'All' || activeSection === 'Body'">
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
-            v-if="shouldVirtualize"
-            :content="props.response!.data as string" />
+            v-if="shouldVirtualize && typeof props.response?.data === 'string'"
+            :content="props.response!.data"
+            :data="props.response?.data"
+            :headers="responseHeaders" />
 
           <ResponseBody
             v-else
