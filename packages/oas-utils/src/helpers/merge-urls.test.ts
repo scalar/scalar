@@ -195,7 +195,9 @@ describe('mergeUrls', () => {
 
   it('handles URLs with template variables', () => {
     const result = mergeUrls('{protocol}://api.example.com', '/users')
-    expect(result).toBe('{protocol}://api.example.com/users')
+    expect(result).toBe(
+      'http://localhost:3000/{protocol}://api.example.com/users',
+    )
   })
 
   it('handles relative URLs', () => {

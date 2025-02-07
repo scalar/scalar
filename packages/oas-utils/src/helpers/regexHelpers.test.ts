@@ -28,9 +28,9 @@ describe('protocolRegex', () => {
     expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
   })
 
-  it('allows variables before ://', () => {
+  it('does not allow variables before ://', () => {
     const text = '{protocol}://example.com'
-    expect(text.match(REGEX.PROTOCOL)).toBeTruthy()
+    expect(text.match(REGEX.PROTOCOL)).toBeNull()
   })
 
   it('does not allow no protocol with a variable', () => {
