@@ -21,12 +21,17 @@ const meta = {
   render: (args) => ({
     components: {
       ScalarFileUpload,
+      ScalarFileUploadFileList,
     },
     setup() {
-      return { args }
+      const files = ref<File[]>([])
+      return { args, files }
     },
     template: `
-  <ScalarFileUpload v-bind="args">
+  <ScalarFileUpload v-bind="args" v-model="files">
+    <template v-if="files?.length" #default>
+      <ScalarFileUploadFileList v-model="files" />
+    </template>
   </ScalarFileUpload>
 `,
   }),

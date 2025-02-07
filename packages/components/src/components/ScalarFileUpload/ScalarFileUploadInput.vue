@@ -31,7 +31,7 @@ const { cx } = useBindCx()
 </script>
 <template>
   <div v-bind="cx('flex items-center justify-center gap-2 flex-col px-4 py-4')">
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1 whitespace-nowrap">
       <span class="text-c-2">
         <slot name="label">
           Drop {{ multiple ? 'files' : 'file' }} here to upload
@@ -46,13 +46,13 @@ const { cx } = useBindCx()
         Browse files
       </ScalarButton>
     </div>
-    <div
-      v-if="extensions"
-      class="text-c-3 text-xs">
-      <slot name="sublabel">
+    <slot name="sublabel">
+      <div
+        v-if="extensions"
+        class="text-c-3 text-xs">
         <span class="font-medium">Supported file types:</span>
         {{ extensions.join(', ') }}
-      </slot>
-    </div>
+      </div>
+    </slot>
   </div>
 </template>
