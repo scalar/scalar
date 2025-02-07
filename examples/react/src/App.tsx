@@ -1,18 +1,18 @@
 import { ApiReferenceReact } from '@scalar/api-reference-react'
-import { galaxySpec } from '@scalar/galaxy'
+import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
 import React, { useEffect, useState } from 'react'
 
 function App() {
-  const [spec, setSpec] = useState({ ...galaxySpec })
+  const [spec, setSpec] = useState({ ...ScalarGalaxy })
 
   useEffect(() => {
     // Update the spec periodically to test reactivity
     const changeInt = setInterval(() => {
       setSpec({
-        ...galaxySpec,
+        ...ScalarGalaxy,
         info: {
-          ...galaxySpec.info,
+          ...ScalarGalaxy.info,
           title: (generate(2) as string[]).join(' '),
         },
       })

@@ -27,25 +27,25 @@ npm install @scalar/galaxy
 ### Import as object
 
 ```ts
-import galaxy from '@scalar/galaxy/latest.json'
+import ScalarGalaxy from '@scalar/galaxy/latest.json'
 ```
 
 ### Import as JSON string
 
 ```ts
-import galaxy from '@scalar/galaxy/latest.json?raw'
+import ScalarGalaxy from '@scalar/galaxy/latest.json?raw'
 ```
 
 ### Import as YAML string
 
 ```ts
-import galaxy from '@scalar/galaxy/latest.yaml?raw'
+import ScalarGalaxy from '@scalar/galaxy/latest.yaml?raw'
 ```
 
 ### Import specific OpenAPI version
 
 ```ts
-import galaxy from '@scalar/galaxy/3.1.json'
+import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 ```
 
 ## Development
