@@ -1,3 +1,7 @@
+import {
+  requestExampleSchema,
+  securitySchemeSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { createRequestOperation } from './create-request-operation'
@@ -214,5 +218,41 @@ describe('authentication', () => {
     expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
       authorization: 'Bearer oauth-token',
     })
+  })
+
+  it('ensures we only have one auth header', async () => {
+    const [error, requestOperation] = createRequestOperation({
+      ...createRequestPayload({
+        serverPayload: { url: VOID_URL },
+      }),
+      example: requestExampleSchema.parse({
+        parameters: {
+          headers: [
+            {
+              key: 'Authorization',
+              value: 'Bearer header-token',
+              enabled: true,
+            },
+          ],
+        },
+      }),
+      securitySchemes: {
+        'oauth2-auth': securitySchemeSchema.parse({
+          type: 'oauth2',
+          flows: {
+            implicit: {
+              type: 'implicit',
+              token: 'implicit-token',
+            },
+          },
+        }),
+      },
+      selectedSecuritySchemeUids: ['oauth2-auth'],
+    })
+    if (error) throw error
+
+    expect(requestOperation.request.headers.get('Authorization')).toEqual(
+      'Bearer header-token',
+    )
   })
 })

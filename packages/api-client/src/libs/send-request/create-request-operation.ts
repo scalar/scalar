@@ -114,7 +114,7 @@ export const createRequestOperation = ({
     const security = buildRequestSecurity(selectedSecuritySchemes, env)
 
     // Populate all forms of auth to the request segments
-    const headers = { ..._headers, ...security.headers }
+    const headers = { ...security.headers, ..._headers }
     const cookieParams = [..._cookieParams, ...security.cookies]
     const urlParams = new URLSearchParams([
       ..._urlParams,

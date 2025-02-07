@@ -40,11 +40,11 @@ export const buildRequestSecurity = (
         const password = replaceTemplateVariables(scheme.password, env)
         const value = `${username}:${password}`
 
-        headers['Authorization'] =
+        headers['authorization'] =
           `Basic ${value === ':' ? 'username:password' : btoa(value)}`
       } else {
         const value = replaceTemplateVariables(scheme.token, env)
-        headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
+        headers['authorization'] = `Bearer ${value || emptyTokenPlaceholder}`
       }
     }
 
@@ -53,7 +53,7 @@ export const buildRequestSecurity = (
       const flows = Object.values(scheme.flows)
       const token = flows.find((f) => f.token)?.token
 
-      headers['Authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
+      headers['authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
     }
   })
 
