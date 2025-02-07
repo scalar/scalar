@@ -1,16 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "include": ["src", "test"],
-  "exclude": ["dist", "**/*.test.ts"],
+  "exclude": ["dist"],
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"],
       "@test/*": ["./test/*"]
     }
-  },
-  "references": [
-    {
-      "path": "./tsconfig.test.json"
-    }
-  ]
+  }
 }

@@ -5,26 +5,20 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
-import {
-  ScalarButton,
-  ScalarCombobox,
-  type ScalarComboboxOption,
-  ScalarIcon,
-} from '@scalar/components'
+import { ScalarButton, ScalarCombobox, ScalarIcon } from '@scalar/components'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
-/** The selected HTTP client to render the code snippet for */
-const selectedPlugin = ref<ScalarComboboxOption | undefined>({
-  id: 'js/fetch',
-  label: 'js/fetch',
-})
-
 // Get the entities from the store
-const { activeRequest, activeExample, activeServer, activeCollection } =
-  useActiveEntities()
+const {
+  activeRequest,
+  activeExample,
+  activeServer,
+  activeCollection,
+  activeWorkspace,
+} = useActiveEntities()
 const { securitySchemes } = useWorkspace()
 
 /**
@@ -38,30 +32,63 @@ const selectedSecuritySchemes = computed(() =>
   ),
 )
 
-/** Group plugins by target/language to show in a dropdown */
-const availablePlugins = computed(() =>
-  snippetz()
+/** Group plugins by target/language to show in a dropdown, also build a dictionary in the same loop */
+const snippets = computed(() => {
+  const dict: Record<string, string> = {}
+
+  const options = snippetz()
     .clients()
     .map((group) => ({
       label: group.title,
-      options: group.clients.map((plugin) => ({
-        id: `${group.key},${plugin.client}`,
-        label: plugin.title,
-      })),
-    })),
-)
+      options: group.clients.map((plugin) => {
+        // Add to the dictionary
+        dict[`${group.key},${plugin.client}`] = plugin.title
 
-/** node/undici -> node */
+        return {
+          id: `${group.key},${plugin.client}`,
+          label: plugin.title,
+        }
+      }),
+    }))
+
+  return {
+    options,
+    dict,
+  }
+})
+
+/** The currently selected plugin */
+const selectedPlugin = computed(() => {
+  const selectedClient = activeWorkspace.value?.selectedSnippetClient
+
+  // Backups on backups
+  if (!selectedClient)
+    return (
+      snippets.value.options[0]?.options[0] ?? {
+        id: 'js,fetch',
+        label: 'Fetch',
+      }
+    )
+
+  const id = `${selectedClient.targetKey},${selectedClient.clientKey}`
+  return {
+    id,
+    label: snippets.value.dict[id] ?? 'Unknown',
+  }
+})
+
+/** The currently selected target, unsafely typecast until we can extract validation fron snippetz */
 const selectedTarget = computed(
-  () => selectedPlugin.value?.id.split('/')[0] as TargetId,
+  () =>
+    (activeWorkspace.value?.selectedSnippetClient?.targetKey ??
+      'js') as TargetId,
 )
 
-/** node/undici -> undici */
+/** The currently selected client, unsafely typecast until we can extract validation fron snippetz */
 const selectedClient = computed(
   () =>
-    selectedPlugin.value?.id.split('/')[1] as ClientId<
-      typeof selectedTarget.value
-    >,
+    (activeWorkspace.value?.selectedSnippetClient?.clientKey ??
+      'fetch') as ClientId<TargetId>,
 )
 </script>
 
@@ -76,7 +103,7 @@ const selectedClient = computed(
         <div class="flex flex-1 -mx-1">
           <ScalarCombobox
             v-model="selectedPlugin"
-            :options="availablePlugins"
+            :options="snippets.options"
             placement="bottom-end">
             <ScalarButton
               class="flex gap-1.5 h-full px-1.5 py-0.75 font-normal text-c-1 w-fit"
