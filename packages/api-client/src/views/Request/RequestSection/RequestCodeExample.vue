@@ -5,7 +5,12 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
-import { ScalarButton, ScalarCombobox, ScalarIcon } from '@scalar/components'
+import {
+  ScalarButton,
+  ScalarCombobox,
+  type ScalarComboboxOption,
+  ScalarIcon,
+} from '@scalar/components'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
 
@@ -19,7 +24,7 @@ const {
   activeCollection,
   activeWorkspace,
 } = useActiveEntities()
-const { securitySchemes } = useWorkspace()
+const { securitySchemes, workspaceMutators } = useWorkspace()
 
 /**
  * Just the relevant security schemes for the selected request
@@ -90,6 +95,22 @@ const selectedClient = computed(
     (activeWorkspace.value?.selectedSnippetClient?.clientKey ??
       'fetch') as ClientId<TargetId>,
 )
+
+/** Update the store with the newly selected client */
+const selectClient = ({ id }: ScalarComboboxOption) => {
+  const [target, client] = id.split(',')
+  if (!activeWorkspace.value || !target || !client) return
+
+  console.log('selectClient', {
+    target,
+    client,
+  })
+
+  workspaceMutators.edit(activeWorkspace.value.uid, 'selectedSnippetClient', {
+    targetKey: target,
+    clientKey: client,
+  })
+}
 </script>
 
 <template>
@@ -102,9 +123,10 @@ const selectedClient = computed(
       <template #actions>
         <div class="flex flex-1 -mx-1">
           <ScalarCombobox
-            v-model="selectedPlugin"
+            :modelValue="selectedPlugin"
             :options="snippets.options"
-            placement="bottom-end">
+            placement="bottom-end"
+            @update:modelValue="selectClient">
             <ScalarButton
               class="flex gap-1.5 h-full px-1.5 py-0.75 font-normal text-c-1 w-fit"
               fullWidth

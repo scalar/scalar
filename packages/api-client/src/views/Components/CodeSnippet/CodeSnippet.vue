@@ -45,13 +45,18 @@ const secretCredentials = computed(() =>
 )
 
 /** Generated code example */
-const content = computed(() =>
-  snippetz().print(
-    target,
-    client,
-    getHarRequest({ operation, server, example, securitySchemes }),
-  ),
-)
+const content = computed(() => {
+  const harRequest = getHarRequest({
+    operation,
+    server,
+    example,
+    securitySchemes,
+  })
+
+  if (!harRequest.url) return null
+
+  return snippetz().print(target, client, harRequest)
+})
 
 /** CodeMirror syntax highlighting language */
 const language = computed(() => {
@@ -70,4 +75,9 @@ const language = computed(() => {
     :hideCredentials="secretCredentials"
     :lang="language"
     lineNumbers />
+  <div
+    v-else
+    class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center">
+    Please enter a valid URL to see a code snippet
+  </div>
 </template>

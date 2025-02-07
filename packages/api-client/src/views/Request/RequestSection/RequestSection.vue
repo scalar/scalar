@@ -8,6 +8,7 @@ import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
@@ -175,7 +176,9 @@ const activeWorkspaceCookies = computed(() =>
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
-      <RequestCodeExample />
+      <ScalarErrorBoundary>
+        <RequestCodeExample />
+      </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>
 </template>

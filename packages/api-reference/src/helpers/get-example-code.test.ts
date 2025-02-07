@@ -7,6 +7,7 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { getExampleCode } from './get-example-code'
@@ -28,34 +29,22 @@ describe('getExampleCode', () => {
     })
   })
 
-  it('generates a basic shell/curl example (httpsnippet-lite)', async () => {
-    const result = await getExampleCode(
-      operation,
-      example,
-      'shell',
-      'curl',
-      server,
-    )
+  it('generates a basic shell/curl example (httpsnippet-lite)', () => {
+    const result = getExampleCode(operation, example, 'shell', 'curl', server)
 
     expect(result).toEqual('curl https://example.com/users')
   })
 
-  it('generates a basic node/undici example (@scalar/snippetz)', async () => {
-    const result = await getExampleCode(
-      operation,
-      example,
-      'node',
-      'undici',
-      server,
-    )
+  it('generates a basic node/undici example (@scalar/snippetz)', () => {
+    const result = getExampleCode(operation, example, 'node', 'undici', server)
 
     expect(result).toEqual(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com/users')`)
   })
 
-  it('generates a basic javascript/jquery example (httpsnippet-lite)', async () => {
-    const result = await getExampleCode(
+  it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -76,20 +65,14 @@ $.ajax(settings).done(function (response) {
 });`)
   })
 
-  it('returns an empty string if passed rubbish', async () => {
-    const result = await getExampleCode(
-      operation,
-      example,
-      'fantasy',
-      'blue',
-      server,
-    )
+  it('returns an empty string if passed rubbish', () => {
+    const result = getExampleCode(operation, example, 'fantasy', 'blue', server)
 
     expect(result).toBe('')
   })
 
-  it('returns an empty string if passed undefined target', async () => {
-    const result = await getExampleCode(
+  it('returns an empty string if passed undefined target', () => {
+    const result = getExampleCode(
       operation,
       example,
       // @ts-expect-error passing in rubbish
@@ -101,7 +84,7 @@ $.ajax(settings).done(function (response) {
     expect(result).toBe('')
   })
 
-  it('shows the original path before variable replacement', async () => {
+  it('shows the original path before variable replacement', () => {
     server = serverSchema.parse({
       uid: 'server-uid',
       url: '{protocol}://void.scalar.com/{path}',
@@ -117,7 +100,7 @@ $.ajax(settings).done(function (response) {
       },
     })
 
-    const result = await getExampleCode(
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -128,14 +111,14 @@ $.ajax(settings).done(function (response) {
     expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
   })
 
-  it('should show the accept header if its not */*', async () => {
+  it('should show the accept header if its not */*', () => {
     example.parameters.headers.push({
       key: 'Accept',
       value: 'application/json',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -172,14 +155,14 @@ $.ajax(settings).done(function (response) {
 })`)
   })
 
-  it('should show the headers', async () => {
+  it('should show the headers', () => {
     example.parameters.headers.push({
       key: 'x-scalar-token',
       value: 'abc123',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -194,14 +177,14 @@ $.ajax(settings).done(function (response) {
 })`)
   })
 
-  it('should show the query parameters', async () => {
+  it('should show the query parameters', () => {
     example.parameters.query.push({
       key: 'query-param',
       value: 'query-value',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -215,7 +198,7 @@ $.ajax(settings).done(function (response) {
   })
 
   it('should show the security headers, cookies and query', async () => {
-    const result = await getExampleCode(
+    const result = getExampleCode(
       operation,
       example,
       'javascript',
@@ -256,5 +239,20 @@ $.ajax(settings).done(function (response) {
     'Set-Cookie': 'x-cookie-token=YOUR_SECRET_TOKEN'
   }
 })`)
+  })
+
+  describe('it should generate a snipped without a proper URL', () => {
+    AVAILABLE_CLIENTS.forEach((target) => {
+      it(target, () => {
+        operation.path = '/stuff'
+        getExampleCode(
+          operation,
+          example,
+          target.split('/')[0],
+          target.split('/')[1],
+          undefined,
+        )
+      })
+    })
   })
 })
