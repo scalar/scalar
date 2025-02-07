@@ -52,7 +52,7 @@ export function useSearch() {
     fuseDataArray.value = items
       // TODO: We should probably filter in the store or somewhere else.
       // Check if the request is marked has hidden/internal
-      .filter((request) => shouldIgnoreEntity(request))
+      .filter((request) => !shouldIgnoreEntity(request))
       // Check if the request is in a tag that is marked has hidden/internal
       .filter((request) => {
         // Find the collection for the request
@@ -168,5 +168,6 @@ export function useSearch() {
     searchResultRefs,
     navigateSearchResults,
     selectSearchResult,
+    populateFuseDataArray,
   }
 }
