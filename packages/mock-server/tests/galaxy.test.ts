@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 // @ts-expect-error TODO
-import galaxy from '../../galaxy/src/specifications/3.1.yaml?raw'
+import galaxy from '../../galaxy/src/documents/3.1.yaml?raw'
 import { createMockServer } from '../src/createMockServer'
 
 describe('createMockServer', () => {

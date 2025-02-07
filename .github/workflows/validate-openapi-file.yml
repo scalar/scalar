@@ -26,11 +26,11 @@ jobs:
           packages-only: true
           node-version: ${{ matrix.node-version }}
       - name: Format OpenAPI File
-        run: pnpm @scalar/cli format ../../packages/galaxy/src/specifications/3.1.yaml
+        run: pnpm @scalar/cli format ../../packages/galaxy/src/documents/3.1.yaml
       - name: Validate OpenAPI File
-        run: pnpm @scalar/cli validate ../../packages/galaxy/src/specifications/3.1.yaml
+        run: pnpm @scalar/cli validate ../../packages/galaxy/src/documents/3.1.yaml
       - name: Update Scalar Sandbox (https://sandbox.scalar.com/e/MeCHQ)
         if: github.ref == 'refs/heads/main'
-        run: pnpm @scalar/cli share ../../packages/galaxy/src/specifications/3.1.yaml --token=${{ secrets.SANDBOX_TOKEN }}
+        run: pnpm @scalar/cli share ../../packages/galaxy/src/documents/3.1.yaml --token=${{ secrets.SANDBOX_TOKEN }}
         env:
           SANDBOX_TOKEN: ${{ secrets.SANDBOX_TOKEN }}

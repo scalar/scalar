@@ -12,7 +12,7 @@ What’s working here, is probably also working in the API reference:
 - images
 - …
 
-[Have a look at our OpenAPI example specification](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/specifications/3.1.yaml)
+[Have a look at our OpenAPI example](https://github.com/scalar/scalar/blob/main/packages/galaxy/src/documents/3.1.yaml)
 to see more examples.
 
 > Note: Not everything is supported in all places. For example, you can use images in most places, but not in parameter
