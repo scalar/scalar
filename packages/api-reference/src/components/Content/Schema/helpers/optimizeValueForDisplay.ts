@@ -5,7 +5,9 @@ export const discriminators = ['oneOf', 'anyOf', 'allOf', 'not']
 /**
  * Optimize the value by removing nulls from discriminators.
  */
-export function optimizeValueForDisplay(value: UnknownObject | undefined) {
+export function optimizeValueForDisplay(
+  value: UnknownObject | undefined,
+): Record<string, any> | undefined {
   if (!value || typeof value !== 'object') {
     return value
   }

@@ -264,4 +264,17 @@ describe('SchemaProperty sub-schema', () => {
     const badge = wrapper.find('.property-pattern')
     expect(badge.exists()).toBe(true)
   })
+
+  it('shows enums in discriminators', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          anyOf: [{ type: 'string', enum: ['a', 'b', 'c'] }, { type: 'null' }],
+        },
+      },
+    })
+
+    const enumValues = wrapper.findAll('.property-enum-value')
+    expect(enumValues).toHaveLength(3)
+  })
 })

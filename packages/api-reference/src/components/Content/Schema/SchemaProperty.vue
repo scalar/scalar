@@ -11,6 +11,13 @@ import { computed } from 'vue'
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
 
+/**
+ * Note: We’re taking in a prop called `value` which should be a JSON Schema.
+ *
+ * We’re using `optimizeValueForDisplay` to merge null types in discriminators (anyOf, allOf, oneOf, not).
+ * So you should basically use the optimizedValue everywhere in the component.
+ */
+
 const props = withDefaults(
   defineProps<{
     value?: Record<string, any>
@@ -88,17 +95,32 @@ const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
 // - For enums with 9 or fewer values, all values are shown.
 // - For enums with more than 9 values, only first 5 are shown initially.
 // - A “Show more” button reveals the remaining values.
-const hasLongEnumList = computed(() => getEnumFromValue(props.value).length > 9)
+const hasLongEnumList = computed(
+  () => getEnumFromValue(optimizedValue.value).length > 9,
+)
 const initialEnumCount = computed(() => (hasLongEnumList.value ? 5 : 9))
 const visibleEnumValues = computed(() =>
-  getEnumFromValue(props.value).slice(0, initialEnumCount.value),
+  getEnumFromValue(optimizedValue.value).slice(0, initialEnumCount.value),
 )
 const remainingEnumValues = computed(() =>
-  getEnumFromValue(props.value).slice(initialEnumCount.value),
+  getEnumFromValue(optimizedValue.value).slice(initialEnumCount.value),
 )
 
 /** Simplified discriminators with `null` type. */
 const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
+
+/** Find the type of discriminator. */
+const discriminatorType = discriminators.find((r) => {
+  if (!optimizedValue.value || typeof optimizedValue.value !== 'object')
+    return false
+
+  return (
+    r in optimizedValue.value ||
+    (optimizedValue.value.items &&
+      typeof optimizedValue.value.items === 'object' &&
+      r in optimizedValue.value.items)
+  )
+})
 </script>
 <template>
   <div
@@ -107,13 +129,13 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
       `property--level-${level}`,
       {
         'property--compact': compact,
-        'property--deprecated': value?.deprecated,
+        'property--deprecated': optimizedValue?.deprecated,
       },
     ]">
     <SchemaPropertyHeading
       :additional="additional"
+      :enum="getEnumFromValue(optimizedValue).length > 0"
       :pattern="pattern"
-      :enum="getEnumFromValue(value).length > 0"
       :required="required"
       :value="optimizedValue">
       <template
@@ -122,46 +144,59 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
         {{ name }}
       </template>
       <template
-        v-if="value?.example"
+        v-if="optimizedValue?.example"
         #example>
         Example:
-        {{ value.example }}
+        {{ optimizedValue.example }}
       </template>
     </SchemaPropertyHeading>
     <!-- Description -->
     <div
-      v-if="displayDescription(description, value)"
+      v-if="displayDescription(description, optimizedValue)"
       class="property-description">
-      <ScalarMarkdown :value="displayDescription(description, value)" />
+      <ScalarMarkdown
+        :value="displayDescription(description, optimizedValue)" />
     </div>
     <div
-      v-else-if="generatePropertyDescription(value)"
+      v-else-if="generatePropertyDescription(optimizedValue)"
       class="property-description">
-      <ScalarMarkdown :value="generatePropertyDescription(value) || ''" />
+      <ScalarMarkdown
+        :value="generatePropertyDescription(optimizedValue) || ''" />
     </div>
     <!-- Example -->
     <div
-      v-if="withExamples && (value?.example || value?.items?.example)"
+      v-if="
+        withExamples &&
+        (optimizedValue?.example || optimizedValue?.items?.example)
+      "
       class="property-example custom-scroll">
       <span class="property-example-label">Example</span>
       <code class="property-example-value">{{
-        formatExample(value.example || value?.items.example)
+        formatExample(
+          optimizedValue?.example ||
+            (discriminatorType &&
+              optimizedValue?.items &&
+              typeof optimizedValue.items === 'object' &&
+              optimizedValue.items[discriminatorType]),
+        )
       }}</code>
     </div>
     <template
       v-if="
-        value?.examples &&
-        typeof value.examples === 'object' &&
-        Object.keys(value.examples).length > 0
+        optimizedValue?.examples &&
+        typeof optimizedValue.examples === 'object' &&
+        Object.keys(optimizedValue.examples).length > 0
       ">
       <div class="property-example custom-scroll">
         <span class="property-example-label">
           {{
-            Object.keys(value.examples).length === 1 ? 'Example' : 'Examples'
+            Object.keys(optimizedValue.examples).length === 1
+              ? 'Example'
+              : 'Examples'
           }}
         </span>
         <code
-          v-for="(example, key) in value.examples"
+          v-for="(example, key) in optimizedValue.examples"
           :key="key"
           class="property-example-value">
           {{ example }}
@@ -170,12 +205,12 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
     </template>
     <!-- Enum -->
     <div
-      v-if="getEnumFromValue(value)?.length > 0"
+      v-if="getEnumFromValue(optimizedValue)?.length > 0"
       class="property-enum">
-      <template v-if="value?.['x-enumDescriptions']">
+      <template v-if="Array.isArray(optimizedValue?.['x-enumDescriptions'])">
         <div class="property-list">
           <div
-            v-for="enumValue in getEnumFromValue(value)"
+            v-for="enumValue in getEnumFromValue(optimizedValue)"
             :key="enumValue"
             class="property">
             <div class="property-heading">
@@ -184,7 +219,8 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
               </div>
             </div>
             <div class="property-description">
-              <ScalarMarkdown :value="value['x-enumDescriptions'][enumValue]" />
+              <ScalarMarkdown
+                :value="optimizedValue['x-enumDescriptions'][enumValue]" />
             </div>
           </div>
         </div>
@@ -223,24 +259,30 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
     <!-- Object -->
     <div
       v-if="
-        value?.type === 'object' &&
-        (value?.properties || value?.additionalProperties)
+        optimizedValue?.type === 'object' &&
+        (optimizedValue?.properties || optimizedValue?.additionalProperties)
       "
       class="children">
       <Schema
         :compact="compact"
         :level="level + 1"
-        :value="value" />
+        :value="optimizedValue" />
     </div>
     <!-- Array of objects -->
-    <template v-if="value?.items">
+    <template
+      v-if="
+        optimizedValue?.items &&
+        typeof optimizedValue.items === 'object' &&
+        'type' in optimizedValue.items &&
+        typeof optimizedValue.items.type === 'string'
+      ">
       <div
-        v-if="['object'].includes(value.items.type)"
+        v-if="['object'].includes(optimizedValue?.items?.type)"
         class="children">
         <Schema
           :compact="compact"
           :level="level + 1"
-          :value="value.items" />
+          :value="optimizedValue.items" />
       </div>
     </template>
     <!-- Discriminators -->
@@ -257,16 +299,26 @@ const optimizedValue = computed(() => optimizeValueForDisplay(props.value))
           <Schema
             :compact="compact"
             :level="level + 1"
-            :noncollapsible="value?.[discriminator].length === 1"
+            :noncollapsible="
+              Array.isArray(optimizedValue?.[discriminator]) &&
+              optimizedValue?.[discriminator].length === 1
+            "
             :value="schema" />
         </template>
       </div>
       <!-- Arrays -->
       <div
-        v-if="value?.items?.[discriminator] && level < 3"
+        v-if="
+          optimizedValue?.items &&
+          typeof discriminatorType === 'string' &&
+          typeof optimizedValue.items === 'object' &&
+          discriminatorType in optimizedValue.items &&
+          Array.isArray(optimizedValue.items[discriminatorType]) &&
+          level < 3
+        "
         class="property-rule">
         <Schema
-          v-for="schema in value.items[discriminator]"
+          v-for="schema in optimizedValue.items[discriminatorType]"
           :key="schema.id"
           :compact="compact"
           :level="level + 1"
