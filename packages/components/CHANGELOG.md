@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.22
+
+### Patch Changes
+
+- abc40ce: feat: updates scalar combobox options style
+
 ## 0.13.21
 
 ### Patch Changes

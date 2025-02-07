@@ -1,5 +1,11 @@
 # @scalar/docusaurus
 
+## 0.4.195
+
+### Patch Changes
+
+- @scalar/api-reference-react@0.4.26
+
 ## 0.4.194
 
 ### Patch Changes
