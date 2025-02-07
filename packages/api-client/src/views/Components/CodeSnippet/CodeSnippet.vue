@@ -44,9 +44,15 @@ const secretCredentials = computed(() =>
 )
 
 /** Generated code example */
-const content = computed(() =>
-  getSnippet(target, client, { operation, example, server, securitySchemes }),
-)
+const content = computed(() => {
+  const [error, payload] = getSnippet(target, client, {
+    operation,
+    example,
+    server,
+    securitySchemes,
+  })
+  return { error, payload }
+})
 
 /** CodeMirror syntax highlighting language */
 const language = computed(() => {
@@ -58,16 +64,16 @@ const language = computed(() => {
 })
 </script>
 <template>
+  <div
+    v-if="content.error"
+    class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center">
+    {{ content.error.message }}
+  </div>
   <ScalarCodeBlock
-    v-if="content"
+    v-else-if="content.payload"
     class="w-full"
-    :content="content"
+    :content="content.payload"
     :hideCredentials="secretCredentials"
     :lang="language"
     lineNumbers />
-  <div
-    v-else
-    class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center">
-    Please enter a URL to see a code snippet
-  </div>
 </template>

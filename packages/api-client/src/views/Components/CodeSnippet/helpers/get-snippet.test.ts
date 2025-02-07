@@ -34,34 +34,37 @@ describe('getSnippet', () => {
   })
 
   it('generates a basic shell/curl example (httpsnippet-lite)', () => {
-    const result = getSnippet('shell', 'curl', {
+    const [error, result] = getSnippet('shell', 'curl', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual('curl https://example.com/users')
   })
 
   it('generates a basic node/undici example (@scalar/snippetz)', () => {
-    const result = getSnippet('node', 'undici', {
+    const [error, result] = getSnippet('node', 'undici', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com/users')`)
   })
 
   it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
-    const result = getSnippet('javascript', 'jquery', {
+    const [error, result] = getSnippet('javascript', 'jquery', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`const settings = {
   async: true,
   crossDomain: true,
@@ -77,13 +80,14 @@ $.ajax(settings).done(function (response) {
 
   it('returns an empty string if passed rubbish', () => {
     // @ts-expect-error passing in rubbish
-    const result = getSnippet('fantasy', 'blue', {
+    const [error, result] = getSnippet('fantasy', 'blue', {
       operation,
       example,
       server,
     })
 
-    expect(result).toBe('')
+    expect(error).toBeDefined()
+    expect(result).toBeNull()
   })
 
   it('shows the original path before variable replacement', () => {
@@ -102,12 +106,13 @@ $.ajax(settings).done(function (response) {
       },
     })
 
-    const result = getSnippet('javascript', 'fetch', {
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
   })
 
@@ -118,12 +123,13 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getSnippet('javascript', 'fetch', {
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     Accept: 'application/json'
@@ -138,12 +144,13 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = await getSnippet('javascript', 'fetch', {
+    const [error, result] = await getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     'Set-Cookie': 'sessionId=abc123'
@@ -158,12 +165,13 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getSnippet('javascript', 'fetch', {
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     'X-Scalar-Token': 'abc123'
@@ -178,19 +186,20 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getSnippet('javascript', 'fetch', {
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(
       `fetch('https://example.com/users?query-param=query-value')`,
     )
   })
 
   it('should show the security headers, cookies and query', async () => {
-    const result = getSnippet('javascript', 'fetch', {
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
       server,
@@ -221,6 +230,7 @@ $.ajax(settings).done(function (response) {
       ],
     })
 
+    expect(error).toBeNull()
     expect(result)
       .toEqual(`fetch('https://example.com/users?query-api-key=33333', {
   headers: {
@@ -232,11 +242,12 @@ $.ajax(settings).done(function (response) {
   })
 
   it('should include the invalid url', () => {
-    const result = getSnippet('c', 'libcurl', {
+    const [error, result] = getSnippet('c', 'libcurl', {
       operation,
       example,
     })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`CURL *hnd = curl_easy_init();
 
 curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
@@ -250,11 +261,12 @@ CURLcode ret = curl_easy_perform(hnd);`)
       it(id, () => {
         operation.path = '/super-secret-path'
         const [target, client] = id.split('/') as [TargetId, ClientId<TargetId>]
-        const result = getSnippet(target, client, {
+        const [error, result] = getSnippet(target, client, {
           operation,
           example,
         })
 
+        expect(error).toBeNull()
         expect(result).toContain('/super-secret-path')
       })
     })

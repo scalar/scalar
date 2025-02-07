@@ -1,3 +1,4 @@
+import type { ErrorResponse } from '@/libs/errors'
 import type {
   Operation,
   RequestExample,
@@ -28,48 +29,53 @@ export const getSnippet = <T extends TargetId>(
     server?: Server | undefined
     securitySchemes?: SecurityScheme[]
   },
-): string => {
-  const harRequest = getHarRequest({
-    operation,
-    example,
-    server,
-    securitySchemes,
-  })
-
-  if (!harRequest.url) return ''
-  const separator = harRequest.url.startsWith('/') ? '' : '/'
-
-  // Hack to get around invalid URLS until we update the snippets lib
+): ErrorResponse<string> => {
   try {
-    new URL(harRequest.url)
-  } catch (error) {
-    harRequest.url = `${INVALID_URLS_PREFIX}${separator}${harRequest.url}`
-  }
+    const harRequest = getHarRequest({
+      operation,
+      example,
+      server,
+      securitySchemes,
+    })
 
-  // Hack the query in until we update the snippets lib
-  if (harRequest.queryString?.length) {
-    const queryString = harRequest.queryString.reduce(
-      (acc, query) => {
-        acc[query.name] = query.value
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-    harRequest.url = `${harRequest.url}?${new URLSearchParams(queryString).toString()}`
-  }
+    if (!harRequest.url) {
+      return [new Error('Please enter a URL to see a code snippet'), null]
+    }
 
-  // TODO: Fix this, use js (instead of javascript) everywhere
-  const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
+    const separator = harRequest.url.startsWith('/') ? '' : '/'
 
-  if (snippetz().hasPlugin(snippetzTargetKey, client)) {
-    return (
-      snippetz().print(
+    // Hack to get around invalid URLS until we update the snippets lib
+    try {
+      new URL(harRequest.url)
+    } catch (error) {
+      harRequest.url = `${INVALID_URLS_PREFIX}${separator}${harRequest.url}`
+    }
+
+    // Ensure we have valid JSON
+    if (harRequest.postData?.mimeType === 'application/json') {
+      try {
+        JSON.parse(harRequest.postData.text || '{}')
+      } catch (error) {
+        return [new Error('Invalid JSON body'), null]
+      }
+    }
+    // TODO: Fix this, use js (instead of javascript) everywhere
+    const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
+
+    if (snippetz().hasPlugin(snippetzTargetKey, client)) {
+      const payload = snippetz().print(
         snippetzTargetKey,
         client as ClientId<TargetId>,
         harRequest,
-      ) ?? ''
-    ).replace(`${INVALID_URLS_PREFIX}${separator}`, '')
+      )
+      if (!payload) return [new Error('Error generating snippet'), null]
+
+      return [null, payload.replace(`${INVALID_URLS_PREFIX}${separator}`, '')]
+    }
+  } catch (error) {
+    console.error('[getSnippet]', error)
+    return [new Error('Error generating snippet'), null]
   }
 
-  return ''
+  return [new Error('No snippet found'), null]
 }

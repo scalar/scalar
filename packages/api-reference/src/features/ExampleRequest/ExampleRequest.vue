@@ -121,12 +121,14 @@ const generateSnippet = () => {
     securitySchemes,
   )
 
-  return getSnippet(targetKey, clientKey, {
+  const [error, payload] = getSnippet(targetKey, clientKey, {
     operation,
     example,
     server,
     securitySchemes: schemes,
   })
+  if (error) return error.message ?? ''
+  return payload
 }
 
 const generatedCode = computed<string>(() => {
