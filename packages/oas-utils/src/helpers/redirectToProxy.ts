@@ -22,12 +22,7 @@ export function redirectToProxy(proxy?: string, url?: string): string {
 
 /** Check if the URL is relative or if it's a domain without protocol */
 export const isRelativePath = (url: string) => {
-  // Absolute URLs start with http:// or https://
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return false
-  }
-
-  // Allow other protocols such as file://
+  // Allow http:// https:// and other protocols such as file://
   if (REGEX.PROTOCOL.test(url)) {
     return false
   }

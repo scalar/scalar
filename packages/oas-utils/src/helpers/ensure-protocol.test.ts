@@ -25,12 +25,6 @@ describe('ensureProtocol', () => {
         'file:///path/to/file',
       )
     })
-
-    it('preserves custom protocols', () => {
-      expect(ensureProtocol('custom+proto://example.com')).toBe(
-        'custom+proto://example.com',
-      )
-    })
   })
 
   describe('URLs without protocols', () => {
@@ -58,9 +52,9 @@ describe('ensureProtocol', () => {
   })
 
   describe('template variables', () => {
-    it('preserves protocol templates', () => {
+    it('prepends http:// to template variables', () => {
       expect(ensureProtocol('{protocol}://example.com')).toBe(
-        '{protocol}://example.com',
+        'http://{protocol}://example.com',
       )
     })
 
@@ -68,9 +62,9 @@ describe('ensureProtocol', () => {
       expect(ensureProtocol('/api/{version}')).toBe('http://api/{version}')
     })
 
-    it('preserves full URL templates', () => {
+    it('prepends http:// to full URL templates', () => {
       expect(ensureProtocol('{protocol}://{host}/{path}')).toBe(
-        '{protocol}://{host}/{path}',
+        'http://{protocol}://{host}/{path}',
       )
     })
   })
@@ -80,8 +74,8 @@ describe('ensureProtocol', () => {
       expect(ensureProtocol('')).toBe('http://')
     })
 
-    it('handles protocol-like strings', () => {
-      expect(ensureProtocol('not://valid')).toBe('not://valid')
+    it('prepends http:// to invalid URLs', () => {
+      expect(ensureProtocol('not://valid')).toBe('http://not://valid')
     })
 
     it('handles URLs with authentication', () => {

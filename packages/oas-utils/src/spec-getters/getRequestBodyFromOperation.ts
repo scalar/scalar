@@ -47,15 +47,12 @@ export function getRequestBodyFromOperation(
   selectedExampleKey?: string | number,
   omitEmptyAndOptionalProperties?: boolean,
 ): {
-  headers?: { name: string; value: string }[]
-  body?: {
-    mimeType: (typeof mimeTypes)[number]
-    text?: string
-    params?: {
-      name: string
-      value?: string
-    }[]
-  }
+  mimeType: (typeof mimeTypes)[number]
+  text?: string
+  params?: {
+    name: string
+    value?: string
+  }[]
 } | null {
   // Get the content object from the operation
   const originalContent = operation.information?.requestBody?.content
@@ -67,12 +64,14 @@ export function getRequestBodyFromOperation(
    * TODO: This is very fragile. There needs to be significantly more support for
    * vendor specific content types (like application/vnd.github+json)
    */
-  const mimeType: ContentType | undefined = mimeTypes.find(
-    (currentMimeType: ContentType) => !!content?.[currentMimeType],
-  )
+  const mimeType =
+    mimeTypes.find(
+      (currentMimeType: ContentType) => !!content?.[currentMimeType],
+    ) ?? 'application/json'
 
   /** Examples */
-  const examples = content?.['application/json']?.examples
+  const examples =
+    content?.[mimeType]?.examples ?? content?.['application/json']?.examples
 
   // Let’s use the first example
   const selectedExample = (examples ?? {})?.[
@@ -81,10 +80,8 @@ export function getRequestBodyFromOperation(
 
   if (selectedExample) {
     return {
-      body: {
-        mimeType: 'application/json',
-        text: prettyPrintJson(selectedExample?.value),
-      },
+      mimeType,
+      text: prettyPrintJson(selectedExample?.value),
     }
   }
 
@@ -100,10 +97,8 @@ export function getRequestBodyFromOperation(
 
   if (bodyParameters.length > 0) {
     return {
-      body: {
-        mimeType: 'application/json',
-        text: prettyPrintJson(bodyParameters[0].value),
-      },
+      mimeType: 'application/json',
+      text: prettyPrintJson(bodyParameters[0].value),
     }
   }
 
@@ -132,22 +127,20 @@ export function getRequestBodyFromOperation(
 
   if (formDataParameters.length > 0) {
     return {
-      body: {
-        mimeType: 'application/x-www-form-urlencoded',
-        params: formDataParameters.map((parameter) => ({
-          name: parameter.name,
-          /**
-           * TODO: This value MUST be a string
-           * Figure out why this is not always a string
-           *
-           * JSON.stringify is a TEMPORARY fix
-           */
-          value:
-            typeof parameter.value === 'string'
-              ? parameter.value
-              : JSON.stringify(parameter.value),
-        })),
-      },
+      mimeType: 'application/x-www-form-urlencoded',
+      params: formDataParameters.map((parameter) => ({
+        name: parameter.name,
+        /**
+         * TODO: This value MUST be a string
+         * Figure out why this is not always a string
+         *
+         * JSON.stringify is a TEMPORARY fix
+         */
+        value:
+          typeof parameter.value === 'string'
+            ? parameter.value
+            : JSON.stringify(parameter.value),
+      })),
     }
   }
 
@@ -158,14 +151,6 @@ export function getRequestBodyFromOperation(
 
   // Get the request body object for the mime type
   const requestBodyObject = content?.[mimeType]
-
-  // Define the appropriate Content-Type headers
-  const headers = [
-    {
-      name: 'Content-Type',
-      value: mimeType,
-    },
-  ]
 
   // Get example from operation
   const example = requestBodyObject?.example
@@ -184,11 +169,8 @@ export function getRequestBodyFromOperation(
     const body = example ?? exampleFromSchema
 
     return {
-      headers,
-      body: {
-        mimeType: mimeType,
-        text: typeof body === 'string' ? body : JSON.stringify(body, null, 2),
-      },
+      mimeType,
+      text: typeof body === 'string' ? body : JSON.stringify(body, null, 2),
     }
   }
 
@@ -202,22 +184,16 @@ export function getRequestBodyFromOperation(
       : null
 
     return {
-      headers,
-      body: {
-        mimeType: mimeType,
-        text: example ?? json2xml(exampleFromSchema, '  '),
-      },
+      mimeType,
+      text: example ?? json2xml(exampleFromSchema, '  '),
     }
   }
 
   // Binary data
   if (mimeType === 'application/octet-stream') {
     return {
-      headers,
-      body: {
-        mimeType: mimeType,
-        text: 'BINARY',
-      },
+      mimeType,
+      text: 'BINARY',
     }
   }
 
@@ -231,11 +207,8 @@ export function getRequestBodyFromOperation(
       : null
 
     return {
-      headers,
-      body: {
-        mimeType: mimeType,
-        text: example ?? exampleFromSchema ?? '',
-      },
+      mimeType,
+      text: example ?? exampleFromSchema ?? '',
     }
   }
 
@@ -252,11 +225,8 @@ export function getRequestBodyFromOperation(
       : null
 
     return {
-      headers,
-      body: {
-        mimeType: mimeType,
-        params: getParamsFromObject(example ?? exampleFromSchema ?? {}),
-      },
+      mimeType,
+      params: getParamsFromObject(example ?? exampleFromSchema ?? {}),
     }
   }
 

@@ -1,3 +1,5 @@
+import { REGEX } from '@/helpers/regexHelpers'
+
 import { ensureProtocol } from './ensure-protocol'
 import { isRelativePath } from './redirectToProxy'
 
@@ -43,11 +45,9 @@ export const mergeSearchParams = (
 export const combineUrlAndPath = (url: string, path: string) => {
   if (!path || url === path) return url.trim()
 
-  // Remove trailing slash from url and leading slash from path
-  const cleanBase = url.replace(/\/+$/, '').trim()
-  const cleanPath = path.replace(/^\/+/, '').trim()
+  if (!url) return path.trim()
 
-  return `${cleanBase}/${cleanPath}`
+  return `${url.trim()}/${path.trim()}`.replace(REGEX.MULTIPLE_SLASHES, '/')
 }
 
 /**
@@ -59,13 +59,17 @@ export const mergeUrls = (
   url: string,
   path: string,
   urlParams: URLSearchParams = new URLSearchParams(),
+  /** To disable prefixing the url with the origin or a scheme*/
+  disableOriginPrefix = false,
 ) => {
   // Extract and merge all query params
   if (url && (!isRelativePath(url) || typeof window !== 'undefined')) {
-    /** Prefix the url with the origin if it is relative */
-    const base = isRelativePath(url)
-      ? combineUrlAndPath(window.location.origin, url)
-      : ensureProtocol(url)
+    /** Prefix the url with the origin if it is relative and we wish to */
+    const base = disableOriginPrefix
+      ? url
+      : isRelativePath(url)
+        ? combineUrlAndPath(window.location.origin, url)
+        : ensureProtocol(url)
 
     // Extract search params from base URL if any
     const [baseUrl = '', baseQuery] = base.split('?')
@@ -89,6 +93,8 @@ export const mergeUrls = (
     // Build the final URL
     const search = mergedSearchParams.toString()
     return search ? `${mergedUrl}?${search}` : mergedUrl
+  } else if (path) {
+    return combineUrlAndPath(url, path)
   }
-  return url
+  return ''
 }

@@ -8,11 +8,13 @@ import { useActiveEntities } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
+import { ScalarErrorBoundary } from '@scalar/components'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
+import RequestCodeExample from './RequestCodeExample.vue'
 
 defineProps<{
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
@@ -128,7 +130,8 @@ const activeWorkspaceCookies = computed(() =>
         :sections="sections"
         @setActiveSection="activeSection = $event" />
     </template>
-    <div class="request-section-content custom-scroll flex flex-1 flex-col">
+    <div
+      class="request-section-content custom-scroll flex flex-1 flex-col relative">
       <RequestAuth
         v-if="
           activeCollection &&
@@ -173,6 +176,14 @@ const activeWorkspaceCookies = computed(() =>
           canMethodHaveBody(activeRequest.method)
         "
         title="Body" />
+
+      <!-- Spacer -->
+      <div class="flex flex-grow" />
+
+      <!-- Code Snippet -->
+      <ScalarErrorBoundary>
+        <RequestCodeExample />
+      </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>
 </template>

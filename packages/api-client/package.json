@@ -83,6 +83,11 @@
       "types": "./dist/views/Request/RequestSection/RequestAuth/index.d.ts",
       "default": "./dist/views/Request/RequestSection/RequestAuth/index.js"
     },
+    "./views/Components/CodeSnippet": {
+      "import": "./dist/views/Components/CodeSnippet/index.js",
+      "types": "./dist/views/Components/CodeSnippet/index.d.ts",
+      "default": "./dist/views/Components/CodeSnippet/index.js"
+    },
     "./types": {
       "import": "./dist/types/index.js",
       "types": "./dist/types/index.d.ts",
@@ -196,6 +201,7 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "@scalar/postman-to-openapi": "workspace:*",
+    "@scalar/snippetz": "workspace:*",
     "@scalar/themes": "workspace:*",
     "@scalar/types": "workspace:*",
     "@scalar/use-codemirror": "workspace:*",

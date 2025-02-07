@@ -1,6 +1,8 @@
 export const REGEX = {
-  /** Checks if the url starts with a protocol like file:// including {variable}:// */
-  PROTOCOL: /^[a-zA-Z{}][a-zA-Z0-9+.{}-]*:\/\//,
+  /** Checks for a valid scheme */
+  PROTOCOL: /^(?:https?|ftp|file|mailto|tel|data|wss?)*:\/\//,
+  /** Finds multiple slashes after the scheme to replace with a single slash */
+  MULTIPLE_SLASHES: /(?<!:)\/{2,}/g,
   VARIABLES: /{{((?:[^{}]|{[^{}]*})*)}}/g,
   PATH: /(?:{)([^{}]+)}(?!})/g,
   TEMPLATE_VARIABLE: /{{\s*([^}\s]+?)\s*}}|{\s*([^}\s]+?)\s*}|:\b[\w.]+\b/g,

@@ -756,6 +756,9 @@ importers:
       '@scalar/postman-to-openapi':
         specifier: workspace:*
         version: link:../postman-to-openapi
+      '@scalar/snippetz':
+        specifier: workspace:*
+        version: link:../snippetz
       '@scalar/themes':
         specifier: workspace:*
         version: link:../themes

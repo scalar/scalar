@@ -428,7 +428,7 @@ describe('convertToHarRequest', () => {
     })
   })
 
-  it('handles a server with variables', () => {
+  it('handles a server with variables in the scheme', () => {
     const harRequest = convertToHarRequest({
       baseUrl: '{protocol}://void.scalar.com/{path}',
       method: 'get',
@@ -438,5 +438,41 @@ describe('convertToHarRequest', () => {
       headers: [],
     })
     expect(harRequest.url).toEqual('{protocol}://void.scalar.com/{path}/users')
+  })
+
+  it('handles an invalid server with variables', () => {
+    const harRequest = convertToHarRequest({
+      baseUrl: 'void.scalar.com/{path}',
+      method: 'get',
+      path: '/users/{id}',
+      cookies: [],
+      query: [],
+      headers: [],
+    })
+    expect(harRequest.url).toEqual('void.scalar.com/{path}/users/{id}')
+  })
+
+  it('handles a server with variables', () => {
+    const harRequest = convertToHarRequest({
+      baseUrl: 'file://{void}.scalar.com/{path}',
+      method: 'get',
+      path: '/users',
+      cookies: [],
+      query: [],
+      headers: [],
+    })
+    expect(harRequest.url).toEqual('file://{void}.scalar.com/{path}/users')
+  })
+
+  it('handles no server', () => {
+    const harRequest = convertToHarRequest({
+      baseUrl: undefined,
+      method: 'get',
+      path: 'http://google.ca',
+      cookies: [],
+      query: [],
+      headers: [],
+    })
+    expect(harRequest.url).toEqual('http://google.ca')
   })
 })

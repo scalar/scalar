@@ -97,4 +97,44 @@ describe('migrate_v_2_5_0', () => {
       'application/json',
     )
   })
+
+  it('should add default selectedHttpClient to workspaces', () => {
+    const mockData: v_2_4_0.DataRecord = {
+      requestExamples: {},
+      collections: {},
+      cookies: {},
+      environments: {},
+      requests: {},
+      securitySchemes: {},
+      servers: {},
+      tags: {},
+      workspaces: {
+        default: {
+          uid: 'default',
+          name: 'Default Workspace',
+          description: 'Default Workspace',
+          collections: [],
+          environments: {},
+          hotKeyConfig: {
+            modifiers: [],
+            hotKeys: {},
+          },
+          activeEnvironmentId: 'default',
+          cookies: [],
+          proxyUrl: '',
+          themeId: 'default',
+        },
+      },
+    }
+
+    // Perform migration
+    const result = migrate_v_2_5_0(mockData)
+
+    // Assertions
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
+    expect(result.workspaces.default.selectedHttpClient).toEqual({
+      targetKey: 'shell',
+      clientKey: 'curl',
+    })
+  })
 })

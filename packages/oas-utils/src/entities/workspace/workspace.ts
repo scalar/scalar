@@ -47,6 +47,17 @@ export const workspaceSchema = z.object({
   proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */
   themeId: z.enum(themeIds).optional().default('default'),
+  /** Currently selected snippet client */
+  selectedHttpClient: z
+    .object({
+      targetKey: z.string(),
+      clientKey: z.string(),
+    })
+    .optional()
+    .default({
+      targetKey: 'shell',
+      clientKey: 'curl',
+    }),
 })
 
 /** The base scalar workspace */

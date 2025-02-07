@@ -361,7 +361,7 @@ export default {
   background-color: transparent;
   border-right: none;
   color: var(--scalar-color-3);
-  font-size: var(--scalar-small);
+  font-size: var(--scalar-mini);
   line-height: 1.44;
   border-radius: 0 0 0 3px;
 }

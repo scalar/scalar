@@ -64,9 +64,23 @@ export const migrate_v_2_5_0 = (
     return acc
   }, {})
 
+  const workspaces = Object.entries(data.workspaces || {}).reduce<
+    Record<string, v_2_5_0.Workspace>
+  >((acc, [key, workspace]) => {
+    acc[key] = {
+      ...workspace,
+      selectedHttpClient: {
+        targetKey: 'shell',
+        clientKey: 'curl',
+      },
+    }
+    return acc
+  }, {})
+
   return {
     ...data,
     requestExamples,
     servers,
+    workspaces,
   } satisfies v_2_5_0.DataRecord
 }

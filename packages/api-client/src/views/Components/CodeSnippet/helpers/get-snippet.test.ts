@@ -7,11 +7,16 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
+import {
+  AVAILABLE_CLIENTS,
+  type ClientId,
+  type TargetId,
+} from '@scalar/snippetz'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { getExampleCode } from './get-example-code'
+import { getSnippet } from './get-snippet'
 
-describe('getExampleCode', () => {
+describe('getSnippet', () => {
   let operation: Operation
   let example: RequestExample
   let server: Server
@@ -28,41 +33,38 @@ describe('getExampleCode', () => {
     })
   })
 
-  it('generates a basic shell/curl example (httpsnippet-lite)', async () => {
-    const result = await getExampleCode(
+  it('generates a basic shell/curl example (httpsnippet-lite)', () => {
+    const [error, result] = getSnippet('shell', 'curl', {
       operation,
       example,
-      'shell',
-      'curl',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual('curl https://example.com/users')
   })
 
-  it('generates a basic node/undici example (@scalar/snippetz)', async () => {
-    const result = await getExampleCode(
+  it('generates a basic node/undici example (@scalar/snippetz)', () => {
+    const [error, result] = getSnippet('node', 'undici', {
       operation,
       example,
-      'node',
-      'undici',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`import { request } from 'undici'
 
 const { statusCode, body } = await request('https://example.com/users')`)
   })
 
-  it('generates a basic javascript/jquery example (httpsnippet-lite)', async () => {
-    const result = await getExampleCode(
+  it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
+    const [error, result] = getSnippet('javascript', 'jquery', {
       operation,
       example,
-      'javascript',
-      'jquery',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`const settings = {
   async: true,
   crossDomain: true,
@@ -76,32 +78,19 @@ $.ajax(settings).done(function (response) {
 });`)
   })
 
-  it('returns an empty string if passed rubbish', async () => {
-    const result = await getExampleCode(
+  it('returns an empty string if passed rubbish', () => {
+    // @ts-expect-error passing in rubbish
+    const [error, result] = getSnippet('fantasy', 'blue', {
       operation,
       example,
-      'fantasy',
-      'blue',
       server,
-    )
+    })
 
-    expect(result).toBe('')
+    expect(error).toBeDefined()
+    expect(result).toBeNull()
   })
 
-  it('returns an empty string if passed undefined target', async () => {
-    const result = await getExampleCode(
-      operation,
-      example,
-      // @ts-expect-error passing in rubbish
-      undefined,
-      'blue',
-      server,
-    )
-
-    expect(result).toBe('')
-  })
-
-  it('shows the original path before variable replacement', async () => {
+  it('shows the original path before variable replacement', () => {
     server = serverSchema.parse({
       uid: 'server-uid',
       url: '{protocol}://void.scalar.com/{path}',
@@ -117,32 +106,30 @@ $.ajax(settings).done(function (response) {
       },
     })
 
-    const result = await getExampleCode(
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
   })
 
-  it('should show the accept header if its not */*', async () => {
+  it('should show the accept header if its not */*', () => {
     example.parameters.headers.push({
       key: 'Accept',
       value: 'application/json',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     Accept: 'application/json'
@@ -157,14 +144,13 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const [error, result] = await getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     'Set-Cookie': 'sessionId=abc123'
@@ -172,21 +158,20 @@ $.ajax(settings).done(function (response) {
 })`)
   })
 
-  it('should show the headers', async () => {
+  it('should show the headers', () => {
     example.parameters.headers.push({
       key: 'x-scalar-token',
       value: 'abc123',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
     'X-Scalar-Token': 'abc123'
@@ -194,34 +179,31 @@ $.ajax(settings).done(function (response) {
 })`)
   })
 
-  it('should show the query parameters', async () => {
+  it('should show the query parameters', () => {
     example.parameters.query.push({
       key: 'query-param',
       value: 'query-value',
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result).toEqual(
       `fetch('https://example.com/users?query-param=query-value')`,
     )
   })
 
   it('should show the security headers, cookies and query', async () => {
-    const result = await getExampleCode(
+    const [error, result] = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-      [
+      securitySchemes: [
         securitySchemeSchema.parse({
           name: 'x-cookie-token',
           type: 'apiKey',
@@ -246,8 +228,9 @@ $.ajax(settings).done(function (response) {
           token: '44444',
         }),
       ],
-    )
+    })
 
+    expect(error).toBeNull()
     expect(result)
       .toEqual(`fetch('https://example.com/users?query-api-key=33333', {
   headers: {
@@ -256,5 +239,36 @@ $.ajax(settings).done(function (response) {
     'Set-Cookie': 'x-cookie-token=YOUR_SECRET_TOKEN'
   }
 })`)
+  })
+
+  it('should include the invalid url', () => {
+    const [error, result] = getSnippet('c', 'libcurl', {
+      operation,
+      example,
+    })
+
+    expect(error).toBeNull()
+    expect(result).toEqual(`CURL *hnd = curl_easy_init();
+
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
+curl_easy_setopt(hnd, CURLOPT_URL, "/users");
+
+CURLcode ret = curl_easy_perform(hnd);`)
+  })
+
+  describe('it should generate a snipped without a proper URL for every client', () => {
+    AVAILABLE_CLIENTS.forEach((id) => {
+      it(id, () => {
+        operation.path = '/super-secret-path'
+        const [target, client] = id.split('/') as [TargetId, ClientId<TargetId>]
+        const [error, result] = getSnippet(target, client, {
+          operation,
+          example,
+        })
+
+        expect(error).toBeNull()
+        expect(result).toContain('/super-secret-path')
+      })
+    })
   })
 })
