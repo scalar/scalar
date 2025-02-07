@@ -46,6 +46,18 @@ export const getSnippet = <T extends TargetId>(
     harRequest.url = `${INVALID_URLS_PREFIX}${separator}${harRequest.url}`
   }
 
+  // Hack the query in until we update the snippets lib
+  if (harRequest.queryString?.length) {
+    const queryString = harRequest.queryString.reduce(
+      (acc, query) => {
+        acc[query.name] = query.value
+        return acc
+      },
+      {} as Record<string, string>,
+    )
+    harRequest.url = `${harRequest.url}?${new URLSearchParams(queryString).toString()}`
+  }
+
   // TODO: Fix this, use js (instead of javascript) everywhere
   const snippetzTargetKey = target.replace('javascript', 'js') as TargetId
 
