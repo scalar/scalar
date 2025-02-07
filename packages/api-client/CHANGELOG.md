@@ -1,5 +1,17 @@
 # @scalar/api-client
 
+## 2.2.46
+
+### Patch Changes
+
+- abc40ce: feat: adds request preview
+- 0b18abe: fix: adds back request in search
+- e4f11d8: fix: removes servers on collection deletion
+- 2969dd0: fix: updates sidenav link active style for lightmode
+- Updated dependencies [abc40ce]
+  - @scalar/components@0.13.22
+  - @scalar/use-codemirror@0.11.67
+
 ## 2.2.45
 
 ### Patch Changes
