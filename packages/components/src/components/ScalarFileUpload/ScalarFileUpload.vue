@@ -19,12 +19,17 @@ import { useBindCx } from '../../hooks/useBindCx'
 import { type ExtensionList, isExtensionList } from './types'
 
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
+import ScalarFileUploadInputCompact from './ScalarFileUploadInputCompact.vue'
 import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
 import ScalarFileUploadLoading from './ScalarFileUploadLoading.vue'
 import ScalarFileUploadError from './ScalarFileUploadError.vue'
 import type { LoadingState } from '../ScalarLoading'
 
-const { multiple, accept = '*' } = defineProps<{
+const {
+  variant = 'default',
+  multiple,
+  accept = '*',
+} = defineProps<{
   /** Whether multiple files can be uploaded */
   multiple?: boolean
   /**
@@ -35,11 +40,27 @@ const { multiple, accept = '*' } = defineProps<{
   accept?: ExtensionList | string
   /** Whether the file upload is loading */
   loader?: LoadingState
+  /** Whether the file upload is compact */
+  variant?: 'compact' | 'default'
 }>()
 
 const emit = defineEmits<{
   /** Emitted when the user selects files */
   (e: 'selected', value: File[]): void
+}>()
+
+defineSlots<{
+  /** Override the entire input */
+  'default'?: (props: {
+    /** Open the file dialog to select files */
+    open: () => void
+  }) => any
+  /** Override the label */
+  'label'?: () => any
+  /** Override the entire drop target */
+  'drop-target'?: () => any
+  /** Override the drop target label */
+  'drop-target-label'?: () => any
 }>()
 
 /** The selected files */
@@ -105,22 +126,38 @@ const { cx } = useBindCx()
     @dragover.prevent
     @drop.prevent="handleDrop">
     <slot :open="openFileDialog">
-      <ScalarFileUploadInput
+      <component
+        :is="
+          variant === 'compact'
+            ? ScalarFileUploadInputCompact
+            : ScalarFileUploadInput
+        "
         :extensions="isExtensionList(accept) ? accept : undefined"
-        @browse="openFileDialog">
+        @click="openFileDialog">
+        <template
+          v-if="$slots.label"
+          #default>
+          <slot name="label" />
+        </template>
         <template
           v-if="error"
           #sublabel>
           <ScalarFileUploadError>{{ error }}</ScalarFileUploadError>
         </template>
-      </ScalarFileUploadInput>
+      </component>
     </slot>
     <div
       v-if="dragover"
       class="absolute inset-0"
       @dragleave="dragover = false">
       <slot name="drop-target">
-        <ScalarFileUploadDropTarget />
+        <ScalarFileUploadDropTarget>
+          <template
+            v-if="$slots['drop-target-label']"
+            #default>
+            <slot name="drop-target-label" />
+          </template>
+        </ScalarFileUploadDropTarget>
       </slot>
     </div>
     <ScalarFileUploadLoading

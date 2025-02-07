@@ -10,13 +10,13 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarButton } from '../ScalarButton'
 import { useBindCx } from '../../hooks/useBindCx'
 import type {
   FileUploadInputEmits,
   FileUploadInputProps,
   FileUploadInputSlots,
 } from './types'
+import { ScalarIcon } from '../ScalarIcon'
 
 defineProps<FileUploadInputProps>()
 defineEmits<FileUploadInputEmits>()
@@ -26,27 +26,28 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <div v-bind="cx('flex items-center justify-center gap-2 flex-col px-6 py-4')">
-    <div class="flex items-center gap-1 whitespace-nowrap">
-      <span class="text-c-2">
-        <slot>Drop {{ multiple ? 'files' : 'file' }} here to upload</slot>
-      </span>
-      <span class="text-c-3">or</span>
-      <ScalarButton
-        size="sm"
-        tabindex="-1"
-        variant="outlined"
-        @click="$emit('click', $event)">
-        Browse files
-      </ScalarButton>
+  <button
+    type="button"
+    v-bind="
+      cx(
+        'flex items-center justify-center gap-1 rounded flex-col px-4 py-3 hover:bg-b-2',
+      )
+    "
+    @click="$emit('click', $event)">
+    <div class="flex items-center gap-1 whitespace-nowrap text-c-2">
+      <slot>
+        <ScalarIcon
+          icon="UploadSimple"
+          size="sm" />
+        <span> Upload {{ multiple ? 'files' : 'file' }} </span>
+      </slot>
     </div>
     <slot name="sublabel">
       <div
         v-if="extensions"
         class="text-c-3 text-xs">
-        <span class="font-medium">Supported file types:</span>
         {{ extensions.join(', ') }}
       </div>
     </slot>
-  </div>
+  </button>
 </template>

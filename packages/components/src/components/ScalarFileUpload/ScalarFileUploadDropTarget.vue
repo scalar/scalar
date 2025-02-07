@@ -29,7 +29,7 @@ const { cx } = useBindCx()
       <ScalarIcon
         class="size-4"
         icon="UploadSimple" />
-      <span class="font-medium">Drop to upload</span>
+      <span class="font-medium"><slot>Drop to upload</slot></span>
     </div>
   </div>
 </template>
