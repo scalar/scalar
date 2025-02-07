@@ -3,8 +3,11 @@
  * Scalar File Upload component
  *
  * @example
- * <ScalarFileUpload>
- *   <ScalarButton>Click Me</ScalarButton>
+ * <ScalarFileUpload @selected="handleSelected" />
+ *
+ * @example
+ * <ScalarFileUpload v-slot="{ open }">
+ *   <ScalarButton @click="open">Select files</ScalarButton>
  * </ScalarFileUpload>
  */
 export default {}
@@ -101,7 +104,7 @@ const { cx } = useBindCx()
     @dragenter="dragover = true"
     @dragover.prevent
     @drop.prevent="handleDrop">
-    <slot :openFileDialog="openFileDialog">
+    <slot :open="openFileDialog">
       <ScalarFileUploadInput
         :extensions="isExtensionList(accept) ? accept : undefined"
         @browse="openFileDialog">

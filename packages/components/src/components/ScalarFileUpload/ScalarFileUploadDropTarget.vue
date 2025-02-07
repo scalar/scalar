@@ -1,11 +1,12 @@
 <script lang="ts">
 /**
- * Scalar File Upload Input
+ * Scalar File Upload Drop Target
  *
- * Displays a label and button for file uploads
+ * Displays a drop target for file uploads (used when
+ * the user is dragging files over the component)
  *
  * @example
- * <ScalarFileUploadInput />
+ * <ScalarFileUploadDropTarget />
  */
 export default {}
 </script>

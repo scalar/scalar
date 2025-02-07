@@ -1,11 +1,11 @@
 <script lang="ts">
 /**
- * Scalar File Upload Input
+ * Scalar File Upload Loading
  *
- * Displays a label and button for file uploads
+ * Displays a loading state for file uploads
  *
  * @example
- * <ScalarFileUploadInput />
+ * <ScalarFileUploadLoading :loader="loader" />
  */
 export default {}
 </script>
