@@ -88,7 +88,7 @@ Response
 }
 ```
 
-### Serve an OpenAPI specification yaml using the CLI
+### Serve an OpenAPI document using the CLI
 
 ```bash
 npx @scalar/cli serve ./src/documents/3.1.yaml --watch

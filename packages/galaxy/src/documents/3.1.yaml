@@ -120,17 +120,9 @@ paths:
               schema:
                 '$ref': '#/components/schemas/Planet'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/BadRequest'
+          '$ref': '#/components/responses/BadRequest'
         '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/Forbidden'
+          '$ref': '#/components/responses/Forbidden'
   '/planets/{planetId}':
     get:
       tags:
@@ -150,11 +142,7 @@ paths:
               schema:
                 '$ref': '#/components/schemas/Planet'
         '404':
-          description: Planet Not Found
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/NotFound'
+          '$ref': '#/components/responses/NotFound'
     put:
       tags:
         - Planets
@@ -177,23 +165,11 @@ paths:
               schema:
                 '$ref': '#/components/schemas/Planet'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/BadRequest'
+          '$ref': '#/components/responses/BadRequest'
         '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/Forbidden'
+          '$ref': '#/components/responses/Forbidden'
         '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/NotFound'
+          '$ref': '#/components/responses/NotFound'
     delete:
       tags:
         - Planets
@@ -229,6 +205,10 @@ paths:
                 image:
                   type: string
                   format: binary
+                  description: The image file to upload
+                  examples:
+                    mars: '@mars.jpg'
+                    jupiter: '@jupiter.png'
       responses:
         '200':
           description: Image uploaded
@@ -242,23 +222,11 @@ paths:
                     examples:
                       - Image uploaded successfully
         '400':
-          description: Bad Upload Request
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/BadRequest'
+          '$ref': '#/components/responses/BadRequest'
         '403':
-          description: Upload Forbidden
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/Forbidden'
+          '$ref': '#/components/responses/Forbidden'
         '404':
-          description: Failed to Upload Image, Planet Not Found
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/NotFound'
+          '$ref': '#/components/responses/NotFound'
   '/user/signup':
     post:
       tags:
@@ -292,11 +260,7 @@ paths:
               schema:
                 '$ref': '#/components/schemas/User'
         '400':
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/BadRequest'
+          '$ref': '#/components/responses/BadRequest'
   '/auth/token':
     post:
       tags:
@@ -340,17 +304,9 @@ paths:
               schema:
                 '$ref': '#/components/schemas/User'
         '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/Unauthorized'
+          '$ref': '#/components/responses/Unauthorized'
         '403':
-          description: Forbidden
-          content:
-            application/json:
-              schema:
-                '$ref': '#/components/responses/Forbidden'
+          '$ref': '#/components/responses/Forbidden'
 webhooks:
   newPlanet:
     post:
@@ -463,25 +419,101 @@ components:
       content:
         application/json:
           schema:
-            '$ref': '#/components/schemas/Error'
+            type: object
+            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+            properties:
+              type:
+                type: string
+                examples:
+                  - https://example.com/errors/bad-request
+              title:
+                type: string
+                examples:
+                  - Bad Request
+              status:
+                type: integer
+                format: int64
+                examples:
+                  - 400
+              detail:
+                type: string
+                examples:
+                  - The request was invalid.
     Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            '$ref': '#/components/schemas/Error'
+            type: object
+            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+            properties:
+              type:
+                type: string
+                examples:
+                  - https://example.com/errors/forbidden
+              title:
+                type: string
+                examples:
+                  - Forbidden
+              status:
+                type: integer
+                format: int64
+                examples:
+                  - 403
+              detail:
+                type: string
+                examples:
+                  - You are not authorized to access this resource.
     NotFound:
       description: NotFound
       content:
         application/json:
           schema:
-            '$ref': '#/components/schemas/Error'
+            type: object
+            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+            properties:
+              type:
+                type: string
+                examples:
+                  - https://example.com/errors/not-found
+              title:
+                type: string
+                examples:
+                  - Not Found
+              status:
+                type: integer
+                format: int64
+                examples:
+                  - 404
+              detail:
+                type: string
+                examples:
+                  - The resource you are trying to access does not exist.
     Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            '$ref': '#/components/schemas/Error'
+            type: object
+            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+            properties:
+              type:
+                type: string
+                examples:
+                  - https://example.com/errors/not-found
+              title:
+                type: string
+                examples:
+                  - Unauthorized
+              status:
+                type: integer
+                format: int64
+                examples:
+                  - 401
+              detail:
+                type: string
+                examples:
+                  - You are not authorized to access this resource.
   schemas:
     User:
       allOf:
@@ -578,24 +610,3 @@ components:
                 - 'null'
               examples:
                 - '/planets?limit=10&offset=10'
-    Error:
-      type: object
-      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-      properties:
-        type:
-          type: string
-          examples:
-            - https://example.com/errors/generic-error
-        title:
-          type: string
-          examples:
-            - Something went wrong here.
-        status:
-          type: integer
-          format: int64
-          examples:
-            - 403
-        detail:
-          type: string
-          examples:
-            - Unfortunately, we can’t provide further information.
