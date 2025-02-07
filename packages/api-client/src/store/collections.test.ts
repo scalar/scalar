@@ -41,6 +41,10 @@ const mockWorkspace: Workspace = {
   activeEnvironmentId: '',
   cookies: [],
   themeId: 'default' as const,
+  selectedHttpClient: {
+    targetKey: 'node',
+    clientKey: 'undici',
+  },
 }
 
 const mockCollection: Collection = {
