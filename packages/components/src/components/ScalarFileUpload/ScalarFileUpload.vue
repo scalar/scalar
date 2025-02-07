@@ -21,7 +21,7 @@ import { type ExtensionList, isExtensionList } from './types'
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
 import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
 import ScalarFileUploadLoading from './ScalarFileUploadLoading.vue'
-import { ScalarIcon } from '../ScalarIcon/'
+import ScalarFileUploadError from './ScalarFileUploadError.vue'
 import type { LoadingState } from '../ScalarLoading'
 
 const { multiple, accept = '*' } = defineProps<{
@@ -111,12 +111,7 @@ const { cx } = useBindCx()
         <template
           v-if="error"
           #sublabel>
-          <div class="flex items-center gap-1 text-c-danger">
-            <ScalarIcon
-              icon="Error"
-              size="sm" />
-            {{ error }}
-          </div>
+          <ScalarFileUploadError>{{ error }}</ScalarFileUploadError>
         </template>
       </ScalarFileUploadInput>
     </slot>
