@@ -314,6 +314,8 @@ export async function importSpecToWorkspace(
         })
         .filter(isDefined)
 
+      console.log(securityRequirements)
+
       // Set the initially selected security scheme
       const selectedSecuritySchemeUids =
         securityRequirements.length && !setCollectionSecurity
@@ -328,6 +330,7 @@ export async function importSpecToWorkspace(
         ...operationWithoutSecurity,
         method,
         path: pathString,
+        security: operationSecurity,
         selectedSecuritySchemeUids,
         // Merge path and operation level parameters
         parameters: [
