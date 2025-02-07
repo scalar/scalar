@@ -40,6 +40,31 @@ describe('httpHttp11', () => {
     )
   })
 
+  it('it doesn’t add the JSON header twice', () => {
+    const result = httpHttp11.generate({
+      url: 'https://example.com',
+      method: 'post',
+      headers: [
+        {
+          name: 'Content-Type',
+          value: 'application/json',
+        },
+      ],
+      postData: {
+        mimeType: 'application/json',
+        text: '{"foo": "bar"}',
+      },
+    })
+
+    expect(result).toBe(
+      'POST / HTTP/1.1\r\n' +
+        'Host: example.com\r\n' +
+        'Content-Type: application/json\r\n' +
+        '\r\n' +
+        '{"foo": "bar"}',
+    )
+  })
+
   it('handles multipart form data with files', () => {
     const result = httpHttp11.generate({
       url: 'https://example.com',
@@ -221,8 +246,7 @@ describe('httpHttp11', () => {
 
     expect(result).toBe(
       'GET /?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*() HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        '\r\n',
+        'Host: example.com\r\n\r\n',
     )
   })
 })

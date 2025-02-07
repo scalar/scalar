@@ -48,12 +48,13 @@ export const httpHttp11: Plugin = {
       requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
     }
 
-    // Host header
-    requestString += `Host: ${hostname}\r\n`
-
-    // Headers
+    // Store all headers
     const headers = new Map()
 
+    // Host header
+    headers.set('Host', hostname)
+
+    // Passed headers
     normalizedRequest.headers.forEach((header) => {
       if (headers.has(header.name)) {
         headers.set(header.name, `${headers.get(header.name)}, ${header.value}`)
@@ -62,18 +63,7 @@ export const httpHttp11: Plugin = {
       }
     })
 
-    headers.forEach((value, name) => {
-      requestString += `${name}: ${value}\r\n`
-    })
-
-    // Ensure headers with empty values are included
-    normalizedRequest.headers.forEach((header) => {
-      if (!headers.has(header.name) && header.value === '') {
-        requestString += `${header.name}:\r\n`
-      }
-    })
-
-    // Handle query string parameters
+    // Query string parameters
     if (normalizedRequest.queryString.length) {
       const queryString = normalizedRequest.queryString
         .map(
@@ -83,23 +73,25 @@ export const httpHttp11: Plugin = {
         .join('&')
 
       // Append query string to the path
-      requestString =
-        `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n` +
-        `Host: ${hostname}\r\n`
+      requestString = `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n`
     }
 
-    // Handle postData
+    // Request body
+    let body = ''
     if (normalizedRequest.postData) {
+      // Always set the Content-Type header based on postData.mimeType
       if (
         normalizedRequest.postData.mimeType === 'application/json' &&
         normalizedRequest.postData.text
       ) {
-        requestString += `Content-Type: application/json\r\n\r\n${normalizedRequest.postData.text}`
+        headers.set('Content-Type', 'application/json')
+        body = normalizedRequest.postData.text
       } else if (
         normalizedRequest.postData.mimeType === 'application/octet-stream' &&
         normalizedRequest.postData.text
       ) {
-        requestString += `Content-Type: application/octet-stream\r\n\r\n${normalizedRequest.postData.text}`
+        headers.set('Content-Type', 'application/octet-stream')
+        body = normalizedRequest.postData.text
       } else if (
         normalizedRequest.postData.mimeType ===
           'application/x-www-form-urlencoded' &&
@@ -112,26 +104,35 @@ export const httpHttp11: Plugin = {
           )
           .join('&')
 
-        requestString += `Content-Type: application/x-www-form-urlencoded\r\n\r\n${formData}`
+        headers.set('Content-Type', 'application/x-www-form-urlencoded')
+        body = formData
       } else if (
         normalizedRequest.postData.mimeType === 'multipart/form-data' &&
         normalizedRequest.postData.params
       ) {
         const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
-        requestString += `Content-Type: multipart/form-data; boundary=${boundary}\r\n\r\n`
+        headers.set('Content-Type', `multipart/form-data; boundary=${boundary}`)
 
-        normalizedRequest.postData.params.forEach((param) => {
-          if (param.fileName) {
-            requestString += `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
-          } else {
-            requestString += `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
-          }
-        })
-        requestString += `--${boundary}--\r\n`
+        body =
+          normalizedRequest.postData.params
+            .map((param) => {
+              if (param.fileName) {
+                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
+              } else {
+                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
+              }
+            })
+            .join('') + `--${boundary}--\r\n`
       }
-    } else {
-      requestString += '\r\n'
     }
+
+    // Add headers to requestString
+    headers.forEach((value, name) => {
+      requestString += `${name}: ${value}\r\n`
+    })
+
+    // Add body to requestString
+    requestString += `\r\n${body}`
 
     return requestString
   },
