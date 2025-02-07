@@ -1,4 +1,4 @@
-import { galaxySpec } from '@scalar/galaxy'
+import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
 import { useEffect, useState } from 'react'
 
@@ -18,7 +18,7 @@ function App() {
   ]
 
   useEffect(() => {
-    // Update the spec periodically to test reactivity
+    // Update the document periodically to test reactivity
     const changeInt = setInterval(() => {
       setAuth({
         preferredSecurityScheme:
@@ -45,7 +45,7 @@ function App() {
     <ApiReferenceReact
       configuration={{
         spec: {
-          content: galaxySpec,
+          content: ScalarGalaxy,
         },
         authentication: auth,
       }}

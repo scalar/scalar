@@ -22,7 +22,8 @@
   },
   "scripts": {
     "build": "scalar-build-rollup && vite-node scripts/publish.ts",
-    "dev": "vite-node playground/index.ts",
+    "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
+    "playground": "vite-node playground/index.ts",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",

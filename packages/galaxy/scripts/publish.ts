@@ -1,17 +1,33 @@
 import { openapi } from '@scalar/openapi-parser'
 import fs from 'node:fs'
 
-const base = fs.readFileSync('dist/3.1.yaml', 'utf-8')
+// Get the package meta data
+const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
+
+// Get the source files
+const base = fs.readFileSync('src/documents/3.1.yaml', 'utf-8')
+
+// Replace the version in the file
+const replaced = base.replace(
+  // version: 1.0.0 -> version: 0.2.18
+  /version:\s*.*/,
+  `version: ${packageFile.version}`,
+)
+
+fs.writeFileSync('dist/3.1.yaml', replaced)
+// Alias
+fs.writeFileSync('dist/latest.yaml', replaced)
+
+// Get the updated source files
+const version = fs.readFileSync('dist/3.1.yaml', 'utf-8')
 const latest = fs.readFileSync('dist/latest.yaml', 'utf-8')
 
 // Copy the base files into JSON format as well
-const baseOut = await openapi().load(base).toJson()
+const versionOut = await openapi().load(version).toJson()
 const latestOut = await openapi().load(latest).toJson()
 
-fs.writeFileSync('./dist/3.1.json', baseOut)
+fs.writeFileSync('./dist/3.1.json', versionOut)
 fs.writeFileSync('./dist/latest.json', latestOut)
-
-const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
 
 // Update the package file with the raw json and yaml exports
 packageFile.exports = {

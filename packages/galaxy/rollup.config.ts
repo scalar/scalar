@@ -10,14 +10,6 @@ if (process.env.BUILD_PLAYGROUND) {
 // Do not use the findEntryPoints helper - it will overwrite the static file outputs
 export default createRollupConfig({
   typescript: true,
-  copy: [
-    { src: 'src/specifications/3.1.yaml', dest: 'dist' },
-    {
-      src: 'src/specifications/3.1.yaml',
-      dest: 'dist',
-      rename: 'latest.yaml',
-    },
-  ],
   options: {
     input: input,
   },

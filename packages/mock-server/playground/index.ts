@@ -11,7 +11,7 @@ const port = process.env.PORT || 5052
  * We do not want a circular depedency as galaxy uses mock server for its playground
  */
 const specification = await fs
-  .readFile('../galaxy/src/specifications/3.1.yaml', 'utf8')
+  .readFile('../galaxy/src/documents/3.1.yaml', 'utf8')
   .catch(() => {
     console.error(
       '[@scalar/mock-server] Missing @scalar/galaxy. Please build it and try again.',
