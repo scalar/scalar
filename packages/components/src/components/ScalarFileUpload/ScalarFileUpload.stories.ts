@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
 import { ref } from 'vue'
 
+import { useLoadingState } from '../ScalarLoading'
 import ScalarFileUpload from './ScalarFileUpload.vue'
 import ScalarFileUploadFileList from './ScalarFileUploadFileList.vue'
 
@@ -42,7 +43,7 @@ type Story = StoryObj<typeof meta>
 
 export const Base: Story = {}
 
-export const WithFileList: Story = {
+export const Files: Story = {
   render: (args) => ({
     components: {
       ScalarFileUpload,
@@ -60,6 +61,22 @@ export const WithFileList: Story = {
       <ScalarFileUploadFileList v-model="files" />
     </template>
   </ScalarFileUpload>
+`,
+  }),
+}
+export const Loading: Story = {
+  render: (args) => ({
+    components: {
+      ScalarFileUpload,
+      ScalarFileUploadFileList,
+    },
+    setup() {
+      const loader = useLoadingState()
+      loader.startLoading()
+      return { args, loader }
+    },
+    template: `
+  <ScalarFileUpload v-bind="args" :loader="loader" />
 `,
   }),
 }

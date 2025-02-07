@@ -17,7 +17,9 @@ import { type ExtensionList, isExtensionList } from './types'
 
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
 import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
+import ScalarFileUploadLoading from './ScalarFileUploadLoading.vue'
 import { ScalarIcon } from '../ScalarIcon/'
+import type { LoadingState } from '../ScalarLoading'
 
 const { multiple, accept = '*' } = defineProps<{
   /** Whether multiple files can be uploaded */
@@ -28,6 +30,8 @@ const { multiple, accept = '*' } = defineProps<{
    * @see https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept
    */
   accept?: ExtensionList | string
+  /** Whether the file upload is loading */
+  loader?: LoadingState
 }>()
 
 const emit = defineEmits<{
@@ -121,6 +125,9 @@ const { cx } = useBindCx()
         <ScalarFileUploadDropTarget />
       </slot>
     </div>
+    <ScalarFileUploadLoading
+      v-if="loader?.isLoading"
+      :loader="loader" />
     <input
       ref="input"
       :accept="isExtensionList(accept) ? accept.join(',') : accept"
