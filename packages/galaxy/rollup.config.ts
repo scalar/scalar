@@ -11,9 +11,9 @@ if (process.env.BUILD_PLAYGROUND) {
 export default createRollupConfig({
   typescript: true,
   copy: [
-    { src: 'src/specifications/3.1.yaml', dest: 'dist' },
+    { src: 'src/documents/3.1.yaml', dest: 'dist' },
     {
-      src: 'src/specifications/3.1.yaml',
+      src: 'src/documents/3.1.yaml',
       dest: 'dist',
       rename: 'latest.yaml',
     },

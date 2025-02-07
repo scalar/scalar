@@ -91,7 +91,7 @@ Response
 ### Serve an OpenAPI specification yaml using the CLI
 
 ```bash
-npx @scalar/cli serve ./src/specifications/3.1.yaml --watch
+npx @scalar/cli serve ./src/documents/3.1.yaml --watch
 ```
 
 ## Community

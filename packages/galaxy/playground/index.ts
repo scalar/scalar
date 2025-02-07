@@ -6,12 +6,10 @@ import fs from 'fs/promises'
 const specification = await readOpenApiDocumentFromDisk()
 
 async function readOpenApiDocumentFromDisk() {
-  return await fs
-    .readFile('./src/specifications/3.1.yaml', 'utf-8')
-    .catch(() => {
-      console.error('Missing @scalar/galaxy OpenAPI document')
-      return ''
-    })
+  return await fs.readFile('./src/documents/3.1.yaml', 'utf-8').catch(() => {
+    console.error('Missing @scalar/galaxy OpenAPI document')
+    return ''
+  })
 }
 
 const port = process.env.PORT || 5052
