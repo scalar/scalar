@@ -24,7 +24,7 @@ export const convertToHarRequest = ({
   query,
 }: Props): HarRequest => {
   // Merge the two urls with a failsafe
-  const url = mergeUrls(baseUrl, path)
+  const url = mergeUrls(baseUrl, path, undefined, true)
 
   // Create base HAR request structure
   const harRequest: HarRequest = {

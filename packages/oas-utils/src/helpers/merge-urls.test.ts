@@ -200,9 +200,23 @@ describe('mergeUrls', () => {
     )
   })
 
+  it('handles URLs with template variables and disableOriginPrefix', () => {
+    const result = mergeUrls(
+      '{protocol}://api.example.com',
+      '/users',
+      undefined,
+      true,
+    )
+    expect(result).toBe('{protocol}://api.example.com/users')
+  })
+
   it('handles relative URLs', () => {
     const result = mergeUrls('/api', '/users')
     expect(result).toBe('http://localhost:3000/api/users')
+  })
+  it('handles relative URLs with disableOriginPrefix', () => {
+    const result = mergeUrls('/api', '/users', undefined, true)
+    expect(result).toBe('/api/users')
   })
 
   describe('path handling', () => {
@@ -273,6 +287,11 @@ describe('mergeUrls', () => {
       expect(result).toBe('http://localhost:3000/not-a-url/path')
     })
 
+    it('handles invalid URLs with disableOriginPrefix', () => {
+      const result = mergeUrls('not-a-url', '/path', undefined, true)
+      expect(result).toBe('not-a-url/path')
+    })
+
     it('handles URLs with authentication', () => {
       const result = mergeUrls('https://user:pass@api.example.com', '/users')
       expect(result).toBe('https://user:pass@api.example.com/users')
@@ -297,9 +316,9 @@ describe('mergeUrls', () => {
   })
 
   describe('error handling', () => {
-    it('returns a prefixed url for invalid combinations', () => {
+    it('handles empty base url', () => {
       const result = mergeUrls('', '/users')
-      expect(result).toBe('http://localhost:3000/users')
+      expect(result).toBe('/users')
     })
 
     it('handles undefined urlParams', () => {

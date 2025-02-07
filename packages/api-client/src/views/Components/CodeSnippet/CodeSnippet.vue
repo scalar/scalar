@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { getSnippet } from '@/views/Components/CodeSnippet/helpers/get-snippet'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
   Operation,
@@ -6,10 +7,8 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import type { ClientId, TargetId } from '@scalar/snippetz'
 import { computed } from 'vue'
-
-import { getHarRequest } from './helpers/get-har-request'
 
 const {
   target,
@@ -45,18 +44,9 @@ const secretCredentials = computed(() =>
 )
 
 /** Generated code example */
-const content = computed(() => {
-  const harRequest = getHarRequest({
-    operation,
-    server,
-    example,
-    securitySchemes,
-  })
-
-  if (!harRequest.url) return null
-
-  return snippetz().print(target, client, harRequest)
-})
+const content = computed(() =>
+  getSnippet(target, client, { operation, example, server, securitySchemes }),
+)
 
 /** CodeMirror syntax highlighting language */
 const language = computed(() => {
@@ -78,6 +68,6 @@ const language = computed(() => {
   <div
     v-else
     class="text-c-3 px-4 text-sm min-h-16 justify-center flex items-center">
-    Please enter a valid URL to see a code snippet
+    Please enter a URL to see a code snippet
   </div>
 </template>

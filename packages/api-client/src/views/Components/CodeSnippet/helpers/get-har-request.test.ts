@@ -12,7 +12,7 @@ import { getHarRequest } from './get-har-request'
 const BASE_HAR_REQUEST = {
   bodySize: -1,
   method: 'GET',
-  url: 'http://localhost:3000/',
+  url: '/',
   headers: [],
   cookies: [],
   queryString: [],
@@ -95,7 +95,7 @@ describe('getHarRequest', () => {
     expect(result).toEqual({
       ...BASE_HAR_REQUEST,
       method: 'POST',
-      url: 'http://localhost:3000/users',
+      url: '/users',
       headers: [
         { name: 'Content-Type', value: 'application/json' },
         {

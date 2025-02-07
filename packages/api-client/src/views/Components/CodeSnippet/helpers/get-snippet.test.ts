@@ -7,12 +7,16 @@ import {
   securitySchemeSchema,
   serverSchema,
 } from '@scalar/oas-utils/entities/spec'
-import { AVAILABLE_CLIENTS } from '@scalar/snippetz'
+import {
+  AVAILABLE_CLIENTS,
+  type ClientId,
+  type TargetId,
+} from '@scalar/snippetz'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { getExampleCode } from './get-example-code'
+import { getSnippet } from './get-snippet'
 
-describe('getExampleCode', () => {
+describe('getSnippet', () => {
   let operation: Operation
   let example: RequestExample
   let server: Server
@@ -30,13 +34,21 @@ describe('getExampleCode', () => {
   })
 
   it('generates a basic shell/curl example (httpsnippet-lite)', () => {
-    const result = getExampleCode(operation, example, 'shell', 'curl', server)
+    const result = getSnippet('shell', 'curl', {
+      operation,
+      example,
+      server,
+    })
 
     expect(result).toEqual('curl https://example.com/users')
   })
 
   it('generates a basic node/undici example (@scalar/snippetz)', () => {
-    const result = getExampleCode(operation, example, 'node', 'undici', server)
+    const result = getSnippet('node', 'undici', {
+      operation,
+      example,
+      server,
+    })
 
     expect(result).toEqual(`import { request } from 'undici'
 
@@ -44,13 +56,11 @@ const { statusCode, body } = await request('https://example.com/users')`)
   })
 
   it('generates a basic javascript/jquery example (httpsnippet-lite)', () => {
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'jquery', {
       operation,
       example,
-      'javascript',
-      'jquery',
       server,
-    )
+    })
 
     expect(result).toEqual(`const settings = {
   async: true,
@@ -66,20 +76,12 @@ $.ajax(settings).done(function (response) {
   })
 
   it('returns an empty string if passed rubbish', () => {
-    const result = getExampleCode(operation, example, 'fantasy', 'blue', server)
-
-    expect(result).toBe('')
-  })
-
-  it('returns an empty string if passed undefined target', () => {
-    const result = getExampleCode(
+    // @ts-expect-error passing in rubbish
+    const result = getSnippet('fantasy', 'blue', {
       operation,
       example,
-      // @ts-expect-error passing in rubbish
-      undefined,
-      'blue',
       server,
-    )
+    })
 
     expect(result).toBe('')
   })
@@ -100,17 +102,13 @@ $.ajax(settings).done(function (response) {
       },
     })
 
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
-    expect(result).toEqual(
-      `fetch('http://localhost:3000/{protocol}://void.scalar.com/{path}/users')`,
-    )
+    expect(result).toEqual(`fetch('{protocol}://void.scalar.com/{path}/users')`)
   })
 
   it('should show the accept header if its not */*', () => {
@@ -120,13 +118,11 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
@@ -142,13 +138,11 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = await getExampleCode(
+    const result = await getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
@@ -164,13 +158,11 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
     expect(result).toEqual(`fetch('https://example.com/users', {
   headers: {
@@ -186,13 +178,11 @@ $.ajax(settings).done(function (response) {
       enabled: true,
     })
 
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-    )
+    })
 
     expect(result).toEqual(
       `fetch('https://example.com/users?query-param=query-value')`,
@@ -200,13 +190,11 @@ $.ajax(settings).done(function (response) {
   })
 
   it('should show the security headers, cookies and query', async () => {
-    const result = getExampleCode(
+    const result = getSnippet('javascript', 'fetch', {
       operation,
       example,
-      'javascript',
-      'fetch',
       server,
-      [
+      securitySchemes: [
         securitySchemeSchema.parse({
           name: 'x-cookie-token',
           type: 'apiKey',
@@ -231,7 +219,7 @@ $.ajax(settings).done(function (response) {
           token: '44444',
         }),
       ],
-    )
+    })
 
     expect(result)
       .toEqual(`fetch('https://example.com/users?query-api-key=33333', {
@@ -243,17 +231,31 @@ $.ajax(settings).done(function (response) {
 })`)
   })
 
-  describe('it should generate a snipped without a proper URL', () => {
-    AVAILABLE_CLIENTS.forEach((target) => {
-      it(target, () => {
-        operation.path = '/stuff'
-        getExampleCode(
+  it('should include the invalid url', () => {
+    const result = getSnippet('c', 'libcurl', {
+      operation,
+      example,
+    })
+
+    expect(result).toEqual(`CURL *hnd = curl_easy_init();
+
+curl_easy_setopt(hnd, CURLOPT_CUSTOMREQUEST, "GET");
+curl_easy_setopt(hnd, CURLOPT_URL, "/users");
+
+CURLcode ret = curl_easy_perform(hnd);`)
+  })
+
+  describe('it should generate a snipped without a proper URL for every client', () => {
+    AVAILABLE_CLIENTS.forEach((id) => {
+      it(id, () => {
+        operation.path = '/super-secret-path'
+        const [target, client] = id.split('/') as [TargetId, ClientId<TargetId>]
+        const result = getSnippet(target, client, {
           operation,
           example,
-          target.split('/')[0],
-          target.split('/')[1],
-          undefined,
-        )
+        })
+
+        expect(result).toContain('/super-secret-path')
       })
     })
   })
