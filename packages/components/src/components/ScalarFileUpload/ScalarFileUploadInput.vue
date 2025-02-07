@@ -27,11 +27,11 @@ const { cx } = useBindCx()
 </script>
 <template>
   <div v-bind="cx('flex items-center justify-center gap-2 flex-col px-6 py-4')">
-    <div class="flex items-center gap-1 whitespace-nowrap">
+    <div class="flex items-center gap-1.5 whitespace-nowrap">
       <span class="text-c-2">
         <slot>Drop {{ multiple ? 'files' : 'file' }} here to upload</slot>
+        <span class="text-c-3"> or</span>
       </span>
-      <span class="text-c-3">or</span>
       <ScalarButton
         size="sm"
         tabindex="-1"
