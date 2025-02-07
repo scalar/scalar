@@ -445,6 +445,20 @@ describe('importSpecToWorkspace', () => {
       expect(res.requests[0].security).toEqual([{}])
     })
 
+    it('handles empty operation security requirements', async () => {
+      const res = await importSpecToWorkspace({
+        ...galaxy,
+        paths: {
+          '/test': {
+            get: { security: [] },
+          },
+        },
+      })
+
+      if (res.error) throw res.error
+      expect(res.requests[0].security).toEqual([])
+    })
+
     it('imports path-level parameters', async () => {
       const example = {
         paths: {
