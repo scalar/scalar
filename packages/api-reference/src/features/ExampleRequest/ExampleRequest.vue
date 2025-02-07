@@ -9,6 +9,7 @@ import type {
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { ClientId, TargetId } from '@scalar/snippetz'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref, useId, watch } from 'vue'
 
@@ -106,7 +107,7 @@ const generateSnippet = () => {
     )
   }
 
-  const clientKey = httpClient.clientKey
+  const clientKey = httpClient.clientKey as ClientId<TargetId>
   const targetKey = httpClient.targetKey
 
   // TODO: Currently we just grab the first one but we should sync up the store with the example picker
@@ -120,10 +121,12 @@ const generateSnippet = () => {
     securitySchemes,
   )
 
-  return (
-    getExampleCode(operation, example, targetKey, clientKey, server, schemes) ??
-    ''
-  )
+  return getSnippet(targetKey, clientKey, {
+    operation,
+    example,
+    server,
+    securitySchemes: schemes,
+  })
 }
 
 const generatedCode = computed<string>(() => {
