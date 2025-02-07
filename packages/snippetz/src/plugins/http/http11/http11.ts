@@ -82,7 +82,7 @@ export const httpHttp11: Plugin = {
       // Append query string to the path
       requestString =
         `${normalizedRequest.method} ${path}?${queryString} HTTP/1.1\r\n` +
-        `Host: ${url.hostname}\r\n`
+        `Host: ${hostname}\r\n`
     }
 
     // Handle postData
