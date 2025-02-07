@@ -428,7 +428,7 @@ describe('convertToHarRequest', () => {
     })
   })
 
-  it('handles a server with variables', () => {
+  it('handles a server with variables in the scheme', () => {
     const harRequest = convertToHarRequest({
       baseUrl: '{protocol}://void.scalar.com/{path}',
       method: 'get',
@@ -437,7 +437,21 @@ describe('convertToHarRequest', () => {
       query: [],
       headers: [],
     })
-    expect(harRequest.url).toEqual('{protocol}://void.scalar.com/{path}/users')
+    expect(harRequest.url).toEqual(
+      'http://localhost:3000/{protocol}://void.scalar.com/{path}/users',
+    )
+  })
+
+  it('handles a server with variables', () => {
+    const harRequest = convertToHarRequest({
+      baseUrl: 'file://{void}.scalar.com/{path}',
+      method: 'get',
+      path: '/users',
+      cookies: [],
+      query: [],
+      headers: [],
+    })
+    expect(harRequest.url).toEqual('file://{void}.scalar.com/{path}/users')
   })
 
   it('handles no server', () => {

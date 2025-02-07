@@ -43,14 +43,9 @@ export const mergeSearchParams = (
 export const combineUrlAndPath = (url: string, path: string) => {
   if (!path || url === path) return url.trim()
 
-  // Remove trailing slash from url and leading slash from path
-  const cleanBase = url.replace(/\/+$/, '').trim()
-  const cleanPath = path.replace(/^\/+/, '').trim()
+  if (!url) return path.trim()
 
-  // Ensure we add the correct slash if theres no url
-  if (!url) return cleanPath
-
-  return `${cleanBase}/${cleanPath}`
+  return `${url.trim()}/${path.trim()}`.replace(/(?<!:)\/{2,}/g, '/')
 }
 
 /**
@@ -92,6 +87,12 @@ export const mergeUrls = (
     // Build the final URL
     const search = mergedSearchParams.toString()
     return search ? `${mergedUrl}?${search}` : mergedUrl
+  } else if (path) {
+    const combined = combineUrlAndPath(url, path)
+
+    return isRelativePath(combined)
+      ? combineUrlAndPath(window.location.origin, combined)
+      : ensureProtocol(combined)
   }
-  return url
+  return ''
 }

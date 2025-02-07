@@ -297,9 +297,9 @@ describe('mergeUrls', () => {
   })
 
   describe('error handling', () => {
-    it('returns original URL for invalid combinations', () => {
+    it('returns a prefixed url for invalid combinations', () => {
       const result = mergeUrls('', '/users')
-      expect(result).toBe('')
+      expect(result).toBe('http://localhost:3000/users')
     })
 
     it('handles undefined urlParams', () => {

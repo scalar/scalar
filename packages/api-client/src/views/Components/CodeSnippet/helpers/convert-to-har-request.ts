@@ -1,5 +1,5 @@
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
-import { combineUrlAndPath } from '@scalar/oas-utils/helpers'
+import { combineUrlAndPath, mergeUrls } from '@scalar/oas-utils/helpers'
 import type { HarRequest } from '@scalar/snippetz'
 
 type Props = {
@@ -23,7 +23,8 @@ export const convertToHarRequest = ({
   headers,
   query,
 }: Props): HarRequest => {
-  const url = combineUrlAndPath(baseUrl, path)
+  // Merge the two urls with a failsafe
+  const url = mergeUrls(baseUrl, path)
 
   // Create base HAR request structure
   const harRequest: HarRequest = {

@@ -12,7 +12,7 @@ import { getHarRequest } from './get-har-request'
 const BASE_HAR_REQUEST = {
   bodySize: -1,
   method: 'GET',
-  url: '/',
+  url: 'http://localhost:3000/',
   headers: [],
   cookies: [],
   queryString: [],
@@ -95,7 +95,7 @@ describe('getHarRequest', () => {
     expect(result).toEqual({
       ...BASE_HAR_REQUEST,
       method: 'POST',
-      url: '/users',
+      url: 'http://localhost:3000/users',
       headers: [
         { name: 'Content-Type', value: 'application/json' },
         {
@@ -112,6 +112,24 @@ describe('getHarRequest', () => {
         { name: 'api_key', value: 'api-token' },
       ],
       postData: { mimeType: 'application/json', text: '{"name": "test"}' },
+    })
+  })
+
+  it('should prepend a scheme to the url if it is not present', () => {
+    const operation = operationSchema.parse({
+      method: 'get',
+      path: '/users',
+    })
+
+    const server = serverSchema.parse({
+      url: 'https://api.example.com',
+    })
+
+    const result = getHarRequest({ operation, server })
+
+    expect(result).toEqual({
+      ...BASE_HAR_REQUEST,
+      url: 'https://api.example.com/users',
     })
   })
 })
