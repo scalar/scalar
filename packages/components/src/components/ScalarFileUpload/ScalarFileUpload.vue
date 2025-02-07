@@ -17,6 +17,7 @@ import { type ExtensionList, isExtensionList } from './types'
 
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
 import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
+import { ScalarIcon } from '../ScalarIcon/'
 
 const { multiple, accept = '*' } = defineProps<{
   /** Whether multiple files can be uploaded */
@@ -37,6 +38,9 @@ const emit = defineEmits<{
 /** The selected files */
 const files = defineModel<File[]>()
 
+/** The error message */
+const error = defineModel<string>('error')
+
 /** The hidden input element */
 const input = ref<HTMLInputElement>()
 
@@ -48,32 +52,36 @@ function openFileDialog() {
   input.value?.click()
 }
 
+/** Handles a list of files */
+function handleFileList(fileList?: FileList | null) {
+  error.value = undefined
+
+  // Use DataTransfer interface to access the file(s)
+  if (!fileList || fileList.length < 1) {
+    error.value = `No files found to upload`
+    return
+  }
+  const f = Array.from(fileList)
+
+  if (!multiple && f.length > 1) {
+    error.value = `Too many files selected`
+    return
+  }
+
+  files.value = f
+  emit('selected', f)
+}
+
 /** Handles the change event from the input */
 function handleChange(event: Event) {
   const f = (event.target as HTMLInputElement).files
-  if (!f) return
-  files.value = Array.from(f)
-  emit('selected', files.value)
+  handleFileList(f)
 }
 
 /** Handles a drop of files from the dropzone  */
 function handleDrop(e: DragEvent) {
   dragover.value = false
-
-  // Use DataTransfer interface to access the file(s)
-  if (!e?.dataTransfer?.files || e.dataTransfer.files.length < 1) {
-    console.error('No file found to upload')
-    return
-  }
-  const f = [...e.dataTransfer.files]
-
-  if (!multiple && f.length > 1) {
-    console.error('Too many files uploaded at once')
-    return
-  }
-
-  files.value = Array.from(e.dataTransfer.files)
-  emit('selected', files.value)
+  handleFileList(e.dataTransfer?.files)
 }
 
 defineOptions({ inheritAttrs: false })
@@ -92,7 +100,18 @@ const { cx } = useBindCx()
     <slot :openFileDialog="openFileDialog">
       <ScalarFileUploadInput
         :extensions="isExtensionList(accept) ? accept : undefined"
-        @browse="openFileDialog" />
+        @browse="openFileDialog">
+        <template
+          v-if="error"
+          #sublabel>
+          <div class="flex items-center gap-1 text-c-danger">
+            <ScalarIcon
+              icon="Error"
+              size="sm" />
+            {{ error }}
+          </div>
+        </template>
+      </ScalarFileUploadInput>
     </slot>
     <div
       v-if="dragover"
