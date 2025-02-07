@@ -76,9 +76,10 @@ class PillWidget extends WidgetType {
                       class:
                         'gap-1.5 justify-start font-normal px-1 py-1.5 h-auto transition-colors rounded no-underline text-xxs w-full hover:bg-b-2',
                       variant: 'ghost',
-                      // TODO: Use router instead
-                      onClick: () =>
-                        (window.location.href = `/workspace/${this.workspace?.uid}/environment`),
+                      onClick: () => {
+                        // TODO: Use named route instead
+                        window.location.href = `/workspace/${this.workspace?.uid}/environment`
+                      },
                     },
                     {
                       default: () => [

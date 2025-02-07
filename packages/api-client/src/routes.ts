@@ -170,7 +170,7 @@ export const routes = [
       },
       {
         name: 'environment.collection',
-        path: 'environment/:collectionId/:environmentId',
+        path: `environment/:${PathId.Collection}/:${PathId.Environment}`,
         component: () => import('@/views/Environment/Environment.vue'),
         props: true,
       },
@@ -201,7 +201,7 @@ export const routes = [
       },
       {
         name: 'servers',
-        path: `servers/:collectionId/:${PathId.Servers}`,
+        path: `servers/:${PathId.Collection}/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
         props: true,
       },
