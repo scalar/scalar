@@ -189,7 +189,8 @@ public static class ScalarEndpointRouteBuilderExtensions
                       <script>
                           const basePath = getBasePath('{{httpContext.Request.Path}}');
                           console.log(basePath)
-                          const openApiUrl = `${window.location.origin}${basePath}/{{documentUrl}}`
+                          const documentUrl = `{{documentUrl}}`;
+                          const openApiUrl = documentUrl.match('^[a-zA-Z]+://.*') ? documentUrl : `${window.location.origin}${basePath}/${documentUrl}`
                           const reference = document.getElementById('api-reference')
                           reference.dataset.url = openApiUrl;
                           reference.dataset.configuration = JSON.stringify({{serializedConfiguration}})

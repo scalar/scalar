@@ -43,6 +43,7 @@ public sealed class ScalarOptions
 
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
+    /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
     /// </summary>
     /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
     [StringSyntax("Route")]

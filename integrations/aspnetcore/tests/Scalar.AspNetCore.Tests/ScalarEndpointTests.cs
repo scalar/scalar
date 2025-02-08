@@ -36,7 +36,8 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                       <script>
                                           const basePath = getBasePath('/scalar/');
                                           console.log(basePath)
-                                          const openApiUrl = `${window.location.origin}${basePath}*`
+                                          const documentUrl = `*`;
+                                          const openApiUrl = documentUrl.match('^[a-zA-Z]+://.*') ? documentUrl : `${window.location.origin}${basePath}/${documentUrl}`
                                           const reference = document.getElementById('api-reference')
                                           reference.dataset.url = openApiUrl;
                                           reference.dataset.configuration = JSON.stringify(*)
@@ -126,7 +127,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("/openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("openapi/v1.json");
     }
 
     [Fact]
@@ -141,7 +142,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("/openapi/v3.json").And.NotContain("/openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("openapi/v3.json").And.NotContain("/openapi/v1.json");
     }
 
     [Fact]
@@ -162,7 +163,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("/openapi/v2.json").And.NotContain("/openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("openapi/v2.json").And.NotContain("openapi/v1.json");
     }
 
     [Fact]
