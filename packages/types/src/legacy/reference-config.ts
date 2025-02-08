@@ -504,7 +504,8 @@ export type CollapsedSidebarItems = Record<string, boolean>
 
 export type AuthenticationState = {
   customSecurity: boolean
-  preferredSecurityScheme: string | null
+  /** You can pre-select a single security scheme, multiple, or complex security using an array of arrays */
+  preferredSecurityScheme: string | (string | string[])[] | null
   securitySchemes?:
     | OpenAPIV2.SecurityDefinitionsObject
     | OpenAPIV3.ComponentsObject['securitySchemes']

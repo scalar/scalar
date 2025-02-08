@@ -88,20 +88,40 @@ export const parseSchema = async (
 /** Converts selected security requirements to uids */
 export const getSelectedSecuritySchemeUids = (
   securityRequirements: SelectedSecuritySchemeUids,
-  authentication: { preferredSecurityScheme?: string | null } | undefined,
+  authentication: ReferenceConfiguration['authentication'] | undefined,
   securitySchemeMap: Record<string, string>,
 ): SelectedSecuritySchemeUids => {
-  const name =
-    authentication?.preferredSecurityScheme &&
-    securityRequirements.includes(authentication.preferredSecurityScheme)
-      ? authentication.preferredSecurityScheme
-      : securityRequirements[0]
+  // Filter the preferred security schemes to only include the ones that are in the security requirements
+  const preferredSecurityNames: SelectedSecuritySchemeUids = [
+    authentication?.preferredSecurityScheme ?? [],
+  ]
+    .flat()
+    .filter((name) => {
+      // Match up complex security requirements, array to array
+      if (Array.isArray(name)) {
+        // We match every element in the array
+        return securityRequirements.some(
+          (r) =>
+            Array.isArray(r) &&
+            r.length === name.length &&
+            r.every((v, i) => v === name[i]),
+        )
+      } else return securityRequirements.includes(name)
+    })
 
-  const uids = Array.isArray(name)
-    ? name.map((k) => securitySchemeMap[k])
-    : securitySchemeMap[name]
+  // Set the first security requirement if no preferred security schemes are set
+  if (!preferredSecurityNames.length && securityRequirements.length) {
+    preferredSecurityNames.push(securityRequirements[0])
+  }
 
-  return [uids]
+  // Map names to uids
+  const uids = preferredSecurityNames.map((name) =>
+    Array.isArray(name)
+      ? name.map((k) => securitySchemeMap[k])
+      : securitySchemeMap[name],
+  )
+
+  return uids
 }
 
 export type ImportSpecToWorkspaceArgs = Pick<
