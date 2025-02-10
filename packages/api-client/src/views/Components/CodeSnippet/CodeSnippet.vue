@@ -18,8 +18,8 @@ const {
   example,
   securitySchemes = [],
 } = defineProps<{
-  target: TargetId
-  client: ClientId<TargetId>
+  target: TargetId | string
+  client: ClientId<TargetId> | string
   operation?: Operation
   server?: Server
   example?: RequestExample
