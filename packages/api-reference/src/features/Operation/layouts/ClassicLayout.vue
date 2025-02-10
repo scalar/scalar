@@ -25,12 +25,11 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-const { operation } = defineProps<{
+defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -41,11 +40,9 @@ const { operation } = defineProps<{
 
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
-const title = computed(() => operation?.summary || operation?.path || '')
 </script>
 <template>
   <SectionAccordion
-    v-if="operation"
     :id="id"
     class="reference-endpoint"
     transparent>
@@ -66,7 +63,7 @@ const title = computed(() => operation?.summary || operation?.path || '')
                   :path="operation.path" />
               </div>
               <div class="endpoint-label-name">
-                {{ title }}
+                {{ transformedOperation.name }}
               </div>
               <Badge
                 v-if="getOperationStability(transformedOperation)"
