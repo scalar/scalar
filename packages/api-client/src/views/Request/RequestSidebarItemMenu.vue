@@ -30,7 +30,6 @@ const emit = defineEmits<{
 
 const { replace } = useRouter()
 const {
-  activeWorkspace,
   activeRouterParams,
   activeWorkspaceCollections,
   activeWorkspaceRequests,

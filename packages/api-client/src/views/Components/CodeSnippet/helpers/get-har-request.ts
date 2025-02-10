@@ -20,9 +20,9 @@ export const getHarRequest = ({
   server,
   securitySchemes = [],
 }: {
-  operation?: Operation
-  example?: RequestExample
-  server?: Server | undefined
+  operation: Operation | undefined
+  example: RequestExample | undefined
+  server: Server | undefined
   securitySchemes?: SecurityScheme[]
 }): HarRequest => {
   // Grab the security headers, cookies and url params

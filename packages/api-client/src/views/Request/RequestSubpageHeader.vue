@@ -52,7 +52,7 @@ const { currentRoute } = useRouter()
         "
         buttonSource="modal"
         class="!w-fit lg:-mr-1"
-        :integration="integration || activeCollection?.integration"
+        :integration="integration ?? activeCollection?.integration ?? null"
         :source="
           currentRoute.query.source === 'gitbook' ? 'gitbook' : 'api-reference'
         "

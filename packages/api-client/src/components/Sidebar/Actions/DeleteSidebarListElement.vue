@@ -4,7 +4,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   variableName: string
-  warningMessage?: string
+  warningMessage: string | undefined
 }>()
 
 const emit = defineEmits<{

@@ -7,7 +7,7 @@ import { ref, toRef } from 'vue'
 
 const props = defineProps<{
   content: any
-  language?: CodeMirrorLanguage
+  language: CodeMirrorLanguage | undefined
 }>()
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)

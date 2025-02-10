@@ -36,7 +36,7 @@ const props = withDefaults(
     disableCloseBrackets?: boolean
     enum?: string[]
     examples?: string[]
-    type?: string | string[]
+    type?: string | string[] | undefined
     nullable?: boolean
     withVariables?: boolean
     importCurl?: boolean

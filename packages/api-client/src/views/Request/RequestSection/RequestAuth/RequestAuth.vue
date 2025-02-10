@@ -41,7 +41,7 @@ const {
 } = defineProps<{
   collection: Collection
   layout: 'client' | 'reference'
-  operation?: Operation
+  operation?: Operation | undefined
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   server: Server | undefined
   title: string

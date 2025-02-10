@@ -12,7 +12,7 @@ import type { RouteLocationRaw } from 'vue-router'
 import { hasItemProperties } from '../libs/request'
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     items?: (RequestExampleParameter & { route?: RouteLocationRaw })[]
     /** Hide the enabled column */
@@ -116,7 +116,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           </span>
           <DataTableCheckbox
             class="!border-r-1/2"
-            :disabled="hasCheckboxDisabled"
+            :disabled="props.hasCheckboxDisabled"
             :modelValue="item.enabled"
             @update:modelValue="(v) => emit('toggleRow', idx, v)" />
         </template>
@@ -124,12 +124,12 @@ const flattenValue = (item: RequestExampleParameter) => {
       <DataTableCell>
         <CodeInput
           disableCloseBrackets
-          :disabled="isReadOnly"
+          :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
           :modelValue="item.key"
           placeholder="Key"
-          :required="item.required"
+          :required="Boolean(item.required)"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
           @selectVariable="(v: string) => handleSelectVariable(idx, 'key', v)"
@@ -144,15 +144,15 @@ const flattenValue = (item: RequestExampleParameter) => {
           }"
           :default="item.default"
           disableCloseBrackets
-          :disabled="isReadOnly"
+          :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
-          :enum="item.enum"
-          :examples="item.examples"
+          :enum="item.enum ?? []"
+          :examples="item.examples ?? []"
           :max="item.maximum"
           :min="item.minimum"
           :modelValue="item.value"
-          :nullable="item.nullable"
+          :nullable="Boolean(item.nullable)"
           placeholder="Value"
           :type="item.type"
           @blur="emit('inputBlur')"

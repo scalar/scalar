@@ -8,7 +8,7 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es2023",
+    "target": "ES2022",
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
@@ -43,11 +43,6 @@
 
     /** Shared between packages */
     "types": ["vite/client"],
-
-    /** Required for path aliasing */
-    "tsc-alias": {
-      "resolveFullPaths": true
-    },
 
     /* If NOT transpiling with TypeScript: */
     "module": "preserve"

@@ -23,29 +23,32 @@ import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 
-const props = withDefaults(
-  defineProps<{
-    /**
-     * Toggle dragging on and off
-     *
-     * @default false
-     */
-    isDraggable?: boolean
-    /**
-     * Prevents items from being hovered and dropped into
-     *
-     * @default false
-     */
-    isDroppable?: DraggableProps['isDroppable']
-    /** Both indicate the level and provide a way to traverse upwards */
-    parentUids: string[]
-    /** uid of a Collection, Tag, Request or RequestExample */
-    uid: string
-    /** To keep track of the menu being open */
-    menuItem: SidebarMenuItem
-  }>(),
-  { isDraggable: false, isDroppable: false, isChild: false },
-)
+const {
+  isDraggable = false,
+  isDroppable = false,
+  parentUids,
+  uid,
+  menuItem,
+} = defineProps<{
+  /**
+   * Toggle dragging on and off
+   *
+   * @default false
+   */
+  isDraggable?: boolean
+  /**
+   * Prevents items from being hovered and dropped into
+   *
+   * @default false
+   */
+  isDroppable?: DraggableProps['isDroppable']
+  /** Both indicate the level and provide a way to traverse upwards */
+  parentUids: string[]
+  /** uid of a Collection, Tag, Request or RequestExample */
+  uid: string
+  /** To keep track of the menu being open */
+  menuItem: SidebarMenuItem
+}>()
 
 const emit = defineEmits<{
   onDragEnd: [draggingItem: DraggingItem, hoveredItem: HoveredItem]
@@ -76,10 +79,10 @@ const { layout } = useLayout()
 
 /** Normalize properties across different types for easy consumption */
 const item = computed<SidebarItem>(() => {
-  const collection = collections[props.uid]
-  const tag = tags[props.uid]
-  const request = requests[props.uid]
-  const requestExample = requestExamples[props.uid]
+  const collection = collections[uid]
+  const tag = tags[uid]
+  const request = requests[uid]
+  const requestExample = requestExamples[uid]
 
   if (collection)
     return {
@@ -112,7 +115,7 @@ const item = computed<SidebarItem>(() => {
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
       delete: () => {
-        if (props.parentUids[0]) tagMutators.delete(tag, props.parentUids[0])
+        if (parentUids[0]) tagMutators.delete(tag, parentUids[0])
       },
     }
 
@@ -134,8 +137,8 @@ const item = computed<SidebarItem>(() => {
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
       delete: () => {
-        if (props.parentUids[0]) {
-          requestMutators.delete(request, props.parentUids[0])
+        if (parentUids[0]) {
+          requestMutators.delete(request, parentUids[0])
         }
       },
     }
@@ -186,14 +189,14 @@ const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
-  if (!props.parentUids.length) return '12px'
-  else if (layout === 'modal') return `${(props.parentUids.length - 1) * 12}px`
-  else return `${props.parentUids.length * 12}px`
+  if (!parentUids.length) return '12px'
+  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
+  else return `${parentUids.length * 12}px`
 })
 const paddingOffset = computed(() => {
-  if (!props.parentUids.length) return '0px'
-  else if (layout === 'modal') return `${(props.parentUids.length - 1) * 12}px`
-  else return `${props.parentUids.length * 12}px`
+  if (!parentUids.length) return '0px'
+  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
+  else return `${parentUids.length * 12}px`
 })
 
 /**
@@ -202,8 +205,8 @@ const paddingOffset = computed(() => {
  */
 const showChildren = computed(
   () =>
-    collapsedSidebarFolders[props.uid] ||
-    (activeRequest.value?.uid === props.uid &&
+    collapsedSidebarFolders[uid] ||
+    (activeRequest.value?.uid === uid &&
       (item.value.entity as Request).examples.length > 1),
 )
 
@@ -211,7 +214,7 @@ const showChildren = computed(
 const isDefaultActive = computed(
   () =>
     activeRouterParams.value[PathId.Request] === 'default' &&
-    activeRequest.value?.uid === props.uid,
+    activeRequest.value?.uid === uid,
 )
 
 /** The draggable component */
@@ -271,16 +274,16 @@ function openCommandPaletteRequest() {
   events.commandPalette.emit({
     commandName: 'Create Request',
     metaData: {
-      itemUid: props.uid,
-      parentUid: props.parentUids[0],
+      itemUid: uid,
+      parentUid: parentUids[0],
     },
   })
 }
 
 const watchIconColor = computed(() => {
-  const { uid, watchModeStatus } = activeCollection.value || {}
+  const { uid: _uid, watchModeStatus } = activeCollection.value || {}
 
-  if (uid !== item.value.entity.uid) return 'text-c-3'
+  if (_uid !== item.value.entity.uid) return 'text-c-3'
   if (watchModeStatus === 'WATCHING') return 'text-c-1'
   if (watchModeStatus === 'ERROR') return 'text-red'
   return 'text-c-3'
@@ -299,10 +302,10 @@ const hasDraftRequests = computed(() => {
  * This is used to hide items that are marked as hidden/internal.
  */
 const shouldShowItem = computed(() => {
-  const request = requests[props.uid]
+  const request = requests[uid]
   if (request) return !shouldIgnoreEntity(request)
 
-  const tag = tags[props.uid]
+  const tag = tags[uid]
   if (tag) return !shouldIgnoreEntity(tag)
 
   return true
@@ -392,7 +395,7 @@ const shouldShowItem = computed(() => {
       <!-- Collection/Folder -->
       <button
         v-else-if="layout !== 'modal' || parentUids.length"
-        :aria-expanded="collapsedSidebarFolders[item.entity.uid]"
+        :aria-expanded="Boolean(collapsedSidebarFolders[item.entity.uid])"
         class="hover:bg-b-2 group relative flex w-full flex-row justify-start gap-1.5 rounded p-1.5 focus-visible:z-10"
         :class="[highlightClasses]"
         type="button"
@@ -401,7 +404,7 @@ const shouldShowItem = computed(() => {
           <slot name="leftIcon">
             <ScalarSidebarGroupToggle
               class="text-c-3 shrink-0"
-              :open="collapsedSidebarFolders[item.entity.uid]" />
+              :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
           </slot>
           &hairsp;
         </span>

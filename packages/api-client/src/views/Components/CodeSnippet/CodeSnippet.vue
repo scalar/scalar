@@ -7,6 +7,7 @@ import type {
   SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 import type { ClientId, TargetId } from '@scalar/snippetz'
 import { computed } from 'vue'
 
@@ -20,9 +21,9 @@ const {
 } = defineProps<{
   target: TargetId
   client: ClientId<TargetId>
-  operation?: Operation
-  server?: Server
-  example?: RequestExample
+  operation?: Operation | undefined
+  server: Server | undefined
+  example: RequestExample | undefined
   securitySchemes?: SecurityScheme[]
 }>()
 
@@ -30,14 +31,18 @@ const {
 const secretCredentials = computed(() =>
   securitySchemes.flatMap((scheme) => {
     if (scheme.type === 'apiKey') return scheme.value
-    if (scheme?.type === 'http')
+    if (scheme?.type === 'http') {
       return [
         scheme.token,
         scheme.password,
         btoa(`${scheme.username}:${scheme.password}`),
       ]
-    if (scheme.type === 'oauth2')
-      return Object.values(scheme.flows).map((flow) => flow.token)
+    }
+    if (scheme.type === 'oauth2') {
+      return Object.values(scheme.flows)
+        .map((flow) => flow?.token)
+        .filter(isDefined)
+    }
 
     return []
   }),
