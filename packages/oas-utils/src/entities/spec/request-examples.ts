@@ -20,22 +20,48 @@ import type { Server } from './server'
  * The request schema should be stored in the request and any
  * parameters should be validated against that
  */
-export const requestExampleParametersSchema = z.object({
-  key: z.string().default(''),
-  value: z.coerce.string().default(''),
-  enabled: z.boolean().default(true),
-  file: z.any().optional(),
-  description: z.string().optional(),
-  required: z.boolean().optional(),
-  enum: z.array(z.string()).optional(),
-  examples: z.array(z.string()).optional(),
-  type: z.string().optional(),
-  format: z.string().optional(),
-  minimum: z.number().optional(),
-  maximum: z.number().optional(),
-  default: z.any().optional(),
-  nullable: z.boolean().optional(),
-})
+export const requestExampleParametersSchema = z
+  .object({
+    key: z.string().default(''),
+    value: z.coerce.string().default(''),
+    enabled: z.boolean().default(true),
+    file: z.any().optional(),
+    description: z.string().optional(),
+    required: z.boolean().optional(),
+    enum: z.array(z.string()).optional(),
+    examples: z.array(z.string()).optional(),
+    type: z
+      .union([
+        // 'string'
+        z.string(),
+        // ['string', 'null']
+        z.array(z.string()),
+      ])
+      .optional(),
+    format: z.string().optional(),
+    minimum: z.number().optional(),
+    maximum: z.number().optional(),
+    default: z.any().optional(),
+    nullable: z.boolean().optional(),
+  })
+  // set nullable: to true if type is ['string', 'null']
+  .transform((data) => {
+    // type: ['string', 'null'] -> nullable: true
+    if (Array.isArray(data.type) && data.type.includes('null')) {
+      data = { ...data, nullable: true }
+    }
+
+    // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
+    if (
+      Array.isArray(data.type) &&
+      data.type.length === 2 &&
+      data.type.includes('null')
+    ) {
+      data = { ...data, type: data.type.find((item) => item !== 'null') }
+    }
+
+    return data
+  })
 
 /** Convert the array of parameters to an object keyed by the parameter name */
 export function parameterArrayToObject(params: RequestExampleParameter[]) {
