@@ -442,14 +442,31 @@ export async function importSpecToWorkspace(
 
   // Ensure each request has at least 1 example
   requests.forEach((request) => {
-    // TODO: Need to handle parsing examples
-    // if (request['x-scalar-examples']) return
-
-    // Create the initial example
-    const example = createExampleFromRequest(request, 'Default Example')
-
-    examples.push(example)
-    request.examples.push(example.uid)
+    if (request.requestBody?.content) {
+      // Creates an example per content type
+      Object.entries(request.requestBody.content).forEach(
+        ([contentType, content]) => {
+          const contentTypeRequest = {
+            ...request,
+            requestBody: {
+              content: {
+                [contentType]: content,
+              },
+            },
+          }
+          const example = createExampleFromRequest(
+            contentTypeRequest,
+            contentType,
+          )
+          examples.push(example)
+          request.examples.push(example.uid)
+        },
+      )
+    } else {
+      const example = createExampleFromRequest(request, 'Default Example')
+      examples.push(example)
+      request.examples.push(example.uid)
+    }
   })
 
   // ---------------------------------------------------------------------------
@@ -552,7 +569,7 @@ export function getServersFromOpenApiDocument(
         // Must be good, return it
         return parsedSchema
       } catch (error) {
-        console.warn(`Oops, that’s an invalid server configuration.`)
+        console.warn(`Oops, that's an invalid server configuration.`)
         console.warn('Server:', server)
         console.warn('Error:', error)
 
