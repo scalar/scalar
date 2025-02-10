@@ -78,14 +78,15 @@ export function useSearch() {
         description: request.description ?? '',
         httpVerb: request.method,
         path: request.path,
-        link: {
+        link: router.resolve({
           name: 'request',
           params: {
             [PathId.Request]: request.uid,
             [PathId.Workspace]: activeWorkspace.value?.uid,
           },
-        },
+        }).href,
       }))
+
     fuse.setCollection(fuseDataArray.value)
   }
 
