@@ -26,7 +26,7 @@ export function useSearch() {
     httpVerb: string
     id: string
     path: string
-    link: string
+    link: string | undefined
   }
 
   const fuseDataArray = ref<FuseData[]>([])
@@ -78,13 +78,13 @@ export function useSearch() {
         description: request.description ?? '',
         httpVerb: request.method,
         path: request.path,
-        link: router.resolve({
+        link: router?.resolve({
           name: 'request',
           params: {
             [PathId.Request]: request.uid,
             [PathId.Workspace]: activeWorkspace.value?.uid,
           },
-        }).href,
+        })?.href,
       }))
 
     fuse.setCollection(fuseDataArray.value)

@@ -88,7 +88,7 @@ export const modalRoutes = [
     redirect: {
       name: 'workspace',
       params: {
-        workspace: 'default',
+        [PathId.Workspace]: 'default',
       },
     },
   },
@@ -115,7 +115,7 @@ export const routes = [
     redirect: {
       name: 'request.default',
       params: {
-        workspace: 'default',
+        [PathId.Workspace]: 'default',
       },
     },
   },
@@ -160,7 +160,7 @@ export const routes = [
         path: 'environment',
         redirect: (to) => ({
           name: 'environment',
-          params: { ...to.params, environment: 'default' },
+          params: { ...to.params, [PathId.Environment]: 'default' },
         }),
       },
       {
@@ -179,7 +179,7 @@ export const routes = [
         path: 'cookies',
         redirect: (to) => ({
           name: 'cookies',
-          params: { ...to.params, cookies: 'default' },
+          params: { ...to.params, [PathId.Cookies]: 'default' },
         }),
       },
       {
@@ -194,8 +194,8 @@ export const routes = [
           name: 'servers',
           params: {
             ...to.params,
-            collectionId: 'default',
-            servers: 'default',
+            [PathId.Collection]: 'default',
+            [PathId.Servers]: 'default',
           },
         }),
       },
@@ -210,7 +210,7 @@ export const routes = [
         path: 'settings',
         redirect: (to) => ({
           name: 'settings',
-          params: { ...to.params, settings: 'general' },
+          params: { ...to.params, [PathId.Settings]: 'general' },
         }),
       },
       {
