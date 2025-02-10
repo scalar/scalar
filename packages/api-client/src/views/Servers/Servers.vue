@@ -25,8 +25,10 @@ const { push, resolve } = useRouter()
 const route = useRoute()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
-const collectionIdParam = computed(() => route.params.collectionId as string)
-const serverUidParam = computed(() => route.params.servers as string)
+const collectionUidParam = computed(
+  () => route.params[PathId.Collection] as string,
+)
+const serverUidParam = computed(() => route.params[PathId.Servers] as string)
 
 const showChildren = (key: string) => {
   return collapsedSidebarFolders[key]
@@ -68,7 +70,7 @@ const handleNavigation = (
 
 function handleDelete(uid: string) {
   if (!activeCollection?.value?.uid) return
-  serverMutators.delete(uid, collectionIdParam.value)
+  serverMutators.delete(uid, collectionUidParam.value)
 }
 
 const hasServers = computed(() => Object.keys(servers).length > 0)
@@ -165,7 +167,7 @@ const hasServers = computed(() => Object.keys(servers).length > 0)
     <ViewLayoutContent class="flex-1">
       <ServerForm
         v-if="hasServers"
-        :collectionId="collectionIdParam"
+        :collectionId="collectionUidParam"
         :serverUid="serverUidParam" />
       <EmptyState v-else />
     </ViewLayoutContent>
