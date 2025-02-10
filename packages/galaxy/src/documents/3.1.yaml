@@ -266,22 +266,30 @@ paths:
             schema:
               $ref: '#/components/schemas/User'
             examples:
-              - name: Marc
-                email: marc@scalar.com
-                password: i-love-scalar
-              - name: Cam
-                email: cam@scalar.com
-                password: scalar-is-cool
+              Marc:
+                value:
+                  name: Marc
+                  email: marc@scalar.com
+                  password: i-love-scalar
+              Cam:
+                value:
+                  name: Cam
+                  email: cam@scalar.com
+                  password: scalar-is-cool
           application/xml:
             schema:
               $ref: '#/components/schemas/User'
             examples:
-              - name: Marc
-                email: marc@scalar.com
-                password: i-love-scalar
-              - name: Cam
-                email: cam@scalar.com
-                password: scalar-is-cool
+              Marc:
+                value:
+                  name: Marc
+                  email: marc@scalar.com
+                  password: i-love-scalar
+              Cam:
+                value:
+                  name: Cam
+                  email: cam@scalar.com
+                  password: scalar-is-cool
       responses:
         '201':
           description: Created
