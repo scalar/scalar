@@ -1,6 +1,5 @@
 import { ERRORS, WARNINGS } from '@/blocks/constants'
 import type { BlockProps } from '@/blocks/hooks/useBlockProps'
-import { HIDE_TEST_REQUEST_BUTTON_SYMBOL } from '@/helpers'
 import { type DefineComponent, createApp } from 'vue'
 
 import type { StoreContext } from './createStore'
@@ -62,9 +61,6 @@ export function createBlock(
       location: options.location,
       collection: options.collection,
     })
-
-    // TODO: Add API Client modal?
-    app.provide(HIDE_TEST_REQUEST_BUTTON_SYMBOL, () => true)
 
     app.mount(targetElement)
   }
