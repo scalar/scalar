@@ -279,7 +279,7 @@ const toggleSearch = () => {
           @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
-        class="gap-1/2 flex flex-1 flex-col overflow-visible px-3 pb-3 pt-0"
+        class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pb-3 pt-0 h-[calc(100%-273.5px)]"
         :class="{
           'pb-14': layout !== 'modal',
         }"
