@@ -7,7 +7,6 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useSidebar } from '@/hooks'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon } from '@scalar/components'
@@ -21,7 +20,7 @@ import ServerForm from './ServerForm.vue'
 const { activeWorkspaceCollections, activeWorkspace, activeCollection } =
   useActiveEntities()
 const { servers, events, serverMutators } = useWorkspace()
-const { push, resolve } = useRouter()
+const { push } = useRouter()
 const route = useRoute()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 
@@ -50,19 +49,11 @@ const handleNavigation = (
   uid: string,
   collectionId: string,
 ) => {
-  const to = {
-    name: 'servers',
-    params: {
-      [PathId.Workspace]: activeWorkspace.value?.uid,
-      [PathId.Collection]: collectionId,
-      [PathId.Servers]: uid,
-    },
-  }
-
+  const path = `/workspace/${activeWorkspace?.value?.uid}/servers/${collectionId}/${uid}`
   if (event.metaKey) {
-    window.open(resolve(to).href, '_blank')
+    window.open(path, '_blank')
   } else {
-    push(to)
+    push({ path })
   }
 }
 
@@ -105,9 +96,9 @@ const hasServers = computed(() => Object.keys(servers).length > 0)
                   </div>
                 </span>
                 <span
-                  class="break-all line-clamp-1 font-medium text-left w-full">
-                  {{ collection.info?.title ?? '' }}
-                </span>
+                  class="break-all line-clamp-1 font-medium text-left w-full"
+                  >{{ collection.info?.title ?? '' }}</span
+                >
                 <ScalarButton
                   class="hidden group-hover:block px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
                   size="sm"

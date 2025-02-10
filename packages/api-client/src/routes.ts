@@ -88,7 +88,7 @@ export const modalRoutes = [
     redirect: {
       name: 'workspace',
       params: {
-        [PathId.Workspace]: 'default',
+        workspace: 'default',
       },
     },
   },
@@ -115,7 +115,7 @@ export const routes = [
     redirect: {
       name: 'request.default',
       params: {
-        [PathId.Workspace]: 'default',
+        workspace: 'default',
       },
     },
   },
@@ -160,7 +160,7 @@ export const routes = [
         path: 'environment',
         redirect: (to) => ({
           name: 'environment',
-          params: { ...to.params, [PathId.Environment]: 'default' },
+          params: { ...to.params, environment: 'default' },
         }),
       },
       {
@@ -170,7 +170,7 @@ export const routes = [
       },
       {
         name: 'environment.collection',
-        path: `environment/:${PathId.Collection}/:${PathId.Environment}`,
+        path: 'environment/:collectionId/:environmentId',
         component: () => import('@/views/Environment/Environment.vue'),
         props: true,
       },
@@ -179,7 +179,7 @@ export const routes = [
         path: 'cookies',
         redirect: (to) => ({
           name: 'cookies',
-          params: { ...to.params, [PathId.Cookies]: 'default' },
+          params: { ...to.params, cookies: 'default' },
         }),
       },
       {
@@ -194,14 +194,14 @@ export const routes = [
           name: 'servers',
           params: {
             ...to.params,
-            [PathId.Collection]: 'default',
-            [PathId.Servers]: 'default',
+            collectionId: 'default',
+            servers: 'default',
           },
         }),
       },
       {
         name: 'servers',
-        path: `servers/:${PathId.Collection}/:${PathId.Servers}`,
+        path: `servers/:collectionId/:${PathId.Servers}`,
         component: () => import('@/views/Servers/Servers.vue'),
         props: true,
       },
@@ -210,7 +210,7 @@ export const routes = [
         path: 'settings',
         redirect: (to) => ({
           name: 'settings',
-          params: { ...to.params, [PathId.Settings]: 'general' },
+          params: { ...to.params, settings: 'general' },
         }),
       },
       {

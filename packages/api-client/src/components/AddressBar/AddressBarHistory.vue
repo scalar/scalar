@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { formatMs } from '@/libs/formatters'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -64,17 +63,10 @@ function handleHistoryClick(historicalRequest: RequestEvent) {
   // todo potentially search and find a previous open request id of this maybe
   // or we can open it in a draft state if the request is already open :)
   if (activeRequest.value?.uid !== historicalRequest.request.requestUid) {
-    // TODO: This is not working. We don't want to just redirect to the same request, but restore the state.
-
-    router.push({
-      name: 'request',
-      params: {
-        [PathId.Workspace]: workspaceId,
-        [PathId.Request]: historicalRequest.request.requestUid,
-      },
-    })
+    router.push(
+      `/workspace/${workspaceId}/request/${historicalRequest.request.requestUid}`,
+    )
   }
-
   requestExampleMutators.set({ ...historicalRequest.request })
 }
 </script>

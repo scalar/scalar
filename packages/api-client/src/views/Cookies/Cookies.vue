@@ -7,7 +7,6 @@ import SidebarListElement from '@/components/Sidebar/SidebarListElement.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { HotKeyEvent } from '@/libs'
-import { PathId } from '@/routes'
 import { useActiveEntities, useWorkspace } from '@/store'
 import { useModal } from '@scalar/components'
 import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
@@ -68,19 +67,16 @@ const removeCookie = (uid: string) => {
     (cookie) => (cookie as Cookie).uid !== uid,
   ) as Cookie[]
 
-  if (remainingCookies.length > 0) {
+  if (remainingCookies.length > 1) {
     const lastCookie = remainingCookies[remainingCookies.length - 1]
-
     if (lastCookie) {
       router.push(lastCookie.uid)
     }
-  } else {
-    router.push({
-      name: 'cookies',
-      params: {
-        [PathId.Cookies]: 'default',
-      },
-    })
+  } else if (
+    remainingCookies.length === 1 &&
+    remainingCookies[0]?.uid === 'default'
+  ) {
+    router.push('default')
   }
 }
 

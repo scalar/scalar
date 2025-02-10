@@ -114,9 +114,7 @@ describe('useSearch', () => {
             path: '/path1',
             httpVerb: 'get',
             description: '',
-            // TODO: For some reason, this is undefined when we use router.resolve() here.
-            // link: '/workspace/workspace1/request/request1',
-            link: undefined,
+            link: '/workspace/workspace1/request/request1',
           },
         }),
       ]),
@@ -169,9 +167,7 @@ describe('useSearch', () => {
             path: '/path1',
             httpVerb: 'get',
             description: '',
-            // TODO: For some reason, this is undefined when we use router.resolve() here.
-            // link: '/workspace/workspace1/request/request1',
-            link: undefined,
+            link: '/workspace/workspace1/request/request1',
           },
           refIndex: 0,
         }),

@@ -6,7 +6,6 @@ import { useLayout } from '@/hooks'
 import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { createRequestOperation } from '@/libs/send-request'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
@@ -204,14 +203,9 @@ function createRequestFromCurl({
   )
 
   if (newRequest && activeWorkspace.value?.uid) {
-    router.push({
-      name: 'request',
-      params: {
-        [PathId.Workspace]: activeWorkspace.value.uid,
-        [PathId.Collection]: collection.uid,
-        [PathId.Request]: newRequest.uid,
-      },
-    })
+    router.push(
+      `/workspace/${activeWorkspace.value.uid}/request/${newRequest.uid}`,
+    )
   }
   modalState.hide()
 }

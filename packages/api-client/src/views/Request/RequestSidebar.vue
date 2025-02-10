@@ -10,7 +10,6 @@ import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout, useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { createInitialRequest } from '@/store/requests'
@@ -182,33 +181,23 @@ const handleClearDrafts = () => {
 
   const hasRequests = activeWorkspaceRequests.value.length
 
-  // First request in the first collection
-  if (hasRequests) {
-    const firstCollection = activeWorkspaceCollections.value[0]
-    const firstRequest = firstCollection?.requests[0]
-
-    if (firstRequest) {
-      replace({
-        name: 'request',
-        params: {
-          [PathId.Request]: firstRequest,
-        },
-      })
-    }
-  }
-  // Create a new request and go to it
-  else {
+  if (!hasRequests) {
     const { request } = createInitialRequest()
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
+      // TODO: Use named routes instead
+      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
+    }
+  } else {
+    const firstCollection = activeWorkspaceCollections.value[0]
+    const firstRequest = firstCollection?.requests[0]
 
-      replace({
-        name: 'request',
-        params: {
-          [PathId.Request]: request.uid,
-        },
-      })
+    if (firstRequest) {
+      // TODO: Use named routes instead
+      replace(
+        `/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`,
+      )
     }
   }
 }

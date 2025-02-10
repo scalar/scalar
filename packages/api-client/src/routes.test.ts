@@ -137,7 +137,7 @@ describe('Routes', () => {
       .find((route) => route.name === 'servers')
     expect(serversRoute).toBeDefined()
     expect(serversRoute?.path).toBe(
-      '/workspace/:workspace/servers/:collection/:servers',
+      '/workspace/:workspace/servers/:collectionId/:servers',
     )
   })
 
@@ -155,7 +155,7 @@ describe('Routes', () => {
     expect(redirectResult).toEqual(
       expect.objectContaining({
         name: 'servers',
-        params: { collection: 'default', servers: 'default' },
+        params: { collectionId: 'default', servers: 'default' },
       }),
     )
   })

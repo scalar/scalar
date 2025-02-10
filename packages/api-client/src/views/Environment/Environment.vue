@@ -10,7 +10,6 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useSidebar } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -99,8 +98,8 @@ function addEnvironment(environment: {
     router.push({
       name: 'environment.collection',
       params: {
-        [PathId.Collection]: environment.collectionId,
-        [PathId.Environment]: environment.name,
+        collectionId: environment.collectionId,
+        environmentId: environment.name,
       },
     })
   }
@@ -291,26 +290,13 @@ const handleNavigation = (
   uid: string,
   collectionId?: string,
 ) => {
-  const to = collectionId
-    ? {
-        name: 'environment.collection',
-        params: {
-          [PathId.Workspace]: activeWorkspace.value?.uid,
-          [PathId.Collection]: collectionId,
-          [PathId.Environment]: uid,
-        },
-      }
-    : {
-        name: 'environment.default',
-        params: {
-          [PathId.Workspace]: activeWorkspace.value?.uid,
-          [PathId.Environment]: uid,
-        },
-      }
+  const path = collectionId
+    ? `/workspace/${activeWorkspace?.value?.uid}/environment/${collectionId}/${uid}`
+    : `/workspace/${activeWorkspace?.value?.uid}/environment/${uid}`
   if (event.metaKey) {
-    window.open(router.resolve(to).href, '_blank')
+    window.open(path, '_blank')
   } else {
-    router.push(to)
+    router.push({ path })
   }
 }
 

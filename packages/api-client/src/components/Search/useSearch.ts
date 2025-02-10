@@ -1,4 +1,3 @@
-import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import type { Request } from '@scalar/oas-utils/entities/spec'
@@ -26,7 +25,7 @@ export function useSearch() {
     httpVerb: string
     id: string
     path: string
-    link: string | undefined
+    link: string
   }
 
   const fuseDataArray = ref<FuseData[]>([])
@@ -78,15 +77,9 @@ export function useSearch() {
         description: request.description ?? '',
         httpVerb: request.method,
         path: request.path,
-        link: router?.resolve({
-          name: 'request',
-          params: {
-            [PathId.Request]: request.uid,
-            [PathId.Workspace]: activeWorkspace.value?.uid,
-          },
-        })?.href,
+        // TODO: Use router instead
+        link: `/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`,
       }))
-
     fuse.setCollection(fuseDataArray.value)
   }
 
