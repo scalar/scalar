@@ -56,7 +56,6 @@ const addCookieHandler = (cookieData: {
 }
 
 const removeCookie = (uid: string) => {
-  console.log('removeCookie', uid)
   cookieMutators.delete(uid)
 
   // Delete cookie from workspace
