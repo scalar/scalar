@@ -30,7 +30,7 @@ import { computed } from 'vue'
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { operation } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -39,18 +39,9 @@ defineProps<{
   transformedOperation: TransformedOperation
 }>()
 
-const props = defineProps<{
-  id?: string
-  operation?: Operation
-  request?: Request | null
-  secretCredentials?: string[]
-}>()
-
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
-const title = computed(
-  () => props.operation?.summary || props.operation?.path || '',
-)
+const title = computed(() => operation?.summary || operation?.path || '')
 </script>
 <template>
   <SectionAccordion
