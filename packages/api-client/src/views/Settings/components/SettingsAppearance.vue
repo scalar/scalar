@@ -9,7 +9,7 @@ const buttonStyles = cva({
   variants: {
     active: {
       true: 'bg-primary text-c-1 hover:bg-inherit',
-      false: 'bg-b-1',
+      false: 'bg-b-1 hover:bg-b-2',
     },
   },
 })
