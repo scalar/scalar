@@ -2,7 +2,7 @@ import type { StoreContext } from '@/blocks/lib/createStore'
 import { createRequestOperation } from '@scalar/api-client/libs'
 import type {
   Collection,
-  Request as RequestEntity,
+  Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
@@ -38,18 +38,22 @@ export function useBlockProps(props: BlockProps): {
   schema: ComputedRef<any>
   collection: ComputedRef<Collection | undefined>
   server: ComputedRef<Server | undefined>
-  operation: ComputedRef<RequestEntity | undefined>
+  operation: ComputedRef<Operation | undefined>
   request: ComputedRef<Request | undefined>
   theme: ComputedRef<ThemeId>
 } {
   // TODO: Use optional collection prop to determine which operation to display
-  const collection = computed(() => {
-    return Object.values(props.store.collections).find(
-      ({ name }) => name === (props.collection ?? 'default'),
-    )
-  })
+  // const collection = computed(() => {
+  //   return Object.values(props.store.collections).find(
+  //     ({ name }) => name === (props.collection ?? 'default'),
+  //   )
+  // })
 
-  const operation = computed<RequestEntity | undefined>(() => {
+  const collection = computed(() => {
+    return Object.values(props.store?.collections ?? {})[0]
+  }) as ComputedRef<Collection | undefined>
+
+  const operation = computed<Operation | undefined>(() => {
     if (!props.store?.collections || !props.store.requests) {
       return undefined
     }
@@ -77,7 +81,7 @@ export function useBlockProps(props: BlockProps): {
     //     Object.values(collectionRequests).map((r) => ({
     //       path: r.path,
     //       method: r.method,
-    //       location: getLocation(['paths', r.path, r.method]),
+    //       location: getPointer(['paths', r.path, r.method]),
     //     })),
     //   )
     // }

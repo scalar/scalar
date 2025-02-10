@@ -27,7 +27,7 @@ export function getPointer(path: ValidOpenApiPaths) {
   path.unshift('#')
 
   const pointer = path
-    .map((p) => escapeJsonPointer(p.trim()))
+    .map((p) => escapeJsonPointer((p ?? '').toString().trim()))
     .filter(Boolean)
     .join('/')
 

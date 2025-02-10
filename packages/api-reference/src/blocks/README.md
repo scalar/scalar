@@ -23,7 +23,7 @@ const { store } = createStore({
 
 createOperationBlock({
   store,
-  location: getLocation(['paths', 'planets/{planetId}', 'get']),
+  location: getPointer(['paths', 'planets/{planetId}', 'get']),
   element: '[data-scalar-block="operation"]',
 })
 ```
@@ -99,7 +99,7 @@ const { operationBlock } = createOperationBlock({
   element: '#scalar-operation-block',
   store,
   // location: '#/paths/~1planets~1{planetId}/get',
-  location: getLocation(['paths', '/planets/{planetId}', 'get']),
+  location: getPointer(['paths', '/planets/{planetId}', 'get']),
 })
 ```
 
@@ -112,7 +112,7 @@ const { store } = createStore({
 
 const { mount } = createOperationBlock({
   store,
-  location: getLocation(['paths', '/planets/{planetId}', 'get']),
+  location: getPointer(['paths', '/planets/{planetId}', 'get']),
 })
 
 // Mount it after initialization with just a selector string …
@@ -136,6 +136,6 @@ const { store } = createStore({
 const { codeExamplesBlock } = createCodeExamplesBlock({
   element: '#scalar-code-examples-block',
   store,
-  location: getLocation(['paths', '/planets/{planetId}', 'get']),
+  location: getPointer(['paths', '/planets/{planetId}', 'get']),
 })
 ```

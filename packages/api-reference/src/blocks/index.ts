@@ -9,4 +9,4 @@ export * from './components/OperationBlock'
 export * from './components/CodeExamplesBlock'
 export * from './components/ExampleResponsesBlock'
 
-export * from './utils/getLocation'
+export * from './helpers/getPointer'

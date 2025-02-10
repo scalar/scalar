@@ -12,17 +12,19 @@ import { TestRequestButton } from '@/features/TestRequestButton'
 
 const props = defineProps<BlockProps>()
 
-const { operation, theme, request } = useBlockProps(props)
+const { operation, theme, request, server, collection } = useBlockProps(props)
 </script>
 
 <template>
   <ThemeStyles :theme="theme" />
   <ExampleRequest
-    v-if="operation && request"
+    v-if="operation && request && collection"
+    :collection="collection"
     fallback
     :operation="operation"
     :request="request"
-    :secretCredentials="[]">
+    :secretCredentials="[]"
+    :server="server">
     <template #header>
       <OperationPath
         :deprecated="operation.deprecated"

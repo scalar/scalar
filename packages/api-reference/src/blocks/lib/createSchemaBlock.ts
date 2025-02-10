@@ -8,7 +8,7 @@ import { type CreateBlockOptions, createBlock } from '@/blocks/lib/createBlock'
  * createSchemaBlock({
  *   element: document.getElementById('scalar-api-reference'),
  *   store: createStore({ url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json' }),
- *   location: getLocation(['components', 'schemas', 'User'])
+ *   location: getPointer(['components', 'schemas', 'User'])
  * })
  */
 export function createSchemaBlock(options: CreateBlockOptions) {

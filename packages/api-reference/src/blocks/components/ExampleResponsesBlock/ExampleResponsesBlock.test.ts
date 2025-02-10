@@ -1,5 +1,5 @@
 import { createStore } from '@/blocks/lib/createStore'
-import { getLocation } from '@/blocks/utils/getLocation'
+import { getPointer } from '@/blocks/utils/getPointer'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 
@@ -40,7 +40,7 @@ describe('ExampleResponsesBlock', () => {
     const wrapper = mount(ExampleResponsesBlock, {
       props: {
         store,
-        location: getLocation(['paths', '/test', 'get']),
+        location: getPointer(['paths', '/test', 'get']),
       },
     })
 

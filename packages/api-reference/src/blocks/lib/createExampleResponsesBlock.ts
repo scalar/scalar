@@ -8,7 +8,7 @@ import { type CreateBlockOptions, createBlock } from '@/blocks/lib/createBlock'
  * createExampleResponsesBlock({
  *   element: document.getElementById('scalar-api-reference'),
  *   store: createStore({ url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json' }),
- *   location: getLocation(['paths', '/planets/1', 'get'])
+ *   location: getPointer(['paths', '/planets/1', 'get'])
  * })
  */
 export function createExampleResponsesBlock(options: CreateBlockOptions) {

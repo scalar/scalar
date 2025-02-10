@@ -4,7 +4,7 @@ import {
   createOperationBlock,
   createSchemaBlock,
   createStore,
-  getLocation,
+  getPointer,
 } from '../../../src/blocks'
 import '../../../src/blocks/assets/style.css'
 
@@ -28,21 +28,20 @@ document.addEventListener('DOMContentLoaded', () => {
       })
 
       // Get all divs with data-scalar-operation attributes
-      const operationDivs = document.querySelectorAll(
+      const blocks = document.querySelectorAll(
         `div[data-scalar-collection="${collectionName}"]`,
       )
 
-      operationDivs.forEach((div) => {
-        const locationValue = div.getAttribute('data-scalar-location')
+      blocks.forEach((div) => {
+        const locationValue = div.getAttribute('data-scalar-pointer')
 
-        const block = div.getAttribute('data-scalar-block')
+        const type = div.getAttribute('data-scalar-block')
 
-        const location = getLocation([
-          'paths',
-          ...(locationValue?.split(' ').reverse() ?? []),
-        ])
+        const [method, path] = locationValue?.split(' ') ?? []
 
-        if (locationValue && block === 'operation') {
+        const location = getPointer(['paths', path, method])
+
+        if (locationValue && type === 'operation') {
           // Create operation block for each operation
           const operationBlock = createOperationBlock({
             store,
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Mount the operation block to the div
           operationBlock.mount(div)
-        } else if (block === 'code-examples') {
+        } else if (type === 'code-examples') {
           const codeExampleBlock = createCodeExamplesBlock({
             store,
             location,
@@ -61,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Mount the code example block to the div
           codeExampleBlock.mount(div)
-        } else if (block === 'example-responses') {
+        } else if (type === 'example-responses') {
           const exampleResponsesBlock = createExampleResponsesBlock({
             store,
             location,
@@ -70,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Mount the code example block to the div
           exampleResponsesBlock.mount(div)
-        } else if (block === 'schema') {
+        } else if (type === 'schema') {
           const schemaBlock = createSchemaBlock({
             store,
             location: locationValue,
@@ -79,18 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
           schemaBlock.mount(div)
         } else {
-          console.error(`Unknown block type: data-scalar-block="${block}"`)
+          console.error(`Unknown block type: data-scalar-block="${type}"`)
         }
       })
     }
   })
 })
 
-// TODO: import { getLocation, createStore, createOperationBlock } from '@scalar/api-reference/blocks'
+// TODO: import { getPointer, createStore, createOperationBlock } from '@scalar/api-reference/blocks'
 // import {
 //   createOperationBlock,
 //   createStore,
-//   getLocation,
+//   getPointer,
 // } from '../../../src/blocks'
 // TODO: import '@scalar/blocks/style.css'
 // import '../../../src/blocks/assets/style.css'
@@ -139,13 +138,13 @@ const operationBlock = createOperationBlock({
   // If passed, the block will mount to the element during initialization.
   // element: '#scalar-api-reference',
   store,
-  // location: getLocation('GET', '/planets/{planetId}'),
-  location: getLocation('POST', '/planets'),
+  // location: getPointer('GET', '/planets/{planetId}'),
+  location: getPointer('POST', '/planets'),
   collection: 'scalar-galaxy',
-  // location: getLocation('POST', '/user/signup'),
-  // location: getLocation('POST', '/pet/{petId}/uploadImage'),
-  // location: getLocation('GET', '/pet/findByStatus'),
-  // location: getLocation('DELETE', '/pet/{petId}'),
+  // location: getPointer('POST', '/user/signup'),
+  // location: getPointer('POST', '/pet/{petId}/uploadImage'),
+  // location: getPointer('GET', '/pet/findByStatus'),
+  // location: getPointer('DELETE', '/pet/{petId}'),
 })
 
 // Mount it after initialization with just a selector string …

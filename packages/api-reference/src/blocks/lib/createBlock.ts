@@ -18,7 +18,7 @@ export type CreateBlockOptions = {
  * createBlock(OperationBlock, {
  *   element: document.getElementById('scalar-api-reference'),
  *   store: createStore({ url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json' }),
- *   location: getLocation(['paths', '/planets/1', 'get'])
+ *   location: getPointer(['paths', '/planets/1', 'get'])
  * })
  */
 export function createBlock(
