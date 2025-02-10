@@ -1,19 +1,19 @@
-import type { StoreContext } from '@/blocks/lib/createStore'
-import { createRequestOperation } from '@scalar/api-client/libs'
+import type { createWorkspaceStore } from '@scalar/api-client/store'
 import type {
   Collection,
   Request as RequestEntity,
-  Server,
 } from '@scalar/oas-utils/entities/spec'
 import { unescapeJsonPointer } from '@scalar/openapi-parser'
-import type { ThemeId } from '@scalar/themes'
 import { type ComputedRef, computed } from 'vue'
+
+// TODO: Move this type to a shared location
+export type StoreContext = ReturnType<typeof createWorkspaceStore>
 
 export type BlockProps = {
   /**
    * The store created by `createStore`
    */
-  store: StoreContext
+  store: StoreContext | undefined
   /**
    * The JSON pointer to the operation to use
    *
@@ -34,106 +34,52 @@ export type BlockProps = {
 /**
  * Provides computed properties for the block, based on the standardized interface of the `createStore` function.
  */
-export function useBlockProps(props: BlockProps): {
-  schema: ComputedRef<any>
-  collection: ComputedRef<Collection | undefined>
-  server: ComputedRef<Server | undefined>
+export function useBlockProps({ store, location }: BlockProps): {
   operation: ComputedRef<RequestEntity | undefined>
-  request: ComputedRef<Request | undefined>
-  theme: ComputedRef<ThemeId>
 } {
-  // TODO: Use optional collection prop to determine which operation to display
+  // Just pick first collection for now
   const collection = computed(() => {
-    return Object.values(props.store.collections).find(
-      ({ name }) => name === (props.collection ?? 'default'),
-    )
-  })
+    return Object.values(store?.collections ?? {})[0]
+  }) as ComputedRef<Collection | undefined>
 
+  // TODO: Use the collection name from the props
+  //   const collection = computed(() => {
+  //     return Object.values(store.collections).find(
+  //       ({ name }) => name === (collection ?? 'default'),
+  //     )
+  //   })
+
+  /** Resolve the operation (request) from the store */
   const operation = computed<RequestEntity | undefined>(() => {
-    if (!props.store?.collections || !props.store.requests) {
+    if (!store?.collections || !store.requests) {
       return undefined
     }
 
-    const collectionRequests = Object.values(props.store.requests).filter(
-      (request) => collection.value?.requests.includes(request.uid),
+    const collectionRequests = Object.values(store.requests).filter((request) =>
+      collection.value?.requests.includes(request.uid),
     )
 
-    // TODO: Fix this for pointers other than #/paths/path/get
+    // Check whether we’re using the correct location
+    if (!location.startsWith('#/paths/')) {
+      throw new Error(
+        `Invalid location, try using #/paths/$YOUR_ENDPOINT/$HTTP_METHOD. You can use the getPointer helper to generate a valid location: getPointer(['paths', '/planets/{planetId}', 'get'])`,
+      )
+    }
+
+    // Resolve the matching operation from the collection
     const result = collectionRequests.find((request) => {
-      // TODO: This is not very reliable
-      const specifiedPath = unescapeJsonPointer(props.location.split('/')[2])
-      const specifiedMethod = props.location.split('/')[3].toLocaleLowerCase()
+      const specifiedPath = unescapeJsonPointer(location.split('/')[2])
+      const specifiedMethod = location.split('/')[3].toLocaleLowerCase()
 
       return (
         request.method === specifiedMethod && request.path === specifiedPath
       )
     })
 
-    // if (Object.values(collectionRequests).length > 0 && !result) {
-    //   console.error(
-    //     `No operation found for location ${props.location} in collection ${props.collection}.`,
-    //   )
-    //   console.table(
-    //     Object.values(collectionRequests).map((r) => ({
-    //       path: r.path,
-    //       method: r.method,
-    //       location: getLocation(['paths', r.path, r.method]),
-    //     })),
-    //   )
-    // }
-
     return result
   })
 
-  const server = computed(() => {
-    return (
-      props.store.servers[collection.value?.servers?.[0] ?? ''] ?? undefined
-    )
-  })
-
-  // TODO: Make this dynamic
-  const request = computed(() => {
-    if (!operation.value) return undefined
-
-    const firstExampleUid = operation.value.examples?.[0]
-    const firstExample = props.store.requestExamples[firstExampleUid]
-
-    if (!firstExample) return undefined
-
-    const [_, requestOperation] = createRequestOperation({
-      request: operation.value,
-      example: firstExample,
-      // TODO: Add environment
-      environment: {},
-      // TODO: Add cookies
-      globalCookies: [],
-      // TODO: Add securitySchemes
-      securitySchemes: {},
-      server: server.value,
-    })
-
-    return requestOperation?.request
-  })
-
-  const theme = computed(() => {
-    return Object.values(props.store.workspaces)[0].themeId
-  })
-
-  const schema = computed(() => {
-    const schemaName = props.location.split('/')[3]
-    const schemas = collection.value?.components?.schemas ?? {}
-
-    return typeof schemas === 'object' && schemaName in schemas
-      ? schemas[schemaName as keyof typeof schemas]
-      : undefined
-  })
-
   return {
-    schema,
-    collection,
-    server,
     operation,
-    request,
-    theme,
   }
 }
