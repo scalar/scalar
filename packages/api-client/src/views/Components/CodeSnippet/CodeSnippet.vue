@@ -58,6 +58,7 @@ const content = computed(() => {
 const language = computed(() => {
   // Normalize languages
   if (target === 'shell' && client === 'curl') return 'curl'
+  if (target === 'shell') return 'bash'
   // TODO: js -> javascript?
 
   return target ?? 'plaintext'
