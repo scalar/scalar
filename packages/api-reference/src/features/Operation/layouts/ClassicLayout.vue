@@ -4,8 +4,8 @@ import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
-import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import { RequestExample } from '@/features/RequestExample'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import {
   getOperationStability,
@@ -111,7 +111,7 @@ const config = useConfig()
         </div>
       </div>
       <ExampleResponses :operation="transformedOperation" />
-      <ExampleRequest
+      <RequestExample
         :collection="collection"
         :operation="operation"
         :server="server"

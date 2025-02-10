@@ -9,8 +9,8 @@ import {
   SectionContent,
   SectionHeader,
 } from '@/components/Section'
-import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
+import { RequestExample } from '@/features/RequestExample'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import {
   getOperationStability,
@@ -71,7 +71,7 @@ defineProps<{
         <SectionColumn>
           <div class="examples">
             <ScalarErrorBoundary>
-              <ExampleRequest
+              <RequestExample
                 :collection="collection"
                 fallback
                 :operation="operation"
@@ -86,7 +86,7 @@ defineProps<{
                 <template #footer>
                   <TestRequestButton :operation="operation" />
                 </template>
-              </ExampleRequest>
+              </RequestExample>
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses

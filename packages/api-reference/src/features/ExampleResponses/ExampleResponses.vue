@@ -12,7 +12,7 @@ import {
   CardTab,
   CardTabHeader,
 } from '../../components/Card'
-import { ExamplePicker } from '../ExampleRequest'
+import { ExamplePicker } from '../RequestExample'
 import ExampleResponse from './ExampleResponse.vue'
 
 /**
