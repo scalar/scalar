@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -58,12 +59,19 @@ const handleSubmit = () => {
     selectedRequest.value,
     exampleName.value,
   )
+
   if (!example) return
 
-  // Route to new request example
-  push(
-    `/workspace/${activeWorkspace.value?.uid}/request/${selectedRequest.value.uid}/examples/${example.uid}`,
-  )
+  // Go to new request example
+  push({
+    name: 'request.examples',
+    params: {
+      [PathId.Workspace]: activeWorkspace.value?.uid,
+      [PathId.Request]: selectedRequest.value.uid,
+      [PathId.Examples]: example.uid,
+    },
+  })
+
   emits('close')
 }
 

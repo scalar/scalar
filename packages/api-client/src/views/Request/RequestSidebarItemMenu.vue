@@ -67,24 +67,47 @@ const handleItemDelete = () => {
 
     if (draftCollection) {
       requestMutators.add(request, draftCollection.uid)
-      replace(`/workspace/${activeWorkspace.value?.uid}/request/${request.uid}`)
+
+      replace({
+        name: 'request',
+        params: {
+          [PathId.Request]: request.uid,
+        },
+      })
     }
   }
 
   if (
     activeRouterParams.value[PathId.Request] === props.menuItem.item?.entity.uid
-  )
-    replace(`/workspace/${activeWorkspace.value?.uid}/request/default`)
+  ) {
+    replace({
+      name: 'request',
+      params: {
+        [PathId.Request]: 'default',
+      },
+    })
+  }
 
   if (
     activeRouterParams.value[PathId.Examples] ===
     props.menuItem.item?.entity.uid
-  )
-    replace(`/workspace/${activeWorkspace.value}/request/default`)
+  ) {
+    replace({
+      name: 'request',
+      params: {
+        [PathId.Request]: 'default',
+      },
+    })
+  }
 
   if (activeWorkspaceCollections.value[0]) {
     const firstRequest = activeWorkspaceCollections.value[0].requests[0]
-    replace(`/workspace/${activeWorkspace.value?.uid}/request/${firstRequest}`)
+    replace({
+      name: 'request',
+      params: {
+        [PathId.Request]: firstRequest,
+      },
+    })
   }
 
   deleteModal.hide()
