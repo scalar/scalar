@@ -28,7 +28,7 @@ export function upgradeFromThreeToThreeOne(
   // Nullable types
   specification = traverse(specification, (schema) => {
     if (schema.type !== 'undefined' && schema.nullable === true) {
-      schema.type = ['null', schema.type]
+      schema.type = [schema.type, 'null']
       delete schema.nullable
     }
 

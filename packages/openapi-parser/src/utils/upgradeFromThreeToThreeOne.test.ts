@@ -124,7 +124,7 @@ describe('upgradeFromThreeToThreeOne', () => {
         result.paths['/test'].get.responses['200'].content['application/json']
           .schema,
       ).toEqual({
-        type: ['null', 'string'],
+        type: ['string', 'null'],
       })
     })
   })
