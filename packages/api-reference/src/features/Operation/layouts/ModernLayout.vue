@@ -90,7 +90,7 @@ defineProps<{
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses
-                :operation="transformedOperation"
+                :responses="operation.responses"
                 style="margin-top: 12px" />
             </ScalarErrorBoundary>
           </div>

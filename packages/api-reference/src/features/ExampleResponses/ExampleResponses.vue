@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
-import type { TransformedOperation } from '@scalar/types/legacy'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { computed, ref, useId } from 'vue'
-
 import {
   Card,
   CardContent,
   CardFooter,
   CardTab,
   CardTabHeader,
-} from '../../components/Card'
+} from '@/components/Card'
+import { ScalarCodeBlock, ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import type { Operation } from '@scalar/oas-utils/entities/spec'
+import { normalizeMimeTypeObject } from '@scalar/oas-utils/helpers'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed, ref, useId } from 'vue'
+
 import { ExamplePicker } from '../ExampleRequest'
 import ExampleResponse from './ExampleResponse.vue'
 
@@ -19,7 +19,7 @@ import ExampleResponse from './ExampleResponse.vue'
  * TODO: copyToClipboard isn’t using the right content if there are multiple examples
  */
 
-const props = defineProps<{ operation: TransformedOperation }>()
+const { responses } = defineProps<{ responses: Operation['responses'] }>()
 
 const id = useId()
 
@@ -28,9 +28,7 @@ const { copyToClipboard } = useClipboard()
 const selectedExampleKey = ref<string>()
 
 // Bring the status codes in the right order.
-const orderedStatusCodes = computed(() =>
-  Object.keys(props?.operation?.information?.responses ?? {}).sort(),
-)
+const orderedStatusCodes = computed(() => Object.keys(responses ?? {}).sort())
 
 const hasMultipleExamples = computed<boolean>(
   () => !!currentJsonResponse.value.examples,
@@ -44,7 +42,7 @@ const currentResponse = computed(() => {
   const currentStatusCode =
     orderedStatusCodes.value[selectedResponseIndex.value]
 
-  return props.operation.information?.responses?.[currentStatusCode]
+  return responses?.[currentStatusCode]
 })
 
 const currentJsonResponse = computed(() => {
@@ -55,7 +53,9 @@ const currentJsonResponse = computed(() => {
   return (
     // OpenAPI 3.x
     normalizedContent?.['application/json'] ??
+    normalizedContent?.['application/xml'] ??
     normalizedContent?.['text/plain'] ??
+    normalizedContent?.['text/html'] ??
     // Swagger 2.0
     currentResponse.value
   )

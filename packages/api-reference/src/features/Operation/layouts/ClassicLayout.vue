@@ -110,7 +110,7 @@ const config = useConfig()
             :operation="transformedOperation" />
         </div>
       </div>
-      <ExampleResponses :operation="transformedOperation" />
+      <ExampleResponses :responses="operation.responses" />
       <ExampleRequest
         :collection="collection"
         :operation="operation"
