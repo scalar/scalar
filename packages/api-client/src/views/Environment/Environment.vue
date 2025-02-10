@@ -263,7 +263,7 @@ const handleHotKey = (event?: HotKeyEvent) => {
 }
 
 watch(
-  () => [route.params.collectionId, route.params.environmentId],
+  () => [route.params[PathId.Collection], route.params[PathId.Environment]],
   ([newCollectionId, newEnvironmentId]) => {
     if (newCollectionId) {
       // Collection environment
@@ -277,9 +277,9 @@ watch(
 
 onMounted(() => {
   currentEnvironmentId.value =
-    (route.params.environmentId as string) || 'default'
+    (route.params[PathId.Environment] as string) || 'default'
   events.hotKeys.on(handleHotKey)
-  const { collectionId } = router.currentRoute.value.params
+  const collectionId = route.params[PathId.Collection]
   if (collectionId && !collapsedSidebarFolders[collectionId as string]) {
     toggleSidebarFolder(collectionId as string)
   }
