@@ -48,6 +48,9 @@ info:
     name: Marc from Scalar
     url: https://scalar.com
     email: marc@scalar.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/MIT
 servers:
   - url: https://galaxy.scalar.com
   - url: '{protocol}://void.scalar.com/{path}'
@@ -66,6 +69,7 @@ security:
   - apiKeyHeader: []
   - apiKeyCookie: []
   - oAuth2: []
+  - openIdConnect: []
 tags:
   - name: Authentication
     description:
@@ -224,6 +228,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/planetId'
       requestBody:
+        description: Image to upload
         content:
           multipart/form-data:
             schema:
@@ -255,37 +260,28 @@ paths:
       security:
         - {}
       requestBody:
+        description: User to create
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/User'
             examples:
-              Marc:
-                value:
-                  name: Marc
-                  email: marc@scalar.com
-                  password: i-love-scalar
-              Cam:
-                value:
-                  name: Cam
-                  email: cam@scalar.com
-                  password: scalar-is-cool
+              - name: Marc
+                email: marc@scalar.com
+                password: i-love-scalar
+              - name: Cam
+                email: cam@scalar.com
+                password: scalar-is-cool
           application/xml:
             schema:
               $ref: '#/components/schemas/User'
             examples:
-              Marc:
-                value: <User>
-                  <name>Marc</name>
-                  <email>marc@scalar.com</email>
-                  <password>i-love-scalar</password>
-                  </User>
-              Cam:
-                value: <User>
-                  <name>Cam</name>
-                  <email>cam@scalar.com</email>
-                  <password>scalar-is-cool</password>
-                  </User>
+              - name: Marc
+                email: marc@scalar.com
+                password: i-love-scalar
+              - name: Cam
+                email: cam@scalar.com
+                password: scalar-is-cool
       responses:
         '201':
           description: Created
@@ -308,6 +304,7 @@ paths:
       security:
         - {}
       requestBody:
+        description: Credentials to authenticate a user
         content:
           application/json:
             schema:
@@ -435,6 +432,7 @@ components:
   parameters:
     planetId:
       name: planetId
+      description: The ID of the planet to get
       in: path
       required: true
       schema:
@@ -444,8 +442,8 @@ components:
           - 1
     limit:
       name: limit
-      in: query
       description: The number of items to return
+      in: query
       required: false
       schema:
         type: integer
@@ -453,10 +451,10 @@ components:
         default: 10
     offset:
       name: offset
-      in: query
       description:
         The number of items to skip before starting to collect the result
         set
+      in: query
       required: false
       schema:
         type: integer
@@ -510,6 +508,7 @@ components:
             $ref: '#/components/schemas/UnauthorizedError'
   schemas:
     User:
+      description: A user
       allOf:
         - type: object
           xml:
@@ -527,6 +526,7 @@ components:
                 - Marc
         - $ref: '#/components/schemas/Credentials'
     Credentials:
+      description: Credentials to authenticate a user
       type: object
       required:
         - email
@@ -543,6 +543,7 @@ components:
           examples:
             - i-love-scalar
     Token:
+      description: A token to authenticate a user
       type: object
       properties:
         token:
@@ -550,6 +551,7 @@ components:
           examples:
             - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     Planet:
+      description: A planet
       type: object
       required:
         - id
@@ -582,6 +584,7 @@ components:
         creator:
           $ref: '#/components/schemas/User'
     PaginatedResource:
+      description: A paginated resource
       type: object
       properties:
         meta:
@@ -610,6 +613,7 @@ components:
                 - '/planets?limit=10&offset=10'
     ImageUploadedMessage:
       x-scalar-ignore: true
+      description: Message about an image upload
       type: object
       properties:
         message:
@@ -640,8 +644,8 @@ components:
             - image/png
     BadRequestError:
       x-scalar-ignore: true
-      type: object
       description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
       properties:
         type:
           type: string
@@ -662,8 +666,8 @@ components:
             - The request was invalid.
     ForbiddenError:
       x-scalar-ignore: true
-      type: object
       description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
       properties:
         type:
           type: string
@@ -684,8 +688,8 @@ components:
             - You are not authorized to access this resource.
     NotFoundError:
       x-scalar-ignore: true
-      type: object
       description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
       properties:
         type:
           type: string
@@ -706,8 +710,8 @@ components:
             - The resource you are trying to access does not exist.
     UnauthorizedError:
       x-scalar-ignore: true
-      type: object
       description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
       properties:
         type:
           type: string
