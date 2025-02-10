@@ -39,6 +39,7 @@ import {
 } from 'vue'
 import { useRouter } from 'vue-router'
 
+import { isGettingStarted } from './RequestSection/helpers/getting-started'
 import RequestSidebarItem from './RequestSidebarItem.vue'
 import { WorkspaceDropdown } from './components'
 
@@ -229,6 +230,14 @@ const toggleSearch = () => {
   // Simply toggle the visibility
   isSearchVisible.value = !isSearchVisible.value
 }
+
+const showGettingStarted = computed(() => {
+  return isGettingStarted(
+    activeWorkspaceCollections.value,
+    activeWorkspaceRequests.value,
+    requests,
+  )
+})
 </script>
 <template>
   <Sidebar
@@ -279,10 +288,15 @@ const toggleSearch = () => {
           @keydown.up.stop="navigateSearchResults('up')" />
       </div>
       <div
-        class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pb-3 pt-0 h-[calc(100%-273.5px)]"
-        :class="{
-          'pb-14': layout !== 'modal',
-        }"
+        class="gap-1/2 flex flex-1 flex-col overflow-visible overflow-y-auto px-3 pb-3 pt-0"
+        :class="[
+          {
+            'pb-14': layout !== 'modal',
+          },
+          {
+            'h-[calc(100%-273.5px)]': showGettingStarted,
+          },
+        ]"
         @dragenter.prevent
         @dragover.prevent>
         <template v-if="searchText">
@@ -357,7 +371,7 @@ const toggleSearch = () => {
     <template #button>
       <div
         :class="{
-          'empty-sidebar-item': activeWorkspaceRequests.length <= 1,
+          'empty-sidebar-item': showGettingStarted,
         }">
         <div class="empty-sidebar-item-content px-2.5 py-2.5">
           <div class="w-[60px] h-[68px] m-auto rabbit-ascii mt-2 relative">
@@ -379,7 +393,7 @@ const toggleSearch = () => {
           v-if="layout !== 'modal'"
           class="mb-1.5 w-full h-fit hidden opacity-0 p-1.5"
           :class="{
-            'flex opacity-100': activeWorkspaceRequests.length <= 1,
+            'flex opacity-100': showGettingStarted,
           }"
           @click="openCommandPaletteImport">
           Import Collection
