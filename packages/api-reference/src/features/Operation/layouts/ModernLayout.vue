@@ -9,14 +9,16 @@ import {
   SectionContent,
   SectionHeader,
 } from '@/components/Section'
+import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
-import { RequestExample } from '@/features/RequestExample'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import {
   getOperationStability,
   getOperationStabilityColor,
   isOperationDeprecated,
 } from '@/helpers/operation'
+import { useWorkspace } from '@scalar/api-client/store'
+import { filterSecurityRequirements } from '@scalar/api-client/views/Components/CodeSnippet'
 import { ScalarErrorBoundary, ScalarMarkdown } from '@scalar/components'
 import type {
   Collection,
@@ -24,12 +26,12 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
-import { defineProps } from 'vue'
+import { computed, defineProps } from 'vue'
 
 import OperationParameters from '../components/OperationParameters.vue'
 import OperationResponses from '../components/OperationResponses.vue'
 
-defineProps<{
+const { operation, collection, server } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -37,6 +39,22 @@ defineProps<{
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
+
+const { requestExamples, securitySchemes } = useWorkspace()
+
+const schemes = computed(() =>
+  filterSecurityRequirements(
+    operation.security || collection.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  ),
+)
+
+const examples = computed(() =>
+  Object.values(requestExamples).filter((example) =>
+    operation.examples.includes(example.uid),
+  ),
+)
 </script>
 <template>
   <Section
@@ -71,10 +89,11 @@ defineProps<{
         <SectionColumn>
           <div class="examples">
             <ScalarErrorBoundary>
-              <RequestExample
-                :collection="collection"
+              <ExampleRequest
+                :examples="examples"
                 fallback
                 :operation="operation"
+                :securitySchemes="schemes"
                 :server="server"
                 :transformedOperation="transformedOperation">
                 <template #header>
@@ -86,7 +105,7 @@ defineProps<{
                 <template #footer>
                   <TestRequestButton :operation="operation" />
                 </template>
-              </RequestExample>
+              </ExampleRequest>
             </ScalarErrorBoundary>
             <ScalarErrorBoundary>
               <ExampleResponses

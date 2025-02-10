@@ -67,6 +67,8 @@ paths:
 +          main();
 ```
 
+Aliases: `x-custom-examples`, `x-code-samples`
+
 ## x-displayName
 
 You can overwrite tag names with `x-displayName`.

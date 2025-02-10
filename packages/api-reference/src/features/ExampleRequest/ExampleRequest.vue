@@ -4,14 +4,12 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
 import { HttpMethod } from '@/components/HttpMethod'
 import ScreenReader from '@/components/ScreenReader.vue'
 import { type HttpClientState, useHttpClientStore } from '@/stores'
-import { useWorkspace } from '@scalar/api-client/store'
-import {
-  CodeSnippet,
-  filterSecurityRequirements,
-} from '@scalar/api-client/views/Components/CodeSnippet'
+import { CodeSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
+import { ScalarCodeBlock } from '@scalar/components'
 import type {
-  Collection,
   Operation,
+  RequestExample,
+  SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import { computed, ref, useId, watch } from 'vue'
@@ -19,16 +17,16 @@ import { computed, ref, useId, watch } from 'vue'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { operation, collection, server } = defineProps<{
+const { operation, server, securitySchemes, examples } = defineProps<{
   operation: Operation
-  server: Server | undefined
-  collection: Collection
+  server?: Server
   /** Show a simplified card if no example are available */
   fallback?: boolean
+  examples?: RequestExample[]
+  securitySchemes?: SecurityScheme[]
 }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
-const { requestExamples, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -40,15 +38,14 @@ const {
 
 const id = useId()
 
-const customRequestExamples = computed(() => {
-  // const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+const customCodeExamples = computed(() => {
+  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
-  // for (const key of keys) {
-  //   if (transformedOperation.information?.[key]) {
-  //     const examples = [...transformedOperation.information[key]]
-  //     return examples
-  //   }
-  // }
+  for (const key of keys) {
+    if (key in operation && operation[key]) {
+      return Object.values(operation[key])
+    }
+  }
 
   return []
 })
@@ -62,7 +59,7 @@ const localHttpClient = ref<
     }
 >(
   // Default to first custom example
-  customRequestExamples.value.length
+  customCodeExamples.value.length
     ? {
         targetKey: 'customExamples',
         clientKey: 0,
@@ -82,50 +79,24 @@ watch(httpClient, () => {
   }
 })
 
-const hasMultipleExamples = computed<boolean>(
-  () => false,
-  // Object.keys(
-  //   transformedOperation.information?.requestBody?.content?.[
-  //     'application/json'
-  //   ]?.examples ?? {},
-  // ).length > 1,
-)
+const hasMultipleExamples = computed<boolean>(() => (examples?.length ?? 0) > 1)
 
-const schemes = computed(() =>
-  filterSecurityRequirements(
-    operation.security || collection.security,
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  ),
-)
-
-// TODO: Integrate again
-// const generateSnippet = () => {
-//   // Use the selected custom example
-//   if (localHttpClient.value.targetKey === 'customExamples') {
-//     return (
-//       customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
-//     )
-//   }
-// }
-
-// TODO: Integrate again
 /**  Block secrets from being shown in the code block */
-// const secretCredentials = computed(() =>
-//   Object.values(securitySchemes).flatMap((scheme) => {
-//     if (scheme.type === 'apiKey') return scheme.value
-//     if (scheme?.type === 'http')
-//       return [
-//         scheme.token,
-//         scheme.password,
-//         btoa(`${scheme.username}:${scheme.password}`),
-//       ]
-//     if (scheme.type === 'oauth2')
-//       return Object.values(scheme.flows).map((flow) => flow.token)
+const secretCredentials = computed(() =>
+  securitySchemes?.map((scheme) => {
+    if (scheme.type === 'apiKey') return scheme.value
+    if (scheme?.type === 'http')
+      return [
+        scheme.token,
+        scheme.password,
+        btoa(`${scheme.username}:${scheme.password}`),
+      ]
+    if (scheme.type === 'oauth2')
+      return Object.values(scheme.flows).map((flow) => flow.token)
 
-//     return []
-//   }),
-// )
+    return []
+  }),
+)
 
 type TextSelectOptions = InstanceType<typeof TextSelect>['$props']['options']
 
@@ -149,11 +120,11 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
+  if (customCodeExamples.value.length)
     entries.unshift({
       value: 'customExamples',
       label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => ({
+      options: customCodeExamples.value.map((example, index) => ({
         value: JSON.stringify({
           targetKey: 'customExamples',
           clientKey: index,
@@ -178,7 +149,7 @@ function updateHttpClient(value: string) {
 </script>
 <template>
   <Card
-    v-if="availableTargets.length || customRequestExamples.length"
+    v-if="availableTargets.length || customCodeExamples.length"
     class="dark-mode">
     <CardHeader muted>
       <div
@@ -200,8 +171,7 @@ function updateHttpClient(value: string) {
           <template v-if="localHttpClient.targetKey === 'customExamples'">
             <ScreenReader>Selected Example:</ScreenReader>
             {{
-              customRequestExamples[localHttpClient.clientKey].label ??
-              'Example'
+              customCodeExamples[localHttpClient.clientKey].label ?? 'Example'
             }}
           </template>
           <template v-else>
@@ -220,13 +190,23 @@ function updateHttpClient(value: string) {
       <div
         :id="`${id}-example`"
         class="code-snippet">
-        <CodeSnippet
-          :client="httpClient.clientKey"
-          :example="requestExamples[operation.examples[0]]"
-          :operation="operation"
-          :securitySchemes="schemes"
-          :server="server"
-          :target="httpClient.targetKey" />
+        <template v-if="localHttpClient.targetKey === 'customExamples'">
+          <ScalarCodeBlock
+            :content="customCodeExamples[localHttpClient.clientKey].source"
+            copy
+            :lang="customCodeExamples[localHttpClient.clientKey].lang"
+            lineNumbers />
+        </template>
+        <template v-else>
+          <CodeSnippet
+            :client="httpClient.clientKey"
+            :example="examples?.[0]"
+            :operation="operation"
+            :secretCredentials="secretCredentials"
+            :securitySchemes="securitySchemes"
+            :server="server"
+            :target="httpClient.targetKey" />
+        </template>
       </div>
     </CardContent>
     <CardFooter
@@ -236,6 +216,7 @@ function updateHttpClient(value: string) {
       <div
         v-if="hasMultipleExamples"
         class="request-card-footer-addon">
+        <!-- TODO: Add multiple examples -->
         <!-- transformedOperation.information?.requestBody?.content?.[
             'application/json'
           ]?.examples ?? [] -->

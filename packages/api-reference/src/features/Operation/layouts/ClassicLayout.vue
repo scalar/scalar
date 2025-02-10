@@ -4,8 +4,10 @@ import { Badge } from '@/components/Badge'
 import { HttpMethod } from '@/components/HttpMethod'
 import OperationPath from '@/components/OperationPath.vue'
 import { SectionAccordion } from '@/components/Section'
+import { ExampleRequest } from '@/features/ExampleRequest'
 import { ExampleResponses } from '@/features/ExampleResponses'
-import { RequestExample } from '@/features/RequestExample'
+import OperationParameters from '@/features/Operation/components/OperationParameters.vue'
+import OperationResponses from '@/features/Operation/components/OperationResponses.vue'
 import { TestRequestButton } from '@/features/TestRequestButton'
 import {
   getOperationStability,
@@ -13,6 +15,8 @@ import {
   isOperationDeprecated,
 } from '@/helpers'
 import { useConfig } from '@/hooks/useConfig'
+import { useWorkspace } from '@scalar/api-client/store'
+import { filterSecurityRequirements } from '@scalar/api-client/views/Components/CodeSnippet'
 import {
   ScalarIcon,
   ScalarIconButton,
@@ -25,11 +29,9 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { TransformedOperation } from '@scalar/types/legacy'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { computed } from 'vue'
 
-import OperationParameters from '../components/OperationParameters.vue'
-import OperationResponses from '../components/OperationResponses.vue'
-
-defineProps<{
+const { operation, collection, server } = defineProps<{
   id?: string
   collection: Collection
   server: Server | undefined
@@ -37,6 +39,22 @@ defineProps<{
   /** @deprecated Use `operation` instead */
   transformedOperation: TransformedOperation
 }>()
+
+const { requestExamples, securitySchemes } = useWorkspace()
+
+const schemes = computed(() =>
+  filterSecurityRequirements(
+    operation.security || collection.security,
+    collection.selectedSecuritySchemeUids,
+    securitySchemes,
+  ),
+)
+
+const examples = computed(() =>
+  Object.values(requestExamples).filter((example) =>
+    operation.examples.includes(example.uid),
+  ),
+)
 
 const { copyToClipboard } = useClipboard()
 const config = useConfig()
@@ -111,9 +129,10 @@ const config = useConfig()
         </div>
       </div>
       <ExampleResponses :operation="transformedOperation" />
-      <RequestExample
-        :collection="collection"
+      <ExampleRequest
+        :examples="examples"
         :operation="operation"
+        :securitySchemes="schemes"
         :server="server"
         :transformedOperation="transformedOperation" />
     </div>
