@@ -138,8 +138,9 @@ export const javascript = (configuration: ApiReferenceOptions) => {
           : '',
       )}
     </script>
-    <script src="${configuration.cdn ||
-      'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
+    <script src="${
+      configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
+    }"></script>
   `
 }
 

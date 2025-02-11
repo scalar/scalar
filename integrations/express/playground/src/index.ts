@@ -19,7 +19,7 @@ const app = Express()
  *               type: string
  *               example: Hello World!
  */
-app.get('/foobar', (req, res) => {
+app.get('/foobar', (_req, res) => {
   res.send('Hello World!')
 })
 
@@ -103,7 +103,7 @@ app.delete('/goodbye', (req, res) => {
  *                   type: number
  *                   example: 123.456
  */
-app.get('/status', (req, res) => {
+app.get('/status', (_req, res) => {
   res.json({ status: 'Server is running smoothly!', uptime: process.uptime() })
 })
 
