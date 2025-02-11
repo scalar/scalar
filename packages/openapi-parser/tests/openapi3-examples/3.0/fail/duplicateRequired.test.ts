@@ -8,7 +8,7 @@ describe.todo('duplicateRequired', () => {
     const result = await validate(duplicateRequired)
 
     expect(result.errors?.[0]?.message).toBe(
-      `something something duplicate required properties`,
+      'something something duplicate required properties',
     )
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)

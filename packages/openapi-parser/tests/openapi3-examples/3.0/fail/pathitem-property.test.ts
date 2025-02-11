@@ -8,7 +8,7 @@ describe('pathitem-property', () => {
     const result = await validate(pathitemProperty)
 
     expect(result.errors?.[0]?.message).toBe(
-      `Property GET is not expected to be here`,
+      'Property GET is not expected to be here',
     )
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)

@@ -4,10 +4,7 @@
 
 export default class BaseValidationError {
   // eslint-disable-next-line default-param-last
-  constructor(
-    options = { isIdentifierLocation: false },
-    { data, schema, jsonAst, jsonRaw },
-  ) {
+  constructor(options, { data, schema, jsonAst, jsonRaw }) {
     this.options = options
     this.data = data
     this.schema = schema

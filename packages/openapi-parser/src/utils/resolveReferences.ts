@@ -246,7 +246,7 @@ function resolveUri(
     return segments.reduce((acc, key) => {
       return acc[key]
     }, file.specification)
-  } catch (error) {
+  } catch (_error) {
     if (options?.throwOnError) {
       throw new Error(ERRORS.INVALID_REFERENCE.replace('%s', uri))
     }

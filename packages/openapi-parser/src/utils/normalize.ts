@@ -23,7 +23,7 @@ export function normalize(
 
     try {
       return JSON.parse(specification)
-    } catch (error) {
+    } catch (_error) {
       return parse(specification, {
         maxAliasCount: 10000,
       })
