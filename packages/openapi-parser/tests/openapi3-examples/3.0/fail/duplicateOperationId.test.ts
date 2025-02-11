@@ -8,7 +8,7 @@ describe.todo('duplicateOperationId', () => {
     const result = await validate(duplicateOperationId)
 
     expect(result.errors?.[0]?.message).toBe(
-      `something something duplicate operationId`,
+      'something something duplicate operationId',
     )
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)

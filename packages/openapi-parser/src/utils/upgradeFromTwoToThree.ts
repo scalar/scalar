@@ -25,7 +25,7 @@ export function upgradeFromTwoToThree(originalSpecification: UnknownObject) {
   }
 
   console.warn(
-    `[upgradeFromTwoToThree] The upgrade from Swagger 2.0 to OpenAPI 3.0 documents is experimental and lacks features.`,
+    '[upgradeFromTwoToThree] The upgrade from Swagger 2.0 to OpenAPI 3.0 documents is experimental and lacks features.',
   )
 
   // Servers
