@@ -113,8 +113,7 @@ const availableCommands = [
       path: router.resolve({
         ...route.to,
         params: {
-          ...(route.to.params ?? {}),
-          [PathId.Workspace]: activeWorkspace?.uid ?? 'default',
+          [PathId.Workspace]: activeWorkspace?.value?.uid ?? 'default',
         },
       }).href,
     })),

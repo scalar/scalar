@@ -52,7 +52,7 @@ const { activeWorkspace } = useActiveEntities()
           :to="{
             ...to,
             params: {
-              [PathId.Workspace]: activeWorkspace?.uid,
+              [PathId.Workspace]: activeWorkspace?.uid ?? 'default',
             },
           }">
           {{ displayName }}
