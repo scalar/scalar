@@ -2,11 +2,15 @@
 import SideNavGroup from '@/components/SideNav/SideNavGroup.vue'
 import SideNavRouterLink from '@/components/SideNav/SideNavRouterLink.vue'
 import { useLayout } from '@/hooks'
+import { PathId } from '@/routes'
+import { useActiveEntities } from '@/store'
 import type { Icon } from '@scalar/components'
+import { computed } from 'vue'
 import { type RouteLocationNamedRaw, useRouter } from 'vue-router'
 
 const { currentRoute } = useRouter()
 const { layout } = useLayout()
+const { activeCollection } = useActiveEntities()
 
 type CollectionSidebarEntry = {
   icon: Icon
@@ -14,22 +18,28 @@ type CollectionSidebarEntry = {
   displayName: string
 }
 
-const routes: CollectionSidebarEntry[] = [
+const routes = computed<CollectionSidebarEntry[]>(() => [
   {
+    displayName: 'Info',
     icon: 'Settings',
     to: {
       name: 'collection.overview',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
     },
-    displayName: 'Info',
   },
   {
+    displayName: 'Servers',
     icon: 'Server',
     to: {
       name: 'collection.servers',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
     },
-    displayName: 'Servers',
   },
-] as const
+])
 </script>
 <template>
   <nav
