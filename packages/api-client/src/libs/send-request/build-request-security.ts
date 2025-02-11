@@ -1,6 +1,7 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
+import { isDefined } from '@scalar/oas-utils/helpers'
 
 /**
  * Generates the headers, cookies and query params for selected security schemes
@@ -51,7 +52,7 @@ export const buildRequestSecurity = (
     // For OAuth we take the token from the first flow
     if (scheme.type === 'oauth2') {
       const flows = Object.values(scheme.flows)
-      const token = flows.find((f) => f.token)?.token
+      const token = flows.filter(isDefined).find((f) => f.token)?.token
 
       headers['Authorization'] = `Bearer ${token || emptyTokenPlaceholder}`
     }

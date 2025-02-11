@@ -128,8 +128,8 @@ export const createApiClient = ({
     createWorkspaceStore({
       proxyUrl: configuration.proxyUrl,
       themeId: configuration.themeId,
-      showSidebar: configuration.showSidebar,
-      hideClientButton: configuration.hideClientButton,
+      showSidebar: configuration.showSidebar ?? true,
+      hideClientButton: configuration.hideClientButton ?? false,
       integration: configuration._integration,
       useLocalStorage: persistData,
     })
@@ -226,14 +226,13 @@ export const createApiClient = ({
   const updateSpec = async (spec: SpecConfiguration) => {
     if (spec?.url) {
       await importSpecFromUrl(spec.url, activeWorkspace.value?.uid ?? '', {
-        proxyUrl: configuration?.proxyUrl,
-        setCollectionSecurity: true,
         ...configuration,
+        setCollectionSecurity: true,
       })
     } else if (spec?.content) {
       await importSpecFile(spec?.content, activeWorkspace.value?.uid ?? '', {
-        setCollectionSecurity: true,
         ...configuration,
+        setCollectionSecurity: true,
       })
     } else {
       console.error(
@@ -338,7 +337,7 @@ export const createApiClient = ({
       if (resolvedRequestUid)
         router.push({
           name: 'request',
-          query: _source ? { source: _source } : undefined,
+          query: _source ? { source: _source } : {},
           params: {
             workspace: 'default',
             request: resolvedRequestUid,
@@ -366,7 +365,7 @@ export const createApiClient = ({
       if (resolvedRequestUid)
         router.push({
           name: 'request',
-          query: _source ? { source: _source } : undefined,
+          query: _source ? { source: _source } : {},
           params: {
             workspace: 'default',
             request: resolvedRequestUid,

@@ -5,7 +5,7 @@ dist/
 .next
 .turbo
 *.tgz
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Testing data
 test-*.json

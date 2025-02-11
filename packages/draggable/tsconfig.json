@@ -1,4 +1,7 @@
 {
   "extends": "../../tsconfig.strict.json",
-  "include": ["src", "playground"]
+  "include": ["src", "playground"],
+  "compilerOptions": {
+    "outDir": "dist/"
+  }
 }

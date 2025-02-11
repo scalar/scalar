@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
 import { computed, ref } from 'vue'
@@ -11,9 +10,9 @@ import DataTableInputSelect from './DataTableInputSelect.vue'
 const props = withDefaults(
   defineProps<{
     id?: string
-    type?: string
+    type?: string | undefined
     /** Class for the wrapping cell because attrs is bound to the input */
-    containerClass?: VueClassProp
+    containerClass?: VueClassProp | undefined
     required?: boolean
     modelValue: string | number
     /** Allows adding a custom value to the enum dropdown, defaults to true */
@@ -64,7 +63,7 @@ const inputType = computed(() =>
     <div class="row-1 overflow-x-auto">
       <template v-if="props.enum && props.enum.length">
         <DataTableInputSelect
-          :canAddCustomValue="canAddCustomEnumValue"
+          :canAddCustomValue="props.canAddCustomEnumValue"
           :modelValue="props.modelValue"
           :value="props.enum"
           @update:modelValue="emit('update:modelValue', $event)" />
@@ -72,8 +71,7 @@ const inputType = computed(() =>
       <template v-else>
         <input
           v-if="mask && type === 'password'"
-          v-bind="$attrs"
-          :id="id"
+          v-bind="id ? { ...$attrs, id: id } : $attrs"
           autocomplete="off"
           class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer px-2 py-1.25 -outline-offset-2"
           data-1p-ignore
@@ -98,7 +96,7 @@ const inputType = computed(() =>
           :min="min"
           :modelValue="modelValue ?? ''"
           :readOnly="readOnly"
-          :required="required"
+          :required="Boolean(required)"
           spellcheck="false"
           :type="inputType"
           @blur="handleBlur"

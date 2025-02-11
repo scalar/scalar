@@ -83,7 +83,7 @@ export type ReferenceConfiguration = {
    */
   proxy?: string
   /** URL to a request proxy for the API client */
-  proxyUrl?: string
+  proxyUrl?: string | undefined
   /** Whether the spec input should show */
   isEditable?: boolean
   /** Whether to show the sidebar */

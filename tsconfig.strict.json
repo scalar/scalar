@@ -8,7 +8,7 @@
     /* Base Options: */
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2022",
+    "target": "es2023",
     "resolveJsonModule": true,
     "moduleDetection": "force",
     "isolatedModules": true,
@@ -29,7 +29,6 @@
 
     /* If transpiling with TypeScript: */
     // "module": "NodeNext",
-    "outDir": "dist",
     "sourceMap": true,
     "allowImportingTsExtensions": true,
     "emitDeclarationOnly": true,

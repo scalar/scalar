@@ -48,11 +48,11 @@ export const createRequestOperation = ({
   environment: object | undefined
   example: RequestExample
   globalCookies: Cookie[]
-  proxyUrl?: string
+  proxyUrl: string | undefined
   request: Operation
   securitySchemes: Record<string, SecurityScheme>
   selectedSecuritySchemeUids?: Operation['selectedSecuritySchemeUids']
-  server?: Server
+  server?: Server | undefined
   status?: EventBus<RequestStatus>
 }): ErrorResponse<{
   controller: AbortController
@@ -166,7 +166,7 @@ export const createRequestOperation = ({
 
     const proxiedRequest = new Request(proxiedUrl, {
       method: request.method.toUpperCase(),
-      body,
+      body: body ?? null,
       headers,
     })
 

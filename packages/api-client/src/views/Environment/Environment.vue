@@ -70,7 +70,7 @@ function environmentNameToast(
 function addEnvironment(environment: {
   name: string
   color: string
-  collectionId?: string
+  collectionId: string | undefined
 }) {
   const environmentNameUsed = activeWorkspaceCollections.value.some(
     (collection) => {

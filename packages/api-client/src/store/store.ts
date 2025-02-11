@@ -77,7 +77,7 @@ export const createWorkspaceStore = ({
   showSidebar = true,
   proxyUrl,
   themeId,
-  hideClientButton,
+  hideClientButton = false,
   integration,
 }: CreateWorkspaceStoreOptions) => {
   // ---------------------------------------------------------------------------

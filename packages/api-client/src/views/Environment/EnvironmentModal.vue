@@ -19,7 +19,7 @@ import EnvironmentColors from './EnvironmentColors.vue'
 const props = defineProps<{
   state: ModalState
   activeWorkspaceCollections: Collection[]
-  collectionId?: string
+  collectionId: string | undefined
 }>()
 
 const emit = defineEmits<{
@@ -30,7 +30,7 @@ const emit = defineEmits<{
       name: string
       color: string
       type: string
-      collectionId?: string
+      collectionId: string | undefined
     },
   ): void
 }>()
@@ -126,7 +126,7 @@ const redirectToCreateCollection = () => {
           placeholder="Select Type">
           <ScalarButton
             v-if="collections.length > 0"
-            class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2 w-fit"
+            class="justify-between p-2 max-h-8 gap-1 text-xs hover:bg-b-2 w-fit"
             variant="outlined">
             <span :class="selectedEnvironment ? 'text-c-1' : 'text-c-3'">{{
               selectedEnvironment

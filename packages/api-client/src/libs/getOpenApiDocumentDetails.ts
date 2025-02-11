@@ -5,7 +5,7 @@ import { isUrl } from './isUrl'
 export type OpenApiDocumentDetails = {
   version: string
   type: 'json' | 'yaml'
-  title?: string
+  title: string | undefined
 }
 
 /** Try to extract details from the info */

@@ -22,8 +22,8 @@ const {
   target: TargetId
   client: ClientId<TargetId>
   operation?: Operation | undefined
-  server: Server | undefined
-  example: RequestExample | undefined
+  server?: Server | undefined
+  example?: RequestExample | undefined
   securitySchemes?: SecurityScheme[]
 }>()
 
