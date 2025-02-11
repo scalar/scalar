@@ -7,9 +7,10 @@
     "pnpm": "^9.1.0"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.10",
+    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@playwright/test": "^1.49.1",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20.17.10",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
@@ -26,6 +27,7 @@
     "nodemon": "^3.1.9",
     "pkg-pr-new": "^0.0.39",
     "prettier": "^3.4.2",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "remark-cli": "^12.0.1",
     "remark-lint-no-dead-urls": "^1.1.0",
     "remark-validate-links": "^13.0.2",

@@ -1,5 +1,10 @@
 {
-  "plugins": ["@trivago/prettier-plugin-sort-imports"],
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "tailwindFunctions": ["cx", "cva"],
+  "tailwindConfig": "tailwind.config.ts",
   "trailingComma": "all",
   "quoteProps": "consistent",
   "tabWidth": 2,
@@ -7,7 +12,15 @@
   "singleQuote": true,
   "singleAttributePerLine": true,
   "bracketSameLine": true,
-  "importOrder": ["^[./]"],
-  "importOrderSeparation": true,
-  "importOrderSortSpecifiers": true
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/(.*)$",
+    "",
+    "^[./]"
+  ],
+  "importOrderParserPlugins": ["typescript"],
+  "importOrderTypeScriptVersion": "5.2.2"
 }
