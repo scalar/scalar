@@ -9,8 +9,8 @@
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.10",
-    "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
     "@playwright/test": "^1.49.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/node": "^20.17.10",
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",

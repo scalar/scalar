@@ -41,13 +41,14 @@ export type CommandPaletteEvent = {
 </script>
 
 <script setup lang="ts">
-import { ScalarIcon, useModal } from '@scalar/components'
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { ROUTES } from '@/constants' // Import the ROUTES
+import { ROUTES } from '@/constants'
+// Import the ROUTES
 
 import type { HotKeyEvent } from '@/libs'
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+import { ScalarIcon, useModal } from '@scalar/components'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [

@@ -1,21 +1,22 @@
 <script setup lang="ts">
-import {
-  colorPicker as colorPickerExtension,
-  useCodeMirror,
-  type CodeMirrorLanguage,
-  type Extension,
-  useDropdown,
-} from '@scalar/use-codemirror'
-import { nanoid } from 'nanoid'
-import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
-import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
-import { pillPlugin, backspaceCommand } from './codeVariableWidget'
+import { useLayout } from '@/hooks'
+import { useActiveEntities } from '@/store/active-entities'
 import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
-import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { useActiveEntities } from '@/store/active-entities'
-import { useLayout } from '@/hooks'
+import {
+  type CodeMirrorLanguage,
+  type Extension,
+  colorPicker as colorPickerExtension,
+  useCodeMirror,
+  useDropdown,
+} from '@scalar/use-codemirror'
+import { useClipboard } from '@scalar/use-hooks/useClipboard'
+import { nanoid } from 'nanoid'
+import { type Ref, computed, ref, toRef, useAttrs, watch } from 'vue'
+
+import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
+import { backspaceCommand, pillPlugin } from './codeVariableWidget'
 
 const props = withDefaults(
   defineProps<{

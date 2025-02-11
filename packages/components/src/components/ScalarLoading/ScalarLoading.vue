@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { VariantProps } from 'cva'
+import { reactive } from 'vue'
+
 import { cva } from '../../cva'
 import { useBindCx } from '../../hooks/useBindCx'
-import { reactive } from 'vue'
 
 type Variants = VariantProps<typeof variants>
 

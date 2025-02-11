@@ -17,6 +17,7 @@
 **/build/**
 **/.next/**
 **/.nuxt/**
+**/.output/**
 
 /venv/
 **/venv

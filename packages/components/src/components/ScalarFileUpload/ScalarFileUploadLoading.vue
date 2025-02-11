@@ -11,7 +11,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '../../hooks/useBindCx'
-import { ScalarLoading, type LoadingState } from '../ScalarLoading'
+import { type LoadingState, ScalarLoading } from '../ScalarLoading'
 
 defineProps<{
   loader: LoadingState
