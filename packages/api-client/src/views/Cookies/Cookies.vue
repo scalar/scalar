@@ -147,6 +147,12 @@ const hasCookies = computed(
                   :key="cookie.uid"
                   class="text-xs"
                   isDeletable
+                  :to="{
+                    name: 'cookies',
+                    params: {
+                      [PathId.Cookies]: cookie.uid,
+                    },
+                  }"
                   type="cookies"
                   :variable="{ name: cookie.name, uid: cookie.uid }"
                   :warningMessage="`Are you sure you want to delete this cookie?`"

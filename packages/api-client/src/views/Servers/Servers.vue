@@ -131,6 +131,13 @@ const hasServers = computed(() => Object.keys(servers).length > 0)
                   class="[&>a]:pl-[1.625rem]"
                   :collectionId="collection.uid"
                   :isDeletable="true"
+                  :to="{
+                    name: 'servers',
+                    params: {
+                      [PathId.Collection]: collection.uid,
+                      [PathId.Servers]: serverUid,
+                    },
+                  }"
                   type="servers"
                   :variable="{
                     name: servers[serverUid]?.url ?? '',
