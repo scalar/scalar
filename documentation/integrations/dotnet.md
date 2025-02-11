@@ -194,7 +194,7 @@ app.MapScalarApiReference(options =>
     // or
     options.OpenApiRoutePattern = "/swagger/{documentName}.json";
     // Can also point to an external URL:
-    options.OpenApiRoutePattern = "https://somewhere.else.com/swagger/{documentName}.json";
+    options.OpenApiRoutePattern = "https://example.com/swagger/{documentName}.json";
 });
 ```
 

@@ -36,8 +36,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
                                       <script>
                                           const basePath = getBasePath('/scalar/');
                                           console.log(basePath)
-                                          const documentUrl = `*`;
-                                          const openApiUrl = documentUrl.match('^[a-zA-Z]+://.*') ? documentUrl : `${window.location.origin}${basePath}/${documentUrl}`
+                                          const openApiUrl = `${window.location.origin}${basePath}*`
                                           const reference = document.getElementById('api-reference')
                                           reference.dataset.url = openApiUrl;
                                           reference.dataset.configuration = JSON.stringify(*)
@@ -113,7 +112,21 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }
+    
+    [Fact]
+    public async Task MapScalarApiReference_ShouldNotPrefixOpenApiUrlWithOrigin_WhenRouteIsUrl()
+    {
+        // Arrange
+        var client = factory.CreateClient();
 
+        // Act
+        var response = await client.GetAsync("/external/document/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.ReplaceLineEndings().Should().Contain("`https://example.com/openapi.json`");
+    }
 
     [Fact]
     public async Task MapScalarApiReference_ShouldAddDefaultOpenApiDocument_WhenNotSpecified()
@@ -127,7 +140,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("/openapi/v1.json");
     }
 
     [Fact]
@@ -142,7 +155,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("openapi/v3.json").And.NotContain("/openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("/openapi/v3.json").And.NotContain("/openapi/v1.json");
     }
 
     [Fact]
@@ -163,7 +176,7 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
-        content.ReplaceLineEndings().Should().Contain("openapi/v2.json").And.NotContain("openapi/v1.json");
+        content.ReplaceLineEndings().Should().Contain("/openapi/v2.json").And.NotContain("openapi/v1.json");
     }
 
     [Fact]
