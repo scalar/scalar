@@ -4,8 +4,8 @@ import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities } from '@/store'
-import CollectionInfoForm from '@/views/Collection/CollectionInfoForm.vue'
 import CollectionSidebar from '@/views/Collection/CollectionSidebar.vue'
+import { RouterView } from 'vue-router'
 
 const { activeCollection } = useActiveEntities()
 </script>
@@ -17,10 +17,7 @@ const { activeCollection } = useActiveEntities()
       </template>
     </Sidebar>
     <ViewLayoutContent class="flex-1">
-      <ViewLayoutSection>
-        <template #title>Overview</template>
-        <CollectionInfoForm />
-      </ViewLayoutSection>
+      <RouterView />
     </ViewLayoutContent>
   </ViewLayout>
 </template>
