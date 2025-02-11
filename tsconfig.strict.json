@@ -37,7 +37,7 @@
     "declaration": true,
 
     /* AND if you're building for a library in a monorepo: */
-    "composite": true,
+    // "composite": true,
     "declarationMap": true,
 
     /** Shared between packages */
@@ -53,5 +53,6 @@
     /* If your code doesn't run in the DOM: */
     // "lib": ["es2022"]
   },
+  "include": ["src"],
   "exclude": ["dist", "node_modules", "**/dist", "**/node_modules"]
 }
