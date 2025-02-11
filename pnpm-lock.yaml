@@ -1910,8 +1910,8 @@ importers:
         specifier: workspace:*
         version: link:../themes
       '@todesktop/runtime':
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^2.1.2
+        version: 2.1.2
       electron-window-state:
         specifier: ^5.0.3
         version: 5.0.3
@@ -1926,8 +1926,8 @@ importers:
         specifier: ^1.10.3
         version: 1.10.3
       '@todesktop/cli':
-        specifier: ^1.11.5
-        version: 1.11.5(@types/react@19.0.1)
+        specifier: ^1.12.0
+        version: 1.12.0(@types/react@19.0.1)
       '@types/node':
         specifier: ^20.17.10
         version: 20.17.10
@@ -7347,13 +7347,13 @@ packages:
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
 
-  '@todesktop/cli@1.11.5':
-    resolution: {integrity: sha512-a4f2c+xBEcfjXsCyLmQcDyT0zi6XKaymgCSLMZmuBNF6TISolkWO/MyNvEQEP56ax/Z86nC0Kz3XBSQIPT6FZA==}
+  '@todesktop/cli@1.12.0':
+    resolution: {integrity: sha512-9oK8R3yKCwji9OKXyt5h3WkehdoDe6D8vBoldus5/Te42qCJ5VQlgnqQo5gWxuEtMYI98ZmaVOJqDgP35yrbrQ==}
     engines: {node: '>=12'}
     hasBin: true
 
-  '@todesktop/runtime@2.1.1':
-    resolution: {integrity: sha512-+57M1WZ1YRlz7ueV1NkSmm4xa0RcFQ70C5Hfc3WAbD6yp+Tkw33HPqbnYTZCdnnbKubw0C+w2tBFMNfe6bpKeQ==}
+  '@todesktop/runtime@2.1.2':
+    resolution: {integrity: sha512-jhibVSt8lL1OQNqRrRH648JCx5wjDlPA6CwzXTvspbBQWAlnY3bTyTBSLjmMBQ36bz1dhawiszke/CWPjIFU7g==}
 
   '@tokenizer/token@0.3.0':
     resolution: {integrity: sha512-OvjF+z51L3ov0OyAU0duzsYuvO01PH7x4t6DJx+guahgTnBHkhJdG7soQeTSFLWN3efnHyibZ4Z8l2EuWwJN3A==}
@@ -25581,7 +25581,7 @@ snapshots:
     dependencies:
       '@testing-library/dom': 9.3.4
 
-  '@todesktop/cli@1.11.5(@types/react@19.0.1)':
+  '@todesktop/cli@1.12.0(@types/react@19.0.1)':
     dependencies:
       '@sentry/node': 8.38.0
       ajv: 8.17.1
@@ -25633,7 +25633,7 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@todesktop/runtime@2.1.1':
+  '@todesktop/runtime@2.1.2':
     dependencies:
       del: 6.1.1
       electron-updater: 6.3.9
