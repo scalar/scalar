@@ -2,7 +2,7 @@
  * This file is the entry point for the CDN version of the Scalar Test Button.
  * It’s responsible for finding the spec and configuration in the HTML, and mounting the Vue.js app.
  */
-import { createApiClientModal } from '@scalar/api-client'
+import { createApiClientModal } from '@scalar/api-client/layouts/Modal'
 import { parse } from '@scalar/api-reference'
 import type { Spec, Tag, TransformedOperation } from '@scalar/types/legacy'
 import { reactive } from 'vue'
