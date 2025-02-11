@@ -1,6 +1,6 @@
+import path from 'node:path'
 import type { LoadContext, Plugin } from '@docusaurus/types'
 import type { ReferenceProps } from '@scalar/api-reference-react'
-import path from 'path'
 
 export type ScalarOptions = {
   label: string
