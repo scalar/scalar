@@ -23,7 +23,7 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "dev": "vite",
-    "format": "scalar-format-js",
+    "format": "scalar-lint-fix",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",
