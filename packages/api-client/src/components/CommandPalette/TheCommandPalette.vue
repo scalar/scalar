@@ -1,4 +1,5 @@
 <script lang="ts">
+import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -45,10 +46,14 @@ import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-
-import { ROUTES } from '@/constants' // Import the ROUTES
+import { ROUTES } from '@/constants'
 
 import type { HotKeyEvent } from '@/libs'
+
+const modalState = useModal()
+const router = useRouter()
+const { activeWorkspace } = useActiveEntities()
+const { events } = useWorkspace()
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -103,18 +108,20 @@ const availableCommands = [
   {
     label: 'Pages',
     commands: ROUTES.map((route) => ({
-      name: route.prettyName,
+      name: route.displayName,
       icon: route.icon,
-      path: `${route.name}.default`,
+      path: router.resolve({
+        ...route.to,
+        params: {
+          ...(route.to.params ?? {}),
+          [PathId.Workspace]: activeWorkspace?.uid ?? 'default',
+        },
+      }).href,
     })),
   },
 ] as const
-type Command = (typeof availableCommands)[number]['commands'][number]
 
-const modalState = useModal()
-const { push } = useRouter()
-const { activeWorkspace } = useActiveEntities()
-const { events } = useWorkspace()
+type Command = (typeof availableCommands)[number]['commands'][number]
 
 /** Additional metadata for the command palettes */
 const metaData = ref<Record<string, any> | undefined>()
@@ -156,10 +163,10 @@ const executeCommand = (
 ) => {
   // Route to the page
   if ('path' in command) {
-    push({
+    router.push({
       name: command.path,
       params: {
-        workspace: activeWorkspace.value?.uid,
+        [PathId.Workspace]: activeWorkspace.value?.uid,
       },
     })
 
