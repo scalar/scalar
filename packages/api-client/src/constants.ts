@@ -27,11 +27,11 @@ export const ROUTES = [
     },
     icon: 'Settings',
   },
-  {
-    displayName: 'Servers',
-    to: {
-      name: 'servers.default',
-    },
-    icon: 'Server',
-  },
+  // {
+  //   displayName: 'Servers',
+  //   to: {
+  //     name: 'servers.default',
+  //   },
+  //   icon: 'Server',
+  // },
 ] as const

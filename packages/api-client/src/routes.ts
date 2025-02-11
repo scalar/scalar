@@ -92,8 +92,16 @@ const requestRoutes = [
           },
           {
             name: 'collection.servers',
-            path: 'servers',
+            path: `servers`,
             component: () => import('@/views/Collection/CollectionServers.vue'),
+            children: [
+              {
+                name: 'collection.servers.edit',
+                path: `:${PathId.Servers}`,
+                component: () =>
+                  import('@/views/Collection/CollectionServers.vue'),
+              },
+            ],
           },
         ],
       },
