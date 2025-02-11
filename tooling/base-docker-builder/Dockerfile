@@ -14,6 +14,7 @@ COPY pnpm-workspace.yaml .
 COPY package.json .
 COPY tsconfig.json .
 COPY tsconfig.node.json .
+COPY tsconfig.strict.json .
 COPY turbo.json .
 COPY packages ./packages
 COPY integrations ./integrations
