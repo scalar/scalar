@@ -1336,6 +1336,9 @@ importers:
       nanoid:
         specifier: ^5.0.7
         version: 5.0.7
+      pretty-bytes:
+        specifier: ^6.1.1
+        version: 6.1.1
       radix-vue:
         specifier: ^1.9.3
         version: 1.9.3(vue@3.5.12(typescript@5.6.2))
