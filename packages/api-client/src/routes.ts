@@ -40,7 +40,7 @@ export function redirectToActiveWorkspace() {
   return {
     name: 'request.root',
     params: {
-      workspace: activeWorkspace,
+      [PathId.Workspace]: activeWorkspace,
     },
   }
 }
@@ -58,7 +58,7 @@ const requestRoutes = [
   {
     name: 'request.root',
     path: '',
-    component: () => import('@/views/Request/Foobar.vue'),
+    component: () => import('@/views/Request/RequestRoot.vue'),
     redirect: (to) => ({
       name: 'request',
       params: { ...to.params, request: 'default' },

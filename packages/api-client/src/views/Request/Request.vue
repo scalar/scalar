@@ -21,8 +21,6 @@ import { useToasts } from '@scalar/use-toasts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import RequestSidebar from './RequestSidebar.vue'
-
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
@@ -40,7 +38,6 @@ const {
   cookies,
   modalState,
   requestHistory,
-  showSidebar,
   securitySchemes,
   requestMutators,
   serverMutators,
@@ -219,6 +216,7 @@ function handleCurlImport(curl: string) {
   modalState.show()
 }
 </script>
+
 <template>
   <RequestSubpageHeader
     v-model="isSidebarOpen"
@@ -235,7 +233,15 @@ function handleCurlImport(curl: string) {
       <ResponseSection :response="activeHistoryEntry?.response" />
     </ViewLayoutContent>
   </ViewLayout>
+  <ImportCurlModal
+    v-if="parsedCurl"
+    :collectionUid="activeCollection?.uid ?? ''"
+    :parsedCurl="parsedCurl"
+    :state="modalState"
+    @close="modalState.hide()"
+    @importCurl="createRequestFromCurl" />
 </template>
+
 <style scoped>
 .request-text-color-text {
   color: var(--scalar-color-1);
