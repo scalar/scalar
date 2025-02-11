@@ -26,7 +26,7 @@ export async function createVoidServer() {
     console.info(`${c.req.method} ${c.req.path}`)
 
     const { status: originalStatusCode } = c.req.param()
-    const status = parseInt(originalStatusCode ?? '0', 10) as StatusCode
+    const status = Number.parseInt(originalStatusCode ?? '0', 10) as StatusCode
 
     c.status(status)
 
@@ -69,9 +69,13 @@ export async function createVoidServer() {
 
     if (acceptedContentType === 'text/html') {
       return createHtmlResponse(c, requestData)
-    } else if (acceptedContentType === 'application/xml') {
+    }
+
+    if (acceptedContentType === 'application/xml') {
       return createXmlResponse(c, requestData)
-    } else if (acceptedContentType === 'application/zip') {
+    }
+
+    if (acceptedContentType === 'application/zip') {
       return createZipFileResponse(c)
     }
 
