@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import {
@@ -9,6 +10,7 @@ import {
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -24,6 +26,8 @@ const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
 }>()
+
+const router = useRouter()
 
 const { toast } = useToasts()
 
@@ -72,6 +76,15 @@ const handleSubmit = () => {
   // Select the server
   collectionMutators.edit(collectionUid, 'selectedServerUid', server.uid)
 
+  // Redirect to the server
+  router.push({
+    name: 'collection.servers.edit',
+    params: {
+      [PathId.Collection]: collectionUid,
+      [PathId.Servers]: server.uid,
+    },
+  })
+
   emits('close')
 }
 
@@ -86,7 +99,7 @@ const redirectToCreateCollection = () => {
     <CommandActionInput
       v-model="url"
       label="Server URL"
-      placeholder="Server URL"
+      placeholder="https://void.scalar.com"
       @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarListbox
@@ -106,7 +119,7 @@ const redirectToCreateCollection = () => {
         </ScalarButton>
         <ScalarButton
           v-else
-          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2 w-fit"
+          class="justify-between p-2 max-h-8 gap-1 text-xs hover:bg-b-2 w-fit"
           variant="outlined"
           @click="redirectToCreateCollection">
           <span class="text-c-1">Create Collection</span>
