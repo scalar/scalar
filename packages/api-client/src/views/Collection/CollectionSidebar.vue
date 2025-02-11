@@ -21,8 +21,8 @@ type CollectionSidebarEntry = {
 
 const routes = computed<CollectionSidebarEntry[]>(() => [
   {
-    displayName: 'Info',
-    icon: 'Settings',
+    displayName: 'Overview',
+    icon: 'Collection',
     to: {
       name: 'collection.overview',
       params: {
@@ -38,6 +38,23 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
       params: {
         [PathId.Collection]: activeCollection.value?.uid,
       },
+    },
+  },
+  {
+    displayName: 'Environments',
+    icon: 'Brackets',
+    to: {
+      name: 'collection.environment',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
+  {
+    displayName: 'Sync',
+    icon: 'Download',
+    to: {
+      name: 'collection.sync',
     },
   },
 ])

@@ -103,6 +103,17 @@ const requestRoutes = [
               },
             ],
           },
+          {
+            name: 'collection.environment',
+            path: `environment`,
+            component: () =>
+              import('@/views/Collection/CollectionEnvironment.vue'),
+          },
+          {
+            name: 'collection.sync',
+            path: `sync`,
+            component: () => import('@/views/Collection/CollectionSync.vue'),
+          },
         ],
       },
     ],
