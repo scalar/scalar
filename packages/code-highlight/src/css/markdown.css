@@ -1,4 +1,4 @@
-@import url('./code.css');
+@import url("./code.css");
 
 .scalar-app {
   .markdown {
@@ -43,7 +43,7 @@
 
   .markdown summary::after {
     display: block;
-    content: '';
+    content: "";
 
     position: absolute;
     top: -1px;
@@ -284,13 +284,13 @@
     background: var(--scalar-background-2);
   }
 
-  .markdown tr > [align='left'] {
+  .markdown tr > [align="left"] {
     text-align: left;
   }
-  .markdown tr > [align='right'] {
+  .markdown tr > [align="right"] {
     text-align: right;
   }
-  .markdown tr > [align='center'] {
+  .markdown tr > [align="center"] {
     text-align: center;
   }
 }
