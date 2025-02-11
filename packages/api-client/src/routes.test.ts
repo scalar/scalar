@@ -42,7 +42,7 @@ describe('Routes', () => {
 
     expect(redirectResult).toEqual(
       expect.objectContaining({
-        name: 'request.default',
+        name: 'request.root',
         params: { workspace: 'default' },
       }),
     )
@@ -56,10 +56,10 @@ describe('Routes', () => {
     expect(requestRoute?.path).toBe('/workspace/:workspace/request/:request')
   })
 
-  it('should contain the default request redirect', () => {
+  it('should contain the request root redirect', () => {
     const requestDefaultRoute = router
       .getRoutes()
-      .find((route) => route.name === 'request.default')
+      .find((route) => route.name === 'request.root')
     expect(requestDefaultRoute).toBeDefined()
 
     const redirectResult =

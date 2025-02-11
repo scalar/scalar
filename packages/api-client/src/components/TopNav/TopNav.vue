@@ -38,13 +38,13 @@ const activeNavItemIdxValue = computed(() => activeNavItemIdx.value)
  */
 function handleNavLabelAdd() {
   const activeRoute = ROUTES.find((route) => {
-    return router.currentRoute.value.name == route.name
+    return router.currentRoute.value.name == route.to.name
   })
 
   if (!activeRoute) return
 
   // if it's a request we can push in a request
-  if (activeRoute?.name === 'request') {
+  if (activeRoute?.to.name === 'request.root') {
     topNavItems[activeNavItemIdx.value] = {
       label: activeRequest.value?.summary || '',
       path: router.currentRoute.value.path,
@@ -54,7 +54,7 @@ function handleNavLabelAdd() {
     // not requests so its the other nav items
     // we can eventually be more granular
     topNavItems[activeNavItemIdx.value] = {
-      label: capitalize(activeRoute?.name) || '',
+      label: activeRoute?.displayName || '',
       path: router.currentRoute.value.path,
       icon: activeRoute.icon,
     }
