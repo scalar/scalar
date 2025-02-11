@@ -103,9 +103,9 @@ function getBackgroundColor() {
 }
 
 function handleExecuteRequest() {
-  if (isRequesting.value) return
+  if (isRequesting.value || !activeRequest.value) return
   isRequesting.value = true
-  events.executeRequest.emit({ requestUid: activeRequest.value?.uid })
+  events.executeRequest.emit({ requestUid: activeRequest.value.uid })
 }
 
 /** Handle hotkeys */

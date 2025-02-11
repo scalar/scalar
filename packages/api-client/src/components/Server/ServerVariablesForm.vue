@@ -7,7 +7,7 @@ import type {
 } from '@/components/Server/types'
 
 const props = defineProps<{
-  variables?: ServerVariables
+  variables?: ServerVariables | undefined
   values?: ServerVariableValues
   /** The ID of the input controlled by the variables form */
   controls?: string

@@ -38,7 +38,9 @@ const { layout } = useLayout()
         )"
         :key="i">
         <SideNavRouterLink
-          :active="(currentRoute.name as string | undefined)?.startsWith(name)"
+          :active="
+            Boolean((currentRoute.name as string | undefined)?.startsWith(name))
+          "
           :icon="icon"
           :name="name">
           {{ prettyName }}

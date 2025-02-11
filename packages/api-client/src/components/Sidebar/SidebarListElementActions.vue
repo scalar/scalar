@@ -10,7 +10,7 @@ const { variable } = defineProps<{
     name: string
     isDefault: boolean
   }
-  warningMessage?: string
+  warningMessage: string | undefined
   isCopyable?: boolean
   isDeletable?: boolean
   isRenameable?: boolean

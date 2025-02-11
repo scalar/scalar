@@ -76,7 +76,7 @@ export type CreateApiClientParams = {
   /** Instance of a vue router */
   router: Router
   /** In case the store has been instantiated beforehand */
-  store?: WorkspaceStore
+  store?: WorkspaceStore | undefined
   /**
    * The layout of the client
    * @see {@link ClientLayout}
