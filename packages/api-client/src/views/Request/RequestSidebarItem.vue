@@ -94,6 +94,13 @@ const item = computed<SidebarItem>(() => {
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
       watchMode: collection.watchMode,
+      link: {
+        name: 'collection',
+        params: {
+          workspace: activeWorkspace.value?.uid,
+          collection: collection.uid,
+        },
+      },
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
