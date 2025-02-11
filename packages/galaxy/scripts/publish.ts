@@ -1,5 +1,5 @@
-import { openapi } from '@scalar/openapi-parser'
 import fs from 'node:fs'
+import { openapi } from '@scalar/openapi-parser'
 
 // Get the package meta data
 const packageFile = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
@@ -38,4 +38,4 @@ packageFile.exports = {
   './latest.json': './dist/latest.json',
 }
 
-fs.writeFileSync('./package.json', JSON.stringify(packageFile, null, 2) + '\n')
+fs.writeFileSync('./package.json', `${JSON.stringify(packageFile, null, 2)}\n`)
