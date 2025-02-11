@@ -15,7 +15,7 @@ public sealed partial class ScalarOptions
     private static partial Regex OpenApiRoutePatternIsUrlRegex();
     
     /// <summary>
-    /// Retruns whether the <see cref="OpenApiRoutePattern"/> is set to a URL (true) or a route/path (false).
+    /// Returns whether the <see cref="OpenApiRoutePattern"/> is set to a URL (true) or a route/path (false).
     /// </summary>
     internal bool IsOpenApiRoutePatternUrl => OpenApiRoutePatternIsUrlRegex().IsMatch(OpenApiRoutePattern);
     
