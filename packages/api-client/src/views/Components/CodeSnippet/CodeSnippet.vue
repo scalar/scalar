@@ -18,8 +18,8 @@ const {
   example,
   securitySchemes = [],
 } = defineProps<{
-  target: TargetId
-  client: ClientId<TargetId>
+  target: TargetId | string
+  client: ClientId<TargetId> | string
   operation?: Operation
   server?: Server
   example?: RequestExample
@@ -58,6 +58,7 @@ const content = computed(() => {
 const language = computed(() => {
   // Normalize languages
   if (target === 'shell' && client === 'curl') return 'curl'
+  if (target === 'shell') return 'bash'
   // TODO: js -> javascript?
 
   return target ?? 'plaintext'

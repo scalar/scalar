@@ -4,7 +4,10 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { CodeSnippet } from '@/views/Components/CodeSnippet'
+import {
+  CodeSnippet,
+  filterSecurityRequirements,
+} from '@/views/Components/CodeSnippet'
 import {
   ScalarButton,
   ScalarCombobox,
@@ -13,8 +16,6 @@ import {
 } from '@scalar/components'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
-
-import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
 // Get the entities from the store
 const {

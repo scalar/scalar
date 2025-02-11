@@ -262,7 +262,7 @@ Here’s a list of all clients that you can potentially hide:
 }
 ```
 
-But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-scalar-examples`) in your API definition, these still render.
+But you can also pass `true` to **hide all** HTTP clients. If you have any custom code examples (`x-codeSamples`) in your API definition, these still render.
 
 ```js
 {

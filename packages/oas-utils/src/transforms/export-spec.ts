@@ -80,14 +80,17 @@ export function exportSpecFromWorkspace({
       return name
     }
 
-    if (request.examples.length) {
-      oasRequest['x-scalar-examples'] = {}
-      request.examples.forEach((uid) => {
-        const requestExample = requestExamples[uid]
-        oasRequest['x-scalar-examples']![checkName(requestExample.name)] =
-          convertExampleToXScalar(requestExample)
-      })
-    }
+    // TODO: Fix export of request examples
+    // We should probably rename them, to avoid confusion with x-codeSamples (custom code examples, e.g. for SDKs)
+
+    // if (request.examples.length) {
+    //   oasRequest['x-scalar-examples'] = {}
+    //   request.examples.forEach((uid) => {
+    //     const requestExample = requestExamples[uid]
+    //     oasRequest['x-scalar-examples']![checkName(requestExample.name)] =
+    //       convertExampleToXScalar(requestExample)
+    //   })
+    // }
 
     /** Insert the request as an operation in the spec */
     if (!spec.paths[request.path]) spec.paths[request.path] = {}

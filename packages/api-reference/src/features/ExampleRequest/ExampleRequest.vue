@@ -1,42 +1,32 @@
 <script setup lang="ts">
 import { useExampleStore } from '#legacy'
-import { useWorkspace } from '@scalar/api-client/store'
-import { getSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
-import { filterSecurityRequirements } from '@scalar/api-client/views/Request/RequestSection'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/Card'
+import { HttpMethod } from '@/components/HttpMethod'
+import ScreenReader from '@/components/ScreenReader.vue'
+import { type HttpClientState, useHttpClientStore } from '@/stores'
+import { CodeSnippet } from '@scalar/api-client/views/Components/CodeSnippet'
 import { ScalarCodeBlock } from '@scalar/components'
 import type {
-  Collection,
   Operation,
+  RequestExample,
+  SecurityScheme,
   Server,
 } from '@scalar/oas-utils/entities/spec'
-import type { ClientId, TargetId } from '@scalar/snippetz'
-import type { TransformedOperation } from '@scalar/types/legacy'
 import { computed, ref, useId, watch } from 'vue'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '../../components/Card'
-import { HttpMethod } from '../../components/HttpMethod'
-import ScreenReader from '../../components/ScreenReader.vue'
-import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { transformedOperation, operation, collection, server } = defineProps<{
+const { operation, server, securitySchemes, examples } = defineProps<{
   operation: Operation
-  server: Server | undefined
-  collection: Collection
+  server?: Server
   /** Show a simplified card if no example are available */
   fallback?: boolean
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
+  examples?: RequestExample[]
+  securitySchemes?: SecurityScheme[]
 }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
-const { requestExamples, securitySchemes } = useWorkspace()
 
 const {
   httpClient,
@@ -48,13 +38,12 @@ const {
 
 const id = useId()
 
-const customRequestExamples = computed(() => {
+const customCodeExamples = computed(() => {
   const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
 
   for (const key of keys) {
-    if (transformedOperation.information?.[key]) {
-      const examples = [...transformedOperation.information[key]]
-      return examples
+    if (key in operation && operation[key]) {
+      return Object.values(operation[key])
     }
   }
 
@@ -70,7 +59,7 @@ const localHttpClient = ref<
     }
 >(
   // Default to first custom example
-  customRequestExamples.value.length
+  customCodeExamples.value.length
     ? {
         targetKey: 'customExamples',
         clientKey: 0,
@@ -90,76 +79,11 @@ watch(httpClient, () => {
   }
 })
 
-const hasMultipleExamples = computed<boolean>(
-  () =>
-    Object.keys(
-      transformedOperation.information?.requestBody?.content?.[
-        'application/json'
-      ]?.examples ?? {},
-    ).length > 1,
-)
-
-const generateSnippet = () => {
-  // Use the selected custom example
-  if (localHttpClient.value.targetKey === 'customExamples') {
-    return (
-      customRequestExamples.value[localHttpClient.value.clientKey]?.source ?? ''
-    )
-  }
-
-  const clientKey = httpClient.clientKey as ClientId<TargetId>
-  const targetKey = httpClient.targetKey
-
-  // TODO: Currently we just grab the first one but we should sync up the store with the example picker
-  const example = requestExamples[operation.examples[0]]
-  if (!example) return ''
-
-  // Ensure the selected security is in the security requirements
-  const schemes = filterSecurityRequirements(
-    operation.security || collection.security,
-    collection.selectedSecuritySchemeUids,
-    securitySchemes,
-  )
-
-  const [error, payload] = getSnippet(targetKey, clientKey, {
-    operation,
-    example,
-    server,
-    securitySchemes: schemes,
-  })
-  if (error) return error.message ?? ''
-  return payload
-}
-
-const generatedCode = computed<string>(() => {
-  try {
-    return generateSnippet()
-  } catch (error) {
-    console.error('[generateSnippet]', error)
-    return ''
-  }
-})
-
-/** Code language of the snippet */
-const language = computed(() => {
-  const key =
-    // Specified language
-    localHttpClient.value?.targetKey === 'customExamples'
-      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext')
-      : // Or language for the globally selected HTTP client
-        httpClient.targetKey
-
-  // Normalize language
-  if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'Objective-C') return 'objc'
-
-  return key
-})
+const hasMultipleExamples = computed<boolean>(() => (examples?.length ?? 0) > 1)
 
 /**  Block secrets from being shown in the code block */
 const secretCredentials = computed(() =>
-  Object.values(securitySchemes).flatMap((scheme) => {
+  securitySchemes?.map((scheme) => {
     if (scheme.type === 'apiKey') return scheme.value
     if (scheme?.type === 'http')
       return [
@@ -196,11 +120,11 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
+  if (customCodeExamples.value.length)
     entries.unshift({
       value: 'customExamples',
       label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => ({
+      options: customCodeExamples.value.map((example, index) => ({
         value: JSON.stringify({
           targetKey: 'customExamples',
           clientKey: index,
@@ -225,7 +149,7 @@ function updateHttpClient(value: string) {
 </script>
 <template>
   <Card
-    v-if="availableTargets.length || customRequestExamples.length"
+    v-if="availableTargets.length || customCodeExamples.length"
     class="dark-mode">
     <CardHeader muted>
       <div
@@ -247,8 +171,7 @@ function updateHttpClient(value: string) {
           <template v-if="localHttpClient.targetKey === 'customExamples'">
             <ScreenReader>Selected Example:</ScreenReader>
             {{
-              customRequestExamples[localHttpClient.clientKey].label ??
-              'Example'
+              customCodeExamples[localHttpClient.clientKey].label ?? 'Example'
             }}
           </template>
           <template v-else>
@@ -267,12 +190,23 @@ function updateHttpClient(value: string) {
       <div
         :id="`${id}-example`"
         class="code-snippet">
-        <ScalarCodeBlock
-          class="bg-b-2"
-          :content="generatedCode"
-          :hideCredentials="secretCredentials"
-          :lang="language"
-          lineNumbers />
+        <template v-if="localHttpClient.targetKey === 'customExamples'">
+          <ScalarCodeBlock
+            :content="customCodeExamples[localHttpClient.clientKey].source"
+            copy
+            :lang="customCodeExamples[localHttpClient.clientKey].lang"
+            lineNumbers />
+        </template>
+        <template v-else>
+          <CodeSnippet
+            :client="httpClient.clientKey"
+            :example="examples?.[0]"
+            :operation="operation"
+            :secretCredentials="secretCredentials"
+            :securitySchemes="securitySchemes"
+            :server="server"
+            :target="httpClient.targetKey" />
+        </template>
       </div>
     </CardContent>
     <CardFooter
@@ -282,13 +216,13 @@ function updateHttpClient(value: string) {
       <div
         v-if="hasMultipleExamples"
         class="request-card-footer-addon">
+        <!-- TODO: Add multiple examples -->
+        <!-- transformedOperation.information?.requestBody?.content?.[
+            'application/json'
+          ]?.examples ?? [] -->
         <ExamplePicker
           class="request-example-selector"
-          :examples="
-            transformedOperation.information?.requestBody?.content?.[
-              'application/json'
-            ]?.examples ?? []
-          "
+          :examples="[]"
           @update:modelValue="
             (value) => (
               (selectedExampleKey = value),

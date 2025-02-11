@@ -6,7 +6,7 @@ import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
 import { oasParameterSchema } from './parameters'
-import { type RequestExample, xScalarExampleSchema } from './request-examples'
+import { type RequestExample, requestExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema } from './spec-objects'
 
@@ -50,6 +50,12 @@ export type RequestEvent = {
   response: ResponseInstance
   timestamp: number
 }
+
+export const oasCustomCodeExampleSchema = z.object({
+  label: z.string().optional(),
+  lang: z.string().optional(),
+  source: z.string(),
+})
 
 // TODO: Type body definitions
 type RequestBody = object
@@ -100,11 +106,20 @@ export const oasRequestSchema = z.object({
   'deprecated': z.boolean().optional(),
   /** Response formats */
   'responses': z.record(z.string(), z.any()).optional(),
-  /** xScalar examples */
-  'x-scalar-examples': z.record(z.string(), xScalarExampleSchema).optional(),
+  /** Example payloads for the request */
+  'x-scalar-examples': z.record(z.string(), requestExampleSchema).optional(),
+  /** Custom code examples (e.g. for custom SDKs) */
+  'x-codeSamples': z.record(z.string(), oasCustomCodeExampleSchema).optional(),
+  /** Alias for x-codeSamples */
+  'x-custom-examples': z
+    .record(z.string(), oasCustomCodeExampleSchema)
+    .optional(),
+  /** Alias for x-codeSamples */
+  'x-code-samples': z.record(z.string(), oasCustomCodeExampleSchema).optional(),
   /** Hide operations */
-  'x-internal': z.boolean().optional(),
   'x-scalar-ignore': z.boolean().optional(),
+  /** Alias for x-scalar-ignore */
+  'x-internal': z.boolean().optional(),
 }) satisfies ZodSchema<OpenAPIV3_1.OperationObject>
 
 /**
@@ -132,9 +147,7 @@ const extendedRequestSchema = z.object({
 })
 
 /** Unified request schema for client usage */
-export const requestSchema = oasRequestSchema
-  .omit({ 'x-scalar-examples': true })
-  .merge(extendedRequestSchema)
+export const requestSchema = oasRequestSchema.merge(extendedRequestSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

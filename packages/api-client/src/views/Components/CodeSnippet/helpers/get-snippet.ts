@@ -16,8 +16,8 @@ const INVALID_URLS_PREFIX = 'ws://replace.me'
  * Returns a code example for given operation
  */
 export const getSnippet = <T extends TargetId>(
-  target: T | 'javascript',
-  client: ClientId<T>,
+  target: T | 'javascript' | string,
+  client: ClientId<T> | string,
   {
     operation,
     example,
