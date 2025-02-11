@@ -50,6 +50,6 @@
     "@types/supertest": "^2.0.12",
     "express": "^4.21.2",
     "supertest": "^6.3.3",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   }
 }
