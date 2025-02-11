@@ -8,14 +8,14 @@ import ScalarHotkey from './ScalarHotkey.vue'
   <div class="scale-75 flex flex-center w-full">
     <div class="relative">
       <ScalarHotkey
-        class="keycap-hotkey"
+        class="keycap-hotkey border-transparent right-14 text-xl"
         hotkey="" />
       <ScalarAsciiArt
         :art="Keycap"
         class="!leading-[6px] text-c-3" />
     </div>
     <div class="relative -ml-12">
-      <div class="keycap-hotkey !right-[60px]">K</div>
+      <div class="keycap-hotkey right-16 text-xl">K</div>
       <ScalarAsciiArt
         :art="Keycap"
         class="!leading-[6px] keycap-n" />
@@ -34,16 +34,8 @@ import ScalarHotkey from './ScalarHotkey.vue'
 }
 
 .keycap-hotkey {
-  color: var(--scalar-color-1);
-  font-size: 26px;
   position: absolute;
   top: 32px;
-  right: 54px;
-  font-weight: 200;
-  height: 26px;
   line-height: 26px;
-  border: none;
-  font-weight: 400;
-  font-family: var(--scalar-font);
 }
 </style>
