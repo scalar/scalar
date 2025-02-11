@@ -2,7 +2,9 @@
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+import { PathId } from '@/router'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
@@ -20,6 +22,8 @@ const emits = defineEmits<{
   (event: 'close'): void
   (event: 'back', e: KeyboardEvent): void
 }>()
+
+const router = useRouter()
 
 const { toast } = useToasts()
 
@@ -73,6 +77,15 @@ const handleSubmit = () => {
   // Select the server
   collectionMutators.edit(collection.uid, 'selectedServerUid', server.uid)
 
+  // Redirect to the server
+  router.push({
+    name: 'collection.servers.edit',
+    params: {
+      [PathId.Collection]: collection.uid,
+      [PathId.Servers]: server.uid,
+    },
+  })
+
   emits('close')
 }
 
@@ -87,7 +100,7 @@ const redirectToCreateCollection = () => {
     <CommandActionInput
       v-model="url"
       label="Server URL"
-      placeholder="Server URL"
+      placeholder="https://void.scalar.com"
       @onDelete="emits('back', $event)" />
     <template #options>
       <ScalarListbox
