@@ -132,18 +132,18 @@ export const routes = [
       //   redirect: (to) =>
       //     `${to.fullPath.replace(/\/$/, '')}/default`,
       // },
-      // {
-      //   name: PathId.Collection,
-      //   path: `collection/:${PathId.Collection}`,
-      //   component: () => import('@/views/Collection/Collection.vue'),
-      //   children: [
-      //     // Nested collection request
-      //     {
-      //       path: `request/${PathId.Request}`,
-      //       component: () => import('@/views/Request/Request.vue'),
-      //     },
-      //   ],
-      // },
+      {
+        name: 'collection',
+        path: `collection/:${PathId.Collection}`,
+        component: () => import('@/views/Collection/Collection.vue'),
+        // children: [
+        //   // Nested collection request
+        //   {
+        //     path: `request/${PathId.Request}`,
+        //     component: () => import('@/views/Request/Request.vue'),
+        //   },
+        // ],
+      },
       /** Components will map to each section of the spec components object */
       // {
       //   path: 'components',
