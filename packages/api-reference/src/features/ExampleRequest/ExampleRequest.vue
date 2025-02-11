@@ -25,15 +25,19 @@ import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
 
-const { transformedOperation, operation, collection, server } = defineProps<{
-  operation: Operation
-  server: Server | undefined
-  collection: Collection
-  /** Show a simplified card if no example are available */
-  fallback?: boolean
-  /** @deprecated Use `operation` instead */
-  transformedOperation: TransformedOperation
-}>()
+const { transformedOperation, operation, collection, server, request } =
+  defineProps<{
+    operation: Operation
+    server: Server | undefined
+    collection: Collection
+    request: Request | null
+    /** Array of strings to obscure in the code block */
+    secretCredentials: string[]
+    /** Show a simplified card if no example are available */
+    fallback?: boolean
+    /** @deprecated Use `operation` instead */
+    transformedOperation: TransformedOperation
+  }>()
 
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
@@ -49,7 +53,7 @@ const {
 const id = useId()
 
 const customRequestExamples = computed(() => {
-  const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+  // TODO: Get custom examples from the store
 
   for (const key of keys) {
     if (transformedOperation.information?.[key]) {
@@ -57,6 +61,14 @@ const customRequestExamples = computed(() => {
       return examples
     }
   }
+  // const keys = ['x-custom-examples', 'x-codeSamples', 'x-code-samples'] as const
+
+  // for (const key of keys) {
+  //   if (operation.information?.[key]) {
+  //     const examples = [...operation.information[key]]
+  //     return examples
+  //   }
+  // }
 
   return []
 })
@@ -142,37 +154,24 @@ const generatedCode = computed<string>(() => {
 
 /** Code language of the snippet */
 const language = computed(() => {
-  const key =
-    // Specified language
-    localHttpClient.value?.targetKey === 'customExamples'
-      ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
-        'plaintext')
-      : // Or language for the globally selected HTTP client
-        httpClient.targetKey
+  // TODO: Deal with custom code examples
+  // const key =
+  //   // Specified language
+  //   localHttpClient.value?.targetKey === 'customExamples'
+  //     ? (customRequestExamples.value[localHttpClient.value.clientKey]?.lang ??
+  //       'plaintext')
+  //     : // Or language for the globally selected HTTP client
+  //       httpClient.targetKey
+
+  const key = httpClient.targetKey
 
   // Normalize language
   if (key === 'shell' && generatedCode.value.includes('curl')) return 'curl'
-  if (key === 'Objective-C') return 'objc'
+  // TODO: I think we can delete this.
+  // if (key === 'Objective-C') return 'objc'
 
   return key
 })
-
-/**  Block secrets from being shown in the code block */
-const secretCredentials = computed(() =>
-  Object.values(securitySchemes).flatMap((scheme) => {
-    if (scheme.type === 'apiKey') return scheme.value
-    if (scheme?.type === 'http')
-      return [
-        scheme.token,
-        scheme.password,
-        btoa(`${scheme.username}:${scheme.password}`),
-      ]
-    if (scheme.type === 'oauth2')
-      return Object.values(scheme.flows).map((flow) => flow.token)
-
-    return []
-  }),
-)
 
 type TextSelectOptions = InstanceType<typeof TextSelect>['$props']['options']
 
@@ -196,18 +195,19 @@ const options = computed<TextSelectOptions>(() => {
   })
 
   // Add entries for custom examples if any are available
-  if (customRequestExamples.value.length)
-    entries.unshift({
-      value: 'customExamples',
-      label: 'Examples',
-      options: customRequestExamples.value.map((example, index) => ({
-        value: JSON.stringify({
-          targetKey: 'customExamples',
-          clientKey: index,
-        }),
-        label: example.label ?? example.lang ?? `Example #${index + 1}`,
-      })),
-    })
+  // TODO: Custom code examples
+  // if (customRequestExamples.value.length)
+  //   entries.unshift({
+  //     value: 'customExamples',
+  //     label: 'Examples',
+  //     options: customRequestExamples.value.map((example, index) => ({
+  //       value: JSON.stringify({
+  //         targetKey: 'customExamples',
+  //         clientKey: index,
+  //       }),
+  //       label: example.label ?? example.lang ?? `Example #${index + 1}`,
+  //     })),
+  //   })
 
   return entries
 })
@@ -244,18 +244,18 @@ function updateHttpClient(value: string) {
           :modelValue="JSON.stringify(localHttpClient)"
           :options="options"
           @update:modelValue="updateHttpClient">
-          <template v-if="localHttpClient.targetKey === 'customExamples'">
+          <!-- <template v-if="localHttpClient.targetKey === 'customExamples'">
             <ScreenReader>Selected Example:</ScreenReader>
             {{
               customRequestExamples[localHttpClient.clientKey].label ??
               'Example'
             }}
           </template>
-          <template v-else>
-            <ScreenReader>Selected HTTP client:</ScreenReader>
-            {{ httpTargetTitle }}
-            {{ httpClientTitle }}
-          </template>
+          <template v-else> -->
+          <ScreenReader>Selected HTTP client:</ScreenReader>
+          {{ httpTargetTitle }}
+          {{ httpClientTitle }}
+          <!-- </template> -->
         </TextSelect>
       </template>
     </CardHeader>
@@ -285,9 +285,7 @@ function updateHttpClient(value: string) {
         <ExamplePicker
           class="request-example-selector"
           :examples="
-            transformedOperation.information?.requestBody?.content?.[
-              'application/json'
-            ]?.examples ?? []
+            operation.requestBody?.content?.['application/json']?.examples ?? []
           "
           @update:modelValue="
             (value) => (

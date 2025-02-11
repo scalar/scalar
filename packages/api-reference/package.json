@@ -36,6 +36,7 @@
     "lint:fix": "eslint .  --fix",
     "playground:esm": "vite ./playground/esm -c ./playground/esm/vite.config.ts",
     "playground:examples": "vite ./playground/examples -c ./vite.config.ts",
+    "playground:blocks": "vite ./playground/blocks -c ./playground/blocks/vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "vue-tsc -p tsconfig.build.json",
@@ -47,7 +48,8 @@
   "exports": {
     ".": "./dist/index.js",
     "./style.css": "./dist/style.css",
-    "./browser/standalone.js": "./dist/browser/standalone.js"
+    "./browser/standalone.js": "./dist/browser/standalone.js",
+    "./blocks": "./dist/blocks/index.js"
   },
   "files": [
     "dist",

@@ -93,6 +93,12 @@ export const extendedCollectionSchema = z.object({
     .enum(['IDLE', 'WATCHING', 'ERROR'])
     .optional()
     .default('IDLE'),
+  /**
+   * The name of the collection is used to identify the collection in a human readable way.
+   *
+   * @example scalar-galaxy
+   */
+  name: z.string().optional(),
 })
 
 export const collectionSchema = oasCollectionSchema.merge(
