@@ -93,9 +93,9 @@ const handleRename = (id: string) => {
         {{ variable.name }}
       </span>
       <SidebarListElementActions
-        :isCopyable="isCopyable"
-        :isDeletable="isDeletable"
-        :isRenameable="isRenameable"
+        :isCopyable="Boolean(isCopyable)"
+        :isDeletable="Boolean(isDeletable)"
+        :isRenameable="Boolean(isRenameable)"
         :variable="{ ...variable, isDefault: variable.isDefault ?? false }"
         :warningMessage="warningMessage"
         @delete="handleDelete"

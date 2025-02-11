@@ -10,7 +10,7 @@ withDefaults(
   defineProps<{
     disabled?: boolean
     fullWidth?: boolean
-    loading?: LoadingState
+    loading?: LoadingState | undefined
     size?: Variants['size']
     variant?: Variants['variant']
     type?: 'button' | 'submit' | 'reset'

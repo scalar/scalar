@@ -10,7 +10,7 @@ import { computed } from 'vue'
 const props = defineProps<{
   enum: string[]
   value: string
-  controls?: string
+  controls: string | undefined
 }>()
 
 const emit = defineEmits<{

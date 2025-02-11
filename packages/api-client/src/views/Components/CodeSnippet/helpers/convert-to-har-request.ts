@@ -1,10 +1,10 @@
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
-import { combineUrlAndPath, mergeUrls } from '@scalar/oas-utils/helpers'
+import { mergeUrls } from '@scalar/oas-utils/helpers'
 import type { HarRequest } from '@scalar/snippetz'
 
 type Props = {
   baseUrl: string | undefined
-  body?: RequestExample['body']
+  body?: RequestExample['body'] | undefined
   cookies: { key: string; value: string; enabled: boolean }[]
   headers: { key: string; value: string; enabled: boolean }[]
   query: { key: string; value: string; enabled: boolean }[]

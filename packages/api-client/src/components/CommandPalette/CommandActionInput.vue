@@ -50,7 +50,7 @@ function handleBack(event: KeyboardEvent) {
     ref="input"
     v-model="model"
     class="border-none outline-none flex-1 w-full pl-8 text-sm min-h-8 py-1.5 resize-none"
-    :placeholder="props.placeholder"
+    :placeholder="props.placeholder ?? ''"
     wrap="hard"
     v-bind="$attrs"
     @keydown.delete="handleBack($event)"

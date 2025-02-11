@@ -45,12 +45,14 @@ export type DraggableProps = {
    */
   id: string
 }
-const props = withDefaults(defineProps<DraggableProps>(), {
-  ceiling: 0.8,
-  floor: 0.2,
-  isDraggable: true,
-  isDroppable: true,
-})
+const {
+  ceiling = 0.8,
+  floor = 0.2,
+  isDraggable = true,
+  isDroppable = true,
+  parentIds,
+  id,
+} = defineProps<DraggableProps>()
 
 const emit = defineEmits<{
   /**
@@ -61,15 +63,11 @@ const emit = defineEmits<{
 }>()
 
 // The latest parentId in the arr should be the current parent
-const parentId = computed(() => props.parentIds.at(-1) ?? null)
+const parentId = computed(() => parentIds.at(-1) ?? null)
 
 // Start draggin, we want to store the uid + parentUid
 const onDragStart = (ev: DragEvent) => {
-  if (
-    !ev.dataTransfer ||
-    !(ev.target instanceof HTMLElement) ||
-    !props.isDraggable
-  )
+  if (!ev.dataTransfer || !(ev.target instanceof HTMLElement) || !isDraggable)
     return
 
   ev.target.classList.add('dragging')
@@ -77,34 +75,34 @@ const onDragStart = (ev: DragEvent) => {
   ev.dataTransfer.effectAllowed = 'move'
 
   // Store dragging item
-  draggingItem.value = { id: props.id, parentId: parentId.value }
-  emit('onDragStart', { id: props.id, parentId: parentId.value })
+  draggingItem.value = { id: id, parentId: parentId.value }
+  emit('onDragStart', { id: id, parentId: parentId.value })
 }
 
 /** Check if isDroppable guard */
 const _isDroppable = (offset: number) =>
-  typeof props.isDroppable === 'function'
-    ? props.isDroppable(draggingItem.value!, {
-        id: props.id,
+  typeof isDroppable === 'function'
+    ? isDroppable(draggingItem.value!, {
+        id: id,
         parentId: parentId.value,
         offset,
       })
-    : props.isDroppable
+    : isDroppable
 
 // On dragging over we decide which highlight to show
 const onDragOver = throttle((ev: DragEvent) => {
   // Don't highlight if hovering over self or child
   if (
     !draggingItem.value ||
-    draggingItem.value.id === props.id ||
-    props.parentIds.includes(draggingItem.value?.id ?? '')
+    draggingItem.value.id === id ||
+    parentIds.includes(draggingItem.value?.id ?? '')
   )
     return
 
   const previousOffset = hoveredItem.value?.offset
   const height = (ev.target as HTMLDivElement).offsetHeight
-  const floor = props.floor * height
-  const ceiling = props.ceiling * height
+  const _floor = floor * height
+  const _ceiling = ceiling * height
   let offset = 3
 
   // handle negative offset to be previous offset
@@ -112,22 +110,22 @@ const onDragOver = throttle((ev: DragEvent) => {
     offset = previousOffset
   }
   // Above
-  else if (ev.offsetY <= floor) {
+  else if (ev.offsetY <= _floor) {
     offset = 0
   }
   // Below
-  else if (ev.offsetY >= ceiling) {
+  else if (ev.offsetY >= _ceiling) {
     offset = 1
   }
   // between
-  else if (ev.offsetY > floor && ev.offsetY < ceiling) {
+  else if (ev.offsetY > _floor && ev.offsetY < _ceiling) {
     offset = 2
   }
 
   // Hover guard
   if (!_isDroppable(offset)) return
 
-  hoveredItem.value = { id: props.id, parentId: parentId.value, offset }
+  hoveredItem.value = { id: id, parentId: parentId.value, offset }
 }, 25)
 
 // Set above middle below classes based on offset
@@ -135,7 +133,7 @@ const positionDict = ['above', 'below', 'asChild']
 const containerClass = computed(() => {
   let classList = 'sidebar-indent-nested'
 
-  if (props.id === hoveredItem.value?.id) {
+  if (id === hoveredItem.value?.id) {
     classList += ` dragover-${positionDict[hoveredItem.value.offset]}`
   }
 

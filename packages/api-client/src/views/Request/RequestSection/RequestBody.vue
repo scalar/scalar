@@ -85,7 +85,9 @@ const selectedContentType = computed({
   get: () =>
     contentTypeOptions.find(
       (opt) => opt.id === activeExampleContentType.value,
-    ) ?? contentTypeOptions[contentTypeOptions.length - 1],
+    ) ??
+    contentTypeOptions[contentTypeOptions.length - 1] ??
+    contentTypeOptions[0],
   set: (opt) => {
     if (opt?.id) updateActiveBody(opt.id)
   },

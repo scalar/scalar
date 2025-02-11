@@ -83,7 +83,7 @@ export function importCurlCommand(curlCommand: string): CurlCommandResult {
     url,
     path,
     headers,
-    servers: servers,
+    servers: servers ?? [],
     ...(Object.keys(requestBody).length > 0 && {
       requestBody: {
         content: {

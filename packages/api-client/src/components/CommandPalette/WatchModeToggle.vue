@@ -37,7 +37,7 @@ const modelValue = computed({
     </span>
     <ScalarToggle
       id="watch-toggle"
-      :disabled="disabled"
+      :disabled="Boolean(disabled)"
       :modelValue="modelValue"
       @update:modelValue="(value) => emit('update:modelValue', value)" />
   </label>

@@ -32,7 +32,7 @@ const { requestHistory, requestExampleMutators } = useWorkspace()
 
 const router = useRouter()
 
-const selectedRequest = ref(requestHistory[0])
+const selectedRequest = ref(requestHistory[0] ?? null)
 
 /** Use a local copy to prevent mutation of the reactive object */
 const history = computed(() =>

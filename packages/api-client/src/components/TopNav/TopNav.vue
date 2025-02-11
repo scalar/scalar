@@ -167,6 +167,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
             triggerClass="flex custom-scroll gap-1.5 h-full items-center justify-center w-full whitespace-nowrap">
             <template #trigger>
               <ScalarIcon
+                v-if="topNavItems[0]?.icon"
                 :icon="topNavItems[0]?.icon"
                 size="xs"
                 thickness="2.5" />

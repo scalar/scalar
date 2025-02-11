@@ -37,6 +37,7 @@ describe('setRequestCookies', () => {
       example,
       env: {},
       globalCookies,
+      proxyUrl: undefined,
       serverUrl: 'https://example.com/v1',
     })
 

@@ -20,8 +20,8 @@ export const getHarRequest = ({
   server,
   securitySchemes = [],
 }: {
-  operation?: Operation
-  example?: RequestExample
+  operation?: Operation | undefined
+  example?: RequestExample | undefined
   server?: Server | undefined
   securitySchemes?: SecurityScheme[]
 }): HarRequest => {

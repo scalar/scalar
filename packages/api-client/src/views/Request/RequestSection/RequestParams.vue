@@ -11,7 +11,11 @@ import {
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
-const props = defineProps<{
+const {
+  title,
+  paramKey,
+  readOnlyEntries = [],
+} = defineProps<{
   title: string
   paramKey: keyof RequestExample['parameters']
   readOnlyEntries?: {
@@ -25,9 +29,7 @@ const props = defineProps<{
 const { activeRequest, activeExample } = useActiveEntities()
 const { requestExampleMutators } = useWorkspace()
 
-const params = computed(
-  () => activeExample.value?.parameters[props.paramKey] ?? [],
-)
+const params = computed(() => activeExample.value?.parameters[paramKey] ?? [])
 
 onMounted(() => {
   defaultRow()
@@ -43,7 +45,7 @@ const addRow = () => {
 
   requestExampleMutators.edit(
     activeExample.value.uid,
-    `parameters.${props.paramKey}`,
+    `parameters.${paramKey}`,
     newParams,
   )
 }
@@ -80,7 +82,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
     requestExampleMutators.edit(
       activeExample.value.uid,
-      `parameters.${props.paramKey}`,
+      `parameters.${paramKey}`,
       updatedParams,
     )
   } else {
@@ -88,7 +90,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     const payload = [requestExampleParametersSchema.parse({ [field]: value })]
     requestExampleMutators.edit(
       activeExample.value.uid,
-      `parameters.${props.paramKey}`,
+      `parameters.${paramKey}`,
       payload,
     )
 
@@ -113,7 +115,7 @@ const toggleRow = (rowIdx: number, enabled: boolean) =>
   activeExample.value &&
   requestExampleMutators.edit(
     activeExample.value.uid,
-    `parameters.${props.paramKey}.${rowIdx}.enabled`,
+    `parameters.${paramKey}.${rowIdx}.enabled`,
     enabled,
   )
 
@@ -125,14 +127,12 @@ const deleteAllRows = () => {
 
   requestExampleMutators.edit(
     activeExample.value.uid,
-    `parameters.${props.paramKey}`,
+    `parameters.${paramKey}`,
     exampleParams,
   )
 
-  nextTick(() => {
-    /** ensure one empty row after deleting all rows */
-    addRow()
-  })
+  /** ensure one empty row after deleting all rows */
+  nextTick(() => addRow())
 }
 
 function defaultRow() {
@@ -164,9 +164,7 @@ watch(
   { immediate: true },
 )
 
-const hasReadOnlyEntries = computed(
-  () => (props.readOnlyEntries ?? []).length > 0,
-)
+const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
 </script>
 <template>
   <ViewLayoutCollapse

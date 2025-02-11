@@ -21,24 +21,24 @@ import { createApp, defineComponent, h } from 'vue'
  */
 class PillWidget extends WidgetType {
   private app: any
-  environment?: Environment
-  envVariables?: EnvVariables
-  workspace?: Workspace
-  isReadOnly?: boolean
+  environment: Environment | undefined
+  envVariables: EnvVariables | undefined
+  workspace: Workspace | undefined
+  isReadOnly: boolean
 
   constructor(
     private variableName: string,
-    environment?: Environment,
-    envVariables?: EnvVariables,
-    workspace?: Workspace,
-    isReadOnly?: boolean,
+    environment: Environment | undefined,
+    envVariables: EnvVariables | undefined,
+    workspace: Workspace | undefined,
+    isReadOnly: boolean | undefined,
   ) {
     super()
     this.variableName = variableName
     this.environment = environment
     this.envVariables = envVariables
     this.workspace = workspace
-    this.isReadOnly = isReadOnly
+    this.isReadOnly = isReadOnly ?? false
   }
 
   toDOM() {
@@ -128,19 +128,19 @@ class PillWidget extends WidgetType {
     return span
   }
 
-  destroy() {
+  override destroy() {
     if (this.app) {
       this.app.unmount()
     }
   }
 
-  eq(other: WidgetType) {
+  override eq(other: WidgetType) {
     return (
       other instanceof PillWidget && other.variableName === this.variableName
     )
   }
 
-  ignoreEvent() {
+  override ignoreEvent() {
     return false
   }
 }
@@ -149,10 +149,10 @@ class PillWidget extends WidgetType {
  * Styles the active environment variable pill
  */
 export const pillPlugin = (props: {
-  environment?: Environment
-  envVariables?: EnvVariables
-  workspace?: Workspace
-  isReadOnly?: boolean
+  environment: Environment | undefined
+  envVariables: EnvVariables | undefined
+  workspace: Workspace | undefined
+  isReadOnly: boolean | undefined
 }) =>
   ViewPlugin.fromClass(
     class {

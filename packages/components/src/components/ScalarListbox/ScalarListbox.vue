@@ -16,13 +16,13 @@ import ScalarListboxOption from './ScalarListboxItem.vue'
 import type { Option } from './types'
 
 type SingleSelectListboxProps = {
-  multiple?: false
-  modelValue?: Option
+  multiple?: false | undefined
+  modelValue?: Option | undefined
 }
 
 type MultipleSelectListboxProps = {
   multiple: true
-  modelValue?: Option[]
+  modelValue?: Option[] | undefined
 }
 
 defineProps<

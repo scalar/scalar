@@ -1,5 +1,4 @@
-import { ServerVariablesForm } from '@/components/Server'
-import { type ClientLayout, useLayout } from '@/hooks/useLayout'
+import { useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'
 import { PopoverPanel } from '@headlessui/vue'
 import {

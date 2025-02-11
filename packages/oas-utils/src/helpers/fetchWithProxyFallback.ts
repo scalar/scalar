@@ -1,7 +1,7 @@
 import { redirectToProxy, shouldUseProxy } from './redirectToProxy'
 
 export type FetchWithProxyFallbackOptions = {
-  proxy?: string
+  proxy: string | undefined
   /**
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Request/cache
    */

@@ -13,9 +13,9 @@ const props = withDefaults(
   defineProps<{
     modelValue: string | number
     value?: string[]
-    default?: string | number
+    default?: string | number | undefined
     canAddCustomValue?: boolean
-    type?: string
+    type?: string | undefined
   }>(),
   { canAddCustomValue: true },
 )

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 const props = defineProps<{
   value: string
-  controls?: string
+  controls: string | undefined
 }>()
 
 const emit = defineEmits<{
@@ -18,7 +18,7 @@ const model = computed<string>({
 <template>
   <input
     v-model="model"
-    :aria-controls="controls"
+    v-bind="controls ? { ...$attrs, 'aria-controls': controls } : {}"
     autocomplete="off"
     class="px-1.5 text-c-1 border-transparent -outline-offset-1 w-full group-last/label:rounded-br-lg"
     placeholder="value"

@@ -33,7 +33,7 @@ const variants = cva({
     <input
       :checked="modelValue"
       class="peer absolute inset-0 opacity-0 disabled:cursor-default cursor-pointer"
-      :disabled="disabled"
+      :disabled="Boolean(disabled)"
       type="checkbox"
       @change="(e: any) => $emit('update:modelValue', e.target.checked)" />
     <div :class="variants({ align })">

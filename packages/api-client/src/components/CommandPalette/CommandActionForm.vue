@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ScalarButton, type useLoadingState } from '@scalar/components'
 
-defineProps<{
+const { loading, disabled = false } = defineProps<{
   loading?: ReturnType<typeof useLoadingState>
-  disabled?: boolean
+  disabled: boolean
 }>()
 
 defineEmits<{

@@ -23,7 +23,6 @@ const emit = defineEmits<{
 }>()
 
 const formId = useId()
-
 const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
@@ -76,7 +75,7 @@ const updateServerVariable = (key: string, value: string) => {
     class="min-h-fit rounded flex flex-col border group/item"
     :class="{ 'border-transparent': !isSelectedServer }">
     <button
-      :aria-controls="isExpanded ? formId : undefined"
+      v-bind="isExpanded ? { 'aria-controls': formId } : {}"
       :aria-expanded="isExpanded"
       class="cursor-pointer rounded flex items-center gap-1.5 min-h-8 px-1.5"
       :class="isSelectedServer ? 'text-c-1 bg-b-2' : 'hover:bg-b-2'"

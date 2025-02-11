@@ -24,7 +24,7 @@ export function setRequestCookies({
   env: object
   globalCookies: Cookie[]
   serverUrl: string
-  proxyUrl?: string
+  proxyUrl: string | undefined
 }): {
   cookieParams: Cookie[]
 } {

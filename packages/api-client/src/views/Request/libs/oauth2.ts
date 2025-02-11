@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '@/libs'
+import type { ErrorResponse } from '@/libs/errors.ts'
 import type { Oauth2Flow, Server } from '@scalar/oas-utils/entities/spec'
 import { shouldUseProxy } from '@scalar/oas-utils/helpers'
 
@@ -227,7 +227,7 @@ export const authorizeServers = async (
   }: {
     code?: string
     pkce?: PKCEState | null
-    proxyUrl?: string
+    proxyUrl?: string | undefined
   } = {},
 ): Promise<ErrorResponse<string>> => {
   if (!flow) return [new Error('OAuth2 flow was not defined'), null]

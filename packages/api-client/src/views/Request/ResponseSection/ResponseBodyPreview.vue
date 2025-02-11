@@ -4,17 +4,22 @@ import { ref, watch } from 'vue'
 
 import ResponseBodyInfo from './ResponseBodyInfo.vue'
 
-const props = defineProps<{
+const {
+  src,
+  type,
+  mode,
+  alpha = false,
+} = defineProps<{
   src: string
   type: string
-  mode?: MediaPreview
-  alpha?: boolean
+  mode: MediaPreview
+  alpha?: boolean | undefined
 }>()
 
 const error = ref(false)
 
 watch(
-  () => props.src,
+  () => src,
   () => (error.value = false),
 )
 </script>

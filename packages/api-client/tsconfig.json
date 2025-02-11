@@ -1,19 +1,9 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.strict.json",
   "compilerOptions": {
-    "target": "ES2023",
     "paths": {
-      "@/*": ["./src/*"],
-      "@test/*": ["./test/*"]
-    },
-    "types": ["vite/client"],
-    "noUncheckedIndexedAccess": true
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src",
-    "global.d.ts",
-    "playground",
-    "../oas-utils/src/helpers/ensure-protocol.test.ts",
-    "../oas-utils/src/helpers/ensure-protocol.ts"
-  ]
+  "include": ["src", "playground"]
 }

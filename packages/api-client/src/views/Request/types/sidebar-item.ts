@@ -17,13 +17,13 @@ export type SidebarItem = {
     | { type: 'unknown'; uid: string }
   resourceTitle: string
   children: string[]
-  method?: RequestMethod
+  method?: RequestMethod | undefined
   link?: RouteLocationRaw
   warning?: string
   icon?: string
   edit: (name: string, icon?: string) => void
   delete: () => void
-  documentUrl?: string
+  documentUrl?: string | undefined
   watchMode?: boolean
 }
 

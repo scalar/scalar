@@ -17,7 +17,7 @@ const { activeWorkspace } = useActiveEntities()
 <template>
   <SideNavLink
     :is="RouterLink"
-    :active="active"
+    :active="Boolean(active)"
     :icon="icon"
     :to="{
       name: `${name}.default`,
