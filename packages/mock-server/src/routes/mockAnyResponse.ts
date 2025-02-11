@@ -77,7 +77,7 @@ export function mockAnyResponse(
       : null
 
   // Status code
-  const statusCode = parseInt(
+  const statusCode = Number.parseInt(
     preferredResponseKey === 'default'
       ? '200'
       : (preferredResponseKey ?? '200'),

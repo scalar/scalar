@@ -1,6 +1,6 @@
+import fs from 'node:fs/promises'
 import { serve } from '@hono/node-server'
 import { apiReference } from '@scalar/hono-api-reference'
-import fs from 'fs/promises'
 
 import { createMockServer } from '../src/createMockServer'
 
