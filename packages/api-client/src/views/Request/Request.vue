@@ -23,8 +23,6 @@ import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
-import RequestSidebar from './RequestSidebar.vue'
-
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 const workspaceContext = useWorkspace()
 const { toast } = useToasts()
@@ -44,12 +42,12 @@ const {
   cookies,
   modalState,
   requestHistory,
-  showSidebar,
   securitySchemes,
   requestMutators,
   serverMutators,
   servers,
   events,
+  showSidebar,
 } = workspaceContext
 
 // Extend the RequestPayload type to include url
@@ -223,6 +221,7 @@ function handleCurlImport(curl: string) {
   modalState.show()
 }
 </script>
+
 <template>
   <div
     v-if="activeCollection && activeWorkspace"
@@ -235,7 +234,7 @@ function handleCurlImport(curl: string) {
         v-if="showSidebar"
         :isSidebarOpen="isSidebarOpen"
         @newTab="$emit('newTab', $event)"
-        @update:isSidebarOpen="(val) => (isSidebarOpen = val)" />
+        @update:isSidebarOpen="(val: boolean) => (isSidebarOpen = val)" />
 
       <!-- Ensure we have a request for this view -->
       <div
@@ -289,6 +288,7 @@ function handleCurlImport(curl: string) {
     @close="modalState.hide()"
     @importCurl="createRequestFromCurl" />
 </template>
+
 <style scoped>
 .request-text-color-text {
   color: var(--scalar-color-1);
