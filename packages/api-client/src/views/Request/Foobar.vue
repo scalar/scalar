@@ -19,7 +19,7 @@ import { safeJSON } from '@scalar/object-utils/parse'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 
 import RequestSidebar from './RequestSidebar.vue'
 
@@ -219,23 +219,33 @@ function handleCurlImport(curl: string) {
   modalState.show()
 }
 </script>
+
 <template>
-  <RequestSubpageHeader
-    v-model="isSidebarOpen"
-    @hideModal="() => modalState.hide()"
-    @importCurl="handleCurlImport" />
-  <ViewLayout>
-    <!-- TODO possible loading state -->
-    <ViewLayoutContent
-      v-if="activeExample"
-      class="flex-1"
-      :class="[isSidebarOpen ? 'sidebar-active-hide-layout' : '']">
-      <RequestSection
-        :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
-      <ResponseSection :response="activeHistoryEntry?.response" />
-    </ViewLayoutContent>
-  </ViewLayout>
+  <div
+    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative z-0 overflow-hidden"
+    :class="{
+      '!mr-0 !mb-0 !border-0': layout === 'modal',
+    }">
+    <div class="flex h-full">
+      <RequestSidebar
+        v-if="showSidebar"
+        :isSidebarOpen="isSidebarOpen"
+        @newTab="$emit('newTab', $event)"
+        @update:isSidebarOpen="(val) => (isSidebarOpen = val)" />
+      <div class="flex flex-1 flex-col h-full">
+        <RouterView />
+      </div>
+    </div>
+  </div>
+  <ImportCurlModal
+    v-if="parsedCurl"
+    :collectionUid="activeCollection?.uid ?? ''"
+    :parsedCurl="parsedCurl"
+    :state="modalState"
+    @close="modalState.hide()"
+    @importCurl="createRequestFromCurl" />
 </template>
+
 <style scoped>
 .request-text-color-text {
   color: var(--scalar-color-1);

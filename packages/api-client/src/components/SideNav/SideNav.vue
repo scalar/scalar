@@ -36,30 +36,34 @@ const { activeWorkspace } = useActiveEntities()
           icon="Logo"
           size="xl" />
       </a>
+      <!-- Everything, but settings -->
       <li
-        v-for="({ icon, name, prettyName }, i) in ROUTES.filter(
-          (route) => route.name !== 'settings',
+        v-for="({ icon, to, displayName }, i) in ROUTES.filter(
+          (route) => route.to.name !== 'settings.default',
         )"
         :key="i">
         <SideNavRouterLink
           :active="
-            Boolean((currentRoute.name as string | undefined)?.startsWith(name))
+            Boolean(
+              (currentRoute.name as string | undefined)?.startsWith(to.name),
+            )
           "
           :icon="icon"
           :to="{
-            name: `${name}.default`,
+            ...to,
             params: {
               [PathId.Workspace]: activeWorkspace?.uid,
             },
           }">
-          {{ prettyName }}
+          {{ displayName }}
         </SideNavRouterLink>
       </li>
     </SideNavGroup>
+    <!-- Pinned to the bottom -->
     <SideNavGroup class="app-no-drag-region">
       <li class="flex items-center">
         <SideNavRouterLink
-          :active="currentRoute.name === 'settings'"
+          :active="currentRoute.name === 'settings.default'"
           icon="Settings"
           :to="{
             name: `settings.default`,
