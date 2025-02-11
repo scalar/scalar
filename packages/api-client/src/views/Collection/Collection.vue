@@ -5,13 +5,16 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities } from '@/store'
 import CollectionInfoForm from '@/views/Collection/CollectionInfoForm.vue'
+import CollectionSidebar from '@/views/Collection/CollectionSidebar.vue'
 
 const { activeCollection } = useActiveEntities()
 </script>
 <template>
   <ViewLayout>
     <Sidebar :title="activeCollection?.info?.title || 'Untitled Collection'">
-      <template #content></template>
+      <template #content>
+        <CollectionSidebar />
+      </template>
     </Sidebar>
     <ViewLayoutContent class="flex-1">
       <ViewLayoutSection>
