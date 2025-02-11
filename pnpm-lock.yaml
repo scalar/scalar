@@ -1893,10 +1893,10 @@ importers:
     dependencies:
       '@electron-toolkit/preload':
         specifier: ^3.0.0
-        version: 3.0.1(electron@34.0.2)
+        version: 3.0.1(electron@34.1.1)
       '@electron-toolkit/utils':
         specifier: ^3.0.0
-        version: 3.0.0(electron@34.0.2)
+        version: 3.0.0(electron@34.1.1)
       '@scalar/api-client':
         specifier: workspace:*
         version: link:../api-client
@@ -1941,8 +1941,8 @@ importers:
         specifier: ^12.0.0
         version: 12.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.6.2)
       electron:
-        specifier: ^34.0.2
-        version: 34.0.2
+        specifier: ^34.1.1
+        version: 34.1.1
       electron-vite:
         specifier: ^2.3.0
         version: 2.3.0(@swc/core@1.5.29)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
@@ -10259,8 +10259,8 @@ packages:
     resolution: {integrity: sha512-1mNTwCfkolXl3kMf50yW3vE2lZj0y92P/HYWFBrb+v2S/pCka5mdwN3cagKm458A7NjndSwijynXgcLWRodsVg==}
     engines: {node: '>=8.0.0'}
 
-  electron@34.0.2:
-    resolution: {integrity: sha512-u3F+DSUlg9NaGS+9qnYmSRN8VjAnc3LJDDk1ye1uISJnh4gjG76y3681qLowsPMx4obvCP2eBINnmbLo0yT5WA==}
+  electron@34.1.1:
+    resolution: {integrity: sha512-1aDYk9Gsv1/fFeClMrxWGoVMl7uCUgl1pe26BiTnLXmAoqEXCa3f3sCKFWV+cuDzUjQGAZcpkWhGYTgWUSQrLA==}
     engines: {node: '>= 12.20.55'}
     hasBin: true
 
@@ -21456,17 +21456,17 @@ snapshots:
       effect: 3.5.7
       fast-check: 3.20.0
 
-  '@electron-toolkit/preload@3.0.1(electron@34.0.2)':
+  '@electron-toolkit/preload@3.0.1(electron@34.1.1)':
     dependencies:
-      electron: 34.0.2
+      electron: 34.1.1
 
   '@electron-toolkit/tsconfig@1.0.1(@types/node@20.17.10)':
     dependencies:
       '@types/node': 20.17.10
 
-  '@electron-toolkit/utils@3.0.0(electron@34.0.2)':
+  '@electron-toolkit/utils@3.0.0(electron@34.1.1)':
     dependencies:
-      electron: 34.0.2
+      electron: 34.1.1
 
   '@electron/get@2.0.3':
     dependencies:
@@ -29320,7 +29320,7 @@ snapshots:
       jsonfile: 4.0.0
       mkdirp: 0.5.6
 
-  electron@34.0.2:
+  electron@34.1.1:
     dependencies:
       '@electron/get': 2.0.3
       '@types/node': 20.17.10
