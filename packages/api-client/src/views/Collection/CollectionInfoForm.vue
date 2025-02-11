@@ -12,12 +12,12 @@ const fields = [
   {
     label: 'Description',
     key: 'description',
-    placeholder: 'This API is just nuts.',
+    placeholder: 'This API is nuts.',
   },
   { label: 'Version', key: 'version', placeholder: '1.0.0' },
 ]
 
-const updateInfo = (key: any, value: any) => {
+const updateInfo = (key: string, value: string) => {
   if (!activeCollection?.value?.uid) {
     return
   }

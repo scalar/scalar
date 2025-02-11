@@ -136,13 +136,25 @@ export const routes = [
         name: 'collection',
         path: `collection/:${PathId.Collection}`,
         component: () => import('@/views/Collection/Collection.vue'),
-        // children: [
-        //   // Nested collection request
-        //   {
-        //     path: `request/${PathId.Request}`,
-        //     component: () => import('@/views/Request/Request.vue'),
-        //   },
-        // ],
+        redirect: (to) => {
+          return {
+            name: 'collection.overview',
+            params: { ...to.params },
+          }
+        },
+        children: [
+          {
+            name: 'collection.overview',
+            path: 'overview',
+            component: () =>
+              import('@/views/Collection/CollectionOverview.vue'),
+          },
+          {
+            name: 'collection.servers',
+            path: 'servers',
+            component: () => import('@/views/Collection/CollectionServers.vue'),
+          },
+        ],
       },
       /** Components will map to each section of the spec components object */
       // {

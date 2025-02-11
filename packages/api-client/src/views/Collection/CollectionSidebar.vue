@@ -3,12 +3,7 @@ import SideNavGroup from '@/components/SideNav/SideNavGroup.vue'
 import SideNavRouterLink from '@/components/SideNav/SideNavRouterLink.vue'
 import { useLayout } from '@/hooks'
 import type { Icon } from '@scalar/components'
-import {
-  type RouteLocationNamedRaw,
-  type RouteLocationOptions,
-  type RouteLocationRaw,
-  useRouter,
-} from 'vue-router'
+import { type RouteLocationNamedRaw, useRouter } from 'vue-router'
 
 const { currentRoute } = useRouter()
 const { layout } = useLayout()
@@ -23,9 +18,16 @@ const routes: CollectionSidebarEntry[] = [
   {
     icon: 'Settings',
     to: {
-      name: 'collection',
+      name: 'collection.overview',
     },
     displayName: 'Info',
+  },
+  {
+    icon: 'Server',
+    to: {
+      name: 'collection.servers',
+    },
+    displayName: 'Servers',
   },
 ] as const
 </script>
