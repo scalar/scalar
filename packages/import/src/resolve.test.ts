@@ -361,6 +361,33 @@ describe('resolve', () => {
     })
   })
 
+  it('finds embedded OpenAPI document in script tag, even if it contains HTML tags (JSON)', async () => {
+    const html = `<!DOCTYPE html>
+<html>
+  <head />
+  <body>
+    <script
+        id="api-reference"
+        type="application/json">{"openapi":"3.0.0","paths":{"/v1/projects/{ref}/sessions/tags":{"type":"string","pattern":"/^\\s*([a-z0-9_-]+(\\s*,+\\s*)?)*\\s*$/i"}}}</script>
+  </body>
+</html>
+    `
+
+    // @ts-expect-error Mocking types are missing
+    fetch.mockResolvedValue(createFetchResponse(html))
+
+    const result = await resolve('https://example.com/reference')
+
+    expect(result).toStrictEqual({
+      openapi: '3.1.0',
+      info: {
+        title: 'Hello World',
+        version: '1.0',
+        description: 'Cats API<br>The cats API description',
+      },
+    })
+  })
+
   it('finds embedded OpenAPI document in script tag (YAML)', async () => {
     const html = `<!DOCTYPE html>
 <html>
