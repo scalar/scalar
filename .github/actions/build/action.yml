@@ -23,7 +23,7 @@ runs:
       shell: bash
       run: pnpm install
     - name: Restore Turborepo cache
-      uses: actions/cache/restore@3624ceb22c1c5a301c8db4169662070a689d9ea8
+      uses: actions/cache/restore@1bd1e32a3bdc45362d1e726936510720a7c30a57
       with:
         path: .turbo
         key: turbo-${{ runner.os }}-node-${{ inputs.node-version }}-${{ github.sha }}
