@@ -13,7 +13,7 @@ export function getPathFromUrl(url: string): string {
     // Normalize: remove trailing slash except for root path
     const path = urlObject.pathname
     return path === '/' ? path : path.replace(/\/$/, '')
-  } catch (error) {
+  } catch {
     // If URL is invalid, return the original string
     return url
   }
