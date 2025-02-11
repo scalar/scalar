@@ -13,9 +13,11 @@ export const createApiClientModal = async ({
   configuration = {},
   mountOnInitialize = true,
   store,
-}: Pick<
-  CreateApiClientParams,
-  'el' | 'configuration' | 'mountOnInitialize' | 'store'
+}: Partial<
+  Pick<
+    CreateApiClientParams,
+    'el' | 'configuration' | 'mountOnInitialize' | 'store'
+  >
 >) => {
   // Default sidebar to closed in the modal
   const _configuration = {
@@ -65,9 +67,11 @@ export const createApiClientModalSync = ({
   configuration = {},
   mountOnInitialize = true,
   store,
-}: Pick<
-  CreateApiClientParams,
-  'el' | 'configuration' | 'mountOnInitialize' | 'store'
+}: Partial<
+  Pick<
+    CreateApiClientParams,
+    'el' | 'configuration' | 'mountOnInitialize' | 'store'
+  >
 >) =>
   createApiClient({
     el,
