@@ -209,6 +209,30 @@ describe('createParamInstance', () => {
       default: false,
     })
   })
+
+  it('works with array of types', () => {
+    const result = createParamInstance({
+      in: 'path',
+      name: 'foo',
+      required: true,
+      deprecated: false,
+      schema: {
+        type: ['string', 'null'],
+      },
+    })
+
+    expect(result).toEqual({
+      key: 'foo',
+      enabled: true,
+      enum: undefined,
+      examples: undefined,
+      description: undefined,
+      required: true,
+      type: 'string',
+      nullable: true,
+      value: '',
+    })
+  })
 })
 
 describe('parameterArrayToObject', () => {
