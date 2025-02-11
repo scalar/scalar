@@ -13,13 +13,13 @@ export const ROUTES = [
     },
     icon: 'Cookie',
   },
-  {
-    displayName: 'Environment',
-    to: {
-      name: 'environment.default',
-    },
-    icon: 'Brackets',
-  },
+  // {
+  //   displayName: 'Environment',
+  //   to: {
+  //     name: 'environment.default',
+  //   },
+  //   icon: 'Brackets',
+  // },
   {
     displayName: 'Settings',
     to: {
