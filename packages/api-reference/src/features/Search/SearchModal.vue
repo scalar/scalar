@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { lazyBus } from '@/components/Content/Lazy/lazyBus'
+import SidebarHttpBadge from '@/components/Sidebar/SidebarHttpBadge.vue'
+import { scrollToId } from '@/helpers'
+import { useSidebar } from '@/hooks'
+import type { WorkspaceStore } from '@scalar/api-client/store'
 import {
   type Icon,
   type ModalState,
@@ -7,23 +12,16 @@ import {
   ScalarSearchResultItem,
   ScalarSearchResultList,
 } from '@scalar/components'
-import type { Spec } from '@scalar/types/legacy'
 import type { FuseResult } from 'fuse.js'
 import { nanoid } from 'nanoid'
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-import { lazyBus } from '../../components/Content/Lazy/lazyBus'
-import SidebarHttpBadge from '../../components/Sidebar/SidebarHttpBadge.vue'
-import { scrollToId } from '../../helpers'
-import { useSidebar } from '../../hooks'
 import { type EntryType, type FuseData, useSearchIndex } from './useSearchIndex'
 
-const props = defineProps<{
-  parsedSpec: Spec
+const { store, modalState } = defineProps<{
+  store: WorkspaceStore
   modalState: ModalState
 }>()
-
-const specification = toRef(props, 'parsedSpec')
 
 /** Base id for the search form */
 const id = nanoid()
@@ -41,7 +39,7 @@ const {
   searchResultsWithPlaceholderResults,
   searchText,
 } = useSearchIndex({
-  specification,
+  store,
 })
 
 const ENTRY_ICONS: { [x in EntryType]: Icon } = {
@@ -63,7 +61,7 @@ const ENTRY_LABELS: { [x in EntryType]: string } = {
 const searchModalRef = ref<HTMLElement | null>(null)
 
 watch(
-  () => props.modalState.open,
+  () => modalState.open,
   (open) => {
     if (open) {
       resetSearch()
@@ -95,12 +93,12 @@ function onSearchResultClick(entry: FuseResult<FuseData>) {
       if (ev.id === targetId) {
         scrollToId(targetId)
         unsubscribe()
-        props.modalState.hide()
+        modalState.hide()
       }
     })
   } else {
     scrollToId(targetId)
-    props.modalState.hide()
+    modalState.hide()
   }
 }
 

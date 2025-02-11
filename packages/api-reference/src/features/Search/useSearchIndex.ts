@@ -1,3 +1,4 @@
+import type { WorkspaceStore } from '@scalar/api-client/store'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec, TransformedOperation } from '@scalar/types/legacy'
 import Fuse, { type FuseResult } from 'fuse.js'
@@ -30,11 +31,7 @@ export type FuseData = {
 /**
  * Creates the search index from an OpenAPI document.
  */
-export function useSearchIndex({
-  specification,
-}: {
-  specification: Ref<Spec>
-}) {
+export function useSearchIndex({ store }: { store: WorkspaceStore }) {
   const { getHeadingId, getWebhookId, getModelId, getOperationId, getTagId } =
     useNavState()
 
@@ -86,24 +83,17 @@ export function useSearchIndex({
   )
 
   watch(
-    specification.value,
+    () => store.workspaces,
     async () => {
       fuseDataArray.value = []
 
-      // Likely an incomplete/invalid spec
-      // TODO: Or just an OpenAPI document without tags and webhooks?
-      if (
-        !specification.value?.tags?.length &&
-        !specification.value?.webhooks?.length
-      ) {
-        fuse.setCollection([])
-        return
-      }
+      // Get the first collection from the store
+      const collection = Object.values(store.collections)[0]
 
       // Headings from the description
       const headingsData: FuseData[] = []
       const headings = getHeadingsFromMarkdown(
-        specification.value?.info?.description ?? '',
+        collection?.info?.description ?? '',
       )
 
       if (headings.length) {
@@ -121,48 +111,56 @@ export function useSearchIndex({
         fuseDataArray.value = fuseDataArray.value.concat(headingsData)
       }
 
+      console.log(
+        'TAGS',
+        collection.tags.map((uid) => store.tags[uid]),
+      )
+
       // Tags
-      specification.value?.tags?.forEach((tag) => {
-        const tagData: FuseData = {
-          title: tag['x-displayName'] ?? tag.name,
-          href: `#${getTagId(tag)}`,
-          description: tag.description,
-          type: 'tag',
-          tag: tag.name,
-          body: '',
-        }
+      collection.tags
+        .map((uid) => store.tags[uid])
+        ?.forEach((tag) => {
+          const tagData: FuseData = {
+            title: tag?.['x-displayName'] ?? tag?.name,
+            href: `#${getTagId(tag)}`,
+            description: tag?.description,
+            type: 'tag',
+            tag: tag?.name,
+            body: '',
+          }
 
-        fuseDataArray.value.push(tagData)
+          fuseDataArray.value.push(tagData)
 
-        if (tag.operations) {
-          tag.operations.forEach((operation) => {
-            const { parameterMap } = useOperation(operation)
-            const bodyData = extractRequestBody(operation) || parameterMap.value
-            let body = null
-            if (typeof bodyData !== 'boolean') {
-              body = bodyData
-            }
+          if (tag.operations) {
+            tag.operations.forEach((operation) => {
+              const { parameterMap } = useOperation(operation)
+              const bodyData =
+                extractRequestBody(operation) || parameterMap.value
+              let body = null
+              if (typeof bodyData !== 'boolean') {
+                body = bodyData
+              }
 
-            const operationData: FuseData = {
-              type: 'req',
-              title: operation.name ?? operation.path,
-              href: `#${getOperationId(operation, tag)}`,
-              operationId: operation.operationId,
-              description: operation.description ?? '',
-              httpVerb: operation.httpVerb,
-              path: operation.path,
-              tag: tag.name,
-              operation,
-            }
+              const operationData: FuseData = {
+                type: 'req',
+                title: operation.name ?? operation.path,
+                href: `#${getOperationId(operation, tag)}`,
+                operationId: operation.operationId,
+                description: operation.description ?? '',
+                httpVerb: operation.httpVerb,
+                path: operation.path,
+                tag: tag.name,
+                operation,
+              }
 
-            if (body) {
-              operationData.body = body
-            }
+              if (body) {
+                operationData.body = body
+              }
 
-            fuseDataArray.value.push(operationData)
-          })
-        }
-      })
+              fuseDataArray.value.push(operationData)
+            })
+          }
+        })
 
       // Adding webhooks
       const webhooks = specification.value?.webhooks

@@ -32,13 +32,12 @@ const config = computed(() => ({ ...props.configuration, showSidebar: false }))
         :name="name"
         v-bind="slotProps || {}"></slot>
     </template>
-    <template #content-start="{ spec }">
+    <template #content-start>
       <ClassicHeader>
         <SearchButton
           v-if="!props.configuration.hideSearch"
           class="t-doc__sidebar"
-          :searchHotKey="config.searchHotKey"
-          :spec="spec" />
+          :searchHotKey="config.searchHotKey" />
         <template #dark-mode-toggle>
           <ScalarColorModeToggleIcon
             v-if="!props.configuration.hideDarkModeToggle"
