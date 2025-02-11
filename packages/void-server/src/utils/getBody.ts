@@ -99,7 +99,6 @@ function transformFormData(formData: Record<string, any>) {
     // Object
     if (typeof value === 'object') {
       body[key] = transformFormData(value)
-      continue
     }
   }
 
