@@ -136,10 +136,9 @@ export const routes = [
         name: 'collection',
         path: `collection/:${PathId.Collection}`,
         component: () => import('@/views/Collection/Collection.vue'),
-        redirect: (to) => {
+        redirect: () => {
           return {
             name: 'collection.overview',
-            params: { ...to.params },
           }
         },
         children: [

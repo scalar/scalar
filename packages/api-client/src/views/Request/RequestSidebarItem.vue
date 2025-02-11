@@ -87,20 +87,22 @@ const item = computed<SidebarItem>(() => {
 
   if (collection)
     return {
-      title: collection.info?.title ?? 'Unknown title',
+      title: collection.info?.title || 'Untitled Collection',
       entity: collection,
       resourceTitle: 'Collection',
       children: collection.children,
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
       watchMode: collection.watchMode,
-      link: {
-        name: 'collection',
-        params: {
-          workspace: activeWorkspace.value?.uid,
-          collection: collection.uid,
-        },
-      },
+      link: collection.uid
+        ? {
+            name: 'collection',
+            params: {
+              [PathId.Workspace]: activeWorkspace.value?.uid,
+              [PathId.Collection]: collection.uid,
+            },
+          }
+        : undefined,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
