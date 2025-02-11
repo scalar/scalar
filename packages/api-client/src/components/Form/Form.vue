@@ -27,7 +27,9 @@ const { activeEnvVariables, activeEnvironment, activeWorkspace } =
 </script>
 <template>
   <ViewLayoutSection>
-    <template #title>
+    <template
+      v-if="title || $slots.title"
+      #title>
       <span v-if="title">{{ title }}</span>
       <slot
         v-else

@@ -67,7 +67,7 @@ const collectionServers = computed(() =>
   <ViewLayout>
     <Sidebar>
       <template #content>
-        <div class="flex-1">
+        <div class="flex-1 my-2">
           <SidebarList>
             <SidebarListElement
               v-for="server in collectionServers"

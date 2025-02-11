@@ -52,8 +52,7 @@ const updateServer = (key: string, value: string) => {
       <Form
         :data="activeServer"
         :onUpdate="updateServer"
-        :options="options"
-        title="Server" />
+        :options="options" />
     </template>
   </div>
 </template>
