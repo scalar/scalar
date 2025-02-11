@@ -48,6 +48,9 @@ info:
     name: Marc from Scalar
     url: https://scalar.com
     email: marc@scalar.com
+  license:
+    name: MIT
+    url: https://opensource.org/license/MIT
 servers:
   - url: https://galaxy.scalar.com
   - url: '{protocol}://void.scalar.com/{path}'
@@ -66,6 +69,7 @@ security:
   - apiKeyHeader: []
   - apiKeyCookie: []
   - oAuth2: []
+  - openIdConnect: []
 tags:
   - name: Authentication
     description:
@@ -84,8 +88,8 @@ paths:
       security:
         - {}
       parameters:
-        - '$ref': '#/components/parameters/limit'
-        - '$ref': '#/components/parameters/offset'
+        - $ref: '#/components/parameters/limit'
+        - $ref: '#/components/parameters/offset'
       responses:
         '200':
           description: OK
@@ -98,8 +102,20 @@ paths:
                       data:
                         type: array
                         items:
-                          '$ref': '#/components/schemas/Planet'
-                  - '$ref': '#/components/schemas/PaginatedResource'
+                          $ref: '#/components/schemas/Planet'
+                  - $ref: '#/components/schemas/PaginatedResource'
+            application/xml:
+              schema:
+                allOf:
+                  - type: object
+                    xml:
+                      name: planets
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Planet'
+                  - $ref: '#/components/schemas/PaginatedResource'
     post:
       tags:
         - Planets
@@ -111,18 +127,24 @@ paths:
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/Planet'
+              $ref: '#/components/schemas/Planet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Planet'
       responses:
         '201':
           description: Created
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/Planet'
+                $ref: '#/components/schemas/Planet'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Planet'
         '400':
-          '$ref': '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '403':
-          '$ref': '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
   '/planets/{planetId}':
     get:
       tags:
@@ -133,16 +155,19 @@ paths:
       security:
         - {}
       parameters:
-        - '$ref': '#/components/parameters/planetId'
+        - $ref: '#/components/parameters/planetId'
       responses:
         '200':
           description: Planet Found
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/Planet'
+                $ref: '#/components/schemas/Planet'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Planet'
         '404':
-          '$ref': '#/components/responses/NotFound'
+          $ref: '#/components/responses/NotFound'
     put:
       tags:
         - Planets
@@ -154,22 +179,28 @@ paths:
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/Planet'
+              $ref: '#/components/schemas/Planet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Planet'
       parameters:
-        - '$ref': '#/components/parameters/planetId'
+        - $ref: '#/components/parameters/planetId'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/Planet'
+                $ref: '#/components/schemas/Planet'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Planet'
         '400':
-          '$ref': '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '403':
-          '$ref': '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          '$ref': '#/components/responses/NotFound'
+          $ref: '#/components/responses/NotFound'
     delete:
       tags:
         - Planets
@@ -181,7 +212,7 @@ paths:
         and should not be used anymore.
       x-scalar-stability: experimental
       parameters:
-        - '$ref': '#/components/parameters/planetId'
+        - $ref: '#/components/parameters/planetId'
       responses:
         '204':
           description: No Content
@@ -195,8 +226,9 @@ paths:
       description: Got a crazy good photo of a planet? Share it with the world!
       operationId: uploadImage
       parameters:
-        - '$ref': '#/components/parameters/planetId'
+        - $ref: '#/components/parameters/planetId'
       requestBody:
+        description: Image to upload
         content:
           multipart/form-data:
             schema:
@@ -211,22 +243,13 @@ paths:
                     jupiter: '@jupiter.png'
       responses:
         '200':
-          description: Image uploaded
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    examples:
-                      - Image uploaded successfully
+          $ref: '#/components/responses/ImageUploaded'
         '400':
-          '$ref': '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
         '403':
-          '$ref': '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
         '404':
-          '$ref': '#/components/responses/NotFound'
+          $ref: '#/components/responses/NotFound'
   '/user/signup':
     post:
       tags:
@@ -237,10 +260,25 @@ paths:
       security:
         - {}
       requestBody:
+        description: User to create
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/User'
+              $ref: '#/components/schemas/User'
+            examples:
+              Marc:
+                value:
+                  name: Marc
+                  email: marc@scalar.com
+                  password: i-love-scalar
+              Cam:
+                value:
+                  name: Cam
+                  email: cam@scalar.com
+                  password: scalar-is-cool
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/User'
             examples:
               Marc:
                 value:
@@ -258,9 +296,12 @@ paths:
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/User'
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
-          '$ref': '#/components/responses/BadRequest'
+          $ref: '#/components/responses/BadRequest'
   '/auth/token':
     post:
       tags:
@@ -271,17 +312,24 @@ paths:
       security:
         - {}
       requestBody:
+        description: Credentials to authenticate a user
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/Credentials'
+              $ref: '#/components/schemas/Credentials'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Credentials'
       responses:
         '201':
           description: Token Created
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/Token'
+                $ref: '#/components/schemas/Token'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Token'
   '/me':
     get:
       tags:
@@ -302,11 +350,14 @@ paths:
           content:
             application/json:
               schema:
-                '$ref': '#/components/schemas/User'
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
         '401':
-          '$ref': '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/Unauthorized'
         '403':
-          '$ref': '#/components/responses/Forbidden'
+          $ref: '#/components/responses/Forbidden'
 webhooks:
   newPlanet:
     post:
@@ -317,7 +368,10 @@ webhooks:
         content:
           application/json:
             schema:
-              '$ref': '#/components/schemas/Planet'
+              $ref: '#/components/schemas/Planet'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Planet'
       responses:
         '200':
           description:
@@ -386,6 +440,7 @@ components:
   parameters:
     planetId:
       name: planetId
+      description: The ID of the planet to get
       in: path
       required: true
       schema:
@@ -395,8 +450,8 @@ components:
           - 1
     limit:
       name: limit
-      in: query
       description: The number of items to return
+      in: query
       required: false
       schema:
         type: integer
@@ -404,120 +459,68 @@ components:
         default: 10
     offset:
       name: offset
-      in: query
       description:
         The number of items to skip before starting to collect the result
         set
+      in: query
       required: false
       schema:
         type: integer
         format: int64
         default: 0
   responses:
+    ImageUploaded:
+      description: Image uploaded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ImageUploadedMessage'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ImageUploadedMessage'
     BadRequest:
       description: Bad Request
       content:
         application/json:
           schema:
-            type: object
-            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-            properties:
-              type:
-                type: string
-                examples:
-                  - https://example.com/errors/bad-request
-              title:
-                type: string
-                examples:
-                  - Bad Request
-              status:
-                type: integer
-                format: int64
-                examples:
-                  - 400
-              detail:
-                type: string
-                examples:
-                  - The request was invalid.
+            $ref: '#/components/schemas/BadRequestError'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/BadRequestError'
     Forbidden:
       description: Forbidden
       content:
         application/json:
           schema:
-            type: object
-            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-            properties:
-              type:
-                type: string
-                examples:
-                  - https://example.com/errors/forbidden
-              title:
-                type: string
-                examples:
-                  - Forbidden
-              status:
-                type: integer
-                format: int64
-                examples:
-                  - 403
-              detail:
-                type: string
-                examples:
-                  - You are not authorized to access this resource.
+            $ref: '#/components/schemas/ForbiddenError'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/ForbiddenError'
     NotFound:
       description: NotFound
       content:
         application/json:
           schema:
-            type: object
-            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-            properties:
-              type:
-                type: string
-                examples:
-                  - https://example.com/errors/not-found
-              title:
-                type: string
-                examples:
-                  - Not Found
-              status:
-                type: integer
-                format: int64
-                examples:
-                  - 404
-              detail:
-                type: string
-                examples:
-                  - The resource you are trying to access does not exist.
+            $ref: '#/components/schemas/NotFoundError'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/NotFoundError'
     Unauthorized:
       description: Unauthorized
       content:
         application/json:
           schema:
-            type: object
-            description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
-            properties:
-              type:
-                type: string
-                examples:
-                  - https://example.com/errors/not-found
-              title:
-                type: string
-                examples:
-                  - Unauthorized
-              status:
-                type: integer
-                format: int64
-                examples:
-                  - 401
-              detail:
-                type: string
-                examples:
-                  - You are not authorized to access this resource.
+            $ref: '#/components/schemas/UnauthorizedError'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/UnauthorizedError'
   schemas:
     User:
+      description: A user
       allOf:
         - type: object
+          xml:
+            name: user
           properties:
             id:
               type: integer
@@ -531,6 +534,7 @@ components:
                 - Marc
         - $ref: '#/components/schemas/Credentials'
     Credentials:
+      description: Credentials to authenticate a user
       type: object
       required:
         - email
@@ -547,6 +551,7 @@ components:
           examples:
             - i-love-scalar
     Token:
+      description: A token to authenticate a user
       type: object
       properties:
         token:
@@ -554,10 +559,13 @@ components:
           examples:
             - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
     Planet:
+      description: A planet
       type: object
       required:
         - id
         - name
+      xml:
+        name: planet
       properties:
         id:
           type: integer
@@ -582,8 +590,9 @@ components:
           examples:
             - https://cdn.scalar.com/photos/mars.jpg
         creator:
-          '$ref': '#/components/schemas/User'
+          $ref: '#/components/schemas/User'
     PaginatedResource:
+      description: A paginated resource
       type: object
       properties:
         meta:
@@ -610,3 +619,122 @@ components:
                 - 'null'
               examples:
                 - '/planets?limit=10&offset=10'
+    ImageUploadedMessage:
+      x-scalar-ignore: true
+      description: Message about an image upload
+      type: object
+      properties:
+        message:
+          type: string
+          examples:
+            - Image uploaded successfully
+        imageUrl:
+          type: string
+          description: The URL where the uploaded image can be accessed
+          examples:
+            - https://cdn.scalar.com/images/8f47c132-9d1f-4f83-b5a4-91db5ee757ab.jpg
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the image was uploaded
+          examples:
+            - '2024-01-15T14:30:00Z'
+        fileSize:
+          type: integer
+          description: Size of the uploaded image in bytes
+          examples:
+            - 1048576
+        mimeType:
+          type: string
+          description: The content type of the uploaded image
+          examples:
+            - image/jpeg
+            - image/png
+    BadRequestError:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/bad-request
+        title:
+          type: string
+          examples:
+            - Bad Request
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 400
+        detail:
+          type: string
+          examples:
+            - The request was invalid.
+    ForbiddenError:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/forbidden
+        title:
+          type: string
+          examples:
+            - Forbidden
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 403
+        detail:
+          type: string
+          examples:
+            - You are not authorized to access this resource.
+    NotFoundError:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/not-found
+        title:
+          type: string
+          examples:
+            - Not Found
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 404
+        detail:
+          type: string
+          examples:
+            - The resource you are trying to access does not exist.
+    UnauthorizedError:
+      x-scalar-ignore: true
+      description: RFC 7807 (https://datatracker.ietf.org/doc/html/rfc7807)
+      type: object
+      properties:
+        type:
+          type: string
+          examples:
+            - https://example.com/errors/not-found
+        title:
+          type: string
+          examples:
+            - Unauthorized
+        status:
+          type: integer
+          format: int64
+          examples:
+            - 401
+        detail:
+          type: string
+          examples:
+            - You are not authorized to access this resource.
