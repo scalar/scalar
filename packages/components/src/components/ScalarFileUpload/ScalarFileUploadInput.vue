@@ -10,8 +10,8 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarButton } from '../ScalarButton'
 import { useBindCx } from '../../hooks/useBindCx'
+import { ScalarButton } from '../ScalarButton'
 import type {
   FileUploadInputEmits,
   FileUploadInputProps,

@@ -11,8 +11,8 @@
 export default {}
 </script>
 <script setup lang="ts">
-import { ScalarIcon } from '../ScalarIcon/'
 import { useBindCx } from '../../hooks/useBindCx'
+import { ScalarIcon } from '../ScalarIcon/'
 
 defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()

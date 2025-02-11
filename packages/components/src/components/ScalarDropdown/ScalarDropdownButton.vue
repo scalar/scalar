@@ -18,6 +18,7 @@ export default {}
 </script>
 <script setup lang="ts">
 import type { Component } from 'vue'
+
 import { cva, cx } from '../../cva'
 
 const { is = 'button' } = defineProps<{
