@@ -56,8 +56,8 @@ export function rehypeHighlight(
   }
 
   /** Transform.*/
-  return function (tree: Root, file: VFile) {
-    visit(tree, 'element', function (node, _, parent) {
+  return (tree: Root, file: VFile) => {
+    visit(tree, 'element', (node, _, parent) => {
       if (
         node.tagName !== 'code' ||
         !parent ||
@@ -95,16 +95,13 @@ export function rehypeHighlight(
         const cause = error as Error
 
         if (lang && /Unknown language/.test(cause.message)) {
-          file.message(
-            'Cannot highlight as `' + lang + '`, it’s not registered',
-            {
-              ancestors: [parent, node],
-              cause,
-              place: node.position,
-              ruleId: 'missing-language',
-              source: 'rehype-highlight',
-            },
-          )
+          file.message(`Cannot highlight as \`${lang}\`, it’s not registered`, {
+            ancestors: [parent, node],
+            cause,
+            place: node.position,
+            ruleId: 'missing-language',
+            source: 'rehype-highlight',
+          })
 
           /* c8 ignore next 5 -- throw arbitrary hljs errors */
           return
@@ -114,7 +111,7 @@ export function rehypeHighlight(
       }
 
       if (!lang && result.data?.language) {
-        node.properties.className.push('language-' + result.data.language)
+        node.properties.className.push(`language-${result.data.language}`)
       }
 
       if (result.children.length > 0) {
