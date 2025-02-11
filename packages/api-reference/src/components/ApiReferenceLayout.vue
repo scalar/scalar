@@ -275,7 +275,7 @@ provide(ACTIVE_ENTITIES_SYMBOL, activeEntitiesStore)
 provide(LAYOUT_SYMBOL, 'modal')
 
 // Provide the configuration
-provide(CONFIGURATION_SYMBOL, props.configuration)
+provide(CONFIGURATION_SYMBOL, props.configuration ?? {})
 
 // ---------------------------------------------------------------------------/
 // HANDLE MAPPING CONFIGURATION TO INTERNAL REFERENCE STATE

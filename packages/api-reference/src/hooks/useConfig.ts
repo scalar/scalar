@@ -6,6 +6,6 @@ export const CONFIGURATION_SYMBOL =
 
 /** Hook for easy access to the reference configuration */
 export const useConfig = () => {
-  const config = inject(CONFIGURATION_SYMBOL, undefined)
+  const config = inject(CONFIGURATION_SYMBOL, {})
   return config
 }
