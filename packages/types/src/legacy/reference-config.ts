@@ -258,6 +258,19 @@ export type ReferenceConfiguration = {
    * @default undefined
    * @example 'http://localhost:3000'
    */
+  /**
+   * Callback that triggers as soon as the references are lazy loaded.
+   *
+   * Note: you must pass this function through js, setting a data attribute will not work!
+   *
+   * @example
+   * ```ts
+   * onLoaded: () => {
+   *   console.log('references loaded')
+   * }
+   * ```
+   */
+  onLoaded?: () => void
   baseServerURL?: string
   /**
    * List of servers to override the servers in the given OpenAPI document

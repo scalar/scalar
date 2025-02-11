@@ -25,32 +25,35 @@
         spec: {
           url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
         },
+        onLoaded: () => {
+          console.log('references loaded')
+        },
       })
 
       // Replace the OpenAPI document URL
-      let currentOpenApiDocument = 'scalar-galaxy'
+      // let currentOpenApiDocument = 'scalar-galaxy'
 
-      setInterval(() => {
-        currentOpenApiDocument =
-          currentOpenApiDocument === 'scalar-galaxy'
-            ? 'outline'
-            : 'scalar-galaxy'
+      // setInterval(() => {
+      //   currentOpenApiDocument =
+      //     currentOpenApiDocument === 'scalar-galaxy'
+      //       ? 'outline'
+      //       : 'scalar-galaxy'
 
-        reference.updateSpec({
-          url:
-            currentOpenApiDocument === 'scalar-galaxy'
-              ? 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json'
-              : 'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
-        })
-      }, 4000)
+      //   reference.updateSpec({
+      //     url:
+      //       currentOpenApiDocument === 'scalar-galaxy'
+      //         ? 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json'
+      //         : 'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
+      //   })
+      // }, 4000)
 
-      // Toggle dark mode
-      let isDark = false
+      // // Toggle dark mode
+      // let isDark = false
 
-      setInterval(() => {
-        isDark = !isDark
-        reference.updateConfig({ darkMode: isDark })
-      }, 2000)
+      // setInterval(() => {
+      //   isDark = !isDark
+      //   reference.updateConfig({ darkMode: isDark })
+      // }, 2000)
     </script>
   </body>
 </html>
