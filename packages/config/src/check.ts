@@ -1,7 +1,7 @@
+import fs from 'node:fs'
 import { getSchemaErrors, recursiveSidebarIterate } from '@/utils'
 import type { Static } from '@sinclair/typebox'
 import { Value, type ValueError } from '@sinclair/typebox/value'
-import fs from 'node:fs'
 
 import { ScalarConfigSchema, sidebarSchemaMap } from './configTypes'
 
