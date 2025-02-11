@@ -11,7 +11,7 @@ namespace Scalar.AspNetCore;
 public sealed partial class ScalarOptions
 {
 
-    [GeneratedRegex("^[a-zA-Z]+://.*", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+    [GeneratedRegex("^[a-zA-Z]+://.*", RegexOptions.IgnoreCase)]
     private static partial Regex OpenApiRoutePatternIsUrlRegex();
     
     /// <summary>
