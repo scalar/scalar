@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ROUTES } from '@/constants'
 import { useLayout } from '@/hooks'
+import { PathId } from '@/routes'
+import { useActiveEntities } from '@/store'
 import { ScalarIcon } from '@scalar/components'
 import { useRouter } from 'vue-router'
 
@@ -11,6 +13,8 @@ import SideNavRouterLink from './SideNavRouterLink.vue'
 
 const { currentRoute } = useRouter()
 const { layout } = useLayout()
+
+const { activeWorkspace } = useActiveEntities()
 </script>
 <template>
   <nav
@@ -42,7 +46,12 @@ const { layout } = useLayout()
             Boolean((currentRoute.name as string | undefined)?.startsWith(name))
           "
           :icon="icon"
-          :name="name">
+          :to="{
+            name: `${name}.default`,
+            params: {
+              [PathId.Workspace]: activeWorkspace?.uid,
+            },
+          }">
           {{ prettyName }}
         </SideNavRouterLink>
       </li>
@@ -52,7 +61,12 @@ const { layout } = useLayout()
         <SideNavRouterLink
           :active="currentRoute.name === 'settings'"
           icon="Settings"
-          name="settings">
+          :to="{
+            name: `settings.default`,
+            params: {
+              [PathId.Workspace]: activeWorkspace?.uid,
+            },
+          }">
           Settings
         </SideNavRouterLink>
       </li>
