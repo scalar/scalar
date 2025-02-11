@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { Operation } from '@/features/Operation'
-import { useConfig } from '@/hooks/useConfig'
 import { useActiveEntities } from '@scalar/api-client/store'
 import type { OpenAPIV3 } from '@scalar/openapi-types'
 import type {
@@ -52,7 +51,6 @@ const models = ref<string[]>([])
 const { activeCollection, activeServer } = useActiveEntities()
 const { getModelId, getSectionId, getTagId, hash, isIntersectionEnabled } =
   useNavState()
-const { onLoaded } = useConfig()
 
 const isLoading = ref(props.layout !== 'classic' && hash.value)
 
@@ -125,20 +123,10 @@ watch(
   { immediate: true },
 )
 
-const hasLoaded = ref(false)
-
 // Scroll to hash when component has rendered
 const unsubscribe = lazyBus.on(({ id }) => {
   const hashStr = hash.value
-
-  if (!hashStr || id !== hashStr) {
-    // Only call onLoaded once if we have no hash
-    if ((!hashStr || hashStr.startsWith('description')) && !hasLoaded.value) {
-      onLoaded?.()
-      hasLoaded.value = true
-    }
-    return
-  }
+  if (!hashStr || id !== hashStr) return
 
   // Unsubscribe once our element has loaded
   unsubscribe()
@@ -148,7 +136,6 @@ const unsubscribe = lazyBus.on(({ id }) => {
   setTimeout(() => {
     if (typeof window !== 'undefined') scrollToId(hashStr)
     isLoading.value = false
-    onLoaded?.()
     setTimeout(() => (isIntersectionEnabled.value = true), 1000)
   }, 300)
 })

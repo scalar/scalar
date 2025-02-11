@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { useConfig } from '@/hooks/useConfig'
 import type { OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import GitHubSlugger from 'github-slugger'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 import DownloadLink from '../../../features/DownloadLink/DownloadLink.vue'
 import { Badge } from '../../Badge'
@@ -50,6 +51,10 @@ const version = computed(() => {
       ? `v${props.info.version}`
       : undefined
 })
+
+/** Trigger the onLoaded event when the component is mounted */
+const { onLoaded } = useConfig()
+onMounted(() => onLoaded?.())
 </script>
 <template>
   <SectionContainer>
