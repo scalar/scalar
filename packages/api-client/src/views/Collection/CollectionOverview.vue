@@ -5,7 +5,6 @@ import CollectionInfoForm from '@/views/Collection/CollectionInfoForm.vue'
 
 <template>
   <ViewLayoutSection>
-    <template #title>Overview</template>
     <CollectionInfoForm />
   </ViewLayoutSection>
 </template>
