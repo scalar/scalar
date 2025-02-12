@@ -112,7 +112,21 @@ public class ScalarEndpointTests(WebApplicationFactory<Program> factory) : IClas
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotModified);
     }
+    
+    [Fact]
+    public async Task MapScalarApiReference_ShouldNotPrefixOpenApiUrlWithOrigin_WhenRouteIsUrl()
+    {
+        // Arrange
+        var client = factory.CreateClient();
 
+        // Act
+        var response = await client.GetAsync("/external/document/scalar", TestContext.Current.CancellationToken);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var content = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        content.ReplaceLineEndings().Should().Contain("`https://example.com/openapi.json`");
+    }
 
     [Fact]
     public async Task MapScalarApiReference_ShouldAddDefaultOpenApiDocument_WhenNotSpecified()

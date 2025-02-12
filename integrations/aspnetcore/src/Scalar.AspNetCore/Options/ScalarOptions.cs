@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http;
 
 namespace Scalar.AspNetCore;
@@ -7,8 +8,17 @@ namespace Scalar.AspNetCore;
 /// Represents all available options for the Scalar API reference.
 /// Based on <a href="https://github.com/scalar/scalar/blob/main/documentation/configuration.md">Configuration</a>.
 /// </summary>
-public sealed class ScalarOptions
+public sealed partial class ScalarOptions
 {
+
+    [GeneratedRegex("^[a-zA-Z]+://.*", RegexOptions.IgnoreCase)]
+    private static partial Regex OpenApiRoutePatternIsUrlRegex();
+    
+    /// <summary>
+    /// Returns whether the <see cref="OpenApiRoutePattern"/> is set to a URL (true) or a route/path (false).
+    /// </summary>
+    internal bool IsOpenApiRoutePatternUrl => OpenApiRoutePatternIsUrlRegex().IsMatch(OpenApiRoutePattern);
+    
     internal List<string> DocumentNames { get; } = [];
 
     /// <summary>
@@ -43,9 +53,9 @@ public sealed class ScalarOptions
 
     /// <summary>
     /// Gets or sets the route pattern of the OpenAPI document.
+    /// Can also be a complete URL to a remote OpenAPI document, just be aware of CORS restrictions in this case.
     /// </summary>
     /// <value>The default value is <c>'/openapi/{documentName}.json'</c>.</value>
-    [StringSyntax("Route")]
     public string OpenApiRoutePattern
     {
         get => field.TrimStart('/');

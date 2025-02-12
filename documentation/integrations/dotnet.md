@@ -185,7 +185,7 @@ app.MapScalarApiReference(options =>
 
 ### OpenAPI Document
 
-Scalar expects the OpenAPI document to be located at `/openapi/{documentName}.json`, matching the route of the built-in .NET OpenAPI generator in the `Microsoft.AspNetCore.OpenApi` package. If the document is located elsewhere (e.g., when using `Swashbuckle` or `NSwag`), specify the path using the `OpenApiRoutePattern` property:
+Scalar expects the OpenAPI document to be located at `/openapi/{documentName}.json`, matching the route of the built-in .NET OpenAPI generator in the `Microsoft.AspNetCore.OpenApi` package. If the document is located elsewhere (e.g., when using `Swashbuckle` or `NSwag`), specify the path or URL using the `OpenApiRoutePattern` property:
 
 ```csharp
 app.MapScalarApiReference(options =>
@@ -193,6 +193,8 @@ app.MapScalarApiReference(options =>
     options.WithOpenApiRoutePattern("/swagger/{documentName}.json");
     // or
     options.OpenApiRoutePattern = "/swagger/{documentName}.json";
+    // Can also point to an external URL:
+    options.OpenApiRoutePattern = "https://example.com/swagger/{documentName}.json";
 });
 ```
 
