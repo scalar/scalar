@@ -93,7 +93,7 @@ const item = computed<SidebarItem>(() => {
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
       watchMode: collection.watchMode,
-      link: collection.uid
+      to: collection.uid
         ? {
             name: 'collection',
             params: {
@@ -131,7 +131,7 @@ const item = computed<SidebarItem>(() => {
   if (request)
     return {
       title: request.summary ?? request.path,
-      link: {
+      to: {
         name: 'request',
         params: {
           workspace: activeWorkspace.value?.uid,
@@ -155,7 +155,7 @@ const item = computed<SidebarItem>(() => {
   if (requestExample)
     return {
       title: requestExample.name,
-      link: {
+      to: {
         name: 'request.examples',
         params: {
           workspace: activeWorkspace.value?.uid,
