@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { PathId } from '@/routes'
 import { useActiveEntities } from '@/store'
-import {
-  type Icon,
-  ScalarSidebar,
-  ScalarSidebarItem,
-  ScalarSidebarItems,
-} from '@scalar/components'
+// import type { Icon } from '@scalar/components'
 import { computed } from 'vue'
 import { type RouteLocationNamedRaw, RouterLink, useRouter } from 'vue-router'
 
@@ -14,7 +9,7 @@ const { currentRoute } = useRouter()
 const { activeCollection } = useActiveEntities()
 
 type CollectionSidebarEntry = {
-  icon: Icon
+  // icon: Icon
   to: RouteLocationNamedRaw
   displayName: string
 }
@@ -22,7 +17,7 @@ type CollectionSidebarEntry = {
 const routes = computed<CollectionSidebarEntry[]>(() => [
   {
     displayName: 'Overview',
-    icon: 'Collection',
+    // icon: 'Collection',
     to: {
       name: 'collection.overview',
       params: {
@@ -32,7 +27,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Authentication',
-    icon: 'Lock',
+    // icon: 'Lock',
     to: {
       name: 'collection.authentication',
       params: {
@@ -42,7 +37,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Servers',
-    icon: 'Server',
+    // icon: 'Server',
     to: {
       name: 'collection.servers',
       params: {
@@ -52,7 +47,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Environments',
-    icon: 'Brackets',
+    // icon: 'Brackets',
     to: {
       name: 'collection.environment',
       params: {
@@ -62,7 +57,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Cookies',
-    icon: 'Cookie',
+    // icon: 'Cookie',
     to: {
       name: 'collection.cookies',
       params: {
@@ -72,7 +67,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Scripts',
-    icon: 'CodeFolder',
+    // icon: 'CodeFolder',
     to: {
       name: 'collection.scripts',
       params: {
@@ -82,7 +77,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   },
   {
     displayName: 'Sync',
-    icon: 'Download',
+    // icon: 'Download',
     to: {
       name: 'collection.sync',
     },
@@ -90,24 +85,27 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
 ])
 </script>
 <template>
-  <div class="flex-1">
-    <ScalarSidebar>
-      <ScalarSidebarItems>
-        <ScalarSidebarItem
-          :is="RouterLink"
-          v-for="({ icon, to, displayName }, i) in routes"
-          :key="i"
-          class="text-sm"
-          :icon="icon"
-          :selected="
-            typeof to.name === 'string' &&
-            typeof currentRoute.name === 'string' &&
-            currentRoute.name?.startsWith(to.name)
-          "
-          :to="to">
-          {{ displayName }}
-        </ScalarSidebarItem>
-      </ScalarSidebarItems>
-    </ScalarSidebar>
+  <!-- <div
+    class="border-b min-h-11 -mb-0.25 flex items-center px-2.5 text-sm font-medium sticky top-0 bg-b-1 xl:rounded-none">
+    <span class="text-c-2">
+      {{ activeCollection?.info?.title || 'Untitled Collection' }}
+    </span>
+  </div> -->
+  <div
+    class="border-b-1/2 border-b-c-2 min-h-11 -mb-0.25 flex items-center px-2.5 text-sm font-medium sticky top-0 bg-b-1 xl:rounded-none gap-2">
+    <RouterLink
+      v-for="({ to, displayName }, i) in routes"
+      :key="i"
+      class="hover:bg-b-2 rounded p-1 px-2 cursor-pointer text-center font-medium whitespace-nowrap has-[:focus-visible]:outline text-sm no-underline"
+      :class="
+        typeof to.name === 'string' &&
+        typeof currentRoute.name === 'string' &&
+        currentRoute.name?.startsWith(to.name)
+          ? 'bg-b-3'
+          : ''
+      "
+      :to="to">
+      {{ displayName }}
+    </RouterLink>
   </div>
 </template>
