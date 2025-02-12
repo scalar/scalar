@@ -110,7 +110,7 @@ export const getSelectedSecuritySchemeUids = (
     })
 
   // Set the first security requirement if no preferred security schemes are set
-  if (!preferredSecurityNames.length && securityRequirements.length) {
+  if (!preferredSecurityNames.length && securityRequirements[0]) {
     preferredSecurityNames.push(securityRequirements[0])
   }
 
