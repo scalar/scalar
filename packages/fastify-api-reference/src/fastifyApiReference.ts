@@ -198,10 +198,8 @@ const fastifyApiReference = fp<
       if (fastify.hasPlugin('@fastify/swagger')) {
         return {
           type: 'swagger' as const,
-          get: () => {
-            // @ts-ignore We know that @fastify/swagger is loaded.
-            return fastify.swagger() as OpenAPI.Document
-          },
+          // @ts-ignore We know that @fastify/swagger is loaded.
+          get: () => fastify.swagger() as OpenAPI.Document,
         }
       }
       return void 0
@@ -227,7 +225,7 @@ const fastifyApiReference = fp<
       ]
 
       for (const hook of additionalHooks) {
-        hooks[hook] = options.hooks[hook]
+        if (options.hooks[hook]) hooks[hook] = options.hooks[hook]
       }
     }
 
