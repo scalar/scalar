@@ -36,6 +36,7 @@
     "enabled": true,
     "lineEnding": "lf",
     "indentWidth": 2,
+    "lineWidth": 120,
     "indentStyle": "space",
     "attributePosition": "multiline"
   },
