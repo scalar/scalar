@@ -1,5 +1,4 @@
 import { Storage } from '@google-cloud/storage'
-import path from 'node:path'
 
 // Function to download the GCP file to memory
 export const downloadFileToMemory = async (

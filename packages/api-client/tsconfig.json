@@ -1,6 +1,7 @@
 {
   "extends": "../../tsconfig.strict.json",
   "compilerOptions": {
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["./src/*"]
     }

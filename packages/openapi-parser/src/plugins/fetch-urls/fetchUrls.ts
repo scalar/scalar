@@ -59,6 +59,7 @@ export const fetchUrls: (customConfiguration?: {
         return await response.text()
       } catch (error) {
         console.error('[fetchUrls]', error.message, `(${value})`)
+        return undefined
       }
     },
   }

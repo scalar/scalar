@@ -29,23 +29,20 @@
 
     /* If transpiling with TypeScript: */
     // "module": "NodeNext",
-    "sourceMap": true,
+    // "sourceMap": true,
     "allowImportingTsExtensions": true,
-    "emitDeclarationOnly": true,
+    // "emitDeclarationOnly": true,
 
     /* AND if you're building for a library: */
-    "declaration": true,
+    // "declaration": true,
 
     /* AND if you're building for a library in a monorepo: */
     // "composite": true,
-    "declarationMap": true,
-
-    /** Shared between packages */
-    "types": ["vite/client"],
+    // "declarationMap": true,
 
     /* If NOT transpiling with TypeScript: */
-    "module": "preserve"
-    // "noEmit": true
+    "module": "preserve",
+    "noEmit": true
 
     /* If your code runs in the DOM: */
     // "lib": ["es2022", "dom", "dom.iterable"],

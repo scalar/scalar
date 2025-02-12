@@ -23,7 +23,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "build": "vite build && pnpm types:build",
+    "build": "scalar-build-vite",
     "dev": "pnpm playground:app",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
@@ -32,8 +32,8 @@
     "playground:web": "vite ./playground/web -c ./vite.config.ts",
     "preview": "vite preview",
     "test": "vitest",
-    "types:build": "vue-tsc -p tsconfig.build.json",
-    "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
+    "types:build": "scalar-types-build-vue",
+    "types:check": "scalar-types-check-vue"
   },
   "type": "module",
   "main": "dist/index.js",

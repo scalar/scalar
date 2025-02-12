@@ -45,6 +45,7 @@ export const readFiles: () => LoadPlugin = () => {
         return fs.readFileSync(value, 'utf-8')
       } catch (error) {
         console.error('[readFiles]', error)
+        return false
       }
     },
     resolvePath(value: any, reference: string) {

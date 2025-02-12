@@ -192,7 +192,7 @@ function resolveUri(
       message: ERRORS.INVALID_REFERENCE.replace('%s', uri),
     })
 
-    return
+    return undefined
   }
 
   // Understand the URI
@@ -219,7 +219,7 @@ function resolveUri(
         message: ERRORS.EXTERNAL_REFERENCE_NOT_FOUND.replace('%s', prefix),
       })
 
-      return
+      return undefined
     }
     // $ref: 'other-file.yaml'
     if (path === undefined) {
@@ -256,4 +256,6 @@ function resolveUri(
       message: ERRORS.INVALID_REFERENCE.replace('%s', uri),
     })
   }
+
+  return undefined
 }
