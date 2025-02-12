@@ -274,7 +274,7 @@ const handleNavigation = (event: KeyboardEvent, _item: SidebarItem) => {
     const isModifierPressed = modifier.some((key) => event[key])
 
     if (isModifierPressed) emit('newTab', _item.title || '', _item.entity.uid)
-    else if (_item.link) router.push(_item.link)
+    else if (_item.to) router.push(_item.to)
   }
 }
 
@@ -342,10 +342,10 @@ const shouldShowItem = computed(() => {
       @onDragEnd="(...args) => $emit('onDragEnd', ...args)">
       <!-- Request -->
       <RouterLink
-        v-if="item.link"
+        v-if="item.to"
         v-slot="{ isExactActive }"
         class="group no-underline"
-        :to="item.link"
+        :to="item.to"
         @click.prevent="
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
