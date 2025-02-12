@@ -31,6 +31,16 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
     },
   },
   {
+    displayName: 'Authentication',
+    icon: 'Lock',
+    to: {
+      name: 'collection.authentication',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
+  {
     displayName: 'Servers',
     icon: 'Server',
     to: {
@@ -45,6 +55,26 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
     icon: 'Brackets',
     to: {
       name: 'collection.environment',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
+  {
+    displayName: 'Cookies',
+    icon: 'Cookie',
+    to: {
+      name: 'collection.cookies',
+      params: {
+        [PathId.Collection]: activeCollection.value?.uid,
+      },
+    },
+  },
+  {
+    displayName: 'Scripts',
+    icon: 'CodeFolder',
+    to: {
+      name: 'collection.scripts',
       params: {
         [PathId.Collection]: activeCollection.value?.uid,
       },
