@@ -110,6 +110,22 @@ const requestRoutes = [
               import('@/views/Collection/CollectionEnvironment.vue'),
           },
           {
+            name: 'collection.authentication',
+            path: `authentication`,
+            component: () =>
+              import('@/views/Collection/CollectionAuthentication.vue'),
+          },
+          {
+            name: 'collection.cookies',
+            path: `cookies`,
+            component: () => import('@/views/Collection/CollectionCookies.vue'),
+          },
+          {
+            name: 'collection.scripts',
+            path: `scripts`,
+            component: () => import('@/views/Collection/CollectionScripts.vue'),
+          },
+          {
             name: 'collection.sync',
             path: `sync`,
             component: () => import('@/views/Collection/CollectionSync.vue'),
