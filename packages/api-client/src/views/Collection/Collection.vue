@@ -2,7 +2,6 @@
 import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
-import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useActiveEntities } from '@/store'
 import CollectionSidebar from '@/views/Collection/CollectionSidebar.vue'
 import { RouterView } from 'vue-router'
