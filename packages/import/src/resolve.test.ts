@@ -379,11 +379,12 @@ describe('resolve', () => {
     const result = await resolve('https://example.com/reference')
 
     expect(result).toStrictEqual({
-      openapi: '3.1.0',
-      info: {
-        title: 'Hello World',
-        version: '1.0',
-        description: 'Cats API<br>The cats API description',
+      openapi: '3.0.0',
+      paths: {
+        '/v1/projects/{ref}/sessions/tags': {
+          pattern: '/^\\s*([a-z0-9_-]+(\\s*,+\\s*)?)*\\s*$/i',
+          type: 'string',
+        },
       },
     })
   })

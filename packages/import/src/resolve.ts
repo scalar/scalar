@@ -229,9 +229,18 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
 
     if (content) {
       try {
+        // JSON
         return JSON.parse(content)
       } catch {
-        return parse(content)
+        try {
+          // JSON with escaped whitespace
+          const sanitizedContent = content.replace(/\\s/g, '\\\\s')
+
+          return JSON.parse(sanitizedContent)
+        } catch {
+          // YAML
+          return parse(content)
+        }
       }
     }
   } catch (error) {
