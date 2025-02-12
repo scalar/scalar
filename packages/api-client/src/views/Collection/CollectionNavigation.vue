@@ -92,17 +92,17 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
     </span>
   </div> -->
   <div
-    class="border-b-1/2 border-b-c-2 min-h-11 -mb-0.25 flex items-center px-2.5 text-sm font-medium sticky top-0 bg-b-1 xl:rounded-none gap-2">
+    class="border-b min-h-11 flex items-center px-3 text-sm font-medium sticky top-0 bg-b-1 gap-5">
     <RouterLink
       v-for="({ to, displayName }, i) in routes"
       :key="i"
-      class="hover:bg-b-2 rounded p-1 px-2 cursor-pointer text-center font-medium whitespace-nowrap has-[:focus-visible]:outline text-sm no-underline"
+      class="border-b border-solid border-transparent flex items-center h-full cursor-pointer text-center font-medium whitespace-nowrap has-[:focus-visible]:outline text-sm no-underline"
       :class="
         typeof to.name === 'string' &&
         typeof currentRoute.name === 'string' &&
         currentRoute.name?.startsWith(to.name)
-          ? 'bg-b-3'
-          : ''
+          ? 'border-white text-c-1'
+          : 'text-c-2 hover:text-c-1'
       "
       :to="to">
       {{ displayName }}
