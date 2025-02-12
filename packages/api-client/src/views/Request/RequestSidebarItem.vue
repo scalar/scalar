@@ -437,7 +437,7 @@ const shouldShowItem = computed(() => {
         <div class="flex flex-1 flex-row justify-between">
           <RouterLink
             v-if="item.to"
-            class="no-underline"
+            class="no-underline w-full"
             :to="item.to"
             @click.stop.prevent>
             <span class="break-all line-clamp-1 font-medium text-left w-full">
