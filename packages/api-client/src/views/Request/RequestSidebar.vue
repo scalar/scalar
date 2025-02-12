@@ -328,7 +328,7 @@ const showGettingStarted = computed(() =>
         <nav
           v-else
           class="contents">
-          <!-- Collections -->
+          <!-- Collection -->
           <RequestSidebarItem
             v-for="collection in activeWorkspaceCollections"
             :key="collection.uid"
