@@ -21,6 +21,7 @@ import {
 } from '../../components/Card'
 import { HttpMethod } from '../../components/HttpMethod'
 import ScreenReader from '../../components/ScreenReader.vue'
+import { useConfig } from '../../hooks/useConfig'
 import { type HttpClientState, useHttpClientStore } from '../../stores'
 import ExamplePicker from './ExamplePicker.vue'
 import TextSelect from './TextSelect.vue'
@@ -37,6 +38,7 @@ const { transformedOperation, operation, collection, server } = defineProps<{
 
 const { selectedExampleKey, operationId } = useExampleStore()
 const { requestExamples, securitySchemes } = useWorkspace()
+const config = useConfig()
 
 const {
   httpClient,
@@ -276,7 +278,9 @@ function updateHttpClient(value: string) {
       </div>
     </CardContent>
     <CardFooter
-      v-if="hasMultipleExamples || $slots.footer"
+      v-if="
+        (hasMultipleExamples || !config.hideTestRequestButton) && $slots.footer
+      "
       class="request-card-footer"
       contrast>
       <div
