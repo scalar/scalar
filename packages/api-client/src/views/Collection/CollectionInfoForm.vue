@@ -3,7 +3,8 @@ import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarButton, ScalarMarkdown } from '@scalar/components'
+import MarkdownInput from '@/views/Collection/components/MarkdownInput.vue'
+import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { computed } from 'vue'
 
@@ -30,6 +31,15 @@ const updateCollectionTitle = (value: string) => {
   if (!activeCollection.value) return
 
   collectionMutators.edit(activeCollection.value.uid, 'info.title', value)
+}
+
+/**
+ * Update info.description
+ */
+const updateCollectionDescription = (value: string) => {
+  if (!activeCollection.value) return
+
+  collectionMutators.edit(activeCollection.value.uid, 'info.description', value)
 }
 
 /**
@@ -70,10 +80,10 @@ const data = computed(() => {
           @updateValue="updateCollectionTitle" />
       </div>
     </div>
-    <p
-      v-if="data.description"
-      class="leading-normal mt-3 text-c-2">
-      <ScalarMarkdown :value="data.description" />
+    <p class="leading-normal mt-3 text-c-2">
+      <MarkdownInput
+        :modelValue="data.description ?? ''"
+        @update:value="updateCollectionDescription" />
     </p>
   </div>
 </template>
