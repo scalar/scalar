@@ -1,5 +1,17 @@
 # @scalar/aspnetcore
 
+## 2.0.14
+
+### Patch Changes
+
+- 7016bb8: feat(aspnetcore): allow full url for OpenApiRoutePattern
+- Updated dependencies [600ce16]
+- Updated dependencies [6e077ba]
+- Updated dependencies [305d084]
+- Updated dependencies [4de3124]
+- Updated dependencies [f2b082a]
+  - @scalar/api-reference@1.25.118
+
 ## 2.0.13
 
 ### Patch Changes

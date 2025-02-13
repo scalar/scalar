@@ -1,5 +1,15 @@
 # @scalar/galaxy
 
+## 0.2.19
+
+### Patch Changes
+
+- f500435: chore: stricter TypeScript configuration
+- fac2800: feat: error responses
+- fac2800: feat: use package version as version
+- 31f93d7: feat: add xml support
+- fac2800: feat: file upload examples
+
 ## 0.2.18
 
 ### Patch Changes

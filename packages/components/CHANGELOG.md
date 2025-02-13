@@ -1,5 +1,15 @@
 # @scalar/components
 
+## 0.13.23
+
+### Patch Changes
+
+- 69da9e0: feat(components): create file uploader component
+- f500435: chore: stricter TypeScript configuration
+  - @scalar/themes@0.9.66
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.20
+
 ## 0.13.22
 
 ### Patch Changes

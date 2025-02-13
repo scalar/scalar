@@ -1,5 +1,12 @@
 # @scalar/draggable
 
+## 0.1.9
+
+### Patch Changes
+
+- f500435: chore: stricter TypeScript configuration
+- 34e6f52: feat: upgrade to stricter tsconfig
+
 ## 0.1.8
 
 ### Patch Changes

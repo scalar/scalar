@@ -1,5 +1,26 @@
 # @scalar/api-client-react
 
+## 1.1.27
+
+### Patch Changes
+
+- f500435: chore: stricter TypeScript configuration
+- Updated dependencies [d028579]
+- Updated dependencies [c5e9597]
+- Updated dependencies [bdddb12]
+- Updated dependencies [f500435]
+- Updated dependencies [c5e9597]
+- Updated dependencies [f9a75af]
+- Updated dependencies [a515167]
+- Updated dependencies [82c8f39]
+- Updated dependencies [b2a19ba]
+- Updated dependencies [fa59538]
+- Updated dependencies [34e6f52]
+- Updated dependencies [bdddb12]
+- Updated dependencies [d2165a8]
+- Updated dependencies [4de3124]
+  - @scalar/api-client@2.2.47
+
 ## 1.1.26
 
 ### Patch Changes

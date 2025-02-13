@@ -1,5 +1,12 @@
 # @scalar/openapi-parser
 
+## 0.10.6
+
+### Patch Changes
+
+- 4de3124: feat: make 'null' the second type in an array when upgrading
+- 34e6f52: feat: upgrade to stricter tsconfig
+
 ## 0.10.5
 
 ### Patch Changes

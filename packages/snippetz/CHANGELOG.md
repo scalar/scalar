@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.12
+
+### Patch Changes
+
+- f9eee3f: feat: new http 1.1 plugin
+
 ## 0.2.11
 
 ### Patch Changes

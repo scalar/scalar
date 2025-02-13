@@ -1,5 +1,14 @@
 # @scalar/types
 
+## 0.0.32
+
+### Patch Changes
+
+- f500435: chore: stricter TypeScript configuration
+- b5727ef: feat: allow pre-selecting multiple and complex auth
+- 34e6f52: feat: upgrade to stricter tsconfig
+- f2b082a: feat: add onLoaded event
+
 ## 0.0.31
 
 ### Patch Changes
