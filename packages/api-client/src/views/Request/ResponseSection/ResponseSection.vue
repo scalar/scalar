@@ -12,13 +12,14 @@ import ResponseBodyVirtual from './ResponseBodyVirtual.vue'
 import ResponseCookies from './ResponseCookies.vue'
 import ResponseHeaders from './ResponseHeaders.vue'
 
-const props = defineProps<{
+const { numWorkspaceRequests, response } = defineProps<{
+  numWorkspaceRequests: number
   response: ResponseInstance | undefined
 }>()
 
 // Headers
 const responseHeaders = computed(() => {
-  const headers = props.response?.headers
+  const headers = response?.headers
 
   return headers
     ? Object.keys(headers)
@@ -40,8 +41,8 @@ const responseHeaders = computed(() => {
 // Cookies
 const responseCookies = computed(
   () =>
-    props.response?.cookieHeaderKeys.flatMap((key) => {
-      const value = props.response?.headers?.[key]
+    response?.cookieHeaderKeys.flatMap((key) => {
+      const value = response?.headers?.[key]
 
       return value
         ? {
@@ -60,17 +61,19 @@ const activeSection = ref<ActiveSections>('All')
 /** Threshold for virtualizing response bodies in bytes */
 const VIRTUALIZATION_THRESHOLD = 200_000
 const shouldVirtualize = computed(() => {
-  if (!props.response) return false
+  if (!response) return false
 
   // Get content type from headers
   const contentType =
-    props.response.headers?.['content-type'] ||
-    props.response.headers?.['Content-Type']
+    response.headers?.['content-type'] || response.headers?.['Content-Type']
 
   // If no content type or response size is small, don't virtualize
-  if (!contentType || (props.response.size ?? 0) <= VIRTUALIZATION_THRESHOLD) {
+  if (!contentType || (response.size ?? 0) <= VIRTUALIZATION_THRESHOLD) {
     return false
   }
+
+  // Do not virtualize html
+  if (contentType.includes('text/html')) return false
 
   // Common text-based content types
   const textBasedTypes = [
@@ -105,7 +108,7 @@ const shouldVirtualize = computed(() => {
   // Check if content type matches any text-based type
   const isTextBased = textBasedTypes.some((type) => contentType.includes(type))
 
-  return isTextBased && (props.response.size ?? 0) > VIRTUALIZATION_THRESHOLD
+  return isTextBased && (response.size ?? 0) > VIRTUALIZATION_THRESHOLD
 })
 </script>
 <template>
@@ -136,7 +139,7 @@ const shouldVirtualize = computed(() => {
         'content-start': response,
       }">
       <template v-if="!response">
-        <ResponseEmpty />
+        <ResponseEmpty :numWorkspaceRequests="numWorkspaceRequests" />
       </template>
       <template v-else>
         <ResponseCookies
@@ -149,15 +152,15 @@ const shouldVirtualize = computed(() => {
         <template v-if="activeSection === 'All' || activeSection === 'Body'">
           <!-- Virtualized Text for massive responses -->
           <ResponseBodyVirtual
-            v-if="shouldVirtualize && typeof props.response?.data === 'string'"
-            :content="props.response!.data"
-            :data="props.response?.data"
+            v-if="shouldVirtualize && typeof response?.data === 'string'"
+            :content="response!.data"
+            :data="response?.data"
             :headers="responseHeaders" />
 
           <ResponseBody
             v-else
             :active="true"
-            :data="props.response?.data"
+            :data="response?.data"
             :headers="responseHeaders"
             title="Body" />
         </template>
