@@ -1,5 +1,17 @@
 # @scalar/api-reference-react
 
+## 0.4.27
+
+### Patch Changes
+
+- fac2800: refactor: directly import the scalar galaxy example in the playground
+- Updated dependencies [600ce16]
+- Updated dependencies [6e077ba]
+- Updated dependencies [305d084]
+- Updated dependencies [4de3124]
+- Updated dependencies [f2b082a]
+  - @scalar/api-reference@1.25.118
+
 ## 0.4.26
 
 ### Patch Changes

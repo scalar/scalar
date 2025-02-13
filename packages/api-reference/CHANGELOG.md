@@ -1,5 +1,45 @@
 # @scalar/api-reference
 
+## 1.25.118
+
+### Patch Changes
+
+- 600ce16: fix: updates example request footer display logic
+- 6e077ba: fix: enums in discriminators aren’t shown
+- 305d084: refactor: use store to render example responses
+- 4de3124: fix: can’t import type array e.g. `['string', 'null']`
+- f2b082a: feat: add onLoaded event
+- Updated dependencies [d028579]
+- Updated dependencies [c5e9597]
+- Updated dependencies [4de3124]
+- Updated dependencies [bdddb12]
+- Updated dependencies [69da9e0]
+- Updated dependencies [f500435]
+- Updated dependencies [da5cf08]
+- Updated dependencies [b5727ef]
+- Updated dependencies [c5e9597]
+- Updated dependencies [4de3124]
+- Updated dependencies [f9a75af]
+- Updated dependencies [a515167]
+- Updated dependencies [82c8f39]
+- Updated dependencies [f9eee3f]
+- Updated dependencies [b2a19ba]
+- Updated dependencies [fa59538]
+- Updated dependencies [34e6f52]
+- Updated dependencies [bdddb12]
+- Updated dependencies [d2165a8]
+- Updated dependencies [4de3124]
+- Updated dependencies [f2b082a]
+  - @scalar/api-client@2.2.47
+  - @scalar/openapi-parser@0.10.6
+  - @scalar/components@0.13.23
+  - @scalar/oas-utils@0.2.104
+  - @scalar/types@0.0.32
+  - @scalar/snippetz@0.2.12
+  - @scalar/themes@0.9.66
+  - @scalar/code-highlight@0.0.20
+  - @scalar/use-hooks@0.1.20
+
 ## 1.25.117
 
 ### Patch Changes

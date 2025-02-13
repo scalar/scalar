@@ -1,5 +1,44 @@
 # @scalar/api-client
 
+## 2.2.47
+
+### Patch Changes
+
+- d028579: fix: only send scopes during certain oauth2 auth calls
+- c5e9597: feat: adds useRequestBody hook"
+- bdddb12: fix: updates request sidebar height responsiveness
+- f500435: chore: stricter TypeScript configuration
+- c5e9597: feat: adds download button in virtual response
+- f9a75af: fix: routing broken on servers and environment page
+- a515167: fix: adds setting apparence button hover
+- 82c8f39: Allow custom value in parameters
+- b2a19ba: fix: updates empty state hotkey style
+- fa59538: fix: make headers take priority over auth
+- 34e6f52: feat: upgrade to stricter tsconfig
+- bdddb12: fix: updates getting started state logic in request sidebar
+- d2165a8: refactor: use more named routes
+- 4de3124: fix: can’t import type array e.g. `['string', 'null']`
+- Updated dependencies [4de3124]
+- Updated dependencies [69da9e0]
+- Updated dependencies [f500435]
+- Updated dependencies [da5cf08]
+- Updated dependencies [b5727ef]
+- Updated dependencies [4de3124]
+- Updated dependencies [f9eee3f]
+- Updated dependencies [34e6f52]
+- Updated dependencies [f2b082a]
+  - @scalar/openapi-parser@0.10.6
+  - @scalar/components@0.13.23
+  - @scalar/draggable@0.1.9
+  - @scalar/oas-utils@0.2.104
+  - @scalar/types@0.0.32
+  - @scalar/snippetz@0.2.12
+  - @scalar/import@0.2.24
+  - @scalar/use-codemirror@0.11.68
+  - @scalar/postman-to-openapi@0.1.27
+  - @scalar/themes@0.9.66
+  - @scalar/use-hooks@0.1.20
+
 ## 2.2.46
 
 ### Patch Changes

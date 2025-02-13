@@ -1,5 +1,21 @@
 # @scalar/oas-utils
 
+## 0.2.104
+
+### Patch Changes
+
+- f500435: chore: stricter TypeScript configuration
+- da5cf08: fix: add security requirements for operations
+- b5727ef: feat: allow pre-selecting multiple and complex auth
+- 4de3124: feat: improve parameter zod schema
+- 34e6f52: feat: upgrade to stricter tsconfig
+- Updated dependencies [f500435]
+- Updated dependencies [b5727ef]
+- Updated dependencies [34e6f52]
+- Updated dependencies [f2b082a]
+  - @scalar/types@0.0.32
+  - @scalar/themes@0.9.66
+
 ## 0.2.103
 
 ### Patch Changes
