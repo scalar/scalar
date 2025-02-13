@@ -6,11 +6,13 @@ import ScalarHotkey from '@/components/ScalarHotkey.vue'
 import { useLayout } from '@/hooks'
 import type { HotKeyEvent } from '@/libs'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
-const { activeWorkspaceRequests } = useActiveEntities()
+const { numWorkspaceRequests } = defineProps<{
+  numWorkspaceRequests: number
+}>()
+
 const { events } = useWorkspace()
 const route = useRoute()
 const { layout } = useLayout()
@@ -35,8 +37,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
     <div
       class="flex h-[calc(100%_-_50px)] flex-col items-center justify-center"
       :class="{
-        'hidden opacity-0':
-          activeWorkspaceRequests.length <= 1 && layout !== 'modal',
+        'hidden opacity-0': numWorkspaceRequests <= 1 && layout !== 'modal',
       }">
       <div
         v-if="layout !== 'modal'"
@@ -64,7 +65,7 @@ onBeforeUnmount(() => events.hotKeys.off(handleHotKey))
       v-if="layout !== 'modal'"
       class="h-[calc(100%_-_50px)] items-center justify-center hidden pb-5"
       :class="{
-        '!flex opacity-100': activeWorkspaceRequests.length == 1,
+        '!flex opacity-100': numWorkspaceRequests == 1,
       }">
       <EmptyState />
     </div>

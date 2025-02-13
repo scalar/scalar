@@ -37,6 +37,7 @@ const {
   activeWorkspace,
   activeServer,
   activeWorkspaceCollections,
+  activeWorkspaceRequests,
 } = useActiveEntities()
 const {
   cookies,
@@ -223,6 +224,7 @@ function handleCurlImport(curl: string) {
 </script>
 <template>
   <div
+    v-if="activeCollection && activeRequest && activeWorkspace"
     class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative z-0 overflow-hidden"
     :class="{
       '!mr-0 !mb-0 !border-0': layout === 'modal',
@@ -236,6 +238,9 @@ function handleCurlImport(curl: string) {
       <div class="flex flex-1 flex-col h-full">
         <RequestSubpageHeader
           v-model="isSidebarOpen"
+          :collection="activeCollection"
+          :operation="activeRequest"
+          :server="activeServer"
           @hideModal="() => modalState.hide()"
           @importCurl="handleCurlImport" />
         <ViewLayout>
@@ -245,8 +250,15 @@ function handleCurlImport(curl: string) {
             class="flex-1"
             :class="[isSidebarOpen ? 'sidebar-active-hide-layout' : '']">
             <RequestSection
-              :selectedSecuritySchemeUids="selectedSecuritySchemeUids" />
-            <ResponseSection :response="activeHistoryEntry?.response" />
+              :collection="activeCollection"
+              :example="activeExample"
+              :operation="activeRequest"
+              :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
+              :server="activeServer"
+              :workspace="activeWorkspace" />
+            <ResponseSection
+              :numWorkspaceRequests="activeWorkspaceRequests.length"
+              :response="activeHistoryEntry?.response" />
           </ViewLayoutContent>
         </ViewLayout>
       </div>
