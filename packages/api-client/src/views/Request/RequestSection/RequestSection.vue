@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ContextBar from '@/components/ContextBar.vue'
+import LabelInput from '@/components/Form/LabelInput.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
@@ -69,11 +70,10 @@ watch(activeRequest, (newRequest) => {
   }
 })
 
-const updateRequestNameHandler = (event: Event) => {
+const updateRequestNameHandler = (value: string) => {
   if (!activeRequest.value) return
 
-  const target = event.target as HTMLInputElement
-  requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
+  requestMutators.edit(activeRequest.value.uid, 'summary', value)
 }
 
 /**
@@ -106,25 +106,12 @@ const activeWorkspaceCookies = computed(() =>
 <template>
   <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
     <template #title>
-      <div
-        class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
-        <label
-          v-if="layout !== 'modal'"
-          class="absolute w-full h-full top-0 left-0 pointer-events-auto opacity-0 cursor-text"
-          for="requestname" />
-        <input
-          v-if="layout !== 'modal'"
-          id="requestname"
-          class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 h-8 group-hover-input has-[:focus-visible]:outline z-10"
-          placeholder="Request Name"
-          :value="activeRequest?.summary"
-          @input="updateRequestNameHandler" />
-        <span
-          v-else
-          class="flex items-center text-c-1 h-8">
-          {{ activeRequest?.summary }}
-        </span>
-      </div>
+      <LabelInput
+        inputId="requestname"
+        :layout="layout"
+        placeholder="Request Name"
+        :value="activeRequest?.summary"
+        @updateValue="updateRequestNameHandler" />
       <ContextBar
         :activeSection="activeSection"
         :sections="sections"
