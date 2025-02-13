@@ -215,23 +215,48 @@ function parseHtml(html?: string) {
 }
 
 /**
+ * Get the content between the script tags
+ *
+ * @example <script id="api-reference">console.log("Hello, world!");</script>
+ */
+export function getContentOfScriptTag(html: string): string | undefined {
+  const patterns = [
+    // Double quotes
+    /<script[^>]*id="api-reference[\s\S]*?">([\s\S]*?)<\/script>/i,
+    // Single quotes
+    /<script[^>]*id='api-reference[\s\S]*?'>([\s\S]*?)<\/script>/i,
+  ]
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
+
+    if (match?.[1]) return match[1].trim()
+  }
+
+  return undefined
+}
+
+/**
  * Parse OpenAPI document directly from script tag content
  */
 function parseScriptContent(html: string): Record<string, any> | undefined {
-  const match = html.match(
-    /<script[^>]*id="api-reference"[^>]*>([\s\S]*?)<\/script>/,
-  )
-
-  if (!match?.[1]) return undefined
+  const content = getContentOfScriptTag(html)
 
   try {
-    const content = match[1].trim()
-
     if (content) {
       try {
+        // JSON
         return JSON.parse(content)
       } catch {
-        return parse(content)
+        try {
+          // JSON with escaped whitespace
+          const sanitizedContent = content.replace(/\\s/g, '\\\\s')
+
+          return JSON.parse(sanitizedContent)
+        } catch {
+          // YAML
+          return parse(content)
+        }
       }
     }
   } catch (error) {
@@ -242,19 +267,39 @@ function parseScriptContent(html: string): Record<string, any> | undefined {
 }
 
 /**
+ * Get the configuration attribute from the script tag
+ *
+ * @example <script id="api-reference" data-configuration="{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}"></script>
+ */
+export function getConfigurationAttribute(html: string): string | undefined {
+  const patterns = [
+    // Double quotes
+    /<script[^>]*id="api-reference"[^>]*data-configuration=["]([^"]+)["][^>]*>(.*?)<\/script>/s,
+    // Single quotes
+    /<script[^>]*id='api-reference'[^>]*data-configuration=[']([^']+)['][^>]*>(.*?)<\/script>/s,
+  ]
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern)
+
+    if (match?.[1]) {
+      return match[1]
+    }
+  }
+
+  return undefined
+}
+
+/**
  * Parse embedded OpenAPI document from HTML
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
-  const match = html.match(
-    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/s,
-  )
+  const configString = getConfigurationAttribute(html)
 
-  if (!match?.[1]) return undefined
+  if (!configString) return undefined
 
   try {
-    const configString = decodeHtmlEntities(match[1])
-
-    const config = JSON.parse(configString)
+    const config = JSON.parse(decodeHtmlEntities(configString))
 
     // Handle both direct JSON content and YAML content
     if (config.spec?.content) {
