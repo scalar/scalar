@@ -222,7 +222,9 @@ export default {
 </script>
 <template>
   <template v-if="disabled">
-    <div class="cursor-default flex items-center justify-center px-2 text-c-2">
+    <div
+      class="cursor-default flex items-center justify-center text-c-2"
+      :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'">
       <span>{{ modelValue }}</span>
     </div>
   </template>
