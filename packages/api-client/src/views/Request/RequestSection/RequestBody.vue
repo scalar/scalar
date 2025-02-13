@@ -6,9 +6,12 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import { requestExampleParametersSchema } from '@scalar/oas-utils/entities/spec'
+import {
+  type Operation,
+  type RequestExample,
+  requestExampleParametersSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
 import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
 import type { Entries } from 'type-fest'
@@ -16,11 +19,12 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
-defineProps<{
+const { example, operation, title } = defineProps<{
+  example: RequestExample
+  operation: Operation
   title: string
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
 const { requestExampleMutators } = useWorkspace()
 
 /** use-codemirror package to be udpated accordingly */
@@ -55,28 +59,22 @@ const contentTypeOptions = (
 
 /** Match the activeBody to the contentTypeOptions */
 const activeExampleContentType = computed(() => {
-  if (!activeExample.value) return 'none'
-
+  const { activeBody, formData, raw } = example.body
   // Form
-  if (activeExample.value.body.activeBody === 'formData')
-    return activeExample.value.body.formData?.encoding === 'urlencoded'
+  if (activeBody === 'formData')
+    return formData?.encoding === 'urlencoded'
       ? 'formUrlEncoded'
       : 'multipartForm'
   // Binary
-  else if (activeExample.value.body.activeBody === 'binary') return 'binaryFile'
+  else if (activeBody === 'binary') return 'binaryFile'
   // Raw
-  else if (
-    activeExample.value.body.activeBody === 'raw' &&
-    activeExample.value.body.raw?.encoding
-  ) {
-    if (activeExample.value.body.raw.encoding === 'html') return 'other'
-    return activeExample.value.body.raw.encoding
+  else if (activeBody === 'raw' && raw?.encoding) {
+    if (raw.encoding === 'html') return 'other'
+    return raw.encoding
   }
 
   // Set content type from request if present
-  const contentType = Object.keys(
-    activeRequest.value?.requestBody?.content || {},
-  )[0]
+  const contentType = Object.keys(operation.requestBody?.content || {})[0]
 
   return contentType || 'none'
 })
@@ -106,9 +104,8 @@ function deleteRow() {
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  if (!activeRequest.value || !activeExample.value) return
-
   const currentParams = formParams.value
+
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
     updatedParams[rowIdx] = {
@@ -137,7 +134,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     }
 
     requestExampleMutators.edit(
-      activeExample.value.uid,
+      example.uid,
       'body.formData.value',
       updatedParams,
     )
@@ -145,11 +142,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     /** if there is no row at the index, add a new one */
     const payload = [requestExampleParametersSchema.parse({ [field]: value })]
 
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.formData.value',
-      payload,
-    )
+    requestExampleMutators.edit(example.uid, 'body.formData.value', payload)
 
     /** focus the new row */
     nextTick(() => {
@@ -166,9 +159,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   }
 }
 
-const formParams = computed(
-  () => activeExample.value?.body?.formData?.value ?? [],
-)
+const formParams = computed(() => example.body.formData?.value ?? [])
 
 /** ensure one empty row by default */
 const defaultRow = () => {
@@ -180,8 +171,6 @@ const defaultRow = () => {
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
-  if (!activeRequest.value || !activeExample.value) return
-
   /** Create a new parameter instance with 'enabled' set to false */
   const newParam = requestExampleParametersSchema.parse({
     enabled: false,
@@ -189,14 +178,10 @@ const addRow = () => {
   const newParams = [...formParams.value, newParam]
 
   // Ensure we have formData
-  if (activeExample.value.body.formData)
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      'body.formData.value',
-      newParams,
-    )
+  if (example.body.formData)
+    requestExampleMutators.edit(example.uid, 'body.formData.value', newParams)
   else
-    requestExampleMutators.edit(activeExample.value.uid, 'body.formData', {
+    requestExampleMutators.edit(example.uid, 'body.formData', {
       value: newParams,
       encoding: 'form-data',
     })
@@ -204,8 +189,6 @@ const addRow = () => {
 
 /** Enable and disables the row */
 const toggleRow = (rowIdx: number, enabled: boolean) => {
-  if (!activeRequest.value || !activeExample.value) return
-
   const currentParams = formParams.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
@@ -214,18 +197,15 @@ const toggleRow = (rowIdx: number, enabled: boolean) => {
     }
 
     requestExampleMutators.edit(
-      activeExample.value.uid,
+      example.uid,
       'body.formData.value',
       updatedParams,
     )
   }
 }
 
-const updateRequestBody = (value: string) => {
-  if (!activeRequest.value || !activeExample.value) return
-
-  requestExampleMutators.edit(activeExample.value.uid, 'body.raw.value', value)
-}
+const updateRequestBody = (value: string) =>
+  requestExampleMutators.edit(example.uid, 'body.raw.value', value)
 
 /** Take the select option and return bodyType with encoding and header */
 const getBodyType = (type: Content) => {
@@ -283,34 +263,28 @@ const getBodyType = (type: Content) => {
 
 /** Set active body AND encoding */
 const updateActiveBody = (type: Content) => {
-  if (!activeExample.value) return
-
   const { activeBody, encoding, header } = getBodyType(type)
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.activeBody',
-    activeBody,
-  )
+  requestExampleMutators.edit(example.uid, 'body.activeBody', activeBody)
 
   // Set encoding safely
   if (encoding && activeBody === 'raw') {
-    requestExampleMutators.edit(activeExample.value.uid, 'body.raw', {
+    requestExampleMutators.edit(example.uid, 'body.raw', {
       encoding,
-      value: activeExample.value.body.raw?.value ?? '',
+      value: example.body.raw?.value ?? '',
     })
   } else if (encoding && activeBody === 'formData')
-    requestExampleMutators.edit(activeExample.value.uid, `body.formData`, {
+    requestExampleMutators.edit(example.uid, `body.formData`, {
       encoding,
-      value: activeExample.value.body.formData?.value ?? [],
+      value: example.body.formData?.value ?? [],
     })
   // Remove raw if no encoding and not binary
   else if (!encoding && activeBody !== 'binary') {
-    const { raw: deleteMe, ...body } = activeExample.value.body
-    requestExampleMutators.edit(activeExample.value.uid, 'body', body)
+    const { raw: deleteMe, ...body } = example.body
+    requestExampleMutators.edit(example.uid, 'body', body)
   }
 
   // Handle headers
-  const headers = [...activeExample.value.parameters.headers]
+  const headers = [...example.parameters.headers]
   const contentTypeIdx = headers.findIndex(
     (h) => h.key.toLowerCase() === 'content-type',
   )
@@ -344,18 +318,14 @@ const updateActiveBody = (type: Content) => {
     }
   }
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'parameters.headers',
-    headers,
-  )
+  requestExampleMutators.edit(example.uid, 'parameters.headers', headers)
 }
 
 const handleFileUploadFormData = async (rowIdx: number) => {
   const { open } = useFileDialog({
     onChange: async (files) => {
       const file = files?.[0]
-      if (file && activeRequest.value && activeExample.value) {
+      if (file) {
         const currentParams = formParams.value
         const updatedParams = [...currentParams]
         updatedParams[rowIdx] = {
@@ -366,7 +336,7 @@ const handleFileUploadFormData = async (rowIdx: number) => {
           enabled: true,
         }
         requestExampleMutators.edit(
-          activeExample.value.uid,
+          example.uid,
           'body.formData.value',
           updatedParams,
         )
@@ -378,13 +348,10 @@ const handleFileUploadFormData = async (rowIdx: number) => {
   open()
 }
 
-function removeBinaryFile() {
-  if (!activeRequest.value || !activeExample.value) return
-  requestExampleMutators.edit(activeExample.value.uid, 'body.binary', undefined)
-}
+const removeBinaryFile = () =>
+  requestExampleMutators.edit(example.uid, 'body.binary', undefined)
 
 function handleRemoveFileFormData(rowIdx: number) {
-  if (!activeRequest.value || !activeExample.value) return
   const currentParams = formParams.value
   const updatedParams = [...currentParams]
   updatedParams[rowIdx] = {
@@ -394,23 +361,15 @@ function handleRemoveFileFormData(rowIdx: number) {
     key: '',
     enabled: false,
   }
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    'body.formData.value',
-    updatedParams,
-  )
+  requestExampleMutators.edit(example.uid, 'body.formData.value', updatedParams)
 }
 
 function handleFileUpload() {
   const { open } = useFileDialog({
     onChange: async (files) => {
       const file = files?.[0]
-      if (file && activeRequest.value && activeExample.value) {
-        requestExampleMutators.edit(
-          activeExample.value.uid,
-          'body.binary',
-          file,
-        )
+      if (file) {
+        requestExampleMutators.edit(example.uid, 'body.binary', file)
       }
     },
     multiple: false,
@@ -430,10 +389,10 @@ watch(
 )
 
 watch(
-  () => activeExample.value?.uid,
+  () => example.uid,
   () => {
-    activeRequest.value?.method &&
-      canMethodHaveBody(activeRequest.value.method) &&
+    operation.method &&
+      canMethodHaveBody(operation.method) &&
       updateActiveBody(activeExampleContentType.value as Content)
 
     // Add extra row on page route change as well
@@ -450,21 +409,21 @@ watch(
 const exampleOptions = computed(() => {
   const contentType = selectedContentType.value?.id
   const { header } = getBodyType(contentType as Content)
-  const content = activeRequest.value?.requestBody?.content || {}
+  const content = operation.requestBody?.content || {}
   const examples = header ? content[header]?.examples || {} : {}
-  return Object.entries(examples).map(([key, example]) => ({
+  return Object.entries(examples).map(([key, value]) => ({
     id: key,
     label: key,
-    value: example,
+    value,
   }))
 })
 
 const selectedExample = computed({
   get: () => {
-    const rawValue = activeExample.value?.body.raw?.value ?? '{}'
+    const rawValue = example.body.raw?.value ?? '{}'
     const parsedValue = JSON.parse(rawValue)
-    const getExample = exampleOptions.value.find((example) => {
-      const exampleValue = example.value as {
+    const getExample = exampleOptions.value.find((e) => {
+      const exampleValue = e.value as {
         value: Record<string, string>
       }
       return JSON.stringify(exampleValue.value) === JSON.stringify(parsedValue)
@@ -473,9 +432,7 @@ const selectedExample = computed({
   },
   set: (opt) => {
     if (opt?.id) {
-      const exampleOption = exampleOptions.value.find(
-        (example) => example.id === opt.id,
-      )
+      const exampleOption = exampleOptions.value.find((e) => e.id === opt.id)
       if (exampleOption) {
         const exampleValue = exampleOption.value as {
           value: Record<string, string>
@@ -535,10 +492,10 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id === 'binaryFile'">
           <div
             class="border-t flex items-center justify-center p-1.5 overflow-hidden">
-            <template v-if="activeExample?.body.binary">
+            <template v-if="example.body.binary">
               <span
                 class="text-c-2 text-xs w-full border rounded py-1 px-1.5 max-w-full overflow-hidden whitespace-nowrap">
-                {{ (activeExample?.body.binary as File).name }}
+                {{ (example.body.binary as File).name }}
               </span>
               <ScalarButton
                 class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
@@ -580,7 +537,7 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id == 'formUrlEncoded'">
           <RequestTable
             ref="tableWrapperRef"
-            class="!m-0 rounded-t-none border-t-0 shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
+            class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
             :columns="['32px', '', '', '61px']"
             :items="formParams"
             showUploadButton
@@ -598,7 +555,7 @@ const selectedExample = computed({
             :language="codeInputLanguage as CodeMirrorLanguage"
             lineNumbers
             lint
-            :modelValue="activeExample?.body?.raw?.value ?? ''"
+            :modelValue="example.body?.raw?.value ?? ''"
             @update:modelValue="updateRequestBody" />
         </template>
       </DataTableRow>
