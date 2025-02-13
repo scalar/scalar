@@ -52,6 +52,7 @@ const { cx } = useBindCx()
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
+        class="text-c-1"
         :indent="level"
         @click="open = !open">
         <template #icon>
@@ -63,10 +64,13 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col')">
+      v-bind="cx('flex flex-col relative')">
       <slot
         name="items"
         :open="open" />
+      <div
+        class="absolute w-border bg-border h-full top-1/2 -translate-y-1/2"
+        :style="{ left: 13 + 18 * level + 'px' }" />
     </component>
   </li>
 </template>
