@@ -33,8 +33,8 @@ internal static class ScalarOptionsMapper
         return new ScalarConfiguration
         {
             ProxyUrl = options.ProxyUrl,
-            Theme = options.Theme.ToStringFast(),
-            Layout = options.Layout.ToStringFast(),
+            Theme = options.Theme.ToStringFast(true),
+            Layout = options.Layout.ToStringFast(true),
             Favicon = options.Favicon,
             DarkMode = options.DarkMode,
             HideModels = options.HideModels,
@@ -42,7 +42,7 @@ internal static class ScalarOptionsMapper
             HideDownloadButton = options.HideDownloadButton,
             HideTestRequestButton = options.HideTestRequestButton,
             DefaultOpenAllTags = options.DefaultOpenAllTags,
-            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(),
+            ForceDarkModeState = options.ForceThemeMode?.ToStringFast(true),
             ShowSidebar = options.ShowSidebar,
             WithDefaultFonts = options.DefaultFonts,
             CustomCss = options.CustomCss,
@@ -50,13 +50,13 @@ internal static class ScalarOptionsMapper
             Servers = options.Servers,
             MetaData = options.Metadata,
             Authentication = options.Authentication,
-            TagSorter = options.TagSorter?.ToStringFast(),
-            OperationsSorter = options.OperationSorter?.ToStringFast(),
+            TagSorter = options.TagSorter?.ToStringFast(true),
+            OperationsSorter = options.OperationSorter?.ToStringFast(true),
             HiddenClients = options.HiddenClients ? options.HiddenClients : GetHiddenClients(options),
             DefaultHttpClient = new DefaultHttpClient
             {
-                ClientKey = options.DefaultHttpClient.Value.ToStringFast(),
-                TargetKey = options.DefaultHttpClient.Key.ToStringFast()
+                ClientKey = options.DefaultHttpClient.Value.ToStringFast(true),
+                TargetKey = options.DefaultHttpClient.Key.ToStringFast(true)
             },
             Integration = options.DotNetFlag ? "dotnet" : null,
             HideClientButton = options.HideClientButton,
@@ -69,8 +69,8 @@ internal static class ScalarOptionsMapper
         var targets = ProcessOptions(options);
 
         return targets?.ToDictionary(k =>
-                k.Key.ToStringFast(),
-            k => k.Value.Select(v => v.ToStringFast())
+                k.Key.ToStringFast(true),
+            k => k.Value.Select(v => v.ToStringFast(true))
         );
     }
 
