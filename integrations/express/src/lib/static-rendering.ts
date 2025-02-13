@@ -54,7 +54,11 @@ export function getConfiguration(givenConfiguration: ApiReferenceOptions) {
     ...givenConfiguration,
   }
 
-  delete configuration.spec
+  if (!configuration.spec?.url) {
+    delete configuration.spec
+  } else if (configuration.spec?.content) {
+    delete configuration.spec?.content
+  }
 
   return JSON.stringify(configuration).split('"').join('&quot;')
 }

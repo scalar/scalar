@@ -91,4 +91,23 @@ describe('apiReference', () => {
     const titleCount = (text.match(/Test API/g) || []).length
     expect(titleCount).toBe(1)
   })
+
+  it('keeps the URL in the configuration', async () => {
+    const app = express()
+
+    app.use(
+      apiReference({
+        spec: {
+          url: 'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+        },
+      }),
+    )
+
+    const response = await request(app).get('/')
+
+    // Check the URL is present
+    expect(response.text).toContain(
+      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
+    )
+  })
 })
