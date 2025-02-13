@@ -10,7 +10,7 @@ import YAML from 'yaml'
 import fastifyApiReference from './index.ts'
 
 const authOptions: FastifyBasicAuthOptions = {
-  validate(username, password, req, reply, done) {
+  validate(username, password, _req, _reply, done) {
     if (username === 'admin' && password === 'admin') {
       done()
     } else {
@@ -155,19 +155,23 @@ describe('fastifyApiReference', () => {
           const fastify = Fastify({
             logger: false,
           })
+          const openApiDocumentEndpoints = {
+            ...(json && { json }),
+            ...(yaml && { yaml }),
+          }
 
           switch (specProvidedVia) {
             case '@fastify/swagger': {
               await fastify.register(fastifySwagger, { openapi: exampleSpec() })
               await fastify.register(fastifyApiReference, {
-                openApiDocumentEndpoints: { json, yaml },
+                openApiDocumentEndpoints,
                 configuration: {},
               })
               break
             }
             case 'spec: { content: spec }': {
               await fastify.register(fastifyApiReference, {
-                openApiDocumentEndpoints: { json, yaml },
+                openApiDocumentEndpoints,
                 configuration: {
                   spec: { content: spec },
                 },
@@ -176,7 +180,7 @@ describe('fastifyApiReference', () => {
             }
             case 'spec: { content: () => spec }': {
               await fastify.register(fastifyApiReference, {
-                openApiDocumentEndpoints: { json, yaml },
+                openApiDocumentEndpoints,
                 configuration: {
                   spec: { content: () => spec },
                 },

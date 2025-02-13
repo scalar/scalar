@@ -22,10 +22,8 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "dev": "vite",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
-    "preview": "vite preview",
     "test": "vitest",
     "test:unit": "vitest .",
     "typegen:migration": "vite-node ./src/migrations/generate-types.ts",

@@ -92,7 +92,7 @@ fastify.post<{ Body: { username: string; email: string } }>(
       },
     },
   },
-  (req, reply) => {
+  (_, reply) => {
     // Simulate user creation
     const userId = '12345' // This would be generated dynamically
     reply.code(201).send({ userId })
@@ -126,7 +126,7 @@ fastify.get<{ Querystring: { userId: string } }>(
       },
     },
   },
-  (req, reply) => {
+  (_, reply) => {
     // Simulate fetching user details
     const user = { username: 'marc', email: 'marc@scalar.com' }
     reply.code(200).send(user)
@@ -156,7 +156,7 @@ fastify.delete<{ Querystring: { userId: string } }>(
       },
     },
   },
-  (req, reply) => {
+  (_, reply) => {
     // Simulate user deletion
     reply.code(204).send()
   },

@@ -80,7 +80,7 @@ export async function workThroughQueue<T extends Task[]>(
 
     // Make TS complain when we forgot to handle a command.
     else {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // @ts-expect-error to throw a ts error
       const _: never = name
     }
   }

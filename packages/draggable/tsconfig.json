@@ -1,4 +1,10 @@
 {
   "extends": "../../tsconfig.strict.json",
-  "include": ["src", "playground"]
+  "include": ["src", "playground"],
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
 }
