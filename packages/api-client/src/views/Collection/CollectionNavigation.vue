@@ -25,16 +25,16 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
       },
     },
   },
-  {
-    displayName: 'Authentication',
-    // icon: 'Lock',
-    to: {
-      name: 'collection.authentication',
-      params: {
-        [PathId.Collection]: activeCollection.value?.uid,
-      },
-    },
-  },
+  // {
+  //   displayName: 'Authentication',
+  //   // icon: 'Lock',
+  //   to: {
+  //     name: 'collection.authentication',
+  //     params: {
+  //       [PathId.Collection]: activeCollection.value?.uid,
+  //     },
+  //   },
+  // },
   {
     displayName: 'Servers',
     // icon: 'Server',
@@ -45,43 +45,43 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
       },
     },
   },
-  {
-    displayName: 'Environments',
-    // icon: 'Brackets',
-    to: {
-      name: 'collection.environment',
-      params: {
-        [PathId.Collection]: activeCollection.value?.uid,
-      },
-    },
-  },
-  {
-    displayName: 'Cookies',
-    // icon: 'Cookie',
-    to: {
-      name: 'collection.cookies',
-      params: {
-        [PathId.Collection]: activeCollection.value?.uid,
-      },
-    },
-  },
-  {
-    displayName: 'Scripts',
-    // icon: 'CodeFolder',
-    to: {
-      name: 'collection.scripts',
-      params: {
-        [PathId.Collection]: activeCollection.value?.uid,
-      },
-    },
-  },
-  {
-    displayName: 'Sync',
-    // icon: 'Download',
-    to: {
-      name: 'collection.sync',
-    },
-  },
+  // {
+  //   displayName: 'Environments',
+  //   // icon: 'Brackets',
+  //   to: {
+  //     name: 'collection.environment',
+  //     params: {
+  //       [PathId.Collection]: activeCollection.value?.uid,
+  //     },
+  //   },
+  // },
+  // {
+  //   displayName: 'Cookies',
+  //   // icon: 'Cookie',
+  //   to: {
+  //     name: 'collection.cookies',
+  //     params: {
+  //       [PathId.Collection]: activeCollection.value?.uid,
+  //     },
+  //   },
+  // },
+  // {
+  //   displayName: 'Scripts',
+  //   // icon: 'CodeFolder',
+  //   to: {
+  //     name: 'collection.scripts',
+  //     params: {
+  //       [PathId.Collection]: activeCollection.value?.uid,
+  //     },
+  //   },
+  // },
+  // {
+  //   displayName: 'Sync',
+  //   // icon: 'Download',
+  //   to: {
+  //     name: 'collection.sync',
+  //   },
+  // },
 ])
 </script>
 <template>
