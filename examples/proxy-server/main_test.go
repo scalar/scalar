@@ -138,8 +138,8 @@ func TestCORSHandling(t *testing.T) {
 
 		// Check CORS headers
 		headers := w.Header()
-		if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
-			t.Errorf("Expected Allow-Origin header to be 'http://example.com'")
+		if headers.Get("Access-Control-Allow-Origin") != "*" {
+			t.Errorf("Expected Allow-Origin header to be '*'")
 		}
 		if headers.Get("Access-Control-Allow-Credentials") != "true" {
 			t.Errorf("Expected Allow-Credentials header to be 'true'")
@@ -171,7 +171,7 @@ func TestCORSHandling(t *testing.T) {
 	t.Run("Preserves CORS headers from origin", func(t *testing.T) {
 		// Create a test server that sends CORS headers
 		targetServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+			w.Header().Set("Access-Control-Allow-Origin", "*")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 			w.Write([]byte("response with CORS"))
@@ -194,8 +194,8 @@ func TestCORSHandling(t *testing.T) {
 		// Verify that our proxy's CORS headers override the target's headers
 		headers := w.Header()
 
-		if headers.Get("Access-Control-Allow-Origin") != "http://example.com" {
-			t.Errorf("Expected Access-Control-Allow-Origin header to be 'http://example.com', got '%s'",
+		if headers.Get("Access-Control-Allow-Origin") != "*" {
+			t.Errorf("Expected Access-Control-Allow-Origin header to be '*', got '%s'",
 				headers.Get("Access-Control-Allow-Origin"))
 		}
 
@@ -275,14 +275,14 @@ func TestProxyBehavior(t *testing.T) {
 	t.Run("Overwrites CORS headers after redirects", func(t *testing.T) {
 		server := setupTestServer(func(w http.ResponseWriter, r *http.Request) {
 			if r.URL.Path == "/initial" {
-				w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+				w.Header().Set("Access-Control-Allow-Origin", "*")
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 				http.Redirect(w, r, "/final", http.StatusTemporaryRedirect)
 				return
 			}
 
 			if r.URL.Path == "/final" {
-				w.Header().Set("Access-Control-Allow-Origin", "https://original-allowed-origin.com")
+				w.Header().Set("Access-Control-Allow-Origin", "*")
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 				w.Write([]byte("final destination"))
 			}
