@@ -127,7 +127,7 @@ export const createWorkspaceStore = ({
     extendedRequestDataFactory(storeContext, addTag)
   const { deleteEnvironment } = extendedEnvironmentDataFactory(storeContext)
   const { addServer, deleteServer } = extendedServerDataFactory(storeContext)
-  const { addCollection, deleteCollection, updateCollectionInfo } =
+  const { addCollection, deleteCollection } =
     extendedCollectionDataFactory(storeContext)
   const { addRequestExample, deleteRequestExample } =
     extendedExampleDataFactory(storeContext)
@@ -222,7 +222,6 @@ export const createWorkspaceStore = ({
       ...collectionMutators,
       rawAdd: collectionMutators.add,
       add: addCollection,
-      updateInfo: updateCollectionInfo,
       delete: deleteCollection,
       addEnvironment: addCollectionEnvironment,
       removeEnvironment: removeCollectionEnvironment,
