@@ -403,7 +403,7 @@ const shouldShowItem = computed(() => {
         <span class="flex h-5 items-center justify-center max-w-[14px]">
           <slot name="leftIcon">
             <ScalarSidebarGroupToggle
-              class="text-c-3 shrink-0"
+              class="text-c-3 shrink-0 hover:text-c-1"
               :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
           </slot>
           &hairsp;
@@ -503,9 +503,8 @@ const shouldShowItem = computed(() => {
           variant="ghost"
           @click="openCommandPaletteRequest()">
           <ScalarIcon
-            class="mx-0.5 h-2.5 w-2.5"
             icon="Add"
-            thickness="3" />
+            size="sm" />
           <span>Add Request</span>
         </ScalarButton>
       </ul>
