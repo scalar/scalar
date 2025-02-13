@@ -359,7 +359,7 @@ const showGettingStarted = computed(() => {
                   'rotate-90': collapsedSidebarFolders[collection.uid],
                 }">
                 <ScalarIcon
-                  class="text-c-3 hidden text-sm group-hover:block"
+                  class="text-c-3 hidden text-sm group-hover:block hover:text-c-1"
                   icon="ChevronRight"
                   size="md" />
               </div>
