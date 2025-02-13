@@ -905,5 +905,26 @@ describe('create-request-operation', () => {
         },
       )
     })
+
+    it('accepts a lowercase auth header', () => {
+      const [error, requestOperation] = createRequestOperation({
+        ...createRequestPayload({
+          serverPayload: { url: VOID_URL },
+        }),
+        securitySchemes: {
+          'api-key': {
+            type: 'apiKey',
+            name: 'x-api-key',
+            in: 'header',
+            value: 'test-key',
+            uid: 'api-key',
+            nameKey: 'api-key',
+          },
+        },
+        selectedSecuritySchemeUids: ['api-key'],
+      })
+      if (error) throw error
+      expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')
+    })
   })
 })
