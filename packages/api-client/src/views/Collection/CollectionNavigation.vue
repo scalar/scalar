@@ -82,6 +82,13 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
   //     name: 'collection.sync',
   //   },
   // },
+  {
+    displayName: 'Settings',
+    // icon: 'Settings',
+    to: {
+      name: 'collection.settings',
+    },
+  },
 ])
 </script>
 <template>

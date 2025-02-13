@@ -130,6 +130,12 @@ const requestRoutes = [
             path: `sync`,
             component: () => import('@/views/Collection/CollectionSync.vue'),
           },
+          {
+            name: 'collection.settings',
+            path: `settings`,
+            component: () =>
+              import('@/views/Collection/CollectionSettings.vue'),
+          },
         ],
       },
     ],
