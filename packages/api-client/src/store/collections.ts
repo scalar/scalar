@@ -46,20 +46,6 @@ export function extendedCollectionDataFactory({
     return collection
   }
 
-  const updateCollectionInfo = (
-    collectionUid: string,
-    payload: CollectionPayload,
-  ) => {
-    const collection = collectionSchema.parse({
-      info: {
-        ...(collections[collectionUid]?.info || {}),
-        ...payload,
-      },
-    })
-
-    collectionMutators.edit(collectionUid, 'info', collection.info)
-  }
-
   const deleteCollection = (collection: Collection, workspace: Workspace) => {
     if (!workspace.uid) return
 
@@ -133,7 +119,6 @@ export function extendedCollectionDataFactory({
 
   return {
     addCollection,
-    updateCollectionInfo,
     deleteCollection,
     addCollectionEnvironment,
     removeCollectionEnvironment,
