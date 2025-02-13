@@ -498,7 +498,7 @@ const shouldShowItem = computed(() => {
           @openMenu="(item) => $emit('openMenu', item)" />
         <ScalarButton
           v-if="item.children.length === 0"
-          class="mb-[.5px] flex gap-1.5 h-8 text-c-1 py-0 justify-start text-xs w-full hover:bg-b-2"
+          class="flex gap-1.5 h-8 text-c-1 py-0 justify-start text-xs w-full hover:bg-b-2"
           :class="parentUids.length ? 'pl-9' : ''"
           variant="ghost"
           @click="openCommandPaletteRequest()">
