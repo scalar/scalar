@@ -1,7 +1,10 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "types": ["vitest/globals"]
+    "paths": {
+      "@/*": ["./src/*"],
+      "@test/*": ["./test/*"]
+    }
   },
   "include": ["src/**/*.ts", "rollup.config.ts"]
 }

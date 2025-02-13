@@ -1,14 +1,11 @@
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { getHtmlDocument } from '@/lib/static-rendering'
+import type { ApiReferenceOptions } from '@/types'
 import type { Request, Response } from 'express'
-
-export type ApiReferenceOptions = ReferenceConfiguration & {
-  cdn?: string
-}
 
 /**
  * The custom theme CSS for the Express theme.
  */
-export const customThemeCSS = `
+export const customTheme = `
 /* basic theme */
 .light-mode {
   --scalar-color-1: #353535;
@@ -105,55 +102,10 @@ export const customThemeCSS = `
 `
 
 /**
- * The script tags to load the @scalar/api-reference package from the CDN.
- */
-export const getScriptTags = (configuration: ApiReferenceOptions) => {
-  const defaultConfiguration: Partial<ReferenceConfiguration> = {
-    _integration: 'express',
-  }
-
-  return `
-    <script
-      id="api-reference"
-      type="application/json"
-      data-configuration="${JSON.stringify({
-        ...defaultConfiguration,
-        ...configuration,
-      })
-        .split('"')
-        .join('&quot;')}">${
-        configuration.spec?.content
-          ? typeof configuration.spec?.content === 'function'
-            ? JSON.stringify(configuration.spec?.content())
-            : JSON.stringify(configuration.spec?.content)
-          : ''
-      }</script>
-      <script src="${configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'}"></script>
-  `
-}
-
-/**
  * The route handler to render the API Reference.
  */
 export function apiReference(options: ApiReferenceOptions) {
-  return (req: Request, res: Response) => {
-    res.type('text/html').send(`
-  <!DOCTYPE html>
-  <html>
-    <head>
-      <title>Scalar API Reference</title>
-      <meta charset="utf-8" />
-      <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1" />
-      <style>
-        ${options.theme ? null : customThemeCSS}
-      </style>
-    </head>
-    <body>
-      ${getScriptTags(options)}
-    </body>
-  </html>
-`)
+  return (_: Request, res: Response) => {
+    res.type('text/html').send(getHtmlDocument(options, customTheme))
   }
 }

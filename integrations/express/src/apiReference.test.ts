@@ -73,4 +73,22 @@ describe('apiReference', () => {
       'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
     )
   })
+
+  it('doesn’t have the content twice', async () => {
+    const app = express()
+    app.use(
+      apiReference({ spec: { content: { info: { title: 'Test API' } } } }),
+    )
+
+    const response = await request(app).get('/')
+    expect(response.status).toBe(200)
+
+    // Check the title is present
+    expect(response.text).toContain('Test API')
+
+    // Check that the title is only present once
+    const text = response.text
+    const titleCount = (text.match(/Test API/g) || []).length
+    expect(titleCount).toBe(1)
+  })
 })
