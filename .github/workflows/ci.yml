@@ -137,7 +137,9 @@ jobs:
           cache: 'pnpm'
       - name: Install dev dependencies
         run: pnpm install --dev
-      - name: Check code style
+      - name: Lint code
+        run: pnpm lint:check
+      - name: Check code style formatting
         run: pnpm format:check
 
   types:
