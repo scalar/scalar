@@ -88,34 +88,17 @@ export const parseSchema = async (
 /** Converts selected security requirements to uids */
 export const getSelectedSecuritySchemeUids = (
   securityRequirements: SelectedSecuritySchemeUids,
-  authentication: ReferenceConfiguration['authentication'] | undefined,
+  preferredSecurityNames: SelectedSecuritySchemeUids = [],
   securitySchemeMap: Record<string, string>,
 ): SelectedSecuritySchemeUids => {
-  // Filter the preferred security schemes to only include the ones that are in the security requirements
-  const preferredSecurityNames: SelectedSecuritySchemeUids = [
-    authentication?.preferredSecurityScheme ?? [],
-  ]
-    .flat()
-    .filter((name) => {
-      // Match up complex security requirements, array to array
-      if (Array.isArray(name)) {
-        // We match every element in the array
-        return securityRequirements.some(
-          (r) =>
-            Array.isArray(r) &&
-            r.length === name.length &&
-            r.every((v, i) => v === name[i]),
-        )
-      } else return securityRequirements.includes(name)
-    })
-
   // Set the first security requirement if no preferred security schemes are set
-  if (!preferredSecurityNames.length && securityRequirements[0]) {
-    preferredSecurityNames.push(securityRequirements[0])
-  }
+  const names =
+    securityRequirements[0] && !preferredSecurityNames.length
+      ? [securityRequirements[0]]
+      : preferredSecurityNames
 
   // Map names to uids
-  const uids = preferredSecurityNames.map((name) =>
+  const uids = names.map((name) =>
     Array.isArray(name)
       ? name.map((k) => securitySchemeMap[k])
       : securitySchemeMap[name],
@@ -334,12 +317,30 @@ export async function importSpecToWorkspace(
         })
         .filter(isDefined)
 
+      // Filter the preferred security schemes to only include the ones that are in the security requirements
+      const preferredSecurityNames: SelectedSecuritySchemeUids = [
+        authentication?.preferredSecurityScheme ?? [],
+      ]
+        .flat()
+        .filter((name) => {
+          // Match up complex security requirements, array to array
+          if (Array.isArray(name)) {
+            // We match every element in the array
+            return securityRequirements.some(
+              (r) =>
+                Array.isArray(r) &&
+                r.length === name.length &&
+                r.every((v, i) => v === name[i]),
+            )
+          } else return securityRequirements.includes(name)
+        })
+
       // Set the initially selected security scheme
       const selectedSecuritySchemeUids =
         securityRequirements.length && !setCollectionSecurity
           ? getSelectedSecuritySchemeUids(
               securityRequirements,
-              authentication,
+              preferredSecurityNames,
               securitySchemeMap,
             )
           : []
@@ -458,17 +459,25 @@ export async function importSpecToWorkspace(
   // Grab the security requirements for this operation
   const securityRequirements: SelectedSecuritySchemeUids = (
     schema.security ?? []
-  ).map((s: OpenAPIV3_1.SecurityRequirementObject) => {
-    const keys = Object.keys(s)
-    return keys.length > 1 ? keys : keys[0]
-  })
+  )
+    .map((s: OpenAPIV3_1.SecurityRequirementObject) => {
+      const keys = Object.keys(s)
+      return keys.length > 1 ? keys : keys[0]
+    })
+    .filter(isDefined)
+
+  // Here we do not filter these as we let the preferredSecurityScheme override the requirements
+  const preferredSecurityNames: SelectedSecuritySchemeUids = [
+    authentication?.preferredSecurityScheme ?? [],
+  ].flat()
 
   // Set the initially selected security scheme
   const selectedSecuritySchemeUids =
-    securityRequirements.length && setCollectionSecurity
+    (securityRequirements.length || preferredSecurityNames?.length) &&
+    setCollectionSecurity
       ? getSelectedSecuritySchemeUids(
           securityRequirements,
-          authentication,
+          preferredSecurityNames,
           securitySchemeMap,
         )
       : []
