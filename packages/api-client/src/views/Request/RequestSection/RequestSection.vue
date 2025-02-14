@@ -107,6 +107,7 @@ const activeWorkspaceCookies = computed(() =>
   <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
     <template #title>
       <LabelInput
+        class="lg:pr-24"
         inputId="requestname"
         :layout="layout"
         placeholder="Request Name"
