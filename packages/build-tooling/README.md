@@ -22,9 +22,10 @@ To use these build tools effectively, all package.json files should include the 
   "build": "scalar-build-rollup",
   "types:check": "scalar-types-check",
   "types:build": "scalar-types-build",
-  "format": "scalar-lint-fix",
-  "lint:check": "eslint .",
-  "lint:fix": "eslint . --fix",
+  "format:check": "scalar-format-check",
+  "format": "scalar-format",
+  "lint:check": "scalar-lint-check",
+  "lint:fix": "scalar-lint-fix",
 }
 ```
 
@@ -35,9 +36,10 @@ For Vite/Vue we need a different build command that uses Vite and `vue-tsc`:
   "build": "scalar-build-vite",
   "types:check": "scalar-types-check-vue",
   "types:build": "scalar-types-build-vue",
-  "format": "scalar-lint-fix",
-  "lint:check": "eslint .",
-  "lint:fix": "eslint . --fix",
+  "format:check": "scalar-format-check",
+  "format": "scalar-format",
+  "lint:check": "scalar-lint-check",
+  "lint:fix": "scalar-lint-fix",
 }
 ```
 

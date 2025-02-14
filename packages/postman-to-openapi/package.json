@@ -25,7 +25,7 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "format": "scalar-lint-fix",
+    "format": "scalar-format",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest",
