@@ -89,11 +89,7 @@ const setPathVariable = (url: string) => {
   })
   parameters.splice(0, parameters.length, ...updatedParameters)
 
-  requestExampleMutators.edit(
-    operation.uid,
-    `parameters.${paramKey}`,
-    parameters,
-  )
+  requestExampleMutators.edit(example.uid, `parameters.${paramKey}`, parameters)
 }
 
 const handlePathVariableUpdate = (url: string) => {
