@@ -1,3 +1,5 @@
 #!/bin/bash
+set -e
 
-rollup -c rollup.config.ts --configPlugin typescript && pnpm types:build
+rollup -c rollup.config.ts --configPlugin typescript
+pnpm types:build
