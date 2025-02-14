@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.4.182
+
+### Patch Changes
+
+- d6d50e8: feat: render embedded content only once
+
 ## 0.4.181
 
 ### Patch Changes

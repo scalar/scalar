@@ -1,5 +1,11 @@
 # @scalar/components
 
+## 0.13.24
+
+### Patch Changes
+
+- 825bc40: feat(components): update lock icons to align with other icons
+
 ## 0.13.23
 
 ### Patch Changes
