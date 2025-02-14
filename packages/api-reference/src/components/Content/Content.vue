@@ -27,7 +27,13 @@ const props = withDefaults(
 
 const { hideModels } = useSidebar()
 const { securitySchemes } = useWorkspace()
-const { activeCollection, activeServer, activeWorkspace } = useActiveEntities()
+const {
+  activeCollection,
+  activeEnvVariables,
+  activeEnvironment,
+  activeServer,
+  activeWorkspace,
+} = useActiveEntities()
 
 const introCardsSlot = computed(() =>
   props.layout === 'classic' ? 'after' : 'aside',
@@ -74,6 +80,8 @@ const introCardsSlot = computed(() =>
               class="scalar-client introduction-card-item">
               <RequestAuth
                 :collection="activeCollection"
+                :envVariables="activeEnvVariables"
+                :environment="activeEnvironment"
                 layout="reference"
                 :selectedSecuritySchemeUids="
                   activeCollection?.selectedSecuritySchemeUids ?? []
