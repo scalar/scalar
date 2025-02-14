@@ -73,7 +73,7 @@
     "@scalar/cli": "pnpm --filter @scalar/cli run @scalar/cli",
     "format": "pnpm prettier --write .",
     "format:packages": "pnpm syncpack fix-mismatches --types 'prod,dev' || true && pnpm syncpack set-semver-ranges && vite-node scripts/format-package.ts && pnpm install -r",
-    "format:check": "pnpm biome format && pnpm prettier --check .",
+    "format:check": "biome format && pnpm prettier --check .",
     "format:write": "biome format --write && prettier --write .",
     "lint:check": "biome lint --diagnostic-level=error",
     "lint:vue": "pnpm eslint '**/*.vue'",
@@ -117,8 +117,5 @@
         }
       ]
     ]
-  },
-  "optionalDependencies": {
-    "@biomejs/cli-linux-x64": "^1.9.4"
   }
 }
