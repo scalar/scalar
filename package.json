@@ -117,5 +117,8 @@
         }
       ]
     ]
+  },
+  "optionalDependencies": {
+    "@biomejs/cli-linux-x64": "^1.9.4"
   }
 }
