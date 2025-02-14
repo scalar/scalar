@@ -82,9 +82,10 @@ const data = computed(() => {
     </div>
     <MarkdownInput
       :modelValue="data.description ?? ''"
-      @update:value="updateCollectionDescription" />
+      @update:modelValue="updateCollectionDescription" />
   </div>
 </template>
+
 <style scoped>
 :deep(.markdown) h2 {
   @apply text-lg;
