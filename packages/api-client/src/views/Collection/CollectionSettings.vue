@@ -67,8 +67,8 @@ function handleDeleteCollection() {
           <div>
             <h3>Watch Mode</h3>
             <p class="mt-1 text-c-2">
-              When enabled, the OpenAPI document will be polled for changes and
-              the collection will be updated automatically.
+              When enabled, the OpenAPI document will be polled for changes. The
+              collection will be updated automatically.
             </p>
           </div>
           <ScalarToggle
