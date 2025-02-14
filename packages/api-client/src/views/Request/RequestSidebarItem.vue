@@ -94,15 +94,16 @@ const item = computed<SidebarItem>(() => {
       icon: collection['x-scalar-icon'],
       documentUrl: collection.documentUrl,
       watchMode: collection.watchMode,
-      to: collection.uid
-        ? {
-            name: 'collection',
-            params: {
-              [PathId.Workspace]: activeWorkspace.value?.uid,
-              [PathId.Collection]: collection.uid,
-            },
-          }
-        : undefined,
+      to:
+        collection.uid && collection?.info?.title !== 'Drafts'
+          ? {
+              name: 'collection',
+              params: {
+                [PathId.Workspace]: activeWorkspace.value?.uid,
+                [PathId.Collection]: collection.uid,
+              },
+            }
+          : undefined,
       warning:
         'This cannot be undone. You’re about to delete the collection and all folders and requests inside it.',
       edit: (name: string, icon?: string) => {
