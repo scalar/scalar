@@ -125,7 +125,7 @@ const updateSelectedOptions = (selectedOptions: any) => {
         resize
         :value="initialValue">
         <ScalarButton
-          class="gap-1.5 font-normal h-full justify-start px-2 py-1.5 outline-none"
+          class="gap-1.5 font-normal h-full justify-start px-2 py-1.5 outline-none overflow-auto whitespace-nowrap"
           fullWidth
           variant="ghost">
           <span class="text-c-1">{{ initialValue || 'Select a value' }}</span>
@@ -154,7 +154,6 @@ const updateSelectedOptions = (selectedOptions: any) => {
             </div>
             {{ option }}
           </ScalarDropdownItem>
-
           <template v-if="canAddCustomValue">
             <ScalarDropdownDivider v-if="options.length" />
             <ScalarDropdownItem
