@@ -14,7 +14,7 @@ Whether the Swagger editor should be shown.
 
 #### spec.content?: string
 
-Directly pass an OpenAPI/Swagger spec.
+Directly pass an OpenAPI/Swagger document (JSON or YAML).
 
 ```js
 {
@@ -26,7 +26,7 @@ Directly pass an OpenAPI/Swagger spec.
 
 #### spec.url?: string
 
-Pass the URL of a spec file (JSON or Yaml).
+Pass the URL of an OpenAPI document (JSON or YAML).
 
 ```js
 {
@@ -272,7 +272,7 @@ But you can also pass `true` to **hide all** HTTP clients. If you have any custo
 
 #### onSpecUpdate?: (spec: string) => void
 
-You can listen to spec changes with onSpecUpdate that runs on spec/swagger content change
+You can listen to changes with onSpecUpdate that runs on spec/swagger content change
 
 ```js
 {

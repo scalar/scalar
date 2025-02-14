@@ -15,7 +15,7 @@ npm install @scalar/nestjs-api-reference
 
 ## Usage
 
-[Set up NestJS](https://docs.nestjs.com/first-steps) and [set up NestJS Swagger](https://docs.nestjs.com/openapi/introduction) and pass an OpenAPI/Swagger spec to the `apiReference` middleware:
+[Set up NestJS](https://docs.nestjs.com/first-steps) and [set up NestJS Swagger](https://docs.nestjs.com/openapi/introduction) and pass an OpenAPI/Swagger document to the `apiReference` middleware:
 
 ```ts
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
