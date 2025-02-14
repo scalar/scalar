@@ -142,7 +142,7 @@ jobs:
         with:
           version: latest
       - name: Lint code
-        run: pnpm lint:check
+        run: biome lint --diagnostic-level=error
       # TODO: Disabled until we applied the new formatting through Biome.
       # - name: Check code style formatting
       #   run: pnpm format:check
