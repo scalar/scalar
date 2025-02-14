@@ -137,6 +137,10 @@ jobs:
           cache: 'pnpm'
       - name: Install dev dependencies
         run: pnpm install --dev
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
       - name: Lint code
         run: pnpm lint:check
       # TODO: Disabled until we applied the new formatting through Biome.
