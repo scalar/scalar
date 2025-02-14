@@ -3,8 +3,6 @@
     "@ianvs/prettier-plugin-sort-imports",
     "prettier-plugin-tailwindcss"
   ],
-  "tailwindFunctions": ["cx", "cva"],
-  "tailwindConfig": "tailwind.config.ts",
   "trailingComma": "all",
   "quoteProps": "consistent",
   "tabWidth": 2,
