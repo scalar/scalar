@@ -35,7 +35,7 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['flex rounded px-1.5 font-medium text-c-2 no-underline'],
+  base: ['group/item flex rounded px-1.5 font-medium text-c-2 no-underline'],
   variants: {
     selected: { true: 'cursor-auto bg-b-2 text-c-1' },
     disabled: { true: 'cursor-auto' },
@@ -52,10 +52,13 @@ const { cx } = useBindCx()
   <component
     :is="is"
     :aria-level="indent"
+    :aria-selected="selected"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ selected, disabled }))">
     <slot name="indent">
-      <ScalarSidebarIndent :indent="indent" />
+      <ScalarSidebarIndent
+        :indent="indent"
+        :selected="selected" />
     </slot>
     <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
