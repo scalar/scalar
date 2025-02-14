@@ -66,7 +66,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
   }
 
   requestExampleMutators.edit(
-    operation.uid,
+    example.uid,
     `parameters.${paramKey}.${rowIdx}.${field}`,
     value,
   )
