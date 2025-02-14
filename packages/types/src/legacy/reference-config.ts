@@ -613,6 +613,9 @@ export type Webhook = (
   'x-scalar-ignore'?: boolean
 }
 
+/**
+ * @deprecated Use `@scalar/openapi-types` instead
+ */
 export type Spec = {
   'tags'?: Tag[]
   'info':
