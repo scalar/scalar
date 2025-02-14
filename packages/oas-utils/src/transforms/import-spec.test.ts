@@ -33,21 +33,28 @@ describe('getSelectedSecuritySchemeUids', () => {
 
   it('should use preferred security scheme when available and valid', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const authentication = { preferredSecurityScheme: 'api-key' }
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
-      authentication,
+      ['api-key'],
       securitySchemeMap,
     )
     expect(result).toEqual(['apikey-uid'])
   })
 
-  it('should fallback to first requirement when preferred scheme is not in requirements', () => {
+  it('preferred security scheme should override when not in requirements', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const authentication = { preferredSecurityScheme: 'oauth2' }
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
-      authentication,
+      ['oauth2'],
+      securitySchemeMap,
+    )
+    expect(result).toEqual(['oauth-uid'])
+  })
+
+  it('should set the preferred security scheme when no requirements are provided', () => {
+    const result = getSelectedSecuritySchemeUids(
+      [],
+      ['basic-auth'],
       securitySchemeMap,
     )
     expect(result).toEqual(['basic-uid'])
@@ -55,12 +62,9 @@ describe('getSelectedSecuritySchemeUids', () => {
 
   it('should select multiple security schemes when preferred scheme is an array', () => {
     const securityRequirements = ['basic-auth', 'api-key']
-    const authentication = {
-      preferredSecurityScheme: ['basic-auth', 'api-key'],
-    }
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
-      authentication,
+      ['basic-auth', 'api-key'],
       securitySchemeMap,
     )
     expect(result).toEqual(['basic-uid', 'apikey-uid'])
@@ -72,12 +76,9 @@ describe('getSelectedSecuritySchemeUids', () => {
       'api-key',
       ['basic-auth', 'api-key', 'oauth2'],
     ]
-    const authentication = {
-      preferredSecurityScheme: [['basic-auth', 'api-key', 'oauth2'], 'api-key'],
-    }
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
-      authentication,
+      [['basic-auth', 'api-key', 'oauth2'], 'api-key'],
       securitySchemeMap,
     )
     expect(result).toEqual([
@@ -108,10 +109,9 @@ describe('getSelectedSecuritySchemeUids', () => {
 
   it('should handle undefined preferred scheme', () => {
     const securityRequirements = ['basic-auth']
-    const authentication = { preferredSecurityScheme: undefined }
     const result = getSelectedSecuritySchemeUids(
       securityRequirements,
-      authentication,
+      undefined,
       securitySchemeMap,
     )
     expect(result).toEqual(['basic-uid'])
@@ -476,6 +476,31 @@ describe('importSpecToWorkspace', () => {
       if (res.error) throw res.error
 
       expect(res.requests[0].security).toEqual([{}])
+    })
+
+    it('handles empty security requirements with preferred security scheme', async () => {
+      const specWithEmptySecurity = {
+        ...galaxy,
+        security: [{}],
+        paths: {
+          '/test': {
+            get: {
+              security: [{}],
+            },
+          },
+        },
+      }
+
+      const res = await importSpecToWorkspace(specWithEmptySecurity, {
+        setCollectionSecurity: true,
+        authentication: {
+          preferredSecurityScheme: 'basicAuth',
+        },
+      })
+      if (res.error) throw res.error
+
+      const scheme = res.securitySchemes.find((s) => s.nameKey === 'basicAuth')
+      expect(res.collection.selectedSecuritySchemeUids).toEqual([scheme?.uid])
     })
 
     it('handles empty operation security requirements', async () => {
