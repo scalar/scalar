@@ -114,7 +114,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
 <template>
   <div class="w-full">
     <ViewLayoutCollapse
-      class="group/preview -mt-0.25 w-full"
+      class="group/preview -mt-0.25 w-full border-b-0"
       :defaultOpen="false"
       :hasIcon="false">
       <template #title>Code Snippet</template>
