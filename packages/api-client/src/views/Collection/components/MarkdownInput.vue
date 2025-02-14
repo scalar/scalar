@@ -1,28 +1,18 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
-import { ScalarMarkdown, cva, cx } from '@scalar/components'
+import { ScalarMarkdown } from '@scalar/components'
 import { ref, watch } from 'vue'
+
+import ModeToggleButton from './ModeToggleButton.vue'
 
 const { modelValue } = defineProps<{
   modelValue: string
 }>()
 
-const emit = defineEmits<{
-  (e: 'update:value', value: string): void
-}>()
+const emit = defineEmits<(e: 'update:modelValue', value: string) => void>()
 
 const mode = ref<'edit' | 'preview'>('preview')
 const codeInputRef = ref<HTMLInputElement | null>()
-
-const buttonVariants = cva({
-  base: 'border py-1 text-c-2 rounded-md',
-  variants: {
-    active: {
-      true: 'bg-b-2 bordber-c-2 text-c-1',
-      false: 'border-transparent hover:bg-b-2 hover:text-c-1',
-    },
-  },
-})
 
 watch(mode, (newMode) => {
   if (newMode === 'edit') {
@@ -37,29 +27,11 @@ watch(mode, (newMode) => {
     <!-- Tabs -->
     <div
       class="absolute bg-b-1 bottom-4 gap-1 hidden group-hover:grid grid-cols-2 left-1/2 p-1 text-sm rounded-lg -translate-x-1/2 z-[1]">
-      <button
-        class="px-3"
-        :class="
-          cx(
-            buttonVariants({
-              active: mode === 'preview',
-            }),
-          )
-        "
-        type="button"
-        @click="mode = 'preview'">
-        Preview
-      </button>
-      <button
-        :class="cx(buttonVariants({ active: mode === 'edit' }))"
-        type="button"
-        @click="mode = 'edit'">
-        Edit
-      </button>
+      <ModeToggleButton v-model="mode" />
       <div
         class="absolute inset-0 -z-1 rounded bg-b-1 shadow-lg brightness-lifted" />
     </div>
-    <div class="h-full overflow-y-auto">
+    <div class="h-full min-h-48 overflow-y-auto">
       <!-- Preview -->
       <template v-if="mode === 'preview'">
         <ScalarMarkdown
@@ -67,6 +39,7 @@ watch(mode, (newMode) => {
           :value="modelValue"
           @dblclick="mode = 'edit'" />
       </template>
+
       <!-- Edit -->
       <template v-if="mode === 'edit'">
         <CodeInput
@@ -75,7 +48,7 @@ watch(mode, (newMode) => {
           :class="{ 'min-h-[calc(1em*4)]': mode === 'edit' }"
           :modelValue="modelValue"
           @blur="mode = 'preview'"
-          @update:modelValue="emit('update:value', $event)" />
+          @update:modelValue="emit('update:modelValue', $event)" />
       </template>
     </div>
     <div
