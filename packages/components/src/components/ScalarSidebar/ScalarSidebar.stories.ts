@@ -79,6 +79,12 @@ export const WithNavItems: Story = {
 }
 
 export const WithNestedGroups: Story = {
+  argTypes: {
+    indent: { control: 'number' },
+  },
+  args: {
+    indent: 18,
+  },
   render: (args) => ({
     components: {
       ScalarSidebar,
@@ -90,9 +96,11 @@ export const WithNestedGroups: Story = {
       return { args }
     },
     template: `
-<div class="flex h-screen">
+<div class="flex h-screen" :style="{ '--scalar-sidebar-indent': args.indent + 'px' }">
   <ScalarSidebar>
     <ScalarSidebarItems class="custom-scroll">
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
       <ScalarSidebarGroup>
         Item Group
         <template #items>
@@ -107,7 +115,7 @@ export const WithNestedGroups: Story = {
                   Item Group
                   <template #items>
                     <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                    <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                    <ScalarSidebarItem :icon="args.icon" selected>Subitem</ScalarSidebarItem>
                       <ScalarSidebarGroup>
                         Item Group
                         <template #items>
@@ -133,6 +141,8 @@ export const WithNestedGroups: Story = {
           <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
         </template>
       </ScalarSidebarGroup>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
     </ScalarSidebarItems>
   </ScalarSidebar>
   <div class="placeholder flex-1">Main content</div>

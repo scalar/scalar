@@ -24,4 +24,6 @@ export type ScalarSidebarItemSlots = {
   icon?: () => any
   /** The content to display to the right of the text content */
   aside?: () => any
+  /** The indent to display before content */
+  indent?: () => any
 }
