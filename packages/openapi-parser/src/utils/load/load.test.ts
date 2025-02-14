@@ -128,14 +128,6 @@ describe('load', async () => {
       './components/coordinates.yaml',
     ])
 
-    // dirs
-    // expect(filesystem.map((entry) => entry.dir)).toStrictEqual([
-    //   '/Users/hanspagel/Documents/Projects/openapi-parser/packages/openapi-parser/tests/filesystem/api',
-    //   '/Users/hanspagel/Documents/Projects/openapi-parser/packages/openapi-parser/tests/filesystem/api/schemas',
-    //   '/Users/hanspagel/Documents/Projects/openapi-parser/packages/openapi-parser/tests/filesystem/api/schemas',
-    //   '/Users/hanspagel/Documents/Projects/openapi-parser/packages/openapi-parser/tests/filesystem/api/schemas/components',
-    // ])
-
     // specification
     expect(filesystem[0].specification).toBeTypeOf('object')
 
