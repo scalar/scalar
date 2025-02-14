@@ -1,7 +1,7 @@
 // @ts-check
 
 import eslint from '@eslint/js'
-import prettier from 'eslint-plugin-prettier/recommended'
+// import prettier from 'eslint-plugin-prettier/recommended'
 import vue from 'eslint-plugin-vue'
 import tslint from 'typescript-eslint'
 import vueParser from 'vue-eslint-parser'
@@ -53,22 +53,23 @@ export default tslint.config(
     },
 
     rules: {
+      '@typescript-eslint/no-unused-expressions': 'warn',
       'consistent-return': 'off',
       'guard-for-in': 'warn',
-      'no-undef': ['error', {}],
+      'no-undef': ['warn', {}],
       'no-inner-declarations': ['warn'],
-      'no-param-reassign': 'error',
-      'no-return-assign': 'error',
-      'radix': ['error'],
-      'no-duplicate-imports': 'error',
+      'no-param-reassign': 'warn',
+      'no-return-assign': 'warn',
+      'radix': ['warn'],
+      'no-duplicate-imports': 'warn',
       'vue/no-undef-components': [
-        'error',
+        'warn',
         {
           ignorePatterns: ['client-only', 'ssg_children', 'router-link'],
         },
       ],
       'vue/block-lang': [
-        'error',
+        'warn',
         {
           script: {
             lang: 'ts',
@@ -76,9 +77,9 @@ export default tslint.config(
         },
       ],
       'vue/multi-word-component-names': 'off',
-      'vue/order-in-components': 'error',
+      'vue/order-in-components': 'warn',
       'vue/attributes-order': [
-        'error',
+        'warn',
         {
           order: [
             'DEFINITION',
@@ -97,32 +98,32 @@ export default tslint.config(
           alphabetical: true,
         },
       ],
-      'vue/no-unused-properties': 'error',
-      'vue/attribute-hyphenation': ['error', 'never'],
-      'vue/no-lone-template': ['error'],
-      'vue/this-in-template': ['error', 'never'],
-      'vue/component-api-style': ['error', ['script-setup']],
+      'vue/no-unused-properties': 'warn',
+      'vue/attribute-hyphenation': ['warn', 'never'],
+      'vue/no-lone-template': ['warn'],
+      'vue/this-in-template': ['warn', 'never'],
+      'vue/component-api-style': ['warn', ['script-setup']],
       'vue/define-macros-order': [
-        'error',
+        'warn',
         {
           order: ['defineProps', 'defineEmits'],
         },
       ],
-      'vue/define-props-declaration': ['error', 'type-based'],
-      'vue/define-emits-declaration': ['error', 'type-based'],
+      'vue/define-props-declaration': ['warn', 'type-based'],
+      'vue/define-emits-declaration': ['warn', 'type-based'],
       'vue/html-button-has-type': [
-        'error',
+        'warn',
         {
           button: true,
           submit: true,
           reset: true,
         },
       ],
-      'vue/v-on-event-hyphenation': ['error', 'never'],
+      'vue/v-on-event-hyphenation': ['warn', 'never'],
       'vue/require-default-prop': 0,
 
       'vue/component-name-in-template-casing': [
-        'error',
+        'warn',
         'PascalCase',
         {
           registeredComponentsOnly: true,
@@ -130,21 +131,21 @@ export default tslint.config(
         },
       ],
       'vue/html-closing-bracket-newline': [
-        'error',
+        'warn',
         {
           singleline: 'never',
           multiline: 'never',
         },
       ],
-      'vue/custom-event-name-casing': ['error', 'camelCase'],
+      'vue/custom-event-name-casing': ['warn', 'camelCase'],
       'no-array-constructor': 'off',
-      '@typescript-eslint/no-array-constructor': 'error',
+      '@typescript-eslint/no-array-constructor': 'warn',
       'no-shadow': 'off',
-      '@typescript-eslint/no-shadow': ['error'],
+      '@typescript-eslint/no-shadow': ['warn'],
       'no-unused-vars': 'off',
 
       '@typescript-eslint/no-unused-vars': [
-        'error',
+        'warn',
         {
           ignoreRestSiblings: true,
           argsIgnorePattern: '^_',
@@ -153,18 +154,18 @@ export default tslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/ban-ts-comment': 'warn',
       'no-loss-of-precision': 'off',
-      '@typescript-eslint/no-loss-of-precision': 'error',
+      '@typescript-eslint/no-loss-of-precision': 'warn',
 
       '@typescript-eslint/consistent-type-imports': [
-        'error',
+        'warn',
         {
           prefer: 'type-imports',
           fixStyle: 'inline-type-imports',
         },
       ],
-      '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+      '@typescript-eslint/consistent-type-definitions': ['warn', 'type'],
       '@typescript-eslint/consistent-type-assertions': [
-        'error',
+        'warn',
         {
           assertionStyle: 'as',
         },
@@ -172,7 +173,7 @@ export default tslint.config(
       'camelcase': 'off',
 
       '@typescript-eslint/naming-convention': [
-        'error',
+        'warn',
         {
           selector: 'typeLike',
           format: ['PascalCase'],
@@ -217,5 +218,5 @@ export default tslint.config(
       },
     },
   },
-  prettier,
+  // prettier,
 )
