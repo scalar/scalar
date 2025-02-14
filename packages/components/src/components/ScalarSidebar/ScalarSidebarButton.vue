@@ -24,6 +24,7 @@
 export default {}
 </script>
 <script setup lang="ts">
+import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import { cva } from '../../cva'
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarIcon } from '../ScalarIcon'
@@ -34,7 +35,7 @@ const { is = 'a', indent = 0 } = defineProps<ScalarSidebarItemProps>()
 defineSlots<ScalarSidebarItemSlots>()
 
 const variants = cva({
-  base: ['rounded p-1.5 font-medium text-c-2 no-underline'],
+  base: ['flex rounded px-1.5 font-medium text-c-2 no-underline'],
   variants: {
     selected: { true: 'cursor-auto bg-b-2 text-c-1' },
     disabled: { true: 'cursor-auto' },
@@ -53,12 +54,10 @@ const { cx } = useBindCx()
     :aria-level="indent"
     :type="is === 'button' ? 'button' : undefined"
     v-bind="cx(variants({ selected, disabled }))">
-    <div
-      class="flex items-center gap-1 flex-1"
-      :style="{
-        'padding-left':
-          'calc(var(--scalar-sidebar-indent,18px) * var(--scalar-sidebar-level))',
-      }">
+    <slot name="indent">
+      <ScalarSidebarIndent :indent="indent" />
+    </slot>
+    <div class="flex items-center gap-1 flex-1 py-2 leading-5">
       <div
         v-if="icon || $slots.icon"
         class="size-3.5">

@@ -99,6 +99,8 @@ export const WithNestedGroups: Story = {
 <div class="flex h-screen" :style="{ '--scalar-sidebar-indent': args.indent + 'px' }">
   <ScalarSidebar>
     <ScalarSidebarItems class="custom-scroll">
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
       <ScalarSidebarGroup>
         Item Group
         <template #items>
@@ -139,6 +141,8 @@ export const WithNestedGroups: Story = {
           <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
         </template>
       </ScalarSidebarGroup>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
+      <ScalarSidebarItem :icon="args.icon">Item</ScalarSidebarItem>
     </ScalarSidebarItems>
   </ScalarSidebar>
   <div class="placeholder flex-1">Main content</div>
