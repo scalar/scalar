@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
-pnpm prettier --check --ignore-path=../../.prettierignore .
-pnpm biome check
+biome lint --diagnostic-level=error
+pnpm eslint '**/*.vue'

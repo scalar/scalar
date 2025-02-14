@@ -19,8 +19,8 @@
     "build": "bash scripts/build-rollup.sh",
     "dev": "vite",
     "format": "bash scripts/format.sh",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:check": "bash scripts/lint-check.sh",
+    "lint:fix": "bash scripts/lint-fix.sh",
     "preview": "dotenv -o -- vite preview",
     "types:build": "bash scripts/types-build.sh",
     "types:check": "bash scripts/types-check.sh"
@@ -37,6 +37,8 @@
   "bin": {
     "scalar-build-rollup": "scripts/build-rollup.sh",
     "scalar-build-vite": "scripts/build-vite.sh",
+    "scalar-format-check": "scripts/format-check.sh",
+    "scalar-format": "scripts/format.sh",
     "scalar-lint-check": "scripts/lint-check.sh",
     "scalar-lint-fix": "scripts/lint-fix.sh",
     "scalar-types-build-vue": "scripts/types-build-vue.sh",
