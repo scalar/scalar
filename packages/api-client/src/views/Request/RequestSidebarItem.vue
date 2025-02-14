@@ -422,6 +422,7 @@ const shouldShowItem = computed(() => {
               router.currentRoute.value.name.startsWith('collection') &&
               router.currentRoute.value.params[PathId.Collection] ===
                 item.entity.uid,
+            'text-c-2': item.title === 'Untitled Collection',
           },
         ]">
         <span
