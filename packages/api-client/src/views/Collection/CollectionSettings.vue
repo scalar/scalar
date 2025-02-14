@@ -38,12 +38,15 @@ function handleDeleteCollection() {
 
   collectionMutators.delete(activeCollection.value, activeWorkspace.value)
 
+  const firstCollection = activeWorkspaceCollections.value[0]
+
   // Redirect to the first collection
-  if (activeWorkspaceCollections.value[0]) {
+  if (firstCollection) {
     replace({
-      name: 'request.root',
+      name: 'collection',
       params: {
         [PathId.Workspace]: activeWorkspace.value.uid,
+        [PathId.Collection]: firstCollection.uid,
       },
     })
   }
@@ -56,7 +59,7 @@ function handleDeleteCollection() {
   <div
     class="flex flex-col gap-12 h-full mx-auto py-8 w-full md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="flex flex-col gap-4">
-      Collection Settings
+      Features
       <!-- Watch Mode -->
       <div class="bg-b-2 border rounded-lg text-sm">
         <div
@@ -64,27 +67,38 @@ function handleDeleteCollection() {
           <div>
             <h3>Watch Mode</h3>
             <p class="mt-1 text-c-2">
-              When enabled, the collection will be updated automatically when
-              the URL changes.
+              When enabled, the OpenAPI document will be polled for changes and
+              the collection will be updated automatically.
             </p>
           </div>
           <ScalarToggle
             class="w-4"
-            :modelValue="activeCollection?.watchMode"
+            :disabled="!activeCollection?.documentUrl"
+            :modelValue="activeCollection?.watchMode ?? false"
             @update:modelValue="handleToggleWatchMode" />
         </div>
         <div
-          class="flex items-center overflow-x-auto py-1.5 whitespace-nowrap"
-          :class="activeCollection?.watchMode ? 'text-c-1' : 'text-c-2'">
-          <span class="bg-b-2 sticky left-0 pl-3 pr-2">
-            {{ activeCollection?.watchMode ? 'URL watched:' : 'URL:' }}
-          </span>
+          class="flex items-center overflow-x-auto py-1.5 whitespace-nowrap text-c-1">
+          <span class="bg-b-2 sticky left-0 pl-3 pr-2">URL</span>
           <span class="pr-3">
-            {{ activeCollection?.documentUrl }}
+            <a
+              v-if="activeCollection?.documentUrl"
+              class="text-c-2 no-underline hover:bg-b-3 bg-b-2 px-2 py-1 rounded"
+              :href="activeCollection?.documentUrl"
+              target="_blank">
+              {{ activeCollection?.documentUrl }}
+            </a>
+            <span
+              v-else
+              class="text-c-2">
+              There’s no URL configured. Try importing an OpenAPI document from
+              an URL.
+            </span>
           </span>
         </div>
       </div>
     </div>
+
     <!-- Danger Zone -->
     <div class="flex flex-col gap-4">
       <div>Danger Zone</div>
@@ -93,7 +107,8 @@ function handleDeleteCollection() {
         <div>
           <h3>Delete Collection</h3>
           <p class="mt-1 text-c-2">
-            Once deleted, this collection cannot be recovered.
+            Be careful, my friend. Once deleted, there is no way to recover the
+            collection.
           </p>
         </div>
         <ScalarButton
