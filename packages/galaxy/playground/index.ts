@@ -30,7 +30,7 @@ app.get(
       // Served by createMockServer
       url: '/openapi.yaml',
     },
-    pageTitle: 'Scalar Galaxy Spec',
+    pageTitle: 'Scalar Galaxy',
   }),
 )
 

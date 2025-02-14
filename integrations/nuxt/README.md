@@ -35,7 +35,7 @@ export default defineNuxtConfig({
 })
 ```
 
-If you would like to add your own OpenAPI spec file you can do so with the following minimal config
+If you would like to add your own OpenAPI document you can do so with the following minimal config
 
 ```ts
 export default defineNuxtConfig({

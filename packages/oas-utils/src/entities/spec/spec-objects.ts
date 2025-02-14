@@ -42,7 +42,7 @@ export const oasContactSchema = z.object({
  */
 export const oasInfoSchema = z.object({
   /** REQUIRED. The title of the API. */
-  title: z.string().optional().default('OpenAPI Spec'),
+  title: z.string().optional().default('API'),
   /** A short summary of the API. */
   summary: z.string().optional(),
   /** A description of the API. CommonMark syntax MAY be used for rich text representation. */

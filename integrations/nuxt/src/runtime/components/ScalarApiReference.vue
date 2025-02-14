@@ -23,7 +23,7 @@ const content =
 
 // Check for empty spec
 if (!content)
-  throw new Error('You must provide a spec for Scalar API References')
+  throw new Error('You must provide a document for Scalar API References')
 
 const parsedSpec = reactive(await parse(content))
 const rawSpec = JSON.stringify(content)
