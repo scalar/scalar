@@ -61,6 +61,7 @@ const emit = defineEmits<{
   (e: 'submit', v: string): void
   (e: 'update:modelValue', v: string): void
   (e: 'curl', v: string): void
+  (e: 'blur', v: string): void
 }>()
 
 const attrs = useAttrs()
@@ -118,6 +119,7 @@ function handleSubmit(value: string) {
 function handleBlur(value: string) {
   isFocused.value = false
   if (props.emitOnBlur && props.modelValue) handleSubmit(value)
+  emit('blur', value)
 }
 
 // ---------------------------------------------------------------------------
@@ -167,6 +169,13 @@ watch(codeMirror, () => {
     Object.prototype.hasOwnProperty.call(attrs, 'autofocus')
   ) {
     codeMirror.value.focus()
+  }
+})
+
+// If the codeMirror instance is focused, focus the input
+watch(codeMirror, (newValue) => {
+  if (newValue) {
+    newValue.focus()
   }
 })
 
