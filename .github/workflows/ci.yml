@@ -139,8 +139,9 @@ jobs:
         run: pnpm install --dev
       - name: Lint code
         run: pnpm lint:check
-      - name: Check code style formatting
-        run: pnpm format:check
+      # TODO: Disabled until we applied the new formatting through Biome.
+      # - name: Check code style formatting
+      #   run: pnpm format:check
 
   types:
     needs: [build]

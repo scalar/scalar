@@ -25,7 +25,8 @@
       "**/openapi3-examples/**",
       "**/.docusaurus/**",
       "examples/nestjs-api-reference-fastify/**",
-      "examples/nestjs-api-reference-express/**"
+      "examples/nestjs-api-reference-express/**",
+      "*/storybook-static/*"
     ]
   },
   "formatter": {
