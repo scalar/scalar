@@ -79,7 +79,7 @@ function handleDeleteCollection() {
         </div>
         <div
           class="flex items-center overflow-x-auto py-1.5 whitespace-nowrap text-c-1">
-          <span class="bg-b-2 sticky left-0 pl-3 pr-2">URL</span>
+          <span class="bg-b-2 sticky left-0 pl-3 pr-2">Source</span>
           <span class="pr-3">
             <a
               v-if="activeCollection?.documentUrl"
