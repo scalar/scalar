@@ -194,45 +194,6 @@ export const routes = [
     },
     children: [
       ...requestRoutes,
-      // {
-      //   path: 'collection',
-      //   redirect: (to) =>
-      //     `${to.fullPath.replace(/\/$/, '')}/default`,
-      // },
-      // {
-      //   name: 'collection',
-      //   path: `collection/:${PathId.Collection}`,
-      //   component: () => import('@/views/Collection/Collection.vue'),
-      //   redirect: () => {
-      //     return {
-      //       name: 'collection.overview',
-      //     }
-      //   },
-      //   children: [
-      //     {
-      //       name: 'collection.overview',
-      //       path: 'overview',
-      //       component: () =>
-      //         import('@/views/Collection/CollectionOverview.vue'),
-      //     },
-      //     {
-      //       name: 'collection.servers',
-      //       path: 'servers',
-      //       component: () => import('@/views/Collection/CollectionServers.vue'),
-      //     },
-      //   ],
-      // },
-      /** Components will map to each section of the spec components object */
-      // {
-      //   path: 'components',
-      //   redirect: '/components/schemas/default',
-      //   children: [
-      //     {
-      //       path: `schemas/:${PathId.Schema}`,
-      //       component: () => import('@/views/Components/Schemas/Schemas.vue'),
-      //     },
-      //   ],
-      // },
       {
         name: 'environment.default',
         path: 'environment',
