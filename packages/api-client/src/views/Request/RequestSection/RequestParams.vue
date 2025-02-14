@@ -6,7 +6,6 @@ import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
-  type Operation,
   type RequestExample,
   requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/spec'
@@ -16,7 +15,6 @@ import type { RouteLocationRaw } from 'vue-router'
 
 const {
   example,
-  operation,
   environment,
   envVariables,
   workspace,
@@ -25,7 +23,6 @@ const {
   readOnlyEntries = [],
 } = defineProps<{
   example: RequestExample
-  operation: Operation
   environment: Environment
   envVariables: EnvVariable[]
   workspace: Workspace
@@ -83,18 +80,14 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     }
 
     requestExampleMutators.edit(
-      operation.uid,
+      example.uid,
       `parameters.${paramKey}`,
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
     const payload = [requestExampleParametersSchema.parse({ [field]: value })]
-    requestExampleMutators.edit(
-      operation.uid,
-      `parameters.${paramKey}`,
-      payload,
-    )
+    requestExampleMutators.edit(example.uid, `parameters.${paramKey}`, payload)
 
     /** focus the new row */
     nextTick(() => {
@@ -114,7 +107,7 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 /** Toggle a parameter row on or off */
 const toggleRow = (rowIdx: number, enabled: boolean) =>
   requestExampleMutators.edit(
-    operation.uid,
+    example.uid,
     `parameters.${paramKey}.${rowIdx}.enabled`,
     enabled,
   )
@@ -124,7 +117,7 @@ const deleteAllRows = () => {
   const exampleParams = params.value.filter((param) => param.required)
 
   requestExampleMutators.edit(
-    operation.uid,
+    example.uid,
     `parameters.${paramKey}`,
     exampleParams,
   )
