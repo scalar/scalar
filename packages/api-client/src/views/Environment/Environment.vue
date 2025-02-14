@@ -390,7 +390,7 @@ function handleRename(newName: string) {
             <li
               v-for="collection in activeWorkspaceCollections"
               :key="collection.uid"
-              class="flex flex-col gap-0.25">
+              class="flex flex-col gap-1/2">
               <button
                 class="flex font-medium gap-1.5 group items-center p-1.5 text-left text-sm w-full break-words rounded hover:bg-b-2"
                 type="button"
@@ -406,7 +406,7 @@ function handleRename(newName: string) {
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
                     <ScalarIcon
-                      class="text-c-3 hidden text-sm group-hover:block"
+                      class="text-c-3 hidden text-sm group-hover:block hover:text-c-1"
                       icon="ChevronRight"
                       size="md" />
                   </div>
@@ -449,13 +449,12 @@ function handleRename(newName: string) {
                     Object.keys(collection['x-scalar-environments'] || {})
                       .length === 0
                   "
-                  class="mb-[.5px] flex gap-1.5 h-8 text-c-1 pl-6 py-0 justify-start text-xs w-full hover:bg-b-2"
+                  class="flex gap-1.5 h-8 text-c-1 pl-6 py-0 justify-start text-xs w-full hover:bg-b-2"
                   variant="ghost"
                   @click="openEnvironmentModal(collection.uid)">
                   <ScalarIcon
-                    class="ml-0.5 h-2.5 w-2.5"
                     icon="Add"
-                    thickness="3" />
+                    size="sm" />
                   <span>Add Environment</span>
                 </ScalarButton>
               </div>
