@@ -1,9 +1,9 @@
-import path from 'node:path'
 /**
  * This file has some simple tests to cover the basics of the resolveReferences function.
  * Doesn’t cover all edge cases, doesn’t have big files, but if this works you’re almost there.
  */
 import SwaggerParser from '@apidevtools/swagger-parser'
+import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { readFiles } from '../plugins/read-files/readFiles.ts'

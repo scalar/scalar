@@ -38,7 +38,6 @@ export function syntaxHighlight(
   // Classname is used by lowlight to select the language model
   const className = `language-${lowlightLanguageMappings[options.lang] ?? options.lang}`
 
-  // biome-ignore lint/suspicious/noEmptyBlockStatements: we want to keep this empty
   const nullPlugin = (() => {}) satisfies Plugin
 
   const html = unified()
