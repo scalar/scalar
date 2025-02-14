@@ -47,6 +47,7 @@ const { cx } = useBindCx()
 <template>
   <li class="contents">
     <slot
+      :level="level"
       name="button"
       :open="open">
       <ScalarSidebarButton
@@ -56,7 +57,9 @@ const { cx } = useBindCx()
         :indent="level"
         @click="open = !open">
         <template #icon>
-          <ScalarSidebarGroupToggle :open="open" />
+          <ScalarSidebarGroupToggle
+            class="text-c-3"
+            :open="open" />
         </template>
         <slot :open="open" />
       </ScalarSidebarButton>
@@ -64,13 +67,16 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col relative')">
+      v-bind="cx('flex flex-col relative')"
+      :style="{ '--scalar-sidebar-level': level + 1 }">
       <slot
         name="items"
         :open="open" />
       <div
-        class="absolute w-border bg-border h-full top-1/2 -translate-y-1/2"
-        :style="{ left: 13 + 18 * level + 'px' }" />
+        class="absolute w-border bg-border inset-y-0 ml-1.5"
+        :style="{
+          left: `calc(var(--scalar-sidebar-indent,18px) * ${level} + 7px)`,
+        }" />
     </component>
   </li>
 </template>
