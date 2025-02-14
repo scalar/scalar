@@ -39,14 +39,6 @@ const {
   }[]
 }>()
 
-console.log({
-  example,
-  operation,
-  environment,
-  envVariables,
-  workspace,
-})
-
 const { requestExampleMutators } = useWorkspace()
 
 const params = computed(() => example.parameters[paramKey] ?? [])
