@@ -24,15 +24,15 @@ public class ScalarOptionsMapperTests
         configuration.SearchHotKey.Should().BeNull();
         configuration.Servers.Should().BeNull();
         configuration.MetaData.Should().BeNull();
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.Shell.ToStringFast());
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.Curl.ToStringFast());
+        configuration.DefaultHttpClient!.TargetKey.Should().Be("shell");
+        configuration.DefaultHttpClient!.ClientKey.Should().Be("curl");
         configuration.HiddenClients.Should().BeNull();
         configuration.Authentication.Should().BeNull();
         configuration.WithDefaultFonts.Should().BeTrue();
         configuration.DefaultOpenAllTags.Should().BeFalse();
         configuration.TagSorter.Should().BeNull();
         configuration.OperationsSorter.Should().BeNull();
-        configuration.Theme.Should().Be(ScalarTheme.Purple.ToStringFast());
+        configuration.Theme.Should().Be("purple");
         configuration.Integration.Should().Be("dotnet");
         configuration.Documents.Should().BeEmpty();
     }
@@ -86,14 +86,14 @@ public class ScalarOptionsMapperTests
         configuration.HideDownloadButton.Should().BeTrue();
         configuration.HideTestRequestButton.Should().BeTrue();
         configuration.DarkMode.Should().BeFalse();
-        configuration.ForceDarkModeState.Should().Be(ThemeMode.Light.ToStringFast());
+        configuration.ForceDarkModeState.Should().Be("light");
         configuration.HideDarkModeToggle.Should().BeTrue();
         configuration.CustomCss.Should().Be("*{}");
         configuration.SearchHotKey.Should().Be("o");
         configuration.Servers.Should().ContainSingle().Which.Url.Should().Be("https://example.com");
         configuration.MetaData.Should().ContainKey("key").WhoseValue.Should().Be("value");
-        configuration.DefaultHttpClient!.TargetKey.Should().Be(ScalarTarget.CSharp.ToStringFast());
-        configuration.DefaultHttpClient!.ClientKey.Should().Be(ScalarClient.HttpClient.ToStringFast());
+        configuration.DefaultHttpClient!.TargetKey.Should().Be("csharp");
+        configuration.DefaultHttpClient!.ClientKey.Should().Be("httpclient");
         ((bool) configuration.HiddenClients!).Should().BeTrue();
         configuration.Authentication.Should().NotBeNull();
         configuration.Authentication!.PreferredSecurityScheme.Should().Be("my-scheme");
@@ -101,10 +101,10 @@ public class ScalarOptionsMapperTests
         configuration.Authentication.ApiKey!.Token.Should().Be("my-token");
         configuration.WithDefaultFonts.Should().BeFalse();
         configuration.DefaultOpenAllTags.Should().BeTrue();
-        configuration.TagSorter.Should().Be(TagSorter.Alpha.ToStringFast());
-        configuration.OperationsSorter.Should().Be(OperationSorter.Method.ToStringFast());
-        configuration.Theme.Should().Be(ScalarTheme.Saturn.ToStringFast());
-        configuration.Layout.Should().Be(ScalarLayout.Classic.ToStringFast());
+        configuration.TagSorter.Should().Be("alpha");
+        configuration.OperationsSorter.Should().Be("method");
+        configuration.Theme.Should().Be("saturn");
+        configuration.Layout.Should().Be("classic");
         configuration.Integration.Should().BeNull();
         configuration.HideClientButton.Should().BeTrue();
         configuration.Documents.Should().ContainSingle().Which.Should().Be("openapi/v2.json");
@@ -147,7 +147,7 @@ public class ScalarOptionsMapperTests
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
-        hiddenClients.Should().NotContainKey(ScalarTarget.CSharp.ToStringFast());
+        hiddenClients.Should().NotContainKey("csharp");
     }
 
     [Fact]
@@ -161,10 +161,10 @@ public class ScalarOptionsMapperTests
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count);
-        hiddenClients.Should().ContainKey(ScalarTarget.CSharp.ToStringFast())
-            .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.RestSharp.ToStringFast());
-        hiddenClients.Should().ContainKey(ScalarTarget.Python.ToStringFast())
-            .WhoseValue.Should().ContainSingle().Which.Should().Be(ScalarClient.Requests.ToStringFast());
+        hiddenClients.Should().ContainKey("csharp")
+            .WhoseValue.Should().ContainSingle().Which.Should().Be("restsharp");
+        hiddenClients.Should().ContainKey("python")
+            .WhoseValue.Should().ContainSingle().Which.Should().Be("requests");
     }
 
     [Fact]
@@ -178,6 +178,6 @@ public class ScalarOptionsMapperTests
 
         // Assert
         hiddenClients.Should().HaveCount(ScalarOptionsMapper.ClientOptions.Count - 1);
-        hiddenClients.Should().NotContainKey(ScalarTarget.Kotlin.ToStringFast());
+        hiddenClients.Should().NotContainKey("kotlin");
     }
 }
