@@ -115,7 +115,7 @@ export const WithNestedGroups: Story = {
                   Item Group
                   <template #items>
                     <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
-                    <ScalarSidebarItem :icon="args.icon">Subitem</ScalarSidebarItem>
+                    <ScalarSidebarItem :icon="args.icon" selected>Subitem</ScalarSidebarItem>
                       <ScalarSidebarGroup>
                         Item Group
                         <template #items>
