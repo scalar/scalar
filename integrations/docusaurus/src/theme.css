@@ -1,4 +1,4 @@
-@import '@scalar/api-reference-react/style.css';
+@import "@scalar/api-reference-react/style.css";
 
 /* Scalar Theme */
 :root {
@@ -13,8 +13,8 @@
   --refs-sidebar-width: 300px;
 }
 /* basic theme */
-html[data-theme='light'] body,
-html[data-theme='light'] .scalar-card.dark-mode {
+html[data-theme="light"] body,
+html[data-theme="light"] .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, #1c1e21);
   --scalar-color-2: var(--ifm-color-emphasis-700, #606770);
   --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
@@ -45,7 +45,7 @@ html[data-theme='light'] .scalar-card.dark-mode {
   --scalar-button-1-color: rgba(255, 255, 255, 0.9);
 }
 
-html[data-theme='dark'] body,
+html[data-theme="dark"] body,
 .scalar-card.dark-mode {
   --scalar-color-1: var(--ifm-font-color-base, rgb(227, 227, 227));
   --scalar-color-2: var(--ifm-color-emphasis-700, #dadde1);
@@ -96,13 +96,13 @@ html[data-theme='dark'] body,
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
   --scalar-sidebar-search--color: var(--scalar-color-3);
 }
-html[data-theme='light'] body .t-doc__sidebar {
+html[data-theme="light"] body .t-doc__sidebar {
   --scalar-sidebar-item-hover-background: var(
     --ifm-menu-color-background-hover,
     rgba(0, 0, 0, 0.05)
   );
 }
-html[data-theme='dark'] body .t-doc__sidebar {
+html[data-theme="dark"] body .t-doc__sidebar {
   --scalar-sidebar-item-hover-background: var(
     --ifm-menu-color-background-hover,
     hsla(0, 0%, 100%, 0.05)
@@ -115,7 +115,7 @@ html[data-theme='dark'] body .t-doc__sidebar {
   border-top: none !important;
 }
 .scalar-card-checkbox .scalar-card-checkbox-checkmark:after,
-html[data-theme='light'] body .api-client-drawer {
+html[data-theme="light"] body .api-client-drawer {
   --scalar-background-1: white;
 }
 
@@ -124,7 +124,7 @@ html[data-theme='light'] body .api-client-drawer {
   position: fixed !important;
   width: 100%;
 }
-#__docusaurus[aria-hidden='true'] ~ #headlessui-portal-root {
+#__docusaurus[aria-hidden="true"] ~ #headlessui-portal-root {
   position: relative !important;
 }
 
@@ -141,7 +141,7 @@ html[data-theme='light'] body .api-client-drawer {
   transform: rotate(90deg);
   transition: transform var(--ifm-transition-fast) linear;
   width: 1.25rem;
-  content: '';
+  content: "";
   filter: var(--ifm-menu-link-sublist-icon-filter);
 }
 .sidebar-heading-chevron:hover {
@@ -212,7 +212,8 @@ html[data-theme='light'] body .api-client-drawer {
 .scalar-card {
   --full-height: calc(100dvh - var(--ifm-navbar-height));
   max-height: calc(
-    ((var(--full-height) - var(--refs-header-height)) - 60px) / 2
+    ((var(--full-height) - var(--refs-header-height)) - 60px) /
+    2
   );
 }
 .scalar-card .scalar-codeblock-pre {
@@ -250,10 +251,10 @@ html[data-theme='light'] body .api-client-drawer {
     border: none !important;
   }
   .references-mobile-breadcrumbs:empty:before {
-    content: 'Menu';
+    content: "Menu";
   }
   .references-header .scalar-icon-button:before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -272,7 +273,7 @@ html[data-theme='light'] body .api-client-drawer {
   .t-doc__sidebar .sidebar {
     border-right: none !important;
   }
-  html[data-theme='light'] body .sidebar {
+  html[data-theme="light"] body .sidebar {
     backdrop-filter: blur(50px);
   }
   .references-navigation-list {
@@ -289,7 +290,7 @@ html[data-theme='light'] body .api-client-drawer {
 
 /** Show a few dots instead */
 .credentials::after {
-  content: '·····';
+  content: "·····";
   font-size: var(--scalar-small);
   color: var(--scalar-color-3);
   user-select: none;
@@ -525,7 +526,7 @@ html[data-theme='light'] body .api-client-drawer {
 
   .markdown summary::after {
     display: block;
-    content: '';
+    content: "";
 
     position: absolute;
     top: 1px;
@@ -760,13 +761,13 @@ html[data-theme='light'] body .api-client-drawer {
     background: var(--scalar-background-2);
   }
 
-  .markdown tr > [align='left'] {
+  .markdown tr > [align="left"] {
     text-align: left;
   }
-  .markdown tr > [align='right'] {
+  .markdown tr > [align="right"] {
     text-align: right;
   }
-  .markdown tr > [align='center'] {
+  .markdown tr > [align="center"] {
     text-align: center;
   }
   /* Docusaurus specific markdown - warning do not delete */

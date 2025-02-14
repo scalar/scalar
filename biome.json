@@ -1,0 +1,201 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "files": {
+    "ignore": [
+      "node_modules",
+      "dist",
+      ".venv",
+      ".turbo",
+      ".nuxt",
+      ".vite",
+      ".output",
+      ".vite-ssg-temp",
+      "**/vite.config.ts.timestamp-*",
+      "package.json",
+      "scalar.config.json",
+      "**/test-results/**",
+      "**/build/**",
+      "**/cdn/**",
+      "**/cloudbuild.json",
+      "**/fixtures/**",
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/playwright-report/**",
+      "**/pnpm-lock.yaml",
+      "**/openapi3-examples/**",
+      "**/.docusaurus/**",
+      "examples/nestjs-api-reference-fastify/**",
+      "examples/nestjs-api-reference-express/**",
+      "*/storybook-static/*"
+    ]
+  },
+  "formatter": {
+    "formatWithErrors": false,
+    "ignore": [
+      ".git",
+      ".svn",
+      ".hg",
+      ".tmp",
+      "node_modules",
+      "dist",
+      "generated",
+      "venv",
+      ".venv",
+      "playwright-report",
+      ".vite-ssg-temp",
+      "pnpm-lock.yaml",
+      "fixtures"
+    ],
+    "enabled": true,
+    "lineEnding": "lf",
+    "indentWidth": 2,
+    "lineWidth": 120,
+    "indentStyle": "space",
+    "attributePosition": "multiline"
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "all",
+      "quoteProperties": "preserve",
+      "semicolons": "asNeeded",
+      "arrowParentheses": "always",
+      "bracketSameLine": true
+    }
+  },
+  "json": {
+    "formatter": {
+      "trailingCommas": "none"
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "complexity": {
+        "noExtraBooleanCast": "warn",
+        "noMultipleSpacesInRegularExpressionLiterals": "warn",
+        "noUselessCatch": "warn",
+        "noUselessTypeConstraint": "warn",
+        "noWith": "warn",
+        "noForEach": "off",
+        "useFlatMap": "warn",
+        "useArrowFunction": "warn",
+        "useOptionalChain": "warn"
+      },
+      "correctness": {
+        "noConstAssign": "warn",
+        "noConstantCondition": "warn",
+        "noEmptyCharacterClassInRegex": "warn",
+        "noEmptyPattern": "warn",
+        "noGlobalObjectCalls": "warn",
+        "noInnerDeclarations": "warn",
+        "noInvalidBuiltinInstantiation": "warn",
+        "noInvalidConstructorSuper": "warn",
+        "noNonoctalDecimalEscape": "warn",
+        "noPrecisionLoss": "warn",
+        "noSelfAssign": "warn",
+        "noSetterReturn": "warn",
+        "noSwitchDeclarations": "warn",
+        "noUnreachable": "warn",
+        "noUnreachableSuper": "warn",
+        "noUnsafeFinally": "warn",
+        "noUnsafeOptionalChaining": "warn",
+        "noUnusedLabels": "warn",
+        "noUnusedPrivateClassMembers": "warn",
+        "noUnusedVariables": "warn",
+        "useArrayLiterals": "warn",
+        "useIsNan": "warn",
+        "useValidForDirection": "warn",
+        "useYield": "warn",
+        "noUnusedImports": "warn"
+      },
+      "style": {
+        "noNamespace": "warn",
+        "noParameterAssign": "warn",
+        "useAsConstAssertion": "warn",
+        "useBlockStatements": "off",
+        "useForOf": "warn",
+        "useNodejsImportProtocol": "warn",
+        "useNumberNamespace": "warn",
+        "noUselessElse": "warn",
+        "useImportType": "warn",
+        "useExportType": "warn",
+        "noUnusedTemplateLiteral": "warn",
+        "useShorthandFunctionType": "warn",
+        "noArguments": "warn",
+        "noVar": "warn",
+        "useConst": "warn"
+      },
+      "suspicious": {
+        "noAsyncPromiseExecutor": "warn",
+        "noCatchAssign": "warn",
+        "noClassAssign": "warn",
+        "noCompareNegZero": "warn",
+        "noControlCharactersInRegex": "warn",
+        "noDebugger": "warn",
+        "noDuplicateCase": "warn",
+        "noDuplicateClassMembers": "warn",
+        "noDuplicateObjectKeys": "warn",
+        "noDuplicateParameters": "warn",
+        "noEmptyBlockStatements": "warn",
+        "noExtraNonNullAssertion": "warn",
+        "noFallthroughSwitchClause": "warn",
+        "noFunctionAssign": "warn",
+        "noGlobalAssign": "warn",
+        "noImportAssign": "warn",
+        "noMisleadingCharacterClass": "warn",
+        "noMisleadingInstantiator": "warn",
+        "noPrototypeBuiltins": "warn",
+        "noRedeclare": "warn",
+        "noShadowRestrictedNames": "warn",
+        "noSparseArray": "warn",
+        "noUnsafeDeclarationMerging": "warn",
+        "noUnsafeNegation": "warn",
+        "useGetterReturn": "warn",
+        "useNamespaceKeyword": "warn",
+        "useValidTypeof": "warn",
+        "noDoubleEquals": "warn",
+        "noThenProperty": "warn",
+        "useIsArray": "warn",
+        "noExplicitAny": "off",
+        "noExportsInTest": "warn"
+      },
+      "performance": {
+        "noDelete": "off"
+      },
+      "nursery": {
+        "noDescendingSpecificity": "warn",
+        "useGuardForIn": "warn"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "include": ["**/*.vue"],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "rules": {
+          "style": {
+            "useShorthandFunctionType": "off",
+            "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedVariables": "off",
+            "noUnusedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["**/tsconfig.*.json", "**/tsconfig.json"],
+      "json": {
+        "parser": {
+          "allowComments": true
+        }
+      }
+    }
+  ]
+}

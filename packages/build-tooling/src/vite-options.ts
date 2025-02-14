@@ -1,5 +1,5 @@
+import { fileURLToPath } from 'node:url'
 import type { Plugin } from 'rollup'
-import { fileURLToPath } from 'url'
 import type { BuildOptions, LibraryOptions } from 'vite'
 
 import { type StrictPluginOptions, createRollupConfig } from './rollup-options'
@@ -77,7 +77,7 @@ export const autoCSSInject = (app: keyof typeof VARS_DICT): Plugin =>
       if (!(bundle['style.css'] && 'source' in bundle['style.css'])) return
 
       const {
-        ['style.css']: { source: css },
+        'style.css': { source: css },
       } = bundle
 
       const IIFEcss = `

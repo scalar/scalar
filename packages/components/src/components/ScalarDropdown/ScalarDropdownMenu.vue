@@ -17,9 +17,10 @@
 export default {}
 </script>
 <script setup lang="ts">
+import type { Component } from 'vue'
+
 import { useBindCx } from '../../hooks/useBindCx'
 import { ScalarFloatingBackdrop } from '../ScalarFloating'
-import type { Component } from 'vue'
 
 defineProps<{
   /** The component to render */

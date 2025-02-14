@@ -1,3 +1,5 @@
 #!/bin/bash
+set -e
 
-vite build && pnpm types:build
+vite build
+pnpm types:build

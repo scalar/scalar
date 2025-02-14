@@ -4,7 +4,7 @@
  * project and update the exports field of the package.json as needed
  *
  */
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 import { glob } from 'glob'
 
 const cssExports = {
@@ -100,6 +100,6 @@ export async function addPackageFileExports({
 
   await fs.writeFile(
     './package.json',
-    JSON.stringify(packageFile, null, 2) + '\n',
+    `${JSON.stringify(packageFile, null, 2)}\n`,
   )
 }

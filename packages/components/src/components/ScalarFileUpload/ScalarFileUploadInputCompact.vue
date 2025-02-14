@@ -11,12 +11,12 @@ export default {}
 </script>
 <script setup lang="ts">
 import { useBindCx } from '../../hooks/useBindCx'
+import { ScalarIcon } from '../ScalarIcon'
 import type {
   FileUploadInputEmits,
   FileUploadInputProps,
   FileUploadInputSlots,
 } from './types'
-import { ScalarIcon } from '../ScalarIcon'
 
 defineProps<FileUploadInputProps>()
 defineEmits<FileUploadInputEmits>()

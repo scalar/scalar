@@ -6,7 +6,7 @@ const EXAMPLE_AUTHORIZATION_CODE = 'super-secret-token'
 /**
  * Responds with an HTML page that simulates an OAuth 2.0 authorization page.
  */
-export function respondWithAuthorizePage(c: Context, title: string = '') {
+export function respondWithAuthorizePage(c: Context, title = '') {
   const redirectUri = c.req.query('redirect_uri')
   const state = c.req.query('state')
 
@@ -33,7 +33,7 @@ export function respondWithAuthorizePage(c: Context, title: string = '') {
     const htmlContent = generateAuthorizationHtml(redirectUrl.toString(), title)
 
     return c.html(htmlContent)
-  } catch (error) {
+  } catch {
     return c.html(
       generateErrorHtml(
         'Invalid redirect_uri format',
@@ -44,7 +44,7 @@ export function respondWithAuthorizePage(c: Context, title: string = '') {
   }
 }
 
-function generateAuthorizationHtml(redirectUrl: string, title: string = '') {
+function generateAuthorizationHtml(redirectUrl: string, title = '') {
   return `
 <!DOCTYPE html>
 <html lang="en">

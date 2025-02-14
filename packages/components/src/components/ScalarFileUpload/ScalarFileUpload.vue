@@ -16,14 +16,13 @@ export default {}
 import { ref } from 'vue'
 
 import { useBindCx } from '../../hooks/useBindCx'
-import { type ExtensionList, isExtensionList } from './types'
-
+import type { LoadingState } from '../ScalarLoading'
+import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
+import ScalarFileUploadError from './ScalarFileUploadError.vue'
 import ScalarFileUploadInput from './ScalarFileUploadInput.vue'
 import ScalarFileUploadInputCompact from './ScalarFileUploadInputCompact.vue'
-import ScalarFileUploadDropTarget from './ScalarFileUploadDropTarget.vue'
 import ScalarFileUploadLoading from './ScalarFileUploadLoading.vue'
-import ScalarFileUploadError from './ScalarFileUploadError.vue'
-import type { LoadingState } from '../ScalarLoading'
+import { type ExtensionList, isExtensionList } from './types'
 
 const {
   variant = 'default',

@@ -8,7 +8,7 @@
     "build": "scalar-build-vite",
     "types:check": "scalar-types-check-vue",
     "types:build": "scalar-types-build-vue",
-    "format": "scalar-format-js",
+    "format": "scalar-format",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ScalarIconButton } from '../ScalarIconButton'
 import {
   Dialog,
   DialogDescription,
   DialogPanel,
   DialogTitle,
 } from '@headlessui/vue'
-import { cva, cx } from '../../cva'
-
-import { reactive } from 'vue'
 import type { VariantProps } from 'cva'
+import { reactive } from 'vue'
+
+import { cva, cx } from '../../cva'
+import { ScalarIconButton } from '../ScalarIconButton'
 
 type ModalVariants = VariantProps<typeof modal>
 
