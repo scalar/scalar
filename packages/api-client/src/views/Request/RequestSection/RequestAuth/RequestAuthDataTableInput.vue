@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
+import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useId } from 'vue'
 
 const props = withDefaults(
@@ -10,6 +13,9 @@ const props = withDefaults(
     required?: boolean
     modelValue: string | number
     readOnly?: boolean
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
   }>(),
   { required: false, readOnly: false },
 )
@@ -28,11 +34,14 @@ const id = useId()
     :id="id"
     :canAddCustomEnumValue="!props.readOnly"
     :containerClass="props.containerClass"
+    v-bind="$attrs"
+    :envVariables="props.envVariables"
+    :environment="props.environment"
     :modelValue="props.modelValue"
     :readOnly="props.readOnly"
     :required="props.required"
     :type="props.type"
-    v-bind="$attrs"
+    :workspace="props.workspace"
     @inputBlur="emit('inputBlur')"
     @inputFocus="emit('inputFocus')"
     @selectVariable="emit('selectVariable', $event)"

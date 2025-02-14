@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
   Operation,
   RequestMethod,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { ref, useId, watch } from 'vue'
 
@@ -13,15 +15,20 @@ import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ServerDropdown } from '@/components/Server'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
 
-const { collection, operation, server } = defineProps<{
-  collection: Collection
-  operation: Operation
-  server: Server | undefined
-}>()
+const { collection, operation, server, environment, envVariables, workspace } =
+  defineProps<{
+    collection: Collection
+    operation: Operation
+    server: Server | undefined
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
+  }>()
 
 defineEmits<{
   (e: 'importCurl', value: string): void
@@ -173,6 +180,8 @@ function updateRequestPath(url: string) {
             disableEnter
             disableTabIndent
             :emitOnBlur="false"
+            :envVariables="envVariables"
+            :environment="environment"
             importCurl
             :modelValue="operation.path"
             :placeholder="
@@ -181,6 +190,7 @@ function updateRequestPath(url: string) {
                 : 'Enter a URL or cURL command'
             "
             server
+            :workspace="workspace"
             @curl="$emit('importCurl', $event)"
             @submit="handleExecuteRequest"
             @update:modelValue="updateRequestPath" />

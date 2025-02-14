@@ -20,7 +20,7 @@ type CreateActiveEntitiesStoreParams = {
   router?: Router
 }
 
-type EnvVariable = {
+export type EnvVariable = {
   key: string
   value: any
   source: 'global' | 'collection'

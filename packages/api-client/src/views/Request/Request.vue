@@ -36,6 +36,7 @@ const {
   activeRequest,
   activeWorkspace,
   activeServer,
+  activeEnvVariables,
   activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
@@ -239,8 +240,11 @@ function handleCurlImport(curl: string) {
         <RequestSubpageHeader
           v-model="isSidebarOpen"
           :collection="activeCollection"
+          :envVariables="activeEnvVariables"
+          :environment="activeEnvironment"
           :operation="activeRequest"
           :server="activeServer"
+          :workspace="activeWorkspace"
           @hideModal="() => modalState.hide()"
           @importCurl="handleCurlImport" />
         <ViewLayout>
@@ -251,6 +255,8 @@ function handleCurlImport(curl: string) {
             :class="[isSidebarOpen ? 'sidebar-active-hide-layout' : '']">
             <RequestSection
               :collection="activeCollection"
+              :envVariables="activeEnvVariables"
+              :environment="activeEnvironment"
               :example="activeExample"
               :operation="activeRequest"
               :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
