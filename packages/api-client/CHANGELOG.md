@@ -1,5 +1,18 @@
 # @scalar/api-client
 
+## 2.2.48
+
+### Patch Changes
+
+- 453ed40: fix: preserve lowercase auth headers
+- 8671902: fix: sets overflow on input enum value
+- 4dedb68: fix: updates disabled style based on layout
+- Updated dependencies [825bc40]
+- Updated dependencies [4d30a35]
+  - @scalar/components@0.13.24
+  - @scalar/import@0.2.25
+  - @scalar/use-codemirror@0.11.69
+
 ## 2.2.47
 
 ### Patch Changes

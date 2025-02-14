@@ -1,5 +1,11 @@
 # @scalar/import
 
+## 0.2.25
+
+### Patch Changes
+
+- 4d30a35: fix: can’t parse HTML attributes with HTML tags inside
+
 ## 0.2.24
 
 ### Patch Changes
