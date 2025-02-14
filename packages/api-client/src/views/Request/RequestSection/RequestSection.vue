@@ -4,11 +4,13 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarErrorBoundary } from '@scalar/components'
 import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
   Collection,
@@ -23,17 +25,21 @@ import RequestAuth from './RequestAuth/RequestAuth.vue'
 import RequestCodeExample from './RequestCodeExample.vue'
 
 const {
-  selectedSecuritySchemeUids,
   collection,
+  environment,
+  envVariables,
   example,
   operation,
+  selectedSecuritySchemeUids,
   server,
   workspace,
 } = defineProps<{
-  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
   example: RequestExample
   operation: Operation
+  selectedSecuritySchemeUids: SelectedSecuritySchemeUids
   server: Server | undefined
   workspace: Workspace
 }>()
@@ -149,6 +155,8 @@ const activeWorkspaceCookies = computed(() =>
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
         :collection="collection"
+        :envVariables="envVariables"
+        :environment="environment"
         layout="client"
         :operation="operation"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
@@ -160,36 +168,66 @@ const activeWorkspaceCookies = computed(() =>
           (activeSection === 'All' || activeSection === 'Variables') &&
           example.parameters.path.length
         "
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="path"
-        title="Variables" />
+        title="Variables"
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="cookies"
         :readOnlyEntries="activeWorkspaceCookies"
         title="Cookies"
+        :workspace="workspace"
         workspaceParamKey="cookies" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Headers'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="headers"
-        title="Headers" />
+        title="Headers"
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Query'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="query"
-        title="Query Parameters" />
+        title="Query Parameters"
+        :workspace="workspace" />
       <RequestBody
         v-show="
           operation.method &&
           (activeSection === 'All' || activeSection === 'Body') &&
           canMethodHaveBody(operation.method)
         "
-        title="Body" />
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
+        title="Body"
+        :workspace="workspace" />
 
       <!-- Spacer -->
       <div class="flex flex-grow" />
 
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
-        <RequestCodeExample />
+        <RequestCodeExample
+          :collection="collection"
+          :example="example"
+          :operation="operation"
+          :server="server"
+          :workspace="workspace" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>

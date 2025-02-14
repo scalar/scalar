@@ -28,7 +28,7 @@ type CreateActiveEntitiesStoreParams = {
   activeExampleOverride?: ComputedRef<RequestExample | undefined>
 }
 
-type EnvVariable = {
+export type EnvVariable = {
   key: string
   value: any
   source: 'global' | 'collection'

@@ -14,8 +14,10 @@ import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariable
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
 import { ScalarIcon } from '@scalar/components'
 import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { useActiveEntities } from '@/store/active-entities'
 import { useLayout } from '@/hooks'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type { EnvVariable } from '@/store/active-entities'
 
 const props = withDefaults(
   defineProps<{
@@ -42,6 +44,9 @@ const props = withDefaults(
     importCurl?: boolean
     isCopyable?: boolean
     default?: string | number
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
   }>(),
   {
     disableCloseBrackets: false,
@@ -74,8 +79,6 @@ const dropdownRef = ref<InstanceType<
   typeof EnvironmentVariableDropdown
 > | null>(null)
 
-const { activeEnvVariables, activeEnvironment, activeWorkspace } =
-  useActiveEntities()
 const { layout } = useLayout()
 const { copyToClipboard } = useClipboard()
 
@@ -127,9 +130,9 @@ const extensions: Extension[] = []
 if (props.colorPicker) extensions.push(colorPickerExtension)
 extensions.push(
   pillPlugin({
-    environment: activeEnvironment.value,
-    envVariables: activeEnvVariables.value,
-    workspace: activeWorkspace.value,
+    environment: props.environment,
+    envVariables: props.envVariables,
+    workspace: props.workspace,
     isReadOnly: layout === 'modal',
   }),
   backspaceCommand,
@@ -290,13 +293,11 @@ export default {
     Required
   </div>
   <EnvironmentVariableDropdown
-    v-if="
-      showDropdown && withVariables && layout !== 'modal' && activeEnvironment
-    "
+    v-if="showDropdown && withVariables && layout !== 'modal' && environment"
     ref="dropdownRef"
     :dropdownPosition="dropdownPosition"
-    :envVariables="activeEnvVariables"
-    :environment="activeEnvironment"
+    :envVariables="envVariables"
+    :environment="environment"
     :query="dropdownQuery"
     @select="handleDropdownSelect" />
 </template>

@@ -1,25 +1,34 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   type Operation,
   type RequestExample,
   requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
 const {
   example,
   operation,
+  environment,
+  envVariables,
+  workspace,
   title,
   paramKey,
   readOnlyEntries = [],
 } = defineProps<{
   example: RequestExample
   operation: Operation
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
   title: string
   paramKey: keyof RequestExample['parameters']
   readOnlyEntries?: {
@@ -34,9 +43,7 @@ const { requestExampleMutators } = useWorkspace()
 
 const params = computed(() => example.parameters[paramKey] ?? [])
 
-onMounted(() => {
-  defaultRow()
-})
+onMounted(() => defaultRow())
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
@@ -201,14 +208,20 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
           'bg-mix-transparent bg-mix-amount-95 bg-c-3': hasReadOnlyEntries,
         }"
         :columns="['32px', '', '']"
+        :envVariables="envVariables"
+        :environment="environment"
         isGlobal
         isReadOnly
-        :items="readOnlyEntries" />
+        :items="readOnlyEntries"
+        :workspace="workspace" />
       <!-- Dynamic entries -->
       <RequestTable
         class="flex-1"
         :columns="['32px', '', '']"
+        :envVariables="envVariables"
+        :environment="environment"
         :items="params"
+        :workspace="workspace"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />
     </div>

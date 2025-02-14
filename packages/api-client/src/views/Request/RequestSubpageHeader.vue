@@ -4,18 +4,32 @@ import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 import { ScalarIcon } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
   Operation,
   Server,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { useRouter } from 'vue-router'
 
-const { collection, operation, server, modelValue } = defineProps<{
+const {
+  collection,
+  operation,
+  server,
+  modelValue,
+  environment,
+  envVariables,
+  workspace,
+} = defineProps<{
   collection: Collection
   operation: Operation
   server: Server | undefined
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
   modelValue: boolean
 }>()
 
@@ -50,8 +64,11 @@ const { currentRoute } = useRouter()
     <!-- Address Bar - we should always have a collection and operation -->
     <AddressBar
       :collection="collection"
+      :envVariables="envVariables"
+      :environment="environment"
       :operation="operation"
       :server="server"
+      :workspace="workspace"
       @importCurl="$emit('importCurl', $event)" />
     <div
       class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-2 lg:flex-1 justify-end w-1/2">

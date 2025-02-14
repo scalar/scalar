@@ -1,16 +1,30 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Operation, RequestExample } from '@scalar/oas-utils/entities/spec'
 import { REGEX } from '@scalar/oas-utils/helpers'
 import { computed, watch } from 'vue'
 
-const { example, operation, paramKey, title } = defineProps<{
+const {
+  example,
+  operation,
+  paramKey,
+  title,
+  environment,
+  envVariables,
+  workspace,
+} = defineProps<{
   example: RequestExample
   operation: Operation
   paramKey: keyof RequestExample['parameters']
   title: string
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
 }>()
 
 const { requestMutators, requestExampleMutators } = useWorkspace()
@@ -105,8 +119,10 @@ watch(
       v-if="params.length"
       class="flex-1"
       :columns="['32px', '', '']"
-      hasCheckboxDisabled
+      :envVariables="envVariables"
+      :environment="environment"
       :items="params"
+      :workspace="workspace"
       @updateRow="updateRow" />
   </ViewLayoutCollapse>
 </template>

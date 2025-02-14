@@ -1,12 +1,13 @@
 import { useWorkspace } from '@/store'
 import { createStoreEvents } from '@/store/events'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import {
   collectionSchema,
   operationSchema,
 } from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ref } from 'vue'
 
 import RequestSubpageHeader from './RequestSubpageHeader.vue'
 
@@ -36,7 +37,7 @@ const mockWorkspace = {
   events: createStoreEvents(),
   hideClientButton: false,
   showSidebar: true,
-  requestHistory: ref([]),
+  requestHistory: [],
 }
 
 const mockCollection = collectionSchema.parse({
@@ -46,14 +47,24 @@ const mockCollection = collectionSchema.parse({
 const mockOperation = operationSchema.parse({
   uid: 'mockRequestUid',
 })
+const mockEnvironment = environmentSchema.parse({
+  uid: 'mockEnvironmentUid',
+  name: 'Mock Environment',
+  description: 'Mock Environment Description',
+})
 
 describe('RequestSubpageHeader', () => {
   const createWrapper = (options = {}) =>
     mount(RequestSubpageHeader, {
       props: {
         collection: mockCollection,
+        environment: mockEnvironment,
+        envVariables: [],
+        layout: 'modal',
         operation: mockOperation,
         server: undefined,
+        selectedSchemeOptions: [],
+        workspace: workspaceSchema.parse(mockWorkspace),
         modelValue: false,
       },
       ...options,

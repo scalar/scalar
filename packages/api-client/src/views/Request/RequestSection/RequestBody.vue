@@ -6,7 +6,10 @@ import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
+import type { EnvVariable } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   type Operation,
   type RequestExample,
@@ -19,11 +22,15 @@ import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
-const { example, operation, title } = defineProps<{
-  example: RequestExample
-  operation: Operation
-  title: string
-}>()
+const { example, operation, environment, envVariables, workspace, title } =
+  defineProps<{
+    example: RequestExample
+    operation: Operation
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
+    title: string
+  }>()
 
 const { requestExampleMutators } = useWorkspace()
 
@@ -526,8 +533,11 @@ const selectedExample = computed({
             ref="tableWrapperRef"
             class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
             :columns="['32px', '', '', '61px']"
+            :envVariables="envVariables"
+            :environment="environment"
             :items="formParams"
             showUploadButton
+            :workspace="workspace"
             @deleteRow="deleteRow"
             @removeFile="handleRemoveFileFormData"
             @toggleRow="toggleRow"
@@ -539,8 +549,11 @@ const selectedExample = computed({
             ref="tableWrapperRef"
             class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
             :columns="['32px', '', '', '61px']"
+            :envVariables="envVariables"
+            :environment="environment"
             :items="formParams"
             showUploadButton
+            :workspace="workspace"
             @deleteRow="deleteRow"
             @removeFile="handleRemoveFileFormData"
             @toggleRow="toggleRow"
@@ -552,10 +565,13 @@ const selectedExample = computed({
           <CodeInput
             class="border-t-1/2 px-1"
             content=""
+            :envVariables="envVariables"
+            :environment="environment"
             :language="codeInputLanguage as CodeMirrorLanguage"
             lineNumbers
             lint
             :modelValue="example.body?.raw?.value ?? ''"
+            :workspace="workspace"
             @update:modelValue="updateRequestBody" />
         </template>
       </DataTableRow>
