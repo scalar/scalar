@@ -12,7 +12,7 @@ export function isYaml(value: string) {
     })
 
     return true
-  } catch (_error) {
+  } catch (error) {
     return false
   }
 }

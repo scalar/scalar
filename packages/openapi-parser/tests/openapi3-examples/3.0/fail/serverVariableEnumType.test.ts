@@ -10,7 +10,7 @@ describe('serverVariableEnumType', () => {
     // TODO: Swagger Editor has a better error message
     //
     // Structural error at servers.0.variables.version.enum.1 should be string
-    expect(result.errors?.[0]?.message).toBe('type must be string')
+    expect(result.errors?.[0]?.message).toBe(`type must be string`)
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })

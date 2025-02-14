@@ -22,13 +22,12 @@ type Options = {
 /**
  * Plugin to transform nodes in a Markdown AST
  */
-const transformNodes =
-  (
-    options?: Readonly<Options> | null | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ..._ignored: any[]
-  ) =>
-  (tree: Node) => {
+const transformNodes = function (
+  options?: Readonly<Options> | null | undefined,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ..._ignored: any[]
+) {
+  return (tree: Node) => {
     if (!options?.transform || !options?.type) {
       return
     }
@@ -41,6 +40,7 @@ const transformNodes =
 
     return
   }
+}
 
 /**
  * Take a Markdown string and generate HTML from it
@@ -116,7 +116,7 @@ function getMarkdownAst(markdown: string): Root {
  */
 export function getHeadings(
   markdown: string,
-  depth = 1,
+  depth: number = 1,
 ): {
   depth: number
   value: string

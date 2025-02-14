@@ -41,14 +41,14 @@ export type CommandPaletteEvent = {
 </script>
 
 <script setup lang="ts">
-import { ROUTES } from '@/constants'
-// Import the ROUTES
-
-import type { HotKeyEvent } from '@/libs'
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 import { ScalarIcon, useModal } from '@scalar/components'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import { ROUTES } from '@/constants' // Import the ROUTES
+
+import type { HotKeyEvent } from '@/libs'
 
 /** Available Commands for the Command Palette */
 const availableCommands = [
@@ -248,9 +248,9 @@ onBeforeUnmount(() => {
       <!-- Default palette (command list) -->
       <div
         v-if="!activeCommand"
-        class="flex-1 min-h-0 max-h-[50dvh] p-1.5 custom-scroll rounded-lg">
+        class="custom-scroll max-h-[50dvh] min-h-0 flex-1 rounded-lg p-1.5">
         <div
-          class="bg-b-2 border border-transparent flex items-center rounded-md sticky top-0 pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)] focus-within:bg-b-1 focus-within:border-b-3">
+          class="bg-b-2 focus-within:bg-b-1 focus-within:border-b-3 sticky top-0 flex items-center rounded-md border border-transparent pl-2 shadow-[0_-8px_0_8px_var(--scalar-background-1),0_0_8px_8px_var(--scalar-background-1)]">
           <label for="commandmenu">
             <ScalarIcon
               class="text-c-2 mr-2.5"
@@ -264,7 +264,7 @@ onBeforeUnmount(() => {
             v-model="commandQuery"
             autocomplete="off"
             autofocus
-            class="w-full rounded bg-none border-none py-1.5 text-sm focus:outline-none"
+            class="w-full rounded border-none bg-none py-1.5 text-sm focus:outline-none"
             placeholder="Search commands..."
             type="text"
             @keydown.down.stop="handleArrowKey('down', $event)"
@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
                 command.name.toLowerCase().includes(commandQuery.toLowerCase()),
               ).length > 0
             "
-            class="text-c-3 font-medium text-xs px-2 mb-1 mt-2">
+            class="text-c-3 mb-1 mt-2 px-2 text-xs font-medium">
             {{ group.label }}
           </div>
           <div
@@ -293,7 +293,7 @@ onBeforeUnmount(() => {
                 if (el) commandRefs[index] = el as HTMLElement
               }
             "
-            class="commandmenu-item text-sm flex items-center py-1.5 px-2 rounded hover:bg-b-2 cursor-pointer"
+            class="commandmenu-item hover:bg-b-2 flex cursor-pointer items-center rounded px-2 py-1.5 text-sm"
             :class="{
               'bg-b-2': command.name === selectedCommand?.name,
             }"
@@ -308,7 +308,7 @@ onBeforeUnmount(() => {
         </template>
         <div
           v-if="!searchResultsWithPlaceholderResults.length"
-          class="text-c-3 text-center text-sm p-2 pt-3">
+          class="text-c-3 p-2 pt-3 text-center text-sm">
           No commands found
         </div>
       </div>
@@ -317,7 +317,7 @@ onBeforeUnmount(() => {
         v-else
         class="flex-1 p-1.5">
         <button
-          class="absolute p-0.75 hover:bg-b-3 rounded text-c-3 active:text-c-1 mr-1.5 my-1.25 z-1"
+          class="p-0.75 hover:bg-b-3 text-c-3 active:text-c-1 my-1.25 z-1 absolute mr-1.5 rounded"
           type="button"
           @click="activeCommand = null">
           <ScalarIcon

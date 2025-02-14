@@ -7,7 +7,7 @@ describe.todo('deprecated3', () => {
   it('returns an error', async () => {
     const result = await validate(deprecated3)
 
-    expect(result.errors?.[0]?.message).toBe('something something deprecated')
+    expect(result.errors?.[0]?.message).toBe(`something something deprecated`)
     expect(result.errors?.length).toBe(1)
     expect(result.valid).toBe(false)
   })

@@ -34,7 +34,6 @@ const myAPI = JSON.stringify({
   },
 })
 
-// biome-ignore lint/complexity/noStaticOnlyClass: This just needs to be a class for backwards compatibility
 class SwaggerParser {
   static async validate(api: string, callback: (err: any, api: any) => void) {
     try {

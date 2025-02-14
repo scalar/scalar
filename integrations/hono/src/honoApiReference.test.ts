@@ -7,7 +7,7 @@ describe('javascript', () => {
 
   it('renders the given spec URL', () => {
     expect(javascript({ spec: { url } }).toString()).toContain(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
+      `https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml`,
     )
   })
 
@@ -18,7 +18,7 @@ describe('javascript', () => {
           url,
         },
       }).toString(),
-    ).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
+    ).toContain(`https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml`)
   })
 
   it('uses a custom CDN', () => {

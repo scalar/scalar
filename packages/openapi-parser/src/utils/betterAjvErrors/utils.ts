@@ -23,6 +23,6 @@ export const getSiblings =
 export const concatAll =
   /* ::<T> */
 
-    (xs /*: $ReadOnlyArray<T> */) =>
+  (xs /*: $ReadOnlyArray<T> */) =>
     (ys /* : $ReadOnlyArray<T> */) /* : $ReadOnlyArray<T> */ =>
       ys.reduce((zs, z) => zs.concat(z), xs)

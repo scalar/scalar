@@ -43,7 +43,7 @@ describe('errors', () => {
     expect(result).toMatchObject({
       errors: [
         {
-          message: 'Property foobar is not expected to be here',
+          message: `Property foobar is not expected to be here`,
         },
       ],
       valid: false,

@@ -54,13 +54,15 @@ function normalizeArray(parts, allowAboveRoot) {
 // Split a filename into [root, dir, basename, ext], unix version
 // 'root' is just a slash, or nothing.
 const splitPathRe = /^(\/?|)([\s\S]*?)((?:\.{1,2}|[^/]+?|)(\.[^./]*|))(?:[/]*)$/
-const splitPath = (filename) => splitPathRe.exec(filename).slice(1)
+const splitPath = function (filename) {
+  return splitPathRe.exec(filename).slice(1)
+}
 
 // path.resolve([from ...], to)
 // posix version
 export function resolve(...parameters) {
-  let resolvedPath = ''
-  let resolvedAbsolute = false
+  let resolvedPath = '',
+    resolvedAbsolute = false
 
   for (let i = parameters.length - 1; i >= -1 && !resolvedAbsolute; i--) {
     const path = i >= 0 ? parameters[i] : '/'
@@ -68,12 +70,11 @@ export function resolve(...parameters) {
     // Skip empty and invalid entries
     if (typeof path !== 'string') {
       throw new TypeError('Arguments to path.resolve must be strings')
-    }
-    if (!path) {
+    } else if (!path) {
       continue
     }
 
-    resolvedPath = `${path}/${resolvedPath}`
+    resolvedPath = path + '/' + resolvedPath
     resolvedAbsolute = path.charAt(0) === '/'
   }
 
@@ -82,7 +83,9 @@ export function resolve(...parameters) {
 
   // Normalize the path
   resolvedPath = normalizeArray(
-    filter(resolvedPath.split('/'), (p) => !!p),
+    filter(resolvedPath.split('/'), function (p) {
+      return !!p
+    }),
     !resolvedAbsolute,
   ).join('/')
 
@@ -92,12 +95,14 @@ export function resolve(...parameters) {
 // path.normalize(path)
 // posix version
 export function normalize(path) {
-  const isPathAbsolute = isAbsolute(path)
-  const trailingSlash = substr(path, -1) === '/'
+  const isPathAbsolute = isAbsolute(path),
+    trailingSlash = substr(path, -1) === '/'
 
   // Normalize the path
   path = normalizeArray(
-    filter(path.split('/'), (p) => !!p),
+    filter(path.split('/'), function (p) {
+      return !!p
+    }),
     !isPathAbsolute,
   ).join('/')
 
@@ -119,7 +124,7 @@ export function isAbsolute(path) {
 // posix version
 export function join(...paths: string[]) {
   return normalize(
-    filter(paths, (p, _index) => {
+    filter(paths, function (p, index) {
       if (typeof p !== 'string') {
         throw new TypeError('Arguments to path.join must be strings')
       }
@@ -175,8 +180,8 @@ export const sep = '/'
 export const delimiter = ':'
 
 export function dirname(path) {
-  const result = splitPath(path)
-  const root = result[0]
+  const result = splitPath(path),
+    root = result[0]
 
   let dir = result[1]
 
@@ -229,8 +234,10 @@ function filter(xs, f) {
 // String.prototype.substr - negative index don't work in IE8
 const substr =
   'ab'.substr(-1) === 'b'
-    ? (str, start, len) => str.substr(start, len)
-    : (str, start, len) => {
+    ? function (str, start, len) {
+        return str.substr(start, len)
+      }
+    : function (str, start, len) {
         if (start < 0) start = str.length + start
         return str.substr(start, len)
       }
