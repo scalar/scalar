@@ -58,13 +58,11 @@ watch(hash, (newHash, oldHash) => {
         v-if="props.configuration.showSidebar"
         v-model:open="isSidebarOpen" />
     </template>
-    <template #sidebar-start="{ spec }">
+    <template #sidebar-start>
       <div
         v-if="!props.configuration.hideSearch"
         class="scalar-api-references-standalone-search">
-        <SearchButton
-          :searchHotKey="props.configuration?.searchHotKey"
-          :spec="spec" />
+        <SearchButton :searchHotKey="props.configuration?.searchHotKey" />
       </div>
     </template>
     <template #sidebar-end>
