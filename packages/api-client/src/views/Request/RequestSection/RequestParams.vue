@@ -39,6 +39,14 @@ const {
   }[]
 }>()
 
+console.log({
+  example,
+  operation,
+  environment,
+  envVariables,
+  workspace,
+})
+
 const { requestExampleMutators } = useWorkspace()
 
 const params = computed(() => example.parameters[paramKey] ?? [])
@@ -51,11 +59,7 @@ const addRow = () => {
   const newParam = requestExampleParametersSchema.parse({ enabled: false })
   const newParams = [...params.value, newParam]
 
-  requestExampleMutators.edit(
-    operation.uid,
-    `parameters.${paramKey}`,
-    newParams,
-  )
+  requestExampleMutators.edit(example.uid, `parameters.${paramKey}`, newParams)
 }
 
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
