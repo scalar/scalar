@@ -13,6 +13,7 @@ import { useBindCx } from '../../hooks/useBindCx'
 import { computed } from 'vue'
 
 const { indent = 0 } = defineProps<{
+  selected?: boolean
   indent: SidebarGroupLevel
 }>()
 
@@ -33,8 +34,13 @@ const { cx } = useBindCx()
     <div
       v-for="block in indents"
       :key="block"
-      class="flex w-[var(--scalar-sidebar-indent)]">
-      <div class="ml-1.75 w-border bg-border shrink-0" />
+      class="flex w-[var(--scalar-sidebar-indent)] text-sidebar-indent-border"
+      :class="
+        selected
+          ? 'last:text-sidebar-indent-active'
+          : 'group-hover/item:last:text-sidebar-indent-hover'
+      ">
+      <div class="ml-1.75 w-border bg-current shrink-0" />
     </div>
   </div>
 </template>
