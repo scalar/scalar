@@ -51,6 +51,8 @@
   --scalar-text-decoration: none;
   --scalar-text-decoration-hover: underline;
   --scalar-link-font-weight: inherit;
+
+  --scalar-sidebar-indent: 18px;
 }
 .dark-mode {
   color-scheme: dark;
