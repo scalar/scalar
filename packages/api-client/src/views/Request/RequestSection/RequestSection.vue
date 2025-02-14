@@ -4,29 +4,46 @@ import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
 import { useLayout } from '@/hooks'
 import { matchesDomain } from '@/libs/send-request/set-request-cookies'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
+import type { EnvVariable } from '@/store/active-entities'
 import RequestBody from '@/views/Request/RequestSection/RequestBody.vue'
 import RequestParams from '@/views/Request/RequestSection/RequestParams.vue'
 import RequestPathParams from '@/views/Request/RequestSection/RequestPathParams.vue'
 import { ScalarErrorBoundary } from '@scalar/components'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
+import type {
+  Collection,
+  Operation,
+  RequestExample,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { canMethodHaveBody, isDefined } from '@scalar/oas-utils/helpers'
 import { computed, ref, watch } from 'vue'
 
 import RequestAuth from './RequestAuth/RequestAuth.vue'
 import RequestCodeExample from './RequestCodeExample.vue'
 
-defineProps<{
+const {
+  collection,
+  environment,
+  envVariables,
+  example,
+  operation,
+  selectedSecuritySchemeUids,
+  server,
+  workspace,
+} = defineProps<{
+  collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
+  example: RequestExample
+  operation: Operation
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
+  server: Server | undefined
+  workspace: Workspace
 }>()
 
-const {
-  activeRequest,
-  activeCollection,
-  activeExample,
-  activeWorkspace,
-  activeServer,
-} = useActiveEntities()
 const { requestMutators, cookies, securitySchemes } = useWorkspace()
 const { layout } = useLayout()
 
@@ -41,10 +58,8 @@ const sections = computed(() => {
     'Body',
   ])
 
-  if (!activeExample.value?.parameters.path.length)
-    allSections.delete('Variables')
-  if (!canMethodHaveBody(activeRequest.value?.method ?? 'get'))
-    allSections.delete('Body')
+  if (!example.parameters.path.length) allSections.delete('Variables')
+  if (!canMethodHaveBody(operation.method ?? 'get')) allSections.delete('Body')
   if (isAuthHidden.value) allSections.delete('Auth')
 
   return [...allSections]
@@ -52,43 +67,41 @@ const sections = computed(() => {
 
 // If security = [] or [{}] just hide it on readOnly mode
 const isAuthHidden = computed(
-  () => layout === 'modal' && activeRequest.value?.security?.length === 0,
+  () => layout === 'modal' && operation.security?.length === 0,
 )
 
 type ActiveSections = (typeof sections.value)[number]
 
 const activeSection = ref<ActiveSections>('All')
 
-watch(activeRequest, (newRequest) => {
-  if (
-    activeSection.value === 'Body' &&
-    newRequest &&
-    !canMethodHaveBody(newRequest.method)
-  ) {
-    activeSection.value = 'All'
-  }
-})
+watch(
+  () => operation,
+  (newOperation) => {
+    if (
+      activeSection.value === 'Body' &&
+      newOperation &&
+      !canMethodHaveBody(newOperation.method)
+    ) {
+      activeSection.value = 'All'
+    }
+  },
+)
 
 const updateRequestNameHandler = (event: Event) => {
-  if (!activeRequest.value) return
-
   const target = event.target as HTMLInputElement
-  requestMutators.edit(activeRequest.value.uid, 'summary', target.value)
+  requestMutators.edit(operation.uid, 'summary', target.value)
 }
 
 /**
  * Add the global cookies as static entries to the cookies section
  */
 const activeWorkspaceCookies = computed(() =>
-  (activeWorkspace.value?.cookies ?? [])
+  (workspace.cookies ?? [])
     .map((uid) => cookies[uid])
     .filter(isDefined)
     .filter((cookie) => cookie.name)
     .filter((cookie) =>
-      matchesDomain(
-        activeServer?.value?.url || activeRequest.value?.path,
-        cookie.domain,
-      ),
+      matchesDomain(server?.url || operation.path, cookie.domain),
     )
     .map((cookie) => ({
       key: cookie.name,
@@ -104,7 +117,7 @@ const activeWorkspaceCookies = computed(() =>
 )
 </script>
 <template>
-  <ViewLayoutSection :aria-label="`Request: ${activeRequest?.summary}`">
+  <ViewLayoutSection :aria-label="`Request: ${operation.summary}`">
     <template #title>
       <div
         class="flex-1 flex gap-1 items-center lg:pr-24 pointer-events-none group">
@@ -117,12 +130,12 @@ const activeWorkspaceCookies = computed(() =>
           id="requestname"
           class="text-c-1 rounded pointer-events-auto relative w-full pl-1.25 -ml-0.5 md:-ml-1.25 h-8 group-hover-input has-[:focus-visible]:outline z-10"
           placeholder="Request Name"
-          :value="activeRequest?.summary"
+          :value="operation.summary"
           @input="updateRequestNameHandler" />
         <span
           v-else
           class="flex items-center text-c-1 h-8">
-          {{ activeRequest?.summary }}
+          {{ operation.summary }}
         </span>
       </div>
       <ContextBar
@@ -134,55 +147,87 @@ const activeWorkspaceCookies = computed(() =>
       class="request-section-content custom-scroll flex flex-1 flex-col relative">
       <RequestAuth
         v-if="
-          activeCollection &&
-          activeWorkspace &&
+          collection &&
+          workspace &&
           (layout !== 'modal' || Object.keys(securitySchemes ?? {}).length)
         "
         v-show="
           !isAuthHidden && (activeSection === 'All' || activeSection === 'Auth')
         "
-        :collection="activeCollection"
+        :collection="collection"
+        :envVariables="envVariables"
+        :environment="environment"
         layout="client"
-        :operation="activeRequest"
+        :operation="operation"
         :selectedSecuritySchemeUids="selectedSecuritySchemeUids"
-        :server="activeServer"
+        :server="server"
         title="Authentication"
-        :workspace="activeWorkspace" />
+        :workspace="workspace" />
       <RequestPathParams
         v-show="
           (activeSection === 'All' || activeSection === 'Variables') &&
-          activeExample?.parameters?.path?.length
+          example.parameters.path.length
         "
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="path"
-        title="Variables" />
+        title="Variables"
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Cookies'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="cookies"
         :readOnlyEntries="activeWorkspaceCookies"
         title="Cookies"
+        :workspace="workspace"
         workspaceParamKey="cookies" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Headers'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="headers"
-        title="Headers" />
+        title="Headers"
+        :workspace="workspace" />
       <RequestParams
         v-show="activeSection === 'All' || activeSection === 'Query'"
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
         paramKey="query"
-        title="Query Parameters" />
+        title="Query Parameters"
+        :workspace="workspace" />
       <RequestBody
         v-show="
-          activeRequest?.method &&
+          operation.method &&
           (activeSection === 'All' || activeSection === 'Body') &&
-          canMethodHaveBody(activeRequest.method)
+          canMethodHaveBody(operation.method)
         "
-        title="Body" />
+        :envVariables="envVariables"
+        :environment="environment"
+        :example="example"
+        :operation="operation"
+        title="Body"
+        :workspace="workspace" />
 
       <!-- Spacer -->
       <div class="flex flex-grow" />
 
       <!-- Code Snippet -->
       <ScalarErrorBoundary>
-        <RequestCodeExample />
+        <RequestCodeExample
+          :collection="collection"
+          :example="example"
+          :operation="operation"
+          :server="server"
+          :workspace="workspace" />
       </ScalarErrorBoundary>
     </div>
   </ViewLayoutSection>

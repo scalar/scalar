@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type {
   Collection,
   SecurityScheme,
@@ -13,14 +15,23 @@ import { capitalize, computed, ref } from 'vue'
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { collection, layout, securitySchemeUids, server, workspace } =
-  defineProps<{
-    collection: Collection
-    layout: 'client' | 'reference'
-    securitySchemeUids: string[]
-    server: Server | undefined
-    workspace: Workspace
-  }>()
+const {
+  collection,
+  environment,
+  envVariables,
+  layout,
+  securitySchemeUids,
+  server,
+  workspace,
+} = defineProps<{
+  collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
+  layout: 'client' | 'reference'
+  securitySchemeUids: string[]
+  server: Server | undefined
+  workspace: Workspace
+}>()
 
 const { securitySchemes, securitySchemeMutators } = useWorkspace()
 
@@ -62,6 +73,13 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
 ) => securitySchemeMutators.edit(uid, path, value)
+
+/** To make prop drilling a little easier */
+const dataTableInputProps = {
+  environment,
+  envVariables,
+  workspace,
+}
 </script>
 <template>
   <!-- Loop over for multiple auth selection -->
@@ -88,6 +106,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <!-- Bearer -->
       <DataTableRow v-if="scheme.scheme === 'bearer'">
         <RequestAuthDataTableInput
+          v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
           :modelValue="scheme.token"
           placeholder="Token"
@@ -101,6 +120,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <template v-else-if="scheme?.scheme === 'basic'">
         <DataTableRow>
           <RequestAuthDataTableInput
+            v-bind="dataTableInputProps"
             class="text-c-2"
             :containerClass="
               layout === 'reference' && 'auth-blend-required border-t'
@@ -114,6 +134,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         </DataTableRow>
         <DataTableRow>
           <RequestAuthDataTableInput
+            v-bind="dataTableInputProps"
             :modelValue="scheme.password"
             placeholder="********"
             type="password"
@@ -128,6 +149,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <template v-else-if="scheme?.type === 'apiKey'">
       <DataTableRow>
         <RequestAuthDataTableInput
+          v-bind="dataTableInputProps"
           :containerClass="layout === 'reference' && 'border-t'"
           :modelValue="scheme.name"
           placeholder="api-key"
@@ -137,6 +159,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          v-bind="dataTableInputProps"
           :modelValue="scheme.value"
           placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
           @update:modelValue="(v) => updateScheme(scheme.uid, 'value', v)">
@@ -176,6 +199,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         :key="key">
         <OAuth2
           v-if="activeFlow === key || (ind === 0 && !activeFlow)"
+          v-bind="dataTableInputProps"
           :collection="collection"
           :flow="flow!"
           :scheme="scheme"

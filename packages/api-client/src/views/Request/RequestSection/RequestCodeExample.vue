@@ -3,7 +3,6 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { CodeSnippet } from '@/views/Components/CodeSnippet'
 import {
   ScalarButton,
@@ -11,19 +10,26 @@ import {
   type ScalarComboboxOption,
   ScalarIcon,
 } from '@scalar/components'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type {
+  Collection,
+  Operation,
+  RequestExample,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
 import { computed } from 'vue'
 
 import { filterSecurityRequirements } from './helpers/filter-security-requirements'
 
-// Get the entities from the store
-const {
-  activeRequest,
-  activeExample,
-  activeServer,
-  activeCollection,
-  activeWorkspace,
-} = useActiveEntities()
+const { collection, example, operation, server, workspace } = defineProps<{
+  collection: Collection
+  example: RequestExample
+  operation: Operation
+  server: Server | undefined
+  workspace: Workspace
+}>()
+
 const { securitySchemes, workspaceMutators } = useWorkspace()
 
 /**
@@ -31,8 +37,8 @@ const { securitySchemes, workspaceMutators } = useWorkspace()
  */
 const selectedSecuritySchemes = computed(() =>
   filterSecurityRequirements(
-    activeRequest.value?.security || activeCollection.value?.security || [],
-    activeCollection.value?.selectedSecuritySchemeUids,
+    operation.security || collection.security || [],
+    collection.selectedSecuritySchemeUids,
     securitySchemes,
   ),
 )
@@ -64,7 +70,7 @@ const snippets = computed(() => {
 
 /** The currently selected plugin */
 const selectedPlugin = computed(() => {
-  const selectedClient = activeWorkspace.value?.selectedHttpClient
+  const selectedClient = workspace.selectedHttpClient
 
   // Backups on backups
   if (!selectedClient)
@@ -84,23 +90,21 @@ const selectedPlugin = computed(() => {
 
 /** The currently selected target, unsafely typecast until we can extract validation fron snippetz */
 const selectedTarget = computed(
-  () =>
-    (activeWorkspace.value?.selectedHttpClient?.targetKey ?? 'js') as TargetId,
+  () => (workspace.selectedHttpClient?.targetKey ?? 'js') as TargetId,
 )
 
 /** The currently selected client, unsafely typecast until we can extract validation fron snippetz */
 const selectedClient = computed(
   () =>
-    (activeWorkspace.value?.selectedHttpClient?.clientKey ??
-      'fetch') as ClientId<TargetId>,
+    (workspace.selectedHttpClient?.clientKey ?? 'fetch') as ClientId<TargetId>,
 )
 
 /** Update the store with the newly selected client */
 const selectClient = ({ id }: ScalarComboboxOption) => {
   const [target, client] = id.split(',')
-  if (!activeWorkspace.value || !target || !client) return
+  if (!target || !client) return
 
-  workspaceMutators.edit(activeWorkspace.value.uid, 'selectedHttpClient', {
+  workspaceMutators.edit(workspace.uid, 'selectedHttpClient', {
     targetKey: target,
     clientKey: client,
   })
@@ -110,7 +114,7 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
 <template>
   <div class="w-full">
     <ViewLayoutCollapse
-      class="group/preview -mt-0.25 w-full"
+      class="group/preview -mt-0.25 w-full border-b-0"
       :defaultOpen="false"
       :hasIcon="false">
       <template #title>Code Snippet</template>
@@ -140,10 +144,10 @@ const selectClient = ({ id }: ScalarComboboxOption) => {
             <CodeSnippet
               class="px-3 py-1.5"
               :client="selectedClient"
-              :example="activeExample"
-              :operation="activeRequest"
+              :example="example"
+              :operation="operation"
               :securitySchemes="selectedSecuritySchemes"
-              :server="activeServer"
+              :server="server"
               :target="selectedTarget" />
           </div>
         </DataTableRow>

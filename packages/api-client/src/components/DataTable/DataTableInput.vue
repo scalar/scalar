@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
+import type { EnvVariable } from '@/store/active-entities'
 import type { VueClassProp } from '@/types/vue'
 import { ScalarIconButton } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
 
 import DataTableCell from './DataTableCell.vue'
@@ -21,6 +24,9 @@ const props = withDefaults(
     enum?: string[]
     min?: number
     max?: number
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
   }>(),
   { canAddCustomEnumValue: true, required: false, readOnly: false },
 )
@@ -92,6 +98,8 @@ const inputType = computed(() =>
           class="border-none text-c-1 disabled:text-c-2 min-w-0 w-full peer"
           disableCloseBrackets
           disableTabIndent
+          :envVariables="envVariables"
+          :environment="environment"
           :max="max"
           :min="min"
           :modelValue="modelValue ?? ''"
@@ -99,6 +107,7 @@ const inputType = computed(() =>
           :required="Boolean(required)"
           spellcheck="false"
           :type="inputType"
+          :workspace="workspace"
           @blur="handleBlur"
           @focus="emit('inputFocus')"
           @update:modelValue="emit('update:modelValue', $event)" />
