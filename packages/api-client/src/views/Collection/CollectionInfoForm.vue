@@ -58,21 +58,21 @@ const data = computed(() => {
 <template>
   <div
     :aria-label="`Collection: ${data.title}`"
-    class="flex flex-col mx-auto justify-center gap-2 pt-6 w-full md:w-3/5">
+    class="flex flex-col gap-2 h-full mx-auto py-6 w-full md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="relative">
       <IconSelector
         :modelValue="icon"
         placement="bottom-start"
         @update:modelValue="(value) => updateCollectionIcon(value)">
         <ScalarButton
-          class="absolute cursor-pointer -left-7 top-1/2 -translate-y-1/2 h-6 w-6 aspect-square p-0.25 rounded hover:bg-b-2"
+          class="absolute cursor-pointer -left-6 top-1/2 -translate-y-1/2 h-6 w-6 aspect-square p-0.25 rounded hover:bg-b-2"
           variant="ghost">
           <LibraryIcon
             class="size-4 text-c-2 stroke-[1.75]"
             :src="icon" />
         </ScalarButton>
       </IconSelector>
-      <div class="group">
+      <div class="group ml-1.25">
         <LabelInput
           inputId="collectionName"
           placeholder="Untitled Collection"
@@ -80,31 +80,13 @@ const data = computed(() => {
           @updateValue="updateCollectionTitle" />
       </div>
     </div>
-    <p class="leading-normal mt-3 text-c-2">
-      <MarkdownInput
-        :modelValue="data.description ?? ''"
-        @update:value="updateCollectionDescription" />
-    </p>
+    <MarkdownInput
+      :modelValue="data.description ?? ''"
+      @update:value="updateCollectionDescription" />
   </div>
 </template>
 <style scoped>
 :deep(.markdown) h2 {
   @apply text-lg;
-}
-.group-hover-input {
-  border-width: var(--scalar-border-width);
-  border-color: transparent;
-}
-.group:hover .group-hover-input {
-  background: color-mix(
-    in srgb,
-    var(--scalar-background-1),
-    var(--scalar-background-2)
-  );
-  border-color: var(--scalar-border-color);
-}
-.group-hover-input:focus {
-  background: transparent !important;
-  border-color: var(--scalar-border-color) !important;
 }
 </style>
