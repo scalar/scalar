@@ -4,6 +4,7 @@
     "cpylua.language-postcss",
     "streetsidesoftware.code-spell-checker",
     "biomejs.biome",
+    "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
     "vitest.explorer"
   ]
