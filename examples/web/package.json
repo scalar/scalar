@@ -38,6 +38,6 @@
     "eslint-plugin-vue": "^9.21.1",
     "postcss": "^8.4.38",
     "postcss-nested": "^6.0.1",
-    "vite": "^5.4.10"
+    "vite": "^5.4.12"
   }
 }

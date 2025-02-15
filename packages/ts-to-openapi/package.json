@@ -46,7 +46,7 @@
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
     "fast-glob": "^3.3.2",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   },
   "peerDependencies": {
     "typescript": "^5.6.0"

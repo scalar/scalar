@@ -62,6 +62,6 @@
     "@types/node": "^20.17.10",
     "changelogen": "^0.5.5",
     "nuxt": "^3.12.4",
-    "vitest": "^1.6.0"
+    "vitest": "^1.6.1"
   }
 }
