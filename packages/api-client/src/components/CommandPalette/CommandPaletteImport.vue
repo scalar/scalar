@@ -230,7 +230,7 @@ async function importCollection() {
         <template v-if="documentDetails.title">
           "{{ documentDetails.title }}"
         </template>
-        <template v-else>{{ documentDetails.version }} Spec</template>
+        <template v-else>{{ documentDetails.version }}</template>
       </template>
       <template v-else>Collection</template>
     </template>

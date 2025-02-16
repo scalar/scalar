@@ -7,7 +7,7 @@ function App() {
   const [spec, setSpec] = useState({ ...ScalarGalaxy })
 
   useEffect(() => {
-    // Update the spec periodically to test reactivity
+    // Update the document periodically to test reactivity
     const changeInt = setInterval(() => {
       setSpec({
         ...ScalarGalaxy,
