@@ -137,7 +137,7 @@
     "@scalar/types": "workspace:*",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
-    "nanoid": "^5.0.7",
+    "nanoid": "^5.0.9",
     "yaml": "^2.4.5",
     "zod": "^3.23.8"
   },
@@ -146,8 +146,8 @@
     "@scalar/openapi-parser": "workspace:*",
     "@scalar/openapi-types": "workspace:*",
     "type-fest": "^4.20.0",
-    "vite": "^5.4.10",
-    "vitest": "^1.6.0",
+    "vite": "^5.4.12",
+    "vitest": "^1.6.1",
     "zod-to-ts": "github:amritk/zod-to-ts#build"
   }
 }
