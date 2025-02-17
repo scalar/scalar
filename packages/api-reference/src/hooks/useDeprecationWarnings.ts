@@ -3,7 +3,8 @@ import { watch } from 'vue'
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
-const LOCAL_PROXY_URL = 'http://localhost:5051'
+
+// TODO: Move this to zod
 
 /**
  * Warns the user about deprecated configurations in the browser console.
@@ -19,13 +20,9 @@ export function useDeprecationWarnings(configuration: ReferenceConfiguration) {
       }
 
       if ((configuration.proxyUrl || configuration.proxy) === OLD_PROXY_URL) {
-        console.warn(
-          `[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}).`,
-        )
+        console.warn(`[DEPRECATED] Warning: configuration.proxyUrl points to our old proxy (${OLD_PROXY_URL}).`)
 
-        console.warn(
-          `[DEPRECATED] We are overwriting the value and use the new proxy URL (${NEW_PROXY_URL}) instead.`,
-        )
+        console.warn(`[DEPRECATED] We are overwriting the value and use the new proxy URL (${NEW_PROXY_URL}) instead.`)
 
         // WARNING: This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
         delete configuration.proxy

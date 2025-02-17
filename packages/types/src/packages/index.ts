@@ -1,1 +1,1 @@
-export * from './scalar-api-reference-config.ts'
+export * from './api-reference-configuration.ts'
