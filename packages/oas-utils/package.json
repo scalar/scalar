@@ -137,7 +137,7 @@
     "@scalar/types": "workspace:*",
     "flatted": "^3.3.1",
     "microdiff": "^1.4.0",
-    "nanoid": "^5.0.7",
+    "nanoid": "^5.0.9",
     "yaml": "^2.4.5",
     "zod": "^3.23.8"
   },
