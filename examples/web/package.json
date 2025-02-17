@@ -35,7 +35,7 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",
     "autoprefixer": "^10.4.19",
-    "eslint-plugin-vue": "^9.21.1",
+    "eslint-plugin-vue": "^9.31.0",
     "postcss": "^8.4.38",
     "postcss-nested": "^6.0.1",
     "vite": "^5.4.10"

@@ -17,7 +17,7 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "dev": "nodemon --exec \"vite-node src/index.ts\" --watch src --ext ts --quiet",
-    "format": "scalar-format-js",
+    "format": "scalar-format",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",

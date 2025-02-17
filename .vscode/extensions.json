@@ -1,10 +1,11 @@
 {
   "recommendations": [
     "vue.volar",
-    "dbaeumer.vscode-eslint",
+    "cpylua.language-postcss",
+    "streetsidesoftware.code-spell-checker",
+    "biomejs.biome",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
-    "cpylua.language-postcss",
     "vitest.explorer"
   ]
 }

@@ -1,21 +1,23 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+import { prettyPrintJson } from '@scalar/oas-utils/helpers'
 import {
   colorPicker as colorPickerExtension,
   useCodeMirror,
+  useDropdown,
   type CodeMirrorLanguage,
   type Extension,
-  useDropdown,
 } from '@scalar/use-codemirror'
-import { nanoid } from 'nanoid'
-import { ref, toRef, useAttrs, watch, type Ref, computed } from 'vue'
-import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
-import { pillPlugin, backspaceCommand } from './codeVariableWidget'
-import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
 import { useClipboard } from '@scalar/use-hooks/useClipboard'
-import { ScalarIcon } from '@scalar/components'
-import { prettyPrintJson } from '@scalar/oas-utils/helpers'
-import { useActiveEntities } from '@/store/active-entities'
+import { nanoid } from 'nanoid'
+import { computed, ref, toRef, useAttrs, watch, type Ref } from 'vue'
+
 import { useLayout } from '@/hooks'
+import { useActiveEntities } from '@/store/active-entities'
+import EnvironmentVariableDropdown from '@/views/Environment/EnvironmentVariableDropdown.vue'
+
+import DataTableInputSelect from '../DataTable/DataTableInputSelect.vue'
+import { backspaceCommand, pillPlugin } from './codeVariableWidget'
 
 const props = withDefaults(
   defineProps<{
@@ -223,7 +225,7 @@ export default {
 <template>
   <template v-if="disabled">
     <div
-      class="cursor-default flex items-center justify-center text-c-2"
+      class="text-c-2 flex cursor-default items-center justify-center"
       :class="layout === 'modal' ? 'font-code pl-1 pr-2 text-sm' : 'px-2'">
       <span>{{ modelValue }}</span>
     </div>
@@ -255,7 +257,7 @@ export default {
       :id="uid"
       v-bind="$attrs"
       ref="codeMirrorRef"
-      class="peer font-code w-full whitespace-nowrap overflow-hidden text-xs leading-[1.44] relative has-[:focus-visible]:outline has-[:focus-visible]:rounded-[4px] -outline-offset-1"
+      class="font-code peer relative w-full overflow-hidden whitespace-nowrap text-xs leading-[1.44] -outline-offset-1 has-[:focus-visible]:rounded-[4px] has-[:focus-visible]:outline"
       :class="{
         'flow-code-input--error': error,
       }"
@@ -280,13 +282,13 @@ export default {
   </template>
   <div
     v-if="$slots.warning"
-    class="absolute centered-y right-7 text-orange text-xs">
+    class="centered-y text-orange absolute right-7 text-xs">
     <slot name="warning" />
   </div>
   <slot name="icon"></slot>
   <div
     v-if="required"
-    class="required absolute centered-y right-0 pt-px pr-2 text-xxs text-c-3 bg-b-1 shadow-[-8px_0_4px_var(--scalar-background-1)] opacity-100 duration-150 transition-opacity peer-has-[.cm-focused]:opacity-0 pointer-events-none">
+    class="required centered-y text-xxs text-c-3 bg-b-1 pointer-events-none absolute right-0 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[.cm-focused]:opacity-0">
     Required
   </div>
   <EnvironmentVariableDropdown

@@ -21,7 +21,7 @@ export function ViteWatchWorkspace(packageDir = 'scalar/packages'): Plugin {
   // We match any workspace package dist that are not the current one
   const matcher = pm(`**/${packageDir}/!(${currentDir})/dist/**`)
   return {
-    name: `vite-plugin-workspace-watch`,
+    name: 'vite-plugin-workspace-watch',
     apply: 'serve',
     handleHotUpdate({ file, server }) {
       if (matcher(file)) {

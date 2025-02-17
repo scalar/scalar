@@ -25,7 +25,7 @@ export function logAuthenticationInstructions(
           console.log(`   ${scheme.name}: YOUR_API_KEY_HERE`)
           console.log()
         } else if (scheme.in === 'query') {
-          console.log(`✅ API Key Authentication`)
+          console.log('✅ API Key Authentication')
           console.log(
             `   Use any API key in the ${scheme.name} query parameter:`,
           )
@@ -33,7 +33,7 @@ export function logAuthenticationInstructions(
           console.log(`   ?${scheme.name}=YOUR_API_KEY_HERE`)
           console.log()
         } else if (scheme.in === 'cookie') {
-          console.log(`✅ API Key Authentication`)
+          console.log('✅ API Key Authentication')
           console.log(`   Use any API key in the ${scheme.name} cookie:`)
           console.log()
           console.log(`   Cookie: ${scheme.name}=YOUR_API_KEY_HERE`)
