@@ -4,6 +4,7 @@ import { PathId } from '@/router'
 import { useActiveEntities, useWorkspace } from '@/store'
 import {
   ScalarButton,
+  ScalarIcon,
   ScalarModal,
   ScalarToggle,
   useModal,
@@ -63,7 +64,7 @@ function handleDeleteCollection() {
       <!-- Watch Mode -->
       <div class="bg-b-2 border rounded-lg text-sm">
         <div
-          class="bg-b-1 border flex gap-4 items-center justify-between -m-1/2 p-3 rounded-lg">
+          class="bg-b-1 border flex gap-4 items-center justify-between -m-1/2 p-3 rounded-t-lg">
           <div>
             <h3>Watch Mode</h3>
             <p class="mt-1 text-c-2">
@@ -79,22 +80,30 @@ function handleDeleteCollection() {
         </div>
         <div
           class="flex items-center overflow-x-auto py-1.5 whitespace-nowrap text-c-1">
-          <span class="bg-b-2 sticky left-0 pl-3 pr-2">Source</span>
-          <span class="pr-3">
-            <a
-              v-if="activeCollection?.documentUrl"
-              class="text-c-2 no-underline hover:bg-b-3 bg-b-2 px-2 py-1 rounded"
-              :href="activeCollection?.documentUrl"
-              target="_blank">
-              {{ activeCollection?.documentUrl }}
-            </a>
-            <span
-              v-else
-              class="text-c-2">
-              There’s no URL configured. Try importing an OpenAPI document from
-              an URL.
-            </span>
-          </span>
+          <div class="flex items-center">
+            <template v-if="activeCollection?.documentUrl">
+              <span class="bg-b-2 sticky left-0 pl-3 pr-2">Source</span>
+              <a
+                class="group text-c-2 no-underline rounded hover:underline pr-3"
+                :href="activeCollection.documentUrl"
+                target="_blank">
+                {{ activeCollection.documentUrl }}
+                <ScalarIcon
+                  class="hidden group-hover:inline ml-1 w-2.5"
+                  icon="ExternalLink" />
+              </a>
+            </template>
+            <template v-else>
+              <ScalarIcon
+                class="ml-3 mr-2 w-4 text-c-2"
+                icon="NotAllowed"
+                size="sm" />
+              <span class="text-c-2 pr-3">
+                No URL configured. Try importing an OpenAPI document from an
+                URL.
+              </span>
+            </template>
+          </div>
         </div>
       </div>
     </div>

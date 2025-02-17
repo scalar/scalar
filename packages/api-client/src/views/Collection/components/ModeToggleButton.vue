@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { cva, cx } from '@scalar/components'
+import { cva, cx, ScalarButton } from '@scalar/components'
 
 const { modelValue } = defineProps<{
   modelValue: string
@@ -8,7 +8,7 @@ const { modelValue } = defineProps<{
 defineEmits<(e: 'update:modelValue', value: string) => void>()
 
 const buttonVariants = cva({
-  base: 'border py-1 text-c-2 rounded-md',
+  base: 'border h-fit py-1 text-c-2 rounded-md',
   variants: {
     active: {
       true: 'bg-b-2 bordber-c-2 text-c-1',
@@ -19,7 +19,7 @@ const buttonVariants = cva({
 </script>
 
 <template>
-  <button
+  <ScalarButton
     class="px-3"
     :class="
       cx(
@@ -29,13 +29,17 @@ const buttonVariants = cva({
       )
     "
     type="button"
+    variant="ghost"
+    @mousedown.prevent
     @click="$emit('update:modelValue', 'preview')">
     Preview
-  </button>
-  <button
+  </ScalarButton>
+  <ScalarButton
     :class="cx(buttonVariants({ active: modelValue === 'edit' }))"
     type="button"
+    variant="ghost"
+    @mousedown.prevent
     @click="$emit('update:modelValue', 'edit')">
     Edit
-  </button>
+  </ScalarButton>
 </template>
