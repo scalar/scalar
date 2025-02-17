@@ -1,5 +1,7 @@
 import { z } from 'zod'
 
+import type { TargetId } from '../external/index.ts'
+
 /** Available theme presets for the API reference */
 const ThemeIdEnum = z.enum([
   'alternate',
@@ -93,7 +95,7 @@ const PathRoutingSchema = z.object({
 
 export const ApiReferenceConfigurationSchema = z.object({
   /** A string to use one of the color presets */
-  theme: ThemeIdEnum.optional(),
+  theme: z.union([ThemeIdEnum, z.undefined()]).optional(),
   /** The layout to use for the references */
   layout: z.enum(['modern', 'classic']).optional(),
   /** The Swagger/OpenAPI spec to render */
@@ -152,20 +154,18 @@ export const ApiReferenceConfigurationSchema = z.object({
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
-  hiddenClients: z
-    .union([z.boolean(), z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string())])
-    .optional(),
+  hiddenClients: z.union([z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string())]).optional(),
   /** Determine the HTTP client that's selected by default */
   defaultHttpClient: z
     .object({
-      targetKey: z.string(),
+      targetKey: z.custom<TargetId>(),
       clientKey: z.string(),
     })
     .optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onSpecUpdate is fired on spec/swagger content change */
-  onSpecUpdate: z.function().args(z.string()).optional(),
+  onSpecUpdate: z.function().returns(z.void()).optional(),
   /** Prefill authentication */
   authentication: z.any().optional(), // Using any for Partial<AuthenticationState>
   /**
@@ -235,7 +235,7 @@ export const ApiReferenceConfigurationSchema = z.object({
     .returns(z.string())
     .optional(),
   /** Callback fired when the reference is fully loaded */
-  onLoaded: z.function().optional(),
+  onLoaded: z.union([z.function().returns(z.void()), z.undefined()]).optional(),
   /** Base URL for the API server */
   baseServerURL: z.string().optional(),
   /** List of OpenAPI server objects */
@@ -262,4 +262,4 @@ export const ApiReferenceConfigurationSchema = z.object({
   hideClientButton: z.boolean().optional(),
 })
 
-export type ScalarApiReferenceConfig = z.infer<typeof ApiReferenceConfigurationSchema>
+export type ApiReferenceConfiguration = z.infer<typeof ApiReferenceConfigurationSchema>
