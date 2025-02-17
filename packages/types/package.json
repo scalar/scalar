@@ -27,7 +27,8 @@
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",
-    "types:check": "scalar-types-check"
+    "types:check": "scalar-types-check",
+    "test": "vitest"
   },
   "type": "module",
   "types": "dist/index.d.ts",
@@ -59,10 +60,12 @@
   ],
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
-    "@unhead/schema": "^1.11.11"
+    "@unhead/schema": "^1.11.11",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*"
+    "@scalar/snippetz": "workspace:*",
+    "vitest": "^1.6.0"
   }
 }
