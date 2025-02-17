@@ -2,7 +2,7 @@
 import BrowserOnly from '@docusaurus/BrowserOnly'
 import type { ReferenceProps } from '@scalar/api-reference-react'
 import Layout from '@theme/Layout'
-import { Component } from 'react'
+import React, { Component } from 'react'
 
 import './theme.css'
 
@@ -38,7 +38,7 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           this.props.route.configuration &&
           !document.getElementById('api-reference')
         ) {
-          console.log('Loading Scalar script...')
+          console.log(`Loading Scalar script...`)
           // Deep copy the configuration
           const config = JSON.parse(
             JSON.stringify(this.props.route.configuration),
@@ -55,7 +55,7 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           const loaded = document.body.getAttribute('data-scalar-loaded')
 
           if (loaded) {
-            console.log('Scalar script already loaded, reloading app ')
+            console.log(`Scalar script already loaded, reloading app `)
             document.dispatchEvent(new Event('scalar:reload-references'))
             document.dispatchEvent(
               new CustomEvent('scalar:update-references-config', {

@@ -1,7 +1,8 @@
 import BrowserOnly from '@docusaurus/BrowserOnly'
-import type { ReferenceProps } from '@scalar/api-reference-react'
+import { type ReferenceProps } from '@scalar/api-reference-react'
 import '@scalar/api-reference-react/style.css'
 import Layout from '@theme/Layout'
+import React from 'react'
 
 import './theme.css'
 
