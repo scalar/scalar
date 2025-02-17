@@ -59,6 +59,7 @@ export const ICONS = [
   'LogoSwagger',
   'Magic',
   'Menu',
+  'NotAllowed',
   'Page',
   'PaperAirplane',
   'Pencil',
