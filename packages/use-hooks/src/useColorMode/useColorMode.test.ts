@@ -33,46 +33,40 @@ describe('useColorMode', () => {
     expect(colorMode.value).toBe('system')
   })
 
-  it.each(['light', 'dark'] as const)(
-    'respects localStorage value: %s',
-    (mode) => {
-      localStorage.setItem('colorMode', mode)
-      const { colorMode } = useColorMode()
-      expect(colorMode.value).toBe(mode)
-    },
-  )
+  it.each(['light', 'dark'] as const)('respects localStorage value: %s', (mode) => {
+    localStorage.setItem('colorMode', mode)
+    const { colorMode } = useColorMode()
+    expect(colorMode.value).toBe(mode)
+  })
 
   it('handles unknown localStorage values', () => {
     localStorage.setItem('colorMode', 'foobar')
     expect(() => useColorMode()).not.toThrow()
   })
 
-  it.each(['light', 'dark'] as const)(
-    'toggles between light and dark mode when system is %s',
-    (mode) => {
-      // Mock the matchMedia to simulate system dark mode
-      window.matchMedia = vi.fn().mockImplementation((query) => ({
-        matches: query === `(prefers-color-scheme: ${mode})`,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      }))
+  it.each(['light', 'dark'] as const)('toggles between light and dark mode when system is %s', (mode) => {
+    // Mock the matchMedia to simulate system dark mode
+    window.matchMedia = vi.fn().mockImplementation((query) => ({
+      matches: query === `(prefers-color-scheme: ${mode})`,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }))
 
-      const { colorMode, darkLightMode, toggleColorMode } = useColorMode()
-      expect(colorMode.value).toBe('system')
-      expect(darkLightMode.value).toBe(mode)
+    const { colorMode, darkLightMode, toggleColorMode } = useColorMode()
+    expect(colorMode.value).toBe('system')
+    expect(darkLightMode.value).toBe(mode)
 
-      toggleColorMode()
-      const inverted = mode === 'light' ? 'dark' : 'light'
-      expect(colorMode.value).toBe(inverted)
-      expect(darkLightMode.value).toBe(inverted)
-      expect(localStorage.getItem('colorMode')).toBe(inverted)
+    toggleColorMode()
+    const inverted = mode === 'light' ? 'dark' : 'light'
+    expect(colorMode.value).toBe(inverted)
+    expect(darkLightMode.value).toBe(inverted)
+    expect(localStorage.getItem('colorMode')).toBe(inverted)
 
-      toggleColorMode()
-      expect(colorMode.value).toBe(mode)
-      expect(darkLightMode.value).toBe(mode)
-      expect(localStorage.getItem('colorMode')).toBe(mode)
-    },
-  )
+    toggleColorMode()
+    expect(colorMode.value).toBe(mode)
+    expect(darkLightMode.value).toBe(mode)
+    expect(localStorage.getItem('colorMode')).toBe(mode)
+  })
 
   it('sets specific color mode', () => {
     const { colorMode, darkLightMode, setColorMode } = useColorMode()
@@ -98,15 +92,12 @@ describe('useColorMode', () => {
     expect(colorMode.value).toBe('light')
   })
 
-  it.each(['light', 'dark'] as const)(
-    'isDarkMode is computed correctly when colorMode is %s',
-    (mode) => {
-      const { isDarkMode, setColorMode } = useColorMode()
+  it.each(['light', 'dark'] as const)('isDarkMode is computed correctly when colorMode is %s', (mode) => {
+    const { isDarkMode, setColorMode } = useColorMode()
 
-      setColorMode(mode)
-      expect(isDarkMode.value).toBe(mode === 'dark')
-    },
-  )
+    setColorMode(mode)
+    expect(isDarkMode.value).toBe(mode === 'dark')
+  })
 
   it('allows setting isDarkMode via the computed ref', () => {
     const { isDarkMode } = useColorMode()
@@ -118,20 +109,17 @@ describe('useColorMode', () => {
     expect(isDarkMode.value).toBe(false)
   })
 
-  it.each(['light', 'dark'] as const)(
-    'detects system %s mode preference',
-    (mode) => {
-      window.matchMedia = vi.fn().mockImplementation((query) => ({
-        matches: query === `(prefers-color-scheme: ${mode})`,
-        addEventListener: vi.fn(),
-        removeEventListener: vi.fn(),
-      }))
+  it.each(['light', 'dark'] as const)('detects system %s mode preference', (mode) => {
+    window.matchMedia = vi.fn().mockImplementation((query) => ({
+      matches: query === `(prefers-color-scheme: ${mode})`,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }))
 
-      const { getSystemModePreference, darkLightMode } = useColorMode()
-      expect(getSystemModePreference()).toBe(mode)
-      expect(darkLightMode.value).toBe(mode)
-    },
-  )
+    const { getSystemModePreference, darkLightMode } = useColorMode()
+    expect(getSystemModePreference()).toBe(mode)
+    expect(darkLightMode.value).toBe(mode)
+  })
 
   it('applies correct classes to body', async () => {
     const { setColorMode } = useColorMode()
@@ -163,10 +151,7 @@ describe('useColorMode', () => {
     const { setColorMode } = useColorMode()
     setColorMode('system')
 
-    expect(mocked.addEventListener).toHaveBeenCalledWith(
-      'change',
-      expect.any(Function),
-    )
+    expect(mocked.addEventListener).toHaveBeenCalledWith('change', expect.any(Function))
 
     await nextTick()
 
@@ -183,13 +168,10 @@ describe('useColorMode', () => {
     }
   })
 
-  it.each(['light', 'dark', 'system'] as const)(
-    'respects initialColorMode option: %s',
-    (initialColorMode) => {
-      const { colorMode } = useColorMode({ initialColorMode })
-      expect(colorMode.value).toBe(initialColorMode)
-    },
-  )
+  it.each(['light', 'dark', 'system'] as const)('respects initialColorMode option: %s', (initialColorMode) => {
+    const { colorMode } = useColorMode({ initialColorMode })
+    expect(colorMode.value).toBe(initialColorMode)
+  })
 
   it('initialColorMode is overridden by localStorage value', () => {
     localStorage.setItem('colorMode', 'dark')
@@ -229,8 +211,7 @@ describe('useColorMode', () => {
     // @ts-expect-error
     delete global.document
 
-    const { colorMode, darkLightMode, setColorMode, toggleColorMode } =
-      useColorMode()
+    const { colorMode, darkLightMode, setColorMode, toggleColorMode } = useColorMode()
 
     // Should default to light mode in SSG
     expect(colorMode.value).toBe('system')

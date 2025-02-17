@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+
 import alias from '@rollup/plugin-alias'
 import json from '@rollup/plugin-json'
 import typescript from '@rollup/plugin-typescript'

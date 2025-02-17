@@ -2,4 +2,4 @@
 set -e
 
 biome format --write
-prettier --write .
+prettier --write . --ignore-path ../../.prettierignore

@@ -46,9 +46,7 @@ export const AVAILABLE_CLIENTS = [
 export type AvailableClients = typeof AVAILABLE_CLIENTS
 
 /** Programming language */
-export type TargetId = AvailableClients[number] extends `${infer T}/${string}`
-  ? T
-  : never
+export type TargetId = AvailableClients[number] extends `${infer T}/${string}` ? T : never
 
 /** Configuration for a target */
 export type Target = {
@@ -62,10 +60,7 @@ export type Target = {
 
 /** HTTP client */
 export type ClientId<T extends string> = T extends TargetId
-  ? Extract<
-      AvailableClients[number],
-      `${T}/${string}`
-    > extends `${T}/${infer C}`
+  ? Extract<AvailableClients[number], `${T}/${string}`> extends `${T}/${infer C}`
     ? C
     : never
   : never
@@ -79,10 +74,7 @@ export type Plugin = {
   /** The title of the client. */
   title: string
   /** The actual source code. */
-  generate: (
-    request?: Partial<HarRequest>,
-    configuration?: PluginConfiguration,
-  ) => string
+  generate: (request?: Partial<HarRequest>, configuration?: PluginConfiguration) => string
 }
 
 /**

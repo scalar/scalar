@@ -12,8 +12,7 @@ export function convertWithHttpSnippetLite(
   const urlObject = new URL(request?.url ?? '')
 
   // If it's just the domain, omit the trailing slash
-  const url =
-    urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
+  const url = urlObject.pathname === '/' ? urlObject.origin : urlObject.toString()
 
   const harRequest: HarRequest = {
     method: request?.method ?? 'GET',
@@ -23,12 +22,10 @@ export function convertWithHttpSnippetLite(
     headers: request?.headers ?? [],
     headersSize: -1,
     bodySize: -1,
-    queryString: Array.from(urlObject.searchParams.entries()).map(
-      ([name, value]) => ({
-        name,
-        value,
-      }),
-    ),
+    queryString: Array.from(urlObject.searchParams.entries()).map(([name, value]) => ({
+      name,
+      value,
+    })),
     postData: request?.postData,
   }
 

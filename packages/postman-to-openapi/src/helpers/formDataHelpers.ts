@@ -6,9 +6,7 @@ import type { FormParameter } from '../types'
  * Processes form data parameters from a Postman request and converts them into an OpenAPI schema.
  * Handles file uploads, required fields, and descriptions.
  */
-export function processFormDataSchema(
-  formdata: FormParameter[],
-): OpenAPIV3_1.SchemaObject {
+export function processFormDataSchema(formdata: FormParameter[]): OpenAPIV3_1.SchemaObject {
   const schema: OpenAPIV3_1.SchemaObject = {
     type: 'object',
     properties: {},
@@ -24,10 +22,7 @@ export function processFormDataSchema(
 
     // Add description if present, handling both string and object descriptions
     if (item.description) {
-      const descriptionText =
-        typeof item.description === 'string'
-          ? item.description
-          : item.description.content || ''
+      const descriptionText = typeof item.description === 'string' ? item.description : item.description.content || ''
 
       property.description = descriptionText.replace(' [required]', '')
 

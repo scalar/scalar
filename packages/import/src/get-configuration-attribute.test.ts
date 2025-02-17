@@ -6,17 +6,13 @@ describe('getConfigurationAttribute', () => {
   it('returns the configuration attribute with double quotes', () => {
     const html = `<script id="api-reference" data-configuration="{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}"></script>`
     const result = getConfigurationAttribute(html)
-    expect(result).toBe(
-      '{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}',
-    )
+    expect(result).toBe('{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}')
   })
 
   it('returns the configuration attribute with single quotes', () => {
     const html = `<script id='api-reference' data-configuration='{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}'></script>`
     const result = getConfigurationAttribute(html)
-    expect(result).toBe(
-      '{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}',
-    )
+    expect(result).toBe('{&quot;spec&quot;:{&quot;content&quot;:&quot;foo&quot;}}')
   })
 
   it('returns undefined if no configuration attribute is present', () => {
@@ -37,8 +33,6 @@ describe('getConfigurationAttribute', () => {
       <script id="api-reference" data-configuration="{&quot;spec&quot;:{&quot;content&quot;:&quot;second&quot;}}"></script>
     `
     const result = getConfigurationAttribute(html)
-    expect(result).toBe(
-      '{&quot;spec&quot;:{&quot;content&quot;:&quot;first&quot;}}',
-    )
+    expect(result).toBe('{&quot;spec&quot;:{&quot;content&quot;:&quot;first&quot;}}')
   })
 })

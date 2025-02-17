@@ -1,9 +1,4 @@
-import type {
-  OpenAPI,
-  OpenAPIV2,
-  OpenAPIV3,
-  OpenAPIV3_1,
-} from '@scalar/openapi-types'
+import type { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { UseSeoMetaInput } from '@unhead/schema'
 
 import type { HarRequest, TargetId } from '../external/index.ts'
@@ -298,10 +293,7 @@ export type ReferenceConfiguration = {
   /**
    * Sort operations alphabetically, by method or with a custom sort function
    */
-  operationsSorter?:
-    | 'alpha'
-    | 'method'
-    | ((a: TransformedOperation, b: TransformedOperation) => number)
+  operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number)
   /**
    * Specifies the integration being used. This is primarily for internal purposes and should not be manually set.
    *
@@ -417,16 +409,7 @@ export type Information = {
 }
 
 export type Operation = {
-  httpVerb:
-    | 'GET'
-    | 'HEAD'
-    | 'PATCH'
-    | 'POST'
-    | 'PUT'
-    | 'TRACE'
-    | 'CONNECT'
-    | 'DELETE'
-    | 'OPTIONS'
+  httpVerb: 'GET' | 'HEAD' | 'PATCH' | 'POST' | 'PUT' | 'TRACE' | 'CONNECT' | 'DELETE' | 'OPTIONS'
   path: string
   operationId?: string
   name?: string
@@ -552,8 +535,7 @@ export type Heading = {
 }
 
 export type CodeBlockSSRKey = `components-scalar-code-block${number}`
-export type DescriptionSectionSSRKey =
-  `components-Content-Introduction-Description-sections${number}`
+export type DescriptionSectionSSRKey = `components-Content-Introduction-Description-sections${number}`
 
 export type ScalarState = {
   'hash'?: string
@@ -605,10 +587,7 @@ export type Webhooks = Record<
 /**
  * The native OpenAPI Webhook object, but with the x-internal and x-scalar-ignore properties
  */
-export type Webhook = (
-  | OpenAPIV3.OperationObject
-  | OpenAPIV3_1.OperationObject
-) & {
+export type Webhook = (OpenAPIV3.OperationObject | OpenAPIV3_1.OperationObject) & {
   'x-internal'?: boolean
   'x-scalar-ignore'?: boolean
 }

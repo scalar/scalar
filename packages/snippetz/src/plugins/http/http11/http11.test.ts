@@ -17,9 +17,7 @@ describe('httpHttp11', () => {
       method: 'post',
     })
 
-    expect(result).toBe(
-      'POST / HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n',
-    )
+    expect(result).toBe('POST / HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n')
   })
 
   it('has headers', () => {
@@ -32,12 +30,7 @@ describe('httpHttp11', () => {
         },
       ],
     })
-    expect(result).toBe(
-      'GET / HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        'Content-Type: application/json\r\n' +
-        '\r\n',
-    )
+    expect(result).toBe('GET / HTTP/1.1\r\n' + 'Host: example.com\r\n' + 'Content-Type: application/json\r\n' + '\r\n')
   })
 
   it('it doesn’t add the JSON header twice', () => {
@@ -148,11 +141,7 @@ describe('httpHttp11', () => {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(
-      'GET /path%20with%20spaces/[brackets] HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        '\r\n',
-    )
+    expect(result).toBe('GET /path%20with%20spaces/[brackets] HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n')
   })
 
   it('handles multiple headers with same name', () => {
@@ -179,9 +168,7 @@ describe('httpHttp11', () => {
       headers: [{ name: 'X-Empty', value: '' }],
     })
 
-    expect(result).toBe(
-      'GET / HTTP/1.1\r\n' + 'Host: example.com\r\n' + 'X-Empty: \r\n' + '\r\n',
-    )
+    expect(result).toBe('GET / HTTP/1.1\r\n' + 'Host: example.com\r\n' + 'X-Empty: \r\n' + '\r\n')
   })
 
   it('handles query string parameters', () => {
@@ -190,9 +177,7 @@ describe('httpHttp11', () => {
     })
 
     expect(result).toBe(
-      'GET /api?param1=value1&param2=special%20value&param3=123 HTTP/1.1\r\n' +
-        'Host: example.com\r\n' +
-        '\r\n',
+      'GET /api?param1=value1&param2=special%20value&param3=123 HTTP/1.1\r\n' + 'Host: example.com\r\n' + '\r\n',
     )
   })
 
@@ -201,9 +186,7 @@ describe('httpHttp11', () => {
       url: '/foo',
     })
 
-    expect(result).toBe(
-      'GET /foo HTTP/1.1\r\n' + 'Host: UNKNOWN_HOSTNAME\r\n' + '\r\n',
-    )
+    expect(result).toBe('GET /foo HTTP/1.1\r\n' + 'Host: UNKNOWN_HOSTNAME\r\n' + '\r\n')
   })
 
   it('handles empty URL', () => {
@@ -211,9 +194,7 @@ describe('httpHttp11', () => {
       url: '',
     })
 
-    expect(result).toBe(
-      'GET / HTTP/1.1\r\n' + 'Host: UNKNOWN_HOSTNAME\r\n' + '\r\n',
-    )
+    expect(result).toBe('GET / HTTP/1.1\r\n' + 'Host: UNKNOWN_HOSTNAME\r\n' + '\r\n')
   })
 
   it('handles extremely long URLs', () => {
@@ -222,11 +203,7 @@ describe('httpHttp11', () => {
       url: longUrl,
     })
 
-    expect(result).toBe(
-      `GET /${'a'.repeat(2000)} HTTP/1.1\r\n` +
-        'Host: example.com\r\n' +
-        '\r\n',
-    )
+    expect(result).toBe(`GET /${'a'.repeat(2000)} HTTP/1.1\r\n` + 'Host: example.com\r\n' + '\r\n')
   })
 
   it('handles special characters in query parameters', () => {
@@ -245,8 +222,7 @@ describe('httpHttp11', () => {
     })
 
     expect(result).toBe(
-      'GET /?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*() HTTP/1.1\r\n' +
-        'Host: example.com\r\n\r\n',
+      'GET /?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*() HTTP/1.1\r\n' + 'Host: example.com\r\n\r\n',
     )
   })
 })

@@ -5,9 +5,7 @@ import { fileNameResolver, program } from './test-setup'
 import { getSchemaFromTypeNode } from './type-nodes'
 
 describe('getSchemaFromTypeNode', () => {
-  const sourceFile = program.getSourceFile(
-    __dirname + '/fixtures/testing-types.ts',
-  )
+  const sourceFile = program.getSourceFile(__dirname + '/fixtures/testing-types.ts')
   // Just hard coded, change this if we add/remove in the testing types file
   const type = sourceFile?.statements[2]
 

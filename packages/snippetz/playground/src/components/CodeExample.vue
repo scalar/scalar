@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type TargetId, snippetz } from '@scalar/snippetz'
+import { snippetz, type TargetId } from '@scalar/snippetz'
 import { objectToString } from '@scalar/snippetz/utils'
 import { getHighlighter } from 'shikiji'
 import { onMounted, ref, watch } from 'vue'
@@ -41,7 +41,7 @@ const request = ${objectToString(props.request)}
 const snippet = print('${props.target}', '${props.client}', request)`
 
   // Generate the result snippet
-  const result = code.value.split(`\r`).join(``).split(`\n`).join(`\n`)
+  const result = code.value.split('\r').join('').split('\n').join('\n')
 
   highlightedConfiguration.value = shiki.codeToHtml(
     JSON.stringify(props.request, null, 2),

@@ -1,10 +1,11 @@
+import { Value } from '@sinclair/typebox/value'
+
 import type {
   ConfigSidebarFolder,
   ConfigSidebarLink,
   ConfigSidebarPage,
   SidebarItem,
 } from '@/configTypes'
-import { Value } from '@sinclair/typebox/value'
 
 /** Checks an object against a Typebox schema and returns the errors */
 export function getSchemaErrors<

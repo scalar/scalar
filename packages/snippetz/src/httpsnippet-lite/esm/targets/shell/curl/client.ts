@@ -180,7 +180,7 @@ export const curl = {
               } else {
                 push(`${flag} '\n${payload}\n'`)
               }
-            } catch (err) {
+            } catch (_err) {
               // no-op
             }
           }

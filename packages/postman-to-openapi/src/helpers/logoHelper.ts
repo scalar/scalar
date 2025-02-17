@@ -6,9 +6,7 @@ import type { PostmanCollection } from '../types'
  * and constructs an object with logo properties.
  */
 export function processLogo(postmanCollection: PostmanCollection) {
-  const logoVariables =
-    postmanCollection.variable?.filter((v) => v.key?.startsWith('x-logo.')) ||
-    []
+  const logoVariables = postmanCollection.variable?.filter((v) => v.key?.startsWith('x-logo.')) || []
   if (logoVariables.length === 0) return null
 
   const logo: Record<string, string> = {}

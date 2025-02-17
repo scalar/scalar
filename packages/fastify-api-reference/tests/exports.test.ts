@@ -15,7 +15,7 @@ describe('exports', () => {
         },
       })
 
-      fastify.listen({ port: 0 }, function (_err, address) {
+      fastify.listen({ port: 0 }, (_err, address) => {
         fetch(`${address}/foobar`).then((response) => {
           expect(response.status).toBe(200)
           resolve(null)

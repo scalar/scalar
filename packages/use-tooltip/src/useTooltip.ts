@@ -59,9 +59,8 @@ export function keyboardShortcutTooltip(keys: string, title?: string) {
         if (key === 'mod') {
           if (isMacOS()) {
             return 'command'
-          } else {
-            return 'ctrl'
           }
+          return 'ctrl'
         }
 
         return key
@@ -102,9 +101,7 @@ export function keyboardShortcutTooltip(keys: string, title?: string) {
     text-align: center;
   `
   const item = (val = '') => html`<span style="${itemStyle}">${val}</span>`
-  const titleElement = title
-    ? html`<span style="margin: 0 6px 0 3px">${title}</span>`
-    : ''
+  const titleElement = title ? html`<span style="margin: 0 6px 0 3px">${title}</span>` : ''
   return html`
     <div style="display: flex; align-items: center">
       ${titleElement}

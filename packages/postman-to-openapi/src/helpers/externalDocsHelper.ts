@@ -11,10 +11,7 @@ const VARIABLE_KEYS = {
 /**
  * Finds a specific variable in the collection by its key
  */
-function findVariable(
-  collection: PostmanCollection,
-  key: string,
-): Variable | undefined {
+function findVariable(collection: PostmanCollection, key: string): Variable | undefined {
   return collection.variable?.find((v) => v.key === key)
 }
 
@@ -29,10 +26,7 @@ export function processExternalDocs(
 ): OpenAPIV3_1.ExternalDocumentationObject | undefined {
   try {
     const urlVariable = findVariable(collection, VARIABLE_KEYS.URL)
-    const descriptionVariable = findVariable(
-      collection,
-      VARIABLE_KEYS.DESCRIPTION,
-    )
+    const descriptionVariable = findVariable(collection, VARIABLE_KEYS.DESCRIPTION)
 
     if (!urlVariable?.value) {
       return undefined

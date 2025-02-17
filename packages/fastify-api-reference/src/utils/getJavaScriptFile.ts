@@ -17,11 +17,7 @@ export function getJavaScriptFile() {
 
   // Throw an error if the file is not found
   if (filePath === undefined) {
-    throw new Error(
-      `JavaScript file not found: ${path.resolve(
-        `${dirname}/js/standalone.js`,
-      )}`,
-    )
+    throw new Error(`JavaScript file not found: ${path.resolve(`${dirname}/js/standalone.js`)}`)
   }
 
   return fs.readFileSync(filePath, 'utf8')

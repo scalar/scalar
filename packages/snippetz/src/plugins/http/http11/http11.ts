@@ -25,7 +25,7 @@ export const httpHttp11: Plugin = {
     try {
       url = new URL(normalizedRequest.url || 'http://')
       path = url.pathname + (url.search || '')
-    } catch (error) {
+    } catch (_error) {
       // Oops, got an invalid URL, use the provided URL directly.
       path = normalizedRequest.url || '/'
     }
@@ -38,10 +38,7 @@ export const httpHttp11: Plugin = {
     // Handle query string parameters
     if (normalizedRequest.queryString.length) {
       const queryString = normalizedRequest.queryString
-        .map(
-          (param) =>
-            `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`,
-        )
+        .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
         .join('&')
 
       // Append query string to the path
@@ -66,10 +63,7 @@ export const httpHttp11: Plugin = {
     // Query string parameters
     if (normalizedRequest.queryString.length) {
       const queryString = normalizedRequest.queryString
-        .map(
-          (param) =>
-            `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`,
-        )
+        .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
         .join('&')
 
       // Append query string to the path
@@ -80,10 +74,7 @@ export const httpHttp11: Plugin = {
     let body = ''
     if (normalizedRequest.postData) {
       // Always set the Content-Type header based on postData.mimeType
-      if (
-        normalizedRequest.postData.mimeType === 'application/json' &&
-        normalizedRequest.postData.text
-      ) {
+      if (normalizedRequest.postData.mimeType === 'application/json' && normalizedRequest.postData.text) {
         headers.set('Content-Type', 'application/json')
         body = normalizedRequest.postData.text
       } else if (
@@ -93,23 +84,16 @@ export const httpHttp11: Plugin = {
         headers.set('Content-Type', 'application/octet-stream')
         body = normalizedRequest.postData.text
       } else if (
-        normalizedRequest.postData.mimeType ===
-          'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
       ) {
         const formData = normalizedRequest.postData.params
-          .map(
-            (param) =>
-              `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`,
-          )
+          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`)
           .join('&')
 
         headers.set('Content-Type', 'application/x-www-form-urlencoded')
         body = formData
-      } else if (
-        normalizedRequest.postData.mimeType === 'multipart/form-data' &&
-        normalizedRequest.postData.params
-      ) {
+      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         const boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
         headers.set('Content-Type', `multipart/form-data; boundary=${boundary}`)
 
@@ -118,9 +102,8 @@ export const httpHttp11: Plugin = {
             .map((param) => {
               if (param.fileName) {
                 return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"; filename="${param.fileName}"\r\n\r\n`
-              } else {
-                return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
               }
+              return `--${boundary}\r\nContent-Disposition: form-data; name="${param.name}"\r\n\r\n${param.value}\r\n`
             })
             .join('') + `--${boundary}--\r\n`
       }

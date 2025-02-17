@@ -17,8 +17,10 @@
     "build": "scalar-build-rollup",
     "build:playground": "cd ./playground && pnpm build",
     "dev": "cd ./playground && pnpm dev",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"

@@ -101,11 +101,7 @@
 .dark-mode .markdown h5,
 .dark-mode .markdown h6 {
   -webkit-text-fill-color: transparent;
-  background-image: linear-gradient(
-    to right bottom,
-    rgb(255, 255, 255) 30%,
-    rgba(255, 255, 255, 0.38)
-  );
+  background-image: linear-gradient(to right bottom, rgb(255, 255, 255) 30%, rgba(255, 255, 255, 0.38));
   -webkit-background-clip: text;
   background-clip: text;
 }
@@ -119,16 +115,15 @@
   --c6: #0a0f52;
   --c7: #2341b8;
 
-  --solid: var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6),
-    var(--c7);
+  --solid: var(--c1), var(--c2), var(--c3), var(--c4), var(--c5), var(--c6), var(--c7);
   --solid-wrap: var(--solid), var(--c1);
-  --trans: var(--c1), transparent, var(--c2), transparent, var(--c3),
+  --trans:
+    var(--c1), transparent, var(--c2), transparent, var(--c3),
     transparent, var(--c4), transparent, var(--c5), transparent, var(--c6),
     transparent, var(--c7);
   --trans-wrap: var(--trans), transparent, var(--c1);
 
-  background: radial-gradient(circle, var(--trans)),
-    conic-gradient(from 180deg, var(--trans-wrap)),
+  background: radial-gradient(circle, var(--trans)), conic-gradient(from 180deg, var(--trans-wrap)),
     radial-gradient(circle, var(--trans)), conic-gradient(var(--solid-wrap));
   width: 70vw;
   height: 700px;
@@ -145,24 +140,12 @@
   --star-color: #6b9acc;
   --star-color2: #446b8d;
   --star-color3: #3e5879;
-  background-image: radial-gradient(
-      2px 2px at 20px 30px,
-      var(--star-color2),
-      rgba(0, 0, 0, 0)
-    ),
+  background-image: radial-gradient(2px 2px at 20px 30px, var(--star-color2), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 40px 70px, var(--star-color), rgba(0, 0, 0, 0)),
-    radial-gradient(
-      2px 2px at 50px 160px,
-      var(--star-color3),
-      rgba(0, 0, 0, 0)
-    ),
+    radial-gradient(2px 2px at 50px 160px, var(--star-color3), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 90px 40px, var(--star-color), rgba(0, 0, 0, 0)),
     radial-gradient(2px 2px at 130px 80px, var(--star-color), rgba(0, 0, 0, 0)),
-    radial-gradient(
-      2px 2px at 160px 120px,
-      var(--star-color3),
-      rgba(0, 0, 0, 0)
-    );
+    radial-gradient(2px 2px at 160px 120px, var(--star-color3), rgba(0, 0, 0, 0));
   background-repeat: repeat;
   background-size: 200px 200px;
   width: 100%;
@@ -186,9 +169,5 @@
 }
 
 *::selection {
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-color-blue),
-    transparent 60%
-  );
+  background-color: color-mix(in srgb, var(--scalar-color-blue), transparent 60%);
 }

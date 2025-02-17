@@ -91,8 +91,7 @@ export default {
           1: 'var(--scalar-sidebar-color-1, var(--scalar-color-1))',
           2: 'var(--scalar-sidebar-color-2, var(--scalar-color-2))',
         },
-        border:
-          'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
+        border: 'var(--scalar-sidebar-border-color, var(--scalar-border-color))',
       },
 
       // Utility Colors

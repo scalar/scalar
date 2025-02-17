@@ -10,11 +10,7 @@ export function formatApiResponse<T>(data: T, status: number): ApiResponse<T> {
 }
 
 /** Create a standardized API Error object */
-export function formatApiError(
-  message: string,
-  status: number,
-  error: any = null,
-): ApiError {
+export function formatApiError(message: string, status: number, error: any = null): ApiError {
   return {
     status,
     message,

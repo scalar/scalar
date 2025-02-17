@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type ClientId, type TargetId, snippetz } from '@scalar/snippetz'
+import { snippetz, type ClientId, type TargetId } from '@scalar/snippetz'
 import { ref } from 'vue'
 
 import CodeExample from './components/CodeExample.vue'

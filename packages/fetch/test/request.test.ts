@@ -126,9 +126,7 @@ describe('Executes requests and handles errors', () => {
     expect(result.status).toEqual(500)
 
     if (!result.error) return
-    expect(result.message).toEqual(
-      'Invalid response data from endpoint: https://rest-endpoint.example/object-fetch',
-    )
+    expect(result.message).toEqual('Invalid response data from endpoint: https://rest-endpoint.example/object-fetch')
   })
 
   it('Handles incorrect http method', async () => {

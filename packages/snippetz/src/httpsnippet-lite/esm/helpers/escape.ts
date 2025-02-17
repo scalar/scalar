@@ -18,25 +18,25 @@ export function escapeString(rawValue, options = {}) {
     .map((c) => {
       if (c === '\b') {
         return `${escapeChar}b`
-      } else if (c === '\t') {
+      }if (c === '\t') {
         return `${escapeChar}t`
-      } else if (c === '\n') {
+      }if (c === '\n') {
         if (escapeNewlines) {
           return `${escapeChar}n`
         }
         return c // Don't just continue, or this is caught by < \u0020
-      } else if (c === '\f') {
+      }if (c === '\f') {
         return `${escapeChar}f`
-      } else if (c === '\r') {
+      }if (c === '\r') {
         if (escapeNewlines) {
           return `${escapeChar}r`
         }
         return c // Don't just continue, or this is caught by < \u0020
-      } else if (c === escapeChar) {
+      }if (c === escapeChar) {
         return escapeChar + escapeChar
-      } else if (c === delimiter) {
+      }if (c === delimiter) {
         return escapeChar + delimiter
-      } else if (c < '\u0020' || c > '\u007E') {
+      }if (c < '\u0020' || c > '\u007E') {
         // Delegate the trickier non-ASCII cases to the normal algorithm. Some of these
         // are escaped as \uXXXX, whilst others are represented literally. Since we're
         // using this primarily for header values that are generally (though not 100%

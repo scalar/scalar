@@ -32,9 +32,7 @@ export function extractPathFromUrl(url: string | undefined): string {
   const path = url.replace(/^(?:https?:\/\/)?[^/]+(\/|$)/, '/').split(/[?#]/)[0]
 
   // Replace Postman variables and ensure single leading slash
-  const finalPath = (
-    '/' + path.replace(/\{\{([^{}]{0,1000})\}\}/g, '{$1}').replace(/^\/+/, '')
-  ).replace(/\/\/+/g, '/')
+  const finalPath = ('/' + path.replace(/\{\{([^{}]{0,1000})\}\}/g, '{$1}').replace(/^\/+/, '')).replace(/\/\/+/g, '/')
 
   return finalPath
 }
@@ -43,8 +41,7 @@ export function extractPathFromUrl(url: string | undefined): string {
  * Normalizes a path by converting colon-style parameters to curly brace style
  * e.g., '/users/:id' becomes '/users/{id}'
  */
-export const normalizePath = (path: string): string =>
-  path.replace(/:(\w+)/g, '{$1}')
+export const normalizePath = (path: string): string => path.replace(/:(\w+)/g, '{$1}')
 
 /**
  * Extracts parameter names from a path string.

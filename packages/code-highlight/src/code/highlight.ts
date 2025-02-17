@@ -1,11 +1,12 @@
-import { lowlightLanguageMappings } from '@/constants'
-import { rehypeHighlight } from '@/rehype-highlight'
 import type { Element, Root } from 'hast'
 import type { LanguageFn } from 'highlight.js'
 import rehypeParse from 'rehype-parse'
 import rehypeStringify from 'rehype-stringify'
-import { type Plugin, unified } from 'unified'
+import { unified, type Plugin } from 'unified'
 import { visit } from 'unist-util-visit'
+
+import { lowlightLanguageMappings } from '@/constants'
+import { rehypeHighlight } from '@/rehype-highlight'
 
 import { codeBlockLinesPlugin } from './line-numbers'
 

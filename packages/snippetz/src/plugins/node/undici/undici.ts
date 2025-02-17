@@ -21,17 +21,12 @@ export const nodeUndici: Plugin = {
 
     // Reset undici defaults
     const options: Record<string, any> = {
-      method:
-        normalizedRequest.method === 'GET'
-          ? undefined
-          : normalizedRequest.method,
+      method: normalizedRequest.method === 'GET' ? undefined : normalizedRequest.method,
     }
 
     // Query
     const searchParams = new URLSearchParams(
-      normalizedRequest.queryString
-        ? arrayToObject(normalizedRequest.queryString)
-        : undefined,
+      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
     )
     const queryString = searchParams.size ? `?${searchParams.toString()}` : ''
 
@@ -69,16 +64,12 @@ export const nodeUndici: Plugin = {
 
       // JSON
       if (normalizedRequest.postData.mimeType === 'application/json') {
-        options.body = `JSON.stringify(${objectToString(
-          JSON.parse(options.body),
-        )})`
+        options.body = `JSON.stringify(${objectToString(JSON.parse(options.body))})`
       }
     }
 
     // Transform to JSON
-    const jsonOptions = Object.keys(options).length
-      ? `, ${objectToString(options)}`
-      : ''
+    const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
     return `import { request } from 'undici'

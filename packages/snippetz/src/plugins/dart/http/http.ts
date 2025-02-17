@@ -7,10 +7,7 @@ export const dartHttp: Plugin = {
   target: 'dart',
   client: 'http',
   title: 'Http',
-  generate(
-    request,
-    options?: { auth?: { username: string; password: string } },
-  ) {
+  generate(request, options?: { auth?: { username: string; password: string } }) {
     // Defaults
     const normalizedRequest = {
       method: 'GET',
@@ -28,10 +25,7 @@ export const dartHttp: Plugin = {
     let cookieString = ''
     if (normalizedRequest.cookies && normalizedRequest.cookies.length > 0) {
       cookieString = normalizedRequest.cookies
-        .map(
-          (cookie) =>
-            `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`,
-        )
+        .map((cookie) => `${encodeURIComponent(cookie.name)}=${encodeURIComponent(cookie.value)}`)
         .join('; ')
       cookieHeader = `  "Cookie": "${cookieString}",\n`
     }
@@ -54,8 +48,7 @@ export const dartHttp: Plugin = {
 
       if (username && password) {
         const credentials = `${username}:${password}`
-        headers['Authorization'] =
-          `'Basic ' + base64Encode(utf8.encode('${credentials}'))`
+        headers['Authorization'] = `'Basic ' + base64Encode(utf8.encode('${credentials}'))`
       }
     }
 
@@ -64,7 +57,7 @@ export const dartHttp: Plugin = {
     }
 
     if (Object.keys(headers).length > 0) {
-      code += `  final headers = <String,String>{\n`
+      code += '  final headers = <String,String>{\n'
       for (const [key, value] of Object.entries(headers)) {
         if (value.includes('utf8.encode')) {
           code += `    '${key}': ${value},\n`
@@ -72,17 +65,14 @@ export const dartHttp: Plugin = {
           code += `    '${key}': '${value}',\n`
         }
       }
-      code += `  };\n\n`
+      code += '  };\n\n'
     }
 
     // Handle query string
     const queryString = normalizedRequest.queryString?.length
       ? '?' +
         normalizedRequest.queryString
-          .map(
-            (param) =>
-              `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`,
-          )
+          .map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value)}`)
           .join('&')
       : ''
     const url = `${normalizedRequest.url}${queryString}`
@@ -92,24 +82,17 @@ export const dartHttp: Plugin = {
     if (normalizedRequest.postData) {
       if (normalizedRequest.postData.mimeType === 'application/json') {
         body = `  final body = r'${normalizedRequest.postData.text}';\n\n`
-      } else if (
-        normalizedRequest.postData.mimeType ===
-        'application/x-www-form-urlencoded'
-      ) {
+      } else if (normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded') {
         body = `  final body = '${normalizedRequest.postData.params?.map((param) => `${encodeURIComponent(param.name)}=${encodeURIComponent(param.value ?? '')}`).join('&') || ''}';\n\n`
-      } else if (
-        normalizedRequest.postData.mimeType === 'multipart/form-data'
-      ) {
-        body = `  final body = <String,String>{\n`
+      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data') {
+        body = '  final body = <String,String>{\n'
         for (const param of normalizedRequest.postData.params || []) {
           const value = param.value || ''
           const fileName = param.fileName || ''
           body += `    '${param.name}': '${fileName || value}',\n`
         }
-        body += `  };\n\n`
-      } else if (
-        normalizedRequest.postData.mimeType === 'application/octet-stream'
-      ) {
+        body += '  };\n\n'
+      } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         body = `  final body = '${normalizedRequest.postData.text}';\n\n`
       }
     }
@@ -120,12 +103,11 @@ export const dartHttp: Plugin = {
 
     // Handle method and request
     const method = normalizedRequest.method.toLowerCase()
-    const headersPart =
-      Object.keys(headers).length > 0 ? ', headers: headers' : ''
+    const headersPart = Object.keys(headers).length > 0 ? ', headers: headers' : ''
     const bodyPart = body ? ', body: body' : ''
     code += `  final response = await http.${method}(Uri.parse('${url}')${headersPart}${bodyPart});\n`
-    code += `  print(response.body);\n`
-    code += `}`
+    code += '  print(response.body);\n'
+    code += '}'
 
     return code
   },

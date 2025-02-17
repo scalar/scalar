@@ -1,6 +1,6 @@
 import type { Element, ElementContent, Root } from 'hast'
 import { toText } from 'hast-util-to-text'
-import { type LanguageFn, createLowlight } from 'lowlight'
+import { createLowlight, type LanguageFn } from 'lowlight'
 import { visit } from 'unist-util-visit'
 import type { VFile } from 'vfile'
 
@@ -56,8 +56,8 @@ export function rehypeHighlight(
   }
 
   /** Transform.*/
-  return function (tree: Root, file: VFile) {
-    visit(tree, 'element', function (node, _, parent) {
+  return (tree: Root, file: VFile) => {
+    visit(tree, 'element', (node, _, parent) => {
       if (
         node.tagName !== 'code' ||
         !parent ||

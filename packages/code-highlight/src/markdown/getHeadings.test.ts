@@ -4,7 +4,7 @@ import { getHeadings } from './markdown'
 
 describe('getHeadings', () => {
   it('gets a heading', () => {
-    const markdown = `# Example Heading`
+    const markdown = '# Example Heading'
 
     const headings = getHeadings(markdown)
 
@@ -48,7 +48,7 @@ describe('getHeadings', () => {
   })
 
   it('works with links in headings', () => {
-    const markdown = `# [Example Heading](#example-heading)`
+    const markdown = '# [Example Heading](#example-heading)'
 
     const headings = getHeadings(markdown)
 

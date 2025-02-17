@@ -3,9 +3,7 @@
  * Find an OpenAPI document URL in the HTML of @scalar/api-reference and other places.
  * This is useful to open the OpenAPI document from basically any source.
  */
-export async function resolve(
-  value?: string,
-): Promise<string | Record<string, any> | undefined> {
+export async function resolve(value?: string): Promise<string | Record<string, any> | undefined> {
   // URLs
   if (value?.startsWith('http://') || value?.startsWith('https://')) {
     // Transform GitHub URLs to raw file URLs
@@ -21,17 +19,12 @@ export async function resolve(
     }
 
     // https://*.yaml
-    if (
-      value?.toLowerCase().endsWith('.yaml') ||
-      value?.toLowerCase().endsWith('.yml')
-    ) {
+    if (value?.toLowerCase().endsWith('.yaml') || value?.toLowerCase().endsWith('.yml')) {
       return value
     }
 
     // https://sandbox.scalar.com
-    const sandboxUrl = value.match(
-      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-z0-9]+)/,
-    )
+    const sandboxUrl = value.match(/https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-z0-9]+)/)
 
     if (sandboxUrl?.[2]) {
       return `https://sandbox.scalar.com/files/${sandboxUrl[2]}/openapi.yaml`
@@ -96,9 +89,7 @@ function parseHtml(html?: string) {
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
-  const configurationUrl = html.match(
-    /&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/,
-  )
+  const configurationUrl = html.match(/&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/)
 
   if (configurationUrl?.[1]) {
     return configurationUrl[1]
@@ -133,9 +124,7 @@ function makeRelativeUrlsAbsolute(baseUrl: string, path: string) {
  * Parse embedded OpenAPI document from HTML
  */
 function parseEmbeddedOpenApi(html: string): object | undefined {
-  const match = html.match(
-    /<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/,
-  )
+  const match = html.match(/<script[^>]*data-configuration=['"]([^'"]+)['"][^>]*>(.*?)<\/script>/)
 
   if (!match) return undefined
 
@@ -146,10 +135,7 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
       return config.spec.content
     }
   } catch (error) {
-    console.error(
-      '[@scalar/import] Failed to parse embedded OpenAPI document:',
-      error,
-    )
+    console.error('[@scalar/import] Failed to parse embedded OpenAPI document:', error)
   }
 
   return undefined
@@ -177,8 +163,7 @@ function decodeHtmlEntities(text: string): string {
  * Transform GitHub URLs to raw file URLs, preserving the branch information
  */
 function transformGitHubUrl(url: string): string | undefined {
-  const githubRegex =
-    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
+  const githubRegex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
   const match = url.match(githubRegex)
 
   if (match) {

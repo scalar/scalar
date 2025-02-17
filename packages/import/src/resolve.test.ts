@@ -4,10 +4,7 @@ import { resolve } from './resolve'
 
 global.fetch = vi.fn()
 
-function createFetchResponse(
-  data: string,
-  headers: Record<string, string> = {},
-) {
+function createFetchResponse(data: string, headers: Record<string, string> = {}) {
   return {
     ok: true,
     text: () => new Promise((r) => r(data)),
@@ -22,31 +19,19 @@ describe('resolve', () => {
   })
 
   it('returns JSON urls', async () => {
-    const result = await resolve(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    )
+    const result = await resolve('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
 
-    expect(result).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    )
+    expect(result).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
   })
 
   it('returns YAML urls', async () => {
-    const result = await resolve(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    const result = await resolve('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
 
-    expect(result).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    expect(result).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
 
-    const otherResult = await resolve(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yml',
-    )
+    const otherResult = await resolve('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yml')
 
-    expect(otherResult).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yml',
-    )
+    expect(otherResult).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yml')
   })
 
   it('finds URLs from sandbox URL', async () => {
@@ -56,9 +41,7 @@ describe('resolve', () => {
 
     const otherResult = await resolve('https://sandbox.scalar.com/e/GcxDQ')
 
-    expect(otherResult).toBe(
-      'https://sandbox.scalar.com/files/GcxDQ/openapi.yaml',
-    )
+    expect(otherResult).toBe('https://sandbox.scalar.com/files/GcxDQ/openapi.yaml')
   })
 
   it('finds URL in the CDN example', async () => {
@@ -84,9 +67,7 @@ describe('resolve', () => {
 
     const result = await resolve('https://example.com/reference')
 
-    expect(result).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    expect(result).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
   })
 
   it('works with single quote data attributes', async () => {
@@ -112,9 +93,7 @@ describe('resolve', () => {
 
     const result = await resolve('https://example.com/reference')
 
-    expect(result).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    expect(result).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
   })
 
   it('returns absolute URLs', async () => {
@@ -226,9 +205,7 @@ describe('resolve', () => {
 
     const result = await resolve('https://example.com/reference')
 
-    expect(result).toBe(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml',
-    )
+    expect(result).toBe('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.yaml')
   })
 
   it('finds embedded OpenAPI documents', async () => {
@@ -366,13 +343,9 @@ describe('resolve', () => {
   })
 
   it('transforms GitHub URLs to raw file URLs', async () => {
-    const result = await resolve(
-      'https://github.com/outline/openapi/blob/main/spec3.yml',
-    )
+    const result = await resolve('https://github.com/outline/openapi/blob/main/spec3.yml')
 
-    expect(result).toBe(
-      'https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml',
-    )
+    expect(result).toBe('https://raw.githubusercontent.com/outline/openapi/refs/heads/main/spec3.yml')
   })
 
   it('finds embedded OpenAPI document in script tag (JSON)', async () => {
@@ -536,8 +509,6 @@ info:
 
     const result = await resolve('https://example.com/foo')
 
-    expect(result).toBe(
-      'https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json',
-    )
+    expect(result).toBe('https://raw.githubusercontent.com/Foo/Bar/main/api/foobar.json')
   })
 })

@@ -26,7 +26,8 @@
       "**/.docusaurus/**",
       "examples/nestjs-api-reference-fastify/**",
       "examples/nestjs-api-reference-express/**",
-      "*/storybook-static/*"
+      "*/storybook-static/*",
+      "**/httpsnippet-lite/**"
     ]
   },
   "formatter": {

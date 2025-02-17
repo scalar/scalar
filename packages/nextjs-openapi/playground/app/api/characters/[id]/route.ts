@@ -7,7 +7,7 @@ export type Troothy = boolean
  * @desc Hits up the sampleapis simpsons characters and narrows it down by id
  */
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   {
     params,
   }: {
@@ -21,11 +21,7 @@ export async function GET(
 
   console.log(params)
 
-  if (error)
-    return Response.json(
-      { error: { message: 'There was a validation error' } },
-      { status: 400 },
-    )
+  if (error) return Response.json({ error: { message: 'There was a validation error' } }, { status: 400 })
 
   return NextResponse.json('Sweet success, 200 response')
 }

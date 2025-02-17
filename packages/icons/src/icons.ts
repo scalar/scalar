@@ -1,12 +1,9 @@
 import type { IconDefinition } from '@/types'
 import type { Component } from 'vue'
 
-const iconsImported: Record<string, Component> = import.meta.glob(
-  './icons/*.svg',
-  {
-    eager: true,
-  },
-)
+const iconsImported: Record<string, Component> = import.meta.glob('./icons/*.svg', {
+  eager: true,
+})
 
 function mapLocalIcons(imported: Record<string, Component>) {
   const formatted = Object.entries(imported).map(([filename, rawData]) => {
@@ -27,9 +24,7 @@ function mapLocalIcons(imported: Record<string, Component>) {
 
   const iconDefinitionList = formatted.map((e) => e.icon)
 
-  const iconDataMap = Object.fromEntries<Component>(
-    formatted.map((e) => [e.icon.src, e.rawData]),
-  )
+  const iconDataMap = Object.fromEntries<Component>(formatted.map((e) => [e.icon.src, e.rawData]))
   return {
     iconDefinitionList,
     iconDataMap,
