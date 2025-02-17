@@ -3,7 +3,8 @@ import { watch } from 'vue'
 
 const OLD_PROXY_URL = 'https://api.scalar.com/request-proxy'
 const NEW_PROXY_URL = 'https://proxy.scalar.com'
-const LOCAL_PROXY_URL = 'http://localhost:5051'
+
+// TODO: Move this to zod
 
 /**
  * Warns the user about deprecated configurations in the browser console.

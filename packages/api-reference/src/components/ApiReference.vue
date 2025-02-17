@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { migrateThemeVariables } from '@scalar/themes'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
+import { ApiReferenceConfigurationSchema } from '@scalar/types/packages'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
@@ -28,25 +29,35 @@ watch(
   (isDark) => (isDarkMode.value = !!isDark),
 )
 
+//TODO: Move this to zod
 const customCss = computed(() => {
   if (!props.configuration?.customCss) return undefined
   return migrateThemeVariables(props.configuration?.customCss)
 })
 
 // Set defaults as needed on the provided configuration
-const configuration = computed<ReferenceConfiguration>(() => ({
-  spec: {
-    content: undefined,
-    url: undefined,
-    ...props.configuration?.spec,
-  },
-  proxyUrl: undefined,
-  theme: 'default',
-  showSidebar: true,
-  isEditable: false,
-  ...props.configuration,
-  customCss: customCss.value,
-}))
+// const configuration = computed<ReferenceConfiguration>(() => ({
+//   spec: {
+//     content: undefined,
+//     url: undefined,
+//     ...props.configuration?.spec,
+//   },
+//   proxyUrl: undefined,
+//   theme: 'default',
+//   showSidebar: true,
+//   isEditable: false,
+//   ...props.configuration,
+//   customCss: customCss.value,
+// }))
+
+const configuration = computed<ApiReferenceConfigurationSchema>(() => {
+  const config = ApiReferenceConfigurationSchema.parse(props.configuration)
+
+  return {
+    ...config,
+    customCss: customCss.value,
+  }
+})
 
 if (configuration.value?.metaData) {
   useSeoMeta(configuration.value.metaData)
@@ -76,9 +87,13 @@ useFavicon(favicon)
     :rawSpec="rawSpec"
     @toggleDarkMode="() => toggleColorMode()"
     @updateContent="$emit('updateContent', $event)">
-    <template #footer><slot name="footer" /></template>
+    <template #footer>
+      <slot name="footer" />
+    </template>
     <!-- Expose the content end slot as a slot for the footer -->
-    <template #content-end><slot name="footer" /></template>
+    <template #content-end>
+      <slot name="footer" />
+    </template>
   </Layouts>
 </template>
 <style>

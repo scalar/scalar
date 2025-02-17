@@ -19,33 +19,59 @@ const ThemeIdEnum = z.enum([
 
 /** Valid keys that can be used with CTRL/CMD to open the search modal */
 const SearchHotKeyEnum = z.enum([
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'v',
+  'w',
+  'x',
+  'y',
+  'z',
 ])
 
 /** Supported integration types */
-const IntegrationEnum = z.enum([
-  'adonisjs',
-  'docusaurus',
-  'dotnet',
-  'elysiajs',
-  'express',
-  'fastapi',
-  'fastify',
-  'go',
-  'hono',
-  'html',
-  'laravel',
-  'litestar',
-  'nestjs',
-  'nextjs',
-  'nitro',
-  'nuxt',
-  'platformatic',
-  'react',
-  'rust',
-  'vue'
-]).nullable()
+const IntegrationEnum = z
+  .enum([
+    'adonisjs',
+    'docusaurus',
+    'dotnet',
+    'elysiajs',
+    'express',
+    'fastapi',
+    'fastify',
+    'go',
+    'hono',
+    'html',
+    'laravel',
+    'litestar',
+    'nestjs',
+    'nextjs',
+    'nitro',
+    'nuxt',
+    'platformatic',
+    'react',
+    'rust',
+    'vue',
+  ])
+  .nullable()
 
 /** Configuration for the OpenAPI/Swagger specification */
 const SpecConfigurationSchema = z.object({
@@ -56,21 +82,16 @@ const SpecConfigurationSchema = z.object({
    * Can be a string, object, function returning an object, or null.
    * @remarks It's recommended to pass a URL instead of content.
    */
-  content: z.union([
-    z.string(),
-    z.record(z.any()),
-    z.function().returns(z.record(z.any())),
-    z.null()
-  ]).optional()
+  content: z.union([z.string(), z.record(z.any()), z.function().returns(z.record(z.any())), z.null()]).optional(),
 })
 
 /** Configuration for path-based routing */
 const PathRoutingSchema = z.object({
   /** Base path for the API reference */
-  basePath: z.string()
+  basePath: z.string(),
 })
 
-export const ScalarApiReferenceConfigSchema = z.object({
+export const ApiReferenceConfigurationSchema = z.object({
   /** A string to use one of the color presets */
   theme: ThemeIdEnum.optional(),
   /** The layout to use for the references */
@@ -131,16 +152,16 @@ export const ScalarApiReferenceConfigSchema = z.object({
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
-  hiddenClients: z.union([
-    z.boolean(),
-    z.record(z.union([z.boolean(), z.array(z.string())])),
-    z.array(z.string())
-  ]).optional(),
+  hiddenClients: z
+    .union([z.boolean(), z.record(z.union([z.boolean(), z.array(z.string())])), z.array(z.string())])
+    .optional(),
   /** Determine the HTTP client that's selected by default */
-  defaultHttpClient: z.object({
-    targetKey: z.string(),
-    clientKey: z.string()
-  }).optional(),
+  defaultHttpClient: z
+    .object({
+      targetKey: z.string(),
+      clientKey: z.string(),
+    })
+    .optional(),
   /** Custom CSS to be added to the page */
   customCss: z.string().optional(),
   /** onSpecUpdate is fired on spec/swagger content change */
@@ -167,7 +188,11 @@ export const ScalarApiReferenceConfigSchema = z.object({
    * @returns A string ID used to generate the URL hash
    * @default (model) => slug(model.name)
    */
-  generateModelSlug: z.function().args(z.object({ name: z.string() })).returns(z.string()).optional(),
+  generateModelSlug: z
+    .function()
+    .args(z.object({ name: z.string() }))
+    .returns(z.string())
+    .optional(),
   /**
    * Customize the tag portion of the hash
    * @param tag - The tag object
@@ -181,22 +206,34 @@ export const ScalarApiReferenceConfigSchema = z.object({
    * @returns A string ID used to generate the URL hash
    * @default (operation) => `${operation.method}${operation.path}`
    */
-  generateOperationSlug: z.function().args(z.object({
-    path: z.string(),
-    operationId: z.string().optional(),
-    method: z.string(),
-    summary: z.string().optional()
-  })).returns(z.string()).optional(),
+  generateOperationSlug: z
+    .function()
+    .args(
+      z.object({
+        path: z.string(),
+        operationId: z.string().optional(),
+        method: z.string(),
+        summary: z.string().optional(),
+      }),
+    )
+    .returns(z.string())
+    .optional(),
   /**
    * Customize the webhook portion of the hash
    * @param webhook - The webhook object
    * @returns A string ID used to generate the URL hash
    * @default (webhook) => slug(webhook.name)
    */
-  generateWebhookSlug: z.function().args(z.object({
-    name: z.string(),
-    method: z.string().optional()
-  })).returns(z.string()).optional(),
+  generateWebhookSlug: z
+    .function()
+    .args(
+      z.object({
+        name: z.string(),
+        method: z.string().optional(),
+      }),
+    )
+    .returns(z.string())
+    .optional(),
   /** Callback fired when the reference is fully loaded */
   onLoaded: z.function().optional(),
   /** Base URL for the API server */
@@ -211,24 +248,18 @@ export const ScalarApiReferenceConfigSchema = z.object({
    * Function to sort tags
    * @default 'alpha' for alphabetical sorting
    */
-  tagsSorter: z.union([
-    z.literal('alpha'),
-    z.function().args(z.any(), z.any()).returns(z.number())
-  ]).optional(),
+  tagsSorter: z.union([z.literal('alpha'), z.function().args(z.any(), z.any()).returns(z.number())]).optional(),
   /**
    * Function to sort operations
    * @default 'alpha' for alphabetical sorting
    */
-  operationsSorter: z.union([
-    z.literal('alpha'),
-    z.literal('method'),
-    z.function().args(z.any(), z.any()).returns(z.number())
-  ]).optional(),
+  operationsSorter: z
+    .union([z.literal('alpha'), z.literal('method'), z.function().args(z.any(), z.any()).returns(z.number())])
+    .optional(),
   /** Integration type identifier */
   _integration: IntegrationEnum.optional(),
   /** Whether to hide the client button */
-  hideClientButton: z.boolean().optional()
+  hideClientButton: z.boolean().optional(),
 })
 
-export type ScalarApiReferenceConfig = z.infer<typeof ScalarApiReferenceConfigSchema>
-
+export type ScalarApiReferenceConfig = z.infer<typeof ApiReferenceConfigurationSchema>
