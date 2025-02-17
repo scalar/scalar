@@ -2,4 +2,6 @@
 set -e
 
 biome lint --diagnostic-level=error
-pnpm eslint '**/*.vue'
+if find . -name "*.vue" -type f | grep -q .; then
+    pnpm eslint '**/*.vue'
+fi
