@@ -11,6 +11,11 @@ updates:
       interval: 'weekly'
     # This will disable updates, but still create PRs for security updates.
     open-pull-requests-limit: 0
+    # Those mostly have a bigger impact:
+    ignore:
+      - dependency-name: 'vite'
+      - dependency-name: 'vitest'
+      - dependency-name: 'rollup'
   - package-ecosystem: 'nuget'
     directory: '/integrations/aspnetcore'
     schedule:
