@@ -11,7 +11,8 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
       type: 'array',
       items: example.length > 0 ? inferSchemaFromExample(example[0]) : {},
     }
-  } else if (typeof example === 'object' && example !== null) {
+  }
+  if (typeof example === 'object' && example !== null) {
     const properties: { [key: string]: OpenAPIV3_1.SchemaObject } = {}
     for (const [key, value] of Object.entries(example)) {
       properties[key] = inferSchemaFromExample(value)
@@ -20,10 +21,9 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
       type: 'object',
       properties,
     }
-  } else {
-    return {
-      type: typeof example as OpenAPIV3_1.NonArraySchemaObjectType,
-    }
+  }
+  return {
+    type: typeof example as OpenAPIV3_1.NonArraySchemaObjectType,
   }
 }
 
@@ -36,9 +36,11 @@ export function inferSchemaFromExample(example: any): OpenAPIV3_1.SchemaObject {
 export function inferSchemaType(value: any): OpenAPIV3_1.SchemaObject {
   if (typeof value === 'number') {
     return { type: Number.isInteger(value) ? 'integer' : 'number' }
-  } else if (typeof value === 'boolean') {
+  }
+  if (typeof value === 'boolean') {
     return { type: 'boolean' }
-  } else if (typeof value === 'string') {
+  }
+  if (typeof value === 'string') {
     const num = Number(value)
     if (!isNaN(num)) {
       return { type: Number.isInteger(num) ? 'integer' : 'number' }

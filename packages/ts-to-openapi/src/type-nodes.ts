@@ -44,27 +44,27 @@ export const getSchemaFromTypeNode = (
       type: 'string',
     }
   // Number
-  else if (SyntaxKind.NumberKeyword === typeNode.kind)
+  if (SyntaxKind.NumberKeyword === typeNode.kind)
     return {
       type: 'number',
     }
   // Boolean
-  else if (SyntaxKind.BooleanKeyword === typeNode.kind)
+  if (SyntaxKind.BooleanKeyword === typeNode.kind)
     return {
       type: 'boolean',
     }
   // BigInt
-  else if (SyntaxKind.BigIntKeyword === typeNode.kind)
+  if (SyntaxKind.BigIntKeyword === typeNode.kind)
     return {
       type: 'integer',
     }
   // Object
-  else if (SyntaxKind.ObjectKeyword === typeNode.kind)
+  if (SyntaxKind.ObjectKeyword === typeNode.kind)
     return {
       type: 'object',
     }
   // Any - can be any type
-  else if (SyntaxKind.AnyKeyword === typeNode.kind)
+  if (SyntaxKind.AnyKeyword === typeNode.kind)
     return {
       anyOf: [
         { type: 'string' },
@@ -76,7 +76,7 @@ export const getSchemaFromTypeNode = (
       ],
     }
   // Literal
-  else if (isLiteralTypeNode(typeNode)) {
+  if (isLiteralTypeNode(typeNode)) {
     // String
     if (isStringLiteral(typeNode.literal))
       return {
@@ -84,26 +84,23 @@ export const getSchemaFromTypeNode = (
         example: typeNode.literal.text,
       }
     // Number
-    else if (isNumericLiteral(typeNode.literal))
+    if (isNumericLiteral(typeNode.literal))
       return {
         type: 'number',
         example: Number(typeNode.literal.text),
       }
     // Boolean
-    else if (
-      SyntaxKind.TrueKeyword === typeNode.literal.kind ||
-      SyntaxKind.FalseKeyword === typeNode.literal.kind
-    )
+    if (SyntaxKind.TrueKeyword === typeNode.literal.kind || SyntaxKind.FalseKeyword === typeNode.literal.kind)
       return {
         type: 'boolean',
         example: SyntaxKind.TrueKeyword === typeNode.literal.kind,
       }
-    else if (SyntaxKind.NullKeyword === typeNode.literal.kind)
+    if (SyntaxKind.NullKeyword === typeNode.literal.kind)
       return {
         type: 'null',
         example: null,
       }
-    else if (isBigIntLiteral(typeNode.literal))
+    if (isBigIntLiteral(typeNode.literal))
       return {
         type: 'integer',
         example: typeNode.literal.text,
@@ -117,11 +114,7 @@ export const getSchemaFromTypeNode = (
   else if (isArrayTypeNode(typeNode)) {
     return {
       type: 'array',
-      items: getSchemaFromTypeNode(
-        typeNode.elementType,
-        program,
-        fileNameResolver,
-      ),
+      items: getSchemaFromTypeNode(typeNode.elementType, program, fileNameResolver),
     }
   }
   // Object
@@ -130,19 +123,11 @@ export const getSchemaFromTypeNode = (
       type: 'object',
       properties: typeNode.members.reduce((prev, member) => {
         // Regular properties
-        if (
-          isPropertySignature(member) &&
-          member.type &&
-          isIdentifier(member.name)
-        ) {
+        if (isPropertySignature(member) && member.type && isIdentifier(member.name)) {
           // console.log(typeNode)
           return {
             ...prev,
-            [member.name?.escapedText ?? 'unkownKey']: getSchemaFromTypeNode(
-              member.type,
-              program,
-              fileNameResolver,
-            ),
+            [member.name?.escapedText ?? 'unkownKey']: getSchemaFromTypeNode(member.type, program, fileNameResolver),
           }
         }
         // Index Signatures
@@ -151,12 +136,12 @@ export const getSchemaFromTypeNode = (
         //     type: 'string',
         //     description: `TODO this type is not handled yet: ${SyntaxKind[member.kind]}`,
         //   }
-        else
-          return {
-            ...prev,
-            type: 'string',
-            description: `TODO this type is not handled yet: ${SyntaxKind[member.kind]}`,
-          }
+
+        return {
+          ...prev,
+          type: 'string',
+          description: `TODO this type is not handled yet: ${SyntaxKind[member.kind]}`,
+        }
       }, {}),
     }
   }
@@ -174,8 +159,7 @@ export const getSchemaFromTypeNode = (
     // We need to find a way to check for enum vs oneOf
     typeNode.types.forEach((type) => {
       const schema = getSchemaFromTypeNode(type, program, fileNameResolver)
-      if (isLiteralTypeNode(type))
-        literals[schema.type as Literals].push(schema)
+      if (isLiteralTypeNode(type)) literals[schema.type as Literals].push(schema)
       anyOf.push(schema)
     })
 
@@ -186,29 +170,27 @@ export const getSchemaFromTypeNode = (
         enum: literals.string.map((literal) => literal.example),
       }
     // All numbers
-    else if (literals.number.length === length)
+    if (literals.number.length === length)
       return {
         type: 'number',
         enum: literals.number.map((literal) => literal.example),
       }
     // All booleans
-    else if (literals.boolean.length === length)
+    if (literals.boolean.length === length)
       return {
         type: 'boolean',
         enum: literals.boolean.map((literal) => literal.example),
       }
     // Mixed anyOf
-    else
-      return {
-        anyOf,
-      }
+
+    return {
+      anyOf,
+    }
   }
   // Intersection
   else if (isIntersectionTypeNode(typeNode))
     return {
-      allOf: typeNode.types.map((type) =>
-        getSchemaFromTypeNode(type, program, fileNameResolver),
-      ),
+      allOf: typeNode.types.map((type) => getSchemaFromTypeNode(type, program, fileNameResolver)),
     }
   // Type reference
   else if (isTypeReferenceNode(typeNode) && isIdentifier(typeNode.typeName)) {
@@ -220,14 +202,10 @@ export const getSchemaFromTypeNode = (
       return {
         type: 'array',
         items: typeNode.typeArguments?.length
-          ? getSchemaFromTypeNode(
-              typeNode.typeArguments?.[0],
-              program,
-              fileNameResolver,
-            )
+          ? getSchemaFromTypeNode(typeNode.typeArguments?.[0], program, fileNameResolver)
           : {},
       }
-    else if (symbol) {
+    if (symbol) {
       const name = symbol.escapedName
 
       // Get declarations from the symbol
@@ -237,40 +215,22 @@ export const getSchemaFromTypeNode = (
         for (const declaration of declarations) {
           // Reference in same file aka type alias
           if (isTypeAliasDeclaration(declaration))
-            return getSchemaFromTypeNode(
-              declaration.type,
-              program,
-              fileNameResolver,
-            )
+            return getSchemaFromTypeNode(declaration.type, program, fileNameResolver)
           // For a reference in another file
-          else if (isImportSpecifier(declaration)) {
+          if (isImportSpecifier(declaration)) {
             const declarationSourceFile = declaration.getSourceFile()
-            const moduleSpecifier =
-              declaration.parent.parent.parent.moduleSpecifier
+            const moduleSpecifier = declaration.parent.parent.parent.moduleSpecifier
 
             // Use external fileNameResolver
-            if (
-              isSourceFile(declarationSourceFile) &&
-              isStringLiteral(moduleSpecifier)
-            ) {
-              const targetPath = fileNameResolver(
-                declarationSourceFile.fileName,
-                moduleSpecifier.text,
-              )
+            if (isSourceFile(declarationSourceFile) && isStringLiteral(moduleSpecifier)) {
+              const targetPath = fileNameResolver(declarationSourceFile.fileName, moduleSpecifier.text)
               const targetSourceFile = program.getSourceFile(targetPath)
 
               // Keeping it ultra basic for now and just checking top level typeAliases
               if (targetSourceFile && isSourceFile(targetSourceFile))
                 for (const statement of targetSourceFile.statements)
-                  if (
-                    isTypeAliasDeclaration(statement) &&
-                    statement.name.escapedText === name
-                  )
-                    return getSchemaFromTypeNode(
-                      statement.type,
-                      program,
-                      fileNameResolver,
-                    )
+                  if (isTypeAliasDeclaration(statement) && statement.name.escapedText === name)
+                    return getSchemaFromTypeNode(statement.type, program, fileNameResolver)
             }
           }
         }

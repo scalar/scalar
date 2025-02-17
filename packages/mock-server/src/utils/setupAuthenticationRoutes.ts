@@ -1,7 +1,8 @@
-import { respondWithAuthorizePage } from '@/routes/respondWithAuthorizePage'
-import { respondWithToken } from '@/routes/respondWithToken'
 import type { OpenAPI, OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { Hono } from 'hono'
+
+import { respondWithAuthorizePage } from '@/routes/respondWithAuthorizePage'
+import { respondWithToken } from '@/routes/respondWithToken'
 
 import { getOpenAuthTokenUrls, getPathFromUrl } from './getOpenAuthTokenUrls'
 

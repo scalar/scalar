@@ -5,10 +5,7 @@ import type { ColorMode, DarkLightMode, UseColorModeOptions } from './types'
 
 const colorMode = ref<ColorMode>('dark')
 
-const colorModeSchema = z
-  .enum(['dark', 'light', 'system'])
-  .optional()
-  .catch(undefined)
+const colorModeSchema = z.enum(['dark', 'light', 'system']).optional().catch(undefined)
 
 /**
  * A composable hook that provides color mode (dark/light) functionality.
@@ -38,17 +35,12 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
     if (typeof window === 'undefined') return 'light'
     if (typeof window?.matchMedia !== 'function') return 'dark'
 
-    return window?.matchMedia('(prefers-color-scheme: dark)')?.matches
-      ? 'dark'
-      : 'light'
+    return window?.matchMedia('(prefers-color-scheme: dark)')?.matches ? 'dark' : 'light'
   }
 
   /** Writable computed ref for dark/light mode with system preference applied */
   const darkLightMode = computed<DarkLightMode>({
-    get: () =>
-      colorMode.value === 'system'
-        ? getSystemModePreference()
-        : colorMode.value,
+    get: () => (colorMode.value === 'system' ? getSystemModePreference() : colorMode.value),
     set: setColorMode,
   })
 
@@ -62,9 +54,7 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
   function applyColorMode(mode: ColorMode): void {
     if (typeof document === 'undefined' || typeof window === 'undefined') return
 
-    const classMode =
-      overrideColorMode ??
-      (mode === 'system' ? getSystemModePreference() : mode)
+    const classMode = overrideColorMode ?? (mode === 'system' ? getSystemModePreference() : mode)
 
     if (classMode === 'dark') {
       document.body.classList.add('dark-mode')
@@ -77,9 +67,7 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   // Priority of initial values is: LocalStorage -> App Config -> initial / Fallback
   const savedColorMode = colorModeSchema.parse(
-    typeof window !== 'undefined'
-      ? window?.localStorage?.getItem('colorMode')
-      : 'system',
+    typeof window !== 'undefined' ? window?.localStorage?.getItem('colorMode') : 'system',
   )
   colorMode.value = savedColorMode ?? initialColorMode
 
@@ -88,13 +76,9 @@ export function useColorMode(opts: UseColorModeOptions = {}) {
 
   // Listen to system preference changes
   onMounted(() => {
-    if (
-      typeof window !== 'undefined' &&
-      typeof window?.matchMedia === 'function'
-    ) {
+    if (typeof window !== 'undefined' && typeof window?.matchMedia === 'function') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-      const handleChange = () =>
-        colorMode.value === 'system' && applyColorMode('system')
+      const handleChange = () => colorMode.value === 'system' && applyColorMode('system')
 
       mediaQuery.addEventListener('change', handleChange)
 

@@ -285,9 +285,7 @@ describe('shellCurl', () => {
       url: 'https://example.com/path with spaces/[brackets]',
     })
 
-    expect(result).toBe(
-      `curl 'https://example.com/path with spaces/[brackets]'`,
-    )
+    expect(result).toBe(`curl 'https://example.com/path with spaces/[brackets]'`)
   })
 
   it('handles special characters in query parameters', () => {
@@ -305,9 +303,7 @@ describe('shellCurl', () => {
       ],
     })
 
-    expect(result).toBe(
-      `curl 'https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()'`,
-    )
+    expect(result).toBe(`curl 'https://example.com?q=hello%20world%20%26%20more&special=!%40%23%24%25%5E%26*()'`)
   })
 
   it('handles empty URL', () => {

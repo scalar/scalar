@@ -2,10 +2,10 @@
 import { computed } from 'vue'
 
 import {
-  type DraggingItem,
-  type HoveredItem,
   draggingItem,
   hoveredItem,
+  type DraggingItem,
+  type HoveredItem,
 } from './store'
 import { throttle } from './throttle'
 

@@ -1,15 +1,6 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
-import {
-  BrowserWindow,
-  type IpcMainInvokeEvent,
-  Menu,
-  app,
-  dialog,
-  ipcMain,
-  session,
-  shell,
-} from 'electron'
+import { BrowserWindow, type IpcMainInvokeEvent, Menu, app, dialog, ipcMain, session, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -48,9 +39,7 @@ todesktop.init({
 // Register app as the default for `scalar://` links
 if (process.defaultApp) {
   if (process.argv.length >= 2) {
-    app.setAsDefaultProtocolClient('scalar', process.execPath, [
-      path.resolve(process.argv[1]),
-    ])
+    app.setAsDefaultProtocolClient('scalar', process.execPath, [path.resolve(process.argv[1])])
   }
 } else {
   app.setAsDefaultProtocolClient('scalar')
@@ -95,34 +84,28 @@ function createWindow(): void {
   })
 
   // Disable CORS
-  mainWindow.webContents.session.webRequest.onBeforeSendHeaders(
-    (details, callback) => {
-      const { requestHeaders } = details
+  mainWindow.webContents.session.webRequest.onBeforeSendHeaders((details, callback) => {
+    const { requestHeaders } = details
 
-      upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
-      callback({ requestHeaders })
-    },
-  )
+    upsertKeyValue(requestHeaders, 'Access-Control-Allow-Origin', ['*'])
+    callback({ requestHeaders })
+  })
 
-  mainWindow.webContents.session.webRequest.onHeadersReceived(
-    (details, callback) => {
-      const { responseHeaders } = details
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    const { responseHeaders } = details
 
-      // If headers have already been modified, skip
-      if (!responseHeaders?.[MODIFIED_HEADERS_KEY]) {
-        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*'])
-        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Methods', [
-          'POST, GET, OPTIONS, PUT, DELETE, PATCH',
-        ])
-        upsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*'])
-        upsertKeyValue(responseHeaders, 'Access-Control-Expose-Headers', ['*'])
-      }
+    // If headers have already been modified, skip
+    if (!responseHeaders?.[MODIFIED_HEADERS_KEY]) {
+      upsertKeyValue(responseHeaders, 'Access-Control-Allow-Origin', ['*'])
+      upsertKeyValue(responseHeaders, 'Access-Control-Allow-Methods', ['POST, GET, OPTIONS, PUT, DELETE, PATCH'])
+      upsertKeyValue(responseHeaders, 'Access-Control-Allow-Headers', ['*'])
+      upsertKeyValue(responseHeaders, 'Access-Control-Expose-Headers', ['*'])
+    }
 
-      callback({
-        responseHeaders,
-      })
-    },
-  )
+    callback({
+      responseHeaders,
+    })
+  })
 
   // DevTools
   if (is.dev) {
@@ -154,18 +137,15 @@ function createWindow(): void {
                   console.log('Checking for updates…')
 
                   try {
-                    const result =
-                      await todesktop.autoUpdater?.checkForUpdates()
+                    const result = await todesktop.autoUpdater?.checkForUpdates()
 
                     if (result?.updateInfo) {
-                      console.log(
-                        'Update Available:',
-                        result.updateInfo.version,
-                      )
+                      console.log('Update Available:', result.updateInfo.version)
                       const { response } = await dialog.showMessageBox({
                         type: 'info',
                         message: 'Update available',
-                        detail: `A new version of Scalar is available. \nYou can restart and update your application now or doing it later.`,
+                        detail:
+                          'A new version of Scalar is available. \nYou can restart and update your application now or doing it later.',
                         buttons: ['Restart and Install', 'Later'],
                         defaultId: 0,
                       })
@@ -178,7 +158,8 @@ function createWindow(): void {
                       const { response } = await dialog.showMessageBox({
                         type: 'info',
                         message: 'No Update Available',
-                        detail: `You are already using the latest version of Scalar. \n\nExperiencing any issues? \nTry reloading your tabs and check again. If an issue persists, please submit a ticket.`,
+                        detail:
+                          'You are already using the latest version of Scalar. \n\nExperiencing any issues? \nTry reloading your tabs and check again. If an issue persists, please submit a ticket.',
                         buttons: ['Ok', 'Submit Ticket', 'Reload All Tabs'],
                         defaultId: 0,
                       })
@@ -188,9 +169,7 @@ function createWindow(): void {
                           window.reload()
                         })
                       } else if (response === 1) {
-                        shell.openExternal(
-                          'https://github.com/scalar/scalar/issues/new?template=BUG-REPORT.yml',
-                        )
+                        shell.openExternal('https://github.com/scalar/scalar/issues/new?template=BUG-REPORT.yml')
                       }
                     }
                   } catch (e) {
@@ -284,12 +263,7 @@ function createWindow(): void {
         { role: 'minimize' },
         { role: 'zoom' },
         ...(isMac
-          ? [
-              { type: 'separator' },
-              { role: 'front' },
-              { type: 'separator' },
-              { role: 'window' },
-            ]
+          ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
           : [{ role: 'close' }]),
       ],
     },
@@ -342,7 +316,7 @@ app.whenReady().then(() => {
 
   createWindow()
 
-  app.on('activate', function () {
+  app.on('activate', () => {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
@@ -358,15 +332,13 @@ app.whenReady().then(() => {
   })
 
   // Block all permission requests (but for notifications)
-  session
-    .fromPartition('main')
-    .setPermissionRequestHandler((_, permission, callback) => {
-      if (permission === 'notifications') {
-        callback(true)
-      } else {
-        callback(false)
-      }
-    })
+  session.fromPartition('main').setPermissionRequestHandler((_, permission, callback) => {
+    if (permission === 'notifications') {
+      callback(true)
+    } else {
+      callback(false)
+    }
+  })
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -426,9 +398,7 @@ async function handleFileOpen() {
   console.info('[handleFileOpen] Open file dialog …')
 
   const { canceled, filePaths } = await dialog.showOpenDialog({
-    filters: [
-      { name: 'OpenAPI Documents', extensions: ['*.yml', '*.yaml', '*.json'] },
-    ],
+    filters: [{ name: 'OpenAPI Documents', extensions: ['*.yml', '*.yaml', '*.json'] }],
   })
 
   if (!canceled) {
@@ -441,10 +411,7 @@ async function handleFileOpen() {
 /**
  * Read the file content
  */
-async function handleReadFile(
-  _: IpcMainInvokeEvent | undefined,
-  filePath: string,
-) {
+async function handleReadFile(_: IpcMainInvokeEvent | undefined, filePath: string) {
   if (filePath) {
     console.info('[handleReadFile] Reading', filePath, '…')
 

@@ -76,8 +76,6 @@ describe('useCodeMirror', () => {
       placeholder: 'Type something...',
     })
 
-    expect(
-      codeMirror.value?.dom.querySelector('.cm-placeholder'),
-    ).not.toBeNull()
+    expect(codeMirror.value?.dom.querySelector('.cm-placeholder')).not.toBeNull()
   })
 })

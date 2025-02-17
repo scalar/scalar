@@ -4,8 +4,7 @@ import { getContentOfScriptTag } from './resolve'
 
 describe('getContentOfScriptTag', () => {
   it('returns the content of the script tag', () => {
-    const html =
-      '<script id="api-reference">console.log("Hello, world!");</script>'
+    const html = '<script id="api-reference">console.log("Hello, world!");</script>'
     expect(getContentOfScriptTag(html)).toBe('console.log("Hello, world!");')
   })
 

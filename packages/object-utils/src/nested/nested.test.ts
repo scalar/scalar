@@ -75,8 +75,7 @@ describe('Set a nested value', () => {
     const copy = clone(request)
 
     setNestedValue(baseObj, 'parameters.0.schema.examples.0', 122)
-    if (copy.parameters[0]?.schema?.examples?.[0])
-      copy.parameters[0].schema.examples[0] = 122
+    if (copy.parameters[0]?.schema?.examples?.[0]) copy.parameters[0].schema.examples[0] = 122
 
     expect(baseObj).toEqual(copy)
   })

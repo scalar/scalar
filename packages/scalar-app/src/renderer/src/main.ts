@@ -7,12 +7,7 @@ import { load, trackEvent, trackPageview } from 'fathom-client'
 // Initialize
 const router = createWebHashRouter()
 
-const client = await createApiClientApp(
-  document.getElementById('scalar-client'),
-  {},
-  true,
-  router,
-)
+const client = await createApiClientApp(document.getElementById('scalar-client'), {}, true, router)
 
 // Anonymous tracking
 if (window.electron) {
@@ -28,13 +23,7 @@ if (window.electron) {
   const { platform } = window.electron.process
 
   const os =
-    platform === 'darwin'
-      ? 'mac'
-      : platform === 'win32'
-        ? 'windows'
-        : platform === 'linux'
-          ? 'linux'
-          : 'unknown'
+    platform === 'darwin' ? 'mac' : platform === 'win32' ? 'windows' : platform === 'linux' ? 'linux' : 'unknown'
 
   // Track the launch of the app
   trackEvent(`launch: ${os}`)
@@ -52,20 +41,15 @@ if (window.electron) {
   })
 
   // Set the platform class on the client app
-  document
-    .getElementById('scalar-client-app')
-    ?.classList.add('app-platform-desktop', `app-platform-${os}`)
+  document.getElementById('scalar-client-app')?.classList.add('app-platform-desktop', `app-platform-${os}`)
 }
 
 // Open… menu
-window.electron.ipcRenderer?.on(
-  'importFile',
-  function (_: IpcRendererEvent, fileContent: string) {
-    if (fileContent) {
-      client.store.importSpecFile(fileContent, 'default')
-    }
-  },
-)
+window.electron.ipcRenderer?.on('importFile', (_: IpcRendererEvent, fileContent: string) => {
+  if (fileContent) {
+    client.store.importSpecFile(fileContent, 'default')
+  }
+})
 
 // Drag and drop
 document.addEventListener('drop', drop)

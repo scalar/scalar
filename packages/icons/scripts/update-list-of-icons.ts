@@ -25,10 +25,7 @@ const table = `${tableHeader}\n${tableRows}`
 console.log(table)
 
 // Update the README.md
-const readmePath = path.join(
-  new URL(import.meta.url).pathname,
-  '../../README.md',
-)
+const readmePath = path.join(new URL(import.meta.url).pathname, '../../README.md')
 const readme = fs.readFileSync(readmePath, 'utf8')
 
 const startMarker = '<!-- list-of-available-icons -->'

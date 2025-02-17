@@ -171,6 +171,6 @@ const PORT = Number(process.env.PORT) || 5053
 const HOST = process.env.HOST || '0.0.0.0'
 
 // Start the server
-fastify.listen({ port: PORT, host: HOST }, function (_, address) {
+fastify.listen({ port: PORT, host: HOST }, (_, address) => {
   console.log(`⚡️ Fastify Plugin running on ${address}`)
 })

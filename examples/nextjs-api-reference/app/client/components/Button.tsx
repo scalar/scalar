@@ -1,7 +1,6 @@
 'use client'
 
 import { useApiClientModal } from '@scalar/api-client-react'
-import React from 'react'
 
 export const Button = () => {
   const client = useApiClientModal()

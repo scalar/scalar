@@ -12,11 +12,7 @@ describe('Assign mutation records', () => {
     }
   }
   const state = {
-    storage: [
-      createMicroStore('name1'),
-      createMicroStore('name2'),
-      createMicroStore('name3'),
-    ],
+    storage: [createMicroStore('name1'), createMicroStore('name2'), createMicroStore('name3')],
 
     param1: 'Some param',
     param2: 2000,
@@ -144,53 +140,45 @@ describe('Handles history rolling', () => {
     }
   }
   const state = {
-    storage: [
-      createMicroStore('name1'),
-      createMicroStore('name2'),
-      createMicroStore('name3'),
-    ],
+    storage: [createMicroStore('name1'), createMicroStore('name2'), createMicroStore('name3')],
 
     param1: 'Some param',
     param2: 2000,
   }
 
   // TODO: This test fails way too often, there seems to be a race condition.
-  it.skip(
-    'Rolls history back to initial then forward to modified state',
-    { retry: 3 },
-    () => {
-      // Modify n times then insure the state matched after n rollbacks
-      const originalState = clone(state)
+  it.skip('Rolls history back to initial then forward to modified state', { retry: 3 }, () => {
+    // Modify n times then insure the state matched after n rollbacks
+    const originalState = clone(state)
 
-      const mutator = new Mutation(state)
+    const mutator = new Mutation(state)
 
-      mutator.mutate('param1', '3000')
-      mutator.mutate('storage.0.name', 'Havi')
-      mutator.mutate('storage.1.name', 'Dave')
-      mutator.mutate('storage.2.name', 'Tammy')
-      mutator.mutate('storage.0.id', 30)
-      mutator.mutate('storage.1.id', 50)
-      mutator.mutate('storage.2.id', 70)
+    mutator.mutate('param1', '3000')
+    mutator.mutate('storage.0.name', 'Havi')
+    mutator.mutate('storage.1.name', 'Dave')
+    mutator.mutate('storage.2.name', 'Tammy')
+    mutator.mutate('storage.0.id', 30)
+    mutator.mutate('storage.1.id', 50)
+    mutator.mutate('storage.2.id', 70)
 
-      const finalState = clone(state)
+    const finalState = clone(state)
 
-      const undoNumber = 10 // Overshoot number of mutation to handle array edges
-      for (let i = 0; i < undoNumber; i++) {
-        mutator.undo()
-        if (i < 6) {
-          expect(state).not.toEqual(originalState)
-        } else {
-          expect(state).toEqual(originalState)
-        }
+    const undoNumber = 10 // Overshoot number of mutation to handle array edges
+    for (let i = 0; i < undoNumber; i++) {
+      mutator.undo()
+      if (i < 6) {
+        expect(state).not.toEqual(originalState)
+      } else {
+        expect(state).toEqual(originalState)
       }
-      for (let i = 0; i < undoNumber; i++) {
-        mutator.redo()
-        if (i < 6) {
-          expect(state).not.toEqual(finalState)
-        } else {
-          expect(state).toEqual(finalState)
-        }
+    }
+    for (let i = 0; i < undoNumber; i++) {
+      mutator.redo()
+      if (i < 6) {
+        expect(state).not.toEqual(finalState)
+      } else {
+        expect(state).toEqual(finalState)
       }
-    },
-  )
+    }
+  })
 })

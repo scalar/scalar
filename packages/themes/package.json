@@ -21,8 +21,10 @@
   },
   "scripts": {
     "build": "vite build && pnpm types:build && tsc-alias -p tsconfig.build.json",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "types:build": "vue-tsc -p tsconfig.build.json",
     "types:check": "vue-tsc --noEmit --skipLibCheck --composite false"
   },

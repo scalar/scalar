@@ -12,14 +12,13 @@ function processItems(items: (Item | ItemGroup)[], domains: Set<string>) {
     } else if ('request' in item) {
       const request = item.request
       if (typeof request !== 'string') {
-        const url =
-          typeof request.url === 'string' ? request.url : request.url?.raw
+        const url = typeof request.url === 'string' ? request.url : request.url?.raw
 
         if (url) {
           try {
             // Extract domain from URL
             const urlMatch = url.match(/^(?:https?:\/\/)?([^/?#]+)/i)
-            if (urlMatch && urlMatch[1]) {
+            if (urlMatch?.[1]) {
               // Ensure we have the protocol
               const serverUrl = urlMatch[1].startsWith('http')
                 ? urlMatch[1].replace(/\/$/, '')
@@ -38,9 +37,7 @@ function processItems(items: (Item | ItemGroup)[], domains: Set<string>) {
 /**
  * Parses a Postman collection to extract unique server URLs.
  */
-export function parseServers(
-  postmanCollection: PostmanCollection,
-): OpenAPIV3_1.ServerObject[] {
+export function parseServers(postmanCollection: PostmanCollection): OpenAPIV3_1.ServerObject[] {
   const domains = new Set<string>()
 
   if (postmanCollection.item && Array.isArray(postmanCollection.item)) {

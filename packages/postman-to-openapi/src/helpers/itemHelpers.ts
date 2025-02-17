@@ -6,21 +6,9 @@ import { parseMdTable } from './md-utils'
 import { extractParameters } from './parameterHelpers'
 import { extractRequestBody } from './requestBodyHelpers'
 import { extractResponses } from './responseHelpers'
-import {
-  extractPathFromUrl,
-  extractPathParameterNames,
-  normalizePath,
-} from './urlHelpers'
+import { extractPathFromUrl, extractPathParameterNames, normalizePath } from './urlHelpers'
 
-type HttpMethods =
-  | 'get'
-  | 'put'
-  | 'post'
-  | 'delete'
-  | 'options'
-  | 'head'
-  | 'patch'
-  | 'trace'
+type HttpMethods = 'get' | 'put' | 'post' | 'delete' | 'options' | 'head' | 'patch' | 'trace'
 
 /**
  * Processes a Postman collection item or item group and returns
@@ -42,11 +30,7 @@ export function processItem(
   if ('item' in item && Array.isArray(item.item)) {
     const newParentTags = item.name ? [...parentTags, item.name] : parentTags
     item.item.forEach((childItem) => {
-      const childResult = processItem(
-        childItem,
-        newParentTags,
-        `${parentPath}/${item.name || ''}`,
-      )
+      const childResult = processItem(childItem, newParentTags, `${parentPath}/${item.name || ''}`)
       // Merge child paths and components
       for (const [pathKey, pathItem] of Object.entries(childResult.paths)) {
         if (!paths[pathKey]) {
@@ -75,16 +59,10 @@ export function processItem(
   }
 
   const { request, name, response } = item
-  const method = (
-    typeof request === 'string' ? 'get' : request.method || 'get'
-  ).toLowerCase() as HttpMethods
+  const method = (typeof request === 'string' ? 'get' : request.method || 'get').toLowerCase() as HttpMethods
 
   const path = extractPathFromUrl(
-    typeof request === 'string'
-      ? request
-      : typeof request.url === 'string'
-        ? request.url
-        : (request.url?.raw ?? ''),
+    typeof request === 'string' ? request : typeof request.url === 'string' ? request.url : (request.url?.raw ?? ''),
   )
 
   // Normalize path parameters from ':param' to '{param}'
@@ -118,8 +96,7 @@ export function processItem(
 
   // Parse parameters from the description's Markdown table
   if (operationObject.description) {
-    const { descriptionWithoutTable, parametersFromTable } =
-      parseParametersFromDescription(operationObject.description)
+    const { descriptionWithoutTable, parametersFromTable } = parseParametersFromDescription(operationObject.description)
     operationObject.description = descriptionWithoutTable.trim()
 
     // Extract parameters from the request (query, path, header)
@@ -168,11 +145,7 @@ export function processItem(
     operationObject.security.push(...security)
   }
 
-  if (
-    ['post', 'put', 'patch'].includes(method) &&
-    typeof request !== 'string' &&
-    request.body
-  ) {
+  if (['post', 'put', 'patch'].includes(method) && typeof request !== 'string' && request.body) {
     operationObject.requestBody = extractRequestBody(request.body)
   }
 
@@ -224,27 +197,25 @@ function parseParametersFromDescription(description: string): {
 
   const tableMarkdown = tableLines.join('\n')
   const parsedTable = parseMdTable(tableMarkdown)
-  const parametersFromTable = Object.values(parsedTable).map(
-    (paramData: any) => {
-      const paramIn = paramData.object as 'query' | 'header' | 'path'
+  const parametersFromTable = Object.values(parsedTable).map((paramData: any) => {
+    const paramIn = paramData.object as 'query' | 'header' | 'path'
 
-      const param: OpenAPIV3_1.ParameterObject = {
-        name: paramData.name,
-        in: paramIn,
-        description: paramData.description,
-        required: paramData.required === 'true',
-        schema: {
-          type: paramData.type,
-        },
-      }
+    const param: OpenAPIV3_1.ParameterObject = {
+      name: paramData.name,
+      in: paramIn,
+      description: paramData.description,
+      required: paramData.required === 'true',
+      schema: {
+        type: paramData.type,
+      },
+    }
 
-      if (paramData.example) {
-        param.example = paramData.example
-      }
+    if (paramData.example) {
+      param.example = paramData.example
+    }
 
-      return param
-    },
-  )
+    return param
+  })
 
   const descriptionWithoutTable = descriptionLines.join('\n')
   return { descriptionWithoutTable, parametersFromTable }

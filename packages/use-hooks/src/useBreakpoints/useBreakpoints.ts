@@ -13,20 +13,14 @@ export function useBreakpoints() {
   const screens = preset.theme.screens
 
   const mediaQueries = Object.fromEntries(
-    Object.entries(screens).map(([breakpoint, value]) => [
-      breakpoint,
-      useMediaQuery(`(min-width: ${value})`),
-    ]),
+    Object.entries(screens).map(([breakpoint, value]) => [breakpoint, useMediaQuery(`(min-width: ${value})`)]),
   ) as Record<Screen, Ref<boolean>>
 
   // We make the breakpoints a computed object so that we can use them in templates as `breakpoints.x` instead of `breakpoints.x.value`
   const breakpoints = computed(
     () =>
       Object.fromEntries(
-        Object.entries(mediaQueries).map(([breakpoint, queryRef]) => [
-          breakpoint,
-          unref(queryRef),
-        ]),
+        Object.entries(mediaQueries).map(([breakpoint, queryRef]) => [breakpoint, unref(queryRef)]),
       ) as Record<Screen, boolean>,
   )
 

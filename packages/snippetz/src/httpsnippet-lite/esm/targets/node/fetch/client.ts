@@ -58,7 +58,7 @@ export const fetch = {
           reqOpts.body = JSON.stringify(postData.jsonObj)
         }
         break
-      case 'multipart/form-data':
+      case 'multipart/form-data': {
         if (!postData.params) {
           break
         }
@@ -84,6 +84,7 @@ export const fetch = {
         })
         blank()
         break
+      }
       default:
         if (postData === null || postData === void 0 ? void 0 : postData.text) {
           reqOpts.body = postData.text
@@ -125,7 +126,7 @@ export const fetch = {
     }
     blank()
     push('try {')
-    push(`const response = await fetch(url, options);`, 1)
+    push('const response = await fetch(url, options);', 1)
     push('const data = await response.json();', 1)
     push('console.log(data);', 1)
     push('} catch (error) {')

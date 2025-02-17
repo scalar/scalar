@@ -7,9 +7,7 @@ import { inferSchemaType } from './schemaHelpers'
  * Extracts parameters from a Postman request and converts them to OpenAPI parameter objects.
  * Processes query, path, and header parameters from the request URL and headers.
  */
-export function extractParameters(
-  request: Request,
-): OpenAPIV3_1.ParameterObject[] {
+export function extractParameters(request: Request): OpenAPIV3_1.ParameterObject[] {
   const parameters: OpenAPIV3_1.ParameterObject[] = []
   const parameterMap: Map<string, OpenAPIV3_1.ParameterObject> = new Map()
 
@@ -17,8 +15,7 @@ export function extractParameters(
     return parameters
   }
 
-  const url =
-    typeof request.url === 'string' ? { raw: request.url } : request.url
+  const url = typeof request.url === 'string' ? { raw: request.url } : request.url
 
   // Process query parameters
   if (url.query) {
@@ -74,9 +71,7 @@ export function extractParameters(
 /**
  * Helper function to extract variables from the url.path array.
  */
-function extractPathVariablesFromPathArray(
-  pathArray: (string | { type: string; value: string })[],
-): string[] {
+function extractPathVariablesFromPathArray(pathArray: (string | { type: string; value: string })[]): string[] {
   const variables: string[] = []
   const variableRegex = /{{\s*([\w.-]+)\s*}}/
 
@@ -94,10 +89,7 @@ function extractPathVariablesFromPathArray(
 /**
  * Creates an OpenAPI parameter object from a Postman parameter.
  */
-export function createParameterObject(
-  param: any,
-  paramIn: 'query' | 'path' | 'header',
-): OpenAPIV3_1.ParameterObject {
+export function createParameterObject(param: any, paramIn: 'query' | 'path' | 'header'): OpenAPIV3_1.ParameterObject {
   const parameter: OpenAPIV3_1.ParameterObject = {
     name: param.key || '',
     in: paramIn,
@@ -110,16 +102,13 @@ export function createParameterObject(
   } else if (paramIn === 'query') {
     // Check if the parameter is required based on description or name
     const isRequired =
-      param.description?.toLowerCase().includes('[required]') ||
-      (param.key && param.key.toLowerCase() === 'required')
+      param.description?.toLowerCase().includes('[required]') || (param.key && param.key.toLowerCase() === 'required')
 
     if (isRequired) {
       parameter.required = true
       // Remove '[required]' from the description
       if (parameter.description) {
-        parameter.description = parameter.description
-          .replace(/\[required\]/gi, '')
-          .trim()
+        parameter.description = parameter.description.replace(/\[required\]/gi, '').trim()
       }
     }
   }

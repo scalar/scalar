@@ -29,16 +29,10 @@ export const getJSDocFromNode = (node: Node) => {
     // Check jsDoc tags
     jsDoc.tags?.forEach((tag) => {
       // Summary
-      if (
-        tag.tagName.escapedText.toString().match(/^name|summary/g) &&
-        tag.comment?.toString()
-      )
+      if (tag.tagName.escapedText.toString().match(/^name|summary/g) && tag.comment?.toString())
         title = tag.comment.toString()
       // Description
-      if (
-        tag.tagName.escapedText.toString().match(/^desc/) &&
-        tag.comment?.toString()
-      )
+      if (tag.tagName.escapedText.toString().match(/^desc/) && tag.comment?.toString())
         description = tag.comment.toString()
     })
   }

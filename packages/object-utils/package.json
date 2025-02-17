@@ -20,8 +20,10 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "preview": "vite preview",
     "test": "vitest",
     "types:build": "scalar-types-build",

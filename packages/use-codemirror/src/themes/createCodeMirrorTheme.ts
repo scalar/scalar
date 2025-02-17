@@ -5,11 +5,7 @@
  * @see https://github.com/uiwjs/react-codemirror
  * @see https://github.com/scalar/scalar/issues/4222
  */
-import {
-  HighlightStyle,
-  type TagStyle,
-  syntaxHighlighting,
-} from '@codemirror/language'
+import { HighlightStyle, type TagStyle, syntaxHighlighting } from '@codemirror/language'
 import type { Extension } from '@codemirror/state'
 import { EditorView } from '@codemirror/view'
 import type { StyleSpec } from 'style-mod'
@@ -61,11 +57,7 @@ export type Settings = {
 /**
  * Creates a CodeMirror theme from a set of options.
  */
-export const createCodeMirrorTheme = ({
-  theme,
-  settings = {},
-  styles = [],
-}: CreateThemeOptions): Extension => {
+export const createCodeMirrorTheme = ({ theme, settings = {}, styles = [] }: CreateThemeOptions): Extension => {
   const themeOptions: Record<string, StyleSpec> = {
     '.cm-gutters': {},
   }

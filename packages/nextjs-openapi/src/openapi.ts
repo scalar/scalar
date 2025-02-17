@@ -1,7 +1,7 @@
 import { ApiReference } from '@scalar/nextjs-api-reference'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { sync } from 'fast-glob'
-import { readFileSync } from 'fs'
+import { readFileSync } from 'node:fs'
 import type { NextRequest } from 'next/server'
 import type { OpenAPIV3_1 } from 'openapi-types'
 import {
@@ -35,13 +35,7 @@ const compilerHost: CompilerHost = {
   getDefaultLibFileName: () => '',
   getNewLine: () => '\n',
   getSourceFile: (filename) =>
-    createSourceFile(
-      filename,
-      readFileSync(filename).toString(),
-      ScriptTarget.Latest,
-      false,
-      ScriptKind.TS,
-    ),
+    createSourceFile(filename, readFileSync(filename).toString(), ScriptTarget.Latest, false, ScriptKind.TS),
   jsDocParsingMode: JSDocParsingMode.ParseAll,
   readFile: () => undefined,
   useCaseSensitiveFileNames: () => true,
@@ -115,13 +109,12 @@ export const OpenAPI = (config: OpenAPIConfig = {}) => {
         return Response.json(spec)
       }
       // References
-      else {
-        return await ApiReference({
-          spec: {
-            url: req.nextUrl.pathname + '/schema.json',
-          },
-        })()
-      }
+
+      return await ApiReference({
+        spec: {
+          url: req.nextUrl.pathname + '/schema.json',
+        },
+      })()
     },
   }
 }

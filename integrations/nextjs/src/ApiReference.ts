@@ -1,5 +1,4 @@
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
-import type { defaultConfig } from 'next/dist/server/config-shared'
 
 import { nextjsThemeCss } from './theme'
 
@@ -46,9 +45,7 @@ export const ApiReference = (config: ApiReferenceOptions) => {
   }
 
   // Check the config for a custom CDN string or set to default
-  const cdnString = config?.cdn
-    ? config.cdn
-    : 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest'
+  const cdnString = config?.cdn ? config.cdn : 'https://cdn.jsdelivr.net/npm/@scalar/api-reference@latest'
 
   // Add _integration: 'nextjs' to the configuration, but allow user to overwrite.
   const defaultConfiguration = {

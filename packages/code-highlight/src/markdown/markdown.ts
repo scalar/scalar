@@ -1,5 +1,3 @@
-import { standardLanguages } from '@/languages'
-import { rehypeHighlight } from '@/rehype-highlight'
 import type { Heading, PhrasingContent, Root, RootContent, Text } from 'mdast'
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeFormat from 'rehype-format'
@@ -14,6 +12,9 @@ import { unified } from 'unified'
 import type { Node } from 'unist'
 import { SKIP, visit } from 'unist-util-visit'
 
+import { standardLanguages } from '@/languages'
+import { rehypeHighlight } from '@/rehype-highlight'
+
 type Options = {
   transform?: (node: Record<string, any>) => Record<string, any>
   type?: string
@@ -22,12 +23,13 @@ type Options = {
 /**
  * Plugin to transform nodes in a Markdown AST
  */
-const transformNodes = function (
-  options?: Readonly<Options> | null | undefined,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ..._ignored: any[]
-) {
-  return (tree: Node) => {
+const transformNodes =
+  (
+    options?: Readonly<Options> | null | undefined,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    ..._ignored: any[]
+  ) =>
+  (tree: Node) => {
     if (!options?.transform || !options?.type) {
       return
     }
@@ -40,7 +42,6 @@ const transformNodes = function (
 
     return
   }
-}
 
 /**
  * Take a Markdown string and generate HTML from it

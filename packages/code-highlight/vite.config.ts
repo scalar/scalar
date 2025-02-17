@@ -1,8 +1,5 @@
-import { alias, findEntryPoints } from '@scalar/build-tooling'
-import { URL, fileURLToPath } from 'node:url'
+import { alias } from '@scalar/build-tooling'
 import { defineConfig } from 'vite'
-
-import pkg from './package.json'
 
 export default defineConfig({
   plugins: [],

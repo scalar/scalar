@@ -9,10 +9,7 @@ import { extractStatusCodesFromTests } from './statusCodeHelpers'
  * Processes response status codes, descriptions, headers, and body content,
  * inferring schemas from example responses when possible.
  */
-export function extractResponses(
-  responses: Response[],
-  item?: Item,
-): OpenAPIV3_1.ResponsesObject {
+export function extractResponses(responses: Response[], item?: Item): OpenAPIV3_1.ResponsesObject {
   // Extract status codes from tests
   const statusCodes = item ? extractStatusCodesFromTests(item) : []
 
@@ -83,7 +80,7 @@ function extractHeaders(
 function tryParseJson(jsonString: string): Record<string, unknown> {
   try {
     return JSON.parse(jsonString) as Record<string, unknown>
-  } catch (e) {
+  } catch (_e) {
     return { rawContent: jsonString }
   }
 }

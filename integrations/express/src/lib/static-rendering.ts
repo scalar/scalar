@@ -8,10 +8,7 @@ const DEFAULT_CONFIGURATION: Partial<ReferenceConfiguration> = {
 /**
  * The HTML document to render the Scalar API reference.
  */
-export function getHtmlDocument(
-  options: ApiReferenceOptions,
-  customTheme?: string,
-) {
+export function getHtmlDocument(options: ApiReferenceOptions, customTheme?: string) {
   return `
     <!DOCTYPE html>
     <html>
@@ -78,7 +75,5 @@ export function getScriptTagContent(configuration: ApiReferenceOptions) {
  * The CDN URL to load the @scalar/api-reference package from.
  */
 export function getCdnUrl(configuration: ApiReferenceOptions) {
-  return (
-    configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
-  )
+  return configuration.cdn || 'https://cdn.jsdelivr.net/npm/@scalar/api-reference'
 }

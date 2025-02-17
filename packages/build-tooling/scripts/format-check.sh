@@ -2,4 +2,4 @@
 set -e
 
 pnpm biome format
-pnpm prettier --check .
+pnpm prettier --check . --ignore-path ../../.prettierignore

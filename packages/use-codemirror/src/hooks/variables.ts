@@ -25,17 +25,11 @@ export const variables = () =>
         this.variables = variableHighlighterDecoration.createDeco(view)
       }
       update(update: ViewUpdate) {
-        this.variables = variableHighlighterDecoration.updateDeco(
-          update,
-          this.variables,
-        )
+        this.variables = variableHighlighterDecoration.updateDeco(update, this.variables)
       }
     },
     {
       decorations: (instance) => instance.variables,
-      provide: (plugin) =>
-        EditorView.atomicRanges.of(
-          (view) => view.plugin(plugin)?.variables || Decoration.none,
-        ),
+      provide: (plugin) => EditorView.atomicRanges.of((view) => view.plugin(plugin)?.variables || Decoration.none),
     },
   )

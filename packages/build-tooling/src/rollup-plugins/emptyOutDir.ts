@@ -1,4 +1,5 @@
 import { rm } from 'node:fs/promises'
+
 import type { Plugin } from 'rollup'
 
 /**

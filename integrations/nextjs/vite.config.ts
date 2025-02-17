@@ -1,5 +1,5 @@
 import react from '@vitejs/plugin-react'
-import * as path from 'path'
+import * as path from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
@@ -22,10 +22,7 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: [
-        ...Object.keys(pkg.dependencies),
-        ...Object.keys(pkg.peerDependencies),
-      ],
+      external: [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDependencies)],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

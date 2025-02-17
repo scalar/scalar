@@ -21,17 +21,12 @@ export const jsOfetch: Plugin = {
 
     // Reset fetch defaults
     const options: Record<string, any> = {
-      method:
-        normalizedRequest.method === 'GET'
-          ? undefined
-          : normalizedRequest.method,
+      method: normalizedRequest.method === 'GET' ? undefined : normalizedRequest.method,
     }
 
     // Query
     const searchParams = new URLSearchParams(
-      normalizedRequest.queryString
-        ? arrayToObject(normalizedRequest.queryString)
-        : undefined,
+      normalizedRequest.queryString ? arrayToObject(normalizedRequest.queryString) : undefined,
     )
 
     if (searchParams.size) {
@@ -80,9 +75,7 @@ export const jsOfetch: Plugin = {
     }
 
     // Transform to JSON
-    const jsonOptions = Object.keys(options).length
-      ? `, ${objectToString(options)}`
-      : ''
+    const jsonOptions = Object.keys(options).length ? `, ${objectToString(options)}` : ''
 
     // Code Template
     return `import { ofetch } from 'ofetch'

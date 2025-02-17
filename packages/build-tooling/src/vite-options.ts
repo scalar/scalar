@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'node:url'
+
 import type { Plugin } from 'rollup'
 import type { BuildOptions, LibraryOptions } from 'vite'
 
-import { type StrictPluginOptions, createRollupConfig } from './rollup-options'
+import { createRollupConfig, type StrictPluginOptions } from './rollup-options'
 
 /** Standard path aliases for Vite */
 export function alias(url: string) {

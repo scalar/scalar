@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useCodeMirror } from '@/hooks/useCodeMirror'
 import { ref } from 'vue'
+
+import { useCodeMirror } from '@/hooks/useCodeMirror'
 
 const codeMirrorRef = ref<HTMLDivElement | null>(null)
 

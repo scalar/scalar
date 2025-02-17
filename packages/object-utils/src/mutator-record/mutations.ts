@@ -1,9 +1,4 @@
-import {
-  type Path,
-  type PathValue,
-  getNestedValue,
-  setNestedValue,
-} from '@/nested'
+import { type Path, type PathValue, getNestedValue, setNestedValue } from '@/nested'
 
 /** Type safe include */
 export function includes<T>(arr: readonly T[], x: T): boolean {
@@ -65,21 +60,13 @@ export class Mutation<DataType> {
   }
 
   /** Mutate without saving a record. Private function. */
-  _unsavedMutate<K extends MutationPath<DataType>>(
-    path: K,
-    value: PathValue<DataType, K>,
-  ) {
+  _unsavedMutate<K extends MutationPath<DataType>>(path: K, value: PathValue<DataType, K>) {
     setNestedValue(this.parentData, path, value)
     this.runSideEffects(path)
   }
 
   /** Side effects must take ONLY an object of the specified type and act on it */
-  addSideEffect(
-    triggers: string[],
-    effect: MutationEffect<DataType>,
-    name: string,
-    immediate = true,
-  ) {
+  addSideEffect(triggers: string[], effect: MutationEffect<DataType>, name: string, immediate = true) {
     this.sideEffects.push({ triggers, effect, name })
     if (immediate) {
       effect(this.parentData)
@@ -92,8 +79,7 @@ export class Mutation<DataType> {
   /** Runs all side effects that match the path trigger */
   runSideEffects(path: MutationPath<DataType>) {
     this.sideEffects.forEach(({ effect, triggers, name }) => {
-      const triggerEffect =
-        triggers.some((trigger) => path.includes(trigger)) || path.length < 1
+      const triggerEffect = triggers.some((trigger) => path.includes(trigger)) || path.length < 1
       if (triggerEffect) {
         effect(this.parentData)
         if (this.debug) {

@@ -8,13 +8,5 @@
     "emitDeclarationOnly": true
   },
   "include": ["src/index.ts"],
-  "exclude": [
-    "dist",
-    "test",
-    "vite.config.ts",
-    "vite.*.config.ts",
-    "**/*.test.ts",
-    "*.test.ts",
-    "vite-plugins/**/*"
-  ]
+  "exclude": ["dist", "test", "vite.config.ts", "vite.*.config.ts", "**/*.test.ts", "*.test.ts", "vite-plugins/**/*"]
 }

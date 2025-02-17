@@ -12,10 +12,13 @@
 **/.nuxt/**
 **/.next/**
 **/.turbo/**
+**/dist/**
 **/.vscode/**
 **/.output/**
 **/.vite-ssg-temp/**
 **/.docusaurus/**
+
+**/vite.config.ts.timestamp-*.mjs
 
 dist
 fixtures

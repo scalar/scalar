@@ -95,18 +95,13 @@ if (!specUrlElement && !specElement && !specScriptTag) {
         const operationId = testButton.getAttribute('scalar-operation-id')
 
         // Loop through all tags and operations to find the specified operation
-        const specifiedOperation = parsedSpec.tags?.reduce(
-          (acc: TransformedOperation | undefined, tag: Tag) => {
-            if (acc) {
-              return acc
-            }
+        const specifiedOperation = parsedSpec.tags?.reduce((acc: TransformedOperation | undefined, tag: Tag) => {
+          if (acc) {
+            return acc
+          }
 
-            return tag.operations?.find(
-              (operation) => operation.operationId === operationId,
-            )
-          },
-          undefined,
-        ) as unknown as TransformedOperation
+          return tag.operations?.find((operation) => operation.operationId === operationId)
+        }, undefined) as unknown as TransformedOperation
 
         if (specifiedOperation) {
           open({

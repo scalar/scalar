@@ -1,14 +1,12 @@
 import { createViteBuildOptions } from '@scalar/build-tooling'
 import vue from '@vitejs/plugin-vue'
-import { readdirSync } from 'fs'
+import { readdirSync } from 'node:fs'
 import { defineConfig } from 'vitest/config'
 
 /**
  * All the preset files in the `src/presets` directory.
  */
-const presets = readdirSync('src/presets').map(
-  (fileName) => `src/presets/${fileName}`,
-)
+const presets = readdirSync('src/presets').map((fileName) => `src/presets/${fileName}`)
 
 export default defineConfig({
   plugins: [vue()],

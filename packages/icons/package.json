@@ -16,6 +16,8 @@
   },
   "scripts": {
     "build": "pnpm update:icons && pnpm prettier --write README.md && scalar-build-vite",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "eslint . && pnpm lint:icons",
     "lint:fix": "eslint . --fix",
     "lint:icons": "svglint src/icons/*.svg --config .svglintrc.js",

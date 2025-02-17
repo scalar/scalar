@@ -24,8 +24,7 @@ export async function request<T>({
 
   // eslint-disable-next-line guard-for-in
   for (const headerKey in config.headers) {
-    if (config.headers[headerKey])
-      headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
+    if (config.headers[headerKey]) headers[headerKey.toLowerCase()] = config.headers[headerKey].toLowerCase()
   }
 
   // Default to JSON content if not specified
@@ -37,46 +36,28 @@ export async function request<T>({
   // Add the bearer auth unless disabled
   if (!!accessToken && !disableAuth) {
     // Get the token string or call the function
-    const token = accessToken
-      ? typeof accessToken === 'function'
-        ? accessToken()
-        : accessToken
-      : undefined
-    if (!token)
-      console.warn('WARNING: Auth token function returned an empty value')
+    const token = accessToken ? (typeof accessToken === 'function' ? accessToken() : accessToken) : undefined
+    if (!token) console.warn('WARNING: Auth token function returned an empty value')
 
     headers['authorization'] = `Bearer ${token}`
   }
 
   // Remove duplicate slashes
-  const requestUrl = url.startsWith('http')
-    ? url
-    : url.replace(/([^:]\/)\/+/g, '$1')
+  const requestUrl = url.startsWith('http') ? url : url.replace(/([^:]\/)\/+/g, '$1')
 
   // Execute the fetch and handle all errors
   return fetch(requestUrl, {
     ...config,
-    body:
-      data instanceof FormData || data === undefined
-        ? data
-        : JSON.stringify(data),
+    body: data instanceof FormData || data === undefined ? data : JSON.stringify(data),
     headers,
   })
     .then(async (response) => {
-      const isJson = response.headers
-        .get('content-type')
-        ?.includes('application/json')
+      const isJson = response.headers.get('content-type')?.includes('application/json')
 
       // For bad status codes we parse the response
       if (response.status >= 300) {
         const message = isJson
-          ? String(
-              (
-                await response
-                  .json()
-                  .catch(() => ({ message: 'Invalid response' }))
-              ).message,
-            ) || 'Unknown Error'
+          ? String((await response.json().catch(() => ({ message: 'Invalid response' }))).message) || 'Unknown Error'
           : await response.text().catch(() => 'Invalid response')
         return formatApiError(message, response.status)
       }
@@ -87,26 +68,19 @@ export async function request<T>({
         const baseData =
           response.ok && isJson
             ? await response.json().catch(() => {
-                console.error(
-                  `Invalid JSON response from API service from ${requestUrl}`,
-                )
+                console.error(`Invalid JSON response from API service from ${requestUrl}`)
                 return null
               })
             : await response.text()
 
         // When a schema is provided we thrown an error on validation failure
-        const resultData: T = schema
-          ? schemaModel(baseData, schema, true)
-          : baseData
+        const resultData: T = schema ? schemaModel(baseData, schema, true) : baseData
 
         return formatApiResponse(resultData, response.status)
-      } catch (err) {
+      } catch (_err) {
         console.error(`Response Zod validation error for ${requestUrl}`)
         // Generic message when response validation fails
-        return formatApiError(
-          `Invalid response data from endpoint: ${requestUrl}`,
-          500,
-        )
+        return formatApiError(`Invalid response data from endpoint: ${requestUrl}`, 500)
       }
     })
     .catch((err) => {

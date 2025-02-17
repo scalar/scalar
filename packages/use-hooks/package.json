@@ -16,8 +16,10 @@
   },
   "scripts": {
     "build": "scalar-build-vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build-vue",
     "types:check": "scalar-types-check-vue"

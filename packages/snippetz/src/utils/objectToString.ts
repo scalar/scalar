@@ -18,21 +18,16 @@ export function objectToString(obj: Record<string, any>, indent = 0): string {
         .map((item) => {
           if (typeof item === 'string') {
             return `'${item}'`
-          } else if (item && typeof item === 'object') {
-            return objectToString(item, indent + 2)
-          } else {
-            return item
           }
+          if (item && typeof item === 'object') {
+            return objectToString(item, indent + 2)
+          }
+          return item
         })
         .join(`, ${innerIndentation}`)
       parts.push(`${innerIndentation}${formattedKey}: [${arrayString}]`)
     } else if (value && typeof value === 'object') {
-      parts.push(
-        `${innerIndentation}${formattedKey}: ${objectToString(
-          value,
-          indent + 2,
-        )}`,
-      )
+      parts.push(`${innerIndentation}${formattedKey}: ${objectToString(value, indent + 2)}`)
     } else if (typeof value === 'string') {
       let formattedValue = `${value}`
 

@@ -1,20 +1,12 @@
 // @ts-nocheck
 // TODO remove this when we come back to this file
-import {
-  type ReturnStatement,
-  SyntaxKind,
-  isArrowFunction,
-  isCallExpression,
-  isVariableStatement,
-} from 'typescript'
+import { type ReturnStatement, SyntaxKind, isArrowFunction, isCallExpression, isVariableStatement } from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 import { generateResponses, getReturnStatements } from './responses'
 import { program } from './test-setup'
 
-const sourceFile = program.getSourceFile(
-  __dirname + '/fixtures/test-responses.ts',
-)
+const sourceFile = program.getSourceFile(__dirname + '/fixtures/test-responses.ts')
 
 // First we get to the body
 const getNode = sourceFile?.statements[0]
@@ -42,10 +34,7 @@ describe('getReturnStatements', () => {
 
 // Test response objects
 describe('createResponseSchemas', () => {
-  const responses = generateResponses(
-    initializer.body,
-    program.getTypeChecker(),
-  )
+  const responses = generateResponses(initializer.body, program.getTypeChecker())
 
   it('should return a 200 status with string payload', () =>
     expect(responses['200']).toEqual({

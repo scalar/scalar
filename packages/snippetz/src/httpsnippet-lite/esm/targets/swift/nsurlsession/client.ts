@@ -130,7 +130,7 @@ export const nsurlsession = {
     )
     push(
       // @ts-expect-error needs better types
-      `                                    timeoutInterval: ${parseInt(opts.timeout, 10).toFixed(1)})`,
+      `                                    timeoutInterval: ${Number.parseInt(opts.timeout, 10).toFixed(1)})`,
     )
     push(`request.httpMethod = "${method}"`)
     if (req.hasHeaders) {

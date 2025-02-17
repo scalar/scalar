@@ -49,9 +49,7 @@ describe('fastifyApiReference', () => {
     const proxyResponseBody = await proxyResponse.text()
     expect(proxyResponseBody).toContain('src="js/scalar.js"')
 
-    const assetResponse = await fetch(
-      `${proxyAddress}${resolvedPath}js/scalar.js`,
-    )
+    const assetResponse = await fetch(`${proxyAddress}${resolvedPath}js/scalar.js`)
     expect(assetResponse.status).toBe(200)
   })
 })

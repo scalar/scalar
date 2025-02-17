@@ -19,8 +19,10 @@
     "build": "vite build",
     "deploy": "pnpm run build && wrangler pages deploy ./dist --project-name=client",
     "dev": "vite",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "preview": "pnpm run build && wrangler pages dev ./dist",
     "test:unit": "vitest",
     "types:check": "vue-tsc --build --force"

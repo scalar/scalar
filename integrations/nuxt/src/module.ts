@@ -1,10 +1,4 @@
-import {
-  addComponent,
-  addPlugin,
-  createResolver,
-  defineNuxtModule,
-  extendPages,
-} from '@nuxt/kit'
+import { addComponent, addPlugin, createResolver, defineNuxtModule, extendPages } from '@nuxt/kit'
 
 import type { Configuration } from './types'
 

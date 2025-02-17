@@ -1,8 +1,4 @@
-import {
-  addPackageFileExports,
-  createRollupConfig,
-  findEntryPoints,
-} from '@scalar/build-tooling'
+import { addPackageFileExports, createRollupConfig, findEntryPoints } from '@scalar/build-tooling'
 
 const entries = await findEntryPoints()
 

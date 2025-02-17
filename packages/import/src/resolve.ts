@@ -29,17 +29,12 @@ export async function resolve(
     }
 
     // https://*.yaml
-    if (
-      value?.toLowerCase().endsWith('.yaml') ||
-      value?.toLowerCase().endsWith('.yml')
-    ) {
+    if (value?.toLowerCase().endsWith('.yaml') || value?.toLowerCase().endsWith('.yml')) {
       return value
     }
 
     // https://sandbox.scalar.com
-    const sandboxUrl = value.match(
-      /https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-zA-Z0-9]+)/,
-    )
+    const sandboxUrl = value.match(/https:\/\/sandbox\.scalar\.com\/(p|e)\/([a-zA-Z0-9]+)/)
 
     if (sandboxUrl?.[2]) {
       return `https://sandbox.scalar.com/files/${sandboxUrl[2]}/openapi.yaml`
@@ -164,18 +159,14 @@ function parseHtml(html?: string) {
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
-  const doubleEncodedConfigurationUrl = html.match(
-    /&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/,
-  )
+  const doubleEncodedConfigurationUrl = html.match(/&amp;quot;url&amp;quot;:&amp;quot;([^;]+)&amp;quot;/)
 
   if (doubleEncodedConfigurationUrl?.[1]) {
     return doubleEncodedConfigurationUrl[1]
   }
 
   // &amp;quot;url&amp;quot;:&amp;quot;MY_CUSTOM_URL&amp;quot;
-  const encodedConfigurationUrl = html.match(
-    /&quot;url&quot;:&quot;([^;]+)&quot;/,
-  )
+  const encodedConfigurationUrl = html.match(/&quot;url&quot;:&quot;([^;]+)&quot;/)
   if (encodedConfigurationUrl?.[1]) {
     return encodedConfigurationUrl[1]
   }
@@ -194,18 +185,14 @@ function parseHtml(html?: string) {
   }
 
   // Check for OpenAPI URLs in the HTML
-  const linkMatch = html.match(
-    /<a[^>]*href=["']([^"']+\.(?:yaml|yml|json))["'][^>]*>/i,
-  )
+  const linkMatch = html.match(/<a[^>]*href=["']([^"']+\.(?:yaml|yml|json))["'][^>]*>/i)
 
   if (linkMatch?.[1]) {
     return linkMatch[1]
   }
 
   // Check for URLs in escaped JS objects
-  const escapedJsonMatch = html.match(
-    /\\"spec\\":\{.*?\\"url\\":\\"([^"\\]+)\\"/,
-  )
+  const escapedJsonMatch = html.match(/\\"spec\\":\{.*?\\"url\\":\\"([^"\\]+)\\"/)
 
   if (escapedJsonMatch?.[1]) {
     return escapedJsonMatch[1]
@@ -311,10 +298,7 @@ function parseEmbeddedOpenApi(html: string): object | undefined {
       return config.spec.content
     }
   } catch (error) {
-    console.error(
-      '[@scalar/import] Failed to parse embedded OpenAPI document:',
-      error,
-    )
+    console.error('[@scalar/import] Failed to parse embedded OpenAPI document:', error)
   }
 
   return undefined
@@ -333,10 +317,7 @@ function decodeHtmlEntities(text: string): string {
   } as const
 
   const updatedText = text
-    .replace(
-      new RegExp(Object.keys(entities).join('|'), 'g'),
-      (match) => entities[match as keyof typeof entities],
-    )
+    .replace(new RegExp(Object.keys(entities).join('|'), 'g'), (match) => entities[match as keyof typeof entities])
     .replace(/\n/g, '\\n')
     .trim()
 
@@ -352,8 +333,7 @@ function decodeHtmlEntities(text: string): string {
  * Transform GitHub URLs to raw file URLs, preserving the branch information
  */
 function transformGitHubUrl(url: string): string | undefined {
-  const githubRegex =
-    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
+  const githubRegex = /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/
   const match = url.match(githubRegex)
 
   if (match) {

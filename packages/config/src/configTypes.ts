@@ -1,4 +1,4 @@
-import { type Static, Type } from '@sinclair/typebox'
+import { Type, type Static } from '@sinclair/typebox'
 
 export const ConfigSidebarLinkSchema = Type.Object({
   name: Type.String(),

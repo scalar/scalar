@@ -44,9 +44,7 @@ export const shellCurl: Plugin = {
 
     // Basic Auth
     if (configuration?.auth?.username && configuration?.auth?.password) {
-      parts.push(
-        `--user '${configuration.auth.username}:${configuration.auth.password}'`,
-      )
+      parts.push(`--user '${configuration.auth.username}:${configuration.auth.password}'`)
     }
 
     // Headers
@@ -56,9 +54,7 @@ export const shellCurl: Plugin = {
       })
 
       // Add compressed flag if Accept-Encoding header includes compression
-      const acceptEncoding = normalizedRequest.headers.find(
-        (header) => header.name.toLowerCase() === 'accept-encoding',
-      )
+      const acceptEncoding = normalizedRequest.headers.find((header) => header.name.toLowerCase() === 'accept-encoding')
       if (acceptEncoding && /gzip|deflate/.test(acceptEncoding.value)) {
         parts.push('--compressed')
       }
@@ -86,25 +82,17 @@ export const shellCurl: Plugin = {
           const prettyJson = JSON.stringify(jsonData, null, 2)
           parts.push(`--data '${prettyJson}'`)
         }
-      } else if (
-        normalizedRequest.postData.mimeType === 'application/octet-stream'
-      ) {
+      } else if (normalizedRequest.postData.mimeType === 'application/octet-stream') {
         parts.push(`--data-binary '${normalizedRequest.postData.text}'`)
       } else if (
-        normalizedRequest.postData.mimeType ===
-          'application/x-www-form-urlencoded' &&
+        normalizedRequest.postData.mimeType === 'application/x-www-form-urlencoded' &&
         normalizedRequest.postData.params
       ) {
         // Handle URL-encoded form data
         normalizedRequest.postData.params.forEach((param) => {
-          parts.push(
-            `--data-urlencode '${encodeURIComponent(param.name)}=${param.value}'`,
-          )
+          parts.push(`--data-urlencode '${encodeURIComponent(param.name)}=${param.value}'`)
         })
-      } else if (
-        normalizedRequest.postData.mimeType === 'multipart/form-data' &&
-        normalizedRequest.postData.params
-      ) {
+      } else if (normalizedRequest.postData.mimeType === 'multipart/form-data' && normalizedRequest.postData.params) {
         // Handle multipart form data
         normalizedRequest.postData.params.forEach((param) => {
           if (param.fileName !== undefined) {

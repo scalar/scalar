@@ -2,6 +2,7 @@
  * Simple demo page for all Scalar code highlighting functions
  */
 import { getThemeById } from '@scalar/themes'
+
 import '@scalar/themes/base.css'
 import '@scalar/themes/fonts.css'
 import '@scalar/themes/style.css'
@@ -9,8 +10,10 @@ import '@scalar/themes/style.css'
 import { syntaxHighlight } from '../src/code'
 // @ts-expect-error vite not looking for raw types
 import codeExampleLarge from '../src/constants.ts?raw'
+
 import '../src/css/code.css'
 import '../src/css/markdown.css'
+
 import { standardLanguages } from '../src/languages'
 import { htmlFromMarkdown } from '../src/markdown/markdown'
 // @ts-expect-error vite not looking for raw types

@@ -1,7 +1,7 @@
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import type { Request, Response } from 'express'
 import type { FastifyRequest } from 'fastify'
-import type { ServerResponse } from 'http'
+import type { ServerResponse } from 'node:http'
 
 export type NestJSReferenceConfiguration = ReferenceConfiguration & {
   withFastify?: boolean
@@ -134,14 +134,14 @@ export function apiReference(options: NestJSReferenceConfiguration) {
   `
 
   if (options.withFastify) {
-    return (req: FastifyRequest, res: ServerResponse) => {
+    return (_req: FastifyRequest, res: ServerResponse) => {
       res.writeHead(200, { 'Content-Type': 'text/html' })
       res.write(content)
       res.end()
     }
   }
 
-  return (req: Request, res: Response) => {
+  return (_req: Request, res: Response) => {
     res.send(content)
   }
 }

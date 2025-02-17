@@ -13,9 +13,7 @@ export function extractStatusCodesFromTests(item: Item): number[] {
   if (item.event?.length) {
     item.event.forEach((event) => {
       if (event.listen === 'test' && event.script?.exec) {
-        const scriptLines = Array.isArray(event.script.exec)
-          ? event.script.exec
-          : [event.script.exec]
+        const scriptLines = Array.isArray(event.script.exec) ? event.script.exec : [event.script.exec]
 
         scriptLines.forEach((line: string) => {
           const statusCode = parseStatusCodeFromLine(line)
@@ -47,7 +45,7 @@ function parseStatusCodeFromLine(line: string): number | null {
   for (const pattern of patterns) {
     const match = pattern.exec(line)?.at(1)
     if (match) {
-      return parseInt(match, 10)
+      return Number.parseInt(match, 10)
     }
   }
 

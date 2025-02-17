@@ -69,16 +69,12 @@ describe('apiReference', () => {
     expect(response.status).toBe(200)
     expect(response.type).toBe('text/html')
     expect(response.text).toContain('<title>Scalar API Reference</title>')
-    expect(response.text).toContain(
-      'https://cdn.jsdelivr.net/npm/@scalar/api-reference',
-    )
+    expect(response.text).toContain('https://cdn.jsdelivr.net/npm/@scalar/api-reference')
   })
 
   it('doesn’t have the content twice', async () => {
     const app = express()
-    app.use(
-      apiReference({ spec: { content: { info: { title: 'Test API' } } } }),
-    )
+    app.use(apiReference({ spec: { content: { info: { title: 'Test API' } } } }))
 
     const response = await request(app).get('/')
     expect(response.status).toBe(200)
@@ -106,8 +102,6 @@ describe('apiReference', () => {
     const response = await request(app).get('/')
 
     // Check the URL is present
-    expect(response.text).toContain(
-      'https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json',
-    )
+    expect(response.text).toContain('https://cdn.jsdelivr.net/npm/@scalar/galaxy/dist/latest.json')
   })
 })

@@ -12,16 +12,12 @@ import type { PostmanCollection } from './types'
 /**
  * Extracts tags from Postman collection folders
  */
-function extractTags(
-  items: PostmanCollection['item'],
-): OpenAPIV3_1.TagObject[] {
+function extractTags(items: PostmanCollection['item']): OpenAPIV3_1.TagObject[] {
   const tags: OpenAPIV3_1.TagObject[] = []
 
   function processTagItem(item: any, parentPath: string = '') {
     if (item.item) {
-      const currentPath = parentPath
-        ? `${parentPath} > ${item.name}`
-        : item.name
+      const currentPath = parentPath ? `${parentPath} > ${item.name}` : item.name
 
       // Add tag for the current folder
       tags.push({
@@ -43,22 +39,16 @@ function extractTags(
  * This function processes the collection's information, servers, authentication,
  * and items to create a corresponding OpenAPI structure.
  */
-export function convert(
-  postmanCollection: PostmanCollection | string,
-): OpenAPIV3_1.Document {
+export function convert(postmanCollection: PostmanCollection | string): OpenAPIV3_1.Document {
   // Parse string input if provided
   const collection: PostmanCollection =
-    typeof postmanCollection === 'string'
-      ? JSON.parse(postmanCollection)
-      : postmanCollection
+    typeof postmanCollection === 'string' ? JSON.parse(postmanCollection) : postmanCollection
 
   // Extract title from collection info, fallback to 'API' if not provided
   const title = collection.info.name || 'API'
 
   // Look for version in collection variables, default to '1.0.0'
-  const version =
-    (collection.variable?.find((v) => v.key === 'version')?.value as string) ||
-    '1.0.0'
+  const version = (collection.variable?.find((v) => v.key === 'version')?.value as string) || '1.0.0'
 
   // Handle different description formats in Postman
   const description =
@@ -193,10 +183,7 @@ export function convert(
                 }
               } else if ('text/plain' in content) {
                 // Preserve schema if it exists, otherwise keep an empty object
-                if (
-                  !content['text/plain'].schema ||
-                  Object.keys(content['text/plain'].schema).length === 0
-                ) {
+                if (!content['text/plain'].schema || Object.keys(content['text/plain'].schema).length === 0) {
                   content['text/plain'] = {}
                 }
               }

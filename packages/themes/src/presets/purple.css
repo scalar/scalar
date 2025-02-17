@@ -72,16 +72,8 @@
   --scalar-button-1-color: black;
 }
 .light-mode *::selection {
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-color-accent),
-    transparent 70%
-  );
+  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 70%);
 }
 .dark-mode *::selection {
-  background-color: color-mix(
-    in srgb,
-    var(--scalar-color-accent),
-    transparent 50%
-  );
+  background-color: color-mix(in srgb, var(--scalar-color-accent), transparent 50%);
 }

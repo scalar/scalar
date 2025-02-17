@@ -22,8 +22,10 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },

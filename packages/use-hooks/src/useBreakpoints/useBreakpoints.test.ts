@@ -22,9 +22,7 @@ describe('useBreakpoints', () => {
   })
 
   it('should expose media queries for a given screen size', () => {
-    vi.mocked(useMediaQuery).mockImplementation((query) =>
-      ref(query === `(min-width: ${screens.md})`),
-    )
+    vi.mocked(useMediaQuery).mockImplementation((query) => ref(query === `(min-width: ${screens.md})`))
 
     const { mediaQueries } = useBreakpoints()
     expect(mediaQueries.sm.value).toEqual(false)
@@ -32,9 +30,7 @@ describe('useBreakpoints', () => {
   })
 
   it('should expose breakpoints for a given screen size', () => {
-    vi.mocked(useMediaQuery).mockImplementation((query) =>
-      ref(query === `(min-width: ${screens.md})`),
-    )
+    vi.mocked(useMediaQuery).mockImplementation((query) => ref(query === `(min-width: ${screens.md})`))
 
     const { breakpoints } = useBreakpoints()
     expect(breakpoints.value.sm).toEqual(false)
@@ -66,11 +62,7 @@ describe('useBreakpoints', () => {
     // Mock useMediaQuery to return false since there’s no window
     vi.mocked(useMediaQuery).mockImplementation(() => ref(false))
 
-    const {
-      screens: exposedScreens,
-      mediaQueries,
-      breakpoints,
-    } = useBreakpoints()
+    const { screens: exposedScreens, mediaQueries, breakpoints } = useBreakpoints()
 
     // Screens should still be exposed since they’re static
     expect(exposedScreens).toEqual(screens)

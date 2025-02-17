@@ -23,6 +23,8 @@
   "scripts": {
     "build": "scalar-build-rollup && vite-node scripts/publish.ts",
     "dev": "npx @scalar/cli serve ./src/documents/3.1.yaml --watch",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground": "vite-node playground/index.ts",

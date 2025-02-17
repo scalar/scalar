@@ -22,6 +22,8 @@
   "scripts": {
     "build": "scalar-build-rollup",
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet",
+    "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "test": "vitest",

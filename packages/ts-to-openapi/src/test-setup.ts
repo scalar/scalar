@@ -1,6 +1,6 @@
 import fg from 'fast-glob'
-import { readFileSync } from 'fs'
-import path from 'path'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import {
   type CompilerHost,
   JSDocParsingMode,
@@ -17,13 +17,7 @@ const compilerHost: CompilerHost = {
   getDefaultLibFileName: () => '',
   getNewLine: () => '\n',
   getSourceFile: (filename) =>
-    createSourceFile(
-      filename,
-      readFileSync(filename).toString(),
-      ScriptTarget.Latest,
-      false,
-      ScriptKind.TS,
-    ),
+    createSourceFile(filename, readFileSync(filename).toString(), ScriptTarget.Latest, false, ScriptKind.TS),
   jsDocParsingMode: JSDocParsingMode.ParseAll,
   readFile: () => undefined,
   useCaseSensitiveFileNames: () => true,

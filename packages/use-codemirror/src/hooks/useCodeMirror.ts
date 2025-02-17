@@ -1,9 +1,4 @@
-import {
-  autocompletion,
-  closeBrackets,
-  closeBracketsKeymap,
-  completionKeymap,
-} from '@codemirror/autocomplete'
+import { autocompletion, closeBrackets, closeBracketsKeymap, completionKeymap } from '@codemirror/autocomplete'
 import { indentWithTab, insertNewline } from '@codemirror/commands'
 import { css } from '@codemirror/lang-css'
 import { html } from '@codemirror/lang-html'
@@ -30,17 +25,7 @@ import {
   placeholder as placeholderExtension,
 } from '@codemirror/view'
 import { ScalarIcon } from '@scalar/components'
-import {
-  type MaybeRefOrGetter,
-  type Ref,
-  computed,
-  h,
-  onBeforeUnmount,
-  ref,
-  render,
-  toValue,
-  watch,
-} from 'vue'
+import { type MaybeRefOrGetter, type Ref, computed, h, onBeforeUnmount, ref, render, toValue, watch } from 'vue'
 
 import { customTheme } from '../themes'
 import type { CodeMirrorLanguage } from '../types'
@@ -129,10 +114,7 @@ export const useCodeMirror = (
         insert: newValue,
       },
       selection: {
-        anchor: Math.min(
-          codeMirror.value.state.selection.main.anchor,
-          newValue.length,
-        ),
+        anchor: Math.min(codeMirror.value.state.selection.main.anchor, newValue.length),
       },
     })
   }
@@ -208,19 +190,18 @@ export const useCodeMirror = (
     () => {
       if (!codeMirror.value) return
       // If a provider is
-      else {
-        const provider = hasProvider(params) ? toValue(params.provider) : null
-        const extensions = getCodeMirrorExtensions({
-          ...extensionConfig.value,
-          provider,
-        })
 
-        requestAnimationFrame(() => {
-          codeMirror.value?.dispatch({
-            effects: StateEffect.reconfigure.of(extensions),
-          })
+      const provider = hasProvider(params) ? toValue(params.provider) : null
+      const extensions = getCodeMirrorExtensions({
+        ...extensionConfig.value,
+        provider,
+      })
+
+      requestAnimationFrame(() => {
+        codeMirror.value?.dispatch({
+          effects: StateEffect.reconfigure.of(extensions),
         })
-      }
+      })
     },
     { immediate: true },
   )
@@ -331,10 +312,10 @@ function getCodeMirrorExtensions({
       onChange?.(v.state.doc.toString())
     }),
     EditorView.domEventHandlers({
-      blur: (event, view) => {
+      blur: (_event, view) => {
         onBlur?.(view.state.doc.toString())
       },
-      focus: (event, view) => {
+      focus: (_event, view) => {
         onFocus?.(view.state.doc.toString())
       },
     }),
@@ -361,8 +342,7 @@ function getCodeMirrorExtensions({
       bracketMatching(),
     )
 
-    if (!disableCloseBrackets)
-      extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
+    if (!disableCloseBrackets) extensions.push(closeBrackets(), keymap.of([...closeBracketsKeymap]))
 
     if (disableTabIndent) {
       extensions.push(
