@@ -66,53 +66,53 @@ export type ThemeId =
 
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
-  theme?: ThemeId
+  theme?: ThemeId | undefined
   /** The layout to use for the references */
-  layout?: 'modern' | 'classic'
+  layout?: 'modern' | 'classic' | undefined
   /** The Swagger/OpenAPI spec to render */
-  spec?: SpecConfiguration
+  spec?: SpecConfiguration | undefined
   /**
    * URL to a request proxy for the API client
    *
    * @deprecated Use proxyUrl instead
    */
-  proxy?: string
+  proxy?: string | undefined
   /** URL to a request proxy for the API client */
   proxyUrl?: string | undefined
   /** Whether the spec input should show */
-  isEditable?: boolean
+  isEditable?: boolean | undefined
   /** Whether to show the sidebar */
-  showSidebar?: boolean
+  showSidebar?: boolean | undefined
   /**
    * Whether to show models in the sidebar, search, and content.
    *
    * @default false
    */
-  hideModels?: boolean
+  hideModels?: boolean | undefined
   /**
    * Whether to show the “Download OpenAPI Document” button
    *
    * @default false
    */
-  hideDownloadButton?: boolean
+  hideDownloadButton?: boolean | undefined
   /**
    * Whether to show the “Test Request” button
    *
    * @default: false
    */
-  hideTestRequestButton?: boolean
+  hideTestRequestButton?: boolean | undefined
   /**
    * Whether to show the sidebar search bar
    *
    * @default: false
    */
-  hideSearch?: boolean
+  hideSearch?: boolean | undefined
   /** Whether dark mode is on or off initially (light mode) */
-  darkMode?: boolean
+  darkMode?: boolean | undefined
   /** forceDarkModeState makes it always this state no matter what*/
-  forceDarkModeState?: 'dark' | 'light'
+  forceDarkModeState?: 'dark' | 'light' | undefined
   /** Whether to show the dark mode toggle */
-  hideDarkModeToggle?: boolean
+  hideDarkModeToggle?: boolean | undefined
   /** Key used with CTRL/CMD to open the search modal (defaults to 'k' e.g. CMD+k) */
   searchHotKey?:
     | 'a'
@@ -141,33 +141,34 @@ export type ReferenceConfiguration = {
     | 'x'
     | 'y'
     | 'z'
+    | undefined
   /**
    * If used, passed data will be added to the HTML header
    * @see https://unhead.unjs.io/usage/composables/use-seo-meta
    */
-  metaData?: UseSeoMetaInput
+  metaData?: UseSeoMetaInput | undefined
   /**
    * Path to a favicon image
    *
    * @default undefined
    * @example '/favicon.svg'
    */
-  favicon?: string
+  favicon?: string | undefined
   /**
    * List of httpsnippet clients to hide from the clients menu
    * By default hides Unirest, pass `[]` to show all clients
    */
-  hiddenClients?: HiddenClients
+  hiddenClients?: HiddenClients | undefined
   /** Determine the HTTP client that’s selected by default */
-  defaultHttpClient?: HttpClientState
+  defaultHttpClient?: HttpClientState | undefined
   /** Custom CSS to be added to the page */
-  customCss?: string
+  customCss?: string | undefined
   /** onSpecUpdate is fired on spec/swagger content change */
   onSpecUpdate?: (spec: string) => void
   /** onServerChange is fired on selected server change */
   onServerChange?: (server: string) => void
   /** Prefill authentication */
-  authentication?: Partial<AuthenticationState>
+  authentication?: Partial<AuthenticationState> | undefined
   /**
    * Route using paths instead of hashes, your server MUST support this
    * for example vue router needs a catch all so any subpaths are included
@@ -178,7 +179,7 @@ export type ReferenceConfiguration = {
    * @experimental
    * @default undefined
    */
-  pathRouting?: PathRouting
+  pathRouting?: PathRouting | undefined
   /**
    * To handle redirects, pass a function that will recieve:
    * - The current path with hash if pathRouting is enabled
@@ -210,7 +211,7 @@ export type ReferenceConfiguration = {
    * @default
    * (heading: Heading) => `#description/${heading.slug}`
    */
-  generateHeadingSlug?: (heading: Heading) => string
+  generateHeadingSlug?: ((heading: Heading) => string) | undefined
   /**
    * If you want to customize the model portion of the hash you can pass in a function that receives the model name
    * and returns a string ID. This will then be used to generate the url hash. model/ will get prepended to the result
@@ -223,7 +224,7 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `#model/${slug(model.name)}`
    */
-  generateModelSlug?: (model: { name: string }) => string
+  generateModelSlug?: ((model: { name: string }) => string) | undefined
   /**
    * If you want to customize the tag portion of the hash you can pass in a function that receives the tag
    * and returns a string ID. This will then be used to generate the url hash. tag/ will get prepended to the result
@@ -236,7 +237,7 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `#tag/tag-name`
    */
-  generateTagSlug?: (tag: Tag) => string
+  generateTagSlug?: ((tag: Tag) => string) | undefined
   /**
    * If you want to customize the operation portion of the hash you can pass in a function that receives the operation
    * and returns a string ID. This will then be used to generate the url hash. tag/slug(tag.name) will get prepended to
@@ -249,12 +250,14 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `#tag/tag-name/post-path`
    */
-  generateOperationSlug?: (operation: {
-    path: string
-    operationId: string | undefined
-    method: string
-    summary: string | undefined
-  }) => string
+  generateOperationSlug?:
+    | ((operation: {
+        path: string
+        operationId: string | undefined
+        method: string
+        summary: string | undefined
+      }) => string)
+    | undefined
   /**
    * If you want to customize the webhook portion of the hash you can pass in a function that receives the webhook name
    * and possibly a HTTP verb and returns a string ID. This will then be used to generate the url hash. webhook/ will get
@@ -267,7 +270,7 @@ export type ReferenceConfiguration = {
    *
    * which would give the full hash of `#webhook/webhook-name`
    */
-  generateWebhookSlug?: (webhook: { name: string; method?: string }) => string
+  generateWebhookSlug?: ((webhook: { name: string; method?: string }) => string) | undefined
   /**
    * The baseServerURL is used when the spec servers are relative paths and we are using SSR.
    * On the client we can grab the window.location.origin but on the server we need
@@ -288,35 +291,35 @@ export type ReferenceConfiguration = {
    * }
    * ```
    */
-  onLoaded?: () => void
-  baseServerURL?: string
+  onLoaded?: ((...args: unknown[]) => void) | undefined
+  baseServerURL?: string | undefined
   /**
    * List of servers to override the servers in the given OpenAPI document
    *
    * @default undefined
    * @example [{ url: 'https://api.scalar.com', description: 'Production server' }]
    */
-  servers?: OpenAPIV3_1.ServerObject[]
+  servers?: OpenAPIV3_1.ServerObject[] | undefined
   /**
    * We’re using Inter and JetBrains Mono as the default fonts. If you want to use your own fonts, set this to false.
    *
    * @default true
    */
-  withDefaultFonts?: boolean
+  withDefaultFonts?: boolean | undefined
   /**
    * By default we only open the relevant tag based on the url, however if you want all the tags open by default then set this configuration option :)
    *
    * @default false
    */
-  defaultOpenAllTags?: boolean
+  defaultOpenAllTags?: boolean | undefined
   /**
    * Sort tags alphabetically or with a custom sort function
    */
-  tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number)
+  tagsSorter?: 'alpha' | ((a: Tag, b: Tag) => number) | undefined
   /**
    * Sort operations alphabetically, by method or with a custom sort function
    */
-  operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number)
+  operationsSorter?: 'alpha' | 'method' | ((a: TransformedOperation, b: TransformedOperation) => number) | undefined
   /**
    * Specifies the integration being used. This is primarily for internal purposes and should not be manually set.
    *
@@ -352,12 +355,13 @@ export type ReferenceConfiguration = {
     | 'react' // ✅
     | 'rust'
     | 'vue' // ✅
+    | undefined
   /**
    * Whether to show the client button from the reference sidebar and modal
    *
    * @default false
    */
-  hideClientButton?: boolean
+  hideClientButton?: boolean | undefined
 }
 
 export type BaseParameter = {
@@ -490,13 +494,13 @@ export type SpecConfiguration = {
   /**
    * URL to an OpenAPI/Swagger document
    */
-  url?: string
+  url?: string | undefined
   /**
    * Directly embed the OpenAPI document in the HTML.
    *
    * @remark It’s recommended to pass an `url` instead of `content`.
    */
-  content?: string | Record<string, any> | (() => Record<string, any>) | null
+  content?: string | Record<string, any> | (() => Record<string, any>) | null | undefined
 }
 
 export type Schema = {
