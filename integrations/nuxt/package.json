@@ -29,8 +29,10 @@
     "dev": "pnpm dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxi prepare && nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test:watch": "vitest watch",
     "types:check": "nuxi typecheck"
   },

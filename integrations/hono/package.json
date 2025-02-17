@@ -19,8 +19,10 @@
     "dev": "nodemon --exec \"vite-node playground/index.ts\" --ext ts --quiet --watch ./",
     "docker:build": "docker buildx build --platform=linux/amd64 -t scalar-hono-reference --build-arg=\"BASE_IMAGE=scalar-base\" .",
     "docker:run": "docker run -t scalar-hono-reference",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"

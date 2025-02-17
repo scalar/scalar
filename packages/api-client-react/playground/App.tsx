@@ -1,5 +1,4 @@
 import type { OpenClientPayload } from '@scalar/api-client/libs'
-import React from 'react'
 
 import { useApiClientModal } from '../src/ApiClientModalProvider'
 

@@ -1,9 +1,6 @@
 import type { ReferenceConfiguration } from '@scalar/api-reference'
 
-export type Configuration = Omit<
-  ReferenceConfiguration,
-  'layout' | 'isEditable' | 'onSpecUpdate' | 'theme'
-> & {
+export type Configuration = Omit<ReferenceConfiguration, 'layout' | 'isEditable' | 'onSpecUpdate' | 'theme'> & {
   /**
    * Whether to show scalar in Nuxt DevTools
    *

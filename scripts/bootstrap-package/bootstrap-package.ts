@@ -3,7 +3,7 @@
  *
  * Will initialize the default package.json, tsconfig.json, and Vite configuration.
  */
-import fs from 'fs/promises'
+import fs from 'node:fs/promises'
 import { createInterface } from 'node:readline/promises'
 
 import pkg from './package.json'
@@ -15,10 +15,10 @@ const readline = createInterface({
 })
 
 // Prompting the user for package details
-const name = await readline.question(`Package name: @scalar/`)
-const description = await readline.question(`Package description: `)
-const keywords = await readline.question(`Package keywords (comma separated): `)
-const useVue = (await readline.question(`Add Vue as a dependency (y/n): `))
+const name = await readline.question('Package name: @scalar/')
+const description = await readline.question('Package description: ')
+const keywords = await readline.question('Package keywords (comma separated): ')
+const useVue = (await readline.question('Add Vue as a dependency (y/n): '))
   .trim()
   .toLocaleLowerCase()
   .startsWith('y')
@@ -90,7 +90,7 @@ if (dirs.includes(name)) {
   await fs.writeFile(`${newDirName}/src/index.ts`, '')
 
   console.log()
-  console.log(`\x1b[33mPackage created.\x1b[0m`)
+  console.log('\x1b[33mPackage created.\x1b[0m')
   console.log()
   console.log(`$ cd ./packages/${name}`)
   console.log()

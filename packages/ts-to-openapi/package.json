@@ -22,8 +22,8 @@
   },
   "scripts": {
     "build": "scalar-build-rollup",
-    "format:check": "scalar-format-check",
     "format": "scalar-format",
+    "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
     "test": "vitest",

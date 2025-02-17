@@ -1,5 +1,5 @@
-@import '@scalar/api-client/style.css';
-@import '@scalar/api-reference/style.css';
+@import "@scalar/api-client/style.css";
+@import "@scalar/api-reference/style.css";
 
 .light-mode {
   --scalar-background-1: #fff;

@@ -20,17 +20,10 @@ html[data-theme="light"] .scalar-card.dark-mode {
   --scalar-color-3: var(--ifm-color-emphasis-600, #8d949e);
   --scalar-color-accent: var(--ifm-menu-color-active, #277148);
 
-  --scalar-background-1: color-mix(
-    in srgb,
-    var(--ifm-background-color, #fff) 0%,
-    white
-  );
+  --scalar-background-1: color-mix(in srgb, var(--ifm-background-color, #fff) 0%, white);
   --scalar-background-2: color-mix(in srgb, rgba(0, 0, 0, 1) 4%, white);
   --scalar-background-3: color-mix(in srgb, rgba(0, 0, 0, 1) 8%, white);
-  --scalar-background-accent: var(
-    --ifm-menu-color-background-active,
-    rgba(0, 0, 0, 0.05)
-  );
+  --scalar-background-accent: var(--ifm-menu-color-background-active, rgba(0, 0, 0, 0.05));
 
   --scalar-border-color: var(--ifm-color-emphasis-300, #ebedf0);
 
@@ -53,20 +46,9 @@ html[data-theme="dark"] body,
   --scalar-color-accent: var(--ifm-menu-color-active, #1fa588);
 
   --scalar-background-1: var(--ifm-background-color, #1b1b1d);
-  --scalar-background-2: color-mix(
-    in srgb,
-    rgba(255, 255, 255, 1) 6%,
-    var(--ifm-background-color)
-  );
-  --scalar-background-3: color-mix(
-    in srgb,
-    rgba(255, 255, 255, 1) 12%,
-    var(--ifm-background-color)
-  );
-  --scalar-background-accent: var(
-    --ifm-menu-color-background-active,
-    hsla(0, 0%, 100%, 0.05)
-  );
+  --scalar-background-2: color-mix(in srgb, rgba(255, 255, 255, 1) 6%, var(--ifm-background-color));
+  --scalar-background-3: color-mix(in srgb, rgba(255, 255, 255, 1) 12%, var(--ifm-background-color));
+  --scalar-background-accent: var(--ifm-menu-color-background-active, hsla(0, 0%, 100%, 0.05));
 
   --scalar-border-color: var(--ifm-color-emphasis-200, #444950);
 
@@ -89,24 +71,15 @@ html[data-theme="dark"] body,
   --scalar-sidebar-color-1: var(--scalar-color-1);
   --scalar-sidebar-color-2: var(--scalar-color-2);
   --scalar-sidebar-color-active: var(--scalar-color-accent);
-  --scalar-sidebar-search-background: var(
-    --docsearch-searchbox-background,
-    transparent
-  );
+  --scalar-sidebar-search-background: var(--docsearch-searchbox-background, transparent);
   --scalar-sidebar-search-border-color: var(--scalar-border-color);
   --scalar-sidebar-search--color: var(--scalar-color-3);
 }
 html[data-theme="light"] body .t-doc__sidebar {
-  --scalar-sidebar-item-hover-background: var(
-    --ifm-menu-color-background-hover,
-    rgba(0, 0, 0, 0.05)
-  );
+  --scalar-sidebar-item-hover-background: var(--ifm-menu-color-background-hover, rgba(0, 0, 0, 0.05));
 }
 html[data-theme="dark"] body .t-doc__sidebar {
-  --scalar-sidebar-item-hover-background: var(
-    --ifm-menu-color-background-hover,
-    hsla(0, 0%, 100%, 0.05)
-  );
+  --scalar-sidebar-item-hover-background: var(--ifm-menu-color-background-hover, hsla(0, 0%, 100%, 0.05));
 }
 .references-rendered .section-header {
   color: var(--ifm-heading-color, var(--scalar-color-1));
@@ -211,17 +184,13 @@ html[data-theme="light"] body .api-client-drawer {
 }
 .scalar-card {
   --full-height: calc(100dvh - var(--ifm-navbar-height));
-  max-height: calc(
-    ((var(--full-height) - var(--refs-header-height)) - 60px) /
-    2
-  );
+  max-height: calc(((var(--full-height) - var(--refs-header-height)) - 60px) / 2);
 }
 .scalar-card .scalar-codeblock-pre {
   padding: 0;
 }
 .sidebar-heading-chevron {
-  padding: var(--ifm-menu-link-padding-vertical)
-    var(--ifm-menu-link-padding-horizontal);
+  padding: var(--ifm-menu-link-padding-vertical) var(--ifm-menu-link-padding-horizontal);
   margin: 0 !important;
   margin-right: -9px !important;
 }

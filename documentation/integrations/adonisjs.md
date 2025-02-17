@@ -78,8 +78,8 @@ To actually serve an OpenAPI file and render the reference with Scalar you can e
 
 ```ts
 // start/routes.ts
-import openapi from '#config/openapi'
 import router from '@adonisjs/core/services/router'
+import openapi from '#config/openapi'
 import AutoSwagger from 'adonis-autoswagger'
 
 // Just an example route

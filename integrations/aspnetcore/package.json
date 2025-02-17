@@ -15,9 +15,16 @@
     "node": ">=18"
   },
   "scripts": {
-    "prepare:build": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js"
+    "prepare:build": "cp ../../packages/api-reference/dist/browser/standalone.js ./src/Scalar.AspNetCore/StaticAssets/scalar.js",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix"
   },
   "dependencies": {
     "@scalar/api-reference": "workspace:*"
+  },
+  "devDependencies": {
+    "@scalar/build-tooling": "workspace:*"
   }
 }

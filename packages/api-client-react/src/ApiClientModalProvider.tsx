@@ -5,8 +5,8 @@ import type {
   ClientConfiguration,
   OpenClientPayload,
 } from '@scalar/api-client/libs'
-import React, {
-  PropsWithChildren,
+import {
+  type PropsWithChildren,
   createContext,
   useContext,
   useEffect,

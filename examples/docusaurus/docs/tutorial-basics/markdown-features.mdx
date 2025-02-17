@@ -64,14 +64,14 @@ Markdown code blocks are supported with Syntax highlighting.
 ````md
 ```jsx title="src/components/HelloDocusaurus.js"
 function HelloDocusaurus() {
-  return <h1>Hello, Docusaurus!</h1>;
+  return <h1>Hello, Docusaurus!</h1>
 }
 ```
 ````
 
 ```jsx title="src/components/HelloDocusaurus.js"
 function HelloDocusaurus() {
-  return <h1>Hello, Docusaurus!</h1>;
+  return <h1>Hello, Docusaurus!</h1>
 }
 ```
 
@@ -131,7 +131,7 @@ This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
 This is <Highlight color="#1877F2">Facebook blue</Highlight> !
 ```
 
-export const Highlight = ({children, color}) => (
+export const Highlight = ({ children, color }) => (
   <span
     style={{
       backgroundColor: color,
@@ -141,11 +141,11 @@ export const Highlight = ({children, color}) => (
       cursor: 'pointer',
     }}
     onClick={() => {
-      alert(`You clicked the color ${color} with label ${children}`);
+      alert(`You clicked the color ${color} with label ${children}`)
     }}>
     {children}
   </span>
-);
+)
 
 This is <Highlight color="#25c2a0">Docusaurus green</Highlight> !
 

@@ -20,8 +20,10 @@
     "dev": "cd playground && pnpm dev",
     "docker:build": "docker build --build-arg BASE_IMAGE=scalar-base -t express-api-reference -f Dockerfile .",
     "docker:run": "docker run -p 5055:5055 express-api-reference",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint .  --fix",
+    "format:check": "scalar-format-check",
+    "format": "scalar-format",
+    "lint:check": "scalar-lint-check",
+    "lint:fix": "scalar-lint-fix",
     "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
