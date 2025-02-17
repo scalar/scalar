@@ -101,7 +101,7 @@ const hasServers = computed(() => Object.keys(servers).length > 0)
                       'rotate-90': collapsedSidebarFolders[collection.uid],
                     }">
                     <ScalarIcon
-                      class="text-c-3 hidden text-sm group-hover:block"
+                      class="text-c-3 hidden text-sm group-hover:block hover:text-c-1"
                       icon="ChevronRight"
                       size="md" />
                   </div>
@@ -148,9 +148,8 @@ const hasServers = computed(() => Object.keys(servers).length > 0)
                   variant="ghost"
                   @click="openCommandPaletteServer(collection.uid)">
                   <ScalarIcon
-                    class="ml-0.5 h-2.5 w-2.5"
                     icon="Add"
-                    thickness="3" />
+                    size="sm" />
                   <span>Add Server</span>
                 </ScalarButton>
               </div>
