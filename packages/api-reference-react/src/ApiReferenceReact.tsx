@@ -5,7 +5,7 @@ import {
   createScalarReferences,
 } from '@scalar/api-reference'
 import '@scalar/api-reference/style.css'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 // These are required for the vue bundler version
 globalThis.__VUE_OPTIONS_API__ = true
