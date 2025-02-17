@@ -1,3 +1,5 @@
+import type { EnvVariable } from '@/store/active-entities'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
 import {
   type Collection,
   collectionSchema,
@@ -75,6 +77,10 @@ describe('RequestAuth.vue', () => {
       server: serverSchema.parse({
         url: 'https://api.example.com',
       }),
+      environment: environmentSchema.parse({
+        uid: 'test-environment',
+      }),
+      envVariables: [] as EnvVariable[],
       title: 'Authentication',
       layout: 'client',
       workspace: workspaceSchema.parse({

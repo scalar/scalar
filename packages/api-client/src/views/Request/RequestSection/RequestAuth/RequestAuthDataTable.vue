@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { DataTable } from '@/components/DataTable'
+import type { EnvVariable } from '@/store/active-entities'
 import { useModal } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, watch } from 'vue'
@@ -10,12 +12,16 @@ import RequestAuthTab from './RequestAuthTab.vue'
 
 const {
   collection,
+  environment,
+  envVariables,
   layout = 'client',
   selectedSchemeOptions = [],
   server,
   workspace,
 } = defineProps<{
   collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   selectedSchemeOptions: { id: string; label: string }[]
   server: Server | undefined
@@ -78,6 +84,8 @@ watch(
       :columns="['']">
       <RequestAuthTab
         :collection="collection"
+        :envVariables="envVariables"
+        :environment="environment"
         :layout="layout"
         :securitySchemeUids="activeScheme"
         :server="server"

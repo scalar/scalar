@@ -70,7 +70,7 @@ export function importSpecFileFactory({
       workspaceEntities.collection.uid,
     ])
 
-    return workspaceEntities.collection
+    return workspaceEntities
   }
 
   /**

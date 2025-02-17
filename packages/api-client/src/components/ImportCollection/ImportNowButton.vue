@@ -27,7 +27,7 @@ async function importCollection() {
   try {
     if (props.source) {
       if (isUrl(props.source)) {
-        const [error, collection] = await importSpecFromUrl(
+        const [error, entities] = await importSpecFromUrl(
           props.source,
           activeWorkspace.value?.uid ?? '',
           {
@@ -35,13 +35,13 @@ async function importCollection() {
             watchMode: props.watchMode,
           },
         )
-        if (!error) redirectToFirstRequestInCollection(collection)
+        if (!error) redirectToFirstRequestInCollection(entities?.collection)
       } else {
-        const collection = await importSpecFile(
+        const entities = await importSpecFile(
           props.source,
           activeWorkspace.value?.uid ?? '',
         )
-        redirectToFirstRequestInCollection(collection)
+        redirectToFirstRequestInCollection(entities?.collection)
       }
 
       toast('Import successful', 'info')

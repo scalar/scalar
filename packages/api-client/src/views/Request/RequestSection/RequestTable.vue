@@ -4,8 +4,11 @@ import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
+import type { EnvVariable } from '@/store/active-entities'
 import { ScalarButton, ScalarIcon, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { RequestExampleParameter } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
@@ -20,6 +23,9 @@ const props = withDefaults(
     showUploadButton?: boolean
     isGlobal?: boolean
     isReadOnly?: boolean
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
   }>(),
   {
     hasCheckboxDisabled: false,
@@ -127,9 +133,12 @@ const flattenValue = (item: RequestExampleParameter) => {
           :disabled="props.isReadOnly"
           disableEnter
           disableTabIndent
+          :envVariables="envVariables"
+          :environment="environment"
           :modelValue="item.key"
           placeholder="Key"
           :required="Boolean(item.required)"
+          :workspace="workspace"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
           @selectVariable="(v: string) => handleSelectVariable(idx, 'key', v)"
@@ -148,6 +157,8 @@ const flattenValue = (item: RequestExampleParameter) => {
           disableEnter
           disableTabIndent
           :enum="item.enum ?? []"
+          :envVariables="envVariables"
+          :environment="environment"
           :examples="item.examples ?? []"
           :max="item.maximum"
           :min="item.minimum"
@@ -155,6 +166,7 @@ const flattenValue = (item: RequestExampleParameter) => {
           :nullable="Boolean(item.nullable)"
           placeholder="Value"
           :type="item.type"
+          :workspace="workspace"
           @blur="emit('inputBlur')"
           @focus="emit('inputFocus')"
           @selectVariable="(v: string) => handleSelectVariable(idx, 'value', v)"

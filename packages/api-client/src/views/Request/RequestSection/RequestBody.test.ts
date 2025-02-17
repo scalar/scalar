@@ -1,6 +1,11 @@
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+import { createStoreEvents } from '@/store/events'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
+import {
+  operationSchema,
+  requestExampleSchema,
+} from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import {
   type Mock,
@@ -24,33 +29,42 @@ vi.mock('@/store/active-entities', () => ({
 }))
 
 describe('RequestBody.vue', () => {
-  const props = { props: { title: 'Body' } }
-  const mockActiveRequest = { value: { uid: 'mockRequestUid' } }
-  const mockActiveExample: { value: Partial<RequestExample> } = {
-    value: {
-      uid: 'mockExampleUid',
-      body: {
-        activeBody: 'raw',
-      },
+  const mockOperation = operationSchema.parse({ uid: 'mockRequestUid' })
+  const mockActiveExample = requestExampleSchema.parse({
+    uid: 'mockExampleUid',
+    body: {
+      activeBody: 'raw',
     },
-  }
-  const mockActiveEnvironment = { value: { uid: 'mockEnvironmentUid' } }
-  const mockActiveEnvVariables = { value: [] }
-  const mockActiveWorkspace = { value: {} }
+  })
+  const mockActiveEnvironment = environmentSchema.parse({
+    uid: 'mockEnvironmentUid',
+  })
+  const mockActiveWorkspace = workspaceSchema.parse({
+    uid: 'mockWorkspaceUid',
+  })
   const mockRequestExampleMutators = {
     edit: vi.fn(),
+  }
+  const props = {
+    props: {
+      title: 'Body',
+      example: mockActiveExample,
+      operation: mockOperation,
+      environment: mockActiveEnvironment,
+      envVariables: [],
+      workspace: mockActiveWorkspace,
+    },
+    global: {
+      stubs: {
+        RouterLink: true,
+      },
+    },
   }
 
   // Mock our request + example
   beforeEach(() => {
-    ;(useActiveEntities as Mock).mockReturnValue({
-      activeRequest: mockActiveRequest,
-      activeExample: mockActiveExample,
-      activeEnvironment: mockActiveEnvironment,
-      activeEnvVariables: mockActiveEnvVariables,
-      activeWorkspace: mockActiveWorkspace,
-    })
     ;(useWorkspace as Mock).mockReturnValue({
+      events: createStoreEvents(),
       requestExampleMutators: mockRequestExampleMutators,
     })
   })
@@ -66,7 +80,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with multipart form', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'formData',
       formData: {
         encoding: 'form-data',
@@ -80,8 +94,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with url encoded form', async () => {
-    // @ts-expect-error TODO: figure out how vue utils handles unwrapping refs
-    mockActiveExample.body = mockActiveExample.value.body = {
+    mockActiveExample.body = mockActiveExample.body = {
       activeBody: 'formData',
       formData: {
         encoding: 'urlencoded',
@@ -95,7 +108,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with binary file', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'binary',
     }
     const wrapper = mount(RequestBody, props)
@@ -105,7 +118,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with json', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
         encoding: 'json',
@@ -119,7 +132,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with xml', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
         encoding: 'xml',
@@ -133,7 +146,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with yaml', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
         encoding: 'yaml',
@@ -147,7 +160,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with edn', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
         encoding: 'edn',
@@ -161,7 +174,7 @@ describe('RequestBody.vue', () => {
   })
 
   it('renders with other', async () => {
-    mockActiveExample.value.body = {
+    mockActiveExample.body = {
       activeBody: 'raw',
       raw: {
         encoding: 'html',
