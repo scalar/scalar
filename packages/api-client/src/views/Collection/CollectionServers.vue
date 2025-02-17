@@ -5,7 +5,6 @@ import CollectionServersForm from '@/views/Collection/CollectionServersForm.vue'
 
 <template>
   <ViewLayoutSection>
-    <template #title>Servers</template>
     <CollectionServersForm />
   </ViewLayoutSection>
 </template>

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { PathId } from '@/routes'
-import { useActiveEntities } from '@/store'
 // import type { Icon } from '@scalar/components'
 import { computed } from 'vue'
-import { type RouteLocationNamedRaw, RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRouter, type RouteLocationNamedRaw } from 'vue-router'
+
+import { PathId } from '@/routes'
+import { useActiveEntities } from '@/store'
 
 const { currentRoute } = useRouter()
 const { activeCollection } = useActiveEntities()
@@ -99,16 +100,16 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
     </span>
   </div> -->
   <div
-    class="border-b min-h-11 flex items-center px-3 text-sm font-medium sticky top-0 bg-b-1 gap-5">
+    class="bg-b-1 sticky top-0 flex min-h-11 items-center gap-5 border-b px-3 text-sm font-medium">
     <RouterLink
       v-for="({ to, displayName }, i) in routes"
       :key="i"
-      class="border-b border-solid border-transparent flex items-center h-full cursor-pointer text-center font-medium whitespace-nowrap has-[:focus-visible]:outline text-sm no-underline"
+      class="flex h-full cursor-pointer items-center whitespace-nowrap border-b border-solid border-transparent text-center text-sm font-medium no-underline has-[:focus-visible]:outline"
       :class="
         typeof to.name === 'string' &&
         typeof currentRoute.name === 'string' &&
         currentRoute.name?.startsWith(to.name)
-          ? 'border-white text-c-1'
+          ? 'text-c-1 border-white'
           : 'text-c-2 hover:text-c-1'
       "
       :to="to">
