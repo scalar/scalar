@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { migrateThemeVariables } from '@scalar/themes'
-import type { ReferenceConfiguration } from '@scalar/types/legacy'
-import { ApiReferenceConfigurationSchema } from '@scalar/types/packages'
+import {
+  ApiReferenceConfigurationSchema,
+  type ApiReferenceConfiguration,
+} from '@scalar/types/packages'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { useSeoMeta } from '@unhead/vue'
 import { useFavicon } from '@vueuse/core'
@@ -50,7 +52,7 @@ const customCss = computed(() => {
 //   customCss: customCss.value,
 // }))
 
-const configuration = computed<ApiReferenceConfigurationSchema>(() => {
+const configuration = computed<ApiReferenceConfiguration>(() => {
   const config = ApiReferenceConfigurationSchema.parse(props.configuration)
 
   return {
