@@ -794,8 +794,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
-        specifier: ^5.0.7
-        version: 5.0.7
+        specifier: ^5.0.9
+        version: 5.1.0
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
@@ -961,8 +961,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       nanoid:
-        specifier: ^5.0.7
-        version: 5.0.7
+        specifier: ^5.0.9
+        version: 5.1.0
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
@@ -1335,8 +1335,8 @@ importers:
         specifier: 1.0.0-beta.2
         version: 1.0.0-beta.2(typescript@5.6.2)
       nanoid:
-        specifier: ^5.0.7
-        version: 5.0.7
+        specifier: ^5.0.9
+        version: 5.1.0
       pretty-bytes:
         specifier: ^6.1.1
         version: 6.1.1
@@ -1714,8 +1714,8 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
       nanoid:
-        specifier: ^5.0.7
-        version: 5.0.7
+        specifier: ^5.0.9
+        version: 5.1.0
       yaml:
         specifier: ^2.4.5
         version: 2.4.5
@@ -2177,8 +2177,8 @@ importers:
   packages/use-toasts:
     dependencies:
       nanoid:
-        specifier: ^5.0.7
-        version: 5.0.7
+        specifier: ^5.0.9
+        version: 5.1.0
       vue:
         specifier: ^3.5.12
         version: 3.5.12(typescript@5.6.2)
@@ -13481,8 +13481,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.0.7:
-    resolution: {integrity: sha512-oLxFY2gd2IqnjcYyOXD8XGCftpGtZP2AbHbOkthDkvRywH5ayNtPVy9YlOPcHckXzbLTCHpkb7FB+yuxKV13pQ==}
+  nanoid@5.1.0:
+    resolution: {integrity: sha512-zDAl/llz8Ue/EblwSYwdxGBYfj46IM1dhjVi8dyp9LQffoIGxJEAHj2oeZ4uNcgycSRcQ83CnfcZqEJzVDLcDw==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -23441,7 +23441,7 @@ snapshots:
       is-docker: 3.0.0
       jiti: 1.21.6
       mri: 1.2.0
-      nanoid: 5.0.7
+      nanoid: 5.1.0
       ofetch: 1.4.1
       package-manager-detector: 0.2.0
       parse-git-config: 3.0.0
@@ -33554,7 +33554,7 @@ snapshots:
 
   nanoid@3.3.7: {}
 
-  nanoid@5.0.7: {}
+  nanoid@5.1.0: {}
 
   nanotar@0.1.1: {}
 
@@ -35373,7 +35373,7 @@ snapshots:
       aria-hidden: 1.2.4
       defu: 6.1.4
       fast-deep-equal: 3.1.3
-      nanoid: 5.0.7
+      nanoid: 5.1.0
       vue: 3.5.12(typescript@5.6.2)
     transitivePeerDependencies:
       - '@vue/composition-api'

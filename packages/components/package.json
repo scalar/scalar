@@ -54,7 +54,7 @@
     "@scalar/use-toasts": "workspace:*",
     "@vueuse/core": "^10.10.0",
     "cva": "1.0.0-beta.2",
-    "nanoid": "^5.0.7",
+    "nanoid": "^5.0.9",
     "pretty-bytes": "^6.1.1",
     "radix-vue": "^1.9.3",
     "tailwind-merge": "^2.5.5",
