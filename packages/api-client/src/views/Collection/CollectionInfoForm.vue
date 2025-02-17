@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import { ScalarButton } from '@scalar/components'
+import { LibraryIcon } from '@scalar/icons'
+import { computed } from 'vue'
+
 import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import MarkdownInput from '@/views/Collection/components/MarkdownInput.vue'
-import { ScalarButton } from '@scalar/components'
-import { LibraryIcon } from '@scalar/icons'
-import { computed } from 'vue'
 
 const { activeCollection } = useActiveEntities()
 const { collectionMutators } = useWorkspace()
@@ -58,25 +59,26 @@ const data = computed(() => {
 <template>
   <div
     :aria-label="`Collection: ${data.title}`"
-    class="flex flex-col gap-2 h-full mx-auto py-6 w-full md:max-h-[82dvh] md:max-w-[50dvw]">
+    class="mx-auto flex h-full w-full flex-col gap-2 py-6 md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="relative">
       <IconSelector
         :modelValue="icon"
         placement="bottom-start"
         @update:modelValue="(value) => updateCollectionIcon(value)">
         <ScalarButton
-          class="absolute cursor-pointer -left-6 top-1/2 -translate-y-1/2 h-6 w-6 aspect-square p-0.25 rounded hover:bg-b-2"
+          class="p-0.25 hover:bg-b-2 absolute -left-6 top-1/2 aspect-square h-6 w-6 -translate-y-1/2 cursor-pointer rounded"
           variant="ghost">
           <LibraryIcon
-            class="size-4 text-c-2 stroke-[1.75]"
+            class="text-c-2 size-4 stroke-[1.75]"
             :src="icon" />
         </ScalarButton>
       </IconSelector>
-      <div class="group ml-1.25">
+      <div class="ml-1.25 group">
         <LabelInput
           inputId="collectionName"
           placeholder="Untitled Collection"
           :value="data.title"
+          class="text-[18px]"
           @updateValue="updateCollectionTitle" />
       </div>
     </div>
