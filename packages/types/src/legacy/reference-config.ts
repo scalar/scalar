@@ -64,6 +64,9 @@ export type ThemeId =
   | 'mars'
   | 'none'
 
+/**
+ * @deprecated Use `ApiReferenceConfiguration` instead
+ */
 export type ReferenceConfiguration = {
   /** A string to use one of the color presets */
   theme?: ThemeId | undefined
