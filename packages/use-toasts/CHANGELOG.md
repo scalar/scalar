@@ -1,5 +1,11 @@
 # @scalar/use-toasts
 
+## 0.7.9
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 0.7.8
 
 ### Patch Changes

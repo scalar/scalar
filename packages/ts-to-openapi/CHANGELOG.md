@@ -1,5 +1,12 @@
 # @scalar/ts-to-openapi
 
+## 0.0.5
+
+### Patch Changes
+
+- 54fdfcb: chore: remove spec wording
+- fa6afe8: chore: code formatting
+
 ## 0.0.4
 
 ### Patch Changes

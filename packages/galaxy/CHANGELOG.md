@@ -1,5 +1,13 @@
 # @scalar/galaxy
 
+## 0.2.20
+
+### Patch Changes
+
+- 54fdfcb: chore: remove spec wording
+- fa6afe8: chore: code formatting
+- 1223c1f: chore: code style
+
 ## 0.2.19
 
 ### Patch Changes

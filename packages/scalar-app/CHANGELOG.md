@@ -1,5 +1,23 @@
 # scalar-app
 
+## 0.1.142
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- Updated dependencies [453ed40]
+- Updated dependencies [54fdfcb]
+- Updated dependencies [825bc40]
+- Updated dependencies [fa6afe8]
+- Updated dependencies [8671902]
+- Updated dependencies [7ce8d4c]
+- Updated dependencies [4d30a35]
+- Updated dependencies [4dedb68]
+  - @scalar/api-client@2.2.48
+  - @scalar/import@0.2.25
+  - @scalar/components@0.13.24
+  - @scalar/themes@0.9.67
+
 ## 0.1.141
 
 ### Patch Changes

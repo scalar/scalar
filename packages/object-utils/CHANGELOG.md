@@ -1,5 +1,11 @@
 # @scalar/object-utils
 
+## 1.1.13
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 1.1.12
 
 ### Patch Changes

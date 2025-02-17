@@ -1,5 +1,11 @@
 # @scalar/use-tooltip
 
+## 1.0.6
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 1.0.5
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @scalar/nextjs-openapi
 
+## 0.0.36
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- Updated dependencies [54fdfcb]
+- Updated dependencies [fa6afe8]
+  - @scalar/ts-to-openapi@0.0.5
+  - @scalar/types@0.0.33
+  - @scalar/nextjs-api-reference@0.5.9
+
 ## 0.0.35
 
 ### Patch Changes

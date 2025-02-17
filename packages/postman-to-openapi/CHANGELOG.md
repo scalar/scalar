@@ -1,5 +1,15 @@
 # @scalar/postman-to-openapi
 
+## 0.1.28
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- 1223c1f: chore: code style
+- Updated dependencies [54fdfcb]
+  - @scalar/oas-utils@0.2.105
+  - @scalar/openapi-types@0.1.7
+
 ## 0.1.27
 
 ### Patch Changes

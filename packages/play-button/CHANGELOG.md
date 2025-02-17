@@ -1,5 +1,25 @@
 # @scalar/play-button
 
+## 0.2.195
+
+### Patch Changes
+
+- 54fdfcb: chore: remove spec wording
+- fa6afe8: chore: code formatting
+- Updated dependencies [453ed40]
+- Updated dependencies [54fdfcb]
+- Updated dependencies [fa6afe8]
+- Updated dependencies [8671902]
+- Updated dependencies [1223c1f]
+- Updated dependencies [7ce8d4c]
+- Updated dependencies [4dedb68]
+  - @scalar/api-client@2.2.48
+  - @scalar/oas-utils@0.2.105
+  - @scalar/types@0.0.33
+  - @scalar/themes@0.9.67
+  - @scalar/openapi-parser@0.10.7
+  - @scalar/api-reference@1.25.119
+
 ## 0.2.194
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @scalar/void-server
 
+## 2.0.15
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- 1223c1f: chore: code style
+
 ## 2.0.14
 
 ### Patch Changes
