@@ -1,15 +1,13 @@
 import { nanoidSchema } from '@/entities/shared'
 import { schemaModel } from '@/helpers'
-import {
-  getRequestBodyFromOperation,
-  getServerVariableExamples,
-} from '@/spec-getters'
+import { getRequestBodyFromOperation, getServerVariableExamples } from '@/spec-getters'
 import { keysOf } from '@scalar/object-utils/arrays'
 import { z } from 'zod'
 
 import type { RequestParameter } from './parameters'
 import type { Request } from './requests'
 import type { Server } from './server'
+import type { ENTITY_BRANDS } from '@/entities/shared/utility'
 
 // ---------------------------------------------------------------------------
 // Example Parameters
@@ -45,36 +43,31 @@ export const requestExampleParametersSchema = z
     nullable: z.boolean().optional(),
   })
   // set nullable: to true if type is ['string', 'null']
-  .transform((data) => {
+  .transform((_data) => {
+    const data = { ..._data }
+
     // type: ['string', 'null'] -> nullable: true
     if (Array.isArray(data.type) && data.type.includes('null')) {
-      data = { ...data, nullable: true }
+      data.nullable = true
     }
 
     // Hey, if it’s just one value and 'null', we can make it a string and ditch the 'null'.
-    if (
-      Array.isArray(data.type) &&
-      data.type.length === 2 &&
-      data.type.includes('null')
-    ) {
-      data = { ...data, type: data.type.find((item) => item !== 'null') }
+    if (Array.isArray(data.type) && data.type.length === 2 && data.type.includes('null')) {
+      data.type = data.type.find((item) => item !== 'null')
     }
 
     return data
   })
 
 /** Convert the array of parameters to an object keyed by the parameter name */
-export function parameterArrayToObject(params: RequestExampleParameter[]) {
-  return params.reduce<Record<string, string>>((map, param) => {
+export const parameterArrayToObject = (params: RequestExampleParameter[]) =>
+  params.reduce<Record<string, string>>((map, param) => {
     map[param.key] = param.value
     return map
   }, {})
-}
 
 /** Request examples - formerly known as instances - are "children" of requests */
-export type RequestExampleParameter = z.infer<
-  typeof requestExampleParametersSchema
->
+export type RequestExampleParameter = z.infer<typeof requestExampleParametersSchema>
 
 export const xScalarFileValueSchema = z
   .object({
@@ -115,15 +108,7 @@ export type XScalarFormDataValue = z.infer<typeof xScalarFormDataValue>
  *
  * TODO: This list may not be comprehensive enough
  */
-export const exampleRequestBodyEncoding = [
-  'json',
-  'text',
-  'html',
-  'javascript',
-  'xml',
-  'yaml',
-  'edn',
-] as const
+export const exampleRequestBodyEncoding = ['json', 'text', 'html', 'javascript', 'xml', 'yaml', 'edn'] as const
 
 export type BodyEncoding = (typeof exampleRequestBodyEncoding)[number]
 
@@ -168,16 +153,12 @@ export const exampleRequestBodySchema = z.object({
     .optional(),
   formData: z
     .object({
-      encoding: z
-        .union([z.literal('form-data'), z.literal('urlencoded')])
-        .default('form-data'),
+      encoding: z.union([z.literal('form-data'), z.literal('urlencoded')]).default('form-data'),
       value: requestExampleParametersSchema.array().default([]),
     })
     .optional(),
   binary: z.instanceof(Blob).optional(),
-  activeBody: z
-    .union([z.literal('raw'), z.literal('formData'), z.literal('binary')])
-    .default('raw'),
+  activeBody: z.union([z.literal('raw'), z.literal('formData'), z.literal('binary')]).default('raw'),
 })
 
 export type ExampleRequestBody = z.infer<typeof exampleRequestBodySchema>
@@ -201,18 +182,16 @@ export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 // Example Schema
 
 export const requestExampleSchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand<ENTITY_BRANDS['EXAMPLE']>(),
   type: z.literal('requestExample').optional().default('requestExample'),
-  requestUid: nanoidSchema,
+  requestUid: nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(),
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
   parameters: z
     .object({
       path: requestExampleParametersSchema.array().default([]),
       query: requestExampleParametersSchema.array().default([]),
-      headers: requestExampleParametersSchema
-        .array()
-        .default([{ key: 'Accept', value: '*/*', enabled: true }]),
+      headers: requestExampleParametersSchema.array().default([{ key: 'Accept', value: '*/*', enabled: true }]),
       cookies: requestExampleParametersSchema.array().default([]),
     })
     .optional()
@@ -224,9 +203,7 @@ export const requestExampleSchema = z.object({
 export type RequestExample = z.infer<typeof requestExampleSchema>
 
 /** For OAS serialization we just store the simple key/value pairs */
-const xScalarExampleParameterSchema = z
-  .record(z.string(), z.string())
-  .optional()
+const xScalarExampleParameterSchema = z.record(z.string(), z.string()).optional()
 
 /** Schema for the OAS serialization of request examples */
 export const xScalarExampleSchema = z.object({
@@ -264,15 +241,10 @@ export function convertExampleToXScalar(example: RequestExample) {
 
   if (active === 'formData' && example.body?.[active]) {
     const body = example.body[active]
-    xScalarBody.encoding =
-      body.encoding === 'form-data'
-        ? 'multipart/form-data'
-        : 'application/x-www-form-urlencoded'
+    xScalarBody.encoding = body.encoding === 'form-data' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'
 
     // TODO: Need to allow users to set these properties
-    xScalarBody.content = body.value.reduce<
-      Record<string, XScalarFormDataValue>
-    >((map, param) => {
+    xScalarBody.content = body.value.reduce<Record<string, XScalarFormDataValue>>((map, param) => {
       /** TODO: We need to ensure only file or value is set */
       map[param.key] = param.file
         ? {
@@ -288,8 +260,7 @@ export function convertExampleToXScalar(example: RequestExample) {
   }
 
   if (example.body?.activeBody === 'raw') {
-    xScalarBody.encoding =
-      contentMapping[example.body.raw?.encoding ?? 'text'] ?? 'text/plain'
+    xScalarBody.encoding = contentMapping[example.body.raw?.encoding ?? 'text'] ?? 'text/plain'
 
     xScalarBody.content = example.body.raw?.value ?? ''
   }
@@ -304,10 +275,7 @@ export function convertExampleToXScalar(example: RequestExample) {
 
   return xScalarExampleSchema.parse({
     /** Only add the body if we have content or the body should be a file */
-    body:
-      xScalarBody.content || xScalarBody.encoding === 'binary'
-        ? xScalarBody
-        : undefined,
+    body: xScalarBody.content || xScalarBody.encoding === 'binary' ? xScalarBody : undefined,
     parameters,
   })
 }
@@ -328,12 +296,7 @@ export function createParamInstance(param: RequestParameter) {
    * - Need to handle unions/array values for schema
    */
   const value = String(
-    schema?.default ??
-      schema?.examples?.[0] ??
-      schema?.example ??
-      firstExample?.value ??
-      param.example ??
-      '',
+    schema?.default ?? schema?.examples?.[0] ?? schema?.example ?? firstExample?.value ?? param.example ?? '',
   )
 
   // Handle non-string enums and enums within items for array types
@@ -345,10 +308,7 @@ export function createParamInstance(param: RequestParameter) {
         : schema?.enum
 
   // Handle non-string examples
-  const parseExamples =
-    schema?.examples && schema?.type !== 'string'
-      ? schema.examples?.map(String)
-      : schema?.examples
+  const parseExamples = schema?.examples && schema?.type !== 'string' ? schema.examples?.map(String) : schema?.examples
 
   // safe parse the example
   const example = schemaModel(
@@ -370,24 +330,19 @@ export function createParamInstance(param: RequestParameter) {
   if (!example) {
     console.warn(`Example at ${param.name} is invalid.`)
     return requestExampleParametersSchema.parse({})
-  } else return example
+  }
+
+  return example
 }
 
 /**
  * Create new request example from a request
  * Iterates the name of the example if provided
  */
-export function createExampleFromRequest(
-  request: Request,
-  name: string,
-  server?: Server,
-): RequestExample {
+export function createExampleFromRequest(request: Request, name: string, server?: Server): RequestExample {
   // ---------------------------------------------------------------------------
   // Populate all parameters with an example value
-  const parameters: Record<
-    'path' | 'cookie' | 'header' | 'query' | 'headers',
-    RequestExampleParameter[]
-  > = {
+  const parameters: Record<'path' | 'cookie' | 'header' | 'query' | 'headers', RequestExampleParameter[]> = {
     path: [],
     query: [],
     cookie: [],
@@ -397,9 +352,7 @@ export function createExampleFromRequest(
   }
 
   // Populated the separated params
-  request.parameters?.forEach((p) =>
-    parameters[p.in].push(createParamInstance(p)),
-  )
+  request.parameters?.forEach((p) => parameters[p.in].push(createParamInstance(p)))
 
   // TODO: add zod transform to remove header and only support headers
   if (parameters.header.length > 0) {
@@ -452,10 +405,7 @@ export function createExampleFromRequest(
     ) {
       body.activeBody = 'formData'
       body.formData = {
-        encoding:
-          requestBody.mimeType === 'application/x-www-form-urlencoded'
-            ? 'urlencoded'
-            : 'form-data',
+        encoding: requestBody.mimeType === 'application/x-www-form-urlencoded' ? 'urlencoded' : 'form-data',
         value: (requestBody.params || []).map((param) => ({
           key: param.name,
           value: param.value || '',
@@ -465,10 +415,7 @@ export function createExampleFromRequest(
     }
 
     // Add the content-type header if it doesn't exist
-    if (
-      requestBody?.mimeType &&
-      !parameters.headers.find((h) => h.key.toLowerCase() === 'content-type')
-    ) {
+    if (requestBody?.mimeType && !parameters.headers.find((h) => h.key.toLowerCase() === 'content-type')) {
       parameters.headers.push({
         key: 'Content-Type',
         value: requestBody.mimeType,

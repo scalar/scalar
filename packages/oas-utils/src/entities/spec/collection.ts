@@ -1,7 +1,4 @@
-import {
-  nanoidSchema,
-  selectedSecuritySchemeUidSchema,
-} from '@/entities/shared/utility'
+import { nanoidSchema, selectedSecuritySchemeUidSchema, type ENTITY_BRANDS } from '@/entities/shared/utility'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -17,12 +14,7 @@ export const oasCollectionSchema = z.object({
    */
   'type': z.literal('collection').optional().default('collection'),
   'openapi': z
-    .union([
-      z.string(),
-      z.literal('3.0.0'),
-      z.literal('3.1.0'),
-      z.literal('4.0.0'),
-    ])
+    .union([z.string(), z.literal('3.0.0'), z.literal('3.1.0'), z.literal('4.0.0')])
     .optional()
     .default('3.1.0'),
   'jsonSchemaDialect': z.string().optional(),
@@ -54,7 +46,7 @@ export const oasCollectionSchema = z.object({
 })
 
 export const extendedCollectionSchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand<ENTITY_BRANDS['COLLECTION']>(),
   /** A list of security schemes UIDs associated with the collection */
   securitySchemes: z.string().array().default([]),
   /** List of currently selected security scheme UIDs, these can be overridden per request */
@@ -62,13 +54,16 @@ export const extendedCollectionSchema = z.object({
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /** UIDs which refer to servers on the workspace base */
-  servers: nanoidSchema.array().default([]),
+  servers: nanoidSchema.brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** Request UIDs associated with a collection */
-  requests: nanoidSchema.array().default([]),
+  requests: nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>().array().default([]),
   /** Tag UIDs associated with the collection */
-  tags: nanoidSchema.array().default([]),
+  tags: nanoidSchema.brand<ENTITY_BRANDS['TAG']>().array().default([]),
   /** List of requests without tags and top level tag "folders" */
-  children: nanoidSchema.array().default([]),
+  children: z
+    .union([nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(), nanoidSchema.brand<ENTITY_BRANDS['TAG']>()])
+    .array()
+    .default([]),
   /**
    * A link to where this document is stored
    *
@@ -89,14 +84,9 @@ export const extendedCollectionSchema = z.object({
    *
    * @defaults to idle for all collections, doesn't mean that it can watch for changes
    */
-  watchModeStatus: z
-    .enum(['IDLE', 'WATCHING', 'ERROR'])
-    .optional()
-    .default('IDLE'),
+  watchModeStatus: z.enum(['IDLE', 'WATCHING', 'ERROR']).optional().default('IDLE'),
 })
 
-export const collectionSchema = oasCollectionSchema.merge(
-  extendedCollectionSchema,
-)
+export const collectionSchema = oasCollectionSchema.merge(extendedCollectionSchema)
 export type Collection = z.infer<typeof collectionSchema>
 export type CollectionPayload = z.input<typeof collectionSchema>
