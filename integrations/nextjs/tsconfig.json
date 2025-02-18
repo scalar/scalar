@@ -1,5 +1,7 @@
 {
   "extends": "../../tsconfig.json",
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", "/playground/**"],
   "compilerOptions": {
     "allowImportingTsExtensions": true,
     "allowJs": true,
@@ -13,7 +15,5 @@
         "name": "next"
       }
     ]
-  },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  }
 }

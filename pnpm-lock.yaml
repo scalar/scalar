@@ -276,49 +276,6 @@ importers:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
 
-  examples/nextjs-api-reference:
-    dependencies:
-      '@scalar/api-client-react':
-        specifier: workspace:*
-        version: link:../../packages/api-client-react
-      '@scalar/api-reference-react':
-        specifier: workspace:*
-        version: link:../../packages/api-reference-react
-      '@scalar/nextjs-api-reference':
-        specifier: workspace:*
-        version: link:../../integrations/nextjs
-      next:
-        specifier: ^15.1.1
-        version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      react:
-        specifier: ^19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.0.0)
-    devDependencies:
-      '@next/eslint-plugin-next':
-        specifier: ^15.1.1
-        version: 15.1.1
-      '@types/node':
-        specifier: ^20.17.10
-        version: 20.17.10
-      '@types/react':
-        specifier: ^19.0.1
-        version: 19.0.1
-      '@types/react-dom':
-        specifier: ^19.0.2
-        version: 19.0.2(@types/react@19.0.1)
-
-  projects/proxy-scalar-com:
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../../packages/build-tooling
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
-
   examples/react:
     dependencies:
       '@scalar/galaxy':
@@ -668,6 +625,40 @@ importers:
       vite-plugin-dts:
         specifier: ^4.3.0
         version: 4.3.0(@types/node@20.17.10)(rollup@4.24.4)(typescript@5.6.2)(vite@5.4.10(@types/node@20.17.10)(terser@5.31.2))
+
+  integrations/nextjs/playground:
+    dependencies:
+      '@scalar/api-client-react':
+        specifier: workspace:*
+        version: link:../../../packages/api-client-react
+      '@scalar/api-reference-react':
+        specifier: workspace:*
+        version: link:../../../packages/api-reference-react
+      '@scalar/nextjs-api-reference':
+        specifier: workspace:*
+        version: link:..
+      next:
+        specifier: ^15.1.1
+        version: 15.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@next/eslint-plugin-next':
+        specifier: ^15.1.1
+        version: 15.1.1
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
+      '@types/react-dom':
+        specifier: ^19.0.2
+        version: 19.0.2(@types/react@19.0.1)
 
   integrations/nuxt:
     dependencies:
@@ -2282,6 +2273,15 @@ importers:
       wrangler:
         specifier: ^3.62.0
         version: 3.64.0(@cloudflare/workers-types@4.20240712.0)
+
+  projects/proxy-scalar-com:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
 packages:
 
@@ -26057,7 +26057,7 @@ snapshots:
       '@typescript-eslint/types': 8.24.0
       '@typescript-eslint/visitor-keys': 8.24.0
       debug: 4.4.0(supports-color@9.4.0)
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
       semver: 7.6.3
@@ -28192,7 +28192,7 @@ snapshots:
 
   copy-webpack-plugin@11.0.0(webpack@5.96.1):
     dependencies:
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob-parent: 6.0.2
       globby: 13.2.2
       normalize-path: 3.0.0
@@ -30482,7 +30482,7 @@ snapshots:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -30493,7 +30493,7 @@ snapshots:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -30503,7 +30503,7 @@ snapshots:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 3.0.0
@@ -30511,7 +30511,7 @@ snapshots:
   globby@13.2.2:
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 4.0.0
@@ -30519,7 +30519,7 @@ snapshots:
   globby@14.0.2:
     dependencies:
       '@sindresorhus/merge-streams': 2.3.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       path-type: 5.0.0
       slash: 5.1.0
@@ -37874,7 +37874,7 @@ snapshots:
       acorn: 8.14.0
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
       mlly: 1.7.3
@@ -37892,7 +37892,7 @@ snapshots:
       acorn: 8.12.1
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
       mlly: 1.7.1
@@ -37979,7 +37979,7 @@ snapshots:
       '@vue-macros/common': 1.15.0(rollup@4.24.4)(vue@3.5.12(typescript@5.6.2))
       ast-walker-scope: 0.6.2
       chokidar: 3.6.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       json5: 2.2.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
@@ -38314,7 +38314,7 @@ snapshots:
       chalk: 4.1.2
       chokidar: 3.6.0
       commander: 8.3.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       fs-extra: 11.2.0
       npm-run-path: 4.0.1
       strip-ansi: 6.0.1
