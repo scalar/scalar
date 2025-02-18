@@ -141,7 +141,7 @@ export const authorizeOauth2 = async (
             const hashParams = new URLSearchParams(authWindow.location.href.split('#')[1])
             accessToken ||= hashParams.get('access_token')
             code ||= hashParams.get('code')
-          } catch (e) {
+          } catch (_e) {
             // Ignore CORS error from popup
           }
 
@@ -214,7 +214,7 @@ export const authorizeServers = async (
   formData.set('client_id', flow['x-scalar-client-id'])
 
   // Only client credentials and password flows support scopes in the token request
-  if (scopes && (flow.type == 'clientCredentials' || flow.type === 'password')) {
+  if (scopes && (flow.type === 'clientCredentials' || flow.type === 'password')) {
     formData.set('scope', scopes)
   }
 
