@@ -17,16 +17,15 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
     pnpm --filter "@scalar-examples/react" build
 
 FROM node:20-slim AS runner
-RUN npm install -g serve
+# install simple http server for serving static content
+RUN npm install -g http-server
 
 # Use default non-root user from the node image
 USER node
 WORKDIR /app
 RUN chown node:node /app
 
-COPY --from=builder app/packages/api-reference-react app/packages/api-reference-react
+COPY --from=builder app/packages/api-reference-react packages/api-reference-react
+WORKDIR /app/packages/api-reference-react
 
-WORKDIR /app/packages/api-reference-react/playground
-
-# Run the server with shell so PORT variable is expanded
-CMD ["sh", "-c", "serve -s -l $PORT ./dist"]
+CMD ["http-server", "playground/dist"]

@@ -87,7 +87,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_REACT_JS}",
         "-f",
-        "./packages/api-reference-react/playground/Dockerfile",
+        "./packages/api-reference-react/Dockerfile",
         "."
       ]
     },

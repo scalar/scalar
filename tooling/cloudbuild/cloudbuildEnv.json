@@ -7,7 +7,7 @@
   {
     "name": "react-js",
     "cloudBuildName": "_SERVICE_REACT_JS",
-    "dockerPath": "./packages/api-reference-react/playground/Dockerfile"
+    "dockerPath": "./packages/api-reference-react/Dockerfile"
   },
   {
     "name": "fastify",
