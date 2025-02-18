@@ -1,26 +1,19 @@
 /**
  * @vitest-environment jsdom
  */
-import type {
-  Oauth2Flow,
-  SecuritySchemeOauth2,
-  Server,
-} from '@scalar/oas-utils/entities/spec'
+import { securityOauthSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { flushPromises } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { authorizeOauth2 } from './oauth2'
 
-const baseScheme: Pick<SecuritySchemeOauth2, 'uid' | 'nameKey' | 'type'> = {
+const baseScheme = {
   uid: 'test-scheme',
   nameKey: 'test-name-key',
   type: 'oauth2',
 }
 
-const baseFlow: Pick<
-  Oauth2Flow,
-  'refreshUrl' | 'scopes' | 'selectedScopes' | 'x-scalar-client-id'
-> = {
+const baseFlow = {
   'refreshUrl': 'https://auth.example.com/refresh',
   'scopes': {
     read: 'Read access',
@@ -68,13 +61,13 @@ describe('oauth2', () => {
     vi.restoreAllMocks()
   })
 
-  const mockServer: Server = {
+  const mockServer = serverSchema.parse({
     uid: 'test-server',
     url: 'https://api.example.com',
-  }
+  })
 
   describe('Authorization Code Grant', () => {
-    const scheme = {
+    const scheme = securityOauthSchema.parse({
       ...baseScheme,
       type: 'oauth2',
       flows: {
@@ -89,8 +82,9 @@ describe('oauth2', () => {
           'x-scalar-redirect-uri': redirectUri,
         },
       },
-    } satisfies SecuritySchemeOauth2
+    })
     const flow = scheme.flows.authorizationCode
+    if (!flow) throw new Error('Flow is undefined')
 
     it('should handle successful authorization code flow', async () => {
       const promise = authorizeOauth2(flow, mockServer)
@@ -169,9 +163,7 @@ describe('oauth2', () => {
         })
 
         // Mock crypto.subtle.digest
-        vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(
-          new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer,
-        )
+        vi.spyOn(crypto.subtle, 'digest').mockResolvedValue(new Uint8Array([1, 2, 3, 4, 5, 6, 8, 9, 10]).buffer)
 
         const promise = authorizeOauth2(_flow, mockServer)
         await flushPromises()
@@ -235,9 +227,7 @@ describe('oauth2', () => {
       const [error, result] = await promise
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe(
-        'Window was closed without granting authorization',
-      )
+      expect(error!.message).toBe('Window was closed without granting authorization')
     })
 
     // Test relative redirect URIs
@@ -279,11 +269,7 @@ describe('oauth2', () => {
     })
 
     it('should use the proxy if provided', async () => {
-      const promise = authorizeOauth2(
-        flow,
-        mockServer,
-        'https://proxy.example.com',
-      )
+      const promise = authorizeOauth2(flow, mockServer, 'https://proxy.example.com')
 
       const accessToken = 'access_token_123'
 
@@ -340,7 +326,7 @@ describe('oauth2', () => {
   })
 
   describe('Client Credentials Grant', () => {
-    const scheme = {
+    const scheme = securityOauthSchema.parse({
       ...baseScheme,
       flows: {
         clientCredentials: {
@@ -351,8 +337,9 @@ describe('oauth2', () => {
           token: '',
         },
       },
-    } satisfies SecuritySchemeOauth2
+    })
     const flow = scheme.flows.clientCredentials
+    if (!flow) throw new Error('Flow is undefined')
 
     it('should handle successful client credentials flow', async () => {
       global.fetch = vi.fn().mockResolvedValueOnce({
@@ -383,14 +370,12 @@ describe('oauth2', () => {
       const [error, result] = await authorizeOauth2(flow, mockServer)
       expect(result).toBe(null)
       expect(error).toBeInstanceOf(Error)
-      expect(error!.message).toBe(
-        'Failed to get an access token. Please check your credentials.',
-      )
+      expect(error!.message).toBe('Failed to get an access token. Please check your credentials.')
     })
   })
 
   describe('Implicit Flow', () => {
-    const scheme = {
+    const scheme = securityOauthSchema.parse({
       ...baseScheme,
       flows: {
         implicit: {
@@ -401,8 +386,9 @@ describe('oauth2', () => {
           'token': '',
         },
       },
-    } satisfies SecuritySchemeOauth2
+    })
     const flow = scheme.flows.implicit
+    if (!flow) throw new Error('Flow is undefined')
 
     it('should handle successful implicit flow', async () => {
       const promise = authorizeOauth2(flow, mockServer)
@@ -425,7 +411,7 @@ describe('oauth2', () => {
 
       // Run setInterval
       vi.advanceTimersByTime(200)
-      await vi.runAllTicks()
+      vi.runAllTicks()
 
       // Resolve
       const [error, result] = await promise
@@ -435,7 +421,7 @@ describe('oauth2', () => {
   })
 
   describe('Password Grant', () => {
-    const scheme = {
+    const scheme = securityOauthSchema.parse({
       ...baseScheme,
       type: 'oauth2',
       flows: {
@@ -449,8 +435,9 @@ describe('oauth2', () => {
           token: '',
         },
       },
-    } satisfies SecuritySchemeOauth2
+    })
     const flow = scheme.flows.password
+    if (!flow) throw new Error('Flow is undefined')
 
     it('should handle successful password flow', async () => {
       // Mock fetch
