@@ -188,7 +188,7 @@ jobs:
         with:
           go-version: '1.21'
       - name: Run tests for the proxy server (Go)
-        run: cd examples/proxy-server && pnpm test
+        run: cd projects/proxy-scalar-com && pnpm test
 
   stats:
     needs: [build]

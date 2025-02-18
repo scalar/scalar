@@ -1,6 +1,6 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    dir: 'examples/proxy-server'
+    dir: 'projects/proxy-scalar-com'
     args:
       [
         'buildx',
