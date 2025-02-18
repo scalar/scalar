@@ -22,7 +22,7 @@
   {
     "name": "nest-js-express",
     "cloudBuildName": "_SERVICE_NEST_JS_EXPRESS",
-    "dockerPath": "./examples/nestjs-api-reference-express/Dockerfile"
+    "dockerPath": "./integrations/nestjs/playground/nestjs-api-reference-express/Dockerfile"
   },
   {
     "name": "express-js",
@@ -32,7 +32,7 @@
   {
     "name": "nest-js-fastify",
     "cloudBuildName": "_SERVICE_NEST_JS_FASTIFY",
-    "dockerPath": "./examples/nestjs-api-reference-fastify/Dockerfile"
+    "dockerPath": "./integrations/nestjs/playground/nestjs-api-reference-fastify/Dockerfile"
   },
   {
     "name": "void-server",

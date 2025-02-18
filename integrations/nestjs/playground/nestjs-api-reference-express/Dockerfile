@@ -10,13 +10,7 @@ COPY pnpm-lock.yaml .
 COPY pnpm-workspace.yaml .
 COPY package.json .
 COPY tsconfig.json .
-COPY packages/api-reference ./packages/api-reference
-COPY packages/components ./packages/components
-COPY packages/themes ./packages/themes
-COPY packages/oas-utils ./packages/oas-utils
-COPY packages/build-tooling ./packages/build-tooling
 COPY integrations/nestjs ./integrations/nestjs
-COPY examples/nestjs-api-reference-express ./examples/nestjs-api-reference-express
 
 # Mount the cache where pnpm expects it and build the main package
 RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
@@ -28,9 +22,6 @@ FROM node:18-bullseye-slim AS runner
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 
 ENV NODE_ENV production
-# Set the PORT environment variable for the node server
-ENV PORT $PORT
-ENV HOST '0.0.0.0'
 
 # Use default non-root user from the node image
 USER node
@@ -40,9 +31,8 @@ RUN chown node:node /app
 # Copy root node modules and any utilized packages
 COPY --from=builder /app/node_modules /app/node_modules
 COPY --from=builder /app/integrations/nestjs /app/integrations/nestjs
-COPY --from=builder /app/examples/nestjs-api-reference-express /app/examples/nestjs-api-reference-express
 
-WORKDIR /app/examples/nestjs-api-reference-express
+WORKDIR /app/integrations/nestjs/playground/nestjs-api-reference-express
 
 # dumb-init runs as PID 1 and ensures all signals are forwarded
 # to the spawned node process (ensures the server receives signal to terminate)

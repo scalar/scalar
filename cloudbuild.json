@@ -237,7 +237,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_EXPRESS}",
         "-f",
-        "./examples/nestjs-api-reference-express/Dockerfile",
+        "./integrations/nestjs/playground/nestjs-api-reference-express/Dockerfile",
         "."
       ]
     },
@@ -337,7 +337,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_NEST_JS_FASTIFY}",
         "-f",
-        "./examples/nestjs-api-reference-fastify/Dockerfile",
+        "./integrations/nestjs/playground/nestjs-api-reference-fastify/Dockerfile",
         "."
       ]
     },
