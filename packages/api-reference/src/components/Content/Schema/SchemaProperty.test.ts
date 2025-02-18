@@ -277,4 +277,27 @@ describe('SchemaProperty sub-schema', () => {
     const enumValues = wrapper.findAll('.property-enum-value')
     expect(enumValues).toHaveLength(3)
   })
+
+  it('renders discriminators for array items', () => {
+    const wrapper = mount(SchemaProperty, {
+      props: {
+        value: {
+          type: 'array',
+          items: {
+            oneOf: [
+              {
+                type: 'object',
+                description: 'foobar',
+                properties: { test: { type: 'string' } },
+              },
+            ],
+          },
+        },
+      },
+    })
+
+    // Find 'foobar' only once
+    const foobar = wrapper.html().match(/foobar/g)
+    expect(foobar).toHaveLength(1)
+  })
 })
