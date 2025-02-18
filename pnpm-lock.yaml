@@ -347,7 +347,7 @@ importers:
         specifier: ^19.0.2
         version: 19.0.2(@types/react@19.0.1)
 
-  examples/proxy-server:
+  projects/proxy-scalar-com:
     devDependencies:
       '@scalar/build-tooling':
         specifier: workspace:*

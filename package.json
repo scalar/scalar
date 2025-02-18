@@ -66,7 +66,7 @@
     "dev:modal": "turbo playground:modal --filter @scalar/api-client",
     "dev:web-app": "turbo playground:web --filter @scalar/api-client",
     "dev:nuxt": "turbo dev --filter @scalar/nuxt",
-    "dev:proxy-server": "pnpm --filter @scalar-examples/proxy-server dev",
+    "dev:proxy-server": "pnpm --filter proxy-scalar-com dev",
     "dev:reference": "turbo dev --filter @scalar/api-reference",
     "dev:void-server": "pnpm --filter @scalar/void-server dev",
     "dev:web": "turbo dev --filter @scalar-examples/web",
