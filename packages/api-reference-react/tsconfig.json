@@ -1,5 +1,6 @@
 {
   "extends": "../../tsconfig.json",
+  "exclude": ["playground/**/*"],
   "compilerOptions": {
     "baseUrl": ".",
     "jsx": "react-jsx",

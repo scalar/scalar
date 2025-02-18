@@ -25,6 +25,8 @@
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
+    "docker:build": "docker build --build-arg=\"BASE_IMAGE=scalar-base\" -t react-api-reference  -f /playground/Dockerfile .",
+    "docker:run": "docker run -p 5059:5059 react-api-reference",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "playground": "vite ./playground -c ./vite.config.ts",

@@ -1,12 +1,18 @@
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
 import pkg from './package.json'
 
 export default defineConfig({
-  plugins: [react(), dts({ insertTypesEntry: true, rollupTypes: true })],
+  plugins: [
+    react(),
+    dts({
+      insertTypesEntry: true,
+      rollupTypes: true,
+    }),
+  ],
   build: {
     lib: {
       // Could also be a dictionary or array of multiple entry points
@@ -21,10 +27,7 @@ export default defineConfig({
       },
       // make sure to externalize deps that shouldn't be bundled
       // into your library
-      external: [
-        ...Object.keys(pkg.dependencies),
-        ...Object.keys(pkg.peerDependencies),
-      ],
+      external: [...Object.keys(pkg.dependencies), ...Object.keys(pkg.peerDependencies)],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
@@ -43,8 +46,7 @@ export default defineConfig({
      * TODO remove this when we can point to the correct version of this by targeting server
      */
     alias: {
-      'decode-named-character-reference':
-        './node_modules/decode-named-character-reference/index.js',
+      'decode-named-character-reference': './node_modules/decode-named-character-reference/index.js',
     },
   },
 })

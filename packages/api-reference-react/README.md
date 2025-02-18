@@ -46,7 +46,7 @@ We wrote a [detailed integration guide for React](https://github.com/scalar/scal
 
 ### Example
 
-You can find an example in this repo under [examples/react](https://github.com/scalar/scalar/tree/main/examples/react)
+You can find an example in this repo under [packages/api-reference-react/playground](https://github.com/scalar/scalar/tree/main/packages/api-reference-react/playground)
 
 ## Props
 
