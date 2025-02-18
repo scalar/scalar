@@ -109,7 +109,7 @@ export const oasTagSchema = z.object({
 export const tagSchema = oasTagSchema.extend({
   uid: nanoidSchema.brand<ENTITY_BRANDS['TAG']>(),
   children: z
-    .union([nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(), nanoidSchema.brand<ENTITY_BRANDS['TAG']>()])
+    .union([z.string().brand<ENTITY_BRANDS['REQUEST']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
     .array()
     .default([]),
 })

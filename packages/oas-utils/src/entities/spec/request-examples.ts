@@ -184,7 +184,7 @@ export type XScalarExampleBody = z.infer<typeof xScalarExampleBodySchema>
 export const requestExampleSchema = z.object({
   uid: nanoidSchema.brand<ENTITY_BRANDS['EXAMPLE']>(),
   type: z.literal('requestExample').optional().default('requestExample'),
-  requestUid: nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(),
+  requestUid: z.string().brand<ENTITY_BRANDS['REQUEST']>().optional(),
   name: z.string().optional().default('Name'),
   body: exampleRequestBodySchema.optional().default({}),
   parameters: z
@@ -442,5 +442,6 @@ export function createExampleFromRequest(request: Request, name: string, server?
   if (!example) {
     console.warn(`Example at ${request.uid} is invalid.`)
     return requestExampleSchema.parse({})
-  } else return example
+  }
+  return example
 }
