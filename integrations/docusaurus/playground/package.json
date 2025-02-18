@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/docusaurus"
+    "directory": "integrations/docusaurus"
   },
   "version": "0.0.0",
   "private": true,

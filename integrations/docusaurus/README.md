@@ -84,7 +84,7 @@ plugins: [
 
 ### Example
 
-You can find an example in this repo under [examples/docusaurus](https://github.com/scalar/scalar/tree/main/examples/docusaurus)
+You can find an example in this repo under [integrations/docusaurus/playground](https://github.com/scalar/scalar/tree/main/integrations/docusaurus/playground)
 
 ## Config
 

@@ -127,43 +127,6 @@ importers:
         specifier: ^5.4.10
         version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
-  examples/docusaurus:
-    dependencies:
-      '@docusaurus/core':
-        specifier: ^3.6.0
-        version: 3.6.1(@mdx-js/react@3.0.1(@types/react@19.0.1)(react@19.0.0))(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
-      '@docusaurus/preset-classic':
-        specifier: ^3.6.0
-        version: 3.6.1(@algolia/client-search@4.23.3)(@mdx-js/react@3.0.1(@types/react@19.0.1)(react@19.0.0))(@types/react@19.0.1)(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(search-insights@2.14.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
-      '@docusaurus/theme-classic':
-        specifier: ^3.6.0
-        version: 3.6.1(@types/react@19.0.1)(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
-      '@mdx-js/react':
-        specifier: ^3.0.0
-        version: 3.0.1(@types/react@19.0.1)(react@19.0.0)
-      '@scalar/docusaurus':
-        specifier: workspace:*
-        version: link:../../integrations/docusaurus
-      clsx:
-        specifier: ^2.0.0
-        version: 2.1.1
-      react:
-        specifier: ^19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.0.0)
-    devDependencies:
-      '@docusaurus/module-type-aliases':
-        specifier: ^3.6.0
-        version: 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@docusaurus/tsconfig':
-        specifier: ^3.6.0
-        version: 3.6.1
-      '@docusaurus/types':
-        specifier: ^3.6.0
-        version: 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-
   examples/nestjs-api-reference-express:
     dependencies:
       '@nestjs/common':
@@ -522,6 +485,43 @@ importers:
       postcss-nesting:
         specifier: ^12.1.5
         version: 12.1.5(postcss@8.4.39)
+
+  integrations/docusaurus/playground:
+    dependencies:
+      '@docusaurus/core':
+        specifier: ^3.6.0
+        version: 3.6.1(@mdx-js/react@3.0.1(@types/react@19.0.1)(react@19.0.0))(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
+      '@docusaurus/preset-classic':
+        specifier: ^3.6.0
+        version: 3.6.1(@algolia/client-search@4.23.3)(@mdx-js/react@3.0.1(@types/react@19.0.1)(react@19.0.0))(@types/react@19.0.1)(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(search-insights@2.14.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
+      '@docusaurus/theme-classic':
+        specifier: ^3.6.0
+        version: 3.6.1(@types/react@19.0.1)(eslint@9.20.1(jiti@2.4.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.6.2)(vue-template-compiler@2.7.16)
+      '@mdx-js/react':
+        specifier: ^3.0.0
+        version: 3.0.1(@types/react@19.0.1)(react@19.0.0)
+      '@scalar/docusaurus':
+        specifier: workspace:*
+        version: link:..
+      clsx:
+        specifier: ^2.0.0
+        version: 2.1.1
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
+    devDependencies:
+      '@docusaurus/module-type-aliases':
+        specifier: ^3.6.0
+        version: 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@docusaurus/tsconfig':
+        specifier: ^3.6.0
+        version: 3.6.1
+      '@docusaurus/types':
+        specifier: ^3.6.0
+        version: 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
 
   integrations/express:
     dependencies:
