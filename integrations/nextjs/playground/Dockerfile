@@ -26,11 +26,11 @@ RUN chown nextjs:nodejs .next
 
 # Get the nextjs build files
 # https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
-COPY --from=builder --chown=nextjs:nodejs /app/integrations/playground/.next/standalone/ ./
-COPY --from=builder --chown=nextjs:nodejs /app/integrations/playground/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/integrations/nextjs/playground/.next/standalone/ ./
+COPY --from=builder --chown=nextjs:nodejs /app/integrations/nextjs/playground/.next/static ./.next/static
 
 # Path for the standalone output for the nextjs example (contents of .next/standalone)
-WORKDIR /app/integrations/playground/
+WORKDIR /app/integrations/nextjs/playground/
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output

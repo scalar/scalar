@@ -17,7 +17,8 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev -p 5058",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/nextjs-api-reference/Dockerfile .",
+    "docker:build": "docker build --platform=linux/amd64 --build-arg=BASE_IMAGE=scalar-base -t nextjs-api-reference  -f Dockerfile .",
+    "docker:run": "docker run -p 5058:5058 fastify-api-reference",
     "lint:check": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",
