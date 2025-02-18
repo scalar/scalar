@@ -43,3 +43,7 @@ Currently available [configuration options](https://github.com/scalar/scalar/blo
 - `hidden_clients` (default `[]`)
 - `servers` (default `[]`)
 - `default_open_all_tags` (default `false`)
+
+## Example
+
+Check out the [playground](./playground/README.md) for a working example.
