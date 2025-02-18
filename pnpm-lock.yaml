@@ -522,6 +522,9 @@ importers:
       '@docusaurus/types':
         specifier: ^3.6.0
         version: 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@types/react':
+        specifier: ^19.0.1
+        version: 19.0.1
 
   integrations/express:
     dependencies:
@@ -20786,7 +20789,7 @@ snapshots:
     dependencies:
       '@docusaurus/types': 3.6.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@types/history': 4.7.11
-      '@types/react': 18.3.3
+      '@types/react': 19.0.1
       '@types/react-router-config': 5.0.11
       '@types/react-router-dom': 5.3.3
       react: 19.0.0

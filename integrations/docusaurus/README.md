@@ -86,6 +86,12 @@ plugins: [
 
 You can find an example in this repo under [integrations/docusaurus/playground](https://github.com/scalar/scalar/tree/main/integrations/docusaurus/playground)
 
+Run the example using
+
+```bash
+npm run playground
+```
+
 ## Config
 
 These configuration options are a WIP as this plugin is still in beta

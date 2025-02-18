@@ -29,6 +29,7 @@
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "playground": "cd ./playground && pnpm dev",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "main": "./dist/index.js",
