@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/npm/l/%40scalar%2Ffastify-api-reference)](https://www.npmjs.com/package/@scalar/fastify-api-reference)
 [![Discord](https://img.shields.io/discord/1135330207960678410?style=flat&color=5865F2)](https://discord.gg/scalar)
 
-This plugin provides an easy way to render a beautiful API reference based on a OpenAPI/Swagger file with Fastify.
+The easiest way to render a beautiful API reference with Fastify. All based on your OpenAPI/Swagger document.
 
 [![Screenshot of an API Reference](https://github.com/scalar/scalar/assets/6201407/d8beb5e1-bf64-4589-8cb0-992ba79215a8)](https://docs.scalar.com/swagger-editor)
 
@@ -25,7 +25,7 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
 
 ## Usage
 
-If you have a OpenAPI/Swagger file already, you can pass an URL to the plugin:
+If you have a OpenAPI/Swagger document already, you can pass an URL to the plugin:
 
 ```ts
 // Render an API reference for a given OpenAPI/Swagger spec URL
@@ -62,6 +62,17 @@ await fastify.register(require('@scalar/fastify-api-reference'), {
   configuration: {
     theme: 'purple',
   },
+})
+```
+
+## Logging
+
+The plugin is compatible with the Fastify logger. You can configure the log level for the routes registered by the plugin:
+
+```ts
+fastify.register(require('@scalar/fastify-api-reference'), {
+  routePrefix: '/reference',
+  logLevel: 'silent',
 })
 ```
 
