@@ -1,5 +1,12 @@
 # @scalar/fetch
 
+## 0.1.2
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- 1223c1f: chore: code style
+
 ## 0.1.1
 
 ### Patch Changes

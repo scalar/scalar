@@ -1,5 +1,17 @@
 # @scalar/api-client-react
 
+## 1.1.28
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- Updated dependencies [453ed40]
+- Updated dependencies [54fdfcb]
+- Updated dependencies [8671902]
+- Updated dependencies [7ce8d4c]
+- Updated dependencies [4dedb68]
+  - @scalar/api-client@2.2.48
+
 ## 1.1.27
 
 ### Patch Changes

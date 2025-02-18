@@ -1,5 +1,15 @@
 # @scalar/hono-api-reference
 
+## 0.5.174
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+- 1223c1f: chore: code style
+- Updated dependencies [54fdfcb]
+- Updated dependencies [fa6afe8]
+  - @scalar/types@0.0.33
+
 ## 0.5.173
 
 ### Patch Changes

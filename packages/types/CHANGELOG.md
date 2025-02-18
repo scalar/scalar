@@ -1,5 +1,13 @@
 # @scalar/types
 
+## 0.0.33
+
+### Patch Changes
+
+- 54fdfcb: chore: remove spec wording
+- fa6afe8: chore: code formatting
+  - @scalar/openapi-types@0.1.7
+
 ## 0.0.32
 
 ### Patch Changes

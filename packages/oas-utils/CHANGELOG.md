@@ -1,5 +1,17 @@
 # @scalar/oas-utils
 
+## 0.2.105
+
+### Patch Changes
+
+- 54fdfcb: chore: remove spec wording
+- Updated dependencies [54fdfcb]
+- Updated dependencies [fa6afe8]
+  - @scalar/types@0.0.33
+  - @scalar/object-utils@1.1.13
+  - @scalar/themes@0.9.67
+  - @scalar/openapi-types@0.1.7
+
 ## 0.2.104
 
 ### Patch Changes

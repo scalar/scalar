@@ -1,5 +1,12 @@
 # @scalar/aspnetcore
 
+## 2.0.15
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+  - @scalar/api-reference@1.25.119
+
 ## 2.0.14
 
 ### Patch Changes

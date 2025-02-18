@@ -1,5 +1,11 @@
 # @scalar/snippetz
 
+## 0.2.13
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 0.2.12
 
 ### Patch Changes

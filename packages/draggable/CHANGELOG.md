@@ -1,5 +1,11 @@
 # @scalar/draggable
 
+## 0.1.10
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 0.1.9
 
 ### Patch Changes

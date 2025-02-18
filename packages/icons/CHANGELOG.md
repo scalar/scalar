@@ -1,5 +1,11 @@
 # @scalar/icons
 
+## 0.1.3
+
+### Patch Changes
+
+- fa6afe8: chore: code formatting
+
 ## 0.1.2
 
 ### Patch Changes

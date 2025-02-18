@@ -1,5 +1,36 @@
 # @scalar/api-client
 
+## 2.2.48
+
+### Patch Changes
+
+- 453ed40: fix: preserve lowercase auth headers
+- 54fdfcb: chore: remove spec wording
+- 8671902: fix: sets overflow on input enum value
+- 7ce8d4c: fix: updates sidebar icon hover state style
+- 4dedb68: fix: updates disabled style based on layout
+- Updated dependencies [54fdfcb]
+- Updated dependencies [825bc40]
+- Updated dependencies [fa6afe8]
+- Updated dependencies [1223c1f]
+- Updated dependencies [4d30a35]
+  - @scalar/oas-utils@0.2.105
+  - @scalar/import@0.2.25
+  - @scalar/types@0.0.33
+  - @scalar/components@0.13.24
+  - @scalar/postman-to-openapi@0.1.28
+  - @scalar/use-codemirror@0.11.69
+  - @scalar/object-utils@1.1.13
+  - @scalar/use-tooltip@1.0.6
+  - @scalar/use-toasts@0.7.9
+  - @scalar/draggable@0.1.10
+  - @scalar/use-hooks@0.1.21
+  - @scalar/snippetz@0.2.13
+  - @scalar/themes@0.9.67
+  - @scalar/icons@0.1.3
+  - @scalar/openapi-parser@0.10.7
+  - @scalar/openapi-types@0.1.7
+
 ## 2.2.47
 
 ### Patch Changes
