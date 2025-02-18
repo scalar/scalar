@@ -460,9 +460,7 @@ describe('createExampleFromRequest', () => {
             required: true,
           },
         ],
-        headers: [
-          { key: 'Content-Type', value: 'application/testing', enabled: true },
-        ],
+        headers: [{ key: 'Content-Type', value: 'application/testing', enabled: true }],
         query: [],
         cookies: [],
       },

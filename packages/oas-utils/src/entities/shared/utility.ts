@@ -27,8 +27,8 @@ export type ENTITY_BRANDS = {
 /** Schema for selectedSecuritySchemeUids */
 export const selectedSecuritySchemeUidSchema = z
   .union([
-    nanoidSchema.brand<ENTITY_BRANDS['SECURITY_SCHEME']>(),
-    nanoidSchema.brand<ENTITY_BRANDS['SECURITY_SCHEME']>().array(),
+    z.string().brand<ENTITY_BRANDS['SECURITY_SCHEME']>(),
+    z.string().brand<ENTITY_BRANDS['SECURITY_SCHEME']>().array(),
   ])
   .array()
   .default([])

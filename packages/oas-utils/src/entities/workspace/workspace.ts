@@ -34,7 +34,7 @@ export const workspaceSchema = z.object({
   /** Workspace description */
   description: z.string().default('Basic Scalar Workspace'),
   /** List of all collection uids in a given workspace */
-  collections: z.array(nanoidSchema.brand<ENTITY_BRANDS['COLLECTION']>()).default([]),
+  collections: z.array(z.string().brand<ENTITY_BRANDS['COLLECTION']>()).default([]),
   /** List of all environment uids in a given workspace, TODO: why is this a record? */
   environments: z.record(z.string()).default({}),
   /** Customize hotkeys */
@@ -42,7 +42,7 @@ export const workspaceSchema = z.object({
   /** Active Environment ID to use for requests  */
   activeEnvironmentId: z.string().optional().default('default'),
   /** List of all cookie uids in a given workspace */
-  cookies: z.array(nanoidSchema.brand<ENTITY_BRANDS['COOKIE']>()).default([]),
+  cookies: z.array(z.string().brand<ENTITY_BRANDS['COOKIE']>()).default([]),
   /** Workspace level proxy for all requests to be sent through */
   proxyUrl: z.string().optional(),
   /** Workspace level theme, we might move this to user level later */

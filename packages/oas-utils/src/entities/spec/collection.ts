@@ -52,16 +52,16 @@ export const extendedCollectionSchema = z.object({
   /** List of currently selected security scheme UIDs, these can be overridden per request */
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
   /** The currently selected server */
-  selectedServerUid: z.string().default(''),
+  selectedServerUid: z.string().brand<ENTITY_BRANDS['SERVER']>().optional(),
   /** UIDs which refer to servers on the workspace base */
-  servers: nanoidSchema.brand<ENTITY_BRANDS['SERVER']>().array().default([]),
+  servers: z.string().brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** Request UIDs associated with a collection */
-  requests: nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>().array().default([]),
+  requests: z.string().brand<ENTITY_BRANDS['REQUEST']>().array().default([]),
   /** Tag UIDs associated with the collection */
-  tags: nanoidSchema.brand<ENTITY_BRANDS['TAG']>().array().default([]),
+  tags: z.string().brand<ENTITY_BRANDS['TAG']>().array().default([]),
   /** List of requests without tags and top level tag "folders" */
   children: z
-    .union([nanoidSchema.brand<ENTITY_BRANDS['REQUEST']>(), nanoidSchema.brand<ENTITY_BRANDS['TAG']>()])
+    .union([z.string().brand<ENTITY_BRANDS['REQUEST']>(), z.string().brand<ENTITY_BRANDS['TAG']>()])
     .array()
     .default([]),
   /**

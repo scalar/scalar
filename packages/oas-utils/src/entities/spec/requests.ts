@@ -109,11 +109,11 @@ const extendedRequestSchema = z.object({
   /** Request Method */
   method: z.enum(requestMethods).default('get'),
   /** List of server UIDs specific to the request */
-  servers: nanoidSchema.brand<ENTITY_BRANDS['SERVER']>().array().default([]),
+  servers: z.string().brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** The currently selected server */
-  selectedServerUid: nanoidSchema.brand<ENTITY_BRANDS['SERVER']>().default(''),
+  selectedServerUid: z.string().brand<ENTITY_BRANDS['SERVER']>().optional(),
   /** List of example UIDs associated with the request */
-  examples: nanoidSchema.brand<ENTITY_BRANDS['EXAMPLE']>().array().default([]),
+  examples: z.string().brand<ENTITY_BRANDS['EXAMPLE']>().array().default([]),
   /** List of security scheme UIDs associated with the request */
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
