@@ -17,7 +17,7 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
     pnpm --filter @scalar-examples/nestjs-api-reference-express install --frozen-lockfile && \
     pnpm --filter @scalar-examples/nestjs-api-reference-express build
 
-FROM node:18-bullseye-slim AS runner
+FROM node:20-slim AS runner
 # Copy from the previous stage to keep this image minimal
 COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
 
