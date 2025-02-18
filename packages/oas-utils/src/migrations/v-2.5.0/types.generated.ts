@@ -10,38 +10,38 @@ import type {
 } from '@/entities/spec'
 import type { Workspace as W } from '@/entities/workspace'
 
-export namespace v_2_5_0 {
-  export type Cookie = Ck
-  export type Environment = E
-  export type Collection = Co
-  export type Request = R
-  export type RequestExample = RE
-  export type SecurityScheme = SS
-  export type Server = S
-  export type Tag = T
-  export type Workspace = W
+export type v_2_5_0 = {
+  Cookie: Ck
+  Environment: E
+  Collection: Co
+  Request: R
+  RequestExample: RE
+  SecurityScheme: SS
+  Server: S
+  Tag: T
+  Workspace: W
 
-  export type DataRecord = {
-    collections: Record<string, Collection>
-    cookies: Record<string, Cookie>
-    environments: Record<string, Environment>
-    requestExamples: Record<string, RequestExample>
-    requests: Record<string, Request>
-    securitySchemes: Record<string, SecurityScheme>
-    servers: Record<string, Server>
-    tags: Record<string, Tag>
-    workspaces: Record<string, Workspace>
+  DataRecord: {
+    collections: Record<string, Co>
+    cookies: Record<string, Ck>
+    environments: Record<string, E>
+    requestExamples: Record<string, RE>
+    requests: Record<string, R>
+    securitySchemes: Record<string, SS>
+    servers: Record<string, S>
+    tags: Record<string, T>
+    workspaces: Record<string, W>
   }
 
-  export type DataArray = {
-    collections: Collection[]
-    cookies: Cookie[]
-    environments: Environment[]
-    requestExamples: RequestExample[]
-    requests: Request[]
-    securitySchemes: SecurityScheme[]
-    servers: Server[]
-    tags: Tag[]
-    workspaces: Workspace[]
+  DataArray: {
+    collections: Co[]
+    cookies: Ck[]
+    environments: E[]
+    requestExamples: RE[]
+    requests: R[]
+    securitySchemes: SS[]
+    servers: S[]
+    tags: T[]
+    workspaces: W[]
   }
 }
