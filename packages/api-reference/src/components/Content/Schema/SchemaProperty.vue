@@ -1,12 +1,13 @@
 <script lang="ts" setup>
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
+import { computed } from 'vue'
+
 import { formatExample } from '@/components/Content/Schema/helpers/formatExample'
 import {
   discriminators,
   optimizeValueForDisplay,
 } from '@/components/Content/Schema/helpers/optimizeValueForDisplay'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
-import { computed } from 'vue'
 
 import Schema from './Schema.vue'
 import SchemaPropertyHeading from './SchemaPropertyHeading.vue'
@@ -55,10 +56,10 @@ const descriptions: Record<string, Record<string, string>> = {
   },
 }
 
-const displayDescription = function (
+const displayDescription = (
   description: string | undefined,
   value?: Record<string, any>,
-) {
+) => {
   if (value?.properties) {
     return null
   }
@@ -74,7 +75,7 @@ const displayDescription = function (
   return description || value?.description || null
 }
 
-const generatePropertyDescription = function (property?: Record<string, any>) {
+const generatePropertyDescription = (property?: Record<string, any>) => {
   if (!property) {
     return null
   }
@@ -86,9 +87,8 @@ const generatePropertyDescription = function (property?: Record<string, any>) {
   return descriptions[property.type][property.format || '_default']
 }
 
-const getEnumFromValue = function (value?: Record<string, any>): any[] | [] {
-  return value?.enum || value?.items?.enum || []
-}
+const getEnumFromValue = (value?: Record<string, any>): any[] | [] =>
+  value?.enum || value?.items?.enum || []
 
 // These helpers manage how enum values are displayed:
 //
@@ -310,15 +310,15 @@ const discriminatorType = discriminators.find((r) => {
       <div
         v-if="
           optimizedValue?.items &&
-          typeof discriminatorType === 'string' &&
+          typeof discriminator === 'string' &&
           typeof optimizedValue.items === 'object' &&
-          discriminatorType in optimizedValue.items &&
-          Array.isArray(optimizedValue.items[discriminatorType]) &&
+          discriminator in optimizedValue.items &&
+          Array.isArray(optimizedValue.items[discriminator]) &&
           level < 3
         "
         class="property-rule">
         <Schema
-          v-for="schema in optimizedValue.items[discriminatorType]"
+          v-for="schema in optimizedValue.items[discriminator]"
           :key="schema.id"
           :compact="compact"
           :level="level + 1"
