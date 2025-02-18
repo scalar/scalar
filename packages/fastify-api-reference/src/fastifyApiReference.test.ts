@@ -394,4 +394,41 @@ describe('fastifyApiReference', () => {
     })
     expect(response.status).toBe(200)
   })
+
+  it('respects logLevel configuration for routes', async () => {
+    const loggedRequests: string[] = []
+
+    const fastify = Fastify({
+      logger: {
+        level: 'info',
+        serializers: {
+          req(request) {
+            loggedRequests.push(`${request.method} ${request.url}`)
+
+            return {
+              method: request.method,
+              url: request.url,
+            }
+          },
+        },
+      },
+    })
+
+    await fastify.register(fastifyApiReference, {
+      configuration: {
+        spec: { url: '/openapi.json' },
+      },
+      logLevel: 'silent',
+    })
+
+    const address = await fastify.listen({ port: 0 })
+
+    // Make requests to different routes
+    await fetch(`${address}/reference/`)
+    await fetch(`${address}/reference/openapi.json`)
+    await fetch(`${address}/reference/openapi.yaml`)
+    await fetch(`${address}/reference/js/scalar.js`)
+
+    expect(loggedRequests).toStrictEqual([])
+  })
 })

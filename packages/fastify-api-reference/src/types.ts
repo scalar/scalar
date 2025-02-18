@@ -58,6 +58,11 @@ export type FastifyApiReferenceOptions = {
    * The hooks for the API Reference.
    */
   hooks?: FastifyApiReferenceHooksOptions
+  /**
+   * The log level for all routes registered by this plugin.
+   * Set to 'silent' to disable logging for these routes.
+   */
+  logLevel?: 'fatal' | 'error' | 'warn' | 'info' | 'debug' | 'trace' | 'silent'
 }
 
 export type FastifyApiReferenceHooksOptions = Partial<{

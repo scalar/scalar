@@ -231,6 +231,7 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
+      ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
         const spec = getLoadedSpecIfAvailable()
         const filename: string = await getSpecFilenameSlug(spec)
@@ -251,6 +252,7 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
+      ...(options.logLevel && { logLevel: options.logLevel }),
       async handler(_, reply) {
         const spec = getLoadedSpecIfAvailable()
         const filename: string = await getSpecFilenameSlug(spec)
@@ -277,6 +279,7 @@ const fastifyApiReference = fp<
         // @ts-ignore We don't know whether @fastify/swagger is loaded.
         schema: schemaToHideRoute,
         ...hooks,
+        ...(options.logLevel && { logLevel: options.logLevel }),
         handler(_, reply) {
           return reply.redirect(getRoutePrefix(options.routePrefix) + '/', 302)
         },
@@ -291,6 +294,7 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
+      ...(options.logLevel && { logLevel: options.logLevel }),
       handler(_, reply) {
         // Redirect if it’s the route without a slash
         const currentUrl = new URL(_.url, `${_.protocol}://${_.hostname}`)
@@ -337,6 +341,7 @@ const fastifyApiReference = fp<
       // @ts-ignore We don’t know whether @fastify/swagger is loaded.
       schema: schemaToHideRoute,
       ...hooks,
+      ...(options.logLevel && { logLevel: options.logLevel }),
       handler(_, reply) {
         return reply.header('Content-Type', 'application/javascript; charset=utf-8').send(fileContent)
       },
