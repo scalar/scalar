@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { SchemaProperty } from '@/components/Content/Schema'
-import ScreenReader from '@/components/ScreenReader.vue'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import { ScalarIcon } from '@scalar/components'
+import { ScalarIcon, ScalarMarkdown } from '@scalar/components'
 import type { Request as RequestEntity } from '@scalar/oas-utils/entities/spec'
 import type { ContentType } from '@scalar/types/legacy'
 import { computed, ref } from 'vue'
+
+import { SchemaProperty } from '@/components/Content/Schema'
+import ScreenReader from '@/components/ScreenReader.vue'
 
 import ContentTypeSelect from './ContentTypeSelect.vue'
 import ParameterHeaders from './ParameterHeaders.vue'
@@ -63,7 +64,7 @@ const shouldShowParameter = computed(() => {
     <Disclosure v-slot="{ open }">
       <DisclosureButton
         v-if="shouldCollapse"
-        class="flex parameter-item-trigger"
+        class="parameter-item-trigger flex"
         :class="{ 'parameter-item-trigger-open': open }">
         <ScalarIcon
           class="parameter-item-icon"
@@ -76,7 +77,10 @@ const shouldShowParameter = computed(() => {
           {{ parameter.name }}
         </span>
         <span class="parameter-item-type">
-          {{ parameter.description }}
+          <ScalarMarkdown
+            v-if="parameter.description"
+            class="markdown"
+            :value="parameter.description" />
         </span>
         <div class="absolute right-0">
           <ContentTypeSelect
