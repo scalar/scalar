@@ -57,18 +57,18 @@ export const oasInfoSchema = z
     /** REQUIRED. The title of the API. */
     title: z.string().catch('API'),
     /** A short summary of the API. */
-    summary: z.string().optional(),
+    summary: z.string().optional().catch(undefined),
     /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
-    description: z.string().optional(),
+    description: z.string().optional().catch(undefined),
     /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
-    termsOfService: z.string().optional(),
+    termsOfService: z.string().url().optional().catch(undefined),
     /** The contact information for the exposed API. */
     contact: oasContactSchema.optional().catch(undefined),
     /** The license information for the exposed API. */
     license: oasLicenseSchema.optional().catch(undefined),
     /**
-     * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
-     * Specification version or the API implementation version).
+     * REQUIRED. The version of the OpenAPI Document (which is distinct from the OpenAPI Specification version or the
+     * version of the API being described or the version of the OpenAPI Description).
      */
     version: z.string().catch('1.0'),
   })

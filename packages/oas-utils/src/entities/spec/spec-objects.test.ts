@@ -31,6 +31,46 @@ describe('spec-objects', () => {
       })
     })
 
+    describe('summary', () => {
+      it('parses summary', () => {
+        const info = oasInfoSchema.parse({
+          summary: 'A brief summary of the API',
+        })
+
+        expect(info).toMatchObject({
+          summary: 'A brief summary of the API',
+        })
+      })
+
+      it('ignores invalid summary', () => {
+        const info = oasInfoSchema.parse({
+          summary: 123,
+        })
+
+        expect(info.summary).toBeUndefined()
+      })
+    })
+
+    describe('description', () => {
+      it('parses description', () => {
+        const info = oasInfoSchema.parse({
+          description: 'A detailed description of the API',
+        })
+
+        expect(info).toMatchObject({
+          description: 'A detailed description of the API',
+        })
+      })
+
+      it('ignores invalid description', () => {
+        const info = oasInfoSchema.parse({
+          description: 123,
+        })
+
+        expect(info.description).toBeUndefined()
+      })
+    })
+
     describe('version', () => {
       it('parses version', () => {
         const version = oasInfoSchema.parse({
@@ -139,46 +179,66 @@ describe('spec-objects', () => {
         })
       })
     })
-  })
 
-  describe('license', () => {
-    it('parses license object', () => {
-      const info = oasInfoSchema.parse({
-        license: {
-          name: 'MIT',
-          url: 'https://opensource.org/licenses/MIT',
-          identifier: 'MIT',
-        },
+    describe('license', () => {
+      it('parses license object', () => {
+        const info = oasInfoSchema.parse({
+          license: {
+            name: 'MIT',
+            url: 'https://opensource.org/licenses/MIT',
+            identifier: 'MIT',
+          },
+        })
+
+        expect(info).toMatchObject({
+          license: {
+            name: 'MIT',
+            url: 'https://opensource.org/licenses/MIT',
+            identifier: 'MIT',
+          },
+        })
       })
 
-      expect(info).toMatchObject({
-        license: {
-          name: 'MIT',
-          url: 'https://opensource.org/licenses/MIT',
-          identifier: 'MIT',
-        },
+      it('ignores invalid license', () => {
+        const info = oasInfoSchema.parse({
+          license: 123,
+        })
+
+        expect(info.license).toStrictEqual(undefined)
+      })
+
+      it('works with just the name', () => {
+        const info = oasInfoSchema.parse({
+          license: {
+            name: 'MIT',
+          },
+        })
+
+        expect(info).toMatchObject({
+          license: {
+            name: 'MIT',
+          },
+        })
       })
     })
 
-    it('ignores invalid license', () => {
-      const info = oasInfoSchema.parse({
-        license: 123,
+    describe('termsOfService', () => {
+      it('parses termsOfService', () => {
+        const info = oasInfoSchema.parse({
+          termsOfService: 'https://example.com/terms-of-service',
+        })
+
+        expect(info).toMatchObject({
+          termsOfService: 'https://example.com/terms-of-service',
+        })
       })
 
-      expect(info.license).toStrictEqual(undefined)
-    })
+      it('ignores invalid termsOfService', () => {
+        const info = oasInfoSchema.parse({
+          termsOfService: 123,
+        })
 
-    it('works with just the name', () => {
-      const info = oasInfoSchema.parse({
-        license: {
-          name: 'MIT',
-        },
-      })
-
-      expect(info).toMatchObject({
-        license: {
-          name: 'MIT',
-        },
+        expect(info.termsOfService).toStrictEqual(undefined)
       })
     })
   })
