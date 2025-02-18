@@ -1,4 +1,4 @@
-FROM node:20-bullseye AS base
+FROM node:20-slim AS base
 
 # process init system
 RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
