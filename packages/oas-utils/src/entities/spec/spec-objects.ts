@@ -19,19 +19,25 @@ export const oasLicenseSchema = z.object({
 })
 
 /**
- * Contact
+ * Contact Object
+ *
  * Contact information for the exposed API.
  *
- * @see https://spec.openapis.org/oas/latest.html#contact-object
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#contact-object
  */
-export const oasContactSchema = z.object({
-  /** The identifying name of the contact person/organization. */
-  name: z.string().optional(),
-  /** The URL pointing to the contact information. This MUST be in the form of a URL. */
-  url: z.string().optional(),
-  /** The email address of the contact person/organization. */
-  email: z.string().optional(),
-})
+export const oasContactSchema = z
+  .object({
+    /** The identifying name of the contact person/organization. */
+    name: z.string().optional(),
+    /** The URL pointing to the contact information. This MUST be in the form of a URL. */
+    url: z.string().url().optional().catch(undefined),
+    /** The email address of the contact person/organization. This MUST be in the form of an email address. */
+    email: z.string().email().optional().catch(undefined),
+  })
+  .transform((data) => {
+    // Remove undefined values
+    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
+  })
 
 /**
  * Info
@@ -50,7 +56,7 @@ export const oasInfoSchema = z.object({
   /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
   termsOfService: z.string().optional(),
   /** The contact information for the exposed API. */
-  contact: oasContactSchema.optional(),
+  contact: oasContactSchema.optional().catch(undefined),
   /** The license information for the exposed API. */
   license: oasLicenseSchema.optional(),
   /**
