@@ -350,7 +350,7 @@ export async function importSpecToWorkspace(
   })
 
   // Add all tags by default. We will remove nested ones
-  const collectionChildren = new Set(tags.map((t) => t.uid))
+  const collectionChildren = new Set<Collection['children'][number]>(tags.map((t) => t.uid))
 
   // Nested folders go before any requests
   tags.forEach((t) => {
