@@ -140,4 +140,46 @@ describe('spec-objects', () => {
       })
     })
   })
+
+  describe('license', () => {
+    it('parses license object', () => {
+      const info = oasInfoSchema.parse({
+        license: {
+          name: 'MIT',
+          url: 'https://opensource.org/licenses/MIT',
+          identifier: 'MIT',
+        },
+      })
+
+      expect(info).toMatchObject({
+        license: {
+          name: 'MIT',
+          url: 'https://opensource.org/licenses/MIT',
+          identifier: 'MIT',
+        },
+      })
+    })
+
+    it('ignores invalid license', () => {
+      const info = oasInfoSchema.parse({
+        license: 123,
+      })
+
+      expect(info.license).toStrictEqual(undefined)
+    })
+
+    it('works with just the name', () => {
+      const info = oasInfoSchema.parse({
+        license: {
+          name: 'MIT',
+        },
+      })
+
+      expect(info).toMatchObject({
+        license: {
+          name: 'MIT',
+        },
+      })
+    })
+  })
 })

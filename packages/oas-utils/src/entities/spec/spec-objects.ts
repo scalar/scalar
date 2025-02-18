@@ -2,21 +2,27 @@ import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 import { z } from 'zod'
 
 /**
+ * License Object
+ *
  * License information for the exposed API.
  *
- * @see https://spec.openapis.org/oas/latest.html#license-object
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#license-object
  */
-export const oasLicenseSchema = z.object({
-  /** REQUIRED. The license name used for the API. */
-  name: z.string().optional().default('name'),
-  /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
-  identifier: z.string().optional(),
-  /**
-   * A URL to the license used for the API. This MUST be in the form of a URL. The url field
-   * is mutually exclusive of the identifier field.
-   */
-  url: z.string().optional(),
-})
+export const oasLicenseSchema = z
+  .object({
+    /** REQUIRED. The license name used for the API. */
+    name: z.string().optional().catch(undefined),
+    /** An SPDX license expression for the API. The identifier field is mutually exclusive of the url field. */
+    identifier: z.string().optional().catch(undefined),
+    /**
+     * A URI for the license used for the API. This MUST be in the form of a URI. The url field is mutually exclusive of the identifier field.
+     */
+    url: z.string().url().optional().catch(undefined),
+  })
+  .transform((data) => {
+    // Remove undefined values
+    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
+  })
 
 /**
  * Contact Object
@@ -46,25 +52,30 @@ export const oasContactSchema = z
  *
  * @see https://spec.openapis.org/oas/latest.html#info-object
  */
-export const oasInfoSchema = z.object({
-  /** REQUIRED. The title of the API. */
-  title: z.string().catch('API'),
-  /** A short summary of the API. */
-  summary: z.string().optional(),
-  /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
-  description: z.string().optional(),
-  /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
-  termsOfService: z.string().optional(),
-  /** The contact information for the exposed API. */
-  contact: oasContactSchema.optional().catch(undefined),
-  /** The license information for the exposed API. */
-  license: oasLicenseSchema.optional(),
-  /**
-   * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
-   * Specification version or the API implementation version).
-   */
-  version: z.string().catch('1.0'),
-})
+export const oasInfoSchema = z
+  .object({
+    /** REQUIRED. The title of the API. */
+    title: z.string().catch('API'),
+    /** A short summary of the API. */
+    summary: z.string().optional(),
+    /** A description of the API. CommonMark syntax MAY be used for rich text representation. */
+    description: z.string().optional(),
+    /** A URL to the Terms of Service for the API. This MUST be in the form of a URL. */
+    termsOfService: z.string().optional(),
+    /** The contact information for the exposed API. */
+    contact: oasContactSchema.optional().catch(undefined),
+    /** The license information for the exposed API. */
+    license: oasLicenseSchema.optional().catch(undefined),
+    /**
+     * REQUIRED. The version of the OpenAPI document (which is distinct from the OpenAPI
+     * Specification version or the API implementation version).
+     */
+    version: z.string().catch('1.0'),
+  })
+  .transform((data) => {
+    // Remove undefined values
+    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
+  })
 
 /**
  * External Documentation
