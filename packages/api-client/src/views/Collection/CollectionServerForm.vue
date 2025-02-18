@@ -25,11 +25,11 @@ const options = [
   {
     label: 'URL',
     key: 'url',
-    placeholder: 'https://void.scalar.com/api',
+    placeholder: 'https://void.scalar.com',
     type: 'text',
   },
   {
-    label: 'Label',
+    label: 'Description',
     key: 'description',
     placeholder: 'Production',
     type: 'text',
@@ -73,9 +73,9 @@ const updateServerVariable = (key: string, value: string) => {
         :options="options" />
       <ServerVariablesForm
         v-if="activeServer.variables"
+        class="bg-b-1 text-sm"
         :variables="activeServer.variables"
-        @update:variable="updateServerVariable"
-        class="bg-b-1 text-sm" />
+        @update:variable="updateServerVariable" />
     </template>
   </div>
 </template>
