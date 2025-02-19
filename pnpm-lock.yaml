@@ -276,155 +276,6 @@ importers:
         specifier: ^9.4.3
         version: 9.5.1(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
 
-  examples/nestjs-api-reference-express:
-    dependencies:
-      '@nestjs/common':
-        specifier: ^10.3.8
-        version: 10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1)
-      '@nestjs/core':
-        specifier: ^10.3.8
-        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)
-      '@nestjs/platform-express':
-        specifier: ^10.3.8
-        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9)
-      '@nestjs/platform-fastify':
-        specifier: ^10.3.8
-        version: 10.3.9(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))
-      '@nestjs/swagger':
-        specifier: ^7.3.1
-        version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
-      '@scalar/nestjs-api-reference':
-        specifier: workspace:*
-        version: link:../../integrations/nestjs
-      reflect-metadata:
-        specifier: ^0.1.13
-        version: 0.1.14
-      rxjs:
-        specifier: ^7.8.1
-        version: 7.8.1
-    devDependencies:
-      '@nestjs/cli':
-        specifier: ^10.0.1
-        version: 10.3.2(@swc/cli@0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0))(@swc/core@1.5.29(@swc/helpers@0.5.15))
-      '@nestjs/schematics':
-        specifier: ^10.0.1
-        version: 10.1.1(chokidar@3.6.0)(typescript@5.3.3)
-      '@nestjs/testing':
-        specifier: ^10.0.0
-        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9))
-      '@swc/cli':
-        specifier: ^0.1.62
-        version: 0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0)
-      '@swc/core':
-        specifier: ^1.3.64
-        version: 1.5.29(@swc/helpers@0.5.15)
-      '@types/jest':
-        specifier: ^29.5.2
-        version: 29.5.12
-      '@types/node':
-        specifier: ^20.17.10
-        version: 20.17.10
-      '@types/supertest':
-        specifier: ^2.0.12
-        version: 2.0.16
-      '@typescript-eslint/parser':
-        specifier: ^6.21.0
-        version: 6.21.0(eslint@9.20.1(jiti@2.4.0))(typescript@5.3.3)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
-      eslint-plugin-prettier:
-        specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
-      jest:
-        specifier: ^29.5.0
-        version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3))
-      source-map-support:
-        specifier: ^0.5.21
-        version: 0.5.21
-      supertest:
-        specifier: ^6.3.3
-        version: 6.3.4
-      ts-jest:
-        specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.24.8)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.8))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3)))(typescript@5.3.3)
-      ts-loader:
-        specifier: ^9.4.3
-        version: 9.5.1(typescript@5.3.3)(webpack@5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
-
-  examples/nestjs-api-reference-fastify:
-    dependencies:
-      '@nestjs/common':
-        specifier: ^10.3.8
-        version: 10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1)
-      '@nestjs/core':
-        specifier: ^10.3.8
-        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)
-      '@nestjs/platform-fastify':
-        specifier: ^10.3.8
-        version: 10.3.9(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))
-      '@nestjs/swagger':
-        specifier: ^7.3.1
-        version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
-      '@scalar/nestjs-api-reference':
-        specifier: workspace:*
-        version: link:../../integrations/nestjs
-      reflect-metadata:
-        specifier: ^0.1.13
-        version: 0.1.14
-      rxjs:
-        specifier: ^7.8.1
-        version: 7.8.1
-    devDependencies:
-      '@nestjs/cli':
-        specifier: ^10.0.1
-        version: 10.3.2(@swc/cli@0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0))(@swc/core@1.5.29(@swc/helpers@0.5.15))
-      '@nestjs/schematics':
-        specifier: ^10.0.1
-        version: 10.1.1(chokidar@3.6.0)(typescript@5.6.2)
-      '@nestjs/testing':
-        specifier: ^10.0.0
-        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9))
-      '@swc/cli':
-        specifier: ^0.1.62
-        version: 0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0)
-      '@swc/core':
-        specifier: ^1.3.64
-        version: 1.5.29(@swc/helpers@0.5.15)
-      '@types/jest':
-        specifier: ^29.5.2
-        version: 29.5.12
-      '@types/node':
-        specifier: ^20.17.10
-        version: 20.17.10
-      '@types/supertest':
-        specifier: ^2.0.12
-        version: 2.0.16
-      '@typescript-eslint/parser':
-        specifier: ^6.21.0
-        version: 6.21.0(eslint@9.20.1(jiti@2.4.0))(typescript@5.6.2)
-      eslint-config-prettier:
-        specifier: ^9.1.0
-        version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
-      eslint-plugin-prettier:
-        specifier: ^5.2.1
-        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
-      jest:
-        specifier: ^29.5.0
-        version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      source-map-support:
-        specifier: ^0.5.21
-        version: 0.5.21
-      supertest:
-        specifier: ^6.3.3
-        version: 6.3.4
-      ts-jest:
-        specifier: ^29.1.0
-        version: 29.1.4(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))(typescript@5.6.2)
-      ts-loader:
-        specifier: ^9.4.3
-        version: 9.5.1(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
-
   examples/nextjs-api-reference:
     dependencies:
       '@scalar/api-client-react':
@@ -458,15 +309,6 @@ importers:
       '@types/react-dom':
         specifier: ^19.0.2
         version: 19.0.2(@types/react@19.0.1)
-
-  projects/proxy-scalar-com:
-    devDependencies:
-      '@scalar/build-tooling':
-        specifier: workspace:*
-        version: link:../../packages/build-tooling
-      vite:
-        specifier: ^5.4.10
-        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
   examples/react:
     dependencies:
@@ -780,6 +622,155 @@ importers:
       vitest:
         specifier: ^1.6.0
         version: 1.6.0(@types/node@20.17.10)(jsdom@25.0.1)(terser@5.31.2)
+
+  integrations/nestjs/playground/nestjs-api-reference-express:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^10.3.8
+        version: 10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/core':
+        specifier: ^10.3.8
+        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/platform-express':
+        specifier: ^10.3.8
+        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9)
+      '@nestjs/platform-fastify':
+        specifier: ^10.3.8
+        version: 10.3.9(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))
+      '@nestjs/swagger':
+        specifier: ^7.3.1
+        version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
+      '@scalar/nestjs-api-reference':
+        specifier: workspace:*
+        version: link:../..
+      reflect-metadata:
+        specifier: ^0.1.13
+        version: 0.1.14
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+    devDependencies:
+      '@nestjs/cli':
+        specifier: ^10.0.1
+        version: 10.3.2(@swc/cli@0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0))(@swc/core@1.5.29(@swc/helpers@0.5.15))
+      '@nestjs/schematics':
+        specifier: ^10.0.1
+        version: 10.1.1(chokidar@3.6.0)(typescript@5.3.3)
+      '@nestjs/testing':
+        specifier: ^10.0.0
+        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9))
+      '@swc/cli':
+        specifier: ^0.1.62
+        version: 0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0)
+      '@swc/core':
+        specifier: ^1.3.64
+        version: 1.5.29(@swc/helpers@0.5.15)
+      '@types/jest':
+        specifier: ^29.5.2
+        version: 29.5.12
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
+      '@types/supertest':
+        specifier: ^2.0.12
+        version: 2.0.16
+      '@typescript-eslint/parser':
+        specifier: ^6.21.0
+        version: 6.21.0(eslint@9.20.1(jiti@2.4.0))(typescript@5.3.3)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
+      eslint-plugin-prettier:
+        specifier: ^5.2.1
+        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
+      jest:
+        specifier: ^29.5.0
+        version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3))
+      source-map-support:
+        specifier: ^0.5.21
+        version: 0.5.21
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      ts-jest:
+        specifier: ^29.1.0
+        version: 29.1.4(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3)))(typescript@5.3.3)
+      ts-loader:
+        specifier: ^9.4.3
+        version: 9.5.1(typescript@5.3.3)(webpack@5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
+
+  integrations/nestjs/playground/nestjs-api-reference-fastify:
+    dependencies:
+      '@nestjs/common':
+        specifier: ^10.3.8
+        version: 10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/core':
+        specifier: ^10.3.8
+        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1)
+      '@nestjs/platform-fastify':
+        specifier: ^10.3.8
+        version: 10.3.9(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))
+      '@nestjs/swagger':
+        specifier: ^7.3.1
+        version: 7.3.1(@fastify/static@7.0.4)(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(reflect-metadata@0.1.14)
+      '@scalar/nestjs-api-reference':
+        specifier: workspace:*
+        version: link:../..
+      reflect-metadata:
+        specifier: ^0.1.13
+        version: 0.1.14
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
+    devDependencies:
+      '@nestjs/cli':
+        specifier: ^10.0.1
+        version: 10.3.2(@swc/cli@0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0))(@swc/core@1.5.29(@swc/helpers@0.5.15))
+      '@nestjs/schematics':
+        specifier: ^10.0.1
+        version: 10.1.1(chokidar@3.6.0)(typescript@5.6.2)
+      '@nestjs/testing':
+        specifier: ^10.0.0
+        version: 10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9)(encoding@0.1.13)(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/platform-express@10.3.9(@nestjs/common@10.3.9(reflect-metadata@0.1.14)(rxjs@7.8.1))(@nestjs/core@10.3.9))
+      '@swc/cli':
+        specifier: ^0.1.62
+        version: 0.1.65(@swc/core@1.5.29(@swc/helpers@0.5.15))(chokidar@3.6.0)
+      '@swc/core':
+        specifier: ^1.3.64
+        version: 1.5.29(@swc/helpers@0.5.15)
+      '@types/jest':
+        specifier: ^29.5.2
+        version: 29.5.12
+      '@types/node':
+        specifier: ^20.17.10
+        version: 20.17.10
+      '@types/supertest':
+        specifier: ^2.0.12
+        version: 2.0.16
+      '@typescript-eslint/parser':
+        specifier: ^6.21.0
+        version: 6.21.0(eslint@9.20.1(jiti@2.4.0))(typescript@5.6.2)
+      eslint-config-prettier:
+        specifier: ^9.1.0
+        version: 9.1.0(eslint@9.20.1(jiti@2.4.0))
+      eslint-plugin-prettier:
+        specifier: ^5.2.1
+        version: 5.2.3(@types/eslint@8.56.10)(eslint-config-prettier@9.1.0(eslint@9.20.1(jiti@2.4.0)))(eslint@9.20.1(jiti@2.4.0))(prettier@3.4.2)
+      jest:
+        specifier: ^29.5.0
+        version: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2))
+      source-map-support:
+        specifier: ^0.5.21
+        version: 0.5.21
+      supertest:
+        specifier: ^6.3.3
+        version: 6.3.4
+      ts-jest:
+        specifier: ^29.1.0
+        version: 29.1.4(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))(typescript@5.6.2)
+      ts-loader:
+        specifier: ^9.4.3
+        version: 9.5.1(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15)))
 
   integrations/nextjs:
     dependencies:
@@ -2431,6 +2422,15 @@ importers:
       wrangler:
         specifier: ^3.62.0
         version: 3.64.0(@cloudflare/workers-types@4.20240712.0)
+
+  projects/proxy-scalar-com:
+    devDependencies:
+      '@scalar/build-tooling':
+        specifier: workspace:*
+        version: link:../../packages/build-tooling
+      vite:
+        specifier: ^5.4.10
+        version: 5.4.10(@types/node@20.17.10)(terser@5.31.2)
 
 packages:
 
@@ -10409,10 +10409,6 @@ packages:
 
   end-of-stream@1.4.4:
     resolution: {integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==}
-
-  enhanced-resolve@5.17.0:
-    resolution: {integrity: sha512-dwDPwZL0dmye8Txp2gzFmA6sxALaSvdRDjPH0viLcKrtlOL3tw62nWWweVD1SdILDTJrbrL6tdWVN58Wo6U3eA==}
-    engines: {node: '>=10.13.0'}
 
   enhanced-resolve@5.17.1:
     resolution: {integrity: sha512-LMHl3dXhTcfv8gM4kEzIUeTQ+7fpdA0l2tUf34BddXPkz2A5xJ5L/Pchd5BL6rdccM9QGvu0sWZzK1Z1t4wwyg==}
@@ -18607,7 +18603,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.24.8
       '@babel/helper-validator-option': 7.24.8
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -19045,18 +19041,11 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
-
-  '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.24.8)':
-    dependencies:
-      '@babel/core': 7.24.8
-      '@babel/helper-plugin-utils': 7.24.8
 
   '@babel/plugin-syntax-bigint@7.8.3(@babel/core@7.26.0)':
     dependencies:
       '@babel/core': 7.26.0
-      '@babel/helper-plugin-utils': 7.24.8
-    optional: true
+      '@babel/helper-plugin-utils': 7.25.9
 
   '@babel/plugin-syntax-class-properties@7.12.13(@babel/core@7.24.8)':
     dependencies:
@@ -19067,7 +19056,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-class-static-block@7.14.5(@babel/core@7.24.8)':
     dependencies:
@@ -19128,7 +19116,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-json-strings@7.8.3(@babel/core@7.24.8)':
     dependencies:
@@ -19139,7 +19126,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-jsx@7.24.7(@babel/core@7.24.7)':
     dependencies:
@@ -19170,7 +19156,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-nullish-coalescing-operator@7.8.3(@babel/core@7.24.8)':
     dependencies:
@@ -19181,7 +19166,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-numeric-separator@7.10.4(@babel/core@7.24.8)':
     dependencies:
@@ -19192,7 +19176,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-object-rest-spread@7.8.3(@babel/core@7.24.8)':
     dependencies:
@@ -19203,7 +19186,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-optional-catch-binding@7.8.3(@babel/core@7.24.8)':
     dependencies:
@@ -19214,7 +19196,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-optional-chaining@7.8.3(@babel/core@7.24.8)':
     dependencies:
@@ -19225,7 +19206,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-private-property-in-object@7.14.5(@babel/core@7.24.8)':
     dependencies:
@@ -19241,7 +19221,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.26.0
       '@babel/helper-plugin-utils': 7.24.8
-    optional: true
 
   '@babel/plugin-syntax-typescript@7.24.7(@babel/core@7.24.7)':
     dependencies:
@@ -21382,7 +21361,7 @@ snapshots:
   '@docusaurus/theme-translations@3.6.1':
     dependencies:
       fs-extra: 11.2.0
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   '@docusaurus/tsconfig@3.6.1': {}
 
@@ -22620,42 +22599,7 @@ snapshots:
       jest-util: 29.7.0
       jest-validate: 29.7.0
       jest-watcher: 29.7.0
-      micromatch: 4.0.7
-      pretty-format: 29.7.0
-      slash: 3.0.0
-      strip-ansi: 6.0.1
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
-  '@jest/core@29.7.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))':
-    dependencies:
-      '@jest/console': 29.7.0
-      '@jest/reporters': 29.7.0
-      '@jest/test-result': 29.7.0
-      '@jest/transform': 29.7.0
-      '@jest/types': 29.6.3
-      '@types/node': 20.17.10
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      ci-info: 3.9.0
-      exit: 0.1.2
-      graceful-fs: 4.2.11
-      jest-changed-files: 29.7.0
-      jest-config: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      jest-haste-map: 29.7.0
-      jest-message-util: 29.7.0
-      jest-regex-util: 29.6.3
-      jest-resolve: 29.7.0
-      jest-resolve-dependencies: 29.7.0
-      jest-runner: 29.7.0
-      jest-runtime: 29.7.0
-      jest-snapshot: 29.7.0
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      jest-watcher: 29.7.0
-      micromatch: 4.0.7
+      micromatch: 4.0.8
       pretty-format: 29.7.0
       slash: 3.0.0
       strip-ansi: 6.0.1
@@ -22690,7 +22634,7 @@ snapshots:
       jest-util: 29.7.0
       jest-validate: 29.7.0
       jest-watcher: 29.7.0
-      micromatch: 4.0.7
+      micromatch: 4.0.8
       pretty-format: 29.7.0
       slash: 3.0.0
       strip-ansi: 6.0.1
@@ -22698,7 +22642,6 @@ snapshots:
       - babel-plugin-macros
       - supports-color
       - ts-node
-    optional: true
 
   '@jest/environment@29.7.0':
     dependencies:
@@ -22791,7 +22734,7 @@ snapshots:
 
   '@jest/transform@29.7.0':
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@jest/types': 29.6.3
       '@jridgewell/trace-mapping': 0.3.25
       babel-plugin-istanbul: 6.1.1
@@ -25476,9 +25419,9 @@ snapshots:
       '@mole-inc/bin-wrapper': 8.0.1
       '@swc/core': 1.5.29(@swc/helpers@0.5.15)
       commander: 7.2.0
-      fast-glob: 3.3.2
-      minimatch: 9.0.4
-      semver: 7.6.2
+      fast-glob: 3.3.3
+      minimatch: 9.0.5
+      semver: 7.6.3
       slash: 3.0.0
       source-map: 0.7.4
     optionalDependencies:
@@ -26206,7 +26149,7 @@ snapshots:
       '@typescript-eslint/types': 8.24.0
       '@typescript-eslint/visitor-keys': 8.24.0
       debug: 4.4.0(supports-color@9.4.0)
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
       semver: 7.6.3
@@ -26946,9 +26889,9 @@ snapshots:
       mime-types: 2.1.35
       negotiator: 0.6.3
 
-  acorn-import-assertions@1.9.0(acorn@8.12.0):
+  acorn-import-assertions@1.9.0(acorn@8.14.0):
     dependencies:
-      acorn: 8.12.0
+      acorn: 8.14.0
 
   acorn-import-attributes@1.9.5(acorn@8.14.0):
     dependencies:
@@ -27211,7 +27154,7 @@ snapshots:
 
   aria-hidden@1.2.4:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   aria-query@5.1.3:
     dependencies:
@@ -27360,19 +27303,6 @@ snapshots:
     dependencies:
       '@babel/core': 7.24.8
 
-  babel-jest@29.7.0(@babel/core@7.24.8):
-    dependencies:
-      '@babel/core': 7.24.8
-      '@jest/transform': 29.7.0
-      '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.6.3(@babel/core@7.24.8)
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      slash: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-
   babel-jest@29.7.0(@babel/core@7.26.0):
     dependencies:
       '@babel/core': 7.26.0
@@ -27385,7 +27315,6 @@ snapshots:
       slash: 3.0.0
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   babel-loader@9.2.1(@babel/core@7.26.0)(webpack@5.96.1):
     dependencies:
@@ -27400,7 +27329,7 @@ snapshots:
 
   babel-plugin-istanbul@6.1.1:
     dependencies:
-      '@babel/helper-plugin-utils': 7.24.8
+      '@babel/helper-plugin-utils': 7.25.9
       '@istanbuljs/load-nyc-config': 1.1.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-instrument: 5.2.1
@@ -27463,22 +27392,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-preset-current-node-syntax@1.0.1(@babel/core@7.24.8):
-    dependencies:
-      '@babel/core': 7.24.8
-      '@babel/plugin-syntax-async-generators': 7.8.4(@babel/core@7.24.8)
-      '@babel/plugin-syntax-bigint': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-class-properties': 7.12.13(@babel/core@7.24.8)
-      '@babel/plugin-syntax-import-meta': 7.10.4(@babel/core@7.24.8)
-      '@babel/plugin-syntax-json-strings': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-logical-assignment-operators': 7.10.4(@babel/core@7.24.8)
-      '@babel/plugin-syntax-nullish-coalescing-operator': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-numeric-separator': 7.10.4(@babel/core@7.24.8)
-      '@babel/plugin-syntax-object-rest-spread': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.24.8)
-      '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.24.8)
-
   babel-preset-current-node-syntax@1.0.1(@babel/core@7.26.0):
     dependencies:
       '@babel/core': 7.26.0
@@ -27494,20 +27407,12 @@ snapshots:
       '@babel/plugin-syntax-optional-catch-binding': 7.8.3(@babel/core@7.26.0)
       '@babel/plugin-syntax-optional-chaining': 7.8.3(@babel/core@7.26.0)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.26.0)
-    optional: true
-
-  babel-preset-jest@29.6.3(@babel/core@7.24.8):
-    dependencies:
-      '@babel/core': 7.24.8
-      babel-plugin-jest-hoist: 29.6.3
-      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.24.8)
 
   babel-preset-jest@29.6.3(@babel/core@7.26.0):
     dependencies:
       '@babel/core': 7.26.0
       babel-plugin-jest-hoist: 29.6.3
       babel-preset-current-node-syntax: 1.0.1(@babel/core@7.26.0)
-    optional: true
 
   babel-walk@3.0.0-canary-5:
     dependencies:
@@ -27870,7 +27775,7 @@ snapshots:
 
   caniuse-api@3.0.0:
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-lite: 1.0.30001680
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
@@ -28341,7 +28246,7 @@ snapshots:
 
   copy-webpack-plugin@11.0.0(webpack@5.96.1):
     dependencies:
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob-parent: 6.0.2
       globby: 13.2.2
       normalize-path: 3.0.0
@@ -28351,7 +28256,7 @@ snapshots:
 
   core-js-compat@3.37.1:
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
 
   core-js-compat@3.39.0:
     dependencies:
@@ -28432,21 +28337,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  create-jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
-    dependencies:
-      '@jest/types': 29.6.3
-      chalk: 4.1.2
-      exit: 0.1.2
-      graceful-fs: 4.2.11
-      jest-config: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      jest-util: 29.7.0
-      prompts: 2.4.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
   create-jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
       '@jest/types': 29.6.3
@@ -28461,7 +28351,6 @@ snapshots:
       - babel-plugin-macros
       - supports-color
       - ts-node
-    optional: true
 
   create-require@1.1.1: {}
 
@@ -28565,7 +28454,7 @@ snapshots:
   cssnano-preset-advanced@6.1.2(postcss@8.4.47):
     dependencies:
       autoprefixer: 10.4.19(postcss@8.4.47)
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       cssnano-preset-default: 6.1.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-discard-unused: 6.0.5(postcss@8.4.47)
@@ -28575,7 +28464,7 @@ snapshots:
 
   cssnano-preset-default@6.1.2(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       css-declaration-sorter: 7.2.0(postcss@8.4.47)
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -28609,7 +28498,7 @@ snapshots:
 
   cssnano-preset-default@7.0.4(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       css-declaration-sorter: 7.2.0(postcss@8.4.47)
       cssnano-utils: 5.0.0(postcss@8.4.47)
       postcss: 8.4.47
@@ -29206,11 +29095,6 @@ snapshots:
   end-of-stream@1.4.4:
     dependencies:
       once: 1.4.0
-
-  enhanced-resolve@5.17.0:
-    dependencies:
-      graceful-fs: 4.2.11
-      tapable: 2.2.1
 
   enhanced-resolve@5.17.1:
     dependencies:
@@ -29913,7 +29797,7 @@ snapshots:
 
   externality@1.0.2:
     dependencies:
-      enhanced-resolve: 5.17.0
+      enhanced-resolve: 5.17.1
       mlly: 1.7.3
       pathe: 1.1.2
       ufo: 1.5.4
@@ -30024,7 +29908,7 @@ snapshots:
       proxy-addr: 2.0.7
       rfdc: 1.4.1
       secure-json-parse: 2.7.0
-      semver: 7.6.2
+      semver: 7.6.3
       toad-cache: 3.7.0
 
   fastify@4.28.0:
@@ -30280,7 +30164,7 @@ snapshots:
 
   fork-ts-checker-webpack-plugin@9.0.2(typescript@5.3.3)(webpack@5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15))):
     dependencies:
-      '@babel/code-frame': 7.24.7
+      '@babel/code-frame': 7.26.2
       chalk: 4.1.2
       chokidar: 3.6.0
       cosmiconfig: 8.3.6(typescript@5.3.3)
@@ -30290,7 +30174,7 @@ snapshots:
       minimatch: 3.1.2
       node-abort-controller: 3.1.1
       schema-utils: 3.3.0
-      semver: 7.6.2
+      semver: 7.6.3
       tapable: 2.2.1
       typescript: 5.3.3
       webpack: 5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15))
@@ -30631,7 +30515,7 @@ snapshots:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -30642,7 +30526,7 @@ snapshots:
       '@types/glob': 7.2.0
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob: 7.2.3
       ignore: 5.3.1
       merge2: 1.4.1
@@ -30652,7 +30536,7 @@ snapshots:
     dependencies:
       array-union: 2.1.0
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 3.0.0
@@ -30660,7 +30544,7 @@ snapshots:
   globby@13.2.2:
     dependencies:
       dir-glob: 3.0.1
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       ignore: 5.3.1
       merge2: 1.4.1
       slash: 4.0.0
@@ -31101,7 +30985,7 @@ snapshots:
 
   html5parser@2.0.2:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   htmlparser2@3.10.1:
     dependencies:
@@ -31738,7 +31622,7 @@ snapshots:
 
   istanbul-lib-instrument@5.2.1:
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@babel/parser': 7.26.2
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
@@ -31748,7 +31632,7 @@ snapshots:
 
   istanbul-lib-instrument@6.0.2:
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@babel/parser': 7.26.2
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
@@ -31864,25 +31748,6 @@ snapshots:
       - supports-color
       - ts-node
 
-  jest-cli@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
-    dependencies:
-      '@jest/core': 29.7.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      '@jest/test-result': 29.7.0
-      '@jest/types': 29.6.3
-      chalk: 4.1.2
-      create-jest: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      exit: 0.1.2
-      import-local: 3.1.0
-      jest-config: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      yargs: 17.7.2
-    transitivePeerDependencies:
-      - '@types/node'
-      - babel-plugin-macros
-      - supports-color
-      - ts-node
-
   jest-cli@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
       '@jest/core': 29.7.0(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2))
@@ -31901,14 +31766,13 @@ snapshots:
       - babel-plugin-macros
       - supports-color
       - ts-node
-    optional: true
 
   jest-config@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3)):
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@jest/test-sequencer': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.8)
+      babel-jest: 29.7.0(@babel/core@7.26.0)
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
@@ -31934,12 +31798,12 @@ snapshots:
       - babel-plugin-macros
       - supports-color
 
-  jest-config@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
+  jest-config@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@jest/test-sequencer': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.8)
+      babel-jest: 29.7.0(@babel/core@7.26.0)
       chalk: 4.1.2
       ci-info: 3.9.0
       deepmerge: 4.3.1
@@ -31964,38 +31828,6 @@ snapshots:
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
-
-  jest-config@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2)):
-    dependencies:
-      '@babel/core': 7.24.8
-      '@jest/test-sequencer': 29.7.0
-      '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.8)
-      chalk: 4.1.2
-      ci-info: 3.9.0
-      deepmerge: 4.3.1
-      glob: 7.2.3
-      graceful-fs: 4.2.11
-      jest-circus: 29.7.0
-      jest-environment-node: 29.7.0
-      jest-get-type: 29.6.3
-      jest-regex-util: 29.6.3
-      jest-resolve: 29.7.0
-      jest-runner: 29.7.0
-      jest-util: 29.7.0
-      jest-validate: 29.7.0
-      micromatch: 4.0.8
-      parse-json: 5.2.0
-      pretty-format: 29.7.0
-      slash: 3.0.0
-      strip-json-comments: 3.1.1
-    optionalDependencies:
-      '@types/node': 20.17.10
-      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
-    transitivePeerDependencies:
-      - babel-plugin-macros
-      - supports-color
-    optional: true
 
   jest-diff@29.7.0:
     dependencies:
@@ -32153,15 +31985,15 @@ snapshots:
 
   jest-snapshot@29.7.0:
     dependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@babel/generator': 7.26.2
-      '@babel/plugin-syntax-jsx': 7.24.7(@babel/core@7.24.8)
-      '@babel/plugin-syntax-typescript': 7.24.7(@babel/core@7.24.8)
+      '@babel/plugin-syntax-jsx': 7.25.9(@babel/core@7.26.0)
+      '@babel/plugin-syntax-typescript': 7.25.9(@babel/core@7.26.0)
       '@babel/types': 7.26.0
       '@jest/expect-utils': 29.7.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.24.8)
+      babel-preset-current-node-syntax: 1.0.1(@babel/core@7.26.0)
       chalk: 4.1.2
       expect: 29.7.0
       graceful-fs: 4.2.11
@@ -32232,10 +32064,10 @@ snapshots:
 
   jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
-      '@jest/core': 29.7.0(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
+      '@jest/core': 29.7.0(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2))
       '@jest/types': 29.6.3
       import-local: 3.1.0
-      jest-cli: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2))
+      jest-cli: 29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@types/node@20.17.10)(typescript@5.6.2))
     transitivePeerDependencies:
       - '@types/node'
       - babel-plugin-macros
@@ -32253,7 +32085,6 @@ snapshots:
       - babel-plugin-macros
       - supports-color
       - ts-node
-    optional: true
 
   jiti@1.21.6: {}
 
@@ -34700,7 +34531,7 @@ snapshots:
 
   postcss-colormin@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.4.47
@@ -34708,7 +34539,7 @@ snapshots:
 
   postcss-colormin@7.0.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       colord: 2.9.3
       postcss: 8.4.47
@@ -34724,13 +34555,13 @@ snapshots:
 
   postcss-convert-values@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-convert-values@7.0.2(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -34805,7 +34636,7 @@ snapshots:
       yaml: 2.6.0
     optionalDependencies:
       postcss: 8.4.39
-      ts-node: 10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)
+      ts-node: 10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)
 
   postcss-load-config@4.0.2(postcss@8.4.47)(ts-node@10.9.2(@swc/core@1.5.29)(@types/node@20.17.10)(typescript@5.6.2)):
     dependencies:
@@ -34860,7 +34691,7 @@ snapshots:
 
   postcss-merge-rules@6.1.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
@@ -34868,7 +34699,7 @@ snapshots:
 
   postcss-merge-rules@7.0.2(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       cssnano-utils: 5.0.0(postcss@8.4.47)
       postcss: 8.4.47
@@ -34908,14 +34739,14 @@ snapshots:
 
   postcss-minify-params@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       cssnano-utils: 4.0.2(postcss@8.4.47)
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-minify-params@7.0.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       cssnano-utils: 5.0.0(postcss@8.4.47)
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
@@ -35047,13 +34878,13 @@ snapshots:
 
   postcss-normalize-unicode@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
   postcss-normalize-unicode@7.0.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-value-parser: 4.2.0
 
@@ -35106,13 +34937,13 @@ snapshots:
 
   postcss-reduce-initial@6.1.0(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       postcss: 8.4.47
 
   postcss-reduce-initial@7.0.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       caniuse-api: 3.0.0
       postcss: 8.4.47
 
@@ -36375,7 +36206,7 @@ snapshots:
 
   rxjs@7.8.1:
     dependencies:
-      tslib: 2.6.3
+      tslib: 2.8.1
 
   safe-buffer@5.1.2: {}
 
@@ -37078,13 +36909,13 @@ snapshots:
 
   stylehacks@6.1.1(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-selector-parser: 6.1.2
 
   stylehacks@7.0.2(postcss@8.4.47):
     dependencies:
-      browserslist: 4.23.2
+      browserslist: 4.24.2
       postcss: 8.4.47
       postcss-selector-parser: 6.1.2
 
@@ -37572,7 +37403,7 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
-  ts-jest@29.1.4(@babel/core@7.24.8)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.24.8))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3)))(typescript@5.3.3):
+  ts-jest@29.1.4(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.3.3)))(typescript@5.3.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -37581,14 +37412,14 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.6.2
+      semver: 7.6.3
       typescript: 5.3.3
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@babel/core': 7.24.8
+      '@babel/core': 7.26.0
       '@jest/transform': 29.7.0
       '@jest/types': 29.6.3
-      babel-jest: 29.7.0(@babel/core@7.24.8)
+      babel-jest: 29.7.0(@babel/core@7.26.0)
 
   ts-jest@29.1.4(@babel/core@7.26.0)(@jest/transform@29.7.0)(@jest/types@29.6.3)(babel-jest@29.7.0(@babel/core@7.26.0))(jest@29.7.0(@types/node@20.17.10)(ts-node@10.9.2(@swc/core@1.5.29(@swc/helpers@0.5.15))(@types/node@20.17.10)(typescript@5.6.2)))(typescript@5.6.2):
     dependencies:
@@ -37599,7 +37430,7 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.6.2
+      semver: 7.6.3
       typescript: 5.6.2
       yargs-parser: 21.1.1
     optionalDependencies:
@@ -37611,9 +37442,9 @@ snapshots:
   ts-loader@9.5.1(typescript@5.3.3)(webpack@5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15))):
     dependencies:
       chalk: 4.1.2
-      enhanced-resolve: 5.17.0
-      micromatch: 4.0.7
-      semver: 7.6.2
+      enhanced-resolve: 5.17.1
+      micromatch: 4.0.8
+      semver: 7.6.3
       source-map: 0.7.4
       typescript: 5.3.3
       webpack: 5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15))
@@ -37621,9 +37452,9 @@ snapshots:
   ts-loader@9.5.1(typescript@5.6.2)(webpack@5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15))):
     dependencies:
       chalk: 4.1.2
-      enhanced-resolve: 5.17.0
-      micromatch: 4.0.7
-      semver: 7.6.2
+      enhanced-resolve: 5.17.1
+      micromatch: 4.0.8
+      semver: 7.6.3
       source-map: 0.7.4
       typescript: 5.6.2
       webpack: 5.96.1(@swc/core@1.5.29(@swc/helpers@0.5.15))
@@ -37711,7 +37542,7 @@ snapshots:
   tsconfig-paths-webpack-plugin@4.1.0:
     dependencies:
       chalk: 4.1.2
-      enhanced-resolve: 5.17.0
+      enhanced-resolve: 5.17.1
       tsconfig-paths: 4.2.0
 
   tsconfig-paths@4.2.0:
@@ -38023,7 +37854,7 @@ snapshots:
       acorn: 8.14.0
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
       mlly: 1.7.3
@@ -38041,7 +37872,7 @@ snapshots:
       acorn: 8.12.1
       escape-string-regexp: 5.0.0
       estree-walker: 3.0.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
       mlly: 1.7.1
@@ -38128,7 +37959,7 @@ snapshots:
       '@vue-macros/common': 1.15.0(rollup@4.24.4)(vue@3.5.12(typescript@5.6.2))
       ast-walker-scope: 0.6.2
       chokidar: 3.6.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       json5: 2.2.3
       local-pkg: 0.5.0
       magic-string: 0.30.12
@@ -38463,7 +38294,7 @@ snapshots:
       chalk: 4.1.2
       chokidar: 3.6.0
       commander: 8.3.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       fs-extra: 11.2.0
       npm-run-path: 4.0.1
       strip-ansi: 6.0.1
@@ -39048,16 +38879,16 @@ snapshots:
   webpack@5.90.1(@swc/core@1.5.29(@swc/helpers@0.5.15)):
     dependencies:
       '@types/eslint-scope': 3.7.7
-      '@types/estree': 1.0.5
+      '@types/estree': 1.0.6
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.12.0
-      acorn-import-assertions: 1.9.0(acorn@8.12.0)
-      browserslist: 4.23.2
+      acorn: 8.14.0
+      acorn-import-assertions: 1.9.0(acorn@8.14.0)
+      browserslist: 4.24.2
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.17.0
-      es-module-lexer: 1.5.3
+      enhanced-resolve: 5.17.1
+      es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
@@ -39087,7 +38918,7 @@ snapshots:
       acorn-import-attributes: 1.9.5(acorn@8.14.0)
       browserslist: 4.23.2
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.17.0
+      enhanced-resolve: 5.17.1
       es-module-lexer: 1.5.4
       eslint-scope: 5.1.1
       events: 3.3.0
