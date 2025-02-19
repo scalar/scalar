@@ -21,7 +21,6 @@ const activeCookie = computed<Cookie>(
   () =>
     cookies[activeCookieId.value as string] ||
     cookieSchema.parse({
-      uid: '',
       name: '',
       value: '',
       domain: '',
