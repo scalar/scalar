@@ -24,13 +24,12 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "pnpm --filter @scalar-examples/docusaurus dev",
+    "dev": "cd ./playground && pnpm dev",
     "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
     "format:check": "scalar-format-check",
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
-    "playground": "cd ./playground && pnpm dev",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "main": "./dist/index.js",
