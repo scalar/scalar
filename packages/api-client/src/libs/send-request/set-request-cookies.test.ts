@@ -1,12 +1,8 @@
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import { describe, expect, it } from 'vitest'
 
-import {
-  getCookieHeader,
-  matchesDomain,
-  setRequestCookies,
-} from './set-request-cookies'
+import { getCookieHeader, matchesDomain, setRequestCookies } from './set-request-cookies'
+import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 
 describe('setRequestCookies', () => {
   it('should set local and global cookies', () => {
@@ -17,7 +13,7 @@ describe('setRequestCookies', () => {
       enabled: true,
     }
 
-    const example: RequestExample = createRequestExample({
+    const example = requestExampleSchema.parse({
       parameters: {
         cookies: [localCookieParameter],
         path: [],
@@ -85,10 +81,7 @@ describe('getCookieHeader', () => {
   })
 
   it('generates a cookie header with multiple cookies', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('foo', 'bar'),
-      createCookie('baz', 'qux'),
-    ]
+    const cookieParams: Cookie[] = [createCookie('foo', 'bar'), createCookie('baz', 'qux')]
     expect(getCookieHeader(cookieParams)).toBe('foo=bar; baz=qux')
   })
 
@@ -97,16 +90,11 @@ describe('getCookieHeader', () => {
       createCookie('test', 'hello world!@#$%^&*()'),
       createCookie('complex', '{"key": "value"}'),
     ]
-    expect(getCookieHeader(cookieParams)).toBe(
-      'test=hello world!@#$%^&*(); complex={"key": "value"}',
-    )
+    expect(getCookieHeader(cookieParams)).toBe('test=hello world!@#$%^&*(); complex={"key": "value"}')
   })
 
   it('handles cookies with empty values', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('empty', ''),
-      createCookie('normal', 'value'),
-    ]
+    const cookieParams: Cookie[] = [createCookie('empty', ''), createCookie('normal', 'value')]
     expect(getCookieHeader(cookieParams)).toBe('empty=; normal=value')
   })
 
@@ -116,85 +104,39 @@ describe('getCookieHeader', () => {
   })
 
   it('handles cookies with unicode values', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('greeting', '你好'),
-      createCookie('emoji', '👋'),
-    ]
+    const cookieParams: Cookie[] = [createCookie('greeting', '你好'), createCookie('emoji', '👋')]
     expect(getCookieHeader(cookieParams)).toBe('greeting=你好; emoji=👋')
   })
 
   it('merges with original cookie header', () => {
     const cookieParams: Cookie[] = [createCookie('foo', 'bar')]
-    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
-      'existing=value; foo=bar',
-    )
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe('existing=value; foo=bar')
   })
 
   it('merges multiple cookies with original cookie header', () => {
-    const cookieParams: Cookie[] = [
-      createCookie('foo', 'bar'),
-      createCookie('baz', 'qux'),
-    ]
-    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
-      'existing=value; foo=bar; baz=qux',
-    )
+    const cookieParams: Cookie[] = [createCookie('foo', 'bar'), createCookie('baz', 'qux')]
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe('existing=value; foo=bar; baz=qux')
   })
 
   it('handles empty cookie params with original cookie header', () => {
     const cookieParams: Cookie[] = []
-    expect(getCookieHeader(cookieParams, 'existing=value')).toBe(
-      'existing=value;',
-    )
+    expect(getCookieHeader(cookieParams, 'existing=value')).toBe('existing=value;')
   })
 
   it('handles original cookie header with multiple cookies', () => {
     const cookieParams: Cookie[] = [createCookie('foo', 'bar')]
-    expect(getCookieHeader(cookieParams, 'first=one; second=two')).toBe(
-      'first=one; second=two; foo=bar',
-    )
+    expect(getCookieHeader(cookieParams, 'first=one; second=two')).toBe('first=one; second=two; foo=bar')
   })
 })
 
 /**
  * Create a cookie with default values and optional overrides
  */
-function createCookie(
-  name: string,
-  value: string,
-  options: Partial<Exclude<Cookie, 'name' | 'value'>> = {},
-): Cookie {
-  return {
+const createCookie = (name: string, value: string, options: Partial<Exclude<Cookie, 'name' | 'value'>> = {}): Cookie =>
+  cookieSchema.parse({
     name,
     value,
     domain: 'example.com',
     path: '/',
-    uid: 'globalCookie',
-    // overwrite (optional)
     ...options,
-  }
-}
-
-function createRequestExample(
-  example: Partial<RequestExample> = {},
-): RequestExample {
-  return {
-    type: 'requestExample' as const,
-    uid: 'example',
-    name: 'Example',
-    requestUid: 'request',
-    parameters: {
-      cookies: [],
-      path: [],
-      query: [],
-      headers: [],
-    },
-    body: {
-      activeBody: 'raw' as const,
-      raw: {
-        encoding: 'json',
-        value: '',
-      },
-    },
-    ...example,
-  }
-}
+  })
