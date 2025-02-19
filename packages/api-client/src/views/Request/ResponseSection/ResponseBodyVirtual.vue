@@ -37,7 +37,7 @@ const { mimeType, attachmentFilename, dataUrl } = useResponseBody({
       This response body is massive! Syntax highlighting won’t work here.
     </div>
     <ScalarVirtualText
-      containerClass="custom-scroll scalar-code-block border-1/2 rounded-b flex flex-1 max-h-[100vh]"
+      containerClass="custom-scroll scalar-code-block border-1/2 rounded-b flex flex-1 max-h-screen"
       contentClass="language-plaintext whitespace-pre font-code text-base"
       :lineHeight="20"
       :text="textContent" />
