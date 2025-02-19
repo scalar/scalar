@@ -1,4 +1,4 @@
-import { collectionSchema } from '@scalar/oas-utils/entities/spec'
+import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { TransformedOperation } from '@scalar/types'
 import { renderToString } from '@vue/server-renderer'
@@ -39,19 +39,16 @@ const mockProps = {
     },
     requests: [],
     servers: ['server1', 'server2', 'server3'],
-    security: [
-      { bearerAuth: ['read:users', 'read:events'] },
-      { apiKeyQuery: [] },
-    ],
+    security: [{ bearerAuth: ['read:users', 'read:events'] }, { apiKeyQuery: [] }],
     tags: ['tag1uid', 'tag2uid', 'tag3uid'],
   }),
   requests: {},
   requestExamples: {},
   securitySchemes: {},
-  server: {
+  server: serverSchema.parse({
     uid: 'server1',
     url: 'https://example.com',
-  },
+  }),
 }
 
 // We temporarily mock this before we move it to a hook
@@ -64,10 +61,7 @@ vi.mock('@scalar/api-client/store', () => ({
         selectedSecuritySchemeUids: [],
         requests: [],
         servers: ['server1', 'server2', 'server3'],
-        security: [
-          { bearerAuth: ['read:users', 'read:events'] },
-          { apiKeyQuery: [] },
-        ],
+        security: [{ bearerAuth: ['read:users', 'read:events'] }, { apiKeyQuery: [] }],
         tags: ['tag1uid', 'tag2uid', 'tag3uid'],
       },
     },
@@ -99,12 +93,8 @@ describe.skip('Operation', () => {
       },
     })
 
-    expect(
-      operationComponent.findComponent({ name: 'ModernLayout' }).exists(),
-    ).toBe(true)
-    expect(
-      operationComponent.findComponent({ name: 'ClassicLayout' }).exists(),
-    ).toBe(false)
+    expect(operationComponent.findComponent({ name: 'ModernLayout' }).exists()).toBe(true)
+    expect(operationComponent.findComponent({ name: 'ClassicLayout' }).exists()).toBe(false)
   })
 
   it('switches to classic layout', async () => {
@@ -119,12 +109,8 @@ describe.skip('Operation', () => {
     })
 
     await operationComponent.setProps({ layout: 'classic' })
-    expect(
-      operationComponent.findComponent({ name: 'ClassicLayout' }).exists(),
-    ).toBe(true)
-    expect(
-      operationComponent.findComponent({ name: 'ModernLayout' }).exists(),
-    ).toBe(false)
+    expect(operationComponent.findComponent({ name: 'ClassicLayout' }).exists()).toBe(true)
+    expect(operationComponent.findComponent({ name: 'ModernLayout' }).exists()).toBe(false)
   })
 
   it('passes props correctly', async () => {
