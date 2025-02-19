@@ -2,6 +2,15 @@ import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 import { z } from 'zod'
 
 /**
+ * Removes undefined values from an object.
+ *
+ * Can be used as a transform function for any Zod schema.
+ */
+export const omitUndefinedValues = <T extends object>(data: T): T => {
+  return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined)) as T
+}
+
+/**
  * License Object
  *
  * License information for the exposed API.
@@ -19,10 +28,7 @@ export const oasLicenseSchema = z
      */
     url: z.string().url().optional().catch(undefined),
   })
-  .transform((data) => {
-    // Remove undefined values
-    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
-  })
+  .transform(omitUndefinedValues)
 
 /**
  * Contact Object
@@ -38,12 +44,9 @@ export const oasContactSchema = z
     /** The URL pointing to the contact information. This MUST be in the form of a URL. */
     url: z.string().url().optional().catch(undefined),
     /** The email address of the contact person/organization. This MUST be in the form of an email address. */
-    email: z.string().email().optional().catch(undefined),
+    email: z.string().optional().catch(undefined),
   })
-  .transform((data) => {
-    // Remove undefined values
-    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
-  })
+  .transform(omitUndefinedValues)
 
 /**
  * Info
@@ -72,10 +75,7 @@ export const oasInfoSchema = z
      */
     version: z.string().catch('1.0'),
   })
-  .transform((data) => {
-    // Remove undefined values
-    return Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined))
-  })
+  .transform(omitUndefinedValues)
 
 /**
  * External Documentation
@@ -83,12 +83,15 @@ export const oasInfoSchema = z
  *
  * @see https://spec.openapis.org/oas/latest.html#external-documentation-object
  */
-export const oasExternalDocumentationSchema = z.object({
-  /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
-  description: z.string().optional(),
-  /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
-  url: z.string().default(''),
-})
+export const oasExternalDocumentationSchema = z
+  .object({
+    /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
+    description: z.string().optional(),
+    /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
+    url: z.string(),
+  })
+  .transform(omitUndefinedValues)
+
 export type ExternalDocumentation = z.infer<typeof oasExternalDocumentationSchema>
 
 export const xScalarNestedSchema = z
@@ -132,4 +135,5 @@ export const tagSchema = oasTagSchema.extend({
 })
 
 export type Tag = z.infer<typeof tagSchema>
+/** @deprecated Use `Tag` instead */
 export type TagPayload = z.input<typeof tagSchema>
