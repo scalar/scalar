@@ -108,7 +108,10 @@ export const oasTagSchema = z.object({
 
 export const tagSchema = oasTagSchema.extend({
   uid: nanoidSchema.brand('tag'),
-  children: nanoidSchema.brand('tag').array().default([]),
+  children: z
+    .union([nanoidSchema.brand('tag'), nanoidSchema.brand('request')])
+    .array()
+    .default([]),
 })
 
 export type Tag = z.infer<typeof tagSchema>
