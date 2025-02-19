@@ -143,7 +143,8 @@ const { codeMirror } = useCodeMirror({
     props.modelValue !== undefined ? String(props.modelValue) : '',
   ),
   onChange: (value) => {
-    handleChange(value), updateDropdownVisibility()
+    handleChange(value)
+    updateDropdownVisibility()
   },
   onFocus: () => (isFocused.value = true),
   onBlur: (val) => handleBlur(val),
@@ -285,7 +286,7 @@ export default {
     class="centered-y text-orange absolute right-7 text-xs">
     <slot name="warning" />
   </div>
-  <slot name="icon"></slot>
+  <slot name="icon" />
   <div
     v-if="required"
     class="required centered-y text-xxs text-c-3 bg-b-1 pointer-events-none absolute right-0 pr-2 pt-px opacity-100 shadow-[-8px_0_4px_var(--scalar-background-1)] transition-opacity duration-150 peer-has-[.cm-focused]:opacity-0">

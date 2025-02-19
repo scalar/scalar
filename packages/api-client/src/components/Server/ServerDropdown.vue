@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import { useLayout } from '@/hooks/useLayout'
-import { useWorkspace } from '@/store/store'
 import {
+  cva,
+  cx,
   ScalarButton,
   ScalarDropdownDivider,
   ScalarFloatingBackdrop,
   ScalarIcon,
   ScalarPopover,
-  cva,
-  cx,
 } from '@scalar/components'
 import type {
   Collection,
@@ -16,6 +14,9 @@ import type {
   Server,
 } from '@scalar/oas-utils/entities/spec'
 import { computed, watch } from 'vue'
+
+import { useLayout } from '@/hooks/useLayout'
+import { useWorkspace } from '@/store/store'
 
 import ServerDropdownItem from './ServerDropdownItem.vue'
 
@@ -32,7 +33,7 @@ const { layout: clientLayout } = useLayout()
 const { servers, collectionMutators, events, serverMutators } = useWorkspace()
 
 const requestServerOptions = computed(() =>
-  operation?.servers?.map((serverUid: string) => ({
+  operation?.servers?.map((serverUid) => ({
     id: serverUid,
     label: servers[serverUid]?.url ?? 'Unknown server',
   })),
@@ -41,8 +42,8 @@ const requestServerOptions = computed(() =>
 const collectionServerOptions = computed(() =>
   // Filters out servers already present in the request
   collection?.servers
-    ?.filter((serverUid: string) => !operation?.servers?.includes(serverUid))
-    .map((serverUid: string) => ({
+    ?.filter((serverUid) => !operation?.servers?.includes(serverUid))
+    .map((serverUid) => ({
       id: serverUid,
       label: servers[serverUid]?.url ?? 'Unknown server',
     })),
@@ -125,7 +126,7 @@ const buttonVariants = cva({
     </ScalarButton>
     <template #popover="{ close }">
       <div
-        class="custom-scroll flex p-1 flex-col gap-1 max-h-[inherit]"
+        class="custom-scroll flex max-h-[inherit] flex-col gap-1 p-1"
         :class="layout !== 'reference' && 'border-t'"
         @click="close">
         <!-- Request -->
@@ -157,10 +158,10 @@ const buttonVariants = cva({
         <!-- Add Server -->
         <template v-if="clientLayout !== 'modal'">
           <button
-            class="rounded text-xxs flex items-center gap-1.5 p-1.75 hover:bg-b-2 cursor-pointer"
+            class="text-xxs p-1.75 hover:bg-b-2 flex cursor-pointer items-center gap-1.5 rounded"
             type="button"
             @click="handleAddServer">
-            <div class="flex items-center justify-center h-4 w-4">
+            <div class="flex h-4 w-4 items-center justify-center">
               <ScalarIcon
                 icon="Add"
                 size="sm" />

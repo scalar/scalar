@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
-import { useWorkspace } from '@/store/store'
 import { ScalarListboxCheckbox, ScalarMarkdown } from '@scalar/components'
 import type {
   Collection,
@@ -9,11 +7,17 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import { computed, useId } from 'vue'
 
+import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
+import { useWorkspace } from '@/store/store'
+
 const props = defineProps<{
   collection: Collection
   operation: Operation | undefined
   server: Server | undefined
-  serverOption: { id: string; label: string }
+  serverOption: {
+    id: Server['uid']
+    label: string
+  }
   type: 'collection' | 'request'
   layout: 'client' | 'reference'
 }>()
@@ -26,7 +30,7 @@ const formId = useId()
 const { collectionMutators, requestMutators, servers } = useWorkspace()
 
 /** Update the currently selected server on the collection or request */
-const updateSelectedServer = (serverUid: string, event?: Event) => {
+const updateSelectedServer = (serverUid: Server['uid'], event?: Event) => {
   if (hasVariables(serverUid) && props.layout !== 'reference') {
     event?.stopPropagation()
   }
@@ -35,7 +39,7 @@ const updateSelectedServer = (serverUid: string, event?: Event) => {
   if (props.type === 'collection' && props.collection) {
     // Clear the selected server on the request so that the collection can be updated
     if (props.operation?.servers?.length) {
-      requestMutators.edit(props.operation.uid, 'selectedServerUid', '')
+      requestMutators.edit(props.operation.uid, 'selectedServerUid', null)
     }
     collectionMutators.edit(
       props.collection.uid,
@@ -72,17 +76,17 @@ const updateServerVariable = (key: string, value: string) => {
 </script>
 <template>
   <div
-    class="min-h-fit rounded flex flex-col border group/item"
+    class="group/item flex min-h-fit flex-col rounded border"
     :class="{ 'border-transparent': !isSelectedServer }">
     <button
       v-bind="isExpanded ? { 'aria-controls': formId } : {}"
       :aria-expanded="isExpanded"
-      class="cursor-pointer rounded flex items-center gap-1.5 min-h-8 px-1.5"
+      class="flex min-h-8 cursor-pointer items-center gap-1.5 rounded px-1.5"
       :class="isSelectedServer ? 'text-c-1 bg-b-2' : 'hover:bg-b-2'"
       type="button"
       @click="(e) => updateSelectedServer(serverOption.id, e)">
       <ScalarListboxCheckbox :selected="isSelectedServer" />
-      <span class="whitespace-nowrap text-ellipsis overflow-hidden">
+      <span class="overflow-hidden text-ellipsis whitespace-nowrap">
         {{ serverOption.label }}
       </span>
     </button>
@@ -90,14 +94,14 @@ const updateServerVariable = (key: string, value: string) => {
     <div
       v-if="isExpanded && props.layout !== 'reference'"
       :id="formId"
-      class="bg-b-2 border-t divide divide-y *:pl-4 rounded-b"
+      class="bg-b-2 divide divide-y rounded-b border-t *:pl-4"
       @click.stop>
       <ServerVariablesForm
         :variables="server?.variables"
         @update:variable="updateServerVariable" />
       <!-- Description -->
       <div v-if="server?.description">
-        <div class="description px-3 py-1.5 text-c-3">
+        <div class="description text-c-3 px-3 py-1.5">
           <ScalarMarkdown :value="server.description" />
         </div>
       </div>

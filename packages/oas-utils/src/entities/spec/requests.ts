@@ -111,7 +111,7 @@ const extendedRequestSchema = z.object({
   /** List of server UIDs specific to the request */
   servers: z.string().brand<ENTITY_BRANDS['SERVER']>().array().default([]),
   /** The currently selected server */
-  selectedServerUid: z.string().brand<ENTITY_BRANDS['SERVER']>().optional(),
+  selectedServerUid: z.string().brand<ENTITY_BRANDS['SERVER']>().optional().nullable().default(null),
   /** List of example UIDs associated with the request */
   examples: z.string().brand<ENTITY_BRANDS['EXAMPLE']>().array().default([]),
   /** List of security scheme UIDs associated with the request */
