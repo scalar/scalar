@@ -131,16 +131,6 @@ describe('Routes', () => {
     )
   })
 
-  it('should contain the servers route', () => {
-    const serversRoute = router
-      .getRoutes()
-      .find((route) => route.name === 'servers')
-    expect(serversRoute).toBeDefined()
-    expect(serversRoute?.path).toBe(
-      '/workspace/:workspace/servers/:collection/:servers',
-    )
-  })
-
   it('should contain the default servers redirect', () => {
     const serversDefaultRoute = router
       .getRoutes()

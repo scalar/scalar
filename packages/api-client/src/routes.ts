@@ -239,12 +239,6 @@ export const routes = [
         }),
       },
       {
-        name: 'servers',
-        path: `servers/:${PathId.Collection}/:${PathId.Servers}`,
-        component: () => import('@/views/Servers/Servers.vue'),
-        props: true,
-      },
-      {
         name: 'settings.default',
         path: 'settings',
         redirect: (to) => ({
