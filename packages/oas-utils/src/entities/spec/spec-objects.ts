@@ -49,11 +49,12 @@ export const oasContactSchema = z
   .transform(omitUndefinedValues)
 
 /**
- * Info
+ * Info Object
+ *
  * The object provides metadata about the API. The metadata MAY be used by the clients if needed,
  * and MAY be presented in editing or documentation generation tools for convenience.
  *
- * @see https://spec.openapis.org/oas/latest.html#info-object
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#info-object
  */
 export const oasInfoSchema = z
   .object({
@@ -78,15 +79,16 @@ export const oasInfoSchema = z
   .transform(omitUndefinedValues)
 
 /**
- * External Documentation
+ * External Documentation Object
+ *
  * Allows referencing an external resource for extended documentation.
  *
- * @see https://spec.openapis.org/oas/latest.html#external-documentation-object
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#external-documentation-object
  */
 export const oasExternalDocumentationSchema = z
   .object({
     /** A description of the target documentation. CommonMark syntax MAY be used for rich text representation. */
-    description: z.string().optional(),
+    description: z.string().optional().catch(undefined),
     /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
     url: z.string(),
   })
@@ -101,23 +103,23 @@ export const xScalarNestedSchema = z
   .array()
 
 /**
- * Tag
- * Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag
- * Object per tag defined in the Operation Object instances.
+ * Tag Object
  *
- * @see https://spec.openapis.org/oas/latest.html#tag-object
+ * Adds metadata to a single tag that is used by the Operation Object. It is not mandatory to have a Tag Object per tag
+ * defined in the Operation Object instances.
+ *
+ * @see https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.1.1.md#tag-object
  */
 export const oasTagSchema = z.object({
+  // TODO: Remove
   /**
-   * @deprecated
-   *
-   * Needs to be remove as it is not a spec property
+   * @deprecated Needs to be remove as it is not a spec property
    */
   'type': z.literal('tag').optional().default('tag'),
   /** REQUIRED. The name of the tag. */
   'name': z.string(),
   /** A description for the tag. CommonMark syntax MAY be used for rich text representation. */
-  'description': z.string().optional(),
+  'description': z.string().optional().catch(undefined),
   /** Additional external documentation for this tag. */
   'externalDocs': oasExternalDocumentationSchema.optional(),
   'x-scalar-children': xScalarNestedSchema.default([]).optional(),
