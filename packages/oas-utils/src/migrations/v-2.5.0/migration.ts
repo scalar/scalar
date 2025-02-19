@@ -3,40 +3,49 @@ import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
 import type { v_2_5_0 } from './types.generated'
 
 /** V-2.4.0 to V-2.5.0 migration */
-export const migrate_v_2_5_0 = (
-  data: v_2_4_0.DataRecord,
-): v_2_5_0.DataRecord => {
+export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0.DataRecord => {
   console.info('Performing data migration v-2.4.0 to v-2.5.0')
 
-  const requestExamples = Object.entries(data.requestExamples || {}).reduce<
-    Record<string, v_2_5_0.RequestExample>
-  >((acc, [key, example]) => {
-    const headers = example.parameters.headers
+  const collections = Object.entries(data.collections || {}).reduce<Record<string, v_2_5_0.Collection>>(
+    (acc, [key, collection]) => {
+      acc[key] = {
+        ...collection,
+        info: collection.info ?? {
+          title: 'API',
+          version: '1.0',
+        },
+      } satisfies v_2_5_0.Collection
+      return acc
+    },
+    {},
+  )
 
-    // Check if "Accept" header exists
-    const hasAcceptHeader = headers.some(
-      (header) => header.key.toLowerCase() === 'accept',
-    )
+  const requestExamples = Object.entries(data.requestExamples || {}).reduce<Record<string, v_2_5_0.RequestExample>>(
+    (acc, [key, example]) => {
+      const headers = example.parameters.headers
 
-    if (!hasAcceptHeader) {
-      // Add "Accept" header as the first entry
-      headers.unshift({ key: 'Accept', value: '*/*', enabled: true })
-    }
+      // Check if "Accept" header exists
+      const hasAcceptHeader = headers.some((header) => header.key.toLowerCase() === 'accept')
 
-    // Update the example with potentially modified headers
-    acc[key] = {
-      ...example,
-      parameters: {
-        ...example.parameters,
-        headers,
-      },
-    }
-    return acc
-  }, {})
+      if (!hasAcceptHeader) {
+        // Add "Accept" header as the first entry
+        headers.unshift({ key: 'Accept', value: '*/*', enabled: true })
+      }
 
-  const servers = Object.entries(data.servers || {}).reduce<
-    Record<string, v_2_5_0.Server>
-  >((acc, [key, server]) => {
+      // Update the example with potentially modified headers
+      acc[key] = {
+        ...example,
+        parameters: {
+          ...example.parameters,
+          headers,
+        },
+      }
+      return acc
+    },
+    {},
+  )
+
+  const servers = Object.entries(data.servers || {}).reduce<Record<string, v_2_5_0.Server>>((acc, [key, server]) => {
     acc[key] = {
       ...server,
       variables: Object.entries(server.variables || {}).reduce<
@@ -51,10 +60,7 @@ export const migrate_v_2_5_0 = (
       >((variablesAcc, [variableKey, variable]) => {
         variablesAcc[variableKey] = {
           ...variable,
-          enum:
-            variable.enum && variable.enum.length > 0
-              ? (variable.enum as [string, ...string[]])
-              : undefined,
+          enum: variable.enum && variable.enum.length > 0 ? (variable.enum as [string, ...string[]]) : undefined,
           default: variable.default ?? '',
           description: variable.description,
         }
@@ -64,21 +70,23 @@ export const migrate_v_2_5_0 = (
     return acc
   }, {})
 
-  const workspaces = Object.entries(data.workspaces || {}).reduce<
-    Record<string, v_2_5_0.Workspace>
-  >((acc, [key, workspace]) => {
-    acc[key] = {
-      ...workspace,
-      selectedHttpClient: {
-        targetKey: 'shell',
-        clientKey: 'curl',
-      },
-    }
-    return acc
-  }, {})
+  const workspaces = Object.entries(data.workspaces || {}).reduce<Record<string, v_2_5_0.Workspace>>(
+    (acc, [key, workspace]) => {
+      acc[key] = {
+        ...workspace,
+        selectedHttpClient: {
+          targetKey: 'shell',
+          clientKey: 'curl',
+        },
+      }
+      return acc
+    },
+    {},
+  )
 
   return {
     ...data,
+    collections,
     requestExamples,
     servers,
     workspaces,
