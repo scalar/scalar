@@ -27,6 +27,7 @@ export const buildRequestSecurity = (
       if (scheme.in === 'cookie') {
         cookies.push(
           cookieSchema.parse({
+            uid: scheme.uid,
             name: scheme.name,
             value,
             path: '/',
