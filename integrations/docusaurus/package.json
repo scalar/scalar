@@ -24,6 +24,7 @@
     "node": ">=18"
   },
   "scripts": {
+    "dev": "cd ./playground && pnpm dev",
     "build": "rm -Rf ./dist && tsc --declaration && postcss src/theme.css -o dist/theme.css",
     "format:check": "scalar-format-check",
     "format": "scalar-format",

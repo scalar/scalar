@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/docusaurus"
+    "directory": "integrations/docusaurus"
   },
   "version": "0.0.0",
   "private": true,
@@ -53,6 +53,7 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.6.0",
     "@docusaurus/tsconfig": "^3.6.0",
-    "@docusaurus/types": "^3.6.0"
+    "@docusaurus/types": "^3.6.0",
+    "@types/react": "^19.0.1"
   }
 }
