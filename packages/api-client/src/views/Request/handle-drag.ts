@@ -2,7 +2,7 @@ import { useLayout } from '@/hooks'
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
-import type { Collection } from '@scalar/oas-utils/entities/spec'
+import type { Collection, Tag } from '@scalar/oas-utils/entities/spec'
 
 /** Create DnD handlers */
 export function dragHandlerFactory(
@@ -12,13 +12,16 @@ export function dragHandlerFactory(
   const { layout } = useLayout()
 
   /** Mutate tag OR collection */
-  function mutateTagOrCollection(uid: Collection['uid'], childUids: Collection['children']) {
-    if (collections[uid]) collectionMutators.edit(uid, 'children', childUids)
-    else if (tags[uid]) tagMutators.edit(uid, 'children', childUids)
+  const mutateTagOrCollection = (parent: Collection | Tag, childUids: string[]) => {
+    if (parent.type === 'collection') {
+      collectionMutators.edit(parent.uid, 'children', childUids as Collection['children'])
+    } else if (parent.type === 'tag') {
+      tagMutators.edit(parent.uid, 'children', childUids as Tag['children'])
+    }
   }
 
   /** Drag handler that mutates depending on the entity types */
-  function handleDragEnd(draggingItem: DraggingItem, hoveredItem: HoveredItem) {
+  const handleDragEnd = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     if (!draggingItem || !hoveredItem) return
 
     const { id: draggingUid, parentId: draggingParentUid } = draggingItem
@@ -53,25 +56,26 @@ export function dragHandlerFactory(
     // Place it at the end of the list of the hoveredItem
     if (offset === 2) {
       const parent = collections[hoveredUid] || tags[hoveredUid]
-      mutateTagOrCollection(hoveredUid, [...(parent?.children ?? []), draggingUid])
+      if (parent) mutateTagOrCollection(parent, [...(parent.children ?? []), draggingUid])
     }
     // Special case for collections
     else if (!hoveredParentUid) {
       const newChildUids = [...(activeWorkspace.value?.collections ?? [])]
       const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
-      newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
+      newChildUids.splice(hoveredIndex + offset, 0, draggingUid as Collection['uid'])
 
       workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'collections', newChildUids)
     }
     // Place it into the list at an index
     else {
       const parent = collections[hoveredParentUid] || tags[hoveredParentUid]
-      const newChildUids = [...(parent?.children ?? [])]
+      if (!parent) return
 
+      const newChildUids = [...(parent.children ?? [])] as string[]
       const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
 
-      mutateTagOrCollection(hoveredParentUid, newChildUids)
+      mutateTagOrCollection(parent, newChildUids)
     }
   }
 
