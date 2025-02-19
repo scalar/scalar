@@ -1,4 +1,17 @@
 <script setup lang="ts">
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
+import type { Workspace } from '@scalar/oas-utils/entities'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import {
+  requestExampleParametersSchema,
+  type Operation,
+  type RequestExample,
+} from '@scalar/oas-utils/entities/spec'
+import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
+import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
+import type { Entries } from 'type-fest'
+import { computed, nextTick, ref, watch } from 'vue'
+
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableHeader from '@/components/DataTable/DataTableHeader.vue'
@@ -7,18 +20,6 @@ import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useFileDialog } from '@/hooks'
 import { useWorkspace } from '@/store'
 import type { EnvVariable } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
-import type { Workspace } from '@scalar/oas-utils/entities'
-import type { Environment } from '@scalar/oas-utils/entities/environment'
-import {
-  type Operation,
-  type RequestExample,
-  requestExampleParametersSchema,
-} from '@scalar/oas-utils/entities/spec'
-import { canMethodHaveBody } from '@scalar/oas-utils/helpers'
-import type { CodeMirrorLanguage } from '@scalar/use-codemirror'
-import type { Entries } from 'type-fest'
-import { computed, nextTick, ref, watch } from 'vue'
 
 import RequestTable from './RequestTable.vue'
 
@@ -462,7 +463,7 @@ const selectedExample = computed({
             :options="contentTypeOptions"
             teleport>
             <ScalarButton
-              class="flex gap-1.5 h-full px-3 text-c-2 font-normal hover:text-c-1 w-fit"
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-3 font-normal"
               fullWidth
               variant="ghost">
               <span>{{ selectedContentType?.label }}</span>
@@ -478,7 +479,7 @@ const selectedExample = computed({
             side="left"
             teleport>
             <ScalarButton
-              class="flex gap-1.5 h-full px-2 text-c-2 font-normal hover:text-c-1 w-fit"
+              class="text-c-2 hover:text-c-1 flex h-full w-fit gap-1.5 px-2 font-normal"
               fullWidth
               variant="ghost">
               <span>{{ selectedExample?.label }}</span>
@@ -498,14 +499,14 @@ const selectedExample = computed({
         </template>
         <template v-else-if="selectedContentType?.id === 'binaryFile'">
           <div
-            class="border-t flex items-center justify-center p-1.5 overflow-hidden">
+            class="flex items-center justify-center overflow-hidden border-t p-1.5">
             <template v-if="example.body.binary">
               <span
-                class="text-c-2 text-xs w-full border rounded py-1 px-1.5 max-w-full overflow-hidden whitespace-nowrap">
+                class="text-c-2 w-full max-w-full overflow-hidden whitespace-nowrap rounded border px-1.5 py-1 text-xs">
                 {{ (example.body.binary as File).name }}
               </span>
               <ScalarButton
-                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 ml-1 shadow-none"
+                class="bg-b-2 hover:bg-b-3 text-c-2 ml-1 border-0 shadow-none"
                 size="sm"
                 variant="outlined"
                 @click="removeBinaryFile">
@@ -514,7 +515,7 @@ const selectedExample = computed({
             </template>
             <template v-else>
               <ScalarButton
-                class="bg-b-2 hover:bg-b-3 border-0 text-c-2 shadow-none"
+                class="bg-b-2 hover:bg-b-3 text-c-2 border-0 shadow-none"
                 size="sm"
                 variant="outlined"
                 @click="handleFileUpload">
@@ -531,8 +532,8 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id == 'multipartForm'">
           <RequestTable
             ref="tableWrapperRef"
-            class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-            :columns="['32px', '', '', '61px']"
+            class="!m-0 rounded-t-none border-b-0 border-l-0 border-r-0 border-t-0 shadow-none"
+            :columns="['32px', '', '', '104px']"
             :envVariables="envVariables"
             :environment="environment"
             :items="formParams"
@@ -547,8 +548,8 @@ const selectedExample = computed({
         <template v-else-if="selectedContentType?.id == 'formUrlEncoded'">
           <RequestTable
             ref="tableWrapperRef"
-            class="!m-0 rounded-t-none shadow-none border-l-0 border-r-0 border-t-0 border-b-0"
-            :columns="['32px', '', '', '61px']"
+            class="!m-0 rounded-t-none border-b-0 border-l-0 border-r-0 border-t-0 shadow-none"
+            :columns="['32px', '', '', '104px']"
             :envVariables="envVariables"
             :environment="environment"
             :items="formParams"
