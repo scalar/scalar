@@ -64,7 +64,7 @@ const emit = defineEmits<{
   (e: 'blur', v: string): void
 }>()
 
-const attrs = useAttrs()
+const attrs = useAttrs() as { id?: string }
 const uid = (attrs.id as string) || `id-${nanoid()}`
 
 const isFocused = ref(false)
