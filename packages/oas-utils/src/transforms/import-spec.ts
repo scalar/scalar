@@ -78,7 +78,7 @@ export const parseSchema = async (spec: string | UnknownObject, { shouldLoad = t
 export const getSelectedSecuritySchemeUids = (
   securityRequirements: SelectedSecuritySchemeUids,
   preferredSecurityNames: SelectedSecuritySchemeUids = [],
-  securitySchemeMap: Record<string, string>,
+  securitySchemeMap: Record<string, SecurityScheme['uid']>,
 ): SelectedSecuritySchemeUids => {
   // Set the first security requirement if no preferred security schemes are set
   const names =
@@ -233,7 +233,7 @@ export async function importSpecToWorkspace(
     .filter((v) => !!v)
 
   // Map of security scheme names to UIDs
-  const securitySchemeMap: Record<string, string> = {}
+  const securitySchemeMap: Record<string, SecurityScheme['uid']> = {}
   securitySchemes.forEach((s) => {
     securitySchemeMap[s.nameKey] = s.uid
   })
@@ -273,7 +273,9 @@ export async function importSpecToWorkspace(
         .filter(isDefined)
 
       // Filter the preferred security schemes to only include the ones that are in the security requirements
-      const preferredSecurityNames: SelectedSecuritySchemeUids = [authentication?.preferredSecurityScheme ?? []]
+      const preferredSecurityNames: SelectedSecuritySchemeUids = [
+        (authentication?.preferredSecurityScheme ?? []) as SelectedSecuritySchemeUids,
+      ]
         .flat()
         .filter((name) => {
           // Match up complex security requirements, array to array
@@ -354,7 +356,7 @@ export async function importSpecToWorkspace(
   })
 
   // Add all tags by default. We will remove nested ones
-  const collectionChildren = new Set(tags.map((t) => t.uid))
+  const collectionChildren: Set<Tag['uid'] | Request['uid']> = new Set(tags.map((t) => t.uid))
 
   // Nested folders go before any requests
   tags.forEach((t) => {
@@ -369,13 +371,13 @@ export async function importSpecToWorkspace(
   })
 
   // Add the request UIDs to the tag children (or collection root)
-  requests.forEach((r) => {
-    if (r.tags?.length) {
-      r.tags.forEach((t) => {
-        tagMap[t].children.push(r.uid)
+  requests.forEach((request) => {
+    if (request.tags?.length) {
+      request.tags.forEach((tag) => {
+        tagMap[tag].children.push(request.uid)
       })
     } else {
-      collectionChildren.add(r.uid)
+      collectionChildren.add(request.uid)
     }
   })
 
@@ -407,7 +409,9 @@ export async function importSpecToWorkspace(
     .filter(isDefined)
 
   // Here we do not filter these as we let the preferredSecurityScheme override the requirements
-  const preferredSecurityNames: SelectedSecuritySchemeUids = [authentication?.preferredSecurityScheme ?? []].flat()
+  const preferredSecurityNames: SelectedSecuritySchemeUids = [
+    (authentication?.preferredSecurityScheme ?? []) as SelectedSecuritySchemeUids,
+  ].flat()
 
   // Set the initially selected security scheme
   const selectedSecuritySchemeUids =
