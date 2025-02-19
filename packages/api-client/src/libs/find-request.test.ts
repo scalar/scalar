@@ -1,5 +1,5 @@
 import { parseCurlCommand } from '@/libs/parse-curl'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import { operationSchema } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { findRequestByPathMethod, pathToRegex } from './find-request'
@@ -42,17 +42,11 @@ describe('pathToRegex', () => {
 })
 
 describe('findRequestByPathMethod', () => {
-  const mockRequest = {
+  const mockRequest = operationSchema.parse({
     method: 'get',
     path: '/planets/{planetId}',
-    type: 'request',
-    uid: '1',
-    selectedSecuritySchemeUids: [],
-    selectedServerUid: '',
-    servers: [],
-    examples: [],
-    responses: {},
-  } satisfies Request
+    uid: 'request-1-uid',
+  })
 
   it('should match a request with the path params before replacement', () => {
     const curlCommand = 'curl https://galaxy.scalar.com/planets/{planetId}'
@@ -70,9 +64,7 @@ describe('findRequestByPathMethod', () => {
     const encodedPath = new URL(url).pathname
     const path = decodeURIComponent(encodedPath)
 
-    const { request, pathParams } = findRequestByPathMethod(path, method, [
-      mockRequest,
-    ])
+    const { request, pathParams } = findRequestByPathMethod(path, method, [mockRequest])
     expect(request).toEqual(mockRequest)
     expect(pathParams).toEqual([{ key: 'planetId', value: '1' }])
   })
@@ -82,15 +74,12 @@ describe('findRequestByPathMethod', () => {
       ...mockRequest,
       path: '/planets/{planetId}/galaxies/{galaxyId}',
     }
-    const curlCommand =
-      'curl https://galaxy.scalar.com/planets/earth/galaxies/milky-way'
+    const curlCommand = 'curl https://galaxy.scalar.com/planets/earth/galaxies/milky-way'
     const { method = 'get', url } = parseCurlCommand(curlCommand)
     const encodedPath = new URL(url).pathname
     const path = decodeURIComponent(encodedPath)
 
-    const { request, pathParams } = findRequestByPathMethod(path, method, [
-      _mockRequest,
-    ])
+    const { request, pathParams } = findRequestByPathMethod(path, method, [_mockRequest])
     expect(request).toEqual(_mockRequest)
     expect(pathParams).toEqual([
       { key: 'planetId', value: 'earth' },

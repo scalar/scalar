@@ -1,13 +1,10 @@
-import type { Collection } from '@scalar/oas-utils/entities/spec'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { collectionSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
+import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 
-import {
-  createStoreCollections,
-  extendedCollectionDataFactory,
-} from './collections'
+import { createStoreCollections, extendedCollectionDataFactory } from './collections'
 import { createStoreServers } from './servers'
 
 // Mock data
@@ -15,56 +12,21 @@ vi.mock('@/store', () => ({
   useWorkspace: vi.fn(),
 }))
 
-const mockDraftsCollection: Collection = {
-  'uid': 'drafts',
-  'type': 'collection',
-  'children': [],
-  'openapi': '3.1.0',
-  'security': [],
-  'x-scalar-icon': 'interface-content-folder',
-  'securitySchemes': [],
-  'selectedSecuritySchemeUids': [],
-  'servers': [],
-  'requests': [],
-  'tags': [],
-  'selectedServerUid': '',
-  'watchMode': false,
-  'watchModeStatus': 'IDLE',
-}
+const mockDraftsCollection = collectionSchema.parse({})
 
-const mockWorkspace: Workspace = {
-  uid: 'workspace1',
+const mockWorkspace = workspaceSchema.parse({
   name: 'Mock Workspace',
   description: 'A mock workspace for testing',
-  collections: [] as string[],
-  environments: {},
-  activeEnvironmentId: '',
-  cookies: [],
-  themeId: 'default' as const,
   selectedHttpClient: {
     targetKey: 'node',
     clientKey: 'undici',
   },
-}
+})
 
-const mockCollection: Collection = {
-  'uid': 'collection1',
-  'info': { title: 'Test Collection', version: '1.0.0' },
-  'tags': [],
-  'requests': [],
-  'servers': [],
-  'x-scalar-environments': {},
-  'type': 'collection',
-  'children': [],
-  'openapi': '3.1.0',
-  'security': [],
-  'x-scalar-icon': 'interface-content-folder',
-  'securitySchemes': [],
-  'selectedSecuritySchemeUids': [],
-  'selectedServerUid': '',
-  'watchMode': false,
-  'watchModeStatus': 'IDLE',
-}
+const mockCollection = collectionSchema.parse({
+  uid: 'collection1',
+  info: { title: 'Test Collection', version: '1.0.0' },
+})
 
 const createStoreContext = () => {
   const { collections, collectionMutators } = createStoreCollections(false)
@@ -103,15 +65,12 @@ describe('Collections Store', () => {
     const collection = addCollection(mockCollection, mockWorkspace.uid)
 
     expect(storeContext.collections[collection.uid]).toBeDefined()
-    expect(storeContext.collections[collection.uid]?.info?.title).toEqual(
-      'Test Collection',
-    )
+    expect(storeContext.collections[collection.uid]?.info?.title).toEqual('Test Collection')
   })
 
   describe('should delete a collection', () => {
     const storeContext = createStoreContext()
-    const { addCollection, deleteCollection } =
-      extendedCollectionDataFactory(storeContext)
+    const { addCollection, deleteCollection } = extendedCollectionDataFactory(storeContext)
 
     const collectionPayload = {
       ...mockCollection,
@@ -132,21 +91,18 @@ describe('Collections Store', () => {
     const collection = addCollection(collectionPayload, mockWorkspace.uid)
 
     // Add the second collection
-    const anotherCollection = addCollection(
-      anotherCollectionPayload,
-      mockWorkspace.uid,
-    )
+    const anotherCollection = addCollection(anotherCollectionPayload, mockWorkspace.uid)
 
-    const collectionServer = {
+    const collectionServer = serverSchema.parse({
       uid: 'collection-server',
       url: 'https://api.example.com',
       description: 'A collection server',
-    }
+    })
 
-    const anotherCollectionServer = {
+    const anotherCollectionServer = serverSchema.parse({
       uid: 'collection-server-2',
       url: 'https://api.example.com/2',
-    }
+    })
 
     storeContext.serverMutators.add(collectionServer)
     storeContext.serverMutators.add(anotherCollectionServer)
@@ -163,9 +119,7 @@ describe('Collections Store', () => {
     })
 
     it('should delete its servers', () => {
-      expect(Object.keys(storeContext.servers)).not.toContain(
-        'collection-server',
-      )
+      expect(Object.keys(storeContext.servers)).not.toContain('collection-server')
       expect(Object.keys(storeContext.servers)).toContain('collection-server-2')
     })
 
