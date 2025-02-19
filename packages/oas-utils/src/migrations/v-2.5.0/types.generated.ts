@@ -1,47 +1,40 @@
-import type { Cookie as Ck } from '@/entities/cookie'
-import type { Environment as E } from '@/entities/environment'
-import type {
-  Collection as Co,
-  Request as R,
-  RequestExample as RE,
-  Server as S,
-  SecurityScheme as SS,
-  Tag as T,
-} from '@/entities/spec'
-import type { Workspace as W } from '@/entities/workspace'
+import type { Cookie } from '@/entities/cookie'
+import type { Environment } from '@/entities/environment'
+import type { Collection, Request, RequestExample, Server, SecurityScheme, Tag } from '@/entities/spec'
+import type { Workspace } from '@/entities/workspace'
 
 export type v_2_5_0 = {
-  Cookie: Ck
-  Environment: E
-  Collection: Co
-  Request: R
-  RequestExample: RE
-  SecurityScheme: SS
-  Server: S
-  Tag: T
-  Workspace: W
+  Cookie: Cookie
+  Environment: Environment
+  Collection: Collection
+  Request: Request
+  RequestExample: RequestExample
+  SecurityScheme: SecurityScheme
+  Server: Server
+  Tag: Tag
+  Workspace: Workspace
 
   DataRecord: {
-    collections: Record<string, Co>
-    cookies: Record<string, Ck>
-    environments: Record<string, E>
-    requestExamples: Record<string, RE>
-    requests: Record<string, R>
-    securitySchemes: Record<string, SS>
-    servers: Record<string, S>
-    tags: Record<string, T>
-    workspaces: Record<string, W>
+    collections: Record<string, Collection>
+    cookies: Record<string, Cookie>
+    environments: Record<string, Environment>
+    requestExamples: Record<string, RequestExample>
+    requests: Record<string, Request>
+    securitySchemes: Record<string, SecurityScheme>
+    servers: Record<string, Server>
+    tags: Record<string, Tag>
+    workspaces: Record<string, Workspace>
   }
 
   DataArray: {
-    collections: Co[]
-    cookies: Ck[]
-    environments: E[]
-    requestExamples: RE[]
-    requests: R[]
-    securitySchemes: SS[]
-    servers: S[]
-    tags: T[]
-    workspaces: W[]
+    collections: Collection[]
+    cookies: Cookie[]
+    environments: Environment[]
+    requestExamples: RequestExample[]
+    requests: Request[]
+    securitySchemes: SecurityScheme[]
+    servers: Server[]
+    tags: Tag[]
+    workspaces: Workspace[]
   }
 }
