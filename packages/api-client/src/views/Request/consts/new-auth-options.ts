@@ -2,7 +2,7 @@ import type { SecurityScheme, SecuritySchemePayload } from '@scalar/oas-utils/en
 import type { Entries } from 'type-fest'
 
 export type SecuritySchemeOption = {
-  id: SecurityScheme['uid']
+  id: string
   label: string
   isDeletable?: boolean
   payload?: SecuritySchemePayload
