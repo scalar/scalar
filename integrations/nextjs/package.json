@@ -20,11 +20,13 @@
   ],
   "version": "0.5.9",
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
+    "docker:build": "docker build --build-arg=\"BASE_IMAGE=scalar-base\" -t nextjs-api-reference .",
+    "docker:run": "docker run -p 3000:3000 nextjs-api-reference",
     "format:check": "scalar-format-check",
     "format": "scalar-format",
     "lint:check": "scalar-lint-check",

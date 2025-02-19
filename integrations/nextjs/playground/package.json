@@ -12,13 +12,11 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "next build",
     "dev": "next dev -p 5058",
-    "docker:build": "docker build --platform=linux/amd64 --build-arg=BASE_IMAGE=scalar-base -t nextjs-api-reference  -f Dockerfile .",
-    "docker:run": "docker run -p 5058:5058 fastify-api-reference",
     "lint:check": "next lint",
     "lint:fix": "next lint --fix",
     "start": "next start",

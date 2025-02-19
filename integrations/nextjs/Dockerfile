@@ -12,8 +12,10 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
 
 
 FROM node:20-slim AS runner
+COPY --from=builder /usr/bin/dumb-init /usr/bin/dumb-init
+
 WORKDIR /app
-RUN npm install -g pnpm
+
 ENV NODE_ENV=production
 
 # Create a non-root user
@@ -34,4 +36,4 @@ WORKDIR /app/integrations/nextjs/playground/
 
 # server.js is created by next build from the standalone output
 # https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
+CMD ["dumb-init", "node", "server.js"]
