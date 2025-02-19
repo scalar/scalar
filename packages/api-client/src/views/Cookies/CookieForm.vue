@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { computed } from 'vue'
+
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
-import { computed } from 'vue'
 
 const { activeCookieId } = useActiveEntities()
 const { cookies, cookieMutators } = useWorkspace()
@@ -18,13 +19,14 @@ const fields = [
 
 const activeCookie = computed<Cookie>(
   () =>
-    cookies[activeCookieId.value as string] || {
+    cookies[activeCookieId.value as string] ||
+    cookieSchema.parse({
       uid: '',
       name: '',
       value: '',
       domain: '',
       path: '',
-    },
+    }),
 )
 const updateCookie = (key: any, value: any) => {
   if (activeCookieId.value) {

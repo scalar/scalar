@@ -145,11 +145,9 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   }
 }
 
-function handleDeleteScheme(option: {
-  id: SecurityScheme['uid']
-  label: string
-}) {
-  selectedScheme.value = option
+function handleDeleteScheme({ id, label }: { id: string; label: string }) {
+  // We cast the type here just to make the combobox happy, TODO: we should make ID be string-like and accept brands
+  selectedScheme.value = { id: id as SecurityScheme['uid'], label }
   deleteSchemeModal.show()
 }
 
