@@ -7,7 +7,7 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/scalar/scalar.git",
-    "directory": "examples/react"
+    "directory": "packages/apr-reference-react"
   },
   "version": "0.0.0",
   "private": true,
@@ -18,20 +18,19 @@
     "build": "pnpm types:check && pnpm build-only",
     "build-only": "vite build",
     "dev": "vite",
-    "docker:build": "build --platform=linux/amd64 -t ${image_name} --build-arg=\"BASE_IMAGE=scalar-base\" -f ./examples/react/Dockerfile .",
     "lint:check": "eslint .",
     "lint:fix": "eslint .  --fix",
     "types:check": "tsc --noEmit --skipLibCheck"
   },
   "type": "module",
   "dependencies": {
+    "@scalar/api-reference-react": "workspace:*",
     "@scalar/galaxy": "workspace:*",
     "random-words": "^2.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@scalar/api-reference-react": "workspace:*",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.2",
     "@typescript-eslint/parser": "^6.21.0",

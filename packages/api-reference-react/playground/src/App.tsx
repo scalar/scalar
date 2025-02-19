@@ -1,8 +1,10 @@
+import {
+  ApiReferenceReact,
+  type ReferenceProps,
+} from '@scalar/api-reference-react'
 import ScalarGalaxy from '@scalar/galaxy/3.1.json'
 import { generate } from 'random-words'
-import { useEffect, useState } from 'react'
-
-import { ApiReferenceReact, type ReferenceProps } from '../src'
+import React, { useEffect, useState } from 'react'
 
 function App() {
   const [auth, setAuth] = useState<
