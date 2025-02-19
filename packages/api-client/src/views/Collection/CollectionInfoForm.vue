@@ -7,7 +7,6 @@ import LabelInput from '@/components/Form/LabelInput.vue'
 import IconSelector from '@/components/IconSelector.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import MarkdownInput from '@/views/Collection/components/MarkdownInput.vue'
 
 const { activeCollection } = useActiveEntities()
 const { collectionMutators } = useWorkspace()
@@ -35,15 +34,6 @@ const updateCollectionTitle = (value: string) => {
 }
 
 /**
- * Update info.description
- */
-const updateCollectionDescription = (value: string) => {
-  if (!activeCollection.value) return
-
-  collectionMutators.edit(activeCollection.value.uid, 'info.description', value)
-}
-
-/**
  * Alias for the data that we’d like to display.
  */
 const data = computed(() => {
@@ -59,7 +49,7 @@ const data = computed(() => {
 <template>
   <div
     :aria-label="`Collection: ${data.title}`"
-    class="mx-auto flex h-full w-full flex-col gap-2 py-6 md:max-h-[82dvh] md:max-w-[50dvw]">
+    class="mx-auto flex h-fit w-full flex-col gap-2 pb-3 pt-6">
     <div class="relative">
       <IconSelector
         :modelValue="icon"
@@ -82,9 +72,6 @@ const data = computed(() => {
           @updateValue="updateCollectionTitle" />
       </div>
     </div>
-    <MarkdownInput
-      :modelValue="data.description ?? ''"
-      @update:modelValue="updateCollectionDescription" />
   </div>
 </template>
 
