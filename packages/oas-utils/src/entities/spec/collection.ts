@@ -56,7 +56,7 @@ export const extendedCollectionSchema = z.object({
   /** UIDs which refer to servers on the workspace base */
   servers: nanoidSchema.brand('server').array().default([]),
   /** Request UIDs associated with a collection */
-  requests: nanoidSchema.brand('request').array().default([]),
+  requests: nanoidSchema.brand('operation').array().default([]),
   /** Tag UIDs associated with the collection */
   tags: nanoidSchema.brand('tag').array().default([]),
   /** List of requests without tags and top level tag "folders" */

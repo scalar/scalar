@@ -103,7 +103,7 @@ export const oasRequestSchema = z.object({
  */
 const extendedRequestSchema = z.object({
   type: z.literal('request').optional().default('request'),
-  uid: nanoidSchema.brand('request'),
+  uid: nanoidSchema.brand('operation'),
   /** Path Key */
   path: z.string().optional().default(''),
   /** Request Method */
