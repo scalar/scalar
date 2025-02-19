@@ -37,7 +37,7 @@
         "-t",
         "gcr.io/${_PROJECT_ID}/${_SERVICE_NEXT_JS}",
         "-f",
-        "./examples/nextjs-api-reference/Dockerfile",
+        "./integrations/nextjs/playground/Dockerfile",
         "."
       ]
     },

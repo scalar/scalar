@@ -1,0 +1,24 @@
+:root {
+  /* Adjust to your header height */
+  --scalar-custom-header-height: 64px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  background-color: blueviolet;
+  height: 64px;
+  z-index: 100;
+  text-align: center;
+  line-height: 64px;
+  color: white;
+  font-size: 24px;
+}
+.footer {
+  background-color: red;
+  padding: 16px;
+  text-align: center;
+  line-height: 64px;
+  color: white;
+  font-size: 24px;
+}

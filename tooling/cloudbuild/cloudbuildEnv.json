@@ -2,7 +2,7 @@
   {
     "name": "next-js",
     "cloudBuildName": "_SERVICE_NEXT_JS",
-    "dockerPath": "./examples/nextjs-api-reference/Dockerfile"
+    "dockerPath": "./integrations/nextjs/playground/Dockerfile"
   },
   {
     "name": "react-js",
