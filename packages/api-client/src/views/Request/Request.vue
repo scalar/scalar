@@ -1,10 +1,7 @@
 <script setup lang="ts">
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
-import { isDefined } from '@scalar/oas-utils/helpers'
-import { safeJSON } from '@scalar/object-utils/parse'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EmptyState from '@/components/EmptyState.vue'
@@ -12,41 +9,34 @@ import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
-import { ERRORS } from '@/libs'
 import { importCurlCommand } from '@/libs/importers/curl'
-import { createRequestOperation } from '@/libs/send-request'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
 import RequestSection from '@/views/Request/RequestSection/RequestSection.vue'
 import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
 const workspaceContext = useWorkspace()
-const { toast } = useToasts()
 const { layout } = useLayout()
 const {
   activeCollection,
   activeExample,
-  activeEnvironment,
   activeRequest,
   activeWorkspace,
   activeServer,
   activeEnvVariables,
+  activeEnvironment,
   activeWorkspaceCollections,
   activeWorkspaceRequests,
 } = useActiveEntities()
 const {
-  cookies,
   modalState,
   requestHistory,
-  securitySchemes,
   requestMutators,
   serverMutators,
   servers,
-  events,
   showSidebar,
 } = workspaceContext
 
@@ -56,7 +46,6 @@ type ExtendedRequestPayload = RequestPayload & {
 }
 
 const isSidebarOpen = ref(layout !== 'modal')
-const requestAbortController = ref<AbortController>()
 const parsedCurl = ref<ExtendedRequestPayload>()
 const selectedServerUid = ref('')
 const router = useRouter()
@@ -84,78 +73,6 @@ const selectedSecuritySchemeUids = computed(
       ? activeCollection.value?.selectedSecuritySchemeUids
       : activeRequest.value?.selectedSecuritySchemeUids) ?? [],
 )
-
-/**
- * Execute the request
- * called from the send button as well as keyboard shortcuts
- */
-const executeRequest = async () => {
-  if (!activeRequest.value || !activeExample.value || !activeCollection.value)
-    return
-
-  // Parse the environment string
-  const environmentValue =
-    typeof activeEnvironment.value === 'object'
-      ? activeEnvironment.value.value
-      : '{}'
-  const e = safeJSON.parse(environmentValue)
-  if (e.error) console.error('INVALID ENVIRONMENT!')
-  const environment =
-    e.error || typeof e.data !== 'object' ? {} : (e.data ?? {})
-
-  const globalCookies =
-    activeWorkspace.value?.cookies.map((c) => cookies[c]).filter(isDefined) ??
-    []
-
-  // Sets server to non drafts request only
-  const server =
-    activeCollection.value?.info?.title === 'Drafts'
-      ? undefined
-      : activeServer.value
-
-  const [error, requestOperation] = createRequestOperation({
-    request: activeRequest.value,
-    example: activeExample.value,
-    selectedSecuritySchemeUids: selectedSecuritySchemeUids.value,
-    proxyUrl: activeWorkspace.value?.proxyUrl ?? '',
-    environment,
-    globalCookies,
-    status: events.requestStatus,
-    securitySchemes: securitySchemes,
-    server,
-  })
-
-  // Error from createRequestOperation
-  if (error) {
-    toast(error.message, 'error')
-    return
-  }
-
-  requestAbortController.value = requestOperation.controller
-  const [sendRequestError, result] = await requestOperation.sendRequest()
-
-  // Send error toast
-  if (sendRequestError) toast(sendRequestError.message, 'error')
-  else requestHistory.push(result)
-}
-
-/** Cancel a live request */
-const cancelRequest = async () =>
-  requestAbortController.value?.abort(ERRORS.REQUEST_ABORTED)
-
-onMounted(() => {
-  events.executeRequest.on(executeRequest)
-  events.cancelRequest.on(cancelRequest)
-})
-
-useOpenApiWatcher()
-
-/**
- * Need to manually remove listener on unmount due to vueuse memory leak
- *
- * @see https://github.com/vueuse/vueuse/issues/3498#issuecomment-2055546566
- */
-onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 
 function createRequestFromCurl({
   requestName,
