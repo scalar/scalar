@@ -176,13 +176,6 @@ watch(codeMirror, () => {
   }
 })
 
-// If the codeMirror instance is focused, focus the input
-watch(codeMirror, (newValue) => {
-  if (newValue) {
-    newValue.focus()
-  }
-})
-
 const { handleDropdownSelect, updateDropdownVisibility } = useDropdown({
   codeMirror,
   query: dropdownQuery,
