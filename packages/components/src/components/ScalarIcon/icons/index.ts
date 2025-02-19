@@ -58,6 +58,7 @@ export const ICONS = [
   'LogoMarket',
   'LogoSwagger',
   'Magic',
+  'Markdown',
   'Menu',
   'NotAllowed',
   'Page',
