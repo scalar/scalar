@@ -72,9 +72,7 @@ export const oasExternalDocumentationSchema = z.object({
   /** REQUIRED. The URL for the target documentation. This MUST be in the form of a URL. */
   url: z.string().default(''),
 })
-export type ExternalDocumentation = z.infer<
-  typeof oasExternalDocumentationSchema
->
+export type ExternalDocumentation = z.infer<typeof oasExternalDocumentationSchema>
 
 export const xScalarNestedSchema = z
   .object({
@@ -109,8 +107,8 @@ export const oasTagSchema = z.object({
 })
 
 export const tagSchema = oasTagSchema.extend({
-  uid: nanoidSchema,
-  children: nanoidSchema.array().default([]),
+  uid: nanoidSchema.brand('tag'),
+  children: nanoidSchema.brand('tag').array().default([]),
 })
 
 export type Tag = z.infer<typeof tagSchema>

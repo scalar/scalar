@@ -29,7 +29,7 @@ const hotKeyConfigSchema = z
   .optional()
 
 export const workspaceSchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand('workspace'),
   name: z.string().default('Default Workspace'),
   /** Workspace description */
   description: z.string().default('Basic Scalar Workspace'),

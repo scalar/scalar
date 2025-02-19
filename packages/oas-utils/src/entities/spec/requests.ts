@@ -1,7 +1,4 @@
-import {
-  nanoidSchema,
-  selectedSecuritySchemeUidSchema,
-} from '@/entities/shared/utility'
+import { nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
@@ -10,17 +7,7 @@ import { type RequestExample, xScalarExampleSchema } from './request-examples'
 import { oasSecurityRequirementSchema } from './security'
 import { oasExternalDocumentationSchema } from './spec-objects'
 
-export const requestMethods = [
-  'connect',
-  'delete',
-  'get',
-  'head',
-  'options',
-  'patch',
-  'post',
-  'put',
-  'trace',
-] as const
+export const requestMethods = ['connect', 'delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'] as const
 
 export type RequestMethod = (typeof requestMethods)[number]
 
@@ -116,25 +103,23 @@ export const oasRequestSchema = z.object({
  */
 const extendedRequestSchema = z.object({
   type: z.literal('request').optional().default('request'),
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand('request'),
   /** Path Key */
   path: z.string().optional().default(''),
   /** Request Method */
   method: z.enum(requestMethods).default('get'),
   /** List of server UIDs specific to the request */
-  servers: nanoidSchema.array().default([]),
+  servers: nanoidSchema.brand('server').array().default([]),
   /** The currently selected server */
   selectedServerUid: z.string().default(''),
   /** List of example UIDs associated with the request */
-  examples: nanoidSchema.array().default([]),
+  examples: nanoidSchema.brand('requestExample').array().default([]),
   /** List of security scheme UIDs associated with the request */
   selectedSecuritySchemeUids: selectedSecuritySchemeUidSchema,
 })
 
 /** Unified request schema for client usage */
-export const requestSchema = oasRequestSchema
-  .omit({ 'x-scalar-examples': true })
-  .merge(extendedRequestSchema)
+export const requestSchema = oasRequestSchema.omit({ 'x-scalar-examples': true }).merge(extendedRequestSchema)
 
 export type Request = z.infer<typeof requestSchema>
 export type RequestPayload = z.input<typeof requestSchema>

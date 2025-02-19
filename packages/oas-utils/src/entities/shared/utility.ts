@@ -13,10 +13,8 @@ export type Nanoid = z.infer<typeof nanoidSchema>
 
 /** Schema for selectedSecuritySchemeUids */
 export const selectedSecuritySchemeUidSchema = z
-  .union([nanoidSchema, nanoidSchema.array()])
+  .union([nanoidSchema.brand('securityScheme'), nanoidSchema.brand('securityScheme').array()])
   .array()
   .default([])
 
-export type SelectedSecuritySchemeUids = z.infer<
-  typeof selectedSecuritySchemeUidSchema
->
+export type SelectedSecuritySchemeUids = z.infer<typeof selectedSecuritySchemeUidSchema>

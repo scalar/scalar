@@ -12,7 +12,7 @@ const commonProps = z.object({
 })
 
 const extendedSecuritySchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand('securityScheme'),
   /** The name key that links a security requirement to a security object */
   nameKey: z.string().optional().default(''),
 })
@@ -34,9 +34,7 @@ const apiKeyValueSchema = z.object({
   value: z.string().default(''),
 })
 
-export const securityApiKeySchema = oasSecuritySchemeApiKey
-  .merge(extendedSecuritySchema)
-  .merge(apiKeyValueSchema)
+export const securityApiKeySchema = oasSecuritySchemeApiKey.merge(extendedSecuritySchema).merge(apiKeyValueSchema)
 export type SecuritySchemeApiKey = z.infer<typeof securityApiKeySchema>
 
 // ---------------------------------------------------------------------------
@@ -71,9 +69,7 @@ const httpValueSchema = z.object({
   token: z.string().default(''),
 })
 
-export const securityHttpSchema = oasSecuritySchemeHttp
-  .merge(extendedSecuritySchema)
-  .merge(httpValueSchema)
+export const securityHttpSchema = oasSecuritySchemeHttp.merge(extendedSecuritySchema).merge(httpValueSchema)
 export type SecuritySchemaHttp = z.infer<typeof securityHttpSchema>
 
 // ---------------------------------------------------------------------------
@@ -87,9 +83,7 @@ const oasSecuritySchemeOpenId = commonProps.extend({
   openIdConnectUrl: z.string().optional().default(''),
 })
 
-export const securityOpenIdSchema = oasSecuritySchemeOpenId.merge(
-  extendedSecuritySchema,
-)
+export const securityOpenIdSchema = oasSecuritySchemeOpenId.merge(extendedSecuritySchema)
 export type SecuritySchemaOpenId = z.infer<typeof securityOpenIdSchema>
 
 // ---------------------------------------------------------------------------
@@ -117,10 +111,7 @@ const flowsCommon = z.object({
    * REQUIRED. The available scopes for the OAuth2 security scheme. A map
    * between the scope name and a short description for it. The map MAY be empty.
    */
-  'scopes': z
-    .record(z.string(), z.string().optional().default(''))
-    .optional()
-    .default({}),
+  'scopes': z.record(z.string(), z.string().optional().default('')).optional().default({}),
   'selectedScopes': z.array(z.string()).optional().default([]),
   /** Extension to save the client Id associated with an oauth flow */
   'x-scalar-client-id': z.string().optional().default(''),
@@ -129,10 +120,7 @@ const flowsCommon = z.object({
 })
 
 /** Setup a default redirect uri if we can */
-const defaultRedirectUri =
-  typeof window !== 'undefined'
-    ? window.location.origin + window.location.pathname
-    : ''
+const defaultRedirectUri = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : ''
 
 /** Options for the x-usePkce extension */
 export const pkceOptions = ['SHA-256', 'plain', 'no'] as const
@@ -147,10 +135,7 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
       implicit: flowsCommon.extend({
         'type': z.literal('implicit'),
         authorizationUrl,
-        'x-scalar-redirect-uri': z
-          .string()
-          .optional()
-          .default(defaultRedirectUri),
+        'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
       }),
       /** Configuration for the OAuth Resource Owner Password flow */
       password: flowsCommon.extend({
@@ -176,10 +161,7 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
          * TODO: add docs
          */
         'x-usePkce': z.enum(pkceOptions).optional().default('no'),
-        'x-scalar-redirect-uri': z
-          .string()
-          .optional()
-          .default(defaultRedirectUri),
+        'x-scalar-redirect-uri': z.string().optional().default(defaultRedirectUri),
         tokenUrl,
         'clientSecret': z.string().default(''),
       }),
@@ -190,23 +172,19 @@ const oasSecuritySchemeOauth2 = commonProps.extend({
     }),
 })
 
-export const securityOauthSchema = oasSecuritySchemeOauth2.merge(
-  extendedSecuritySchema,
-)
+export const securityOauthSchema = oasSecuritySchemeOauth2.merge(extendedSecuritySchema)
 
 export type SecuritySchemeOauth2 = z.infer<typeof securityOauthSchema>
 export type SecuritySchemeOauth2Payload = z.input<typeof securityOauthSchema>
 export type Oauth2Flow = NonNullable<
-  SecuritySchemeOauth2['flows'][
-    | 'authorizationCode'
-    | 'clientCredentials'
-    | 'implicit'
-    | 'password']
+  SecuritySchemeOauth2['flows']['authorizationCode' | 'clientCredentials' | 'implicit' | 'password']
 >
 /** Payload for the oauth 2 flows + extensions */
-export type Oauth2FlowPayload = NonNullable<
-  SecuritySchemeOauth2Payload['flows']
->['authorizationCode' | 'clientCredentials' | 'implicit' | 'password'] &
+export type Oauth2FlowPayload = NonNullable<SecuritySchemeOauth2Payload['flows']>[
+  | 'authorizationCode'
+  | 'clientCredentials'
+  | 'implicit'
+  | 'password'] &
   Record<`x-${string}`, string>
 
 // ---------------------------------------------------------------------------
@@ -222,10 +200,7 @@ export type Oauth2FlowPayload = NonNullable<
  *
  * @see https://spec.openapis.org/oas/latest.html#security-requirement-object
  */
-export const oasSecurityRequirementSchema = z.record(
-  z.string(),
-  z.array(z.string()).optional().default([]),
-)
+export const oasSecurityRequirementSchema = z.record(z.string(), z.array(z.string()).optional().default([]))
 
 /** OAS Compliant security schemes */
 export const oasSecuritySchemeSchema = z.union([
