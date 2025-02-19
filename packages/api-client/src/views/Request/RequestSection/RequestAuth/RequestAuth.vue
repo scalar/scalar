@@ -60,7 +60,9 @@ const {
 
 const comboboxButtonRef = ref<typeof ScalarButtonType | null>(null)
 const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | null>(null)
+const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
+  null,
+)
 
 /** Security requirements for the request */
 const securityRequirements = computed(() => {
@@ -143,7 +145,10 @@ const editSelectedSchemeUids = (uids: SelectedSecuritySchemeUids) => {
   }
 }
 
-function handleDeleteScheme(option: { id: string; label: string }) {
+function handleDeleteScheme(option: {
+  id: SecurityScheme['uid']
+  label: string
+}) {
   selectedScheme.value = option
   deleteSchemeModal.show()
 }

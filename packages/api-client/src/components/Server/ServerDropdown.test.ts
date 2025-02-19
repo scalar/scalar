@@ -1,21 +1,9 @@
 import { useLayout } from '@/hooks/useLayout'
 import { useWorkspace } from '@/store/store'
 import { PopoverPanel } from '@headlessui/vue'
-import {
-  collectionSchema,
-  requestSchema,
-  serverSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
-import {
-  type Mock,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import ServerDropdown from './ServerDropdown.vue'
 import ServerDropdownItem from './ServerDropdownItem.vue'
@@ -100,10 +88,10 @@ describe('ServerDropdown', () => {
     const wrapper = mount(ServerDropdown, {
       props: {
         ...defaultProps,
-        server: {
+        server: serverSchema.parse({
           uid: 'server-1',
           url: 'https://scalar.com/',
-        },
+        }),
       },
     })
 
@@ -231,11 +219,7 @@ describe('ServerDropdown', () => {
       ?.trigger('click')
 
     const workspace = useWorkspace()
-    expect(workspace.collectionMutators.edit).toHaveBeenCalledWith(
-      'collection-1',
-      'selectedServerUid',
-      'server-2',
-    )
+    expect(workspace.collectionMutators.edit).toHaveBeenCalledWith('collection-1', 'selectedServerUid', 'server-2')
   })
 
   it('updates server variables correctly', async () => {
@@ -243,13 +227,13 @@ describe('ServerDropdown', () => {
       props: {
         ...defaultProps,
         layout: 'client',
-        server: {
+        server: serverSchema.parse({
           uid: 'server-1',
           url: 'https://scalar.com',
           variables: {
             version: { default: 'v1' },
           },
-        },
+        }),
       },
     })
 
@@ -259,19 +243,11 @@ describe('ServerDropdown', () => {
       .at(0)
     await dropdownButton?.trigger('click')
 
-    wrapper
-      .findAllComponents(ServerDropdownItem)
-      .at(0)
-      ?.find('input')
-      ?.setValue('v2')
+    wrapper.findAllComponents(ServerDropdownItem).at(0)?.find('input')?.setValue('v2')
 
     const workspace = useWorkspace()
-    expect(workspace.serverMutators.edit).toHaveBeenCalledWith(
-      'server-1',
-      'variables',
-      {
-        version: { default: 'v2' },
-      },
-    )
+    expect(workspace.serverMutators.edit).toHaveBeenCalledWith('server-1', 'variables', {
+      version: { default: 'v2' },
+    })
   })
 })
