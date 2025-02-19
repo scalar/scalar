@@ -2,22 +2,17 @@ import { useLayout } from '@/hooks'
 import type { WorkspaceStore } from '@/store'
 import type { ActiveEntitiesStore } from '@/store/active-entities'
 import type { DraggingItem, HoveredItem } from '@scalar/draggable'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 
 /** Create DnD handlers */
 export function dragHandlerFactory(
   activeWorkspace: ActiveEntitiesStore['activeWorkspace'],
-  {
-    collections,
-    collectionMutators,
-    tags,
-    tagMutators,
-    workspaceMutators,
-  }: WorkspaceStore,
+  { collections, collectionMutators, tags, tagMutators, workspaceMutators }: WorkspaceStore,
 ) {
   const { layout } = useLayout()
 
   /** Mutate tag OR collection */
-  function mutateTagOrCollection(uid: string, childUids: string[]) {
+  function mutateTagOrCollection(uid: Collection['uid'], childUids: Collection['children']) {
     if (collections[uid]) collectionMutators.edit(uid, 'children', childUids)
     else if (tags[uid]) tagMutators.edit(uid, 'children', childUids)
   }
@@ -34,9 +29,7 @@ export function dragHandlerFactory(
       workspaceMutators.edit(
         activeWorkspace.value?.uid ?? '',
         'collections',
-        activeWorkspace.value?.collections.filter(
-          (uid) => uid !== draggingUid,
-        ) ?? [],
+        activeWorkspace.value?.collections.filter((uid) => uid !== draggingUid) ?? [],
       )
     }
 
@@ -45,9 +38,7 @@ export function dragHandlerFactory(
       collectionMutators.edit(
         draggingParentUid,
         'children',
-        collections[draggingParentUid].children.filter(
-          (uid) => uid !== draggingUid,
-        ),
+        collections[draggingParentUid].children.filter((uid) => uid !== draggingUid),
       )
     }
     // Parent is a tag
@@ -62,31 +53,22 @@ export function dragHandlerFactory(
     // Place it at the end of the list of the hoveredItem
     if (offset === 2) {
       const parent = collections[hoveredUid] || tags[hoveredUid]
-      mutateTagOrCollection(hoveredUid, [
-        ...(parent?.children ?? []),
-        draggingUid,
-      ])
+      mutateTagOrCollection(hoveredUid, [...(parent?.children ?? []), draggingUid])
     }
     // Special case for collections
     else if (!hoveredParentUid) {
       const newChildUids = [...(activeWorkspace.value?.collections ?? [])]
-      const hoveredIndex =
-        newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+      const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
 
-      workspaceMutators.edit(
-        activeWorkspace.value?.uid ?? '',
-        'collections',
-        newChildUids,
-      )
+      workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'collections', newChildUids)
     }
     // Place it into the list at an index
     else {
       const parent = collections[hoveredParentUid] || tags[hoveredParentUid]
       const newChildUids = [...(parent?.children ?? [])]
 
-      const hoveredIndex =
-        newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
+      const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid)
 
       mutateTagOrCollection(hoveredParentUid, newChildUids)
@@ -94,20 +76,13 @@ export function dragHandlerFactory(
   }
 
   /** Ensure only collections are allowed at the top level OR resources dropped INTO (offset 2) */
-  const isDroppable = (
-    draggingItem: DraggingItem,
-    hoveredItem: HoveredItem,
-  ) => {
+  const isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
     // Cannot drop in read only mode
     if (layout === 'modal') return false
     // Cannot drop requests/folders into a workspace
     if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
     // Collections cannot drop over Drafts
-    if (
-      collections[draggingItem.id] &&
-      collections[hoveredItem.id]?.info?.title === 'Drafts'
-    )
-      return false
+    if (collections[draggingItem.id] && collections[hoveredItem.id]?.info?.title === 'Drafts') return false
 
     return true
   }
