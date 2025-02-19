@@ -17,8 +17,9 @@ RUN --mount=type=cache,id=pnpm,target=~/.pnpm-store \
     pnpm --filter "@scalar-examples/react" build
 
 FROM node:20-slim AS runner
-# install simple http server for serving static content
-RUN npm install -g http-server
+
+# install simple http server for serving the content
+RUN npm i -g serve
 
 # Use default non-root user from the node image
 USER node
@@ -26,6 +27,6 @@ WORKDIR /app
 RUN chown node:node /app
 
 COPY --from=builder app/packages/api-reference-react packages/api-reference-react
-WORKDIR /app/packages/api-reference-react
+WORKDIR /app/packages/api-reference-react/playground
 
-CMD ["http-server", "playground/dist"]
+CMD ["serve", "-s", "dist"]
