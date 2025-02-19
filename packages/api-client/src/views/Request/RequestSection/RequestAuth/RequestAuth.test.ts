@@ -1,9 +1,4 @@
-import {
-  type Collection,
-  collectionSchema,
-  requestSchema,
-  serverSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { type Collection, collectionSchema, requestSchema, serverSchema } from '@scalar/oas-utils/entities/spec'
 import { workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { mount } from '@vue/test-utils'
 import { describe, expect, it, vi } from 'vitest'
@@ -71,7 +66,7 @@ describe('RequestAuth.vue', () => {
         uid: 'test-operation',
         security: [{ bearerAuth: [] }, { apiKeyAuth: [] }],
       }),
-      selectedSecuritySchemeUids: [] as Collection['securitySchemes'],
+      selectedSecuritySchemeUids: [] as Collection['selectedSecuritySchemeUids'],
       server: serverSchema.parse({
         url: 'https://api.example.com',
       }),
@@ -116,11 +111,7 @@ describe('RequestAuth.vue', () => {
     await option?.trigger('click')
 
     // Verify mutation
-    expect(requestMutators.edit).toHaveBeenCalledWith(
-      'test-operation',
-      'selectedSecuritySchemeUids',
-      ['bearer-auth'],
-    )
+    expect(requestMutators.edit).toHaveBeenCalledWith('test-operation', 'selectedSecuritySchemeUids', ['bearer-auth'])
   })
 
   it('shows optional status when security is optional', async () => {
@@ -137,7 +128,7 @@ describe('RequestAuth.vue', () => {
   it('displays multiple when multiple schemes are selected', async () => {
     const props = {
       ...createBaseProps(),
-      selectedSecuritySchemeUids: ['bearer-auth', 'api-key'],
+      selectedSecuritySchemeUids: ['bearer-auth', 'api-key'] as Collection['selectedSecuritySchemeUids'],
     }
 
     const wrapper = mount(RequestAuth, {
