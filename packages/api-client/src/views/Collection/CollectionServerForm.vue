@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Server } from '@scalar/oas-utils/entities/spec'
-import { computed, withDefaults } from 'vue'
+import { REGEX } from '@scalar/oas-utils/helpers'
+import { computed, watch } from 'vue'
 
 import Form from '@/components/Form/Form.vue'
 import ServerVariablesForm from '@/components/Server/ServerVariablesForm.vue'
@@ -49,6 +50,41 @@ const activeServer = computed(() => {
   ]
 })
 
+const pathVariables = computed(() => {
+  if (!activeServer.value?.url) return []
+  return (
+    activeServer.value.url.match(REGEX.PATH)?.map((m) => m.slice(1, -1)) ?? []
+  )
+})
+
+watch(
+  pathVariables,
+  (newPathVariables) => {
+    if (!activeServer.value) return
+
+    const variables = activeServer.value.variables
+      ? { ...activeServer.value.variables }
+      : {}
+
+    // Removes variables no longer in the server path
+    Object.keys(variables).forEach((key) => {
+      if (!newPathVariables.includes(key)) {
+        delete variables[key]
+      }
+    })
+
+    // Adds path variables
+    newPathVariables.forEach((variable) => {
+      if (!variables[variable]) {
+        variables[variable] = { default: '' }
+      }
+    })
+
+    serverMutators.edit(activeServer.value.uid, 'variables', variables)
+  },
+  { immediate: true },
+)
+
 const updateServer = (key: string, value: string) => {
   if (!activeWorkspaceCollections.value || !activeServer.value) return
   serverMutators.edit(activeServer.value.uid, key as keyof Server, value)
@@ -73,7 +109,6 @@ const updateServerVariable = (key: string, value: string) => {
         :options="options" />
       <ServerVariablesForm
         v-if="activeServer.variables"
-        class="bg-b-1 text-sm"
         :variables="activeServer.variables"
         @update:variable="updateServerVariable" />
     </template>
