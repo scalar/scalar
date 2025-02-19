@@ -1,11 +1,4 @@
 <script setup lang="ts">
-import { HttpMethod } from '@/components/HttpMethod'
-import { useLayout, useSidebar } from '@/hooks'
-import { getModifiers } from '@/libs'
-import { PathId } from '@/router'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
-import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 import {
   ScalarButton,
   ScalarIcon,
@@ -22,6 +15,14 @@ import type { Request } from '@scalar/oas-utils/entities/spec'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+
+import { HttpMethod } from '@/components/HttpMethod'
+import { useLayout, useSidebar } from '@/hooks'
+import { getModifiers } from '@/libs'
+import { PathId } from '@/router'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
+import type { SidebarItem, SidebarMenuItem } from '@/views/Request/types'
 
 const {
   isDraggable = false,
@@ -143,7 +144,7 @@ const item = computed<SidebarItem>(() => {
       },
     }
 
-  if (requestExample)
+  if (requestExample?.requestUid)
     return {
       title: requestExample.name,
       link: {
@@ -174,8 +175,8 @@ const item = computed<SidebarItem>(() => {
     },
     resourceTitle: 'Unknown',
     children: [],
-    edit: () => {},
-    delete: () => {},
+    edit: () => null,
+    delete: () => null,
   } satisfies SidebarItem
 })
 
@@ -319,14 +320,14 @@ const shouldShowItem = computed(() => {
     :class="[
       (layout === 'modal' && parentUids.length > 1) ||
       (layout !== 'modal' && parentUids.length)
-        ? 'before:bg-border before:pointer-events-none before:z-1 before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] last:before:h-full before:w-[.5px] mb-[.5px] last:mb-0 indent-border-line-offset'
+        ? 'before:bg-border before:z-1 indent-border-line-offset mb-[.5px] before:pointer-events-none before:absolute before:left-[calc(.75rem_+_.5px)] before:top-0 before:h-[calc(100%_+_.5px)] before:w-[.5px] last:mb-0 last:before:h-full'
         : '',
     ]">
     <Draggable
       :id="item.entity.uid"
       ref="draggableRef"
       :ceiling="getDraggableOffsets.ceiling"
-      class="flex flex-1 flex-col gap-1/2 text-sm"
+      class="gap-1/2 flex flex-1 flex-col text-sm"
       :floor="getDraggableOffsets.floor"
       :isDraggable="isDraggable"
       :isDroppable="isDroppable"
@@ -342,22 +343,22 @@ const shouldShowItem = computed(() => {
           (event: KeyboardEvent) => handleNavigation(event, item)
         ">
         <div
-          class="relative flex min-h-8 cursor-pointer flex-row items-start justify-between gap-0.5 py-1.5 pr-2 rounded w-full"
+          class="relative flex min-h-8 w-full cursor-pointer flex-row items-start justify-between gap-0.5 rounded py-1.5 pr-2"
           :class="[
             highlightClasses,
             isExactActive || isDefaultActive
               ? 'bg-sidebar-active-b text-sidebar-active-c transition-none'
               : 'text-sidebar-c-2',
           ]">
-          <span class="break-all line-clamp-1 font-medium w-full pl-2">
+          <span class="line-clamp-1 w-full break-all pl-2 font-medium">
             {{ item.title }}
           </span>
-          <div class="flex flex-row gap-1 items-center">
+          <div class="flex flex-row items-center gap-1">
             <!-- Menu -->
             <div class="relative">
               <ScalarButton
                 v-if="layout !== 'modal'"
-                class="hidden px-0.5 py-0 hover:bg-b-3 opacity-0 group-hover:opacity-100 group-hover:flex group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="hover:bg-b-3 hidden aspect-square h-fit px-0.5 py-0 opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 :class="{
                   flex:
                     menuItem?.item?.entity.uid === item.entity.uid &&
@@ -400,21 +401,21 @@ const shouldShowItem = computed(() => {
         :class="[highlightClasses]"
         type="button"
         @click="toggleSidebarFolder(item.entity.uid)">
-        <span class="flex h-5 items-center justify-center max-w-[14px]">
+        <span class="flex h-5 max-w-[14px] items-center justify-center">
           <slot name="leftIcon">
             <ScalarSidebarGroupToggle
-              class="text-c-3 shrink-0 hover:text-c-1"
+              class="text-c-3 hover:text-c-1 shrink-0"
               :open="Boolean(collapsedSidebarFolders[item.entity.uid])" />
           </slot>
           &hairsp;
         </span>
         <div class="flex flex-1 flex-row justify-between">
-          <span class="break-all line-clamp-1 font-medium text-left w-full">
+          <span class="line-clamp-1 w-full break-all text-left font-medium">
             {{ item.title }}
           </span>
-          <div class="relative flex justify-end h-fit">
+          <div class="relative flex h-fit justify-end">
             <div
-              class="items-center opacity-0 gap-px group-hover:opacity-100 group-hover:flex group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
+              class="items-center gap-px opacity-0 group-hover:flex group-hover:opacity-100 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
               :class="{
                 flex: menuItem.open,
                 hidden:
@@ -426,7 +427,7 @@ const shouldShowItem = computed(() => {
                   (layout !== 'modal' && !isDraftCollection) ||
                   (isDraftCollection && hasDraftRequests)
                 "
-                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="
@@ -444,7 +445,7 @@ const shouldShowItem = computed(() => {
               </ScalarButton>
               <ScalarButton
                 v-if="layout !== 'modal'"
-                class="px-0.5 py-0 hover:bg-b-3 hover:text-c-1 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100 aspect-square h-fit"
+                class="hover:bg-b-3 hover:text-c-1 aspect-square h-fit px-0.5 py-0 group-focus-visible:opacity-100 group-has-[:focus-visible]:opacity-100"
                 size="sm"
                 variant="ghost"
                 @click.stop.prevent="openCommandPaletteRequest()">
@@ -468,8 +469,8 @@ const shouldShowItem = computed(() => {
               </template>
               <template #content>
                 <div
-                  class="grid gap-1.5 pointer-events-none max-w-10 w-content shadow-lg rounded bg-b-1 z-100 p-2 text-xxs leading-5 z-10 text-c-1">
-                  <div class="flex items-center text-c-2">
+                  class="w-content bg-b-1 z-100 text-xxs text-c-1 pointer-events-none z-10 grid max-w-10 gap-1.5 rounded p-2 leading-5 shadow-lg">
+                  <div class="text-c-2 flex items-center">
                     <p class="text-pretty break-all">
                       Watching: {{ item.documentUrl }}
                     </p>
@@ -498,7 +499,7 @@ const shouldShowItem = computed(() => {
           @openMenu="(item) => $emit('openMenu', item)" />
         <ScalarButton
           v-if="item.children.length === 0"
-          class="flex gap-1.5 h-8 text-c-1 py-0 justify-start text-xs w-full hover:bg-b-2"
+          class="text-c-1 hover:bg-b-2 flex h-8 w-full justify-start gap-1.5 py-0 text-xs"
           :class="parentUids.length ? 'pl-9' : ''"
           variant="ghost"
           @click="openCommandPaletteRequest()">
