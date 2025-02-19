@@ -1,10 +1,10 @@
 import type { v_2_4_0 } from '@/migrations/v-2.4.0/types.generated'
 
-import type { v_2_5_0 } from './types.generated'
-import type { Collection, Operation, RequestExample, SecurityScheme, Server, Tag } from '@/entities/spec'
-import type { Workspace } from '@/entities/workspace'
 import type { Cookie } from '@/entities/cookie/cookie'
 import type { Environment } from '@/entities/environment/environment'
+import type { Collection, Operation, RequestExample, SecurityScheme, Server, Tag } from '@/entities/spec'
+import type { Workspace } from '@/entities/workspace'
+import type { v_2_5_0 } from './types.generated'
 
 /** V-2.4.0 to V-2.5.0 migration */
 export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord'] => {
@@ -22,6 +22,10 @@ export const migrate_v_2_5_0 = (data: v_2_4_0.DataRecord): v_2_5_0['DataRecord']
     (acc, [key, collection]) => {
       acc[key] = {
         ...collection,
+        info: collection.info ?? {
+          title: 'API',
+          version: '1.0',
+        },
         uid: collection.uid as Collection['uid'],
         selectedSecuritySchemeUids: collection.selectedSecuritySchemeUids as Collection['selectedSecuritySchemeUids'],
         servers: collection.servers.map((uid) => uid as Server['uid']),
