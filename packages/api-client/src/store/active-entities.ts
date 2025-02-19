@@ -83,7 +83,7 @@ export const createActiveEntitiesStore = ({
   const activeEnvironment = computed(() => {
     if (!activeWorkspace.value?.activeEnvironmentId) {
       return environmentSchema.parse({
-        uid: '',
+        uid: 'default',
         color: '#0082D0',
         name: 'No Environment',
         value: JSON.stringify(activeWorkspace.value?.environments, null, 2),
@@ -111,7 +111,7 @@ export const createActiveEntitiesStore = ({
     }
 
     return environmentSchema.parse({
-      uid: '',
+      uid: 'default',
       color: '#0082D0',
       name: 'No Environment',
       value: JSON.stringify(activeWorkspace.value.environments, null, 2),

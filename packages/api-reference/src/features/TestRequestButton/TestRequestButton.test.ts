@@ -36,7 +36,6 @@ describe('TestRequestButton', () => {
         operation: operationSchema.parse({
           method: 'get',
           path: '/test',
-          uid: '123',
         }),
       },
     })
@@ -49,7 +48,6 @@ describe('TestRequestButton', () => {
         operation: operationSchema.parse({
           method: 'get',
           path: '/test',
-          uid: '123',
         }),
       },
     })
@@ -66,7 +64,6 @@ describe('TestRequestButton', () => {
         operation: operationSchema.parse({
           method: 'post',
           path: '/users',
-          uid: '456',
         }),
       },
     })
