@@ -348,6 +348,8 @@ const handleFileUploadFormData = async (rowIdx: number) => {
           'body.formData.value',
           updatedParams,
         )
+
+        defaultRow()
       }
     },
     multiple: false,
@@ -362,12 +364,12 @@ const removeBinaryFile = () =>
 function handleRemoveFileFormData(rowIdx: number) {
   const currentParams = formParams.value
   const updatedParams = [...currentParams]
-  updatedParams[rowIdx] = {
-    ...updatedParams[rowIdx],
-    file: undefined,
-    value: '',
-    key: '',
-    enabled: false,
+
+  if (currentParams.length > 1) {
+    // Removes the row if not the last one
+    updatedParams.splice(rowIdx, 1)
+  } else {
+    defaultRow()
   }
   requestExampleMutators.edit(example.uid, 'body.formData.value', updatedParams)
 }
