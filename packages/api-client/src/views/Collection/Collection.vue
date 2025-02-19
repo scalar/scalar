@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
+
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { PathId } from '@/router'
 import { useActiveEntities } from '@/store'
 import CollectionNavigation from '@/views/Collection/CollectionNavigation.vue'
-import { watch } from 'vue'
-import { RouterView, useRouter } from 'vue-router'
 
 const { activeCollection } = useActiveEntities()
 const router = useRouter()
@@ -29,7 +30,7 @@ watch(
 </script>
 
 <template>
-  <ViewLayout class="flex md:flex-col">
+  <ViewLayout class="flex divide-y md:flex-col">
     <CollectionNavigation />
     <ViewLayoutContent class="flex-1">
       <RouterView />

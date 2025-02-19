@@ -25,7 +25,7 @@ const handleAddServer = () =>
 
 <template>
   <div
-    class="mx-auto flex h-full w-full flex-col gap-12 py-8 md:max-h-[82dvh] md:max-w-[50dvw]">
+    class="mx-auto flex h-full w-full flex-col gap-12 px-1.5 py-8 md:max-h-[82dvh] md:max-w-[50dvw]">
     <div class="flex flex-col gap-4">
       <div class="flex justify-between gap-2">
         <div class="flex flex-col gap-2">
