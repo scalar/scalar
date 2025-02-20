@@ -11,7 +11,7 @@ export function createStoreRequestExamples(useLocalStorage: boolean) {
    * An example is a set of request params that is saved to the example
    * Multiple test cases can each be saved as an example and switched between
    */
-  const requestExamples = reactive<Record<string, RequestExample>>({})
+  const requestExamples = reactive<Record<RequestExample['uid'], RequestExample>>({})
   const requestExampleMutators = mutationFactory(
     requestExamples,
     reactive({}),

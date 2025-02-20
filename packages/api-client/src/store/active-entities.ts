@@ -1,27 +1,21 @@
 import { flattenEnvVars } from '@/libs/string-template'
 import { PathId } from '@/router'
-import { environmentSchema, type Environment } from '@scalar/oas-utils/entities/environment'
-import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
-import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import { environmentSchema } from '@scalar/oas-utils/entities/environment'
+import type { Request, RequestExample } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { type ComputedRef, type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
+import type { WorkspaceStore } from '@/store/store'
 
 type CreateActiveEntitiesStoreParams = {
-  collections: Record<string, Collection>
-  environments: Record<string, Environment>
-  requestExamples: Record<string, RequestExample>
-  requests: Record<string, Request>
-  servers: Record<string, Server>
-  workspaces: Record<string, Workspace>
   router?: Router
   /** Override the active request  */
   activeRequestOverride?: ComputedRef<Request | undefined>
   /** Override the active request example  */
   activeExampleOverride?: ComputedRef<RequestExample | undefined>
-}
+} & Pick<WorkspaceStore, 'collections' | 'environments' | 'requestExamples' | 'requests' | 'servers' | 'workspaces'>
 
 type EnvVariable = {
   key: string

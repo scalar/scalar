@@ -1,12 +1,17 @@
 import type { StoreContext } from '@/store/store-context'
-import { type SecurityScheme, type SecuritySchemePayload, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
+import {
+  type Collection,
+  type SecurityScheme,
+  type SecuritySchemePayload,
+  securitySchemeSchema,
+} from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
 
 /** Create storage entities for security schemes */
 export function createStoreSecuritySchemes(useLocalStorage: boolean) {
-  const securitySchemes = reactive<Record<string, SecurityScheme>>({})
+  const securitySchemes = reactive<Record<SecurityScheme['uid'], SecurityScheme>>({})
   const securitySchemeMutators = mutationFactory(
     securitySchemes,
     reactive({}),
@@ -31,7 +36,7 @@ export function extendedSecurityDataFactory({
   const addSecurityScheme = (
     payload: SecuritySchemePayload,
     /** Schemes will always live at the collection level */
-    collectionUid: string,
+    collectionUid: Collection['uid'],
   ) => {
     const scheme = securitySchemeSchema.parse(payload)
     securitySchemeMutators.add(scheme)

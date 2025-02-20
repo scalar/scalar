@@ -5,13 +5,8 @@ import { reactive } from 'vue'
 
 /** Create cookie mutators for the workspace */
 export function createStoreCookies(useLocalStorage: boolean) {
-  const cookies = reactive<Record<string, Cookie>>({})
-
-  const cookieMutators = mutationFactory(
-    cookies,
-    reactive({}),
-    useLocalStorage && LS_KEYS.COOKIE,
-  )
+  const cookies = reactive<Record<Cookie['uid'], Cookie>>({})
+  const cookieMutators = mutationFactory(cookies, reactive({}), useLocalStorage && LS_KEYS.COOKIE)
 
   return {
     cookies,

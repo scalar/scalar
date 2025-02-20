@@ -1,22 +1,16 @@
 import { type ErrorResponse, normalizeError } from '@/libs'
 import type { StoreContext } from '@/store/store-context'
+import type { Workspace } from '@scalar/oas-utils/entities'
 import { createHash, fetchSpecFromUrl } from '@scalar/oas-utils/helpers'
-import {
-  type ImportSpecToWorkspaceArgs,
-  importSpecToWorkspace,
-} from '@scalar/oas-utils/transforms'
+import { type ImportSpecToWorkspaceArgs, importSpecToWorkspace } from '@scalar/oas-utils/transforms'
 import type { OpenAPIV3, OpenAPIV3_1 } from '@scalar/openapi-types'
 import type { ReferenceConfiguration } from '@scalar/types/legacy'
 import { toRaw } from 'vue'
 
 /** Maps the specs by URL */
-export const specDictionary: Record<
-  string,
-  { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }
-> = {}
+export const specDictionary: Record<string, { hash: number; schema: OpenAPIV3.Document | OpenAPIV3_1.Document }> = {}
 
-type ImportSpecFileArgs = ImportSpecToWorkspaceArgs &
-  Pick<ReferenceConfiguration, 'servers'>
+type ImportSpecFileArgs = ImportSpecToWorkspaceArgs & Pick<ReferenceConfiguration, 'servers'>
 
 /** Generate the import functions from a store context */
 export function importSpecFileFactory({
@@ -31,7 +25,7 @@ export function importSpecFileFactory({
 }: StoreContext) {
   const importSpecFile = async (
     _spec: string | Record<string, any>,
-    workspaceUid: string,
+    workspaceUid: Workspace['uid'],
     options: ImportSpecFileArgs = {},
   ) => {
     const spec = toRaw(_spec)
@@ -59,9 +53,7 @@ export function importSpecFileFactory({
     workspaceEntities.requests.forEach((r) => requestMutators.add(r))
     workspaceEntities.tags.forEach((t) => tagMutators.add(t))
     workspaceEntities.servers.forEach((s) => serverMutators.add(s))
-    workspaceEntities.securitySchemes.forEach((s) =>
-      securitySchemeMutators.add(s),
-    )
+    workspaceEntities.securitySchemes.forEach((s) => securitySchemeMutators.add(s))
     collectionMutators.add(workspaceEntities.collection)
 
     // Add the collection UID to the workspace
@@ -80,12 +72,8 @@ export function importSpecFileFactory({
    */
   async function importSpecFromUrl(
     url: string,
-    workspaceUid: string,
-    {
-      proxyUrl,
-      ...options
-    }: Omit<ImportSpecFileArgs, 'documentUrl'> &
-      Pick<ReferenceConfiguration, 'proxyUrl'> = {},
+    workspaceUid: Workspace['uid'],
+    { proxyUrl, ...options }: Omit<ImportSpecFileArgs, 'documentUrl'> & Pick<ReferenceConfiguration, 'proxyUrl'> = {},
   ): Promise<ErrorResponse<Awaited<ReturnType<typeof importSpecFile>>>> {
     try {
       const spec = await fetchSpecFromUrl(url, proxyUrl)

@@ -1,41 +1,34 @@
 import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { Environment } from '@scalar/oas-utils/entities/environment'
-import type {
-  Collection,
-  Request,
-  RequestExample,
-  SecurityScheme,
-  Server,
-  Tag,
-} from '@scalar/oas-utils/entities/spec'
+import type { Collection, Request, RequestExample, SecurityScheme, Server, Tag } from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Mutators } from '@scalar/object-utils/mutator-record'
 
 export type StoreContext = {
-  collections: Record<string, Collection>
+  collections: Record<Collection['uid'], Collection>
   collectionMutators: Mutators<Collection>
   //
-  tags: Record<string, Tag>
+  tags: Record<Tag['uid'], Tag>
   tagMutators: Mutators<Tag>
   //
-  requests: Record<string, Request>
+  requests: Record<Request['uid'], Request>
   requestMutators: Mutators<Request>
   //
-  requestExamples: Record<string, RequestExample>
+  requestExamples: Record<RequestExample['uid'], RequestExample>
   requestExampleMutators: Mutators<RequestExample>
   //
-  cookies: Record<string, Cookie>
+  cookies: Record<Cookie['uid'], Cookie>
   cookieMutators: Mutators<Cookie>
   //
-  environments: Record<string, Environment>
+  environments: Record<Environment['uid'], Environment>
   environmentMutators: Mutators<Environment>
   //
-  servers: Record<string, Server>
+  servers: Record<Server['uid'], Server>
   serverMutators: Mutators<Server>
   //
-  securitySchemes: Record<string, SecurityScheme>
+  securitySchemes: Record<SecurityScheme['uid'], SecurityScheme>
   securitySchemeMutators: Mutators<SecurityScheme>
   //
-  workspaces: Record<string, Workspace>
+  workspaces: Record<Workspace['uid'], Workspace>
   workspaceMutators: Mutators<Workspace>
 }

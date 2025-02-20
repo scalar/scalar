@@ -1,5 +1,7 @@
 import type { StoreContext } from '@/store/store-context'
 import {
+  type Collection,
+  type Request,
   type Server,
   type ServerPayload,
   serverSchema,
@@ -10,13 +12,9 @@ import { reactive } from 'vue'
 
 /** Create storage objects for servers */
 export function createStoreServers(useLocalStorage: boolean) {
-  const servers = reactive<Record<string, Server>>({})
+  const servers = reactive<Record<Server['uid'], Server>>({})
 
-  const serverMutators = mutationFactory(
-    servers,
-    reactive({}),
-    useLocalStorage && LS_KEYS.SERVER,
-  )
+  const serverMutators = mutationFactory(servers, reactive({}), useLocalStorage && LS_KEYS.SERVER)
 
   return {
     servers,
@@ -36,22 +34,18 @@ export function extendedServerDataFactory({
    * Add a server
    * If the collectionUid is included it is added to the collection as well
    */
-  const addServer = (payload: ServerPayload, parentUid: string) => {
+  const addServer = (payload: ServerPayload, parentUid: Collection['uid'] | Request['uid']) => {
     const server = serverSchema.parse(payload)
+    const collection = collections[parentUid as Collection['uid']]
+    const request = requests[parentUid as Request['uid']]
 
     // Add to collection
-    if (collections[parentUid]) {
-      collectionMutators.edit(parentUid, 'servers', [
-        ...collections[parentUid].servers,
-        server.uid,
-      ])
+    if (collection) {
+      collectionMutators.edit(collection.uid, 'servers', [...collection.servers, server.uid])
     }
     // Add to request
-    else if (requests[parentUid]) {
-      requestMutators.edit(parentUid, 'servers', [
-        ...requests[parentUid].servers,
-        server.uid,
-      ])
+    else if (request) {
+      requestMutators.edit(request.uid, 'servers', [...request.servers, server.uid])
     }
 
     // Add to servers
@@ -61,7 +55,7 @@ export function extendedServerDataFactory({
   }
 
   /** Delete a server */
-  const deleteServer = (serverUid: string, collectionUid: string) => {
+  const deleteServer = (serverUid: Server['uid'], collectionUid: Collection['uid']) => {
     if (!collections[collectionUid]) return
 
     // Remove from parent collection

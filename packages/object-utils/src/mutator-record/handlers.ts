@@ -8,13 +8,13 @@ import { LS_CONFIG } from './local-storage'
 const MAX_MUTATION_RECORDS = 500
 
 /** Generate mutation handlers for a given record of objects  */
-export function mutationFactory<T extends Record<string, any> & { uid: string }>(
+export function mutationFactory<T extends Record<string, any>>(
   entityMap: Partial<Record<string, T>>,
   mutationMap: Partial<Record<string, Mutation<T>>>,
   localStorageKey?: string | false,
   maxNumberRecords: number = MAX_MUTATION_RECORDS,
 ) {
-  function getMutator(uid: string) {
+  function getMutator(uid: T['uid']) {
     const mutator = mutationMap[uid]
 
     if (!mutator) console.warn(`Missing ${entityMap[uid] ? 'mutator' : 'object'} for uid: ${uid}`)
@@ -39,7 +39,7 @@ export function mutationFactory<T extends Record<string, any> & { uid: string }>
   return {
     /** Adds a new item to the record of tracked items and creates a new mutation tracking instance */
     add,
-    delete: (uid: string) => {
+    delete: (uid: T['uid']) => {
       delete entityMap[uid]
       delete mutationMap[uid]
       onChange()
@@ -51,25 +51,25 @@ export function mutationFactory<T extends Record<string, any> & { uid: string }>
       onChange()
     },
     /** Update a nested property and track the mutation */
-    edit: <P extends Path<T>>(uid: string, path: P, value: PathValue<T, P>) => {
+    edit: <P extends Path<T>>(uid: T['uid'], path: P, value: PathValue<T, P>) => {
       const mutator = getMutator(uid)
       mutator?.mutate(path, value)
       onChange()
     },
     /** Commit an untracked edit to the object (undo/redo will not work) */
-    untrackedEdit: <P extends Path<T>>(uid: string, path: P, value: PathValue<T, P>) => {
+    untrackedEdit: <P extends Path<T>>(uid: T['uid'], path: P, value: PathValue<T, P>) => {
       const mutator = getMutator(uid)
       mutator?._unsavedMutate(path, value)
       onChange()
     },
     /** Undo the last mutation */
-    undo: (uid: string) => {
+    undo: (uid: T['uid']) => {
       const mutator = getMutator(uid)
       mutator?.undo()
       onChange()
     },
     /** Redo a mutation if available */
-    redo: (uid: string) => {
+    redo: (uid: T['uid']) => {
       const mutator = getMutator(uid)
       mutator?.redo()
       onChange()
@@ -85,4 +85,4 @@ export function mutationFactory<T extends Record<string, any> & { uid: string }>
   }
 }
 
-export type Mutators<T extends object & { uid: string }> = ReturnType<typeof mutationFactory<T>>
+export type Mutators<T extends object> = ReturnType<typeof mutationFactory<T>>
