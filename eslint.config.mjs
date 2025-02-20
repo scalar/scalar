@@ -109,6 +109,8 @@ export default tslint.config(
           order: ['defineProps', 'defineEmits'],
         },
       ],
+      // Prettier doesn't play nice with this rule
+      'vue/singleline-html-element-content-newline': 'off',
       'vue/define-props-declaration': ['warn', 'type-based'],
       'vue/define-emits-declaration': ['warn', 'type-based'],
       'vue/html-button-has-type': [
