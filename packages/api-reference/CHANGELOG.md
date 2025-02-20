@@ -1,5 +1,16 @@
 # @scalar/api-reference
 
+## 1.25.120
+
+### Patch Changes
+
+- 25209ee: feat: markdown for the response description
+- d2b7ca8: fix: renders arrays with discriminators four times instead of once
+- Updated dependencies [c62884d]
+- Updated dependencies [ed92564]
+  - @scalar/api-client@2.2.49
+  - @scalar/oas-utils@0.2.106
+
 ## 1.25.119
 
 ### Patch Changes

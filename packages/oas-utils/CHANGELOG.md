@@ -1,5 +1,11 @@
 # @scalar/oas-utils
 
+## 0.2.106
+
+### Patch Changes
+
+- ed92564: feat: allow preferredSecurityScheme to pre-select a scheme not in the requirements
+
 ## 0.2.105
 
 ### Patch Changes
