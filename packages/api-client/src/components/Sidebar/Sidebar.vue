@@ -5,15 +5,10 @@ import { ref } from 'vue'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 
-const props = withDefaults(
-  defineProps<{
-    title?: string
-    isSidebarOpen?: boolean
-  }>(),
-  {
-    isSidebarOpen: true,
-  },
-)
+defineProps<{
+  title?: string
+}>()
+
 const { sidebarWidth, setSidebarWidth } = useWorkspace()
 const { layout } = useLayout()
 const isDragging = ref(false)
@@ -26,7 +21,7 @@ const startDrag = (event: MouseEvent) => {
 
   const startX = event.clientX
   /** Current sidebar width when dragging starts */
-  const startWidth = parseInt(
+  const startWidth = Number.parseInt(
     getComputedStyle(sidebarRef.value!).width || sidebarWidth.value,
     10,
   )

@@ -6,7 +6,6 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 import { useLayout } from '@/hooks'
-import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
@@ -30,7 +29,6 @@ const {
 const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
 
-const { isSidebarOpen } = useSidebarToggle()
 const requestAbortController = ref<AbortController>()
 
 /**
