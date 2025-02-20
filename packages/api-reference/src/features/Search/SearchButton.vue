@@ -1,15 +1,14 @@
 <script setup lang="ts">
+import { useApiClient } from '@/features/ApiClientModal'
+import { isMacOs } from '@/helpers/isMacOs'
+import { useWorkspace } from '@scalar/api-client/store'
 import { ScalarIcon, useModal } from '@scalar/components'
-import type { Spec } from '@scalar/types/legacy'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-import { isMacOs } from '../../helpers'
-import { useApiClient } from '../ApiClientModal'
 import SearchModal from './SearchModal.vue'
 
 const props = withDefaults(
   defineProps<{
-    spec: Spec
     searchHotKey?: string
   }>(),
   {
@@ -31,6 +30,8 @@ const handleHotKey = (e: KeyboardEvent) => {
     modalState.open ? modalState.hide() : modalState.show()
   }
 }
+
+const store = useWorkspace()
 
 // Handle keyboard shortcuts
 // TODO: we can move this to the hotkey event bus but we would need to set up a custom key from the searchHotKey config
@@ -62,7 +63,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', handleHotKey))
   </button>
   <SearchModal
     :modalState="modalState"
-    :parsedSpec="spec" />
+    :store="store" />
 </template>
 <style scoped>
 .sidebar-search {
