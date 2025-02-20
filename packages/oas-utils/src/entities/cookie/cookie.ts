@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import { nanoidSchema } from '../shared'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 
 export const cookieSchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand<ENTITY_BRANDS['COOKIE']>(),
   /**  Defines the cookie name and its value. A cookie definition begins with a name-value pair.  */
   name: z.string().default(''),
   value: z.string().default(''),

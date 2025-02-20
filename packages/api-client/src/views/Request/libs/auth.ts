@@ -1,13 +1,5 @@
-import {
-  ADD_AUTH_OPTIONS,
-  type SecuritySchemeGroup,
-  type SecuritySchemeOption,
-} from '@/views/Request/consts'
-import type {
-  Collection,
-  Operation,
-  SecurityScheme,
-} from '@scalar/oas-utils/entities/spec'
+import { ADD_AUTH_OPTIONS, type SecuritySchemeGroup, type SecuritySchemeOption } from '@/views/Request/consts'
+import type { Collection, Operation, SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 
 type DisplayScheme = {
@@ -23,41 +15,28 @@ export const formatScheme = (s: DisplayScheme) => ({
 })
 
 /** Formats complex security schemes */
-export const formatComplexScheme = (
-  uids: string[],
-  securitySchemes: Record<string, DisplayScheme>,
-) =>
+export const formatComplexScheme = (uids: string[], securitySchemes: Record<string, DisplayScheme>) =>
   formatScheme(
     uids.reduce(
       (acc, uid, index) => {
         const scheme = securitySchemes[uid]
         if (scheme) {
           acc.nameKey += `${index > 0 ? ' & ' : ''}${scheme.nameKey}`
-          acc.uid += `${index > 0 ? ',' : ''}${scheme.uid}`
+          acc.uid = `${acc.uid}${index > 0 ? ',' : ''}${scheme.uid}` as SecurityScheme['uid']
         }
         return acc
       },
-      { type: 'complex', nameKey: '', uid: '' },
+      { type: 'complex', nameKey: '', uid: '' as SecurityScheme['uid'] },
     ),
   )
 
 /** Compute what the security requirements should be for a request */
-export const getSecurityRequirements = (
-  operation?: Operation,
-  collection?: Collection,
-) => {
+export const getSecurityRequirements = (operation?: Operation, collection?: Collection) => {
   // If the request security is optional, use the collection security and ensure it includes an optional object
-  if (
-    JSON.stringify(operation?.security) === '[{}]' &&
-    collection?.security?.length
-  ) {
-    const collectionHasOptional = Boolean(
-      collection?.security.find((s) => JSON.stringify(s) === '{}'),
-    )
+  if (JSON.stringify(operation?.security) === '[{}]' && collection?.security?.length) {
+    const collectionHasOptional = Boolean(collection?.security.find((s) => JSON.stringify(s) === '{}'))
 
-    return collectionHasOptional
-      ? collection.security
-      : [...collection.security, {}]
+    return collectionHasOptional ? collection.security : [...collection.security, {}]
   }
 
   return operation?.security ?? collection?.security ?? []
@@ -86,24 +65,22 @@ export const getSchemeOptions = (
     )
 
     /** Builds the required schemes formatted as options */
-    const requiredFormatted = filteredRequirements.flatMap(
-      (r): SecuritySchemeOption | [] => {
-        const keys = Object.keys(r)
+    const requiredFormatted = filteredRequirements.flatMap((r): SecuritySchemeOption | [] => {
+      const keys = Object.keys(r)
 
-        // Complex auth
-        if (keys.length > 1) {
-          const uids = keys.map((k) => schemeDict[k]?.uid).filter(isDefined)
-          return formatComplexScheme(uids, securitySchemes)
-        }
-        // Simple auth
-        else if (keys[0]) {
-          const scheme = schemeDict[keys[0]]
-          if (scheme) return formatScheme(scheme)
-        }
+      // Complex auth
+      if (keys.length > 1) {
+        const uids = keys.map((k) => schemeDict[k]?.uid).filter(isDefined)
+        return formatComplexScheme(uids, securitySchemes)
+      }
+      // Simple auth
+      if (keys[0]) {
+        const scheme = schemeDict[keys[0]]
+        if (scheme) return formatScheme(scheme)
+      }
 
-        return []
-      },
-    )
+      return []
+    })
 
     /** Collection schemes minus the required ones */
     const availableFormatted = collectionSchemeUids
@@ -120,8 +97,7 @@ export const getSchemeOptions = (
       { label: 'Available authentication', options: availableFormatted },
     ]
 
-    if (isReadOnly)
-      return requiredFormatted.length ? options : availableFormatted
+    if (isReadOnly) return requiredFormatted.length ? options : availableFormatted
 
     options.push({
       label: 'Add new authentication',

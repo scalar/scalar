@@ -1,4 +1,4 @@
-import { securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
+import { securitySchemeSchema, type Collection } from '@scalar/oas-utils/entities/spec'
 import { describe, expect, it } from 'vitest'
 
 import { filterSecurityRequirements } from './filter-security-requirements'
@@ -37,36 +37,24 @@ describe('filterSecurityRequirements', () => {
   } as const
 
   it('should return empty array when no security requirements exist', () => {
-    const result = filterSecurityRequirements(
-      [],
-      ['bearerAuthUid'],
-      mockSecuritySchemes,
-    )
+    const result = filterSecurityRequirements([], [mockSecuritySchemes.bearerAuthUid.uid], mockSecuritySchemes)
     expect(result).toEqual([])
   })
 
   it('should return empty array when there is only an optional security requirement', () => {
-    const result = filterSecurityRequirements(
-      [{}],
-      ['bearerAuthUid'],
-      mockSecuritySchemes,
-    )
+    const result = filterSecurityRequirements([{}], [mockSecuritySchemes.bearerAuthUid.uid], mockSecuritySchemes)
     expect(result).toEqual([])
   })
 
   it('should return empty array when no security schemes are selected', () => {
-    const result = filterSecurityRequirements(
-      [{ bearerAuth: [] }],
-      [],
-      mockSecuritySchemes,
-    )
+    const result = filterSecurityRequirements([{ bearerAuth: [] }], [], mockSecuritySchemes)
     expect(result).toEqual([])
   })
 
   it('should filter single security requirement correctly', () => {
     const result = filterSecurityRequirements(
       [{ bearerAuth: [] }],
-      ['bearerAuthUid'],
+      [mockSecuritySchemes.bearerAuthUid.uid],
       mockSecuritySchemes,
     )
     expect(result).toEqual([mockSecuritySchemes.bearerAuthUid])
@@ -75,44 +63,35 @@ describe('filterSecurityRequirements', () => {
   it('should filter multiple security requirements correctly', () => {
     const result = filterSecurityRequirements(
       [{ bearerAuth: [] }, { apiKey: [] }, { oauth: [] }],
-      ['apiKeyUid', 'bearerAuthUid'],
+      [mockSecuritySchemes.apiKeyUid.uid, mockSecuritySchemes.bearerAuthUid.uid],
       mockSecuritySchemes,
     )
-    expect(result).toEqual([
-      mockSecuritySchemes.apiKeyUid,
-      mockSecuritySchemes.bearerAuthUid,
-    ])
+    expect(result).toEqual([mockSecuritySchemes.apiKeyUid, mockSecuritySchemes.bearerAuthUid])
   })
 
   it('should filter multiple security requirements correctly (reversed)', () => {
     const result = filterSecurityRequirements(
       [{ bearerAuth: [] }, { apiKey: [] }],
-      ['apiKeyUid', 'bearerAuthUid', 'oauthUid'],
+      [mockSecuritySchemes.apiKeyUid.uid, mockSecuritySchemes.bearerAuthUid.uid, mockSecuritySchemes.oauthUid.uid],
       mockSecuritySchemes,
     )
-    expect(result).toEqual([
-      mockSecuritySchemes.apiKeyUid,
-      mockSecuritySchemes.bearerAuthUid,
-    ])
+    expect(result).toEqual([mockSecuritySchemes.apiKeyUid, mockSecuritySchemes.bearerAuthUid])
   })
 
   it('should handle complex security requirements', () => {
     const result = filterSecurityRequirements(
       [{ bearerAuth: [], apiKey: [] }],
-      [['bearerAuthUid', 'apiKeyUid']],
+      [[mockSecuritySchemes.bearerAuthUid.uid, mockSecuritySchemes.apiKeyUid.uid]],
       mockSecuritySchemes,
     )
 
-    expect(result).toEqual([
-      mockSecuritySchemes.bearerAuthUid,
-      mockSecuritySchemes.apiKeyUid,
-    ])
+    expect(result).toEqual([mockSecuritySchemes.bearerAuthUid, mockSecuritySchemes.apiKeyUid])
   })
 
   it('should return empty array for non-matching security schemes', () => {
     const result = filterSecurityRequirements(
       [{ differentAuth: [] }],
-      ['auth1'],
+      ['auth1'] as Collection['selectedSecuritySchemeUids'],
       mockSecuritySchemes,
     )
     expect(result).toEqual([])

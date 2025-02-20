@@ -14,6 +14,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
 import { createRequestOperation } from './create-request-operation'
+import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -30,13 +31,9 @@ type MetaRequestPayload = {
 }
 
 /** Creates the payload for createRequestOperation */
-export const createRequestPayload = (
-  metaRequestPayload: MetaRequestPayload = {},
-) => {
+export const createRequestPayload = (metaRequestPayload: MetaRequestPayload = {}) => {
   const request = requestSchema.parse(metaRequestPayload.requestPayload ?? {})
-  const server = metaRequestPayload.serverPayload
-    ? serverSchema.parse(metaRequestPayload.serverPayload)
-    : undefined
+  const server = metaRequestPayload.serverPayload ? serverSchema.parse(metaRequestPayload.serverPayload) : undefined
   let example = createExampleFromRequest(request, 'example')
 
   // Overwrite any example properties
@@ -697,7 +694,7 @@ describe('create-request-operation', () => {
           description: 'API key',
         }),
       },
-      selectedSecuritySchemeUids: ['api-key'],
+      selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
     })
 
     if (error) throw error
@@ -719,27 +716,25 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': {
+          'api-key': securitySchemeSchema.parse({
             type: 'apiKey',
             name: 'X-API-KEY',
             in: 'header',
             value: 'test-key',
             uid: 'api-key',
             nameKey: 'X-API-KEY',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['api-key'],
+        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
-      expect(JSON.parse(result?.response.data as string).headers).toMatchObject(
-        {
-          'x-api-key': 'test-key',
-        },
-      )
+      expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
+        'x-api-key': 'test-key',
+      })
     })
 
     it('adds apiKey auth in query', async () => {
@@ -748,16 +743,16 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': {
+          'api-key': securitySchemeSchema.parse({
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
             value: 'test-key',
             uid: 'api-key',
             nameKey: 'api_key',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['api-key'],
+        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
@@ -775,7 +770,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'basic-auth': {
+          'basic-auth': securitySchemeSchema.parse({
             type: 'http',
             scheme: 'basic',
             bearerFormat: 'Basic',
@@ -784,20 +779,18 @@ describe('create-request-operation', () => {
             password: 'pass',
             uid: 'basic-auth',
             nameKey: 'Authorization',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['basic-auth'],
+        selectedSecuritySchemeUids: ['basic-auth'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
-      expect(JSON.parse(result?.response.data as string).headers).toMatchObject(
-        {
-          authorization: `Basic ${btoa('user:pass')}`,
-        },
-      )
+      expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
+        authorization: `Basic ${btoa('user:pass')}`,
+      })
     })
 
     it('adds bearer token header', async () => {
@@ -806,29 +799,25 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'bearer-auth': {
+          'bearer-auth': securitySchemeSchema.parse({
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'Bearer',
-            username: '',
-            password: '',
             uid: 'bearer-auth',
             nameKey: 'Authorization',
             token: 'xxxx',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['bearer-auth'],
+        selectedSecuritySchemeUids: ['bearer-auth'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
-      expect(JSON.parse(result?.response.data as string).headers).toMatchObject(
-        {
-          authorization: 'Bearer xxxx',
-        },
-      )
+      expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
+        authorization: 'Bearer xxxx',
+      })
     })
 
     it('handles complex auth', async () => {
@@ -837,15 +826,15 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': {
+          'api-key': securitySchemeSchema.parse({
             type: 'apiKey',
             name: 'api_key',
             in: 'query',
             value: 'xxxx',
             uid: 'api-key',
             nameKey: 'api_key',
-          },
-          'bearer-auth': {
+          }),
+          'bearer-auth': securitySchemeSchema.parse({
             type: 'http',
             scheme: 'bearer',
             bearerFormat: 'Bearer',
@@ -854,9 +843,9 @@ describe('create-request-operation', () => {
             uid: 'bearer-auth',
             nameKey: 'Authorization',
             token: 'xxxx',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: [['bearer-auth', 'api-key']],
+        selectedSecuritySchemeUids: [['bearer-auth', 'api-key']] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
@@ -874,7 +863,7 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'oauth2-auth': {
+          'oauth2-auth': securitySchemeSchema.parse({
             type: 'oauth2',
             uid: 'oauth2-auth',
             nameKey: 'Authorization',
@@ -890,20 +879,18 @@ describe('create-request-operation', () => {
                 'x-scalar-redirect-uri': 'https://example.com/callback',
               },
             },
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['oauth2-auth'],
+        selectedSecuritySchemeUids: ['oauth2-auth'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
 
       const [requestError, result] = await requestOperation.sendRequest()
 
       expect(requestError).toBe(null)
-      expect(JSON.parse(result?.response.data as string).headers).toMatchObject(
-        {
-          authorization: 'Bearer oauth-token',
-        },
-      )
+      expect(JSON.parse(result?.response.data as string).headers).toMatchObject({
+        authorization: 'Bearer oauth-token',
+      })
     })
 
     it('accepts a lowercase auth header', () => {
@@ -912,16 +899,16 @@ describe('create-request-operation', () => {
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': {
+          'api-key': securitySchemeSchema.parse({
             type: 'apiKey',
             name: 'x-api-key',
             in: 'header',
             value: 'test-key',
             uid: 'api-key',
             nameKey: 'api-key',
-          },
+          }),
         },
-        selectedSecuritySchemeUids: ['api-key'],
+        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
       })
       if (error) throw error
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')

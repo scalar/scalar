@@ -1,16 +1,8 @@
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import type { RequestExample } from '@scalar/oas-utils/entities/spec'
+import { requestExampleSchema } from '@scalar/oas-utils/entities/spec'
 import { mount } from '@vue/test-utils'
-import {
-  type Mock,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest'
+import { type Mock, afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import RequestBody from './RequestBody.vue'
 
@@ -26,14 +18,15 @@ vi.mock('@/store/active-entities', () => ({
 describe('RequestBody.vue', () => {
   const props = { props: { title: 'Body' } }
   const mockActiveRequest = { value: { uid: 'mockRequestUid' } }
-  const mockActiveExample: { value: Partial<RequestExample> } = {
-    value: {
+  const mockActiveExample = {
+    value: requestExampleSchema.parse({
       uid: 'mockExampleUid',
       body: {
         activeBody: 'raw',
       },
-    },
+    }),
   }
+
   const mockActiveEnvironment = { value: { uid: 'mockEnvironmentUid' } }
   const mockActiveEnvVariables = { value: [] }
   const mockActiveWorkspace = { value: {} }

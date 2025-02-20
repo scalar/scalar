@@ -1,7 +1,4 @@
-import {
-  type SecurityScheme,
-  securitySchemeSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { type SecurityScheme, securitySchemeSchema } from '@scalar/oas-utils/entities/spec'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { buildRequestSecurity } from './build-request-security'
@@ -65,7 +62,7 @@ describe('buildRequestSecurity', () => {
         name: 'x-api-key',
         value: 'test-key',
         path: '/',
-        uid: 'x-api-key',
+        uid: 'apiKeyUid',
       })
     })
   })
@@ -74,9 +71,7 @@ describe('buildRequestSecurity', () => {
     it('should handle basic auth', () => {
       basic.scheme = 'basic'
       const result = buildRequestSecurity([basic])
-      expect(result.headers['Authorization']).toBe(
-        `Basic ${btoa('scalar:user')}`,
-      )
+      expect(result.headers['Authorization']).toBe(`Basic ${btoa('scalar:user')}`)
     })
 
     it('should handle basic auth with empty credentials', () => {

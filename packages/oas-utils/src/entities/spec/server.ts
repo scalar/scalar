@@ -1,4 +1,4 @@
-import { nanoidSchema } from '@/entities/shared'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 import type { OpenAPIV3_1 } from '@scalar/openapi-types'
 import { type ZodSchema, z } from 'zod'
 
@@ -34,11 +34,7 @@ const extendedServerVariableSchema = oasServerVariableSchema
   })
   .refine((data) => {
     // Set default to the first enum value if invalid
-    if (
-      Array.isArray(data.enum) &&
-      !data.enum.includes(data.default ?? '') &&
-      data.enum.length > 0
-    ) {
+    if (Array.isArray(data.enum) && !data.enum.includes(data.default ?? '') && data.enum.length > 0) {
       data.default = data.enum[0]
     }
 
@@ -79,7 +75,7 @@ export const oasServerSchema = z.object({
 }) satisfies ZodSchema<OpenAPIV3_1.ServerObject>
 
 export const serverSchema = oasServerSchema.extend({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand<ENTITY_BRANDS['SERVER']>(),
 })
 
 export type Server = z.infer<typeof serverSchema>

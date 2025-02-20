@@ -1,12 +1,6 @@
 import type { StoreContext } from '@/store/store-context'
-import {
-  collectionSchema,
-  requestExampleSchema,
-} from '@scalar/oas-utils/entities/spec'
-import {
-  type Workspace,
-  workspaceSchema,
-} from '@scalar/oas-utils/entities/workspace'
+import { collectionSchema, requestExampleSchema } from '@scalar/oas-utils/entities/spec'
+import { type Workspace, workspaceSchema } from '@scalar/oas-utils/entities/workspace'
 import { LS_KEYS } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
@@ -17,11 +11,7 @@ import { createInitialRequest } from './requests'
 export function createStoreWorkspaces(useLocalStorage: boolean) {
   /** Active workspace object (will be associated with an entry in the workspace collection) */
   const workspaces = reactive<Record<string, Workspace>>({})
-  const workspaceMutators = mutationFactory(
-    workspaces,
-    reactive({}),
-    useLocalStorage && LS_KEYS.WORKSPACE,
-  )
+  const workspaceMutators = mutationFactory(workspaces, reactive({}), useLocalStorage && LS_KEYS.WORKSPACE)
 
   return {
     workspaces,
@@ -71,7 +61,7 @@ export function extendedWorkspaceDataFactory({
   }
 
   /** Prevent deletion of the default workspace */
-  const deleteWorkspace = (uid: string) => {
+  const deleteWorkspace = (uid: Workspace['uid']) => {
     if (Object.keys(workspaces).length <= 1) {
       console.warn('The last workspace cannot be deleted.')
       return

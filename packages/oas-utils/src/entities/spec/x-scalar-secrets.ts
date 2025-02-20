@@ -6,5 +6,4 @@ export const xScalarSecretVarSchema = z.object({
 })
 
 export const xScalarSecretsSchema = z.record(z.string(), xScalarSecretVarSchema)
-
 export type XScalarSecrets = z.infer<typeof xScalarSecretsSchema>

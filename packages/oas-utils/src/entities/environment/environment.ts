@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-import { nanoidSchema } from '../shared'
+import { type ENTITY_BRANDS, nanoidSchema } from '@/entities/shared/utility'
 
 export const environmentSchema = z.object({
-  uid: nanoidSchema,
+  uid: nanoidSchema.brand<ENTITY_BRANDS['ENVIRONMENT']>(),
   name: z.string().optional().default('Default Environment'),
   color: z.string().optional().default('#0082D0'),
   value: z.string().default(''),

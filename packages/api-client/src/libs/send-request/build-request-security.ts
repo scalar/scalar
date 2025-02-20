@@ -1,5 +1,5 @@
 import { replaceTemplateVariables } from '@/libs/string-template'
-import type { Cookie } from '@scalar/oas-utils/entities/cookie'
+import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
 import type { SecurityScheme } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 
@@ -20,18 +20,19 @@ export const buildRequestSecurity = (
   securitySchemes.forEach((scheme) => {
     // Scheme type and example value type should always match
     if (scheme.type === 'apiKey') {
-      const value =
-        replaceTemplateVariables(scheme.value, env) || emptyTokenPlaceholder
+      const value = replaceTemplateVariables(scheme.value, env) || emptyTokenPlaceholder
 
       if (scheme.in === 'header') headers[scheme.name] = value
       if (scheme.in === 'query') urlParams.append(scheme.name, value)
       if (scheme.in === 'cookie') {
-        cookies.push({
-          name: scheme.name,
-          value,
-          path: '/',
-          uid: scheme.name,
-        })
+        cookies.push(
+          cookieSchema.parse({
+            uid: scheme.uid,
+            name: scheme.name,
+            value,
+            path: '/',
+          }),
+        )
       }
     }
 
@@ -41,8 +42,7 @@ export const buildRequestSecurity = (
         const password = replaceTemplateVariables(scheme.password, env)
         const value = `${username}:${password}`
 
-        headers['Authorization'] =
-          `Basic ${value === ':' ? 'username:password' : btoa(value)}`
+        headers['Authorization'] = `Basic ${value === ':' ? 'username:password' : btoa(value)}`
       } else {
         const value = replaceTemplateVariables(scheme.token, env)
         headers['Authorization'] = `Bearer ${value || emptyTokenPlaceholder}`

@@ -17,11 +17,7 @@ import type { StoreContext } from './store-context'
 export function createStoreRequests(useLocalStorage: boolean) {
   /** Local list of all requests (will be associated with a database collection) */
   const requests = reactive<Record<string, Request>>({})
-  const requestMutators = mutationFactory(
-    requests,
-    reactive({}),
-    useLocalStorage && LS_KEYS.REQUEST,
-  )
+  const requestMutators = mutationFactory(requests, reactive({}), useLocalStorage && LS_KEYS.REQUEST)
 
   return {
     requests,
@@ -48,7 +44,7 @@ export function extendedRequestDataFactory(
   addTag: AddTag,
 ) {
   /** Add request */
-  const addRequest = (payload: RequestPayload, collectionUid: string) => {
+  const addRequest = (payload: RequestPayload, collectionUid: Collection['uid']) => {
     const request = schemaModel(payload, requestSchema, false)
     if (!request) return console.error('INVALID REQUEST DATA', payload)
 
@@ -69,39 +65,26 @@ export function extendedRequestDataFactory(
 
     // Add the request to the collection
     if (collection) {
-      collectionMutators.edit(collectionUid, 'requests', [
-        ...collection.requests,
-        request.uid,
-      ])
+      collectionMutators.edit(collectionUid, 'requests', [...collection.requests, request.uid])
     }
 
     // Add to the tags
     if (request.tags?.length)
       request.tags.forEach((tagName) => {
-        const tagUid = collection?.tags.find(
-          (uid) => tags[uid]?.name === tagName,
-        )
+        const tagUid = collection?.tags.find((uid) => tags[uid]?.name === tagName)
 
-        if (tagUid && tags[tagUid])
-          tagMutators.edit(tagUid, 'children', [
-            ...tags[tagUid].children,
-            request.uid,
-          ])
+        if (tagUid && tags[tagUid]) tagMutators.edit(tagUid, 'children', [...tags[tagUid].children, request.uid])
         // We must add a new tag
         else addTag({ name: tagName, children: [request.uid] }, collectionUid)
       })
     // Add to the collection children if no tags
-    else if (collection)
-      collectionMutators.edit(collectionUid, 'children', [
-        ...collection.children,
-        request.uid,
-      ])
+    else if (collection) collectionMutators.edit(collectionUid, 'children', [...collection.children, request.uid])
 
     return request
   }
 
   /** Delete request */
-  const deleteRequest = (request: Request, collectionUid: string) => {
+  const deleteRequest = (request: Request, collectionUid: Collection['uid']) => {
     const collection = collections[collectionUid]
 
     // Remove all examples
@@ -124,16 +107,10 @@ export function extendedRequestDataFactory(
 
       // And from all tags
       request.tags?.forEach((tagName) => {
-        const tagUid = collection.tags.find(
-          (uid) => tags[uid]?.name === tagName,
-        )
+        const tagUid = collection.tags.find((uid) => tags[uid]?.name === tagName)
         if (!tagUid) return
 
-        tagMutators.edit(
-          tagUid,
-          'children',
-          tags[tagUid]?.children.filter((r) => r !== request.uid) || [],
-        )
+        tagMutators.edit(tagUid, 'children', tags[tagUid]?.children.filter((r) => r !== request.uid) || [])
       })
     }
 
@@ -158,9 +135,7 @@ export function findRequestParentsFactory({
 }) {
   /** Recursively find all parent folders (tags and collections) of a request */
   function findRequestParentss(r: Request) {
-    const collection = Object.values(collections).find((c) =>
-      c.requests?.includes(r.uid),
-    )
+    const collection = Object.values(collections).find((c) => c.requests?.includes(r.uid))
     if (!collection) return []
 
     // Initialized an empty children array for each tag and once for the top level collection

@@ -1,4 +1,9 @@
 <script setup lang="ts">
+import { useModal } from '@scalar/components'
+import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import { computed, onBeforeUnmount, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import { Sidebar } from '@/components'
 import EmptyState from '@/components/EmptyState.vue'
 import SidebarButton from '@/components/Sidebar/SidebarButton.vue'
@@ -9,10 +14,6 @@ import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import type { HotKeyEvent } from '@/libs'
 import { PathId } from '@/routes'
 import { useActiveEntities, useWorkspace } from '@/store'
-import { useModal } from '@scalar/components'
-import { type Cookie, cookieSchema } from '@scalar/oas-utils/entities/cookie'
-import { computed, onBeforeUnmount, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 
 import CookieForm from './CookieForm.vue'
 import CookieModal from './CookieModal.vue'
@@ -41,7 +42,7 @@ const addCookieHandler = (cookieData: {
   cookieMutators.add(cookie)
 
   // Attach cookie to workspace
-  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
+  workspaceMutators.edit(activeWorkspace.value?.uid, 'cookies', [
     ...(activeWorkspace.value?.cookies ?? []),
     cookie.uid,
   ])
@@ -55,11 +56,11 @@ const addCookieHandler = (cookieData: {
   })
 }
 
-const removeCookie = (uid: string) => {
+const removeCookie = (uid: Cookie['uid']) => {
   cookieMutators.delete(uid)
 
   // Delete cookie from workspace
-  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'cookies', [
+  workspaceMutators.edit(activeWorkspace.value?.uid, 'cookies', [
     ...(activeWorkspace.value?.cookies ?? []).filter((c) => c !== uid),
   ])
 
@@ -140,8 +141,8 @@ const hasCookies = computed(
             <li
               v-for="cookie in Object.values(cookies)"
               :key="cookie.uid"
-              class="flex flex-col gap-1/2">
-              <div class="mb-[.5px] last:mb-0 relative">
+              class="gap-1/2 flex flex-col">
+              <div class="relative mb-[.5px] last:mb-0">
                 <SidebarListElement
                   :key="cookie.uid"
                   class="text-xs"
@@ -160,7 +161,7 @@ const hasCookies = computed(
         <SidebarButton
           :click="openCookieModal"
           hotkey="N">
-          <template #title>Add Cookie</template>
+          <template #title> Add Cookie </template>
         </SidebarButton>
       </template>
     </Sidebar>

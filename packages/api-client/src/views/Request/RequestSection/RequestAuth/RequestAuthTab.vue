@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { DataTableCell, DataTableRow } from '@/components/DataTable'
-import { useWorkspace } from '@/store/store'
 import type { Workspace } from '@scalar/oas-utils/entities'
 import type {
   Collection,
@@ -9,6 +7,9 @@ import type {
 } from '@scalar/oas-utils/entities/spec'
 import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { capitalize, computed, ref } from 'vue'
+
+import { DataTableCell, DataTableRow } from '@/components/DataTable'
+import { useWorkspace } from '@/store/store'
 
 import OAuth2 from './OAuth2.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
@@ -57,7 +58,10 @@ const generateLabel = (scheme: SecurityScheme) => {
 }
 
 /** Update the scheme */
-const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
+const updateScheme = <
+  U extends SecurityScheme['uid'],
+  P extends Path<SecurityScheme>,
+>(
   uid: U,
   path: P,
   value: NonNullable<PathValue<SecurityScheme, P>>,
@@ -75,7 +79,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
         'request-example-references-header': layout === 'reference',
       }">
       <DataTableCell
-        class="text-c-3 pl-2 font-medium flex items-center"
+        class="text-c-3 flex items-center pl-2 font-medium"
         :class="
           layout === 'reference' && `border-t ${index !== 0 ? 'mt-2' : ''}`
         ">
@@ -150,23 +154,23 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
       <DataTableRow>
         <div
           v-if="Object.keys(scheme.flows).length > 1"
-          class="border-t min-h-8 flex text-sm">
-          <div class="flex h-8 gap-2.5 px-3 max-w-full overflow-x-auto">
+          class="flex min-h-8 border-t text-sm">
+          <div class="flex h-8 max-w-full gap-2.5 overflow-x-auto px-3">
             <button
               v-for="(_, key, ind) in scheme?.flows"
               :key="key"
-              class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium text-c-3"
+              class="floating-bg text-c-3 relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
               :class="{
-                '!text-c-1 !border-current border-b-[1px] !rounded-none':
+                '!text-c-1 !rounded-none border-b-[1px] !border-current':
                   layout !== 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
-                '!text-c-1 !border-current border-b-[1px] !rounded-none opacity-100':
+                '!text-c-1 !rounded-none border-b-[1px] !border-current opacity-100':
                   layout === 'reference' &&
                   (activeFlow === key || (ind === 0 && !activeFlow)),
               }"
               type="button"
               @click="activeFlow = key">
-              <span class="z-10 relative">{{ key }}</span>
+              <span class="relative z-10">{{ key }}</span>
             </button>
           </div>
         </div>
@@ -187,7 +191,7 @@ const updateScheme = <U extends string, P extends Path<SecurityScheme>>(
     <!-- Open ID Connect -->
     <template v-else-if="scheme?.type === 'openIdConnect'">
       <div
-        class="border-t text-c-3 px-4 text-sm min-h-16 justify-center flex items-center bg-b-1">
+        class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm">
         Coming soon
       </div>
     </template>

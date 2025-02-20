@@ -16,9 +16,7 @@ describe('migrate_v_2_5_0', () => {
         activeBody: 'raw',
       },
       parameters: {
-        headers: [
-          { key: 'Content-Type', value: 'application/json', enabled: true },
-        ],
+        headers: [{ key: 'Content-Type', value: 'application/json', enabled: true }],
         path: [],
         query: [],
         cookies: [],
@@ -42,13 +40,9 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
-    expect(result.requestExamples.example1.parameters.headers[0].key).toBe(
-      'Accept',
-    )
-    expect(result.requestExamples.example1.parameters.headers[0].value).toBe(
-      '*/*',
-    )
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
+    expect(result.requestExamples.example1.parameters.headers[0].key).toBe('Accept')
+    expect(result.requestExamples.example1.parameters.headers[0].value).toBe('*/*')
   })
 
   it('should not add "Accept" header if it already exists', () => {
@@ -88,14 +82,10 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
     expect(result.requestExamples.example2.parameters.headers.length).toBe(2)
-    expect(result.requestExamples.example2.parameters.headers[0].key).toBe(
-      'Accept',
-    )
-    expect(result.requestExamples.example2.parameters.headers[0].value).toBe(
-      'application/json',
-    )
+    expect(result.requestExamples.example2.parameters.headers[0].key).toBe('Accept')
+    expect(result.requestExamples.example2.parameters.headers[0].value).toBe('application/json')
   })
 
   it('should add default selectedHttpClient to workspaces', () => {
@@ -131,7 +121,7 @@ describe('migrate_v_2_5_0', () => {
     const result = migrate_v_2_5_0(mockData)
 
     // Assertions
-    expectTypeOf(result).toMatchTypeOf<v_2_5_0.DataRecord>()
+    expectTypeOf(result).toMatchTypeOf<v_2_5_0['DataRecord']>()
     expect(result.workspaces.default.selectedHttpClient).toEqual({
       targetKey: 'shell',
       clientKey: 'curl',

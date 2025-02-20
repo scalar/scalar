@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { DataTable } from '@/components/DataTable'
 import { useModal } from '@scalar/components'
-import type { Collection, Server } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  SecurityScheme,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref, watch } from 'vue'
+
+import { DataTable } from '@/components/DataTable'
 
 import DeleteRequestAuthModal from './DeleteRequestAuthModal.vue'
 import RequestAuthTab from './RequestAuthTab.vue'
@@ -23,7 +28,9 @@ const {
 }>()
 
 const deleteSchemeModal = useModal()
-const selectedScheme = ref<{ id: string; label: string } | null>(null)
+const selectedScheme = ref<{ id: SecurityScheme['uid']; label: string } | null>(
+  null,
+)
 
 /** Add new ref for active tab */
 const activeAuthIndex = ref(0)
@@ -49,25 +56,25 @@ watch(
   <form @submit.prevent>
     <div
       v-if="selectedSchemeOptions.length > 1"
-      class="border-t flex px-3 flex-wrap gap-x-2.5 overflow-hidden">
+      class="flex flex-wrap gap-x-2.5 overflow-hidden border-t px-3">
       <div
         v-for="(option, index) in selectedSchemeOptions"
         :key="option.id"
-        class="flex relative h-8 z-1 cursor-pointer -mb-[var(--scalar-border-width)]"
+        class="z-1 relative -mb-[var(--scalar-border-width)] flex h-8 cursor-pointer"
         :class="[activeAuthIndex === index ? 'text-c-1' : 'text-c-3']">
         <button
-          class="floating-bg py-1 text-sm border-b-[1px] border-transparent relative cursor-pointer font-medium"
+          class="floating-bg relative cursor-pointer border-b-[1px] border-transparent py-1 text-sm font-medium"
           type="button"
           @click="activeAuthIndex = index">
-          <span class="whitespace-nowrap font-medium z-10 relative">{{
+          <span class="relative z-10 whitespace-nowrap font-medium">{{
             option.label
           }}</span>
         </button>
         <div
-          class="absolute bottom-0 z-0 -inset-x-96 h-[var(--scalar-border-width)] bg-border" />
+          class="bg-border absolute -inset-x-96 bottom-0 z-0 h-[var(--scalar-border-width)]" />
         <div
           v-if="activeAuthIndex === index"
-          class="absolute bottom-[var(--scalar-border-width)] z-1 inset-x-1 h-px bg-current left-1/2 -translate-x-1/2 w-full" />
+          class="z-1 absolute inset-x-1 bottom-[var(--scalar-border-width)] left-1/2 h-px w-full -translate-x-1/2 bg-current" />
       </div>
     </div>
 
@@ -86,7 +93,7 @@ watch(
 
     <div
       v-else
-      class="text-c-3 px-4 text-sm border-t min-h-16 justify-center flex items-center bg-b-1">
+      class="text-c-3 bg-b-1 flex min-h-16 items-center justify-center border-t px-4 text-sm">
       No authentication selected
     </div>
 

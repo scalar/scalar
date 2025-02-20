@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
 import { useSearch } from './useSearch'
+import { operationSchema } from '@scalar/oas-utils/entities/spec'
 
 // Mocking the necessary modules and functions
 vi.mock('vue-router', () => ({
@@ -36,12 +37,7 @@ vi.mock('@/store/active-entities', () => ({
 
 describe('useSearch', () => {
   it('initializes with default values', () => {
-    const {
-      searchText,
-      searchResultsWithPlaceholderResults,
-      selectedSearchResult,
-      populateFuseDataArray,
-    } = useSearch()
+    const { searchText, searchResultsWithPlaceholderResults, selectedSearchResult, populateFuseDataArray } = useSearch()
 
     console.log(populateFuseDataArray)
     expect(searchText.value).toBe('')
@@ -50,57 +46,35 @@ describe('useSearch', () => {
   })
 
   it('performs a search and updates results', () => {
-    const {
-      populateFuseDataArray,
-      searchText,
-      fuseSearch,
-      searchResultsWithPlaceholderResults,
-    } = useSearch()
+    const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      {
+      operationSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
-        type: 'request',
         method: 'get',
-        selectedSecuritySchemeUids: [],
-        selectedServerUid: '',
-        servers: [],
-        examples: [],
-      },
+      }),
     ])
 
     searchText.value = 'test'
     fuseSearch()
 
     expect(searchResultsWithPlaceholderResults.value).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ item: expect.any(Object) }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ item: expect.any(Object) })]),
     )
   })
 
   it('returns results for requests', () => {
-    const {
-      populateFuseDataArray,
-      searchText,
-      fuseSearch,
-      searchResultsWithPlaceholderResults,
-    } = useSearch()
+    const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      {
+      operationSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
-        type: 'request',
         method: 'get',
-        selectedSecuritySchemeUids: [],
-        selectedServerUid: '',
-        servers: [],
-        examples: [],
-      },
+      }),
     ])
     searchText.value = 'Request 1'
     fuseSearch()
@@ -124,37 +98,22 @@ describe('useSearch', () => {
   })
 
   it('filters out requests with x-internal: true', () => {
-    const {
-      populateFuseDataArray,
-      searchText,
-      fuseSearch,
-      searchResultsWithPlaceholderResults,
-    } = useSearch()
+    const { populateFuseDataArray, searchText, fuseSearch, searchResultsWithPlaceholderResults } = useSearch()
 
     populateFuseDataArray([
-      {
+      operationSchema.parse({
         uid: 'request1',
         summary: 'Request 1',
         path: '/path1',
-        type: 'request',
         method: 'get',
-        selectedSecuritySchemeUids: [],
-        selectedServerUid: '',
-        servers: [],
-        examples: [],
-      },
-      {
+      }),
+      operationSchema.parse({
         'uid': 'request2',
         'summary': 'Request 2',
         'path': '/path2',
-        'type': 'request',
         'method': 'get',
-        'selectedSecuritySchemeUids': [],
-        'selectedServerUid': '',
-        'servers': [],
-        'examples': [],
         'x-internal': true,
-      },
+      }),
     ])
 
     searchText.value = 'Request'
