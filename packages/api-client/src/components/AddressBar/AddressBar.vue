@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { ScalarButton, ScalarIcon } from '@scalar/components'
+import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
+import { ref, useId, watch } from 'vue'
+
 import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ServerDropdown } from '@/components/Server'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
-import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
-import { ref, useId, watch } from 'vue'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
@@ -127,19 +128,19 @@ function updateRequestPath(url: string) {
   <div
     v-if="activeRequest && activeExample"
     :id="id"
-    class="scalar-address-bar order-last lg:order-none lg:w-auto w-full [--scalar-address-bar-height:32px] h-[--scalar-address-bar-height]">
+    class="scalar-address-bar order-last h-[--scalar-address-bar-height] w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
     <div class="m-auto flex flex-row items-center">
       <!-- Address Bar -->
       <div
-        class="addressbar-bg-states group text-xxs relative flex w-full xl:min-w-[720px] xl:max-w-[720px] lg:min-w-[580px] lg:max-w-[580px] order-last lg:order-none flex-1 flex-row items-stretch rounded-lg p-0.75 max-w-[calc(100dvw-24px)]">
+        class="addressbar-bg-states text-xxs p-0.75 group relative order-last flex w-full max-w-[calc(100dvw-24px)] flex-1 flex-row items-stretch rounded-lg lg:order-none lg:min-w-[580px] lg:max-w-[580px] xl:min-w-[720px] xl:max-w-[720px]">
         <div
-          class="border rounded-lg pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden">
+          class="pointer-events-none absolute left-0 top-0 block h-full w-full overflow-hidden rounded-lg border">
           <div
-            class="bg-mix-transparent bg-mix-amount-90 absolute left-0 top-0 h-full w-full z-context"
+            class="bg-mix-transparent bg-mix-amount-90 z-context absolute left-0 top-0 h-full w-full"
             :class="getBackgroundColor()"
-            :style="{ transform: `translate3d(-${percentage}%,0,0)` }"></div>
+            :style="{ transform: `translate3d(-${percentage}%,0,0)` }" />
         </div>
-        <div class="flex gap-1 z-context-plus">
+        <div class="z-context-plus flex gap-1">
           <HttpMethod
             :isEditable="layout !== 'modal'"
             isSquare
@@ -159,12 +160,12 @@ function updateRequestPath(url: string) {
             :server="activeServer"
             :target="id" />
 
-          <div class="fade-left"></div>
+          <div class="fade-left" />
           <!-- Path + URL + env vars -->
           <CodeInput
             ref="addressBarRef"
             aria-label="Path"
-            class="outline-none min-w-fit"
+            class="min-w-fit outline-none"
             disableCloseBrackets
             :disabled="layout === 'modal'"
             disableEnter
@@ -182,22 +183,22 @@ function updateRequestPath(url: string) {
             @curl="$emit('importCurl', $event)"
             @submit="handleExecuteRequest"
             @update:modelValue="updateRequestPath" />
-          <div class="fade-right"></div>
+          <div class="fade-right" />
         </div>
 
         <AddressBarHistory :target="id" />
         <ScalarButton
-          class="relative h-auto shrink-0 z-context-plus overflow-hidden pl-2 pr-2.5 py-1 font-bold"
+          class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pl-2 pr-2.5 font-bold"
           :disabled="isRequesting"
           @click="handleExecuteRequest">
           <span
             aria-hidden="true"
-            class="inline-flex gap-1 items-center">
+            class="inline-flex items-center gap-1">
             <ScalarIcon
               class="relative shrink-0 fill-current"
               icon="Play"
               size="xs" />
-            <span class="text-xxs lg:flex hidden">Send</span>
+            <span class="text-xxs hidden lg:flex">Send</span>
           </span>
           <span class="sr-only"> Send Request </span>
         </ScalarButton>
