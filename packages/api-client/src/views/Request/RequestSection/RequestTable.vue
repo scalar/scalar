@@ -9,7 +9,11 @@ import DataTableCell from '@/components/DataTable/DataTableCell.vue'
 import DataTableCheckbox from '@/components/DataTable/DataTableCheckbox.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
 
-import { hasItemProperties, parameterIsInvalid } from '../libs/request'
+import {
+  hasEmptyRequiredParameter,
+  hasItemProperties,
+  parameterIsInvalid,
+} from '../libs/request'
 import RequestTableTooltip from './RequestTableTooltip.vue'
 
 const props = withDefaults(
@@ -69,6 +73,7 @@ const flattenValue = (item: RequestExampleParameter) => {
       :key="idx"
       :class="{
         alert: parameterIsInvalid(item).value,
+        error: hasEmptyRequiredParameter(item),
       }">
       <label class="contents">
         <template v-if="isGlobal">
