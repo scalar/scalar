@@ -1,5 +1,11 @@
 # @scalar/build-tooling
 
+## 0.1.14
+
+### Patch Changes
+
+- e350f23: chore: code style
+
 ## 0.1.13
 
 ### Patch Changes

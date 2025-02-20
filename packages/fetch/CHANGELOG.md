@@ -1,5 +1,11 @@
 # @scalar/fetch
 
+## 0.1.3
+
+### Patch Changes
+
+- e350f23: chore: code style
+
 ## 0.1.2
 
 ### Patch Changes

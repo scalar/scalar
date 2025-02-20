@@ -1,5 +1,11 @@
 # @scalar/openapi-types
 
+## 0.1.8
+
+### Patch Changes
+
+- e350f23: chore: code style
+
 ## 0.1.7
 
 ### Patch Changes

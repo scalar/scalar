@@ -1,5 +1,15 @@
 # @scalar/api-reference-react
 
+## 0.4.30
+
+### Patch Changes
+
+- e350f23: chore: code style
+- Updated dependencies [e350f23]
+- Updated dependencies [738d21c]
+- Updated dependencies [459ad57]
+  - @scalar/api-reference@1.25.121
+
 ## 0.4.29
 
 ### Patch Changes
