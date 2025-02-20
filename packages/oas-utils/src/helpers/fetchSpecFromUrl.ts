@@ -12,14 +12,10 @@ const NEW_PROXY_URL = 'https://proxy.scalar.com'
  *
  * @throws an error if the fetch fails
  */
-export async function fetchSpecFromUrl(
-  url: string,
-  proxy?: string,
-  beautify = true,
-): Promise<string> {
+export async function fetchSpecFromUrl(url: string, proxy?: string, beautify = true): Promise<string> {
   // This replaces the OLD_PROXY_URL with the NEW_PROXY_URL on the fly.
   if (proxy === OLD_PROXY_URL) {
-    // eslint-disable-next-line no-param-reassign
+    // biome-ignore lint/style/noParameterAssign: It’s ok, let’s make an exception here.
     proxy = NEW_PROXY_URL
   }
 
@@ -28,9 +24,7 @@ export async function fetchSpecFromUrl(
 
   // Looks like the request failed
   if (response.status !== 200) {
-    console.error(
-      `[fetchSpecFromUrl] Failed to fetch the specification at ${url} (Status: ${response.status})`,
-    )
+    console.error(`[fetchSpecFromUrl] Failed to fetch the specification at ${url} (Status: ${response.status})`)
 
     if (!proxy) {
       console.warn(
@@ -38,9 +32,7 @@ export async function fetchSpecFromUrl(
       )
     }
 
-    throw new Error(
-      `Failed to fetch the specification (Status: ${response.status})`,
-    )
+    throw new Error(`Failed to fetch the specification (Status: ${response.status})`)
   }
 
   // If it’s JSON, make it pretty

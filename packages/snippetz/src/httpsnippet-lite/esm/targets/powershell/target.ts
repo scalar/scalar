@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { restmethod } from './restmethod/client.js'
 import { webrequest } from './webrequest/client.js'
