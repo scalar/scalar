@@ -84,7 +84,8 @@ describe('validate', async () => {
     })
   })
 
-  it('throws an error for invalid documents', async () => {
+  // TODO: Doesn’t throw since we disabled fetching URLs/files passed as an OpenAPI document.
+  it.skip('throws an error for invalid documents', async () => {
     return new Promise((resolve, reject) => {
       SwaggerParser.validate('invalid', (err) => {
         if (err) {
@@ -112,7 +113,8 @@ describe('dereference', () => {
     expect(api?.paths?.['/foobar']?.post?.requestBody?.content).toEqual({})
   })
 
-  it('dereferences URLs', async () => {
+  // TODO: We don’t want this behaviour in the new parser.
+  it.skip('dereferences URLs', async () => {
     // @ts-expect-error
     fetch.mockImplementation(async (url: string) => ({
       text: async () => {
@@ -133,7 +135,8 @@ describe('dereference', () => {
     expect(api?.paths?.['/foobar']?.post?.requestBody?.content).toEqual({})
   })
 
-  it('dereferences files', async () => {
+  // TODO: We don’t want this behaviour in the new parser.
+  it.skip('dereferences files', async () => {
     const EXAMPLE_FILE = path.join(
       new URL(import.meta.url).pathname,
       '../../tests/migration-layer.json',
