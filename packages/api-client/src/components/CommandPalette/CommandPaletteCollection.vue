@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import IconSelector from '@/components/IconSelector.vue'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { ScalarButton } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
 import { useToasts } from '@scalar/use-toasts'
 import { ref } from 'vue'
+
+import IconSelector from '@/components/IconSelector.vue'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -26,6 +27,10 @@ const handleSubmit = () => {
     toast('Please enter a name before creating a collection.', 'error')
     return
   }
+  if (!activeWorkspace.value?.uid) {
+    toast('No active workspace found.', 'error')
+    return
+  }
 
   collectionMutators.add(
     {
@@ -36,7 +41,7 @@ const handleSubmit = () => {
       },
       'x-scalar-icon': collectionIcon.value,
     },
-    activeWorkspace.value?.uid ?? '',
+    activeWorkspace.value?.uid,
   )
   emits('close')
 }
@@ -55,14 +60,14 @@ const handleSubmit = () => {
         v-model="collectionIcon"
         placement="bottom-start">
         <ScalarButton
-          class="aspect-square px-0 h-auto"
+          class="aspect-square h-auto px-0"
           variant="outlined">
           <LibraryIcon
-            class="size-4 text-c-2 stroke-[1.75]"
+            class="text-c-2 size-4 stroke-[1.75]"
             :src="collectionIcon" />
         </ScalarButton>
       </IconSelector>
     </template>
-    <template #submit>Create Collection</template>
+    <template #submit> Create Collection </template>
   </CommandActionForm>
 </template>

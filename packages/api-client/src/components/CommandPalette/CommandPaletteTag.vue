@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
-  type ScalarComboboxOption,
   ScalarIcon,
   ScalarListbox,
+  type ScalarComboboxOption,
 } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
+
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -30,7 +31,7 @@ const availableCollections = computed(() =>
 )
 
 const name = ref('')
-const selectedCollection = ref<ScalarComboboxOption | undefined>(
+const selectedCollection = ref(
   availableCollections.value.find(
     (option) => option.id === activeCollection.value?.uid,
   ),
@@ -66,7 +67,7 @@ const handleSubmit = () => {
         v-model="selectedCollection"
         :options="availableCollections">
         <ScalarButton
-          class="justify-between p-2 max-h-8 w-fit gap-1 text-xs hover:bg-b-2"
+          class="hover:bg-b-2 max-h-8 w-fit justify-between gap-1 p-2 text-xs"
           variant="outlined">
           <span :class="selectedCollection ? 'text-c-1' : 'text-c-3'">{{
             selectedCollection ? selectedCollection.label : 'Select Collection'
@@ -78,6 +79,6 @@ const handleSubmit = () => {
         </ScalarButton>
       </ScalarListbox>
     </template>
-    <template #submit>Create Tag</template>
+    <template #submit> Create Tag </template>
   </CommandActionForm>
 </template>
