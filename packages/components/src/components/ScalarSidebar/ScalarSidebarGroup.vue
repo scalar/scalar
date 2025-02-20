@@ -22,6 +22,7 @@ import type { Component } from 'vue'
 import { useBindCx } from '../../hooks/useBindCx'
 import ScalarSidebarButton from './ScalarSidebarButton.vue'
 import ScalarSidebarGroupToggle from './ScalarSidebarGroupToggle.vue'
+import ScalarSidebarIndent from './ScalarSidebarIndent.vue'
 import { useSidebarGroups } from './useSidebarGroups'
 
 const { is = 'ul' } = defineProps<{
@@ -45,17 +46,26 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="contents">
+  <li class="group/item contents">
     <slot
+      :level="level"
       name="button"
       :open="open">
       <ScalarSidebarButton
         is="button"
         :aria-expanded="open"
+        class="text-c-1 bg-b-1"
         :indent="level"
         @click="open = !open">
+        <template #indent>
+          <ScalarSidebarIndent
+            class="mr-0"
+            :indent="level" />
+        </template>
         <template #icon>
-          <ScalarSidebarGroupToggle :open="open" />
+          <ScalarSidebarGroupToggle
+            class="text-c-3"
+            :open="open" />
         </template>
         <slot :open="open" />
       </ScalarSidebarButton>
@@ -63,7 +73,7 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col')">
+      v-bind="cx('flex flex-col gap-px')">
       <slot
         name="items"
         :open="open" />
