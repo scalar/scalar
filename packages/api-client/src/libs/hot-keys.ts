@@ -1,12 +1,6 @@
 import type { EventBus } from '@/libs'
-import type {
-  HotkeyEventName,
-  KeydownKey,
-} from '@scalar/oas-utils/entities/hotkeys'
-import type {
-  HotKeyConfig,
-  HotKeyModifiers,
-} from '@scalar/oas-utils/entities/workspace'
+import type { HotkeyEventName, KeydownKey } from '@scalar/oas-utils/entities/hotkeys'
+import type { HotKeyConfig, HotKeyModifiers } from '@scalar/oas-utils/entities/workspace'
 import { isMacOS } from '@scalar/use-tooltip'
 
 export type HotKeyEvent = Partial<Record<HotkeyEventName, KeyboardEvent>>
@@ -55,7 +49,7 @@ export const DEFAULT_HOTKEYS: HotKeyConfig = {
 }
 
 /** Checks if we are in an "input" */
-const isInput = (ev: KeyboardEvent) => {
+export const isInput = (ev: KeyboardEvent) => {
   if (!(ev.target instanceof HTMLElement)) return false
   const target = ev.target
 
@@ -63,6 +57,7 @@ const isInput = (ev: KeyboardEvent) => {
   if (target.tagName === 'INPUT') return !inputHotkeys.includes(ev.key)
   if (target.tagName === 'TEXTAREA') return true
   if (target.getAttribute('contenteditable')) return true
+  if (target.contentEditable === 'true') return true
 
   return false
 }
@@ -75,15 +70,8 @@ const MODIFIER_DICT = {
 } as const
 
 /** Converts our modifier config to the eventKey */
-export const getModifiers = (modifiers: HotKeyModifiers) => {
-  return modifiers.map((modifier) =>
-    modifier === 'default'
-      ? isMacOS()
-        ? 'metaKey'
-        : 'ctrlKey'
-      : MODIFIER_DICT[modifier],
-  )
-}
+export const getModifiers = (modifiers: HotKeyModifiers) =>
+  modifiers.map((modifier) => (modifier === 'default' ? (isMacOS() ? 'metaKey' : 'ctrlKey') : MODIFIER_DICT[modifier]))
 
 /**
  * Global keydown handler for hotkeys
@@ -93,10 +81,7 @@ export const getModifiers = (modifiers: HotKeyModifiers) => {
 export const handleHotKeyDown = (
   ev: KeyboardEvent,
   eventBus: EventBus<HotKeyEvent>,
-  {
-    hotKeys = DEFAULT_HOTKEYS,
-    modifiers = ['default'] as HotKeyModifiers,
-  } = {},
+  { hotKeys = DEFAULT_HOTKEYS, modifiers = ['default'] as HotKeyModifiers } = {},
 ) => {
   const key = ev.key === ' ' ? 'Space' : (ev.key as KeydownKey)
   const hotKeyEvent = hotKeys[key]
@@ -110,11 +95,12 @@ export const handleHotKeyDown = (
       const _modifiers = getModifiers(hotKeyEvent.modifiers || modifiers)
       const areModifiersPressed = _modifiers.every((mod) => ev[mod] === true)
 
-      // Check for modifiers as defined
-      if (areModifiersPressed && !isInput(ev)) {
+      // We send even in inputs if there is a modifier
+      if (areModifiersPressed) {
         eventBus.emit({ [hotKeyEvent.event]: ev })
-      } else if (!isInput(ev) && hotKeyEvent.modifiers === undefined) {
-        // Check if we are in an input as modifier === 'undefined'
+      }
+      // Check if we are in an input as modifier === 'undefined'
+      else if (!isInput(ev) && hotKeyEvent.modifiers === undefined) {
         eventBus.emit({ [hotKeyEvent.event]: ev })
       }
     }

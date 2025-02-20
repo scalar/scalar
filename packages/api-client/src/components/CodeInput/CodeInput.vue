@@ -206,6 +206,8 @@ const handleKeyDown = (key: string, event: KeyboardEvent) => {
       event.preventDefault()
       dropdownRef.value?.handleSelect()
     }
+  } else if (key === 'enter' && event.target instanceof HTMLDivElement) {
+    handleSubmit(event.target.textContent ?? '')
   }
 }
 
