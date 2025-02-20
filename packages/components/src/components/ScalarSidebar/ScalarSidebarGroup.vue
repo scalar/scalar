@@ -46,7 +46,7 @@ defineOptions({ inheritAttrs: false })
 const { cx } = useBindCx()
 </script>
 <template>
-  <li class="contents">
+  <li class="group/item contents">
     <slot
       :level="level"
       name="button"
@@ -73,7 +73,7 @@ const { cx } = useBindCx()
     <component
       :is="is"
       v-if="open"
-      v-bind="cx('flex flex-col relative')">
+      v-bind="cx('flex flex-col gap-px')">
       <slot
         name="items"
         :open="open" />

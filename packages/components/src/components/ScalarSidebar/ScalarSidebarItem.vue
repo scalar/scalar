@@ -33,7 +33,7 @@ const { level } = useSidebarGroups()
 defineOptions({ inheritAttrs: false })
 </script>
 <template>
-  <li class="contents">
+  <li class="group/item contents">
     <ScalarSidebarButton
       v-bind="{ ...$attrs, ...$props }"
       :indent="indent ?? level">
