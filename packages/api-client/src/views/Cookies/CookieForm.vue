@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { cookieSchema, type Cookie } from '@scalar/oas-utils/entities/cookie'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
 import { computed } from 'vue'
 
 import Form from '@/components/Form/Form.vue'
@@ -19,7 +20,7 @@ const fields = [
 
 const activeCookie = computed<Cookie>(
   () =>
-    cookies[activeCookieId.value as string] ||
+    cookies[activeCookieId.value] ||
     cookieSchema.parse({
       name: '',
       value: '',
@@ -27,10 +28,11 @@ const activeCookie = computed<Cookie>(
       path: '',
     }),
 )
-const updateCookie = (key: any, value: any) => {
-  if (activeCookieId.value) {
-    cookieMutators.edit(activeCookieId.value, key, value)
-  }
+const updateCookie = <P extends Path<Cookie>>(
+  key: P,
+  value: NonNullable<PathValue<Cookie, P>>,
+) => {
+  cookieMutators.edit(activeCookieId.value, key, value)
 }
 </script>
 <template>

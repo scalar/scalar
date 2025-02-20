@@ -11,7 +11,7 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import type { Collection, Request } from '@scalar/oas-utils/entities/spec'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
@@ -115,9 +115,9 @@ const item = computed<SidebarItem>(() => {
       warning:
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
-      delete: () => {
-        if (parentUids[0]) tagMutators.delete(tag, parentUids[0])
-      },
+      delete: () =>
+        parentUids[0] &&
+        tagMutators.delete(tag, parentUids[0] as Collection['uid']),
     }
 
   if (request)
@@ -137,11 +137,9 @@ const item = computed<SidebarItem>(() => {
       children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
-      delete: () => {
-        if (parentUids[0]) {
-          requestMutators.delete(request, parentUids[0])
-        }
-      },
+      delete: () =>
+        parentUids[0] &&
+        requestMutators.delete(request, parentUids[0] as Collection['uid']),
     }
 
   if (requestExample?.requestUid)

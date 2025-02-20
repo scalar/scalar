@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
+import type { Path, PathValue } from '@scalar/object-utils/nested'
+
 import DataTable from '@/components/DataTable/DataTable.vue'
 import DataTableInput from '@/components/DataTable/DataTableInput.vue'
 import DataTableRow from '@/components/DataTable/DataTableRow.vue'
@@ -12,7 +15,10 @@ defineProps<{
     placeholder: string
   }[]
   data: Record<string, any>
-  onUpdate: (key: string, value: any) => void
+  onUpdate: <P extends Path<Cookie>>(
+    key: P,
+    value: NonNullable<PathValue<Cookie, P>>,
+  ) => void
 }>()
 </script>
 <template>
@@ -34,7 +40,7 @@ defineProps<{
           <DataTableInput
             :modelValue="data[option.key] ?? ''"
             :placeholder="option.placeholder"
-            @update:modelValue="onUpdate(option.key, $event)">
+            @update:modelValue="onUpdate(option.key as Path<Cookie>, $event)">
             {{ option.label }}
           </DataTableInput>
         </DataTableRow>

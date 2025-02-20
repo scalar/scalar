@@ -1,9 +1,5 @@
 import type { StoreContext } from '@/store/store-context'
-import {
-  type Tag,
-  type TagPayload,
-  tagSchema,
-} from '@scalar/oas-utils/entities/spec'
+import { type Collection, type Tag, type TagPayload, tagSchema } from '@scalar/oas-utils/entities/spec'
 import { LS_KEYS, schemaModel } from '@scalar/oas-utils/helpers'
 import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { reactive } from 'vue'
@@ -12,11 +8,7 @@ import { reactive } from 'vue'
 export function createStoreTags(useLocalStorage: boolean) {
   const tags = reactive<Record<string, Tag>>({})
 
-  const tagMutators = mutationFactory(
-    tags,
-    reactive({}),
-    useLocalStorage && LS_KEYS.TAG,
-  )
+  const tagMutators = mutationFactory(tags, reactive({}), useLocalStorage && LS_KEYS.TAG)
 
   return {
     tags,
@@ -37,29 +29,23 @@ export function extendedTagDataFactory({
   tagMutators,
 }: StoreContext) {
   /** Add tag */
-  const addTag = (payload: TagPayload, collectionUid: string) => {
+  const addTag = (payload: TagPayload, collectionUid: Collection['uid']) => {
     const collection = collections[collectionUid]
     const tag = schemaModel(payload, tagSchema, false)
     if (!tag || !collection) return console.error('INVALID TAG DATA', payload)
 
     // Add to collection tags
-    collectionMutators.edit(collectionUid, 'tags', [
-      ...collection.tags,
-      tag.uid,
-    ])
+    collectionMutators.edit(collectionUid, 'tags', [...collection.tags, tag.uid])
 
     // Add to parent collection as a child
-    collectionMutators.edit(collectionUid, 'children', [
-      ...collection.children,
-      tag.uid,
-    ])
+    collectionMutators.edit(collectionUid, 'children', [...collection.children, tag.uid])
 
     tagMutators.add(tag)
     return tag
   }
 
   /** Delete Tag */
-  const deleteTag = (tag: Tag, collectionUid: string) => {
+  const deleteTag = (tag: Tag, collectionUid: Collection['uid']) => {
     const collection = collections[collectionUid]
 
     if (!collection) return
@@ -83,19 +69,14 @@ export function extendedTagDataFactory({
       const request = requests[childUid]
       if (!request) return
 
-      const filteredTags = request.tags?.filter(
-        (tagName) => tagName !== tag.name,
-      )
+      const filteredTags = request.tags?.filter((tagName) => tagName !== tag.name)
 
       // Remove the tagName from the request
-      requestMutators.edit(childUid, 'tags', filteredTags)
+      requestMutators.edit(request.uid, 'tags', filteredTags)
 
       // Add to the collection children if there's no more tags
       if (!filteredTags?.length && !collection.children.includes(childUid))
-        collectionMutators.edit(collectionUid, 'children', [
-          ...collection.children,
-          childUid,
-        ])
+        collectionMutators.edit(collectionUid, 'children', [...collection.children, childUid])
     })
 
     tagMutators.delete(tag.uid)
