@@ -26,6 +26,7 @@
     "format:check": "scalar-format-check",
     "lint:check": "scalar-lint-check",
     "lint:fix": "scalar-lint-fix",
+    "test": "vitest",
     "types:build": "scalar-types-build",
     "types:check": "scalar-types-check"
   },
@@ -41,6 +42,11 @@
       "import": "./dist/utils/index.js",
       "types": "./dist/utils/index.d.ts",
       "default": "./dist/utils/index.js"
+    },
+    "./packages": {
+      "import": "./dist/packages/index.js",
+      "types": "./dist/packages/index.d.ts",
+      "default": "./dist/packages/index.js"
     },
     "./legacy": {
       "import": "./dist/legacy/index.js",
@@ -59,10 +65,12 @@
   ],
   "dependencies": {
     "@scalar/openapi-types": "workspace:*",
-    "@unhead/schema": "^1.11.11"
+    "@unhead/schema": "^1.11.11",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@scalar/build-tooling": "workspace:*",
-    "@scalar/snippetz": "workspace:*"
+    "@scalar/snippetz": "workspace:*",
+    "vitest": "^1.6.0"
   }
 }
