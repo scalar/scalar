@@ -1,7 +1,4 @@
-import {
-  nanoidSchema,
-  selectedSecuritySchemeUidSchema,
-} from '@/entities/shared/utility'
+import { nanoidSchema, selectedSecuritySchemeUidSchema } from '@/entities/shared/utility'
 import { xScalarEnvironmentsSchema } from '@/entities/spec/x-scalar-environments'
 import { xScalarSecretsSchema } from '@/entities/spec/x-scalar-secrets'
 import { z } from 'zod'
@@ -17,16 +14,14 @@ export const oasCollectionSchema = z.object({
    */
   'type': z.literal('collection').optional().default('collection'),
   'openapi': z
-    .union([
-      z.string(),
-      z.literal('3.0.0'),
-      z.literal('3.1.0'),
-      z.literal('4.0.0'),
-    ])
+    .union([z.string(), z.literal('3.0.0'), z.literal('3.1.0'), z.literal('4.0.0')])
     .optional()
     .default('3.1.0'),
   'jsonSchemaDialect': z.string().optional(),
-  'info': oasInfoSchema.optional(),
+  'info': oasInfoSchema.catch({
+    title: 'API',
+    version: '1.0',
+  }),
   /**
    * A declaration of which security mechanisms can be used across the API. The list of
    * values includes alternative security requirement objects that can be used. Only
@@ -89,14 +84,9 @@ export const extendedCollectionSchema = z.object({
    *
    * @defaults to idle for all collections, doesn't mean that it can watch for changes
    */
-  watchModeStatus: z
-    .enum(['IDLE', 'WATCHING', 'ERROR'])
-    .optional()
-    .default('IDLE'),
+  watchModeStatus: z.enum(['IDLE', 'WATCHING', 'ERROR']).optional().default('IDLE'),
 })
 
-export const collectionSchema = oasCollectionSchema.merge(
-  extendedCollectionSchema,
-)
+export const collectionSchema = oasCollectionSchema.merge(extendedCollectionSchema)
 export type Collection = z.infer<typeof collectionSchema>
 export type CollectionPayload = z.input<typeof collectionSchema>

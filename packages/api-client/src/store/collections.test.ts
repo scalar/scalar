@@ -4,10 +4,7 @@ import { mutationFactory } from '@scalar/object-utils/mutator-record'
 import { describe, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 
-import {
-  createStoreCollections,
-  extendedCollectionDataFactory,
-} from './collections'
+import { createStoreCollections, extendedCollectionDataFactory } from './collections'
 import { createStoreServers } from './servers'
 
 // Mock data
@@ -20,6 +17,7 @@ const mockDraftsCollection: Collection = {
   'type': 'collection',
   'children': [],
   'openapi': '3.1.0',
+  'info': { title: 'Drafts', version: '1.0.0' },
   'security': [],
   'x-scalar-icon': 'interface-content-folder',
   'securitySchemes': [],
@@ -103,15 +101,12 @@ describe('Collections Store', () => {
     const collection = addCollection(mockCollection, mockWorkspace.uid)
 
     expect(storeContext.collections[collection.uid]).toBeDefined()
-    expect(storeContext.collections[collection.uid]?.info?.title).toEqual(
-      'Test Collection',
-    )
+    expect(storeContext.collections[collection.uid]?.info?.title).toEqual('Test Collection')
   })
 
   describe('should delete a collection', () => {
     const storeContext = createStoreContext()
-    const { addCollection, deleteCollection } =
-      extendedCollectionDataFactory(storeContext)
+    const { addCollection, deleteCollection } = extendedCollectionDataFactory(storeContext)
 
     const collectionPayload = {
       ...mockCollection,
@@ -132,10 +127,7 @@ describe('Collections Store', () => {
     const collection = addCollection(collectionPayload, mockWorkspace.uid)
 
     // Add the second collection
-    const anotherCollection = addCollection(
-      anotherCollectionPayload,
-      mockWorkspace.uid,
-    )
+    const anotherCollection = addCollection(anotherCollectionPayload, mockWorkspace.uid)
 
     const collectionServer = {
       uid: 'collection-server',
@@ -163,9 +155,7 @@ describe('Collections Store', () => {
     })
 
     it('should delete its servers', () => {
-      expect(Object.keys(storeContext.servers)).not.toContain(
-        'collection-server',
-      )
+      expect(Object.keys(storeContext.servers)).not.toContain('collection-server')
       expect(Object.keys(storeContext.servers)).toContain('collection-server-2')
     })
 
