@@ -1,5 +1,12 @@
 # @scalar/themes
 
+## 0.9.68
+
+### Patch Changes
+
+- e47a698: feat: updates danger variable + add background alert variable
+  - @scalar/types@0.0.34
+
 ## 0.9.67
 
 ### Patch Changes

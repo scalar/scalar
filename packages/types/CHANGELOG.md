@@ -1,5 +1,12 @@
 # @scalar/types
 
+## 0.0.34
+
+### Patch Changes
+
+- Updated dependencies [e350f23]
+  - @scalar/openapi-types@0.1.8
+
 ## 0.0.33
 
 ### Patch Changes

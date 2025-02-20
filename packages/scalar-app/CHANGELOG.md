@@ -1,5 +1,23 @@
 # scalar-app
 
+## 0.1.144
+
+### Patch Changes
+
+- e350f23: chore: code style
+- Updated dependencies [e350f23]
+- Updated dependencies [e47a698]
+- Updated dependencies [e47a698]
+- Updated dependencies [debcb82]
+- Updated dependencies [debcb82]
+- Updated dependencies [738d21c]
+- Updated dependencies [459ad57]
+- Updated dependencies [e47a698]
+  - @scalar/api-client@2.2.50
+  - @scalar/components@0.13.25
+  - @scalar/themes@0.9.68
+  - @scalar/import@0.2.27
+
 ## 0.1.143
 
 ### Patch Changes

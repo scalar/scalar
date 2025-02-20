@@ -1,5 +1,13 @@
 # @scalar/docusaurus
 
+## 0.4.199
+
+### Patch Changes
+
+- e350f23: chore: code style
+- Updated dependencies [e350f23]
+  - @scalar/api-reference-react@0.4.30
+
 ## 0.4.198
 
 ### Patch Changes
