@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
-import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
@@ -14,8 +10,14 @@ import {
   ScalarTooltip,
   useModal,
 } from '@scalar/components'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
+import EditSidebarListElement from '@/components/Sidebar/Actions/EditSidebarListElement.vue'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 const { activeWorkspace } = useActiveEntities()
 const { workspaces, workspaceMutators, events } = useWorkspace()
@@ -38,11 +40,11 @@ const createNewWorkspace = () =>
   events.commandPalette.emit({ commandName: 'Create Workspace' })
 
 const tempName = ref('')
-const tempUid = ref('')
+const tempUid = ref('' as Workspace['uid'])
 const editModal = useModal()
 const deleteModal = useModal()
 
-const openRenameModal = (uid: string) => {
+const openRenameModal = (uid: Workspace['uid']) => {
   const workspace = workspaces[uid]
   if (!workspace) return
 
@@ -60,7 +62,7 @@ const handleWorkspaceEdit = (name: string) => {
   editModal.hide()
 }
 
-const openDeleteModal = (uid: string) => {
+const openDeleteModal = (uid: Workspace['uid']) => {
   const workspace = workspaces[uid]
   if (!workspace) return
 
@@ -96,13 +98,13 @@ const deleteWorkspace = async () => {
 
 <template>
   <div>
-    <div class="flex items-center text-sm w-[inherit]">
+    <div class="flex w-[inherit] items-center text-sm">
       <ScalarDropdown>
         <ScalarButton
-          class="font-normal h-full justify-start line-clamp-1 py-1.5 px-1.5 text-c-1 hover:bg-b-2 w-fit"
+          class="text-c-1 hover:bg-b-2 line-clamp-1 h-full w-fit justify-start px-1.5 py-1.5 font-normal"
           fullWidth
           variant="ghost">
-          <div class="font-bold m-0 flex gap-1.5 items-center">
+          <div class="m-0 flex items-center gap-1.5 font-bold">
             <h2 class="line-clamp-1 text-left">
               {{ activeWorkspace?.name }}
             </h2>
@@ -114,17 +116,17 @@ const deleteWorkspace = async () => {
           <ScalarDropdownItem
             v-for="(workspace, uid) in workspaces"
             :key="uid"
-            class="flex gap-1.5 group/item items-center whitespace-nowrap text-ellipsis overflow-hidden w-full"
+            class="group/item flex w-full items-center gap-1.5 overflow-hidden text-ellipsis whitespace-nowrap"
             @click.stop="updateSelected(uid)">
             <ScalarListboxCheckbox :selected="activeWorkspace?.uid === uid" />
-            <span class="text-ellipsis overflow-hidden">{{
+            <span class="overflow-hidden text-ellipsis">{{
               workspace.name
             }}</span>
             <ScalarDropdown
               placement="right-start"
               teleport>
               <ScalarButton
-                class="px-0.5 py-0 hover:bg-b-3 group-hover/item:flex aspect-square ml-auto -mr-1 h-fit"
+                class="hover:bg-b-3 -mr-1 ml-auto aspect-square h-fit px-0.5 py-0 group-hover/item:flex"
                 size="sm"
                 type="button"
                 variant="ghost">
@@ -150,7 +152,7 @@ const deleteWorkspace = async () => {
                   side="bottom">
                   <template #trigger>
                     <ScalarDropdownItem
-                      class="flex gap-2 w-full"
+                      class="flex w-full gap-2"
                       disabled
                       @mousedown.prevent
                       @touchend.prevent>
@@ -164,8 +166,8 @@ const deleteWorkspace = async () => {
                   </template>
                   <template #content>
                     <div
-                      class="grid gap-1.5 pointer-events-none min-w-48 w-content shadow-lg rounded bg-b-1 z-context p-2 text-xxs leading-5 z-10 text-c-1">
-                      <div class="flex items-center text-c-2">
+                      class="w-content bg-b-1 z-context text-xxs text-c-1 pointer-events-none z-10 grid min-w-48 gap-1.5 rounded p-2 leading-5 shadow-lg">
+                      <div class="text-c-2 flex items-center">
                         <span>Only workspace cannot be deleted.</span>
                       </div>
                     </div>
@@ -192,7 +194,7 @@ const deleteWorkspace = async () => {
           <ScalarDropdownItem
             class="flex items-center gap-1.5"
             @click="createNewWorkspace">
-            <div class="flex items-center justify-center h-4 w-4">
+            <div class="flex h-4 w-4 items-center justify-center">
               <ScalarIcon
                 icon="Add"
                 size="sm" />

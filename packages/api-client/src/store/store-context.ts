@@ -32,3 +32,16 @@ export type StoreContext = {
   workspaces: Record<Workspace['uid'], Workspace>
   workspaceMutators: Mutators<Workspace>
 }
+
+export type AllEntityRecords = Pick<
+  StoreContext,
+  | 'collections'
+  | 'tags'
+  | 'requests'
+  | 'requestExamples'
+  | 'cookies'
+  | 'environments'
+  | 'servers'
+  | 'securitySchemes'
+  | 'workspaces'
+>

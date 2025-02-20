@@ -1,22 +1,12 @@
 <script setup lang="ts">
+import type { Server } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
+
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import type { Server } from '@scalar/oas-utils/entities/spec'
-import { computed, withDefaults } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    collectionId: string | string[]
-    serverUid: string | string[]
-  }>(),
-  {
-    collectionId: '',
-    serverUid: '',
-  },
-)
-
-const { activeWorkspaceCollections } = useActiveEntities()
+const { activeRouterParams, activeWorkspaceCollections } = useActiveEntities()
 const { servers, serverMutators } = useWorkspace()
 
 const options = [
@@ -30,15 +20,19 @@ const options = [
 
 const activeServer = computed(() => {
   const activeCollection = activeWorkspaceCollections.value.find(
-    (collection) => collection.uid === props.collectionId,
+    (collection) => collection.uid === activeRouterParams.value.collection,
   )
-  return servers[
-    activeCollection &&
-    typeof props.serverUid === 'string' &&
-    props.serverUid === 'default'
-      ? (activeCollection.servers[0] ?? '')
-      : (activeCollection?.servers.find((uid) => uid === props.serverUid) ?? '')
-  ]
+  if (!activeCollection) return
+
+  const serverUid =
+    activeRouterParams.value.servers === 'default'
+      ? activeCollection.servers[0]
+      : activeCollection.servers.find(
+          (uid) => uid === activeRouterParams.value.servers,
+        )
+  if (!serverUid) return
+
+  return servers[serverUid]
 })
 
 const updateServer = (key: string, value: string) => {
@@ -47,7 +41,7 @@ const updateServer = (key: string, value: string) => {
 }
 </script>
 <template>
-  <div class="divide-0.5 divide-x flex w-full">
+  <div class="divide-0.5 flex w-full divide-x">
     <template v-if="activeServer">
       <Form
         :data="activeServer"

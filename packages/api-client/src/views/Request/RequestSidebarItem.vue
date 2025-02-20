@@ -11,7 +11,12 @@ import {
   type DraggingItem,
   type HoveredItem,
 } from '@scalar/draggable'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import type {
+  Collection,
+  Request,
+  RequestExample,
+  Tag,
+} from '@scalar/oas-utils/entities/spec'
 import { shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { computed, ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
@@ -73,6 +78,7 @@ const {
   requestMutators,
   requestExampleMutators,
   events,
+  isValidEntity,
 } = useWorkspace()
 const router = useRouter()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
@@ -80,10 +86,10 @@ const { layout } = useLayout()
 
 /** Normalize properties across different types for easy consumption */
 const item = computed<SidebarItem>(() => {
-  const collection = collections[uid]
-  const tag = tags[uid]
-  const request = requests[uid]
-  const requestExample = requestExamples[uid]
+  const collection = collections[uid as Collection['uid']]
+  const tag = tags[uid as Tag['uid']]
+  const request = requests[uid as Request['uid']]
+  const requestExample = requestExamples[uid as RequestExample['uid']]
 
   if (collection)
     return {
@@ -115,9 +121,9 @@ const item = computed<SidebarItem>(() => {
       warning:
         'This cannot be undone. You’re about to delete the tag and all requests inside it',
       edit: (name: string) => tagMutators.edit(tag.uid, 'name', name),
-      delete: () => {
-        if (parentUids[0]) tagMutators.delete(tag, parentUids[0])
-      },
+      delete: () =>
+        isValidEntity(parentUids[0], collections) &&
+        tagMutators.delete(tag, parentUids[0]),
     }
 
   if (request)
@@ -137,11 +143,9 @@ const item = computed<SidebarItem>(() => {
       children: request.examples.slice(1),
       edit: (name: string) =>
         requestMutators.edit(request.uid, 'summary', name),
-      delete: () => {
-        if (parentUids[0]) {
-          requestMutators.delete(request, parentUids[0])
-        }
-      },
+      delete: () =>
+        isValidEntity(parentUids[0], collections) &&
+        requestMutators.delete(request, parentUids[0]),
     }
 
   if (requestExample?.requestUid)
@@ -191,13 +195,13 @@ const highlightClasses = 'hover:bg-sidebar-active-b indent-padding-left'
 /** Due to the nesting, we need a dynamic left offset for hover and active backgrounds */
 const leftOffset = computed(() => {
   if (!parentUids.length) return '12px'
-  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
-  else return `${parentUids.length * 12}px`
+  if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
+  return `${parentUids.length * 12}px`
 })
 const paddingOffset = computed(() => {
   if (!parentUids.length) return '0px'
-  else if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
-  else return `${parentUids.length * 12}px`
+  if (layout === 'modal') return `${(parentUids.length - 1) * 12}px`
+  return `${parentUids.length * 12}px`
 })
 
 /**
@@ -234,7 +238,7 @@ const getDraggableOffsets = computed(() => {
 
   // If hovered over is collection && dragging is not a collection
   if (
-    !collections[draggingItem?.id] &&
+    !isValidEntity(draggingItem?.id, collections) &&
     item.value.entity.type === 'collection'
   ) {
     ceiling = 1
@@ -254,9 +258,9 @@ const _isDroppable = (draggingItem: DraggingItem, hoveredItem: HoveredItem) => {
   // Cannot drop in read only mode
   if (layout === 'modal') return false
   // RequestExamples cannot be dropped on
-  if (requestExamples[hoveredItem.id]) return false
+  if (isValidEntity(hoveredItem.id, requestExamples)) return false
   // Collection cannot be dropped into another collection
-  if (collections[draggingItem.id]) return false
+  if (isValidEntity(draggingItem.id, collections)) return false
 
   return true
 }
@@ -303,10 +307,10 @@ const hasDraftRequests = computed(() => {
  * This is used to hide items that are marked as hidden/internal.
  */
 const shouldShowItem = computed(() => {
-  const request = requests[uid]
+  const request = requests[uid as Request['uid']]
   if (request) return !shouldIgnoreEntity(request)
 
-  const tag = tags[uid]
+  const tag = tags[uid as Tag['uid']]
   if (tag) return !shouldIgnoreEntity(tag)
 
   return true
@@ -489,7 +493,7 @@ const shouldShowItem = computed(() => {
         <RequestSidebarItem
           v-for="childUid in item.children"
           :key="childUid"
-          :isDraggable="!requestExamples[childUid]"
+          :isDraggable="!requestExamples[childUid as RequestExample['uid']]"
           :isDroppable="_isDroppable"
           :menuItem="menuItem"
           :parentUids="[...parentUids, uid]"

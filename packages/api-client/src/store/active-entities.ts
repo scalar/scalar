@@ -9,6 +9,7 @@ import { getRouterParams } from './router-params'
 import type { WorkspaceStore } from '@/store/store'
 import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
+import type { Cookie } from '@scalar/oas-utils/entities/cookie'
 
 type CreateActiveEntitiesStoreParams = {
   router?: Router
@@ -118,9 +119,9 @@ export const createActiveEntitiesStore = ({
     // Can use this fallback to get an active request
     const collection =
       collections[activeRouterParams.value.collection] ||
-      collections[(activeWorkspace.value?.collections[0] ?? '') as Collection['uid']]
+      collections[activeWorkspace.value?.collections[0] ?? ('' as Collection['uid'])]
 
-    return requests[key] || requests[(collection?.requests[0] ?? '') as Request['uid']]
+    return requests[key] || requests[collection?.requests[0] ?? ('' as Request['uid'])]
   })
 
   /** Grabs the currently active example using the path param */
@@ -162,7 +163,7 @@ export const createActiveEntitiesStore = ({
   /** Cookie associated with the current route */
   const activeCookieId = computed(() =>
     activeRouterParams.value[PathId.Cookies] === 'default'
-      ? (activeWorkspace.value?.cookies[0] ?? 'default')
+      ? (activeWorkspace.value?.cookies[0] ?? ('default' as Cookie['uid']))
       : activeRouterParams.value[PathId.Cookies],
   )
 

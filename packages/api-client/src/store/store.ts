@@ -30,7 +30,7 @@ declare global {
 
 type CreateWorkspaceStoreOptions = {
   /**
-   * When true, changes made to the store will be saved in the browser’s localStorage.
+   * When true, changes made to the store will be saved in the browser's localStorage.
    *
    * @default true
    */
@@ -46,7 +46,7 @@ type CreateWorkspaceStoreOptions = {
  * Factory function for creating the centralized store for the API client.
  *
  * This store manages all data and state for the application.
- * It should be instantiated once and injected into the app’s root component.
+ * It should be instantiated once and injected into the app's root component.
  */
 export const createWorkspaceStore = ({
   useLocalStorage = true,
@@ -102,6 +102,17 @@ export const createWorkspaceStore = ({
   const { addWorkspace, deleteWorkspace } = extendedWorkspaceDataFactory(storeContext)
   const { addSecurityScheme, deleteSecurityScheme } = extendedSecurityDataFactory(storeContext)
   const { addCollectionEnvironment, removeCollectionEnvironment } = extendedCollectionDataFactory(storeContext)
+
+  // ---------------------------------------------------------------------------
+  // Type guards
+
+  /** Type guard to check if an entity exists and types the uid for mutators */
+  const isValidEntity = <T extends { uid: string }>(
+    uid: string | null | undefined,
+    entities: Record<string, T>,
+  ): uid is T['uid'] => {
+    return typeof uid === 'string' && uid in entities && entities[uid] !== undefined
+  }
 
   // ---------------------------------------------------------------------------
   // OTHER HELPER DATA
@@ -178,6 +189,7 @@ export const createWorkspaceStore = ({
     // METHODS
     importSpecFile,
     importSpecFromUrl,
+    isValidEntity,
     cookieMutators,
     collectionMutators: {
       ...collectionMutators,

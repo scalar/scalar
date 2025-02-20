@@ -268,7 +268,7 @@ export const mutateCollectionDiff = (
  *
  * TODO: diff the changes in the examples and just update what we need to
  */
-const updateRequestExamples = (requestUid: string, store: WorkspaceStore) => {
+const updateRequestExamples = (requestUid: Request['uid'], store: WorkspaceStore) => {
   const { requests, requestExamples, requestExampleMutators } = store
   const request = requests[requestUid]
 

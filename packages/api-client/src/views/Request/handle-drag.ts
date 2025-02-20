@@ -7,7 +7,7 @@ import type { Collection, Tag } from '@scalar/oas-utils/entities/spec'
 /** Create DnD handlers */
 export function dragHandlerFactory(
   activeWorkspace: ActiveEntitiesStore['activeWorkspace'],
-  { collections, collectionMutators, tags, tagMutators, workspaceMutators }: WorkspaceStore,
+  { isValidEntity, collections, collectionMutators, tags, tagMutators, workspaceMutators }: WorkspaceStore,
 ) {
   const { layout } = useLayout()
 
@@ -28,34 +28,34 @@ export function dragHandlerFactory(
     const { id: hoveredUid, parentId: hoveredParentUid, offset } = hoveredItem
 
     // Parent is the workspace
-    if (!draggingParentUid) {
+    if (!draggingParentUid && activeWorkspace.value) {
       workspaceMutators.edit(
-        activeWorkspace.value?.uid ?? '',
+        activeWorkspace.value.uid,
         'collections',
-        activeWorkspace.value?.collections.filter((uid) => uid !== draggingUid) ?? [],
+        activeWorkspace.value.collections.filter((uid) => uid !== draggingUid) ?? [],
       )
     }
 
     // Parent is collection
-    else if (collections[draggingParentUid]) {
+    else if (isValidEntity(draggingParentUid, collections)) {
       collectionMutators.edit(
         draggingParentUid,
         'children',
-        collections[draggingParentUid].children.filter((uid) => uid !== draggingUid),
+        collections[draggingParentUid]!.children.filter((uid) => uid !== draggingUid),
       )
     }
     // Parent is a tag
-    else if (tags[draggingParentUid]) {
+    else if (isValidEntity(draggingParentUid, tags)) {
       tagMutators.edit(
         draggingParentUid,
         'children',
-        tags[draggingParentUid].children.filter((uid) => uid !== draggingUid),
+        tags[draggingParentUid]!.children.filter((uid) => uid !== draggingUid),
       )
     }
 
     // Place it at the end of the list of the hoveredItem
     if (offset === 2) {
-      const parent = collections[hoveredUid] || tags[hoveredUid]
+      const parent = collections[hoveredUid as Collection['uid']] || tags[hoveredUid as Tag['uid']]
       if (parent) mutateTagOrCollection(parent, [...(parent.children ?? []), draggingUid])
     }
     // Special case for collections
@@ -64,11 +64,11 @@ export function dragHandlerFactory(
       const hoveredIndex = newChildUids.findIndex((uid) => hoveredUid === uid) ?? 0
       newChildUids.splice(hoveredIndex + offset, 0, draggingUid as Collection['uid'])
 
-      workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'collections', newChildUids)
+      if (activeWorkspace.value) workspaceMutators.edit(activeWorkspace.value.uid, 'collections', newChildUids)
     }
     // Place it into the list at an index
     else {
-      const parent = collections[hoveredParentUid] || tags[hoveredParentUid]
+      const parent = collections[hoveredParentUid as Collection['uid']] || tags[hoveredParentUid as Tag['uid']]
       if (!parent) return
 
       const newChildUids = [...(parent.children ?? [])] as string[]
@@ -84,9 +84,13 @@ export function dragHandlerFactory(
     // Cannot drop in read only mode
     if (layout === 'modal') return false
     // Cannot drop requests/folders into a workspace
-    if (!collections[draggingItem.id] && hoveredItem.offset !== 2) return false
+    if (!isValidEntity(draggingItem.id, collections) && hoveredItem.offset !== 2) return false
     // Collections cannot drop over Drafts
-    if (collections[draggingItem.id] && collections[hoveredItem.id]?.info?.title === 'Drafts') return false
+    if (
+      isValidEntity(draggingItem.id, collections) &&
+      collections[hoveredItem.id as Collection['uid']]?.info?.title === 'Drafts'
+    )
+      return false
 
     return true
   }

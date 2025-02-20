@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import { cva, cx, ScalarButton, ScalarIcon } from '@scalar/components'
+import {
+  themeLabels,
+  type IntegrationThemeId,
+  type ThemeId,
+} from '@scalar/themes'
+
 import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarButton, ScalarIcon, cva, cx } from '@scalar/components'
-import {
-  type IntegrationThemeId,
-  type ThemeId,
-  themeLabels,
-} from '@scalar/themes'
 
 import SettingsGeneralAppearance from './components/SettingsAppearance.vue'
 import SettingsSection from './components/SettingsSection.vue'
@@ -56,9 +57,9 @@ const getThemeColors = (
   )
 }
 
-const changeTheme = (themeId: ThemeId) => {
-  workspaceMutators.edit(activeWorkspace.value?.uid ?? '', 'themeId', themeId)
-}
+const changeTheme = (themeId: ThemeId) =>
+  activeWorkspace.value &&
+  workspaceMutators.edit(activeWorkspace.value.uid, 'themeId', themeId)
 
 const buttonStyles = cva({
   base: 'w-full shadow-none text-c-1 justify-start pl-2 gap-2 border-1/2',
@@ -69,19 +70,23 @@ const buttonStyles = cva({
     },
   },
 })
+
+const setProxy = (newProxy: string | undefined) =>
+  activeWorkspace.value &&
+  workspaceMutators.edit(activeWorkspace.value.uid, 'proxyUrl', newProxy)
 </script>
 <template>
-  <div class="bg-b-1 w-full h-full overflow-auto">
-    <div class="px-5 py-5 max-w-[720px] ml-auto mr-auto w-full">
+  <div class="bg-b-1 h-full w-full overflow-auto">
+    <div class="ml-auto mr-auto w-full max-w-[720px] px-5 py-5">
       <div class="flex flex-col gap-8">
         <!-- Heading -->
         <div>
-          <h2 class="font-bold text-xl mt-10">Settings</h2>
+          <h2 class="mt-10 text-xl font-bold">Settings</h2>
         </div>
 
         <!-- Proxy -->
         <SettingsSection>
-          <template #title>CORS Proxy</template>
+          <template #title> CORS Proxy </template>
           <template #description>
             Browsers block cross-origin requests for security. We provide a
             public proxy to
@@ -111,21 +116,15 @@ const buttonStyles = cva({
                   }),
                 )
               "
-              @click="
-                workspaceMutators.edit(
-                  activeWorkspace?.uid ?? '',
-                  'proxyUrl',
-                  DEFAULT_PROXY_URL,
-                )
-              ">
+              @click="setProxy(DEFAULT_PROXY_URL)">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
-                  'bg-c-accent border-transparent text-b-1':
+                  'bg-c-accent text-b-1 border-transparent':
                     activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL,
                 }">
                 <ScalarIcon
-                  v-if="activeWorkspace.proxyUrl === DEFAULT_PROXY_URL"
+                  v-if="activeWorkspace?.proxyUrl === DEFAULT_PROXY_URL"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -143,21 +142,15 @@ const buttonStyles = cva({
                   }),
                 )
               "
-              @click="
-                workspaceMutators.edit(
-                  activeWorkspace?.uid ?? '',
-                  'proxyUrl',
-                  proxyUrl,
-                )
-              ">
+              @click="setProxy(proxyUrl)">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="{
-                  'bg-c-accent border-transparent text-b-1':
+                  'bg-c-accent text-b-1 border-transparent':
                     activeWorkspace?.proxyUrl === proxyUrl,
                 }">
                 <ScalarIcon
-                  v-if="activeWorkspace.proxyUrl === proxyUrl"
+                  v-if="activeWorkspace?.proxyUrl === proxyUrl"
                   icon="Checkmark"
                   size="xs"
                   thickness="3.5" />
@@ -168,18 +161,12 @@ const buttonStyles = cva({
             <!-- No proxy -->
             <ScalarButton
               :class="cx(buttonStyles({ active: !activeWorkspace?.proxyUrl }))"
-              @click="
-                workspaceMutators.edit(
-                  activeWorkspace?.uid ?? '',
-                  'proxyUrl',
-                  '',
-                )
-              ">
+              @click="setProxy(undefined)">
               <div
-                class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                 :class="
                   !activeWorkspace?.proxyUrl &&
-                  'bg-c-accent border-transparent text-b-1'
+                  'bg-c-accent text-b-1 border-transparent'
                 ">
                 <ScalarIcon
                   v-if="!activeWorkspace?.proxyUrl"
@@ -194,7 +181,7 @@ const buttonStyles = cva({
 
         <!-- Themes -->
         <SettingsSection>
-          <template #title>Themes</template>
+          <template #title> Themes </template>
           <template #description>
             We’ve got a whole rainbow of themes for you to play with:
           </template>
@@ -214,9 +201,9 @@ const buttonStyles = cva({
                 @click="changeTheme(themeId)">
                 <div class="flex items-center gap-2">
                   <div
-                    class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                    class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                     :class="{
-                      'bg-c-accent border-transparent text-b-1':
+                      'bg-c-accent text-b-1 border-transparent':
                         activeWorkspace?.themeId === themeId,
                     }">
                     <ScalarIcon
@@ -229,23 +216,20 @@ const buttonStyles = cva({
                 </div>
                 <div class="flex items-center gap-1">
                   <span
-                    class="inline-block w-5 h-5 rounded-full border-c-3 -mr-3"
+                    class="border-c-3 -mr-3 inline-block h-5 w-5 rounded-full"
                     :style="{
                       backgroundColor: getThemeColors(themeId).light,
-                    }">
-                  </span>
+                    }" />
                   <span
-                    class="inline-block w-5 h-5 rounded-full border-c-3 -mr-3"
+                    class="border-c-3 -mr-3 inline-block h-5 w-5 rounded-full"
                     :style="{
                       backgroundColor: getThemeColors(themeId).dark,
-                    }">
-                  </span>
+                    }" />
                   <span
-                    class="inline-block w-5 h-5 rounded-full border-c-3"
+                    class="border-c-3 inline-block h-5 w-5 rounded-full"
                     :style="{
                       backgroundColor: getThemeColors(themeId).accent,
-                    }">
-                  </span>
+                    }" />
                 </div>
               </ScalarButton>
             </div>
@@ -254,7 +238,7 @@ const buttonStyles = cva({
 
         <!-- Frameworks -->
         <SettingsSection>
-          <template #title>Framework Themes</template>
+          <template #title> Framework Themes </template>
           <template #description>
             Are you a real fan? Show your support by using your favorite
             framework’s theme!
@@ -274,9 +258,9 @@ const buttonStyles = cva({
               @click="changeTheme(themeId)">
               <div class="flex items-center gap-2">
                 <div
-                  class="flex items-center justify-center w-5 h-5 rounded-full border-[1.5px] p-1"
+                  class="flex h-5 w-5 items-center justify-center rounded-full border-[1.5px] p-1"
                   :class="{
-                    'bg-c-accent border-transparent text-b-1':
+                    'bg-c-accent text-b-1 border-transparent':
                       activeWorkspace?.themeId === themeId,
                   }">
                   <ScalarIcon
@@ -288,7 +272,7 @@ const buttonStyles = cva({
                 {{ themeLabels[themeId] }}
               </div>
               <div class="flex items-center gap-1">
-                <div class="rounded-xl size-7">
+                <div class="size-7 rounded-xl">
                   <IntegrationLogo :integration="themeId" />
                 </div>
               </div>
@@ -298,7 +282,7 @@ const buttonStyles = cva({
 
         <!-- Appearance -->
         <SettingsSection>
-          <template #title>Appearance</template>
+          <template #title> Appearance </template>
           <template #description>
             Choose between light, dark, or system-based appearance for your
             workspace.
