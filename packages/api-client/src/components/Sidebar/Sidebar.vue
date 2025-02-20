@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useLayout } from '@/hooks'
-import { useWorkspace } from '@/store'
 import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
 import { ref } from 'vue'
+
+import { useLayout } from '@/hooks'
+import { useWorkspace } from '@/store'
 
 const props = withDefaults(
   defineProps<{
@@ -50,9 +51,9 @@ const startDrag = (event: MouseEvent) => {
     document.documentElement.removeEventListener('mousemove', doDrag, false)
     document.documentElement.removeEventListener('mouseup', stopDrag, false)
     /** Reset to max width if exceeded */
-    if (parseInt(sidebarWidth.value, 10) > 420) {
+    if (Number.parseInt(sidebarWidth.value, 10) > 420) {
       setSidebarWidth('360px')
-    } else if (parseInt(sidebarWidth.value, 10) < 240) {
+    } else if (Number.parseInt(sidebarWidth.value, 10) < 240) {
       setSidebarWidth('240px')
     }
   }
@@ -63,16 +64,16 @@ const startDrag = (event: MouseEvent) => {
 </script>
 <template>
   <aside
-    v-show="props.isSidebarOpen"
+    v-show="isSidebarOpen"
     ref="sidebarRef"
-    class="sidebar overflow-hidden relative flex flex-col flex-1 md:flex-none bg-b-1 md:border-b-0 md:border-r-1/2 min-w-full md:min-w-fit leading-3"
+    class="sidebar bg-b-1 md:border-r-1/2 relative flex min-w-full flex-1 flex-col overflow-hidden leading-3 md:min-w-fit md:flex-none md:border-b-0"
     :class="{ dragging: isDragging }"
     :style="{ width: breakpoints.lg ? sidebarWidth : '100%' }">
     <slot name="header" />
     <div
       v-if="layout !== 'modal' && title"
-      class="min-h-12 xl:min-h-client-header flex items-center justify-between px-3 py-1.5 md:px-[18px] md:py-2.5 text-sm">
-      <h2 class="font-medium m-0 text-sm whitespace-nowrap">
+      class="xl:min-h-client-header flex min-h-12 items-center justify-between px-3 py-1.5 text-sm md:px-[18px] md:py-2.5">
+      <h2 class="m-0 whitespace-nowrap text-sm font-medium">
         {{ title }}
       </h2>
       <slot
@@ -80,7 +81,7 @@ const startDrag = (event: MouseEvent) => {
         name="button" />
     </div>
     <div
-      class="custom-scroll sidebar-height pb-0 md:pb-[37px] w-[inherit]"
+      class="custom-scroll sidebar-height w-[inherit] pb-0 md:pb-[37px]"
       :class="{
         'sidebar-mask': layout !== 'modal',
       }">
@@ -88,7 +89,7 @@ const startDrag = (event: MouseEvent) => {
     </div>
     <template v-if="breakpoints.lg">
       <div
-        class="bg-b-1 relative z-10 pt-0 md:px-2.5 md:pb-2.5 sticky bottom-0 w-[inherit] has-[.empty-sidebar-item]:border-t-1/2">
+        class="bg-b-1 has-[.empty-sidebar-item]:border-t-1/2 relative sticky bottom-0 z-10 w-[inherit] pt-0 md:px-2.5 md:pb-2.5">
         <slot name="button" />
       </div>
       <div

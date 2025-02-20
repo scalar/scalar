@@ -1,49 +1,46 @@
 <script setup lang="ts">
+import { ScalarIcon } from '@scalar/components'
+import { useRouter } from 'vue-router'
+
 import { OpenApiClientButton } from '@/components'
 import AddressBar from '@/components/AddressBar/AddressBar.vue'
 import SidebarToggle from '@/components/Sidebar/SidebarToggle.vue'
 import { useLayout } from '@/hooks'
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import { ScalarIcon } from '@scalar/components'
-import { useRouter } from 'vue-router'
-
-defineProps<{
-  modelValue: boolean
-}>()
 
 defineEmits<{
-  (e: 'update:modelValue', v: boolean): void
   (e: 'hideModal'): void
   (e: 'importCurl', value: string): void
 }>()
 
 const { activeCollection } = useActiveEntities()
 const { hideClientButton, showSidebar, integration } = useWorkspace()
+const { isSidebarOpen } = useSidebarToggle()
 
 const { layout } = useLayout()
 const { currentRoute } = useRouter()
 </script>
 <template>
   <div
-    class="lg:min-h-client-header flex items-center w-full justify-center p-2 pt-2 lg:pt-1 lg:p-1 flex-wrap t-app__top-container border-b-1/2">
+    class="lg:min-h-client-header t-app__top-container border-b-1/2 flex w-full flex-wrap items-center justify-center p-2 pt-2 lg:p-1 lg:pt-1">
     <div
-      class="flex flex-row items-center gap-1 lg:px-1 lg:mb-0 mb-2 lg:flex-1 w-1/2">
+      class="mb-2 flex w-1/2 flex-row items-center gap-1 lg:mb-0 lg:flex-1 lg:px-1">
       <SidebarToggle
         v-if="showSidebar"
+        v-model="isSidebarOpen"
         class="ml-1"
         :class="[
-          { hidden: modelValue },
-          { 'xl:!flex': !modelValue },
+          { hidden: isSidebarOpen },
+          { 'xl:!flex': !isSidebarOpen },
           { '!flex': layout === 'modal' },
-          { '!hidden': layout === 'modal' && modelValue },
-        ]"
-        :modelValue="modelValue"
-        @update:modelValue="$emit('update:modelValue', $event)" />
+          { '!hidden': layout === 'modal' && isSidebarOpen },
+        ]" />
     </div>
     <AddressBar @importCurl="$emit('importCurl', $event)" />
     <div
-      class="flex flex-row items-center gap-1 lg:px-2.5 lg:mb-0 mb-2 lg:flex-1 justify-end w-1/2">
+      class="mb-2 flex w-1/2 flex-row items-center justify-end gap-1 lg:mb-0 lg:flex-1 lg:px-2.5">
       <OpenApiClientButton
         v-if="
           layout === 'modal' &&
@@ -60,7 +57,7 @@ const { currentRoute } = useRouter()
       <!-- TODO: There should be an `ìsModal` flag instead -->
       <button
         v-if="layout === 'modal'"
-        class="app-exit-button p-2 rounded-full fixed right-2 top-2 gitbook-hidden"
+        class="app-exit-button gitbook-hidden fixed right-2 top-2 rounded-full p-2"
         type="button"
         @click="$emit('hideModal')">
         <ScalarIcon
@@ -72,7 +69,7 @@ const { currentRoute } = useRouter()
       <!-- TODO: temporary solution: 2nd button (not fixed position) for our friends at GitBook -->
       <button
         v-if="layout === 'modal'"
-        class="text-c-1 hover:bg-b-2 active:text-c-1 p-2 rounded -mr-1.5 gitbook-show"
+        class="text-c-1 hover:bg-b-2 active:text-c-1 gitbook-show -mr-1.5 rounded p-2"
         type="button"
         @click="$emit('hideModal')">
         <ScalarIcon
