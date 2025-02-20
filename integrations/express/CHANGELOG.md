@@ -1,5 +1,11 @@
 # @scalar/express-api-reference
 
+## 0.4.183
+
+### Patch Changes
+
+- ac49fdb: fix: package.json points to cjs file
+
 ## 0.4.182
 
 ### Patch Changes

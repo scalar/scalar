@@ -1,5 +1,15 @@
 # @scalar/api-client
 
+## 2.2.49
+
+### Patch Changes
+
+- c62884d: fix: virtualization issues causing tab to be unresponsive
+- Updated dependencies [ed92564]
+  - @scalar/oas-utils@0.2.106
+  - @scalar/import@0.2.26
+  - @scalar/postman-to-openapi@0.1.29
+
 ## 2.2.48
 
 ### Patch Changes
