@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { ScalarButton, ScalarIcon } from '@scalar/components'
-import type { RequestMethod } from '@scalar/oas-utils/entities/spec'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
+import type {
+  Collection,
+  Operation,
+  RequestMethod,
+  Server,
+} from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { REQUEST_METHODS } from '@scalar/oas-utils/helpers'
 import { ref, useId, watch } from 'vue'
 
@@ -8,10 +15,20 @@ import CodeInput from '@/components/CodeInput/CodeInput.vue'
 import { ServerDropdown } from '@/components/Server'
 import { useLayout } from '@/hooks'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
+import type { EnvVariable } from '@/store/active-entities'
 
 import HttpMethod from '../HttpMethod/HttpMethod.vue'
 import AddressBarHistory from './AddressBarHistory.vue'
+
+const { collection, operation, server, environment, envVariables, workspace } =
+  defineProps<{
+    collection: Collection
+    operation: Operation
+    server: Server | undefined
+    environment: Environment
+    envVariables: EnvVariable[]
+    workspace: Workspace
+  }>()
 
 defineEmits<{
   (e: 'importCurl', value: string): void
@@ -19,8 +36,6 @@ defineEmits<{
 
 const id = useId()
 
-const { activeRequest, activeExample, activeServer, activeCollection } =
-  useActiveEntities()
 const { requestMutators, events } = useWorkspace()
 
 const { layout } = useLayout()
@@ -29,16 +44,15 @@ const addressBarRef = ref<typeof CodeInput | null>(null)
 
 /** update the instance path parameters on change */
 const onUrlChange = (newPath: string) => {
-  if (!activeRequest.value || activeRequest.value.path === newPath) return
-
-  requestMutators.edit(activeRequest.value.uid, 'path', newPath)
+  if (operation.path === newPath) return
+  requestMutators.edit(operation.uid, 'path', newPath)
 }
 
 /** watch for changes in the URL */
 watch(
-  () => activeRequest.value?.path,
+  () => operation.path,
   (newURL) => {
-    if (!activeRequest.value || !newURL) return
+    if (!newURL) return
     onUrlChange(newURL)
   },
 )
@@ -93,20 +107,18 @@ events.requestStatus.on((status) => {
 })
 
 function updateRequestMethod(method: RequestMethod) {
-  if (!activeRequest.value) return
-  requestMutators.edit(activeRequest.value.uid, 'method', method)
+  requestMutators.edit(operation.uid, 'method', method)
 }
 
 function getBackgroundColor() {
-  if (!activeRequest.value) return undefined
-  const { method } = activeRequest.value
+  const { method } = operation
   return REQUEST_METHODS[method].backgroundColor
 }
 
 function handleExecuteRequest() {
-  if (isRequesting.value || !activeRequest.value) return
+  if (isRequesting.value) return
   isRequesting.value = true
-  events.executeRequest.emit({ requestUid: activeRequest.value.uid })
+  events.executeRequest.emit({ requestUid: operation.uid })
 }
 
 /** Handle hotkeys */
@@ -119,14 +131,11 @@ events.hotKeys.on((event) => {
  * TODO: Should we handle query params here somehow?
  */
 function updateRequestPath(url: string) {
-  if (!activeRequest.value) return
-
-  requestMutators.edit(activeRequest.value.uid, 'path', url)
+  requestMutators.edit(operation.uid, 'path', url)
 }
 </script>
 <template>
   <div
-    v-if="activeRequest && activeExample"
     :id="id"
     class="scalar-address-bar order-last h-[--scalar-address-bar-height] w-full [--scalar-address-bar-height:32px] lg:order-none lg:w-auto">
     <div class="m-auto flex flex-row items-center">
@@ -144,7 +153,7 @@ function updateRequestPath(url: string) {
           <HttpMethod
             :isEditable="layout !== 'modal'"
             isSquare
-            :method="activeRequest.method"
+            :method="operation.method"
             teleport
             @change="updateRequestMethod" />
         </div>
@@ -153,11 +162,11 @@ function updateRequestPath(url: string) {
           class="codemirror-bg-switcher scroll-timeline-x scroll-timeline-x-hidden z-context-plus relative flex w-full">
           <!-- Servers -->
           <ServerDropdown
-            v-if="activeCollection?.servers?.length"
-            :collection="activeCollection"
+            v-if="collection.servers.length"
+            :collection="collection"
             layout="client"
-            :operation="activeRequest"
-            :server="activeServer"
+            :operation="operation"
+            :server="server"
             :target="id" />
 
           <div class="fade-left" />
@@ -171,22 +180,26 @@ function updateRequestPath(url: string) {
             disableEnter
             disableTabIndent
             :emitOnBlur="false"
+            :envVariables="envVariables"
+            :environment="environment"
             importCurl
-            :modelValue="activeRequest.path"
+            :modelValue="operation.path"
             :placeholder="
-              activeServer?.uid &&
-              activeCollection?.servers?.includes(activeServer.uid)
+              server?.uid && collection.servers.includes(server.uid)
                 ? ''
                 : 'Enter a URL or cURL command'
             "
             server
+            :workspace="workspace"
             @curl="$emit('importCurl', $event)"
             @submit="handleExecuteRequest"
             @update:modelValue="updateRequestPath" />
           <div class="fade-right" />
         </div>
 
-        <AddressBarHistory :target="id" />
+        <AddressBarHistory
+          :operation="operation"
+          :target="id" />
         <ScalarButton
           class="z-context-plus relative h-auto shrink-0 overflow-hidden py-1 pl-2 pr-2.5 font-bold"
           :disabled="isRequesting"

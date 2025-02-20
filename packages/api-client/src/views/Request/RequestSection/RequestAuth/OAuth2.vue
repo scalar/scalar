@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { DataTableRow } from '@/components/DataTable'
+import type { EnvVariable } from '@/store/active-entities'
 import { type UpdateScheme, useWorkspace } from '@/store/store'
 import { authorizeOauth2 } from '@/views/Request/libs'
 import { ScalarButton, useLoadingState } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   type Collection,
   type Oauth2Flow,
@@ -16,10 +18,20 @@ import { useToasts } from '@scalar/use-toasts'
 import OAuthScopesInput from './OAuthScopesInput.vue'
 import RequestAuthDataTableInput from './RequestAuthDataTableInput.vue'
 
-const { scheme, flow, collection, server, workspace } = defineProps<{
-  scheme: SecuritySchemeOauth2
-  flow: Oauth2Flow
+const {
+  collection,
+  environment,
+  envVariables,
+  flow,
+  scheme,
+  server,
+  workspace,
+} = defineProps<{
   collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
+  flow: Oauth2Flow
+  scheme: SecuritySchemeOauth2
   server: Server | undefined
   workspace: Workspace
 }>()
@@ -54,6 +66,13 @@ const handleAuthorize = async () => {
     toast(error?.message ?? 'Failed to authorize', 'error')
   }
 }
+
+/** To make prop drilling a little easier */
+const dataTableInputProps = {
+  environment,
+  envVariables,
+  workspace,
+}
 </script>
 
 <template>
@@ -61,6 +80,7 @@ const handleAuthorize = async () => {
   <template v-if="flow.token">
     <DataTableRow>
       <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
         class="border-r-transparent"
         :modelValue="flow.token"
         placeholder="QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT"
@@ -88,6 +108,7 @@ const handleAuthorize = async () => {
       <!-- Auth URL -->
       <RequestAuthDataTableInput
         v-if="'authorizationUrl' in flow"
+        v-bind="dataTableInputProps"
         :modelValue="flow.authorizationUrl"
         placeholder="https://galaxy.scalar.com/authorize"
         @update:modelValue="
@@ -99,6 +120,7 @@ const handleAuthorize = async () => {
       <!-- Token URL -->
       <RequestAuthDataTableInput
         v-if="'tokenUrl' in flow"
+        v-bind="dataTableInputProps"
         :modelValue="flow.tokenUrl"
         placeholder="https://galaxy.scalar.com/token"
         @update:modelValue="
@@ -111,6 +133,7 @@ const handleAuthorize = async () => {
     <DataTableRow v-if="'x-scalar-redirect-uri' in flow">
       <!-- Redirect URI -->
       <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
         :modelValue="flow['x-scalar-redirect-uri']"
         placeholder="https://galaxy.scalar.com/callback"
         @update:modelValue="
@@ -124,6 +147,7 @@ const handleAuthorize = async () => {
     <template v-if="flow.type === 'password'">
       <DataTableRow>
         <RequestAuthDataTableInput
+          v-bind="dataTableInputProps"
           class="text-c-2"
           :modelValue="flow.username"
           placeholder="janedoe"
@@ -135,6 +159,7 @@ const handleAuthorize = async () => {
       </DataTableRow>
       <DataTableRow>
         <RequestAuthDataTableInput
+          v-bind="dataTableInputProps"
           :modelValue="flow.password"
           placeholder="********"
           type="password"
@@ -149,6 +174,7 @@ const handleAuthorize = async () => {
     <!-- Client ID -->
     <DataTableRow>
       <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
         :modelValue="flow['x-scalar-client-id']"
         placeholder="12345"
         @update:modelValue="
@@ -161,6 +187,7 @@ const handleAuthorize = async () => {
     <!-- Client Secret (Authorization Code / Client Credentials / Password (optional)) -->
     <DataTableRow v-if="'clientSecret' in flow">
       <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
         :modelValue="flow.clientSecret"
         placeholder="XYZ123"
         type="password"
@@ -174,6 +201,7 @@ const handleAuthorize = async () => {
     <!-- PKCE -->
     <DataTableRow v-if="'x-usePkce' in flow">
       <RequestAuthDataTableInput
+        v-bind="dataTableInputProps"
         :enum="pkceOptions"
         :modelValue="flow['x-usePkce']"
         readOnly

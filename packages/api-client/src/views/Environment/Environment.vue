@@ -31,8 +31,12 @@ import EnvironmentModal from './EnvironmentModal.vue'
 
 const router = useRouter()
 const route = useRoute()
-const { activeWorkspace, activeEnvironment, activeWorkspaceCollections } =
-  useActiveEntities()
+const {
+  activeWorkspace,
+  activeEnvironment,
+  activeWorkspaceCollections,
+  activeEnvVariables,
+} = useActiveEntities()
 const { events, workspaceMutators, collectionMutators } = useWorkspace()
 const { collapsedSidebarFolders, toggleSidebarFolder } = useSidebar()
 const colorModal = useModal()
@@ -482,13 +486,16 @@ function handleRename(newName: string) {
           </span>
         </template>
         <CodeInput
-          v-if="currentEnvironmentId"
+          v-if="currentEnvironmentId && activeWorkspace"
           class="border-t py-2 pl-px pr-2 md:px-4"
+          :envVariables="activeEnvVariables"
+          :environment="activeEnvironment"
           isCopyable
           language="json"
           lineNumbers
           lint
           :modelValue="getEnvironmentValue()"
+          :workspace="activeWorkspace"
           @update:modelValue="handleEnvironmentUpdate" />
       </ViewLayoutSection>
     </ViewLayoutContent>

@@ -1,21 +1,31 @@
 <script setup lang="ts">
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
+import type { EnvVariable } from '@/store/active-entities'
 import RequestTable from '@/views/Request/RequestSection/RequestTable.vue'
 import { ScalarButton, ScalarTooltip } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import {
   type RequestExample,
   requestExampleParametersSchema,
 } from '@scalar/oas-utils/entities/spec'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { RouteLocationRaw } from 'vue-router'
 
 const {
+  example,
+  environment,
+  envVariables,
+  workspace,
   title,
   paramKey,
   readOnlyEntries = [],
 } = defineProps<{
+  example: RequestExample
+  environment: Environment
+  envVariables: EnvVariable[]
+  workspace: Workspace
   title: string
   paramKey: keyof RequestExample['parameters']
   readOnlyEntries?: {
@@ -26,36 +36,25 @@ const {
   }[]
 }>()
 
-const { activeRequest, activeExample } = useActiveEntities()
 const { requestExampleMutators } = useWorkspace()
 
-const params = computed(() => activeExample.value?.parameters[paramKey] ?? [])
+const params = computed(() => example.parameters[paramKey] ?? [])
 
-onMounted(() => {
-  defaultRow()
-})
+onMounted(() => defaultRow())
 
 /** Add a new row to a given parameter list */
 const addRow = () => {
-  if (!activeRequest.value || !activeExample.value) return
-
   /** Create a new parameter instance with 'enabled' set to false */
   const newParam = requestExampleParametersSchema.parse({ enabled: false })
   const newParams = [...params.value, newParam]
 
-  requestExampleMutators.edit(
-    activeExample.value.uid,
-    `parameters.${paramKey}`,
-    newParams,
-  )
+  requestExampleMutators.edit(example.uid, `parameters.${paramKey}`, newParams)
 }
 
 const tableWrapperRef = ref<HTMLInputElement | null>(null)
 
 /** Update a field in a parameter row */
 const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
-  if (!activeRequest.value || !activeExample.value) return
-
   const currentParams = params.value
   if (currentParams.length > rowIdx) {
     const updatedParams = [...currentParams]
@@ -81,18 +80,14 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
     }
 
     requestExampleMutators.edit(
-      activeExample.value.uid,
+      example.uid,
       `parameters.${paramKey}`,
       updatedParams,
     )
   } else {
     /** if there is no row at the index, add a new one */
     const payload = [requestExampleParametersSchema.parse({ [field]: value })]
-    requestExampleMutators.edit(
-      activeExample.value.uid,
-      `parameters.${paramKey}`,
-      payload,
-    )
+    requestExampleMutators.edit(example.uid, `parameters.${paramKey}`, payload)
 
     /** focus the new row */
     nextTick(() => {
@@ -111,22 +106,18 @@ const updateRow = (rowIdx: number, field: 'key' | 'value', value: string) => {
 
 /** Toggle a parameter row on or off */
 const toggleRow = (rowIdx: number, enabled: boolean) =>
-  activeRequest.value &&
-  activeExample.value &&
   requestExampleMutators.edit(
-    activeExample.value.uid,
+    example.uid,
     `parameters.${paramKey}.${rowIdx}.enabled`,
     enabled,
   )
 
 const deleteAllRows = () => {
-  if (!activeRequest.value || !activeExample.value) return
-
   // filter out params that are enabled or required
   const exampleParams = params.value.filter((param) => param.required)
 
   requestExampleMutators.edit(
-    activeExample.value.uid,
+    example.uid,
     `parameters.${paramKey}`,
     exampleParams,
   )
@@ -155,11 +146,9 @@ const itemCount = computed(
 const showTooltip = computed(() => params.value.length > 1)
 
 watch(
-  () => activeExample.value,
+  () => example,
   (newVal, oldVal) => {
-    if (newVal !== oldVal) {
-      defaultRow()
-    }
+    if (newVal !== oldVal) defaultRow()
   },
   { immediate: true },
 )
@@ -208,14 +197,20 @@ const hasReadOnlyEntries = computed(() => (readOnlyEntries ?? []).length > 0)
           'bg-mix-transparent bg-mix-amount-95 bg-c-3': hasReadOnlyEntries,
         }"
         :columns="['32px', '', '']"
+        :envVariables="envVariables"
+        :environment="environment"
         isGlobal
         isReadOnly
-        :items="readOnlyEntries" />
+        :items="readOnlyEntries"
+        :workspace="workspace" />
       <!-- Dynamic entries -->
       <RequestTable
         class="flex-1"
         :columns="['32px', '', '']"
+        :envVariables="envVariables"
+        :environment="environment"
         :items="params"
+        :workspace="workspace"
         @toggleRow="toggleRow"
         @updateRow="updateRow" />
     </div>

@@ -9,6 +9,7 @@ import Sidebar from '@/components/Sidebar/Sidebar.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import ViewLayoutSection from '@/components/ViewLayout/ViewLayoutSection.vue'
+import { useActiveEntities } from '@/store/active-entities'
 import { reactive } from 'vue'
 
 const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
@@ -16,12 +17,15 @@ const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
   { key: 'key 2', value: 'value 2', enabled: false },
   { key: '', value: '', enabled: false },
 ])
+
+const { activeEnvironment, activeEnvVariables, activeWorkspace } =
+  useActiveEntities()
 </script>
 <template>
   <ViewLayout>
     <Sidebar title="Collection" />
     <ViewLayoutContent class="flex-1">
-      <ViewLayoutSection>
+      <ViewLayoutSection v-if="activeWorkspace">
         <template #title>Section 1</template>
         <div class="flex flex-col p-2">
           <DataTable :columns="['', '', 'auto']">
@@ -40,10 +44,16 @@ const data = reactive<{ key: string; value: string; enabled: boolean }[]>([
               <DataTableCheckbox v-model="item.enabled" />
               <DataTableInput
                 v-model="item.key"
-                placeholder="Key" />
+                :envVariables="activeEnvVariables"
+                :environment="activeEnvironment"
+                placeholder="Key"
+                :workspace="activeWorkspace" />
               <DataTableInput
                 v-model="item.value"
-                placeholder="Value" />
+                :envVariables="activeEnvVariables"
+                :environment="activeEnvironment"
+                placeholder="Value"
+                :workspace="activeWorkspace" />
             </DataTableRow>
             <DataTableRow>
               <DataTableCell>Static Text</DataTableCell>

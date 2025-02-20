@@ -7,6 +7,7 @@ import {
   type Icon,
   type ScalarButton as ScalarButtonType,
 } from '@scalar/components'
+import type { Environment } from '@scalar/oas-utils/entities/environment'
 import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 import type {
   Collection,
@@ -20,6 +21,7 @@ import { computed, ref } from 'vue'
 
 import ViewLayoutCollapse from '@/components/ViewLayout/ViewLayoutCollapse.vue'
 import { useLayout } from '@/hooks/useLayout'
+import type { EnvVariable } from '@/store/active-entities'
 import { useWorkspace } from '@/store/store'
 import type { SecuritySchemeOption } from '@/views/Request/consts'
 import {
@@ -34,6 +36,8 @@ import RequestAuthDataTable from './RequestAuthDataTable.vue'
 
 const {
   collection,
+  environment,
+  envVariables,
   layout,
   operation,
   selectedSecuritySchemeUids,
@@ -42,6 +46,8 @@ const {
   workspace,
 } = defineProps<{
   collection: Collection
+  environment: Environment
+  envVariables: EnvVariable[]
   layout: 'client' | 'reference'
   operation?: Operation | undefined
   selectedSecuritySchemeUids: SelectedSecuritySchemeUids
@@ -228,6 +234,8 @@ const schemeOptions = computed(() =>
     </template>
     <RequestAuthDataTable
       :collection="collection"
+      :envVariables="envVariables"
+      :environment="environment"
       :layout="layout"
       :selectedSchemeOptions="selectedSchemeOptions"
       :server="server"
