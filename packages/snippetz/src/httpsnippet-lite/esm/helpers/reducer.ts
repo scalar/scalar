@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 export const reducer = (accumulator, pair) => {
   if (pair.value === void 0) {

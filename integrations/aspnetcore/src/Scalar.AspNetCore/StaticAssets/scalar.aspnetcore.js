@@ -3,7 +3,6 @@
  * @param {string} suffix - The suffix to remove from the end of the path.
  * @returns {string} The base path without the suffix.
  */
-// eslint-disable-next-line
 function getBasePath(suffix) {
   const path = window.location.pathname
   if (path.endsWith(suffix)) {

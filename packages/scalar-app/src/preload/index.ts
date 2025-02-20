@@ -8,7 +8,6 @@ const api = {
 }
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     electron: typeof electronAPI
     api: typeof api

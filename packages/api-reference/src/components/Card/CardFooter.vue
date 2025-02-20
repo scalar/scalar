@@ -2,7 +2,6 @@
 import CardContent from './CardContent.vue'
 import type { CardContentProps } from './types'
 
-// eslint-disable-next-line vue/no-unused-properties
 const props = defineProps<CardContentProps>()
 </script>
 <template>

@@ -198,6 +198,12 @@
           "allowComments": true
         }
       }
+    },
+    {
+      "include": ["**/*.tsx"],
+      "javascript": {
+        "jsxRuntime": "reactClassic"
+      }
     }
   ]
 }

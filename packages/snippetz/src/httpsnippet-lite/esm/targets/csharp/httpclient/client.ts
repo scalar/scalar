@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { CodeBuilder } from '../../../helpers/code-builder.js'
 import { escapeForDoubleQuotes } from '../../../helpers/escape.js'

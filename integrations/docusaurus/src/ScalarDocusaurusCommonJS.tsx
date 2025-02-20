@@ -11,7 +11,6 @@ type Props = {
 }
 
 class ScalarDocusaurusCommonJS extends Component<Props> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   observer: any = null
 
   constructor(props: Props) {
@@ -38,7 +37,7 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           this.props.route.configuration &&
           !document.getElementById('api-reference')
         ) {
-          console.log(`Loading Scalar script...`)
+          console.log('Loading Scalar script...')
           // Deep copy the configuration
           const config = JSON.parse(
             JSON.stringify(this.props.route.configuration),
@@ -55,7 +54,7 @@ class ScalarDocusaurusCommonJS extends Component<Props> {
           const loaded = document.body.getAttribute('data-scalar-loaded')
 
           if (loaded) {
-            console.log(`Scalar script already loaded, reloading app `)
+            console.log('Scalar script already loaded, reloading app')
             document.dispatchEvent(new Event('scalar:reload-references'))
             document.dispatchEvent(
               new CustomEvent('scalar:update-references-config', {

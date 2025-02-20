@@ -1,4 +1,3 @@
-/* eslint-disable vue/one-component-per-file */
 import { mount } from '@vue/test-utils'
 import { describe, expect, it } from 'vitest'
 import { defineComponent } from 'vue'
@@ -77,9 +76,7 @@ describe('useBindCx', () => {
       props: { active: true },
       attrs: { class: 'external-class another-class' },
     })
-    expect(wrapper.attributes('class')).toBe(
-      'bg-active external-class another-class',
-    )
+    expect(wrapper.attributes('class')).toBe('bg-active external-class another-class')
   })
 
   it('should apply external tailwind classes', () => {
@@ -93,9 +90,7 @@ describe('useBindCx', () => {
     const wrapper = mount(TestComponent, {
       attrs: { class: ['external-class', 'another-class'] },
     })
-    expect(wrapper.attributes('class')).toBe(
-      'bg-base external-class another-class',
-    )
+    expect(wrapper.attributes('class')).toBe('bg-base external-class another-class')
   })
 
   it('should apply classes in objects', () => {

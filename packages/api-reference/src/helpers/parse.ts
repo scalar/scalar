@@ -1,18 +1,14 @@
-/**
- * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
- * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
- */
-import {
-  type RequestMethod,
-  normalizeRequestMethod,
-  validRequestMethods,
-} from '#legacy'
 import { redirectToProxy, shouldIgnoreEntity } from '@scalar/oas-utils/helpers'
 import { dereference, load } from '@scalar/openapi-parser'
 import { fetchUrls } from '@scalar/openapi-parser/plugins/fetch-urls'
 import type { OpenAPI, OpenAPIV2, OpenAPIV3 } from '@scalar/openapi-types'
 import type { Spec } from '@scalar/types/legacy'
 import type { UnknownObject } from '@scalar/types/utils'
+/**
+ * Unfortunately, this file is very messy. I think we should get rid of it entirely. :)
+ * TODO: Slowly remove all the transformed properties and use the raw output of @scalar/openapi-parser instead.
+ */
+import { type RequestMethod, normalizeRequestMethod, validRequestMethods } from '#legacy'
 
 import { createEmptySpecification } from '../helpers'
 
@@ -31,14 +27,12 @@ export const parse = (
     proxyUrl?: string
   } = {},
 ): Promise<Spec> => {
-  // eslint-disable-next-line no-async-promise-executor
+  // biome-ignore lint/suspicious/noAsyncPromiseExecutor: Yeah, I don’t know how to avoid this.
   return new Promise(async (resolve, reject) => {
     try {
       // Return an empty resolved specification if the given specification is empty
       if (!specification) {
-        return resolve(
-          transformResult(createEmptySpecification() as OpenAPI.Document),
-        )
+        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
       }
 
       const start = performance.now()
@@ -46,8 +40,7 @@ export const parse = (
       const { filesystem } = await load(specification, {
         plugins: [
           fetchUrls({
-            fetch: (url) =>
-              fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
+            fetch: (url) => fetch(proxyUrl ? redirectToProxy(proxyUrl, url) : url),
           }),
         ],
       })
@@ -68,25 +61,18 @@ export const parse = (
       if (schema === undefined) {
         reject(errors?.[0]?.message ?? 'Failed to parse the OpenAPI file.')
 
-        return resolve(
-          transformResult(createEmptySpecification() as OpenAPI.Document),
-        )
+        return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
       }
 
       return resolve(transformResult(schema))
     } catch (error) {
-      console.error(
-        '[@scalar/api-reference]',
-        'Failed to parse the OpenAPI document. It might be invalid?',
-      )
+      console.error('[@scalar/api-reference]', 'Failed to parse the OpenAPI document. It might be invalid?')
       console.error(error)
 
       reject(error)
     }
 
-    return resolve(
-      transformResult(createEmptySpecification() as OpenAPI.Document),
-    )
+    return resolve(transformResult(createEmptySpecification() as OpenAPI.Document))
   })
 }
 
@@ -115,11 +101,8 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
   Object.keys(schema.webhooks ?? {}).forEach((name) => {
     // prettier-ignore
-    ;(
-      Object.keys(schema.webhooks?.[name] ?? {}) as string[]
-    ).forEach((httpVerb) => {
-      const originalWebhook =
-        schema.webhooks?.[name][httpVerb]
+    ;(Object.keys(schema.webhooks?.[name] ?? {}) as string[]).forEach((httpVerb) => {
+      const originalWebhook = schema.webhooks?.[name][httpVerb]
 
       // Filter out webhooks marked as internal
       if (!originalWebhook || shouldIgnoreEntity(originalWebhook)) {
@@ -128,19 +111,14 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
       if (Array.isArray(originalWebhook.tags)) {
         // Resolve the whole tag object
-        const resolvedTags = originalWebhook.tags
-          ?.map((tag: string) => schema.tags?.find((t: UnknownObject) => t.name === tag))
-
-        // Filter out tags marked as internal
-        originalWebhook.tags = resolvedTags?.filter(
-          (tag: UnknownObject) => !shouldIgnoreEntity(tag),
+        const resolvedTags = originalWebhook.tags?.map((tag: string) =>
+          schema.tags?.find((t: UnknownObject) => t.name === tag),
         )
 
-        if (
-          resolvedTags?.some(
-            (tag: UnknownObject) => shouldIgnoreEntity(tag),
-          )
-        ) {
+        // Filter out tags marked as internal
+        originalWebhook.tags = resolvedTags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
+
+        if (resolvedTags?.some((tag: UnknownObject) => shouldIgnoreEntity(tag))) {
           // Skip this webhook if it has tags marked as internal
           return
         }
@@ -210,12 +188,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       // If there are no tags, we’ll create a default one.
       if (!operation.tags || operation.tags.length === 0) {
         // Create the default tag.
-        if (
-          !schema.tags?.find(
-            (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
-              tag.name === 'default',
-          )
-        ) {
+        if (!schema.tags?.find((tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default')) {
           schema.tags?.push({
             name: 'default',
             description: '',
@@ -225,8 +198,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
 
         // find the index of the default tag
         const indexOfDefaultTag = schema.tags?.findIndex(
-          (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) =>
-            tag.name === 'default',
+          (tag: OpenAPIV2.TagObject | OpenAPIV3.TagObject) => tag.name === 'default',
         )
 
         // Add the new operation to the default tag.
@@ -239,9 +211,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
       else {
         operation.tags.forEach((operationTag: string) => {
           // Try to find the tag in the schema
-          const indexOfExistingTag = schema.tags?.findIndex(
-            (tag: UnknownObject) => tag.name === operationTag,
-          )
+          const indexOfExistingTag = schema.tags?.findIndex((tag: UnknownObject) => tag.name === operationTag)
 
           // Create tag if it doesn’t exist yet
           if (indexOfExistingTag === -1) {
@@ -252,10 +222,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
           }
 
           // Decide where to store the new operation
-          const tagIndex =
-            indexOfExistingTag !== -1
-              ? indexOfExistingTag
-              : schema.tags.length - 1
+          const tagIndex = indexOfExistingTag !== -1 ? indexOfExistingTag : schema.tags.length - 1
 
           // Create operations array if it doesn’t exist yet
           if (typeof schema.tags[tagIndex]?.operations === 'undefined') {
@@ -270,9 +237,7 @@ const transformResult = (originalSchema: OpenAPI.Document): Spec => {
   })
 
   // Remove tags with `x-internal` set to true
-  schema.tags = schema.tags?.filter(
-    (tag: UnknownObject) => !shouldIgnoreEntity(tag),
-  )
+  schema.tags = schema.tags?.filter((tag: UnknownObject) => !shouldIgnoreEntity(tag))
 
   const returnedResult = {
     ...schema,

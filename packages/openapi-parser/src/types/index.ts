@@ -95,7 +95,6 @@ declare global {
   /**
    * Available commands, can be extended dynamically
    */
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Commands {}
 }
 
@@ -147,10 +146,7 @@ export type EmptyCommandChainResult = {
  * This type enables the API to correctly infer the return type based on
  * the sequence of method calls in the fluent interface.
  */
-export type CommandChain<T extends Task[]> = T extends [
-  infer First,
-  ...infer Rest,
-]
+export type CommandChain<T extends Task[]> = T extends [infer First, ...infer Rest]
   ? First extends Task
     ? Rest extends Task[]
       ? Merge<Commands[First['name']]['result'], CommandChain<Rest>>

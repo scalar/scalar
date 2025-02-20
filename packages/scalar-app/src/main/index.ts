@@ -1,9 +1,9 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import todesktop from '@todesktop/runtime'
 import { BrowserWindow, type IpcMainInvokeEvent, Menu, app, dialog, ipcMain, session, shell } from 'electron'
 import windowStateKeeper from 'electron-window-state'
-import fs from 'node:fs'
-import path from 'node:path'
 
 import icon from '../../build/icon.png?asset'
 import { resolve } from './resolve'
@@ -25,7 +25,6 @@ todesktop.init({
     showInstallAndRestartPrompt: async (context) => {
       if (!context.appIsInForeground) return
 
-      // eslint-disable-next-line consistent-return
       return {
         message: 'Update Available',
         detail: `Version ${context.updateInfo?.version} is ready to be installed.`,

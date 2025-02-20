@@ -22,7 +22,6 @@ export type UpdateScheme = <P extends Path<SecurityScheme>>(
 ) => void
 
 declare global {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Window {
     dataDump: () => void
   }

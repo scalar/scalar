@@ -1,7 +1,6 @@
-<!-- eslint-disable vue/no-unused-properties -->
 <script setup lang="ts">
 import { ScalarMarkdown } from '@scalar/components'
-import type { Spec, Tag } from '@scalar/types/legacy'
+import type { Tag } from '@scalar/types/legacy'
 
 import { useNavState } from '../../../hooks'
 import { Anchor } from '../../Anchor'
@@ -9,7 +8,6 @@ import { SectionContainerAccordion, SectionHeader } from '../../Section'
 
 defineProps<{
   tag: Tag
-  spec: Spec
 }>()
 
 const { getTagId } = useNavState()
