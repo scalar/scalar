@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { RequestPayload } from '@scalar/oas-utils/entities/spec'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import EmptyState from '@/components/EmptyState.vue'
@@ -9,6 +8,7 @@ import ImportCurlModal from '@/components/ImportCurl/ImportCurlModal.vue'
 import ViewLayout from '@/components/ViewLayout/ViewLayout.vue'
 import ViewLayoutContent from '@/components/ViewLayout/ViewLayoutContent.vue'
 import { useLayout } from '@/hooks'
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 import { importCurlCommand } from '@/libs/importers/curl'
 import { PathId } from '@/routes'
 import { useWorkspace } from '@/store'
@@ -18,6 +18,9 @@ import RequestSubpageHeader from '@/views/Request/RequestSubpageHeader.vue'
 import ResponseSection from '@/views/Request/ResponseSection/ResponseSection.vue'
 
 defineEmits<(e: 'newTab', item: { name: string; uid: string }) => void>()
+
+const { isSidebarOpen } = useSidebarToggle()
+
 const workspaceContext = useWorkspace()
 const { layout } = useLayout()
 const {
@@ -45,7 +48,6 @@ type ExtendedRequestPayload = RequestPayload & {
   url?: string
 }
 
-const isSidebarOpen = ref(layout !== 'modal')
 const parsedCurl = ref<ExtendedRequestPayload>()
 const selectedServerUid = ref('')
 const router = useRouter()
@@ -53,11 +55,6 @@ const router = useRouter()
 const activeHistoryEntry = computed(() =>
   requestHistory.findLast((r) => r.request.uid === activeExample.value?.uid),
 )
-/** Show / hide the sidebar when we resize the screen */
-const { mediaQueries } = useBreakpoints()
-watch(mediaQueries.xl, (isXL) => (isSidebarOpen.value = isXL), {
-  immediate: layout !== 'modal',
-})
 
 /**
  * Selected scheme UIDs

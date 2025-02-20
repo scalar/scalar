@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import { isDefined } from '@scalar/oas-utils/helpers'
+import { safeJSON } from '@scalar/object-utils/parse'
+import { useToasts } from '@scalar/use-toasts'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { RouterView } from 'vue-router'
+
 import { useLayout } from '@/hooks'
+import { useSidebarToggle } from '@/hooks/useSidebarToggle'
 import { ERRORS } from '@/libs'
 import { createRequestOperation } from '@/libs/send-request'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 import { useOpenApiWatcher } from '@/views/Request/hooks/useOpenApiWatcher'
-import { isDefined } from '@scalar/oas-utils/helpers'
-import { safeJSON } from '@scalar/object-utils/parse'
-import { useBreakpoints } from '@scalar/use-hooks/useBreakpoints'
-import { useToasts } from '@scalar/use-toasts'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { RouterView } from 'vue-router'
 
 import RequestSidebar from './RequestSidebar.vue'
 
@@ -29,14 +30,8 @@ const {
 const { cookies, requestHistory, showSidebar, securitySchemes, events } =
   workspaceContext
 
-const isSidebarOpen = ref(layout !== 'modal')
+const { isSidebarOpen } = useSidebarToggle()
 const requestAbortController = ref<AbortController>()
-
-/** Show / hide the sidebar when we resize the screen */
-const { mediaQueries } = useBreakpoints()
-watch(mediaQueries.xl, (isXL) => (isSidebarOpen.value = isXL), {
-  immediate: layout !== 'modal',
-})
 
 /**
  * Selected scheme UIDs
@@ -129,20 +124,18 @@ onBeforeUnmount(() => events.executeRequest.off(executeRequest))
 <template>
   <!-- Layout -->
   <div
-    class="flex flex-1 flex-col pt-0 h-full bg-b-1 relative z-0 overflow-hidden"
+    class="bg-b-1 relative z-0 flex h-full flex-1 flex-col overflow-hidden pt-0"
     :class="{
-      '!mr-0 !mb-0 !border-0': layout === 'modal',
+      '!mb-0 !mr-0 !border-0': layout === 'modal',
     }">
     <div class="flex h-full">
       <!-- Sidebar -->
       <RequestSidebar
         v-if="showSidebar"
-        :isSidebarOpen="isSidebarOpen"
-        @newTab="$emit('newTab', $event)"
-        @update:isSidebarOpen="(val) => (isSidebarOpen = val)" />
+        @newTab="$emit('newTab', $event)" />
 
       <!-- Content -->
-      <div class="flex flex-1 flex-col h-full">
+      <div class="flex h-full flex-1 flex-col">
         <RouterView />
       </div>
     </div>
