@@ -6,6 +6,7 @@ dist/
 .turbo
 *.tgz
 *.tsbuildinfo
+__pycache__/
 
 # Testing data
 test-*.json
