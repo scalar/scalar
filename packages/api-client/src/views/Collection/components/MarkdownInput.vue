@@ -35,7 +35,7 @@ const mode = ref<'edit' | 'preview'>('preview')
             :class="{
               'text-c-3 rounded border border-dashed': modelValue === '',
             }"
-            :value="modelValue || 'Add description...'"
+            :value="modelValue || 'Write a description in Markdown…'"
             @dblclick="mode = 'edit'" />
         </template>
 
