@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
-  type ScalarComboboxOption,
   ScalarIcon,
   ScalarListbox,
+  type ScalarComboboxOption,
 } from '@scalar/components'
 import { isHttpMethod } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
@@ -70,7 +71,7 @@ const tags = computed(() =>
 )
 
 /** Currently selected collection with a reasonable default */
-const selectedCollection = ref<ScalarComboboxOption | undefined>(
+const selectedCollection = ref(
   props.metaData
     ? collections.value.find(
         (collection) =>
@@ -143,7 +144,7 @@ const handleSubmit = () => {
           v-model="selectedCollection"
           :options="collections">
           <ScalarButton
-            class="justify-between p-2 ml-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            class="hover:bg-b-2 ml-2 max-h-8 w-full justify-between gap-1 p-2 text-xs"
             variant="outlined">
             <span
               class="whitespace-nowrap"
@@ -165,7 +166,7 @@ const handleSubmit = () => {
           v-model="selectedTag"
           :options="tags">
           <ScalarButton
-            class="justify-between p-2 ml-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+            class="hover:bg-b-2 ml-2 max-h-8 w-full justify-between gap-1 p-2 text-xs"
             variant="outlined">
             <span :class="selectedTag ? 'text-c-1' : 'text-c-3'">
               {{ selectedTag ? selectedTag.label : 'Select Tag' }}
@@ -178,6 +179,6 @@ const handleSubmit = () => {
         </ScalarListbox>
       </div>
     </template>
-    <template #submit>Create Request</template>
+    <template #submit> Create Request </template>
   </CommandActionForm>
 </template>

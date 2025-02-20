@@ -2,6 +2,7 @@ import { type ClientConfiguration, createApiClient } from '@/libs'
 import { createWebHistoryRouter, saveActiveWorkspace } from '@/router'
 
 import ApiClientApp from './ApiClientApp.vue'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 
 /**
  * Mount the full-blown API Client modal to a given element.
@@ -33,11 +34,11 @@ export const createApiClientApp = async (
 
   // Import the spec if needed
   if (configuration.spec?.url) {
-    await importSpecFromUrl(configuration.spec.url, 'default', {
+    await importSpecFromUrl(configuration.spec.url, 'default' as Workspace['uid'], {
       proxyUrl: configuration.proxyUrl,
     })
   } else if (configuration.spec?.content) {
-    await importSpecFile(configuration.spec?.content, 'default')
+    await importSpecFile(configuration.spec?.content, 'default' as Workspace['uid'])
   }
 
   return client

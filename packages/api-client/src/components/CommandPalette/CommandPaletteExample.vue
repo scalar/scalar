@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
-import { PathId } from '@/routes'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import {
   ScalarButton,
   ScalarDropdown,
   ScalarDropdownItem,
   ScalarIcon,
 } from '@scalar/components'
-import type { Request } from '@scalar/oas-utils/entities/spec'
+import type { Operation, Request } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+
+import HttpMethod from '@/components/HttpMethod/HttpMethod.vue'
+import { PathId } from '@/routes'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 import CommandActionForm from './CommandActionForm.vue'
 import CommandActionInput from './CommandActionInput.vue'
 
 const props = defineProps<{
   /** The request uid to pre-select */
-  metaData?: { itemUid: string }
+  metaData?: { itemUid: Operation['uid'] }
 }>()
 
 const emits = defineEmits<{
@@ -37,7 +38,8 @@ const { toast } = useToasts()
 const exampleName = ref('')
 const selectedRequest = ref<Request | undefined>(
   // Ensure we pre-select the correct request
-  requests[props.metaData?.itemUid ?? ''] ?? activeRequest.value,
+  requests[props.metaData?.itemUid ?? ('' as Operation['uid'])] ??
+    activeRequest.value,
 )
 
 /** Select request in dropdown */
@@ -95,7 +97,7 @@ const visibleRequests = computed<Request[]>(() =>
         placement="bottom"
         resize>
         <ScalarButton
-          class="justify-between p-2 max-h-8 w-full gap-1 text-xs hover:bg-b-2"
+          class="hover:bg-b-2 max-h-8 w-full justify-between gap-1 p-2 text-xs"
           variant="outlined"
           @click="handleSelect(selectedRequest)">
           {{ selectedRequest.summary }}
@@ -108,7 +110,7 @@ const visibleRequests = computed<Request[]>(() =>
           </div>
         </ScalarButton>
         <template #items>
-          <div class="max-h-40 custom-scroll">
+          <div class="custom-scroll max-h-40">
             <ScalarDropdownItem
               v-for="request in visibleRequests"
               :key="request.uid"
@@ -121,6 +123,6 @@ const visibleRequests = computed<Request[]>(() =>
         </template>
       </ScalarDropdown>
     </template>
-    <template #submit>Create Example</template>
+    <template #submit> Create Example </template>
   </CommandActionForm>
 </template>

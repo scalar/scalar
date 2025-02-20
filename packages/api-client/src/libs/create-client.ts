@@ -203,13 +203,13 @@ export const createApiClient = ({
    * @remarks Currently you should not use this directly, use updateConfig instead to get the side effects
    */
   const updateSpec = async (spec: SpecConfiguration) => {
-    if (spec?.url) {
-      await importSpecFromUrl(spec.url, activeWorkspace.value?.uid ?? '', {
+    if (spec?.url && activeWorkspace.value?.uid) {
+      await importSpecFromUrl(spec.url, activeWorkspace.value.uid, {
         ...configuration,
         setCollectionSecurity: true,
       })
-    } else if (spec?.content) {
-      await importSpecFile(spec?.content, activeWorkspace.value?.uid ?? '', {
+    } else if (spec?.content && activeWorkspace.value?.uid) {
+      await importSpecFile(spec?.content, activeWorkspace.value.uid, {
         ...configuration,
         setCollectionSecurity: true,
       })

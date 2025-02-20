@@ -1,20 +1,17 @@
 import { flattenEnvVars } from '@/libs/string-template'
 import { PathId } from '@/router'
 import { environmentSchema } from '@scalar/oas-utils/entities/environment'
-import type { Request, RequestExample } from '@scalar/oas-utils/entities/spec'
 import { isDefined } from '@scalar/oas-utils/helpers'
-import { type ComputedRef, type InjectionKey, computed, inject } from 'vue'
+import { type InjectionKey, computed, inject } from 'vue'
 import type { Router } from 'vue-router'
 
 import { getRouterParams } from './router-params'
 import type { WorkspaceStore } from '@/store/store'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
+import type { Collection, Request, RequestExample, Server } from '@scalar/oas-utils/entities/spec'
 
 type CreateActiveEntitiesStoreParams = {
   router?: Router
-  /** Override the active request  */
-  activeRequestOverride?: ComputedRef<Request | undefined>
-  /** Override the active request example  */
-  activeExampleOverride?: ComputedRef<RequestExample | undefined>
 } & Pick<WorkspaceStore, 'collections' | 'environments' | 'requestExamples' | 'requests' | 'servers' | 'workspaces'>
 
 type EnvVariable = {
@@ -35,9 +32,6 @@ export const createActiveEntitiesStore = ({
   router,
   servers,
   workspaces,
-  // TODO: these are temporary until we allow providing each entity individually
-  activeRequestOverride,
-  activeExampleOverride,
 }: CreateActiveEntitiesStoreParams) => {
   /** Gives the required UID usually per route */
   const activeRouterParams = computed(getRouterParams(router))
@@ -45,7 +39,8 @@ export const createActiveEntitiesStore = ({
   /** The currently selected workspace OR the first one */
   const activeWorkspace = computed(() => {
     const workspace =
-      workspaces[activeRouterParams.value[PathId.Workspace]] ?? workspaces[Object.keys(workspaces)[0] ?? '']
+      workspaces[activeRouterParams.value[PathId.Workspace]] ??
+      workspaces[Object.keys(workspaces)[0] as Workspace['uid']]
 
     return workspace
   })
@@ -117,29 +112,26 @@ export const createActiveEntitiesStore = ({
    *
    * undefined must be handled as we may have no requests
    */
-  const activeRequest =
-    activeRequestOverride ??
-    computed(() => {
-      const key = activeRouterParams.value[PathId.Request]
+  const activeRequest = computed(() => {
+    const key = activeRouterParams.value[PathId.Request]
 
-      // Can use this fallback to get an active request
-      const collection =
-        collections[activeRouterParams.value.collection] || collections[activeWorkspace.value?.collections[0] ?? '']
+    // Can use this fallback to get an active request
+    const collection =
+      collections[activeRouterParams.value.collection] ||
+      collections[(activeWorkspace.value?.collections[0] ?? '') as Collection['uid']]
 
-      return requests[key] || requests[collection?.requests[0] ?? '']
-    })
+    return requests[key] || requests[(collection?.requests[0] ?? '') as Request['uid']]
+  })
 
   /** Grabs the currently active example using the path param */
-  const activeExample =
-    activeExampleOverride ??
-    computed(() => {
-      const key =
-        activeRouterParams.value[PathId.Examples] === 'default'
-          ? activeRequest.value?.examples[0] || ''
-          : activeRouterParams.value[PathId.Examples]
+  const activeExample = computed(() => {
+    const key =
+      activeRouterParams.value[PathId.Examples] === 'default'
+        ? (activeRequest.value?.examples[0] as RequestExample['uid'])
+        : activeRouterParams.value[PathId.Examples]
 
-      return requestExamples[key]
-    })
+    return requestExamples[key]
+  })
 
   /**
    * First collection that the active request is in
@@ -150,7 +142,8 @@ export const createActiveEntitiesStore = ({
     const requestUid = activeRequest.value?.uid
     if (requestUid) return Object.values(collections).find((c) => c.requests?.includes(requestUid))
 
-    const fallbackUid = activeWorkspace.value?.collections[0] ?? collections[0]?.uid ?? ''
+    const fallbackUid =
+      activeWorkspace.value?.collections[0] ?? Object.values(collections)[0]?.uid ?? ('' as Collection['uid'])
 
     return collections[fallbackUid]
   })
@@ -162,7 +155,7 @@ export const createActiveEntitiesStore = ({
         (activeRequest.value?.selectedServerUid ||
           activeCollection.value?.selectedServerUid ||
           activeCollection.value?.servers[0]) ??
-          ''
+          ('' as Server['uid'])
       ],
   )
 

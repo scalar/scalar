@@ -2,6 +2,7 @@ import { type CreateApiClientParams, createApiClient } from '@/libs'
 import { createModalRouter } from '@/router'
 
 import ApiClientModal from './ApiClientModal.vue'
+import type { Workspace } from '@scalar/oas-utils/entities/workspace'
 
 /**
  * Initialize Scalar API Client Modal
@@ -13,12 +14,7 @@ export const createApiClientModal = async ({
   configuration = {},
   mountOnInitialize = true,
   store,
-}: Partial<
-  Pick<
-    CreateApiClientParams,
-    'el' | 'configuration' | 'mountOnInitialize' | 'store'
-  >
->) => {
+}: Partial<Pick<CreateApiClientParams, 'el' | 'configuration' | 'mountOnInitialize' | 'store'>>) => {
   // Default sidebar to closed in the modal
   const _configuration = {
     ...configuration,
@@ -42,13 +38,13 @@ export const createApiClientModal = async ({
   // Import the spec if we don't pass in a store
   if (!store) {
     if (configuration.spec?.url)
-      await importSpecFromUrl(configuration.spec.url, 'default', {
+      await importSpecFromUrl(configuration.spec.url, 'default' as Workspace['uid'], {
         proxyUrl: configuration.proxyUrl,
         setCollectionSecurity: true,
         ...configuration,
       })
     else if (configuration.spec?.content)
-      await importSpecFile(configuration.spec?.content, 'default', {
+      await importSpecFile(configuration.spec?.content, 'default' as Workspace['uid'], {
         setCollectionSecurity: true,
         ...configuration,
       })
@@ -67,12 +63,7 @@ export const createApiClientModalSync = ({
   configuration = {},
   mountOnInitialize = true,
   store,
-}: Partial<
-  Pick<
-    CreateApiClientParams,
-    'el' | 'configuration' | 'mountOnInitialize' | 'store'
-  >
->) =>
+}: Partial<Pick<CreateApiClientParams, 'el' | 'configuration' | 'mountOnInitialize' | 'store'>>) =>
   createApiClient({
     el,
     appComponent: ApiClientModal,

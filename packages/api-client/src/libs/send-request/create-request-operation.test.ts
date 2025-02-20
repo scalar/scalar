@@ -14,7 +14,6 @@ import { beforeAll, describe, expect, it, vi } from 'vitest'
 import type { z } from 'zod'
 
 import { createRequestOperation } from './create-request-operation'
-import type { SelectedSecuritySchemeUids } from '@scalar/oas-utils/entities/shared'
 
 const PROXY_PORT = 5051
 const VOID_PORT = 5052
@@ -63,7 +62,7 @@ beforeAll(async () => {
     if (result.ok) {
       return
     }
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`
 
 [sendRequest.test.ts] Looks like you’re not running @scalar/proxy-server on <http://127.0.0.1:${PROXY_PORT}>, but it’s required for this test file.
@@ -81,7 +80,7 @@ $ pnpm dev:proxy-server
     if (result.ok) {
       return
     }
-  } catch (error) {
+  } catch (_error) {
     throw new Error(`
 
 [sendRequest.test.ts] Looks like you’re not running @scalar/void-server on <http://127.0.0.1:${VOID_PORT}>, but it’s required for this test file.
@@ -660,6 +659,16 @@ describe('create-request-operation', () => {
   })
 
   it('sends cookies', async () => {
+    const scheme = securitySchemeSchema.parse({
+      uid: 'api-key',
+      type: 'apiKey',
+      nameKey: 'api_key',
+      name: 'auth-cookie',
+      in: 'cookie',
+      value: 'super-secret-token',
+      description: 'API key',
+    })
+
     const [error, requestOperation] = createRequestOperation({
       ...createRequestPayload({
         serverPayload: { url: VOID_URL },
@@ -684,17 +693,9 @@ describe('create-request-operation', () => {
         },
       }),
       securitySchemes: {
-        'api-key': securitySchemeSchema.parse({
-          uid: 'api-key',
-          type: 'apiKey',
-          nameKey: 'api_key',
-          name: 'auth-cookie',
-          in: 'cookie',
-          value: 'super-secret-token',
-          description: 'API key',
-        }),
+        [scheme.uid]: scheme,
       },
-      selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
+      selectedSecuritySchemeUids: [scheme.uid],
     })
 
     if (error) throw error
@@ -711,21 +712,23 @@ describe('create-request-operation', () => {
 
   describe('authentication', () => {
     it('adds apiKey auth in header', async () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'apiKey',
+        name: 'X-API-KEY',
+        in: 'header',
+        value: 'test-key',
+        uid: 'api-key',
+        nameKey: 'X-API-KEY',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
-            type: 'apiKey',
-            name: 'X-API-KEY',
-            in: 'header',
-            value: 'test-key',
-            uid: 'api-key',
-            nameKey: 'X-API-KEY',
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
 
@@ -738,21 +741,23 @@ describe('create-request-operation', () => {
     })
 
     it('adds apiKey auth in query', async () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'apiKey',
+        name: 'api_key',
+        in: 'query',
+        value: 'test-key',
+        uid: 'api-key',
+        nameKey: 'api_key',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            value: 'test-key',
-            uid: 'api-key',
-            nameKey: 'api_key',
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
 
@@ -765,23 +770,25 @@ describe('create-request-operation', () => {
     })
 
     it('adds basic auth header', async () => {
+      const scheme = securitySchemeSchema.parse({
+        uid: 'basic-auth',
+        type: 'http',
+        scheme: 'basic',
+        bearerFormat: 'Basic',
+        token: '',
+        username: 'user',
+        password: 'pass',
+        nameKey: 'Authorization',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'basic-auth': securitySchemeSchema.parse({
-            type: 'http',
-            scheme: 'basic',
-            bearerFormat: 'Basic',
-            token: '',
-            username: 'user',
-            password: 'pass',
-            uid: 'basic-auth',
-            nameKey: 'Authorization',
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['basic-auth'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
 
@@ -794,21 +801,23 @@ describe('create-request-operation', () => {
     })
 
     it('adds bearer token header', async () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'Bearer',
+        uid: 'bearer-auth',
+        nameKey: 'Authorization',
+        token: 'xxxx',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'bearer-auth': securitySchemeSchema.parse({
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'Bearer',
-            uid: 'bearer-auth',
-            nameKey: 'Authorization',
-            token: 'xxxx',
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['bearer-auth'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
 
@@ -821,31 +830,34 @@ describe('create-request-operation', () => {
     })
 
     it('handles complex auth', async () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'apiKey',
+        name: 'api_key',
+        in: 'query',
+        value: 'xxxx',
+        uid: 'api-key',
+        nameKey: 'api_key',
+      })
+      const scheme2 = securitySchemeSchema.parse({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'Bearer',
+        username: '',
+        password: '',
+        uid: 'bearer-auth',
+        nameKey: 'Authorization',
+        token: 'xxxx',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
-            type: 'apiKey',
-            name: 'api_key',
-            in: 'query',
-            value: 'xxxx',
-            uid: 'api-key',
-            nameKey: 'api_key',
-          }),
-          'bearer-auth': securitySchemeSchema.parse({
-            type: 'http',
-            scheme: 'bearer',
-            bearerFormat: 'Bearer',
-            username: '',
-            password: '',
-            uid: 'bearer-auth',
-            nameKey: 'Authorization',
-            token: 'xxxx',
-          }),
+          [scheme.uid]: scheme,
+          [scheme2.uid]: scheme2,
         },
-        selectedSecuritySchemeUids: [['bearer-auth', 'api-key']] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [[scheme2.uid, scheme.uid]],
       })
       if (error) throw error
 
@@ -858,30 +870,32 @@ describe('create-request-operation', () => {
     })
 
     it('adds oauth2 token header', async () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'oauth2',
+        uid: 'oauth2-auth',
+        nameKey: 'Authorization',
+        flows: {
+          implicit: {
+            'type': 'implicit',
+            'token': 'oauth-token',
+            'authorizationUrl': 'https://example.com/auth',
+            'refreshUrl': 'https://example.com/refresh',
+            'scopes': {},
+            'selectedScopes': [],
+            'x-scalar-client-id': 'client-id',
+            'x-scalar-redirect-uri': 'https://example.com/callback',
+          },
+        },
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'oauth2-auth': securitySchemeSchema.parse({
-            type: 'oauth2',
-            uid: 'oauth2-auth',
-            nameKey: 'Authorization',
-            flows: {
-              implicit: {
-                'type': 'implicit',
-                'token': 'oauth-token',
-                'authorizationUrl': 'https://example.com/auth',
-                'refreshUrl': 'https://example.com/refresh',
-                'scopes': {},
-                'selectedScopes': [],
-                'x-scalar-client-id': 'client-id',
-                'x-scalar-redirect-uri': 'https://example.com/callback',
-              },
-            },
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['oauth2-auth'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
 
@@ -894,21 +908,23 @@ describe('create-request-operation', () => {
     })
 
     it('accepts a lowercase auth header', () => {
+      const scheme = securitySchemeSchema.parse({
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
+        value: 'test-key',
+        uid: 'api-key',
+        nameKey: 'api-key',
+      })
+
       const [error, requestOperation] = createRequestOperation({
         ...createRequestPayload({
           serverPayload: { url: VOID_URL },
         }),
         securitySchemes: {
-          'api-key': securitySchemeSchema.parse({
-            type: 'apiKey',
-            name: 'x-api-key',
-            in: 'header',
-            value: 'test-key',
-            uid: 'api-key',
-            nameKey: 'api-key',
-          }),
+          [scheme.uid]: scheme,
         },
-        selectedSecuritySchemeUids: ['api-key'] as SelectedSecuritySchemeUids,
+        selectedSecuritySchemeUids: [scheme.uid],
       })
       if (error) throw error
       expect(requestOperation.request.headers.get('x-api-key')).toBe('test-key')

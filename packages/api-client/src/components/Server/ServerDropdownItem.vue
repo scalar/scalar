@@ -58,16 +58,15 @@ const isSelectedServer = computed(
   () => props.server?.uid === props.serverOption.id,
 )
 
-const hasVariables = (serverUid: string) => {
+const hasVariables = (serverUid?: Server['uid']) => {
   if (!serverUid) return false
-
   const server = servers[serverUid]
 
   return Object.keys(server?.variables ?? {}).length > 0
 }
 
 const isExpanded = computed(
-  () => isSelectedServer.value && hasVariables(props.server?.uid ?? ''),
+  () => isSelectedServer.value && hasVariables(props.server?.uid),
 )
 
 const updateServerVariable = (key: string, value: string) => {
