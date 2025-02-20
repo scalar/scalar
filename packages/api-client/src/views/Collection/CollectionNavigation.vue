@@ -110,7 +110,7 @@ const routes = computed<CollectionSidebarEntry[]>(() => [
             typeof to.name === 'string' &&
             typeof currentRoute.name === 'string' &&
             currentRoute.name?.startsWith(to.name)
-              ? 'text-c-1 border-white'
+              ? 'text-c-1 border-c-1'
               : 'text-c-2 hover:text-c-1'
           ">
           {{ displayName }}

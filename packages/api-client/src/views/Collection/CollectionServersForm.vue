@@ -1,14 +1,26 @@
 <script setup lang="ts">
-import { ScalarButton, ScalarMarkdown } from '@scalar/components'
-import { computed } from 'vue'
+import {
+  ScalarButton,
+  ScalarDropdown,
+  ScalarDropdownItem,
+  ScalarIcon,
+  ScalarMarkdown,
+  ScalarModal,
+  useModal,
+} from '@scalar/components'
+import { computed, ref } from 'vue'
 
+import DeleteSidebarListElement from '@/components/Sidebar/Actions/DeleteSidebarListElement.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
 
 import CollectionServerForm from './CollectionServerForm.vue'
 
 const { activeCollection } = useActiveEntities()
-const { servers, events } = useWorkspace()
+const { servers, events, serverMutators } = useWorkspace()
+
+const deleteModal = useModal()
+const selectedServerUid = ref<string | null>(null)
 
 const collectionServers = computed(() =>
   Object.values(servers || {}).filter((server) =>
@@ -21,6 +33,19 @@ const handleAddServer = () =>
   events.commandPalette.emit({
     commandName: 'Add Server',
   })
+
+/** Delete server */
+const handleDeleteServer = () => {
+  if (!activeCollection.value?.uid || !selectedServerUid.value) return
+
+  serverMutators.delete(selectedServerUid.value, activeCollection.value.uid)
+  deleteModal.hide()
+}
+
+const openDeleteModal = (serverUid: string) => {
+  selectedServerUid.value = serverUid
+  deleteModal.show()
+}
 </script>
 
 <template>
@@ -47,12 +72,34 @@ const handleAddServer = () =>
         v-for="(server, index) in collectionServers"
         :key="server.uid">
         <div class="bg-b-2 overflow-hidden rounded-lg border">
-          <span class="block px-3 py-1.5 text-sm font-medium">
+          <div class="flex items-center justify-between py-1 pl-3 pr-1 text-sm">
             <ScalarMarkdown
               v-if="server.description"
               :value="server.description" />
             <span v-else>Server {{ index + 1 }}</span>
-          </span>
+            <ScalarDropdown placement="bottom-end">
+              <ScalarButton
+                class="hover:bg-b-3 h-full max-h-8 gap-1 p-1 text-xs"
+                variant="ghost">
+                <ScalarIcon
+                  class="text-c-3"
+                  icon="Ellipses"
+                  size="md" />
+              </ScalarButton>
+              <template #items>
+                <ScalarDropdownItem
+                  class="flex gap-2 font-normal"
+                  @click="openDeleteModal(server.uid)">
+                  <ScalarIcon
+                    class="inline-flex"
+                    icon="Delete"
+                    size="sm"
+                    thickness="1.5" />
+                  <span>Delete</span>
+                </ScalarDropdownItem>
+              </template>
+            </ScalarDropdown>
+          </div>
           <CollectionServerForm
             v-if="activeCollection"
             :collectionId="activeCollection.uid"
@@ -60,5 +107,15 @@ const handleAddServer = () =>
         </div>
       </div>
     </div>
+    <ScalarModal
+      :size="'xxs'"
+      :state="deleteModal"
+      :title="`Delete ${selectedServerUid ? servers[selectedServerUid]?.url : 'Server'}`">
+      <DeleteSidebarListElement
+        :variableName="'Server'"
+        :warningMessage="'Are you sure you want to delete this server? This action cannot be undone.'"
+        @close="deleteModal.hide()"
+        @delete="handleDeleteServer" />
+    </ScalarModal>
   </div>
 </template>
