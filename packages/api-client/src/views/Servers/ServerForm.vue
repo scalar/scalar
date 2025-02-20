@@ -1,23 +1,13 @@
 <script setup lang="ts">
+import type { Server } from '@scalar/oas-utils/entities/spec'
+import { computed } from 'vue'
+
 import Form from '@/components/Form/Form.vue'
 import { useWorkspace } from '@/store'
 import { useActiveEntities } from '@/store/active-entities'
-import type { Server } from '@scalar/oas-utils/entities/spec'
-import { computed, withDefaults } from 'vue'
 
-const props = withDefaults(
-  defineProps<{
-    collectionId: string | string[]
-    serverUid: string | string[]
-  }>(),
-  {
-    collectionId: '',
-    serverUid: '',
-  },
-)
-
-const { activeWorkspaceCollections } = useActiveEntities()
-const { servers, serverMutators } = useWorkspace()
+const { activeRouterParams, activeWorkspaceCollections } = useActiveEntities()
+const { collections, servers, serverMutators } = useWorkspace()
 
 const options = [
   { label: 'URL', key: 'url', placeholder: 'https://void.scalar.com/api' },
@@ -29,16 +19,20 @@ const options = [
 ]
 
 const activeServer = computed(() => {
-  const activeCollection = activeWorkspaceCollections.value.find(
-    (collection) => collection.uid === props.collectionId,
-  )
-  return servers[
-    activeCollection &&
-    typeof props.serverUid === 'string' &&
-    props.serverUid === 'default'
-      ? (activeCollection.servers[0] ?? '')
-      : (activeCollection?.servers.find((uid) => uid === props.serverUid) ?? '')
-  ]
+  const collection = collections[activeRouterParams.value.collection]
+  if (!collection) return
+
+  // If default grab the first server, otherwise match with router param
+  const key =
+    typeof activeRouterParams.value.servers === 'string' &&
+    activeRouterParams.value.servers === 'default'
+      ? collection.servers[0]
+      : collection.servers.find(
+          (uid) => uid === activeRouterParams.value.servers,
+        )
+  if (!key) return
+
+  return servers[key]
 })
 
 const updateServer = (key: string, value: string) => {
@@ -47,7 +41,7 @@ const updateServer = (key: string, value: string) => {
 }
 </script>
 <template>
-  <div class="divide-0.5 divide-x flex w-full">
+  <div class="divide-0.5 flex w-full divide-x">
     <template v-if="activeServer">
       <Form
         :data="activeServer"

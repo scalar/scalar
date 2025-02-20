@@ -6,6 +6,7 @@ import {
   useModal,
 } from '@scalar/components'
 import { LibraryIcon } from '@scalar/icons'
+import type { Collection } from '@scalar/oas-utils/entities/spec'
 import { useToasts } from '@scalar/use-toasts'
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -71,7 +72,7 @@ function environmentNameToast(
 function addEnvironment(environment: {
   name: string
   color: string
-  collectionId: string | undefined
+  collectionId: Collection['uid'] | undefined
 }) {
   const environmentNameUsed = activeWorkspaceCollections.value.some(
     (collection) => {

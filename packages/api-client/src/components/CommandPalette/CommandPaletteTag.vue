@@ -1,10 +1,5 @@
 <script setup lang="ts">
-import {
-  ScalarButton,
-  ScalarIcon,
-  ScalarListbox,
-  type ScalarComboboxOption,
-} from '@scalar/components'
+import { ScalarButton, ScalarIcon, ScalarListbox } from '@scalar/components'
 import { useToasts } from '@scalar/use-toasts'
 import { computed, ref } from 'vue'
 

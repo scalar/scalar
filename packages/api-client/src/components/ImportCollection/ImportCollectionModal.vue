@@ -1,27 +1,28 @@
 <script setup lang="ts">
-import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
-import ImportNowButton from '@/components/ImportCollection/ImportNowButton.vue'
-import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
-import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
-import WorkspaceSelector from '@/components/ImportCollection/WorkspaceSelector.vue'
-import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
-import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
-import { isDocument } from '@/components/ImportCollection/utils/isDocument'
-import { isUrl } from '@/components/ImportCollection/utils/isUrl'
-import { useWorkspace } from '@/store'
-import { useActiveEntities } from '@/store/active-entities'
 import { ScalarIcon, ScalarModal, useModal } from '@scalar/components'
 import { isLocalUrl } from '@scalar/oas-utils/helpers'
 import { normalize } from '@scalar/openapi-parser'
 import type { OpenAPI } from '@scalar/openapi-types'
 import {
-  type IntegrationThemeId,
   getThemeStyles,
   themeIds,
+  type IntegrationThemeId,
 } from '@scalar/themes'
 import { useColorMode } from '@scalar/use-hooks/useColorMode'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+
+import WatchModeToggle from '@/components/CommandPalette/WatchModeToggle.vue'
+import { useUrlPrefetcher } from '@/components/ImportCollection/hooks/useUrlPrefetcher'
+import ImportNowButton from '@/components/ImportCollection/ImportNowButton.vue'
+import IntegrationLogo from '@/components/ImportCollection/IntegrationLogo.vue'
+import PrefetchError from '@/components/ImportCollection/PrefetchError.vue'
+import { getOpenApiDocumentVersion } from '@/components/ImportCollection/utils/getOpenApiDocumentVersion'
+import { isDocument } from '@/components/ImportCollection/utils/isDocument'
+import { isUrl } from '@/components/ImportCollection/utils/isUrl'
+import WorkspaceSelector from '@/components/ImportCollection/WorkspaceSelector.vue'
+import { useWorkspace } from '@/store'
+import { useActiveEntities } from '@/store/active-entities'
 
 const props = defineProps<{
   source: string | null
@@ -202,7 +203,7 @@ function handleImportFinished() {
 
   if (shouldShowIntegrationIcon.value) {
     workspaceMutators.edit(
-      activeWorkspace.value?.uid ?? '',
+      activeWorkspace.value?.uid,
       'themeId',
       integrationThemeId,
     )
@@ -217,22 +218,22 @@ function handleImportFinished() {
     :state="modalState">
     <div
       v-if="themeStyleTag"
-      v-html="themeStyleTag"></div>
+      v-html="themeStyleTag" />
     <div
-      class="flex flex-col h-screen justify-center px-6 overflow-hidden relative md:px-0">
+      class="relative flex h-screen flex-col justify-center overflow-hidden px-6 md:px-0">
       <div class="section-flare">
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
-        <div class="section-flare-item"></div>
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
+        <div class="section-flare-item" />
       </div>
       <!-- Wait until the URL is fetched -->
       <div
-        class="flex items-center flex-col m-auto px-8 py-8 rounded-xl border-1/2 max-w-[380px] w-full transition-opacity"
+        class="border-1/2 m-auto flex w-full max-w-[380px] flex-col items-center rounded-xl px-8 py-8 transition-opacity"
         :class="{ 'opacity-0': prefetchResult.state === 'loading' }">
         <!-- Prefetch error -->
         <!-- Or: Document doesn’t even have an OpenAPI/Swagger version, something is probably wrong -->
@@ -241,7 +242,7 @@ function handleImportFinished() {
             prefetchResult.error && prefetchResult.state === 'idle' && !version
           ">
           <!-- Heading -->
-          <div class="text-center text-md font-bold mb-2 line-clamp-1">
+          <div class="text-md mb-2 line-clamp-1 text-center font-bold">
             No OpenAPI document found
           </div>
           <PrefetchError :url="prefetchResult?.input || props.source" />
@@ -251,8 +252,8 @@ function handleImportFinished() {
           <!-- Integration Logo -->
           <div
             v-if="shouldShowIntegrationIcon"
-            class="flex justify-center items-center mb-2 p-1">
-            <div class="rounded-xl size-10">
+            class="mb-2 flex items-center justify-center p-1">
+            <div class="size-10 rounded-xl">
               <IntegrationLogo :integration="integration" />
             </div>
           </div>
@@ -261,24 +262,24 @@ function handleImportFinished() {
           <img
             v-else-if="companyLogo"
             alt="Logo"
-            class="w-full object-contain mb-2"
+            class="mb-2 w-full object-contain"
             :src="companyLogo" />
 
           <!-- Title -->
           <div
             v-if="!companyLogo"
-            class="text-center text-md font-bold mb-2 line-clamp-1">
+            class="text-md mb-2 line-clamp-1 text-center font-bold">
             {{ title || 'Untitled Collection' }}
           </div>
 
-          <div class="text-c-1 text-sm font-medium text-center text-balance">
+          <div class="text-c-1 text-balance text-center text-sm font-medium">
             Import the OpenAPI document to instantly send API requests. No
             signup required.
           </div>
 
           <!-- Actions -->
           <template v-if="version">
-            <div class="inline-flex flex-col gap-2 items-center z-10 w-full">
+            <div class="z-10 inline-flex w-full flex-col items-center gap-2">
               <ImportNowButton
                 :source="
                   prefetchResult?.url ?? prefetchResult?.content ?? source
@@ -290,20 +291,20 @@ function handleImportFinished() {
             <!-- Select the workspace -->
             <div class="flex justify-center">
               <div
-                class="inline-flex py-1 px-4 items-center text-xs font-medium text-c-3">
+                class="text-c-3 inline-flex items-center px-4 py-1 text-xs font-medium">
                 Import to: <WorkspaceSelector />
               </div>
             </div>
             <!-- Watch Mode -->
             <template v-if="prefetchResult?.url">
-              <div class="text-sm overflow-hidden mt-5 pt-4 border-t-1/2">
+              <div class="border-t-1/2 mt-5 overflow-hidden pt-4 text-sm">
                 <div class="flex items-center justify-center">
                   <WatchModeToggle
                     v-model="watchMode"
                     :disableToolTip="true" />
                 </div>
                 <div
-                  class="pt-0 text-center text-balance font-medium text-xs text-c-3">
+                  class="text-c-3 text-balance pt-0 text-center text-xs font-medium">
                   Automatically update your API client when the OpenAPI document
                   content changes.
                 </div>
@@ -313,10 +314,10 @@ function handleImportFinished() {
         </template>
       </div>
       <!-- Download Link -->
-      <div class="flex flex-col justify-center items-center pb-8">
-        <div class="text-center flex items-center flex-col">
+      <div class="flex flex-col items-center justify-center pb-8">
+        <div class="flex flex-col items-center text-center">
           <div
-            class="mb-2 w-10 h-10 border rounded-[10px] flex items-center justify-center">
+            class="mb-2 flex h-10 w-10 items-center justify-center rounded-[10px] border">
             <a
               href="https://scalar.com/download"
               target="_blank">
@@ -325,9 +326,9 @@ function handleImportFinished() {
                 size="xl" />
             </a>
           </div>
-          <span class="text-c-2 leading-snug text-sm font-medium">
+          <span class="text-c-2 text-sm font-medium leading-snug">
             <a
-              class="hover:text-c-1 underline-offset-2 mb-1 inline-block"
+              class="hover:text-c-1 mb-1 inline-block underline-offset-2"
               href="https://scalar.com/download"
               target="_blank">
               Download Desktop App
